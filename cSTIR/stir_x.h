@@ -5,8 +5,6 @@
 #include "stir.h"
 #include "stir_p.h"
 
-#define CAST_PTR(T, X, Y) T* X = (T*)Y
-
 class xSTIR_IterativeReconstruction3DF :
 	public IterativeReconstruction<Image3DF> {
 public:
@@ -97,7 +95,9 @@ inline bool xSTIR_setupObjectiveFunction(void* ptr)
 
 inline Succeeded xSTIR_setupReconstruction(void* ptr, sptrImage3DF const& image)
 {
-	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+	//CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
 	// not needed - default is non-zero string ("1") anyway
 	//recon->set_initial_estimate_file("dummy.hv");
 	Succeeded s = Succeeded::no;
@@ -110,19 +110,25 @@ inline Succeeded xSTIR_setupReconstruction(void* ptr, sptrImage3DF const& image)
 
 inline void xSTIR_updateReconstruction(void* ptr, Image3DF& image) 
 {
-	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+	//CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
 	recon->update(image);
 }
 
 inline int& xSTIR_subiteration(void* ptr) 
 {
 	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+	//CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+	//xSTIR_IterativeReconstruction3DF* recon = sptr->get();
 	return recon->subiteration();
 }
 
 inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename) 
 {
 	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+	//CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+	//xSTIR_IterativeReconstruction3DF* recon = sptr->get();
 	recon->set_initial_estimate_file(filename);
 }
 

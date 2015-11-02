@@ -3,6 +3,18 @@
 
 #include "dh.h"
 
+#define NEW(T, X) T* X = new T
+#define CAST_PTR(T, X, Y) T* X = (T*)Y
+#define NEW_SPTR(T, X, Y) boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new Y)
+
+template<class Base, class Object = Base>
+Object*
+objectFromHandle(const DataHandle* handle) {
+	CAST_PTR(boost::shared_ptr<Base>, sptr, handle->data());
+	CAST_PTR(Object, object, sptr->get());
+	return object;
+}
+
 void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

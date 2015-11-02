@@ -11,7 +11,7 @@ classdef ProjectorsUsingMatrix < handle
             self.matrix = [];
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
+            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'Projectors')
         end
         function set_matrix(self, matrix)
             stir.setParameter...

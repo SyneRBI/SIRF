@@ -5,16 +5,12 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
     end
     methods
         function self = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-            %fprintf('derived class constructor called\n')
             self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
-            calllib('mstir', 'mDeleteDataHandle', self.handle)
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
             self.projectors = [];
         end
         function delete(self)
-            %fprintf('derived class destructor called\n')
-            calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
-            self.handle = calllib('mstir', 'mNewDataHandle');
+            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'ObjectiveFunction')
         end
         function set_input_filename(self, filename)
             stir.setParameter(self.handle, self.name,...

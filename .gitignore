@@ -7,6 +7,9 @@
 *.userosscache
 *.sln.docstates
 *.asv
+*.mexw64
+*.pyd
+*.pyc
 
 # Build results
 [Dd]ebug/

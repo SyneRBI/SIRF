@@ -5,7 +5,7 @@ classdef QuadraticPrior < stir.GeneralisedPrior
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
+            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'Prior')
         end
     end
 end

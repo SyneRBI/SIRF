@@ -2051,3 +2051,75 @@ int cSTIR_getSubiteration(const void* ptr_r)
 
 //int
 
+//Method* recon; 
+
+//Method* recon = new Method(parFile);
+
+//Method* recon = new Method();
+
+//boost::shared_ptr<Base>* pp = new boost::shared_ptr<Base>(new Object());
+
+//else if (boost::iequals(name,
+//	"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+//	deleteObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
+//	(handle);
+
+//else if (boost::iequals(name, "ProjectorsUsingMatrix"))
+//	deleteObjectHandle<ProjectorByBinPair>(handle);
+
+//else if (boost::iequals(name, "RayTracingMatrix"))
+//	deleteObjectHandle<ProjMatrixByBin>(handle);
+
+//else if (boost::iequals(name, "QuadraticPrior"))
+//	deleteObjectHandle< GeneralisedPrior<Image3DF> >(handle);
+
+//else if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
+//	deleteObjectHandle< DataProcessor<Image3DF> >(handle);
+
+//else if (boost::iequals(name, "EllipsoidalCylinder"))
+//	deleteObjectHandle<Shape3D>(handle);
+
+//CAST_PTR(Reconstruction<Image3DF>, recon, hr->data());
+
+//extern "C"
+//void cSTIR_deleteReconstruction(void* ptr_r)
+//{
+//	if (!ptr_r)
+//		return;
+//	CAST_PTR(DataHandle, hr, ptr_r);
+//	//CAST_PTR(Reconstruction<Image3DF>, recon, hr->data());
+//	CAST_PTR(boost::shared_ptr<Reconstruction<Image3DF> >, recon, hr->data());
+//	delete recon;
+//	delete hr;
+//}
+
+//CAST_PTR(IterativeReconstruction<Image3DF>, recon, hr->data());
+
+//template<class Base, class Object = Base>
+////static 
+//Object*
+//objectFromHandle(const DataHandle* handle) {
+//	CAST_PTR(boost::shared_ptr<Base>, sptr, handle->data());
+//	CAST_PTR(Object, object, sptr->get());
+//	return object;
+//}
+
+//CAST_PTR(Reconstruction<Image3DF>, recon, hp->data());
+
+//CAST_PTR(IterativeReconstruction<Image3DF>, recon, hp->data());
+
+//xSTIR_set_initial_estimate_file(hp->data(), (char*)hv->data());
+
+//CAST_PTR(IterativeReconstruction<Image3DF>, recon, handle->data());
+
+//CAST_PTR(OSMAPOSLReconstruction<Image3DF>, recon, hp->data());
+
+//CAST_PTR(OSMAPOSLReconstruction<Image3DF>, recon, handle->data());
+
+//CAST_PTR(xSTIR_OSSPSReconstruction3DF, recon, hp->data());
+
+//CAST_PTR(OSSPSReconstruction<Image3DF>, recon, handle->data());
+
+//CAST_PTR(boost::shared_ptr< Reconstruction<Image3DF> >, sptr, hr->data());
+//CAST_PTR(Reconstruction<Image3DF>, recon, sptr->get());
+

@@ -4,12 +4,8 @@
 #include "cstir.h"
 #include "dh.h"
 #include "stir.h"
+#include "stir_p.h"
 #include "stir_x.h"
-
-#define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define NEW(T, X) T* X = new T
-
-typedef CartesianCoordinate3D<float> Coord3DF;
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
@@ -54,14 +50,6 @@ wrongFloatParameterValue
 	char buff[32];
 	sprintf(buff, "%f", value);
 	return wrongParameterValue(name, buff, file, line);
-}
-
-template<class Base, class Object = Base>
-static Object*
-objectFromHandle(const DataHandle* handle) {
-	CAST_PTR(boost::shared_ptr<Base>, sptr, handle->data());
-	CAST_PTR(Object, object, sptr->get());
-	return object;
 }
 
 void*
@@ -301,7 +289,8 @@ void*
 cSTIR_setReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	CAST_PTR(Reconstruction<Image3DF>, recon, hp->data());
+	Reconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "output_filename_prefix"))
 		recon->set_output_filename_prefix((char*)hv->data());
 	else
@@ -313,7 +302,9 @@ void*
 cSTIR_setIterativeReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	CAST_PTR(IterativeReconstruction<Image3DF>, recon, hp->data());
+	IterativeReconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF>, 
+		IterativeReconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "inter_iteration_filter_type")) {
 		CAST_PTR(boost::shared_ptr<DataProcessor<Image3DF> >, sptr, hv->data());
 		recon->set_inter_iteration_filter_ptr(*sptr);
@@ -323,8 +314,9 @@ cSTIR_setIterativeReconstructionParameter
 			sptr, hv->data());
 		recon->set_objective_function_sptr(*sptr);
 	}
-	else if (boost::iequals(name, "initial_estimate"))
-		xSTIR_set_initial_estimate_file(hp->data(), (char*)hv->data());
+	else if (boost::iequals(name, "initial_estimate")) {
+		xSTIR_set_initial_estimate_file(recon, (char*)hv->data());
+	}
 	else {
 		int value = intDataFromHandle((void*)hv);
 		if (boost::iequals(name, "num_subsets")) {
@@ -384,7 +376,9 @@ cSTIR_setIterativeReconstructionParameter
 void*
 cSTIR_iterativeReconstructionParameter(const DataHandle* handle, std::string name)
 {
-	CAST_PTR(IterativeReconstruction<Image3DF>, recon, handle->data());
+	IterativeReconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF>,
+		IterativeReconstruction<Image3DF> >(handle);
 	if (boost::iequals(name, "num_subsets"))
 		return intDataHandle(recon->get_num_subsets());
 	if (boost::iequals(name, "start_subset_num"))
@@ -409,7 +403,9 @@ void*
 cSTIR_setOSMAPOSLParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	CAST_PTR(OSMAPOSLReconstruction<Image3DF>, recon, hp->data());
+	OSMAPOSLReconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF>,
+		OSMAPOSLReconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "MAP_model"))
 		recon->set_MAP_model((char*)hv->data());
 	else
@@ -420,14 +416,18 @@ cSTIR_setOSMAPOSLParameter
 void* 
 cSTIR_OSMAPOSLParameter(const DataHandle* handle, std::string name)
 {
-	CAST_PTR(OSMAPOSLReconstruction<Image3DF>, recon, handle->data());
+	OSMAPOSLReconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF>,
+		OSMAPOSLReconstruction<Image3DF> >(handle);
 	return parameterNotFound(name.c_str(), __FILE__, __LINE__);
 }
 
 void*
 cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	CAST_PTR(xSTIR_OSSPSReconstruction3DF, recon, hp->data());
+	xSTIR_OSSPSReconstruction3DF* recon =
+		objectFromHandle< Reconstruction<Image3DF>,
+		xSTIR_OSSPSReconstruction3DF >(hp);
 	if (boost::iequals(name, "relaxation_parameter"))
 		recon->relaxation_parameter_value() = floatDataFromHandle(hv);
 	else
@@ -438,7 +438,9 @@ cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 void* 
 cSTIR_OSSPSParameter(const DataHandle* handle, std::string name)
 {
-	CAST_PTR(OSSPSReconstruction<Image3DF>, recon, handle->data());
+	xSTIR_OSSPSReconstruction3DF* recon =
+		objectFromHandle< Reconstruction<Image3DF>,
+		xSTIR_OSSPSReconstruction3DF >(handle);
 	return parameterNotFound(name.c_str(), __FILE__, __LINE__);
 }
 

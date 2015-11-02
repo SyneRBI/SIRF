@@ -83,7 +83,8 @@ class EllipsoidalCylinder(Shape):
         self.name = 'EllipsoidalCylinder'
         self.handle = pystir.cSTIR_newObject(self.name)
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'Shape')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
     def set_length(self, value):
         _set_float_par(self.handle, self.name, 'length', value)
     def get_length(self):
@@ -186,7 +187,8 @@ class TruncateToCylindricalFOVImageProcessor:
         self.name = 'TruncateToCylindricalFOVImageProcessor'
         self.handle = pystir.cSTIR_newObject(self.name);
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
 
 class ProjectorsUsingMatrix:
     def __init__(self):
@@ -194,7 +196,8 @@ class ProjectorsUsingMatrix:
         self.handle = pystir.cSTIR_newObject(self.name);
         self.matrix = None
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'Projectors')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
     def set_matrix(self, matrix):
         _setParameter(self.handle, self.name, 'matrix_type', matrix.handle)
         self.matrix = matrix
@@ -210,7 +213,8 @@ class RayTracingMatrix:
         self.handle = pystir.cSTIR_newObject(self.name);
         _check_status(self.handle)
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'ProjMatrix')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
     def set_num_tangential_LORs(self, value):
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
     def get_num_tangential_LORs(self):
@@ -234,7 +238,8 @@ class QuadraticPrior(GeneralisedPrior):
         self.name = 'QuadraticPrior'
         self.handle = pystir.cSTIR_newObject(self.name);
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'Prior')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
 
 class GeneralisedObjectiveFunction:
     def __init__(self):
@@ -276,7 +281,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         self.handle = pystir.cSTIR_newObject(self.name);
         self.projectors = None
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, self.name)
+        pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
+##        pystir.cSTIR_deleteObject(self.handle, self.name)
     def set_input_filename(self, name):
         _set_char_par\
             (self.handle, self.name, 'input_filename', name)
@@ -368,7 +374,8 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         self.ok = True
     def __del__(self):
         if self.ok:
-            pystir.cSTIR_deleteReconstruction(self.handle)
+            pystir.cSTIR_deleteObject(self.handle, 'Reconstruction')
+##            pystir.cSTIR_deleteReconstruction(self.handle)
     def set_MAP_model(self, model):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
@@ -383,7 +390,8 @@ class OSSPSReconstruction(IterativeReconstruction):
         self.ok = True
     def __del__(self):
         if self.ok:
-            pystir.cSTIR_deleteReconstruction(self.handle)
+            pystir.cSTIR_deleteObject(self.handle, 'Reconstruction')
+##            pystir.cSTIR_deleteReconstruction(self.handle)
     def set_relaxation_parameter(self, value):
         _set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)

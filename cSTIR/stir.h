@@ -48,12 +48,10 @@
 USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;
-//typedef boost::shared_ptr<Image3DF> ptrImage3DF;
 typedef boost::shared_ptr<Image3DF> sptrImage3DF;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
 typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;
 typedef boost::shared_ptr<Shape3D> sptrShape3D;
-
 
 #endif
