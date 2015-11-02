@@ -78,15 +78,15 @@ try:
               recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
-        # plot the current image
-        data = image.density()
-        pylab.figure(iter)
-        pylab.imshow(data[10,:,:])
+##        # plot the current image
+##        data = image.density()
+##        pylab.figure(iter)
+##        pylab.imshow(data[10,:,:])
 
     elapsed_time = time.time() - start_time
     print('elapsed time:', elapsed_time)
 
-    pylab.show()
+##    pylab.show()
 
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image('test_image_PM_QP_6.hv')

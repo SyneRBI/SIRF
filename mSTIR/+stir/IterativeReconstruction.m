@@ -1,80 +1,74 @@
 classdef IterativeReconstruction < stir.Reconstruction
+    properties (Constant)
+        IR = 'IterativeReconstruction';
+    end
     properties
         obj_fun
-        name_
     end
     methods
         function self = IterativeReconstruction()
             self.obj_fun = [];
-            self.name_ = 'IterativeReconstruction';
         end
         function set_num_subsets(self, n)
-            stir.setParameter(self.handle, self.name_, 'num_subsets', n, 'i')
-%             stir.setParameter(self.handle,...
-%                 'IterativeReconstruction', 'num_subsets', n, 'i')
+            stir.setParameter(self.handle, self.IR, 'num_subsets', n, 'i')
         end
         function n = get_num_subsets(self)
-            n = stir.parameter(self.handle, self.name_, 'num_subsets', 'i');
-%             n = stir.parameter(self.handle,...
-%                 'IterativeReconstruction', 'num_subsets', 'i');
+            n = stir.parameter(self.handle, self.IR, 'num_subsets', 'i');
         end
         function set_start_subset_num(self, n)
             stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'start_subset_num', n, 'i')
+                self.IR, 'start_subset_num', n, 'i')
         end
         function n = get_start_subset_num(self)
             n = stir.parameter(self.handle,...
-                'IterativeReconstruction', 'start_subset_num', 'i');
+                self.IR, 'start_subset_num', 'i');
         end
         function set_num_subiterations(self, n)
             stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'num_subiterations', n, 'i')
+                self.IR, 'num_subiterations', n, 'i')
         end
         function n = get_num_subiterations(self)
             n = stir.parameter(self.handle,...
-                'IterativeReconstruction', 'num_subiterations', 'i');
+                self.IR, 'num_subiterations', 'i');
         end
         function set_start_subiteration_num(self, n)
             stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'start_subiteration_num', n, 'i')
+                self.IR, 'start_subiteration_num', n, 'i')
         end
         function n = get_start_subiteration_num(self)
             n = stir.parameter(self.handle,...
-                'IterativeReconstruction', 'start_subiteration_num', 'i');
+                self.IR, 'start_subiteration_num', 'i');
         end
         function set_subiteration_num(self, iter)
             stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'subiteration_num', iter, 'i')
+                self.IR, 'subiteration_num', iter, 'i')
         end
         function iter = get_subiteration_num(self)
             iter = stir.parameter(self.handle,...
-                'IterativeReconstruction', 'subiteration_num', 'i');
+                self.IR, 'subiteration_num', 'i');
         end
         function set_save_interval(self, n)
             stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'save_interval', n, 'i')
+                self.IR, 'save_interval', n, 'i')
         end
         function set_inter_iteration_filter_interval(self, n)
-            stir.setParameter(self.handle,...
-                'IterativeReconstruction',...
+            stir.setParameter(self.handle, self.IR,...
                 'inter_iteration_filter_interval', n, 'i')
         end
         function set_objective_function(self, obj_fun)
-            stir.setParameter(self.handle,...
-                'IterativeReconstruction',...
+            stir.setParameter(self.handle, self.IR,...
                 'objective_function', obj_fun.handle, 'h')
             self.obj_fun = obj_fun;
         end
         function obj_fun = get_objective_function(self)
             obj_fun = self.obj_fun;
             if isempty(obj_fun)
-                error('IterativeReconstruction:no_obj_fun_set',...
-                    'IterativeReconstruction: no objective function set')
+                error([self.IR ':no_obj_fun_set'],...
+                    [self.IR ': no objective function set'])
             end
         end
         function set_inter_iteration_filter(self, filter)
-            stir.setParameter(self.handle,...
-                'IterativeReconstruction',...
+            stir.setParameter(self.handle, self.IR,...
                 'inter_iteration_filter_type', filter.handle, 'h')
         end
         function set_up(self, image)

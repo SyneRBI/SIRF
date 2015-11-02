@@ -12,7 +12,6 @@ extern "C" {
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_reconstruct(void* ptr_r, void* ptr_i);
 	void* cSTIR_update(void* ptr_r, void* ptr_i);
-	void cSTIR_deleteReconstruction(void* ptr_r);
 #ifndef CSTIR_FOR_MATLAB
 	void cSTIR_getImageDimensions(const void* ptr, size_t pd);
 	void cSTIR_getImageData(const void* ptr, size_t pd);

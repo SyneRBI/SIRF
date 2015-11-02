@@ -32,9 +32,6 @@ EXPORTED_FUNCTION void* mSTIR_reconstruct(void* ptr_r, void* ptr_i) {
 EXPORTED_FUNCTION void* mSTIR_update(void* ptr_r, void* ptr_i) {
 	return cSTIR_update(ptr_r, ptr_i);
 }
-EXPORTED_FUNCTION void mSTIR_deleteReconstruction(void* ptr_r) {
-	cSTIR_deleteReconstruction(ptr_r);
-}
 #ifndef CSTIR_FOR_MATLAB
 EXPORTED_FUNCTION void mSTIR_getImageDimensions(const void* ptr, size_t pd) {
 	cSTIR_getImageDimensions(ptr, pd);

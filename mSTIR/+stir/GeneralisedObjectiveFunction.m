@@ -6,13 +6,7 @@ classdef GeneralisedObjectiveFunction < handle
     end
     methods
         function self = GeneralisedObjectiveFunction()
-            %fprintf('base class costructor called\n')
-            self.handle = calllib('mstir', 'mNewDataHandle');
             self.prior = [];
-        end
-        function delete(self)
-            %fprintf('base class destructor called\n')
-            calllib('mstir', 'mDeleteDataHandle', self.handle)
         end
         function set_prior(self, prior)
             stir.setParameter...

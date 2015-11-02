@@ -3,21 +3,20 @@
 #include "stir_p.h"
 #include "stir_x.h"
 
-#define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define NEW_SPTR(T, X, ARG) boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new T ARG)
-
 template<class Method>
 void* 
 cSTIR_newReconstructionMethod(const char* parFile) 
 {
 	DataHandle* handle = new DataHandle;
 	try {
-		Method* recon; 
-		if (strlen(parFile) > 0)
-			recon = new Method(parFile);
-		else
-			recon = new Method();
-		handle->set((void*)recon, 0);
+		if (strlen(parFile) > 0) {
+			NEW_SPTR(Reconstruction<Image3DF>, recon, Method(parFile));
+			handle->set((void*)recon, 0);
+		}
+		else {
+			NEW_SPTR(Reconstruction<Image3DF>, recon, Method());
+			handle->set((void*)recon, 0);
+		}
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
@@ -35,7 +34,7 @@ static void*
 newObjectHandle()
 {
 	DataHandle* handle = new DataHandle;
-	boost::shared_ptr<Base>* pp = new boost::shared_ptr<Base>(new Object());
+	NEW_SPTR(Base, pp, Object());
 	handle->set((void*)pp, 0);
 	return (void*)handle;
 }
@@ -96,24 +95,25 @@ extern "C"
 void cSTIR_deleteObject(void* ptr, const char* name)
 {
 	CAST_PTR(DataHandle, handle, ptr);
-	if (boost::iequals(name,
-		"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+	if (boost::iequals(name, "ObjectiveFunction"))
 		deleteObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
 		(handle);
-	else if (boost::iequals(name, "ProjectorsUsingMatrix"))
+	else if (boost::iequals(name, "Projectors"))
 		deleteObjectHandle<ProjectorByBinPair>(handle);
-	else if (boost::iequals(name, "RayTracingMatrix"))
+	else if (boost::iequals(name, "ProjMatrix"))
 		deleteObjectHandle<ProjMatrixByBin>(handle);
-	else if (boost::iequals(name, "QuadraticPrior"))
-		deleteObjectHandle<GeneralisedPrior<Image3DF> >(handle);
-	else if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
-		deleteObjectHandle<DataProcessor<Image3DF> >(handle);
-	else if (boost::iequals(name, "EllipsoidalCylinder"))
+	else if (boost::iequals(name, "Prior"))
+		deleteObjectHandle< GeneralisedPrior<Image3DF> >(handle);
+	else if (boost::iequals(name, "DataProcessor"))
+		deleteObjectHandle< DataProcessor<Image3DF> >(handle);
+	else if (boost::iequals(name, "Shape"))
 		deleteObjectHandle<Shape3D>(handle);
 	else if (boost::iequals(name, "Image"))
 		deleteObjectHandle<sptrImage3DF>(handle);
 	else if (boost::iequals(name, "Voxels"))
 		deleteObjectHandle<sptrVoxels3DF>(handle);
+	else if (boost::iequals(name, "Reconstruction"))
+		deleteObjectHandle< Reconstruction<Image3DF> >(handle);
 }
 
 extern "C"
@@ -201,10 +201,8 @@ void* cSTIR_setupObject(const char* obj, void* ptr_obj)
 	DataHandle* handle = new DataHandle;
 	try {
 		bool status = 1;
-		//if (boost::iequals(obj, "prior"))
 		if (boost::iequals(obj, "GeneralisedPrior"))
 			status = xSTIR_setupPrior(ho->data());
-		//else if (boost::iequals(obj, "objective_function"))
 		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			status = xSTIR_setupObjectiveFunction(ho->data());
 		if (status) {
@@ -254,8 +252,9 @@ extern "C"
 void* cSTIR_reconstruct(void* ptr_r, void* ptr_i) 
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
+	Reconstruction<Image3DF>* recon =
+		objectFromHandle< Reconstruction<Image3DF> >(hr);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(Reconstruction<Image3DF>, recon, hr->data());
 	CAST_PTR(sptrImage3DF, image, hi->data());
 	DataHandle* handle = new DataHandle;
 	try {
@@ -277,22 +276,10 @@ void* cSTIR_reconstruct(void* ptr_r, void* ptr_i)
 }
 
 extern "C"
-void cSTIR_deleteReconstruction(void* ptr_r)
-{
-	if (!ptr_r)
-		return;
-	CAST_PTR(DataHandle, hr, ptr_r);
-	CAST_PTR(Reconstruction<Image3DF>, recon, hr->data());
-	delete recon;
-	delete hr;
-}
-
-extern "C"
 void* cSTIR_update(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(IterativeReconstruction<Image3DF>, recon, hr->data());
 	CAST_PTR(sptrImage3DF, image, hi->data());
 	DataHandle* handle = new DataHandle;
 	try {

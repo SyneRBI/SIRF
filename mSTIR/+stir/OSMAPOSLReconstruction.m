@@ -15,7 +15,8 @@ classdef OSMAPOSLReconstruction < stir.IterativeReconstruction
             stir.checkExecutionStatus(self.name, self.handle);
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteReconstruction', self.handle)
+            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'Reconstruction')
+            %calllib('mstir', 'mSTIR_deleteReconstruction', self.handle)
         end
         function set_MAP_model(self, model)
             stir.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
