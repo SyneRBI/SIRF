@@ -1,18 +1,22 @@
 classdef IterativeReconstruction < stir.Reconstruction
     properties
         obj_fun
+        name_
     end
     methods
         function self = IterativeReconstruction()
             self.obj_fun = [];
+            self.name_ = 'IterativeReconstruction';
         end
         function set_num_subsets(self, n)
-            stir.setParameter(self.handle,...
-                'IterativeReconstruction', 'num_subsets', n, 'i')
+            stir.setParameter(self.handle, self.name_, 'num_subsets', n, 'i')
+%             stir.setParameter(self.handle,...
+%                 'IterativeReconstruction', 'num_subsets', n, 'i')
         end
         function n = get_num_subsets(self)
-            n = stir.parameter(self.handle,...
-                'IterativeReconstruction', 'num_subsets', 'i');
+            n = stir.parameter(self.handle, self.name_, 'num_subsets', 'i');
+%             n = stir.parameter(self.handle,...
+%                 'IterativeReconstruction', 'num_subsets', 'i');
         end
         function set_start_subset_num(self, n)
             stir.setParameter(self.handle,...
