@@ -989,3 +989,32 @@ projectors = stir.Projectors('projectors_parameters.par')
 
 ##            raise error('IterativeReconstruction: no filter set')
 
+##    numpy.subtract(data_x, data)
+##    print(data_x.max())
+##    print(data_x.argmax())
+
+    done = False
+    for ix in range(nx):
+        for iy in range(ny):
+            for iz in range(nz):
+                if data_x[iz, iy, ix] != data[iz, iy, ix]:
+                    print(ix, iy, iz, data[iz, iy, ix], data_x[iz, iy, ix])
+                    done = True
+                    break
+            if done:
+                break
+        if done:
+            break
+
+    while True:
+        ix = int(input('ix: '))
+        if ix < 0:
+            break
+        iy = int(input('iy: '))
+        if iy < 0:
+            break
+        iz = int(input('iz: '))
+        if iz < 0:
+            break
+        print(data[iz, iy, ix], data_x[iz, iy, ix])
+

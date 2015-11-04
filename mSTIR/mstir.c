@@ -20,17 +20,20 @@ EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr, const char* name) {
 EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj) {
 	return cSTIR_setupObject(obj, ptr_obj);
 }
+EXPORTED_FUNCTION void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
+	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
+}
 EXPORTED_FUNCTION void* mSTIR_newReconstruction(const char* method, const char* filename) {
 	return cSTIR_newReconstruction(method, filename);
 }
 EXPORTED_FUNCTION void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);
 }
-EXPORTED_FUNCTION void* mSTIR_reconstruct(void* ptr_r, void* ptr_i) {
-	return cSTIR_reconstruct(ptr_r, ptr_i);
+EXPORTED_FUNCTION void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i) {
+	return cSTIR_runReconstruction(ptr_r, ptr_i);
 }
-EXPORTED_FUNCTION void* mSTIR_update(void* ptr_r, void* ptr_i) {
-	return cSTIR_update(ptr_r, ptr_i);
+EXPORTED_FUNCTION void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i) {
+	return cSTIR_updateReconstruction(ptr_r, ptr_i);
 }
 #ifndef CSTIR_FOR_MATLAB
 EXPORTED_FUNCTION void mSTIR_getImageDimensions(const void* ptr, size_t pd) {
@@ -55,6 +58,9 @@ EXPORTED_FUNCTION void* mSTIR_imageFromVoxels(void* ptr_v) {
 }
 EXPORTED_FUNCTION void* mSTIR_imageFromFile(const char* filename) {
 	return cSTIR_imageFromFile(filename);
+}
+EXPORTED_FUNCTION void mSTIR_fillImage(void* ptr_i, double v) {
+	cSTIR_fillImage(ptr_i, v);
 }
 EXPORTED_FUNCTION void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_v, ptr_s, v);

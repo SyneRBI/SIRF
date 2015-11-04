@@ -78,12 +78,13 @@ classdef IterativeReconstruction < stir.Reconstruction
             calllib('mstir', 'mDeleteDataHandle', h)
         end
         function update(self, image)
-            h = calllib('mstir', 'mSTIR_update', self.handle, image.handle);
+            h = calllib('mstir', 'mSTIR_updateReconstruction',...
+                self.handle, image.handle);
             stir.checkExecutionStatus('update', h)
             calllib('mstir', 'mDeleteDataHandle', h)
         end
         function reconstruct(self, image)
-            h = calllib('mstir', 'mSTIR_reconstruct',...
+            h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
             stir.checkExecutionStatus('reconstruct', h)
             calllib('mstir', 'mDeleteDataHandle', h)

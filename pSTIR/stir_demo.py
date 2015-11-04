@@ -26,6 +26,8 @@ try:
 
     # create filter
     filter = stir.TruncateToCylindricalFOVImageProcessor()
+##    flag = filter.get_strictly_less_than_radius()
+##    print(flag)
 
     # create objective function
     obj_fun =\
@@ -54,8 +56,22 @@ try:
     recon.set_objective_function(obj_fun)
 
     # read an initial estimate for the reconstructed image from a file
-    image = stir.Image('my_uniform_image_circular.hv')
+    #image = stir.Image('my_uniform_image_circular.hv')
     #image.read_from_file('my_uniform_image_circular.hv')
+    voxel_dim = (60, 60, 31)
+    voxel_size = (4.44114, 4.44114, 3.375)
+    image = stir.Image()
+    image.initialise(voxel_dim, voxel_size)
+    image.fill(1.0)
+    filter.set_strictly_less_than_radius(False)
+    filter.apply(image)
+    filter.set_strictly_less_than_radius(True)
+
+##    # plot the current image
+##    data = image.density()
+##    pylab.figure(100)
+##    pylab.imshow(data[10,:,:])
+##    pylab.show()
 
     # set up the reconstructor
     recon.set_up(image)

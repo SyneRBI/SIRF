@@ -110,9 +110,15 @@ int convert_c(const string& in, string& out) {
 
 }
 
-int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
+int c2m(
+	const string& path, 
+	const string& chfile, 
+	const string& mhfile, 
+	const string& mcfile) 
+{
 
 	ifstream fin;
+	ofstream fout;
 	ofstream fh;
 	ofstream fc;
 	string in;
@@ -120,9 +126,9 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 	string line;
 	int status;
 
-	fin.open(chfile, ios::in);
+	fin.open(path + chfile, ios::in);
 	if (!fin) {
-		cout << "file " << chfile << " not found" << endl;
+		cout << "file " << path + chfile << " not found" << endl;
 		return -1;
 	}
 
@@ -144,8 +150,12 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 		return -2;
 	}
 
+	fout.open(chfile, ios::out);
 	fh.open(mhfile, ios::out);
 	fc.open(mcfile, ios::out);
+
+	fout << "#ifndef CSTIR_INTERFACE" << endl;
+	fout << "#define CSTIR_INTERFACE" << endl << endl;
 
 	fh << "#ifndef CSTIR_TO_MATLAB_INTERFACE" << endl;
 	fh << "#define CSTIR_TO_MATLAB_INTERFACE" << endl << endl;
@@ -163,14 +173,14 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 	i = in.find_first_not_of(" \t\n\v\f\r");
 	if (i == string::npos)
 		in.clear();
-	//else
-	//	cout << in << endl;
+	else
+		fout << in << endl;
 
 	for (;;) {
 		i = in.find(';');
 		while (i == string::npos) {
 			getline(fin, line);
-			cout << line << endl;
+			//fout << line << endl;
 			if (fin.eof())
 				break;
 			m = line.find("//");
@@ -193,7 +203,7 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 			in.clear();
 			continue;
 		}
-		//cout << in << endl;
+		fout << in << endl;
 		if (i != string::npos) {
 			status = convert_h(in, out);
 			if (status) {
@@ -220,6 +230,8 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 			in.clear();
 	}
 
+	fout << endl << "#endif" << endl;
+
 	fh << endl;
 	fh << "EXPORTED_FUNCTION void* mNewMexPrinter();" << endl;
 	fh << "EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);" << endl;
@@ -237,6 +249,7 @@ int c2m(const string& chfile, const string& mhfile, const string& mcfile) {
 	fc << " {}" << endl;
 
 	fin.close();
+	fout.close();
 	fh.close();
 	fc.close();
 	return 0;

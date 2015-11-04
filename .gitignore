@@ -233,3 +233,16 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.mexw64
+pSTIR/pystir_wrap.cxx
+*.pyd
+pSTIR/__pycache__/pystir.cpython-34.pyc
+*.pyc
+*.mat
+*.mexw64
+*.ahv
+pSTIR/my_uniform_image.hv
+*.v
+pSTIR/pystir_wrap.cxx
+*.pyc
+*.pyd

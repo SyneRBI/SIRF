@@ -43,9 +43,13 @@ void*
 cSTIR_projectorsUsingMatrixParameter
 (const DataHandle* handle, const char* name);
 
-//int
-//cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
-//(DataHandle* hp, const char* name, const DataHandle* hv);
+void*
+cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
+cSTIR_truncateToCylindricalFOVImageProcessorParameter
+(DataHandle* handle, const char* name);
 
 void*
 cSTIR_setGeneralisedPriorParameter

@@ -8,10 +8,11 @@ extern "C" {
 	void* cSTIR_newObject(const char* name);
 	void cSTIR_deleteObject(void* ptr, const char* name);
 	void* cSTIR_setupObject(const char* obj, void* ptr_obj);
+	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 	void* cSTIR_newReconstruction(const char* method, const char* filename);
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
-	void* cSTIR_reconstruct(void* ptr_r, void* ptr_i);
-	void* cSTIR_update(void* ptr_r, void* ptr_i);
+	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
+	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 #ifndef CSTIR_FOR_MATLAB
 	void cSTIR_getImageDimensions(const void* ptr, size_t pd);
 	void cSTIR_getImageData(const void* ptr, size_t pd);
@@ -23,6 +24,7 @@ extern "C" {
 		double sx, double sy, double sz, double x, double y, double z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromFile(const char* filename);
+	void cSTIR_fillImage(void* ptr_i, double v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
 	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 
