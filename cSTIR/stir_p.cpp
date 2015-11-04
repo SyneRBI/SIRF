@@ -130,6 +130,34 @@ cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	CAST_PTR(boost::shared_ptr<TruncateToCylindricalFOVImageProcessor<float> >,
+		sptr_p, hp->data());
+	if (boost::iequals(name, "strictly_less_than_radius")) {
+		(*sptr_p)->set_strictly_less_than_radius
+			(boost::iequals((char*)hv->data(), "true"));
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_truncateToCylindricalFOVImageProcessorParameter
+(DataHandle* handle, const char* name)
+{
+	CAST_PTR(boost::shared_ptr<TruncateToCylindricalFOVImageProcessor<float> >,
+		sptr_p, handle->data());
+	if (boost::iequals(name, "strictly_less_than_radius")) {
+		return intDataHandle((*sptr_p)->get_strictly_less_than_radius());
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 cSTIR_setRayTracingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

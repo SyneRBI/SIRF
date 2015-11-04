@@ -111,6 +111,10 @@ def cSTIR_setupObject(obj, ptr_obj):
     return _pystir.cSTIR_setupObject(obj, ptr_obj)
 cSTIR_setupObject = _pystir.cSTIR_setupObject
 
+def cSTIR_applyDataProcessor(ptr_p, ptr_d):
+    return _pystir.cSTIR_applyDataProcessor(ptr_p, ptr_d)
+cSTIR_applyDataProcessor = _pystir.cSTIR_applyDataProcessor
+
 def cSTIR_newReconstruction(method, filename):
     return _pystir.cSTIR_newReconstruction(method, filename)
 cSTIR_newReconstruction = _pystir.cSTIR_newReconstruction
@@ -119,17 +123,13 @@ def cSTIR_setupReconstruction(ptr_r, ptr_i):
     return _pystir.cSTIR_setupReconstruction(ptr_r, ptr_i)
 cSTIR_setupReconstruction = _pystir.cSTIR_setupReconstruction
 
-def cSTIR_reconstruct(ptr_r, ptr_i):
-    return _pystir.cSTIR_reconstruct(ptr_r, ptr_i)
-cSTIR_reconstruct = _pystir.cSTIR_reconstruct
+def cSTIR_runReconstruction(ptr_r, ptr_i):
+    return _pystir.cSTIR_runReconstruction(ptr_r, ptr_i)
+cSTIR_runReconstruction = _pystir.cSTIR_runReconstruction
 
-def cSTIR_update(ptr_r, ptr_i):
-    return _pystir.cSTIR_update(ptr_r, ptr_i)
-cSTIR_update = _pystir.cSTIR_update
-
-def cSTIR_deleteReconstruction(ptr_r):
-    return _pystir.cSTIR_deleteReconstruction(ptr_r)
-cSTIR_deleteReconstruction = _pystir.cSTIR_deleteReconstruction
+def cSTIR_updateReconstruction(ptr_r, ptr_i):
+    return _pystir.cSTIR_updateReconstruction(ptr_r, ptr_i)
+cSTIR_updateReconstruction = _pystir.cSTIR_updateReconstruction
 
 def cSTIR_getImageDimensions(ptr, pd):
     return _pystir.cSTIR_getImageDimensions(ptr, pd)
@@ -150,6 +150,10 @@ cSTIR_imageFromVoxels = _pystir.cSTIR_imageFromVoxels
 def cSTIR_imageFromFile(filename):
     return _pystir.cSTIR_imageFromFile(filename)
 cSTIR_imageFromFile = _pystir.cSTIR_imageFromFile
+
+def cSTIR_fillImage(ptr_i, v):
+    return _pystir.cSTIR_fillImage(ptr_i, v)
+cSTIR_fillImage = _pystir.cSTIR_fillImage
 
 def cSTIR_addShape(ptr_i, ptr_v, ptr_s, v):
     return _pystir.cSTIR_addShape(ptr_i, ptr_v, ptr_s, v)

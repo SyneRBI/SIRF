@@ -75,11 +75,11 @@ try
         fprintf('\n--------------------- Subiteration %d\n',...
               recon.get_subiteration_num())
         recon.update(image)
-%         data = image.density();
-%         scale = 1.0/max(max(max(data)));
-%         figure(1000000 + iter)
-%         stir.show(data, scale, 10)
-%         drawnow
+        data = image.density();
+        scale = 1.0/max(max(max(data)));
+        figure(1000000 + iter)
+        stir.show(data, scale, 10)
+        drawnow
     end
     toc
 

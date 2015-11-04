@@ -67,7 +67,6 @@ unknownObject(const char* obj, const char* set, const char* file, int line)
 extern "C"
 void* cSTIR_newObject(const char* name)
 {
-	DataHandle* handle = new DataHandle;
 	if (boost::iequals(name,
 		"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 		return newObjectHandle<GeneralisedObjectiveFunction<Image3DF>,
@@ -126,6 +125,9 @@ void* cSTIR_setParameter
 		return cSTIR_setShapeParameter(hs, name, hv);
 	else if (boost::iequals(set, "EllipsoidalCylinder"))
 		return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
+	else if (boost::iequals(set, "TruncateToCylindricalFOVImageProcessor"))
+		return cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
+		(hs, name, hv);
 	else if (boost::iequals(set, "ProjectorsUsingMatrix"))
 		return cSTIR_setProjectorsUsingMatrixParameter(hs, name, hv);
 	else if (boost::iequals(set, "RayTracingMatrix"))
@@ -164,6 +166,9 @@ void* cSTIR_parameter(const void* ptr, const char* set, const char* name)
 		return cSTIR_shapeParameter(handle, name);
 	if (boost::iequals(set, "EllipsoidalCylinder"))
 		return cSTIR_ellipsoidalCylinderParameter(handle, name);
+	else if (boost::iequals(set, "TruncateToCylindricalFOVImageProcessor"))
+		return cSTIR_truncateToCylindricalFOVImageProcessorParameter
+		(handle, name);
 	if (boost::iequals(set, "RayTracingMatrix"))
 		return cSTIR_rayTracingMatrixParameter(handle, name);
 	if (boost::iequals(set, "ProjectorsUsingMatrix"))
@@ -223,6 +228,29 @@ void* cSTIR_setupObject(const char* obj, void* ptr_obj)
 }
 
 extern "C"
+void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d)
+{
+	CAST_PTR(DataHandle, hp, ptr_p);
+	CAST_PTR(DataHandle, hd, ptr_d);
+	DataHandle* handle = new DataHandle;
+	try {
+		DataProcessor<Image3DF>* proc = 
+			objectFromHandle<DataProcessor<Image3DF> >(hp);
+		CAST_PTR(sptrImage3DF, image, hd->data());
+		proc->apply(**image);
+	}
+	catch (StirException& se) {
+		ExecutionStatus status(se);
+		handle->set(0, &status);
+	}
+	catch (...) {
+		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+		handle->set(0, &status);
+	}
+	return (void*)handle;
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
@@ -249,7 +277,7 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 }
 
 extern "C"
-void* cSTIR_reconstruct(void* ptr_r, void* ptr_i) 
+void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i) 
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	Reconstruction<Image3DF>* recon =
@@ -276,7 +304,7 @@ void* cSTIR_reconstruct(void* ptr_r, void* ptr_i)
 }
 
 extern "C"
-void* cSTIR_update(void* ptr_r, void* ptr_i)
+void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	CAST_PTR(DataHandle, hi, ptr_i);
@@ -307,6 +335,7 @@ double x, double y, double z)
 			-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
 			Coord3DF((float)z, (float)y, (float)x),
 			Coord3DF((float)sz, (float)sy, (float)sx)));
+	(*sptr)->fill(0);
 	DataHandle* handle = new DataHandle;
 	handle->set((void*)sptr, 0);
 	return (void*)handle;
@@ -342,6 +371,15 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v)
 	image += voxels;
 
 	return new DataHandle;
+}
+
+extern "C"
+void cSTIR_fillImage(void* ptr_i, double v)
+{
+	CAST_PTR(DataHandle, hi, ptr_i);
+	CAST_PTR(sptrImage3DF, sptr_i, hi->data());
+	Image3DF& image = *sptr_i->get();
+	image.fill((float)v);
 }
 
 extern "C"

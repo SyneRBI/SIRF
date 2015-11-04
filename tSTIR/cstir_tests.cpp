@@ -59,9 +59,12 @@ void cstir_test1() {
 		std::cout << floatDataFromHandle(handle) << std::endl;
 		deleteDataHandle(handle);
 
-		handle = cSTIR_setupObject("prior", h_prior);
-		if (executionStatus(handle))
+		handle = cSTIR_setupObject("GeneralisedPrior", h_prior);
+		if (executionStatus(handle)) {
 			std::cout << executionError(handle) << std::endl;
+			deleteDataHandle(handle);
+			break;
+		}
 		deleteDataHandle(handle);
 
 		h_filter = cSTIR_newObject("TruncateToCylindricalFOVImageProcessor");
@@ -98,9 +101,12 @@ void cstir_test1() {
 			"projector_pair_type", h_proj))
 			break;
 
-		handle = cSTIR_setupObject("objective_function", h_obj);
-		if (executionStatus(handle))
+		handle = cSTIR_setupObject("GeneralisedObjectiveFunction", h_obj);
+		if (executionStatus(handle)) {
 			std::cout << executionError(handle) << std::endl;
+			deleteDataHandle(handle);
+			break;
+		}
 		deleteDataHandle(handle);
 
 		h_recon = cSTIR_newReconstruction("OSMAPOSL", "");
@@ -150,7 +156,7 @@ void cstir_test1() {
 				break;
 			}
 			deleteDataHandle(handle);
-			handle = cSTIR_reconstruct(h_recon, h_image);
+			handle = cSTIR_runReconstruction(h_recon, h_image);
 			if (executionStatus(handle)) {
 				std::cout << executionError(handle) << std::endl;
 				deleteDataHandle(handle);
@@ -180,15 +186,19 @@ void cstir_test1() {
 		break;
 	}
 
-	cSTIR_deleteObject(h_mx, "RayTracingMatrix");
-	cSTIR_deleteObject(h_proj, "ProjectorsUsingMatrix");
-	cSTIR_deleteObject(h_prior, "GeneralisedPrior");
+	//cSTIR_deleteObject(h_mx, "RayTracingMatrix");
+	//cSTIR_deleteObject(h_proj, "ProjectorsUsingMatrix");
+	//cSTIR_deleteObject(h_prior, "GeneralisedPrior");
 	//cSTIR_deleteObject(h_prior, "QuadraticPrior");
-	cSTIR_deleteObject
-		(h_filter, "TruncateToCylindricalFOVImageProcessor");
-	cSTIR_deleteObject
-		(h_obj, "PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
-	cSTIR_deleteReconstruction(h_recon);
+	cSTIR_deleteObject(h_filter, "DataProcessor");
+	//	(h_filter, "TruncateToCylindricalFOVImageProcessor");
+	//cSTIR_deleteObject
+	//	(h_obj, "PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
+	cSTIR_deleteObject(h_mx, "ProjMatrix");
+	cSTIR_deleteObject(h_proj, "Projectors");
+	cSTIR_deleteObject(h_prior, "Prior");
+	cSTIR_deleteObject(h_obj, "ObjectiveFunction");
+	cSTIR_deleteObject(h_recon, "Reconstruction");
 	cSTIR_deleteObject(h_image, "Image");
 	cSTIR_deleteObject(h_ximage, "Image");
 
@@ -310,7 +320,7 @@ void cstir_test2() {
 				break;
 			}
 			deleteDataHandle(handle);
-			handle = cSTIR_reconstruct(h_recon, h_image);
+			handle = cSTIR_runReconstruction(h_recon, h_image);
 			if (executionStatus(handle)) {
 				std::cout << executionError(handle) << std::endl;
 				deleteDataHandle(handle);
@@ -331,12 +341,11 @@ void cstir_test2() {
 		break;
 	}
 
-	cSTIR_deleteObject(h_mx, "RayTracingMatrix");
-	cSTIR_deleteObject(h_proj, "ProjectorsUsingMatrix");
-	cSTIR_deleteObject(h_prior, "QuadraticPrior");
-	cSTIR_deleteObject
-		(h_obj, "PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
-	cSTIR_deleteReconstruction(h_recon);
+	cSTIR_deleteObject(h_mx, "ProjMatrix");
+	cSTIR_deleteObject(h_proj, "Projectors");
+	cSTIR_deleteObject(h_prior, "Prior");
+	cSTIR_deleteObject(h_obj, "ObjectiveFunction");
+	cSTIR_deleteObject(h_recon, "Reconstruction");
 	cSTIR_deleteObject(h_image, "Image");
 	cSTIR_deleteObject(h_ximage, "Image");
 }
@@ -369,5 +378,6 @@ void cstir_test3() {
 
 	cSTIR_deleteObject(h_v, "Voxels");
 	cSTIR_deleteObject(h_i, "Image");
-	cSTIR_deleteObject(h_s, "EllipsoidalCylinder");
+	cSTIR_deleteObject(h_s, "Shape3D");
+	//cSTIR_deleteObject(h_s, "EllipsoidalCylinder");
 }

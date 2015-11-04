@@ -13,7 +13,6 @@ EXPORTED_FUNCTION void* mSTIR_newReconstruction(const char* method, const char* 
 EXPORTED_FUNCTION void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION void* mSTIR_reconstruct(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION void* mSTIR_update(void* ptr_r, void* ptr_i);
-EXPORTED_FUNCTION void mSTIR_deleteReconstruction(void* ptr_r);
 #ifndef CSTIR_FOR_MATLAB
 EXPORTED_FUNCTION void mSTIR_getImageDimensions(const void* ptr, size_t pd);
 EXPORTED_FUNCTION void mSTIR_getImageData(const void* ptr, size_t pd);
@@ -42,6 +41,8 @@ EXPORTED_FUNCTION const char* mExecutionErrorFile(const void* ptr);
 EXPORTED_FUNCTION int mExecutionErrorLine(const void* ptr);
 EXPORTED_FUNCTION void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION void* mNewTextWriter(const char* stream);
+EXPORTED_FUNCTION void mOpenChannel(int channel, void* ptr_w);
+EXPORTED_FUNCTION void mCloseChannel(int channel);
 EXPORTED_FUNCTION void mSetWriter(void* ptr_w, int channel);
 EXPORTED_FUNCTION void mResetWriter();
 EXPORTED_FUNCTION void mDeleteTextPrinter(void* ptr);
