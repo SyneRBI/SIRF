@@ -5,32 +5,47 @@ import stir
 try:
     printer = stir.printerTo('stdout')
 
-##    voxel_dim = (100, 100, 50)
-##    voxel_size = (2, 2, 1)
+    image0 = stir.Image()
+    voxel_dim = (100, 100, 50)
+    voxel_size = (2, 2, 1)
+    image0.initialise(voxel_dim, voxel_size)
 
-    voxel_dim = (60, 60, 31)
-    voxel_size = (4.44114, 4.44114, 3.375)
+    shape = stir.EllipsoidalCylinder()
+    shape.set_length(400)
+    shape.set_radii((400, 400))
+    shape.set_origin((150, 0, 0))
+
+    shape.set_length(40)
+    shape.set_radii((30, 10))
+    shape.set_origin((0, 20, 10))
+    image0.add_shape(shape, scale = 1)
+
+    shape.set_radii((10, 10))
+    shape.set_origin((20, -10, 10))
+    image0.add_shape(shape, scale = 2)
+
+    shape.set_origin((-20, -10, 10))
+    image0.add_shape(shape, scale = 0.25)
+
+    data0 = image0.density()
+    nz = data0.shape[0]
+    while True:
+        s = str(input('enter z-coordinate: '))
+        if len(s) < 1:
+            break
+        z = int(s)
+        if z < 0 or z >= nz:
+            break
+        pylab.figure(z)
+        pylab.imshow(data0[z,:,:])
+        pylab.show()
+
     image = stir.Image()
-    image.initialise(voxel_dim, voxel_size)
+##    voxel_dim = (60, 60, 31)
+##    voxel_size = (4.44114, 4.44114, 3.375)
+##    image.initialise(voxel_dim, voxel_size)
+    image.initialise(60, 60, 31, 4.44114, 4.44114, 3.375)
     image.fill(1.0)
-
-##    shape = stir.EllipsoidalCylinder()
-##    shape.set_length(400)
-##    shape.set_radii((400, 400))
-##    shape.set_origin((150, 0, 0))
-
-##    shape.set_length(40)
-##    shape.set_radii((30, 10))
-##    shape.set_origin((0, 20, 10))
-
-##    image.add_shape(shape, scale = 1)
-
-##    shape.set_radii((10, 10))
-##    shape.set_origin((20, -10, 10))
-##    image.add_shape(shape, scale = 2)
-##
-##    shape.set_origin((-20, -10, 10))
-##    image.add_shape(shape, scale = 0.25)
 
     filter = stir.TruncateToCylindricalFOVImageProcessor()
     filter.set_strictly_less_than_radius(False)
@@ -38,7 +53,13 @@ try:
 
     image_x = stir.Image('my_uniform_image_circular.hv')
 
-    data = image.density()
+    image_c = image.clone()
+
+    image_e = image.get_empty_copy(2)
+
+    data = image_e.density()
+    print(data.min(), data.max())
+
     data_x = image_x.density()
 
     nz = data.shape[0]
@@ -46,7 +67,7 @@ try:
     nx = data.shape[2]
     print(nx, ny, nz)
 
-    diff = image_x.diff_from(image)
+    diff = image_x.diff_from(image_c)
     print('difference from expected image:', diff)
 
     while True:

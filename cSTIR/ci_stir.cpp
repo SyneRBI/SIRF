@@ -234,10 +234,10 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d)
 	CAST_PTR(DataHandle, hd, ptr_d);
 	DataHandle* handle = new DataHandle;
 	try {
-		DataProcessor<Image3DF>* proc = 
+		DataProcessor<Image3DF>& proc =
 			objectFromHandle<DataProcessor<Image3DF> >(hp);
 		CAST_PTR(sptrImage3DF, image, hd->data());
-		proc->apply(**image);
+		proc.apply(**image);
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
@@ -280,14 +280,14 @@ extern "C"
 void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i) 
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
-	Reconstruction<Image3DF>* recon =
+	Reconstruction<Image3DF>& recon =
 		objectFromHandle< Reconstruction<Image3DF> >(hr);
 	CAST_PTR(DataHandle, hi, ptr_i);
 	CAST_PTR(sptrImage3DF, image, hi->data());
 	DataHandle* handle = new DataHandle;
 	try {
-		if (recon->reconstruct(*image) != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_reconstruct failed",
+		if (recon.reconstruct(*image) != Succeeded::yes) {
+				ExecutionStatus status("cSTIR_reconstruct failed",
 				__FILE__, __LINE__);
 			handle->set(0, &status);
 		}
@@ -308,10 +308,10 @@ void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(sptrImage3DF, image, hi->data());
+	Image3DF& image = objectFromHandle<Image3DF>(hi);
 	DataHandle* handle = new DataHandle;
 	try {
-		xSTIR_updateReconstruction(hr->data(), **image);
+		xSTIR_updateReconstruction(hr->data(), image);
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
@@ -345,8 +345,19 @@ extern "C"
 void* cSTIR_imageFromVoxels(void* ptr_v)
 {
 	CAST_PTR(DataHandle, hv, ptr_v);
-	CAST_PTR(sptrVoxels3DF, sptr_v, hv->data());
-	sptrImage3DF* sptr = new sptrImage3DF((*sptr_v)->clone());
+	Voxels3DF& voxels = objectFromHandle<Voxels3DF>(hv);
+	sptrImage3DF* sptr = new sptrImage3DF(voxels.clone());
+	DataHandle* handle = new DataHandle;
+	handle->set((void*)sptr, 0);
+	return (void*)handle;
+}
+
+extern "C"
+void* cSTIR_imageFromImage(void* ptr_i)
+{
+	CAST_PTR(DataHandle, hi, ptr_i);
+	Image3DF& image = objectFromHandle<Image3DF>(hi);
+	sptrImage3DF* sptr = new sptrImage3DF(image.clone());
 	DataHandle* handle = new DataHandle;
 	handle->set((void*)sptr, 0);
 	return (void*)handle;
@@ -358,15 +369,13 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v)
 	CAST_PTR(DataHandle, hi, ptr_i);
 	CAST_PTR(DataHandle, hv, ptr_v);
 	CAST_PTR(DataHandle, hs, ptr_s);
-	CAST_PTR(sptrImage3DF, sptr_i, hi->data());
-	CAST_PTR(sptrVoxels3DF, sptr_v, hv->data());
-	CAST_PTR(sptrShape3D, sptr_s, hs->data());
-	CartesianCoordinate3D<int> num_samples(1,1,1);
 
-	Image3DF& image = *sptr_i->get();
-	Voxels3DF& voxels = *sptr_v->get();
+	Image3DF& image = objectFromHandle<Image3DF>(hi);
+	Voxels3DF& voxels = objectFromHandle<Voxels3DF>(hv);
+	Shape3D& shape = objectFromHandle<Shape3D>(hs);
+	CartesianCoordinate3D<int> num_samples(1, 1, 1);
 	voxels.fill(0);
-	(*sptr_s)->construct_volume(voxels, num_samples);
+	shape.construct_volume(voxels, num_samples);
 	voxels *= v;
 	image += voxels;
 
@@ -377,8 +386,7 @@ extern "C"
 void cSTIR_fillImage(void* ptr_i, double v)
 {
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(sptrImage3DF, sptr_i, hi->data());
-	Image3DF& image = *sptr_i->get();
+	Image3DF& image = objectFromHandle<Image3DF>(hi);
 	image.fill((float)v);
 }
 
@@ -405,13 +413,12 @@ extern "C"
 void cSTIR_getImageDimensions(const void* ptr, size_t pd) 
 {
 	CAST_PTR(DataHandle, handle, ptr);
-	CAST_PTR(sptrImage3DF, sptrImage, handle->data());
-	sptrImage3DF& image = *sptrImage;
+	Image3DF& image = objectFromHandle<Image3DF>(handle);
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
 	int* dim = (int*)pd;
-	if (!image->get_regular_range(min_indices, max_indices)) {
-		//cout << "image is not regular" << endl;
+	if (!image.get_regular_range(min_indices, max_indices)) {
+			//cout << "image is not regular" << endl;
 		dim[0] = 0;
 		dim[1] = 0;
 		dim[2] = 0;
@@ -426,20 +433,20 @@ extern "C"
 void cSTIR_getImageData(const void* ptr, size_t pd) 
 {
 	CAST_PTR(DataHandle, handle, ptr);
-	CAST_PTR(sptrImage3DF, sptrImage, handle->data());
-	sptrImage3DF& image = *sptrImage;
+	Image3DF& image = objectFromHandle<Image3DF>(handle);
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
 	double* data = (double*)pd;
-	if (!image->get_regular_range(min_indices, max_indices)) {
-		//cout << "image is not regular" << endl;
+	if (!image.get_regular_range(min_indices, max_indices)) {
+			//cout << "image is not regular" << endl;
 		return;
 	}
 	else {
 		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
 			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
 				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					data[i] = (*image)[z][y][x];
+					data[i] = image[z][y][x];
+					//data[i] = (*image)[z][y][x];
 				}
 			}
 		}
@@ -454,51 +461,48 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 
 		CAST_PTR(DataHandle, first_h, first);
 		CAST_PTR(DataHandle, second_h, second);
-		CAST_PTR(sptrImage3DF, first_ptr, first_h->data());
-		CAST_PTR(sptrImage3DF, second_ptr, second_h->data());
+		Image3DF& first_image = objectFromHandle<Image3DF>(first_h);
+		Image3DF& second_image = objectFromHandle<Image3DF>(second_h);
 
-		sptrImage3DF& first_operand = *first_ptr;
-		sptrImage3DF& second_operand = *second_ptr;
-
+		std::string explanation;
+		if (!first_image.has_same_characteristics(second_image, explanation))
 		{
-			std::string explanation;
-			if (!first_operand->has_same_characteristics(*second_operand,
-				explanation))
-			{
-				warning("input images do not have the same characteristics.\n%s",
-					explanation.c_str());
-				ExecutionStatus status(
-					"input images do not have the same characteristics",
-					__FILE__, __LINE__);
-				handle->set(0, &status);
-				return (void*)handle;
-			}
+			warning("input images do not have the same characteristics.\n%s",
+				explanation.c_str());
+			ExecutionStatus status(
+				"input images do not have the same characteristics",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+			return (void*)handle;
 		}
 
 		if (rimsize >= 0)
 		{
-			truncate_rim(*first_operand, rimsize);
-			truncate_rim(*second_operand, rimsize);
+			truncate_rim(first_image, rimsize);
+			truncate_rim(second_image, rimsize);
 		}
 
-		float reference_max = first_operand->find_max();
-		float reference_min = first_operand->find_min();
+		float reference_max = first_image.find_max();
+		float reference_min = first_image.find_min();
 
 		float amplitude = fabs(reference_max) > fabs(reference_min) ?
 			fabs(reference_max) : fabs(reference_min);
 
-		*first_operand -= *second_operand;
-		const float max_error = first_operand->find_max();
-		const float min_error = first_operand->find_min();
+		sptrImage3DF sptr(first_image.clone());
+		Image3DF& image = *sptr.get();
+
+		image -= second_image;
+		const float max_error = image.find_max();
+		const float min_error = image.find_min();
 
 		float max_abs_error = fabs(min_error);
 		if (max_error > max_abs_error)
 			max_abs_error = max_error;
-		*first_operand += *second_operand;
 
 		double* result = (double*)malloc(sizeof(double));
 		*result = max_abs_error / amplitude;
 		handle->set(result, 0, GRAB);
+
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
@@ -508,7 +512,6 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 	//	cout << "exception " << e.what() << endl;
 	//}
 	catch (...) {
-		//cout << "unhandled exception occured" << endl;
 		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
 		handle->set(0, &status);
 	}

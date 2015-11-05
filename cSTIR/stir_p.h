@@ -8,11 +8,18 @@
 #define NEW_SPTR(T, X, Y) boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new Y)
 
 template<class Base, class Object = Base>
-Object*
+Object&
 objectFromHandle(const DataHandle* handle) {
-	CAST_PTR(boost::shared_ptr<Base>, sptr, handle->data());
+	void* ptr = handle->data();
+	if (ptr == 0)
+		throw StirException("zero data pointer cannot be dereferenced", 
+		__FILE__, __LINE__);
+	CAST_PTR(boost::shared_ptr<Base>, sptr, ptr);
+	if (is_null_ptr(*sptr))
+		throw StirException("zero object pointer cannot be dereferenced",
+		__FILE__, __LINE__);
 	CAST_PTR(Object, object, sptr->get());
-	return object;
+	return *object;
 }
 
 void*

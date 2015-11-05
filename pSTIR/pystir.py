@@ -91,14 +91,6 @@ except AttributeError:
 
 
 
-def cSTIR_setParameter(ptr, set, name, value):
-    return _pystir.cSTIR_setParameter(ptr, set, name, value)
-cSTIR_setParameter = _pystir.cSTIR_setParameter
-
-def cSTIR_parameter(ptr, set, name):
-    return _pystir.cSTIR_parameter(ptr, set, name)
-cSTIR_parameter = _pystir.cSTIR_parameter
-
 def cSTIR_newObject(name):
     return _pystir.cSTIR_newObject(name)
 cSTIR_newObject = _pystir.cSTIR_newObject
@@ -106,6 +98,14 @@ cSTIR_newObject = _pystir.cSTIR_newObject
 def cSTIR_deleteObject(ptr, name):
     return _pystir.cSTIR_deleteObject(ptr, name)
 cSTIR_deleteObject = _pystir.cSTIR_deleteObject
+
+def cSTIR_setParameter(ptr, set, name, value):
+    return _pystir.cSTIR_setParameter(ptr, set, name, value)
+cSTIR_setParameter = _pystir.cSTIR_setParameter
+
+def cSTIR_parameter(ptr, set, name):
+    return _pystir.cSTIR_parameter(ptr, set, name)
+cSTIR_parameter = _pystir.cSTIR_parameter
 
 def cSTIR_setupObject(obj, ptr_obj):
     return _pystir.cSTIR_setupObject(obj, ptr_obj)
@@ -146,6 +146,10 @@ cSTIR_voxels3DF = _pystir.cSTIR_voxels3DF
 def cSTIR_imageFromVoxels(ptr_v):
     return _pystir.cSTIR_imageFromVoxels(ptr_v)
 cSTIR_imageFromVoxels = _pystir.cSTIR_imageFromVoxels
+
+def cSTIR_imageFromImage(ptr_v):
+    return _pystir.cSTIR_imageFromImage(ptr_v)
+cSTIR_imageFromImage = _pystir.cSTIR_imageFromImage
 
 def cSTIR_imageFromFile(filename):
     return _pystir.cSTIR_imageFromFile(filename)

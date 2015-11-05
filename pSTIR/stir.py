@@ -136,7 +136,24 @@ class Image:
             pystir.cSTIR_deleteObject(self.handle, self.name)
         if self.voxels is not None:
             pystir.cSTIR_deleteObject(self.voxels, 'Voxels')
-    def initialise(self, dim, vsize = (1, 1, 1), origin = (0, 0, 0)):
+    def initialise\
+        (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
+         arg7 = 0, arg8 = 0, arg9 = 0):
+        if type(arg1) == type((0,0,0)):
+            dim = arg1
+            if arg2 == 0:
+                vsize = (1, 1, 1)
+                origin = (0, 0, 0)
+            else:
+                vsize = arg2
+                if arg3 == 0:
+                    origin = (0, 0, 0)
+                else:
+                    origin = arg3
+        else:
+            dim = (arg1, arg2, arg3)
+            vsize = (arg4, arg5, arg6)
+            origin = (arg7, arg8, arg9)
         if not self.empty:
             pystir.cSTIR_deleteObject(self.handle, self.name)
         if self.voxels is not None:
@@ -152,7 +169,22 @@ class Image:
         self.empty = False
     def fill(self, value):
         pystir.cSTIR_fillImage(self.handle, value)
+    def clone(self):
+        image = Image()
+        image.handle = pystir.cSTIR_imageFromImage(self.handle)
+        _check_status(image.handle)
+        image.empty = False
+        return image
+    def get_empty_copy(self, value = 1.0):
+        image = Image()
+        image.handle = pystir.cSTIR_imageFromImage(self.handle)
+        _check_status(image.handle)
+        image.fill(value)
+        image.empty = False
+        return image
     def add_shape(self, shape, scale):
+        if self.empty:
+            raise error('cannot add shapes to uninitialised image')
         handle = pystir.cSTIR_addShape\
                  (self.handle, self.voxels, shape.handle, scale)
         _check_status(handle)

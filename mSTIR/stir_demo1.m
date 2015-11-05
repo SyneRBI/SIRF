@@ -9,14 +9,21 @@ try
     % direct all diagnostic printing to Matlab Command Window
     printer = stir.printerTo('stdout');
     
-    image = stir.Image('my_uniform_image_circular.hv');
+    %image = stir.Image('my_uniform_image_circular.hv');
     %image.read_from_file('my_uniform_image_circular.hv')
-    data = image.density();
-    scale = 1.0/max(max(max(data)));
-    figure(1000000)
-    stir.show(data, scale, 10)
-    drawnow
+    image0 = stir.Image();
+    grid_dim = [60 60 31];
+    voxel_size = [4.44114 4.44114 3.375];
+    image0.initialise(grid_dim, voxel_size)
+    %image.initialise(60, 60, 31, 4.44114, 4.44114, 3.375)
+    
+    image0.fill(1.0)
+    image1 = image0.clone();
+    diff = image1.diff_from(image0);
+    fprintf('difference from cloned image: %e\n', diff)
 
+    image = image0.get_empty_copy();
+    
     matrix = stir.RayTracingMatrix();
     matrix.set_num_tangential_LORs(20)
 
@@ -27,6 +34,18 @@ try
     prior.set_penalisation_factor(0.05)
 
     filter = stir.TruncateToCylindricalFOVImageProcessor();
+    filter.set_strictly_less_than_radius(false)
+    %flag = filter.get_strictly_less_than_radius()
+
+    %image.fill(1.0)
+    filter.apply(image)
+    filter.set_strictly_less_than_radius(true)
+
+    data = image.density();
+    scale = 1.0/max(max(max(data)));
+    figure(1000000)
+    stir.show(data, scale, 10)
+    drawnow
 
     obj_fun =...
         stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();

@@ -1,6 +1,6 @@
 function value = parameter(handle, set, name, type)
     hv = calllib('mstir', 'mSTIR_parameter', handle, set, name);
-    stir.checkExecutionStatus('integerParameterValue', hv)
+    stir.checkExecutionStatus('parameter', hv)
     if strcmp(type, 'i')
         value = calllib('mstir', 'mIntDataFromHandle', hv);
     elseif strcmp(type, 'f')
