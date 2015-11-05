@@ -23,6 +23,7 @@ EXPORTED_FUNCTION void mSTIR_getImageData(const void* ptr, double* pd);
 #endif
 EXPORTED_FUNCTION void* mSTIR_voxels3DF(int nx, int ny, int nz,double sx, double sy, double sz, double x, double y, double z);
 EXPORTED_FUNCTION void* mSTIR_imageFromVoxels(void* ptr_v);
+EXPORTED_FUNCTION void* mSTIR_imageFromImage(void* ptr_v);
 EXPORTED_FUNCTION void* mSTIR_imageFromFile(const char* filename);
 EXPORTED_FUNCTION void mSTIR_fillImage(void* ptr_i, double v);
 EXPORTED_FUNCTION void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);

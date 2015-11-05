@@ -1018,3 +1018,25 @@ projectors = stir.Projectors('projectors_parameters.par')
             break
         print(data[iz, iy, ix], data_x[iz, iy, ix])
 
+##    print(type(voxel_dim))
+##    if type(voxel_dim) == type((0,0,0)):
+##        print('voxel_dim is tuple')
+
+##    image.probe(voxel_dim)
+##    image.probe(voxel_dim, voxel_size)
+##    image.probe(1, 2, 3)
+##    image.probe(1, 2, 3, 4, 5, 6)
+
+    def probe(self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1):
+        if type(arg1) == type((0,0,0)):
+            dim = arg1
+            if arg2 == 0:
+                vsize = (1, 1, 1)
+            else:
+                vsize = arg2
+        else:
+            dim = (arg1, arg2, arg3)
+            vsize = (arg4, arg5, arg6)
+        print(dim)
+        print(vsize)
+##    def initialise(self, dim, vsize = (1, 1, 1), origin = (0, 0, 0)):

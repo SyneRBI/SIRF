@@ -2123,3 +2123,272 @@ int cSTIR_getSubiteration(const void* ptr_r)
 //CAST_PTR(boost::shared_ptr< Reconstruction<Image3DF> >, sptr, hr->data());
 //CAST_PTR(Reconstruction<Image3DF>, recon, sptr->get());
 
+//class xSTIR_ProjectorByBinPairUsingProjMatrixByBin : 
+//	public ProjectorByBinPairUsingProjMatrixByBin {
+//public:
+//	bool post_process() {
+//// inaccessible
+//		return post_processing();
+//	}
+//};
+
+//CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+
+//CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+
+//CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+
+//CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+
+//template<class Base, class Object = Base>
+//Object*
+//objectFromHandle(const DataHandle* handle) {
+//	CAST_PTR(boost::shared_ptr<Base>, sptr, handle->data());
+//	CAST_PTR(Object, object, sptr->get());
+//	return object;
+//}
+
+//DataProcessor<Image3DF>* proc =
+//	objectFromHandle<DataProcessor<Image3DF> >(hp);
+
+//proc->apply(**image);
+
+//Reconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF> >(hr);
+
+//if (recon->reconstruct(*image) != Succeeded::yes) {
+
+//CAST_PTR(sptrImage3DF, image, hi->data());
+
+//xSTIR_updateReconstruction(hr->data(), **image);
+
+//CAST_PTR(sptrVoxels3DF, sptr_v, hv->data());
+
+//sptrImage3DF* sptr = new sptrImage3DF((*sptr_v)->clone());
+
+//CAST_PTR(sptrImage3DF, sptr_i, hv->data());
+
+//sptrImage3DF* sptr = new sptrImage3DF((*sptr_i)->clone());
+
+//CAST_PTR(sptrImage3DF, sptr_i, hi->data());
+//CAST_PTR(sptrVoxels3DF, sptr_v, hv->data());
+CAST_PTR(sptrShape3D, sptr_s, hs->data());
+
+//Image3DF& image = *sptr_i->get();
+//Voxels3DF& voxels = *sptr_v->get();
+
+//(*sptr_s)->construct_volume(voxels, num_samples);
+
+//CAST_PTR(sptrImage3DF, sptr_i, hi->data());
+//Image3DF& image = *sptr_i->get();
+
+//CAST_PTR(sptrImage3DF, sptrImage, handle->data());
+//sptrImage3DF& image = *sptrImage;
+
+//if (!image->get_regular_range(min_indices, max_indices)) {
+
+//CAST_PTR(sptrImage3DF, sptrImage, handle->data());
+//sptrImage3DF& image = *sptrImage;
+
+//if (!image->get_regular_range(min_indices, max_indices)) {
+
+//CAST_PTR(sptrImage3DF, first_ptr, first_h->data());
+//CAST_PTR(sptrImage3DF, second_ptr, second_h->data());
+//sptrImage3DF& first_operand = *first_ptr;
+//sptrImage3DF& second_operand = *second_ptr;
+
+//if (!first_operand->has_same_characteristics(*second_operand,
+
+//truncate_rim(*first_operand, rimsize);
+//truncate_rim(*second_operand, rimsize);
+
+//float reference_max = first_operand->find_max();
+//float reference_min = first_operand->find_min();
+
+//sptrImage3DF* sptr = new sptrImage3DF(first_image.clone());
+//Image3DF& image = *(sptr->get());
+
+//*first_operand -= *second_operand;
+//const float max_error = first_operand->find_max();
+//const float min_error = first_operand->find_min();
+//first_image -= second_image;
+//const float max_error = first_image.find_max();
+//const float min_error = first_image.find_min();
+
+//first_image += second_image;
+//*first_operand += *second_operand;
+
+//Shape3D* s = objectFromHandle<Shape3D>(hp);
+
+//Coord3DF origin = s->get_origin();
+
+//s->set_origin(origin);
+
+//Shape3D* s = objectFromHandle<Shape3D>(handle);
+//Coord3DF origin = s->get_origin();
+
+//EllipsoidalCylinder* c =
+//	objectFromHandle<Shape3D, EllipsoidalCylinder>(hp);
+
+//c->set_length(value);
+
+//c->set_radius_x(value);
+
+//c->set_radius_y(value);
+
+//EllipsoidalCylinder* c =
+//	objectFromHandle<Shape3D, EllipsoidalCylinder>(handle);
+
+//return floatDataHandle(c->get_length());
+
+//return floatDataHandle(c->get_radius_x());
+
+//return floatDataHandle(c->get_radius_y());
+
+//CAST_PTR(boost::shared_ptr<TruncateToCylindricalFOVImageProcessor<float> >,
+//	sptr_p, hp->data());
+
+//(*sptr_p)->set_strictly_less_than_radius
+
+//CAST_PTR(boost::shared_ptr<TruncateToCylindricalFOVImageProcessor<float> >,
+//	sptr_p, handle->data());
+
+//return intDataHandle((*sptr_p)->get_strictly_less_than_radius());
+
+//ProjMatrixByBinUsingRayTracing* matrix =
+//	objectFromHandle<ProjMatrixByBin, ProjMatrixByBinUsingRayTracing>(hp);
+
+//matrix->set_num_tangential_LORs(value);
+
+//ProjMatrixByBinUsingRayTracing* matrix =
+//	objectFromHandle<ProjMatrixByBin,
+//	ProjMatrixByBinUsingRayTracing>(handle);
+
+//return intDataHandle(matrix->get_num_tangential_LORs());
+
+//ProjectorByBinPairUsingProjMatrixByBin* proj =
+//	objectFromHandle<ProjectorByBinPair,
+//	ProjectorByBinPairUsingProjMatrixByBin>(hp);
+
+//proj->set_proj_matrix_sptr
+
+//ProjectorByBinPairUsingProjMatrixByBin* proj =
+//	objectFromHandle<ProjectorByBinPair,
+//	ProjectorByBinPairUsingProjMatrixByBin>(handle);
+
+//*sptr = proj->get_proj_matrix_sptr();
+
+//CAST_PTR(boost::shared_ptr<GeneralisedPrior<Image3DF> >, prior, hp->data());
+
+//(*prior)->set_penalisation_factor(floatDataFromHandle((void*)hv));
+
+//CAST_PTR(boost::shared_ptr<GeneralisedPrior<Image3DF> >, 
+//	prior, handle->data());
+
+//return floatDataHandle((*prior)->get_penalisation_factor());
+
+//xSTIR_QuadraticPrior3DF* prior =
+//	objectFromHandle<GeneralisedPrior<Image3DF>, xSTIR_QuadraticPrior3DF>(hp);
+
+//prior->only2D(intDataFromHandle((void*)hv));
+
+//CAST_PTR(boost::shared_ptr<GeneralisedObjectiveFunction<Image3DF> >, 
+//	sptr, hp->data());
+
+//(*sptr)->set_prior_sptr
+
+//PoissonLogLikelihoodWithLinearModelForMean<Image3DF>*
+//	obj_fun = objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
+//	PoissonLogLikelihoodWithLinearModelForMean<Image3DF> >
+//	(hp);
+
+//obj_fun->set_sensitivity_filename((char*)hv->data());
+
+//obj_fun->set_use_subset_sensitivities
+
+//obj_fun->set_recompute_sensitivity
+
+//xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF*
+//	obj_fun =
+//	objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
+//	xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
+//	(hp);
+
+//obj_fun->set_input_file((char*)hv->data());
+
+//obj_fun->set_zero_seg0_end_planes
+
+//obj_fun->set_max_segment_num_to_process(intDataFromHandle((void*)hv));
+
+//obj_fun->set_projector_pair_sptr
+
+//Reconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF> >(hp);
+
+//recon->set_output_filename_prefix((char*)hv->data());
+
+//IterativeReconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	IterativeReconstruction<Image3DF> >(hp);
+
+//recon->set_inter_iteration_filter_ptr(*sptr);
+
+//recon->set_objective_function_sptr(*sptr);
+
+//xSTIR_set_initial_estimate_file(recon, (char*)hv->data());
+
+//recon->set_num_subsets(value);
+
+//if (value < 0 || value >= recon->get_num_subsets())
+
+//recon->set_start_subset_num(value);
+
+//recon->set_num_subiterations(value);
+
+//recon->set_start_subiteration_num(value);
+
+//xSTIR_subiteration(recon) = value;
+
+//if (value < 1 || value > recon->get_num_subiterations())
+
+//recon->set_save_interval(value);
+
+//recon->set_inter_iteration_filter_interval(value);
+
+//IterativeReconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	IterativeReconstruction<Image3DF> >(handle);
+
+//return intDataHandle(recon->get_num_subsets());
+
+//return intDataHandle(recon->get_start_subset_num());
+
+//return intDataHandle(recon->get_num_subiterations());
+
+//return intDataHandle(recon->get_start_subiteration_num());
+
+//return intDataHandle(xSTIR_subiteration(recon));
+
+//*sptr = recon->get_objective_function_sptr();
+
+//OSMAPOSLReconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	OSMAPOSLReconstruction<Image3DF> >(hp);
+
+//recon->set_MAP_model((char*)hv->data());
+
+//OSMAPOSLReconstruction<Image3DF>* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	OSMAPOSLReconstruction<Image3DF> >(handle);
+
+//xSTIR_OSSPSReconstruction3DF* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	xSTIR_OSSPSReconstruction3DF >(hp);
+
+//recon->relaxation_parameter_value() = floatDataFromHandle(hv);
+
+//xSTIR_OSSPSReconstruction3DF* recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	xSTIR_OSSPSReconstruction3DF >(handle);
