@@ -5,7 +5,8 @@
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define NEW_SPTR(T, X, Y) boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new Y)
+#define NEW_SPTR(T, X, Y) \
+	boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new Y)
 
 template<class Base, class Object = Base>
 Object&
@@ -26,7 +27,7 @@ void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
-cSTIR_shapeParameter(DataHandle* handle, const char* name);
+cSTIR_shapeParameter(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setEllipsoidalCylinderParameter
@@ -56,18 +57,22 @@ cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 
 void*
 cSTIR_truncateToCylindricalFOVImageProcessorParameter
-(DataHandle* handle, const char* name);
+(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
-cSTIR_generalisedPriorParameter(const DataHandle* handle, std::string name);
+cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
+cSTIR_generalisedObjectiveFunctionParameter
+(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setGeneralisedObjectiveFunctionParameter
@@ -82,6 +87,10 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
+cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+(const DataHandle* handle, const char* name);
+
+void*
 cSTIR_setReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
@@ -90,19 +99,19 @@ cSTIR_setIterativeReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
-cSTIR_iterativeReconstructionParameter(const DataHandle* handle, std::string name);
+cSTIR_iterativeReconstructionParameter(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setOSMAPOSLParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
-cSTIR_OSMAPOSLParameter(const DataHandle* handle, std::string name);
+cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
 
 void*
 cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
-cSTIR_OSSPSParameter(const DataHandle* handle, std::string name);
+cSTIR_OSSPSParameter(const DataHandle* handle, const char* name);
 
 #endif

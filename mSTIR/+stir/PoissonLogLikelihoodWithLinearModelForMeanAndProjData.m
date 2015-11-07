@@ -4,13 +4,25 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
         projectors
     end
     methods
-        function self = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-            self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+        function self =...
+                PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj_fun)
+            self.name =...
+                'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
+            if nargin < 1
+                self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+                self.owns_handle = true;
+            else
+                self.handle = calllib('mstir', 'mRefDataHandle', obj_fun.handle);
+                self.owns_handle = false;
+            end
             self.projectors = [];
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'ObjectiveFunction')
+            if self.owns_handle
+                calllib('mstir', 'mSTIR_deleteObject', self.handle,...
+                    'ObjectiveFunction')
+                self.handle = [];
+            end
         end
         function set_input_filename(self, filename)
             stir.setParameter(self.handle, self.name,...

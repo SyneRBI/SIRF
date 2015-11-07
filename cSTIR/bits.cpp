@@ -2392,3 +2392,13 @@ CAST_PTR(sptrShape3D, sptr_s, hs->data());
 //xSTIR_OSSPSReconstruction3DF* recon =
 //	objectFromHandle< Reconstruction<Image3DF>,
 //	xSTIR_OSSPSReconstruction3DF >(handle);
+
+if (boost::iequals(name, "name"))
+return charDataHandle
+("PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
+
+if (boost::iequals(name, "name"))
+return charDataHandle("OSMAPOSL");
+
+if (boost::iequals(name, "name"))
+return charDataHandle("OSSPS");

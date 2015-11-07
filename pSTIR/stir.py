@@ -21,6 +21,10 @@ def _setParameter(hs, set, par, hv):
     h = pystir.cSTIR_setParameter(hs, set, par, hv)
     _check_status(h)
     pystir.deleteDataHandle(h)
+def _set_char_par(handle, set, par, value):
+    h = pystir.charDataHandle(value)
+    _setParameter(handle, set, par, h)
+    pystir.deleteDataHandle(h)
 def _set_int_par(handle, set, par, value):
     h = pystir.intDataHandle(value)
     _setParameter(handle, set, par, h)
@@ -29,10 +33,12 @@ def _set_float_par(handle, set, par, value):
     h = pystir.floatDataHandle(value)
     _setParameter(handle, set, par, h)
     pystir.deleteDataHandle(h)
-def _set_char_par(handle, set, par, value):
-    h = pystir.charDataHandle(value)
-    _setParameter(handle, set, par, h)
+def _char_par(handle, set, par):
+    h = pystir.cSTIR_parameter(handle, set, par)
+    _check_status(h)
+    value = pystir.charDataFromHandle(h)
     pystir.deleteDataHandle(h)
+    return value
 def _int_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
     _check_status(h)
@@ -215,12 +221,30 @@ class Image:
         pystir.cSTIR_getImageData(self.handle, density.ctypes.data)
         return density
 
-class TruncateToCylindricalFOVImageProcessor:
+class DataProcessor:
     def __init__(self):
-        self.name = 'TruncateToCylindricalFOVImageProcessor'
-        self.handle = pystir.cSTIR_newObject(self.name);
+        self.handle = None
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
+        if self.handle is not None:
+            pystir.deleteDataHandle(self.handle)
+    def apply(self, image):
+        handle = pystir.cSTIR_applyDataProcessor\
+                 (self.handle, image.handle)
+        _check_status(handle)
+        pystir.deleteDataHandle(handle)
+
+class TruncateToCylindricalFOVImageProcessor(DataProcessor):
+    def __init__(self, filter = None):
+        self.name = 'TruncateToCylindricalFOVImageProcessor'
+        if filter is None:
+            self.handle = pystir.cSTIR_newObject(self.name)
+            self.owns_handle = True
+        else:
+            self.handle = pystir.refDataHandle(filter.handle)
+            self.owns_handle = False
+    def __del__(self):
+        if self.owns_handle:
+            pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
     def set_strictly_less_than_radius(self, flag):
         _set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
@@ -229,47 +253,51 @@ class TruncateToCylindricalFOVImageProcessor:
         return _int_par\
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
-    def apply(self, image):
-        handle = pystir.cSTIR_applyDataProcessor\
-                 (self.handle, image.handle)
-        _check_status(handle)
-        pystir.deleteDataHandle(handle)
-
-class ProjectorsUsingMatrix:
-    def __init__(self):
-        self.name = 'ProjectorsUsingMatrix'
-        self.handle = pystir.cSTIR_newObject(self.name);
-        self.matrix = None
-    def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, 'Projectors')
-    def set_matrix(self, matrix):
-        _setParameter(self.handle, self.name, 'matrix_type', matrix.handle)
-        self.matrix = matrix
-    def get_matrix(self):
-        if self.matrix is None:
-            raise error(self.name + ': no matrix set')
-        else:
-            return self.matrix
 
 class RayTracingMatrix:
     def __init__(self):
         self.name = 'RayTracingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name);
         _check_status(self.handle)
+        self.owns_handle = True
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, 'ProjMatrix')
+        if self.owns_handle:
+            pystir.cSTIR_deleteObject(self.handle, 'ProjMatrix')
     def set_num_tangential_LORs(self, value):
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
+class ProjectorsUsingMatrix:
+    def __init__(self):
+        self.name = 'ProjectorsUsingMatrix'
+        self.handle = pystir.cSTIR_newObject(self.name);
+        self.owns_handle = True
+    def __del__(self):
+        if self.owns_handle:
+            pystir.cSTIR_deleteObject(self.handle, 'Projectors')
+    def set_matrix(self, matrix):
+        _setParameter(self.handle, self.name, 'matrix_type', matrix.handle)
+    def get_matrix(self):
+        matrix = RayTracingMatrix()
+        matrix.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'matrix_type')
+        _check_status(matrix.handle)
+        matrix.owns_handle = False
+        return matrix
+
 class GeneralisedPrior:
     def __init__(self):
-        self.name_ = 'GeneralisedPrior'
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pystir.deleteDataHandle(self.handle)
     def set_penalisation_factor(self, value):
-        _set_float_par(self.handle, self.name_, 'penalisation_factor', value)
+        _set_float_par\
+            (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
     def get_penalisation_factor(self):
-        return _float_par(self.handle, self.name_, 'penalisation_factor')
+        return _float_par\
+        (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def set_up(self):
         handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
         _check_status(handle)
@@ -285,23 +313,33 @@ class QuadraticPrior(GeneralisedPrior):
 
 class GeneralisedObjectiveFunction:
     def __init__(self):
-        self.prior = None
-        self.name_ = 'GeneralisedObjectiveFunction'
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pystir.deleteDataHandle(self.handle)
     def set_prior(self, prior):
-        _setParameter(self.handle, self.name_, 'prior', prior.handle)
+        _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
+            'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
-        if self.prior is None:
-            raise error(self.name_, ': no prior set')
-        else:
-            return self.prior
+        prior = GeneralisedPrior()
+        prior.handle = pystir.cSTIR_parameter\
+            (self.handle, 'GeneralisedObjectiveFunction', 'prior')
+        _check_status(prior.handle)
+        return prior
     def set_up(self):
-        handle = pystir.cSTIR_setupObject(self.name_, self.handle)
+        handle = pystir.cSTIR_setupObject\
+            ('GeneralisedObjectiveFunction', self.handle)
         _check_status(handle)
         pystir.deleteDataHandle(handle)
 
 class PoissonLogLikelihoodWithLinearModelForMean\
       (GeneralisedObjectiveFunction):
+    def __init__(self):
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pystir.deleteDataHandle(self.handle)
     def set_sensitivity_filename(self, name):
         _set_char_par\
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
@@ -317,13 +355,18 @@ class PoissonLogLikelihoodWithLinearModelForMean\
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
       (PoissonLogLikelihoodWithLinearModelForMean):
-    def __init__(self):
+    def __init__(self, obj_fun = None):
         GeneralisedObjectiveFunction.__init__(self)
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
-        self.handle = pystir.cSTIR_newObject(self.name);
-        self.projectors = None
+        if obj_fun is None:
+            self.handle = pystir.cSTIR_newObject(self.name)
+            self.owns_handle = True
+        else:
+            self.handle = pystir.refDataHandle(obj_fun.handle)
+            self.owns_handle = False
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
+        if self.owns_handle:
+            pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
     def set_input_filename(self, name):
         _set_char_par\
             (self.handle, self.name, 'input_filename', name)
@@ -335,12 +378,13 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
     def set_projector_pair(self, pp):
         _setParameter\
             (self.handle, self.name, 'projector_pair_type', pp.handle)
-        self.projectors = pp
     def get_projector_pair(self):
-        if self.projectors is None:
-            raise error(self.name + ': no projectors set')
-        else:
-            return self.projectors
+        proj = ProjectorsUsingMatrix()
+        proj.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'projector_pair_type')
+        _check_status(proj.handle)
+        proj.owns_handle = False
+        return proj
 
 class Reconstruction:
     def set_output_filename_prefix(self, prefix):
@@ -348,50 +392,64 @@ class Reconstruction:
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
 
 class IterativeReconstruction(Reconstruction):
-    def __init__(self):
-        self.obj_fun = None
-        self.filter = None
-        self.name_ = 'IterativeReconstruction'
     def set_num_subsets(self, n):
-        _set_int_par(self.handle, self.name_, 'num_subsets', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'num_subsets', n)
     def get_num_subsets(self):
-        return _int_par(self.handle, self.name_, 'num_subsets')
+        return _int_par\
+            (self.handle, 'IterativeReconstruction', 'num_subsets')
     def set_start_subset_num(self, n):
-        _set_int_par(self.handle, self.name_, 'start_subset_num', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'start_subset_num', n)
     def get_start_subset_num(self):
-        return _int_par(self.handle, self.name_, 'start_subset_num')
+        return _int_par\
+            (self.handle, 'IterativeReconstruction', 'start_subset_num')
     def set_num_subiterations(self, n):
-        _set_int_par(self.handle, self.name_, 'num_subiterations', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'num_subiterations', n)
     def get_num_subiterations(self):
-        return _int_par(self.handle, self.name_, 'num_subiterations')
+        return _int_par\
+            (self.handle, 'IterativeReconstruction', 'num_subiterations')
     def set_start_subiteration_num(self, n):
-        _set_int_par(self.handle, self.name_, 'start_subiteration_num', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'start_subiteration_num', n)
     def get_start_subiteration_num(self):
-        return _int_par(self.handle, self.name_, 'start_subiteration_num')
+        return _int_par\
+            (self.handle, 'IterativeReconstruction', 'start_subiteration_num')
     def set_subiteration_num(self, iter):
-        _set_int_par(self.handle, self.name_, 'subiteration_num', iter)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'subiteration_num', iter)
     def get_subiteration_num(self):
-        return _int_par(self.handle, self.name_, 'subiteration_num')
+        return _int_par\
+            (self.handle, 'IterativeReconstruction', 'subiteration_num')
     def set_save_interval(self, n):
-        _set_int_par(self.handle, self.name_, 'save_interval', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction', 'save_interval', n)
     def set_inter_iteration_filter_interval(self, n):
-        _set_int_par(self.handle, self.name_, 'inter_iteration_filter_interval', n)
+        _set_int_par\
+            (self.handle, 'IterativeReconstruction',\
+             'inter_iteration_filter_interval', n)
     def set_objective_function(self, obj):
-        _setParameter(self.handle, self.name_, 'objective_function', obj.handle)
-        self.obj_fun = obj
+        _setParameter\
+            (self.handle, 'IterativeReconstruction',\
+             'objective_function', obj.handle)
     def get_objective_function(self):
-        if self.obj_fun is None:
-            raise error(self.name_ + ': no objective function set')
-        else:
-            return self.obj_fun
+        obj_fun = GeneralisedObjectiveFunction()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, 'IterativeReconstruction', 'objective_function')
+        _check_status(obj_fun.handle)
+        return obj_fun
     def set_inter_iteration_filter(self, f):
         pystir.cSTIR_setParameter\
-            (self.handle, self.name_, 'inter_iteration_filter_type', f.handle)
+            (self.handle, 'IterativeReconstruction',\
+             'inter_iteration_filter_type', f.handle)
     def get_inter_iteration_filter(self):
-        if self.filter is None:
-            raise error(self.name_ + ': no filter set')
-        else:
-            return self.filter
+        filter = DataProcessor()
+        filter.handle = pystir.cSTIR_parameter\
+            (self.handle, 'IterativeReconstruction',\
+             'inter_iteration_filter_type')
+        _check_status(filter.handle)
+        return filter
     def set_up(self, image):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         _check_status(handle)
@@ -419,6 +477,12 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
     def set_MAP_model(self, model):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
+    def get_objective_function(self):
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun.handle = pystir.cSTIR_parameter\
+            (self.handle, self.name, 'objective_function')
+        _check_status(obj_fun.handle)
+        return obj_fun
 
 class OSSPSReconstruction(IterativeReconstruction):
     def __init__(self, file = ''):

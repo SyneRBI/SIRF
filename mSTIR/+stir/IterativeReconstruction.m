@@ -7,7 +7,14 @@ classdef IterativeReconstruction < stir.Reconstruction
     end
     methods
         function self = IterativeReconstruction()
+            self.handle = [];
             self.obj_fun = [];
+        end
+        function delete(self)
+            if ~isempty(self.handle)
+                calllib('mstir', 'mDeleteDataHandle', self.handle)
+                self.handle = [];
+            end
         end
         function set_num_subsets(self, n)
             stir.setParameter(self.handle, self.IR, 'num_subsets', n, 'i')
@@ -60,13 +67,13 @@ classdef IterativeReconstruction < stir.Reconstruction
                 'objective_function', obj_fun.handle, 'h')
             self.obj_fun = obj_fun;
         end
-        function obj_fun = get_objective_function(self)
-            obj_fun = self.obj_fun;
-            if isempty(obj_fun)
-                error([self.IR ':no_obj_fun_set'],...
-                    [self.IR ': no objective function set'])
-            end
-        end
+%         function obj_fun = get_objective_function(self)
+%             obj_fun = self.obj_fun;
+%             if isempty(obj_fun)
+%                 error([self.IR ':no_obj_fun_set'],...
+%                     [self.IR ': no objective function set'])
+%             end
+%         end
         function set_inter_iteration_filter(self, filter)
             stir.setParameter(self.handle, self.IR,...
                 'inter_iteration_filter_type', filter.handle, 'h')

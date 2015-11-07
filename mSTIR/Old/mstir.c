@@ -56,6 +56,9 @@ EXPORTED_FUNCTION void* mSTIR_voxels3DF(int nx, int ny, int nz,double sx, double
 EXPORTED_FUNCTION void* mSTIR_imageFromVoxels(void* ptr_v) {
 	return cSTIR_imageFromVoxels(ptr_v);
 }
+EXPORTED_FUNCTION void* mSTIR_imageFromImage(void* ptr_v) {
+	return cSTIR_imageFromImage(ptr_v);
+}
 EXPORTED_FUNCTION void* mSTIR_imageFromFile(const char* filename) {
 	return cSTIR_imageFromFile(filename);
 }
