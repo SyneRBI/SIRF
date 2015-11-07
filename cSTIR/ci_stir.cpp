@@ -175,6 +175,13 @@ void* cSTIR_parameter(const void* ptr, const char* set, const char* name)
 		return cSTIR_projectorsUsingMatrixParameter(handle, name);
 	if (boost::iequals(set, "GeneralisedPrior"))
 		return cSTIR_generalisedPriorParameter(handle, name);
+	if (boost::iequals(set, "GeneralisedObjectiveFunction"))
+		return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
+	if (boost::iequals(set,
+		"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+		return
+		cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+		(handle, name);
 	if (boost::iequals(set, "IterativeReconstruction"))
 		return cSTIR_iterativeReconstructionParameter(handle, name);
 	if (boost::iequals(set, "OSMAPOSL"))

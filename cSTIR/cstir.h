@@ -39,6 +39,7 @@ extern "C" {
 
 	// DataHandle methods
 	void* newDataHandle();
+	void* refDataHandle(void* ptr);
 	void* charDataHandle(const char* s);
 	void* intDataHandle(int i);
 	void* floatDataHandle(float i);

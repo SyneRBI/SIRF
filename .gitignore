@@ -246,3 +246,6 @@ pSTIR/my_uniform_image.hv
 pSTIR/pystir_wrap.cxx
 *.pyc
 *.pyd
+*.hv
+pSTIR/pystir_wrap.cxx
+*.mexw64

@@ -25,13 +25,13 @@ try
     image = image0.get_empty_copy();
     
     matrix = stir.RayTracingMatrix();
-    matrix.set_num_tangential_LORs(20)
+    matrix.set_num_tangential_LORs(2)
 
     projectors = stir.ProjectorsUsingMatrix();
     projectors.set_matrix(matrix);
     
     prior = stir.QuadraticPrior();
-    prior.set_penalisation_factor(0.05)
+    prior.set_penalisation_factor(0.5)
 
     filter = stir.TruncateToCylindricalFOVImageProcessor();
     filter.set_strictly_less_than_radius(false)
@@ -49,8 +49,8 @@ try
 
     obj_fun =...
         stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
-    obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
-    obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
+%     obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+%     obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj_fun.set_use_subset_sensitivities(false)
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
@@ -69,14 +69,22 @@ try
     recon.set_objective_function(obj_fun)
     recon.set_output_filename_prefix('reconstructedImage')
     
-    obj = recon.get_objective_function();
-    prr = obj.get_prior();
-    prr.set_penalisation_factor(0.5)
-    proj = obj.get_projector_pair();
-    mx = proj.get_matrix();
-    lors = mx.get_num_tangential_LORs();
-    fprintf('tangential LORs: %d\n', lors)
-    mx.set_num_tangential_LORs(2)
+%     fprintf('obj0:\n')
+%     obj0 = recon.get_objective_function();
+%     fprintf('obj:\n')
+%     obj =...
+%         stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj0);
+    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
+        (recon.get_objective_function());
+    obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')
+    obj.set_input_filename('Utahscat600k_ca_seg4.hs')
+% %     prr = obj.get_prior();
+% %     prr.set_penalisation_factor(0.5)
+% %     proj = obj.get_projector_pair();
+% %     mx = proj.get_matrix();
+% %     lors = mx.get_num_tangential_LORs();
+% %     fprintf('tangential LORs: %d\n', lors)
+% %     mx.set_num_tangential_LORs(2)
 
     obj_fun.set_up()
     recon.set_up(image)

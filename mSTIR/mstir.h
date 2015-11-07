@@ -4,10 +4,10 @@
 #define CSTIR_FOR_MATLAB
 #include "shrhelp.h"
 
-EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value);
-EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* set, const char* name);
 EXPORTED_FUNCTION void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr, const char* name);
+EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value);
+EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* set, const char* name);
 EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj);
 EXPORTED_FUNCTION void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 EXPORTED_FUNCTION void* mSTIR_newReconstruction(const char* method, const char* filename);
@@ -29,6 +29,7 @@ EXPORTED_FUNCTION void mSTIR_fillImage(void* ptr_i, double v);
 EXPORTED_FUNCTION void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
 EXPORTED_FUNCTION void* mSTIR_imagesDifference(void* first, void* second, int rimsize);
 EXPORTED_FUNCTION void* mNewDataHandle();
+EXPORTED_FUNCTION void* mRefDataHandle(void* ptr);
 EXPORTED_FUNCTION void* mCharDataHandle(const char* s);
 EXPORTED_FUNCTION void* mIntDataHandle(int i);
 EXPORTED_FUNCTION void* mFloatDataHandle(float i);

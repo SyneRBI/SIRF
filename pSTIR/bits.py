@@ -1040,3 +1040,125 @@ projectors = stir.Projectors('projectors_parameters.par')
         print(dim)
         print(vsize)
 ##    def initialise(self, dim, vsize = (1, 1, 1), origin = (0, 0, 0)):
+
+##        self.matrix = None
+
+##        self.matrix = matrix
+##    def get_matrix(self):
+##        if self.matrix is None:
+##            raise error(self.name + ': no matrix set')
+##        else:
+##            return self.matrix
+
+##        self.prior = None
+
+##    def get_prior(self):
+##        if self.prior is None:
+##            raise error(self.name_, ': no prior set')
+##        else:
+##            return self.prior
+
+##        self.projectors = None
+
+##        self.projectors = pp
+##    def get_projector_pair(self):
+##        if self.projectors is None:
+##            raise error(self.name + ': no projectors set')
+##        else:
+##            return self.projectors
+
+##        self.obj_fun = None
+        self.filter = None
+
+##        self.obj_fun = obj
+##    def get_objective_function(self):
+##        if self.obj_fun is None:
+##            raise error(self.name_ + ': no objective function set')
+##        else:
+##            return self.obj_fun
+
+##        if self.filter is None:
+##            raise error(self.name_ + ': no filter set')
+##        else:
+##            return self.filter
+
+##    obj0 = recon.get_objective_function()
+##    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj0)
+
+##    flag = filter.get_strictly_less_than_radius()
+##    print(flag)
+
+    #obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+    #obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
+
+    #obj_fun.set_recompute_sensitivity(True)
+
+    #obj_fun.set_up()
+
+    #proj.set_matrix(matrix)
+
+    # read an initial estimate for the reconstructed image from a file
+    #image = stir.Image('my_uniform_image_circular.hv')
+    #image.read_from_file('my_uniform_image_circular.hv')
+
+##    obj0 = recon.get_objective_function()
+##    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj0)
+##    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
+##          (recon.get_objective_function())
+    obj = recon.get_objective_function()
+    obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')
+    stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj).\
+        set_input_filename('Utahscat600k_ca_seg4.hs')
+    stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj).\
+        set_projector_pair(projectors)
+
+    prr = obj.get_prior()
+    prr.set_penalisation_factor(0.5)
+
+    proj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj).\
+           get_projector_pair()
+    mx = proj.get_matrix()
+    n = proj.get_matrix().get_num_tangential_LORs()
+    print('tangential_LORs:', n)
+    mx.set_num_tangential_LORs(2)
+
+    f = recon.get_inter_iteration_filter()
+    stir.TruncateToCylindricalFOVImageProcessor(f).\
+        set_strictly_less_than_radius(False)
+    f.apply(image)
+    stir.TruncateToCylindricalFOVImageProcessor(f).\
+        set_strictly_less_than_radius(True)
+
+##    # plot the current image
+##    data = image.density()
+##    pylab.figure(100)
+##    pylab.imshow(data[10,:,:])
+##    pylab.show()
+
+    recon.set_start_subset_num(0) #default
+    recon.set_start_subiteration_num(1) #default
+
+##    # obtain the subiterations range
+##    start = recon.get_start_subiteration_num()
+##    stop = recon.get_num_subiterations()
+##    print('subiteration range:', start, stop)
+
+    # not needed (set by set_up), just to show we can start at any iteration 
+    #recon.set_subiteration_num(start)
+    #for iter in range(start, stop + 1):
+
+    #expectedImage.read_from_file('test_image_PM_QP_6.hv')
+
+    print(prior.get_penalisation_factor())
+
+    def __init__(self):
+        self.name_ = 'DataProcessor'
+
+    def __init__(self):
+        self.name_ = 'GeneralisedPrior'
+
+    def __init__(self):
+        self.name_ = 'GeneralisedObjectiveFunction'
+
+    def __init__(self):
+        self.name_ = 'IterativeReconstruction'
