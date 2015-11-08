@@ -23,6 +23,22 @@ objectFromHandle(const DataHandle* handle) {
 	return *object;
 }
 
+template<class T>
+void*
+sptrDataHandle(boost::shared_ptr<T> sptr) {
+	NEW(boost::shared_ptr<T>, ptr_sptr);
+	*ptr_sptr = sptr;
+	NEW(DataHandle, handle);
+	handle->set((void*)ptr_sptr, 0);
+	return (void*)handle;
+}
+
+template<class T>
+boost::shared_ptr<T>
+sptrDataFromHandle(const DataHandle* handle) {
+	return *(boost::shared_ptr<T>*)handle->data();
+}
+
 void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

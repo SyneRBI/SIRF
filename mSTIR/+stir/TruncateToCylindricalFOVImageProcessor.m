@@ -1,15 +1,26 @@
-classdef TruncateToCylindricalFOVImageProcessor < handle
+classdef TruncateToCylindricalFOVImageProcessor < stir.DataProcessor
     properties
-        name
-        handle
+        owns_handle
     end
     methods
-        function self = TruncateToCylindricalFOVImageProcessor()
+        function self = TruncateToCylindricalFOVImageProcessor(filter)
             self.name = 'TruncateToCylindricalFOVImageProcessor';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+            if nargin < 1
+                self.handle = calllib...
+                    ('mstir', 'mSTIR_newObject', self.name);
+                self.owns_handle = true;
+            else
+                self.handle = calllib...
+                    ('mstir', 'mRefDataHandle', filter.handle);
+                self.owns_handle = false;
+            end
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle, 'DataProcessor')
+            if self.owns_handle && ~isempty(self.handle)
+                calllib('mstir', 'mSTIR_deleteObject', self.handle,...
+                    'DataProcessor')
+                self.handle = [];
+            end
         end
         function set_strictly_less_than_radius(self, flag)
             if flag
@@ -25,13 +36,6 @@ classdef TruncateToCylindricalFOVImageProcessor < handle
             flag = stir.parameter(self.handle,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', 'i');
-        end
-        function apply(self, image)
-            h = calllib('mstir', 'mSTIR_applyDataProcessor',...
-                self.handle, image.handle);
-            stir.checkExecutionStatus...
-                ('TruncateToCylindricalFOVImageProcessor:apply', h)
-            calllib('mstir', 'mDeleteDataHandle', h)
         end
     end
 end

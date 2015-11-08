@@ -2,13 +2,9 @@ classdef IterativeReconstruction < stir.Reconstruction
     properties (Constant)
         IR = 'IterativeReconstruction';
     end
-    properties
-        obj_fun
-    end
     methods
         function self = IterativeReconstruction()
             self.handle = [];
-            self.obj_fun = [];
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -65,18 +61,17 @@ classdef IterativeReconstruction < stir.Reconstruction
         function set_objective_function(self, obj_fun)
             stir.setParameter(self.handle, self.IR,...
                 'objective_function', obj_fun.handle, 'h')
-            self.obj_fun = obj_fun;
         end
-%         function obj_fun = get_objective_function(self)
-%             obj_fun = self.obj_fun;
-%             if isempty(obj_fun)
-%                 error([self.IR ':no_obj_fun_set'],...
-%                     [self.IR ': no objective function set'])
-%             end
-%         end
         function set_inter_iteration_filter(self, filter)
             stir.setParameter(self.handle, self.IR,...
                 'inter_iteration_filter_type', filter.handle, 'h')
+        end
+        function filter = get_inter_iteration_filter(self)
+            filter = stir.DataProcessor();
+            filter.handle = calllib('mstir', 'mSTIR_parameter',...
+                self.handle, self.IR, 'inter_iteration_filter_type');
+            stir.checkExecutionStatus...
+                ([self.IR ':get_inter_iteration_filter'], filter.handle)
         end
         function set_up(self, image)
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
