@@ -171,6 +171,10 @@ def newDataHandle():
     return _pystir.newDataHandle()
 newDataHandle = _pystir.newDataHandle
 
+def refDataHandle(ptr):
+    return _pystir.refDataHandle(ptr)
+refDataHandle = _pystir.refDataHandle
+
 def charDataHandle(s):
     return _pystir.charDataHandle(s)
 charDataHandle = _pystir.charDataHandle

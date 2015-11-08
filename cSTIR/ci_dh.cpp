@@ -4,39 +4,12 @@ using namespace std;
 
 #include "dh.h"
 
-#define GRAB 1
-
-template <typename T>
-void
-setDataHandle(DataHandle* h, T x)
-{
-	T* ptr = (T*)malloc(sizeof(T));
-	*ptr = x;
-	h->set((void*)ptr, 0, GRAB);
-}
-
-template <typename T>
-void*
-dataHandle(T x) 
-{
-	DataHandle* h = new DataHandle;
-	setDataHandle<T>(h, x);
-	//T* ptr = (T*)malloc(sizeof(T));
-	//*ptr = x;
-	//h->set((void*)ptr, 0, GRAB);
-	return (void*)h;
-}
-
-template <typename T>
-T
-dataFromHandle(const void* ptr) 
-{
-	DataHandle* ptr_h = (DataHandle*)ptr;
+char* charDataFromHandle(const DataHandle* ptr_h) {
 	void* ptr_d = ptr_h->data();
 	if (!ptr_d)
 		return 0;
 	else
-		return *((T*)ptr_d);
+		return (char*)ptr_d;
 }
 
 extern "C" {
@@ -71,12 +44,13 @@ extern "C" {
 	}
 
 	char* charDataFromHandle(const void* ptr) {
-		const DataHandle* ptr_h = (const DataHandle*)ptr;
-		void* ptr_d = ptr_h->data();
-		if (!ptr_d)
-			return 0;
-		else
-			return (char*)ptr_d;
+		return charDataFromHandle((const DataHandle*)ptr);
+		//const DataHandle* ptr_h = (const DataHandle*)ptr;
+		//void* ptr_d = ptr_h->data();
+		//if (!ptr_d)
+		//	return 0;
+		//else
+		//	return (char*)ptr_d;
 	}
 	int intDataFromHandle(const void* ptr) {
 		return dataFromHandle<int>(ptr);

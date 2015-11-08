@@ -2402,3 +2402,72 @@ return charDataHandle("OSMAPOSL");
 
 if (boost::iequals(name, "name"))
 return charDataHandle("OSSPS");
+
+//NEW(DataHandle, h);
+//NEW(boost::shared_ptr<ProjMatrixByBin>, sptr);
+//*sptr = proj.get_proj_matrix_sptr();
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//NEW(boost::shared_ptr<GeneralisedPrior<Image3DF> >, sptr);
+//*sptr = obj_fun.get_prior_sptr();
+//NEW(DataHandle, h);
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//(*(boost::shared_ptr<ProjectorByBinPairUsingProjMatrixByBin>*)hv->data());
+
+//NEW(DataHandle, h);
+//NEW(boost::shared_ptr<ProjectorByBinPair>, sptr);
+//*sptr = obj_fun.get_projector_pair_sptr();
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//NEW(DataHandle, h);
+//NEW(boost::shared_ptr<GeneralisedObjectiveFunction<Image3DF> >, sptr);
+//*sptr = recon.get_objective_function_sptr();
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//NEW(DataHandle, h);
+//NEW(boost::shared_ptr<DataProcessor<Image3DF> >, sptr);
+//*sptr = recon.get_inter_iteration_filter_sptr();
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//NEW(DataHandle, h);
+//NEW(boost::shared_ptr<GeneralisedObjectiveFunction<Image3DF> >, sptr);
+//*sptr = recon.get_objective_function_sptr();
+//h->set((void*)sptr, 0);
+//return (void*)h;
+
+//(*(boost::shared_ptr<ProjMatrixByBin>*)hv->data());
+
+//(*(boost::shared_ptr<GeneralisedPrior<Image3DF> >*)hv->data());
+
+//(*(boost::shared_ptr<ProjectorByBinPair>*)hv->data());
+
+//CAST_PTR(boost::shared_ptr<DataProcessor<Image3DF> >, sptr, hv->data());
+//recon.set_inter_iteration_filter_ptr(*sptr);
+
+//CAST_PTR(boost::shared_ptr<GeneralisedObjectiveFunction<Image3DF> >,
+//	sptr, hv->data());
+
+//(boost::iequals((char*)hv->data(), "true"));
+
+//((char*)hv->data());
+
+//(boost::iequals((char*)hv->data(), "true"));
+
+//(boost::iequals((char*)hv->data(), "true"));
+
+//obj_fun.set_input_file((char*)hv->data());
+
+//(boost::iequals((char*)hv->data(), "true"));
+
+//recon.set_output_filename_prefix((char*)hv->data());
+
+//xSTIR_set_initial_estimate_file(&recon, (char*)hv->data());
+
+//recon.set_MAP_model((char*)hv->data());
+

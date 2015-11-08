@@ -1,8 +1,5 @@
 classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
         < stir.PoissonLogLikelihoodWithLinearModelForMean
-    properties
-        projectors
-    end
     methods
         function self =...
                 PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj_fun)
@@ -15,7 +12,6 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
                 self.handle = calllib('mstir', 'mRefDataHandle', obj_fun.handle);
                 self.owns_handle = false;
             end
-            self.projectors = [];
         end
         function delete(self)
             if self.owns_handle
@@ -44,14 +40,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
         function set_projector_pair(self, pp)
             stir.setParameter(self.handle, self.name,...
                 'projector_pair_type', pp.handle, 'h')
-            self.projectors = pp;
         end
-        function projectors = get_projector_pair(self)
-            projectors = self.projectors;
-            if isempty(projectors)
-                error([self.name ':no_projectors'],...
-                    [self.name ': no projectors set'])
-            end
+        function proj = get_projector_pair(self)
+            proj = stir.ProjectorsUsingMatrix();
+            proj.handle = calllib('mstir', 'mSTIR_parameter',...
+                self.handle, self.name, 'projector_pair_type');
+            stir.checkExecutionStatus...
+                ([self.name ':get_projector_pair'], proj.handle)
         end
     end
 end

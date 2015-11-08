@@ -74,4 +74,40 @@ private:
 	ExecutionStatus* _status;
 };
 
+#define GRAB 1
+
+template <typename T>
+void
+setDataHandle(DataHandle* h, T x)
+{
+	T* ptr = (T*)malloc(sizeof(T));
+	*ptr = x;
+	h->set((void*)ptr, 0, GRAB);
+}
+
+template <typename T>
+void*
+dataHandle(T x)
+{
+	DataHandle* h = new DataHandle;
+	setDataHandle<T>(h, x);
+	//T* ptr = (T*)malloc(sizeof(T));
+	//*ptr = x;
+	//h->set((void*)ptr, 0, GRAB);
+	return (void*)h;
+}
+
+template <typename T>
+T
+dataFromHandle(const void* ptr)
+//dataFromHandle(const DataHandle* ptr_h)
+{
+	DataHandle* ptr_h = (DataHandle*)ptr;
+	void* ptr_d = ptr_h->data();
+	if (!ptr_d)
+		return 0;
+	else
+		return *((T*)ptr_d);
+}
+
 #endif
