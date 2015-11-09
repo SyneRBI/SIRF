@@ -2471,3 +2471,53 @@ return charDataHandle("OSSPS");
 
 //recon.set_MAP_model((char*)hv->data());
 
+//template<class Base, class Object = Base>
+//static void*
+//newObjHandle()
+//{
+//	typedef ObjectHandle<Object, Base> Obj;
+//	NEW_SPTR1(Obj, ptr_handle);
+//	return (void*)ptr_handle;
+//}
+//
+//template<class Base, class Object = Base>
+//static void
+//deleteObjHandle(void* ptr)
+//{
+//	typedef ObjectHandle<Object, Base> Obj;
+//	if (!ptr)
+//		return;
+//	CAST_PTR(boost::shared_ptr<Obj>, ptr_sptr, ptr);
+//	delete ptr_sptr;
+//}
+
+//const DataHandle* ptr_h = (const DataHandle*)ptr;
+//void* ptr_d = ptr_h->data();
+//if (!ptr_d)
+//	return 0;
+//else
+//	return (char*)ptr_d;
+
+template<class Object, class Base = Object>
+class ObjectHandle : public DataHandle {
+public:
+	ObjectHandle(const ExecutionStatus* status = 0) : DataHandle() {
+		ptr_sptr = new boost::shared_ptr<Base>(new Object);
+		_data = (void*)ptr_sptr;
+		_status = status;
+	}
+	ObjectHandle(const boost::shared_ptr<Base>& obj,
+		const ExecutionStatus* status = 0) : DataHandle() {
+		ptr_sptr = new boost::shared_ptr<Base>;
+		*ptr_sptr = obj;
+		_data = (void*)ptr_sptr;
+		_status = new ExecutionStatus(*status);
+	}
+};
+
+//T* ptr = (T*)malloc(sizeof(T));
+//*ptr = x;
+//h->set((void*)ptr, 0, GRAB);
+
+//void* refDataHandle(void* ptr);
+

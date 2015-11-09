@@ -6,9 +6,10 @@ extern "C" {
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
 	void cSTIR_deleteObject(void* ptr, const char* name);
+	void* cSTIR_copyOfObject(const char* name, void* ptr);
 	void* cSTIR_setParameter
-		(void* ptr, const char* set, const char* name, const void* value);
-	void* cSTIR_parameter(const void* ptr, const char* set, const char* name);
+		(void* ptr, const char* obj, const char* name, const void* value);
+	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
 	void* cSTIR_setupObject(const char* obj, void* ptr_obj);
 
 	// DataProcessor methods
@@ -39,7 +40,6 @@ extern "C" {
 
 	// DataHandle methods
 	void* newDataHandle();
-	void* refDataHandle(void* ptr);
 	void* charDataHandle(const char* s);
 	void* intDataHandle(int i);
 	void* floatDataHandle(float i);

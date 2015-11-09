@@ -17,13 +17,21 @@ try
     image.fill(1.0)
 
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par');
+    
+    f = stir.TruncateToCylindricalFOVImageProcessor...
+        (recon.get_inter_iteration_filter());
 
-    f = recon.get_inter_iteration_filter();
-    stir.TruncateToCylindricalFOVImageProcessor(f)...
-        .set_strictly_less_than_radius(false)
+    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
+        (recon.get_objective_function());
+
+%     f = recon.get_inter_iteration_filter();
+%     stir.TruncateToCylindricalFOVImageProcessor(f)...
+%         .set_strictly_less_than_radius(false)
+    f.set_strictly_less_than_radius(false)
     f.apply(image)
-    stir.TruncateToCylindricalFOVImageProcessor(f)...
-        .set_strictly_less_than_radius(true)
+    f.set_strictly_less_than_radius(true)
+%     stir.TruncateToCylindricalFOVImageProcessor(f)...
+%         .set_strictly_less_than_radius(true)
     
     data = image.density();
     scale = 1.0/max(max(max(data)));
@@ -31,8 +39,6 @@ try
     stir.show(data, scale, 10)
     drawnow
 
-    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
-        (recon.get_objective_function());
     obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj.set_input_filename('Utahscat600k_ca_seg4.hs')
     prior = obj.get_prior();

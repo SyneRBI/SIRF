@@ -1,15 +1,11 @@
 classdef PoissonLogLikelihoodWithLinearModelForMean <...
         stir.GeneralisedObjectiveFunction
-    properties
-        owns_handle
-    end
     methods
         function self = PoissonLogLikelihoodWithLinearModelForMean()
             self.handle = [];
-            self.owns_handle = true;
         end
         function delete(self)
-            if self.owns_handle && ~isempty(self.handle)
+            if ~isempty(self.handle)
                  calllib('mstir', 'mDeleteDataHandle', self.handle)
                  self.handle = [];
             end

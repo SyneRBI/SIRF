@@ -3,29 +3,17 @@
 #include "stir_p.h"
 #include "stir_x.h"
 
-template<class Method>
-void* 
-cSTIR_newReconstructionMethod(const char* parFile) 
+static void*
+unknownObject(const char* obj, const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
-	try {
-		if (strlen(parFile) > 0) {
-			NEW_SPTR(Reconstruction<Image3DF>, recon, Method(parFile));
-			handle->set((void*)recon, 0);
-		}
-		else {
-			NEW_SPTR(Reconstruction<Image3DF>, recon, Method());
-			handle->set((void*)recon, 0);
-		}
-	}
-	catch (StirException& se) {
-		ExecutionStatus status(se);
-		handle->set(0, &status);
-	}
-	catch (...) {
-		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
-		handle->set(0, &status);
-	}
+	std::string error = "unknown ";
+	error += obj;
+	error += " '";
+	error += name;
+	error += "'";
+	ExecutionStatus status(error.c_str(), file, line);
+	handle->set(0, &status);
 	return (void*)handle;
 }
 
@@ -34,9 +22,20 @@ static void*
 newObjectHandle()
 {
 	DataHandle* handle = new DataHandle;
-	NEW_SPTR(Base, pp, Object());
+	NEW_SPTR2(Base, pp, Object);
 	handle->set((void*)pp, 0);
 	return (void*)handle;
+}
+
+template<class Base>
+static void*
+copyOfObjectHandle(const DataHandle* handle)
+{
+	DataHandle* copy = new DataHandle;
+	boost::shared_ptr<Base>* ptr_sptr = 
+		new boost::shared_ptr<Base>(sptrDataFromHandle<Base>(handle));
+	copy->set((void*)ptr_sptr, 0);
+	return (void*)copy;
 }
 
 template<class Object>
@@ -50,17 +49,29 @@ deleteObjectHandle(DataHandle* handle)
 	delete handle;
 }
 
-static void*
-unknownObject(const char* obj, const char* set, const char* file, int line)
+template<class Method>
+void*
+cSTIR_newReconstructionMethod(const char* parFile)
 {
 	DataHandle* handle = new DataHandle;
-	std::string error = "unknown ";
-	error += obj;
-	error += " '";
-	error += set;
-	error += "'";
-	ExecutionStatus status(error.c_str(), file, line);
-	handle->set(0, &status);
+	try {
+		if (strlen(parFile) > 0) {
+			NEW_SPTR2(Reconstruction<Image3DF>, recon, Method(parFile));
+			handle->set((void*)recon, 0);
+		}
+		else {
+			NEW_SPTR2(Reconstruction<Image3DF>, recon, Method);
+			handle->set((void*)recon, 0);
+		}
+	}
+	catch (StirException& se) {
+		ExecutionStatus status(se);
+		handle->set(0, &status);
+	}
+	catch (...) {
+		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+		handle->set(0, &status);
+	}
 	return (void*)handle;
 }
 
@@ -86,6 +97,27 @@ void* cSTIR_newObject(const char* name)
 		TruncateToCylindricalFOVImageProcessor<float> >();
 	if (boost::iequals(name, "EllipsoidalCylinder"))
 		return newObjectHandle<Shape3D, EllipsoidalCylinder>();
+	else
+		return unknownObject("object", name, __FILE__, __LINE__);
+}
+
+extern "C"
+void* cSTIR_copyOfObject(const char* name, void* ptr)
+{
+	CAST_PTR(DataHandle, handle, ptr);
+	if (boost::iequals(name, "ObjectiveFunction"))
+		return copyOfObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
+		(handle);
+	else if (boost::iequals(name, "Projectors"))
+		return copyOfObjectHandle<ProjectorByBinPair>(handle);
+	if (boost::iequals(name, "ProjMatrix"))
+		return copyOfObjectHandle<ProjMatrixByBin>(handle);
+	else if (boost::iequals(name, "Prior"))
+		return copyOfObjectHandle<GeneralisedPrior<Image3DF> >(handle);
+	else if (boost::iequals(name, "DataProcessor"))
+		return copyOfObjectHandle<DataProcessor<Image3DF> >(handle);
+	if (boost::iequals(name, "Shape"))
+		return copyOfObjectHandle<Shape3D>(handle);
 	else
 		return unknownObject("object", name, __FILE__, __LINE__);
 }
@@ -117,78 +149,78 @@ void cSTIR_deleteObject(void* ptr, const char* name)
 
 extern "C"
 void* cSTIR_setParameter
-(void* ptr_s, const char* set, const char* name, const void* ptr_v)
+(void* ptr_s, const char* obj, const char* name, const void* ptr_v)
 {
 	CAST_PTR(DataHandle, hs, ptr_s);
 	CAST_PTR(DataHandle, hv, ptr_v);
-	if (boost::iequals(set, "Shape"))
+	if (boost::iequals(obj, "Shape"))
 		return cSTIR_setShapeParameter(hs, name, hv);
-	else if (boost::iequals(set, "EllipsoidalCylinder"))
+	else if (boost::iequals(obj, "EllipsoidalCylinder"))
 		return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
-	else if (boost::iequals(set, "TruncateToCylindricalFOVImageProcessor"))
+	else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 		return cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 		(hs, name, hv);
-	else if (boost::iequals(set, "ProjectorsUsingMatrix"))
+	else if (boost::iequals(obj, "ProjectorsUsingMatrix"))
 		return cSTIR_setProjectorsUsingMatrixParameter(hs, name, hv);
-	else if (boost::iequals(set, "RayTracingMatrix"))
+	else if (boost::iequals(obj, "RayTracingMatrix"))
 		return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
-	else if (boost::iequals(set, "GeneralisedPrior"))
+	else if (boost::iequals(obj, "GeneralisedPrior"))
 		return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
-	else if (boost::iequals(set, "QuadraticPrior"))
+	else if (boost::iequals(obj, "QuadraticPrior"))
 		return cSTIR_setQuadraticPriorParameter(hs, name, hv);
-	else if (boost::iequals(set, "GeneralisedObjectiveFunction"))
+	else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 		return cSTIR_setGeneralisedObjectiveFunctionParameter(hs, name, hv);
-	else if (boost::iequals(set, "PoissonLogLikelihoodWithLinearModelForMean"))
+	else if (boost::iequals(obj, "PoissonLogLikelihoodWithLinearModelForMean"))
 		return cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 		(hs, name, hv);
-	else if (boost::iequals(set,
+	else if (boost::iequals(obj,
 		"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 		return
 		cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		(hs, name, hv);
-	else if (boost::iequals(set, "Reconstruction"))
+	else if (boost::iequals(obj, "Reconstruction"))
 		return cSTIR_setReconstructionParameter(hs, name, hv);
-	else if (boost::iequals(set, "IterativeReconstruction"))
+	else if (boost::iequals(obj, "IterativeReconstruction"))
 		return cSTIR_setIterativeReconstructionParameter(hs, name, hv);
-	else if (boost::iequals(set, "OSMAPOSL"))
+	else if (boost::iequals(obj, "OSMAPOSL"))
 		return cSTIR_setOSMAPOSLParameter(hs, name, hv);
-	else if (boost::iequals(set, "OSSPS"))
+	else if (boost::iequals(obj, "OSSPS"))
 		return cSTIR_setOSSPSParameter(hs, name, hv);
 	else
-		return unknownObject("parameter set", set, __FILE__, __LINE__);
+		return unknownObject("object", obj, __FILE__, __LINE__);
 }
 
 extern "C"
-void* cSTIR_parameter(const void* ptr, const char* set, const char* name) 
+void* cSTIR_parameter(const void* ptr, const char* obj, const char* name) 
 {
 	CAST_PTR(DataHandle, handle, ptr);
-	if (boost::iequals(set, "Shape"))
+	if (boost::iequals(obj, "Shape"))
 		return cSTIR_shapeParameter(handle, name);
-	if (boost::iequals(set, "EllipsoidalCylinder"))
+	if (boost::iequals(obj, "EllipsoidalCylinder"))
 		return cSTIR_ellipsoidalCylinderParameter(handle, name);
-	else if (boost::iequals(set, "TruncateToCylindricalFOVImageProcessor"))
+	else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 		return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 		(handle, name);
-	if (boost::iequals(set, "RayTracingMatrix"))
+	if (boost::iequals(obj, "RayTracingMatrix"))
 		return cSTIR_rayTracingMatrixParameter(handle, name);
-	if (boost::iequals(set, "ProjectorsUsingMatrix"))
+	if (boost::iequals(obj, "ProjectorsUsingMatrix"))
 		return cSTIR_projectorsUsingMatrixParameter(handle, name);
-	if (boost::iequals(set, "GeneralisedPrior"))
+	if (boost::iequals(obj, "GeneralisedPrior"))
 		return cSTIR_generalisedPriorParameter(handle, name);
-	if (boost::iequals(set, "GeneralisedObjectiveFunction"))
+	if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 		return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-	if (boost::iequals(set,
+	if (boost::iequals(obj,
 		"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 		return
 		cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		(handle, name);
-	if (boost::iequals(set, "IterativeReconstruction"))
+	if (boost::iequals(obj, "IterativeReconstruction"))
 		return cSTIR_iterativeReconstructionParameter(handle, name);
-	if (boost::iequals(set, "OSMAPOSL"))
+	if (boost::iequals(obj, "OSMAPOSL"))
 		return cSTIR_OSMAPOSLParameter(handle, name);
-	if (boost::iequals(set, "OSSPS"))
+	if (boost::iequals(obj, "OSSPS"))
 		return cSTIR_OSSPSParameter(handle, name);
-	return unknownObject("parameter set", set, __FILE__, __LINE__);
+	return unknownObject("object", obj, __FILE__, __LINE__);
 }
 
 extern "C"
