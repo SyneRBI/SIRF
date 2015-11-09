@@ -58,6 +58,11 @@ try
     obj_fun.set_prior(prior)
     
     recon = stir.OSMAPOSLReconstruction();
+    
+    recon.set_objective_function(obj_fun)
+    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
+        (recon.get_objective_function());
+
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
     recon.set_start_subset_num(0)
@@ -66,11 +71,8 @@ try
     recon.set_start_subiteration_num(1)
     recon.set_inter_iteration_filter_interval(1)
     recon.set_inter_iteration_filter(filter)
-    recon.set_objective_function(obj_fun)
     recon.set_output_filename_prefix('reconstructedImage')
     
-    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
-        (recon.get_objective_function());
     obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj.set_input_filename('Utahscat600k_ca_seg4.hs')
 

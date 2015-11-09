@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include <boost\algorithm\string.hpp>
+
 #include "StirException.h"
 
 class ExecutionStatus {
@@ -51,7 +53,7 @@ private:
 class DataHandle {
 public:
 	DataHandle() : _data(0), _status(0), _owns_data(0) {}
-	~DataHandle() {
+	virtual ~DataHandle() {
 		if (_data && _owns_data)
 			free(_data);
 		delete _status;
@@ -68,7 +70,7 @@ public:
 	}
 	void* data() const { return _data; }
 	const ExecutionStatus* status() const { return _status; }
-private:
+protected:
 	bool _owns_data;
 	void* _data;
 	ExecutionStatus* _status;
@@ -91,16 +93,12 @@ dataHandle(T x)
 {
 	DataHandle* h = new DataHandle;
 	setDataHandle<T>(h, x);
-	//T* ptr = (T*)malloc(sizeof(T));
-	//*ptr = x;
-	//h->set((void*)ptr, 0, GRAB);
 	return (void*)h;
 }
 
 template <typename T>
 T
 dataFromHandle(const void* ptr)
-//dataFromHandle(const DataHandle* ptr_h)
 {
 	DataHandle* ptr_h = (DataHandle*)ptr;
 	void* ptr_d = ptr_h->data();

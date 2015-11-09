@@ -11,6 +11,9 @@ EXPORTED_FUNCTION void* mSTIR_newObject(const char* name) {
 EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr, const char* name) {
 	cSTIR_deleteObject(ptr, name);
 }
+EXPORTED_FUNCTION void* mSTIR_copyOfObject(const char* name, void* ptr) {
+	return cSTIR_copyOfObject(name, ptr);
+}
 EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value) {
 	return cSTIR_setParameter(ptr, set, name, value);
 }

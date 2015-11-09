@@ -6,6 +6,7 @@
 
 EXPORTED_FUNCTION void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr, const char* name);
+EXPORTED_FUNCTION void* mSTIR_copyOfObject(const char* name, void* ptr);
 EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value);
 EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* set, const char* name);
 EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj);

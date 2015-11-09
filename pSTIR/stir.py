@@ -238,13 +238,11 @@ class TruncateToCylindricalFOVImageProcessor(DataProcessor):
         self.name = 'TruncateToCylindricalFOVImageProcessor'
         if filter is None:
             self.handle = pystir.cSTIR_newObject(self.name)
-            self.owns_handle = True
         else:
-            self.handle = pystir.refDataHandle(filter.handle)
-            self.owns_handle = False
+            self.handle = pystir.cSTIR_copyOfObject\
+                ('DataProcessor', filter.handle)
     def __del__(self):
-        if self.owns_handle:
-            pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
+        pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
     def set_strictly_less_than_radius(self, flag):
         _set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
@@ -360,13 +358,11 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
         if obj_fun is None:
             self.handle = pystir.cSTIR_newObject(self.name)
-            self.owns_handle = True
         else:
-            self.handle = pystir.refDataHandle(obj_fun.handle)
-            self.owns_handle = False
+            self.handle = pystir.cSTIR_copyOfObject\
+                ('ObjectiveFunction', obj_fun.handle)
     def __del__(self):
-        if self.owns_handle:
-            pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
+        pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
     def set_input_filename(self, name):
         _set_char_par\
             (self.handle, self.name, 'input_filename', name)

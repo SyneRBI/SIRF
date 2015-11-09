@@ -45,12 +45,6 @@ extern "C" {
 
 	char* charDataFromHandle(const void* ptr) {
 		return charDataFromHandle((const DataHandle*)ptr);
-		//const DataHandle* ptr_h = (const DataHandle*)ptr;
-		//void* ptr_d = ptr_h->data();
-		//if (!ptr_d)
-		//	return 0;
-		//else
-		//	return (char*)ptr_d;
 	}
 	int intDataFromHandle(const void* ptr) {
 		return dataFromHandle<int>(ptr);
