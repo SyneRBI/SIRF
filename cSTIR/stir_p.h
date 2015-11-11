@@ -3,47 +3,6 @@
 
 #include "dh.h"
 
-#define NEW(T, X) T* X = new T
-#define NEW_OBJ(T, X, Y) T* X = new T(Y)
-#define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define NEW_SPTR1(T, X) \
-	boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new T)
-#define NEW_SPTR2(Base, X, Object) \
-	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
-
-template<class Base, class Object = Base>
-Object&
-objectFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		throw StirException("zero data pointer cannot be dereferenced", 
-		__FILE__, __LINE__);
-	CAST_PTR(boost::shared_ptr<Base>, sptr, ptr);
-	if (is_null_ptr(*sptr))
-		throw StirException("zero object pointer cannot be dereferenced",
-		__FILE__, __LINE__);
-	CAST_PTR(Object, object, sptr->get());
-	return *object;
-}
-
-template<class T>
-void*
-sptrDataHandle(boost::shared_ptr<T> sptr) {
-	NEW(boost::shared_ptr<T>, ptr_sptr);
-	*ptr_sptr = sptr;
-	NEW(DataHandle, handle);
-	handle->set((void*)ptr_sptr, 0);
-	return (void*)handle;
-}
-
-template<class T>
-boost::shared_ptr<T>
-sptrDataFromHandle(const DataHandle* handle) {
-	return *(boost::shared_ptr<T>*)handle->data();
-}
-
-char* charDataFromHandle(const DataHandle* ptr_h);
-
 void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 

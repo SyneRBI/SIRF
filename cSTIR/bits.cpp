@@ -2521,3 +2521,351 @@ public:
 
 //void* refDataHandle(void* ptr);
 
+//class anObjectHandle {
+//public:
+//	virtual ~anObjectHandle() {}
+//	virtual anObjectHandle* copy() = 0;
+//};
+//
+//template<class Object, class Base = Object>
+//class ObjectHandle : public DataHandle, public anObjectHandle {
+//public:
+//	ObjectHandle(const ObjectHandle& obj) {
+//		NEW(boost::shared_ptr<Base>, ptr_sptr);
+//		*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
+//		_data = (void*)ptr_sptr;
+//		if (obj._status)
+//			_status = new ExecutionStatus(*obj._status);
+//		_name = obj._name;
+//	}
+//	ObjectHandle(const char* name, const ExecutionStatus* status = 0) : 
+//		DataHandle(name) {
+//		//printf("ObjectHandle constructor called...");
+//		//boost::shared_ptr<Base>* ptr_sptr = new boost::shared_ptr<Base>(new Object);
+//		NEW_SPTR2(Base, ptr_sptr, Object);
+//		//printf("ok\n");
+//		_data = (void*)ptr_sptr;
+//		if (status)
+//			_status = new ExecutionStatus(*status);
+//	}
+//	ObjectHandle(const char* name, const boost::shared_ptr<Base>& obj,
+//		const ExecutionStatus* status = 0) : DataHandle(name) {
+//		//boost::shared_ptr<Base>* ptr_sptr = new boost::shared_ptr<Base>;
+//		NEW(boost::shared_ptr<Base>, ptr_sptr);
+//		*ptr_sptr = obj;
+//		_data = (void*)ptr_sptr;
+//		if (status)
+//			_status = new ExecutionStatus(*status);
+//	}
+//	virtual ~ObjectHandle() {
+//		//printf("ObjectHandle destructor called...");
+//		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+//		delete _status;
+//		//printf("ok\n");
+//		delete ptr_sptr;
+//		//printf("ok\n");
+//	}
+//	virtual anObjectHandle* copy() {
+//		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+//		return new ObjectHandle<Object, Base>
+//			(_name.c_str(), *ptr_sptr, _status);
+//	}
+//	virtual const char* name() const {
+//		return _name.c_str();
+//	}
+////private:
+////	std::string _name;
+//};
+
+#define NEW_OBJ(T, X, Y) T* X = new T(Y)
+#define NEW_SPTR1(T, X) \
+	boost::shared_ptr< T >* X = new boost::shared_ptr< T >(new T)
+
+//template<class Base, class Object = Base>
+//static void*
+//newObjHandle()
+//{
+//	typedef ObjectHandle<Object, Base> Obj;
+//	//NEW(Obj, ptr_handle);
+//	Obj* ptr_handle = new Obj(Object::registered_name);
+//	return (void*)ptr_handle;
+//}
+//
+//static void*
+//copyOfObjHandle(void* ptr)
+//{
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	return (void*)ptr_obj->copy();
+//}
+//
+//static void
+//deleteObjHandle(void* ptr)
+//{
+//	if (!ptr)
+//		return;
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	delete ptr_obj;
+//}
+
+//if (boost::iequals(name, "_name")) {
+//	CAST_PTR(aDataHandle, h, ptr);
+//	return charDataHandle(h->name());
+//}
+
+class aDataHandle {
+public:
+	virtual ~aDataHandle() {}
+	virtual const char* name() const = 0;
+};
+
+//: public aDataHandle {
+
+//const char* name = "") : 
+
+//, _name(name) {}
+
+//virtual const char* name() const {
+//	return _name.c_str();
+//}
+
+//std::string _name;
+
+//ObjectHandle<Reconstruction<Image3DF> >* ptr_handle =
+//	new ObjectHandle<Reconstruction<Image3DF> >(*ptr_sptr);
+//return (void*)ptr_handle;
+//NEW_SPTR(Reconstruction<Image3DF>, recon, Method(parFile));
+//handle->set((void*)recon, 0);
+
+//ObjectHandle<Reconstruction<Image3DF> >* ptr_handle =
+//	new ObjectHandle<Reconstruction<Image3DF> >(*ptr_sptr);
+//return (void*)ptr_handle;
+//NEW_SPTR(Reconstruction<Image3DF>, recon, Method);
+//handle->set((void*)recon, 0);
+
+//if (boost::iequals(name,
+//	"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
+//	return newObjectHandle<GeneralisedObjectiveFunction<Image3DF>,
+//	PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> >
+//	();
+//else if (boost::iequals(name, "ProjectorsUsingMatrix"))
+//	return newObjectHandle
+//	<ProjectorByBinPair, ProjectorByBinPairUsingProjMatrixByBin>();
+//if (boost::iequals(name, "RayTracingMatrix"))
+//	return newObjectHandle
+//	<ProjMatrixByBin, ProjMatrixByBinUsingRayTracing>();
+//else if (boost::iequals(name, "QuadraticPrior"))
+//	return newObjectHandle
+//	<GeneralisedPrior<Image3DF>, QuadraticPrior<float> >();
+//else if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
+//	return newObjectHandle<DataProcessor<Image3DF>,
+//	TruncateToCylindricalFOVImageProcessor<float> >();
+//if (boost::iequals(name, "EllipsoidalCylinder"))
+//	return newObjectHandle<Shape3D, EllipsoidalCylinder>();
+
+//printf("%s\n", name);
+//printf("%p\n", ptr);
+CAST_PTR(DataHandle, handle, ptr);
+//if (boost::iequals(name, "ObjectiveFunction"))
+//	return copyOfObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
+//	(handle);
+if (boost::iequals(name, "ObjectiveFunction"))
+return copyOfObjHandle(ptr);
+//else if (boost::iequals(name, "Projectors"))
+//	return copyOfObjectHandle<ProjectorByBinPair>(handle);
+//if (boost::iequals(name, "ProjMatrix"))
+//	return copyOfObjectHandle<ProjMatrixByBin>(handle);
+//else if (boost::iequals(name, "Prior"))
+//	return copyOfObjectHandle<GeneralisedPrior<Image3DF> >(handle);
+//else if (boost::iequals(name, "DataProcessor"))
+//	return copyOfObjectHandle<DataProcessor<Image3DF> >(handle);
+else if (boost::iequals(name, "DataProcessor"))
+return copyOfObjHandle(ptr);
+//if (boost::iequals(name, "Shape"))
+//	return copyOfObjectHandle<Shape3D>(handle);
+else
+return unknownObject("object", name, __FILE__, __LINE__);
+
+CAST_PTR(DataHandle, handle, ptr);
+if (boost::iequals(name, "ObjectiveFunction"))
+deleteObjHandle(ptr);
+//if (boost::iequals(name, "ObjectiveFunction"))
+//	deleteObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
+//	(handle);
+//else if (boost::iequals(name, "Projectors"))
+//	deleteObjectHandle<ProjectorByBinPair>(handle);
+//else if (boost::iequals(name, "ProjMatrix"))
+//	deleteObjectHandle<ProjMatrixByBin>(handle);
+//else if (boost::iequals(name, "Prior"))
+//	deleteObjectHandle< GeneralisedPrior<Image3DF> >(handle);
+//else if (boost::iequals(name, "DataProcessor"))
+//	deleteObjectHandle< DataProcessor<Image3DF> >(handle);
+//else if (boost::iequals(name, "Shape"))
+//	deleteObjectHandle<Shape3D>(handle);
+//else if (boost::iequals(name, "Image"))
+//	deleteObjectHandle<Image3DF>(handle);
+//else if (boost::iequals(name, "Voxels"))
+//	deleteObjectHandle<Voxels3DF>(handle);
+//else if (boost::iequals(name, "Reconstruction"))
+//	deleteObjectHandle< Reconstruction<Image3DF> >(handle);
+else
+deleteObjHandle(ptr);
+
+//return copyOfObjHandle(ptr);
+
+//deleteObjHandle(ptr);
+
+//DataHandle* handle = new DataHandle;
+//handle->set((void*)sptr, 0);
+
+//DataHandle* handle = new DataHandle;
+//handle->set((void*)sptr, 0);
+
+//DataHandle* handle = new DataHandle;
+//handle->set((void*)sptr, 0);
+
+//handle->set((void*)sptr, 0);
+
+//return newObjHandle<Reconstruction<Image3DF> >(ptr_sptr);
+
+//return newObjHandle<Reconstruction<Image3DF> >(ptr_sptr);
+
+//ObjectHandle<Image3DF>* handle = new ObjectHandle<Image3DF>(*sptr);
+//return (void*)handle;
+
+//ObjectHandle<Image3DF>* handle = new ObjectHandle<Image3DF>(*sptr);
+//return (void*)handle;
+
+//ObjectHandle<Image3DF>* handle = new ObjectHandle<Image3DF>(*sptr);
+//return (void*)handle;
+
+//ObjectHandle<Image3DF>* handle = new ObjectHandle<Image3DF>(*sptr);
+//return (void*)handle;
+
+{
+	printf("anObjectHandle.copy\n");
+	return 0;
+}
+
+virtual void print(const char* text) {
+	printf("anObjectHandle.prints: %s\n");
+}
+
+//class ObjectHandle : public DataHandle, public anObjectHandle {
+
+virtual void print(const char* text) {
+	printf("ObjectHandle.prints: %s\n");
+}
+//protected:
+//	void* _data;
+//	ExecutionStatus* _status;
+
+//anObjectHandle* ptr = (anObjectHandle*)ptr_handle;
+//printf("%p\n", ptr_handle);
+//printf("%p\n", ptr);
+//printf("%p\n", (void*)ptr_handle);
+//printf("%p\n", (void*)ptr);
+//ptr_handle->print("in constructor");
+//ptr->print();
+
+//static void*
+//copyOfObjHandle(void* ptr)
+//{
+//	//printf("%p\n", ptr);
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	//printf("copying...\n");
+//	//return (void*)ptr_obj;
+//	//ptr_obj->print("copying");
+//	//anObjectHandle* copy = ptr_obj->copy();
+//	//return (void*)copy;
+//	return (void*)ptr_obj->copy();
+//}
+//
+//static void
+//deleteObjHandle(void* ptr)
+//{
+//	//printf("%p\n", ptr);
+//	if (!ptr)
+//		return;
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	//ptr_obj->print("in destructor");
+//	delete ptr_obj;
+//}
+
+//template<class Base, class Object = Base>
+//void*
+//newObjectHandle()
+//{
+//	DataHandle* handle = new DataHandle;
+//	NEW_SPTR(Base, ptr_sptr, Object);
+//	handle->set((void*)ptr_sptr, 0);
+//	return (void*)handle;
+//}
+//
+//template<class Base>
+//void*
+//copyOfObjectHandle(const DataHandle* handle)
+//{
+//	DataHandle* copy = new DataHandle;
+//	boost::shared_ptr<Base>* ptr_sptr =
+//		new boost::shared_ptr<Base>(sptrDataFromHandle<Base>(handle));
+//	copy->set((void*)ptr_sptr, 0);
+//	return (void*)copy;
+//}
+//
+//template<class Object>
+//void
+//deleteObjectHandle(DataHandle* handle)
+//{
+//	if (!handle)
+//		return;
+//	CAST_PTR(boost::shared_ptr<Object>, sptr, handle->data());
+//	delete sptr;
+//	delete handle;
+//}
+
+//template<class T>
+//void*
+//sptrDataHandle(boost::shared_ptr<T> sptr) {
+//	NEW(boost::shared_ptr<T>, ptr_sptr);
+//	*ptr_sptr = sptr;
+//	NEW(DataHandle, handle);
+//	handle->set((void*)ptr_sptr, 0);
+//	return (void*)handle;
+//}
+
+//if (boost::iequals(name, "matrix_type"))
+//	return sptrDataHandle(proj.get_proj_matrix_sptr());
+
+//if (boost::iequals(name, "prior"))
+//	return sptrDataHandle(obj_fun.get_prior_sptr());
+
+//if (boost::iequals(name, "projector_pair_type"))
+//	return sptrDataHandle(obj_fun.get_projector_pair_sptr());
+
+//if (boost::iequals(name, "objective_function"))
+//	return sptrDataHandle(recon.get_objective_function_sptr());
+
+//if (boost::iequals(name, "inter_iteration_filter_type"))
+//	return sptrDataHandle(recon.get_inter_iteration_filter_sptr());
+
+//if (boost::iequals(name, "objective_function"))
+//	return sptrDataHandle(recon.get_objective_function_sptr());
+
+void* refDataHandle(void* ptr) {
+	DataHandle* h = (DataHandle*)ptr;
+	DataHandle* hr = new DataHandle;
+	hr->set(h->data(), h->status());
+	return (void*)hr;
+}
+
+//CAST_PTR(sptrImage3DF, ptr_sptr_image, hd->data());
+//processor.apply(**ptr_sptr_image);
+
+//CAST_PTR(sptrImage3DF, ptr_sptr_image, hi->data());
+
+//Succeeded s = xSTIR_setupReconstruction(hr->data(), *ptr_sptr_image);
+
+//CAST_PTR(sptrImage3DF, ptr_sptr_image, hi->data());
+
+//if (recon.reconstruct(*ptr_sptr_image) != Succeeded::yes) {
+

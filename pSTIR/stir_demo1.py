@@ -12,6 +12,11 @@ try:
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par')
 
+##    f1 = recon.get_inter_iteration_filter()
+##    f2 = stir.TruncateToCylindricalFOVImageProcessor()
+##    f2.set_strictly_less_than_radius(False)
+##    f = stir.TruncateToCylindricalFOVImageProcessor(f1)
+##    print('ok')
     f = stir.TruncateToCylindricalFOVImageProcessor\
         (recon.get_inter_iteration_filter())
 

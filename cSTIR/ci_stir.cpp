@@ -3,6 +3,10 @@
 #include "stir_p.h"
 #include "stir_x.h"
 
+#define CAST_PTR(T, X, Y) T* X = (T*)Y
+#define NEW_SPTR(Base, X, Object) \
+	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
+
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
@@ -17,62 +21,32 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	return (void*)handle;
 }
 
-template<class Base, class Object = Base>
-static void*
-newObjectHandle()
-{
-	DataHandle* handle = new DataHandle;
-	NEW_SPTR2(Base, pp, Object);
-	handle->set((void*)pp, 0);
-	return (void*)handle;
-}
-
-template<class Base>
-static void*
-copyOfObjectHandle(const DataHandle* handle)
-{
-	DataHandle* copy = new DataHandle;
-	boost::shared_ptr<Base>* ptr_sptr = 
-		new boost::shared_ptr<Base>(sptrDataFromHandle<Base>(handle));
-	copy->set((void*)ptr_sptr, 0);
-	return (void*)copy;
-}
-
-template<class Object>
-static void
-deleteObjectHandle(DataHandle* handle)
-{
-	if (!handle)
-		return;
-	CAST_PTR(boost::shared_ptr<Object>, sptr, handle->data());
-	delete sptr;
-	delete handle;
-}
-
 template<class Method>
 void*
 cSTIR_newReconstructionMethod(const char* parFile)
 {
-	DataHandle* handle = new DataHandle;
 	try {
 		if (strlen(parFile) > 0) {
-			NEW_SPTR2(Reconstruction<Image3DF>, recon, Method(parFile));
-			handle->set((void*)recon, 0);
+			NEW_SPTR(Reconstruction<Image3DF>, ptr_sptr, Method(parFile));
+			return newObjectHandle(ptr_sptr);
 		}
 		else {
-			NEW_SPTR2(Reconstruction<Image3DF>, recon, Method);
-			handle->set((void*)recon, 0);
+			NEW_SPTR(Reconstruction<Image3DF>, ptr_sptr, Method);
+			return newObjectHandle(ptr_sptr);
 		}
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
+		DataHandle* handle = new DataHandle;
 		handle->set(0, &status);
+		return (void*)handle;
 	}
 	catch (...) {
 		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+		DataHandle* handle = new DataHandle;
 		handle->set(0, &status);
+		return (void*)handle;
 	}
-	return (void*)handle;
 }
 
 extern "C"
@@ -83,68 +57,37 @@ void* cSTIR_newObject(const char* name)
 		return newObjectHandle<GeneralisedObjectiveFunction<Image3DF>,
 		PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> >
 		();
-	else if (boost::iequals(name, "ProjectorsUsingMatrix"))
+	if (boost::iequals(name, "ProjectorsUsingMatrix"))
 		return newObjectHandle
 		<ProjectorByBinPair, ProjectorByBinPairUsingProjMatrixByBin>();
 	if (boost::iequals(name, "RayTracingMatrix"))
 		return newObjectHandle
 		<ProjMatrixByBin, ProjMatrixByBinUsingRayTracing>();
-	else if (boost::iequals(name, "QuadraticPrior"))
+	if (boost::iequals(name, "QuadraticPrior"))
 		return newObjectHandle
 		<GeneralisedPrior<Image3DF>, QuadraticPrior<float> >();
-	else if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
+	if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 		return newObjectHandle<DataProcessor<Image3DF>,
 		TruncateToCylindricalFOVImageProcessor<float> >();
 	if (boost::iequals(name, "EllipsoidalCylinder"))
 		return newObjectHandle<Shape3D, EllipsoidalCylinder>();
-	else
-		return unknownObject("object", name, __FILE__, __LINE__);
+	return unknownObject("object", name, __FILE__, __LINE__);
 }
 
 extern "C"
-void* cSTIR_copyOfObject(const char* name, void* ptr)
+void* cSTIR_copyOfObject(void* ptr)
 {
-	CAST_PTR(DataHandle, handle, ptr);
-	if (boost::iequals(name, "ObjectiveFunction"))
-		return copyOfObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
-		(handle);
-	else if (boost::iequals(name, "Projectors"))
-		return copyOfObjectHandle<ProjectorByBinPair>(handle);
-	if (boost::iequals(name, "ProjMatrix"))
-		return copyOfObjectHandle<ProjMatrixByBin>(handle);
-	else if (boost::iequals(name, "Prior"))
-		return copyOfObjectHandle<GeneralisedPrior<Image3DF> >(handle);
-	else if (boost::iequals(name, "DataProcessor"))
-		return copyOfObjectHandle<DataProcessor<Image3DF> >(handle);
-	if (boost::iequals(name, "Shape"))
-		return copyOfObjectHandle<Shape3D>(handle);
-	else
-		return unknownObject("object", name, __FILE__, __LINE__);
+	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+	return (void*)ptr_obj->copy();
 }
 
 extern "C"
-void cSTIR_deleteObject(void* ptr, const char* name)
+void cSTIR_deleteObject(void* ptr)
 {
-	CAST_PTR(DataHandle, handle, ptr);
-	if (boost::iequals(name, "ObjectiveFunction"))
-		deleteObjectHandle<GeneralisedObjectiveFunction<Image3DF> >
-		(handle);
-	else if (boost::iequals(name, "Projectors"))
-		deleteObjectHandle<ProjectorByBinPair>(handle);
-	else if (boost::iequals(name, "ProjMatrix"))
-		deleteObjectHandle<ProjMatrixByBin>(handle);
-	else if (boost::iequals(name, "Prior"))
-		deleteObjectHandle< GeneralisedPrior<Image3DF> >(handle);
-	else if (boost::iequals(name, "DataProcessor"))
-		deleteObjectHandle< DataProcessor<Image3DF> >(handle);
-	else if (boost::iequals(name, "Shape"))
-		deleteObjectHandle<Shape3D>(handle);
-	else if (boost::iequals(name, "Image"))
-		deleteObjectHandle<sptrImage3DF>(handle);
-	else if (boost::iequals(name, "Voxels"))
-		deleteObjectHandle<sptrVoxels3DF>(handle);
-	else if (boost::iequals(name, "Reconstruction"))
-		deleteObjectHandle< Reconstruction<Image3DF> >(handle);
+	if (!ptr)
+		return;
+	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+	delete ptr_obj;
 }
 
 extern "C"
@@ -267,16 +210,16 @@ void* cSTIR_setupObject(const char* obj, void* ptr_obj)
 }
 
 extern "C"
-void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d)
+void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hp, ptr_p);
-	CAST_PTR(DataHandle, hd, ptr_d);
+	CAST_PTR(DataHandle, hi, ptr_i);
 	DataHandle* handle = new DataHandle;
 	try {
-		DataProcessor<Image3DF>& proc =
+		DataProcessor<Image3DF>& processor =
 			objectFromHandle<DataProcessor<Image3DF> >(hp);
-		CAST_PTR(sptrImage3DF, image, hd->data());
-		proc.apply(**image);
+		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		processor.apply(image);
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
@@ -294,10 +237,10 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(sptrImage3DF, image, hi->data());
 	DataHandle* handle = new DataHandle;
 	try {
-		Succeeded s = xSTIR_setupReconstruction(hr->data(), *image);
+		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(hi);
+		Succeeded s = xSTIR_setupReconstruction(hr->data(), sptr_image);
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupReconstruction failed",
 				__FILE__, __LINE__);
@@ -319,14 +262,14 @@ extern "C"
 void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i) 
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
-	Reconstruction<Image3DF>& recon =
-		objectFromHandle< Reconstruction<Image3DF> >(hr);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	CAST_PTR(sptrImage3DF, image, hi->data());
 	DataHandle* handle = new DataHandle;
 	try {
-		if (recon.reconstruct(*image) != Succeeded::yes) {
-				ExecutionStatus status("cSTIR_reconstruct failed",
+		Reconstruction<Image3DF>& recon =
+			objectFromHandle< Reconstruction<Image3DF> >(hr);
+		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(hi);
+		if (recon.reconstruct(sptr_image) != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_reconstruct failed",
 				__FILE__, __LINE__);
 			handle->set(0, &status);
 		}
@@ -347,9 +290,9 @@ void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 {
 	CAST_PTR(DataHandle, hr, ptr_r);
 	CAST_PTR(DataHandle, hi, ptr_i);
-	Image3DF& image = objectFromHandle<Image3DF>(hi);
 	DataHandle* handle = new DataHandle;
 	try {
+		Image3DF& image = objectFromHandle<Image3DF>(hi);
 		xSTIR_updateReconstruction(hr->data(), image);
 	}
 	catch (StirException& se) {
@@ -375,9 +318,7 @@ double x, double y, double z)
 			Coord3DF((float)z, (float)y, (float)x),
 			Coord3DF((float)sz, (float)sy, (float)sx)));
 	(*sptr)->fill(0);
-	DataHandle* handle = new DataHandle;
-	handle->set((void*)sptr, 0);
-	return (void*)handle;
+	return newObjectHandle(sptr);
 }
 
 extern "C"
@@ -386,9 +327,7 @@ void* cSTIR_imageFromVoxels(void* ptr_v)
 	CAST_PTR(DataHandle, hv, ptr_v);
 	Voxels3DF& voxels = objectFromHandle<Voxels3DF>(hv);
 	sptrImage3DF* sptr = new sptrImage3DF(voxels.clone());
-	DataHandle* handle = new DataHandle;
-	handle->set((void*)sptr, 0);
-	return (void*)handle;
+	return newObjectHandle(sptr);
 }
 
 extern "C"
@@ -397,9 +336,7 @@ void* cSTIR_imageFromImage(void* ptr_i)
 	CAST_PTR(DataHandle, hi, ptr_i);
 	Image3DF& image = objectFromHandle<Image3DF>(hi);
 	sptrImage3DF* sptr = new sptrImage3DF(image.clone());
-	DataHandle* handle = new DataHandle;
-	handle->set((void*)sptr, 0);
-	return (void*)handle;
+	return newObjectHandle(sptr);
 }
 
 extern "C"
@@ -432,20 +369,23 @@ void cSTIR_fillImage(void* ptr_i, double v)
 extern "C"
 void* cSTIR_imageFromFile(const char* filename) 
 {
-	DataHandle* handle = new DataHandle;
 	try {
-		sptrImage3DF* ptr = new sptrImage3DF(read_from_file<Image3DF>(filename));
-		handle->set((void*)ptr, 0);
+		sptrImage3DF* sptr = new sptrImage3DF
+			(read_from_file<Image3DF>(filename));
+		return newObjectHandle(sptr);
 	}
 	catch (StirException& se) {
 		ExecutionStatus status(se);
+		DataHandle* handle = new DataHandle;
 		handle->set(0, &status);
+		return (void*)handle;
 	}
 	catch (...) {
 		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+		DataHandle* handle = new DataHandle;
 		handle->set(0, &status);
+		return (void*)handle;
 	}
-	return (void*)handle;
 }
 
 extern "C"

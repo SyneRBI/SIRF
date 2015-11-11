@@ -18,10 +18,10 @@ classdef Image < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
+                calllib('mstir', 'mSTIR_deleteObject', self.handle)
             end
             if ~isempty(self.voxels)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle, self.voxels)
+                calllib('mstir', 'mSTIR_deleteObject', self.voxels)
             end
         end
         function initialise(self,...
@@ -46,10 +46,10 @@ classdef Image < handle
                 end
             end
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
+                calllib('mstir', 'mSTIR_deleteObject', self.handle)
             end
             if ~isempty(self.voxels)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle, 'Voxels')
+                calllib('mstir', 'mSTIR_deleteObject', self.voxels)
             end
             self.voxels = calllib('mstir', 'mSTIR_voxels3DF',...
                 dim(1), dim(2), dim(3),...
@@ -79,13 +79,16 @@ classdef Image < handle
             stir.checkExecutionStatus('Image:clone', self.handle)
             image.fill(value)
         end
-%         function read_from_file(self, filename)
-%             if ~isempty(self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle, self.name)
-%             end
-%             self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
-%             stir.checkExecutionStatus('read_from_file', self.handle);
-%         end
+        function read_from_file(self, filename)
+            if ~isempty(self.handle)
+               calllib('mstir', 'mSTIR_deleteObject', self.handle)
+            end
+            if ~isempty(self.voxels)
+                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+            end
+            self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
+            stir.checkExecutionStatus('read_from_file', self.handle);
+        end
         function diff = diff_from(self, image)
             h = calllib('mstir', 'mSTIR_imagesDifference',...
                      self.handle, image.handle, self.rimsize);

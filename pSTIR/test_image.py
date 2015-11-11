@@ -11,6 +11,7 @@ try:
     image0.initialise(voxel_dim, voxel_size)
 
     shape = stir.EllipsoidalCylinder()
+
     shape.set_length(400)
     shape.set_radii((400, 400))
     shape.set_origin((150, 0, 0))
@@ -41,8 +42,9 @@ try:
         pylab.show()
 
     image = stir.Image()
-##    voxel_dim = (60, 60, 31)
-##    voxel_size = (4.44114, 4.44114, 3.375)
+    voxel_dim = (60, 60, 31)
+    voxel_size = (4.44114, 4.44114, 3.375)
+    voxels = stir.Voxels(voxel_dim, voxel_size)
 ##    image.initialise(voxel_dim, voxel_size)
     image.initialise(60, 60, 31, 4.44114, 4.44114, 3.375)
     image.fill(1.0)
@@ -51,9 +53,12 @@ try:
     filter.set_strictly_less_than_radius(False)
     filter.apply(image)
 
-    image_x = stir.Image('my_uniform_image_circular.hv')
+    image_x = stir.Image()
+    image_x.read_from_file('my_uniform_image_circular.hv')
 
     image_c = image.clone()
+    diff = image_x.diff_from(image_c)
+    print('difference from cloned image:', diff)
 
     image_e = image.get_empty_copy(2)
 

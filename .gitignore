@@ -249,3 +249,6 @@ pSTIR/pystir_wrap.cxx
 *.hv
 pSTIR/pystir_wrap.cxx
 *.mexw64
+mSTIR/Old/cstir.h
+mSTIR/Old/mstir.c
+mSTIR/Old/cstir.h

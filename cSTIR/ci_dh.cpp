@@ -17,13 +17,6 @@ extern "C" {
 		return (void*)new DataHandle;
 	}
 
-	void* refDataHandle(void* ptr) {
-		DataHandle* h = (DataHandle*)ptr;
-		DataHandle* hr = new DataHandle;
-		hr->set(h->data(), h->status());
-		return (void*)hr;
-	}
-
 	void* charDataHandle(const char* s) {
 		DataHandle* h = new DataHandle;
 		size_t len = strlen(s);
