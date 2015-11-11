@@ -7,6 +7,11 @@
 
 #include "StirException.h"
 
+#define NEW(T, X) T* X = new T
+#define CAST_PTR(T, X, Y) T* X = (T*)Y
+#define NEW_SPTR(Base, X, Object) \
+	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
+
 class ExecutionStatus {
 public:
 	ExecutionStatus() : _error(0), _file(0), _line(0) {}
@@ -50,15 +55,15 @@ private:
 	}
 };
 
-class DataHandle {
+class DataHandle { 
 public:
-	DataHandle() : _data(0), _status(0), _owns_data(0) {}
+	DataHandle() : _data(0), _status(0), _owns_data(0) {} 
 	virtual ~DataHandle() {
 		if (_data && _owns_data)
 			free(_data);
 		delete _status;
 	}
-	void set(void* data, const ExecutionStatus* status, int grab = 0) {
+	void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
 		if (status) {
 			delete _status;
 			_status = new ExecutionStatus(*status);
@@ -75,6 +80,108 @@ protected:
 	void* _data;
 	ExecutionStatus* _status;
 };
+
+class anObjectHandle : public DataHandle {
+public:
+	virtual ~anObjectHandle() {}
+	virtual anObjectHandle* copy() = 0;
+};
+
+template<class Base>
+class ObjectHandle : public anObjectHandle {
+public:
+	ObjectHandle(const ObjectHandle& obj) { 
+		NEW(boost::shared_ptr<Base>, ptr_sptr);
+		*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
+		_data = (void*)ptr_sptr;
+		if (obj._status)
+			_status = new ExecutionStatus(*obj._status);
+		else
+			_status = 0;
+	}
+	ObjectHandle(const boost::shared_ptr<Base>& sptr,
+		const ExecutionStatus* status = 0) { 
+		NEW(boost::shared_ptr<Base>, ptr_sptr);
+		*ptr_sptr = sptr;
+		_data = (void*)ptr_sptr;
+		if (status)
+			_status = new ExecutionStatus(*status);
+		else
+			_status = 0;
+	}
+	virtual ~ObjectHandle() {
+		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+		delete _status;
+		delete ptr_sptr;
+	}
+	virtual anObjectHandle* copy() {
+		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+		return new ObjectHandle<Base>(*ptr_sptr, _status);
+	}
+};
+
+template<class Base, class Object = Base>
+static void*
+newObjectHandle()
+{
+	NEW_SPTR(Base, ptr_sptr, Object);
+	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
+	return (void*)ptr_handle;
+}
+
+template<class Base>
+static void*
+newObjectHandle(boost::shared_ptr<Base>* ptr_sptr)
+{
+	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
+	return (void*)ptr_handle;
+}
+
+template<class T>
+void*
+sptrObjectHandle(boost::shared_ptr<T> sptr) {
+	NEW(boost::shared_ptr<T>, ptr_sptr);
+	*ptr_sptr = sptr;
+	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(*ptr_sptr);
+	return (void*)ptr_handle;
+}
+
+template<class Base, class Object = Base>
+Object&
+objectFromHandle(const DataHandle* handle) {
+	void* ptr = handle->data();
+	if (ptr == 0)
+		throw StirException("zero data pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	if (is_null_ptr(*ptr_sptr))
+		throw StirException("zero object pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	CAST_PTR(Object, ptr_object, ptr_sptr->get());
+	return *ptr_object;
+}
+
+template<class Base>
+boost::shared_ptr<Base>&
+objectSptrFromHandle(const DataHandle* handle) {
+	void* ptr = handle->data();
+	if (ptr == 0)
+		throw StirException("zero data pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	if (is_null_ptr(*ptr_sptr))
+		throw StirException("zero object pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	return *ptr_sptr;
+}
+
+template<class T>
+boost::shared_ptr<T>
+sptrDataFromHandle(const DataHandle* handle) {
+	return *(boost::shared_ptr<T>*)handle->data();
+}
+
+char* charDataFromHandle(const DataHandle* ptr_h);
 
 #define GRAB 1
 

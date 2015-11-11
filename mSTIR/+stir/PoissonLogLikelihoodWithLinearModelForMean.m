@@ -6,8 +6,9 @@ classdef PoissonLogLikelihoodWithLinearModelForMean <...
         end
         function delete(self)
             if ~isempty(self.handle)
-                 calllib('mstir', 'mDeleteDataHandle', self.handle)
-                 self.handle = [];
+                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+%                calllib('mstir', 'mDeleteDataHandle', self.handle)
+                self.handle = [];
             end
         end
         function set_sensitivity_filename(self, name)

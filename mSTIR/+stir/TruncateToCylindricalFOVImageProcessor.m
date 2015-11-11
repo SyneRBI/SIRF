@@ -7,14 +7,12 @@ classdef TruncateToCylindricalFOVImageProcessor < stir.DataProcessor
                     ('mstir', 'mSTIR_newObject', self.name);
             else
                 self.handle = calllib...
-                    ('mstir', 'mSTIR_copyOfObject',...
-                    'DataProcessor', filter.handle);
+                    ('mstir', 'mSTIR_copyOfObject', filter.handle);
             end
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle,...
-                    'DataProcessor')
+                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 self.handle = [];
             end
         end

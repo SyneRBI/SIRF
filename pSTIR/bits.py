@@ -1162,3 +1162,55 @@ projectors = stir.Projectors('projectors_parameters.par')
 
     def __init__(self):
         self.name_ = 'IterativeReconstruction'
+
+##class STIRObject:
+##    def object_name(self):
+##        return _char_par(self.handle, ' ', '_name')
+
+##        if arg is None:
+##            self.voxels = pystir.cSTIR_voxels3DF(8, 8, 8, 1, 1, 1, 0, 0, 0)
+##            _check_status(self.voxels)
+##            self.handle = pystir.cSTIR_imageFromVoxels(self.voxels)
+##            _check_status(self.handle)
+##            self.empty = False
+
+##        pystir.cSTIR_deleteObject(self.handle, 'Shape')
+
+##            pystir.cSTIR_deleteObject(self.handle, self.name)
+
+##            pystir.cSTIR_deleteObject(self.voxels, 'Voxels')
+
+##    def __init__(self):
+##        self.handle = None
+##    def __del__(self):
+##        if self.handle is not None:
+##            pystir.deleteDataHandle(self.handle)
+
+##                ('DataProcessor', filter.handle)
+
+##        pystir.cSTIR_deleteObject(self.handle, 'DataProcessor')
+
+##        self.owns_handle = True
+
+##        if self.owns_handle:
+
+##            pystir.cSTIR_deleteObject(self.handle, 'ProjMatrix')
+
+##            pystir.cSTIR_deleteObject(self.handle, 'Projectors')
+
+##        matrix.owns_handle = False
+
+##        pystir.cSTIR_deleteObject(self.handle, 'Prior')
+
+##                ('ObjectiveFunction', obj_fun.handle)
+
+##        pystir.cSTIR_deleteObject(self.handle, 'ObjectiveFunction')
+
+##        proj.owns_handle = False
+
+##            pystir.cSTIR_deleteObject(self.handle, 'Reconstruction')
+
+##        GeneralisedPrior.__init__(self)
+
+##        GeneralisedObjectiveFunction.__init__(self)
+

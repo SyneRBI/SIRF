@@ -10,11 +10,13 @@ try
     printer = stir.printerTo('stdout');
     
     %image = stir.Image('my_uniform_image_circular.hv');
-    voxel_dim = [60, 60, 31];
-    voxel_size = [4.44114, 4.44114, 3.375];
     image = stir.Image();
-    image.initialise(voxel_dim, voxel_size)
-    image.fill(1.0)
+    image.read_from_file('my_uniform_image_circular.hv')
+%     voxel_dim = [60, 60, 31];
+%     voxel_size = [4.44114, 4.44114, 3.375];
+%     image = stir.Image();
+%     image.initialise(voxel_dim, voxel_size)
+%     image.fill(1.0)
 
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par');
     

@@ -190,17 +190,17 @@ void cstir_test1() {
 	//cSTIR_deleteObject(h_proj, "ProjectorsUsingMatrix");
 	//cSTIR_deleteObject(h_prior, "GeneralisedPrior");
 	//cSTIR_deleteObject(h_prior, "QuadraticPrior");
-	cSTIR_deleteObject(h_filter, "DataProcessor");
+	cSTIR_deleteObject(h_filter); // , "DataProcessor");
 	//	(h_filter, "TruncateToCylindricalFOVImageProcessor");
 	//cSTIR_deleteObject
 	//	(h_obj, "PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
-	cSTIR_deleteObject(h_mx, "ProjMatrix");
-	cSTIR_deleteObject(h_proj, "Projectors");
-	cSTIR_deleteObject(h_prior, "Prior");
-	cSTIR_deleteObject(h_obj, "ObjectiveFunction");
-	cSTIR_deleteObject(h_recon, "Reconstruction");
-	cSTIR_deleteObject(h_image, "Image");
-	cSTIR_deleteObject(h_ximage, "Image");
+	cSTIR_deleteObject(h_mx); // , "ProjMatrix");
+	cSTIR_deleteObject(h_proj); // , "Projectors");
+	cSTIR_deleteObject(h_prior); // , "Prior");
+	cSTIR_deleteObject(h_obj); // , "ObjectiveFunction");
+	cSTIR_deleteObject(h_recon); // , "Reconstruction");
+	cSTIR_deleteObject(h_image); // , "Image");
+	cSTIR_deleteObject(h_ximage); // , "Image");
 
 	deleteTextPrinter(cinf);
 	deleteTextWriter(cwrn);
@@ -341,13 +341,13 @@ void cstir_test2() {
 		break;
 	}
 
-	cSTIR_deleteObject(h_mx, "ProjMatrix");
-	cSTIR_deleteObject(h_proj, "Projectors");
-	cSTIR_deleteObject(h_prior, "Prior");
-	cSTIR_deleteObject(h_obj, "ObjectiveFunction");
-	cSTIR_deleteObject(h_recon, "Reconstruction");
-	cSTIR_deleteObject(h_image, "Image");
-	cSTIR_deleteObject(h_ximage, "Image");
+	cSTIR_deleteObject(h_mx); // , "ProjMatrix");
+	cSTIR_deleteObject(h_proj); // , "Projectors");
+	cSTIR_deleteObject(h_prior); // , "Prior");
+	cSTIR_deleteObject(h_obj); // , "ObjectiveFunction");
+	cSTIR_deleteObject(h_recon); // , "Reconstruction");
+	cSTIR_deleteObject(h_image); // , "Image");
+	cSTIR_deleteObject(h_ximage); // , "Image");
 }
 
 void cstir_test3() {
@@ -376,8 +376,8 @@ void cstir_test3() {
 		break;
 	}
 
-	cSTIR_deleteObject(h_v, "Voxels");
-	cSTIR_deleteObject(h_i, "Image");
-	cSTIR_deleteObject(h_s, "Shape3D");
+	cSTIR_deleteObject(h_v); // , "Voxels");
+	cSTIR_deleteObject(h_i); // , "Image");
+	cSTIR_deleteObject(h_s); // , "Shape3D");
 	//cSTIR_deleteObject(h_s, "EllipsoidalCylinder");
 }
