@@ -1214,3 +1214,44 @@ projectors = stir.Projectors('projectors_parameters.par')
 
 ##        GeneralisedObjectiveFunction.__init__(self)
 
+##    f1 = recon.get_inter_iteration_filter()
+##    f2 = stir.TruncateToCylindricalFOVImageProcessor()
+##    f2.set_strictly_less_than_radius(False)
+##    f = stir.TruncateToCylindricalFOVImageProcessor(f1)
+##    print('ok')
+##    f = stir.TruncateToCylindricalFOVImageProcessor\
+##        (recon.get_inter_iteration_filter())
+
+##    proj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj).\
+##           get_projector_pair()
+
+    # read an initial estimate for the reconstructed image from a file
+    #image = stir.Image('my_uniform_image_circular.hv')
+
+##    f = recon.get_inter_iteration_filter()
+##    stir.TruncateToCylindricalFOVImageProcessor(f).\
+##        set_strictly_less_than_radius(False)
+
+##    stir.TruncateToCylindricalFOVImageProcessor(f).\
+##        set_strictly_less_than_radius(True)
+
+    # create initial image estimate
+    voxel_dim = (60, 60, 31)
+    voxel_size = (4.44114, 4.44114, 3.375)
+    image = stir.Image()
+    image.initialise(voxel_dim, voxel_size)
+    image.fill(1.0)
+    f.set_strictly_less_than_radius(False)
+    f.apply(image)
+    f.set_strictly_less_than_radius(True)
+
+    ##filter = stir.TruncateToCylindricalFOVImageProcessor()
+
+##        stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
+    #obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+
+##    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
+##          (recon.get_objective_function())
+
+    obj = stir.PLL_LMM_AMD(recon.get_objective_function())
+    obj.set_input_filename('Utahscat600k_ca_seg4.hs')

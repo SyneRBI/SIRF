@@ -13,16 +13,20 @@ try:
     matrix = stir.RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
 
-    # create projectors
-    projectors = stir.ProjectorsUsingMatrix()
-    projectors.set_matrix(matrix)
+    # create acquisition model
+    am = stir.AcquisitionModelUsingMatrix()
+    am.set_matrix(matrix)
+
+    # read acquisition model data
+    amd = stir.AcquisitionModelData()
+    amd.read_from_file('Utahscat600k_ca_seg4.hs')
 
     # create prior
     prior = stir.QuadraticPrior()
     prior.set_penalisation_factor(0.5)
 
     # create filter
-    filter = stir.TruncateToCylindricalFOVImageProcessor()
+    filter = stir.CylindricFilter()
 
     # create initial image estimate
     voxel_dim = (60, 60, 31)
@@ -32,29 +36,25 @@ try:
     image.fill(1.0)
     filter.set_strictly_less_than_radius(False)
     filter.apply(image)
-
-    # restore the default value
     filter.set_strictly_less_than_radius(True)
 
     # create objective function
-    obj_fun =\
-        stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
-    #obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+    obj_fun = stir.PLL_LMM_AMD()
+##    obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
     obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj_fun.set_use_subset_sensitivities(False)
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_projector_pair(projectors)
+    obj_fun.set_acquisition_model(am)
+    obj_fun.set_acquisition_model_data(amd)
     obj_fun.set_prior(prior)
+##    obj_fun.set_up()
 
     num_subiterations = 6
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
-    obj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
-          (recon.get_objective_function())
-
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
     recon.set_num_subiterations(num_subiterations)
@@ -63,18 +63,13 @@ try:
     recon.set_inter_iteration_filter(filter)
     recon.set_output_filename_prefix('reconstructedImage')
 
-    obj.set_input_filename('Utahscat600k_ca_seg4.hs')
-
-    obj_fun.set_up()
     # set up the reconstructor
     recon.set_up(image)
 
     # in order to see the reconstructed image evolution
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
-
     start_time = time.time()
-
     for iter in range(1, num_subiterations + 1):
         print('\n--------------------- Subiteration ',\
               recon.get_subiteration_num())

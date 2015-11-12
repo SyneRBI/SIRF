@@ -2,10 +2,11 @@
 #define CSTIR_INTERFACE
 
 void* cSTIR_newObject(const char* name);
-void cSTIR_deleteObject(void* ptr, const char* name);
-void* cSTIR_copyOfObject(const char* name, void* ptr);
-void* cSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value);
-void* cSTIR_parameter(const void* ptr, const char* set, const char* name);
+void cSTIR_deleteObject(void* ptr);
+void* cSTIR_objectFromFile(const char* name, const char* filename);
+void* cSTIR_copyOfObject(void* ptr);
+void* cSTIR_setParameter(void* ptr, const char* obj, const char* name, const void* value);
+void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
 void* cSTIR_setupObject(const char* obj, void* ptr_obj);
 void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 void* cSTIR_newReconstruction(const char* method, const char* filename);
@@ -24,7 +25,6 @@ void cSTIR_fillImage(void* ptr_i, double v);
 void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
 void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 void* newDataHandle();
-void* refDataHandle(void* ptr);
 void* charDataHandle(const char* s);
 void* intDataHandle(int i);
 void* floatDataHandle(float i);

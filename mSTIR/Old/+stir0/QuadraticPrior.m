@@ -1,4 +1,4 @@
-classdef QuadraticPrior < stir.Prior
+classdef QuadraticPrior < stir.GeneralisedPrior
     methods
         function self = QuadraticPrior()
             self.name = 'QuadraticPrior';

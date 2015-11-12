@@ -315,6 +315,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	else if (boost::iequals(name, "projector_pair_type"))
 		obj_fun.set_projector_pair_sptr
 			(sptrDataFromHandle<ProjectorByBinPair>(hv));
+	else if (boost::iequals(name, "proj_data_sptr"))
+		obj_fun.set_proj_data_sptr(sptrDataFromHandle<ProjData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

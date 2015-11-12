@@ -1,8 +1,6 @@
-classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
-        < stir.PoissonLogLikelihoodWithLinearModelForMean
+classdef PoissonLogLh_LinModMean_AcqModData < stir.PoissonLogLh_LinModMean
     methods
-        function self =...
-                PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj_fun)
+        function self = PoissonLogLh_LinModMean_AcqModData(obj_fun)
             self.name =...
                 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
             if nargin < 1
@@ -33,16 +31,20 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData...
             stir.setParameter(self.handle, self.name, ...
                 'max_segment_num_to_process', n, 'i') 
         end
-        function set_projector_pair(self, pp)
+        function set_acquisition_model(self, am)
             stir.setParameter(self.handle, self.name,...
-                'projector_pair_type', pp.handle, 'h')
+                'projector_pair_type', am.handle, 'h')
         end
-        function proj = get_projector_pair(self)
-            proj = stir.ProjectorsUsingMatrix();
-            proj.handle = calllib('mstir', 'mSTIR_parameter',...
+        function am = get_acquisition_model(self)
+            am = stir.AcquisitionModelUsingMatrix();
+            am.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'projector_pair_type');
             stir.checkExecutionStatus...
-                ([self.name ':get_projector_pair'], proj.handle)
+                ([self.name ':get_projector_pair'], am.handle)
+        end
+        function set_acquisition_model_data(self, am)
+            stir.setParameter(self.handle, self.name,...
+                'proj_data_sptr', am.handle, 'h')
         end
     end
 end
