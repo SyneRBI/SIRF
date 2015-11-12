@@ -136,7 +136,8 @@ class Image:
         self.handle = None
         self.voxels = None
         if isinstance(arg, str):
-            self.handle = pystir.cSTIR_imageFromFile(arg)
+##            self.handle = pystir.cSTIR_imageFromFile(arg)
+            self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
         elif arg is not None:
             raise error\
@@ -203,7 +204,8 @@ class Image:
             pystir.cSTIR_deleteObject(self.handle)
         if self.voxels is not None:
             pystir.cSTIR_deleteObject(self.voxels)
-        self.handle = pystir.cSTIR_imageFromFile(filename)
+##        self.handle = pystir.cSTIR_imageFromFile(filename)
+        self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         _check_status(self.handle)
     def diff_from(self, image):
         handle = pystir.cSTIR_imagesDifference\
@@ -238,14 +240,15 @@ class DataProcessor:
     def __del__(self):
         pystir.cSTIR_deleteObject(self.handle)
 
-class TruncateToCylindricalFOVImageProcessor(DataProcessor):
-    def __init__(self, filter = None):
+##class TruncateToCylindricalFOVImageProcessor(DataProcessor):
+class CylindricFilter(DataProcessor):
+    def __init__(self, data_processor = None):
         self.handle = None
         self.name = 'TruncateToCylindricalFOVImageProcessor'
-        if filter is None:
+        if data_processor is None:
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
-            self.handle = pystir.cSTIR_copyOfObject(filter.handle)
+            self.handle = pystir.cSTIR_copyOfObject(data_processor.handle)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -273,7 +276,26 @@ class RayTracingMatrix:
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
-class ProjectorsUsingMatrix:
+class AcquisitionModelData:
+    def __init__(self, arg = None):
+        self.handle = None
+        self.name = 'AcquisitionModelData'
+        if arg is not None:
+            self.handle = pystir.cSTIR_objectFromFile\
+                ('AcquisitionModelData', filename)
+            _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pystir.cSTIR_deleteObject(self.handle)
+    def read_from_file(self, filename):
+        if self.handle is not None:
+            pystir.cSTIR_deleteObject(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile\
+            ('AcquisitionModelData', filename)
+        _check_status(self.handle)
+
+##class ProjectorsUsingMatrix:
+class AcquisitionModelUsingMatrix:
     def __init__(self):
         self.handle = None
         self.name = 'ProjectorsUsingMatrix'
@@ -291,7 +313,7 @@ class ProjectorsUsingMatrix:
         _check_status(matrix.handle)
         return matrix
 
-class GeneralisedPrior:
+class Prior:
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -308,7 +330,7 @@ class GeneralisedPrior:
         _check_status(handle)
         pystir.deleteDataHandle(handle)
 
-class QuadraticPrior(GeneralisedPrior):
+class QuadraticPrior(Prior):
     def __init__(self):
         self.handle = None
         self.name = 'QuadraticPrior'
@@ -318,7 +340,7 @@ class QuadraticPrior(GeneralisedPrior):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
 
-class GeneralisedObjectiveFunction:
+class ObjectiveFunction:
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -329,7 +351,7 @@ class GeneralisedObjectiveFunction:
             'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
-        prior = GeneralisedPrior()
+        prior = Prior()
         prior.handle = pystir.cSTIR_parameter\
             (self.handle, 'GeneralisedObjectiveFunction', 'prior')
         _check_status(prior.handle)
@@ -340,8 +362,9 @@ class GeneralisedObjectiveFunction:
         _check_status(handle)
         pystir.deleteDataHandle(handle)
 
-class PoissonLogLikelihoodWithLinearModelForMean\
-      (GeneralisedObjectiveFunction):
+##class PoissonLogLikelihoodWithLinearModelForMean\
+##        (GeneralisedObjectiveFunction)
+class PLL_LMM(ObjectiveFunction):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -360,8 +383,9 @@ class PoissonLogLikelihoodWithLinearModelForMean\
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
 
-class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
-      (PoissonLogLikelihoodWithLinearModelForMean):
+##class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
+##    (PoissonLogLikelihoodWithLinearModelForMean):
+class PLL_LMM_AMD(PLL_LMM):
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
@@ -381,15 +405,19 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
             (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
     def set_max_segment_num_to_process(self, n):
         _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
-    def set_projector_pair(self, pp):
+##    def set_projector_pair(self, pp):
+    def set_acquisition_model(self, pp):
         _setParameter\
             (self.handle, self.name, 'projector_pair_type', pp.handle)
-    def get_projector_pair(self):
-        proj = ProjectorsUsingMatrix()
+    def get_acquisition_model(self):
+        proj = AcquisitionModelUsingMatrix()
         proj.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'projector_pair_type')
         _check_status(proj.handle)
         return proj
+    def set_acquisition_model_data(self, am):
+        _setParameter\
+            (self.handle, self.name, 'proj_data_sptr', am.handle)
 
 class Reconstruction:
     def __init__(self):
@@ -449,7 +477,7 @@ class IterativeReconstruction(Reconstruction):
             (self.handle, 'IterativeReconstruction',\
              'objective_function', obj.handle)
     def get_objective_function(self):
-        obj_fun = GeneralisedObjectiveFunction()
+        obj_fun = ObjectiveFunction()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, 'IterativeReconstruction', 'objective_function')
         _check_status(obj_fun.handle)
@@ -479,11 +507,13 @@ class IterativeReconstruction(Reconstruction):
         pystir.deleteDataHandle(handle)
 
 class OSMAPOSLReconstruction(IterativeReconstruction):
-    def __init__(self, file = ''):
-        super(OSMAPOSLReconstruction, self).__init__()
+    def __init__(self, filename = ''):
+##        super(OSMAPOSLReconstruction, self).__init__()
         self.handle = None
         self.name = 'OSMAPOSL'
-        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+        self.handle = pystir.cSTIR_objectFromFile\
+            ('OSMAPOSLReconstruction', filename)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -492,18 +522,21 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
     def get_objective_function(self):
-        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+##        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+        obj_fun = PLL_LMM()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'objective_function')
         _check_status(obj_fun.handle)
         return obj_fun
 
 class OSSPSReconstruction(IterativeReconstruction):
-    def __init__(self, file = ''):
-        super(OSSPSReconstruction, self).__init__()
+    def __init__(self, filename = ''):
+##        super(OSSPSReconstruction, self).__init__()
         self.handle = None
         self.name = 'OSSPS'
-        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+        self.handle = pystir.cSTIR_objectFromFile\
+                      ('OSSPSReconstruction', filename)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:

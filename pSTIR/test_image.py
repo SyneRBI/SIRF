@@ -49,7 +49,8 @@ try:
     image.initialise(60, 60, 31, 4.44114, 4.44114, 3.375)
     image.fill(1.0)
 
-    filter = stir.TruncateToCylindricalFOVImageProcessor()
+##    filter = stir.TruncateToCylindricalFOVImageProcessor()
+    filter = stir.CylindricFilter()
     filter.set_strictly_less_than_radius(False)
     filter.apply(image)
 

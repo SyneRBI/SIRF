@@ -8,17 +8,20 @@
 EXPORTED_FUNCTION void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
 }
-EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr, const char* name) {
-	cSTIR_deleteObject(ptr, name);
+EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr) {
+	cSTIR_deleteObject(ptr);
 }
-EXPORTED_FUNCTION void* mSTIR_copyOfObject(const char* name, void* ptr) {
-	return cSTIR_copyOfObject(name, ptr);
+EXPORTED_FUNCTION void* mSTIR_objectFromFile(const char* name, const char* filename) {
+	return cSTIR_objectFromFile(name, filename);
 }
-EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* set, const char* name, const void* value) {
-	return cSTIR_setParameter(ptr, set, name, value);
+EXPORTED_FUNCTION void* mSTIR_copyOfObject(void* ptr) {
+	return cSTIR_copyOfObject(ptr);
 }
-EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* set, const char* name) {
-	return cSTIR_parameter(ptr, set, name);
+EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* obj, const char* name, const void* value) {
+	return cSTIR_setParameter(ptr, obj, name, value);
+}
+EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* obj, const char* name) {
+	return cSTIR_parameter(ptr, obj, name);
 }
 EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj) {
 	return cSTIR_setupObject(obj, ptr_obj);
@@ -76,9 +79,6 @@ EXPORTED_FUNCTION void* mSTIR_imagesDifference(void* first, void* second, int ri
 }
 EXPORTED_FUNCTION void* mNewDataHandle() {
 	return newDataHandle();
-}
-EXPORTED_FUNCTION void* mRefDataHandle(void* ptr) {
-	return refDataHandle(ptr);
 }
 EXPORTED_FUNCTION void* mCharDataHandle(const char* s) {
 	return charDataHandle(s);

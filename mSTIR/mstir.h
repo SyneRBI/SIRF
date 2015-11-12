@@ -6,12 +6,12 @@
 
 EXPORTED_FUNCTION void* mSTIR_newObject(const char* name);
 EXPORTED_FUNCTION void mSTIR_deleteObject(void* ptr);
+EXPORTED_FUNCTION void* mSTIR_objectFromFile(const char* name, const char* filename);
 EXPORTED_FUNCTION void* mSTIR_copyOfObject(void* ptr);
 EXPORTED_FUNCTION void* mSTIR_setParameter(void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION void* mSTIR_parameter(const void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj);
 EXPORTED_FUNCTION void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
-EXPORTED_FUNCTION void* mSTIR_newReconstruction(const char* method, const char* filename);
 EXPORTED_FUNCTION void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
@@ -25,7 +25,6 @@ EXPORTED_FUNCTION void mSTIR_getImageData(const void* ptr, double* pd);
 EXPORTED_FUNCTION void* mSTIR_voxels3DF(int nx, int ny, int nz,double sx, double sy, double sz, double x, double y, double z);
 EXPORTED_FUNCTION void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION void* mSTIR_imageFromImage(void* ptr_v);
-EXPORTED_FUNCTION void* mSTIR_imageFromFile(const char* filename);
 EXPORTED_FUNCTION void mSTIR_fillImage(void* ptr_i, double v);
 EXPORTED_FUNCTION void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
 EXPORTED_FUNCTION void* mSTIR_imagesDifference(void* first, void* second, int rimsize);

@@ -109,7 +109,8 @@ void cstir_test1() {
 		}
 		deleteDataHandle(handle);
 
-		h_recon = cSTIR_newReconstruction("OSMAPOSL", "");
+		//h_recon = cSTIR_newReconstruction("OSMAPOSL", "");
+		h_recon = cSTIR_objectFromFile("OSMAPOSLReconstruction", "");
 		if (executionStatus(h_recon))
 			std::cout << executionError(h_recon) << std::endl;
 
@@ -145,8 +146,8 @@ void cstir_test1() {
 			(h_recon, "OSMAPOSL", "MAP_model", charDataHandle("multiplicative")))
 			break;
 
-		h_image = cSTIR_imageFromFile("my_uniform_image_circular.hv");
-		h_ximage = cSTIR_imageFromFile("test_image_PM_QP_6.hv");
+		h_image = cSTIR_objectFromFile("Image", "my_uniform_image_circular.hv");
+		h_ximage = cSTIR_objectFromFile("Image", "test_image_PM_QP_6.hv");
 
 		for (;;) {
 			handle = cSTIR_setupReconstruction(h_recon, h_image);
@@ -284,7 +285,8 @@ void cstir_test2() {
 			std::cout << executionError(handle) << std::endl;
 		deleteDataHandle(handle);
 
-		h_recon = cSTIR_newReconstruction("OSSPS", "");
+		//h_recon = cSTIR_newReconstruction("OSSPS", "");
+		h_recon = cSTIR_objectFromFile("OSSPSReconstruction", "");
 		if (executionStatus(h_recon))
 			std::cout << executionError(h_recon) << std::endl;
 
@@ -309,8 +311,8 @@ void cstir_test2() {
 			(h_recon, "OSSPS", "relaxation_parameter", floatDataHandle(2.0)))
 			break;
 
-		h_image = cSTIR_imageFromFile("test_image_PM_QP_6.hv");
-		h_ximage = cSTIR_imageFromFile("test_image_OSSPS_PM_QP_8.hv");
+		h_image = cSTIR_objectFromFile("Image", "test_image_PM_QP_6.hv");
+		h_ximage = cSTIR_objectFromFile("Image", "test_image_OSSPS_PM_QP_8.hv");
 
 		for (;;) {
 			handle = cSTIR_setupReconstruction(h_recon, h_image);

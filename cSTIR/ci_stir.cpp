@@ -167,18 +167,39 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 }
 
 extern "C"
-void* cSTIR_newReconstruction(const char* method, const char* filename)
+void* cSTIR_objectFromFile(const char* name, const char* filename)
 {
-	void* recon;
-	if (boost::iequals(method, "OSMAPOSL"))
-		recon = cSTIR_newReconstructionMethod<OSMAPOSLReconstruction<Image3DF> >
-		(filename);
-	else if (boost::iequals(method, "OSSPS"))
-		recon = cSTIR_newReconstructionMethod<OSSPSReconstruction<Image3DF> >
-		(filename);
-	else
-		recon = unknownObject("method", method, __FILE__, __LINE__);
-	return recon;
+	DataHandle* handle = new DataHandle;
+	try {
+		if (boost::iequals(name, "OSMAPOSLReconstruction"))
+			return cSTIR_newReconstructionMethod
+			<OSMAPOSLReconstruction<Image3DF> >
+			(filename);
+		if (boost::iequals(name, "OSSPSReconstruction"))
+			return cSTIR_newReconstructionMethod
+			<OSSPSReconstruction<Image3DF> >
+			(filename);
+		if (boost::iequals(name, "Image")) {
+			sptrImage3DF* ptr_sptr = new sptrImage3DF
+				(read_from_file<Image3DF>(filename));
+			return newObjectHandle(ptr_sptr);
+		}
+		if (boost::iequals(name, "AcquisitionModelData")) {
+			NEW(boost::shared_ptr<ProjData>, ptr_sptr);
+			*ptr_sptr = ProjData::read_from_file(filename);
+			return newObjectHandle(ptr_sptr);
+		}
+		return unknownObject("object", name, __FILE__, __LINE__);
+	}
+	catch (StirException& se) {
+		ExecutionStatus status(se);
+		handle->set(0, &status);
+	}
+	catch (...) {
+		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+		handle->set(0, &status);
+	}
+	return (void*)handle;
 }
 
 extern "C"
@@ -364,28 +385,6 @@ void cSTIR_fillImage(void* ptr_i, double v)
 	CAST_PTR(DataHandle, hi, ptr_i);
 	Image3DF& image = objectFromHandle<Image3DF>(hi);
 	image.fill((float)v);
-}
-
-extern "C"
-void* cSTIR_imageFromFile(const char* filename) 
-{
-	try {
-		sptrImage3DF* sptr = new sptrImage3DF
-			(read_from_file<Image3DF>(filename));
-		return newObjectHandle(sptr);
-	}
-	catch (StirException& se) {
-		ExecutionStatus status(se);
-		DataHandle* handle = new DataHandle;
-		handle->set(0, &status);
-		return (void*)handle;
-	}
-	catch (...) {
-		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
-		DataHandle* handle = new DataHandle;
-		handle->set(0, &status);
-		return (void*)handle;
-	}
 }
 
 extern "C"

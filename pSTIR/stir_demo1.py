@@ -12,41 +12,19 @@ try:
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par')
 
-##    f1 = recon.get_inter_iteration_filter()
-##    f2 = stir.TruncateToCylindricalFOVImageProcessor()
-##    f2.set_strictly_less_than_radius(False)
-##    f = stir.TruncateToCylindricalFOVImageProcessor(f1)
-##    print('ok')
-    f = stir.TruncateToCylindricalFOVImageProcessor\
-        (recon.get_inter_iteration_filter())
-
     # check/redefine some parameters
+    f = stir.CylindricFilter(recon.get_inter_iteration_filter())
+    f.set_strictly_less_than_radius(True)
     obj = recon.get_objective_function()
     prior = obj.get_prior()
     print('prior penalisation factor:', prior.get_penalisation_factor())
     prior.set_penalisation_factor(0.5)
-    proj = stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj).\
-           get_projector_pair()
-    print('tangential_LORs:', proj.get_matrix().get_num_tangential_LORs())
-    proj.get_matrix().set_num_tangential_LORs(2)
+    am = stir.PLL_LMM_AMD(obj).get_acquisition_model()
+    print('tangential_LORs:', am.get_matrix().get_num_tangential_LORs())
+    am.get_matrix().set_num_tangential_LORs(2)
 
     # read an initial estimate for the reconstructed image from a file
-    #image = stir.Image('my_uniform_image_circular.hv')
-
-    # create initial image estimate
-    voxel_dim = (60, 60, 31)
-    voxel_size = (4.44114, 4.44114, 3.375)
-    image = stir.Image()
-    image.initialise(voxel_dim, voxel_size)
-    image.fill(1.0)
-##    f = recon.get_inter_iteration_filter()
-##    stir.TruncateToCylindricalFOVImageProcessor(f).\
-##        set_strictly_less_than_radius(False)
-    f.set_strictly_less_than_radius(False)
-    f.apply(image)
-    f.set_strictly_less_than_radius(True)
-##    stir.TruncateToCylindricalFOVImageProcessor(f).\
-##        set_strictly_less_than_radius(True)
+    image = stir.Image('my_uniform_image_circular.hv')
 
     # set up the reconstructor
     recon.set_up(image)

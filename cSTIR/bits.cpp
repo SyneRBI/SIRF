@@ -2869,3 +2869,40 @@ void* refDataHandle(void* ptr) {
 
 //if (recon.reconstruct(*ptr_sptr_image) != Succeeded::yes) {
 
+//extern "C"
+//void* cSTIR_newReconstruction(const char* method, const char* filename)
+//{
+//	void* recon;
+//	if (boost::iequals(method, "OSMAPOSL"))
+//		recon = cSTIR_newReconstructionMethod<OSMAPOSLReconstruction<Image3DF> >
+//		(filename);
+//	else if (boost::iequals(method, "OSSPS"))
+//		recon = cSTIR_newReconstructionMethod<OSSPSReconstruction<Image3DF> >
+//		(filename);
+//	else
+//		recon = unknownObject("method", method, __FILE__, __LINE__);
+//	return recon;
+//}
+
+//extern "C"
+//void* cSTIR_imageFromFile(const char* filename) 
+//{
+//	try {
+//		sptrImage3DF* sptr = new sptrImage3DF
+//			(read_from_file<Image3DF>(filename));
+//		return newObjectHandle(sptr);
+//	}
+//	catch (StirException& se) {
+//		ExecutionStatus status(se);
+//		DataHandle* handle = new DataHandle;
+//		handle->set(0, &status);
+//		return (void*)handle;
+//	}
+//	catch (...) {
+//		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+//		DataHandle* handle = new DataHandle;
+//		handle->set(0, &status);
+//		return (void*)handle;
+//	}
+//}
+
