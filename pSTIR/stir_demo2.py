@@ -7,7 +7,7 @@ import time
 # (cf. Error Handling section in the spec)
 try:
     # direct all diagnostic printing to a file
-    printer = stir.printerTo('stir_demo.txt')
+    printer = stir.printerTo('stir_demo2.txt')
 
     # create matrix to be used by projectors
     matrix = stir.RayTracingMatrix()
@@ -29,18 +29,17 @@ try:
     filter = stir.CylindricFilter()
 
     # create initial image estimate
-    voxel_dim = (60, 60, 31)
+    image_size = (60, 60, 31)
     voxel_size = (4.44114, 4.44114, 3.375)
     image = stir.Image()
-    image.initialise(voxel_dim, voxel_size)
-    image.fill(1.0)
+    image.initialise(image_size, voxel_size)
+    image.fill(2.0)
     filter.set_strictly_less_than_radius(False)
     filter.apply(image)
     filter.set_strictly_less_than_radius(True)
 
     # create objective function
-    obj_fun = stir.PLL_LMM_AMD()
-##    obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+    obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj_fun.set_use_subset_sensitivities(False)
     obj_fun.set_zero_seg0_end_planes(True)
@@ -48,7 +47,6 @@ try:
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_model_data(amd)
     obj_fun.set_prior(prior)
-##    obj_fun.set_up()
 
     num_subiterations = 6
 
@@ -66,24 +64,25 @@ try:
     # set up the reconstructor
     recon.set_up(image)
 
+    # plot the initial image
+    data = image.density()
+    pylab.figure(1)
+    pylab.imshow(data[0,:,:])
+    pylab.show()
+
     # in order to see the reconstructed image evolution
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
-    start_time = time.time()
     for iter in range(1, num_subiterations + 1):
         print('\n--------------------- Subiteration ',\
               recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
         # plot the current image
-##        data = image.density()
-##        pylab.figure(iter)
-##        pylab.imshow(data[10,:,:])
-
-    elapsed_time = time.time() - start_time
-    print('elapsed time:', elapsed_time)
-
-##    pylab.show()
+        data = image.density()
+        pylab.figure(iter + 1)
+        pylab.imshow(data[0,:,:])
+        pylab.show()
 
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image('test_image_PM_QP_6.hv')

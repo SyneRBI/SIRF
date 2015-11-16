@@ -3,8 +3,6 @@ if ~libisloaded('mstir')
     loadlibrary('mstir')
 end
 
-opengl software
-
 try
     % direct all diagnostic printing to Matlab Command Window
     printer = stir.printerTo('stdout');
@@ -20,12 +18,6 @@ try
     f.apply(image)
     f.set_strictly_less_than_radius(true)
     
-    data = image.density();
-    scale = 1.0/max(max(max(data)));
-    figure(1000000)
-    stir.show(data, scale, 10)
-    drawnow
-
     obj = stir.PoissonLogLh_LinModMean_AcqModData...
         (recon.get_objective_function());
     obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')

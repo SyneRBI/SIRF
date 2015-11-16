@@ -101,12 +101,20 @@ classdef Image < handle
             calllib('mstir', 'mDeleteDataHandle', h)
         end
         function data = density(self)
-            [ptr, dim] = calllib...
-                ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));
+%             [ptr, dim] = calllib...
+%                 ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));
+            ptr_i = libpointer('int32Ptr', zeros(3, 1));
+            calllib...
+                ('mstir', 'mSTIR_getImageDimensions', self.handle, ptr_i);
+            dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
-            [ptr, data] = calllib...
-                ('mstir', 'mSTIR_getImageData', self.handle, zeros(n, 1));
-            data = reshape(data, dim(3), dim(2), dim(1));
+%             [ptr, data] = calllib...
+%                 ('mstir', 'mSTIR_getImageData', self.handle, zeros(n, 1));
+%             data = reshape(data, dim(3), dim(2), dim(1));
+            ptr_v = libpointer('doublePtr', zeros(n, 1));
+            calllib...
+                ('mstir', 'mSTIR_getImageData', self.handle, ptr_v)
+            data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
     end
 end

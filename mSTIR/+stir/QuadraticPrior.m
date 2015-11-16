@@ -6,6 +6,7 @@ classdef QuadraticPrior < stir.Prior
         end
         function delete(self)
             calllib('mstir', 'mSTIR_deleteObject', self.handle)
+            self.handle = [];
         end
     end
 end

@@ -136,7 +136,6 @@ class Image:
         self.handle = None
         self.voxels = None
         if isinstance(arg, str):
-##            self.handle = pystir.cSTIR_imageFromFile(arg)
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
         elif arg is not None:
@@ -204,7 +203,6 @@ class Image:
             pystir.cSTIR_deleteObject(self.handle)
         if self.voxels is not None:
             pystir.cSTIR_deleteObject(self.voxels)
-##        self.handle = pystir.cSTIR_imageFromFile(filename)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         _check_status(self.handle)
     def diff_from(self, image):
@@ -240,7 +238,6 @@ class DataProcessor:
     def __del__(self):
         pystir.cSTIR_deleteObject(self.handle)
 
-##class TruncateToCylindricalFOVImageProcessor(DataProcessor):
 class CylindricFilter(DataProcessor):
     def __init__(self, data_processor = None):
         self.handle = None
@@ -294,7 +291,6 @@ class AcquisitionModelData:
             ('AcquisitionModelData', filename)
         _check_status(self.handle)
 
-##class ProjectorsUsingMatrix:
 class AcquisitionModelUsingMatrix:
     def __init__(self):
         self.handle = None
@@ -362,9 +358,7 @@ class ObjectiveFunction:
         _check_status(handle)
         pystir.deleteDataHandle(handle)
 
-##class PoissonLogLikelihoodWithLinearModelForMean\
-##        (GeneralisedObjectiveFunction)
-class PLL_LMM(ObjectiveFunction):
+class PoissonLogLh_LinModMean(ObjectiveFunction):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -383,9 +377,7 @@ class PLL_LMM(ObjectiveFunction):
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
 
-##class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
-##    (PoissonLogLikelihoodWithLinearModelForMean):
-class PLL_LMM_AMD(PLL_LMM):
+class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
@@ -405,7 +397,6 @@ class PLL_LMM_AMD(PLL_LMM):
             (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
     def set_max_segment_num_to_process(self, n):
         _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
-##    def set_projector_pair(self, pp):
     def set_acquisition_model(self, pp):
         _setParameter\
             (self.handle, self.name, 'projector_pair_type', pp.handle)
@@ -508,10 +499,8 @@ class IterativeReconstruction(Reconstruction):
 
 class OSMAPOSLReconstruction(IterativeReconstruction):
     def __init__(self, filename = ''):
-##        super(OSMAPOSLReconstruction, self).__init__()
         self.handle = None
         self.name = 'OSMAPOSL'
-##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
         self.handle = pystir.cSTIR_objectFromFile\
             ('OSMAPOSLReconstruction', filename)
         _check_status(self.handle)
@@ -522,8 +511,7 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
     def get_objective_function(self):
-##        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
-        obj_fun = PLL_LMM()
+        obj_fun = PoissonLogLh_LinModMean()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'objective_function')
         _check_status(obj_fun.handle)
@@ -531,10 +519,8 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
 
 class OSSPSReconstruction(IterativeReconstruction):
     def __init__(self, filename = ''):
-##        super(OSSPSReconstruction, self).__init__()
         self.handle = None
         self.name = 'OSSPS'
-##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
         self.handle = pystir.cSTIR_objectFromFile\
                       ('OSSPSReconstruction', filename)
         _check_status(self.handle)

@@ -2906,3 +2906,122 @@ void* refDataHandle(void* ptr) {
 //	}
 //}
 
+//if ((value = floatDataFromHandle(hv)) < 1)
+//	return wrongFloatParameterValue("EllipsoidalCylinder::length",
+//	value, __FILE__, __LINE__);
+
+//if ((value = floatDataFromHandle(hv)) < 1)
+//	return wrongFloatParameterValue("EllipsoidalCylinder::radius_x",
+//	value, __FILE__, __LINE__);
+
+//if ((value = floatDataFromHandle(hv)) < 1)
+//	return wrongFloatParameterValue("EllipsoidalCylinder::radius_y",
+//	value, __FILE__, __LINE__);
+
+//if ((value = intDataFromHandle(hv)) < 1)
+//	return wrongIntParameterValue
+//	("ProjMatrixByBinUsingRayTracing::num_tangential_LORs",
+//	value, __FILE__, __LINE__);
+
+//if (value < 1)
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::num_subsets", 
+//	value, __FILE__, __LINE__);
+
+//if (value < 0 || value >= recon.get_num_subsets())
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::start_subset_num",
+//	value, __FILE__, __LINE__);
+
+//if (value < 1)
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::num_subiterations",
+//	value, __FILE__, __LINE__);
+
+//if (value < 1)
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::start_subiteration_num",
+//	value, __FILE__, __LINE__);
+
+//if (value < 1)
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::subiteration_num",
+//	value, __FILE__, __LINE__);
+
+//if (value < 1 || value > recon.get_num_subiterations())
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::save_interval",
+//	value, __FILE__, __LINE__);
+
+//if (value < 0)
+//	return wrongIntParameterValue
+//	("IterativeReconstruction::inter_iteration_filter_interval",
+//	value, __FILE__, __LINE__);
+
+//return newObjectHandle<GeneralisedObjectiveFunction<Image3DF>,
+//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> >
+
+//ProjectorByBinPairUsingProjMatrixByBin>();
+
+//ProjMatrixByBinUsingRayTracing>();
+
+//		<GeneralisedPrior<Image3DF>, QuadraticPrior<float> >();
+
+//<DataProcessor<Image3DF>,
+//TruncateToCylindricalFOVImageProcessor<float> >();
+
+//TruncateToCylindricalFOVImageProcessor<float>& proc =
+//	objectFromHandle<DataProcessor<Image3DF>,
+//	TruncateToCylindricalFOVImageProcessor<float> >(hp);
+
+//TruncateToCylindricalFOVImageProcessor<float>& proc =
+//	objectFromHandle<DataProcessor<Image3DF>,
+//	TruncateToCylindricalFOVImageProcessor<float> >(handle);
+
+//ProjMatrixByBinUsingRayTracing& matrix =
+//	objectFromHandle<ProjMatrixByBin, ProjMatrixByBinUsingRayTracing>
+//	(hp);
+
+//ProjMatrixByBinUsingRayTracing& matrix =
+//	objectFromHandle<ProjMatrixByBin,
+//	ProjMatrixByBinUsingRayTracing>(handle);
+
+//ProjectorByBinPairUsingProjMatrixByBin& proj =
+//	objectFromHandle<ProjectorByBinPair,
+//	ProjectorByBinPairUsingProjMatrixByBin>(hp);
+
+//ProjectorByBinPairUsingProjMatrixByBin& proj =
+//	objectFromHandle<ProjectorByBinPair,
+//	ProjectorByBinPairUsingProjMatrixByBin>(handle);
+
+//GeneralisedPrior<Image3DF>& prior =
+//	objectFromHandle<GeneralisedPrior<Image3DF> >(hp);
+
+//GeneralisedPrior<Image3DF>& prior =
+//	objectFromHandle<GeneralisedPrior<Image3DF> >(handle);
+
+//objectFromHandle<GeneralisedPrior<Image3DF>, xSTIR_QuadraticPrior3DF>
+
+//GeneralisedObjectiveFunction<Image3DF>& obj_fun =
+//	objectFromHandle<GeneralisedObjectiveFunction<Image3DF> >(hp);
+
+//GeneralisedObjectiveFunction<Image3DF>& obj_fun =
+//	objectFromHandle<GeneralisedObjectiveFunction<Image3DF> >(handle);
+
+//PoissonLogLikelihoodWithLinearModelForMean<Image3DF>&
+//	obj_fun = objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
+//	PoissonLogLikelihoodWithLinearModelForMean<Image3DF> >
+//	(hp);
+
+//IterativeReconstruction<Image3DF>& recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	IterativeReconstruction<Image3DF> >(hp);
+
+//(sptrDataFromHandle<DataProcessor<Image3DF> >(hv));
+
+//(sptrDataFromHandle<GeneralisedObjectiveFunction<Image3DF> >(hv));
+
+//IterativeReconstruction<Image3DF>& recon =
+//	objectFromHandle< Reconstruction<Image3DF>,
+//	IterativeReconstruction<Image3DF> >(handle);
+
