@@ -53,5 +53,18 @@ typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
 typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;
 typedef boost::shared_ptr<Shape3D> sptrShape3D;
+typedef Reconstruction<Image3DF> Reconstruction3DF;
+typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
+typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;
+typedef PoissonLogLikelihoodWithLinearModelForMean<Image3DF> 
+PoissonLogLhLinModMean3DF;
+typedef PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
+PoissonLogLhLinModMeanProjData3DF;
+typedef ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
+typedef ProjMatrixByBinUsingRayTracing RayTracingMatrix;
+typedef GeneralisedPrior<Image3DF> Prior3DF;
+typedef QuadraticPrior<float> QuadPrior3DF;
+typedef DataProcessor<Image3DF> DataProcessor3DF;
+typedef TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 
 #endif

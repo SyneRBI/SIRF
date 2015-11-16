@@ -252,3 +252,11 @@ pSTIR/pystir_wrap.cxx
 mSTIR/Old/cstir.h
 mSTIR/Old/mstir.c
 mSTIR/Old/cstir.h
+pSTIR/stir_demo2.txt
+*.ahv
+pSTIR/RPTsens_seg3_PM.hv
+*.v
+pSTIR/pystir_wrap.cxx
+pSTIR/ossps_demo.txt
+pSTIR/pystir.py
+*.mexw64

@@ -91,25 +91,13 @@ cSTIR_setEllipsoidalCylinderParameter
 {
 	EllipsoidalCylinder& c =
 		objectFromHandle<Shape3D, EllipsoidalCylinder>(hp);
-	float value;
-	if (boost::iequals(name, "length")) {
-		if ((value = floatDataFromHandle(hv)) < 1)
-			return wrongFloatParameterValue("EllipsoidalCylinder::length",
-			value, __FILE__, __LINE__);
+	float value = floatDataFromHandle(hv);
+	if (boost::iequals(name, "length"))
 		c.set_length(value);
-	}
-	else if (boost::iequals(name, "radius_x")) {
-		if ((value = floatDataFromHandle(hv)) < 1)
-			return wrongFloatParameterValue("EllipsoidalCylinder::radius_x",
-			value, __FILE__, __LINE__);
+	else if (boost::iequals(name, "radius_x"))
 		c.set_radius_x(value);
-	}
-	else if (boost::iequals(name, "radius_y")) {
-		if ((value = floatDataFromHandle(hv)) < 1)
-			return wrongFloatParameterValue("EllipsoidalCylinder::radius_y",
-			value, __FILE__, __LINE__);
+	else if (boost::iequals(name, "radius_y"))
 		c.set_radius_y(value);
-	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -133,11 +121,10 @@ void*
 cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	TruncateToCylindricalFOVImageProcessor<float>& proc =
-		objectFromHandle<DataProcessor<Image3DF>, 
-		TruncateToCylindricalFOVImageProcessor<float> >(hp);
+	CylindricFilter3DF& filter =
+		objectFromHandle< DataProcessor3DF, CylindricFilter3DF >(hp);
 	if (boost::iequals(name, "strictly_less_than_radius"))
-		proc.set_strictly_less_than_radius
+		filter.set_strictly_less_than_radius
 			(boost::iequals(charDataFromHandle(hv), "true"));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
@@ -148,11 +135,10 @@ void*
 cSTIR_truncateToCylindricalFOVImageProcessorParameter
 (const DataHandle* handle, const char* name)
 {
-	TruncateToCylindricalFOVImageProcessor<float>& proc =
-		objectFromHandle<DataProcessor<Image3DF>,
-		TruncateToCylindricalFOVImageProcessor<float> >(handle);
+	CylindricFilter3DF& filter =
+		objectFromHandle< DataProcessor3DF, CylindricFilter3DF >(handle);
 	if (boost::iequals(name, "strictly_less_than_radius"))
-		return intDataHandle(proc.get_strictly_less_than_radius());
+		return intDataHandle(filter.get_strictly_less_than_radius());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -161,17 +147,11 @@ void*
 cSTIR_setRayTracingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	ProjMatrixByBinUsingRayTracing& matrix =
-		objectFromHandle<ProjMatrixByBin, ProjMatrixByBinUsingRayTracing>
-		(hp);
-	int value;
-	if (boost::iequals(name, "num_tangential_LORs")) {
-		if ((value = intDataFromHandle(hv)) < 1)
-			return wrongIntParameterValue
-			("ProjMatrixByBinUsingRayTracing::num_tangential_LORs",
-			value, __FILE__, __LINE__);
+	RayTracingMatrix& matrix = 
+		objectFromHandle< ProjMatrixByBin, RayTracingMatrix >(hp);
+	int value = intDataFromHandle(hv);
+	if (boost::iequals(name, "num_tangential_LORs"))
 		matrix.set_num_tangential_LORs(value);
-	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -180,9 +160,8 @@ cSTIR_setRayTracingMatrixParameter
 void*
 cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
 {
-	ProjMatrixByBinUsingRayTracing& matrix =
-		objectFromHandle<ProjMatrixByBin,
-		ProjMatrixByBinUsingRayTracing>(handle);
+	RayTracingMatrix& matrix = 
+		objectFromHandle< ProjMatrixByBin, RayTracingMatrix >(handle);
 	if (boost::iequals(name, "num_tangential_LORs"))
 		return intDataHandle(matrix.get_num_tangential_LORs());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -192,9 +171,8 @@ void*
 cSTIR_setProjectorsUsingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	ProjectorByBinPairUsingProjMatrixByBin& proj =
-		objectFromHandle<ProjectorByBinPair,
-		ProjectorByBinPairUsingProjMatrixByBin>(hp);
+	ProjectorPairUsingMatrix& proj = objectFromHandle
+		< ProjectorByBinPair, ProjectorPairUsingMatrix >(hp);
 	if (boost::iequals(name, "matrix_type"))
 		proj.set_proj_matrix_sptr(sptrDataFromHandle<ProjMatrixByBin>(hv));
 	else
@@ -205,9 +183,8 @@ cSTIR_setProjectorsUsingMatrixParameter
 void*
 cSTIR_projectorsUsingMatrixParameter(const DataHandle* handle, const char* name)
 {
-	ProjectorByBinPairUsingProjMatrixByBin& proj =
-		objectFromHandle<ProjectorByBinPair,
-		ProjectorByBinPairUsingProjMatrixByBin>(handle);
+	ProjectorPairUsingMatrix& proj = objectFromHandle
+		< ProjectorByBinPair, ProjectorPairUsingMatrix >(handle);
 	if (boost::iequals(name, "matrix_type"))
 		return sptrObjectHandle(proj.get_proj_matrix_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -217,8 +194,7 @@ void*
 cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	GeneralisedPrior<Image3DF>& prior =
-		objectFromHandle<GeneralisedPrior<Image3DF> >(hp);
+	Prior3DF& prior = objectFromHandle< Prior3DF >(hp);
 	if (boost::iequals(name, "penalisation_factor"))
 		prior.set_penalisation_factor(floatDataFromHandle((void*)hv));
 	else
@@ -229,8 +205,7 @@ cSTIR_setGeneralisedPriorParameter
 void*
 cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
 {
-	GeneralisedPrior<Image3DF>& prior =
-		objectFromHandle<GeneralisedPrior<Image3DF> >(handle);
+	Prior3DF& prior = objectFromHandle< Prior3DF >(handle);
 	if (boost::iequals(name, "penalisation_factor"))
 		return floatDataHandle(prior.get_penalisation_factor());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -241,8 +216,7 @@ cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_QuadraticPrior3DF& prior =
-		objectFromHandle<GeneralisedPrior<Image3DF>, xSTIR_QuadraticPrior3DF>
-		(hp);
+		objectFromHandle< Prior3DF, xSTIR_QuadraticPrior3DF >(hp);
 	if (boost::iequals(name, "only_2D"))
 		prior.only2D(intDataFromHandle((void*)hv));
 	else
@@ -254,8 +228,8 @@ void*
 cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	GeneralisedObjectiveFunction<Image3DF>& obj_fun =
-		objectFromHandle<GeneralisedObjectiveFunction<Image3DF> >(hp);
+	ObjectiveFunction3DF& obj_fun =
+		objectFromHandle< ObjectiveFunction3DF >(hp);
 	if (boost::iequals(name, "prior"))
 		obj_fun.set_prior_sptr
 			(sptrDataFromHandle<GeneralisedPrior<Image3DF> >(hv));
@@ -268,8 +242,8 @@ void*
 cSTIR_generalisedObjectiveFunctionParameter
 (const DataHandle* handle, const char* name)
 {
-	GeneralisedObjectiveFunction<Image3DF>& obj_fun =
-		objectFromHandle<GeneralisedObjectiveFunction<Image3DF> >(handle);
+	ObjectiveFunction3DF& obj_fun =
+		objectFromHandle< ObjectiveFunction3DF >(handle);
 	if (boost::iequals(name, "prior"))
 		return sptrObjectHandle(obj_fun.get_prior_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -279,10 +253,8 @@ void*
 cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	PoissonLogLikelihoodWithLinearModelForMean<Image3DF>&
-		obj_fun = objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
-		PoissonLogLikelihoodWithLinearModelForMean<Image3DF> >
-		(hp);
+	PoissonLogLhLinModMean3DF& obj_fun = objectFromHandle
+		< ObjectiveFunction3DF, PoissonLogLhLinModMean3DF >(hp);
 	if (boost::iequals(name, "sensitivity_filename"))
 		obj_fun.set_sensitivity_filename(charDataFromHandle(hv));
 	else if (boost::iequals(name, "use_subset_sensitivities"))
@@ -305,6 +277,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
 		xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(hp);
+	//PoissonLogLhLinModMeanProjData3DF& obj_fun = objectFromHandle
+	//	< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >(hp);
 	if (boost::iequals(name, "input_filename"))
 		obj_fun.set_input_file(charDataFromHandle(hv));
 	else if (boost::iequals(name, "zero_seg0_end_planes"))
@@ -353,68 +327,32 @@ void*
 cSTIR_setIterativeReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	IterativeReconstruction<Image3DF>& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		IterativeReconstruction<Image3DF> >(hp);
+	IterativeReconstruction3DF& recon =
+		objectFromHandle< Reconstruction3DF, IterativeReconstruction3DF >(hp);
 	if (boost::iequals(name, "inter_iteration_filter_type"))
 		recon.set_inter_iteration_filter_ptr
-			(sptrDataFromHandle<DataProcessor<Image3DF> >(hv));
+			(sptrDataFromHandle< DataProcessor3DF >(hv));
 	else if (boost::iequals(name, "objective_function"))
 		recon.set_objective_function_sptr
-			(sptrDataFromHandle<GeneralisedObjectiveFunction<Image3DF> >(hv));
+			(sptrDataFromHandle< ObjectiveFunction3DF >(hv));
 	else if (boost::iequals(name, "initial_estimate"))
 		xSTIR_set_initial_estimate_file(&recon, charDataFromHandle(hv));
 	else {
 		int value = intDataFromHandle((void*)hv);
-		if (boost::iequals(name, "num_subsets")) {
-			if (value < 1)
-				return wrongIntParameterValue
-				("IterativeReconstruction::num_subsets", 
-				value, __FILE__, __LINE__);
+		if (boost::iequals(name, "num_subsets"))
 			recon.set_num_subsets(value);
-		}
-		else if (boost::iequals(name, "start_subset_num")) {
-			if (value < 0 || value >= recon.get_num_subsets())
-				return wrongIntParameterValue
-				("IterativeReconstruction::start_subset_num",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "start_subset_num"))
 			recon.set_start_subset_num(value);
-		}
-		else if (boost::iequals(name, "num_subiterations")) {
-			if (value < 1)
-				return wrongIntParameterValue
-				("IterativeReconstruction::num_subiterations",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "num_subiterations"))
 			recon.set_num_subiterations(value);
-		}
-		else if (boost::iequals(name, "start_subiteration_num")) {
-			if (value < 1)
-				return wrongIntParameterValue
-				("IterativeReconstruction::start_subiteration_num",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "start_subiteration_num"))
 			recon.set_start_subiteration_num(value);
-		}
-		else if (boost::iequals(name, "subiteration_num")) {
-			if (value < 1)
-				return wrongIntParameterValue
-				("IterativeReconstruction::subiteration_num",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "subiteration_num"))
 			xSTIR_subiteration(&recon) = value;
-		}
-		else if (boost::iequals(name, "save_interval")) {
-			if (value < 1 || value > recon.get_num_subiterations())
-				return wrongIntParameterValue
-				("IterativeReconstruction::save_interval",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "save_interval"))
 			recon.set_save_interval(value);
-		}
-		else if (boost::iequals(name, "inter_iteration_filter_interval")) {
-			if (value < 0)
-				return wrongIntParameterValue
-				("IterativeReconstruction::inter_iteration_filter_interval",
-				value, __FILE__, __LINE__);
+		else if (boost::iequals(name, "inter_iteration_filter_interval"))
 			recon.set_inter_iteration_filter_interval(value);
-		}
 		else
 			return parameterNotFound(name, __FILE__, __LINE__);
 	}
@@ -422,11 +360,11 @@ cSTIR_setIterativeReconstructionParameter
 }
 
 void*
-cSTIR_iterativeReconstructionParameter(const DataHandle* handle, const char* name)
+cSTIR_iterativeReconstructionParameter
+(const DataHandle* handle, const char* name)
 {
-	IterativeReconstruction<Image3DF>& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		IterativeReconstruction<Image3DF> >(handle);
+	IterativeReconstruction3DF& recon = objectFromHandle
+		< Reconstruction3DF, IterativeReconstruction3DF >(handle);
 	if (boost::iequals(name, "num_subsets"))
 		return intDataHandle(recon.get_num_subsets());
 	if (boost::iequals(name, "start_subset_num"))

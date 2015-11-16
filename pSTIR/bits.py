@@ -1255,3 +1255,45 @@ projectors = stir.Projectors('projectors_parameters.par')
 
     obj = stir.PLL_LMM_AMD(recon.get_objective_function())
     obj.set_input_filename('Utahscat600k_ca_seg4.hs')
+
+##            self.handle = pystir.cSTIR_imageFromFile(arg)
+
+##        self.handle = pystir.cSTIR_imageFromFile(filename)
+
+##class TruncateToCylindricalFOVImageProcessor(DataProcessor):
+
+##class ProjectorsUsingMatrix:
+
+##class PoissonLogLikelihoodWithLinearModelForMean\
+##        (GeneralisedObjectiveFunction)
+
+##class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
+##    (PoissonLogLikelihoodWithLinearModelForMean):
+
+##    def set_projector_pair(self, pp):
+
+##        super(OSMAPOSLReconstruction, self).__init__()
+
+##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+
+##        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+
+##        super(OSSPSReconstruction, self).__init__()
+
+##        self.handle = pystir.cSTIR_newReconstruction(self.name, file)
+
+##    obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+
+##    obj_fun.set_up()
+
+##    # create projectors
+##    projectors = stir.ProjectorsUsingMatrix()
+##    projectors.set_matrix_type(matrix)
+
+##        stir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
+    #obj_fun.set_input_filename('Utahscat600k_ca_seg4.hs')
+
+##    obj_fun.set_projector_pair_type(projectors)
+
+    #obj_fun.set_up()
+

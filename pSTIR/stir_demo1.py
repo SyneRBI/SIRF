@@ -7,7 +7,7 @@ import time
 # (cf. Error Handling section in the spec)
 try:
     # direct all diagnostic printing to a file
-    printer = stir.printerTo('stir_demo.txt')
+    printer = stir.printerTo('stir_demo1.txt')
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par')
@@ -19,7 +19,7 @@ try:
     prior = obj.get_prior()
     print('prior penalisation factor:', prior.get_penalisation_factor())
     prior.set_penalisation_factor(0.5)
-    am = stir.PLL_LMM_AMD(obj).get_acquisition_model()
+    am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_acquisition_model()
     print('tangential_LORs:', am.get_matrix().get_num_tangential_LORs())
     am.get_matrix().set_num_tangential_LORs(2)
 
