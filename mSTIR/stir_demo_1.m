@@ -4,40 +4,41 @@ if ~libisloaded('mstir')
 end
 
 try
-    % direct all diagnostic printing to Matlab Command Window
-    printer = stir.printerTo('stdout');
+    % create OSMAPOSL reconstructor
+    recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP2.par');
     
-    %image = stir.Image('my_uniform_image_circular.hv');
-    image = stir.Image();
-    image.read_from_file('my_uniform_image_circular.hv')
-
-    recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par');
-    
+    % check/redefine some parameters
     f = stir.CylindricFilter(recon.get_inter_iteration_filter());
-    f.set_strictly_less_than_radius(false)
-    f.apply(image)
-    f.set_strictly_less_than_radius(true)
-    
-    obj = stir.PoissonLogLh_LinModMean_AcqModData...
-        (recon.get_objective_function());
-    obj.set_sensitivity_filename('RPTsens_seg3_PM.hv')
-    obj.set_input_filename('Utahscat600k_ca_seg4.hs')
+    f.set_strictly_less_than_radius(true)    
+    obj = recon.get_objective_function();
     prior = obj.get_prior();
     fprintf('prior penalisation factor: %f\n', prior.get_penalisation_factor())
-    prior.set_penalisation_factor(0.5)
-    am = obj.get_acquisition_model();
+    prior.set_penalisation_factor(0.001)
+    am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_acquisition_model();
     fprintf('tangential LORs: %d\n', am.get_matrix().get_num_tangential_LORs())
     am.get_matrix().set_num_tangential_LORs(2)
 
-    tic
-    obj.set_up()
+    % read an initial estimate for the reconstructed image from a file
+    image = stir.Image('my_image0.hv');
+
+    % set up the reconstructor
     recon.set_up(image)
+
+    % run reconstruction
+    tic
     recon.reconstruct(image)
     toc
  
-    expectedImage = stir.Image('test_image_PM_QP_6.hv');
-    diff = expectedImage.diff_from(image);
-    fprintf('difference from expected image: %e\n', diff)
+    % compare the reconstructed image to the expected image
+    data = image.density();
+    expectedImage = stir.Image('my_image.hv');
+    x_data = expectedImage.density();
+    figure(1000000)
+    data = data/max(max(max(x_data)));
+    imshow(data(:,:,20));
+    figure(1000001)
+    x_data = x_data/max(max(max(x_data)));
+    imshow(x_data(:,:,20));
 
 catch err
     % display error information
