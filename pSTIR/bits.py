@@ -1297,3 +1297,115 @@ projectors = stir.Projectors('projectors_parameters.par')
 
     #obj_fun.set_up()
 
+##    data0 = image0.density()
+##    nz = data0.shape[0]
+##    while True:
+##        s = str(input('enter z-coordinate: '))
+##        if len(s) < 1:
+##            break
+##        z = int(s)
+##        if z < 0 or z >= nz:
+##            break
+##        pylab.figure(z)
+##        pylab.imshow(data0[z,:,:])
+##        pylab.show()
+
+##    image = stir.Image()
+##    image_dim = (60, 60, 31)
+##    voxel_size = (4.44114, 4.44114, 3.375)
+####    voxels = stir.Voxels(image_dim, voxel_size)
+##    image.initialise(image_dim, voxel_size)
+####    image.initialise(60, 60, 31, 4.44114, 4.44114, 3.375)
+##    image.fill(1.0)
+##
+##    filter = stir.CylindricFilter()
+##    filter.set_strictly_less_than_radius(False)
+##    filter.apply(image)
+##
+##    image_x = stir.Image()
+##    image_x.read_from_file('my_uniform_image_circular.hv')
+##
+##    image_c = image.clone()
+##    diff = image_x.diff_from(image_c)
+####    print('difference from cloned image:', diff)
+##
+####    image_e = image.get_empty_copy(2)
+####    data = image_e.density()
+####    print(data.min(), data.max())
+##
+####    data_x = image_x.density()
+##
+####    nz = data.shape[0]
+####    ny = data.shape[1]
+####    nx = data.shape[2]
+####    print(nx, ny, nz)
+####    diff = image_x.diff_from(image_c)
+##    print('difference from expected image:', diff)
+##
+####    while True:
+####        s = str(input('enter z-coordinate: '))
+####        if len(s) < 1:
+####            break
+####        z = int(s)
+####        if z < 0 or z >= nz:
+####            break
+####        pylab.figure(z)
+####        pylab.imshow(data[z,:,:])
+####        pylab.figure(1000000 + z)
+####        pylab.imshow(data_x[z,:,:])
+####        pylab.show()
+
+    # direct all diagnostic printing to a file
+    printer = stir.printerTo('stir_demo1.txt')
+
+##    recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP.par')
+
+##    image = stir.Image('my_uniform_image_circular.hv')
+
+##    expectedImage = stir.Image('test_image_PM_QP_6.hv')
+
+    diff = expectedImage.diff_from(image)
+    print('difference from expected image:', diff)
+
+    # direct all diagnostic printing to a file
+    printer = stir.printerTo('stir_demo2.txt')
+
+##    amd.read_from_file('Utahscat600k_ca_seg4.hs')
+
+##    image_size = (60, 60, 31)
+##    voxel_size = (4.44114, 4.44114, 3.375)
+
+##    obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
+##    obj_fun.set_use_subset_sensitivities(False)
+
+##    expectedImage = stir.Image('test_image_PM_QP_6.hv')
+
+    diff = expectedImage.diff_from(image)
+    print('difference from expected image:', diff)
+
+    image = stir.Image('my_image.hv')
+    data = image.density()
+    nz = data.shape[0]
+    while True:
+        s = str(input('enter z-coordinate: '))
+        if len(s) < 1:
+            break
+        z = int(s)
+        if z < 0 or z >= nz:
+            break
+        pylab.figure(z)
+        pylab.imshow(data[z,:,:])
+        pylab.show()
+
+##    # let the user inspect any z-crossections of the image they want to
+##    data = image.density()
+##    nz = data.shape[0]
+##    while True:
+##        s = str(input('enter z-coordinate: '))
+##        if len(s) < 1:
+##            break
+##        z = int(s)
+##        if z < 0 or z >= nz:
+##            break
+##        pylab.figure(z)
+##        pylab.imshow(data[z,:,:])
