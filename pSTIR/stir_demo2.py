@@ -26,14 +26,19 @@ try:
     filter = stir.CylindricFilter()
 
     # create initial image estimate
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+##    image_size = (111, 111, 31)
+##    voxel_size = (3, 3, 3.375)
+##    image = stir.Image()
+##    image.initialise(image_size, voxel_size)
+##    image.fill(1.0)
+##    filter.set_strictly_less_than_radius(False)
+##    filter.apply(image)
+##    filter.set_strictly_less_than_radius(True)
+
     image = stir.Image()
-    image.initialise(image_size, voxel_size)
-    image.fill(1.0)
-    filter.set_strictly_less_than_radius(False)
-    filter.apply(image)
-    filter.set_strictly_less_than_radius(True)
+    image.fill(2.0)
+    image.read_from_file('my_image0.hv')
+    #image = stir.Image('my_image0.hv')
 
     # create objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
@@ -65,6 +70,8 @@ try:
     pylab.imshow(data[20,:,:])
     pylab.show()
 
+    #recon.reconstruct(image)
+
     # in order to see the reconstructed image evolution
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
@@ -75,15 +82,20 @@ try:
         recon.update(image)
         # plot the current image
         data = image.density()
-        pylab.figure(iter + 1)
-        pylab.imshow(data[20,:,:])
-        pylab.show()
+##        pylab.figure(iter + 1)
+##        pylab.imshow(data[20,:,:])
+##        pylab.show()
         # image can be post-processed
-        filter.apply(image)
+        #filter.apply(image)
 
     # compare the reconstructed image to the expected image
-    expectedImage = stir.Image('my_image.hv')
-    x_data = expectedImage.density()
+    expectedImage = stir.Image('expected_image.hv')
+    diff = expectedImage.diff_from(image)
+    print('difference from expected image:', diff)
+
+    # compare the reconstructed image to the exact image
+    exactImage = stir.Image('my_image.hv')
+    x_data = exactImage.density()
 
     pylab.figure(100000)
     pylab.imshow(data[20,:,:])

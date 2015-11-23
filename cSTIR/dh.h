@@ -115,7 +115,13 @@ public:
 		delete ptr_sptr;
 	}
 	virtual anObjectHandle* copy() {
+		if (_data == 0)
+			throw StirException("zero data pointer cannot be dereferenced",
+			__FILE__, __LINE__);
 		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+		if (is_null_ptr(*ptr_sptr))
+			throw StirException("zero object pointer cannot be dereferenced",
+			__FILE__, __LINE__);
 		return new ObjectHandle<Base>(*ptr_sptr, _status);
 	}
 };
@@ -173,6 +179,19 @@ objectSptrFromHandle(const DataHandle* handle) {
 		throw StirException("zero object pointer cannot be dereferenced",
 		__FILE__, __LINE__);
 	return *ptr_sptr;
+}
+
+template<class Base>
+Base*
+objectPtrFromHandle(const DataHandle* handle) {
+	if (handle == 0)
+		return 0;
+	sptrImage3DF* ptr_sptr = (sptrImage3DF*)handle->data();
+	if (ptr_sptr == 0)
+		return 0;
+	if (is_null_ptr(*ptr_sptr))
+		return 0;
+	return ptr_sptr->get();
 }
 
 template<class T>

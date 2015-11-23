@@ -3025,3 +3025,39 @@ void* refDataHandle(void* ptr) {
 //	objectFromHandle< Reconstruction<Image3DF>,
 //	IterativeReconstruction<Image3DF> >(handle);
 
+//catch (StirException& se) {
+//	ExecutionStatus status(se);
+//	DataHandle* handle = new DataHandle;
+//	handle->set(0, &status);
+//	return (void*)handle;
+//}
+//catch (...) {
+//	ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+//	DataHandle* handle = new DataHandle;
+//	handle->set(0, &status);
+//	return (void*)handle;
+//}
+
+//catch (StirException& se) {
+//	ExecutionStatus status(se);
+//	handle->set(0, &status);
+//}
+//catch (...) {
+//	ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+//	handle->set(0, &status);
+//}
+//return (void*)handle;
+
+//catch (StirException& se) {
+//	ExecutionStatus status(se);
+//	handle->set(0, &status);
+//}
+////catch (exception& e) {
+////	cout << "exception " << e.what() << endl;
+////}
+//catch (...) {
+//	ExecutionStatus status("unhandled exception", __FILE__, __LINE__);
+//	handle->set(0, &status);
+//}
+
+//return (void*)handle;
