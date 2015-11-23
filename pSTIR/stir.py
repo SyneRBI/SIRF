@@ -138,7 +138,9 @@ class Image:
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
-        elif arg is not None:
+        elif arg is None:
+            self.handle = pystir.cSTIR_newObject('Image')
+        else:
             raise error\
                   ('wrong argument ' + repr(arg) + ' for Image constructor')
         self.name = 'Image'
@@ -263,7 +265,7 @@ class RayTracingMatrix:
     def __init__(self):
         self.handle = None
         self.name = 'RayTracingMatrix'
-        self.handle = pystir.cSTIR_newObject(self.name);
+        self.handle = pystir.cSTIR_newObject(self.name)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -281,6 +283,8 @@ class AcquisitionModelData:
             self.handle = pystir.cSTIR_objectFromFile\
                 ('AcquisitionModelData', filename)
             _check_status(self.handle)
+        else:
+            self.handle = pystir.cSTIR_newObject('AcquisitionModelData')
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
@@ -295,7 +299,7 @@ class AcquisitionModelUsingMatrix:
     def __init__(self):
         self.handle = None
         self.name = 'ProjectorsUsingMatrix'
-        self.handle = pystir.cSTIR_newObject(self.name);
+        self.handle = pystir.cSTIR_newObject(self.name)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -330,7 +334,7 @@ class QuadraticPrior(Prior):
     def __init__(self):
         self.handle = None
         self.name = 'QuadraticPrior'
-        self.handle = pystir.cSTIR_newObject(self.name);
+        self.handle = pystir.cSTIR_newObject(self.name)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:

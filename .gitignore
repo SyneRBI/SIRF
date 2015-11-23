@@ -260,3 +260,8 @@ pSTIR/pystir_wrap.cxx
 pSTIR/ossps_demo.txt
 pSTIR/pystir.py
 *.mexw64
+*.am
+*.thresholded
+mSTIR/try_avizo.hx
+pSTIR/stir_demo3.txt
+pSTIR/stir_demo1.txt

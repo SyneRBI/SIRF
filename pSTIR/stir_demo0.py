@@ -7,6 +7,9 @@ try:
     image_dim = (100, 100, 50)
     voxel_size = (0.8, 0.8, 1)
     image.initialise(image_dim, voxel_size)
+    data = image.density()
+    pylab.imshow(data[0,:,:])
+    pylab.show()
 
     shape = stir.EllipsoidalCylinder()
 
