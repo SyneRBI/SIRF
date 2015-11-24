@@ -26,19 +26,14 @@ try:
     filter = stir.CylindricFilter()
 
     # create initial image estimate
-##    image_size = (111, 111, 31)
-##    voxel_size = (3, 3, 3.375)
-##    image = stir.Image()
-##    image.initialise(image_size, voxel_size)
-##    image.fill(1.0)
+    image_size = (111, 111, 31)
+    voxel_size = (3, 3, 3.375)
+    image = stir.Image()
+    image.initialise(image_size, voxel_size)
+    image.fill(1.0)
 ##    filter.set_strictly_less_than_radius(False)
 ##    filter.apply(image)
 ##    filter.set_strictly_less_than_radius(True)
-
-    image = stir.Image()
-    image.fill(2.0)
-    image.read_from_file('my_image0.hv')
-    #image = stir.Image('my_image0.hv')
 
     # create objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()

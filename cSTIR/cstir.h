@@ -16,6 +16,11 @@ extern "C" {
 	// DataProcessor methods
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 
+	// Acquisition model methods
+	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_pd, void* ptr_im);
+	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, void* ptr_pd);
+	void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t);
+
 	// Reconstruction methods
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);

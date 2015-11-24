@@ -26,6 +26,7 @@
 #include "stir/IO/read_from_file.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
 #include "stir/OSSPS/OSSPSReconstruction.h"
+#include "stir/ProjDataInMemory.h"
 #include "stir/recon_buildblock/distributable_main.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
@@ -49,6 +50,8 @@ USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;
 typedef boost::shared_ptr<Image3DF> sptrImage3DF;
+typedef boost::shared_ptr<ProjData> sptrProjData;
+typedef boost::shared_ptr<ProjectorByBinPair> sptrProjPair;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
 typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;
