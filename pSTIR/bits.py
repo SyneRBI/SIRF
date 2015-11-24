@@ -1409,3 +1409,17 @@ projectors = stir.Projectors('projectors_parameters.par')
 ##            break
 ##        pylab.figure(z)
 ##        pylab.imshow(data[z,:,:])
+
+##    image = stir.Image()
+##    image.fill(2.0)
+##    image.read_from_file('my_image0.hv')
+    #image = stir.Image('my_image0.hv')
+
+##    amd1 = stir.AcquisitionModelData('my_forward_projection.hs')
+
+##    amd1 = stir.AcquisitionModelData(amd)
+    amd1 = stir.AcquisitionModelData()
+##    amd1.create_from_template_file('my_forward_projection.hs')
+    amd1.create_from_template_file('Utahscat600k_ca_seg4.hs')
+    am.set_up(amd1, exactImage)
+    am.forward(exactImage, amd1)

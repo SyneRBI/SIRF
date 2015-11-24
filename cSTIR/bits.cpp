@@ -3061,3 +3061,12 @@ void* refDataHandle(void* ptr) {
 //}
 
 //return (void*)handle;
+
+//CAST_PTR(DataHandle, hi, ptr_i);
+//Image3DF& image = objectFromHandle<Image3DF>(hi);
+
+//CAST_PTR(DataHandle, handle, ptr);
+//Image3DF& image = objectFromHandle<Image3DF>(handle);
+
+//data[i] = (*image)[z][y][x];
+

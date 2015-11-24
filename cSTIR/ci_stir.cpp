@@ -241,6 +241,60 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 }
 
 extern "C"
+void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t)
+{
+	try {
+		sptrProjData& sptr_t = 
+			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+		NEW_SPTR(ProjData, ptr_sptr, 
+			ProjDataInMemory(sptr_t->get_exam_info_sptr(), 
+			sptr_t->get_proj_data_info_sptr()));
+		return newObjectHandle(ptr_sptr);
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_pd, void* ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hp, ptr_pd);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_pd = objectSptrFromHandle<ProjData>(hp);
+		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		Succeeded s = 
+			sptr_am->set_up(sptr_pd->get_proj_data_info_sptr(), sptr_im);
+		DataHandle* handle = new DataHandle;
+		if (s != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_setupAcquisitionModel failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, void* ptr_pd)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hp, ptr_pd);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_pd = objectSptrFromHandle<ProjData>(hp);
+		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		sptr_am->get_forward_projector_sptr()->forward_project
+			(*sptr_pd, *sptr_im);
+		return new DataHandle;
+	}
+	CATCH
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
@@ -359,54 +413,48 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v)
 extern "C"
 void cSTIR_fillImage(void* ptr_i, double v)
 {
-	//CAST_PTR(DataHandle, hi, ptr_i);
 	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_i);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
-	//Image3DF& image = objectFromHandle<Image3DF>(hi);
 	image.fill((float)v);
 }
 
 extern "C"
-void cSTIR_getImageDimensions(const void* ptr, size_t pd) 
+void cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim) 
 {
-	CAST_PTR(DataHandle, handle, ptr);
-	Image3DF& image = objectFromHandle<Image3DF>(handle);
+	int* dim = (int*)ptr_dim;
+	dim[0] = 0;
+	dim[1] = 0;
+	dim[2] = 0;
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	if (ptr_image == 0)
+		return;
+	Image3DF& image = *ptr_image;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	int* dim = (int*)pd;
-	if (!image.get_regular_range(min_indices, max_indices)) {
-			//cout << "image is not regular" << endl;
-		dim[0] = 0;
-		dim[1] = 0;
-		dim[2] = 0;
-	}
-	else {
-		for (int i = 0; i < 3; i++)
-			dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
-	}
+	if (!image.get_regular_range(min_indices, max_indices))
+		return;
+	for (int i = 0; i < 3; i++)
+		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
 }
 
 extern "C"
-void cSTIR_getImageData(const void* ptr, size_t pd) 
+void cSTIR_getImageData(const void* ptr_im, size_t ptr_dim) 
 {
-	CAST_PTR(DataHandle, handle, ptr);
-	Image3DF& image = objectFromHandle<Image3DF>(handle);
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	if (ptr_image == 0)
+		return;
+	Image3DF& image = *ptr_image;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	double* data = (double*)pd;
-	if (!image.get_regular_range(min_indices, max_indices)) {
-			//cout << "image is not regular" << endl;
+	double* data = (double*)ptr_dim;
+	if (!image.get_regular_range(min_indices, max_indices))
 		return;
-	}
-	else {
-		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					data[i] = image[z][y][x];
-					//data[i] = (*image)[z][y][x];
-				}
+	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+				data[i] = image[z][y][x];
 			}
 		}
 	}

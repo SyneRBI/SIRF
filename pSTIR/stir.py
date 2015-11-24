@@ -279,12 +279,14 @@ class AcquisitionModelData:
     def __init__(self, arg = None):
         self.handle = None
         self.name = 'AcquisitionModelData'
-        if arg is not None:
+        if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile\
-                ('AcquisitionModelData', filename)
+                ('AcquisitionModelData', arg)
             _check_status(self.handle)
-        else:
-            self.handle = pystir.cSTIR_newObject('AcquisitionModelData')
+        elif arg is not None:
+            self.handle = pystir.cSTIR_acquisitionModelDataFromTemplate\
+                (arg.handle)
+            _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
@@ -294,6 +296,14 @@ class AcquisitionModelData:
         self.handle = pystir.cSTIR_objectFromFile\
             ('AcquisitionModelData', filename)
         _check_status(self.handle)
+    def create_from_template_file(self, filename):
+        if self.handle is not None:
+            pystir.cSTIR_deleteObject(self.handle)
+        handle = pystir.cSTIR_objectFromFile('AcquisitionModelData', filename)
+        _check_status(handle)
+        self.handle = pystir.cSTIR_acquisitionModelDataFromTemplate(handle)
+        _check_status(self.handle)
+        pystir.deleteDataHandle(handle)
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
@@ -312,6 +322,16 @@ class AcquisitionModelUsingMatrix:
             (self.handle, self.name, 'matrix_type')
         _check_status(matrix.handle)
         return matrix
+    def set_up(self, amd, image):
+        handle = pystir.cSTIR_setupAcquisitionModel\
+            (self.handle, amd.handle, image.handle)
+        _check_status(handle)
+        pystir.deleteDataHandle(handle)
+    def forward(self, image, amd):
+        handle = pystir.cSTIR_acquisitionModelFwd\
+            (self.handle, image.handle, amd.handle)
+        _check_status(handle)
+        pystir.deleteDataHandle(handle)
 
 class Prior:
     def __init__(self):
