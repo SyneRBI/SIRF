@@ -195,7 +195,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				(read_from_file<Image3DF>(filename));
 			return newObjectHandle(ptr_sptr);
 		}
-		if (boost::iequals(name, "AcquisitionModelData")) {
+		if (boost::iequals(name, "AcquisitionData")) {
 			NEW(boost::shared_ptr<ProjData>, ptr_sptr);
 			*ptr_sptr = ProjData::read_from_file(filename);
 			return newObjectHandle(ptr_sptr);
@@ -217,7 +217,8 @@ void* cSTIR_setupObject(const char* obj, void* ptr_obj)
 			status = xSTIR_setupObjectiveFunction(ho->data());
 		DataHandle* handle = new DataHandle;
 		if (status) {
-			ExecutionStatus status("cSTIR_setupObject failed", __FILE__, __LINE__);
+			ExecutionStatus status
+				("cSTIR_setupObject failed", __FILE__, __LINE__);
 			handle->set(0, &status);
 		}
 		return (void*)handle;
@@ -241,55 +242,69 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 }
 
 extern "C"
-void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t)
+void* cSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im)
 {
 	try {
-		sptrProjData& sptr_t = 
-			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
-		NEW_SPTR(ProjData, ptr_sptr, 
-			ProjDataInMemory(sptr_t->get_exam_info_sptr(), 
-			sptr_t->get_proj_data_info_sptr()));
-		return newObjectHandle(ptr_sptr);
-	}
-	CATCH
-}
-
-extern "C"
-void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_pd, void* ptr_im)
-{
-	try {
+		sptrProjData* ptr_sptr = 
+			new sptrProjData(ProjData::read_from_file(templ));
+		sptrProjData& sptr_t = *ptr_sptr;
 		CAST_PTR(DataHandle, ha, ptr_am);
-		CAST_PTR(DataHandle, hp, ptr_pd);
 		CAST_PTR(DataHandle, hi, ptr_im);
 		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
-		sptrProjData& sptr_pd = objectSptrFromHandle<ProjData>(hp);
 		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
-		Succeeded s = 
-			sptr_am->set_up(sptr_pd->get_proj_data_info_sptr(), sptr_im);
+		Succeeded s =
+			sptr_am->set_up(sptr_t->get_proj_data_info_sptr(), sptr_im);
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
-			ExecutionStatus status("cSTIR_setupAcquisitionModel failed",
+			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
 				__FILE__, __LINE__);
 			handle->set(0, &status);
 		}
+		else
+			handle->set((void*)ptr_sptr);
 		return (void*)handle;
 	}
 	CATCH
 }
 
 extern "C"
-void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, void* ptr_pd)
+void* cSTIR_acquisitionModelForward
+(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im)
 {
 	try {
 		CAST_PTR(DataHandle, ha, ptr_am);
-		CAST_PTR(DataHandle, hp, ptr_pd);
+		CAST_PTR(DataHandle, ht, ptr_dt);
 		CAST_PTR(DataHandle, hi, ptr_im);
 		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
-		sptrProjData& sptr_pd = objectSptrFromHandle<ProjData>(hp);
+		sptrProjData& sptr_dt = objectSptrFromHandle<ProjData>(ht);
 		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		NEW_SPTR(ProjData, ptr_sptr,
+			ProjDataInterfile(sptr_dt->get_exam_info_sptr(),
+			sptr_dt->get_proj_data_info_sptr(), datafile));
+		sptrProjData& sptr_t = *ptr_sptr;
 		sptr_am->get_forward_projector_sptr()->forward_project
-			(*sptr_pd, *sptr_im);
-		return new DataHandle;
+			(*sptr_t, *sptr_im);
+		DataHandle* handle = new DataHandle;
+		handle->set((void*)ptr_sptr);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hd, ptr_ad);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(hd);
+		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		sptrImage3DF* ptr_sptr = new sptrImage3DF(image.clone());
+		sptrImage3DF& sptr_im = *ptr_sptr;
+		sptr_am->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
+		return newObjectHandle(ptr_sptr);
 	}
 	CATCH
 }

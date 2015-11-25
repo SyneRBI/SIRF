@@ -1,5 +1,7 @@
 import numpy
+import os
 import pystir
+import time
 
 class error(Exception):
     def __init__(self, value):
@@ -55,6 +57,9 @@ def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
     _check_status(handle)
     return handle
+
+def _tmp_filename():
+    return repr(int(1000*time.time()))
 
 class printerTo:
     def __init__(self, dest, channel = -1):
@@ -275,45 +280,46 @@ class RayTracingMatrix:
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
-class AcquisitionModelData:
-    def __init__(self, arg = None):
+class AcquisitionData:
+    def __init__(self, file = None, templ = None):
         self.handle = None
-        self.name = 'AcquisitionModelData'
-        if isinstance(arg, str):
+        self.name = 'AcquisitionData'
+        self.tmp = False
+        if file is None:
+            return
+        self.file = file
+        if templ is None:
             self.handle = pystir.cSTIR_objectFromFile\
-                ('AcquisitionModelData', arg)
-            _check_status(self.handle)
-        elif arg is not None:
-            self.handle = pystir.cSTIR_acquisitionModelDataFromTemplate\
-                (arg.handle)
-            _check_status(self.handle)
+                ('AcquisitionData', file)
+        else:
+            self.handle = pystir.cSTIR_acquisitionDataFromTemplate(file, templ)
+        _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
-    def read_from_file(self, filename):
-        if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
-        self.handle = pystir.cSTIR_objectFromFile\
-            ('AcquisitionModelData', filename)
-        _check_status(self.handle)
-    def create_from_template_file(self, filename):
-        if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
-        handle = pystir.cSTIR_objectFromFile('AcquisitionModelData', filename)
-        _check_status(handle)
-        self.handle = pystir.cSTIR_acquisitionModelDataFromTemplate(handle)
-        _check_status(self.handle)
-        pystir.deleteDataHandle(handle)
+##        print('in AcquisitionData destructor')
+##        if self.tmp:
+##            print('removing', self.file + '.hs')
+##            os.remove(self.file + '.hs')
+##            print('removing', self.file + '.s')
+##            os.remove(self.file + '.s')
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
         self.handle = None
         self.name = 'ProjectorsUsingMatrix'
+        self.templ = None
+        self.templ_name = None
+        self.image = None
         self.handle = pystir.cSTIR_newObject(self.name)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
+        if self.templ is not None:
+            pystir.deleteDataHandle(self.templ)
+        if self.image is not None:
+            pystir.cSTIR_deleteObject(self.image)
     def set_matrix(self, matrix):
         _setParameter(self.handle, self.name, 'matrix_type', matrix.handle)
     def get_matrix(self):
@@ -322,16 +328,44 @@ class AcquisitionModelUsingMatrix:
             (self.handle, self.name, 'matrix_type')
         _check_status(matrix.handle)
         return matrix
-    def set_up(self, amd, image):
-        handle = pystir.cSTIR_setupAcquisitionModel\
-            (self.handle, amd.handle, image.handle)
-        _check_status(handle)
-        pystir.deleteDataHandle(handle)
-    def forward(self, image, amd):
-        handle = pystir.cSTIR_acquisitionModelFwd\
-            (self.handle, image.handle, amd.handle)
-        _check_status(handle)
-        pystir.deleteDataHandle(handle)
+    def set_up(self, templ, image):
+        self.templ = pystir.cSTIR_acquisitionModelSetup\
+            (self.handle, templ, image.handle)
+        _check_status(self.templ)
+        self.templ_name = templ
+        self.image = pystir.cSTIR_copyOfObject(image.handle)
+    def forward(self, image, filename = None):
+        if self.templ is None:
+            raise error('forward projection failed: setup not done')
+##        if file is None:
+##            file = _tmp_filename()
+##            tmp = True
+##        else:
+##            tmp = False
+##        filename = file + '.hs'
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_acquisitionModelForward\
+            (self.handle, filename, self.templ, image.handle)
+        _check_status(ad.handle)
+##        pystir.cSTIR_deleteObject(amd.handle)
+##        ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
+##        ad.tmp = tmp
+##        ad.file = filename
+        return ad
+    def backward(self, ad, image = None):
+        if self.image is None:
+            raise error('backward projection failed: setup not done')
+        update = Image()
+        if update.handle is not None:
+            pystir.cSTIR_deleteObject(update.handle)
+        if image is None:
+            update.handle = pystir.cSTIR_acquisitionModelBackward\
+                (self.handle, ad.handle, self.image)
+        else:
+            update.handle = pystir.cSTIR_acquisitionModelBackward\
+                (self.handle, ad.handle, image.handle)
+        _check_status(update.handle)
+        return update
 
 class Prior:
     def __init__(self):
@@ -430,7 +464,7 @@ class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
             (self.handle, self.name, 'projector_pair_type')
         _check_status(proj.handle)
         return proj
-    def set_acquisition_model_data(self, am):
+    def set_acquisition_data(self, am):
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', am.handle)
 
