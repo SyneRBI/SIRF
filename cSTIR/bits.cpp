@@ -3070,3 +3070,94 @@ void* refDataHandle(void* ptr) {
 
 //data[i] = (*image)[z][y][x];
 
+extern "C"
+void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t)
+{
+	try {
+		sptrProjData& sptr_t =
+			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+		NEW_SPTR(ProjData, ptr_sptr,
+			ProjDataInMemory(sptr_t->get_exam_info_sptr(),
+			sptr_t->get_proj_data_info_sptr()));
+		return newObjectHandle(ptr_sptr);
+	}
+	CATCH
+}
+
+void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t);
+
+// obsolete model methods
+void* cSTIR_acquisitionDataFromTemplate(const char* file, const char* tmpl);
+void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_ad, void* ptr_im);
+void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, void* ptr_ad);
+void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, void* ptr_im);
+
+extern "C"
+void* cSTIR_acquisitionDataFromTemplate(const char* datafile, const char* templ)
+{
+	try {
+		sptrProjData sptr_t = ProjData::read_from_file(templ);
+		NEW_SPTR(ProjData, ptr_sptr,
+			ProjDataInterfile(sptr_t->get_exam_info_sptr(),
+			sptr_t->get_proj_data_info_sptr(), datafile));
+		return newObjectHandle(ptr_sptr);
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_ad, void* ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hd, ptr_ad);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(hd);
+		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		Succeeded s =
+			sptr_am->set_up(sptr_ad->get_proj_data_info_sptr(), sptr_im);
+		DataHandle* handle = new DataHandle;
+		if (s != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_setupAcquisitionModel failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im, void* ptr_ad)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hd, ptr_ad);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(hd);
+		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		sptr_am->get_forward_projector_sptr()->forward_project
+			(*sptr_ad, *sptr_im);
+		return new DataHandle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, void* ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hd, ptr_ad);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(hd);
+		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		sptr_am->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
+		return new DataHandle;
+	}
+	CATCH
+}
+

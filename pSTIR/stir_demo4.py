@@ -1,9 +1,10 @@
 import numpy
+import os
 import pylab
 import stir
 
 try:
-    # create empty image
+    # create an empty image
     image = stir.Image()
     image_size = (111, 111, 31)
     voxel_size = (3, 3, 3.375)
@@ -27,47 +28,53 @@ try:
     shape.set_origin((-60, -30, 10))
     image.add_shape(shape, scale = 0.75)
 
-    # plot the image
+    # z-pixel coordinate of the xy-crossection to plot
+    z = int(image_size[2]/2)
+
+    # plot the phantom image to be reconstructed
     data = image.density()
-    pylab.imshow(data[10,:,:])
+    pylab.imshow(data[z,:,:])
     pylab.show()
 
-    # create matrix to be used by the acquisition model
+    # define the matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
 
-    # create acquisition model
+    # define the acquisition model
     am = stir.AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # create a prior
+    # define a prior
     prior = stir.QuadraticPrior()
     prior.set_penalisation_factor(0.001)
 
-    # create filter
+    # define a filter
     filter = stir.CylindricFilter()
 
-    # create initial image estimate
+    # create an initial image estimate
     reconstructedImage = stir.Image()
     reconstructedImage.initialise(image_size, voxel_size)
     reconstructedImage.fill(1.0)
+    # apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
     # forward-project the image to obtain 'raw data'
-    amd = stir.AcquisitionModelData()
-    amd.create_from_template_file('Utahscat600k_ca_seg4.hs')
-    am.set_up(amd, image)
-    am.forward(image, amd)
+    # 'Utahscat600k_ca_seg4.hs' is used as a template
+    am.set_up('Utahscat600k_ca_seg4.hs', image)
+    ad = am.forward(image, 'demo4data.hs')
+    ad = stir.AcquisitionData('demo4data.hs')
+    # backward-project the computed forward projection
+    update = am.backward(ad)
 
-    # create objective function
+    # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_model_data(amd)
+    obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
-    num_subiterations = 16
+    num_subiterations = 2
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
@@ -86,7 +93,7 @@ try:
     # plot the initial image
     data = reconstructedImage.density()
     pylab.figure(1)
-    pylab.imshow(data[10,:,:])
+    pylab.imshow(data[z,:,:])
     pylab.show()
 
     for iter in range(1, num_subiterations + 1):
@@ -97,16 +104,16 @@ try:
         # plot the current image
         data = reconstructedImage.density()
         pylab.figure(iter + 1)
-        pylab.imshow(data[10,:,:])
+        pylab.imshow(data[z,:,:])
         pylab.show()
 
-    # plot the reconstructed image
+    # plot the reconstructed and actual images
     data = reconstructedImage.density()
     pylab.figure(1)
-    pylab.imshow(data[10,:,:])
+    pylab.imshow(data[z,:,:])
     data = image.density()
     pylab.figure(2)
-    pylab.imshow(data[10,:,:])
+    pylab.imshow(data[z,:,:])
     pylab.show()
 
 except stir.error as err:

@@ -265,3 +265,6 @@ pSTIR/pystir.py
 mSTIR/try_avizo.hx
 pSTIR/stir_demo3.txt
 pSTIR/stir_demo1.txt
+*.hs
+pSTIR/demo4data.s
+*.ahv
