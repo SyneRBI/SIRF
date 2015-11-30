@@ -3161,3 +3161,6 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, void* ptr_im)
 	CATCH
 }
 
+//std::cerr << "\nINFO: "
+// << string
+// << std::endl;

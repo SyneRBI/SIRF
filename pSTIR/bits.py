@@ -1478,3 +1478,22 @@ class AcquisitionModelData:
 ##    amd = am.forward(image)
 ##    amd = stir.AcquisitionData(amd.file + '.hs')
 
+##        if file is None:
+##            file = _tmp_filename()
+##            tmp = True
+##        else:
+##            tmp = False
+##        filename = file + '.hs'
+
+##        ad.tmp = tmp
+##        ad.file = filename
+
+##    ad = stir.AcquisitionData('demo4data.hs')
+
+##        print('in AcquisitionData destructor')
+##        if self.tmp:
+##            print('removing', self.file + '.hs')
+##            os.remove(self.file + '.hs')
+##            print('removing', self.file + '.s')
+##            os.remove(self.file + '.s')
+

@@ -3,6 +3,11 @@ import os
 import pystir
 import time
 
+INFO_CHANNEL = 0
+WARNING_CHANNEL = 1
+ERROR_CHANNEL = 2
+ALL_CHANNELS = -1
+
 class error(Exception):
     def __init__(self, value):
         self.value = value
@@ -297,12 +302,6 @@ class AcquisitionData:
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
-##        print('in AcquisitionData destructor')
-##        if self.tmp:
-##            print('removing', self.file + '.hs')
-##            os.remove(self.file + '.hs')
-##            print('removing', self.file + '.s')
-##            os.remove(self.file + '.s')
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
@@ -337,20 +336,12 @@ class AcquisitionModelUsingMatrix:
     def forward(self, image, filename = None):
         if self.templ is None:
             raise error('forward projection failed: setup not done')
-##        if file is None:
-##            file = _tmp_filename()
-##            tmp = True
-##        else:
-##            tmp = False
-##        filename = file + '.hs'
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelForward\
             (self.handle, filename, self.templ, image.handle)
         _check_status(ad.handle)
-##        pystir.cSTIR_deleteObject(amd.handle)
-##        ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
-##        ad.tmp = tmp
-##        ad.file = filename
+        pystir.cSTIR_deleteObject(ad.handle)
+        ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
         return ad
     def backward(self, ad, image = None):
         if self.image is None:

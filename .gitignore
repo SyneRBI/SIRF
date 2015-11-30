@@ -268,3 +268,11 @@ pSTIR/stir_demo1.txt
 *.hs
 pSTIR/demo4data.s
 *.ahv
+*.s
+mSTIR/stir_demo2.txt
+mSTIR/stir_demo4_wrn.txt
+pSTIR/stir_demo2info.txt
+pSTIR/stir_demo2warn.txt
+pSTIR/stir_demo4_wrn.txt
+pSTIR/stir_demo4_inf.txt
+mSTIR/stir_demo4_inf.txt

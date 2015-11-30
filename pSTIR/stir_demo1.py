@@ -6,6 +6,9 @@ import time
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
+    # direct all printing to a file
+    printer = stir.printerTo('stir_demo1.txt')
+
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP2.par')
 

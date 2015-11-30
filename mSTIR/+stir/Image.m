@@ -14,6 +14,7 @@ classdef Image < handle
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
 %                self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
+                stir.checkExecutionStatus('Image', self.handle)
             end
             self.voxels = [];
             self.rimsize = -1;
@@ -57,10 +58,10 @@ classdef Image < handle
                 dim(1), dim(2), dim(3),...
                 vsize(1), vsize(2), vsize(3),...
                 origin(1), origin(2), origin(3));
-            stir.checkExecutionStatus('Image:initialise', self.voxels)
+            stir.checkExecutionStatus('Image.initialise', self.voxels)
             self.handle = calllib('mstir', 'mSTIR_imageFromVoxels',...
                 self.voxels);
-            stir.checkExecutionStatus('Image:initialise', self.handle)
+            stir.checkExecutionStatus('Image.initialise', self.handle)
         end
         function fill(self, value)
             calllib('mstir', 'mSTIR_fillImage', self.handle, value)
@@ -69,7 +70,7 @@ classdef Image < handle
             image = stir.Image();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
-            stir.checkExecutionStatus('Image:clone', self.handle)
+            stir.checkExecutionStatus('Image.clone', self.handle)
         end
         function image = get_empty_copy(self, value)
             if nargin < 2
@@ -78,7 +79,7 @@ classdef Image < handle
             image = stir.Image();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
-            stir.checkExecutionStatus('Image:clone', self.handle)
+            stir.checkExecutionStatus('Image.get_empty_copy', self.handle)
             image.fill(value)
         end
         function read_from_file(self, filename)
@@ -91,12 +92,22 @@ classdef Image < handle
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
 %            self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
-            stir.checkExecutionStatus('read_from_file', self.handle);
+            stir.checkExecutionStatus('Image.read_from_file', self.handle);
+        end
+        function add_shape(self, shape, scale)
+            if isempty(self.handle)
+                error('Image:error', 'cannot add shapes to uninitialised image');
+            end
+            h = calllib...
+                ('mstir', 'mSTIR_addShape', self.handle, self.voxels,...
+                shape.handle, scale);
+            stir.checkExecutionStatus('Image.add_shape', h);
+            calllib('mstir', 'mDeleteDataHandle', h)
         end
         function diff = diff_from(self, image)
             h = calllib('mstir', 'mSTIR_imagesDifference',...
                      self.handle, image.handle, self.rimsize);
-            stir.checkExecutionStatus('diff_from', h);
+            stir.checkExecutionStatus('Image.diff_from', h);
             diff = calllib('mstir', 'mDoubleDataFromHandle', h);
             calllib('mstir', 'mDeleteDataHandle', h)
         end

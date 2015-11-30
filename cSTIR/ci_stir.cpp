@@ -303,6 +303,7 @@ void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im)
 		Image3DF& image = objectFromHandle<Image3DF>(hi);
 		sptrImage3DF* ptr_sptr = new sptrImage3DF(image.clone());
 		sptrImage3DF& sptr_im = *ptr_sptr;
+		sptr_im->fill(0.0F);
 		sptr_am->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
 		return newObjectHandle(ptr_sptr);
 	}
