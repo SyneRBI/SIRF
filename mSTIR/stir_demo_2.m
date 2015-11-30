@@ -4,6 +4,10 @@ if ~libisloaded('mstir')
 end
 
 try
+    printer_info = stir.printerTo('stir_demo2.txt', 0);
+    printer_warn = stir.printerTo('stdout', 1);
+    printer_errr = stir.printerTo('stdout', 2);
+
     % create matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix();
     matrix.set_num_tangential_LORs(2)
@@ -13,8 +17,8 @@ try
     am.set_matrix(matrix);
     
     % read acquisition model data
-    amd = stir.AcquisitionModelData();
-    amd.read_from_file('my_forward_projection.hs')
+    ad = stir.AcquisitionData();
+    ad.read_from_file('my_forward_projection.hs')
 
     % create prior
     prior = stir.QuadraticPrior();
@@ -38,10 +42,12 @@ try
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_model_data(amd)
+    obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
     
     num_subiterations = 6;
+    
+    %fprintf('ok\n')
 
     % create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction();    

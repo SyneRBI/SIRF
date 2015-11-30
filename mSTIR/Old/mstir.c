@@ -29,8 +29,14 @@ EXPORTED_FUNCTION void* mSTIR_setupObject(const char* obj, void* ptr_obj) {
 EXPORTED_FUNCTION void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
 }
-EXPORTED_FUNCTION void* mSTIR_newReconstruction(const char* method, const char* filename) {
-	return cSTIR_newReconstruction(method, filename);
+EXPORTED_FUNCTION void* mSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im) {
+	return cSTIR_acquisitionModelSetup(ptr_am, templ, ptr_im);
+}
+EXPORTED_FUNCTION void* mSTIR_acquisitionModelForward(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im) {
+	return cSTIR_acquisitionModelForward(ptr_am, datafile, ptr_dt, ptr_im);
+}
+EXPORTED_FUNCTION void* mSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im) {
+	return cSTIR_acquisitionModelBackward(ptr_am, ptr_ad, ptr_im);
 }
 EXPORTED_FUNCTION void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);
@@ -64,9 +70,6 @@ EXPORTED_FUNCTION void* mSTIR_imageFromVoxels(void* ptr_v) {
 }
 EXPORTED_FUNCTION void* mSTIR_imageFromImage(void* ptr_v) {
 	return cSTIR_imageFromImage(ptr_v);
-}
-EXPORTED_FUNCTION void* mSTIR_imageFromFile(const char* filename) {
-	return cSTIR_imageFromFile(filename);
 }
 EXPORTED_FUNCTION void mSTIR_fillImage(void* ptr_i, double v) {
 	cSTIR_fillImage(ptr_i, v);

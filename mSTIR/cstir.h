@@ -9,6 +9,9 @@ void* cSTIR_setParameter(void* ptr, const char* obj, const char* name, const voi
 void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
 void* cSTIR_setupObject(const char* obj, void* ptr_obj);
 void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
+void* cSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im);
+void* cSTIR_acquisitionModelForward(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
+void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
@@ -44,5 +47,7 @@ void setWriter(void* ptr_w, int channel);
 void resetWriter();
 void deleteTextPrinter(void* ptr);
 void deleteTextWriter(void* ptr_w);
+void* newMexPrinter();
+void deleteMexPrinter(void* ptr);
 
 #endif

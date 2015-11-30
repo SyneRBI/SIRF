@@ -1,18 +1,24 @@
-classdef AcquisitionModelData < handle
+classdef AcquisitionData < handle
     properties
         name
         handle
     end
     methods
-        function self = AcquisitionModelData(filename)
+        function self = AcquisitionData(filename, template)
             self.handle = [];
-            self.name = 'AcquisitionModelData';
-            if nargin > 0
+            self.name = 'AcquisitionData';
+            if nargin < 1
+                return
+            elseif nargin < 2
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile',...
-                    'AcquisitionModelData', filename);
-                stir.checkExecutionStatus(self.name, self.handle);
+                    'AcquisitionData', filename);
+            else
+                self.handle = calllib...
+                    ('mstir', 'mSTIR_acquisitionDataFromTemplate',...
+                    filename, template);
             end
+            stir.checkExecutionStatus(self.name, self.handle);
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -25,7 +31,7 @@ classdef AcquisitionModelData < handle
             end
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
-                'AcquisitionModelData', filename);
+                'AcquisitionData', filename);
             stir.checkExecutionStatus(self.name, self.handle);
         end
     end

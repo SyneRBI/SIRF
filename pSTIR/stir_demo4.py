@@ -4,6 +4,13 @@ import pylab
 import stir
 
 try:
+    # direct all information printing to a file
+    info_printer = stir.printerTo('stir_demo4_inf.txt', stir.INFO_CHANNEL)
+    # direct all warning printing to a file
+    warning_printer = stir.printerTo('stir_demo4_wrn.txt', stir.WARNING_CHANNEL)
+    # direct all error printing to stdout
+    error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
+
     # create an empty image
     image = stir.Image()
     image_size = (111, 111, 31)
@@ -62,7 +69,6 @@ try:
     # 'Utahscat600k_ca_seg4.hs' is used as a template
     am.set_up('Utahscat600k_ca_seg4.hs', image)
     ad = am.forward(image, 'demo4data.hs')
-    ad = stir.AcquisitionData('demo4data.hs')
     # backward-project the computed forward projection
     update = am.backward(ad)
 

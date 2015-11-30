@@ -6,6 +6,13 @@ import time
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
+    # direct all information printing to a file
+    info_printer = stir.printerTo('stir_demo2info.txt', stir.INFO_CHANNEL)
+    # direct all warning printing to a file
+    warning_printer = stir.printerTo('stir_demo2warn.txt', stir.WARNING_CHANNEL)
+    # direct all error printing to stdout
+    error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
+
     # create matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
@@ -15,8 +22,8 @@ try:
     am.set_matrix(matrix)
 
     # read acquisition model data
-    amd = stir.AcquisitionModelData()
-    amd.read_from_file('my_forward_projection.hs')
+    ad = stir.AcquisitionData('my_forward_projection.hs')
+    #amd.read_from_file('my_forward_projection.hs')
 
     # create prior
     prior = stir.QuadraticPrior()
@@ -40,7 +47,7 @@ try:
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_model_data(amd)
+    obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
     num_subiterations = 6

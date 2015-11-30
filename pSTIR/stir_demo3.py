@@ -21,8 +21,8 @@ try:
     am.set_matrix(matrix)
 
     # read acquisition model data
-    amd = stir.AcquisitionModelData()
-    amd.read_from_file('Utahscat600k_ca_seg4.hs')
+    ad = stir.AcquisitionData('Utahscat600k_ca_seg4.hs')
+##    ad.read_from_file('Utahscat600k_ca_seg4.hs')
 
     # create prior
     prior = stir.QuadraticPrior()
@@ -36,7 +36,7 @@ try:
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_model_data(amd)
+    obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
     # create OSSPS reconstructor

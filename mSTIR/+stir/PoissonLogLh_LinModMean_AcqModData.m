@@ -42,7 +42,7 @@ classdef PoissonLogLh_LinModMean_AcqModData < stir.PoissonLogLh_LinModMean
             stir.checkExecutionStatus...
                 ([self.name ':get_projector_pair'], am.handle)
         end
-        function set_acquisition_model_data(self, am)
+        function set_acquisition_data(self, am)
             stir.setParameter(self.handle, self.name,...
                 'proj_data_sptr', am.handle, 'h')
         end
