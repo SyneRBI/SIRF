@@ -186,9 +186,10 @@ Base*
 objectPtrFromHandle(const DataHandle* handle) {
 	if (handle == 0)
 		return 0;
-	sptrImage3DF* ptr_sptr = (sptrImage3DF*)handle->data();
-	if (ptr_sptr == 0)
+	void* ptr = handle->data();
+	if (ptr == 0)
 		return 0;
+	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
 	if (is_null_ptr(*ptr_sptr))
 		return 0;
 	return ptr_sptr->get();
