@@ -72,7 +72,7 @@ try:
         # perform an iteration
         recon.update(image)
         # plot the current image
-        data = image.density()
+        data = image.as_array()
         pylab.figure(iter)
         pylab.imshow(data[10,:,:])
         pylab.show()
@@ -84,7 +84,7 @@ try:
     print('difference from expected image:', diff)
 
     # let the user inspect any z-crossections of the image they want to
-    data = image.density()
+    data = image.as_array()
     nz = data.shape[0]
     while True:
         s = str(input('enter z-coordinate: '))

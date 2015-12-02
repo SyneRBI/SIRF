@@ -66,6 +66,58 @@ def _getParameterHandle(hs, set, par):
 def _tmp_filename():
     return repr(int(1000*time.time()))
 
+class Printer:
+    def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
+        if info is None:
+            self.info_case = -1
+        elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
+            self.info = pystir.newTextPrinter(info)
+            self.info_case = 0
+        else:
+            self.info = pystir.newTextWriter(info)
+            self.info_case = 1
+        if warn is None:
+            self.warn_case = -1
+        elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
+            self.warn = pystir.newTextPrinter(warn)
+            self.warn_case = 0
+        else:
+            self.warn = pystir.newTextWriter(warn)
+            self.warn_case = 1
+        if errr is None:
+            self.errr_case = -1
+        elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
+            self.errr = pystir.newTextPrinter(errr)
+            self.errr_case = 0
+        else:
+            self.errr = pystir.newTextWriter(errr)
+            self.errr_case = 1
+        if self.info_case is not -1:
+            pystir.openChannel(0, self.info)
+        if self.warn_case is not -1:
+            pystir.openChannel(1, self.warn)
+        if self.errr_case is not -1:
+            pystir.openChannel(2, self.errr)
+    def __del__(self):
+        if self.info_case is not -1:
+            if self.info_case == 0:
+                pystir.deleteTextPrinter(self.info)
+            else:
+                pystir.deleteTextWriter(self.info)
+            pystir.closeChannel(0)
+        if self.warn_case is not -1:
+            if self.warn_case == 0:
+                pystir.deleteTextPrinter(self.warn)
+            else:
+                pystir.deleteTextWriter(self.warn)
+            pystir.closeChannel(1)
+        if self.errr_case is not -1:
+            if self.errr_case == 0:
+                pystir.deleteTextPrinter(self.errr)
+            else:
+                pystir.deleteTextWriter(self.errr)
+            pystir.closeChannel(2)
+
 class printerTo:
     def __init__(self, dest, channel = -1):
         if dest in {'stdout', 'stderr', 'cout', 'cerr'}:
@@ -224,7 +276,7 @@ class Image:
         diff = pystir.doubleDataFromHandle(handle)
         pystir.deleteDataHandle(handle)
         return diff
-    def density(self):
+    def as_array(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
         nz = dim[0]
@@ -232,9 +284,9 @@ class Image:
         nx = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
             raise error('density data not available')
-        density = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
-        pystir.cSTIR_getImageData(self.handle, density.ctypes.data)
-        return density
+        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+        pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
+        return array
 
 class DataProcessor:
     def __init__(self):

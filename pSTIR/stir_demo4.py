@@ -4,12 +4,11 @@ import pylab
 import stir
 
 try:
-    # direct all information printing to a file
-    info_printer = stir.printerTo('stir_demo4_inf.txt', stir.INFO_CHANNEL)
-    # direct all warning printing to a file
-    warning_printer = stir.printerTo('stir_demo4_wrn.txt', stir.WARNING_CHANNEL)
-    # direct all error printing to stdout
-    error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
+    # no INFO printing, error messages go to stdout,
+    # warnings to this file
+    printer = stir.Printer(warn = 'stir_demo4_wrn.txt')
+
+    print('creating image...')
 
     # create an empty image
     image = stir.Image()
@@ -39,9 +38,11 @@ try:
     z = int(image_size[2]/2)
 
     # plot the phantom image to be reconstructed
-    data = image.density()
+    data = image.as_array()
     pylab.imshow(data[z,:,:])
     pylab.show()
+
+    print('defining acquisition model...')
 
     # define the matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
@@ -51,12 +52,18 @@ try:
     am = stir.AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
+    print('defining prior...')
+
     # define a prior
     prior = stir.QuadraticPrior()
     prior.set_penalisation_factor(0.001)
 
+    print('defining filter...')
+
     # define a filter
     filter = stir.CylindricFilter()
+
+    print('creating initial image estimate...')
 
     # create an initial image estimate
     reconstructedImage = stir.Image()
@@ -65,22 +72,30 @@ try:
     # apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
+    print('projecting image...')
+
     # forward-project the image to obtain 'raw data'
     # 'Utahscat600k_ca_seg4.hs' is used as a template
     am.set_up('Utahscat600k_ca_seg4.hs', image)
     ad = am.forward(image, 'demo4data.hs')
+
+    print('back-projecting image...')
+
     # backward-project the computed forward projection
     update = am.backward(ad)
 
+    print('defining objective function...')
+
     # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
-    obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
     num_subiterations = 2
+
+    print('defining reconstructor...')
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
@@ -97,7 +112,7 @@ try:
     recon.set_up(reconstructedImage)
 
     # plot the initial image
-    data = reconstructedImage.density()
+    data = reconstructedImage.as_array()
     pylab.figure(1)
     pylab.imshow(data[z,:,:])
     pylab.show()
@@ -108,16 +123,16 @@ try:
         # perform an iteration
         recon.update(reconstructedImage)
         # plot the current image
-        data = reconstructedImage.density()
+        data = reconstructedImage.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(data[z,:,:])
         pylab.show()
 
     # plot the reconstructed and actual images
-    data = reconstructedImage.density()
+    data = reconstructedImage.as_array()
     pylab.figure(1)
     pylab.imshow(data[z,:,:])
-    data = image.density()
+    data = image.as_array()
     pylab.figure(2)
     pylab.imshow(data[z,:,:])
     pylab.show()

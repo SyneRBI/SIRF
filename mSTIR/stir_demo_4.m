@@ -5,11 +5,14 @@ end
 
 try
 
-    % direct all information printing to a file
-    info_printer = stir.printerTo('stir_demo4_inf.txt', 0);
-    % direct all warning and error printing to stdout
-    warning_printer = stir.printerTo('stdout', 1);
-    error_printer = stir.printerTo('stdout', 2);
+%     % direct all information printing to a file
+%     info_printer = stir.printerTo('stir_demo4_inf.txt', 0);
+%     % direct all warning and error printing to stdout
+%     warning_printer = stir.printerTo('stdout', 1);
+%     error_printer = stir.printerTo('stdout', 2);
+    
+    printer = stir.Printer...
+        ('stir_demo4_info.txt', 'stir_demo4_warn.txt', 'stir_demo4_errr.txt');
 
     image = stir.Image();
     image_size = [111, 111, 31];
