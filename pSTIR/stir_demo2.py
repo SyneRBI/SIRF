@@ -67,7 +67,7 @@ try:
     recon.set_up(image)
 
     # plot the initial image
-    data = image.density()
+    data = image.as_array()
     pylab.figure(1)
     pylab.imshow(data[20,:,:])
     pylab.show()
@@ -83,7 +83,7 @@ try:
         # perform an iteration
         recon.update(image)
         # plot the current image
-        data = image.density()
+##        data = image.as_array()
 ##        pylab.figure(iter + 1)
 ##        pylab.imshow(data[20,:,:])
 ##        pylab.show()
@@ -97,7 +97,8 @@ try:
 
     # compare the reconstructed image to the exact image
     exactImage = stir.Image('my_image.hv')
-    x_data = exactImage.density()
+    x_data = exactImage.as_array()
+    data = image.as_array()
 
     pylab.figure(100000)
     pylab.imshow(data[20,:,:])

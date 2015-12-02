@@ -30,7 +30,7 @@ try:
     image = stir.Image('my_image0.hv')
 
     # plot the initial image
-    data = image.density()
+    data = image.as_array()
     pylab.figure(1)
     pylab.imshow(data[20,:,:])
     pylab.show()
@@ -53,8 +53,8 @@ try:
     exactImage = stir.Image('my_image.hv')
 
     # let the user inspect any z-crossections of the image they want to
-    data = image.density()
-    x_data = exactImage.density()
+    data = image.as_array()
+    x_data = exactImage.as_array()
     nz = data.shape[0]
     while True:
         s = str(input('enter z-coordinate: '))
