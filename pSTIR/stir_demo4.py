@@ -6,7 +6,9 @@ import stir
 try:
     # no INFO printing, error messages go to stdout,
     # warnings to this file
-    printer = stir.Printer(warn = 'stir_demo4_wrn.txt')
+    #printer = stir.Printer(warn = 'stir_demo4_wrn.txt')
+    #printer = stir.Printer(info = 'stdout')
+    printer = stir.Printer()
 
     print('creating image...')
 
