@@ -3164,3 +3164,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, void* ptr_im)
 //std::cerr << "\nINFO: "
 // << string
 // << std::endl;
+
+//sptrImage3DF* ptr_sptr = (sptrImage3DF*)handle->data();
+if (ptr_sptr == 0)
+return 0;

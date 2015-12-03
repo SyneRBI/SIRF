@@ -1,3 +1,7 @@
+STIR_SRC = /home/wps46139/STIR/src
+STIR_INCLUDE = /home/wps46139/STIR/src/include
+CSTIR_PATH = C:/Users/wps46139/Codes/PETMR/xSTIR/cSTIR
+
 BOOST = /lib/Boost/boost_1_59_0
 
 PYINCLUDE = /usr/include/python2.7
@@ -5,10 +9,6 @@ PYLIBPATH = /lib/python2.7/config
 PYLIB = -lpython2.7
 
 SWIG = swig
-
-STIR_SRC = /home/wps46139/STIR/src
-STIR_INCLUDE = /home/wps46139/STIR/src/include
-CSTIR_PATH = C:/Users/wps46139/Codes/PETMR/xSTIR/cSTIR
 
 CXX = g++
 CFLAGS = -O3 -fpermissive -std=c++11 -I$(STIR_INCLUDE) -I$(CSTIR_PATH) -I$(BOOST)
@@ -18,39 +18,34 @@ LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
+
 CSTIRLIB = libcstir.a
-
 CSTIR_LIB = -lcstir
-#STIR_LIBPATH = /usr/local/lib
-STIR_LIBPATH = /home/wps46139/STIR/Release
-#STIR_LIBPATH = /home/wps46139/STIR/Debug
-STIR_LIBS = \
-			-literative_OSMAPOSL \
-			-literative_OSSPS \
-			-lrecon_buildblock \
-			-lIO \
-			-ldata_buildblock \
-			-ldisplay \
-			-leval_buildblock \
-			-llistmode_buildblock \
-			-lmodelling_buildblock \
-			-lscatter_buildblock \
-			-lShape_buildblock \
-			-lnumerics_buildblock \
-			-lspatial_transformation_buildblock \
-			-lbuildblock
 
-#REG_PATH = ./Registries
-REG_PATH = ./
+STIR_LIBS = \
+			-L$(STIR_SRC)/iterative/OSMAPOSL -literative_OSMAPOSL \
+			-L$(STIR_SRC)/iterative/OSSPS -literative_OSSPS \
+			-L$(STIR_SRC)/recon_buildblock -lrecon_buildblock \
+			-L$(STIR_SRC)/IO -lIO \
+			-L$(STIR_SRC)/data_buildblock -ldata_buildblock \
+			-L$(STIR_SRC)/display -ldisplay \
+			-L$(STIR_SRC)/eval_buildblock -leval_buildblock \
+			-L$(STIR_SRC)/listmode_buildblock -llistmode_buildblock \
+			-L$(STIR_SRC)/modelling_buildblock -lmodelling_buildblock \
+			-L$(STIR_SRC)/scatter_buildblock -lscatter_buildblock \
+			-L$(STIR_SRC)/Shape_buildblock -lShape_buildblock \
+			-L$(STIR_SRC)/numerics_buildblock -lnumerics_buildblock \
+			-L$(STIR_SRC)/spatial_transformation_buildblock -lspatial_transformation_buildblock \
+			-L$(STIR_SRC)/buildblock -lbuildblock
 
 REG_OBJECTS = \
-	$(REG_PATH)/buildblock_registries.o \
-	$(REG_PATH)/data_buildblock_registries.o \
-	$(REG_PATH)/IO_registries.o \
-	$(REG_PATH)/modelling_registries.o \
-	$(REG_PATH)/recon_buildblock_registries.o \
-	$(REG_PATH)/Shape_buildblock_registries.o \
-	$(REG_PATH)/spatial_transformation_registries.o
+	buildblock_registries.o \
+	data_buildblock_registries.o \
+	IO_registries.o \
+	modelling_registries.o \
+	recon_buildblock_registries.o \
+	Shape_buildblock_registries.o \
+	spatial_transformation_registries.o
 
 OBJECTS = ci_stir.o stir_p.o ci_dh.o ci_ex.o ci_tw.o
 
@@ -78,7 +73,8 @@ recon_buildblock_registries.o: $(STIR_SRC)/recon_buildblock/recon_buildblock_reg
 Shape_buildblock_registries.o: $(STIR_SRC)/Shape_buildblock/Shape_buildblock_registries.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-spatial_transformation_registries.o: $(STIR_SRC)/spatial_transformation_buildblock/spatial_transformation_registries.cxx
+spatial_transformation_registries.o: \
+		$(STIR_SRC)/spatial_transformation_buildblock/spatial_transformation_registries.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 ci_stir.o: $(CSTIR_PATH)\ci_stir.cpp
@@ -100,13 +96,13 @@ TEST_OBJECTS = main.o cstir_tests.o
 
 main.exe: $(TEST_OBJECTS)
 	$(CXX) $(CFLAGS) -o main.exe $(TEST_OBJECTS) $(REG_OBJECTS)\
-		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
+		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
 
-pystir: $(CSTIR_PATH)/cstir.h $(REG_OBJECTS) $(CSTIR_LIB)
+pystir: $(CSTIR_PATH)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
 	g++ -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
 	g++ -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) $(PYLIB) -o _pystir.dll \
-		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
+		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
 
 %.o: %.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<

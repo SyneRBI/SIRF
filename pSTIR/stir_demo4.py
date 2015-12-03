@@ -7,8 +7,7 @@ try:
     # no INFO printing, error messages go to stdout,
     # warnings to this file
     #printer = stir.Printer(warn = 'stir_demo4_wrn.txt')
-    #printer = stir.Printer(info = 'stdout')
-    printer = stir.Printer()
+    printer = stir.Printer(info = 'stdout')
 
     print('creating image...')
 
@@ -79,7 +78,7 @@ try:
     # forward-project the image to obtain 'raw data'
     # 'Utahscat600k_ca_seg4.hs' is used as a template
     am.set_up('Utahscat600k_ca_seg4.hs', image)
-    ad = am.forward(image, 'demo4data.hs')
+    ad = am.forward(image) #, 'demo4data.hs')
 
     print('back-projecting image...')
 

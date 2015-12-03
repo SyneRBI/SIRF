@@ -385,15 +385,16 @@ class AcquisitionModelUsingMatrix:
         _check_status(self.templ)
         self.templ_name = templ
         self.image = pystir.cSTIR_copyOfObject(image.handle)
-    def forward(self, image, filename = None):
+    def forward(self, image, filename = ''):
         if self.templ is None:
             raise error('forward projection failed: setup not done')
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelForward\
             (self.handle, filename, self.templ, image.handle)
         _check_status(ad.handle)
-        pystir.cSTIR_deleteObject(ad.handle)
-        ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
+        if len(filename) > 0:
+            pystir.cSTIR_deleteObject(ad.handle)
+            ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
         return ad
     def backward(self, ad, image = None):
         if self.image is None:
