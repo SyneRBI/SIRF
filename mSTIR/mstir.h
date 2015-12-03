@@ -48,7 +48,7 @@ EXPORTED_FUNCTION int mExecutionErrorLine(const void* ptr);
 EXPORTED_FUNCTION void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION void mOpenChannel(int channel, void* ptr_w);
-EXPORTED_FUNCTION void mCloseChannel(int channel);
+EXPORTED_FUNCTION void mCloseChannel(int channel, void* ptr_w);
 EXPORTED_FUNCTION void mSetWriter(void* ptr_w, int channel);
 EXPORTED_FUNCTION void mResetWriter();
 EXPORTED_FUNCTION void mDeleteTextPrinter(void* ptr);

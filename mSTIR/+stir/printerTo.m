@@ -32,7 +32,7 @@ classdef printerTo < handle
             else
                 calllib('mstir', 'mDeleteTextWriter', self.printer)
             end
-            %calllib('mstir', 'mCloseChannel', self.channel)
+            calllib('mstir', 'mCloseChannel', self.channel, self.printer)
             %fprintf('ok\n')
         end
     end

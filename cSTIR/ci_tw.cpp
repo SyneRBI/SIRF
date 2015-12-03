@@ -32,17 +32,20 @@ extern "C" {
 			h.set_error_channel((aTextWriter*)ptr_w);
 		}
 	}
-	void closeChannel(int channel) {
+	void closeChannel(int channel, void* ptr_w) {
 		TextWriterHandle h;
 		switch (channel) {
 		case INFORMATION_CHANNEL:
-			h.set_information_channel(0);
+			if (h.information_channel_ptr() == ptr_w)
+				h.set_information_channel(0);
 			break;
 		case WARNING_CHANNEL:
-			h.set_warning_channel(0);
+			if (h.warning_channel_ptr() == ptr_w)
+				h.set_warning_channel(0);
 			break;
 		case ERROR_CHANNEL:
-			h.set_error_channel(0);
+			if (h.error_channel_ptr() == ptr_w)
+				h.set_error_channel(0);
 			break;
 		default:
 			h.set_information_channel(0);
@@ -74,7 +77,11 @@ extern "C" {
 		delete (TextPrinter*)ptr;
 	}
 	void deleteTextWriter(void* ptr_w) {
+		if (!ptr_w)
+			return;
 		TextWriter* w = (TextWriter*)ptr_w;
+		if (!w->out)
+			return;
 		((std::ofstream*)w->out)->close();
 		((std::ofstream*)w->out)->clear();
 		delete w->out;

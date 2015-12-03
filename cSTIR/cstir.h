@@ -65,7 +65,7 @@ extern "C" {
 	void* newTextPrinter(const char* stream);
 	void* newTextWriter(const char* stream);
 	void openChannel(int channel, void* ptr_w);
-	void closeChannel(int channel);
+	void closeChannel(int channel, void* ptr_w);
 	void setWriter(void* ptr_w, int channel);
 	void resetWriter();
 	void deleteTextPrinter(void* ptr);

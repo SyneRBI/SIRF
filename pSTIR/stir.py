@@ -78,7 +78,7 @@ class Printer:
             self.info_case = 1
         if warn is None:
             self.warn_case = -1
-        elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
+        elif warn in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.warn = pystir.newTextPrinter(warn)
             self.warn_case = 0
         else:
@@ -86,7 +86,7 @@ class Printer:
             self.warn_case = 1
         if errr is None:
             self.errr_case = -1
-        elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
+        elif errr in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.errr = pystir.newTextPrinter(errr)
             self.errr_case = 0
         else:
@@ -104,19 +104,19 @@ class Printer:
                 pystir.deleteTextPrinter(self.info)
             else:
                 pystir.deleteTextWriter(self.info)
-            pystir.closeChannel(0)
+            pystir.closeChannel(0, self.info)
         if self.warn_case is not -1:
             if self.warn_case == 0:
                 pystir.deleteTextPrinter(self.warn)
             else:
                 pystir.deleteTextWriter(self.warn)
-            pystir.closeChannel(1)
+            pystir.closeChannel(1, self.warn)
         if self.errr_case is not -1:
             if self.errr_case == 0:
                 pystir.deleteTextPrinter(self.errr)
             else:
                 pystir.deleteTextWriter(self.errr)
-            pystir.closeChannel(2)
+            pystir.closeChannel(2, self.errr)
 
 class printerTo:
     def __init__(self, dest, channel = -1):
@@ -133,7 +133,7 @@ class printerTo:
             pystir.deleteTextPrinter(self.printer)
         else:
             pystir.deleteTextWriter(self.printer)
-        pystir.closeChannel(self.channel)
+        pystir.closeChannel(self.channel, self.printer)
 
 class Shape:
     def __init__(self):

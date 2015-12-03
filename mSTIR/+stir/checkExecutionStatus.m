@@ -5,6 +5,6 @@ function checkExecutionStatus(f, handle)
         msg = calllib('mstir', 'mExecutionError', handle);
         file = calllib('mstir', 'mExecutionErrorFile', handle);
         line = calllib('mstir', 'mExecutionErrorLine', handle);
-        error(errId, '%s at line %d of %s\n', msg, line, file);
+        error(errId, '%s at line %d of %s', msg, line, file)
     end
 end

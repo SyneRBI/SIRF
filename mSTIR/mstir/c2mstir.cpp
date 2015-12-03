@@ -1,4 +1,3 @@
-#include <conio.h>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -15,8 +14,6 @@ int main(int argc, char **argv)
 	int status = c2m(path, "cstir.h", "mstir.h", "mstir.c");
 	if (status)
 		cout << "wrong input file format" << endl;
-	//cout << "Press any key to continue";
-	//_getch();
 	return 0;
 }
 
