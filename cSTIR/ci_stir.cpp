@@ -278,14 +278,25 @@ void* cSTIR_acquisitionModelForward
 		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
 		sptrProjData& sptr_dt = objectSptrFromHandle<ProjData>(ht);
 		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
-		NEW_SPTR(ProjData, ptr_sptr,
-			ProjDataInterfile(sptr_dt->get_exam_info_sptr(),
-			sptr_dt->get_proj_data_info_sptr(), datafile));
-		sptrProjData& sptr_t = *ptr_sptr;
-		sptr_am->get_forward_projector_sptr()->forward_project
-			(*sptr_t, *sptr_im);
 		DataHandle* handle = new DataHandle;
-		handle->set((void*)ptr_sptr);
+		if (strlen(datafile) < 1) {
+			NEW_SPTR(ProjData, ptr_sptr,
+				ProjDataInMemory(sptr_dt->get_exam_info_sptr(),
+				sptr_dt->get_proj_data_info_sptr()));
+			sptrProjData& sptr_t = *ptr_sptr;
+			sptr_am->get_forward_projector_sptr()->forward_project
+				(*sptr_t, *sptr_im);
+			handle->set((void*)ptr_sptr);
+		}
+		else {
+			NEW_SPTR(ProjData, ptr_sptr,
+				ProjDataInterfile(sptr_dt->get_exam_info_sptr(),
+				sptr_dt->get_proj_data_info_sptr(), datafile));
+			sptrProjData& sptr_t = *ptr_sptr;
+			sptr_am->get_forward_projector_sptr()->forward_project
+				(*sptr_t, *sptr_im);
+			handle->set((void*)ptr_sptr);
+		}
 		return (void*)handle;
 	}
 	CATCH
