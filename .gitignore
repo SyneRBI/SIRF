@@ -279,3 +279,7 @@ mSTIR/stir_demo4_inf.txt
 mSTIR/try_error.m
 pSTIR/bits.py
 cSTIR/bits.cpp
+pSTIR/stir_demo4_errr.txt
+pSTIR/stir_demo4_warn.txt
+pSTIR/stir_demo4_info.txt
+pSTIR/_pystir.pyd

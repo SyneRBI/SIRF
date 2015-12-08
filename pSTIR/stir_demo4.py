@@ -1,15 +1,12 @@
-import numpy
-import os
 import pylab
 import stir
 
 try:
-    # no INFO printing, error messages go to stdout,
-    # warnings to this file
-    #printer = stir.Printer(warn = 'stir_demo4_wrn.txt')
-    printer = stir.Printer(info = 'stdout')
-
-    print('creating image...')
+    printer = stir.Printer('stdout')
+##    printer = stir.Printer\
+##        ('stir_demo4_info.txt',\
+##         'stir_demo4_warn.txt',\
+##         'stir_demo4_errr.txt')
 
     # create an empty image
     image = stir.Image()
@@ -43,8 +40,6 @@ try:
     pylab.imshow(data[z,:,:])
     pylab.show()
 
-    print('defining acquisition model...')
-
     # define the matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
@@ -53,18 +48,12 @@ try:
     am = stir.AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    print('defining prior...')
-
     # define a prior
     prior = stir.QuadraticPrior()
     prior.set_penalisation_factor(0.001)
 
-    print('defining filter...')
-
     # define a filter
     filter = stir.CylindricFilter()
-
-    print('creating initial image estimate...')
 
     # create an initial image estimate
     reconstructedImage = stir.Image()
@@ -73,19 +62,23 @@ try:
     # apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
-    print('projecting image...')
+    # plot the initial image
+    data = reconstructedImage.as_array()
+    pylab.figure(1)
+    pylab.imshow(data[z,:,:])
+    pylab.show()
 
+    print('projecting image...')
     # forward-project the image to obtain 'raw data'
     # 'Utahscat600k_ca_seg4.hs' is used as a template
     am.set_up('Utahscat600k_ca_seg4.hs', image)
-    ad = am.forward(image) #, 'demo4data.hs')
+    ad = am.forward(image)
+    # if the raw data is very large, it can be stored in a file
+    # ad = am.forward(image, 'demo4data.hs')
 
     print('back-projecting image...')
-
     # backward-project the computed forward projection
     update = am.backward(ad)
-
-    print('defining objective function...')
 
     # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
@@ -95,8 +88,6 @@ try:
     obj_fun.set_prior(prior)
 
     num_subiterations = 2
-
-    print('defining reconstructor...')
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
@@ -112,12 +103,6 @@ try:
     # set up the reconstructor
     recon.set_up(reconstructedImage)
 
-    # plot the initial image
-    data = reconstructedImage.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[z,:,:])
-    pylab.show()
-
     for iter in range(1, num_subiterations + 1):
         print('\n--------------------- Subiteration ',\
               recon.get_subiteration_num())
@@ -128,15 +113,6 @@ try:
         pylab.figure(iter + 1)
         pylab.imshow(data[z,:,:])
         pylab.show()
-
-    # plot the reconstructed and actual images
-    data = reconstructedImage.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[z,:,:])
-    data = image.as_array()
-    pylab.figure(2)
-    pylab.imshow(data[z,:,:])
-    pylab.show()
 
 except stir.error as err:
     print('STIR exception occured:\n', err.value)

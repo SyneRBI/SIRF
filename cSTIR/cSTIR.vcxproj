@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>C:\Boost\boost_1_59_0;C:\Users\wps46139\Documents\GitHub\STIR\src\include;C:\Program Files\MATLAB\R2015b\extern\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Boost\boost_1_59_0;C:\Users\wps46139\Documents\GitHub\STIR\src\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -4,16 +4,17 @@ if ~libisloaded('mstir')
 end
 
 try
-    
-%     % direct all information printing to a file
-%     info_printer = stir.printerTo('stir_demo4_inf.txt', 0);
-%     % direct all warning and error printing to stdout
-%     warning_printer = stir.printerTo('stdout', 1);
-%     error_printer = stir.printerTo('stdout', 2);
-    
-    printer = stir.Printer...
-        ('stir_demo4_info.txt', 'stir_demo4_warn.txt');
-%        ('stir_demo4_info.txt', 'stir_demo4_warn.txt', 'stir_demo4_errr.txt');
+    % info() printing suppressed, warning() and error() print to stdout
+    printer = stir.Printer();
+    % all printing goes to stdout 
+    % printer = stir.Printer('stdout');
+    % info() prints to file
+    % printer = stir.Printer('stir_demo4_info.txt');
+    % info() and warning() print to file
+    % printer = stir.Printer('stir_demo4_info.txt', 'stir_demo4_warn.txt');
+    % all printing goes to files
+    % printer = stir.Printer...
+    %     ('stir_demo4_info.txt', 'stir_demo4_warn.txt', 'stir_demo4_errr.txt');
 
     image = stir.Image();
     image_size = [111, 111, 31];
@@ -64,7 +65,10 @@ try
     filter.apply(reconstructedImage)
 
     am.set_up('Utahscat600k_ca_seg4.hs', image)
+    
+    fprintf('projecting the image...')
     ad = am.forward(image, 'demo4data.hs');
+    fprintf('ok\n')
 
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData();
     obj_fun.set_zero_seg0_end_planes(true)
@@ -74,6 +78,8 @@ try
     obj_fun.set_prior(prior)
 
     num_subiterations = 6;
+    
+    fprintf('setting up the reconstructor...')
 
     recon = stir.OSMAPOSLReconstruction();
     recon.set_objective_function(obj_fun)
@@ -86,6 +92,8 @@ try
     recon.set_output_filename_prefix('reconstructedImage')
 
     recon.set_up(reconstructedImage)
+    
+    fprintf('ok\n')
 
     data = reconstructedImage.density();
     figure(1000000)
@@ -102,7 +110,7 @@ try
         figure(1000000 + iter)
         imshow(data(:,:,z)/max(max(max(data))));
     end
-
+    
 catch err
     % display error information
     fprintf('??? %s\n', err.message)

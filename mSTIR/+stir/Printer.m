@@ -9,19 +9,21 @@ classdef Printer < handle
     end
     methods
         function self = Printer(info, warn, errr)
-            if isempty(info)
-                self.info_case = -1;
-            elseif strcmpi(info, 'stdout') ~= 0
-                self.info = calllib('mstir', 'mNewMexPrinter');
-                self.info_case = 0;
-            else
-                self.info = calllib('mstir', 'mNewTextWriter', info);
-                self.info_case = 1;
-            end
-            if self.info_case ~= -1
-                calllib('mstir', 'mOpenChannel', 0, self.info)
-            else
-                calllib('mstir', 'mCloseChannel', 0, self.info)
+            if nargin > 0
+                if isempty(info)
+                    self.info_case = -1;
+                elseif strcmpi(info, 'stdout') ~= 0
+                    self.info = calllib('mstir', 'mNewMexPrinter');
+                    self.info_case = 0;
+                else
+                    self.info = calllib('mstir', 'mNewTextWriter', info);
+                    self.info_case = 1;
+                end
+                if self.info_case ~= -1
+                    calllib('mstir', 'mOpenChannel', 0, self.info)
+                else
+                    calllib('mstir', 'mCloseChannel', 0, self.info)
+                end
             end
             if nargin > 1
                 if isempty(warn)
