@@ -64,7 +64,7 @@ try
     recon.set_up(image)
 
     % plot the initial image
-    data = image.density();
+    data = image.as_array();
     figure(1000000)
     data = data/max(max(max(data)));
     imshow(data(:,:,1));
@@ -78,7 +78,7 @@ try
         % perform an iteration
         recon.update(image)
         % plot the current image
-        data = image.density();
+        data = image.as_array();
         figure(1000000 + iter)
         imshow(data(:,:,20)/max(max(max(data))));
         % image can be post-processed
@@ -87,7 +87,7 @@ try
 
     % compare the reconstructed image to the expected image
     expectedImage = stir.Image('my_image.hv');
-    x_data = expectedImage.density();
+    x_data = expectedImage.as_array();
     figure(1000000 + iter + 1)
     x_data = x_data/max(max(max(x_data)));
     imshow(x_data(:,:,20));

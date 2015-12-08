@@ -1,0 +1,95 @@
+Windows 7/Visual Studio 2013 64-bit installation steps
+======================================================
+
+Install pre-requisits
+---------------------
+
+Install Boost, SWIG and CMake GUI
+
+Click Start -> Control Panel -> System and Security -> System -> 
+Advanced System Settings -> Environment Variables
+and add the following user variables:
+
+Variable         Value
+
+BOOST            Path to Boost include folder*
+PYTHON_INCLUDE   Path to Python include folder
+PYTHON_LIBPATH   Path to Python libs folder
+SWIG_PATH        Path to swig.exe
+---
+*NOTE: Boost include folder is the one that contains "boost" folder, e.g.
+ if your Boost root folder is C:\Boost then for Boost-1_58 it is 
+
+   C:\Boost\include\boost-1_58
+
+ whereas for Boost_1_59_0 it is 
+
+   C:\Boost\boost_1_59_0
+
+
+Build STIR:
+-----------
+
+-Download STIR from GitHub/evgueni-ovtchinnikov/STIR/tree/access_modifications
+
+-Create a folder where STIR is to be built (referred to below as STIR build folder)
+
+-Start CMake GUI
+
+-Put the path to STIR folder in "Where is the source code" box
+
+-Put the path to STIR build folder in "Where to build libraries" box
+
+-Click "Configure"
+
+-Select Visual Studio 12 2013 Win64 in the next menu
+
+-When you see the message "Configuring done", click "Configure" again
+
+-When you see the message "Configuring done", click "Generate"
+
+-Go to STIR build folder and double click on STIR (Visual Studio Solution file)
+
+-Make sure you have "Release" in "Solution Configurations" box 
+ and "x64" in "Solution Platforms"
+
+-Click on BUILD and select "build Solution"
+
+-Add two user variables to Windos environment variables:
+
+Variable         Value
+
+STIR_BUILD    Path to src folder in STIR build folder
+STIR_INCLUDE  Path to STIR include folder
+
+
+Build C interface to STIR:
+--------------------------
+
+-Download xSTIR from GitHub/evgueni-ovtchinnikov/xSTIR
+
+-Go to cSTIR sub-folder in xSTIR and doble click on cSTIR Visual Studio Solution file
+
+-Select "Release" in "Solution Configurations" box and "x64" in "Solution Platforms" box
+
+-Click on BUILD and select "build Solution"
+
+-Add user variable CSTIR containing the path to cSTIR folder to Windows environment
+ variables
+
+
+Build Python interface to STIR:
+-------------------------------
+
+-Go to pSTIR sub-folder and doble click on pystir Visual Studio Solution file
+
+-Select "Release" in "Solution Configurations" box and "x64" in "Solution Platforms" box
+
+-Click on BUILD and select "build Solution"
+
+
+Build MAtlab interface to STIR:
+-------------------------------
+
+-Run mex_stir.m
+

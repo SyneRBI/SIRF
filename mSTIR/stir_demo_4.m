@@ -16,11 +16,13 @@ try
     % printer = stir.Printer...
     %     ('stir_demo4_info.txt', 'stir_demo4_warn.txt', 'stir_demo4_errr.txt');
 
+    % create empty image
     image = stir.Image();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
 
+    % add ellipsoidal cylinders
     shape = stir.EllipsoidalCylinder();
 
     shape.set_length(400);
@@ -35,9 +37,11 @@ try
     shape.set_origin([-30, -60, 10])
     image.add_shape(shape, 0.75)
 
+    % z-coordinate of the xy-section to plot
     z = int32(image_size(3)/2);
 
-    data = image.density();
+    % plot the image
+    data = image.as_array();
     figure(1)
     data = data/max(max(max(data)));
     imshow(data(:,:,z));
@@ -64,12 +68,14 @@ try
     % apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
-    am.set_up('Utahscat600k_ca_seg4.hs', image)
-    
+    % forward-project the image to obtain 'raw data'
+    % 'Utahscat600k_ca_seg4.hs' is used as a template
     fprintf('projecting the image...')
+    am.set_up('Utahscat600k_ca_seg4.hs', image)    
     ad = am.forward(image, 'demo4data.hs');
     fprintf('ok\n')
 
+    % define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData();
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
@@ -81,6 +87,7 @@ try
     
     fprintf('setting up the reconstructor...')
 
+    % define OSMAPOSL rerconstructor
     recon = stir.OSMAPOSLReconstruction();
     recon.set_objective_function(obj_fun)
     recon.set_MAP_model('multiplicative')
@@ -95,7 +102,7 @@ try
     
     fprintf('ok\n')
 
-    data = reconstructedImage.density();
+    data = reconstructedImage.as_array();
     figure(1000000)
     data = data/max(max(max(data)));
     imshow(data(:,:,z));
@@ -106,7 +113,7 @@ try
         % perform an iteration
         recon.update(reconstructedImage)
         % plot the current image
-        data = reconstructedImage.density();
+        data = reconstructedImage.as_array();
         figure(1000000 + iter)
         imshow(data(:,:,z)/max(max(max(data))));
     end

@@ -111,7 +111,7 @@ classdef Image < handle
             diff = calllib('mstir', 'mDoubleDataFromHandle', h);
             calllib('mstir', 'mDeleteDataHandle', h)
         end
-        function data = density(self)
+        function data = as_array(self)
 %             [ptr, dim] = calllib...
 %                 ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
