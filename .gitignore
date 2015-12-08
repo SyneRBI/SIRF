@@ -283,3 +283,6 @@ pSTIR/stir_demo4_errr.txt
 pSTIR/stir_demo4_warn.txt
 pSTIR/stir_demo4_info.txt
 pSTIR/_pystir.pyd
+mSTIR/bits.m
+mSTIR/mstir.mexw64
+mSTIR/bits.m
