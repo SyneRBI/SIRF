@@ -4,17 +4,16 @@ if libisloaded('mstir')
     unloadlibrary('mstir')
 end
 
-cstir_path = 'C:\Users\wps46139\Codes\PETMR\xSTIR\cSTIR\';
-cstir_lib = [cstir_path 'x64\Release\cSTIR.lib'];
+cstir_path = getenv('CSTIR');
+cstir_lib = [cstir_path '\x64\Release\cSTIR.lib'];
 
-boost_path = 'C:\Boost\boost_1_59_0';
+boost_path = getenv('BOOST');
 boost_ipath = ['-I' boost_path];
 
-stir_path = 'C:\Users\wps46139\Documents\GitHub\STIR\';
-stir_src = [stir_path 'src\'];
-stir_ipath = ['-I' stir_path 'src\include\'];
+stir_src = [getenv('STIR_INCLUDE') '\..\'];
+stir_ipath = ['-I' getenv('STIR_INCLUDE')];
 
-stir_libpath = 'C:\Users\wps46139\Documents\GitHub\STIR_VSBuild\src\';
+stir_libpath = [getenv('STIR_BUILD') '\'];
 stir_lib1 = [stir_libpath 'buildblock\Release\buildblock.lib'];
 stir_lib2 = [stir_libpath 'data_buildblock\Release\data_buildblock.lib'];
 stir_lib3 = [stir_libpath 'display\Release\display.lib'];

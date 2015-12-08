@@ -30,9 +30,9 @@ try
     toc
  
     % compare the reconstructed image to the expected image
-    data = image.density();
+    data = image.as_array();
     expectedImage = stir.Image('my_image.hv');
-    x_data = expectedImage.density();
+    x_data = expectedImage.as_array();
     figure(1000000)
     data = data/max(max(max(x_data)));
     imshow(data(:,:,20));
