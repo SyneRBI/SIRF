@@ -1,0 +1,228 @@
+
+INFO: Computing sensitivity
+
+INFO: Done computing sensitivity
+
+INFO: Building inter-iteration filter kernel
+
+INFO: Now processing subset #: 0
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 0
+
+INFO: calculating segment_num: 0, view_num: 12
+
+INFO: calculating segment_num: 0, view_num: 24
+
+INFO: calculating segment_num: 1, view_num: 0
+
+INFO: calculating segment_num: 1, view_num: 12
+
+INFO: calculating segment_num: 1, view_num: 24
+
+INFO: calculating segment_num: 2, view_num: 0
+
+INFO: calculating segment_num: 2, view_num: 12
+
+INFO: calculating segment_num: 2, view_num: 24
+
+INFO: calculating segment_num: 3, view_num: 0
+
+INFO: calculating segment_num: 3, view_num: 12
+
+INFO: calculating segment_num: 3, view_num: 24
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.49761s, wall-clock 13558s
+
+INFO: Prior gradient max 0, min 0
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #1 completed
+  min and max in current estimate 1.21866e-008 0.977527
+
+INFO: Now processing subset #: 1
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 1
+
+INFO: calculating segment_num: 0, view_num: 13
+
+INFO: calculating segment_num: 1, view_num: 1
+
+INFO: calculating segment_num: 1, view_num: 13
+
+INFO: calculating segment_num: 2, view_num: 1
+
+INFO: calculating segment_num: 2, view_num: 13
+
+INFO: calculating segment_num: 3, view_num: 1
+
+INFO: calculating segment_num: 3, view_num: 13
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.26361s, wall-clock 11436s
+
+INFO: Prior gradient max 0.00294076, min -0.0025643
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+INFO: Update image old min,max: 0, 1.76953, new min,max 0, 3.40282e+038
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #2 completed
+  min and max in current estimate 6.46966e-010 1.7053
+
+INFO: Now processing subset #: 2
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 2
+
+INFO: calculating segment_num: 0, view_num: 14
+
+INFO: calculating segment_num: 1, view_num: 2
+
+INFO: calculating segment_num: 1, view_num: 14
+
+INFO: calculating segment_num: 2, view_num: 2
+
+INFO: calculating segment_num: 2, view_num: 14
+
+INFO: calculating segment_num: 3, view_num: 2
+
+INFO: calculating segment_num: 3, view_num: 14
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.32601s, wall-clock 11985s
+
+INFO: Prior gradient max 0.00257098, min -0.00182987
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+INFO: Update image old min,max: 0, 1.38778, new min,max 0, 3.40282e+038
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #3 completed
+  min and max in current estimate 6.73895e-011 2.35027
+
+INFO: Now processing subset #: 3
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 3
+
+INFO: calculating segment_num: 0, view_num: 15
+
+INFO: calculating segment_num: 1, view_num: 3
+
+INFO: calculating segment_num: 1, view_num: 15
+
+INFO: calculating segment_num: 2, view_num: 3
+
+INFO: calculating segment_num: 2, view_num: 15
+
+INFO: calculating segment_num: 3, view_num: 3
+
+INFO: calculating segment_num: 3, view_num: 15
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.37281s, wall-clock 12394s
+
+INFO: Prior gradient max 0.00326115, min -0.00286564
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+INFO: Update image old min,max: 0, 1.21123, new min,max 0, 3.40282e+038
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #4 completed
+  min and max in current estimate 7.9014e-012 2.8038
+
+INFO: Now processing subset #: 4
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 4
+
+INFO: calculating segment_num: 0, view_num: 16
+
+INFO: calculating segment_num: 1, view_num: 4
+
+INFO: calculating segment_num: 1, view_num: 16
+
+INFO: calculating segment_num: 2, view_num: 4
+
+INFO: calculating segment_num: 2, view_num: 16
+
+INFO: calculating segment_num: 3, view_num: 4
+
+INFO: calculating segment_num: 3, view_num: 16
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.35721s, wall-clock 12134s
+
+INFO: Prior gradient max 0.00426562, min -0.00393037
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+INFO: Update image old min,max: 0, 1.20427, new min,max 0, 3.40282e+038
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #5 completed
+  min and max in current estimate 9.74442e-013 3.07695
+
+INFO: Now processing subset #: 5
+
+INFO: End-planes of segment 0 will be zeroed
+
+INFO: calculating segment_num: 0, view_num: 5
+
+INFO: calculating segment_num: 0, view_num: 17
+
+INFO: calculating segment_num: 1, view_num: 5
+
+INFO: calculating segment_num: 1, view_num: 17
+
+INFO: calculating segment_num: 2, view_num: 5
+
+INFO: calculating segment_num: 2, view_num: 17
+
+INFO: calculating segment_num: 3, view_num: 5
+
+INFO: calculating segment_num: 3, view_num: 17
+
+INFO: Number of (cancelled) singularities: 0
+Number of (cancelled) negative numerators: 0
+
+INFO: Computation times for distributable_computation, CPU 1.34161s, wall-clock 12226s
+
+INFO: Prior gradient max 0.00490962, min -0.0047206
+
+
+INFO: Number of (cancelled) singularities in Sensitivity division: 0
+
+INFO: Update image old min,max: 0, 1.14129, new min,max 0, 3.40282e+038
+
+Applying inter-iteration filter
+OSMAPOSLS subiteration #6 completed
+  min and max in current estimate 1.13531e-013 3.22812
