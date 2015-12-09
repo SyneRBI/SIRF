@@ -1,5 +1,9 @@
 import numpy
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 sys.path.append('..\pSTIR')
 import stir
@@ -31,11 +35,12 @@ try:
 ##    image.read_from_file('my_image0.hv')
     image = stir.Image('my_image0.hv')
 
-    # plot the initial image
-    data = image.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[20,:,:])
-    pylab.show()
+    if HAVE_PYLAB:
+        # plot the initial image
+        data = image.as_array()
+        pylab.figure(1)
+        pylab.imshow(data[20,:,:])
+        pylab.show()
 
     # set up the reconstructor
     recon.set_up(image)
@@ -54,22 +59,23 @@ try:
     # compare the reconstructed image to the exact image
     exactImage = stir.Image('my_image.hv')
 
-    # let the user inspect any z-crossections of the image they want to
-    data = image.as_array()
-    x_data = exactImage.as_array()
-    nz = data.shape[0]
-    while True:
-        s = str(input('enter z-coordinate: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 0 or z >= nz:
-            break
-        pylab.figure(z)
-        pylab.imshow(data[z,:,:])
-        pylab.figure(100000 + z)
-        pylab.imshow(x_data[z,:,:])
-        pylab.show()
+    if HAVE_PYLAB:
+        # let the user inspect any z-crossections of the image they want to
+        data = image.as_array()
+        x_data = exactImage.as_array()
+        nz = data.shape[0]
+        while True:
+            s = str(input('enter z-coordinate: '))
+            if len(s) < 1:
+                break
+            z = int(s)
+            if z < 0 or z >= nz:
+                break
+            pylab.figure(z)
+            pylab.imshow(data[z,:,:])
+            pylab.figure(100000 + z)
+            pylab.imshow(x_data[z,:,:])
+            pylab.show()
 
 except stir.error as err:
     # display error information

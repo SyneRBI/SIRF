@@ -1,5 +1,9 @@
 import numpy
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 sys.path.append('..\pSTIR')
 import stir
@@ -68,11 +72,12 @@ try:
     # set up the reconstructor
     recon.set_up(image)
 
-    # plot the initial image
-    data = image.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[20,:,:])
-    pylab.show()
+    if HAVE_PYLAB:
+        # plot the initial image
+        data = image.as_array()
+        pylab.figure(1)
+        pylab.imshow(data[20,:,:])
+        pylab.show()
 
     #recon.reconstruct(image)
 
@@ -84,11 +89,12 @@ try:
               recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
-        # plot the current image
-##        data = image.as_array()
-##        pylab.figure(iter + 1)
-##        pylab.imshow(data[20,:,:])
-##        pylab.show()
+        if HAVE_PYLAB:
+            # plot the current image
+            data = image.as_array()
+            pylab.figure(iter + 1)
+            pylab.imshow(data[20,:,:])
+            pylab.show()
         # image can be post-processed
         #filter.apply(image)
 
@@ -102,11 +108,12 @@ try:
     x_data = exactImage.as_array()
     data = image.as_array()
 
-    pylab.figure(100000)
-    pylab.imshow(data[20,:,:])
-    pylab.figure(100001)
-    pylab.imshow(x_data[20,:,:])
-    pylab.show()
+    if HAVE_PYLAB:
+        pylab.figure(100000)
+        pylab.imshow(data[20,:,:])
+        pylab.figure(100001)
+        pylab.imshow(x_data[20,:,:])
+        pylab.show()
 
 except stir.error as err:
     # display error information

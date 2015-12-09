@@ -1,4 +1,9 @@
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
+
 import sys
 sys.path.append('..\pSTIR')
 import stir
@@ -37,10 +42,11 @@ try:
     # z-pixel coordinate of the xy-crossection to plot
     z = int(image_size[2]/2)
 
-    # plot the phantom image to be reconstructed
-    data = image.as_array()
-    pylab.imshow(data[z,:,:])
-    pylab.show()
+    if HAVE_PYLAB:
+        # plot the phantom image to be reconstructed
+        data = image.as_array()
+        pylab.imshow(data[z,:,:])
+        pylab.show()
 
     # define the matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
@@ -64,11 +70,12 @@ try:
     # apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
-    # plot the initial image
-    data = reconstructedImage.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[z,:,:])
-    pylab.show()
+    if HAVE_PYLAB:
+        # plot the initial image
+        data = reconstructedImage.as_array()
+        pylab.figure(1)
+        pylab.imshow(data[z,:,:])
+        pylab.show()
 
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
@@ -110,11 +117,12 @@ try:
               recon.get_subiteration_num())
         # perform an iteration
         recon.update(reconstructedImage)
-        # plot the current image
-        data = reconstructedImage.as_array()
-        pylab.figure(iter + 1)
-        pylab.imshow(data[z,:,:])
-        pylab.show()
+        if HAVE_PYLAB:
+            # plot the current image
+            data = reconstructedImage.as_array()
+            pylab.figure(iter + 1)
+            pylab.imshow(data[z,:,:])
+            pylab.show()
 
 except stir.error as err:
     print('STIR exception occured:\n', err.value)
