@@ -1,5 +1,7 @@
 import numpy
 import pylab
+import sys
+sys.path.append('..\pSTIR')
 import stir
 
 try:

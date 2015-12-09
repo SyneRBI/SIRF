@@ -1,0 +1,2 @@
+
+WARNING: recompute_sensitivity is set to false, but sensitivity pointer is empty and (sub)sensitivity filename is not set. I will compute the sensitivity anyway.
