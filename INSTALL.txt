@@ -1,8 +1,8 @@
 Windows 7/Visual Studio 2013 64-bit installation steps
 ======================================================
 
-Install pre-requisits
----------------------
+Install pre-requisites
+----------------------
 
 Install Boost, SWIG and CMake GUI
 
@@ -55,7 +55,7 @@ Build STIR:
 
 -Click on BUILD and select "build Solution"
 
--Add two user variables to Windos environment variables:
+-Add two user variables to Windows environment variables:
 
 Variable         Value
 
@@ -68,7 +68,7 @@ Build C interface to STIR:
 
 -Download xSTIR from GitHub/evgueni-ovtchinnikov/xSTIR
 
--Go to cSTIR sub-folder in xSTIR and doble click on cSTIR Visual Studio Solution file
+-Go to cSTIR sub-folder in xSTIR and double click on cSTIR Visual Studio Solution file
 
 -Select "Release" in "Solution Configurations" box and "x64" in "Solution Platforms" box
 
@@ -81,7 +81,7 @@ Build C interface to STIR:
 Build Python interface to STIR:
 -------------------------------
 
--Go to pSTIR sub-folder and doble click on pystir Visual Studio Solution file
+-Go to pSTIR sub-folder and double click on pystir Visual Studio Solution file
 
 -Select "Release" in "Solution Configurations" box and "x64" in "Solution Platforms" box
 
