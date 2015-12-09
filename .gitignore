@@ -277,3 +277,4 @@ pSTIR/_pystir.pyd
 mSTIR/bits.m
 mSTIR/mstir.mexw64
 mSTIR/bits.m
+examples/stir_demo1.txt

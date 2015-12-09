@@ -1,5 +1,9 @@
 # import graphics library
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 # pylab draws numpy arrays
 import numpy
 # import STIR interface library
@@ -73,11 +77,12 @@ try:
               recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
-        # plot the current image
-        data = image.as_array()
-        pylab.figure(iter)
-        pylab.imshow(data[10,:,:])
-        pylab.show()
+        if HAVE_PYLAB:
+            # plot the current image
+            data = image.as_array()
+            pylab.figure(iter)
+            pylab.imshow(data[10,:,:])
+            pylab.show()
 
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image()
@@ -85,19 +90,20 @@ try:
     diff = expectedImage.diff_from(image)
     print('difference from expected image:', diff)
 
-    # let the user inspect any z-crossections of the image they want to
-    data = image.as_array()
-    nz = data.shape[0]
-    while True:
-        s = str(input('enter z-coordinate: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 0 or z >= nz:
-            break
-        pylab.figure(z)
-        pylab.imshow(data[z,:,:])
-        pylab.show()
+    if HAVE_PYLAB:
+        # let the user inspect any z-crossections of the image they want to
+        data = image.as_array()
+        nz = data.shape[0]
+        while True:
+            s = str(input('enter z-coordinate: '))
+            if len(s) < 1:
+                break
+            z = int(s)
+            if z < 0 or z >= nz:
+                break
+            pylab.figure(z)
+            pylab.imshow(data[z,:,:])
+            pylab.show()
 
 except stir.error as err:
     # display error information
