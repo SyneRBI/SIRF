@@ -1,18 +1,14 @@
-STIR_SRC = /home/wps46139/STIR/src
-STIR_INCLUDE = /home/wps46139/STIR/src/include
-CSTIR_PATH = C:/Users/wps46139/Codes/PETMR/xSTIR/cSTIR
+STIR_SRC = $(STIR_CYGWIN)
+CSTIR_SRC = $(CSTIR_CYGWIN)
 
-BOOST = /lib/Boost/boost_1_59_0
-
-PYINCLUDE = /usr/include/python2.7
-PYLIBPATH = /lib/python2.7/config
-PYLIB = -lpython2.7
+PYINCLUDE = /usr/include/$(PYTHON_CYGWIN)
+PYLIBPATH = /lib/$(PYTHON_CYGWIN)/config
+PYLIB = -l$(PYTHON_CYGWIN)
 
 SWIG = swig
 
 CXX = g++
-CFLAGS = -O3 -fpermissive -std=c++11 -I$(STIR_INCLUDE) -I$(CSTIR_PATH) -I$(BOOST)
-#CFLAGS = -g -fpermissive -std=c++11 -I$(STIR_INCLUDE) -I$(CSTIR_PATH) -I$(BOOST)
+CFLAGS = -O3 -fpermissive -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
 LDFLAGS = -lrt
 
 ARCH = ar
@@ -77,19 +73,19 @@ spatial_transformation_registries.o: \
 		$(STIR_SRC)/spatial_transformation_buildblock/spatial_transformation_registries.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-ci_stir.o: $(CSTIR_PATH)\ci_stir.cpp
+ci_stir.o: $(CSTIR_SRC)/ci_stir.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-stir_p.o: $(CSTIR_PATH)\stir_p.cpp
+stir_p.o: $(CSTIR_SRC)/stir_p.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-ci_dh.o: $(CSTIR_PATH)\ci_dh.cpp
+ci_dh.o: $(CSTIR_SRC)/ci_dh.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-ci_ex.o: $(CSTIR_PATH)\ci_ex.cpp
+ci_ex.o: $(CSTIR_SRC)/ci_ex.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-ci_tw.o: $(CSTIR_PATH)\ci_tw.cpp
+ci_tw.o: $(CSTIR_SRC)/ci_tw.cpp
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 TEST_OBJECTS = main.o cstir_tests.o
@@ -98,7 +94,7 @@ main.exe: $(TEST_OBJECTS)
 	$(CXX) $(CFLAGS) -o main.exe $(TEST_OBJECTS) $(REG_OBJECTS)\
 		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
 
-pystir: $(CSTIR_PATH)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
+pystir: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
 	g++ -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
 	g++ -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) $(PYLIB) -o _pystir.dll \
