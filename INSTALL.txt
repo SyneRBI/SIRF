@@ -117,4 +117,4 @@ PYTHON_CYGWIN   Cygwin python (currently python2.7)
 
 Go to pSTIR sub-folder and run make
 
-NOTE: graphics is not yet supported, so comment out import pylab and graphics in demo scripts
+NOTE: graphics is not yet supported
