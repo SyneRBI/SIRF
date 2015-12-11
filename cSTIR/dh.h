@@ -5,7 +5,7 @@
 
 #include <boost\algorithm\string.hpp>
 
-#include "StirException.h"
+#include "stir/StirException.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y

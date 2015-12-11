@@ -37,8 +37,8 @@
 #include "stir/Shape/Shape3D.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 
-#include "StirException.h"
-#include "TextWriter.h"
+#include "stir/StirException.h"
+#include "stir/TextWriter.h"
 
 #include <fstream>
 #include <iostream>
