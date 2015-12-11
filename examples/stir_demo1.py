@@ -14,6 +14,7 @@ import time
 try:
     # direct all printing to a file
     printer = stir.printerTo('stir_demo1.txt')
+    printer = stir.printerTo('stdout', 1)
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction('OSMAPOSL_test_PM_QP2.par')
