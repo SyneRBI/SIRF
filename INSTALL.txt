@@ -97,24 +97,27 @@ Build MAtlab interface to STIR:
 Cygwin installation steps (Python interface only)
 =================================================
 
-Install Boost, SWIG and cmake using cygwin setup
+Install Boost, SWIG and cmake using cygwin setup.
 
 Download STIR to a cygwin folder, and in this folder run cmake:
 
-cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-O3 -DCMAKE_INSTALL_PREFIX=/home/wps46139/STIR/Release ./
+cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-O3 -DCMAKE_INSTALL_PREFIX=<where STIR libraries re to be built> ./
 
-Run make to build STIR
+Run make to build STIR.
 
-Download xSTIR to a cygwin folder
+Run make install to install STIR libraries.
 
-Add three user variables to Windows environment variables (or export them in cygwin):
+Download xSTIR to a cygwin folder.
+
+Add four user variables to Windows environment variables (or export them in cygwin):
 
 Variable         Value
 
 STIR_CYGWIN     Path to src sub-folder of STIR folder
+STIRLIB_CYGWIN  Path to STIR libraries folder (cf. cmake command above)
 CSTIR_CYGWIN	Path to cSTIR sub-folder of xSTIR folder
-PYTHON_CYGWIN   Cygwin python (currently python2.7)
+PYTHON_CYGWIN   Cygwin python (currently cygwin has python2.7, but that may change)
 
-Go to pSTIR sub-folder and run make
+Go to pSTIR sub-folder and run make.
 
-NOTE: graphics is not yet supported
+NOTE: demo scripts do not do graphics on cygwin yet.
