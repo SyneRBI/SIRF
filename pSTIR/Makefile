@@ -19,22 +19,6 @@ RANLIB = ranlib
 CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
 
-#STIR_LIBS = \
-			# -L$(STIR_SRC)/iterative/OSMAPOSL -literative_OSMAPOSL \
-			# -L$(STIR_SRC)/iterative/OSSPS -literative_OSSPS \
-			# -L$(STIR_SRC)/recon_buildblock -lrecon_buildblock \
-			# -L$(STIR_SRC)/IO -lIO \
-			# -L$(STIR_SRC)/data_buildblock -ldata_buildblock \
-			# -L$(STIR_SRC)/display -ldisplay \
-			# -L$(STIR_SRC)/eval_buildblock -leval_buildblock \
-			# -L$(STIR_SRC)/listmode_buildblock -llistmode_buildblock \
-			# -L$(STIR_SRC)/modelling_buildblock -lmodelling_buildblock \
-			# -L$(STIR_SRC)/scatter_buildblock -lscatter_buildblock \
-			# -L$(STIR_SRC)/Shape_buildblock -lShape_buildblock \
-			# -L$(STIR_SRC)/numerics_buildblock -lnumerics_buildblock \
-			# -L$(STIR_SRC)/spatial_transformation_buildblock -lspatial_transformation_buildblock \
-			# -L$(STIR_SRC)/buildblock -lbuildblock
-
 STIR_LIBS = \
 			-literative_OSMAPOSL \
 			-literative_OSSPS \
