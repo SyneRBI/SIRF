@@ -126,7 +126,7 @@ public:
 	}
 };
 
-template<class Base, class Object = Base>
+template<class Base, class Object>
 static void*
 newObjectHandle()
 {
@@ -152,7 +152,22 @@ sptrObjectHandle(boost::shared_ptr<T> sptr) {
 	return (void*)ptr_handle;
 }
 
-template<class Base, class Object = Base>
+template<class Base>
+Base&
+objectFromHandle(const DataHandle* handle) {
+	void* ptr = handle->data();
+	if (ptr == 0)
+		throw StirException("zero data pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	if (is_null_ptr(*ptr_sptr))
+		throw StirException("zero object pointer cannot be dereferenced",
+		__FILE__, __LINE__);
+	CAST_PTR(Base, ptr_object, ptr_sptr->get());
+	return *ptr_object;
+}
+
+template<class Base, class Object>
 Object&
 objectFromHandle(const DataHandle* handle) {
 	void* ptr = handle->data();
