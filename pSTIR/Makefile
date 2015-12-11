@@ -8,9 +8,12 @@ PYLIB = -l$(PYTHON_CYGWIN)
 
 SWIG = swig
 
+X11LIB =
+test -d /lib/X11 && X11LIB = -lX11
+
 CXX = g++
 CFLAGS = -O3 -fpermissive -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
-LDFLAGS = -lrt
+LDFLAGS = X11LIB -lrt
 
 ARCH = ar
 ARCHFLAGS = cr
