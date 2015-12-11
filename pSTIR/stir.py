@@ -68,8 +68,13 @@ def _tmp_filename():
 
 class Printer:
     def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
+        self.info_case = -1
+        self.warn_case = -1
+        self.errr_case = -1
         if info is None:
-            self.info_case = -1
+            pass
+        elif type(info) is not type(' '):
+            raise error('wrong info argument for Printer constructor')
         elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.info = pystir.newTextPrinter(info)
             self.info_case = 0
@@ -77,7 +82,9 @@ class Printer:
             self.info = pystir.newTextWriter(info)
             self.info_case = 1
         if warn is None:
-            self.warn_case = -1
+            pass
+        elif type(warn) is not type(' '):
+            raise error('wrong warn argument for Printer constructor')
         elif warn in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.warn = pystir.newTextPrinter(warn)
             self.warn_case = 0
@@ -85,7 +92,9 @@ class Printer:
             self.warn = pystir.newTextWriter(warn)
             self.warn_case = 1
         if errr is None:
-            self.errr_case = -1
+            pass
+        elif type(errr) is not type(' '):
+            raise error('wrong errr argument for Printer constructor')
         elif errr in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.errr = pystir.newTextPrinter(errr)
             self.errr_case = 0
@@ -120,20 +129,26 @@ class Printer:
 
 class printerTo:
     def __init__(self, dest, channel = -1):
-        if dest in {'stdout', 'stderr', 'cout', 'cerr'}:
+        self.case = -1
+        if dest is None:
+            return
+        elif type(dest) is not type(' '):
+            raise error('wrong info argument for Printer constructor')
+        elif dest in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.printer = pystir.newTextPrinter(dest)
-            self.type = 0
+            self.case = 0
         else:
             self.printer = pystir.newTextWriter(dest)
-            self.type = 1
+            self.case = 1
         pystir.openChannel(channel, self.printer)
         self.channel = channel
     def __del__(self):
-        if self.type == 0:
-            pystir.deleteTextPrinter(self.printer)
-        else:
-            pystir.deleteTextWriter(self.printer)
-        pystir.closeChannel(self.channel, self.printer)
+        if self.case is not -1:
+            if self.case == 0:
+                pystir.deleteTextPrinter(self.printer)
+            else:
+                pystir.deleteTextWriter(self.printer)
+            pystir.closeChannel(self.channel, self.printer)
 
 class Shape:
     def __init__(self):

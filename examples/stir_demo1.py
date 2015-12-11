@@ -31,8 +31,6 @@ try:
     am.get_matrix().set_num_tangential_LORs(2)
 
     # read an initial estimate for the reconstructed image from a file
-##    image = stir.Image('my_image.hv')
-##    image.read_from_file('my_image0.hv')
     image = stir.Image('my_image0.hv')
 
     if HAVE_PYLAB:
