@@ -1,7 +1,9 @@
 #include <fstream>
 #include <string.h>
 
-#include "TextWriter.h"
+#include "stir/TextWriter.h"
+
+USING_NAMESPACE_STIR
 
 extern "C" {
 	void* newTextPrinter(const char* stream) {

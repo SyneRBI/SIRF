@@ -93,6 +93,8 @@ Build MAtlab interface to STIR:
 
 -Run mex_stir.m
 
+-Add mSTIR folder to Matlab path
+
 
 Cygwin installation steps (Python interface only)
 =================================================

@@ -3,7 +3,9 @@
 
 #include <mex.h>
 
-#include "TextWriter.h"
+#include "stir/TextWriter.h"
+
+USING_NAMESPACE_STIR
 
 class mexTextPrinter : public aTextWriter {
 public:

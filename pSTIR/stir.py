@@ -144,11 +144,11 @@ class printerTo:
         self.channel = channel
     def __del__(self):
         if self.case is not -1:
+            pystir.closeChannel(self.channel, self.printer)
             if self.case == 0:
                 pystir.deleteTextPrinter(self.printer)
             else:
                 pystir.deleteTextWriter(self.printer)
-            pystir.closeChannel(self.channel, self.printer)
 
 class Shape:
     def __init__(self):
