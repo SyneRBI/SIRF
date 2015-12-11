@@ -1,4 +1,5 @@
 STIR_SRC = $(STIR_CYGWIN)
+STIR_LIBPATH = $(STIRLIB_CYGWIN)
 CSTIR_SRC = $(CSTIR_CYGWIN)
 
 PYINCLUDE = /usr/include/$(PYTHON_CYGWIN)
@@ -18,21 +19,37 @@ RANLIB = ranlib
 CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
 
+#STIR_LIBS = \
+			# -L$(STIR_SRC)/iterative/OSMAPOSL -literative_OSMAPOSL \
+			# -L$(STIR_SRC)/iterative/OSSPS -literative_OSSPS \
+			# -L$(STIR_SRC)/recon_buildblock -lrecon_buildblock \
+			# -L$(STIR_SRC)/IO -lIO \
+			# -L$(STIR_SRC)/data_buildblock -ldata_buildblock \
+			# -L$(STIR_SRC)/display -ldisplay \
+			# -L$(STIR_SRC)/eval_buildblock -leval_buildblock \
+			# -L$(STIR_SRC)/listmode_buildblock -llistmode_buildblock \
+			# -L$(STIR_SRC)/modelling_buildblock -lmodelling_buildblock \
+			# -L$(STIR_SRC)/scatter_buildblock -lscatter_buildblock \
+			# -L$(STIR_SRC)/Shape_buildblock -lShape_buildblock \
+			# -L$(STIR_SRC)/numerics_buildblock -lnumerics_buildblock \
+			# -L$(STIR_SRC)/spatial_transformation_buildblock -lspatial_transformation_buildblock \
+			# -L$(STIR_SRC)/buildblock -lbuildblock
+
 STIR_LIBS = \
-			-L$(STIR_SRC)/iterative/OSMAPOSL -literative_OSMAPOSL \
-			-L$(STIR_SRC)/iterative/OSSPS -literative_OSSPS \
-			-L$(STIR_SRC)/recon_buildblock -lrecon_buildblock \
-			-L$(STIR_SRC)/IO -lIO \
-			-L$(STIR_SRC)/data_buildblock -ldata_buildblock \
-			-L$(STIR_SRC)/display -ldisplay \
-			-L$(STIR_SRC)/eval_buildblock -leval_buildblock \
-			-L$(STIR_SRC)/listmode_buildblock -llistmode_buildblock \
-			-L$(STIR_SRC)/modelling_buildblock -lmodelling_buildblock \
-			-L$(STIR_SRC)/scatter_buildblock -lscatter_buildblock \
-			-L$(STIR_SRC)/Shape_buildblock -lShape_buildblock \
-			-L$(STIR_SRC)/numerics_buildblock -lnumerics_buildblock \
-			-L$(STIR_SRC)/spatial_transformation_buildblock -lspatial_transformation_buildblock \
-			-L$(STIR_SRC)/buildblock -lbuildblock
+			-literative_OSMAPOSL \
+			-literative_OSSPS \
+			-lrecon_buildblock \
+			-lIO \
+			-ldata_buildblock \
+			-ldisplay \
+			-leval_buildblock \
+			-llistmode_buildblock \
+			-lmodelling_buildblock \
+			-lscatter_buildblock \
+			-lShape_buildblock \
+			-lnumerics_buildblock \
+			-lspatial_transformation_buildblock \
+			-lbuildblock
 
 REG_OBJECTS = \
 	buildblock_registries.o \
@@ -98,7 +115,7 @@ pystir: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
 	g++ -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
 	g++ -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) $(PYLIB) -o _pystir.dll \
-		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
+		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
 
 %.o: %.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
