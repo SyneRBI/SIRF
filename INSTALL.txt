@@ -13,6 +13,7 @@ and add the following user variables:
 Variable         Value
 
 BOOST            Path to Boost include folder*
+PYTHON           Python library name (without .lib) - look in libs sub-folder of Python folder
 PYTHON_INCLUDE   Path to Python include folder
 PYTHON_LIBPATH   Path to Python libs folder
 SWIG_PATH        Path to swig.exe
