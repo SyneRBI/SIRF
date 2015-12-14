@@ -278,3 +278,6 @@ mSTIR/bits.m
 mSTIR/mstir.mexw64
 mSTIR/bits.m
 examples/stir_demo1.txt
+examples/stir_demo1.txt
+pSTIR/pystir.py
+examples/stir_demo1.txt

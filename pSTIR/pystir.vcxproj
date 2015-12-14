@@ -139,7 +139,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>_$(TargetName).pyd</OutputFile>
       <AdditionalLibraryDirectories>%STIR_BUILD%\spatial_transformation_buildblock\Release;%STIR_BUILD%\Shape_buildblock\Release;%STIR_BUILD%\scatter_buildblock\Release;%STIR_BUILD%\recon_buildblock\Release;%STIR_BUILD%\numerics_buildblock\Release;%STIR_BUILD%\modelling_buildblock\Release;%STIR_BUILD%\listmode_buildblock\Release;%STIR_BUILD%\iterative\OSSPS\Release;%STIR_BUILD%\iterative\OSMAPOSL\Release;%STIR_BUILD%\IO\Release;%STIR_BUILD%\eval_buildblock\Release;%STIR_BUILD%\display\Release;%STIR_BUILD%\data_buildblock\Release;%STIR_BUILD%\buildblock\Release;%CSTIR%\x64\Release;%PYTHON_LIBPATH%;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>python34.lib;cSTIR.lib;buildblock.lib;data_buildblock.lib;display.lib;eval_buildblock.lib;IO.lib;iterative_OSMAPOSL.lib;iterative_OSSPS.lib;listmode_buildblock.lib;modelling_buildblock.lib;numerics_buildblock.lib;recon_buildblock.lib;scatter_buildblock.lib;Shape_buildblock.lib;spatial_transformation_buildblock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%PYTHON%.lib;cSTIR.lib;buildblock.lib;data_buildblock.lib;display.lib;eval_buildblock.lib;IO.lib;iterative_OSMAPOSL.lib;iterative_OSSPS.lib;listmode_buildblock.lib;modelling_buildblock.lib;numerics_buildblock.lib;recon_buildblock.lib;scatter_buildblock.lib;Shape_buildblock.lib;spatial_transformation_buildblock.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
