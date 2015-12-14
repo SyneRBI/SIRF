@@ -50,9 +50,12 @@ extern "C" {
 				h.set_error_channel(0);
 			break;
 		default:
-			h.set_information_channel(0);
-			h.set_warning_channel(0);
-			h.set_error_channel(0);
+			if (h.information_channel_ptr() == ptr_w)
+				h.set_information_channel(0);
+			if (h.warning_channel_ptr() == ptr_w)
+				h.set_warning_channel(0);
+			if (h.error_channel_ptr() == ptr_w)
+				h.set_error_channel(0);
 		}
 	}
 	void setWriter(void* ptr_w, int channel) {
