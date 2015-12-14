@@ -14,7 +14,8 @@ try
     prior = obj.get_prior();
     fprintf('prior penalisation factor: %f\n', prior.get_penalisation_factor())
     prior.set_penalisation_factor(0.001)
-    am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_acquisition_model();
+    the_obj = stir.PoissonLogLh_LinModMean_AcqModData(obj);
+    am = the_obj.get_acquisition_model();
     fprintf('tangential LORs: %d\n', am.get_matrix().get_num_tangential_LORs())
     am.get_matrix().set_num_tangential_LORs(2)
 
