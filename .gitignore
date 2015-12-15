@@ -233,6 +233,8 @@ $RECYCLE.BIN/
 
 # User-specific files
 *.o
+*.a
+*.dll
 *.ahv
 *.hv
 *.v
