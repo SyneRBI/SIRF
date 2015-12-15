@@ -232,6 +232,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # User-specific files
+*.o
 *.ahv
 *.hv
 *.v
