@@ -146,9 +146,7 @@ newObjectHandle(boost::shared_ptr<Base>* ptr_sptr)
 template<class T>
 void*
 sptrObjectHandle(boost::shared_ptr<T> sptr) {
-	NEW(boost::shared_ptr<T>, ptr_sptr);
-	*ptr_sptr = sptr;
-	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(*ptr_sptr);
+	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
 	return (void*)ptr_handle;
 }
 
