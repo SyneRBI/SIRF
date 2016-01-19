@@ -97,14 +97,14 @@ Build MAtlab interface to STIR:
 -Add mSTIR folder to Matlab path
 
 
-Cygwin installation steps (Python interface only)
+Cygwin/Linux installation steps (Python interface only)
 =================================================
 
 Install Boost, SWIG and cmake using cygwin setup.
 
 Download STIR to a cygwin folder, and in this folder run cmake:
 
-cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-O3 -DCMAKE_INSTALL_PREFIX=<where STIR libraries re to be built> ./
+cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=<where STIR libraries re to be built> ./
 
 Run make to build STIR.
 
@@ -112,15 +112,14 @@ Run make install to install STIR libraries.
 
 Download xSTIR to a cygwin folder.
 
-Add four user variables to Windows environment variables (or export them in cygwin):
+Export the following environment  variables:
 
-Variable         Value
-
-STIR_CYGWIN     Path to src sub-folder of STIR folder
-STIRLIB_CYGWIN  Path to STIR libraries folder (cf. cmake command above)
-CSTIR_CYGWIN	Path to cSTIR sub-folder of xSTIR folder
-PYTHON_CYGWIN   Cygwin python (currently cygwin has python2.7, but that may change)
+export STIR_SRC=<Path to src sub-folder of STIR folder e.g. /home/stir/devel/STIR/src>
+export STIR_LIBPATH=<Path to STIR libraries folder (cf. cmake command above), e.g. /home/stir/devel/STIR/Release/lib>
+export CSTIR_SRC=<Path to cSTIR sub-folder of xSTIR folder, e.g. /home/stir/devel/xSTIR/cSTIR>
+export PYTHON=<Python version e.g. python2.7>
+export PYINCLUDE=<Path to Python include folder, e.g. /usr/include/python2.7>
+export PYLIBPATH=<Path to Python libraries, e.g. /usr/lib/python2.7/config-x86_64-linux-gnu>
 
 Go to pSTIR sub-folder and run make.
 
-NOTE: demo scripts do not do graphics on cygwin yet.
