@@ -31,7 +31,7 @@ SWIG_PATH        Path to swig.exe
 Build STIR:
 -----------
 
--Download STIR from GitHub/evgueni-ovtchinnikov/STIR/tree/access_modifications
+-Clone STIR from GitHub CCPPETMR
 
 -Create a folder where STIR is to be built (referred to below as STIR build folder)
 
@@ -67,7 +67,7 @@ STIR_INCLUDE  Path to STIR include folder
 Build C interface to STIR:
 --------------------------
 
--Download xSTIR from GitHub/evgueni-ovtchinnikov/xSTIR
+-Clone xSTIR from GitHub CCPPETMR
 
 -Go to cSTIR sub-folder in xSTIR and double click on cSTIR Visual Studio Solution file
 
@@ -100,19 +100,19 @@ Build MAtlab interface to STIR:
 Cygwin/Linux installation steps (Python interface only)
 =================================================
 
-Install Boost, SWIG and cmake using cygwin setup.
+-Install Boost, SWIG and cmake.
 
-Download STIR to a cygwin folder, and in this folder run cmake:
+-Clone STIR from GitHub CCPPETMR and run cmake (remove -fPIC flags on cygwin):
 
 cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=<where STIR libraries re to be built> ./
 
-Run make to build STIR.
+-Run make to build STIR.
 
-Run make install to install STIR libraries.
+-Run make install to install STIR libraries.
 
-Download xSTIR to a cygwin folder.
+-Clone xSTIR from GitHub CCPPETMR.
 
-Export the following environment  variables:
+-Export the following environment  variables:
 
 export STIR_SRC=<Path to src sub-folder of STIR folder e.g. /home/stir/devel/STIR/src>
 export STIR_LIBPATH=<Path to STIR libraries folder (cf. cmake command above), e.g. /home/stir/devel/STIR/Release/lib>
@@ -121,5 +121,5 @@ export PYTHON=<Python version e.g. python2.7>
 export PYINCLUDE=<Path to Python include folder, e.g. /usr/include/python2.7>
 export PYLIBPATH=<Path to Python libraries, e.g. /usr/lib/python2.7/config-x86_64-linux-gnu>
 
-Go to pSTIR sub-folder and run make.
+-Go to pSTIR sub-folder and run make.
 
