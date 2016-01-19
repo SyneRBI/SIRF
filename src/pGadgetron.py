@@ -21,18 +21,14 @@ def _check_status(handle):
 
 class PyGadgetronObject:
 	pass
-#    def __init__(self):
-#        self.handle = None
-#    def __del__(self):
-#        if self.handle is not None:
-#            pygadgetron.deleteObject(self.handle)
 
 class ImagesList(PyGadgetronObject):
 	def __init__(self):
 		self.handle = pygadgetron.newObject('ImagesList')
 		_check_status(self.handle)
 	def __del__(self):
-		pygadgetron.deleteObject(self.handle)
+		if self.handle is not None:
+			pygadgetron.deleteObject(self.handle)
 	def size(self):
 		return pygadgetron.cGT_numImages(self.handle)
 	def number(self):
@@ -44,7 +40,8 @@ class ImagesList(PyGadgetronObject):
 		_check_status(handle)
 	def image_as_array(self, im_num):
 		dim = numpy.ndarray((3,), dtype = numpy.int32)
-		pygadgetron.cGT_getImageDimensions(self.handle, im_num, dim.ctypes.data)
+		pygadgetron.cGT_getImageDimensions\
+			(self.handle, im_num, dim.ctypes.data)
 		nx = dim[0]
 		ny = dim[1]
 		nz = dim[2]
@@ -80,7 +77,8 @@ class ClientConnector(PyGadgetronObject):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def register_images_receiver(self, imgs):
-        handle = pygadgetron.cGT_registerImagesReceiver(self.handle, imgs.handle)
+        handle = pygadgetron.cGT_registerImagesReceiver\
+        	(self.handle, imgs.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def send_config_file(self, file):
@@ -102,14 +100,16 @@ class ISMRMRDataset(PyGadgetronObject):
         self.handle = pygadgetron.cGT_ISMRMRDatasetFromFile(file, '/dataset')
         _check_status(self.handle)
         self.header = pygadgetron.newObject('string')
-        handle = pygadgetron.cGT_readISMRMRDatasetHeader(self.handle, self.header)
+        handle = pygadgetron.cGT_readISMRMRDatasetHeader\
+        	(self.handle, self.header)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     def read_header(self):
-        handle = pygadgetron.cGT_readISMRMRDatasetHeader(self.handle, self.header)
+        handle = pygadgetron.cGT_readISMRMRDatasetHeader\
+        	(self.handle, self.header)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
 

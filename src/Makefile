@@ -14,18 +14,12 @@ BUILDPATH = ../../build/xGadgetron
 SWIG = swig
 
 LIBS = \
-	-lACE \
 	-lismrmrd \
 	-lboost_program_options \
 	-lboost_filesystem \
 	-lboost_thread \
 	-lboost_system \
-	-lpthread \
-	-lblas \
-	-llapack \
-	-lfftw3f \
-	-lfftw3 \
-	-larmadillo
+	-lpthread
 
 all: libcgt pygadgetron test_client
 

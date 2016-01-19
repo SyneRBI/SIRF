@@ -77,3 +77,4 @@ install_manifest.txt
 *.mex*
 
 testdata.h5
+*_wrap.cxx
