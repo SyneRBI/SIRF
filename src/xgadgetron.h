@@ -189,5 +189,65 @@ private:
 	}
 };
 
+class aGadget {
+public:
+//	virtual ~aGadget() {}
+	virtual std::string xml() const = 0;
+};
+
+class GadgetHandle {
+public:
+	GadgetHandle(std::string id, aGadget* ptr_g) : id_(id), sptr_g_(ptr_g) {}
+	std::string id() const {
+		return id_;
+	}
+	aGadget& gadget() {
+		return *sptr_g_.get();
+	}
+	const aGadget& gadget() const {
+		return *sptr_g_.get();
+	}
+private:
+	std::string id_;
+	boost::shared_ptr<aGadget> sptr_g_;
+};
+
+class GadgetChain {
+public:
+	void add_reader(std::string id, aGadget* ptr_g) {
+		readers_.push_back(boost::shared_ptr<GadgetHandle>
+			(new GadgetHandle(id, ptr_g)));
+	}
+	void add_writer(std::string id, aGadget* ptr_g) {
+		writers_.push_back(boost::shared_ptr<GadgetHandle>
+			(new GadgetHandle(id, ptr_g)));
+	}
+	void add_gadget(std::string id, aGadget* ptr_g) {
+		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
+			(new GadgetHandle(id, ptr_g)));
+	}
+	std::string xml() const {
+		std::string xml_script("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		xml_script += "<gadgetronStreamConfiguration xsi:schemaLocation=";
+		xml_script += "\"http://gadgetron.sf.net/gadgetron gadgetron.xsd\"\n";
+        	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
+        	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
+
+		typename std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
+		for (gh = readers_.begin(); gh != readers_.end(); gh++)
+			xml_script += gh->get()->gadget().xml() + '\n';
+		for (gh = writers_.begin(); gh != writers_.end(); gh++)
+			xml_script += gh->get()->gadget().xml() + '\n';
+		for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++)
+			xml_script += gh->get()->gadget().xml() + '\n';
+		xml_script += "</gadgetronStreamConfiguration>\n";
+
+		return xml_script;
+	}
+private:
+	std::list<boost::shared_ptr<GadgetHandle> > readers_;
+	std::list<boost::shared_ptr<GadgetHandle> > writers_;
+	std::list<boost::shared_ptr<GadgetHandle> > gadgets_;
+};
 
 #endif

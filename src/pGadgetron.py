@@ -21,6 +21,26 @@ def _check_status(handle):
 
 class PyGadgetronObject:
 	pass
+	
+class GadgetChain(PyGadgetronObject):
+	def __init__(self):
+		self.handle = pygadgetron.newObject('GadgetChain')
+		_check_status(self.handle)
+	def __del__(self):
+		if self.handle is not None:
+			pygadgetron.deleteObject(self.handle)
+	def addReader(self, id, reader):
+		handle = pygadgetron.cGT_addReader(self.handle, id, reader.handle)
+		_check_status(handle)
+		pygadgetron.deleteDataHandle(handle)
+	def addWriter(self, id, writer):
+		handle = pygadgetron.cGT_addWriter(self.handle, id, writer.handle)
+		_check_status(handle)
+		pygadgetron.deleteDataHandle(handle)
+	def addGadget(self, id, gadget):
+		handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
+		_check_status(handle)
+		pygadgetron.deleteDataHandle(handle)
 
 class ImagesList(PyGadgetronObject):
 	def __init__(self):
@@ -38,6 +58,7 @@ class ImagesList(PyGadgetronObject):
 		handle = pygadgetron.cGT_writeImages\
 			(self.handle, conn.handle, out_file, out_group)
 		_check_status(handle)
+		pygadgetron.deleteDataHandle(handle)
 	def image_as_array(self, im_num):
 		dim = numpy.ndarray((3,), dtype = numpy.int32)
 		pygadgetron.cGT_getImageDimensions\
@@ -79,6 +100,10 @@ class ClientConnector(PyGadgetronObject):
     def register_images_receiver(self, imgs):
         handle = pygadgetron.cGT_registerImagesReceiver\
         	(self.handle, imgs.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+    def config_gadget_chain(self, gc):
+        handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def send_config_file(self, file):
@@ -124,13 +149,13 @@ class MRReconstruction(PyGadgetronObject):
 		self.input_data = input_data
 	def set_up(self, config_file):
 		self.gadgets_config = config_file
-	def process(self):
+	def process(self, gc):
 		if self.input_data is None:
 			raise error('no input data')
-		if self.gadgets_config is None:
-			raise error('gadgets chain not defined')
 		self.conn.connect('localhost', '9002')
-		self.conn.send_config_file(self.gadgets_config)
+		handle = pygadgetron.cGT_configGadgetChain(self.conn.handle, gc.handle)
+		_check_status(handle)
+		pygadgetron.deleteDataHandle(handle)
 		self.conn.send_parameters(self.input_data.header)
 		self.conn.send_acquisitions(self.input_data)
 		self.conn.disconnect()

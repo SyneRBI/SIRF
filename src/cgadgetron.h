@@ -10,6 +10,10 @@ extern "C" {
 	void* cGT_sendConfigFile(void* ptr_con, const char* file);
 	void* cGT_sendParameters(void* ptr_con, const void* par);
 	void* cGT_sendParametersString(void* ptr_con, const char* par);
+	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
 	void* cGT_registerHDFReceiver
 		(void* ptr_con, const char* file, const char* group);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);

@@ -123,6 +123,22 @@ def cGT_sendParametersString(ptr_con, par):
     return _pygadgetron.cGT_sendParametersString(ptr_con, par)
 cGT_sendParametersString = _pygadgetron.cGT_sendParametersString
 
+def cGT_addReader(ptr_gc, id, ptr_r):
+    return _pygadgetron.cGT_addReader(ptr_gc, id, ptr_r)
+cGT_addReader = _pygadgetron.cGT_addReader
+
+def cGT_addWriter(ptr_gc, id, ptr_r):
+    return _pygadgetron.cGT_addWriter(ptr_gc, id, ptr_r)
+cGT_addWriter = _pygadgetron.cGT_addWriter
+
+def cGT_addGadget(ptr_gc, id, ptr_r):
+    return _pygadgetron.cGT_addGadget(ptr_gc, id, ptr_r)
+cGT_addGadget = _pygadgetron.cGT_addGadget
+
+def cGT_configGadgetChain(ptr_con, ptr_gc):
+    return _pygadgetron.cGT_configGadgetChain(ptr_con, ptr_gc)
+cGT_configGadgetChain = _pygadgetron.cGT_configGadgetChain
+
 def cGT_registerHDFReceiver(ptr_con, file, group):
     return _pygadgetron.cGT_registerHDFReceiver(ptr_con, file, group)
 cGT_registerHDFReceiver = _pygadgetron.cGT_registerHDFReceiver
