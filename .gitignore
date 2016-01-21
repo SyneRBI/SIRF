@@ -79,4 +79,7 @@ install_manifest.txt
 *.h5
 *_wrap.cxx
 *.pdb
+*.idb
+*.ilk
+*.sdf
 *.tlog

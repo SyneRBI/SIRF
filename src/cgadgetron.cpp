@@ -99,6 +99,16 @@ void* newObject(const char* name)
 }
 
 extern "C"
+void* copyOfObject(void* ptr)
+{
+	try {
+		CAST_PTR(anObjectHandle, ptr_obj, ptr);
+		return (void*)ptr_obj->copy();
+	}
+	CATCH
+}
+
+extern "C"
 void*
 cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
 {

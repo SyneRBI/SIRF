@@ -20,12 +20,18 @@ extern "C" {
 	void* cGT_writeImages
 		(void* ptr_imgs, void* ptr_conn, const char* out_file, const char* out_group);
 	int cGT_numImages(void* ptr_imgs);
+#ifndef CGADGETRON_FOR_MATLAB
 	void cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim);
 	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data);
+#else
+	void cGT_getImageDimensions(void* ptr_imgs, int im_num, int* dim);
+	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, double* data);
+#endif
 	void* cGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 	void* cGT_disconnect(void* ptr_con);
 
 	void* newObject(const char* name);
+	void* copyOfObject(void* ptr);
 	void deleteObject(void* ptr);
 
 	void* newDataHandle();
