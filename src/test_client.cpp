@@ -101,7 +101,7 @@ using boost::asio::ip::tcp;
 
 int main(int argc, char **argv)
 {
-	return test4();
+	//return test4();
 
 	std::string host_name;
 	std::string port;

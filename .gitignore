@@ -76,5 +76,7 @@ install_manifest.txt
 *.asv
 *.mex*
 
-testdata.h5
+*.h5
 *_wrap.cxx
+*.pdb
+*.tlog

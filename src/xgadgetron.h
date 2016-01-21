@@ -76,7 +76,11 @@ public:
 		mtx.lock();
 		ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 		mtx.unlock();
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
 		for (i = images_.begin(); i != images_.end(); i++) {
 			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 			ImageWrap& iw = *sptr_iw;
@@ -103,7 +107,11 @@ public:
 	void getImageDimensions(int im_num, int* dim) {
 		if (im_num < 0 || im_num >= images_.size())
 			dim[0] = dim[1] = dim[2] = 0;
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
 		int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
@@ -131,7 +139,11 @@ public:
 	void getImageDataAsDoubleArray(int im_num, double* data) {
 		if (im_num < 0 || im_num >= images_.size())
 			return;
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
 		int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
@@ -140,11 +152,11 @@ public:
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
 		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
+			getImageUnsignedData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_SHORT)
 			getImageData(*(ISMRMRD::Image<short>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
+			getImageUnsignedData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_INT)
 			getImageData(*(ISMRMRD::Image<int>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_FLOAT)
@@ -152,9 +164,9 @@ public:
 		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
 			getImageData(*(ISMRMRD::Image<double>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
+			getImageComplexData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
+			getImageComplexData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
 	}
 
 private:
@@ -178,6 +190,9 @@ private:
 		dim[1] = im.getMatrixSizeY();
 		dim[2] = im.getMatrixSizeZ();
 	}
+
+#define ABS(X) ((X < 0) ? -X : X)
+
 	template<typename T>
 	void getImageData(ISMRMRD::Image<T>& im, double* data) {
 		long long int n = im.getMatrixSizeX();
@@ -185,7 +200,25 @@ private:
 		n *= im.getMatrixSizeZ();
 		T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
-			data[i] = std::fabs(ptr[i]);
+			data[i] = ABS(ptr[i]);
+	}
+	template<typename T>
+	void getImageUnsignedData(ISMRMRD::Image<T>& im, double* data) {
+		long long int n = im.getMatrixSizeX();
+		n *= im.getMatrixSizeY();
+		n *= im.getMatrixSizeZ();
+		T* ptr = im.getDataPtr();
+		for (long long int i = 0; i < n; i++)
+			data[i] = ptr[i];
+	}
+	template<typename T>
+	void getImageComplexData(ISMRMRD::Image< std::complex<T> >& im, double* data) {
+		long long int n = im.getMatrixSizeX();
+		n *= im.getMatrixSizeY();
+		n *= im.getMatrixSizeZ();
+		std::complex<T>* ptr = im.getDataPtr();
+		for (long long int i = 0; i < n; i++)
+			data[i] = std::abs(ptr[i]);
 	}
 };
 
@@ -233,7 +266,11 @@ public:
         	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
         	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
 
+#ifdef MSVC
+		std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
+#else
 		typename std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
+#endif
 		for (gh = readers_.begin(); gh != readers_.end(); gh++)
 			xml_script += gh->get()->gadget().xml() + '\n';
 		for (gh = writers_.begin(); gh != writers_.end(); gh++)
