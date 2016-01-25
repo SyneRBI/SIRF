@@ -1,4 +1,3 @@
-% load STIR interface library
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end

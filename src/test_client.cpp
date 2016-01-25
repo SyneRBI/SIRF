@@ -170,23 +170,23 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test6(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out6.h5",
-		hdf5_out_group.c_str());
+	//return test6(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out6.h5",
+	//	hdf5_out_group.c_str());
 
-	return test5(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out5.h5",
-		hdf5_out_group.c_str());
+	//return test5(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out5.h5",
+	//	hdf5_out_group.c_str());
 
 	return test3(
 		host_name.c_str(),

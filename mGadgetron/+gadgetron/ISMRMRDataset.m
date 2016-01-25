@@ -28,5 +28,8 @@ classdef ISMRMRDataset < handle
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mgadgetron', 'mDeleteDataHandle', handle)
         end
+        function header = get_header(self)
+            header = self.header_;
+        end
     end
 end

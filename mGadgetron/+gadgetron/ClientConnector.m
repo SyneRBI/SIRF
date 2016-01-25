@@ -53,5 +53,11 @@ classdef ClientConnector < handle
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mgadgetron', 'mDeleteDataHandle', handle)
         end
+        function send_images(self, img)
+            handle = calllib...
+                ('mgadgetron', 'mGT_sendImages', self.handle_, img.handle_);
+            gadgetron.checkExecutionStatus(self.name_, handle);
+            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+        end
     end
 end
