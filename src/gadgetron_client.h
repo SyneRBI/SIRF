@@ -297,7 +297,9 @@ public:
 		ISMRMRD::ImageHeader h;
 		boost::asio::read(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
 
-		void* ptr;
+		std::cout << "data type: " << h.data_type << std::endl;
+
+		void* ptr = 0;
 		if (h.data_type == ISMRMRD::ISMRMRD_USHORT) {
 			ptr = (void*)new ISMRMRD::Image<unsigned short>;
 			this->read_data_attrib(stream, h, *(ISMRMRD::Image<unsigned short>* )ptr);
@@ -330,8 +332,9 @@ public:
 			ptr = (void*)new ISMRMRD::Image< std::complex<double> >;
 			this->read_data_attrib(stream, h, *(ISMRMRD::Image< std::complex<double> >* )ptr);
 		}
-		ptr_images_->push_back(boost::shared_ptr<ImageWrap>
-			(new ImageWrap(h.data_type, ptr)));
+		if (ptr)
+			ptr_images_->push_back(boost::shared_ptr<ImageWrap>
+				(new ImageWrap(h.data_type, ptr)));
 	}
 
 private:
@@ -346,7 +349,6 @@ public:
 		: socket_(0)
 		, timeout_ms_(10000)
 	{
-
 	}
 
 	virtual ~GadgetronClientConnector()
@@ -400,8 +402,6 @@ public:
 
 	void connect(std::string hostname, std::string port)
 	{
-
-
 		tcp::resolver resolver(io_service);
 		tcp::resolver::query query(tcp::v4(), hostname.c_str(), port.c_str());
 		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
@@ -439,10 +439,7 @@ public:
 		if (error)
 			throw GadgetronClientException("Error connecting using socket.");
 
-
-
 		reader_thread_ = boost::thread(boost::bind(&GadgetronClientConnector::read_task, this));
-
 	}
 
 	void send_gadgetron_close() {
@@ -469,7 +466,6 @@ public:
 
 		boost::asio::write(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
 		boost::asio::write(*socket_, boost::asio::buffer(&ini, sizeof(GadgetMessageConfigurationFile)));
-
 	}
 
 	void send_gadgetron_configuration_script(std::string xml_string)
@@ -487,7 +483,6 @@ public:
 		boost::asio::write(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
 		boost::asio::write(*socket_, boost::asio::buffer(&conf, sizeof(GadgetMessageScript)));
 		boost::asio::write(*socket_, boost::asio::buffer(xml_string.c_str(), conf.script_length));
-
 	}
 
 
@@ -510,12 +505,11 @@ public:
 
 	void send_ismrmrd_acquisition(ISMRMRD::Acquisition& acq)
 	{
-		if (!socket_) {
+		if (!socket_)
 			throw GadgetronClientException("Invalid socket.");
-		}
 
 		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_ISMRMRD_ACQUISITION;;
+		id.id = GADGET_MESSAGE_ISMRMRD_ACQUISITION;
 
 		boost::asio::write(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
 		boost::asio::write(*socket_, boost::asio::buffer(&acq.getHead(), sizeof(ISMRMRD::AcquisitionHeader)));
@@ -526,11 +520,53 @@ public:
 		if (trajectory_elements) {
 			boost::asio::write(*socket_, boost::asio::buffer(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
 		}
-
-
 		if (data_elements) {
 			boost::asio::write(*socket_, boost::asio::buffer(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
 		}
+	}
+
+	template<typename T>
+	void send_ismrmrd_image(ISMRMRD::Image<T>& im)
+	{
+		if (!socket_)
+			throw GadgetronClientException("Invalid socket.");
+
+		GadgetMessageIdentifier id;
+		id.id = GADGET_MESSAGE_ISMRMRD_IMAGE;
+
+		boost::asio::write(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+		boost::asio::write(*socket_, boost::asio::buffer(&im.getHead(), sizeof(ISMRMRD::ImageHeader)));
+
+		size_t meta_attrib_length = im.getAttributeStringLength();
+		std::string meta_attrib(meta_attrib_length, 0);
+		im.getAttributeString(meta_attrib);
+
+		std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
+
+		boost::asio::write(*socket_, boost::asio::buffer(&meta_attrib_length, sizeof(size_t)));
+		boost::asio::write(*socket_, boost::asio::buffer(meta_attrib.c_str(), meta_attrib_length));
+
+		boost::asio::write(*socket_, boost::asio::buffer(im.getDataPtr(), im.getDataSize()));
+	}
+
+	void send_wrapped_image(ImageWrap& iw)
+	{
+		if (iw.type() == ISMRMRD::ISMRMRD_USHORT)
+			send_ismrmrd_image(*(ISMRMRD::Image<unsigned short>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_SHORT)
+			send_ismrmrd_image(*(ISMRMRD::Image<short>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_UINT)
+			send_ismrmrd_image(*(ISMRMRD::Image<unsigned int>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_INT)
+			send_ismrmrd_image(*(ISMRMRD::Image<int>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_FLOAT)
+			send_ismrmrd_image(*(ISMRMRD::Image<float>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_DOUBLE)
+			send_ismrmrd_image(*(ISMRMRD::Image<double>*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_CXFLOAT)
+			send_ismrmrd_image(*(ISMRMRD::Image< std::complex<float> >*)iw.ptr_image());
+		else if (iw.type() == ISMRMRD::ISMRMRD_CXDOUBLE)
+			send_ismrmrd_image(*(ISMRMRD::Image< std::complex<double> >*)iw.ptr_image());
 	}
 
 	void register_reader(unsigned short slot, boost::shared_ptr<GadgetronClientMessageReader> r) {

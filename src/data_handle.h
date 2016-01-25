@@ -13,6 +13,7 @@
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
 #define NEW_SPTR(Base, X, Object) \
 	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
+#define SPTR(Base, X, Object) boost::shared_ptr< Base > X(new Object)
 #define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
 	catch (...) {\

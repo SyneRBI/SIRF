@@ -83,3 +83,4 @@ install_manifest.txt
 *.ilk
 *.sdf
 *.tlog
+bits.*

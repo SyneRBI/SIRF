@@ -19,9 +19,8 @@ classdef ImagesList < handle
             end
         end
         function write(self, file, group)
-            conn = gadgetron.ClientConnector();
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
-                self.handle_, conn.handle_, file, group);
+                self.handle_, file, group);
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mgadgetron', 'mDeleteDataHandle', handle)
         end

@@ -55,27 +55,12 @@ void* newObject(const char* name)
 			return newObjectHandle<ImagesList, ImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
-		else if (boost::iequals(name, "IsmrmrdAcqMsgReader"))
-			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
-		else if (boost::iequals(name, "IsmrmrdImgMsgWriter"))
-			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
-		else if (boost::iequals(name, "RemoveOversamplingGadget"))
-			return newObjectHandle<aGadget, RemoveOversamplingGadget>();
-		else if (boost::iequals(name, "AcqAccTrigGadget"))
-			return newObjectHandle<aGadget, AcqAccTrigGadget>();
-		else if (boost::iequals(name, "BucketToBuffGadget"))
-			return newObjectHandle<aGadget, BucketToBuffGadget>();
-		else if (boost::iequals(name, "SimpleReconstructionGadget"))
-			return newObjectHandle<aGadget, SimpleReconstructionGadget>();
-		else if (boost::iequals(name, "ImgArrSplitGadget"))
-			return newObjectHandle<aGadget, ImgArrSplitGadget>();
-		else if (boost::iequals(name, "ExtGadget"))
-			return newObjectHandle<aGadget, ExtGadget>();
-		else if (boost::iequals(name, "ImgFinishGadget"))
-			return newObjectHandle<aGadget, ImgFinishGadget>();
-
+		else if (boost::iequals(name, "MRIReconstruction"))
+			return newObjectHandle<GadgetChain, MRIReconstruction>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
 			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
+		else if (boost::iequals(name, "MRIImageReader"))
+			return newObjectHandle<aGadget, IsmrmrdImgMsgReader>();
 		else if (boost::iequals(name, "MRIImageWriter"))
 			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
 		else if (boost::iequals(name, "RemoveROOversamplingGadget"))
@@ -92,7 +77,7 @@ void* newObject(const char* name)
 			return newObjectHandle<aGadget, ExtGadget>();
 		else if (boost::iequals(name, "ImageFinishGadget"))
 			return newObjectHandle<aGadget, ImgFinishGadget>();
-
+		std::cout << "object " << name << "		not found" << std::endl;
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH
@@ -106,54 +91,6 @@ void* copyOfObject(void* ptr)
 		return (void*)ptr_obj->copy();
 	}
 	CATCH
-}
-
-extern "C"
-void*
-cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_r, ptr_r);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		aGadget& g = objectFromHandle<aGadget>(h_r);
-		gc.add_reader(id, &g);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_w, ptr_w);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		aGadget& g = objectFromHandle<aGadget>(h_w);
-		gc.add_writer(id, &g);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_g, ptr_g);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		aGadget& g = objectFromHandle<aGadget>(h_g);
-		gc.add_gadget(id, &g);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -191,7 +128,7 @@ cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.set_timeout(timeout_ms);
 	}
@@ -206,7 +143,7 @@ cGT_connect(void* ptr_con, const char* host, const char* port)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.connect(host, port);
 	}
@@ -217,12 +154,91 @@ cGT_connect(void* ptr_con, const char* host, const char* port)
 
 extern "C"
 void*
+cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_r, ptr_r);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
+		gc.add_reader(id, g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_w, ptr_w);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
+		gc.add_writer(id, g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
+		gc.add_gadget(id, g);
+	}
+	CATCH
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_recon, ptr_recon);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
+		recon.process(input);
+	}
+	CATCH
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_reconstructedImagesList(void* ptr_recon)
+{
+	try {
+		CAST_PTR(DataHandle, h_recon, ptr_recon);
+		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		boost::shared_ptr<ImagesList> sptr_im = recon.get_output();
+		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		return (void*)ptr_handle;
+	}
+	CATCH
+
+}
+
+extern "C"
+void*
 cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
 		std::string config = gc.xml();
@@ -240,7 +256,7 @@ cGT_sendConfigScript(void* ptr_con, const char* config)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_configuration_script(config);
 	}
@@ -255,7 +271,7 @@ cGT_sendConfigFile(void* ptr_con, const char* file)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_configuration_file(file);
 	}
@@ -271,7 +287,7 @@ cGT_sendParameters(void* ptr_con, const void* ptr_par)
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		CAST_PTR(DataHandle, h_par, ptr_par);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		std::string& par = objectFromHandle<std::string>(h_par);
 		//std::cout << par << std::endl;
@@ -288,7 +304,7 @@ cGT_sendParametersString(void* ptr_con, const char* par)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_parameters(par);
 	}
@@ -303,7 +319,7 @@ cGT_disconnect(void* ptr_con)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_close();
 		con.wait();
@@ -319,10 +335,9 @@ cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
 {
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		boost::mutex& mtx = conn.mutex();
-
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageReader(file, group, &mtx)));
@@ -339,15 +354,12 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 	try {
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		CAST_PTR(DataHandle, h_img, ptr_img);
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		std::list< boost::shared_ptr<ImageWrap> >& images = 
-			objectFromHandle<std::list< boost::shared_ptr<ImageWrap> > >
-			(h_img);
-
+		ImagesList& images = objectFromHandle<ImagesList>(h_img);
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(images)));
+			(new GadgetronClientImageMessageCollector(images())));
 	}
 	CATCH
 
@@ -362,7 +374,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		CAST_PTR(DataHandle, h_dat, ptr_dat);
 	
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		boost::mutex& mtx = conn.mutex();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
@@ -392,17 +404,41 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 }
 
 extern "C"
+void*
+cGT_sendImages(void* ptr_con, void* ptr_img)
+{
+	try {
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		CAST_PTR(DataHandle, h_img, ptr_img);
+
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		ImagesList& img = objectFromHandle<ImagesList>(h_img);
+		std::list<boost::shared_ptr<ImageWrap> >& images = img();
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
+		for (i = images.begin(); i != images.end(); i++) {
+			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			ImageWrap& iw = *sptr_iw;
+			con.send_wrapped_image(iw);
+		}
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
 void* 
-cGT_writeImages
-	(void* ptr_imgs, void* ptr_conn, const char* out_file, const char* out_group)
+cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		CAST_PTR(DataHandle, h_conn, ptr_conn);
 		ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
-		//std::cout << list.images().size() << std::endl;
-		GTConnector&  conn = objectFromHandle<GTConnector>(h_conn);
-		list.write(out_file, out_group, conn);
+		list.write(out_file, out_group);
 	}
 	CATCH
 

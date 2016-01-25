@@ -47,8 +47,14 @@ EXPORTED_FUNCTION void* mGT_registerHDFReceiver(void* ptr_con, const char* file,
 EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img) {
 	return cGT_registerImagesReceiver(ptr_con, ptr_img);
 }
-EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, void* ptr_conn, const char* out_file, const char* out_group) {
-	return cGT_writeImages(ptr_imgs, ptr_conn, out_file, out_group);
+EXPORTED_FUNCTION void* mGT_runMRIReconstruction(void* ptr_recon, void* ptr_input) {
+	return cGT_runMRIReconstruction(ptr_recon, ptr_input);
+}
+EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon) {
+	return cGT_reconstructedImagesList(ptr_recon);
+}
+EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
+	return cGT_writeImages(ptr_imgs, out_file, out_group);
 }
 EXPORTED_FUNCTION int mGT_numImages(void* ptr_imgs) {
 	return cGT_numImages(ptr_imgs);
@@ -70,6 +76,9 @@ EXPORTED_FUNCTION void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num,
 #endif
 EXPORTED_FUNCTION void* mGT_sendAcquisitions(void* ptr_con, void* ptr_dat) {
 	return cGT_sendAcquisitions(ptr_con, ptr_dat);
+}
+EXPORTED_FUNCTION void* mGT_sendImages(void* ptr_con, void* ptr_img) {
+	return cGT_sendImages(ptr_con, ptr_img);
 }
 EXPORTED_FUNCTION void* mGT_disconnect(void* ptr_con) {
 	return cGT_disconnect(ptr_con);

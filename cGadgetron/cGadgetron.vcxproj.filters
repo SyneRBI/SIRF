@@ -41,5 +41,8 @@
     <ClInclude Include="..\src\xgadgetron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\gadget_lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

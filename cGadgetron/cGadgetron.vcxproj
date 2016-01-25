@@ -140,6 +140,7 @@
     <ClInclude Include="..\src\cgadgetron.h" />
     <ClInclude Include="..\src\data_handle.h" />
     <ClInclude Include="..\src\gadgetron_client.h" />
+    <ClInclude Include="..\src\gadget_lib.h" />
     <ClInclude Include="..\src\localised_exception.h" />
     <ClInclude Include="..\src\xgadgetron.h" />
   </ItemGroup>

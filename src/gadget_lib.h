@@ -1,7 +1,11 @@
 #ifndef GADGETS_LIBRARY
 #define GADGETS_LIBRARY
 
-#include "xgadgetron.h"
+class aGadget {
+public:
+	//	virtual ~aGadget() {}
+	virtual std::string xml() const = 0;
+};
 
 class IsmrmrdAcqMsgReader : public aGadget {
 public:
@@ -11,6 +15,19 @@ public:
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += 
 			" <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>\n";
+		xml_script += "</reader>\n";
+		return xml_script;
+	}
+};
+
+class IsmrmrdImgMsgReader : public aGadget {
+public:
+	virtual std::string xml() const {
+		std::string xml_script("<reader>\n");
+		xml_script += " <slot>1022</slot>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script +=
+			" <classname>MRIImageReader</classname>\n";
 		xml_script += "</reader>\n";
 		return xml_script;
 	}

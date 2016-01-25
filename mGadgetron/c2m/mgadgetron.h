@@ -18,7 +18,9 @@ EXPORTED_FUNCTION void* mGT_addGadget(void* ptr_gc, const char* id, const void* 
 EXPORTED_FUNCTION void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc);
 EXPORTED_FUNCTION void* mGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group);
 EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
-EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, void* ptr_conn, const char* out_file, const char* out_group);
+EXPORTED_FUNCTION void* mGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
+EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon);
+EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group);
 EXPORTED_FUNCTION int mGT_numImages(void* ptr_imgs);
 #ifndef CGADGETRON_FOR_MATLAB
 EXPORTED_FUNCTION void mGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim);
@@ -28,6 +30,7 @@ EXPORTED_FUNCTION void mGT_getImageDimensions(void* ptr_imgs, int im_num, int* d
 EXPORTED_FUNCTION void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, double* data);
 #endif
 EXPORTED_FUNCTION void* mGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
+EXPORTED_FUNCTION void* mGT_sendImages(void* ptr_con, void* ptr_img);
 EXPORTED_FUNCTION void* mGT_disconnect(void* ptr_con);
 EXPORTED_FUNCTION void* mNewObject(const char* name);
 EXPORTED_FUNCTION void* mCopyOfObject(void* ptr);

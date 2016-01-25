@@ -11,6 +11,7 @@
 #include <ismrmrd/meta.h>
 
 #include "gadgetron_client.h"
+#include "gadget_lib.h"
 
 class Mutex {
 public:
@@ -58,21 +59,21 @@ private:
 
 class ImagesList {
 public:
-	std::list<boost::shared_ptr<ImageWrap> >& images() {
+	std::list<boost::shared_ptr<ImageWrap> >& operator()() {
 		return images_;
 	}
-	const std::list<boost::shared_ptr<ImageWrap> >& images() const {
+	const std::list<boost::shared_ptr<ImageWrap> >& operator()() const {
 		return images_;
 	}
 	int size() const {
 		return images_.size();
 	}
-	void write
-		(std::string filename, std::string groupname, GTConnector& conn)
+	void write(std::string filename, std::string groupname)
 	{
 		if (images_.size() < 1)
 			return;
-		boost::mutex& mtx = conn.mutex();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
 		mtx.lock();
 		ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 		mtx.unlock();
@@ -212,7 +213,8 @@ private:
 			data[i] = ptr[i];
 	}
 	template<typename T>
-	void getImageComplexData(ISMRMRD::Image< std::complex<T> >& im, double* data) {
+	void getImageComplexData(ISMRMRD::Image< std::complex<T> >& im, double* data) 
+	{
 		long long int n = im.getMatrixSizeX();
 		n *= im.getMatrixSizeY();
 		n *= im.getMatrixSizeZ();
@@ -222,15 +224,10 @@ private:
 	}
 };
 
-class aGadget {
-public:
-//	virtual ~aGadget() {}
-	virtual std::string xml() const = 0;
-};
-
 class GadgetHandle {
 public:
-	GadgetHandle(std::string id, aGadget* ptr_g) : id_(id), sptr_g_(ptr_g) {}
+	GadgetHandle(std::string id, boost::shared_ptr<aGadget> sptr_g) : 
+		id_(id), sptr_g_(sptr_g) {}
 	std::string id() const {
 		return id_;
 	}
@@ -247,17 +244,17 @@ private:
 
 class GadgetChain {
 public:
-	void add_reader(std::string id, aGadget* ptr_g) {
-		readers_.push_back(boost::shared_ptr<GadgetHandle>
-			(new GadgetHandle(id, ptr_g)));
+	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) {
+			readers_.push_back(boost::shared_ptr<GadgetHandle>
+				(new GadgetHandle(id, sptr_g)));
 	}
-	void add_writer(std::string id, aGadget* ptr_g) {
+	void add_writer(std::string id, boost::shared_ptr<aGadget> sptr_g) {
 		writers_.push_back(boost::shared_ptr<GadgetHandle>
-			(new GadgetHandle(id, ptr_g)));
+			(new GadgetHandle(id, sptr_g)));
 	}
-	void add_gadget(std::string id, aGadget* ptr_g) {
+	void add_gadget(std::string id, boost::shared_ptr<aGadget> sptr_g) {
 		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
-			(new GadgetHandle(id, ptr_g)));
+			(new GadgetHandle(id, sptr_g)));
 	}
 	std::string xml() const {
 		std::string xml_script("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -281,10 +278,82 @@ public:
 
 		return xml_script;
 	}
+	int nreaders() const {
+		return readers_.size();
+	}
+	int nwriters() const {
+		return writers_.size();
+	}
 private:
 	std::list<boost::shared_ptr<GadgetHandle> > readers_;
 	std::list<boost::shared_ptr<GadgetHandle> > writers_;
 	std::list<boost::shared_ptr<GadgetHandle> > gadgets_;
+};
+
+class MRIReconstruction : public GadgetChain {
+public:
+	MRIReconstruction() :
+		host_("localhost"), port_("9002"),
+		reader_(new IsmrmrdAcqMsgReader),
+		writer_(new IsmrmrdImgMsgWriter),
+		sptr_images_(new ImagesList) {
+		add_reader("reader", reader_);
+		add_writer("writer", writer_);
+		ImagesList& images = *sptr_images_;
+		//ImagesList& images = *sptr_images_.get();
+		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(images())));
+	}
+
+	void process(ISMRMRD::Dataset& input) {
+
+		std::string config = xml();
+		//std::cout << config << std::endl;
+
+		con_().connect(host_, port_);
+
+		con_().send_gadgetron_configuration_script(config);
+
+		input.readHeader(par_);
+		con_().send_gadgetron_parameters(par_);
+
+		boost::mutex& mtx = con_.mutex();
+		uint32_t acquisitions = 0;
+		{
+			mtx.lock();
+			acquisitions = input.getNumberOfAcquisitions();
+			mtx.unlock();
+		}
+
+		//std::cout << acquisitions << " acquisitions" << std::endl;
+
+		ISMRMRD::Acquisition acq_tmp;
+		for (uint32_t i = 0; i < acquisitions; i++) {
+			{
+				boost::mutex::scoped_lock scoped_lock(mtx);
+				input.readAcquisition(i, acq_tmp);
+			}
+			con_().send_ismrmrd_acquisition(acq_tmp);
+		}
+
+		con_().send_gadgetron_close();
+		con_().wait();
+	}
+
+	boost::shared_ptr<ImagesList> get_output() {
+		return sptr_images_;
+	}
+
+private:
+	std::string host_;
+	std::string port_;
+	GTConnector con_;
+	std::string par_;
+	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
+	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
+	boost::shared_ptr<ISMRMRD::Dataset> sptr_images_ds_;
+	boost::shared_ptr<ImagesList> sptr_images_;
 };
 
 #endif

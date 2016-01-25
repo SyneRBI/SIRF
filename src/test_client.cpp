@@ -96,6 +96,24 @@ const char* hdf5_out_group);
 
 int test4();
 
+int test5(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group);
+
+int test6(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group);
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
@@ -152,14 +170,32 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test3(
-		host_name.c_str(), 
+	return test6(
+		host_name.c_str(),
 		port.c_str(),
-		 timeout_ms,
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out6.h5",
+		hdf5_out_group.c_str());
+
+	return test5(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out5.h5",
+		hdf5_out_group.c_str());
+
+	return test3(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
 		in_filename.c_str(),
 		hdf5_in_group.c_str(),
 		"out3.h5",
-		 hdf5_out_group.c_str());
+		hdf5_out_group.c_str());
 
 	if (vm.count("config-local")) {
 		std::ifstream t(config_file_local.c_str());
@@ -278,7 +314,8 @@ const char* config_file)
 		cGT_sendAcquisitions(h_conn, h_data);
 		cGT_disconnect(h_conn);
 
-		cGT_writeImages(h_imgs, h_conn, out_file, out_group);
+		cGT_writeImages(h_imgs, out_file, out_group);
+		//cGT_writeImages(h_imgs, h_conn, out_file, out_group);
 
 		int im_num;
 		std::cout << "image: ";
@@ -337,58 +374,67 @@ const char* out_group)
 		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
 		void* h_head = newObject("string");
 		void* h_conn = newObject("GTConnector");
+		void* h_imgs = newObject("ImagesList");
 
 		cGT_readISMRMRDatasetHeader(h_data, h_head);
 		cGT_setConnectionTimeout(h_conn, timeout);
-		cGT_registerHDFReceiver(h_conn, out_file, out_group);
+		cGT_registerImagesReceiver(h_conn, h_imgs);
+		//cGT_registerHDFReceiver(h_conn, out_file, out_group);
 		cGT_connect(h_conn, host, port);
-/*
-		GadgetChain gc;
-		gc.add_reader("reader1", new IsmrmrdAcqMsgReader);
-		gc.add_writer("writer1", new IsmrmrdImgMsgWriter);
-		gc.add_gadget("gadget1", new RemoveOversamplingGadget);
-		gc.add_gadget("gadget2", new AcqAccTrigGadget);
-		gc.add_gadget("gadget3", new BucketToBuffGadget);
-		gc.add_gadget("gadget4", new SimpleReconstructionGadget);
-		gc.add_gadget("gadget5", new ImgArrSplitGadget);
-		gc.add_gadget("gadget6", new ExtGadget);
-		gc.add_gadget("gadget7", new ImgFinishGadget);
-		std::string config_file = gc.xml();
-		cGT_sendConfigScript(h_conn, config_file.c_str());	
-*/
 		void* h_gc = newObject("GadgetChain");
-		void* h_r = newObject("IsmrmrdAcqMsgReader");
-		void* h_w = newObject("IsmrmrdImgMsgWriter");
-		void* h_ro = newObject("RemoveOversamplingGadget");
-		void* h_aat = newObject("AcqAccTrigGadget");
-		void* h_bb = newObject("BucketToBuffGadget");
-		void* h_sr = newObject("SimpleReconstructionGadget");
-		void* h_ias = newObject("ImgArrSplitGadget");
-		void* h_e = newObject("ExtGadget");
-		void* h_if = newObject("ImgFinishGadget");
+		void* h_ar = newObject("GadgetIsmrmrdAcquisitionMessageReader");
+		void* h_iw = newObject("MRIImageWriter");
+		void* h_ro = newObject("RemoveROOversamplingGadget");
+		void* h_aat = newObject("AcquisitionAccumulateTriggerGadget");
+		void* h_bb = newObject("BucketToBufferGadget");
+		void* h_sr = newObject("SimpleReconGadget");
+		void* h_ias = newObject("ImageArraySplitGadget");
+		void* h_e = newObject("ExtractGadget");
+		void* h_if = newObject("ImageFinishGadget");
 		
-		cGT_addReader(h_gc, "reader1", h_r);
-		cGT_addWriter(h_gc, "writer1", h_w);
+		cGT_addReader(h_gc, "reader1", h_ar);
+		cGT_addWriter(h_gc, "writer1", h_iw);
 		cGT_addGadget(h_gc, "gadget1", h_ro);
 		cGT_addGadget(h_gc, "gadget2", h_aat);
 		cGT_addGadget(h_gc, "gadget3", h_bb);
 		cGT_addGadget(h_gc, "gadget4", h_sr);
 		cGT_addGadget(h_gc, "gadget5", h_ias);
-		cGT_addGadget(h_gc, "gadget6", h_e);
-		cGT_addGadget(h_gc, "gadget7", h_if);
+		//cGT_addGadget(h_gc, "gadget6", h_e);
+		cGT_addGadget(h_gc, "endgadget", h_if);
 
 		cGT_configGadgetChain(h_conn, h_gc);
 		
 		cGT_sendParameters(h_conn, h_head);
 		cGT_sendAcquisitions(h_conn, h_data);
 		cGT_disconnect(h_conn);
+		
+		void* h_gc2 = newObject("GadgetChain");
+		void* h_imgs2 = newObject("ImagesList");
+		void* h_ir = newObject("MRIImageReader");
+		cGT_registerImagesReceiver(h_conn, h_imgs2);
+		cGT_addReader(h_gc2, "reader2", h_ir);
+		cGT_addWriter(h_gc2, "writer1", h_iw);
+		//cGT_addGadget(h_gc, "gadget5", h_ias);
+		cGT_addGadget(h_gc2, "gadget6", h_e);
+		cGT_addGadget(h_gc2, "endgadget", h_if);
+
+		cGT_connect(h_conn, host, port);
+		cGT_configGadgetChain(h_conn, h_gc2);
+		cGT_sendImages(h_conn, h_imgs);
+		cGT_disconnect(h_conn);
+
+		cGT_writeImages(h_imgs2, out_file, out_group);
+		//cGT_writeImages(h_imgs2, h_conn, out_file, out_group);
+
+		//cGT_writeImages(h_imgs, h_conn, out_file, out_group);
 
 		deleteObject(h_data);
 		deleteObject(h_head);
 		deleteObject(h_conn);
+		deleteObject(h_imgs);
 		deleteObject(h_gc);
-		deleteObject(h_r);
-		deleteObject(h_w);
+		deleteObject(h_ar);
+		deleteObject(h_iw);
 		deleteObject(h_ro);
 		deleteObject(h_aat);
 		deleteObject(h_bb);
@@ -396,10 +442,18 @@ const char* out_group)
 		deleteObject(h_ias);
 		deleteObject(h_e);
 		deleteObject(h_if);
+
+		deleteObject(h_imgs2);
+		deleteObject(h_gc2);
+		deleteObject(h_ir);
+		//deleteObject(h_ir);
 	}
 	catch (std::exception& ex) {
 		std::cout << "Error caught: " << ex.what() << std::endl;
 		return -1;
+	}
+	catch (...) {
+		std::cout << "unhandled exception thrown" << std::endl;
 	}
 
 	return 0;
@@ -473,3 +527,118 @@ int test4() {
 
 	return 0;
 }
+
+int test5(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group)
+{
+	std::cout << "Gadgetron ISMRMRD client" << std::endl;
+	std::cout << "  -- host            :      " << host << std::endl;
+	std::cout << "  -- port            :      " << port << std::endl;
+	std::cout << "  -- hdf5 file  in   :      " << in_file << std::endl;
+	std::cout << "  -- hdf5 group in   :      " << in_group << std::endl;
+	std::cout << "  -- hdf5 file out   :      " << out_file << std::endl;
+	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
+
+	try {
+		ISMRMRD::Dataset input(in_file, in_group, false);
+		std::cout << "ok" << std::endl;
+
+		SPTR(aGadget, ro, RemoveOversamplingGadget);
+		SPTR(aGadget, aat, AcqAccTrigGadget);
+		SPTR(aGadget, bb, BucketToBuffGadget);
+		SPTR(aGadget, sr, SimpleReconstructionGadget);
+		SPTR(aGadget, ias, ImgArrSplitGadget);
+		SPTR(aGadget, ext, ExtGadget);
+		SPTR(aGadget, fin, ImgFinishGadget);
+		std::cout << "ok" << std::endl;
+
+		{
+			MRIReconstruction recon;
+			std::cout << "ok" << std::endl;
+
+			recon.add_gadget("g1", ro);
+			recon.add_gadget("g2", aat);
+			recon.add_gadget("g3", bb);
+			recon.add_gadget("g4", sr);
+			recon.add_gadget("g5", ias);
+			recon.add_gadget("g6", ext);
+			recon.add_gadget("g7", fin);
+			std::cout << "ok" << std::endl;
+
+			recon.process(input);
+			std::cout << "ok" << std::endl;
+
+			ImagesList& images = *recon.get_output();
+			std::cout << "ok" << std::endl;
+
+			//images.write(out_file, out_group, GTConnector());
+			images.write(out_file, out_group);
+			std::cout << "ok" << std::endl;
+
+		}
+	}
+	catch (std::exception& ex) {
+		std::cout << "Error caught: " << ex.what() << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
+int test6(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group)
+{
+	std::cout << "Gadgetron ISMRMRD client" << std::endl;
+	std::cout << "  -- host            :      " << host << std::endl;
+	std::cout << "  -- port            :      " << port << std::endl;
+	std::cout << "  -- hdf5 file  in   :      " << in_file << std::endl;
+	std::cout << "  -- hdf5 group in   :      " << in_group << std::endl;
+	std::cout << "  -- hdf5 file out   :      " << out_file << std::endl;
+	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
+
+	try {
+		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
+
+		void* h_ro = newObject("RemoveROOversamplingGadget");
+		void* h_aat = newObject("AcquisitionAccumulateTriggerGadget");
+		void* h_bb = newObject("BucketToBufferGadget");
+		void* h_sr = newObject("SimpleReconGadget");
+		void* h_ias = newObject("ImageArraySplitGadget");
+		void* h_e = newObject("ExtractGadget");
+		void* h_if = newObject("ImageFinishGadget");
+
+		void* h_recon = newObject("MRIReconstruction");
+		cGT_addGadget(h_recon, "g1", h_ro);
+		cGT_addGadget(h_recon, "g2", h_aat);
+		cGT_addGadget(h_recon, "g3", h_bb);
+		cGT_addGadget(h_recon, "g4", h_sr);
+		cGT_addGadget(h_recon, "g5", h_ias);
+		cGT_addGadget(h_recon, "g6", h_e);
+		cGT_addGadget(h_recon, "g7", h_if);
+
+		cGT_runMRIReconstruction(h_recon, h_data);
+
+		void* h_images = cGT_reconstructedImagesList(h_recon);
+
+		cGT_writeImages(h_images, out_file, out_group);
+	}
+	catch (std::exception& ex) {
+		std::cout << "Error caught: " << ex.what() << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
