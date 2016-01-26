@@ -147,8 +147,16 @@ def cGT_registerImagesReceiver(ptr_con, ptr_img):
     return _pygadgetron.cGT_registerImagesReceiver(ptr_con, ptr_img)
 cGT_registerImagesReceiver = _pygadgetron.cGT_registerImagesReceiver
 
-def cGT_writeImages(ptr_imgs, ptr_conn, out_file, out_group):
-    return _pygadgetron.cGT_writeImages(ptr_imgs, ptr_conn, out_file, out_group)
+def cGT_runMRIReconstruction(ptr_recon, ptr_input):
+    return _pygadgetron.cGT_runMRIReconstruction(ptr_recon, ptr_input)
+cGT_runMRIReconstruction = _pygadgetron.cGT_runMRIReconstruction
+
+def cGT_reconstructedImagesList(ptr_recon):
+    return _pygadgetron.cGT_reconstructedImagesList(ptr_recon)
+cGT_reconstructedImagesList = _pygadgetron.cGT_reconstructedImagesList
+
+def cGT_writeImages(ptr_imgs, out_file, out_group):
+    return _pygadgetron.cGT_writeImages(ptr_imgs, out_file, out_group)
 cGT_writeImages = _pygadgetron.cGT_writeImages
 
 def cGT_numImages(ptr_imgs):
@@ -167,6 +175,10 @@ def cGT_sendAcquisitions(ptr_con, ptr_dat):
     return _pygadgetron.cGT_sendAcquisitions(ptr_con, ptr_dat)
 cGT_sendAcquisitions = _pygadgetron.cGT_sendAcquisitions
 
+def cGT_sendImages(ptr_con, ptr_img):
+    return _pygadgetron.cGT_sendImages(ptr_con, ptr_img)
+cGT_sendImages = _pygadgetron.cGT_sendImages
+
 def cGT_disconnect(ptr_con):
     return _pygadgetron.cGT_disconnect(ptr_con)
 cGT_disconnect = _pygadgetron.cGT_disconnect
@@ -174,6 +186,10 @@ cGT_disconnect = _pygadgetron.cGT_disconnect
 def newObject(name):
     return _pygadgetron.newObject(name)
 newObject = _pygadgetron.newObject
+
+def copyOfObject(ptr):
+    return _pygadgetron.copyOfObject(ptr)
+copyOfObject = _pygadgetron.copyOfObject
 
 def deleteObject(ptr):
     return _pygadgetron.deleteObject(ptr)
