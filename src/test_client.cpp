@@ -43,6 +43,13 @@
 #include "cgadgetron.h"
 #include "xgadgetron.h"
 #include "gadget_lib.h"
+#include "iutilities.h"
+
+#include "text_writer.h"
+
+//aTextWriter* TextWriterHandle::information_channel_;
+//aTextWriter* TextWriterHandle::warning_channel_;
+//aTextWriter* TextWriterHandle::error_channel_;
 
 std::string get_date_time_string()
 {
@@ -134,6 +141,10 @@ int main(int argc, char **argv)
 	unsigned int timeout_ms;
 	std::string out_fileformat;
 	bool open_input_file = true;
+
+	void* printer = newTextPrinter("stdout");
+	//void* writer = newTextWriter("stdout.txt");
+	openChannel(0, printer);
 
 	po::options_description desc("Allowed options");
 
@@ -256,8 +267,8 @@ const char* config_file)
 	
 	try {
 		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
-		void* h_head = newObject("string");
-		void* h_conn = newObject("GTConnector");
+		void* h_head = cGT_newObject("string");
+		void* h_conn = cGT_newObject("GTConnector");
 
 		cGT_readISMRMRDatasetHeader(h_data, h_head);
 		cGT_setConnectionTimeout(h_conn, timeout);
@@ -301,9 +312,9 @@ const char* config_file)
 	
 	try {
 		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
-		void* h_head = newObject("string");
-		void* h_conn = newObject("GTConnector");
-		void* h_imgs = newObject("ImagesList");
+		void* h_head = cGT_newObject("string");
+		void* h_conn = cGT_newObject("GTConnector");
+		void* h_imgs = cGT_newObject("ImagesList");
 
 		cGT_readISMRMRDatasetHeader(h_data, h_head);
 		cGT_setConnectionTimeout(h_conn, timeout);
@@ -372,25 +383,25 @@ const char* out_group)
 	
 	try {
 		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
-		void* h_head = newObject("string");
-		void* h_conn = newObject("GTConnector");
-		void* h_imgs = newObject("ImagesList");
+		void* h_head = cGT_newObject("string");
+		void* h_conn = cGT_newObject("GTConnector");
+		void* h_imgs = cGT_newObject("ImagesList");
 
 		cGT_readISMRMRDatasetHeader(h_data, h_head);
 		cGT_setConnectionTimeout(h_conn, timeout);
 		cGT_registerImagesReceiver(h_conn, h_imgs);
 		//cGT_registerHDFReceiver(h_conn, out_file, out_group);
 		cGT_connect(h_conn, host, port);
-		void* h_gc = newObject("GadgetChain");
-		void* h_ar = newObject("GadgetIsmrmrdAcquisitionMessageReader");
-		void* h_iw = newObject("MRIImageWriter");
-		void* h_ro = newObject("RemoveROOversamplingGadget");
-		void* h_aat = newObject("AcquisitionAccumulateTriggerGadget");
-		void* h_bb = newObject("BucketToBufferGadget");
-		void* h_sr = newObject("SimpleReconGadget");
-		void* h_ias = newObject("ImageArraySplitGadget");
-		void* h_e = newObject("ExtractGadget");
-		void* h_if = newObject("ImageFinishGadget");
+		void* h_gc = cGT_newObject("GadgetChain");
+		void* h_ar = cGT_newObject("GadgetIsmrmrdAcquisitionMessageReader");
+		void* h_iw = cGT_newObject("MRIImageWriter");
+		void* h_ro = cGT_newObject("RemoveROOversamplingGadget");
+		void* h_aat = cGT_newObject("AcquisitionAccumulateTriggerGadget");
+		void* h_bb = cGT_newObject("BucketToBufferGadget");
+		void* h_sr = cGT_newObject("SimpleReconGadget");
+		void* h_ias = cGT_newObject("ImageArraySplitGadget");
+		void* h_e = cGT_newObject("ExtractGadget");
+		void* h_if = cGT_newObject("ImageFinishGadget");
 		
 		cGT_addReader(h_gc, "reader1", h_ar);
 		cGT_addWriter(h_gc, "writer1", h_iw);
@@ -408,9 +419,9 @@ const char* out_group)
 		cGT_sendAcquisitions(h_conn, h_data);
 		cGT_disconnect(h_conn);
 		
-		void* h_gc2 = newObject("GadgetChain");
-		void* h_imgs2 = newObject("ImagesList");
-		void* h_ir = newObject("MRIImageReader");
+		void* h_gc2 = cGT_newObject("GadgetChain");
+		void* h_imgs2 = cGT_newObject("ImagesList");
+		void* h_ir = cGT_newObject("MRIImageReader");
 		cGT_registerImagesReceiver(h_conn, h_imgs2);
 		cGT_addReader(h_gc2, "reader2", h_ir);
 		cGT_addWriter(h_gc2, "writer1", h_iw);
@@ -480,17 +491,17 @@ int test4() {
 */
 
 	try {
-		void* h_conn = newObject("GTConnector");
-		void* h_gc = newObject("GadgetChain");
-		void* h_r = newObject("IsmrmrdAcqMsgReader");
-		void* h_w = newObject("IsmrmrdImgMsgWriter");
-		void* h_ro = newObject("RemoveOversamplingGadget");
-		void* h_aat = newObject("AcqAccTrigGadget");
-		void* h_bb = newObject("BucketToBuffGadget");
-		void* h_sr = newObject("SimpleReconstructionGadget");
-		void* h_ias = newObject("ImgArrSplitGadget");
-		void* h_e = newObject("ExtGadget");
-		void* h_if = newObject("ImgFinishGadget");
+		void* h_conn = cGT_newObject("GTConnector");
+		void* h_gc = cGT_newObject("GadgetChain");
+		void* h_r = cGT_newObject("IsmrmrdAcqMsgReader");
+		void* h_w = cGT_newObject("IsmrmrdImgMsgWriter");
+		void* h_ro = cGT_newObject("RemoveOversamplingGadget");
+		void* h_aat = cGT_newObject("AcqAccTrigGadget");
+		void* h_bb = cGT_newObject("BucketToBuffGadget");
+		void* h_sr = cGT_newObject("SimpleReconstructionGadget");
+		void* h_ias = cGT_newObject("ImgArrSplitGadget");
+		void* h_e = cGT_newObject("ExtGadget");
+		void* h_if = cGT_newObject("ImgFinishGadget");
 		
 		cGT_addReader(h_gc, "reader1", h_r);
 		cGT_addWriter(h_gc, "writer1", h_w);
@@ -611,15 +622,15 @@ int test6(
 	try {
 		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
 
-		void* h_ro = newObject("RemoveROOversamplingGadget");
-		void* h_aat = newObject("AcquisitionAccumulateTriggerGadget");
-		void* h_bb = newObject("BucketToBufferGadget");
-		void* h_sr = newObject("SimpleReconGadget");
-		void* h_ias = newObject("ImageArraySplitGadget");
-		void* h_e = newObject("ExtractGadget");
-		void* h_if = newObject("ImageFinishGadget");
+		void* h_ro = cGT_newObject("RemoveROOversamplingGadget");
+		void* h_aat = cGT_newObject("AcquisitionAccumulateTriggerGadget");
+		void* h_bb = cGT_newObject("BucketToBufferGadget");
+		void* h_sr = cGT_newObject("SimpleReconGadget");
+		void* h_ias = cGT_newObject("ImageArraySplitGadget");
+		void* h_e = cGT_newObject("ExtractGadget");
+		void* h_if = cGT_newObject("ImageFinishGadget");
 
-		void* h_recon = newObject("MRIReconstruction");
+		void* h_recon = cGT_newObject("MRIReconstruction");
 		cGT_addGadget(h_recon, "g1", h_ro);
 		cGT_addGadget(h_recon, "g2", h_aat);
 		cGT_addGadget(h_recon, "g3", h_bb);

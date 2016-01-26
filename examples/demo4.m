@@ -1,18 +1,29 @@
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
+if ~libisloaded('mutilities')
+    fprintf('loading mutilities library...\n')
+    [notfound, warnings] = loadlibrary('mutilities');
 end
+if ~libisloaded('mgadgetron')
+    fprintf('loading mgadgetron library...\n')
+    [notfound, warnings] = loadlibrary('mgadgetron');
+end
+
+%libfunctions('mutilities')
+%libfunctions('mgadgetron')
 
 msg = 'ok';
 
 try
-	gadget1 = gadgets.RemoveROOversamplingGadget();
+    %printer = gadgetron.Printer('stdout');
+    %printer = gadgetron.printerTo('stdout', 0);
+    
+    gadget1 = gadgets.RemoveROOversamplingGadget();
 	gadget2 = gadgets.AcquisitionAccumulateTriggerGadget();
 	gadget3 = gadgets.BucketToBufferGadget();
 	gadget4 = gadgets.SimpleReconGadget();
 	gadget5 = gadgets.ImageArraySplitGadget();
 	gadget6 = gadgets.ExtractGadget();
 	gadget7 = gadgets.ImageFinishGadget();
-
+    
     recon = gadgetron.MRIReconstruction();
 
     recon.addGadget('g1', gadget1);
@@ -34,7 +45,10 @@ try
     data = data/max(max(max(data)));
     imshow(data(:,:,1));
 
-    images.write('output4.h5', datestr(datetime))
+%     images.write('output4.h5', datestr(datetime))
+
+    %printer.print('printer ok')
+    %fprintf('\n')
 
 catch err
     % display error information

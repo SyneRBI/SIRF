@@ -10,23 +10,23 @@ classdef ISMRMRDataset < handle
             self.handle_ = calllib...
                 ('mgadgetron', 'mGT_ISMRMRDatasetFromFile', file, '/dataset');
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
-            self.header_ = calllib('mgadgetron', 'mNewObject', 'string');
+            self.header_ = calllib('mgadgetron', 'mGT_newObject', 'string');
             handle = calllib...
                 ('mgadgetron', 'mGT_readISMRMRDatasetHeader', ...
                 self.handle_, self.header_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mgadgetron', 'mDeleteObject', self.handle_)
+                calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
         function read_header(self)
             handle = calllib('mgadgetron', 'mGT_readISMRMRDatasetHeader', ...
                 self.handle_, self.header_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function header = get_header(self)
             header = self.header_;

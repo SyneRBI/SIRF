@@ -4,11 +4,11 @@ classdef MRIReconstruction < gadgetron.GadgetChain
     methods
         function self = MRIReconstruction()
             self.name_ = 'MRIReconstruction';
-            self.handle_ = calllib('mgadgetron', 'mNewObject', self.name_);
+            self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
-            calllib('mgadgetron', 'mDeleteObject', self.handle_)
+            calllib('mutilities', 'mDeleteObject', self.handle_)
             self.handle_ = [];
         end
         function process(self, input_data)
@@ -16,7 +16,7 @@ classdef MRIReconstruction < gadgetron.GadgetChain
                 ('mgadgetron', 'mGT_runMRIReconstruction', ...
                 self.handle_, input_data.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = get_output(self)
             imgs.handle_ = calllib...

@@ -23,13 +23,7 @@
     <ClInclude Include="..\src\cgadgetron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\data_handle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\gadgetron_client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\localised_exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\xgadgetron.h">

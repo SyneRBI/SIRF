@@ -130,15 +130,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PYGADGETRON_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%CGADGETRON%;%BOOST%;%PYTHON_INCLUDE%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%CGADGETRON%;%BOOST%;%PYTHON_INCLUDE%;../../iUtilities</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%CGADGETRON_LIB%;%PYTHON_LIBPATH%;%BOOST_LIB%;%ISMRMRD_LIB%</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%PYTHON%.lib;cGadgetron.lib;ismrmrd.lib;libboost_program_options-vc120-mt-1_58.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%CGADGETRON_LIB%;%PYTHON_LIBPATH%;%BOOST_LIB%;%ISMRMRD_LIB%;../../iUtilities/x64/Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%PYTHON%.lib;cGadgetron.lib;iUtilities.lib;ismrmrd.lib;libboost_program_options-vc120-mt-1_58.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>_$(TargetName).pyd</OutputFile>
     </Link>
   </ItemDefinitionGroup>

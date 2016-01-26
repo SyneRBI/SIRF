@@ -5,6 +5,9 @@
 #include "shrhelp.h"
 #include "cgadgetron.h"
 
+EXPORTED_FUNCTION void* mGT_newObject(const char* name) {
+	return cGT_newObject(name);
+}
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group) {
 	return cGT_ISMRMRDatasetFromFile(file, group);
 }
@@ -83,38 +86,5 @@ EXPORTED_FUNCTION void* mGT_sendImages(void* ptr_con, void* ptr_img) {
 EXPORTED_FUNCTION void* mGT_disconnect(void* ptr_con) {
 	return cGT_disconnect(ptr_con);
 }
-EXPORTED_FUNCTION void* mNewObject(const char* name) {
-	return newObject(name);
-}
-EXPORTED_FUNCTION void* mCopyOfObject(void* ptr) {
-	return copyOfObject(ptr);
-}
-EXPORTED_FUNCTION void mDeleteObject(void* ptr) {
-	deleteObject(ptr);
-}
-EXPORTED_FUNCTION void* mNewDataHandle() {
-	return newDataHandle();
-}
-EXPORTED_FUNCTION void mDeleteDataHandle(void* ptr)  {
-	deleteDataHandle(ptr);
-}
-EXPORTED_FUNCTION int mExecutionStatus(const void* ptr) {
-	return executionStatus(ptr);
-}
-EXPORTED_FUNCTION const char* mExecutionError(const void* ptr) {
-	return executionError(ptr);
-}
-EXPORTED_FUNCTION const char* mExecutionErrorFile(const void* ptr) {
-	return executionErrorFile(ptr);
-}
-EXPORTED_FUNCTION int mExecutionErrorLine(const void* ptr) {
-	return executionErrorLine(ptr);
-}
 
-// EXPORTED_FUNCTION void* mNewMexPrinter() {
-//   return newMexPrinter();
-// }
-// EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr) {
-//   deleteMexPrinter(ptr);
-// }
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}

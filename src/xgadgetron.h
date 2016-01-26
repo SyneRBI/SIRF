@@ -13,28 +13,6 @@
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 
-class Mutex {
-public:
-	Mutex() {
-		init_();
-	}
-	boost::mutex& operator()() {
-		return *sptr_mutex_.get();
-	}
-	boost::shared_ptr<boost::mutex> sptr() {
-		return sptr_mutex_;
-	}
-private:
-	static boost::shared_ptr<boost::mutex> sptr_mutex_;
-	static void init_() {
-		static bool initialized = false;
-		if (!initialized) {
-			sptr_mutex_ = boost::shared_ptr<boost::mutex>(new boost::mutex);
-			initialized = true;
-		}
-	}
-};
-
 class GTConnector {
 public:
 	GTConnector() {

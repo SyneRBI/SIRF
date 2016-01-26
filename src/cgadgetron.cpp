@@ -42,7 +42,7 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 }
 
 extern "C"
-void* newObject(const char* name)
+void* cGT_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "Mutex"))
@@ -79,16 +79,6 @@ void* newObject(const char* name)
 			return newObjectHandle<aGadget, ImgFinishGadget>();
 		std::cout << "object " << name << "		not found" << std::endl;
 		return unknownObject("object", name, __FILE__, __LINE__);
-	}
-	CATCH
-}
-
-extern "C"
-void* copyOfObject(void* ptr)
-{
-	try {
-		CAST_PTR(anObjectHandle, ptr_obj, ptr);
-		return (void*)ptr_obj->copy();
 	}
 	CATCH
 }

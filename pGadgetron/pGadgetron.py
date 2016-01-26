@@ -24,7 +24,7 @@ class PyGadgetronObject:
 	
 class GadgetChain(PyGadgetronObject):
     def __init__(self):
-        self.handle = pygadgetron.newObject('GadgetChain')
+        self.handle = pygadgetron.cGT_newObject('GadgetChain')
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -44,7 +44,7 @@ class GadgetChain(PyGadgetronObject):
 
 class ImagesList(PyGadgetronObject):
     def __init__(self):
-        self.handle = pygadgetron.newObject('ImagesList')
+        self.handle = pygadgetron.cGT_newObject('ImagesList')
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -75,7 +75,7 @@ class ImagesList(PyGadgetronObject):
 class ClientConnector(PyGadgetronObject):
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.newObject('GTConnector')
+        self.handle = pygadgetron.cGT_newObject('GTConnector')
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -127,7 +127,7 @@ class ISMRMRDataset(PyGadgetronObject):
         self.handle = None
         self.handle = pygadgetron.cGT_ISMRMRDatasetFromFile(file, '/dataset')
         _check_status(self.handle)
-        self.header = pygadgetron.newObject('string')
+        self.header = pygadgetron.cGT_newObject('string')
         handle = pygadgetron.cGT_readISMRMRDatasetHeader\
             (self.handle, self.header)
         _check_status(handle)
@@ -144,7 +144,7 @@ class ISMRMRDataset(PyGadgetronObject):
 class MRIReconstruction(GadgetChain):
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.newObject('MRIReconstruction')
+        self.handle = pygadgetron.cGT_newObject('MRIReconstruction')
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):

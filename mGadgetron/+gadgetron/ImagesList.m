@@ -7,22 +7,22 @@ classdef ImagesList < handle
         function self = ImagesList(images)
             self.name_ = 'ImagesList';
             if nargin < 1
-                self.handle_ = calllib('mgadgetron', 'mNewObject', self.name_);
+                self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             else
-                self.handle_ = calllib('mgadgetron', 'mCopyOfObject', images.handle_);
+                self.handle_ = calllib('mutilities', 'mCopyOfObject', images.handle_);
             end
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mgadgetron', 'mDeleteObject', self.handle_)
+                calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
         function write(self, file, group)
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, group);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(3, 1));

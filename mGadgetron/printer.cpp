@@ -2,7 +2,7 @@
 
 extern "C" {
 	void* newMexPrinter() {
-//        mexPrintf("creating mexTextPrinter\n");
+        mexPrintf("creating mexTextPrinter\n");
 		return (void*)new mexTextPrinter;
 	}
 	void deleteMexPrinter(void* ptr) {

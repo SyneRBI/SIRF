@@ -2,6 +2,7 @@
 #define GADGETRON_C_INTERFACE
 
 extern "C" {
+	void* cGT_newObject(const char* name);
 	void* cGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 	void* cGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
@@ -32,17 +33,6 @@ extern "C" {
 	void* cGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 	void* cGT_sendImages(void* ptr_con, void* ptr_img);
 	void* cGT_disconnect(void* ptr_con);
-
-	void* newObject(const char* name);
-	void* copyOfObject(void* ptr);
-	void deleteObject(void* ptr);
-
-	void* newDataHandle();
-	void deleteDataHandle(void* ptr) ;
-	int executionStatus(const void* ptr);
-	const char* executionError(const void* ptr);
-	const char* executionErrorFile(const void* ptr);
-	int executionErrorLine(const void* ptr);
 }
 
 #endif

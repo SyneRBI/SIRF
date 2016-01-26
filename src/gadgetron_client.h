@@ -24,6 +24,30 @@
 
 using boost::asio::ip::tcp;
 
+#include "text_writer.h"
+
+class Mutex {
+public:
+	Mutex() {
+		init_();
+	}
+	boost::mutex& operator()() {
+		return *sptr_mutex_.get();
+	}
+	boost::shared_ptr<boost::mutex> sptr() {
+		return sptr_mutex_;
+	}
+private:
+	static boost::shared_ptr<boost::mutex> sptr_mutex_;
+	static void init_() {
+		static bool initialized = false;
+		if (!initialized) {
+			sptr_mutex_ = boost::shared_ptr<boost::mutex>(new boost::mutex);
+			initialized = true;
+		}
+	}
+};
+
 enum GadgetronMessageID {
 	GADGET_MESSAGE_INT_ID_MIN = 0,
 	GADGET_MESSAGE_CONFIG_FILE = 1,
@@ -297,7 +321,15 @@ public:
 		ISMRMRD::ImageHeader h;
 		boost::asio::read(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
 
-		std::cout << "data type: " << h.data_type << std::endl;
+		writeText("ok\n");
+		//std::cout << "data type: " << h.data_type << std::endl;
+		//std::stringstream ss;
+		//ss << "data type: " << h.data_type << std::endl;
+		//Mutex mutex;
+		//boost::mutex& mtx = mutex();
+		//mtx.lock();
+		//writeText(ss.str().c_str(), INFORMATION_CHANNEL);
+		//mtx.unlock();
 
 		void* ptr = 0;
 		if (h.data_type == ISMRMRD::ISMRMRD_USHORT) {

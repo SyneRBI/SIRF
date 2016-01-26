@@ -4,6 +4,7 @@
 #define CGADGETRON_FOR_MATLAB
 #include "shrhelp.h"
 
+EXPORTED_FUNCTION void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 EXPORTED_FUNCTION void* mGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 EXPORTED_FUNCTION void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
@@ -32,16 +33,5 @@ EXPORTED_FUNCTION void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num,
 EXPORTED_FUNCTION void* mGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 EXPORTED_FUNCTION void* mGT_sendImages(void* ptr_con, void* ptr_img);
 EXPORTED_FUNCTION void* mGT_disconnect(void* ptr_con);
-EXPORTED_FUNCTION void* mNewObject(const char* name);
-EXPORTED_FUNCTION void* mCopyOfObject(void* ptr);
-EXPORTED_FUNCTION void mDeleteObject(void* ptr);
-EXPORTED_FUNCTION void* mNewDataHandle();
-EXPORTED_FUNCTION void mDeleteDataHandle(void* ptr) ;
-EXPORTED_FUNCTION int mExecutionStatus(const void* ptr);
-EXPORTED_FUNCTION const char* mExecutionError(const void* ptr);
-EXPORTED_FUNCTION const char* mExecutionErrorFile(const void* ptr);
-EXPORTED_FUNCTION int mExecutionErrorLine(const void* ptr);
 
-EXPORTED_FUNCTION void* mNewMexPrinter();
-EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);
 #endif

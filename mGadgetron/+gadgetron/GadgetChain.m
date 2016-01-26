@@ -6,31 +6,31 @@ classdef GadgetChain < handle
     methods
         function self = GadgetChain()
             self.name_ = 'GadgetChain';
-            self.handle_ = calllib('mgadgetron', 'mNewObject', self.name_);
+            self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mgadgetron', 'mDeleteObject', self.handle_)
+                calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
         function addReader(self, id, reader)
             handle = calllib...
                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function addWriter(self, id, writer)
             handle = calllib...
                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function addGadget(self, id, gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mgadgetron', 'mDeleteDataHandle', handle)
+            calllib('mutilities', 'mDeleteDataHandle', handle)
         end
     end
 end

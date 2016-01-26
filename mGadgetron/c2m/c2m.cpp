@@ -114,7 +114,8 @@ int c2m(
 	const string& path, 
 	const string& chfile, 
 	const string& mhfile, 
-	const string& mcfile) 
+	const string& mcfile,
+	int with_print = 0)
 {
 
 	ifstream fin;
@@ -170,7 +171,8 @@ int c2m(
 	fc << "#define CGADGETRON_FOR_MATLAB" << endl;
 	fc << "#include \"matrix.h\"" << endl;
 	fc << "#include \"shrhelp.h\"" << endl;
-	fc << "#include \"cgadgetron.h\"" << endl << endl;
+	fc << "#include \"" << chfile << '"' << endl << endl;
+	//fc << "#include \"cgadgetron.h\"" << endl << endl;
 
 	in = line.substr(i + 1);
 	i = in.find_first_not_of(" \t\n\v\f\r");
@@ -248,22 +250,28 @@ int c2m(
 			in.clear();
 	}
 
-	fout << "void* newMexPrinter();" << endl;
-	fout << "void deleteMexPrinter(void* ptr);" << endl;
+	if (with_print) {
+		fout << "void* newMexPrinter();" << endl;
+		fout << "void deleteMexPrinter(void* ptr);" << endl;
+	}
 	fout << endl << "#endif" << endl;
 
 	fh << endl;
-	fh << "EXPORTED_FUNCTION void* mNewMexPrinter();" << endl;
-	fh << "EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);" << endl;
+	if (with_print) {
+		fh << "EXPORTED_FUNCTION void* mNewMexPrinter();" << endl;
+		fh << "EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);" << endl;
+	}
 	fh << "#endif" << endl;
 
 	fc << endl;
-	fc << "EXPORTED_FUNCTION void* mNewMexPrinter() {" << endl;
-	fc << "  return newMexPrinter();" << endl;
-	fc << "}" << endl;
-	fc << "EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr) {" << endl;
-	fc << "  deleteMexPrinter(ptr);" << endl;
-	fc << "}" << endl;
+	if (with_print) {
+		fc << "EXPORTED_FUNCTION void* mNewMexPrinter() {" << endl;
+		fc << "  return newMexPrinter();" << endl;
+		fc << "}" << endl;
+		fc << "EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr) {" << endl;
+		fc << "  deleteMexPrinter(ptr);" << endl;
+		fc << "}" << endl;
+	}
 	fc <<
 		"void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])";
 	fc << " {}" << endl;

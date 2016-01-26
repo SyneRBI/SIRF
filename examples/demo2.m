@@ -1,6 +1,9 @@
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end
+if ~libisloaded('mutilities')
+    loadlibrary('mutilities')
+end
 
 try
     input_data = gadgetron.ISMRMRDataset('testdata.h5');

@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;../../iUtilities</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "MSVC" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -134,14 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\cgadgetron.cpp" />
-    <ClCompile Include="..\src\data_handle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\cgadgetron.h" />
-    <ClInclude Include="..\src\data_handle.h" />
     <ClInclude Include="..\src\gadgetron_client.h" />
     <ClInclude Include="..\src\gadget_lib.h" />
-    <ClInclude Include="..\src\localised_exception.h" />
     <ClInclude Include="..\src\xgadgetron.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
