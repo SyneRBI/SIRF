@@ -19,6 +19,15 @@ extern "C" {
 		delete ptr_obj;
 	}
 
+	void* copyOfObject(void* ptr)
+	{
+		try {
+			CAST_PTR(anObjectHandle, ptr_obj, ptr);
+			return (void*)ptr_obj->copy();
+		}
+		CATCH
+	}
+
 	int executionStatus(const void* ptr) {
 		const DataHandle* ptr_h = (const DataHandle*)ptr;
 		return (ptr_h->status() ? 1 : 0);

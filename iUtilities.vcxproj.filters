@@ -24,12 +24,18 @@
     <ClInclude Include="data_handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="iutilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="text_writer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="data_handle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ci_tw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
