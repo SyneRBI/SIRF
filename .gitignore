@@ -67,6 +67,10 @@ install_manifest.txt
 *.manifest
 *.exp
 
+PYTHON
+pygadgetron.py
+pystir.py
+
 # MATLAB
 
 *.pdf
