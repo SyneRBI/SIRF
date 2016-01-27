@@ -1,5 +1,5 @@
 CPP = /usr/bin/g++
-CFLAGS = -O3 -fopenmp -fPIC  -std=c++11 -DNDEBUG #-static-libgcc
+CFLAGS = -O3 -fopenmp -fPIC  -std=c++11 -DNDEBUG -I$(IUTILITIES)
 LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
@@ -10,6 +10,8 @@ PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
 PYLIB = -l$(PYTHON)
 
 BUILDPATH = ../../build/xGadgetron
+IUTILITIES = ../../iUtilities
+LIBIUTIL = ../../build/iUtilities
 
 SWIG = swig
 
@@ -23,8 +25,8 @@ LIBS = \
 
 all: libcgt pygadgetron test_client
 
-libcgt: cgadgetron.o data_handle.o
-	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o data_handle.o
+libcgt: cgadgetron.o
+	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o
 	$(RANLIB) libcgt.a
 	mv libcgt.a $(BUILDPATH)
 
@@ -32,14 +34,14 @@ test_client.o: cgadgetron.h xgadgetron.h
 
 test_client: test_client.o libcgt
 	$(CPP) $(CFLAGS) -o $(BUILDPATH)/test_client test_client.o \
-	-L$(BUILDPATH) -lcgt $(LIBS) $(LDFLAGS)
+	-L$(BUILDPATH) -lcgt -L$(LIBIUTIL) -liutil  $(LIBS) $(LDFLAGS)
 
 pygadgetron: cgadgetron.h libcgt
 	$(SWIG) -c++ -python pygadgetron.i
 	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE)
 	$(CPP) $(CFLAGS) -shared pygadgetron_wrap.o -L$(PYLIBPATH) $(PYLIB)\
 		 -o $(BUILDPATH)/_pygadgetron.so \
-		-L$(BUILDPATH) -lcgt $(LIBS) $(LDFLAGS)
+		-L$(BUILDPATH) -lcgt -L$(LIBIUTIL) -liutil $(LIBS) $(LDFLAGS)
 
 input:
 	ismrmrd_generate_cartesian_shepp_logan -r 2
@@ -50,5 +52,5 @@ input:
 
 clean:
 	rm -f *.o
-	rm -f test_client
+	rm -f $(BUILDPATH)/test_client
 

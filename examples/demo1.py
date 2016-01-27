@@ -6,7 +6,7 @@ import sys
 import time
 
 sys.path.append('../../build/xGadgetron')
-sys.path.append('../src')
+sys.path.append('../pGadgetron')
 import pGadgetron
 
 time_str = time.asctime()                #date and time

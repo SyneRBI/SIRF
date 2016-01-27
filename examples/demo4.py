@@ -47,6 +47,10 @@ try:
         pylab.imshow(data[:,:,0])
         pylab.show()
 
+    # write images to a new group in 'output2.h5' named after the current date and time
+    time_str = time.asctime()
+    images.write('../../build/xGadgetron/output4.h5', time_str)
+
 except pGadgetron.error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

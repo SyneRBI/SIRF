@@ -7,7 +7,7 @@ import sys
 import time
 
 sys.path.append('../../build/xGadgetron')
-sys.path.append('../src')
+sys.path.append('../pGadgetron')
 import pGadgetron
 
 try:

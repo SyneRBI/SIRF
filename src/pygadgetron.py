@@ -91,6 +91,10 @@ except AttributeError:
 
 
 
+def cGT_newObject(name):
+    return _pygadgetron.cGT_newObject(name)
+cGT_newObject = _pygadgetron.cGT_newObject
+
 def cGT_ISMRMRDatasetFromFile(file, group):
     return _pygadgetron.cGT_ISMRMRDatasetFromFile(file, group)
 cGT_ISMRMRDatasetFromFile = _pygadgetron.cGT_ISMRMRDatasetFromFile
@@ -183,10 +187,6 @@ def cGT_disconnect(ptr_con):
     return _pygadgetron.cGT_disconnect(ptr_con)
 cGT_disconnect = _pygadgetron.cGT_disconnect
 
-def newObject(name):
-    return _pygadgetron.newObject(name)
-newObject = _pygadgetron.newObject
-
 def copyOfObject(ptr):
     return _pygadgetron.copyOfObject(ptr)
 copyOfObject = _pygadgetron.copyOfObject
@@ -218,6 +218,42 @@ executionErrorFile = _pygadgetron.executionErrorFile
 def executionErrorLine(ptr):
     return _pygadgetron.executionErrorLine(ptr)
 executionErrorLine = _pygadgetron.executionErrorLine
+
+def newTextPrinter(stream):
+    return _pygadgetron.newTextPrinter(stream)
+newTextPrinter = _pygadgetron.newTextPrinter
+
+def newTextWriter(stream):
+    return _pygadgetron.newTextWriter(stream)
+newTextWriter = _pygadgetron.newTextWriter
+
+def openChannel(channel, ptr_w):
+    return _pygadgetron.openChannel(channel, ptr_w)
+openChannel = _pygadgetron.openChannel
+
+def closeChannel(channel, ptr_w):
+    return _pygadgetron.closeChannel(channel, ptr_w)
+closeChannel = _pygadgetron.closeChannel
+
+def setWriter(ptr_w, channel):
+    return _pygadgetron.setWriter(ptr_w, channel)
+setWriter = _pygadgetron.setWriter
+
+def resetWriter():
+    return _pygadgetron.resetWriter()
+resetWriter = _pygadgetron.resetWriter
+
+def printText(text):
+    return _pygadgetron.printText(text)
+printText = _pygadgetron.printText
+
+def deleteTextPrinter(ptr):
+    return _pygadgetron.deleteTextPrinter(ptr)
+deleteTextPrinter = _pygadgetron.deleteTextPrinter
+
+def deleteTextWriter(ptr_w):
+    return _pygadgetron.deleteTextWriter(ptr_w)
+deleteTextWriter = _pygadgetron.deleteTextWriter
 # This file is compatible with both classic and new-style classes.
 
 
