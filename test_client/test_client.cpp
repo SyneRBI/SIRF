@@ -402,7 +402,19 @@ const char* out_group)
 		void* h_ias = cGT_newObject("ImageArraySplitGadget");
 		void* h_e = cGT_newObject("ExtractGadget");
 		void* h_if = cGT_newObject("ImageFinishGadget");
-		
+
+		void* status; 
+		status = cGT_setGadgetProperty(h_aat, "trigger_dimension", "repetition");
+		if (executionStatus(status)) {
+			std::cout << "exception thrown" << std::endl;
+			exit(1);
+		}
+		status = cGT_setGadgetProperty(h_bb, "n_dimension", "");
+		if (executionStatus(status)) {
+			std::cout << "exception thrown" << std::endl;
+			exit(1);
+		}
+
 		cGT_addReader(h_gc, "reader1", h_ar);
 		cGT_addWriter(h_gc, "writer1", h_iw);
 		cGT_addGadget(h_gc, "gadget1", h_ro);

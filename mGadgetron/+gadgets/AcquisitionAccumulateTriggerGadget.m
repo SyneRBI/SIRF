@@ -1,7 +1,6 @@
-classdef AcquisitionAccumulateTriggerGadget < handle
+classdef AcquisitionAccumulateTriggerGadget < gadgets.GadgetWithProperties
     properties
         handle_
-        name_
     end
     methods
         function self = AcquisitionAccumulateTriggerGadget()

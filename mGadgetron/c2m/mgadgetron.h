@@ -16,6 +16,7 @@ EXPORTED_FUNCTION void* mGT_sendParametersString(void* ptr_con, const char* par)
 EXPORTED_FUNCTION void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION void* mGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
+EXPORTED_FUNCTION void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
 EXPORTED_FUNCTION void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc);
 EXPORTED_FUNCTION void* mGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group);
 EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img);

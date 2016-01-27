@@ -20,6 +20,9 @@ try:
     gadget6 = pGadgets.ExtractGadget()
     gadget7 = pGadgets.ImageFinishGadget()
 
+    gadget2.set_property('trigger_dimension', 'repetition')
+    gadget3.set_property('split_slices', 'true')
+
     # create reconstruction object
     recon = pGadgetron.MRIReconstruction()
 

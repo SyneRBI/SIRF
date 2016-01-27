@@ -1,5 +1,11 @@
 import pygadgetron
 
+class error(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 def _check_status(handle):
     if pygadgetron.executionStatus(handle) != 0:
         msg = pygadgetron.executionError(handle)
@@ -10,14 +16,11 @@ def _check_status(handle):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
-class Gadget:
-    def __init__(self, name):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject(name)
-        _check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+class GadgetWithProperties:
+    def set_property(self, prop, value):
+        handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
 
 class GadgetIsmrmrdAcquisitionMessageReader:
     def __init__(self):
@@ -56,7 +59,7 @@ class RemoveROOversamplingGadget:
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
 
-class AcquisitionAccumulateTriggerGadget:
+class AcquisitionAccumulateTriggerGadget(GadgetWithProperties):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject\
@@ -66,7 +69,7 @@ class AcquisitionAccumulateTriggerGadget:
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
 
-class BucketToBufferGadget:
+class BucketToBufferGadget(GadgetWithProperties):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('BucketToBufferGadget')

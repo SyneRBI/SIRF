@@ -13,7 +13,7 @@ int c2m(
 
 int main(int argc, char **argv)
 {
-	string path = "../../src/";
+	string path = "../../cGadgetron/";
 	int status = c2m(path, "cgadgetron.h", "mgadgetron.h", "mgadgetron.c");
 	if (status)
 		cout << "wrong input file format" << endl;

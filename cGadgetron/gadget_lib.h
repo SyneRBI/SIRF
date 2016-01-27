@@ -1,14 +1,28 @@
 #ifndef GADGETS_LIBRARY
 #define GADGETS_LIBRARY
 
+#include <boost/algorithm/string.hpp>
+
+#include "data_handle.h"
+
 class aGadget {
 public:
 	//	virtual ~aGadget() {}
+	std::string name() const {
+		return this->name_;
+	}
+	virtual void set_property(const char* prop, const char* value) = 0;
 	virtual std::string xml() const = 0;
+protected:
+	std::string name_;
 };
 
 class IsmrmrdAcqMsgReader : public aGadget {
 public:
+	IsmrmrdAcqMsgReader() {
+		name_ = "GadgetIsmrmrdAcquisitionMessageReader";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<reader>\n");
 		xml_script += " <slot>1008</slot>\n";
@@ -22,6 +36,10 @@ public:
 
 class IsmrmrdImgMsgReader : public aGadget {
 public:
+	IsmrmrdImgMsgReader() {
+		name_ = "MRIImageReader";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<reader>\n");
 		xml_script += " <slot>1022</slot>\n";
@@ -35,6 +53,10 @@ public:
 
 class IsmrmrdImgMsgWriter : public aGadget {
 public:
+	IsmrmrdImgMsgWriter() {
+		name_ = "MRIImageWriter";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<writer>\n");
 		xml_script += " <slot>1022</slot>\n";
@@ -47,6 +69,10 @@ public:
 
 class RemoveOversamplingGadget : public aGadget {
 public:
+	RemoveOversamplingGadget() {
+		name_ = "RemoveROOversamplingGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
 	        xml_script += " <name>RemoveROOversampling</name>\n";
@@ -59,20 +85,30 @@ public:
 
 class AcqAccTrigGadget : public aGadget {
 public:
-	AcqAccTrigGadget() : trigger_dimension_("repetition"), sorting_dimension_("slice") {}
+	AcqAccTrigGadget() : trigger_dimension_("repetition"), sorting_dimension_("slice") {
+		name_ = "AcquisitionAccumulateTriggerGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {
+		if (boost::iequals(prop, "trigger_dimension"))
+			trigger_dimension_ = value;
+		else if (boost::iequals(prop, "sorting_dimension"))
+			sorting_dimension_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
 	        xml_script += " <name>AccTrig</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>AcquisitionAccumulateTriggerGadget</classname>\n";
-	        xml_script += " <property>\n";
-	        xml_script += "  <name>trigger_dimension</name>\n";
-	        xml_script += "  <value>" + trigger_dimension_ + "</value>\n";
-	        xml_script += " </property>\n";
-	        xml_script += " <property>\n";
-	        xml_script += "  <name>sorting_dimension</name>\n";
-	        xml_script += "  <value>" + sorting_dimension_ + "</value>\n";
-	        xml_script += " </property>\n";
+	  xml_script += " <property>\n";
+	  xml_script += "  <name>trigger_dimension</name>\n";
+	  xml_script += "  <value>" + trigger_dimension_ + "</value>\n";
+	  xml_script += " </property>\n";
+	  xml_script += " <property>\n";
+	  xml_script += "  <name>sorting_dimension</name>\n";
+	  xml_script += "  <value>" + sorting_dimension_ + "</value>\n";
+	  xml_script += " </property>\n";
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -83,24 +119,36 @@ private:
 
 class BucketToBuffGadget : public aGadget {
 public:
-	BucketToBuffGadget() : n_dimension_(""), s_dimension_(""), split_slices_("true") {}
+	BucketToBuffGadget() : n_dimension_(""), s_dimension_(""), split_slices_("true") {
+		name_ = "BucketToBufferGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {
+		if (boost::iequals(prop, "n_dimension"))
+			n_dimension_ = value;
+		else if (boost::iequals(prop, "s_dimension"))
+			s_dimension_ = value;
+		else if (boost::iequals(prop, "split_slices"))
+			split_slices_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>Buff</name>\n";
+    xml_script += " <name>Buff</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>BucketToBufferGadget</classname>\n";
-	        xml_script += " <property>\n";
-	        xml_script += "  <name>N_dimension</name>\n";
-	        xml_script += "  <value>" + n_dimension_ + "</value>\n";
-	        xml_script += " </property>\n";
-	        xml_script += " <property>\n";
-	        xml_script += "  <name>S_dimension</name>\n";
-	        xml_script += "  <value>" + s_dimension_ + "</value>\n";
-	        xml_script += " </property>\n";
-	        xml_script += " <property>\n";
-	        xml_script += "  <name>split_slices</name>\n";
-	        xml_script += "  <value>" + split_slices_ + "</value>\n";
-	        xml_script += " </property>\n";
+	  xml_script += " <property>\n";
+	  xml_script += "  <name>N_dimension</name>\n";
+	  xml_script += "  <value>" + n_dimension_ + "</value>\n";
+	  xml_script += " </property>\n";
+	  xml_script += " <property>\n";
+	  xml_script += "  <name>S_dimension</name>\n";
+	  xml_script += "  <value>" + s_dimension_ + "</value>\n";
+	  xml_script += " </property>\n";
+	  xml_script += " <property>\n";
+	  xml_script += "  <name>split_slices</name>\n";
+	  xml_script += "  <value>" + split_slices_ + "</value>\n";
+	  xml_script += " </property>\n";
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -112,9 +160,13 @@ private:
 
 class SimpleReconstructionGadget : public aGadget {
 public:
+	SimpleReconstructionGadget() {
+		name_ = "SimpleReconGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>SimpleRecon</name>\n";
+    xml_script += " <name>SimpleRecon</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>SimpleReconGadget</classname>\n";
 		xml_script += "</gadget>\n";
@@ -124,9 +176,13 @@ public:
 
 class ImgArrSplitGadget : public aGadget {
 public:
+	ImgArrSplitGadget() {
+		name_ = "ImageArraySplitGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>ImageArraySplit</name>\n";
+    xml_script += " <name>ImageArraySplit</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>ImageArraySplitGadget</classname>\n";
 		xml_script += "</gadget>\n";
@@ -136,9 +192,13 @@ public:
 
 class ExtGadget : public aGadget {
 public:
+	ExtGadget() {
+		name_ = "ExtractGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>Extract</name>\n";
+    xml_script += " <name>Extract</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>ExtractGadget</classname>\n";
 		xml_script += "</gadget>\n";
@@ -148,9 +208,13 @@ public:
 
 class ImgFinishGadget : public aGadget {
 public:
+	ImgFinishGadget() {
+		name_ = "ImageFinishGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>ImageFinish</name>\n";
+    xml_script += " <name>ImageFinish</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>ImageFinishGadget</classname>\n";
 		xml_script += "</gadget>\n";

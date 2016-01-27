@@ -1,7 +1,6 @@
-classdef BucketToBufferGadget < handle
+classdef BucketToBufferGadget < gadgets.GadgetWithProperties
     properties
         handle_
-        name_
     end
     methods
         function self = BucketToBufferGadget()

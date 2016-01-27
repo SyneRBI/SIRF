@@ -24,6 +24,9 @@ try
 	gadget6 = gadgets.ExtractGadget();
 	gadget7 = gadgets.ImageFinishGadget();
     
+    gadget2.set_property('trigger_dimension', 'repetition')
+    gadget3.set_property('split_slices', 'true')
+    
     recon = gadgetron.MRIReconstruction();
 
     recon.addGadget('g1', gadget1);

@@ -41,6 +41,9 @@ EXPORTED_FUNCTION void* mGT_addWriter(void* ptr_gc, const char* id, const void* 
 EXPORTED_FUNCTION void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addGadget(ptr_gc, id, ptr_r);
 }
+EXPORTED_FUNCTION void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value) {
+	return cGT_setGadgetProperty(ptr_g, prop, value);
+}
 EXPORTED_FUNCTION void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc) {
 	return cGT_configGadgetChain(ptr_con, ptr_gc);
 }

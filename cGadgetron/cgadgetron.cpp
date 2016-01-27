@@ -463,3 +463,24 @@ cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
 	ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
 	list.getImageDataAsDoubleArray(im_num, data);
 }
+
+extern "C"
+void*
+cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
+{
+	try {
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		aGadget& g = objectFromHandle<aGadget>(h_g);
+		//std::cout << g.name() << std::endl;
+		if (boost::iequals(g.name(), "AcquisitionAccumulateTriggerGadget"))
+			g.set_property(prop, value);
+		else if (boost::iequals(g.name(), "BucketToBufferGadget"))
+			g.set_property(prop, value);
+		//else
+		//	return unknownObject
+		//		("gadget with properties", g.name().c_str(), __FILE__, __LINE__);
+	}
+	CATCH
+
+	return (void*)new DataHandle;
+}
