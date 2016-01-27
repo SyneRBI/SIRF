@@ -5,9 +5,7 @@ ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
-BUILDPATH = ../../build/xGadgetron
-IUTILITIES = ../../iUtilities
-LIBIUTIL = ../../build/iUtilities
+BUILDPATH = $(XGADGETRON_BUILD)
 
 LIBS = \
 	-lismrmrd \

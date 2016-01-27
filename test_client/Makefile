@@ -2,12 +2,10 @@ CPP = /usr/bin/g++
 CFLAGS = -O3 -fopenmp -fPIC  -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(CGADGETRON)
 LDFLAGS = -lrt
 
-BUILDPATH = ../../build/xGadgetron
-IUTILITIES = ../../iUtilities
-LIBIUTIL = ../../build/iUtilities
-CGADGETRON = ../cGadgetron
+BUILDPATH = $(XGADGETRON_BUILD)
 
 LIBS = \
+	-lcgt -liutil \
 	-lismrmrd \
 	-lboost_program_options \
 	-lboost_filesystem \
@@ -19,7 +17,7 @@ all: test_client
 
 test_client: test_client.o
 	$(CPP) $(CFLAGS) -o $(BUILDPATH)/test_client test_client.o \
-	-L$(BUILDPATH) -lcgt -L$(LIBIUTIL) -liutil  $(LIBS) $(LDFLAGS)
+	-L$(BUILDPATH) -L$(LIBIUTIL) $(LIBS) $(LDFLAGS)
 
 %.o: %.cpp
 	$(CPP) $(CFLAGS) -c -o $@ $<

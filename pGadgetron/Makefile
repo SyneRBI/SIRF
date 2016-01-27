@@ -9,13 +9,12 @@ PYINCLUDE = /usr/include/$(PYTHON)
 PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
 PYLIB = -l$(PYTHON)
 
-BUILDPATH = ../../build/xGadgetron
-IUTILITIES = ../../iUtilities
-LIBIUTIL = ../../build/iUtilities
+BUILDPATH = $(XGADGETRON_BUILD)
 
 SWIG = swig
 
 LIBS = \
+	-lcgt -liutil \
 	-lismrmrd \
 	-lboost_program_options \
 	-lboost_filesystem \
@@ -30,7 +29,7 @@ pygadgetron: $(BUILDPATH)/libcgt.a
 	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE)
 	$(CPP) $(CFLAGS) -shared pygadgetron_wrap.o -L$(PYLIBPATH) $(PYLIB)\
 		 -o $(BUILDPATH)/_pygadgetron.so \
-		-L$(BUILDPATH) -lcgt -L$(LIBIUTIL) -liutil $(LIBS) $(LDFLAGS)
+		-L$(BUILDPATH) -L$(LIBIUTIL) $(LIBS) $(LDFLAGS)
 
 input:
 	ismrmrd_generate_cartesian_shepp_logan -r 2
