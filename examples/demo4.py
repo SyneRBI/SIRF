@@ -49,7 +49,7 @@ try:
 
     # write images to a new group in 'output2.h5' named after the current date and time
     time_str = time.asctime()
-    images.write('../../build/xGadgetron/output4.h5', time_str)
+    images.write('output4.h5', time_str)
 
 except pGadgetron.error as err:
     # display error information

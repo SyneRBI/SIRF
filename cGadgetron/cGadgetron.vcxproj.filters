@@ -18,22 +18,22 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\cgadgetron.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="cgadgetron.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gadget_lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gadgetron_client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xgadgetron.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\cgadgetron.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\gadgetron_client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\xgadgetron.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\gadget_lib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="cgadgetron.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

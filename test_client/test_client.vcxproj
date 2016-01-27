@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test_client.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8F1DE07F-A274-4BF1-A89D-61582F637D70}</ProjectGuid>
     <RootNamespace>test_client</RootNamespace>
@@ -107,7 +110,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;../../iUtilities</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;%CGADGETRON%;../../iUtilities</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "MSVC" %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -119,15 +122,6 @@
       <AdditionalDependencies>cGadgetron.lib;iUtilities.lib;ismrmrd.lib;libboost_program_options-vc120-mt-1_58.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\test_client.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\cgadgetron.h" />
-    <ClInclude Include="..\src\gadgetron_client.h" />
-    <ClInclude Include="..\src\gadget_lib.h" />
-    <ClInclude Include="..\src\xgadgetron.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

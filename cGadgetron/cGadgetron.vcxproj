@@ -133,13 +133,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\cgadgetron.cpp" />
+    <ClInclude Include="cgadgetron.h" />
+    <ClInclude Include="gadgetron_client.h" />
+    <ClInclude Include="gadget_lib.h" />
+    <ClInclude Include="xgadgetron.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\cgadgetron.h" />
-    <ClInclude Include="..\src\gadgetron_client.h" />
-    <ClInclude Include="..\src\gadget_lib.h" />
-    <ClInclude Include="..\src\xgadgetron.h" />
+    <ClCompile Include="cgadgetron.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
