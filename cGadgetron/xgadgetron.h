@@ -44,7 +44,7 @@ public:
 		return images_;
 	}
 	int size() const {
-		return images_.size();
+		return (int)images_.size();
 	}
 	void write(std::string filename, std::string groupname)
 	{
@@ -256,12 +256,12 @@ public:
 
 		return xml_script;
 	}
-	int nreaders() const {
-		return readers_.size();
-	}
-	int nwriters() const {
-		return writers_.size();
-	}
+	//int nreaders() const {
+	//	return readers_.size();
+	//}
+	//int nwriters() const {
+	//	return writers_.size();
+	//}
 private:
 	std::list<boost::shared_ptr<GadgetHandle> > readers_;
 	std::list<boost::shared_ptr<GadgetHandle> > writers_;
