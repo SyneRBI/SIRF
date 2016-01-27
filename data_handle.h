@@ -16,6 +16,12 @@
 #define SPTR(Base, X, Object) boost::shared_ptr< Base > X(new Object)
 #define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
+	catch (LocalisedException& le) {\
+		ExecutionStatus status(le);\
+		DataHandle* handle = new DataHandle;\
+		handle->set(0, &status);\
+		return (void*)handle;\
+		}\
 	catch (...) {\
 		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
 		DataHandle* handle = new DataHandle;\
