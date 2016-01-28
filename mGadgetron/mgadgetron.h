@@ -22,6 +22,7 @@ EXPORTED_FUNCTION void* mGT_registerHDFReceiver(void* ptr_con, const char* file,
 EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 EXPORTED_FUNCTION void* mGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
 EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon);
+EXPORTED_FUNCTION void* mGT_processImages(void* ptr_proc, void* ptr_input);
 EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group);
 EXPORTED_FUNCTION int mGT_numImages(void* ptr_imgs);
 #ifndef CGADGETRON_FOR_MATLAB

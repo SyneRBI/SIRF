@@ -39,10 +39,8 @@ try
     
     input_data = gadgetron.ISMRMRDataset('testdata.h5');
     
-    recon.process(input_data)
+    images = recon.process(input_data);
     
-    images = recon.get_output();
-
     data = images.image_as_array(0);
     figure(1000000)
     data = data/max(max(max(data)));

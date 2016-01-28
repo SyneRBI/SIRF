@@ -59,6 +59,9 @@ EXPORTED_FUNCTION void* mGT_runMRIReconstruction(void* ptr_recon, void* ptr_inpu
 EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon) {
 	return cGT_reconstructedImagesList(ptr_recon);
 }
+EXPORTED_FUNCTION void* mGT_processImages(void* ptr_proc, void* ptr_input) {
+	return cGT_processImages(ptr_proc, ptr_input);
+}
 EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
 	return cGT_writeImages(ptr_imgs, out_file, out_group);
 }

@@ -19,6 +19,7 @@ void* cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group
 void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 void* cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
 void* cGT_reconstructedImagesList(void* ptr_recon);
+void* cGT_processImages(void* ptr_proc, void* ptr_input);
 void* cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group);
 int cGT_numImages(void* ptr_imgs);
 void cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim);

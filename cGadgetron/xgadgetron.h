@@ -330,7 +330,60 @@ private:
 	std::string par_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	boost::shared_ptr<ISMRMRD::Dataset> sptr_images_ds_;
+	// for writing to a file
+	//boost::shared_ptr<ISMRMRD::Dataset> sptr_images_ds_;
+	boost::shared_ptr<ImagesList> sptr_images_;
+};
+
+class ImagesProcessor : public GadgetChain {
+public:
+	ImagesProcessor() :
+		host_("localhost"), port_("9002"),
+		reader_(new IsmrmrdImgMsgReader),
+		writer_(new IsmrmrdImgMsgWriter),
+		sptr_images_(new ImagesList) {
+		add_reader("reader", reader_);
+		add_writer("writer", writer_);
+		ImagesList& images = *sptr_images_;
+		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(images())));
+	}
+
+	void process(ImagesList& input) {
+		std::string config = xml();
+		//std::cout << config << std::endl;
+
+		con_().connect(host_, port_);
+
+		con_().send_gadgetron_configuration_script(config);
+
+		std::list<boost::shared_ptr<ImageWrap> >& images = input();
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
+		for (i = images.begin(); i != images.end(); i++) {
+			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			ImageWrap& iw = *sptr_iw;
+			con_().send_wrapped_image(iw);
+		}
+
+		con_().send_gadgetron_close();
+		con_().wait();
+	}
+
+	boost::shared_ptr<ImagesList> get_output() {
+		return sptr_images_;
+	}
+
+private:
+	std::string host_;
+	std::string port_;
+	GTConnector con_;
+	boost::shared_ptr<IsmrmrdImgMsgReader> reader_;
+	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 	boost::shared_ptr<ImagesList> sptr_images_;
 };
 

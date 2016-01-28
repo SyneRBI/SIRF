@@ -57,6 +57,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GadgetChain, GadgetChain>();
 		else if (boost::iequals(name, "MRIReconstruction"))
 			return newObjectHandle<GadgetChain, MRIReconstruction>();
+		else if (boost::iequals(name, "ImagesProcessor"))
+			return newObjectHandle<GadgetChain, ImagesProcessor>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
 			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
 		else if (boost::iequals(name, "MRIImageReader"))
@@ -200,10 +202,13 @@ cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
 		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
 		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
 		recon.process(input);
+		boost::shared_ptr<ImagesList> sptr_im = recon.get_output();
+		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		return (void*)ptr_handle;
 	}
-	CATCH
+	CATCH;
 
-	return (void*)new DataHandle;
+	//return (void*)new DataHandle;
 }
 
 extern "C"
@@ -217,9 +222,42 @@ cGT_reconstructedImagesList(void* ptr_recon)
 		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
 		return (void*)ptr_handle;
 	}
-	CATCH
+	CATCH;
 
 }
+
+extern "C"
+void*
+cGT_processImages(void* ptr_proc, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_proc, ptr_proc);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
+		ImagesList& input = objectFromHandle<ImagesList>(h_input);
+		proc.process(input);
+		boost::shared_ptr<ImagesList> sptr_im = proc.get_output();
+		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		return (void*)ptr_handle;
+	}
+	CATCH;
+
+}
+
+//extern "C"
+//void*
+//cGT_processedImagesList(void* ptr_proc)
+//{
+//	try {
+//		CAST_PTR(DataHandle, h_proc, ptr_proc);
+//		ImageProcessor& proc = objectFromHandle<ImageProcessor>(h_proc);
+//		boost::shared_ptr<ImagesList> sptr_im = proc.get_output();
+//		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+//		return (void*)ptr_handle;
+//	}
+//	CATCH;
+//
+//}
 
 extern "C"
 void*
