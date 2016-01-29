@@ -189,7 +189,23 @@ cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
 	}
 	CATCH
 
-	return (void*)new DataHandle;
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setEndGadget(void* ptr_gc, const void* ptr_g)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
+		gc.set_endgadget(g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
 }
 
 extern "C"

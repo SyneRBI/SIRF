@@ -31,15 +31,19 @@ try:
     recon.add_gadget('g3', gadget3)
     recon.add_gadget('g4', gadget4)
     recon.add_gadget('g5', gadget5)
-    recon.add_gadget('g6', gadget6)
 
     # connect to input data
     recon.set_input(input_data)
     # perform reconstruction
     recon.process()
-    
+
     # get reconstructed images
-    images = recon.get_output()
+    imgs = recon.get_output()
+
+    proc = pGadgetron.ImagesProcessor()
+    proc.add_gadget('g6', gadget6)
+
+    images = proc.process(imgs)
 
     # plot reconstructed images
     for i in range(images.number()):
@@ -47,10 +51,6 @@ try:
         pylab.figure(i + 1)
         pylab.imshow(data[:,:,0])
         pylab.show()
-
-    # write images to a new group in 'output2.h5' named after the current date and time
-    time_str = time.asctime()
-    images.write('output4.h5', time_str)
 
 except pGadgetron.error as err:
     # display error information

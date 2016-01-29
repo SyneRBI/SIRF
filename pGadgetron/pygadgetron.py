@@ -139,6 +139,10 @@ def cGT_addGadget(ptr_gc, id, ptr_r):
     return _pygadgetron.cGT_addGadget(ptr_gc, id, ptr_r)
 cGT_addGadget = _pygadgetron.cGT_addGadget
 
+def cGT_setEndGadget(ptr_gc, ptr_g):
+    return _pygadgetron.cGT_setEndGadget(ptr_gc, ptr_g)
+cGT_setEndGadget = _pygadgetron.cGT_setEndGadget
+
 def cGT_setGadgetProperty(ptr_g, prop, value):
     return _pygadgetron.cGT_setGadgetProperty(ptr_g, prop, value)
 cGT_setGadgetProperty = _pygadgetron.cGT_setGadgetProperty
@@ -162,6 +166,10 @@ cGT_runMRIReconstruction = _pygadgetron.cGT_runMRIReconstruction
 def cGT_reconstructedImagesList(ptr_recon):
     return _pygadgetron.cGT_reconstructedImagesList(ptr_recon)
 cGT_reconstructedImagesList = _pygadgetron.cGT_reconstructedImagesList
+
+def cGT_processImages(ptr_proc, ptr_input):
+    return _pygadgetron.cGT_processImages(ptr_proc, ptr_input)
+cGT_processImages = _pygadgetron.cGT_processImages
 
 def cGT_writeImages(ptr_imgs, out_file, out_group):
     return _pygadgetron.cGT_writeImages(ptr_imgs, out_file, out_group)

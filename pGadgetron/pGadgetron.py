@@ -29,15 +29,15 @@ class GadgetChain(PyGadgetronObject):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def addReader(self, id, reader):
+    def add_reader(self, id, reader):
         handle = pygadgetron.cGT_addReader(self.handle, id, reader.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-    def addWriter(self, id, writer):
+    def add_writer(self, id, writer):
         handle = pygadgetron.cGT_addWriter(self.handle, id, writer.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-    def addGadget(self, id, gadget):
+    def add_gadget(self, id, gadget):
         handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
@@ -166,4 +166,34 @@ class MRIReconstruction(GadgetChain):
         images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
         _check_status(images.handle)
         return images
+
+class ImagesProcessor(GadgetChain):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('ImagesProcessor')
+        _check_status(self.handle)
+        self.input_data = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+##    def set_input(self, input_data):
+##        self.input_data = input_data
+    def process(self, input_data):
+##        if self.input_data is None:
+##            raise error('no input data')
+        images = ImagesList()
+        if images.handle is not None:
+            pygadgetron.deleteObject(images.handle)
+        images.handle = pygadgetron.cGT_processImages\
+             (self.handle, input_data.handle)
+        _check_status(images.handle)
+        return images
+##        pygadgetron.deleteDataHandle(handle)
+##    def get_output(self):
+##        images = ImagesList()
+##        if images.handle is not None:
+##            pygadgetron.deleteObject(images.handle)
+##        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
+##        _check_status(images.handle)
+##        return images
 

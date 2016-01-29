@@ -321,7 +321,7 @@ public:
 		ISMRMRD::ImageHeader h;
 		boost::asio::read(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
 
-		writeText("ok\n");
+		//writeText("ok\n");
 		//std::cout << "data type: " << h.data_type << std::endl;
 		//std::stringstream ss;
 		//ss << "data type: " << h.data_type << std::endl;
@@ -573,7 +573,7 @@ public:
 		std::string meta_attrib(meta_attrib_length, 0);
 		im.getAttributeString(meta_attrib);
 
-		std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
+		//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
 
 		boost::asio::write(*socket_, boost::asio::buffer(&meta_attrib_length, sizeof(size_t)));
 		boost::asio::write(*socket_, boost::asio::buffer(meta_attrib.c_str(), meta_attrib_length));

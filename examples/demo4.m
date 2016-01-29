@@ -22,20 +22,18 @@ try
 	gadget4 = gadgets.SimpleReconGadget();
 	gadget5 = gadgets.ImageArraySplitGadget();
 	gadget6 = gadgets.ExtractGadget();
-	gadget7 = gadgets.ImageFinishGadget();
     
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget3.set_property('split_slices', 'true')
     
     recon = gadgetron.MRIReconstruction();
 
-    recon.addGadget('g1', gadget1);
-	recon.addGadget('g2', gadget2);
-	recon.addGadget('g3', gadget3);
-	recon.addGadget('g4', gadget4);
-	recon.addGadget('g5', gadget5);
-	recon.addGadget('g6', gadget6);
-	recon.addGadget('g7', gadget7);
+    recon.add_gadget('g1', gadget1);
+	recon.add_gadget('g2', gadget2);
+	recon.add_gadget('g3', gadget3);
+	recon.add_gadget('g4', gadget4);
+	recon.add_gadget('g5', gadget5);
+	recon.add_gadget('g6', gadget6);
     
     input_data = gadgetron.ISMRMRDataset('testdata.h5');
     
@@ -46,10 +44,7 @@ try
     data = data/max(max(max(data)));
     imshow(data(:,:,1));
 
-%     images.write('output4.h5', datestr(datetime))
-
-    %printer.print('printer ok')
-    %fprintf('\n')
+    images.write('output4.h5', datestr(datetime))
 
 catch err
     % display error information

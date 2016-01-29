@@ -14,19 +14,19 @@ classdef GadgetChain < handle
                 calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
-        function addReader(self, id, reader)
+        function add_reader(self, id, reader)
             handle = calllib...
                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function addWriter(self, id, writer)
+        function add_writer(self, id, writer)
             handle = calllib...
                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function addGadget(self, id, gadget)
+        function add_gadget(self, id, gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
             gadgetron.checkExecutionStatus(self.name_, handle);

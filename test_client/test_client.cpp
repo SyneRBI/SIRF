@@ -190,14 +190,14 @@ int main(int argc, char **argv)
 		"out6.h5",
 		hdf5_out_group.c_str());
 
-	return test5(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out5.h5",
-		hdf5_out_group.c_str());
+	//return test5(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out5.h5",
+	//	hdf5_out_group.c_str());
 
 	return test3(
 		host_name.c_str(),
@@ -423,7 +423,8 @@ const char* out_group)
 		cGT_addGadget(h_gc, "gadget4", h_sr);
 		cGT_addGadget(h_gc, "gadget5", h_ias);
 		//cGT_addGadget(h_gc, "gadget6", h_e);
-		cGT_addGadget(h_gc, "endgadget", h_if);
+		//cGT_addGadget(h_gc, "endgadget", h_if);
+		cGT_setEndGadget(h_gc, h_if);
 
 		cGT_configGadgetChain(h_conn, h_gc);
 		
@@ -439,7 +440,8 @@ const char* out_group)
 		cGT_addWriter(h_gc2, "writer1", h_iw);
 		//cGT_addGadget(h_gc, "gadget5", h_ias);
 		cGT_addGadget(h_gc2, "gadget6", h_e);
-		cGT_addGadget(h_gc2, "endgadget", h_if);
+		//cGT_addGadget(h_gc2, "endgadget", h_if);
+		cGT_setEndGadget(h_gc2, h_if);
 
 		cGT_connect(h_conn, host, port);
 		cGT_configGadgetChain(h_conn, h_gc2);
@@ -591,7 +593,7 @@ int test5(
 			recon.add_gadget("g4", sr);
 			recon.add_gadget("g5", ias);
 			//recon.add_gadget("g6", ext);
-			recon.add_gadget("g7", fin);
+			//recon.add_gadget("g7", fin);
 			//std::cout << "ok" << std::endl;
 
 			recon.process(input);
@@ -602,7 +604,7 @@ int test5(
 
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
-			proc.add_gadget("g2", fin);
+			//proc.add_gadget("g2", fin);
 			proc.process(imgs);
 			ImagesList& images = *proc.get_output();
 
@@ -648,7 +650,7 @@ int test6(
 		void* h_sr = cGT_newObject("SimpleReconGadget");
 		void* h_ias = cGT_newObject("ImageArraySplitGadget");
 		void* h_e = cGT_newObject("ExtractGadget");
-		void* h_if = cGT_newObject("ImageFinishGadget");
+		//void* h_if = cGT_newObject("ImageFinishGadget");
 
 		void* h_recon = cGT_newObject("MRIReconstruction");
 		cGT_addGadget(h_recon, "g1", h_ro);
@@ -657,7 +659,7 @@ int test6(
 		cGT_addGadget(h_recon, "g4", h_sr);
 		cGT_addGadget(h_recon, "g5", h_ias);
 		//cGT_addGadget(h_recon, "g6", h_e);
-		cGT_addGadget(h_recon, "g7", h_if);
+		//cGT_addGadget(h_recon, "g7", h_if);
 
 		void* h_images = cGT_runMRIReconstruction(h_recon, h_data);
 
@@ -665,7 +667,7 @@ int test6(
 
 		void* h_proc = cGT_newObject("ImagesProcessor");
 		cGT_addGadget(h_proc, "g1", h_e);
-		cGT_addGadget(h_proc, "g2", h_if);
+		//cGT_addGadget(h_proc, "g2", h_if);
 		void* h_imgs = cGT_processImages(h_proc, h_images);
 		if (executionStatus(h_imgs)) {
 			std::cout << "exception thrown" << std::endl;
@@ -675,6 +677,13 @@ int test6(
 		std::cout << cGT_numImages(h_imgs) << std::endl;
 
 		cGT_writeImages(h_imgs, out_file, out_group);
+
+		deleteObject(h_ro);
+		deleteObject(h_aat);
+		deleteObject(h_bb);
+		deleteObject(h_sr);
+		deleteObject(h_ias);
+		deleteObject(h_e);
 	}
 	catch (std::exception& ex) {
 		std::cout << "Error caught: " << ex.what() << std::endl;

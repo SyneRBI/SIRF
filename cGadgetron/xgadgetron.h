@@ -234,6 +234,9 @@ public:
 		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
+	void set_endgadget(boost::shared_ptr<aGadget> sptr_g) {
+		endgadget_ = sptr_g;
+	}
 	std::string xml() const {
 		std::string xml_script("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		xml_script += "<gadgetronStreamConfiguration xsi:schemaLocation=";
@@ -252,6 +255,7 @@ public:
 			xml_script += gh->get()->gadget().xml() + '\n';
 		for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++)
 			xml_script += gh->get()->gadget().xml() + '\n';
+		xml_script += endgadget_->xml() + '\n';
 		xml_script += "</gadgetronStreamConfiguration>\n";
 
 		return xml_script;
@@ -266,6 +270,7 @@ private:
 	std::list<boost::shared_ptr<GadgetHandle> > readers_;
 	std::list<boost::shared_ptr<GadgetHandle> > writers_;
 	std::list<boost::shared_ptr<GadgetHandle> > gadgets_;
+	boost::shared_ptr<aGadget> endgadget_;
 };
 
 class MRIReconstruction : public GadgetChain {
@@ -274,9 +279,12 @@ public:
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter),
-		sptr_images_(new ImagesList) {
+		sptr_images_(new ImagesList) 
+	{
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
+		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		set_endgadget(endgadget);
 		ImagesList& images = *sptr_images_;
 		//ImagesList& images = *sptr_images_.get();
 		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
@@ -341,9 +349,12 @@ public:
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdImgMsgReader),
 		writer_(new IsmrmrdImgMsgWriter),
-		sptr_images_(new ImagesList) {
+		sptr_images_(new ImagesList) 
+	{
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
+		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		set_endgadget(endgadget);
 		ImagesList& images = *sptr_images_;
 		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
