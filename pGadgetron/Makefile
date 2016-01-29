@@ -31,10 +31,6 @@ pygadgetron: $(BUILDPATH)/libcgt.a
 		 -o $(BUILDPATH)/_pygadgetron.so \
 		-L$(BUILDPATH) -L$(LIBIUTIL) $(LIBS) $(LDFLAGS)
 
-input:
-	ismrmrd_generate_cartesian_shepp_logan -r 2
-	mv testdata.h5 ../examples
-
 %.o: %.cpp
 	$(CPP) $(CFLAGS) -c -o $@ $<
 
