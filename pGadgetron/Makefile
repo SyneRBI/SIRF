@@ -9,7 +9,9 @@ PYINCLUDE = /usr/include/$(PYTHON)
 PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
 PYLIB = -l$(PYTHON)
 
-BUILDPATH = $(XGADGETRON_BUILD)
+IUTILITIES = ../../iUtilities
+LIBIUTIL = ../../build/iUtilities
+BUILDPATH = ../../build/xGadgetron
 
 SWIG = swig
 
