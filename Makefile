@@ -5,6 +5,8 @@ ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
+LIBIUTIL = ../build/iUtilities
+
 all: libiutil
 
 libiutil: ci_tw.o data_handle.o text_writer.o
