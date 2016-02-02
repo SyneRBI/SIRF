@@ -77,7 +77,7 @@ Run mex_gadgetron.m in <work_dir>/xGadgetron/mGadgetron.
 
 Add mGadgetron folder to Matlab path.
 
-Execute
+In <work_dir>/xGadgetron/examples execute
 
    <ismrmrd_root>\utilities\Release\ismrmrd_generate_cartesian_shepp_logan.exe -r 2
 
