@@ -7,7 +7,8 @@
 #include <string.h>
 #include <time.h>
 
-#include <boost\algorithm\string.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "stir/DiscretisedDensity.h"
 #include "stir/ArrayFunction.h"

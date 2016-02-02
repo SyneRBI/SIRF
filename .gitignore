@@ -235,6 +235,7 @@ $RECYCLE.BIN/
 *.o
 *.a
 *.dll
+*.so
 *.ahv
 *.hv
 *.v

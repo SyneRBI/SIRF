@@ -3168,3 +3168,8 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, void* ptr_im)
 //sptrImage3DF* ptr_sptr = (sptrImage3DF*)handle->data();
 if (ptr_sptr == 0)
 return 0;
+
+//NEW(boost::shared_ptr<T>, ptr_sptr);
+//*ptr_sptr = sptr;
+//ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(*ptr_sptr);
+

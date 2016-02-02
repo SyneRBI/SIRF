@@ -1,20 +1,12 @@
-STIR_SRC = $(STIR_CYGWIN)
-STIR_LIBPATH = $(STIRLIB_CYGWIN)
-CSTIR_SRC = $(CSTIR_CYGWIN)
-
-PYINCLUDE = /usr/include/$(PYTHON_CYGWIN)
-PYLIBPATH = /lib/$(PYTHON_CYGWIN)/config
-PYLIB = -l$(PYTHON_CYGWIN)
+CXX = g++
+CFLAGS = -O3 -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
+LDFLAGS = $(X11LIB) -lrt
 
 SWIG = swig
 
-ifneq ($(wildcard /lib/X11/.*),)
+ifneq ($(wildcard /*/lib/X11/.*),)
 	X11LIB = -lX11
 endif
-
-CXX = g++
-CFLAGS = -O3 -fpermissive -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
-LDFLAGS = $(X11LIB) -lrt
 
 ARCH = ar
 ARCHFLAGS = cr
@@ -101,8 +93,8 @@ main.exe: $(TEST_OBJECTS)
 
 pystir: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
-	g++ -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
-	g++ -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) $(PYLIB) -o _pystir.dll \
+	$(CXX) $(CFLAGS) -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
+	$(CXX) $(CFLAGS) -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) -l$(PYTHON) -o _pystir.so \
 		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
 
 %.o: %.cxx
