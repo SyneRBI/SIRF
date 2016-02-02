@@ -1,0 +1,82 @@
+====================================================================================
+Gadgetron Python interface installation under Linux (tested on Virtual Machine only)
+====================================================================================
+
+Install Boost, and clone Ismsmrd and Gadgetron from github.com/CCPPETMR. 
+DO NOT CHANGE DEFAULT FOLDERS.
+
+In your work directory <work_dir> create folder 'build' with subfolders 
+'iUtilities' and 'xGadgetron'.
+
+For Python2.7 execute (or put in .bashrc)
+
+export PYINCLUDE=/usr/include/python2.7
+export PYLIBPATH=/usr/lib/python2.7/config-x86_64-linux-gnu
+export PYTHON=python2.7
+
+For other versions of Python modify accordingly.
+
+Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
+
+	git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+
+Run make in <work_dir>/iUtilities.
+
+Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
+
+	git clone https://github.com/CCPPETMR/xGadgetron
+
+Go to <work_dir>/xGadgetron/cGadgetron and run make.
+
+Go to <work_dir>/xGadgetron/pGadgetron and run make.
+
+Go to <work_dir>/xGadgetron/examples, run make and run python demos.
+
+====================================================================================
+Gadgetron Matlab interface installation under Windows for using with Linux VM
+====================================================================================
+
+Install Boost and Ismsmrd.
+
+Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
+
+git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+
+Build iUtilities solution in <work_dir>/iUtilities folder.
+
+Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>.
+
+Click Start -> Control Panel -> System and Security -> System -> 
+Advanced System Settings -> Environment Variables
+and add the following user variables:
+
+Variable         Value
+
+BOOST            Path to Boost include folder*
+BOOST_LIB        Path to Boost libraries folder
+ISMRMRD_INCLUDE  Path to Ismrmrd include folder
+ISMRMRD_LIB      Path to Ismrmrd library folder
+CGADGETRON       <work_dir>/xGadgetron/cGadgetron
+---
+*NOTE: Boost include folder is the one that contains "boost" folder, e.g.
+ if your Boost root folder is C:\Boost then for Boost-1_58 it is 
+
+   C:\Boost\include\boost-1_58
+
+ whereas for Boost_1_59_0 it is 
+
+   C:\Boost\boost_1_59_0
+
+Build cGadgetron x64/Release solution (select "Release" in "Solution Configurations" box 
+and "x64" in "Solution Platforms" box) in <work_dir>/xGadgetron/cGadgetron.
+
+Run mex_gadgetron.m in <work_dir>/xGadgetron/mGadgetron.
+
+Add mGadgetron folder to Matlab path.
+
+Execute
+
+   <ismrmrd_root>\utilities\Release\ismrmrd_generate_cartesian_shepp_logan.exe -r 2
+
+to create the input file for demos and run demos.
+
