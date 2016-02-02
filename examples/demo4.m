@@ -37,7 +37,9 @@ try
     
     input_data = gadgetron.ISMRMRDataset('testdata.h5');
     
-    images = recon.process(input_data);
+    recon.set_input(input_data)
+    recon.process()
+    images = recon.get_output();
     
     data = images.image_as_array(0);
     figure(1000000)

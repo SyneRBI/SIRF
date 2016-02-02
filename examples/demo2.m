@@ -23,7 +23,9 @@ try
 	recon.add_gadget('g4', gadget4);
 	recon.add_gadget('g5', gadget5);
     
-    images = recon.process(input_data);
+    recon.set_input(input_data)
+    recon.process()
+    images = recon.get_output();
     
     proc = gadgetron.ImagesProcessor();
     proc.add_gadget('g6', gadget6);
