@@ -18,13 +18,13 @@ For other versions of Python modify accordingly.
 
 Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
 
-	git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+  git clone https://github.com/evgueni-ovtchinnikov/iUtilities
 
 Run make in <work_dir>/iUtilities.
 
 Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
 
-	git clone https://github.com/CCPPETMR/xGadgetron
+  git clone https://github.com/CCPPETMR/xGadgetron
 
 Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
@@ -40,11 +40,14 @@ Install Boost and Ismsmrd.
 
 Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
 
-git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+  git clone https://github.com/evgueni-ovtchinnikov/iUtilities
 
-Build iUtilities solution in <work_dir>/iUtilities folder.
+Build iUtilities x64/Release solution (select "Release" in "Solution Configurations" box 
+and "x64" in "Solution Platforms" box) in <work_dir>/iUtilities folder.
 
-Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>.
+Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
+
+  git clone https://github.com/CCPPETMR/xGadgetron
 
 Click Start -> Control Panel -> System and Security -> System -> 
 Advanced System Settings -> Environment Variables
