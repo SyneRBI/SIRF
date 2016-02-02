@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include <boost\algorithm\string.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "stir/StirException.h"
 

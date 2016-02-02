@@ -8,7 +8,7 @@ except:
 import numpy
 # import STIR interface library
 import sys
-sys.path.append('..\pSTIR')
+sys.path.append('../pSTIR')
 import stir
 
 # if anything goes wrong, an exception will be thrown 

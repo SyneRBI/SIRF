@@ -5,7 +5,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
-sys.path.append('..\pSTIR')
+sys.path.append('../pSTIR')
 import stir
 
 try:
