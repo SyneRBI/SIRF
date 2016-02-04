@@ -88,7 +88,8 @@ public:
 	AcqAccTrigGadget() : trigger_dimension_("repetition"), sorting_dimension_("slice") {
 		name_ = "AcquisitionAccumulateTriggerGadget";
 	}
-	virtual void set_property(const char* prop, const char* value) {
+	virtual void set_property(const char* prop, const char* value) 
+	{
 		if (boost::iequals(prop, "trigger_dimension"))
 			trigger_dimension_ = value;
 		else if (boost::iequals(prop, "sorting_dimension"))
@@ -96,7 +97,8 @@ public:
 		else
 			THROW("unknown gadget parameter");
 	}
-	virtual std::string xml() const {
+	virtual std::string xml() const 
+	{
 		std::string xml_script("<gadget>\n");
 	        xml_script += " <name>AccTrig</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
@@ -122,7 +124,8 @@ public:
 	BucketToBuffGadget() : n_dimension_(""), s_dimension_(""), split_slices_("true") {
 		name_ = "BucketToBufferGadget";
 	}
-	virtual void set_property(const char* prop, const char* value) {
+	virtual void set_property(const char* prop, const char* value) 
+	{
 		if (boost::iequals(prop, "n_dimension"))
 			n_dimension_ = value;
 		else if (boost::iequals(prop, "s_dimension"))
@@ -220,6 +223,48 @@ public:
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
+};
+
+class SimpleReconstructionGadgetSet : public aGadget {
+public:
+	SimpleReconstructionGadgetSet() 
+	{
+		name_ = "SimpleReconGadgetSet";
+	}
+	virtual void set_property(const char* prop, const char* value) 
+	{
+		if (boost::iequals(prop, "trigger_dimension"))
+			aat_.set_property(prop, value);
+		else if (boost::iequals(prop, "sorting_dimension"))
+			aat_.set_property(prop, value);
+		else if (boost::iequals(prop, "n_dimension"))
+			bb_.set_property(prop, value);
+		else if (boost::iequals(prop, "s_dimension"))
+			bb_.set_property(prop, value);
+		else if (boost::iequals(prop, "split_slices"))
+			bb_.set_property(prop, value);
+		else
+			THROW("unknown gadget parameter");
+	}
+	virtual std::string xml() const 
+	{
+		std::string xml_script;
+		xml_script += aat_.xml();
+		xml_script += bb_.xml();
+		xml_script += sr_.xml();
+		xml_script += ias_.xml();
+		return xml_script;
+	}
+private:
+	AcqAccTrigGadget aat_;
+	BucketToBuffGadget bb_;
+	SimpleReconstructionGadget sr_;
+	ImgArrSplitGadget ias_;
+	//std::string trigger_dimension_;
+	//std::string sorting_dimension_;
+	//std::string n_dimension_;
+	//std::string s_dimension_;
+	//std::string split_slices_;
 };
 
 #endif

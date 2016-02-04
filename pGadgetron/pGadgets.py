@@ -114,3 +114,12 @@ class ImageFinishGadget:
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
 
+class SimpleReconGadgetSet(GadgetWithProperties):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('SimpleReconGadgetSet')
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+

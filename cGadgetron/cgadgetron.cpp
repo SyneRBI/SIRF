@@ -79,6 +79,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, ExtGadget>();
 		else if (boost::iequals(name, "ImageFinishGadget"))
 			return newObjectHandle<aGadget, ImgFinishGadget>();
+		else if (boost::iequals(name, "SimpleReconGadgetSet"))
+			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
 		std::cout << "object " << name << "		not found" << std::endl;
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
@@ -522,6 +524,8 @@ cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
 		if (boost::iequals(g.name(), "AcquisitionAccumulateTriggerGadget"))
 			g.set_property(prop, value);
 		else if (boost::iequals(g.name(), "BucketToBufferGadget"))
+			g.set_property(prop, value);
+		else if (boost::iequals(g.name(), "SimpleReconGadgetSet"))
 			g.set_property(prop, value);
 		//else
 		//	return unknownObject

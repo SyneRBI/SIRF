@@ -25,26 +25,21 @@ try:
     # create reconstruction object
     recon = pGadgetron.MRIReconstruction()
 
-    # build reconstruction chain
+    # build gadgets chain
     recon.add_gadget('g1', gadget1)
     recon.add_gadget('g2', gadget2)
     recon.add_gadget('g3', gadget3)
     recon.add_gadget('g4', gadget4)
     recon.add_gadget('g5', gadget5)
+    recon.add_gadget('g6', gadget6)
 
     # connect to input data
     recon.set_input(input_data)
     # perform reconstruction
     recon.process()
-
+    
     # get reconstructed images
-    imgs = recon.get_output()
-
-    # build image processing chain
-    proc = pGadgetron.ImagesProcessor()
-    proc.add_gadget('g6', gadget6)
-
-    images = proc.process(imgs)
+    images = recon.get_output()
 
     # plot reconstructed images
     for i in range(images.number()):
@@ -52,6 +47,11 @@ try:
         pylab.figure(i + 1)
         pylab.imshow(data[:,:,0])
         pylab.show()
+
+    # write images to a new group in 'output1.h5'
+    # named after the current date and time
+    time_str = time.asctime()
+    images.write('output1.h5', time_str)
 
 except pGadgetron.error as err:
     # display error information
