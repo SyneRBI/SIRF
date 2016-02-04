@@ -30,6 +30,9 @@
     <ClInclude Include="xgadgetron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gadgetron_data_containers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cgadgetron.cpp">

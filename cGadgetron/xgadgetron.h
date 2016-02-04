@@ -35,173 +35,6 @@ private:
 	boost::shared_ptr<GadgetronClientConnector> sptr_con_;
 };
 
-class ImagesList {
-public:
-	std::list<boost::shared_ptr<ImageWrap> >& operator()() {
-		return images_;
-	}
-	const std::list<boost::shared_ptr<ImageWrap> >& operator()() const {
-		return images_;
-	}
-	int size() const {
-		return (int)images_.size();
-	}
-	void write(std::string filename, std::string groupname)
-	{
-		if (images_.size() < 1)
-			return;
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
-		mtx.lock();
-		ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
-		mtx.unlock();
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		for (i = images_.begin(); i != images_.end(); i++) {
-			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-			ImageWrap& iw = *sptr_iw;
-			int type = iw.type();
-			void* ptr = iw.ptr_image();
-			if (type == ISMRMRD::ISMRMRD_USHORT)
-				writeImage(*(ISMRMRD::Image<unsigned short>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_SHORT)
-				writeImage(*(ISMRMRD::Image<short>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_UINT)
-				writeImage(*(ISMRMRD::Image<unsigned int>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_INT)
-				writeImage(*(ISMRMRD::Image<int>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_FLOAT)
-				writeImage(*(ISMRMRD::Image<float>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-				writeImage(*(ISMRMRD::Image<double>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-				writeImage(*(ISMRMRD::Image< std::complex<float> >*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-				writeImage(*(ISMRMRD::Image< std::complex<double> >*)ptr, dataset, mtx);
-		}
-	}
-	void getImageDimensions(int im_num, int* dim) {
-		if (im_num < 0 || im_num >= images_.size())
-			dim[0] = dim[1] = dim[2] = 0;
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		int count = 0;
-		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
-			count++;
-		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
-		int type = iw.type();
-		void* ptr = iw.ptr_image();
-		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageDim(*(ISMRMRD::Image<unsigned short>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_SHORT)
-			getImageDim(*(ISMRMRD::Image<short>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageDim(*(ISMRMRD::Image<unsigned int>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_INT)
-			getImageDim(*(ISMRMRD::Image<int>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_FLOAT)
-			getImageDim(*(ISMRMRD::Image<float>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-			getImageDim(*(ISMRMRD::Image<double>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageDim(*(ISMRMRD::Image< std::complex<float> >*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageDim(*(ISMRMRD::Image< std::complex<double> >*)ptr, dim);
-	}
-	void getImageDataAsDoubleArray(int im_num, double* data) {
-		if (im_num < 0 || im_num >= images_.size())
-			return;
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		int count = 0;
-		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
-			count++;
-		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
-		int type = iw.type();
-		void* ptr = iw.ptr_image();
-		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageUnsignedData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_SHORT)
-			getImageData(*(ISMRMRD::Image<short>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageUnsignedData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_INT)
-			getImageData(*(ISMRMRD::Image<int>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_FLOAT)
-			getImageData(*(ISMRMRD::Image<float>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-			getImageData(*(ISMRMRD::Image<double>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageComplexData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageComplexData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
-	}
-
-private:
-	std::list<boost::shared_ptr<ImageWrap> > images_;
-	template<typename T>
-	void writeImage
-		(ISMRMRD::Image<T>& im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
-	{
-		std::stringstream ss;
-		ss << "image_" << im.getHead().image_series_index;
-		std::string image_varname = ss.str();
-		{
-			mtx.lock();
-			dataset.appendImage(image_varname, im);
-			mtx.unlock();
-		}
-	}
-	template<typename T>
-	void getImageDim(ISMRMRD::Image<T>& im, int* dim) {
-		dim[0] = im.getMatrixSizeX();
-		dim[1] = im.getMatrixSizeY();
-		dim[2] = im.getMatrixSizeZ();
-	}
-
-#define ABS(X) ((X < 0) ? -X : X)
-
-	template<typename T>
-	void getImageData(ISMRMRD::Image<T>& im, double* data) {
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		T* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = ABS(ptr[i]);
-	}
-	template<typename T>
-	void getImageUnsignedData(ISMRMRD::Image<T>& im, double* data) {
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		T* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = ptr[i];
-	}
-	template<typename T>
-	void getImageComplexData(ISMRMRD::Image< std::complex<T> >& im, double* data) 
-	{
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		std::complex<T>* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = std::abs(ptr[i]);
-	}
-};
-
 class GadgetHandle {
 public:
 	GadgetHandle(std::string id, boost::shared_ptr<aGadget> sptr_g) : 
@@ -285,11 +118,9 @@ public:
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
 		set_endgadget(endgadget);
-		ImagesList& images = *sptr_images_;
-		//ImagesList& images = *sptr_images_.get();
 		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(images())));
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
 	}
 
 	void process(ISMRMRD::Dataset& input) {
@@ -327,7 +158,7 @@ public:
 		con_().wait();
 	}
 
-	boost::shared_ptr<ImagesList> get_output() {
+	boost::shared_ptr<ImagesContainer> get_output() {
 		return sptr_images_;
 	}
 
@@ -340,7 +171,7 @@ private:
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 	// for writing to a file
 	//boost::shared_ptr<ISMRMRD::Dataset> sptr_images_ds_;
-	boost::shared_ptr<ImagesList> sptr_images_;
+	boost::shared_ptr<ImagesContainer> sptr_images_;
 };
 
 class ImagesProcessor : public GadgetChain {
@@ -355,13 +186,13 @@ public:
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
 		set_endgadget(endgadget);
-		ImagesList& images = *sptr_images_;
 		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(images())));
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
 	}
 
-	void process(ImagesList& input) {
+	void process(ImagesContainer& images)
+	{
 		std::string config = xml();
 		//std::cout << config << std::endl;
 
@@ -369,15 +200,8 @@ public:
 
 		con_().send_gadgetron_configuration_script(config);
 
-		std::list<boost::shared_ptr<ImageWrap> >& images = input();
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		for (i = images.begin(); i != images.end(); i++) {
-			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-			ImageWrap& iw = *sptr_iw;
+		for (int i = 0; i < images.number(); i++) {
+			ImageWrap& iw = images.imageWrap(i);
 			con_().send_wrapped_image(iw);
 		}
 
@@ -385,7 +209,7 @@ public:
 		con_().wait();
 	}
 
-	boost::shared_ptr<ImagesList> get_output() {
+	boost::shared_ptr<ImagesContainer> get_output() {
 		return sptr_images_;
 	}
 
@@ -395,7 +219,7 @@ private:
 	GTConnector con_;
 	boost::shared_ptr<IsmrmrdImgMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	boost::shared_ptr<ImagesList> sptr_images_;
+	boost::shared_ptr<ImagesContainer> sptr_images_;
 };
 
 #endif

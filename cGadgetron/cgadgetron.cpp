@@ -52,7 +52,7 @@ void* cGT_newObject(const char* name)
 		else if (boost::iequals(name, "string"))
 			return newObjectHandle<std::string, std::string>();
 		else if (boost::iequals(name, "ImagesList"))
-			return newObjectHandle<ImagesList, ImagesList>();
+			return newObjectHandle<ImagesContainer, ImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
 		else if (boost::iequals(name, "MRIReconstruction"))
@@ -218,13 +218,12 @@ cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
 		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
 		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
 		recon.process(input);
-		boost::shared_ptr<ImagesList> sptr_im = recon.get_output();
-		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
 		return (void*)ptr_handle;
 	}
 	CATCH;
 
-	//return (void*)new DataHandle;
 }
 
 extern "C"
@@ -234,8 +233,8 @@ cGT_reconstructedImagesList(void* ptr_recon)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
-		boost::shared_ptr<ImagesList> sptr_im = recon.get_output();
-		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
 		return (void*)ptr_handle;
 	}
 	CATCH;
@@ -250,10 +249,10 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		CAST_PTR(DataHandle, h_proc, ptr_proc);
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
-		ImagesList& input = objectFromHandle<ImagesList>(h_input);
+		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
-		boost::shared_ptr<ImagesList> sptr_im = proc.get_output();
-		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
+		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
 		return (void*)ptr_handle;
 	}
 	CATCH;
@@ -400,10 +399,11 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 		CAST_PTR(DataHandle, h_img, ptr_img);
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		ImagesList& images = objectFromHandle<ImagesList>(h_img);
+		boost::shared_ptr<ImagesContainer> sptr_images = 
+			objectSptrFromHandle<ImagesContainer>(h_img);
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(images())));
+			(new GadgetronClientImageMessageCollector(sptr_images)));
 	}
 	CATCH
 
@@ -457,16 +457,9 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		ImagesList& img = objectFromHandle<ImagesList>(h_img);
-		std::list<boost::shared_ptr<ImageWrap> >& images = img();
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		for (i = images.begin(); i != images.end(); i++) {
-			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-			ImageWrap& iw = *sptr_iw;
+		ImagesContainer& images = objectFromHandle<ImagesContainer>(h_img);
+		for (int i = 0; i < images.number(); i++) {
+			ImageWrap& iw = images.imageWrap(i);
 			con.send_wrapped_image(iw);
 		}
 	}
@@ -481,7 +474,7 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
+		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 		list.write(out_file, out_group);
 	}
 	CATCH
@@ -494,8 +487,8 @@ int
 cGT_numImages(void* ptr_imgs)
 {
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
-	return list.size();
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	return list.number();
 }
 
 extern "C"
@@ -504,7 +497,7 @@ cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.getImageDimensions(im_num, dim);
 }
 
@@ -514,7 +507,7 @@ cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
 {
 	double* data = (double*)ptr_data;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesList& list = objectFromHandle<ImagesList>(h_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.getImageDataAsDoubleArray(im_num, data);
 }
 
