@@ -39,6 +39,47 @@ public:
 	virtual ~aDataContainer() {}
 };
 
+class AcquisitionsContainer : public aDataContainer {
+public:
+	virtual int number() = 0;
+	std::string parameters() const
+	{
+		return par_;
+	}
+	void setParameters(std::string par)
+	{
+		par_ = par;
+	}
+	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+protected:
+	std::string par_;
+};
+
+class AcquisitionsFile : public AcquisitionsContainer {
+public:
+	AcquisitionsFile(std::string filename) : 
+		dataset_(filename.c_str(), "/dataset", false)
+	{
+		dataset_.readHeader(par_);
+	}
+	virtual int number()
+	{
+		return dataset_.getNumberOfAcquisitions();
+	}
+private:
+	ISMRMRD::Dataset dataset_;
+};
+
+class AcquisitionsList : public AcquisitionsContainer {
+public:
+	virtual int number()
+	{
+		return (int)acqs_.size();
+	}
+private:
+	std::list<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
+};
+
 class ImageWrap {
 public:
 	ImageWrap(uint16_t type, void* ptr_im) 
@@ -81,10 +122,10 @@ private:
 class ImagesContainer : public aDataContainer {
 public:
 	virtual int number() const = 0;
-	virtual ImageWrap& imageWrap(int im_num) = 0;
+	virtual ImageWrap& imageWrap(unsigned int im_num) = 0;
 	virtual void append(int image_data_type, void* ptr_image) = 0;
-	virtual void getImageDimensions(int im_num, int* dim) = 0;
-	virtual void getImageDataAsDoubleArray(int im_num, double* data) = 0;
+	virtual void getImageDimensions(unsigned int im_num, int* dim) = 0;
+	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 };
 
@@ -99,14 +140,14 @@ public:
 		images_.push_back(boost::shared_ptr<ImageWrap>
 			(new ImageWrap(image_data_type, ptr_image)));
 	}
-	virtual ImageWrap& imageWrap(int im_num) 
+	virtual ImageWrap& imageWrap(unsigned int im_num)
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
 #endif
-		int count = 0;
+		unsigned int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
 		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
@@ -149,7 +190,7 @@ public:
 				writeImage(*(ISMRMRD::Image< std::complex<double> >*)ptr, dataset, mtx);
 		}
 	}
-	virtual void getImageDimensions(int im_num, int* dim) 
+	virtual void getImageDimensions(unsigned int im_num, int* dim)
 	{
 		if (im_num < 0 || im_num >= images_.size())
 			dim[0] = dim[1] = dim[2] = 0;
@@ -173,7 +214,7 @@ public:
 		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
 			getImageDim(*(ISMRMRD::Image< std::complex<double> >*)ptr, dim);
 	}
-	virtual void getImageDataAsDoubleArray(int im_num, double* data) 
+	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data)
 	{
 		ImageWrap& iw = imageWrap(im_num);
 		int type = iw.type();
