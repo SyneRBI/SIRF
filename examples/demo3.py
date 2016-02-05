@@ -13,7 +13,7 @@ try:
     
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()
-    gadget2 = pGadgets.SimpleReconGadgetSet()
+    gadget2 = pGadgets.SimpleReconstructionGadget()
     gadget3 = pGadgets.ExtractGadget()
 
     # set gadgets parameters

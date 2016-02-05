@@ -1,9 +1,9 @@
-classdef SimpleReconGadgetSet < gadgets.GadgetWithProperties
+classdef SimpleReconstructionGadget < gadgets.GadgetWithProperties
     properties
         handle_
     end
     methods
-        function self = SimpleReconGadgetSet()
+        function self = SimpleReconstructionGadget()
             self.name_ = 'SimpleReconGadgetSet';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             gadgetron.checkExecutionStatus(self.name_, self.handle_);

@@ -10,7 +10,7 @@ end
 try
     % define gadgets
     gadget1 = gadgets.RemoveROOversamplingGadget();
-	gadget2 = gadgets.SimpleReconGadgetSet();
+	gadget2 = gadgets.SimpleReconstructionGadget();
 	gadget3 = gadgets.ExtractGadget();
     
     % set gadgets parameters
