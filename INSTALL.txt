@@ -16,9 +16,9 @@ export PYTHON=python2.7
 
 For other versions of Python modify accordingly.
 
-Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
+Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
-  git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+  git clone https://github.com/CCPPETMR/iUtilities
 
 Run make in <work_dir>/iUtilities.
 
@@ -38,9 +38,9 @@ Gadgetron Matlab interface installation under Windows for using with Linux VM
 
 Install Boost and Ismsmrd.
 
-Clone iUtilities from github.com/evgueni-ovtchinnikov/iUtilties into <work_dir>:
+Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
-  git clone https://github.com/evgueni-ovtchinnikov/iUtilities
+  git clone https://github.com/CCPPETMR/iUtilities
 
 Build iUtilities x64/Release solution (select "Release" in "Solution Configurations" box 
 and "x64" in "Solution Platforms" box) in <work_dir>/iUtilities folder.

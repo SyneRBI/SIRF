@@ -158,6 +158,41 @@ public:
 		con_().wait();
 	}
 
+	void process(AcquisitionsContainer& acquisitions) {
+
+		std::string config = xml();
+		//std::cout << config << std::endl;
+
+		con_().connect(host_, port_);
+
+		con_().send_gadgetron_configuration_script(config);
+
+		par_ = acquisitions.parameters();
+		con_().send_gadgetron_parameters(par_);
+
+		boost::mutex& mtx = con_.mutex();
+		uint32_t nacquisitions = 0;
+		{
+			mtx.lock();
+			nacquisitions = acquisitions.number();
+			mtx.unlock();
+		}
+
+		//std::cout << nacquisitions << " acquisitions" << std::endl;
+
+		ISMRMRD::Acquisition acq_tmp;
+		for (uint32_t i = 0; i < nacquisitions; i++) {
+			{
+				boost::mutex::scoped_lock scoped_lock(mtx);
+				acquisitions.getAcquisition(i, acq_tmp);
+			}
+			con_().send_ismrmrd_acquisition(acq_tmp);
+		}
+
+		con_().send_gadgetron_close();
+		con_().wait();
+	}
+
 	boost::shared_ptr<ImagesContainer> get_output() {
 		return sptr_images_;
 	}

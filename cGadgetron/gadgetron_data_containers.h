@@ -66,6 +66,10 @@ public:
 	{
 		return dataset_.getNumberOfAcquisitions();
 	}
+	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) 
+	{
+		dataset_.readAcquisition(num, acq);
+	}
 private:
 	ISMRMRD::Dataset dataset_;
 };

@@ -3,6 +3,7 @@
 
 extern "C" {
 	void* cGT_newObject(const char* name);
+	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 	void* cGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);

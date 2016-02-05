@@ -20,6 +20,7 @@
 #include <chrono>
 #include <condition_variable>
 
+//#include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
 #include "data_handle.h"
 #include "xgadgetron.h"
@@ -89,11 +90,21 @@ void* cGT_newObject(const char* name)
 
 extern "C"
 void*
+cGT_ISMRMRDAcquisitionsFromFile(const char* file)
+{
+	try {
+		boost::shared_ptr<AcquisitionsContainer> acquisitions(new AcquisitionsFile(file));
+		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+	}
+	CATCH
+}
+
+extern "C"
+void*
 cGT_ISMRMRDatasetFromFile(const char* file, const char* group)
 {
 	try {
-		boost::shared_ptr<ISMRMRD::Dataset> ismrmrd_dataset;
-		ismrmrd_dataset = boost::shared_ptr<ISMRMRD::Dataset>
+		boost::shared_ptr<ISMRMRD::Dataset> ismrmrd_dataset
 			(new ISMRMRD::Dataset(file, group, false));
 		return sptrObjectHandle<ISMRMRD::Dataset>(ismrmrd_dataset);
 	}
