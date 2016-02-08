@@ -232,6 +232,45 @@ protected:
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
+class GadgetronClientAcquisitionMessageCollector : public GadgetronClientMessageReader
+{
+public:
+	GadgetronClientAcquisitionMessageCollector
+		(boost::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
+
+	~GadgetronClientAcquisitionMessageCollector() {}
+
+	virtual void read(tcp::socket* stream)
+	{
+		ISMRMRD::Acquisition acq;
+		ISMRMRD::AcquisitionHeader h;
+		boost::asio::read
+			(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::AcquisitionHeader)));
+		acq.setHead(h);
+		unsigned long trajectory_elements =
+			acq.getHead().trajectory_dimensions * acq.getHead().number_of_samples;
+		unsigned long data_elements =
+			acq.getHead().active_channels * acq.getHead().number_of_samples;
+
+		if (trajectory_elements) {
+			boost::asio::read
+				(*stream, boost::asio::buffer
+				(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
+		}
+		if (data_elements) {
+			boost::asio::read
+				(*stream,
+				boost::asio::buffer
+				(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
+		}
+
+		ptr_acqs_->appendAcquisition(acq);
+	}
+
+private:
+	boost::shared_ptr<AcquisitionsContainer> ptr_acqs_;
+};
+
 class GadgetronClientImageMessageCollector : public GadgetronClientMessageReader
 {
 public:

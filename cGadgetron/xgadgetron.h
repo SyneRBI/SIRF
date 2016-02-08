@@ -106,6 +106,33 @@ private:
 	boost::shared_ptr<aGadget> endgadget_;
 };
 
+class AcquisitionsProcessor : public GadgetChain {
+public:
+	AcquisitionsProcessor(std::string filename) :
+		host_("localhost"), port_("9002"),
+		reader_(new IsmrmrdAcqMsgReader),
+		writer_(new IsmrmrdAcqMsgWriter),
+		sptr_acqs_(new AcquisitionsFile(filename, true))
+	{
+		add_reader("reader", reader_);
+		add_writer("writer", writer_);
+		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
+		set_endgadget(endgadget);
+		con_().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+	}
+
+private:
+	std::string host_;
+	std::string port_;
+	GTConnector con_;
+	std::string par_;
+	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
+	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
+	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
+};
+
 class MRIReconstruction : public GadgetChain {
 public:
 	MRIReconstruction() :

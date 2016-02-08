@@ -20,7 +20,7 @@
 #include <chrono>
 #include <condition_variable>
 
-//#include "gadgetron_data_containers.h"
+#include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
 #include "data_handle.h"
 #include "xgadgetron.h"
@@ -62,6 +62,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GadgetChain, ImagesProcessor>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
 			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
+		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageWriter"))
+			return newObjectHandle<aGadget, IsmrmrdAcqMsgWriter>();
 		else if (boost::iequals(name, "MRIImageReader"))
 			return newObjectHandle<aGadget, IsmrmrdImgMsgReader>();
 		else if (boost::iequals(name, "MRIImageWriter"))
@@ -80,6 +82,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, ExtGadget>();
 		else if (boost::iequals(name, "ImageFinishGadget"))
 			return newObjectHandle<aGadget, ImgFinishGadget>();
+		else if (boost::iequals(name, "AcquisitionFinishGadget"))
+			return newObjectHandle<aGadget, AcqFinishGadget>();
 		else if (boost::iequals(name, "SimpleReconGadgetSet"))
 			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
 		std::cout << "object " << name << "		not found" << std::endl;
@@ -95,6 +99,17 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 	try {
 		boost::shared_ptr<AcquisitionsContainer> acquisitions(new AcquisitionsFile(file));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_acquisitionsProcessor(const char* file)
+{
+	try {
+		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor(file));
+		return sptrObjectHandle<AcquisitionsProcessor>(proc);
 	}
 	CATCH
 }
@@ -219,6 +234,24 @@ cGT_setEndGadget(void* ptr_gc, const void* ptr_g)
 	CATCH
 
 		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_reconstructImages(void* ptr_recon, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_recon, ptr_recon);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
+		recon.process(input);
+		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
+		return (void*)ptr_handle;
+	}
+	CATCH;
+
 }
 
 extern "C"

@@ -9,7 +9,8 @@ import pGadgets
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.ISMRMRDataset('testdata.h5')
+    input_data = pGadgetron.ISMRMRDAcquisitions('testdata.h5')
+    #input_data = pGadgetron.ISMRMRDataset('testdata.h5')
     
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()
@@ -20,7 +21,8 @@ try:
     gadget2.set_property('split_slices', 'true')
 
     # create reconstruction object
-    recon = pGadgetron.MRIReconstruction()
+    recon = pGadgetron.ImagesReconstructor()
+    #recon = pGadgetron.MRIReconstruction()
 
     # build reconstruction chain
     recon.add_gadget('g1', gadget1)

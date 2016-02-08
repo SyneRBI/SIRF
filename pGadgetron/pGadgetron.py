@@ -134,11 +134,37 @@ class ISMRMRDataset(PyGadgetronObject):
 class ISMRMRDAcquisitions(PyGadgetronObject):
     def __init__(self, file):
         self.handle = None
-        self.handle = pygadgetron.cGT_ISMRMRAcquisitionsFromFile(file)
+        self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+
+class ImagesReconstructor(GadgetChain):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('MRIReconstruction')
+        _check_status(self.handle)
+        self.input_data = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    def set_input(self, input_data):
+        self.input_data = input_data
+    def process(self):
+        if self.input_data is None:
+            raise error('no input data')
+        handle = pygadgetron.cGT_reconstructImages\
+             (self.handle, self.input_data.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+    def get_output(self):
+        images = ImagesList()
+        if images.handle is not None:
+            pygadgetron.deleteObject(images.handle)
+        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
+        _check_status(images.handle)
+        return images
 
 class MRIReconstruction(GadgetChain):
     def __init__(self):

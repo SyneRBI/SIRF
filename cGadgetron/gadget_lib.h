@@ -34,6 +34,23 @@ public:
 	}
 };
 
+class IsmrmrdAcqMsgWriter : public aGadget {
+public:
+	IsmrmrdAcqMsgWriter() {
+		name_ = "GadgetIsmrmrdAcquisitionMessageWriter";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const {
+		std::string xml_script("<writer>\n");
+		xml_script += " <slot>1008</slot>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script +=
+			" <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>\n";
+		xml_script += "</writer>\n";
+		return xml_script;
+	}
+};
+
 class IsmrmrdImgMsgReader : public aGadget {
 public:
 	IsmrmrdImgMsgReader() {
@@ -217,9 +234,25 @@ public:
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-    xml_script += " <name>ImageFinish</name>\n";
+		xml_script += " <name>ImageFinish</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>ImageFinishGadget</classname>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+};
+
+class AcqFinishGadget : public aGadget {
+public:
+	AcqFinishGadget() {
+		name_ = "AcquisitionFinishGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>AcquisitionFinish</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>AcquisitionFinishGadget</classname>\n";
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}

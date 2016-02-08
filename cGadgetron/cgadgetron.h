@@ -4,6 +4,7 @@
 extern "C" {
 	void* cGT_newObject(const char* name);
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
+	void* cGT_acquisitionsProcessor(const char* file);
 	void* cGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 	void* cGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
@@ -21,6 +22,7 @@ extern "C" {
 	void* cGT_registerHDFReceiver
 		(void* ptr_con, const char* file, const char* group);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
+	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImagesList(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);

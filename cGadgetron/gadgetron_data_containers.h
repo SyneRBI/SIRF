@@ -51,14 +51,16 @@ public:
 		par_ = par;
 	}
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
+
 protected:
 	std::string par_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
-	AcquisitionsFile(std::string filename) : 
-		dataset_(filename.c_str(), "/dataset", false)
+	AcquisitionsFile(std::string filename, bool create = false) : 
+		dataset_(filename.c_str(), "/dataset", create)
 	{
 		dataset_.readHeader(par_);
 	}
@@ -66,9 +68,13 @@ public:
 	{
 		return dataset_.getNumberOfAcquisitions();
 	}
-	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) 
+	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
 		dataset_.readAcquisition(num, acq);
+	}
+	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
+	{
+		dataset_.appendAcquisition(acq);
 	}
 private:
 	ISMRMRD::Dataset dataset_;
