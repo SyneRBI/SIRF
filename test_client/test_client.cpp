@@ -43,6 +43,7 @@
 #include "cgadgetron.h"
 #include "xgadgetron.h"
 #include "gadget_lib.h"
+#include "gadgetron_data_containers.h"
 #include "iutilities.h"
 
 #include "text_writer.h"
@@ -121,6 +122,15 @@ int test6(
 	const char* out_file,
 	const char* out_group);
 
+int test7(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group);
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
@@ -181,6 +191,15 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
+	return test7(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out7.h5",
+		hdf5_out_group.c_str());
+
 	return test6(
 		host_name.c_str(),
 		port.c_str(),
@@ -190,14 +209,14 @@ int main(int argc, char **argv)
 		"out6.h5",
 		hdf5_out_group.c_str());
 
-	//return test5(
-	//	host_name.c_str(),
-	//	port.c_str(),
-	//	timeout_ms,
-	//	in_filename.c_str(),
-	//	hdf5_in_group.c_str(),
-	//	"out5.h5",
-	//	hdf5_out_group.c_str());
+	return test5(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out5.h5",
+		hdf5_out_group.c_str());
 
 	return test3(
 		host_name.c_str(),
@@ -599,16 +618,16 @@ int test5(
 			recon.process(input);
 			//std::cout << "ok" << std::endl;
 
-			ImagesList& imgs = *recon.get_output();
+			ImagesList& imgs = (ImagesList&)*recon.get_output();
 			//std::cout << "ok" << std::endl;
 
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
 			//proc.add_gadget("g2", fin);
 			proc.process(imgs);
-			ImagesList& images = *proc.get_output();
+			ImagesList& images = (ImagesList&)*proc.get_output();
 
-			std::cout << images.size() << std::endl;
+			std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
 			images.write(out_file, out_group);
@@ -642,7 +661,8 @@ int test6(
 	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
 
 	try {
-		void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
+		//void* h_data = cGT_ISMRMRDatasetFromFile(in_file, in_group);
+		void* h_data = cGT_ISMRMRDAcquisitionsFromFile(in_file);
 
 		void* h_ro = cGT_newObject("RemoveROOversamplingGadget");
 		void* h_aat = cGT_newObject("AcquisitionAccumulateTriggerGadget");
@@ -661,7 +681,8 @@ int test6(
 		//cGT_addGadget(h_recon, "g6", h_e);
 		//cGT_addGadget(h_recon, "g7", h_if);
 
-		void* h_images = cGT_runMRIReconstruction(h_recon, h_data);
+		//void* h_images = cGT_runMRIReconstruction(h_recon, h_data);
+		void* h_images = cGT_reconstructImages(h_recon, h_data);
 
 		//void* h_images = cGT_reconstructedImagesList(h_recon);
 
@@ -684,6 +705,69 @@ int test6(
 		deleteObject(h_sr);
 		deleteObject(h_ias);
 		deleteObject(h_e);
+	}
+	catch (std::exception& ex) {
+		std::cout << "Error caught: " << ex.what() << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
+int test7(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group)
+{
+	std::cout << "Gadgetron ISMRMRD client" << std::endl;
+	std::cout << "  -- host            :      " << host << std::endl;
+	std::cout << "  -- port            :      " << port << std::endl;
+	std::cout << "  -- hdf5 file  in   :      " << in_file << std::endl;
+	std::cout << "  -- hdf5 group in   :      " << in_group << std::endl;
+	std::cout << "  -- hdf5 file out   :      " << out_file << std::endl;
+	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
+
+	try {
+		void* h_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
+
+		void* h_ro = cGT_newObject("RemoveROOversamplingGadget");
+		void* h_sr = cGT_newObject("SimpleReconGadgetSet");
+		void* h_e = cGT_newObject("ExtractGadget");
+
+		std::string acq_file = out_file;
+		acq_file += out_group;
+		boost::replace_all(acq_file, " ", "_");
+		boost::replace_all(acq_file, ":", "_");
+		boost::replace_all(acq_file, ".h5", "_");
+		acq_file += ".h5";
+		std::cout << acq_file << std::endl;
+		void* h_proc = cGT_acquisitionsProcessor(acq_file.c_str());
+		cGT_addGadget(h_proc, "g1", h_ro);
+
+		void* h_output = cGT_processAcquisitions(h_proc, h_input);
+		if (executionStatus(h_output)) {
+			std::cout << "exception thrown" << std::endl;
+			exit(1);
+		}
+
+		void* h_recon = cGT_newObject("MRIReconstruction");
+		cGT_addGadget(h_recon, "g1", h_sr);
+		cGT_addGadget(h_recon, "g2", h_e);
+
+		void* h_images = cGT_reconstructImages(h_recon, h_output);
+
+		cGT_writeImages(h_images, out_file, out_group);
+
+		deleteObject(h_ro);
+		deleteObject(h_sr);
+		deleteObject(h_e);
+		deleteObject(h_recon);
+		deleteObject(h_input);
+		deleteObject(h_output);
 	}
 	catch (std::exception& ex) {
 		std::cout << "Error caught: " << ex.what() << std::endl;

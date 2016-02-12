@@ -298,7 +298,29 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
 		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
-		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
+		ObjectHandle<ImagesContainer>* ptr_handle = 
+			new ObjectHandle<ImagesContainer>(sptr_im);
+		return (void*)ptr_handle;
+	}
+	CATCH;
+
+}
+
+extern "C"
+void*
+cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_proc, ptr_proc);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		AcquisitionsProcessor& proc = 
+			objectFromHandle<AcquisitionsProcessor>(h_proc);
+		AcquisitionsContainer& input = 
+			objectFromHandle<AcquisitionsContainer>(h_input);
+		proc.process(input);
+		boost::shared_ptr<AcquisitionsContainer> sptr_im = proc.get_output();
+		ObjectHandle<AcquisitionsContainer>* ptr_handle = 
+			new ObjectHandle<AcquisitionsContainer>(sptr_im);
 		return (void*)ptr_handle;
 	}
 	CATCH;

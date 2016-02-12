@@ -123,6 +123,47 @@ public:
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
 	}
 
+	void process(AcquisitionsContainer& acquisitions) {
+
+		std::string config = xml();
+		std::cout << config << std::endl;
+
+		con_().connect(host_, port_);
+
+		con_().send_gadgetron_configuration_script(config);
+
+		par_ = acquisitions.parameters();
+		con_().send_gadgetron_parameters(par_);
+		sptr_acqs_->writeHeader(par_);
+
+		boost::mutex& mtx = con_.mutex();
+		uint32_t nacq = 0;
+		{
+			mtx.lock();
+			nacq = acquisitions.number();
+			mtx.unlock();
+		}
+
+		std::cout << nacq << " acquisitions" << std::endl;
+		//nacq = 15;
+
+		ISMRMRD::Acquisition acq_tmp;
+		for (uint32_t i = 0; i < nacq; i++) {
+			{
+				boost::mutex::scoped_lock scoped_lock(mtx);
+				acquisitions.getAcquisition(i, acq_tmp);
+			}
+			con_().send_ismrmrd_acquisition(acq_tmp);
+		}
+
+		con_().send_gadgetron_close();
+		con_().wait();
+	}
+
+	boost::shared_ptr<AcquisitionsContainer> get_output() {
+		return sptr_acqs_;
+	}
+
 private:
 	std::string host_;
 	std::string port_;
@@ -188,13 +229,14 @@ public:
 	void process(AcquisitionsContainer& acquisitions) {
 
 		std::string config = xml();
-		//std::cout << config << std::endl;
+		std::cout << "config:\n" << config << std::endl;
 
 		con_().connect(host_, port_);
 
 		con_().send_gadgetron_configuration_script(config);
 
 		par_ = acquisitions.parameters();
+		std::cout << "parameters:\n" << par_ << std::endl;
 		con_().send_gadgetron_parameters(par_);
 
 		boost::mutex& mtx = con_.mutex();

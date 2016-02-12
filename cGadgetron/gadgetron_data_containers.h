@@ -41,7 +41,6 @@ public:
 
 class AcquisitionsContainer : public aDataContainer {
 public:
-	virtual int number() = 0;
 	std::string parameters() const
 	{
 		return par_;
@@ -50,8 +49,10 @@ public:
 	{
 		par_ = par;
 	}
+	virtual int number() = 0;
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
+	virtual void writeHeader(const std::string& xml) = 0;
 
 protected:
 	std::string par_;
@@ -59,25 +60,60 @@ protected:
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
-	AcquisitionsFile(std::string filename, bool create = false) : 
-		dataset_(filename.c_str(), "/dataset", create)
+	AcquisitionsFile(std::string filename, bool create = false) //: 
+		//dataset_(new ISMRMRD::Dataset
+		//(filename.c_str(), "/dataset", create))
+		//dataset_(filename.c_str(), "/dataset", create)
 	{
-		dataset_.readHeader(par_);
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
+		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+			(new ISMRMRD::Dataset
+			(filename.c_str(), "/dataset", create));
+		if (!create)
+			dataset_->readHeader(par_);
+		mtx.unlock();
+		//std::cout << "ok\n";
 	}
 	virtual int number()
 	{
-		return dataset_.getNumberOfAcquisitions();
+		//Mutex mutex;
+		//boost::mutex& mtx = mutex();
+		//mtx.lock();
+		int na = dataset_->getNumberOfAcquisitions();
+		//mtx.unlock();
+		return na;
 	}
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
-		dataset_.readAcquisition(num, acq);
+		//Mutex mutex;
+		//boost::mutex& mtx = mutex();
+		//mtx.lock();
+		dataset_->readAcquisition(num, acq);
+		//mtx.unlock();
 	}
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
 	{
-		dataset_.appendAcquisition(acq);
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
+		dataset_->appendAcquisition(acq);
+		mtx.unlock();
 	}
+	virtual void writeHeader(const std::string& xml)
+	{
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
+		dataset_->writeHeader(xml);
+		mtx.unlock();
+		setParameters(xml);
+	}
+
 private:
-	ISMRMRD::Dataset dataset_;
+	//ISMRMRD::Dataset dataset_;
+	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
 class AcquisitionsList : public AcquisitionsContainer {

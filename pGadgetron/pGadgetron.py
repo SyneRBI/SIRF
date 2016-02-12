@@ -222,3 +222,15 @@ class ImagesProcessor(GadgetChain):
 ##        _check_status(images.handle)
 ##        return images
 
+class AcquisitionsProcessor(GadgetChain):
+    def __init__(self):
+        self.handle = None
+        msec = int(round(time.time() * 1000))
+        self.acq_file = 'acq' + str(msec) + '.h5' 
+        self.handle = pygadgetron.cGT_acquisitionsProcessor(self.acq_file)
+        _check_status(self.handle)
+        self.input_data = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+        os.remove(self.acq_file)

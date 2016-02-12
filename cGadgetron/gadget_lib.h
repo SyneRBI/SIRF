@@ -45,7 +45,7 @@ public:
 		xml_script += " <slot>1008</slot>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script +=
-			" <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>\n";
+			" <classname>GadgetIsmrmrdAcquisitionMessageWriter</classname>\n";
 		xml_script += "</writer>\n";
 		return xml_script;
 	}
