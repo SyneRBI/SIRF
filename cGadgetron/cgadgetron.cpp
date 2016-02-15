@@ -27,6 +27,7 @@
 #include "gadget_lib.h"
 
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
+//boost::shared_ptr<GadgetronClientConnector> GTConnector::sptr_con_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -254,23 +255,23 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 
 }
 
-extern "C"
-void*
-cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
-{
-	try {
-		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		CAST_PTR(DataHandle, h_input, ptr_input);
-		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
-		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
-		recon.process(input);
-		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-		return (void*)ptr_handle;
-	}
-	CATCH;
-
-}
+//extern "C"
+//void*
+//cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
+//{
+//	try {
+//		CAST_PTR(DataHandle, h_recon, ptr_recon);
+//		CAST_PTR(DataHandle, h_input, ptr_input);
+//		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+//		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
+//		recon.process(input);
+//		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+//		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
+//		return (void*)ptr_handle;
+//	}
+//	CATCH;
+//
+//}
 
 extern "C"
 void*
@@ -448,7 +449,9 @@ cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
 		CAST_PTR(DataHandle, h_con, ptr_con);
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		boost::mutex& mtx = conn.mutex();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		//boost::mutex& mtx = conn.mutex();
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageReader(file, group, &mtx)));
@@ -488,7 +491,9 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 	
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		boost::mutex& mtx = conn.mutex();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		//boost::mutex& mtx = conn.mutex();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
 	

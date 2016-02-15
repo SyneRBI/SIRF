@@ -765,6 +765,7 @@ int test7(
 		deleteObject(h_ro);
 		deleteObject(h_sr);
 		deleteObject(h_e);
+		deleteObject(h_images);
 		deleteObject(h_recon);
 		deleteObject(h_input);
 		deleteObject(h_output);

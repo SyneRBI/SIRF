@@ -264,7 +264,13 @@ public:
 				(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
 		}
 
-		ptr_acqs_->appendAcquisition(acq);
+		{
+			Mutex mutex;
+			boost::mutex& mtx = mutex();
+			mtx.lock();
+			ptr_acqs_->appendAcquisition(acq);
+			mtx.unlock();
+		}
 	}
 
 private:

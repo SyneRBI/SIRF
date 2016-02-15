@@ -16,7 +16,8 @@
 class GTConnector {
 public:
 	GTConnector() {
-		sptr_mtx_ = boost::shared_ptr<Mutex>(new Mutex);
+		//sptr_mtx_ = boost::shared_ptr<Mutex>(new Mutex);
+		//init_();
 		sptr_con_ = boost::shared_ptr<GadgetronClientConnector>
 			(new GadgetronClientConnector);
 	}
@@ -26,13 +27,22 @@ public:
 	boost::shared_ptr<GadgetronClientConnector> sptr() {
 		return sptr_con_;
 	}
-	boost::mutex& mutex() {
-		Mutex& mtx = *sptr_mtx_.get();
-		return mtx();
-	}
+	//boost::mutex& mutex() {
+	//	Mutex& mtx = *sptr_mtx_.get();
+	//	return mtx();
+	//}
 private:
-	boost::shared_ptr<Mutex> sptr_mtx_;
+	//boost::shared_ptr<Mutex> sptr_mtx_;
 	boost::shared_ptr<GadgetronClientConnector> sptr_con_;
+	//static boost::shared_ptr<GadgetronClientConnector> sptr_con_;
+	//static void init_()
+	//{
+	//	static bool initialized = false;
+	//	if (!initialized) {
+	//		sptr_con_ = boost::shared_ptr<GadgetronClientConnector>(new GadgetronClientConnector);
+	//		initialized = true;
+	//	}
+	//}
 };
 
 class GadgetHandle {
@@ -118,25 +128,41 @@ public:
 		add_writer("writer", writer_);
 		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
 		set_endgadget(endgadget);
-		con_().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+		//con_().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+		//	boost::shared_ptr<GadgetronClientMessageReader>
+		//	(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
 	}
 
 	void process(AcquisitionsContainer& acquisitions) {
 
 		std::string config = xml();
-		std::cout << config << std::endl;
+		//std::cout << config << std::endl;
 
-		con_().connect(host_, port_);
+		GTConnector conn;
 
-		con_().send_gadgetron_configuration_script(config);
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+
+		//con_().connect(host_, port_);
+		//con_().send_gadgetron_configuration_script(config);
+		conn().connect(host_, port_);
+		conn().send_gadgetron_configuration_script(config);
 
 		par_ = acquisitions.parameters();
-		con_().send_gadgetron_parameters(par_);
-		sptr_acqs_->writeHeader(par_);
+		//con_().send_gadgetron_parameters(par_);
+		conn().send_gadgetron_parameters(par_);
+		{
+			Mutex mutex;
+			boost::mutex& mtx = mutex();
+			mtx.lock();
+			sptr_acqs_->writeHeader(par_);
+			mtx.unlock();
+		}
 
-		boost::mutex& mtx = con_.mutex();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		//boost::mutex& mtx = con_.mutex();
 		uint32_t nacq = 0;
 		{
 			mtx.lock();
@@ -144,8 +170,7 @@ public:
 			mtx.unlock();
 		}
 
-		std::cout << nacq << " acquisitions" << std::endl;
-		//nacq = 15;
+		//std::cout << nacq << " acquisitions" << std::endl;
 
 		ISMRMRD::Acquisition acq_tmp;
 		for (uint32_t i = 0; i < nacq; i++) {
@@ -153,11 +178,14 @@ public:
 				boost::mutex::scoped_lock scoped_lock(mtx);
 				acquisitions.getAcquisition(i, acq_tmp);
 			}
-			con_().send_ismrmrd_acquisition(acq_tmp);
+			//con_().send_ismrmrd_acquisition(acq_tmp);
+			conn().send_ismrmrd_acquisition(acq_tmp);
 		}
 
-		con_().send_gadgetron_close();
-		con_().wait();
+		//con_().send_gadgetron_close();
+		//con_().wait();
+		conn().send_gadgetron_close();
+		conn().wait();
 	}
 
 	boost::shared_ptr<AcquisitionsContainer> get_output() {
@@ -167,7 +195,7 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	GTConnector con_;
+	//GTConnector con_;
 	std::string par_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
@@ -186,60 +214,72 @@ public:
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
 		set_endgadget(endgadget);
-		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(sptr_images_)));
+		//con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+		//	boost::shared_ptr<GadgetronClientMessageReader>
+		//	(new GadgetronClientImageMessageCollector(sptr_images_)));
 	}
 
-	void process(ISMRMRD::Dataset& input) {
+	//void process(ISMRMRD::Dataset& input) {
 
-		std::string config = xml();
-		//std::cout << config << std::endl;
+	//	std::string config = xml();
+	//	//std::cout << config << std::endl;
 
-		con_().connect(host_, port_);
+	//	con_().connect(host_, port_);
 
-		con_().send_gadgetron_configuration_script(config);
+	//	con_().send_gadgetron_configuration_script(config);
 
-		input.readHeader(par_);
-		con_().send_gadgetron_parameters(par_);
+	//	input.readHeader(par_);
+	//	con_().send_gadgetron_parameters(par_);
 
-		boost::mutex& mtx = con_.mutex();
-		uint32_t acquisitions = 0;
-		{
-			mtx.lock();
-			acquisitions = input.getNumberOfAcquisitions();
-			mtx.unlock();
-		}
+	//	Mutex mutex;
+	//	boost::mutex& mtx = mutex();
+	//	//boost::mutex& mtx = con_.mutex();
+	//	uint32_t acquisitions = 0;
+	//	{
+	//		mtx.lock();
+	//		acquisitions = input.getNumberOfAcquisitions();
+	//		mtx.unlock();
+	//	}
 
-		//std::cout << acquisitions << " acquisitions" << std::endl;
+	//	//std::cout << acquisitions << " acquisitions" << std::endl;
 
-		ISMRMRD::Acquisition acq_tmp;
-		for (uint32_t i = 0; i < acquisitions; i++) {
-			{
-				boost::mutex::scoped_lock scoped_lock(mtx);
-				input.readAcquisition(i, acq_tmp);
-			}
-			con_().send_ismrmrd_acquisition(acq_tmp);
-		}
+	//	ISMRMRD::Acquisition acq_tmp;
+	//	for (uint32_t i = 0; i < acquisitions; i++) {
+	//		{
+	//			boost::mutex::scoped_lock scoped_lock(mtx);
+	//			input.readAcquisition(i, acq_tmp);
+	//		}
+	//		con_().send_ismrmrd_acquisition(acq_tmp);
+	//	}
 
-		con_().send_gadgetron_close();
-		con_().wait();
-	}
+	//	con_().send_gadgetron_close();
+	//	con_().wait();
+	//}
 
 	void process(AcquisitionsContainer& acquisitions) {
 
 		std::string config = xml();
-		std::cout << "config:\n" << config << std::endl;
+		//std::cout << "config:\n" << config << std::endl;
 
-		con_().connect(host_, port_);
+		GTConnector conn;
 
-		con_().send_gadgetron_configuration_script(config);
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
+
+		//con_().connect(host_, port_);
+		//con_().send_gadgetron_configuration_script(config);
+		conn().connect(host_, port_);
+		conn().send_gadgetron_configuration_script(config);
 
 		par_ = acquisitions.parameters();
-		std::cout << "parameters:\n" << par_ << std::endl;
-		con_().send_gadgetron_parameters(par_);
+		//std::cout << "parameters:\n" << par_ << std::endl;
+		//con_().send_gadgetron_parameters(par_);
+		conn().send_gadgetron_parameters(par_);
 
-		boost::mutex& mtx = con_.mutex();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		//boost::mutex& mtx = con_.mutex();
 		uint32_t nacquisitions = 0;
 		{
 			mtx.lock();
@@ -255,11 +295,14 @@ public:
 				boost::mutex::scoped_lock scoped_lock(mtx);
 				acquisitions.getAcquisition(i, acq_tmp);
 			}
-			con_().send_ismrmrd_acquisition(acq_tmp);
+			//con_().send_ismrmrd_acquisition(acq_tmp);
+			conn().send_ismrmrd_acquisition(acq_tmp);
 		}
 
-		con_().send_gadgetron_close();
-		con_().wait();
+		//con_().send_gadgetron_close();
+		//con_().wait();
+		conn().send_gadgetron_close();
+		conn().wait();
 	}
 
 	boost::shared_ptr<ImagesContainer> get_output() {
@@ -269,7 +312,7 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	GTConnector con_;
+	//GTConnector con_;
 	std::string par_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
@@ -290,9 +333,9 @@ public:
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
 		set_endgadget(endgadget);
-		con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(sptr_images_)));
+		//con_().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+		//	boost::shared_ptr<GadgetronClientMessageReader>
+		//	(new GadgetronClientImageMessageCollector(sptr_images_)));
 	}
 
 	void process(ImagesContainer& images)
@@ -300,17 +343,27 @@ public:
 		std::string config = xml();
 		//std::cout << config << std::endl;
 
-		con_().connect(host_, port_);
+		GTConnector conn;
 
-		con_().send_gadgetron_configuration_script(config);
+		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(sptr_images_)));
+
+		//con_().connect(host_, port_);
+		//con_().send_gadgetron_configuration_script(config);
+		conn().connect(host_, port_);
+		conn().send_gadgetron_configuration_script(config);
 
 		for (int i = 0; i < images.number(); i++) {
 			ImageWrap& iw = images.imageWrap(i);
-			con_().send_wrapped_image(iw);
+			//con_().send_wrapped_image(iw);
+			conn().send_wrapped_image(iw);
 		}
 
-		con_().send_gadgetron_close();
-		con_().wait();
+		//con_().send_gadgetron_close();
+		//con_().wait();
+		conn().send_gadgetron_close();
+		conn().wait();
 	}
 
 	boost::shared_ptr<ImagesContainer> get_output() {
@@ -320,7 +373,7 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	GTConnector con_;
+	//GTConnector con_;
 	boost::shared_ptr<IsmrmrdImgMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 	boost::shared_ptr<ImagesContainer> sptr_images_;

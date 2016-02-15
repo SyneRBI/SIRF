@@ -23,7 +23,7 @@ extern "C" {
 		(void* ptr_con, const char* file, const char* group);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
-	void* cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
+	//void* cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImagesList(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);

@@ -95,19 +95,19 @@ public:
 	}
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
 	{
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
-		mtx.lock();
+		//Mutex mutex;
+		//boost::mutex& mtx = mutex();
+		//mtx.lock();
 		dataset_->appendAcquisition(acq);
-		mtx.unlock();
+		//mtx.unlock();
 	}
 	virtual void writeHeader(const std::string& xml)
 	{
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
-		mtx.lock();
+		//Mutex mutex;
+		//boost::mutex& mtx = mutex();
+		//mtx.lock();
 		dataset_->writeHeader(xml);
-		mtx.unlock();
+		//mtx.unlock();
 		setParameters(xml);
 	}
 

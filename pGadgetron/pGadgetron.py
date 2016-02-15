@@ -48,6 +48,7 @@ class ImagesList(PyGadgetronObject):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
+            #print('deleting images object...')
             pygadgetron.deleteObject(self.handle)
     def size(self):
         return pygadgetron.cGT_numImages(self.handle)
@@ -132,13 +133,22 @@ class ISMRMRDataset(PyGadgetronObject):
             pygadgetron.deleteObject(self.handle)
 
 class ISMRMRDAcquisitions(PyGadgetronObject):
-    def __init__(self, file):
+    def __init__(self, file = None):
         self.handle = None
-        self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
-        _check_status(self.handle)
+        self.file = None
+        if file is not None:
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
+            _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
+            #print('deleting acquisitions object...')
             pygadgetron.deleteObject(self.handle)
+            if self.file is not None:
+                #print('trying to remove', self.file)
+                try:
+                    os.remove(self.file)
+                except:
+                    pass
 
 class ImagesReconstructor(GadgetChain):
     def __init__(self):
@@ -148,6 +158,7 @@ class ImagesReconstructor(GadgetChain):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
+            #print('deleting reconstructor object...')
             pygadgetron.deleteObject(self.handle)
     def set_input(self, input_data):
         self.input_data = input_data
@@ -155,32 +166,6 @@ class ImagesReconstructor(GadgetChain):
         if self.input_data is None:
             raise error('no input data')
         handle = pygadgetron.cGT_reconstructImages\
-             (self.handle, self.input_data.handle)
-        _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
-    def get_output(self):
-        images = ImagesList()
-        if images.handle is not None:
-            pygadgetron.deleteObject(images.handle)
-        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
-        _check_status(images.handle)
-        return images
-
-class MRIReconstruction(GadgetChain):
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('MRIReconstruction')
-        _check_status(self.handle)
-        self.input_data = None
-    def __del__(self):
-        if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
-    def set_input(self, input_data):
-        self.input_data = input_data
-    def process(self):
-        if self.input_data is None:
-            raise error('no input data')
-        handle = pygadgetron.cGT_runMRIReconstruction\
              (self.handle, self.input_data.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
@@ -200,6 +185,7 @@ class ImagesProcessor(GadgetChain):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
+            #print('deleting image processor object...')
             pygadgetron.deleteObject(self.handle)
 ##    def set_input(self, input_data):
 ##        self.input_data = input_data
@@ -213,7 +199,6 @@ class ImagesProcessor(GadgetChain):
              (self.handle, input_data.handle)
         _check_status(images.handle)
         return images
-##        pygadgetron.deleteDataHandle(handle)
 ##    def get_output(self):
 ##        images = ImagesList()
 ##        if images.handle is not None:
@@ -232,5 +217,19 @@ class AcquisitionsProcessor(GadgetChain):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
+            #print('deleting acquisitions processor object...')
             pygadgetron.deleteObject(self.handle)
-        os.remove(self.acq_file)
+        #print('trying to remove', self.acq_file)
+        try:
+            os.remove(self.acq_file)
+        except:
+            pass
+    def process(self, input_data):
+        acquisitions = ISMRMRDAcquisitions()
+        if acquisitions.handle is not None:
+            pygadgetron.deleteObject(acquisitions.handle)
+        acquisitions.handle = pygadgetron.cGT_processAcquisitions\
+             (self.handle, input_data.handle)
+        _check_status(acquisitions.handle)
+        acquisitions.file = self.acq_file
+        return acquisitions
