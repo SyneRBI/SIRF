@@ -26,7 +26,7 @@ try
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget3.set_property('split_slices', 'true')
     
-    recon = gadgetron.MRIReconstruction();
+    recon = gadgetron.ImageReconstructor();
 
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
@@ -35,16 +35,18 @@ try
 	recon.add_gadget('g5', gadget5);
 	recon.add_gadget('g6', gadget6);
     
-    input_data = gadgetron.ISMRMRDataset('testdata.h5');
+    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
     
     recon.set_input(input_data)
     recon.process()
     images = recon.get_output();
     
-    data = images.image_as_array(0);
-    figure(1000000)
-    data = data/max(max(max(data)));
-    imshow(data(:,:,1));
+    for i = 1 : images.number()
+        data = images.image_as_array(i);
+        figure(1000000 + i)
+        data = data/max(max(max(data)));
+        imshow(data(:,:,1));
+    end
 
     images.write('output4.h5', datestr(datetime))
 

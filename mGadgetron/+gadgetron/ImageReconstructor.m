@@ -1,11 +1,11 @@
-classdef MRIReconstruction < gadgetron.GadgetChain
+classdef ImageReconstructor < gadgetron.GadgetChain
     properties
         input_
         images_
     end
     methods
-        function self = MRIReconstruction()
-            self.name_ = 'MRIReconstruction';
+        function self = ImageReconstructor()
+            self.name_ = 'ImageReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
@@ -26,7 +26,7 @@ classdef MRIReconstruction < gadgetron.GadgetChain
             self.images_ = gadgetron.ImagesList();
             calllib('mutilities', 'mDeleteObject', self.images_.handle_)
             self.images_.handle_ = calllib...
-                ('mgadgetron', 'mGT_runMRIReconstruction', ...
+                ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
             gadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
         end

@@ -8,34 +8,36 @@ end
 try
     % acquisitions will be read from this HDF file
     input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
-    %input_data = gadgetron.ISMRMRDataset('testdata.h5');
     
     % define gadgets
 	gadget1 = gadgets.RemoveROOversamplingGadget();
 	gadget2 = gadgets.SimpleReconstructionGadget();
 	gadget3 = gadgets.ExtractGadget();
-	
-    % set gadgets parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
     
+    % build acquisitions pre-processing chain
+    acq_proc = gadgetron.AcquisitionsProcessor();
+    fprintf('scratch file: %s\n', acq_proc.file_);
+    acq_proc.add_gadget('g1', gadget1)
+    fprintf('processing acquisitions...\n')
+    interim_data = acq_proc.process(input_data);
+	
     % build reconstruction chain
     recon = gadgetron.ImageReconstructor();
-    recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
     % connect to input data
-    recon.set_input(input_data)
+    recon.set_input(interim_data)
     % perform reconstruction
+    fprintf('reconstructing...\n')
     recon.process()
     % get reconstructed images
     interim_images = recon.get_output();
     
     % build image post-processing chain
-    proc = gadgetron.ImagesProcessor();
-    proc.add_gadget('g3', gadget3);
-
+    proc_img = gadgetron.ImagesProcessor();
+    proc_img.add_gadget('g3', gadget3);
     % post-process reconstructed images
-    images = proc.process(interim_images);
+    fprintf('processing images...\n')
+    images = proc_img.process(interim_images);
 
     % plot obtained images
     for i = 1 : images.number()
@@ -44,11 +46,7 @@ try
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
     end
-
-    % write images to a new group in 'output4.h5'
-    % named after the current date and time
-    images.write('output4.h5', datestr(datetime))
-
+    
 catch err
     % display error information
     fprintf('%s\n', err.message)

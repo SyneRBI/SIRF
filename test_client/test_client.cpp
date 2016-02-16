@@ -604,7 +604,7 @@ int test5(
 		std::cout << "ok" << std::endl;
 
 		{
-			MRIReconstruction recon;
+			ImageReconstructor recon;
 			//std::cout << "ok" << std::endl;
 
 			recon.add_gadget("g1", ro);
@@ -674,7 +674,7 @@ int test6(
 		void* h_e = cGT_newObject("ExtractGadget");
 		//void* h_if = cGT_newObject("ImageFinishGadget");
 
-		void* h_recon = cGT_newObject("MRIReconstruction");
+		void* h_recon = cGT_newObject("ImageReconstructor");
 		cGT_addGadget(h_recon, "g1", h_ro);
 		cGT_addGadget(h_recon, "g2", h_aat);
 		cGT_addGadget(h_recon, "g3", h_bb);
@@ -756,7 +756,7 @@ int test7(
 			exit(1);
 		}
 
-		void* h_recon = cGT_newObject("MRIReconstruction");
+		void* h_recon = cGT_newObject("ImageReconstructor");
 		cGT_addGadget(h_recon, "g1", h_sr);
 		
 		//cGT_addGadget(h_recon, "g2", h_e);

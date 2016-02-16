@@ -24,17 +24,20 @@ classdef ImagesList < handle
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
+        function num = number(self)
+            num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
+        end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             calllib...
                 ('mgadgetron', 'mGT_getImageDimensions', ...
-                self.handle_, im_num, ptr_i);
+                self.handle_, im_num - 1, ptr_i);
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
             ptr_v = libpointer('doublePtr', zeros(n, 1));
             calllib...
                 ('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
-                self.handle_, im_num, ptr_v)
+                self.handle_, im_num - 1, ptr_v)
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
     end

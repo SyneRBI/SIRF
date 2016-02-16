@@ -57,8 +57,10 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<ImagesContainer, ImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
-		else if (boost::iequals(name, "MRIReconstruction"))
-			return newObjectHandle<GadgetChain, MRIReconstruction>();
+		//else if (boost::iequals(name, "MRIReconstruction"))
+		//	return newObjectHandle<GadgetChain, MRIReconstruction>();
+		else if (boost::iequals(name, "ImageReconstructor"))
+			return newObjectHandle<GadgetChain, ImageReconstructor>();
 		else if (boost::iequals(name, "ImagesProcessor"))
 			return newObjectHandle<GadgetChain, ImagesProcessor>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
@@ -244,7 +246,8 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
-		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		//MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
 		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
@@ -255,31 +258,14 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 
 }
 
-//extern "C"
-//void*
-//cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input)
-//{
-//	try {
-//		CAST_PTR(DataHandle, h_recon, ptr_recon);
-//		CAST_PTR(DataHandle, h_input, ptr_input);
-//		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
-//		ISMRMRD::Dataset& input = objectFromHandle<ISMRMRD::Dataset>(h_input);
-//		recon.process(input);
-//		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-//		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-//		return (void*)ptr_handle;
-//	}
-//	CATCH;
-//
-//}
-
 extern "C"
 void*
 cGT_reconstructedImagesList(void* ptr_recon)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		//MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
+		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
 		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
 		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
 		return (void*)ptr_handle;

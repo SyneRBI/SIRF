@@ -15,6 +15,7 @@ void openChannel(int channel, void* ptr_w);
 void closeChannel(int channel, void* ptr_w);
 void setWriter(void* ptr_w, int channel);
 void resetWriter();
+void printText(const char* text);
 void deleteTextPrinter(void* ptr);
 void deleteTextWriter(void* ptr_w);
 void* newMexPrinter();

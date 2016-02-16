@@ -146,7 +146,7 @@ class ISMRMRDAcquisitions(PyGadgetronObject):
 class ImagesReconstructor(GadgetChain):
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.cGT_newObject('MRIReconstruction')
+        self.handle = pygadgetron.cGT_newObject('ImageReconstructor')
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):

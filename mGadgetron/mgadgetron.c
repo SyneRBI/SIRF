@@ -8,6 +8,12 @@
 EXPORTED_FUNCTION void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
+EXPORTED_FUNCTION void* mGT_ISMRMRDAcquisitionsFromFile(const char* file) {
+	return cGT_ISMRMRDAcquisitionsFromFile(file);
+}
+EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file) {
+	return cGT_acquisitionsProcessor(file);
+}
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group) {
 	return cGT_ISMRMRDatasetFromFile(file, group);
 }
@@ -41,6 +47,9 @@ EXPORTED_FUNCTION void* mGT_addWriter(void* ptr_gc, const char* id, const void* 
 EXPORTED_FUNCTION void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addGadget(ptr_gc, id, ptr_r);
 }
+EXPORTED_FUNCTION void* mGT_setEndGadget(void* ptr_gc, const void* ptr_g) {
+	return cGT_setEndGadget(ptr_gc, ptr_g);
+}
 EXPORTED_FUNCTION void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value) {
 	return cGT_setGadgetProperty(ptr_g, prop, value);
 }
@@ -53,14 +62,17 @@ EXPORTED_FUNCTION void* mGT_registerHDFReceiver(void* ptr_con, const char* file,
 EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img) {
 	return cGT_registerImagesReceiver(ptr_con, ptr_img);
 }
-EXPORTED_FUNCTION void* mGT_runMRIReconstruction(void* ptr_recon, void* ptr_input) {
-	return cGT_runMRIReconstruction(ptr_recon, ptr_input);
+EXPORTED_FUNCTION void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
+	return cGT_reconstructImages(ptr_recon, ptr_input);
 }
 EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon) {
 	return cGT_reconstructedImagesList(ptr_recon);
 }
 EXPORTED_FUNCTION void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 	return cGT_processImages(ptr_proc, ptr_input);
+}
+EXPORTED_FUNCTION void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input) {
+	return cGT_processAcquisitions(ptr_proc, ptr_input);
 }
 EXPORTED_FUNCTION void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
 	return cGT_writeImages(ptr_imgs, out_file, out_group);

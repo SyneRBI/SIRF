@@ -154,9 +154,14 @@ private:
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 };
 
-class MRIReconstruction : public GadgetChain {
+//class MRIReconstruction : public GadgetChain {
+
+class ImageReconstructor : public GadgetChain {
 public:
-	MRIReconstruction() :
+
+	//	MRIReconstruction() :
+
+	ImageReconstructor() :
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter),

@@ -18,7 +18,7 @@ try
     gadget2.set_property('split_slices', 'true')
     
     % create reconstruction object
-    recon = gadgetron.MRIReconstruction();
+    recon = gadgetron.ImageReconstructor();
 
     % build gadgets chain
     recon.add_gadget('g1', gadget1);
@@ -26,7 +26,8 @@ try
 	recon.add_gadget('g3', gadget3);
     
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDataset('testdata.h5');
+    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    %input_data = gadgetron.ISMRMRDataset('testdata.h5');
     
     % connect to input data
     recon.set_input(input_data)
@@ -36,10 +37,12 @@ try
     images = recon.get_output();
     
     % plot reconstructed images
-    data = images.image_as_array(0);
-    figure(1000000)
-    data = data/max(max(max(data)));
-    imshow(data(:,:,1));
+    for i = 1 : images.number()
+        data = images.image_as_array(i);
+        figure(1000000 + i)
+        data = data/max(max(max(data)));
+        imshow(data(:,:,1));
+    end
 
     % write images to a new group in 'output3.h5'
     % named after the current date and time

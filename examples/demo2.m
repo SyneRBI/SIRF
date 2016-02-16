@@ -6,7 +6,7 @@ if ~libisloaded('mutilities')
 end
 
 try
-    input_data = gadgetron.ISMRMRDataset('testdata.h5');
+    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
     
 	gadget1 = gadgets.RemoveROOversamplingGadget();
 	gadget2 = gadgets.AcquisitionAccumulateTriggerGadget();
@@ -15,7 +15,7 @@ try
 	gadget5 = gadgets.ImageArraySplitGadget();
 	gadget6 = gadgets.ExtractGadget();
 	
-    recon = gadgetron.MRIReconstruction();
+    recon = gadgetron.ImageReconstructor();
 
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
@@ -25,18 +25,20 @@ try
     
     recon.set_input(input_data)
     recon.process()
-    images = recon.get_output();
+    interim_images = recon.get_output();
     
     proc = gadgetron.ImagesProcessor();
     proc.add_gadget('g6', gadget6);
-    im2 = proc.process(images);
+    images = proc.process(interim_images);
 
-    data = im2.image_as_array(0);
-    figure(1000000)
-    data = data/max(max(max(data)));
-    imshow(data(:,:,1));
+    for i = 1 : images.number()
+        data = images.image_as_array(i);
+        figure(1000000 + i)
+        data = data/max(max(max(data)));
+        imshow(data(:,:,1));
+    end
 
-    im2.write('output2.h5', datestr(datetime))
+    images.write('output2.h5', datestr(datetime))
 
 catch err
     % display error information
