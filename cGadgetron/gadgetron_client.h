@@ -265,11 +265,11 @@ public:
 		}
 
 		{
-			Mutex mutex;
-			boost::mutex& mtx = mutex();
-			mtx.lock();
+			//Mutex mutex;
+			//boost::mutex& mtx = mutex();
+			//mtx.lock();
 			ptr_acqs_->appendAcquisition(acq);
-			mtx.unlock();
+			//mtx.unlock();
 		}
 	}
 

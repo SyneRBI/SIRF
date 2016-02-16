@@ -60,59 +60,65 @@ protected:
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
-	AcquisitionsFile(std::string filename, bool create = false) //: 
-		//dataset_(new ISMRMRD::Dataset
-		//(filename.c_str(), "/dataset", create))
-		//dataset_(filename.c_str(), "/dataset", create)
+	AcquisitionsFile(std::string filename, bool create = false, bool own = false)
 	{
+		own_file_ = own;
+		filename_ = filename;
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
 		mtx.lock();
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
-			(new ISMRMRD::Dataset
-			(filename.c_str(), "/dataset", create));
+			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create));
 		if (!create)
 			dataset_->readHeader(par_);
 		mtx.unlock();
-		//std::cout << "ok\n";
+	}
+	~AcquisitionsFile() {
+		dataset_.reset();
+		if (own_file_) {
+			//std::cout << "removing " << filename_.c_str() << std::endl;
+			std::remove(filename_.c_str());
+		}
+
 	}
 	virtual int number()
 	{
-		//Mutex mutex;
-		//boost::mutex& mtx = mutex();
-		//mtx.lock();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
 		int na = dataset_->getNumberOfAcquisitions();
-		//mtx.unlock();
+		mtx.unlock();
 		return na;
 	}
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
-		//Mutex mutex;
-		//boost::mutex& mtx = mutex();
-		//mtx.lock();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
 		dataset_->readAcquisition(num, acq);
-		//mtx.unlock();
+		mtx.unlock();
 	}
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
 	{
-		//Mutex mutex;
-		//boost::mutex& mtx = mutex();
-		//mtx.lock();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
 		dataset_->appendAcquisition(acq);
-		//mtx.unlock();
+		mtx.unlock();
 	}
 	virtual void writeHeader(const std::string& xml)
 	{
-		//Mutex mutex;
-		//boost::mutex& mtx = mutex();
-		//mtx.lock();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
 		dataset_->writeHeader(xml);
-		//mtx.unlock();
+		mtx.unlock();
 		setParameters(xml);
 	}
 
 private:
-	//ISMRMRD::Dataset dataset_;
+	bool own_file_;
+	std::string filename_;
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 

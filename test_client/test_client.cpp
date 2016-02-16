@@ -104,14 +104,14 @@ const char* hdf5_out_group);
 
 int test4();
 
-int test5(
-	const char* host,
-	const char* port,
-	unsigned int timeout,
-	const char* in_file,
-	const char* in_group,
-	const char* out_file,
-	const char* out_group);
+//int test5(
+//	const char* host,
+//	const char* port,
+//	unsigned int timeout,
+//	const char* in_file,
+//	const char* in_group,
+//	const char* out_file,
+//	const char* out_group);
 
 int test6(
 	const char* host,
@@ -209,14 +209,14 @@ int main(int argc, char **argv)
 		"out6.h5",
 		hdf5_out_group.c_str());
 
-	return test5(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out5.h5",
-		hdf5_out_group.c_str());
+	//return test5(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out5.h5",
+	//	hdf5_out_group.c_str());
 
 	return test3(
 		host_name.c_str(),
@@ -572,6 +572,7 @@ int test4() {
 	return 0;
 }
 
+#if 0
 int test5(
 	const char* host,
 	const char* port,
@@ -642,6 +643,7 @@ int test5(
 
 	return 0;
 }
+#endif
 
 int test6(
 	const char* host,
@@ -756,19 +758,31 @@ int test7(
 
 		void* h_recon = cGT_newObject("MRIReconstruction");
 		cGT_addGadget(h_recon, "g1", h_sr);
-		cGT_addGadget(h_recon, "g2", h_e);
+		
+		//cGT_addGadget(h_recon, "g2", h_e);
 
 		void* h_images = cGT_reconstructImages(h_recon, h_output);
 
-		cGT_writeImages(h_images, out_file, out_group);
+		void* h_proc_img = cGT_newObject("ImagesProcessor");
+		cGT_addGadget(h_proc_img, "g1", h_e);
+		void* h_imgs = cGT_processImages(h_proc_img, h_images);
+		if (executionStatus(h_imgs)) {
+			std::cout << "exception thrown" << std::endl;
+			exit(1);
+		}
+
+		cGT_writeImages(h_imgs, out_file, out_group);
 
 		deleteObject(h_ro);
 		deleteObject(h_sr);
 		deleteObject(h_e);
 		deleteObject(h_images);
+		deleteObject(h_imgs);
 		deleteObject(h_recon);
 		deleteObject(h_input);
 		deleteObject(h_output);
+		deleteObject(h_proc);
+		deleteObject(h_proc_img);
 	}
 	catch (std::exception& ex) {
 		std::cout << "Error caught: " << ex.what() << std::endl;

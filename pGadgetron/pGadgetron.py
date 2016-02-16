@@ -135,7 +135,6 @@ class ISMRMRDataset(PyGadgetronObject):
 class ISMRMRDAcquisitions(PyGadgetronObject):
     def __init__(self, file = None):
         self.handle = None
-        self.file = None
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
@@ -143,12 +142,6 @@ class ISMRMRDAcquisitions(PyGadgetronObject):
         if self.handle is not None:
             #print('deleting acquisitions object...')
             pygadgetron.deleteObject(self.handle)
-            if self.file is not None:
-                #print('trying to remove', self.file)
-                try:
-                    os.remove(self.file)
-                except:
-                    pass
 
 class ImagesReconstructor(GadgetChain):
     def __init__(self):
@@ -219,11 +212,6 @@ class AcquisitionsProcessor(GadgetChain):
         if self.handle is not None:
             #print('deleting acquisitions processor object...')
             pygadgetron.deleteObject(self.handle)
-        #print('trying to remove', self.acq_file)
-        try:
-            os.remove(self.acq_file)
-        except:
-            pass
     def process(self, input_data):
         acquisitions = ISMRMRDAcquisitions()
         if acquisitions.handle is not None:
@@ -231,5 +219,4 @@ class AcquisitionsProcessor(GadgetChain):
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, input_data.handle)
         _check_status(acquisitions.handle)
-        acquisitions.file = self.acq_file
         return acquisitions
