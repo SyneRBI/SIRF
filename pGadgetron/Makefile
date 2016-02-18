@@ -4,9 +4,9 @@ LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
-PYTHON = python2.7
-PYINCLUDE = /usr/include/$(PYTHON)
-PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
+#PYTHON = python2.7
+#PYINCLUDE = /usr/include/$(PYTHON)
+#PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
 PYLIB = -l$(PYTHON)
 
 IUTILITIES = ../../iUtilities
