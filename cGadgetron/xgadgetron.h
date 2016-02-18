@@ -9,6 +9,7 @@
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
+#include <ismrmrd/xml.h>
 
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
@@ -265,6 +266,87 @@ private:
 	boost::shared_ptr<IsmrmrdImgMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 	boost::shared_ptr<ImagesContainer> sptr_images_;
+};
+
+class AcquisitionModel {
+public:
+	AcquisitionModel(const AcquisitionsContainer& ac) : relative_radius_(1.5)
+	{
+		xml_ = ac.parameters();
+		ISMRMRD::deserialize(xml_.c_str(), header_);
+	}
+	void set_relative_radius(double r) 
+	{
+		relative_radius_ = (float)r;
+	}
+private:
+	float relative_radius_;
+	std::string xml_;
+	ISMRMRD::IsmrmrdHeader header_;
+
+	template< typename T>
+	void acquire_(ISMRMRD::Image<T>& im, AcquisitionsContainer& ac)
+	{
+		ac.writeHeader(xml_);
+
+		ISMRMRD::Encoding e = header_.encoding[0];
+		ISMRMRD::AcquisitionSystemInformation sys = 
+			header_.acquisitionSystemInformation;
+
+		int repetition = e.encodingLimits.repetition;
+		int readout = e.encodedSpace.matrixSize.x;
+		int matrix_size = im.getMatrixSizeY();
+		int ncoils = sys.receiverChannels;
+
+		std::vector<size_t> dims;
+		dims.push_back(readout); 
+		dims.push_back(matrix_size);
+		dims.push_back(ncoils);
+
+		boost::shared_ptr<NDArray<complex_float_t> > coils =
+			generate_birdcage_sensititivies(matrix_size, ncoils, relative_radius_);
+		NDArray<complex_float_t> coil_images(dims);
+		memset(coil_images.getDataPtr(), 0, coil_images.getDataSize());
+
+		T* ptr = im.getDataPtr();
+		for (unsigned int c = 0; c < ncoils; c++) {
+			long long int i = 0;
+			for (unsigned int y = 0; y < matrix_size; y++) {
+				for (unsigned int x = 0; x < matrix_size; x++, i++) {
+					uint16_t xout = x + (readout - matrix_size) / 2;
+					coil_images(xout, y, c) = ptr[i] * (*coils)(x, y, c);
+				}
+			}
+		}
+
+		ISMRMRD::Acquisition acq;
+		acq.resize(readout, ncoils);
+		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+		acq.available_channels() = ncoils;
+		acq.center_sample() = (readout >> 1);
+
+		for (unsigned int r = 0; r < repetitions; r++) {
+			NDArray<complex_float_t> cm = coil_images;
+			fft2c(cm);
+			for (size_t i = 0; i < matrix_size; i++) {
+				acq.clearAllFlags();
+				if (i == 0)
+					acq.setFlag(ISMRMRD_ACQ_FIRST_IN_SLICE);
+				if (i == matrix_size - 1)
+					acq.setFlag(ISMRMRD_ACQ_LAST_IN_SLICE);
+				acq.idx().kspace_encode_step_1 = i;
+				acq.idx().repetition = r;
+				acq.sample_time_us() = 5.0;
+				for (size_t c = 0; c < ncoils; c++) {
+					for (size_t s = 0; s < readout; s++) {
+						acq.data(s, c) = cm(s, i, c);
+					}
+				}
+				ac.appendAcquisition(acq);
+			}
+		}
+
+	}
 };
 
 #endif
