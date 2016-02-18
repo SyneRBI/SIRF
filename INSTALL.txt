@@ -2,7 +2,7 @@
 Gadgetron Python interface installation under Linux (tested on Virtual Machine only)
 ====================================================================================
 
-Install Boost, and clone Ismsmrd and Gadgetron from github.com/CCPPETMR. 
+Install Boost, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
 DO NOT CHANGE DEFAULT FOLDERS.
 
 In your work directory <work_dir> create folder 'build' with subfolders 
@@ -30,7 +30,8 @@ Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
 Go to <work_dir>/xGadgetron/pGadgetron and run make.
 
-Go to <work_dir>/xGadgetron/examples, run make and run python demos.
+Go to <work_dir>/xGadgetron/examples and run make. Start gadgetron (in a new terminal)
+and run python demos.
 
 ====================================================================================
 Gadgetron Matlab interface installation under Windows for using with Linux VM
@@ -81,5 +82,5 @@ In <work_dir>/xGadgetron/examples execute
 
    <ismrmrd_root>\utilities\Release\ismrmrd_generate_cartesian_shepp_logan.exe -r 2
 
-to create the input file for demos and run demos.
+to create the input file for demos. Start gadgetron (in a VM terminal) and run demos.
 
