@@ -160,22 +160,6 @@ public:
 	~ImageWrap() 
 	{
 		IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
-		//if (type_ == ISMRMRD::ISMRMRD_USHORT)
-		//	delete ((ISMRMRD::Image<unsigned short>*) ptr_);
-		//else if (type_ == ISMRMRD::ISMRMRD_SHORT)
-		//	delete (ISMRMRD::Image<short>*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_UINT)
-		//	delete (ISMRMRD::Image<unsigned int>*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_INT)
-		//	delete (ISMRMRD::Image<int>*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_FLOAT)
-		//	delete (ISMRMRD::Image<float>*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_DOUBLE)
-		//	delete (ISMRMRD::Image<double>*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_CXFLOAT)
-		//	delete (ISMRMRD::Image< std::complex<float> >*) ptr_;
-		//else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE)
-		//	delete (ISMRMRD::Image< std::complex<double> >*) ptr_;
 	}
 	int type() 
 	{
@@ -244,22 +228,6 @@ public:
 			int type = iw.type();
 			void* ptr = iw.ptr_image();
 			IMAGE_PROCESSING_SWITCH(type, writeImage, ptr, dataset, mtx);
-			//if (type == ISMRMRD::ISMRMRD_USHORT)
-			//	writeImage(*(ISMRMRD::Image<unsigned short>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_SHORT)
-			//	writeImage(*(ISMRMRD::Image<short>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_UINT)
-			//	writeImage(*(ISMRMRD::Image<unsigned int>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_INT)
-			//	writeImage(*(ISMRMRD::Image<int>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_FLOAT)
-			//	writeImage(*(ISMRMRD::Image<float>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-			//	writeImage(*(ISMRMRD::Image<double>*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			//	writeImage(*(ISMRMRD::Image< std::complex<float> >*)ptr, dataset, mtx);
-			//else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			//	writeImage(*(ISMRMRD::Image< std::complex<double> >*)ptr, dataset, mtx);
 		}
 	}
 	virtual void getImageDimensions(unsigned int im_num, int* dim)
@@ -270,48 +238,13 @@ public:
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
 		IMAGE_PROCESSING_SWITCH(type, getImageDim, ptr, dim);
-		//if (type == ISMRMRD::ISMRMRD_USHORT)
-		//	getImageDim(*(ISMRMRD::Image<unsigned short>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_SHORT)
-		//	getImageDim(*(ISMRMRD::Image<short>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_UINT)
-		//	getImageDim(*(ISMRMRD::Image<unsigned int>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_INT)
-		//	getImageDim(*(ISMRMRD::Image<int>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_FLOAT)
-		//	getImageDim(*(ISMRMRD::Image<float>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-		//	getImageDim(*(ISMRMRD::Image<double>*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-		//	getImageDim(*(ISMRMRD::Image< std::complex<float> >*)ptr, dim);
-		//else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-		//	getImageDim(*(ISMRMRD::Image< std::complex<double> >*)ptr, dim);
 	}
 	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data)
 	{
 		ImageWrap& iw = imageWrap(im_num);
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
-		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
-		//getImageUnsignedData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_SHORT)
-			getImageData(*(ISMRMRD::Image<short>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
-		//getImageUnsignedData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_INT)
-			getImageData(*(ISMRMRD::Image<int>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_FLOAT)
-			getImageData(*(ISMRMRD::Image<float>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-			getImageData(*(ISMRMRD::Image<double>*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
-		//getImageComplexData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
-		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
-		//getImageComplexData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
+		IMAGE_PROCESSING_SWITCH(type, getImageData, ptr, data);
 	}
 
 private:
@@ -320,10 +253,10 @@ private:
 
 	template<typename T>
 	void writeImage
-		(ISMRMRD::Image<T>* ptr_im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
-		//(ISMRMRD::Image<T>& im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
+		(const ISMRMRD::Image<T>* ptr_im, ISMRMRD::Dataset& dataset, 
+		boost::mutex& mtx)
 	{
-		ISMRMRD::Image<T>& im = *ptr_im;
+		const ISMRMRD::Image<T>& im = *ptr_im;
 		std::stringstream ss;
 		ss << "image_" << im.getHead().image_series_index;
 		std::string image_varname = ss.str();
@@ -334,10 +267,9 @@ private:
 		}
 	}
 	template<typename T>
-	//void getImageDim(ISMRMRD::Image<T>& im, int* dim)
-	void getImageDim(ISMRMRD::Image<T>* ptr_im, int* dim)
+	void getImageDim(const ISMRMRD::Image<T>* ptr_im, int* dim)
 	{
-		ISMRMRD::Image<T>& im = *ptr_im;
+		const ISMRMRD::Image<T>& im = *ptr_im;
 		dim[0] = im.getMatrixSizeX();
 		dim[1] = im.getMatrixSizeY();
 		dim[2] = im.getMatrixSizeZ();
@@ -376,38 +308,16 @@ private:
 		return std::abs(v);
 	}
 
-#define ABS(X) ((X < 0) ? -X : X)
-
 	template<typename T>
-	void getImageData(ISMRMRD::Image<T>& im, double* data) 
+	void getImageData(const ISMRMRD::Image<T>* ptr_im, double* data)
 	{
+		const ISMRMRD::Image<T>& im = *ptr_im;
 		long long int n = im.getMatrixSizeX();
 		n *= im.getMatrixSizeY();
 		n *= im.getMatrixSizeZ();
-		T* ptr = im.getDataPtr();
+		const T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
 			data[i] = myabs(ptr[i]);
-		//data[i] = ABS(ptr[i]);
-	}
-	template<typename T>
-	void getImageUnsignedData(ISMRMRD::Image<T>& im, double* data) 
-	{
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		T* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = ptr[i];
-	}
-	template<typename T>
-	void getImageComplexData(ISMRMRD::Image< std::complex<T> >& im, double* data)
-	{
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		std::complex<T>* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = std::abs(ptr[i]);
 	}
 };
 
