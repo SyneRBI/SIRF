@@ -22,7 +22,6 @@ try:
 
     #print('creating acquisitions processor object...')
     acq_proc = pGadgetron.AcquisitionsProcessor()
-    print('scratch file:', acq_proc.acq_file)
     acq_proc.add_gadget('g1', gadget1)
     print('processing acquisitions...')
     interim_data = acq_proc.process(input_data)

@@ -16,7 +16,6 @@ try
     
     % build acquisitions pre-processing chain
     acq_proc = gadgetron.AcquisitionsProcessor();
-    fprintf('scratch file: %s\n', acq_proc.file_);
     acq_proc.add_gadget('g1', gadget1)
     fprintf('processing acquisitions...\n')
     interim_data = acq_proc.process(input_data);

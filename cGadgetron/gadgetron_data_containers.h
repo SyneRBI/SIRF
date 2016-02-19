@@ -8,6 +8,24 @@
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
 
+#define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
+	if (Type == ISMRMRD::ISMRMRD_USHORT)\
+		Operation ((ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_SHORT)\
+		Operation ((ISMRMRD::Image<short>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_UINT)\
+		Operation ((ISMRMRD::Image<unsigned int>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_INT)\
+		Operation ((ISMRMRD::Image<int>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
+		Operation ((ISMRMRD::Image<float>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
+		Operation ((ISMRMRD::Image<double>*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
+		Operation ((ISMRMRD::Image< std::complex<float> >*) Arguments, ##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
+		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
+
 class Mutex {
 public:
 	Mutex() 
@@ -141,22 +159,23 @@ public:
 	}
 	~ImageWrap() 
 	{
-		if (type_ == ISMRMRD::ISMRMRD_USHORT)
-			delete (ISMRMRD::Image<unsigned short>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_SHORT)
-			delete (ISMRMRD::Image<short>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_UINT)
-			delete (ISMRMRD::Image<unsigned int>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_INT)
-			delete (ISMRMRD::Image<int>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_FLOAT)
-			delete (ISMRMRD::Image<float>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_DOUBLE)
-			delete (ISMRMRD::Image<double>*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_CXFLOAT)
-			delete (ISMRMRD::Image< std::complex<float> >*) ptr_;
-		else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE)
-			delete (ISMRMRD::Image< std::complex<double> >*) ptr_;
+		IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
+		//if (type_ == ISMRMRD::ISMRMRD_USHORT)
+		//	delete ((ISMRMRD::Image<unsigned short>*) ptr_);
+		//else if (type_ == ISMRMRD::ISMRMRD_SHORT)
+		//	delete (ISMRMRD::Image<short>*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_UINT)
+		//	delete (ISMRMRD::Image<unsigned int>*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_INT)
+		//	delete (ISMRMRD::Image<int>*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_FLOAT)
+		//	delete (ISMRMRD::Image<float>*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_DOUBLE)
+		//	delete (ISMRMRD::Image<double>*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_CXFLOAT)
+		//	delete (ISMRMRD::Image< std::complex<float> >*) ptr_;
+		//else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE)
+		//	delete (ISMRMRD::Image< std::complex<double> >*) ptr_;
 	}
 	int type() 
 	{
@@ -224,22 +243,23 @@ public:
 			ImageWrap& iw = *sptr_iw;
 			int type = iw.type();
 			void* ptr = iw.ptr_image();
-			if (type == ISMRMRD::ISMRMRD_USHORT)
-				writeImage(*(ISMRMRD::Image<unsigned short>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_SHORT)
-				writeImage(*(ISMRMRD::Image<short>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_UINT)
-				writeImage(*(ISMRMRD::Image<unsigned int>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_INT)
-				writeImage(*(ISMRMRD::Image<int>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_FLOAT)
-				writeImage(*(ISMRMRD::Image<float>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-				writeImage(*(ISMRMRD::Image<double>*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-				writeImage(*(ISMRMRD::Image< std::complex<float> >*)ptr, dataset, mtx);
-			else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-				writeImage(*(ISMRMRD::Image< std::complex<double> >*)ptr, dataset, mtx);
+			IMAGE_PROCESSING_SWITCH(type, writeImage, ptr, dataset, mtx);
+			//if (type == ISMRMRD::ISMRMRD_USHORT)
+			//	writeImage(*(ISMRMRD::Image<unsigned short>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_SHORT)
+			//	writeImage(*(ISMRMRD::Image<short>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_UINT)
+			//	writeImage(*(ISMRMRD::Image<unsigned int>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_INT)
+			//	writeImage(*(ISMRMRD::Image<int>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_FLOAT)
+			//	writeImage(*(ISMRMRD::Image<float>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_DOUBLE)
+			//	writeImage(*(ISMRMRD::Image<double>*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
+			//	writeImage(*(ISMRMRD::Image< std::complex<float> >*)ptr, dataset, mtx);
+			//else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
+			//	writeImage(*(ISMRMRD::Image< std::complex<double> >*)ptr, dataset, mtx);
 		}
 	}
 	virtual void getImageDimensions(unsigned int im_num, int* dim)
@@ -295,8 +315,10 @@ private:
 
 	template<typename T>
 	void writeImage
-		(ISMRMRD::Image<T>& im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
+		(ISMRMRD::Image<T>* ptr_im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
+		//(ISMRMRD::Image<T>& im, ISMRMRD::Dataset& dataset, boost::mutex& mtx)
 	{
+		ISMRMRD::Image<T>& im = *ptr_im;
 		std::stringstream ss;
 		ss << "image_" << im.getHead().image_series_index;
 		std::string image_varname = ss.str();

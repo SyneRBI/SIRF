@@ -268,6 +268,7 @@ private:
 	boost::shared_ptr<ImagesContainer> sptr_images_;
 };
 
+#if 0
 class AcquisitionModel {
 public:
 	AcquisitionModel(const AcquisitionsContainer& ac) : relative_radius_(1.5)
@@ -348,5 +349,6 @@ private:
 
 	}
 };
+#endif
 
 #endif
