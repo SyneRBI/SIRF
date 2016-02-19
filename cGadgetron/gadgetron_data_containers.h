@@ -269,22 +269,23 @@ public:
 		ImageWrap& iw = imageWrap(im_num);
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
-		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageDim(*(ISMRMRD::Image<unsigned short>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_SHORT)
-			getImageDim(*(ISMRMRD::Image<short>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageDim(*(ISMRMRD::Image<unsigned int>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_INT)
-			getImageDim(*(ISMRMRD::Image<int>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_FLOAT)
-			getImageDim(*(ISMRMRD::Image<float>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
-			getImageDim(*(ISMRMRD::Image<double>*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageDim(*(ISMRMRD::Image< std::complex<float> >*)ptr, dim);
-		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageDim(*(ISMRMRD::Image< std::complex<double> >*)ptr, dim);
+		IMAGE_PROCESSING_SWITCH(type, getImageDim, ptr, dim);
+		//if (type == ISMRMRD::ISMRMRD_USHORT)
+		//	getImageDim(*(ISMRMRD::Image<unsigned short>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_SHORT)
+		//	getImageDim(*(ISMRMRD::Image<short>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_UINT)
+		//	getImageDim(*(ISMRMRD::Image<unsigned int>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_INT)
+		//	getImageDim(*(ISMRMRD::Image<int>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_FLOAT)
+		//	getImageDim(*(ISMRMRD::Image<float>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_DOUBLE)
+		//	getImageDim(*(ISMRMRD::Image<double>*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
+		//	getImageDim(*(ISMRMRD::Image< std::complex<float> >*)ptr, dim);
+		//else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
+		//	getImageDim(*(ISMRMRD::Image< std::complex<double> >*)ptr, dim);
 	}
 	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data)
 	{
@@ -292,11 +293,13 @@ public:
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
 		if (type == ISMRMRD::ISMRMRD_USHORT)
-			getImageUnsignedData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
+			getImageData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
+		//getImageUnsignedData(*(ISMRMRD::Image<unsigned short>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_SHORT)
 			getImageData(*(ISMRMRD::Image<short>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_UINT)
-			getImageUnsignedData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
+			getImageData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
+		//getImageUnsignedData(*(ISMRMRD::Image<unsigned int>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_INT)
 			getImageData(*(ISMRMRD::Image<int>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_FLOAT)
@@ -304,9 +307,11 @@ public:
 		else if (type == ISMRMRD::ISMRMRD_DOUBLE)
 			getImageData(*(ISMRMRD::Image<double>*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_CXFLOAT)
-			getImageComplexData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
+			getImageData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
+		//getImageComplexData(*(ISMRMRD::Image< std::complex<float> >*)ptr, data);
 		else if (type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			getImageComplexData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
+			getImageData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
+		//getImageComplexData(*(ISMRMRD::Image< std::complex<double> >*)ptr, data);
 	}
 
 private:
@@ -329,11 +334,46 @@ private:
 		}
 	}
 	template<typename T>
-	void getImageDim(ISMRMRD::Image<T>& im, int* dim) 
+	//void getImageDim(ISMRMRD::Image<T>& im, int* dim)
+	void getImageDim(ISMRMRD::Image<T>* ptr_im, int* dim)
 	{
+		ISMRMRD::Image<T>& im = *ptr_im;
 		dim[0] = im.getMatrixSizeX();
 		dim[1] = im.getMatrixSizeY();
 		dim[2] = im.getMatrixSizeZ();
+	}
+
+	unsigned short myabs(unsigned short v)
+	{
+		return v;
+	}
+	short myabs(short v)
+	{
+		return v > 0 ? v : -v;
+	}
+	unsigned int myabs(unsigned int v)
+	{
+		return v;
+	}
+	int myabs(int v)
+	{
+		return v > 0 ? v : -v;
+	}
+	float myabs(float v)
+	{
+		return v > 0 ? v : -v;
+	}
+	double myabs(double v)
+	{
+		return v > 0 ? v : -v;
+	}
+	float myabs(std::complex<float> v)
+	{
+		return std::abs(v);
+	}
+	double myabs(std::complex<double> v)
+	{
+		return std::abs(v);
 	}
 
 #define ABS(X) ((X < 0) ? -X : X)
@@ -346,7 +386,8 @@ private:
 		n *= im.getMatrixSizeZ();
 		T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
-			data[i] = ABS(ptr[i]);
+			data[i] = myabs(ptr[i]);
+		//data[i] = ABS(ptr[i]);
 	}
 	template<typename T>
 	void getImageUnsignedData(ISMRMRD::Image<T>& im, double* data) 
