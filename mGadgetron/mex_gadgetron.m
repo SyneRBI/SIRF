@@ -8,10 +8,10 @@ if libisloaded('mutilities')
 end
 
 cgt_path = getenv('CGADGETRON');
-cgt_lib = [cgt_path '/x64/Release/cGadgetron.lib'];
+cgt_lib = getenv('CGADGETRON_LIBRARY');
 
-util_path = [cgt_path '/../../iUtilities'];
-util_lib = [util_path '/x64/Release/iUtilities.lib'];
+util_path = getenv('IUTILITIES');
+util_lib = getenv('IUTILITIES_LIBRARY');
 util_include = ['-I' util_path];
 tw = [util_path '/text_writer.cpp'];
 
