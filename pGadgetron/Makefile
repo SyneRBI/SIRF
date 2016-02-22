@@ -1,5 +1,5 @@
 CPP = /usr/bin/g++
-CFLAGS = -O3 -fopenmp -fPIC  -std=c++11 -DNDEBUG -I$(IUTILITIES)
+CFLAGS = -O3 -fopenmp -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include
 LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
