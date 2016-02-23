@@ -56,20 +56,13 @@ and add the following user variables:
 
 Variable         Value
 
-BOOST            Path to Boost include folder*
+BOOST            Path to Boost include folder 'boost' (e.g. C:\Boost\boost_1_59_0)
 BOOST_LIB        Path to Boost libraries folder
+BOOST_SUFFIX     Common part of boost libraries names (e.g.-vc120-mt-1_58.lib or -mt.so)
 ISMRMRD_INCLUDE  Path to Ismrmrd include folder
 ISMRMRD_LIB      Path to Ismrmrd library folder
+ISMRMRD_LIBRARY  Ismrmrd library name
 CGADGETRON       <work_dir>/xGadgetron/cGadgetron
----
-*NOTE: Boost include folder is the one that contains "boost" folder, e.g.
- if your Boost root folder is C:\Boost then for Boost-1_58 it is 
-
-   C:\Boost\include\boost-1_58
-
- whereas for Boost_1_59_0 it is 
-
-   C:\Boost\boost_1_59_0
 
 Build cGadgetron x64/Release solution (select "Release" in "Solution Configurations" box 
 and "x64" in "Solution Platforms" box) in <work_dir>/xGadgetron/cGadgetron.
