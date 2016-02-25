@@ -67,28 +67,37 @@ public:
 	{
 		par_ = par;
 	}
+	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils() const {
+		return coils_;
+	}
 	virtual int number() = 0;
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void writeHeader(const std::string& xml) = 0;
+	virtual void copyData(const AcquisitionsContainer& ac) = 0;
 
 protected:
 	std::string par_;
+	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
-	AcquisitionsFile(std::string filename, bool create = false, bool own = false)
+	AcquisitionsFile
+		(std::string filename, bool create_file = false, bool own_file = false)
 	{
-		own_file_ = own;
+		own_file_ = own_file;
 		filename_ = filename;
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
 		mtx.lock();
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
-			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create));
-		if (!create)
+			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
+		if (!create_file) {
 			dataset_->readHeader(par_);
+			coils_ = boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> >
+				(new ISMRMRD::NDArray<complex_float_t>);
+			dataset_->readNDArray("csm", 0, *coils_);
+		}
 		mtx.unlock();
 	}
 	~AcquisitionsFile() {
@@ -124,14 +133,15 @@ public:
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
 	}
-	virtual void writeHeader(const std::string& xml)
-	{
+	virtual void copyData(const AcquisitionsContainer& ac) {
+		par_ = ac.parameters();
+		coils_ = ac.coils();
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
 		mtx.lock();
-		dataset_->writeHeader(xml);
+		dataset_->writeHeader(par_);
+		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
-		setParameters(xml);
 	}
 
 private:

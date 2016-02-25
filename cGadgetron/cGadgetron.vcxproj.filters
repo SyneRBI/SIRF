@@ -33,6 +33,9 @@
     <ClInclude Include="gadgetron_data_containers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ismrmrd_fftw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cgadgetron.cpp">

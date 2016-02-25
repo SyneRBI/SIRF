@@ -123,9 +123,8 @@ public:
 		conn().connect(host_, port_);
 		conn().send_gadgetron_configuration_script(config);
 
-		par_ = acquisitions.parameters();
-		conn().send_gadgetron_parameters(par_);
-		sptr_acqs_->writeHeader(par_);
+		conn().send_gadgetron_parameters(acquisitions.parameters());
+		sptr_acqs_->copyData(acquisitions);
 
 		uint32_t nacq = 0;
 		nacq = acquisitions.number();
@@ -149,18 +148,13 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	std::string par_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 };
 
-//class MRIReconstruction : public GadgetChain {
-
 class ImageReconstructor : public GadgetChain {
 public:
-
-	//	MRIReconstruction() :
 
 	ImageReconstructor() :
 		host_("localhost"), port_("9002"),
@@ -188,8 +182,7 @@ public:
 		conn().connect(host_, port_);
 		conn().send_gadgetron_configuration_script(config);
 
-		par_ = acquisitions.parameters();
-		conn().send_gadgetron_parameters(par_);
+		conn().send_gadgetron_parameters(acquisitions.parameters());
 
 		uint32_t nacquisitions = 0;
 		nacquisitions = acquisitions.number();
@@ -213,7 +206,6 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	std::string par_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
 	boost::shared_ptr<ImagesContainer> sptr_images_;
@@ -288,7 +280,7 @@ private:
 	template< typename T>
 	void acquire_(ISMRMRD::Image<T>& im, AcquisitionsContainer& ac)
 	{
-		ac.writeHeader(xml_);
+		ac.copyHeader(xml_);
 
 		ISMRMRD::Encoding e = header_.encoding[0];
 		ISMRMRD::AcquisitionSystemInformation sys = 

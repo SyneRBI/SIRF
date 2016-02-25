@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;%IUTILITIES%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;%FFTW%;%IUTILITIES%</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "MSVC" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -137,6 +137,7 @@
     <ClInclude Include="gadgetron_client.h" />
     <ClInclude Include="gadgetron_data_containers.h" />
     <ClInclude Include="gadget_lib.h" />
+    <ClInclude Include="ismrmrd_fftw.h" />
     <ClInclude Include="xgadgetron.h" />
   </ItemGroup>
   <ItemGroup>
