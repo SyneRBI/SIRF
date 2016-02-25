@@ -87,6 +87,7 @@ public:
 	{
 		own_file_ = own_file;
 		filename_ = filename;
+		int ndim = 0;
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
 		mtx.lock();
@@ -97,14 +98,16 @@ public:
 			coils_ = boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> >
 				(new ISMRMRD::NDArray<complex_float_t>);
 			dataset_->readNDArray("csm", 0, *coils_);
+			ndim = coils_->getNDim();
 		}
 		mtx.unlock();
+		//std::cout << ndim << std::endl;
 	}
 	~AcquisitionsFile() {
 		dataset_.reset();
 		if (own_file_) {
 			//std::cout << "removing " << filename_.c_str() << std::endl;
-			std::remove(filename_.c_str());
+			//std::remove(filename_.c_str());
 		}
 
 	}
@@ -136,6 +139,21 @@ public:
 	virtual void copyData(const AcquisitionsContainer& ac) {
 		par_ = ac.parameters();
 		coils_ = ac.coils();
+		int ndim = coils_->getNDim();
+		//const size_t dims[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM] = coils_->getDims();
+		const size_t *dims = coils_->getDims();
+		//for (int i = 0; i < ndim; i++)
+		//	std::cout << dims[i] << ' ';
+		//std::cout << '\n';
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		mtx.lock();
+		dataset_->writeHeader(par_);
+		dataset_->appendNDArray("csm", *coils_);
+		mtx.unlock();
+		//std::cout << ndim << std::endl;
+	}
+	void writeData() {
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
 		mtx.lock();

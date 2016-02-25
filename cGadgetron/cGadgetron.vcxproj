@@ -119,7 +119,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;%FFTW%;%IUTILITIES%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%BOOST%;%ISMRMRD_INCLUDE%;%PATH2FFTW%;%IUTILITIES%</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "MSVC" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

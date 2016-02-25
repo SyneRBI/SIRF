@@ -5,6 +5,7 @@
 *      Author: Michael S. Hansen
 */
 
+//#include "C:\FFTW-3.3.4\fftw3.h"
 #include "fftw3.h"
 
 namespace ISMRMRD {
