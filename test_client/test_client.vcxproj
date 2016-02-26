@@ -118,8 +118,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>%ISMRMRD_LIB%;%BOOST_LIB%;%CGADGETRON_LIB%;%IUTILITIES_LIB%</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cGadgetron.lib;iUtilities.lib;ismrmrd.lib;libboost_program_options-vc120-mt-1_58.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%ISMRMRD_LIB%;%PATH2FFTW%;%BOOST_LIB%;%CGADGETRON_LIB%;%IUTILITIES_LIB%</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cGadgetron.lib;iUtilities.lib;ismrmrd.lib;libfftw3-3.lib;libfftw3f-3.lib;libfftw3l-3.lib;libboost_program_options-vc120-mt-1_58.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

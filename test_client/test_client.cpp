@@ -104,14 +104,14 @@ const char* hdf5_out_group);
 
 int test4();
 
-//int test5(
-//	const char* host,
-//	const char* port,
-//	unsigned int timeout,
-//	const char* in_file,
-//	const char* in_group,
-//	const char* out_file,
-//	const char* out_group);
+int test5(
+	const char* host,
+	const char* port,
+	unsigned int timeout,
+	const char* in_file,
+	const char* in_group,
+	const char* out_file,
+	const char* out_group);
 
 int test6(
 	const char* host,
@@ -191,32 +191,32 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test7(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out7.h5",
-		hdf5_out_group.c_str());
-
-	return test6(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out6.h5",
-		hdf5_out_group.c_str());
-
-	//return test5(
+	//return test7(
 	//	host_name.c_str(),
 	//	port.c_str(),
 	//	timeout_ms,
 	//	in_filename.c_str(),
 	//	hdf5_in_group.c_str(),
-	//	"out5.h5",
+	//	"out7.h5",
 	//	hdf5_out_group.c_str());
+
+	//return test6(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out6.h5",
+	//	hdf5_out_group.c_str());
+
+	return test5(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out5.h5",
+		hdf5_out_group.c_str());
 
 	return test3(
 		host_name.c_str(),
@@ -572,7 +572,7 @@ int test4() {
 	return 0;
 }
 
-#if 0
+//#if 0
 int test5(
 	const char* host,
 	const char* port,
@@ -591,8 +591,9 @@ int test5(
 	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
 
 	try {
-		ISMRMRD::Dataset input(in_file, in_group, false);
-		std::cout << "ok" << std::endl;
+		//ISMRMRD::Dataset input(in_file, in_group, false);
+		AcquisitionsFile input(in_file);
+		//std::cout << "ok" << std::endl;
 
 		SPTR(aGadget, ro, RemoveOversamplingGadget);
 		SPTR(aGadget, aat, AcqAccTrigGadget);
@@ -601,7 +602,7 @@ int test5(
 		SPTR(aGadget, ias, ImgArrSplitGadget);
 		SPTR(aGadget, ext, ExtGadget);
 		SPTR(aGadget, fin, ImgFinishGadget);
-		std::cout << "ok" << std::endl;
+		//std::cout << "ok" << std::endl;
 
 		{
 			ImageReconstructor recon;
@@ -628,12 +629,34 @@ int test5(
 			proc.process(imgs);
 			ImagesList& images = (ImagesList&)*proc.get_output();
 
-			std::cout << images.number() << std::endl;
+			//std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
 			images.write(out_file, out_group);
 			//std::cout << "ok" << std::endl;
 
+			AcquisitionModel acq_mod(input);
+
+			ImageWrap& iw = images.imageWrap(0);
+
+			std::string acq_file = out_file;
+			acq_file += out_group;
+			boost::replace_all(acq_file, " ", "_");
+			boost::replace_all(acq_file, ":", "_");
+			boost::replace_all(acq_file, ".h5", "_");
+			acq_file += ".h5";
+			std::cout << acq_file << std::endl;
+
+			AcquisitionsFile acqs(acq_file, true, true);
+			acq_mod.fwd(iw, acqs);
+
+			//ISMRMRD::Acquisition a;
+			//ISMRMRD::Acquisition b;
+			//input.getAcquisition(0, a);
+			//acqs.getAcquisition(0, b);
+			//std::cout << AcquisitionsContainer::diff(a, b) << std::endl;
+
+			std::cout << input.diff(acqs) << std::endl;
 		}
 	}
 	catch (std::exception& ex) {
@@ -643,7 +666,7 @@ int test5(
 
 	return 0;
 }
-#endif
+//#endif
 
 int test6(
 	const char* host,

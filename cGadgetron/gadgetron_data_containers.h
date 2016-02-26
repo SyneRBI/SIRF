@@ -40,6 +40,14 @@ public:
 	{
 		return sptr_mutex_;
 	}
+	void lock()
+	{
+		sptr_mutex_->lock();
+	}
+	void unlock()
+	{
+		sptr_mutex_->unlock();
+	}
 private:
 	static boost::shared_ptr<boost::mutex> sptr_mutex_;
 	static void init_() 
@@ -67,13 +75,68 @@ public:
 	{
 		par_ = par;
 	}
-	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils() const {
+	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils() const 
+	{
 		return coils_;
 	}
+	void setCoils(boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils)
+	{
+		coils_ = coils;
+	}
+
+	static float diff
+		(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
+	{
+		complex_float_t* pa;
+		complex_float_t* pb;
+		complex_float_t z = 0;
+		float s = 0.0;
+		float sa = 0.0;
+		float sb = 0.0;
+		for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
+			pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
+			float ta = std::abs(*pa);
+			float tb = std::abs(*pb);
+			sa += pow(std::abs(*pa), 2);
+			sb += pow(std::abs(*pb), 2);
+			z += std::conj(*pb) * (*pa);
+		}
+		z /= sb;
+		sa = std::sqrt(sa);
+		sb = std::sqrt(sb);
+		for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
+			pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
+			s += pow(std::abs(*pa - *pb * z), 2);
+		}
+		s = std::sqrt(s);
+		s /= sa;
+		return s;
+	}
+
 	virtual int number() = 0;
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
 	virtual void copyData(const AcquisitionsContainer& ac) = 0;
+	virtual void writeData() = 0;
+
+	float diff(AcquisitionsContainer& other)
+	{
+		int n = number();
+		int m = other.number();
+		float smax = 0.0;
+		float save = 0.0;
+		ISMRMRD::Acquisition a;
+		ISMRMRD::Acquisition b;
+		for (int i = 0; i < n && i < m; i++) {
+			getAcquisition(i, a);
+			other.getAcquisition(i, b);
+			float s = AcquisitionsContainer::diff(a, b);
+			smax = std::max(smax, s);
+			save += s*s;
+		}
+		save = sqrt(save / std::min(n, m));
+		return save;
+	}
 
 protected:
 	std::string par_;
@@ -88,8 +151,7 @@ public:
 		own_file_ = own_file;
 		filename_ = filename;
 		int ndim = 0;
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
 			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
@@ -101,20 +163,18 @@ public:
 			ndim = coils_->getNDim();
 		}
 		mtx.unlock();
-		//std::cout << ndim << std::endl;
 	}
 	~AcquisitionsFile() {
 		dataset_.reset();
 		if (own_file_) {
 			//std::cout << "removing " << filename_.c_str() << std::endl;
-			//std::remove(filename_.c_str());
+			std::remove(filename_.c_str());
 		}
 
 	}
 	virtual int number()
 	{
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		int na = dataset_->getNumberOfAcquisitions();
 		mtx.unlock();
@@ -122,16 +182,14 @@ public:
 	}
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		dataset_->readAcquisition(num, acq);
 		mtx.unlock();
 	}
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
 	{
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
@@ -139,23 +197,14 @@ public:
 	virtual void copyData(const AcquisitionsContainer& ac) {
 		par_ = ac.parameters();
 		coils_ = ac.coils();
-		int ndim = coils_->getNDim();
-		//const size_t dims[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM] = coils_->getDims();
-		const size_t *dims = coils_->getDims();
-		//for (int i = 0; i < ndim; i++)
-		//	std::cout << dims[i] << ' ';
-		//std::cout << '\n';
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
-		//std::cout << ndim << std::endl;
 	}
 	void writeData() {
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
 		dataset_->appendNDArray("csm", *coils_);
@@ -240,8 +289,7 @@ public:
 	{
 		if (images_.size() < 1)
 			return;
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
+		Mutex mtx;
 		mtx.lock();
 		ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 		mtx.unlock();
@@ -281,9 +329,9 @@ private:
 
 	template<typename T>
 	void writeImage
-		(const ISMRMRD::Image<T>* ptr_im, ISMRMRD::Dataset& dataset, 
-		boost::mutex& mtx)
+		(const ISMRMRD::Image<T>* ptr_im, ISMRMRD::Dataset& dataset, Mutex& mtx)
 	{
+		//std::cout << "appending image..." << std::endl;
 		const ISMRMRD::Image<T>& im = *ptr_im;
 		std::stringstream ss;
 		ss << "image_" << im.getHead().image_series_index;

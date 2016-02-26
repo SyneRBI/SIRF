@@ -263,11 +263,12 @@ private:
 
 class AcquisitionModel {
 public:
-	AcquisitionModel(const AcquisitionsContainer& ac)
+	AcquisitionModel(AcquisitionsContainer& ac)
 	{
 		par_ = ac.parameters();
 		coils_ = ac.coils();
 		ISMRMRD::deserialize(par_.c_str(), header_);
+		ac.getAcquisition(0, acq_);
 	}
 
 	void fwd(ImageWrap& iw, AcquisitionsContainer& ac)
@@ -281,18 +282,16 @@ private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;
 	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
+	ISMRMRD::Acquisition acq_;
 
 	template< typename T>
 	void fwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac)
 	{
 		ISMRMRD::Image<T>& im = *ptr_im;
 		ISMRMRD::Encoding e = header_.encoding[0];
-		//ISMRMRD::AcquisitionSystemInformation sys = 
-		//	header_.acquisitionSystemInformation;
 
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
-		//unsigned int ncoils = sys.receiverChannels;
 		const size_t *cdims = coils_->getDims();
 		unsigned int ncoils = cdims[2];
 
@@ -301,24 +300,33 @@ private:
 		dims.push_back(matrix_size);
 		dims.push_back(ncoils);
 
-		//boost::shared_ptr<NDArray<complex_float_t> > coils =
-		//	generate_birdcage_sensititivies(matrix_size, ncoils, relative_radius_);
 		ISMRMRD::NDArray<complex_float_t> coil_images(dims);
 		memset(coil_images.getDataPtr(), 0, coil_images.getDataSize());
 
 		T* ptr = im.getDataPtr();
+		long long int i = 0;
+		float rmax = 0;
+		for (unsigned int y = 0; y < matrix_size; y++) {
+			for (unsigned int x = 0; x < matrix_size; x++, i++) {
+				complex_float_t ri = ptr[i];
+				rmax = std::max(rmax, std::abs(ri));
+			}
+		}
+		rmax = 1.0;
+
 		for (unsigned int c = 0; c < ncoils; c++) {
-			long long int i = 0;
+			i = 0;
 			for (unsigned int y = 0; y < matrix_size; y++) {
 				for (unsigned int x = 0; x < matrix_size; x++, i++) {
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = ptr[i];
-					coil_images(xout, y, c) = z * (*coils_)(x, y, c);
+					complex_float_t zc = (*coils_)(x, y, c);
+					complex_float_t zci = coil_images(xout, y, c) = z * zc / rmax; 
 				}
 			}
 		}
 
-		ISMRMRD::Acquisition acq;
+		ISMRMRD::Acquisition acq(acq_);
 		acq.resize(readout, ncoils);
 		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 		acq.available_channels() = ncoils;
@@ -342,6 +350,9 @@ private:
 			}
 			ac.appendAcquisition(acq);
 		}
+		ac.setParameters(par_);
+		ac.setCoils(coils_);
+		ac.writeData();
 
 	}
 };
