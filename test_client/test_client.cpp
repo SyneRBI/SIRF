@@ -629,7 +629,11 @@ int test5(
 
 			std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
 
+			ImageHandle& ih_cmplx = imgs.image_handle(0);
+			std::cout << ih_cmplx.dot(ih_cmplx) << std::endl;
+
 			ImageWrap& iw_cmplx1 = imgs.imageWrap(1);
+			ImageHandle& ih_cmplx1 = imgs.image_handle(1);
 
 			input.getPhantomAsComplexFloat(iw_cmplx1);
 
@@ -651,9 +655,9 @@ int test5(
 
 			ImageWrap& iw = images.imageWrap(0);
 
-			std::cout << iw.dot(iw) << std::endl;
+			input.getPhantomAsFloat(iw);
 
-			//input.getPhantomAsFloat(iw);
+			std::cout << iw.dot(iw) << std::endl;
 
 			images.write(out_file, out_group);
 
@@ -667,7 +671,10 @@ int test5(
 
 			AcquisitionsFile acqs(acq_file, true, true);
 
-			acq_mod.fwd(iw, acqs);
+			ImageHandle& ih = images.image_handle(0);
+
+			//acq_mod.fwd(iw, acqs);
+			acq_mod.fwd(ih, acqs);
 
 			//ISMRMRD::Acquisition a;
 			//ISMRMRD::Acquisition b;
@@ -685,9 +692,9 @@ int test5(
 			//acqs.getAcquisition(0, acq);
 			//std::cout << AcquisitionsContainer::dot(acq, acq) << std::endl;
 
-			acq_mod.bwd(iw_cmplx, acqs);
+			acq_mod.bwd(ih_cmplx, acqs);
 
-			std::cout << iw_cmplx.dot(iw_cmplx1) << std::endl;
+			std::cout << ih_cmplx.dot(ih_cmplx1) << std::endl;
 		}
 	}
 	catch (std::exception& ex) {

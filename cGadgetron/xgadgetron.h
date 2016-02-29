@@ -271,6 +271,22 @@ public:
 		ac.getAcquisition(0, acq_);
 	}
 
+	void fwd(ImageHandle& ih, AcquisitionsContainer& ac)
+	{
+		ImageWrap& iw = ih.iw();
+		int type = iw.type();
+		void* ptr = iw.ptr_image();
+		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
+	}
+
+	void bwd(ImageHandle& ih, AcquisitionsContainer& ac)
+	{
+		ImageWrap& iw = ih.iw();
+		int type = iw.type();
+		void* ptr = iw.ptr_image();
+		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
+	}
+
 	void fwd(ImageWrap& iw, AcquisitionsContainer& ac)
 	{
 		int type = iw.type();
