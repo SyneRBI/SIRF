@@ -623,6 +623,18 @@ int test5(
 			ImagesList& imgs = (ImagesList&)*recon.get_output();
 			//std::cout << "ok" << std::endl;
 
+			ImageWrap& iw_cmplx = imgs.imageWrap(0);
+
+			input.getPhantomAsComplexFloat(iw_cmplx);
+
+			std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
+
+			ImageWrap& iw_cmplx1 = imgs.imageWrap(1);
+
+			input.getPhantomAsComplexFloat(iw_cmplx1);
+
+			std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
+
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
 			//proc.add_gadget("g2", fin);
@@ -632,12 +644,18 @@ int test5(
 			//std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
-			images.write(out_file, out_group);
+			//images.write(out_file, out_group);
 			//std::cout << "ok" << std::endl;
 
 			AcquisitionModel acq_mod(input);
 
 			ImageWrap& iw = images.imageWrap(0);
+
+			std::cout << iw.dot(iw) << std::endl;
+
+			//input.getPhantomAsFloat(iw);
+
+			images.write(out_file, out_group);
 
 			std::string acq_file = out_file;
 			acq_file += out_group;
@@ -648,6 +666,7 @@ int test5(
 			std::cout << acq_file << std::endl;
 
 			AcquisitionsFile acqs(acq_file, true, true);
+
 			acq_mod.fwd(iw, acqs);
 
 			//ISMRMRD::Acquisition a;
@@ -657,6 +676,18 @@ int test5(
 			//std::cout << AcquisitionsContainer::diff(a, b) << std::endl;
 
 			std::cout << input.diff(acqs) << std::endl;
+
+			std::cout << input.dot(input) << std::endl;
+			std::cout << acqs.dot(input) << std::endl;
+			std::cout << acqs.dot(acqs) << std::endl;
+
+			//ISMRMRD::Acquisition acq;
+			//acqs.getAcquisition(0, acq);
+			//std::cout << AcquisitionsContainer::dot(acq, acq) << std::endl;
+
+			acq_mod.bwd(iw_cmplx, acqs);
+
+			std::cout << iw_cmplx.dot(iw_cmplx1) << std::endl;
 		}
 	}
 	catch (std::exception& ex) {

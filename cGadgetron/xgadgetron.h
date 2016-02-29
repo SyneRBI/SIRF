@@ -278,11 +278,27 @@ public:
 		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
 	}
 
+	void bwd(ImageWrap& iw, AcquisitionsContainer& ac)
+	{
+		int type = iw.type();
+		void* ptr = iw.ptr_image();
+		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
+	}
+
 private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;
 	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
 	ISMRMRD::Acquisition acq_;
+
+	float norm(ISMRMRD::NDArray<complex_float_t> arr)
+	{
+		float s = 0;
+		complex_float_t* ia;
+		for (ia = arr.begin(); ia != arr.end(); ia++)
+			s += std::abs(std::conj(*ia) * (*ia));
+		return sqrt(s);
+	}
 
 	template< typename T>
 	void fwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac)
@@ -300,20 +316,11 @@ private:
 		dims.push_back(matrix_size);
 		dims.push_back(ncoils);
 
-		ISMRMRD::NDArray<complex_float_t> coil_images(dims);
-		memset(coil_images.getDataPtr(), 0, coil_images.getDataSize());
+		ISMRMRD::NDArray<complex_float_t> cm(dims);
+		memset(cm.getDataPtr(), 0, cm.getDataSize());
 
 		T* ptr = im.getDataPtr();
-		long long int i = 0;
-		float rmax = 0;
-		for (unsigned int y = 0; y < matrix_size; y++) {
-			for (unsigned int x = 0; x < matrix_size; x++, i++) {
-				complex_float_t ri = ptr[i];
-				rmax = std::max(rmax, std::abs(ri));
-			}
-		}
-		rmax = 1.0;
-
+		long long int i;
 		for (unsigned int c = 0; c < ncoils; c++) {
 			i = 0;
 			for (unsigned int y = 0; y < matrix_size; y++) {
@@ -321,19 +328,16 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = ptr[i];
 					complex_float_t zc = (*coils_)(x, y, c);
-					complex_float_t zci = coil_images(xout, y, c) = z * zc / rmax; 
+					cm(xout, y, c) = z * zc;
 				}
 			}
 		}
 
 		ISMRMRD::Acquisition acq(acq_);
-		acq.resize(readout, ncoils);
 		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
-		acq.available_channels() = ncoils;
-		acq.center_sample() = (readout >> 1);
 
-		ISMRMRD::NDArray<complex_float_t> cm = coil_images;
 		fft2c(cm);
+
 		for (size_t i = 0; i < matrix_size; i++) {
 			acq.clearAllFlags();
 			if (i == 0)
@@ -342,7 +346,6 @@ private:
 				acq.setFlag(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE);
 			acq.idx().kspace_encode_step_1 = i;
 			acq.idx().repetition = 0;
-			acq.sample_time_us() = 5.0;
 			for (size_t c = 0; c < ncoils; c++) {
 				for (size_t s = 0; s < readout; s++) {
 					acq.data(s, c) = cm(s, i, c);
@@ -355,5 +358,86 @@ private:
 		ac.writeData();
 
 	}
+
+	void convert_complex(complex_float_t z, unsigned short& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, short& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, unsigned int& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, int& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, float& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, complex_float_t& t)
+	{
+		t = z;
+	}
+	void convert_complex(complex_float_t z, double& t)
+	{
+		t = z.real();
+	}
+	void convert_complex(complex_float_t z, complex_double_t& t)
+	{
+		t = z;
+	}
+
+	template< typename T>
+	void bwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac)
+	{
+		ISMRMRD::Image<T>& im = *ptr_im;
+		ISMRMRD::Encoding e = header_.encoding[0];
+
+		int readout = e.encodedSpace.matrixSize.x;
+		unsigned int matrix_size = im.getMatrixSizeY();
+		const size_t *cdims = coils_->getDims();
+		unsigned int ncoils = cdims[2];
+
+		std::vector<size_t> dims;
+		dims.push_back(readout);
+		dims.push_back(matrix_size);
+		dims.push_back(ncoils);
+
+		ISMRMRD::NDArray<complex_float_t> cm(dims);
+		ISMRMRD::Acquisition acq;
+		for (size_t i = 0; i < matrix_size; i++) {
+			ac.getAcquisition(i, acq);
+			for (size_t c = 0; c < ncoils; c++) {
+				for (size_t s = 0; s < readout; s++) {
+					cm(s, i, c) = acq.data(s, c);
+				}
+			}
+		}
+		ifft2c(cm);
+
+		T* ptr = im.getDataPtr();
+		T s;
+		memset(ptr, 0, im.getDataSize());
+		long long int i = 0;
+		for (unsigned int c = 0; c < ncoils; c++) {
+			i = 0;
+			for (unsigned int y = 0; y < matrix_size; y++) {
+				for (unsigned int x = 0; x < matrix_size; x++, i++) {
+					uint16_t xout = x + (readout - matrix_size) / 2;
+					complex_float_t z = cm(xout, y, c);
+					complex_float_t zc = (*coils_)(x, y, c);
+					convert_complex(std::conj(zc) * z, s);
+					ptr[i] += s;
+				}
+			}
+		}
+
+	}
+
 };
 #endif
