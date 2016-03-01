@@ -428,7 +428,7 @@ public:
 	{
 		sptr_iw_->axpby(a, *x.sptr_iw_, b);
 	}
-	complex_float_t dot(ImageHandle& ih) const
+	complex_double_t dot(ImageHandle& ih) const
 	{
 		return sptr_iw_->dot(*ih.sptr_iw_);
 	}
@@ -842,7 +842,7 @@ public:
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 		unsigned int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
