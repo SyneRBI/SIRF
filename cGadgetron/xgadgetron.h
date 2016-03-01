@@ -357,7 +357,7 @@ private:
 			for (unsigned int y = 0; y < matrix_size; y++) {
 				for (unsigned int x = 0; x < matrix_size; x++, i++) {
 					uint16_t xout = x + (readout - matrix_size) / 2;
-					complex_float_t z = ptr[i];
+					complex_float_t z = (complex_float_t)ptr[i];
 					complex_float_t zc = (*coils_)(x, y, c);
 					cm(xout, y, c) = z * zc;
 				}

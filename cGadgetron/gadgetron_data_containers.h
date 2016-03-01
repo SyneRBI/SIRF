@@ -290,15 +290,15 @@ private:
 		if (b == complex_float_t(0.0))
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_float_t u = *i;
+			complex_float_t u = (complex_float_t)*i;
 			Utilities::convert_complex(a*u, *j);
 			//*j = a*u;
 		}
 		else
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_float_t u = *i;
-			complex_float_t v = *j;
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
 			Utilities::convert_complex(a*u + b*v, *j);
 			//*j = a*u + b*v;
 		}
@@ -334,7 +334,7 @@ private:
 		n *= ptr->getMatrixSizeY();
 		n *= ptr->getMatrixSizeZ();
 		for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
-			complex_float_t a = *i;
+			complex_float_t a = (complex_float_t)*i;
 			*r += std::abs(std::conj(a) * a);
 		}
 		*r = std::sqrt(*r);
@@ -355,8 +355,8 @@ private:
 		//for (i = ptr->begin(), j = im.begin(); i != ptr->end(); i++, j++) {
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n; 
 			i++, j++, ii++) {
-			complex_float_t a = *i;
-			complex_float_t b = *j;
+			complex_float_t a = (complex_float_t)*i;
+			complex_float_t b = (complex_float_t)*j;
 			*s += std::abs(b - a);
 		}
 	}
