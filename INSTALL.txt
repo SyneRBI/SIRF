@@ -62,6 +62,7 @@ BOOST_SUFFIX     Common part of boost libraries names (e.g.-vc120-mt-1_58.lib or
 ISMRMRD_INCLUDE  Path to Ismrmrd include folder
 ISMRMRD_LIB      Path to Ismrmrd library folder
 ISMRMRD_LIBRARY  Ismrmrd library name
+PATH2FFTW        Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
 CGADGETRON       <work_dir>/xGadgetron/cGadgetron
 
 Build cGadgetron x64/Release solution (select "Release" in "Solution Configurations" box 

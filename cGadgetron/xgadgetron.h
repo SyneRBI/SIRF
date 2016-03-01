@@ -301,6 +301,21 @@ public:
 		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
 	}
 
+	void fwd(ImagesContainer& ic, AcquisitionsContainer& ac)
+	{
+		for (int i = 0; i < ic.number(); i++) {
+			ImageWrap& iw = ic.imageWrap(i);
+			fwd(iw, ac);
+		}
+	}
+	void bwd(ImagesContainer& ic, AcquisitionsContainer& ac)
+	{
+		for (int i = 0; i < ic.number(); i++) {
+			ImageWrap& iw = ic.imageWrap(i);
+			bwd(iw, ac);
+		}
+	}
+
 private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;

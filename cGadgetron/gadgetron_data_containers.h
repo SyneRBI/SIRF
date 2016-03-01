@@ -28,21 +28,58 @@
 
 #define IMAGE_PROCESSING_SWITCH_CONST(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
-		Operation ((ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_SHORT)\
-		Operation ((ISMRMRD::Image<short>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<short>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_UINT)\
-		Operation ((ISMRMRD::Image<unsigned int>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<unsigned int>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_INT)\
-		Operation ((ISMRMRD::Image<int>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<int>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
-		Operation ((ISMRMRD::Image<float>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<float>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
-		Operation ((ISMRMRD::Image<double>*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image<double>*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
-		Operation ((ISMRMRD::Image< std::complex<float> >*) Arguments, ##__VA_ARGS__);\
+		Operation ((const ISMRMRD::Image< std::complex<float> >*) Arguments, ##__VA_ARGS__);\
 		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
-		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
+		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
+
+class Utilities {
+public:
+	static void convert_complex(complex_float_t z, unsigned short& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, short& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, unsigned int& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, int& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, float& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, complex_float_t& t)
+	{
+		t = z;
+	}
+	static void convert_complex(complex_float_t z, double& t)
+	{
+		t = z.real();
+	}
+	static void convert_complex(complex_float_t z, complex_double_t& t)
+	{
+		t = z;
+	}
+
+};
 
 class Mutex {
 public:
@@ -80,16 +117,21 @@ private:
 
 class ImageWrap {
 public:
-	ImageWrap(uint16_t type, void* ptr_im)
+	ImageWrap(uint16_t type = 0, void* ptr_im = 0)
 	{
 		type_ = type;
 		ptr_ = ptr_im;
+	}
+	ImageWrap(const ImageWrap& iw) 
+	{
+		type_ = iw.type();
+		IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 	}
 	~ImageWrap()
 	{
 		IMAGE_PROCESSING_SWITCH(type_, delete, ptr_);
 	}
-	int type()
+	int type() const
 	{
 		return type_;
 	}
@@ -100,6 +142,12 @@ public:
 	const void* ptr_image() const
 	{
 		return ptr_;
+	}
+	size_t size() const
+	{
+		size_t s;
+		IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
+		return s;
 	}
 	void get_dim(int* dim) const
 	{
@@ -113,11 +161,21 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
 	}
+	void axpby(complex_float_t a, ImageWrap& x, complex_float_t b)
+	{
+		IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
+	}
 	complex_float_t dot(ImageWrap& iw) const
 	{
 		complex_float_t z;
 		IMAGE_PROCESSING_SWITCH_CONST(type_, dot_, iw.ptr_image(), &z);
 		return z;
+	}
+	double norm() const
+	{
+		double r;
+		IMAGE_PROCESSING_SWITCH_CONST(type_, norm_, ptr_, &r);
+		return r;
 	}
 	float diff(ImageWrap& iw) const
 	{
@@ -130,10 +188,21 @@ private:
 	int type_;
 	void* ptr_;
 
-	ImageWrap(const ImageWrap& iw) {}
 	ImageWrap& operator=(const ImageWrap& iw)
 	{
 		return *this;
+	}
+
+	template<typename T>
+	void copy_(const ISMRMRD::Image<T>* ptr_im)
+	{
+		ptr_ = (void*)new ISMRMRD::Image<T>(*ptr_im);
+	}
+
+	template<typename T>
+	void get_size_(const ISMRMRD::Image<T>* ptr_im, size_t& size) const
+	{
+		size = ptr_im->getDataSize();
 	}
 
 	template<typename T>
@@ -208,6 +277,34 @@ private:
 	}
 
 	template<typename T>
+	void axpby_
+		(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, complex_float_t b) 
+	{
+		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
+		const T* i;
+		T* j;
+		long long ii = 0;
+		long long int n = ptr_x->getMatrixSizeX();
+		n *= ptr_x->getMatrixSizeY();
+		n *= ptr_x->getMatrixSizeZ();
+		if (b == complex_float_t(0.0))
+			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
+				i++, j++, ii++) {
+			complex_float_t u = *i;
+			Utilities::convert_complex(a*u, *j);
+			//*j = a*u;
+		}
+		else
+			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
+				i++, j++, ii++) {
+			complex_float_t u = *i;
+			complex_float_t v = *j;
+			Utilities::convert_complex(a*u + b*v, *j);
+			//*j = a*u + b*v;
+		}
+	}
+
+	template<typename T>
 	void dot_(const ISMRMRD::Image<T>* ptr_im, complex_float_t *z) const
 	{
 		const ISMRMRD::Image<T>* ptr = (const ISMRMRD::Image<T>*)ptr_;
@@ -219,12 +316,28 @@ private:
 		n *= ptr_im->getMatrixSizeY();
 		n *= ptr_im->getMatrixSizeZ();
 		//for (i = ptr->begin(), j = ptr_im->begin(); i != ptr->end(); i++, j++) {
-		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n; 
+		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
-			complex_float_t a = *i;
-			complex_float_t b = *j;
-			*z += std::conj(b) * a;
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
+			*z += std::conj(v) * u;
 		}
+	}
+
+	template<typename T>
+	void norm_(const ISMRMRD::Image<T>* ptr, double *r) const
+	{
+		const T* i;
+		*r = 0;
+		long long ii = 0;
+		long long int n = ptr->getMatrixSizeX();
+		n *= ptr->getMatrixSizeY();
+		n *= ptr->getMatrixSizeZ();
+		for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
+			complex_float_t a = *i;
+			*r += std::abs(std::conj(a) * a);
+		}
+		*r = std::sqrt(*r);
 	}
 
 	template<typename T>
@@ -263,6 +376,10 @@ public:
 	{
 		sptr_iw_ = sptr_iw;
 	}
+	ImageHandle(const ImageHandle& ih)
+	{
+		sptr_iw_.reset(new ImageWrap(ih.iw()));
+	}
 	void new_image_wrap(uint16_t type, void* ptr_im)
 	{
 		sptr_iw_.reset(new ImageWrap(type, ptr_im));
@@ -287,6 +404,10 @@ public:
 	{
 		return sptr_iw_->ptr_image();
 	}
+	size_t size() const
+	{
+		return sptr_iw_->size();
+	}
 	const void get_dim(int* dim) const
 	{
 		sptr_iw_->get_dim(dim);
@@ -299,9 +420,17 @@ public:
 	{
 		sptr_iw_->write(dataset);
 	}
+	void axpby(complex_float_t a, ImageHandle& x, complex_float_t b)
+	{
+		sptr_iw_->axpby(a, *x.sptr_iw_, b);
+	}
 	complex_float_t dot(ImageHandle& ih) const
 	{
 		return sptr_iw_->dot(*ih.sptr_iw_);
+	}
+	double norm(ImageHandle& ih) const
+	{
+		return sptr_iw_->norm();
 	}
 	float diff(ImageHandle& ih) const
 	{
@@ -346,6 +475,17 @@ public:
 			z += std::conj(*pb) * (*pa);
 		}
 		return z;
+	}
+	static double norm(const ISMRMRD::Acquisition& acq_a)
+	{
+		complex_float_t* pa;
+		double r = 0;
+		for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
+			complex_float_t z = std::conj(*pa) * (*pa);
+			r += z.real();
+		}
+		r = sqrt(r);
+		return r;
 	}
 	static float diff
 		(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)

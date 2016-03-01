@@ -629,13 +629,19 @@ int test5(
 
 			std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
 
-			ImageHandle& ih_cmplx = imgs.image_handle(0);
-			std::cout << ih_cmplx.dot(ih_cmplx) << std::endl;
+			//ImageHandle& ih_cmplx = imgs.image_handle(0);
+			//std::cout << ih_cmplx.dot(ih_cmplx) << std::endl;
 
 			ImageWrap& iw_cmplx1 = imgs.imageWrap(1);
-			ImageHandle& ih_cmplx1 = imgs.image_handle(1);
+			//ImageHandle& ih_cmplx1 = imgs.image_handle(1);
 
 			input.getPhantomAsComplexFloat(iw_cmplx1);
+
+			ImageWrap iw_cmplx2(iw_cmplx1);
+			complex_float_t a = -1.0;
+			complex_float_t b = 1.0;
+			iw_cmplx2.axpby(a, iw_cmplx, b);
+			std::cout << iw_cmplx2.norm() << std::endl;
 
 			std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
 
@@ -671,10 +677,10 @@ int test5(
 
 			AcquisitionsFile acqs(acq_file, true, true);
 
-			ImageHandle& ih = images.image_handle(0);
+			//ImageHandle& ih = images.image_handle(0);
 
-			//acq_mod.fwd(iw, acqs);
-			acq_mod.fwd(ih, acqs);
+			acq_mod.fwd(iw, acqs);
+			//acq_mod.fwd(ih, acqs);
 
 			//ISMRMRD::Acquisition a;
 			//ISMRMRD::Acquisition b;
@@ -684,7 +690,7 @@ int test5(
 
 			std::cout << input.diff(acqs) << std::endl;
 
-			std::cout << input.dot(input) << std::endl;
+			//std::cout << input.dot(input) << std::endl;
 			std::cout << acqs.dot(input) << std::endl;
 			std::cout << acqs.dot(acqs) << std::endl;
 
@@ -692,9 +698,10 @@ int test5(
 			//acqs.getAcquisition(0, acq);
 			//std::cout << AcquisitionsContainer::dot(acq, acq) << std::endl;
 
-			acq_mod.bwd(ih_cmplx, acqs);
-
-			std::cout << ih_cmplx.dot(ih_cmplx1) << std::endl;
+			//acq_mod.bwd(ih_cmplx, acqs);
+			//std::cout << ih_cmplx.dot(ih_cmplx1) << std::endl;
+			acq_mod.bwd(iw_cmplx, acqs);
+			std::cout << iw_cmplx.dot(iw_cmplx1) << std::endl;
 		}
 	}
 	catch (std::exception& ex) {
