@@ -46,37 +46,77 @@
 
 class Utilities {
 public:
-	static void convert_complex(complex_float_t z, unsigned short& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, unsigned short& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, short& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, short& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, unsigned int& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, unsigned int& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, int& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, int& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, float& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, float& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, complex_float_t& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, complex_float_t& t)
 	{
 		t = z;
 	}
-	static void convert_complex(complex_float_t z, double& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, double& t)
 	{
 		t = z.real();
 	}
-	static void convert_complex(complex_float_t z, complex_double_t& t)
+	template<typename T>
+	static void convert_complex(std::complex<T> z, complex_double_t& t)
 	{
 		t = z;
+	}
+	static unsigned short abs(unsigned short v)
+	{
+		return v;
+	}
+	static short abs(short v)
+	{
+		return v > 0 ? v : -v;
+	}
+	static unsigned int abs(unsigned int v)
+	{
+		return v;
+	}
+	static int abs(int v)
+	{
+		return v > 0 ? v : -v;
+	}
+	static float abs(float v)
+	{
+		return v > 0 ? v : -v;
+	}
+	static double abs(double v)
+	{
+		return v > 0 ? v : -v;
+	}
+	static float abs(complex_float_t v)
+	{
+		return std::abs(v);
+	}
+	static double abs(complex_double_t v)
+	{
+		return std::abs(v);
 	}
 
 };
@@ -161,13 +201,13 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
 	}
-	void axpby(complex_float_t a, ImageWrap& x, complex_float_t b)
+	void axpby(complex_double_t a, const ImageWrap& x, complex_double_t b)
 	{
 		IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
 	}
-	complex_float_t dot(ImageWrap& iw) const
+	complex_double_t dot(const ImageWrap& iw) const
 	{
-		complex_float_t z;
+		complex_double_t z;
 		IMAGE_PROCESSING_SWITCH_CONST(type_, dot_, iw.ptr_image(), &z);
 		return z;
 	}
@@ -231,39 +271,6 @@ private:
 		dim[2] = im.getMatrixSizeZ();
 	}
 
-	static unsigned short myabs(unsigned short v)
-	{
-		return v;
-	}
-	static short myabs(short v)
-	{
-		return v > 0 ? v : -v;
-	}
-	static unsigned int myabs(unsigned int v)
-	{
-		return v;
-	}
-	static int myabs(int v)
-	{
-		return v > 0 ? v : -v;
-	}
-	static float myabs(float v)
-	{
-		return v > 0 ? v : -v;
-	}
-	static double myabs(double v)
-	{
-		return v > 0 ? v : -v;
-	}
-	static float myabs(complex_float_t v)
-	{
-		return std::abs(v);
-	}
-	static double myabs(complex_double_t v)
-	{
-		return std::abs(v);
-	}
-
 	template<typename T>
 	void get_data_(const ISMRMRD::Image<T>* ptr_im, double* data) const
 	{
@@ -273,12 +280,12 @@ private:
 		n *= im.getMatrixSizeZ();
 		const T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
-			data[i] = myabs(ptr[i]);
+			data[i] = Utilities::abs(ptr[i]);
 	}
 
 	template<typename T>
 	void axpby_
-		(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, complex_float_t b) 
+		(const ISMRMRD::Image<T>* ptr_x, complex_double_t a, complex_double_t b)
 	{
 		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
 		const T* i;
@@ -287,25 +294,23 @@ private:
 		long long int n = ptr_x->getMatrixSizeX();
 		n *= ptr_x->getMatrixSizeY();
 		n *= ptr_x->getMatrixSizeZ();
-		if (b == complex_float_t(0.0))
+		if (b == complex_double_t(0.0))
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_float_t u = (complex_float_t)*i;
+			complex_double_t u = (complex_double_t)*i;
 			Utilities::convert_complex(a*u, *j);
-			//*j = a*u;
 		}
 		else
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_float_t u = (complex_float_t)*i;
-			complex_float_t v = (complex_float_t)*j;
+			complex_double_t u = (complex_double_t)*i;
+			complex_double_t v = (complex_double_t)*j;
 			Utilities::convert_complex(a*u + b*v, *j);
-			//*j = a*u + b*v;
 		}
 	}
 
 	template<typename T>
-	void dot_(const ISMRMRD::Image<T>* ptr_im, complex_float_t *z) const
+	void dot_(const ISMRMRD::Image<T>* ptr_im, complex_double_t *z) const
 	{
 		const ISMRMRD::Image<T>* ptr = (const ISMRMRD::Image<T>*)ptr_;
 		const T* i;
@@ -315,11 +320,10 @@ private:
 		long long int n = ptr_im->getMatrixSizeX();
 		n *= ptr_im->getMatrixSizeY();
 		n *= ptr_im->getMatrixSizeZ();
-		//for (i = ptr->begin(), j = ptr_im->begin(); i != ptr->end(); i++, j++) {
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
-			complex_float_t u = (complex_float_t)*i;
-			complex_float_t v = (complex_float_t)*j;
+			complex_double_t u = (complex_double_t)*i;
+			complex_double_t v = (complex_double_t)*j;
 			*z += std::conj(v) * u;
 		}
 	}
@@ -464,12 +468,26 @@ public:
 		coils_ = coils;
 	}
 
-	static complex_float_t dot
+	static void axpby
+		(complex_double_t a, const ISMRMRD::Acquisition& acq_x, 
+		complex_double_t b, ISMRMRD::Acquisition& acq_y)
+	{
+		complex_float_t* px;
+		complex_float_t* py;
+		for (px = acq_x.data_begin(), py = acq_y.data_begin();
+			px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+			if (b == complex_double_t(0.0))
+				*py = a*complex_double_t(*px);
+			else
+				*py = a*complex_double_t(*px) + b*complex_double_t(*py);
+		}
+	}
+	static complex_double_t dot
 		(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 	{
 		complex_float_t* pa;
 		complex_float_t* pb;
-		complex_float_t z = 0;
+		complex_double_t z = 0;
 		for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
 			pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
 			z += std::conj(*pb) * (*pa);
@@ -515,6 +533,22 @@ public:
 		s /= sa;
 		return s;
 	}
+	static void axpby(
+		complex_double_t a, AcquisitionsContainer& x,
+		complex_double_t b, AcquisitionsContainer& y,
+		AcquisitionsContainer& z)
+	{
+		int m = x.number();
+		int n = y.number();
+		ISMRMRD::Acquisition ax;
+		ISMRMRD::Acquisition ay;
+		for (int i = 0; i < n && i < m; i++) {
+			y.getAcquisition(i, ay);
+			x.getAcquisition(i, ax);
+			AcquisitionsContainer::axpby(a, ax, b, ay);
+			z.appendAcquisition(ay);
+		}
+	}
 
 	virtual int number() = 0;
 	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
@@ -522,11 +556,11 @@ public:
 	virtual void copyData(const AcquisitionsContainer& ac) = 0;
 	virtual void writeData() = 0;
 
-	complex_float_t dot(AcquisitionsContainer& other)
+	complex_double_t dot(AcquisitionsContainer& other)
 	{
 		int n = number();
 		int m = other.number();
-		complex_float_t z = 0;
+		complex_double_t z = 0;
 		ISMRMRD::Acquisition a;
 		ISMRMRD::Acquisition b;
 		for (int i = 0; i < n && i < m; i++) {
@@ -535,6 +569,18 @@ public:
 			z += AcquisitionsContainer::dot(a, b);
 		}
 		return z;
+	}
+	double norm()
+	{
+		int n = number();
+		double r = 0;
+		ISMRMRD::Acquisition a;
+		for (int i = 0; i < n; i++) {
+			getAcquisition(i, a);
+			double s = AcquisitionsContainer::norm(a);
+			r += s*s;
+		}
+		return sqrt(r);
 	}
 
 	float diff(AcquisitionsContainer& other)
@@ -633,19 +679,19 @@ public:
 	{
 		ISMRMRD::NDArray<complex_float_t> arr;
 		dataset_->readNDArray("phantom", 0, arr);
-		int ndim = arr.getNDim();
-		const size_t *dims = arr.getDims();
-		for (int i = 0; i < ndim; i++)
-			std::cout << dims[i] << ' ';
-		std::cout << '\n';
+		//int ndim = arr.getNDim();
+		//const size_t *dims = arr.getDims();
+		//for (int i = 0; i < ndim; i++)
+		//	std::cout << dims[i] << ' ';
+		//std::cout << '\n';
 
 		ISMRMRD::Image<float>* ptr_im =
 			(ISMRMRD::Image<float>*)iw.ptr_image();
-		int sx = ptr_im->getMatrixSizeX();
-		int sy = ptr_im->getMatrixSizeY();
-		int sz = ptr_im->getMatrixSizeZ();
-		int nc = ptr_im->getNumberOfChannels();
-		std::cout << sx << ' ' << sy << ' ' << sz << ' ' << nc << std::endl;
+		//int sx = ptr_im->getMatrixSizeX();
+		//int sy = ptr_im->getMatrixSizeY();
+		//int sz = ptr_im->getMatrixSizeZ();
+		//int nc = ptr_im->getNumberOfChannels();
+		//std::cout << sx << ' ' << sy << ' ' << sz << ' ' << nc << std::endl;
 
 		complex_float_t* ia;
 		float* ii;
@@ -657,19 +703,19 @@ public:
 	{
 		ISMRMRD::NDArray<complex_float_t> arr;
 		dataset_->readNDArray("phantom", 0, arr);
-		int ndim = arr.getNDim();
-		const size_t *dims = arr.getDims();
-		for (int i = 0; i < ndim; i++)
-			std::cout << dims[i] << ' ';
-		std::cout << '\n';
+		//int ndim = arr.getNDim();
+		//const size_t *dims = arr.getDims();
+		//for (int i = 0; i < ndim; i++)
+		//	std::cout << dims[i] << ' ';
+		//std::cout << '\n';
 
 		ISMRMRD::Image<complex_float_t>* ptr_im =
 			(ISMRMRD::Image<complex_float_t>*)iw.ptr_image();
-		int sx = ptr_im->getMatrixSizeX();
-		int sy = ptr_im->getMatrixSizeY();
-		int sz = ptr_im->getMatrixSizeZ();
-		int nc = ptr_im->getNumberOfChannels();
-		std::cout << sx << ' ' << sy << ' ' << sz << ' ' << nc << std::endl;
+		//int sx = ptr_im->getMatrixSizeX();
+		//int sy = ptr_im->getMatrixSizeY();
+		//int sz = ptr_im->getMatrixSizeZ();
+		//int nc = ptr_im->getNumberOfChannels();
+		//std::cout << sx << ' ' << sy << ' ' << sz << ' ' << nc << std::endl;
 
 		complex_float_t* ia;
 		complex_float_t* ii;
@@ -697,22 +743,73 @@ class ImagesContainer : public aDataContainer {
 public:
 	virtual int number() const = 0;
 	virtual ImageWrap& imageWrap(unsigned int im_num) = 0;
+	virtual const ImageWrap& imageWrap(unsigned int im_num) const = 0;
 	virtual void append(int image_data_type, void* ptr_image) = 0;
+	virtual void append(const ImageWrap& iw) = 0;
 	virtual void getImageDimensions(unsigned int im_num, int* dim) = 0;
 	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
+
+	void axpby(complex_double_t a, const ImagesContainer& x, complex_double_t b)
+	{
+		for (int i = 0; i < number() && i < x.number(); i++) {
+			ImageWrap& u = imageWrap(i);
+			const ImageWrap& v = x.imageWrap(i);
+			u.axpby(a, v, b);
+		}
+	}
+	complex_double_t dot(const ImagesContainer& ic) const
+	{
+		complex_double_t z = 0;
+		for (int i = 0; i < number() && i < ic.number(); i++) {
+			const ImageWrap& u = imageWrap(i);
+			const ImageWrap& v = ic.imageWrap(i);
+			z += u.dot(v);
+		}
+		return z;
+	}
+	double norm() const
+	{
+		double r = 0;
+		for (int i = 0; i < number(); i++) {
+			const ImageWrap& u = imageWrap(i);
+			double s = u.norm();
+			r += s*s;
+		}
+		r = sqrt(r);
+		return r;
+	}
 };
 
 class ImagesList : public ImagesContainer {
 public:
+	ImagesList() : images_()
+	{
+	}
+	ImagesList(const ImagesList& list)
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#endif
+		for (i = list.images_.begin(); i != list.images_.end(); i++) {
+			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			append(*sptr_iw);
+		}
+	}
 	virtual int number() const 
 	{
 		return (int)images_.size();
 	}
-	virtual void append(int image_data_type, void* ptr_image) 
+	virtual void append(int image_data_type, void* ptr_image)
 	{
 		images_.push_back(boost::shared_ptr<ImageWrap>
 			(new ImageWrap(image_data_type, ptr_image)));
+	}
+	virtual void append(const ImageWrap& iw)
+	{
+		images_.push_back(boost::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
 	virtual ImageHandle image_handle(unsigned int im_num)
 	{
@@ -738,6 +835,19 @@ public:
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
 		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		return *sptr_iw;
+	}
+	virtual const ImageWrap& imageWrap(unsigned int im_num) const
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
+		unsigned int count = 0;
+		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
+			count++;
+		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 		return *sptr_iw;
 	}
 	virtual void write(std::string filename, std::string groupname)

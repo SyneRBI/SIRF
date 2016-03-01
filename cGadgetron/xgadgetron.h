@@ -271,21 +271,21 @@ public:
 		ac.getAcquisition(0, acq_);
 	}
 
-	void fwd(ImageHandle& ih, AcquisitionsContainer& ac)
-	{
-		ImageWrap& iw = ih.iw();
-		int type = iw.type();
-		void* ptr = iw.ptr_image();
-		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
-	}
+	//void fwd(ImageHandle& ih, AcquisitionsContainer& ac)
+	//{
+	//	ImageWrap& iw = ih.iw();
+	//	int type = iw.type();
+	//	void* ptr = iw.ptr_image();
+	//	IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
+	//}
 
-	void bwd(ImageHandle& ih, AcquisitionsContainer& ac)
-	{
-		ImageWrap& iw = ih.iw();
-		int type = iw.type();
-		void* ptr = iw.ptr_image();
-		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
-	}
+	//void bwd(ImageHandle& ih, AcquisitionsContainer& ac)
+	//{
+	//	ImageWrap& iw = ih.iw();
+	//	int type = iw.type();
+	//	void* ptr = iw.ptr_image();
+	//	IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
+	//}
 
 	void fwd(ImageWrap& iw, AcquisitionsContainer& ac)
 	{
@@ -294,11 +294,11 @@ public:
 		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
 	}
 
-	void bwd(ImageWrap& iw, AcquisitionsContainer& ac)
+	void bwd(ImageWrap& iw, AcquisitionsContainer& ac, int im_num = 0)
 	{
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
-		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
+		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac, im_num);
 	}
 
 	void fwd(ImagesContainer& ic, AcquisitionsContainer& ac)
@@ -312,7 +312,8 @@ public:
 	{
 		for (int i = 0; i < ic.number(); i++) {
 			ImageWrap& iw = ic.imageWrap(i);
-			bwd(iw, ac);
+			bwd(iw, ac, i);
+			//std::cout << i << ' ' << iw.norm() << std::endl;
 		}
 	}
 
@@ -390,41 +391,41 @@ private:
 
 	}
 
-	void convert_complex(complex_float_t z, unsigned short& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, short& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, unsigned int& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, int& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, float& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, complex_float_t& t)
-	{
-		t = z;
-	}
-	void convert_complex(complex_float_t z, double& t)
-	{
-		t = z.real();
-	}
-	void convert_complex(complex_float_t z, complex_double_t& t)
-	{
-		t = z;
-	}
+	//void convert_complex(complex_float_t z, unsigned short& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, short& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, unsigned int& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, int& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, float& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, complex_float_t& t)
+	//{
+	//	t = z;
+	//}
+	//void convert_complex(complex_float_t z, double& t)
+	//{
+	//	t = z.real();
+	//}
+	//void convert_complex(complex_float_t z, complex_double_t& t)
+	//{
+	//	t = z;
+	//}
 
 	template< typename T>
-	void bwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac)
+	void bwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac, int im_num = 0)
 	{
 		ISMRMRD::Image<T>& im = *ptr_im;
 		ISMRMRD::Encoding e = header_.encoding[0];
@@ -442,7 +443,7 @@ private:
 		ISMRMRD::NDArray<complex_float_t> cm(dims);
 		ISMRMRD::Acquisition acq;
 		for (size_t i = 0; i < matrix_size; i++) {
-			ac.getAcquisition(i, acq);
+			ac.getAcquisition(i + matrix_size*im_num, acq);
 			for (size_t c = 0; c < ncoils; c++) {
 				for (size_t s = 0; s < readout; s++) {
 					cm(s, i, c) = acq.data(s, c);
@@ -462,7 +463,7 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = cm(xout, y, c);
 					complex_float_t zc = (*coils_)(x, y, c);
-					convert_complex(std::conj(zc) * z, s);
+					Utilities::convert_complex(std::conj(zc) * z, s);
 					ptr[i] += s;
 				}
 			}

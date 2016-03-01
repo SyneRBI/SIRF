@@ -637,6 +637,8 @@ int test5(
 
 			input.getPhantomAsComplexFloat(iw_cmplx1);
 
+			std::cout << imgs.dot(imgs) << std::endl;
+
 			ImageWrap iw_cmplx2(iw_cmplx1);
 			complex_float_t a = -1.0;
 			complex_float_t b = 1.0;
@@ -645,12 +647,17 @@ int test5(
 
 			std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
 
+			ImagesList list(imgs);
+			list.axpby(a, imgs, b);
+			std::cout << list.norm() << std::endl;
+
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
 			//proc.add_gadget("g2", fin);
 			proc.process(imgs);
 			ImagesList& images = (ImagesList&)*proc.get_output();
 
+			std::cout << images.dot(images) << std::endl;
 			//std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
@@ -664,6 +671,7 @@ int test5(
 			input.getPhantomAsFloat(iw);
 
 			std::cout << iw.dot(iw) << std::endl;
+			std::cout << images.dot(images) << std::endl;
 
 			images.write(out_file, out_group);
 
@@ -679,7 +687,8 @@ int test5(
 
 			//ImageHandle& ih = images.image_handle(0);
 
-			acq_mod.fwd(iw, acqs);
+			acq_mod.fwd(imgs, acqs);
+			//acq_mod.fwd(iw, acqs);
 			//acq_mod.fwd(ih, acqs);
 
 			//ISMRMRD::Acquisition a;
@@ -693,6 +702,7 @@ int test5(
 			//std::cout << input.dot(input) << std::endl;
 			std::cout << acqs.dot(input) << std::endl;
 			std::cout << acqs.dot(acqs) << std::endl;
+			std::cout << acqs.norm() << std::endl;
 
 			//ISMRMRD::Acquisition acq;
 			//acqs.getAcquisition(0, acq);
@@ -700,8 +710,16 @@ int test5(
 
 			//acq_mod.bwd(ih_cmplx, acqs);
 			//std::cout << ih_cmplx.dot(ih_cmplx1) << std::endl;
-			acq_mod.bwd(iw_cmplx, acqs);
-			std::cout << iw_cmplx.dot(iw_cmplx1) << std::endl;
+			//acq_mod.bwd(iw_cmplx, acqs);
+			//std::cout << iw_cmplx.dot(iw_cmplx1) << std::endl;
+			ImagesList il(imgs);
+			acq_mod.bwd(imgs, acqs);
+			std::cout << imgs.dot(il) << std::endl;
+
+			AcquisitionsFile diff("tmp.h5", true, true);
+			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
+			std::cout << diff.norm()/acqs.norm() << std::endl;
+			std::remove("tmp.h5");
 		}
 	}
 	catch (std::exception& ex) {
