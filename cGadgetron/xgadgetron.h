@@ -102,8 +102,10 @@ public:
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdAcqMsgWriter),
-		sptr_acqs_(new AcquisitionsFile(filename, true, true))
+		filename_(filename)
+		//sptr_acqs_(new AcquisitionsFile(filename, true, true))
 	{
+		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
 		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
@@ -112,11 +114,26 @@ public:
 
 	void process(AcquisitionsContainer& acquisitions) {
 
+		static int calls = 0;
+		char buff[32];
+
+		calls++;
+		sprintf(buff, "_%d", calls);
+		std::string filename(filename_);
+		boost::replace_all(filename, ".h5", buff);
+		filename = filename + ".h5";
+		//std::cout << filename << std::endl;
+
 		std::string config = xml();
 		//std::cout << config << std::endl;
 
 		GTConnector conn;
 
+		//Mutex mtx;
+		//mtx.lock();
+		//sptr_acqs_.reset();
+		//mtx.unlock();
+		sptr_acqs_.reset(new AcquisitionsFile(filename, true, true));
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
@@ -149,6 +166,7 @@ public:
 private:
 	std::string host_;
 	std::string port_;
+	std::string filename_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
@@ -160,9 +178,10 @@ public:
 	ImageReconstructor() :
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
-		writer_(new IsmrmrdImgMsgWriter),
-		sptr_images_(new ImagesList) 
+		writer_(new IsmrmrdImgMsgWriter)
+		//sptr_images_(new ImagesList) 
 	{
+		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
@@ -176,6 +195,7 @@ public:
 
 		GTConnector conn;
 
+		sptr_images_.reset(new ImagesList);
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
@@ -217,8 +237,8 @@ public:
 	ImagesProcessor() :
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdImgMsgReader),
-		writer_(new IsmrmrdImgMsgWriter),
-		sptr_images_(new ImagesList) 
+		writer_(new IsmrmrdImgMsgWriter)
+		//sptr_images_(new ImagesList) 
 	{
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
@@ -233,6 +253,7 @@ public:
 
 		GTConnector conn;
 
+		sptr_images_.reset(new ImagesList);
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));

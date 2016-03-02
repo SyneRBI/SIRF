@@ -59,6 +59,19 @@ std::string get_date_time_string()
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
+	std::cout << rawtime << std::endl;
+	std::cout << clock() << std::endl;
+
+	auto now = std::chrono::system_clock::now();
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+//		- std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+	std::cout << ms.count() << " ms" << std::endl;	
+	
+	//struct timeval tp;
+	//gettimeofday(&tp, NULL);
+	//long long mslong = (long long)tp.tv_sec * 1000L + tp.tv_usec / 1000;
+	//std::cout << mslong << std::endl;
+
 	std::stringstream str;
 	str << timeinfo->tm_year + 1900 << "-"
 		<< std::setw(2) << std::setfill('0') << timeinfo->tm_mon + 1 << "-"
@@ -624,18 +637,15 @@ int test5(
 			//std::cout << "ok" << std::endl;
 
 			ImageWrap& iw_cmplx = imgs.imageWrap(0);
-
-			input.getPhantomAsComplexFloat(iw_cmplx);
-
-			std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
+			//input.getPhantomAsComplexFloat(iw_cmplx);
+			//std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
 
 			//ImageHandle& ih_cmplx = imgs.image_handle(0);
 			//std::cout << ih_cmplx.dot(ih_cmplx) << std::endl;
 
 			ImageWrap& iw_cmplx1 = imgs.imageWrap(1);
 			//ImageHandle& ih_cmplx1 = imgs.image_handle(1);
-
-			input.getPhantomAsComplexFloat(iw_cmplx1);
+			//input.getPhantomAsComplexFloat(iw_cmplx1);
 
 			std::cout << imgs.dot(imgs) << std::endl;
 
@@ -643,13 +653,12 @@ int test5(
 			complex_float_t a = -1.0;
 			complex_float_t b = 1.0;
 			iw_cmplx2.axpby(a, iw_cmplx, b);
-			std::cout << iw_cmplx2.norm() << std::endl;
-
-			std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
+			//std::cout << iw_cmplx2.norm() << std::endl;
+			//std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
 
 			ImagesList list(imgs);
 			list.axpby(a, imgs, b);
-			std::cout << list.norm() << std::endl;
+			//std::cout << list.norm() << std::endl;
 
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
@@ -657,7 +666,7 @@ int test5(
 			proc.process(imgs);
 			ImagesList& images = (ImagesList&)*proc.get_output();
 
-			std::cout << images.dot(images) << std::endl;
+			//std::cout << images.dot(images) << std::endl;
 			//std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
@@ -668,12 +677,11 @@ int test5(
 
 			ImageWrap& iw = images.imageWrap(0);
 
-			input.getPhantomAsFloat(iw);
-
-			std::cout << iw.dot(iw) << std::endl;
+			//input.getPhantomAsFloat(iw);
+			//std::cout << iw.dot(iw) << std::endl;
 			std::cout << images.dot(images) << std::endl;
 
-			images.write(out_file, out_group);
+			//images.write(out_file, out_group);
 
 			std::string acq_file = out_file;
 			acq_file += out_group;
@@ -702,7 +710,7 @@ int test5(
 			//std::cout << input.dot(input) << std::endl;
 			std::cout << acqs.dot(input) << std::endl;
 			std::cout << acqs.dot(acqs) << std::endl;
-			std::cout << acqs.norm() << std::endl;
+			std::cout << pow(acqs.norm(), 2) << std::endl;
 
 			//ISMRMRD::Acquisition acq;
 			//acqs.getAcquisition(0, acq);
@@ -717,6 +725,7 @@ int test5(
 			std::cout << imgs.dot(il) << std::endl;
 
 			AcquisitionsFile diff("tmp.h5", true, true);
+			a = -acqs.dot(input) / input.dot(input);
 			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
 			std::cout << diff.norm()/acqs.norm() << std::endl;
 			std::remove("tmp.h5");
@@ -819,6 +828,8 @@ int test7(
 	std::cout << "  -- hdf5 file out   :      " << out_file << std::endl;
 	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
 
+	std::cout << Utilities::milliseconds() << std::endl;
+
 	try {
 		void* h_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
 
@@ -837,6 +848,12 @@ int test7(
 		cGT_addGadget(h_proc, "g1", h_ro);
 
 		void* h_output = cGT_processAcquisitions(h_proc, h_input);
+		if (executionStatus(h_output)) {
+			std::cout << "exception thrown" << std::endl;
+			exit(1);
+		}
+		std::cout << acq_file << std::endl;
+		void* h_output1 = cGT_processAcquisitions(h_proc, h_input);
 		if (executionStatus(h_output)) {
 			std::cout << "exception thrown" << std::endl;
 			exit(1);
@@ -867,6 +884,7 @@ int test7(
 		deleteObject(h_recon);
 		deleteObject(h_input);
 		deleteObject(h_output);
+		deleteObject(h_output1);
 		deleteObject(h_proc);
 		deleteObject(h_proc_img);
 	}

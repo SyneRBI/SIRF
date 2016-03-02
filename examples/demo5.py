@@ -44,6 +44,13 @@ try:
     print('processing images...')
     images = img_proc.process(interim_images)
 
+    am = pGadgetron.AcquisitionModel(input_data, interim_images)
+    acqs = am.forward(interim_images)
+    imgs = am.backward(acqs)
+
+    print(acqs.dot(acqs))
+    print(imgs.dot(interim_images))
+
     # plot obtained images
     for i in range(images.number()):
         data = images.image_as_array(i)

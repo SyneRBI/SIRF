@@ -26,6 +26,8 @@
 #include "xgadgetron.h"
 #include "gadget_lib.h"
 
+#define GRAB 1
+
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 //boost::shared_ptr<GadgetronClientConnector> GTConnector::sptr_con_;
 
@@ -41,6 +43,22 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+extern "C"
+double
+doubleReDataFromHandle(const void* ptr)
+{
+	std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
+	return z.real();
+}
+
+extern "C"
+double
+doubleImDataFromHandle(const void* ptr)
+{
+	std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
+	return z.imag();
 }
 
 extern "C"
@@ -97,11 +115,125 @@ void* cGT_newObject(const char* name)
 
 extern "C"
 void*
+cGT_AcquisitionModel(const void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs = 
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs));
+		return sptrObjectHandle<AcquisitionModel>(am);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_imagesCopy(const void* ptr_imgs)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesList& imgs = (ImagesList&)objectFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<ImagesList> list(new ImagesList(imgs));
+		return sptrObjectHandle<ImagesList>(list);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelFwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
+		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		am.fwd(imgs, acqs);
+		return (void*)new DataHandle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelBwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
+		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		am.bwd(imgs, acqs);
+		return (void*)new DataHandle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	try {
-		boost::shared_ptr<AcquisitionsContainer> acquisitions(new AcquisitionsFile(file));
+		boost::shared_ptr<AcquisitionsContainer> 
+			acquisitions(new AcquisitionsFile(file));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_ISMRMRDAcquisitionsFile(const char* file)
+{
+	try {
+		boost::shared_ptr<AcquisitionsContainer> 
+			acquisitions(new AcquisitionsFile(file, true, true));
+		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
+		AcquisitionsContainer& acq_y = objectFromHandle<AcquisitionsContainer>(h_y);
+		complex_double_t* result = 
+			(complex_double_t*)malloc(sizeof(complex_double_t));
+		*result = acq_x.dot(acq_y);
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_imagesDot(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		ImagesContainer& imgs_x = objectFromHandle<ImagesContainer>(h_x);
+		ImagesContainer& imgs_y = objectFromHandle<ImagesContainer>(h_y);
+		complex_double_t* result =
+			(complex_double_t*)malloc(sizeof(complex_double_t));
+		*result = imgs_x.dot(imgs_y);
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
 	}
 	CATCH
 }

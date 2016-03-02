@@ -43,8 +43,12 @@ class GadgetChain(PyGadgetronObject):
         pygadgetron.deleteDataHandle(handle)
 
 class ImagesList(PyGadgetronObject):
-    def __init__(self):
-        self.handle = pygadgetron.cGT_newObject('ImagesList')
+    def __init__(self, template = None):
+        self.handle = None
+        if template is None:
+            self.handle = pygadgetron.cGT_newObject('ImagesList')
+        else:
+            self.handle = pygadgetron.cGT_imagesCopy(template.handle)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -54,6 +58,12 @@ class ImagesList(PyGadgetronObject):
         return pygadgetron.cGT_numImages(self.handle)
     def number(self):
         return pygadgetron.cGT_numImages(self.handle)
+    def dot(self, images):
+        handle = pygadgetron.cGT_imagesDot(self.handle, images.handle)
+        _check_status(handle)
+        re = pygadgetron.doubleReDataFromHandle(handle)
+        im = pygadgetron.doubleImDataFromHandle(handle)
+        return complex(re, im)
     def write(self, out_file, out_group):
         handle = pygadgetron.cGT_writeImages\
             (self.handle, out_file, out_group)
@@ -138,10 +148,43 @@ class ISMRMRDAcquisitions(PyGadgetronObject):
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
+        else:
+            msec = int(round(time.time() * 1000))
+            file = 'acq' + str(msec) + '.h5'
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFile(file)
+            _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             #print('deleting acquisitions object...')
             pygadgetron.deleteObject(self.handle)
+    def dot(self, images):
+        handle = pygadgetron.cGT_acquisitionsDot(self.handle, images.handle)
+        _check_status(handle)
+        re = pygadgetron.doubleReDataFromHandle(handle)
+        im = pygadgetron.doubleImDataFromHandle(handle)
+        return complex(re, im)
+
+class AcquisitionModel(PyGadgetronObject):
+    def __init__(self, acqs, imgs):
+        self.handle = None
+        self.handle = pygadgetron.cGT_AcquisitionModel(acqs.handle)
+        _check_status(self.handle)
+        self.images = imgs
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    def forward(self, images):
+        acqs = ISMRMRDAcquisitions()
+        handle = pygadgetron.cGT_AcquisitionModelFwd\
+            (self.handle, images.handle, acqs.handle)
+        _check_status(handle)
+        return acqs;
+    def backward(self, acqs):
+        images = ImagesList(self.images)
+        handle = pygadgetron.cGT_AcquisitionModelBwd\
+            (self.handle, images.handle, acqs.handle)
+        _check_status(handle)
+        return images
 
 class ImagesReconstructor(GadgetChain):
     def __init__(self):
@@ -220,3 +263,5 @@ class AcquisitionsProcessor(GadgetChain):
              (self.handle, input_data.handle)
         _check_status(acquisitions.handle)
         return acquisitions
+
+    
