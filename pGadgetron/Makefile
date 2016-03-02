@@ -22,7 +22,8 @@ LIBS = \
 	-lboost_filesystem \
 	-lboost_thread \
 	-lboost_system \
-	-lpthread
+	-lpthread \
+	-lfftw3 -lfftw3f
 
 all: pygadgetron
 

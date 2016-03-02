@@ -18,8 +18,8 @@ LIBS = \
 
 all: libcgt
 
-libcgt: cgadgetron.o
-	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o
+libcgt: cgadgetron.o ismrmrd_fftw.o
+	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o ismrmrd_fftw.o
 	$(RANLIB) libcgt.a
 	mv libcgt.a $(BUILDPATH)
 
