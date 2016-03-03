@@ -2,7 +2,7 @@
 Gadgetron Python interface installation under Linux (tested on Virtual Machine only)
 ====================================================================================
 
-Install Boost, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
+Install Boost, SWIG and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
 DO NOT CHANGE DEFAULT FOLDERS.
 
 In your work directory <work_dir> create folder 'build' with subfolders 
@@ -37,7 +37,7 @@ and run python demos.
 Gadgetron Matlab interface installation under Windows for using with Linux VM
 ====================================================================================
 
-Install Boost and Ismsmrd.
+Install Boost, SWIG and Ismsmrd.
 
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
