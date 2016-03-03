@@ -670,7 +670,7 @@ int test5(
 			//std::cout << images.number() << std::endl;
 
 			//images.write(out_file, out_group, GTConnector());
-			//images.write(out_file, out_group);
+			images.write(out_file, out_group);
 			//std::cout << "ok" << std::endl;
 
 			AcquisitionModel acq_mod(input);

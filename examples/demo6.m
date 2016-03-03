@@ -26,7 +26,7 @@ try
 	recon.add_gadget('g3', gadget3);
     
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.ISMRMRDAcquisitions('opismrmrd.h5');
     
     % connect to input data
     recon.set_input(input_data)
@@ -36,16 +36,21 @@ try
     images = recon.get_output();
     
     % plot reconstructed images
-    for i = 1 : images.number()
+    n = images.number();
+    while (true)
+        i = input('slice: ');
+        if i < 1 | i > n
+            break
+        end
         data = images.image_as_array(i);
         figure(1000000 + i)
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
     end
 
-    % write images to a new group in 'output3.h5'
+    % write images to a new group in 'output.h5'
     % named after the current date and time
-    images.write('output3.h5', datestr(datetime))
+    images.write('output.h5', datestr(datetime))
 
 catch err
     % display error information

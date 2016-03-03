@@ -629,8 +629,13 @@ public:
 			dataset_->readHeader(par_);
 			coils_ = boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> >
 				(new ISMRMRD::NDArray<complex_float_t>);
-			dataset_->readNDArray("csm", 0, *coils_);
-			ndim = coils_->getNDim();
+			try {
+				dataset_->readNDArray("csm", 0, *coils_);
+				//ndim = coils_->getNDim();
+			}
+			catch (...) {
+				std::cout << "WARNING: coil sensitivity map not found" << std::endl;
+			}
 		}
 		mtx.unlock();
 	}

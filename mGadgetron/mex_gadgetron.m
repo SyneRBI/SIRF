@@ -29,6 +29,18 @@ boost_chrono_lib = [boost_lpath '/libboost_chrono' boost_suffix];
 ismrmrd_include = ['-I' getenv('ISMRMRD_INCLUDE')];
 ismrmrd_lib = [getenv('ISMRMRD_LIB') '/' getenv('ISMRMRD_LIBRARY')];
 
+os = getenv('OS');
+
+fft_libpath = getenv('PATH2FFTW');
+
+if strcmp(os(1:7), 'Windows')
+    fft_lib = [fft_libpath '/libfftw3-3.lib'];
+    fftf_lib = [fft_libpath '/libfftw3f-3.lib'];
+else
+    fft_lib = [fft_libpath '/libfftw3.so'];
+    fftf_lib = [fft_libpath '/libfftw3f.so'];
+end
+
 if strcmp(getenv('GCC'), 'gcc')
     CCFLAG = '-DGCC';
 else
@@ -43,6 +55,6 @@ mex('-largeArrayDims', CCFLAG, ...
 mex('-largeArrayDims', CCFLAG, ...
     boost_include, ismrmrd_include, util_include, ...
     'mgadgetron.c', tw, ...
-    cgt_lib, util_lib, ismrmrd_lib, ...
+    cgt_lib, util_lib, ismrmrd_lib, fft_lib, fftf_lib, ...
     boost_po_lib, boost_system_lib, boost_date_time_lib, ...
     boost_regex_lib, boost_thread_lib, boost_chrono_lib);
