@@ -2,7 +2,7 @@
 Gadgetron Python interface installation under Linux (tested on Virtual Machine only)
 ====================================================================================
 
-Install Boost, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
+Install Boost, SWIG, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
 DO NOT CHANGE DEFAULT FOLDERS.
 
 In your work directory <work_dir> create folder 'build' with subfolders 
@@ -15,6 +15,12 @@ export PYLIBPATH=/usr/lib/python2.7/config-x86_64-linux-gnu
 export PYTHON=python2.7
 
 For other versions of Python modify accordingly.
+
+If you have installed the Gadgetron liraries in non-default location,
+or where your linker doesn't find it, do for instance
+
+export LIBRARY_PATH=/usr/local/lib/
+export LD_LIBRARY_PATH=/usr/local/lib/
 
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
