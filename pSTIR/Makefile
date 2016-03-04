@@ -1,8 +1,11 @@
 CXX = g++
-CFLAGS = -O3 -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC) -DNDEBUG
-# enable this (or use it on the command line) if you complied STIR with OPENMP=ON
+EXTRA_CFLAGS=-O3 -DNDEBUG
+#EXTRA_CFLAGS=-g
+CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
+# enable this (or use it on the command line) if you compiled STIR with OPENMP=ON
 OPENMPFLAGS=-fopenmp
-LDFLAGS = $(X11LIB) -lrt $(OPENMPFLAGS)
+#EXTRA_LDFLAGS=-g
+LDFLAGS = $(X11LIB) -lrt $(OPENMPFLAGS) $(EXTRA_LDFLAGS)
 
 SWIG = swig
 
