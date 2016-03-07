@@ -370,7 +370,7 @@ private:
 class GadgetronClientConnector
 {
 public:
-	GadgetronClientConnector() : socket_(0), timeout_ms_(10000)
+	GadgetronClientConnector() : socket_(0), timeout_ms_(2000)
 	{}
 
 	virtual ~GadgetronClientConnector()

@@ -15,6 +15,8 @@
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
 
+#define N_TRIALS 5
+
 class GTConnector {
 public:
 	GTConnector() {
@@ -138,25 +140,37 @@ public:
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
 
-		conn().connect(host_, port_);
-		conn().send_gadgetron_configuration_script(config);
+		for (int nt = 0; nt < N_TRIALS; nt++) {
+			try {
+				conn().connect(host_, port_);
+				conn().send_gadgetron_configuration_script(config);
 
-		conn().send_gadgetron_parameters(acquisitions.parameters());
-		sptr_acqs_->copyData(acquisitions);
+				conn().send_gadgetron_parameters(acquisitions.parameters());
+				sptr_acqs_->copyData(acquisitions);
 
-		uint32_t nacq = 0;
-		nacq = acquisitions.number();
+				uint32_t nacq = 0;
+				nacq = acquisitions.number();
 
-		//std::cout << nacq << " acquisitions" << std::endl;
+				//std::cout << nacq << " acquisitions" << std::endl;
 
-		ISMRMRD::Acquisition acq_tmp;
-		for (uint32_t i = 0; i < nacq; i++) {
-			acquisitions.getAcquisition(i, acq_tmp);
-			conn().send_ismrmrd_acquisition(acq_tmp);
+				ISMRMRD::Acquisition acq_tmp;
+				for (uint32_t i = 0; i < nacq; i++) {
+					acquisitions.getAcquisition(i, acq_tmp);
+					conn().send_ismrmrd_acquisition(acq_tmp);
+				}
+
+				conn().send_gadgetron_close();
+				conn().wait();
+
+				break;
+			}
+			catch (...) {
+				std::cout << "connection failed";
+				if (nt < N_TRIALS - 1)
+					std::cout << ", trying again...";
+				std::cout << std::endl;
+			}
 		}
-
-		conn().send_gadgetron_close();
-		conn().wait();
 	}
 
 	boost::shared_ptr<AcquisitionsContainer> get_output() {
@@ -200,24 +214,36 @@ public:
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
 
-		conn().connect(host_, port_);
-		conn().send_gadgetron_configuration_script(config);
+		for (int nt = 0; nt < N_TRIALS; nt++) {
+			try {
+				conn().connect(host_, port_);
+				conn().send_gadgetron_configuration_script(config);
 
-		conn().send_gadgetron_parameters(acquisitions.parameters());
+				conn().send_gadgetron_parameters(acquisitions.parameters());
 
-		uint32_t nacquisitions = 0;
-		nacquisitions = acquisitions.number();
+				uint32_t nacquisitions = 0;
+				nacquisitions = acquisitions.number();
 
-		//std::cout << nacquisitions << " acquisitions" << std::endl;
+				//std::cout << nacquisitions << " acquisitions" << std::endl;
 
-		ISMRMRD::Acquisition acq_tmp;
-		for (uint32_t i = 0; i < nacquisitions; i++) {
-			acquisitions.getAcquisition(i, acq_tmp);
-			conn().send_ismrmrd_acquisition(acq_tmp);
+				ISMRMRD::Acquisition acq_tmp;
+				for (uint32_t i = 0; i < nacquisitions; i++) {
+					acquisitions.getAcquisition(i, acq_tmp);
+					conn().send_ismrmrd_acquisition(acq_tmp);
+				}
+
+				conn().send_gadgetron_close();
+				conn().wait();
+
+				break;
+			}
+			catch (...) {
+				std::cout << "connection failed";
+				if (nt < N_TRIALS - 1)
+					std::cout << ", trying again...";
+				std::cout << std::endl;
+			}
 		}
-
-		conn().send_gadgetron_close();
-		conn().wait();
 	}
 
 	boost::shared_ptr<ImagesContainer> get_output() {
@@ -258,16 +284,28 @@ public:
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
 
-		conn().connect(host_, port_);
-		conn().send_gadgetron_configuration_script(config);
+		for (int nt = 0; nt < N_TRIALS; nt++) {
+			try {
+				conn().connect(host_, port_);
+				conn().send_gadgetron_configuration_script(config);
 
-		for (int i = 0; i < images.number(); i++) {
-			ImageWrap& iw = images.imageWrap(i);
-			conn().send_wrapped_image(iw);
+				for (int i = 0; i < images.number(); i++) {
+					ImageWrap& iw = images.imageWrap(i);
+					conn().send_wrapped_image(iw);
+				}
+
+				conn().send_gadgetron_close();
+				conn().wait();
+
+				break;
+			}
+			catch (...) {
+				std::cout << "connection failed";
+				if (nt < N_TRIALS - 1)
+					std::cout << ", trying again...";
+				std::cout << std::endl;
+			}
 		}
-
-		conn().send_gadgetron_close();
-		conn().wait();
 	}
 
 	boost::shared_ptr<ImagesContainer> get_output() {
@@ -361,8 +399,14 @@ private:
 
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
-		const size_t *cdims = coils_->getDims();
-		unsigned int ncoils = cdims[2];
+		int ncdims = coils_->getNDim();
+		unsigned int ncoils;
+		if (ncdims > 0) {
+			const size_t *cdims = coils_->getDims();
+			ncoils = cdims[2];
+		}
+		else
+			ncoils = 1;
 
 		std::vector<size_t> dims;
 		dims.push_back(readout); 
@@ -380,8 +424,12 @@ private:
 				for (unsigned int x = 0; x < matrix_size; x++, i++) {
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = (complex_float_t)ptr[i];
-					complex_float_t zc = (*coils_)(x, y, c);
-					cm(xout, y, c) = z * zc;
+					if (ncdims > 0) {
+						complex_float_t zc = (*coils_)(x, y, c);
+						cm(xout, y, c) = z * zc;
+					}
+					else
+						cm(xout, y, c) = z;
 				}
 			}
 		}
@@ -453,8 +501,16 @@ private:
 
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
-		const size_t *cdims = coils_->getDims();
-		unsigned int ncoils = cdims[2];
+		unsigned int ncoils;
+		int ncdims = coils_->getNDim();
+		if (ncdims > 0) {
+			const size_t *cdims = coils_->getDims();
+			ncoils = cdims[2];
+		}
+		else
+			ncoils = 1;
+		//const size_t *cdims = coils_->getDims();
+		//unsigned int ncoils = cdims[2];
 
 		std::vector<size_t> dims;
 		dims.push_back(readout);
@@ -483,8 +539,12 @@ private:
 				for (unsigned int x = 0; x < matrix_size; x++, i++) {
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = cm(xout, y, c);
-					complex_float_t zc = (*coils_)(x, y, c);
-					Utilities::convert_complex(std::conj(zc) * z, s);
+					if (ncdims > 0) {
+						complex_float_t zc = (*coils_)(x, y, c);
+						Utilities::convert_complex(std::conj(zc) * z, s);
+					}
+					else
+						Utilities::convert_complex(z, s);
 					ptr[i] += s;
 				}
 			}
