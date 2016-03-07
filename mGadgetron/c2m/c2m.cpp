@@ -201,6 +201,7 @@ int c2m(
 				line.erase(m);
 			i = line.find_first_not_of(" \t\n\v\f\r");
 			if (i != string::npos && line[i] == '#') {
+				fout << line << endl;
 				fh << line << endl;
 				fc << line << endl;
 				i = string::npos;

@@ -20,7 +20,7 @@ try
     gadget2.set_property('split_slices', 'true')
     
     % build reconstruction chain
-    recon = gadgetron.ImageReconstructor();
+    recon = gadgetron.ImagesReconstructor();
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
     % connect to input data

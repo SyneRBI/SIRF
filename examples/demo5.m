@@ -21,7 +21,7 @@ try
     interim_data = acq_proc.process(input_data);
 	
     % build reconstruction chain
-    recon = gadgetron.ImageReconstructor();
+    recon = gadgetron.ImagesReconstructor();
 	recon.add_gadget('g2', gadget2);
     % connect to input data
     recon.set_input(interim_data)

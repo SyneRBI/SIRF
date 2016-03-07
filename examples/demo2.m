@@ -15,7 +15,7 @@ try
 	gadget5 = gadgets.ImageArraySplitGadget();
 	gadget6 = gadgets.ExtractGadget();
 	
-    recon = gadgetron.ImageReconstructor();
+    recon = gadgetron.ImagesReconstructor();
 
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);

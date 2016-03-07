@@ -18,7 +18,7 @@ try
     gadget2.set_property('split_slices', 'true')
     
     % create reconstruction object
-    recon = gadgetron.ImageReconstructor();
+    recon = gadgetron.ImagesReconstructor();
 
     % build gadgets chain
     recon.add_gadget('g1', gadget1);

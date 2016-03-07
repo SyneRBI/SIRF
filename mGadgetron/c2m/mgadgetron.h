@@ -5,7 +5,16 @@
 #include "shrhelp.h"
 
 EXPORTED_FUNCTION void* mGT_newObject(const char* name);
+EXPORTED_FUNCTION void* mGT_AcquisitionModel(const void* ptr_acqs);
+EXPORTED_FUNCTION void* mGT_AcquisitionModelFwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
+EXPORTED_FUNCTION void* mGT_AcquisitionModelBwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
 EXPORTED_FUNCTION void* mGT_ISMRMRDAcquisitionsFromFile(const char* file);
+EXPORTED_FUNCTION void* mGT_ISMRMRDAcquisitionsFile(const char* file);
+EXPORTED_FUNCTION void* mGT_acquisitionsNorm(const void* ptr_x);
+EXPORTED_FUNCTION void* mGT_acquisitionsDot(const void* ptr_x, const void* ptr_y);
+EXPORTED_FUNCTION void* mGT_acquisitionsAxpby(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z);
+EXPORTED_FUNCTION void* mGT_imagesCopy(const void* ptr_imgs);
+EXPORTED_FUNCTION void* mGT_imagesDot(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file);
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 EXPORTED_FUNCTION void* mGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
@@ -39,5 +48,8 @@ EXPORTED_FUNCTION void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num,
 EXPORTED_FUNCTION void* mGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 EXPORTED_FUNCTION void* mGT_sendImages(void* ptr_con, void* ptr_img);
 EXPORTED_FUNCTION void* mGT_disconnect(void* ptr_con);
+EXPORTED_FUNCTION double mDoubleDataFromHandle(const void* ptr);
+EXPORTED_FUNCTION double mDoubleReDataFromHandle(const void* ptr);
+EXPORTED_FUNCTION double mDoubleImDataFromHandle(const void* ptr);
 
 #endif

@@ -3,7 +3,7 @@
 #define CGADGETRON_FOR_MATLAB
 #include "matrix.h"
 #include "shrhelp.h"
-#include "iutilities.h"
+#include "miutilities.h"
 
 EXPORTED_FUNCTION void* mCopyOfObject(void* ptr) {
 	return copyOfObject(ptr);

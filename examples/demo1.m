@@ -26,7 +26,7 @@ try
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget3.set_property('split_slices', 'true')
     
-    recon = gadgetron.ImageReconstructor();
+    recon = gadgetron.ImagesReconstructor();
 
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);

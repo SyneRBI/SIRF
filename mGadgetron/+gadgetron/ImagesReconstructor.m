@@ -1,10 +1,10 @@
-classdef ImageReconstructor < gadgetron.GadgetChain
+classdef ImagesReconstructor < gadgetron.GadgetChain
     properties
         input_
         images_
     end
     methods
-        function self = ImageReconstructor()
+        function self = ImagesReconstructor()
             self.name_ = 'ImageReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];

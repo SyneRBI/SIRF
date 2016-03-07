@@ -1,9 +1,6 @@
 #ifndef CGADGETRON_INTERFACE
 #define CGADGETRON_INTERFACE
 
-#ifdef GCC
-extern "C" {
-#endif
 void* copyOfObject(void* ptr);
 void deleteObject(void* ptr);
 void* newDataHandle();
@@ -23,8 +20,5 @@ void deleteTextPrinter(void* ptr);
 void deleteTextWriter(void* ptr_w);
 void* newMexPrinter();
 void deleteMexPrinter(void* ptr);
-#ifdef GCC
-}
-#endif
 
 #endif
