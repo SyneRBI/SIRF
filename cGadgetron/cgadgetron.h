@@ -10,7 +10,10 @@ extern "C" {
 		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
+	void* cGT_acquisitionsNorm(const void* ptr_x);
 	void* cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y);
+	void* cGT_acquisitionsAxpby
+		(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z);
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_imagesDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_acquisitionsProcessor(const char* file);
@@ -50,6 +53,7 @@ extern "C" {
 	void* cGT_sendImages(void* ptr_con, void* ptr_img);
 	void* cGT_disconnect(void* ptr_con);
 
+	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);
 }

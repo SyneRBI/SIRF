@@ -47,6 +47,13 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 
 extern "C"
 double
+doubleDataFromHandle(const void* ptr)
+{
+	return dataFromHandle<double>(ptr);
+}
+
+extern "C"
+double
 doubleReDataFromHandle(const void* ptr)
 {
 	std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
@@ -202,6 +209,22 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 
 extern "C"
 void*
+cGT_acquisitionsNorm(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
+		double* result = (double*)malloc(sizeof(double));
+		*result = acq_x.norm();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
 cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
 {
 	try {
@@ -209,12 +232,30 @@ cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
 		CAST_PTR(DataHandle, h_y, ptr_y);
 		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
 		AcquisitionsContainer& acq_y = objectFromHandle<AcquisitionsContainer>(h_y);
-		complex_double_t* result = 
+		complex_double_t* result =
 			(complex_double_t*)malloc(sizeof(complex_double_t));
 		*result = acq_x.dot(acq_y);
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_acquisitionsAxpby
+(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		CAST_PTR(DataHandle, h_z, ptr_z);
+		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
+		AcquisitionsContainer& acq_y = objectFromHandle<AcquisitionsContainer>(h_y);
+		AcquisitionsContainer& acq_z = objectFromHandle<AcquisitionsContainer>(h_z);
+		AcquisitionsContainer::axpby(a, acq_x, b, acq_y, acq_z);
+		return (void*)new DataHandle;
 	}
 	CATCH
 }

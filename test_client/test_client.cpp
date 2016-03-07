@@ -728,7 +728,7 @@ int test5(
 			a = -acqs.dot(input) / input.dot(input);
 			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
 			std::cout << diff.norm()/acqs.norm() << std::endl;
-			std::remove("tmp.h5");
+			//std::remove("tmp.h5");
 		}
 	}
 	catch (std::exception& ex) {
