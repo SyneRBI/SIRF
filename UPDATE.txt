@@ -2,30 +2,39 @@
 Gadgetron Python interface update under Linux (tested on Virtual Machine only)
 ==============================================================================
 
-Change to iUtilities directory and do git diff remotes/origin/HEAD.
+Change to iUtilities directory and check whether your repo is up-to-date by
 
-If not up-to-date, then do git pull and run make clean and make.
-
-Change to xGadgetron directory and do git diff remotes/origin/HEAD.
+  git remote update
+  git status -uno
 
 If not up-to-date:
 
-- do git pull
-- change to xGadgetron/cGadgetron
-- run make clean and make
-- change to xGadgetron/pGadgetron
-- run make clean and make
+  git pull 
+  make clean 
+  make
+
+Change to xGadgetron directory and check whether your repo is up-to-date.
+
+If not up-to-date:
+
+  git pull
+  cd cGadgetron
+  make clean 
+  make
+  cd ../pGadgetron
+  make clean
+  make
 
 =============================================================================
 Gadgetron Matlab interface upddate under Windows for using with Linux VM
 =============================================================================
 
-Change to iUtilities directory and do git diff remotes/origin/HEAD.
+Change to iUtilities directory and check whether your repo is up-to-date.
 
 If not up-to-date, build iUtilities solution (make sure you have "Release" in 
 "Solution Configurations" box and "x64" in "Solution Platforms" box).
 
-Change to xGadgetron directory and do git diff remotes/origin/HEAD.
+Change to xGadgetron directory and check whether your repo is up-to-date.
 
 If not up-to-date:
 
