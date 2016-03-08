@@ -29,7 +29,6 @@
 #define GRAB 1
 
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
-//boost::shared_ptr<GadgetronClientConnector> GTConnector::sptr_con_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -82,8 +81,6 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<ImagesContainer, ImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
-		//else if (boost::iequals(name, "MRIReconstruction"))
-		//	return newObjectHandle<GadgetChain, MRIReconstruction>();
 		else if (boost::iequals(name, "ImageReconstructor"))
 			return newObjectHandle<GadgetChain, ImageReconstructor>();
 		else if (boost::iequals(name, "ImagesProcessor"))
@@ -126,8 +123,8 @@ cGT_AcquisitionModel(const void* ptr_acqs)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		AcquisitionsContainer& acqs = 
-			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<AcquisitionsContainer> acqs =
+			objectSptrFromHandle<AcquisitionsContainer>(h_acqs);
 		boost::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs));
 		return sptrObjectHandle<AcquisitionModel>(am);
 	}
@@ -143,6 +140,21 @@ cGT_imagesCopy(const void* ptr_imgs)
 		ImagesList& imgs = (ImagesList&)objectFromHandle<ImagesContainer>(h_imgs);
 		boost::shared_ptr<ImagesList> list(new ImagesList(imgs));
 		return sptrObjectHandle<ImagesList>(list);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
+		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
+		return sptrObjectHandle<AcquisitionsContainer>(sptr_acqs);
 	}
 	CATCH
 }
@@ -202,6 +214,20 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 	try {
 		boost::shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file, true, true));
+		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_newAcquisitionsContainer(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
+		boost::shared_ptr<AcquisitionsContainer> acquisitions = 
+			acq_x.newAcquisitionsContainer();
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH
@@ -281,10 +307,10 @@ cGT_imagesDot(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
-cGT_acquisitionsProcessor(const char* file)
+cGT_acquisitionsProcessor()
 {
 	try {
-		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor(file));
+		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor());
 		return sptrObjectHandle<AcquisitionsProcessor>(proc);
 	}
 	CATCH
@@ -419,7 +445,6 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
-		//MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
 		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
@@ -437,7 +462,6 @@ cGT_reconstructedImagesList(void* ptr_recon)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		//MRIReconstruction& recon = objectFromHandle<MRIReconstruction>(h_recon);
 		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
 		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
 		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
@@ -652,7 +676,6 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
-		//boost::mutex& mtx = conn.mutex();
 		ISMRMRD::Dataset& ismrmrd_dataset = 
 			objectFromHandle<ISMRMRD::Dataset>(h_dat);
 	

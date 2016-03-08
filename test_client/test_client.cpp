@@ -59,14 +59,15 @@ std::string get_date_time_string()
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	std::cout << rawtime << std::endl;
-	std::cout << clock() << std::endl;
+	//std::cout << rawtime << std::endl;
+	//std::cout << clock() << std::endl;
 
-	auto now = std::chrono::system_clock::now();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-//		- std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
-	std::cout << ms.count() << " ms" << std::endl;	
-	
+//	auto now = std::chrono::system_clock::now();
+//	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+////		- std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch());
+//	std::cout << ms.count() << " ms" << std::endl;
+	std::cout << xGadgetronUtilities::milliseconds() << " ms" << std::endl;
+
 	//struct timeval tp;
 	//gettimeofday(&tp, NULL);
 	//long long mslong = (long long)tp.tv_sec * 1000L + tp.tv_usec / 1000;
@@ -605,7 +606,9 @@ int test5(
 
 	try {
 		//ISMRMRD::Dataset input(in_file, in_group, false);
-		AcquisitionsFile input(in_file);
+		boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
+		AcquisitionsContainer& input = *sptr_input;
+		//AcquisitionsFile input(in_file);
 		//std::cout << "ok" << std::endl;
 
 		SPTR(aGadget, ro, RemoveOversamplingGadget);
@@ -673,7 +676,8 @@ int test5(
 			images.write(out_file, out_group);
 			//std::cout << "ok" << std::endl;
 
-			AcquisitionModel acq_mod(input);
+			//AcquisitionModel acq_mod(input);
+			AcquisitionModel acq_mod(sptr_input);
 
 			ImageWrap& iw = images.imageWrap(0);
 
@@ -724,7 +728,10 @@ int test5(
 			acq_mod.bwd(imgs, acqs);
 			std::cout << imgs.dot(il) << std::endl;
 
-			AcquisitionsFile diff("tmp.h5", true, true);
+			//AcquisitionsFile diff("tmp.h5", true, true);
+			boost::shared_ptr<AcquisitionsContainer> sptr_diff =
+				input.newAcquisitionsContainer();
+			AcquisitionsContainer& diff = *sptr_diff;
 			a = -acqs.dot(input) / input.dot(input);
 			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
 			std::cout << diff.norm()/acqs.norm() << std::endl;
@@ -828,7 +835,7 @@ int test7(
 	std::cout << "  -- hdf5 file out   :      " << out_file << std::endl;
 	std::cout << "  -- hdf5 group out  :      " << out_group << std::endl;
 
-	std::cout << Utilities::milliseconds() << std::endl;
+	std::cout << xGadgetronUtilities::milliseconds() << std::endl;
 
 	try {
 		void* h_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
@@ -844,7 +851,8 @@ int test7(
 		boost::replace_all(acq_file, ".h5", "_");
 		acq_file += ".h5";
 		std::cout << acq_file << std::endl;
-		void* h_proc = cGT_acquisitionsProcessor(acq_file.c_str());
+		void* h_proc = cGT_acquisitionsProcessor();
+		//void* h_proc = cGT_acquisitionsProcessor(acq_file.c_str());
 		cGT_addGadget(h_proc, "g1", h_ro);
 
 		void* h_output = cGT_processAcquisitions(h_proc, h_input);

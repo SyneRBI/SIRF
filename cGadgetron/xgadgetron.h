@@ -100,12 +100,10 @@ private:
 
 class AcquisitionsProcessor : public GadgetChain {
 public:
-	AcquisitionsProcessor(std::string filename) :
+	AcquisitionsProcessor() :
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
-		writer_(new IsmrmrdAcqMsgWriter),
-		filename_(filename)
-		//sptr_acqs_(new AcquisitionsFile(filename, true, true))
+		writer_(new IsmrmrdAcqMsgWriter)
 	{
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
@@ -116,26 +114,12 @@ public:
 
 	void process(AcquisitionsContainer& acquisitions) {
 
-		static int calls = 0;
-		char buff[32];
-
-		calls++;
-		sprintf(buff, "_%d", calls);
-		std::string filename(filename_);
-		boost::replace_all(filename, ".h5", buff);
-		filename = filename + ".h5";
-		//std::cout << filename << std::endl;
-
 		std::string config = xml();
 		//std::cout << config << std::endl;
 
 		GTConnector conn;
 
-		//Mutex mtx;
-		//mtx.lock();
-		//sptr_acqs_.reset();
-		//mtx.unlock();
-		sptr_acqs_.reset(new AcquisitionsFile(filename, true, true));
+		sptr_acqs_= acquisitions.newAcquisitionsContainer();
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
@@ -180,7 +164,6 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	std::string filename_;
 	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
@@ -193,7 +176,6 @@ public:
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
-		//sptr_images_(new ImagesList) 
 	{
 		sptr_images_.reset();
 		add_reader("reader", reader_);
@@ -264,7 +246,6 @@ public:
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdImgMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
-		//sptr_images_(new ImagesList) 
 	{
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
@@ -322,10 +303,13 @@ private:
 
 class AcquisitionModel {
 public:
-	AcquisitionModel(AcquisitionsContainer& ac)
+
+	AcquisitionModel(boost::shared_ptr<AcquisitionsContainer> sptr_ac) :
+		sptr_acqs_(sptr_ac)
 	{
+		AcquisitionsContainer& ac = *sptr_ac;
 		par_ = ac.parameters();
-		coils_ = ac.coils();
+		sptr_colis_ = ac.coils();
 		ISMRMRD::deserialize(par_.c_str(), header_);
 		ac.getAcquisition(0, acq_);
 	}
@@ -376,11 +360,20 @@ public:
 		}
 	}
 
+	boost::shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
+	{
+		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = 
+			sptr_acqs_->newAcquisitionsContainer();
+		fwd(ic, *sptr_acqs);
+		return sptr_acqs;
+	}
+
 private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;
-	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
 	ISMRMRD::Acquisition acq_;
+	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > sptr_colis_;
+	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 
 	float norm(ISMRMRD::NDArray<complex_float_t> arr)
 	{
@@ -399,10 +392,10 @@ private:
 
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
-		int ncdims = coils_->getNDim();
+		int ncdims = sptr_colis_->getNDim();
 		unsigned int ncoils;
 		if (ncdims > 0) {
-			const size_t *cdims = coils_->getDims();
+			const size_t *cdims = sptr_colis_->getDims();
 			ncoils = cdims[2];
 		}
 		else
@@ -425,7 +418,7 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = (complex_float_t)ptr[i];
 					if (ncdims > 0) {
-						complex_float_t zc = (*coils_)(x, y, c);
+						complex_float_t zc = (*sptr_colis_)(x, y, c);
 						cm(xout, y, c) = z * zc;
 					}
 					else
@@ -455,43 +448,10 @@ private:
 			ac.appendAcquisition(acq);
 		}
 		ac.setParameters(par_);
-		ac.setCoils(coils_);
+		ac.setCoils(sptr_colis_);
 		ac.writeData();
 
 	}
-
-	//void convert_complex(complex_float_t z, unsigned short& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, short& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, unsigned int& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, int& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, float& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, complex_float_t& t)
-	//{
-	//	t = z;
-	//}
-	//void convert_complex(complex_float_t z, double& t)
-	//{
-	//	t = z.real();
-	//}
-	//void convert_complex(complex_float_t z, complex_double_t& t)
-	//{
-	//	t = z;
-	//}
 
 	template< typename T>
 	void bwd_(ISMRMRD::Image<T>* ptr_im, AcquisitionsContainer& ac, int im_num = 0)
@@ -502,15 +462,13 @@ private:
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
 		unsigned int ncoils;
-		int ncdims = coils_->getNDim();
+		int ncdims = sptr_colis_->getNDim();
 		if (ncdims > 0) {
-			const size_t *cdims = coils_->getDims();
+			const size_t *cdims = sptr_colis_->getDims();
 			ncoils = cdims[2];
 		}
 		else
 			ncoils = 1;
-		//const size_t *cdims = coils_->getDims();
-		//unsigned int ncoils = cdims[2];
 
 		std::vector<size_t> dims;
 		dims.push_back(readout);
@@ -540,11 +498,11 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = cm(xout, y, c);
 					if (ncdims > 0) {
-						complex_float_t zc = (*coils_)(x, y, c);
-						Utilities::convert_complex(std::conj(zc) * z, s);
+						complex_float_t zc = (*sptr_colis_)(x, y, c);
+						xGadgetronUtilities::convert_complex(std::conj(zc) * z, s);
 					}
 					else
-						Utilities::convert_complex(z, s);
+						xGadgetronUtilities::convert_complex(z, s);
 					ptr[i] += s;
 				}
 			}

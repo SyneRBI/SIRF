@@ -38,8 +38,9 @@ EXPORTED_FUNCTION void* mGT_imagesCopy(const void* ptr_imgs) {
 EXPORTED_FUNCTION void* mGT_imagesDot(const void* ptr_x, const void* ptr_y) {
 	return cGT_imagesDot(ptr_x, ptr_y);
 }
-EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file) {
-	return cGT_acquisitionsProcessor(file);
+//EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file) {
+EXPORTED_FUNCTION void* mGT_acquisitionsProcessor() {
+		return cGT_acquisitionsProcessor();
 }
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group) {
 	return cGT_ISMRMRDatasetFromFile(file, group);

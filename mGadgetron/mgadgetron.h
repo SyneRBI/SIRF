@@ -15,7 +15,8 @@ EXPORTED_FUNCTION void* mGT_acquisitionsDot(const void* ptr_x, const void* ptr_y
 EXPORTED_FUNCTION void* mGT_acquisitionsAxpby(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z);
 EXPORTED_FUNCTION void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION void* mGT_imagesDot(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file);
+EXPORTED_FUNCTION void* mGT_acquisitionsProcessor();
+//EXPORTED_FUNCTION void* mGT_acquisitionsProcessor(const char* file);
 EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 EXPORTED_FUNCTION void* mGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 EXPORTED_FUNCTION void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);

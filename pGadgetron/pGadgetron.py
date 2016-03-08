@@ -148,11 +148,11 @@ class ISMRMRDAcquisitions(PyGadgetronObject):
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
-        else:
-            msec = int(round(time.time() * 1000))
-            file = 'acq' + str(msec) + '.h5'
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFile(file)
-            _check_status(self.handle)
+##        else:
+##            msec = int(round(time.time() * 1000))
+##            file = 'acq' + str(msec) + '.h5'
+##            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFile(file)
+##            _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             #print('deleting acquisitions object...')
@@ -173,6 +173,7 @@ class ISMRMRDAcquisitions(PyGadgetronObject):
 
 def axpby(a, x, b, y):
     z = ISMRMRDAcquisitions()
+    z.handle = pygadgetron.cGT_newAcquisitionsContainer(x.handle)
     handle = pygadgetron.cGT_acquisitionsAxpby\
         (a, x.handle, b, y.handle, z.handle)
     pygadgetron.deleteDataHandle(handle)
@@ -189,10 +190,13 @@ class AcquisitionModel(PyGadgetronObject):
             pygadgetron.deleteObject(self.handle)
     def forward(self, images):
         acqs = ISMRMRDAcquisitions()
-        handle = pygadgetron.cGT_AcquisitionModelFwd\
-            (self.handle, images.handle, acqs.handle)
-        _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
+            (self.handle, images.handle)
+        _check_status(acqs.handle)
+##        handle = pygadgetron.cGT_AcquisitionModelFwd\
+##            (self.handle, images.handle, acqs.handle)
+##        _check_status(handle)
+##        pygadgetron.deleteDataHandle(handle)
         return acqs;
     def backward(self, acqs):
         images = ImagesList(self.images)
@@ -262,9 +266,10 @@ class ImagesProcessor(GadgetChain):
 class AcquisitionsProcessor(GadgetChain):
     def __init__(self):
         self.handle = None
-        msec = int(round(time.time() * 1000))
-        self.acq_file = 'acq' + str(msec) + '.h5' 
-        self.handle = pygadgetron.cGT_acquisitionsProcessor(self.acq_file)
+        self.handle = pygadgetron.cGT_acquisitionsProcessor()
+##        msec = int(round(time.time() * 1000))
+##        self.acq_file = 'acq' + str(msec) + '.h5' 
+##        self.handle = pygadgetron.cGT_acquisitionsProcessor(self.acq_file)
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):
@@ -273,8 +278,8 @@ class AcquisitionsProcessor(GadgetChain):
             pygadgetron.deleteObject(self.handle)
     def process(self, input_data):
         acquisitions = ISMRMRDAcquisitions()
-        if acquisitions.handle is not None:
-            pygadgetron.deleteObject(acquisitions.handle)
+##        if acquisitions.handle is not None:
+##            pygadgetron.deleteObject(acquisitions.handle)
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, input_data.handle)
         _check_status(acquisitions.handle)

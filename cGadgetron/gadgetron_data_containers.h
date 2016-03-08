@@ -3,6 +3,7 @@
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
@@ -44,7 +45,7 @@
 		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
 
-class Utilities {
+class xGadgetronUtilities {
 public:
 	static long long milliseconds()
 	{
@@ -286,7 +287,7 @@ private:
 		n *= im.getMatrixSizeZ();
 		const T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
-			data[i] = Utilities::abs(ptr[i]);
+			data[i] = xGadgetronUtilities::abs(ptr[i]);
 	}
 
 	template<typename T>
@@ -304,14 +305,14 @@ private:
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
 			complex_double_t u = (complex_double_t)*i;
-			Utilities::convert_complex(a*u, *j);
+			xGadgetronUtilities::convert_complex(a*u, *j);
 		}
 		else
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
 			complex_double_t u = (complex_double_t)*i;
 			complex_double_t v = (complex_double_t)*j;
-			Utilities::convert_complex(a*u + b*v, *j);
+			xGadgetronUtilities::convert_complex(a*u + b*v, *j);
 		}
 	}
 
@@ -353,7 +354,6 @@ private:
 	template<typename T>
 	void diff_(const ISMRMRD::Image<T>* ptr_im, float *s) const
 	{
-		//ISMRMRD::Image<T>& im = *ptr_im;
 		const ISMRMRD::Image<T>* ptr = (const ISMRMRD::Image<T>*)ptr_;
 		const T* i;
 		const T* j;
@@ -362,7 +362,6 @@ private:
 		n *= ptr_im->getMatrixSizeY();
 		n *= ptr_im->getMatrixSizeZ();
 		*s = 0;
-		//for (i = ptr->begin(), j = im.begin(); i != ptr->end(); i++, j++) {
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n; 
 			i++, j++, ii++) {
 			complex_float_t a = (complex_float_t)*i;
@@ -561,6 +560,7 @@ public:
 	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
 	virtual void copyData(const AcquisitionsContainer& ac) = 0;
 	virtual void writeData() = 0;
+	virtual boost::shared_ptr<AcquisitionsContainer> newAcquisitionsContainer() = 0;
 
 	complex_double_t dot(AcquisitionsContainer& other)
 	{
@@ -678,12 +678,24 @@ public:
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
-	void writeData() {
+	virtual void writeData() {
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
+	}
+	virtual boost::shared_ptr<AcquisitionsContainer> newAcquisitionsContainer() {
+		static int calls = 0;
+		char buff[32];
+		long long int ms = xGadgetronUtilities::milliseconds();
+		calls++;
+		sprintf(buff, "_%d_%lld.h5", calls, ms);
+		std::string filename(filename_);
+		boost::replace_all(filename, ".h5", buff);
+		std::cout << "new acquisitions file: " << filename << std::endl;
+		return boost::shared_ptr<AcquisitionsContainer>
+			(new AcquisitionsFile(filename, true, true));
 	}
 
 	void getPhantomAsFloat(ImageWrap& iw)
@@ -832,7 +844,6 @@ public:
 		unsigned int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
-		//boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 		return ImageHandle(*i);
 	}
 	virtual ImageWrap& imageWrap(unsigned int im_num)

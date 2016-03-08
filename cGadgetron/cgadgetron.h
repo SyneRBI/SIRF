@@ -4,19 +4,21 @@
 extern "C" {
 	void* cGT_newObject(const char* name);
 	void* cGT_AcquisitionModel(const void* ptr_acqs);
+	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelFwd
 		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
 	void* cGT_AcquisitionModelBwd
 		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
+	void* cGT_newAcquisitionsContainer(const void* ptr_x);
 	void* cGT_acquisitionsNorm(const void* ptr_x);
 	void* cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_acquisitionsAxpby
 		(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z);
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_imagesDot(const void* ptr_x, const void* ptr_y);
-	void* cGT_acquisitionsProcessor(const char* file);
+	void* cGT_acquisitionsProcessor();
 	void* cGT_ISMRMRDatasetFromFile(const char* file, const char* group);
 	void* cGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head);
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
@@ -35,7 +37,6 @@ extern "C" {
 		(void* ptr_con, const char* file, const char* group);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
-	//void* cGT_runMRIReconstruction(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImagesList(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
