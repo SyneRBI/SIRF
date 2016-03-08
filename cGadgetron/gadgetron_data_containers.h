@@ -694,8 +694,12 @@ public:
 		std::string filename(filename_);
 		boost::replace_all(filename, ".h5", buff);
 		std::cout << "new acquisitions file: " << filename << std::endl;
-		return boost::shared_ptr<AcquisitionsContainer>
-			(new AcquisitionsFile(filename, true, true));
+		boost::shared_ptr<AcquisitionsContainer> 
+			sptr_ac(new AcquisitionsFile(filename, true, true));
+		sptr_ac->setParameters(par_);
+		sptr_ac->setCoils(coils_);
+		sptr_ac->writeData();
+		return sptr_ac;
 	}
 
 	void getPhantomAsFloat(ImageWrap& iw)

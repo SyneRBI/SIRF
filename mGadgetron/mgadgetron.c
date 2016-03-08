@@ -42,12 +42,12 @@ EXPORTED_FUNCTION void* mGT_imagesDot(const void* ptr_x, const void* ptr_y) {
 EXPORTED_FUNCTION void* mGT_acquisitionsProcessor() {
 		return cGT_acquisitionsProcessor();
 }
-EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group) {
-	return cGT_ISMRMRDatasetFromFile(file, group);
-}
-EXPORTED_FUNCTION void* mGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head) {
-	return cGT_readISMRMRDatasetHeader(ptr_data, ptr_head);
-}
+//EXPORTED_FUNCTION void* mGT_ISMRMRDatasetFromFile(const char* file, const char* group) {
+//	return cGT_ISMRMRDatasetFromFile(file, group);
+//}
+//EXPORTED_FUNCTION void* mGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head) {
+//	return cGT_readISMRMRDatasetHeader(ptr_data, ptr_head);
+//}
 EXPORTED_FUNCTION void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms) {
 	return cGT_setConnectionTimeout(ptr_con, timeout_ms);
 }
@@ -75,9 +75,9 @@ EXPORTED_FUNCTION void* mGT_addWriter(void* ptr_gc, const char* id, const void* 
 EXPORTED_FUNCTION void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addGadget(ptr_gc, id, ptr_r);
 }
-EXPORTED_FUNCTION void* mGT_setEndGadget(void* ptr_gc, const void* ptr_g) {
-	return cGT_setEndGadget(ptr_gc, ptr_g);
-}
+//EXPORTED_FUNCTION void* mGT_setEndGadget(void* ptr_gc, const void* ptr_g) {
+//	return cGT_setEndGadget(ptr_gc, ptr_g);
+//}
 EXPORTED_FUNCTION void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value) {
 	return cGT_setGadgetProperty(ptr_g, prop, value);
 }
@@ -93,8 +93,8 @@ EXPORTED_FUNCTION void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 EXPORTED_FUNCTION void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
 }
-EXPORTED_FUNCTION void* mGT_reconstructedImagesList(void* ptr_recon) {
-	return cGT_reconstructedImagesList(ptr_recon);
+EXPORTED_FUNCTION void* mGT_reconstructedImages(void* ptr_recon) {
+	return cGT_reconstructedImages(ptr_recon);
 }
 EXPORTED_FUNCTION void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 	return cGT_processImages(ptr_proc, ptr_input);

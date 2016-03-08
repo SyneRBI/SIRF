@@ -133,19 +133,6 @@ cGT_AcquisitionModel(const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_imagesCopy(const void* ptr_imgs)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesList& imgs = (ImagesList&)objectFromHandle<ImagesContainer>(h_imgs);
-		boost::shared_ptr<ImagesList> list(new ImagesList(imgs));
-		return sptrObjectHandle<ImagesList>(list);
-	}
-	CATCH
-}
-
-extern "C"
-void*
 cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 {
 	try {
@@ -318,128 +305,6 @@ cGT_acquisitionsProcessor()
 
 extern "C"
 void*
-cGT_ISMRMRDatasetFromFile(const char* file, const char* group)
-{
-	try {
-		boost::shared_ptr<ISMRMRD::Dataset> ismrmrd_dataset
-			(new ISMRMRD::Dataset(file, group, false));
-		return sptrObjectHandle<ISMRMRD::Dataset>(ismrmrd_dataset);
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_readISMRMRDatasetHeader(void* ptr_data, void* ptr_head)
-{
-	try {
-		CAST_PTR(DataHandle, h_data, ptr_data);
-		CAST_PTR(DataHandle, h_head, ptr_head);
-		ISMRMRD::Dataset& data = objectFromHandle<ISMRMRD::Dataset>(h_data);
-		std::string& head = objectFromHandle<std::string>(h_head);
-		data.readHeader(head);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		con.set_timeout(timeout_ms);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_connect(void* ptr_con, const char* host, const char* port)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		con.connect(host, port);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_r, ptr_r);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
-		gc.add_reader(id, g);
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_w, ptr_w);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
-		gc.add_writer(id, g);
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_g, ptr_g);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
-		gc.add_gadget(id, g);
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_setEndGadget(void* ptr_gc, const void* ptr_g)
-{
-	try {
-		CAST_PTR(DataHandle, h_gc, ptr_gc);
-		CAST_PTR(DataHandle, h_g, ptr_g);
-		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
-		gc.set_endgadget(g);
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-void*
 cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 {
 	try {
@@ -458,7 +323,7 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 
 extern "C"
 void*
-cGT_reconstructedImagesList(void* ptr_recon)
+cGT_reconstructedImages(void* ptr_recon)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
@@ -528,6 +393,77 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 
 extern "C"
 void*
+cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_r, ptr_r);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
+		gc.add_reader(id, g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_w, ptr_w);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
+		gc.add_writer(id, g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
+{
+	try {
+		CAST_PTR(DataHandle, h_gc, ptr_gc);
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
+		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
+		gc.add_gadget(id, g);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
+{
+	try {
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		aGadget& g = objectFromHandle<aGadget>(h_g);
+		//std::cout << g.name() << std::endl;
+		if (boost::iequals(g.name(), "AcquisitionAccumulateTriggerGadget"))
+			g.set_property(prop, value);
+		else if (boost::iequals(g.name(), "BucketToBufferGadget"))
+			g.set_property(prop, value);
+		else if (boost::iequals(g.name(), "SimpleReconGadgetSet"))
+			g.set_property(prop, value);
+		//else
+		//	return unknownObject
+		//		("gadget with properties", g.name().c_str(), __FILE__, __LINE__);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
 cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 {
 	try {
@@ -543,6 +479,132 @@ cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 	CATCH
 
 	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
+{
+	try {
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		Mutex mutex;
+		boost::mutex& mtx = mutex();
+		//boost::mutex& mtx = conn.mutex();
+		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageReader(file, group, &mtx)));
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
+{
+	try {
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		CAST_PTR(DataHandle, h_img, ptr_img);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		boost::shared_ptr<ImagesContainer> sptr_images =
+			objectSptrFromHandle<ImagesContainer>(h_img);
+		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+			boost::shared_ptr<GadgetronClientMessageReader>
+			(new GadgetronClientImageMessageCollector(sptr_images)));
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_imagesCopy(const void* ptr_imgs)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesList& imgs = (ImagesList&)objectFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<ImagesList> list(new ImagesList(imgs));
+		return sptrObjectHandle<ImagesList>(list);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
+{
+	try {
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+		list.write(out_file, out_group);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+int
+cGT_numImages(void* ptr_imgs)
+{
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	return list.number();
+}
+
+extern "C"
+void
+cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.getImageDimensions(im_num, dim);
+}
+
+extern "C"
+void
+cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
+{
+	double* data = (double*)ptr_data;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.getImageDataAsDoubleArray(im_num, data);
+}
+
+extern "C"
+void*
+cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
+{
+	try {
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		con.set_timeout(timeout_ms);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_connect(void* ptr_con, const char* host, const char* port)
+{
+	try {
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		con.connect(host, port);
+	}
+	CATCH
+
+		return (void*)new DataHandle;
 }
 
 extern "C"
@@ -609,62 +671,6 @@ cGT_sendParametersString(void* ptr_con, const char* par)
 }
 
 extern "C"
-void*
-cGT_disconnect(void* ptr_con)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		con.send_gadgetron_close();
-		con.wait();
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void* 
-cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
-		//boost::mutex& mtx = conn.mutex();
-		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageReader(file, group, &mtx)));
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void* 
-cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		CAST_PTR(DataHandle, h_img, ptr_img);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		boost::shared_ptr<ImagesContainer> sptr_images = 
-			objectSptrFromHandle<ImagesContainer>(h_img);
-		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(sptr_images)));
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
 void* 
 cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 {
@@ -724,67 +730,18 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 }
 
 extern "C"
-void* 
-cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-		list.write(out_file, out_group);
-	}
-	CATCH
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-int
-cGT_numImages(void* ptr_imgs)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	return list.number();
-}
-
-extern "C"
-void
-cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
-{
-	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.getImageDimensions(im_num, dim);
-}
-
-extern "C"
-void
-cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
-{
-	double* data = (double*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.getImageDataAsDoubleArray(im_num, data);
-}
-
-extern "C"
 void*
-cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
+cGT_disconnect(void* ptr_con)
 {
 	try {
-		CAST_PTR(DataHandle, h_g, ptr_g);
-		aGadget& g = objectFromHandle<aGadget>(h_g);
-		//std::cout << g.name() << std::endl;
-		if (boost::iequals(g.name(), "AcquisitionAccumulateTriggerGadget"))
-			g.set_property(prop, value);
-		else if (boost::iequals(g.name(), "BucketToBufferGadget"))
-			g.set_property(prop, value);
-		else if (boost::iequals(g.name(), "SimpleReconGadgetSet"))
-			g.set_property(prop, value);
-		//else
-		//	return unknownObject
-		//		("gadget with properties", g.name().c_str(), __FILE__, __LINE__);
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		con.send_gadgetron_close();
+		con.wait();
 	}
 	CATCH
 
-	return (void*)new DataHandle;
+		return (void*)new DataHandle;
 }
+
