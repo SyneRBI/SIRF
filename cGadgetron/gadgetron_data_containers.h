@@ -699,7 +699,7 @@ public:
 		sprintf(buff, "_%d_%lld.h5", calls, ms);
 		std::string filename(filename_);
 		boost::replace_all(filename, ".h5", buff);
-		std::cout << "new acquisitions file: " << filename << std::endl;
+		//std::cout << "new acquisitions file: " << filename << std::endl;
 		boost::shared_ptr<AcquisitionsContainer> 
 			sptr_ac(new AcquisitionsFile(filename, true, true));
 		sptr_ac->setParameters(par_);
