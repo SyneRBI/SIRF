@@ -43,7 +43,7 @@ try
         data = images.image_as_array(i);
         figure(1000000 + i)
         data = data/max(max(max(data)));
-        imshow(data(:,:,1));
+        imshow(data(:,:,1,1));
     end
     
 catch err

@@ -98,15 +98,16 @@ class ImagesList(PyGadgetronObject):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def image_as_array(self, im_num):
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\
             (self.handle, im_num, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
-        if nx == 0 or ny == 0 or nz == 0:
+        nc = dim[3]
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('density data not available')
-        array = numpy.ndarray((nx, ny, nz), dtype = numpy.float64)
+        array = numpy.ndarray((nx, ny, nz, nc), dtype = numpy.float64)
         pygadgetron.cGT_getImageDataAsDoubleArray\
             (self.handle, im_num, array.ctypes.data)
         return array

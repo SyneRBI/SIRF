@@ -276,6 +276,7 @@ private:
 		dim[0] = im.getMatrixSizeX();
 		dim[1] = im.getMatrixSizeY();
 		dim[2] = im.getMatrixSizeZ();
+		dim[3] = im.getNumberOfChannels();
 	}
 
 	template<typename T>
@@ -285,6 +286,7 @@ private:
 		long long int n = im.getMatrixSizeX();
 		n *= im.getMatrixSizeY();
 		n *= im.getMatrixSizeZ();
+		n *= im.getNumberOfChannels();
 		const T* ptr = im.getDataPtr();
 		for (long long int i = 0; i < n; i++)
 			data[i] = xGadgetronUtilities::abs(ptr[i]);
@@ -301,6 +303,7 @@ private:
 		long long int n = ptr_x->getMatrixSizeX();
 		n *= ptr_x->getMatrixSizeY();
 		n *= ptr_x->getMatrixSizeZ();
+		n *= ptr_x->getNumberOfChannels();
 		if (b == complex_double_t(0.0))
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
@@ -327,6 +330,7 @@ private:
 		long long int n = ptr_im->getMatrixSizeX();
 		n *= ptr_im->getMatrixSizeY();
 		n *= ptr_im->getMatrixSizeZ();
+		n *= ptr_im->getNumberOfChannels();
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
 			complex_double_t u = (complex_double_t)*i;
@@ -344,6 +348,7 @@ private:
 		long long int n = ptr->getMatrixSizeX();
 		n *= ptr->getMatrixSizeY();
 		n *= ptr->getMatrixSizeZ();
+		n *= ptr->getNumberOfChannels();
 		for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
 			complex_float_t a = (complex_float_t)*i;
 			*r += std::abs(std::conj(a) * a);
@@ -361,6 +366,7 @@ private:
 		long long int n = ptr_im->getMatrixSizeX();
 		n *= ptr_im->getMatrixSizeY();
 		n *= ptr_im->getMatrixSizeZ();
+		n *= ptr_im->getNumberOfChannels();
 		*s = 0;
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n; 
 			i++, j++, ii++) {

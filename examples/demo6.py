@@ -50,7 +50,7 @@ try:
             break
         data = images.image_as_array(z)
         pylab.figure(z)
-        pylab.imshow(data[:,:,0])
+        pylab.imshow(data[:,:,0,0])
         pylab.show()
 
     # write images to a new group in 'output6.h5'
