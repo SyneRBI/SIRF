@@ -233,7 +233,7 @@ cGT_newAcquisitionsContainer(const void* ptr_x)
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
 		boost::shared_ptr<AcquisitionsContainer> acquisitions = 
-			acq_x.newAcquisitionsContainer();
+			acq_x.new_acquisitions_container();
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH
@@ -287,7 +287,7 @@ cGT_acquisitionsAxpby
 		AcquisitionsContainer& y = objectFromHandle<AcquisitionsContainer>(h_y);
 		//AcquisitionsContainer& z = objectFromHandle<AcquisitionsContainer>(h_z);
 		boost::shared_ptr<AcquisitionsContainer> z =
-			x.newAcquisitionsContainer();
+			x.new_acquisitions_container();
 		AcquisitionsContainer::axpby(a, x, b, y, *z);
 		return sptrObjectHandle<AcquisitionsContainer>(z);
 		//return (void*)new DataHandle;

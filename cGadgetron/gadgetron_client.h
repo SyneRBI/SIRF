@@ -268,7 +268,7 @@ public:
 			//Mutex mutex;
 			//boost::mutex& mtx = mutex();
 			//mtx.lock();
-			ptr_acqs_->appendAcquisition(acq);
+			ptr_acqs_->append_acquisition(acq);
 			//mtx.unlock();
 		}
 	}

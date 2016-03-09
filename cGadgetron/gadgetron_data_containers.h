@@ -466,7 +466,7 @@ public:
 	{
 		return par_;
 	}
-	void setParameters(std::string par)
+	void set_parameters(std::string par)
 	{
 		par_ = par;
 	}
@@ -474,7 +474,7 @@ public:
 	{
 		return coils_;
 	}
-	void setCoils(boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils)
+	void set_coils(boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils)
 	{
 		coils_ = coils;
 	}
@@ -554,19 +554,19 @@ public:
 		ISMRMRD::Acquisition ax;
 		ISMRMRD::Acquisition ay;
 		for (int i = 0; i < n && i < m; i++) {
-			y.getAcquisition(i, ay);
-			x.getAcquisition(i, ax);
+			y.get_acquisition(i, ay);
+			x.get_acquisition(i, ax);
 			AcquisitionsContainer::axpby(a, ax, b, ay);
-			z.appendAcquisition(ay);
+			z.append_acquisition(ay);
 		}
 	}
 
 	virtual int number() = 0;
-	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
-	virtual void appendAcquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copyData(const AcquisitionsContainer& ac) = 0;
-	virtual void writeData() = 0;
-	virtual boost::shared_ptr<AcquisitionsContainer> newAcquisitionsContainer() = 0;
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
+	virtual void copy_data(const AcquisitionsContainer& ac) = 0;
+	virtual void write_data() = 0;
+	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 
 	complex_double_t dot(AcquisitionsContainer& other)
 	{
@@ -576,8 +576,8 @@ public:
 		ISMRMRD::Acquisition a;
 		ISMRMRD::Acquisition b;
 		for (int i = 0; i < n && i < m; i++) {
-			getAcquisition(i, a);
-			other.getAcquisition(i, b);
+			get_acquisition(i, a);
+			other.get_acquisition(i, b);
 			z += AcquisitionsContainer::dot(a, b);
 		}
 		return z;
@@ -588,7 +588,7 @@ public:
 		double r = 0;
 		ISMRMRD::Acquisition a;
 		for (int i = 0; i < n; i++) {
-			getAcquisition(i, a);
+			get_acquisition(i, a);
 			double s = AcquisitionsContainer::norm(a);
 			r += s*s;
 		}
@@ -604,8 +604,8 @@ public:
 		ISMRMRD::Acquisition a;
 		ISMRMRD::Acquisition b;
 		for (int i = 0; i < n && i < m; i++) {
-			getAcquisition(i, a);
-			other.getAcquisition(i, b);
+			get_acquisition(i, a);
+			other.get_acquisition(i, b);
 			float s = AcquisitionsContainer::diff(a, b);
 			smax = std::max(smax, s);
 			save += s*s;
@@ -661,21 +661,21 @@ public:
 		mtx.unlock();
 		return na;
 	}
-	virtual void getAcquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
 		Mutex mtx;
 		mtx.lock();
 		dataset_->readAcquisition(num, acq);
 		mtx.unlock();
 	}
-	virtual void appendAcquisition(ISMRMRD::Acquisition& acq)
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{
 		Mutex mtx;
 		mtx.lock();
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
 	}
-	virtual void copyData(const AcquisitionsContainer& ac) {
+	virtual void copy_data(const AcquisitionsContainer& ac) {
 		par_ = ac.parameters();
 		coils_ = ac.coils();
 		Mutex mtx;
@@ -684,14 +684,14 @@ public:
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
-	virtual void writeData() {
+	virtual void write_data() {
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
-	virtual boost::shared_ptr<AcquisitionsContainer> newAcquisitionsContainer() {
+	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() {
 		static int calls = 0;
 		char buff[32];
 		long long int ms = xGadgetronUtilities::milliseconds();
@@ -702,9 +702,9 @@ public:
 		//std::cout << "new acquisitions file: " << filename << std::endl;
 		boost::shared_ptr<AcquisitionsContainer> 
 			sptr_ac(new AcquisitionsFile(filename, true, true));
-		sptr_ac->setParameters(par_);
-		sptr_ac->setCoils(coils_);
-		sptr_ac->writeData();
+		sptr_ac->set_parameters(par_);
+		sptr_ac->set_coils(coils_);
+		sptr_ac->write_data();
 		return sptr_ac;
 	}
 

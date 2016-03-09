@@ -119,7 +119,7 @@ public:
 
 		GTConnector conn;
 
-		sptr_acqs_= acquisitions.newAcquisitionsContainer();
+		sptr_acqs_= acquisitions.new_acquisitions_container();
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
@@ -130,7 +130,7 @@ public:
 				conn().send_gadgetron_configuration_script(config);
 
 				conn().send_gadgetron_parameters(acquisitions.parameters());
-				sptr_acqs_->copyData(acquisitions);
+				sptr_acqs_->copy_data(acquisitions);
 
 				uint32_t nacq = 0;
 				nacq = acquisitions.number();
@@ -139,7 +139,7 @@ public:
 
 				ISMRMRD::Acquisition acq_tmp;
 				for (uint32_t i = 0; i < nacq; i++) {
-					acquisitions.getAcquisition(i, acq_tmp);
+					acquisitions.get_acquisition(i, acq_tmp);
 					conn().send_ismrmrd_acquisition(acq_tmp);
 				}
 
@@ -210,7 +210,7 @@ public:
 
 				ISMRMRD::Acquisition acq_tmp;
 				for (uint32_t i = 0; i < nacquisitions; i++) {
-					acquisitions.getAcquisition(i, acq_tmp);
+					acquisitions.get_acquisition(i, acq_tmp);
 					conn().send_ismrmrd_acquisition(acq_tmp);
 				}
 
@@ -316,7 +316,7 @@ public:
 		par_ = ac.parameters();
 		sptr_colis_ = ac.coils();
 		ISMRMRD::deserialize(par_.c_str(), header_);
-		ac.getAcquisition(0, acq_);
+		ac.get_acquisition(0, acq_);
 	}
 
 	//void fwd(ImageHandle& ih, AcquisitionsContainer& ac)
@@ -379,7 +379,7 @@ public:
 	boost::shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
 	{
 		boost::shared_ptr<AcquisitionsContainer> sptr_acqs =
-			sptr_acqs_->newAcquisitionsContainer();
+			sptr_acqs_->new_acquisitions_container();
 		fwd(ic, *sptr_acqs);
 		return sptr_acqs;
 	}
@@ -470,11 +470,11 @@ private:
 					acq.data(s, c) = cm(s, i, c);
 				}
 			}
-			ac.appendAcquisition(acq);
+			ac.append_acquisition(acq);
 		}
-		ac.setParameters(par_);
-		ac.setCoils(sptr_colis_);
-		ac.writeData();
+		ac.set_parameters(par_);
+		ac.set_coils(sptr_colis_);
+		ac.write_data();
 
 	}
 
@@ -503,7 +503,7 @@ private:
 		ISMRMRD::NDArray<complex_float_t> cm(dims);
 		ISMRMRD::Acquisition acq;
 		for (size_t i = 0; i < matrix_size; i++) {
-			ac.getAcquisition(i + matrix_size*im_num, acq);
+			ac.get_acquisition(i + matrix_size*im_num, acq);
 			for (size_t c = 0; c < ncoils; c++) {
 				for (size_t s = 0; s < readout; s++) {
 					cm(s, i, c) = acq.data(s, c);

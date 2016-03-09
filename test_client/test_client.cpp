@@ -277,14 +277,16 @@ int test5(
 			//std::cout << iw_cmplx.diff(iw_cmplx1) << std::endl;
 
 			ImagesList list(imgs);
-			list.axpby(a, imgs, b);
+			//list.axpby(a, imgs, b);
 			//std::cout << list.norm() << std::endl;
 
 			ImagesProcessor proc;
 			proc.add_gadget("g1", ext);
 			//proc.add_gadget("g2", fin);
 			proc.process(imgs);
-			ImagesList& images = (ImagesList&)*proc.get_output();
+			boost::shared_ptr<ImagesContainer> sptr_imgs = proc.get_output();
+			ImagesList& images = (ImagesList&)*sptr_imgs;
+			//ImagesList& images = (ImagesList&)*proc.get_output();
 
 			//std::cout << images.dot(images) << std::endl;
 			//std::cout << images.number() << std::endl;
@@ -294,7 +296,7 @@ int test5(
 			//std::cout << "ok" << std::endl;
 
 			//AcquisitionModel acq_mod(input);
-			AcquisitionModel acq_mod(sptr_input);
+			AcquisitionModel acq_mod(sptr_input, sptr_imgs);
 
 			ImageWrap& iw = images.imageWrap(0);
 
@@ -347,7 +349,7 @@ int test5(
 
 			//AcquisitionsFile diff("tmp.h5", true, true);
 			boost::shared_ptr<AcquisitionsContainer> sptr_diff =
-				input.newAcquisitionsContainer();
+				input.new_acquisitions_container();
 			AcquisitionsContainer& diff = *sptr_diff;
 			a = -acqs.dot(input) / input.dot(input);
 			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
