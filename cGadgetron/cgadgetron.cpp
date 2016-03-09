@@ -119,13 +119,16 @@ void* cGT_newObject(const char* name)
 
 extern "C"
 void*
-cGT_AcquisitionModel(const void* ptr_acqs)
+cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 {
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		boost::shared_ptr<AcquisitionsContainer> acqs =
 			objectSptrFromHandle<AcquisitionsContainer>(h_acqs);
-		boost::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs));
+		boost::shared_ptr<ImagesContainer> imgs =
+			objectSptrFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs, imgs));
 		return sptrObjectHandle<AcquisitionModel>(am);
 	}
 	CATCH
@@ -142,6 +145,22 @@ cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
 		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
 		return sptrObjectHandle<AcquisitionsContainer>(sptr_acqs);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<ImagesContainer> sptr_imgs = am.bwd(acqs);
+		return sptrObjectHandle<ImagesContainer>(sptr_imgs);
 	}
 	CATCH
 }

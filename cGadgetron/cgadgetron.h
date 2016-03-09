@@ -3,8 +3,9 @@
 
 extern "C" {
 	void* cGT_newObject(const char* name);
-	void* cGT_AcquisitionModel(const void* ptr_acqs);
+	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
+	void*	cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 	void* cGT_AcquisitionModelFwd
 		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
 	void* cGT_AcquisitionModelBwd

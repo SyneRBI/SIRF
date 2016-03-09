@@ -72,14 +72,16 @@ class ClientConnector(PyGadgetronObject):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
         
-class ImagesList(PyGadgetronObject):
-    def __init__(self, template = None):
+class ImagesContainer(PyGadgetronObject):
+    def __init__(self):
         self.handle = None
-        if template is None:
-            self.handle = pygadgetron.cGT_newObject('ImagesList')
-        else:
-            self.handle = pygadgetron.cGT_imagesCopy(template.handle)
-        _check_status(self.handle)
+##    def __init__(self, template = None):
+##        self.handle = None
+##        if template is None:
+##            self.handle = pygadgetron.cGT_newObject('ImagesList')
+##        else:
+##            self.handle = pygadgetron.cGT_imagesCopy(template.handle)
+##        _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             #print('deleting images object...')
@@ -154,7 +156,8 @@ def axpby(a, x, b, y):
 class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
         self.handle = None
-        self.handle = pygadgetron.cGT_AcquisitionModel(acqs.handle)
+        self.handle = \
+            pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         _check_status(self.handle)
         self.images = imgs
     def __del__(self):
@@ -167,11 +170,17 @@ class AcquisitionModel(PyGadgetronObject):
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
-        images = ImagesList(self.images)
-        handle = pygadgetron.cGT_AcquisitionModelBwd\
-            (self.handle, images.handle, acqs.handle)
-        _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+##        images = ImagesList(self.images)
+##        handle = pygadgetron.cGT_AcquisitionModelBwd\
+##            (self.handle, images.handle, acqs.handle)
+##        _check_status(handle)
+##        pygadgetron.deleteDataHandle(handle)
+        images = ImagesContainer()
+##        if images.handle is not None:
+##            pygadgetron.deleteObject(images.handle)
+        images.handle = pygadgetron.cGT_AcquisitionModelBackward\
+            (self.handle, acqs.handle)
+        _check_status(images.handle)
         return images
 
 class GadgetChain(PyGadgetronObject):
@@ -214,9 +223,9 @@ class ImagesReconstructor(GadgetChain):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def get_output(self):
-        images = ImagesList()
-        if images.handle is not None:
-            pygadgetron.deleteObject(images.handle)
+        images = ImagesContainer()
+##        if images.handle is not None:
+##            pygadgetron.deleteObject(images.handle)
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
         return images
@@ -236,9 +245,9 @@ class ImagesProcessor(GadgetChain):
     def process(self, input_data):
 ##        if self.input_data is None:
 ##            raise error('no input data')
-        images = ImagesList()
-        if images.handle is not None:
-            pygadgetron.deleteObject(images.handle)
+        images = ImagesContainer()
+##        if images.handle is not None:
+##            pygadgetron.deleteObject(images.handle)
         images.handle = pygadgetron.cGT_processImages\
              (self.handle, input_data.handle)
         _check_status(images.handle)

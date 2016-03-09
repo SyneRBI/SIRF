@@ -305,8 +305,12 @@ private:
 class AcquisitionModel {
 public:
 
-	AcquisitionModel(boost::shared_ptr<AcquisitionsContainer> sptr_ac) :
-		sptr_acqs_(sptr_ac)
+	AcquisitionModel(
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac,
+		boost::shared_ptr<ImagesContainer> sptr_ic
+		) :
+		sptr_acqs_(sptr_ac),
+		sptr_imgs_(sptr_ic)
 	{
 		AcquisitionsContainer& ac = *sptr_ac;
 		par_ = ac.parameters();
@@ -360,13 +364,32 @@ public:
 			//std::cout << i << ' ' << iw.norm() << std::endl;
 		}
 	}
+	void backwd(ImagesContainer& ic, AcquisitionsContainer& ac)
+	{
+		ImageWrap iw(sptr_imgs_->imageWrap(0));
+		int dims[4];
+		iw.get_dim(dims);
+		for (int i = 0; i < ac.number() / dims[1]; i++) {
+			bwd(iw, ac, i);
+			ic.append(iw);
+			//std::cout << i << ' ' << iw.norm() << std::endl;
+		}
+	}
 
 	boost::shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
 	{
-		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = 
+		boost::shared_ptr<AcquisitionsContainer> sptr_acqs =
 			sptr_acqs_->newAcquisitionsContainer();
 		fwd(ic, *sptr_acqs);
 		return sptr_acqs;
+	}
+
+	boost::shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
+	{
+		boost::shared_ptr<ImagesContainer> sptr_imgs = 
+			sptr_imgs_->newImagesContainer();
+		backwd(*sptr_imgs, ac);
+		return sptr_imgs;
 	}
 
 private:
@@ -375,6 +398,7 @@ private:
 	ISMRMRD::Acquisition acq_;
 	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > sptr_colis_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	boost::shared_ptr<ImagesContainer> sptr_imgs_;
 
 	float norm(ISMRMRD::NDArray<complex_float_t> arr)
 	{
