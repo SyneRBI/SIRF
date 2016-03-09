@@ -785,14 +785,31 @@ public:
 	virtual boost::shared_ptr<ImagesContainer> newImagesContainer() = 0;
 	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
 
-	void axpby(complex_double_t a, const ImagesContainer& x, complex_double_t b)
+	static void axpby(
+		complex_double_t a, const ImagesContainer& x,
+		complex_double_t b, const ImagesContainer& y,
+		ImagesContainer& z
+		)
 	{
-		for (int i = 0; i < number() && i < x.number(); i++) {
-			ImageWrap& u = imageWrap(i);
-			const ImageWrap& v = x.imageWrap(i);
-			u.axpby(a, v, b);
+		ImageWrap w(x.imageWrap(0));
+		complex_double_t zero(0.0, 0.0);
+		complex_double_t one(1.0, 0.0);
+		for (int i = 0; i < x.number() && i < y.number(); i++) {
+			const ImageWrap& u = x.imageWrap(i);
+			const ImageWrap& v = y.imageWrap(i);
+			w.axpby(a, u, zero);
+			w.axpby(b, v, one);
+			z.append(w);
 		}
 	}
+	//void axpby(complex_double_t a, const ImagesContainer& x, complex_double_t b)
+	//{
+	//	for (int i = 0; i < number() && i < x.number(); i++) {
+	//		ImageWrap& u = imageWrap(i);
+	//		const ImageWrap& v = x.imageWrap(i);
+	//		u.axpby(a, v, b);
+	//	}
+	//}
 	complex_double_t dot(const ImagesContainer& ic) const
 	{
 		complex_double_t z = 0;

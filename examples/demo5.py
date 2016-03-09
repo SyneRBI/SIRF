@@ -56,16 +56,26 @@ try:
     a = -acqs.dot(input_data) / input_data.dot(input_data)
     a = a.real
     b = 1.0
-    diff = pGadgetron.axpby(a, input_data, b, acqs)
-    print(diff.norm()/acqs.norm())
+    diff = pGadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs)
+    print('reconstruction residual:', diff.norm()/acqs.norm())
 
     # apply the adjoint model (backward projection)
     imgs = am.backward(diff)
 
     # test that the backward projection is the adjoint of forward
     # on x = diff and y = interim_images
-    print('(x, F y) = ', diff.dot(acqs))
-    print('(B x, y) = ', imgs.dot(interim_images))
+    print('(x, F y) =', diff.dot(acqs))
+    print('= (B x, y) =', imgs.dot(interim_images))
+
+    # test images norm
+    #print('|B x| =', imgs.norm())
+    s = imgs.norm()
+    print('(B x, B x) =', imgs.dot(imgs), '=', s*s)
+
+    #test linear combination of images
+    a = -1.0
+    im_diff = pGadgetron.ImagesContainer.axpby(a, imgs, b, imgs)
+    print('0.0 =', im_diff.norm())
 
     # plot obtained images
     for i in range(images.number()):
