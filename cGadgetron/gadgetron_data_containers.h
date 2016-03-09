@@ -782,6 +782,8 @@ public:
 	virtual void getImageDimensions(unsigned int im_num, int* dim) = 0;
 	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
+	virtual boost::shared_ptr<ImagesContainer> newImagesContainer() = 0;
+	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
 
 	void axpby(complex_double_t a, const ImagesContainer& x, complex_double_t b)
 	{
@@ -912,6 +914,14 @@ public:
 	{
 		ImageWrap& iw = imageWrap(im_num);
 		iw.get_data(data);
+	}
+	virtual boost::shared_ptr<ImagesContainer> newImagesContainer()
+	{
+		return boost::shared_ptr<ImagesContainer>(new ImagesList());
+	}
+	virtual boost::shared_ptr<ImagesContainer> clone()
+	{
+		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this));
 	}
 
 private:

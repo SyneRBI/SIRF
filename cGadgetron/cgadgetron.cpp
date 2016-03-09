@@ -376,21 +376,6 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 
 }
 
-//extern "C"
-//void*
-//cGT_processedImagesList(void* ptr_proc)
-//{
-//	try {
-//		CAST_PTR(DataHandle, h_proc, ptr_proc);
-//		ImageProcessor& proc = objectFromHandle<ImageProcessor>(h_proc);
-//		boost::shared_ptr<ImagesList> sptr_im = proc.get_output();
-//		ObjectHandle<ImagesList>* ptr_handle = new ObjectHandle<ImagesList>(sptr_im);
-//		return (void*)ptr_handle;
-//	}
-//	CATCH;
-//
-//}
-
 extern "C"
 void*
 cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
@@ -527,9 +512,10 @@ cGT_imagesCopy(const void* ptr_imgs)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesList& imgs = (ImagesList&)objectFromHandle<ImagesContainer>(h_imgs);
-		boost::shared_ptr<ImagesList> list(new ImagesList(imgs));
-		return sptrObjectHandle<ImagesList>(list);
+		ImagesContainer& imgs = 
+			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<ImagesContainer> clone = imgs.clone();
+		return sptrObjectHandle<ImagesContainer>(clone);
 	}
 	CATCH
 }

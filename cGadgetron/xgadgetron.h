@@ -260,7 +260,8 @@ public:
 
 		GTConnector conn;
 
-		sptr_images_.reset(new ImagesList);
+		//sptr_images_.reset(new ImagesList);
+		sptr_images_ = images.newImagesContainer();
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
