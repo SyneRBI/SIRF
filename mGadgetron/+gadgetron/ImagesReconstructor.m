@@ -12,7 +12,9 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
-            calllib('mutilities', 'mDeleteObject', self.handle_)
+            if ~isempty(self.handle_)
+                calllib('mutilities', 'mDeleteObject', self.handle_)
+            end
             self.handle_ = [];
         end
         function set_input(self, input_data)

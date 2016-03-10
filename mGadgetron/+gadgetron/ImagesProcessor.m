@@ -8,7 +8,9 @@ classdef ImagesProcessor < gadgetron.GadgetChain
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
-            calllib('mutilities', 'mDeleteObject', self.handle_)
+            if ~isempty(self.handle_)
+                calllib('mutilities', 'mDeleteObject', self.handle_)
+            end
             self.handle_ = [];
         end
         function images = process(self, input_data)
