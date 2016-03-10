@@ -110,6 +110,13 @@ int convert_c(const string& in, string& out) {
 
 }
 
+int print_hash(int ifcount, int hashcount)
+{
+	if (hashcount < 2 || ifcount < 1)
+		return 0;
+	return 1;
+}
+
 int c2m(
 	const string& path, 
 	const string& chfile, 
@@ -119,12 +126,14 @@ int c2m(
 {
 
 	ifstream fin;
-	ofstream fout;
+	//ofstream fout;
 	ofstream fh;
 	ofstream fc;
 	string in;
 	string out;
 	string line;
+	int hashcount;
+	int ifcount;
 	int status;
 	bool quit;
 
@@ -138,28 +147,9 @@ int c2m(
 
 	size_t i = string::npos;
 	size_t m;
-	while (fin) {
-		getline(fin, line);
-		//cout << line << endl;
-		m = line.find("//");
-		if (m != string::npos)
-			line.erase(m);
-		i = line.find('{');
-		if (i != string::npos)
-			break;
-	}
 
-	if (i == string::npos) {
-		fin.close();
-		return -2;
-	}
-
-	fout.open(chfile, ios::out);
 	fh.open(mhfile, ios::out);
 	fc.open(mcfile, ios::out);
-
-	fout << "#ifndef CGADGETRON_INTERFACE" << endl;
-	fout << "#define CGADGETRON_INTERFACE" << endl << endl;
 
 	fh << "#ifndef CGADGETRON_TO_MATLAB_INTERFACE" << endl;
 	fh << "#define CGADGETRON_TO_MATLAB_INTERFACE" << endl << endl;
@@ -172,77 +162,82 @@ int c2m(
 	fc << "#include \"matrix.h\"" << endl;
 	fc << "#include \"shrhelp.h\"" << endl;
 	fc << "#include \"" << chfile << '"' << endl << endl;
-	//fc << "#include \"cgadgetron.h\"" << endl << endl;
 
-	in = line.substr(i + 1);
-	i = in.find_first_not_of(" \t\n\v\f\r");
-	if (i == string::npos)
-		in.clear();
-	else
-		fout << in << endl;
+	hashcount = 0;
+	ifcount = 0;
 
 	for (;;) {
-		i = in.find('}');
-		if (i != string::npos)
+		if (fin.eof())
 			break;
+		getline(fin, line);
+		cout << line << endl;
+		i = line.find_first_not_of(" \t\n\v\f\r");
+		if (i == string::npos)
+			continue;
+		if (line[i] == '#') {
+			if (line[i + 1] == 'e' && line[i + 2] == 'n' && line[i + 3] == 'd')
+				ifcount--;
+			if (print_hash(ifcount, hashcount)) {
+				fh << line << endl;
+				fc << line << endl;
+			}
+			hashcount++;
+			if (line[i + 1] == 'i' && line[i + 2] == 'f')
+				ifcount++;
+			continue;
+		}
+		in = line;
 		i = in.find(';');
 		while (i == string::npos) {
-			getline(fin, line);
-			//cout << line << endl;
 			if (fin.eof())
 				break;
-			i = in.find('}');
-			if (i != string::npos) {
-				quit = true;
-				break;
-			}
+			getline(fin, line);
+			cout << line << endl;
 			m = line.find("//");
 			if (m != string::npos)
 				line.erase(m);
 			i = line.find_first_not_of(" \t\n\v\f\r");
 			if (i != string::npos && line[i] == '#') {
-				fout << line << endl;
-				fh << line << endl;
-				fc << line << endl;
+				fh << in << endl;
+				fc << in << endl;
+				if (line[i + 1] == 'e' && line[i + 2] == 'n' && line[i + 3] == 'd')
+					ifcount--;
+				if (print_hash(ifcount, hashcount)) {
+					fh << line << endl;
+					fc << line << endl;
+				}
+				hashcount++;
+				if (line[i + 1] == 'i' && line[i + 2] == 'f')
+					ifcount++;
 				i = string::npos;
-				break;
+				in.clear();
+				continue;
 			}
 			if (i != string::npos)
 				in += line.substr(i);
 			i = line.find(';');
 		}
-		if (quit)
+		if (i == string::npos)
 			break;
-		if (i == string::npos) {
-			if (fin.eof())
-				break;
-			in.clear();
-			continue;
-		}
 		//cout << in << endl;
-		fout << in << endl;
-		if (i != string::npos) {
-			status = convert_h(in, out);
-			if (status) {
-				cout << in << endl;
-				fin.close();
-				fout.close();
-				fh.close();
-				fc.close();
-				return status;
-			}
-			fh << out << endl;
-			status = convert_c(in, out);
-			if (status) {
-				cout << in << endl;
-				fin.close();
-				fout.close();
-				fh.close();
-				fc.close();
-				return status;
-			}
-			fc << out << endl;
+		status = convert_h(in, out);
+		if (status) {
+			cout << in << endl;
+			fin.close();
+			fh.close();
+			fc.close();
+			return status;
 		}
+		fh << out << endl;
+		status = convert_c(in, out);
+		if (status) {
+			cout << in << endl;
+			fin.close();
+			fh.close();
+			fc.close();
+			return status;
+		}
+		fc << out << endl;
 		if (fin.eof())
 			break;
 		in = line.substr(i + 1);
@@ -250,12 +245,6 @@ int c2m(
 		if (i == string::npos)
 			in.clear();
 	}
-
-	if (with_print) {
-		fout << "void* newMexPrinter();" << endl;
-		fout << "void deleteMexPrinter(void* ptr);" << endl;
-	}
-	fout << endl << "#endif" << endl;
 
 	fh << endl;
 	if (with_print) {
@@ -278,7 +267,6 @@ int c2m(
 	fc << " {}" << endl;
 
 	fin.close();
-	fout.close();
 	fh.close();
 	fc.close();
 	return 0;
