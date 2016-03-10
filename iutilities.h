@@ -1,7 +1,9 @@
 #ifndef INTERFACE_UTILITIES
 #define INTERFACE_UTILITIES
 
+#ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
+#endif
 	void* copyOfObject(void* ptr);
 	void deleteObject(void* ptr);
 	void* newDataHandle();
@@ -19,6 +21,8 @@ extern "C" {
 	void printText(const char* text);
 	void deleteTextPrinter(void* ptr);
 	void deleteTextWriter(void* ptr_w);
+#ifndef CGADGETRON_FOR_MATLAB
 }
+#endif
 
 #endif
