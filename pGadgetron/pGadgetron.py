@@ -75,16 +75,8 @@ class ClientConnector(PyGadgetronObject):
 class ImagesContainer(PyGadgetronObject):
     def __init__(self):
         self.handle = None
-##    def __init__(self, template = None):
-##        self.handle = None
-##        if template is None:
-##            self.handle = pygadgetron.cGT_newObject('ImagesList')
-##        else:
-##            self.handle = pygadgetron.cGT_imagesCopy(template.handle)
-##        _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            #print('deleting images object...')
             pygadgetron.deleteObject(self.handle)
     def number(self):
         return pygadgetron.cGT_numImages(self.handle)
@@ -99,6 +91,7 @@ class ImagesContainer(PyGadgetronObject):
         _check_status(handle)
         re = pygadgetron.doubleReDataFromHandle(handle)
         im = pygadgetron.doubleImDataFromHandle(handle)
+        pygadgetron.deleteDataHandle(handle)
         return complex(re, im)
     @staticmethod
     def axpby(a, x, b, y):
@@ -130,7 +123,6 @@ class AcquisitionsContainer(PyGadgetronObject):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            #print('deleting acquisitions object...')
             pygadgetron.deleteObject(self.handle)
     def norm(self):
         handle = pygadgetron.cGT_acquisitionsNorm(self.handle)
@@ -178,14 +170,7 @@ class AcquisitionModel(PyGadgetronObject):
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
-##        images = ImagesList(self.images)
-##        handle = pygadgetron.cGT_AcquisitionModelBwd\
-##            (self.handle, images.handle, acqs.handle)
-##        _check_status(handle)
-##        pygadgetron.deleteDataHandle(handle)
         images = ImagesContainer()
-##        if images.handle is not None:
-##            pygadgetron.deleteObject(images.handle)
         images.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, acqs.handle)
         _check_status(images.handle)
@@ -232,8 +217,6 @@ class ImagesReconstructor(GadgetChain):
         pygadgetron.deleteDataHandle(handle)
     def get_output(self):
         images = ImagesContainer()
-##        if images.handle is not None:
-##            pygadgetron.deleteObject(images.handle)
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
         return images
@@ -246,7 +229,6 @@ class ImagesProcessor(GadgetChain):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            #print('deleting image processor object...')
             pygadgetron.deleteObject(self.handle)
 ##    def set_input(self, input_data):
 ##        self.input_data = input_data
@@ -254,16 +236,12 @@ class ImagesProcessor(GadgetChain):
 ##        if self.input_data is None:
 ##            raise error('no input data')
         images = ImagesContainer()
-##        if images.handle is not None:
-##            pygadgetron.deleteObject(images.handle)
         images.handle = pygadgetron.cGT_processImages\
              (self.handle, input_data.handle)
         _check_status(images.handle)
         return images
 ##    def get_output(self):
-##        images = ImagesList()
-##        if images.handle is not None:
-##            pygadgetron.deleteObject(images.handle)
+##        images = ImagesContainer()
 ##        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
 ##        _check_status(images.handle)
 ##        return images
@@ -272,29 +250,27 @@ class AcquisitionsProcessor(GadgetChain):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('AcquisitionsProcessor')
-##        self.handle = pygadgetron.cGT_acquisitionsProcessor()
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            #print('deleting acquisitions processor object...')
             pygadgetron.deleteObject(self.handle)
     def process(self, input_data):
-        acquisitions = ISMRMRDAcquisitions()
+        acquisitions = AcquisitionsContainer()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, input_data.handle)
         _check_status(acquisitions.handle)
         return acquisitions
 
-class RemoveOversamplingProcessor(AcquisitionsProcessor):
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
-        _check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            #print('deleting acquisitions processor object...')
-            pygadgetron.deleteObject(self.handle)
+##class RemoveOversamplingProcessor(AcquisitionsProcessor):
+##    def __init__(self):
+##        self.handle = None
+##        self.handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
+##        _check_status(self.handle)
+##    def __del__(self):
+##        if self.handle is not None:
+##            #print('deleting acquisitions processor object...')
+##            pygadgetron.deleteObject(self.handle)
     
 class SimpleReconstructionProcessor(ImagesReconstructor):
     def __init__(self):
@@ -306,21 +282,35 @@ class SimpleReconstructionProcessor(ImagesReconstructor):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     
-class ExtractRealImagesProcessor(ImagesProcessor):
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
-        _check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+##class ExtractRealImagesProcessor(ImagesProcessor):
+##    def __init__(self):
+##        self.handle = None
+##        self.handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
+##        _check_status(self.handle)
+##    def __del__(self):
+##        if self.handle is not None:
+##            pygadgetron.deleteObject(self.handle)
     
 def MR_remove_x_oversampling(input_data):
-    acq_proc = RemoveOversamplingProcessor()
-    output_data = acq_proc.process(input_data)
+##    acq_proc = RemoveOversamplingProcessor()
+##    output_data = acq_proc.process(input_data)
+    handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
+    _check_status(handle)
+    output_data = AcquisitionsContainer()
+    output_data.handle = pygadgetron.cGT_processAcquisitions\
+         (handle, input_data.handle)
+    _check_status(output_data.handle)
+    pygadgetron.deleteObject(handle)
     return output_data
 
 def MR_extract_real_images(complex_images):
-    img_proc = ExtractRealImagesProcessor()
-    real_images = img_proc.process(complex_images)
+##    img_proc = ExtractRealImagesProcessor()
+##    real_images = img_proc.process(complex_images)
+    handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
+    _check_status(handle)
+    real_images = ImagesContainer()
+    real_images.handle = pygadgetron.cGT_processImages\
+         (handle, complex_images.handle)
+    _check_status(real_images.handle)
+    pygadgetron.deleteObject(handle)
     return real_images
