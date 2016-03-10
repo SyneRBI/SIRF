@@ -5,30 +5,33 @@ import time
 
 sys.path.append('../../build/xGadgetron')
 sys.path.append('../pGadgetron')
-import pGadgetron
-import pGadgets
+#import pGadgetron
+#import pGadgets
+
+from pGadgetron import *
+from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.ISMRMRDAcquisitions('testdata.h5')
+    input_data = ISMRMRDAcquisitions('testdata.h5')
     # use noiseless data to check the acquisition model
     # input_data = pGadgetron.ISMRMRDAcquisitions('ex_data.h5')
 
     # define gadgets
-    gadget1 = pGadgets.RemoveROOversamplingGadget()
-    gadget2 = pGadgets.SimpleReconstructionGadget()
-    gadget3 = pGadgets.ExtractGadget()
+    gadget1 = RemoveROOversamplingGadget()
+    gadget2 = SimpleReconstructionGadget()
+    gadget3 = ExtractGadget()
 
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget2.set_property('split_slices', 'true')
 
-    acq_proc = pGadgetron.AcquisitionsProcessor()
+    acq_proc = AcquisitionsProcessor()
     acq_proc.add_gadget('g1', gadget1)
     print('processing acquisitions...')
     interim_data = acq_proc.process(input_data)
 
     # create reconstruction object
-    recon = pGadgetron.ImagesReconstructor()
+    recon = ImagesReconstructor()
     recon.add_gadget('g2', gadget2)
     # connect to input data
     recon.set_input(interim_data)
@@ -39,7 +42,7 @@ try:
     interim_images = recon.get_output()
 
     # build image post-processing chain
-    img_proc = pGadgetron.ImagesProcessor()
+    img_proc = ImagesProcessor()
     img_proc.add_gadget('g3', gadget3)
     # post-process reconstructed images
     print('processing images...')
@@ -47,7 +50,7 @@ try:
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
-    am = pGadgetron.AcquisitionModel(input_data, interim_images)
+    am = AcquisitionModel(input_data, interim_images)
 
     # use the acquisition model (forward projection) to produce acquisitions
     acqs = am.forward(interim_images)
@@ -56,7 +59,7 @@ try:
     a = -acqs.dot(input_data) / input_data.dot(input_data)
     a = a.real
     b = 1.0
-    diff = pGadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs)
+    diff = AcquisitionsContainer.axpby(a, input_data, b, acqs)
     print('reconstruction residual:', diff.norm()/acqs.norm())
 
     # apply the adjoint model (backward projection)
@@ -74,7 +77,7 @@ try:
 
     #test linear combination of images
     a = -1.0
-    im_diff = pGadgetron.ImagesContainer.axpby(a, imgs, b, imgs)
+    im_diff = ImagesContainer.axpby(a, imgs, b, imgs)
     print('0.0 =', im_diff.norm())
 
     # plot obtained images
@@ -84,6 +87,6 @@ try:
         pylab.imshow(data[:,:,0,0])
         pylab.show()
 
-except pGadgetron.error as err:
+except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

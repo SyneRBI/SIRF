@@ -1,7 +1,9 @@
 #ifndef GADGETRON_C_INTERFACE
 #define GADGETRON_C_INTERFACE
 
+#ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
+#endif
 	void* cGT_newObject(const char* name);
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
@@ -59,6 +61,8 @@ extern "C" {
 	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);
+#ifndef CGADGETRON_FOR_MATLAB
 }
+#endif
 
 #endif

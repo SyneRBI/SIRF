@@ -8,8 +8,8 @@
 EXPORTED_FUNCTION void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
-EXPORTED_FUNCTION void* mGT_AcquisitionModel(const void* ptr_acqs) {
-	return cGT_AcquisitionModel(ptr_acqs);
+EXPORTED_FUNCTION void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
+	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
 }
 EXPORTED_FUNCTION void* mGT_AcquisitionModelFwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs) {
 	return cGT_AcquisitionModelFwd(ptr_am, ptr_imgs, ptr_acqs);
@@ -29,8 +29,9 @@ EXPORTED_FUNCTION void* mGT_acquisitionsNorm(const void* ptr_x) {
 EXPORTED_FUNCTION void* mGT_acquisitionsDot(const void* ptr_x, const void* ptr_y) {
 	return cGT_acquisitionsDot(ptr_x, ptr_y);
 }
-EXPORTED_FUNCTION void* mGT_acquisitionsAxpby(double a, const void* ptr_x, double b, const void* ptr_y, void* ptr_z) {
-	return cGT_acquisitionsAxpby(a, ptr_x, b, ptr_y, ptr_z);
+EXPORTED_FUNCTION void* mGT_acquisitionsAxpby
+	(double a, const void* ptr_x, double b, const void* ptr_y) {
+	return cGT_acquisitionsAxpby(a, ptr_x, b, ptr_y);
 }
 EXPORTED_FUNCTION void* mGT_imagesCopy(const void* ptr_imgs) {
 	return cGT_imagesCopy(ptr_imgs);

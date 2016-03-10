@@ -25,6 +25,7 @@
 #include "data_handle.h"
 #include "xgadgetron.h"
 #include "gadget_lib.h"
+#include "chain_lib.h"
 
 #define GRAB 1
 
@@ -81,10 +82,18 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<ImagesContainer, ImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
+		else if (boost::iequals(name, "AcquisitionsProcessor"))
+			return newObjectHandle<GadgetChain, AcquisitionsProcessor>();
 		else if (boost::iequals(name, "ImageReconstructor"))
 			return newObjectHandle<GadgetChain, ImageReconstructor>();
 		else if (boost::iequals(name, "ImagesProcessor"))
 			return newObjectHandle<GadgetChain, ImagesProcessor>();
+		else if (boost::iequals(name, "RemoveOversamplingProcessor"))
+			return newObjectHandle<GadgetChain, RemoveOversamplingProcessor>();
+		else if (boost::iequals(name, "SimpleReconstructionProcessor"))
+			return newObjectHandle<GadgetChain, SimpleReconstructionProcessor>();
+		else if (boost::iequals(name, "ExtractRealImagesProcessor"))
+			return newObjectHandle<GadgetChain, ExtractRealImagesProcessor>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
 			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageWriter"))

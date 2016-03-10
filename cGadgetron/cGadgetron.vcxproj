@@ -134,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cgadgetron.h" />
+    <ClInclude Include="chain_lib.h" />
     <ClInclude Include="gadgetron_client.h" />
     <ClInclude Include="gadgetron_data_containers.h" />
     <ClInclude Include="gadget_lib.h" />
