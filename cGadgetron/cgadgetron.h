@@ -25,7 +25,7 @@ extern "C" {
 	void* cGT_imagesDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_imagesAxpby
 		(double a, const void* ptr_x, double b, const void* ptr_y); //, void* ptr_z);
-	void* cGT_acquisitionsProcessor();
+	//void* cGT_acquisitionsProcessor();
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);

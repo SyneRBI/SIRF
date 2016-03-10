@@ -84,8 +84,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GadgetChain, GadgetChain>();
 		else if (boost::iequals(name, "AcquisitionsProcessor"))
 			return newObjectHandle<GadgetChain, AcquisitionsProcessor>();
-		else if (boost::iequals(name, "ImageReconstructor"))
-			return newObjectHandle<GadgetChain, ImageReconstructor>();
+		else if (boost::iequals(name, "ImagesReconstructor"))
+			return newObjectHandle<GadgetChain, ImagesReconstructor>();
 		else if (boost::iequals(name, "ImagesProcessor"))
 			return newObjectHandle<GadgetChain, ImagesProcessor>();
 		else if (boost::iequals(name, "RemoveOversamplingProcessor"))
@@ -372,16 +372,16 @@ cGT_imagesAxpby
 	CATCH
 }
 
-extern "C"
-void*
-cGT_acquisitionsProcessor()
-{
-	try {
-		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor());
-		return sptrObjectHandle<AcquisitionsProcessor>(proc);
-	}
-	CATCH
-}
+//extern "C"
+//void*
+//cGT_acquisitionsProcessor()
+//{
+//	try {
+//		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor());
+//		return sptrObjectHandle<AcquisitionsProcessor>(proc);
+//	}
+//	CATCH
+//}
 
 extern "C"
 void*
@@ -390,12 +390,13 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		CAST_PTR(DataHandle, h_input, ptr_input);
-		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
+		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
 		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-		return (void*)ptr_handle;
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		//ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
+		//return (void*)ptr_handle;
 	}
 	CATCH;
 
@@ -407,10 +408,11 @@ cGT_reconstructedImages(void* ptr_recon)
 {
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		ImageReconstructor& recon = objectFromHandle<ImageReconstructor>(h_recon);
+		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-		return (void*)ptr_handle;
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		//ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
+		//return (void*)ptr_handle;
 	}
 	CATCH;
 
@@ -427,9 +429,10 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
 		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
-		ObjectHandle<ImagesContainer>* ptr_handle = 
-			new ObjectHandle<ImagesContainer>(sptr_im);
-		return (void*)ptr_handle;
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		//ObjectHandle<ImagesContainer>* ptr_handle =
+		//	new ObjectHandle<ImagesContainer>(sptr_im);
+		//return (void*)ptr_handle;
 	}
 	CATCH;
 
@@ -447,10 +450,11 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 		AcquisitionsContainer& input = 
 			objectFromHandle<AcquisitionsContainer>(h_input);
 		proc.process(input);
-		boost::shared_ptr<AcquisitionsContainer> sptr_im = proc.get_output();
-		ObjectHandle<AcquisitionsContainer>* ptr_handle = 
-			new ObjectHandle<AcquisitionsContainer>(sptr_im);
-		return (void*)ptr_handle;
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+		//ObjectHandle<AcquisitionsContainer>* ptr_handle =
+		//	new ObjectHandle<AcquisitionsContainer>(sptr_im);
+		//return (void*)ptr_handle;
 	}
 	CATCH;
 

@@ -199,7 +199,7 @@ class GadgetChain(PyGadgetronObject):
 class ImagesReconstructor(GadgetChain):
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.cGT_newObject('ImageReconstructor')
+        self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):

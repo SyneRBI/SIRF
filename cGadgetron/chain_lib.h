@@ -12,7 +12,7 @@ public:
 	}
 };
 
-class SimpleReconstructionProcessor : public ImageReconstructor {
+class SimpleReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleReconstructionProcessor()
 	{

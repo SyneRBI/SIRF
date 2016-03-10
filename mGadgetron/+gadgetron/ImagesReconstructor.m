@@ -5,7 +5,7 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
     end
     methods
         function self = ImagesReconstructor()
-            self.name_ = 'ImageReconstructor';
+            self.name_ = 'ImagesReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];

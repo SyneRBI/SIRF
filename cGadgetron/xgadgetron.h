@@ -169,10 +169,10 @@ private:
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 };
 
-class ImageReconstructor : public GadgetChain {
+class ImagesReconstructor : public GadgetChain {
 public:
 
-	ImageReconstructor() :
+	ImagesReconstructor() :
 		host_("localhost"), port_("9002"),
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)

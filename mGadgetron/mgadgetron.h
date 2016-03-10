@@ -24,7 +24,7 @@ EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_imagesNorm(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_imagesDot(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mGT_imagesAxpby(double a, const void* ptr_x, double b, const void* ptr_y); 
-EXPORTED_FUNCTION 	void* mGT_acquisitionsProcessor();
+//EXPORTED_FUNCTION 	void* mGT_acquisitionsProcessor();
 EXPORTED_FUNCTION 	void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);

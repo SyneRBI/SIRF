@@ -643,9 +643,13 @@ public:
 				std::cout << "WARNING: coil sensitivity map not found" << std::endl;
 			}
 		}
+		//else
+		//	std::cout << "creating " << filename_.c_str() << std::endl;
 		mtx.unlock();
 	}
 	~AcquisitionsFile() {
+		//std::cout << filename_.c_str() << std::endl;
+		//std::cout << own_file_ << std::endl;
 		dataset_.reset();
 		if (own_file_) {
 			//std::cout << "removing " << filename_.c_str() << std::endl;
