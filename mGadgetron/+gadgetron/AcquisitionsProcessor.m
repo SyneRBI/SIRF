@@ -5,10 +5,8 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
     methods
         function self = AcquisitionsProcessor()
             self.name_ = 'AcquisitionsProcessor';
-            self.file_ = ['acq_' datestr(now,'dd_mm_yyyy_HH_MM_SS_FFF') '.h5'];
-            self.handle_ = calllib('mgadgetron', ...
-                'mGT_acquisitionsProcessor');
-                %'mGT_acquisitionsProcessor', self.file_);
+            self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
+                'AcquisitionsProcessor');
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)

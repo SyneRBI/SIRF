@@ -12,11 +12,11 @@ classdef ImagesProcessor < gadgetron.GadgetChain
             self.handle_ = [];
         end
         function images = process(self, input_data)
-            imgs.handle_ = calllib...
+            images = gadgetron.ImagesContainer();
+            images.handle_ = calllib...
                 ('mgadgetron', 'mGT_processImages', ...
                 self.handle_, input_data.handle_);
-            gadgetron.checkExecutionStatus(self.name_, imgs.handle_);
-            images = gadgetron.ImagesList(imgs);
+            gadgetron.checkExecutionStatus(self.name_, images.handle_);
         end
     end
 end

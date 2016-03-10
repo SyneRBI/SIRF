@@ -23,8 +23,7 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
-            self.images_ = gadgetron.ImagesList();
-            calllib('mutilities', 'mDeleteObject', self.images_.handle_)
+            self.images_ = gadgetron.ImagesContainer();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
