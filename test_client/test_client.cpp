@@ -113,13 +113,55 @@ int test7(
 	const char* out_file,
 	const char* out_group);
 
+#define NTRIALS 5
+
+int test8(
+	const char* in_file
+	)
+{
+	//GTConnector conn;
+	//std::string filename("tmp.h5");
+	//boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	//sptr_acqs_.reset(new AcquisitionsFile(filename, true, true));
+	//conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+	//	boost::shared_ptr<GadgetronClientMessageReader>
+	//	(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+
+	boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
+	AcquisitionsContainer& input = *sptr_input;
+
+	//AcquisitionsProcessor proc;
+	//proc.process(input);
+	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+
+	//void* ptr_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
+	void* ptr_proc = cGT_newObject("AcquisitionsProcessor");
+	//void* ptr_proc = cGT_acquisitionsProcessor();
+	//void* h_acqs = cGT_processAcquisitions(h_proc, h_input);
+	CAST_PTR(DataHandle, h_proc, ptr_proc);
+	//CAST_PTR(DataHandle, h_input, ptr_input);
+	AcquisitionsProcessor& proc =
+		objectFromHandle<AcquisitionsProcessor>(h_proc);
+	//AcquisitionsContainer& input =
+	//	objectFromHandle<AcquisitionsContainer>(h_input);
+	proc.process(input);
+	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+	////return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+	//ObjectHandle<AcquisitionsContainer>* ptr_handle =
+	//	new ObjectHandle<AcquisitionsContainer>(sptr_ac);
+
+	//deleteObject(ptr_input);
+	deleteDataHandle(ptr_proc);
+	//deleteObject(ptr_proc);
+	//deleteObject(h_acqs);
+	return 0;
+}
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
 int main(int argc, char **argv)
 {
-	//return test4();
-
 	std::string host_name;
 	std::string port;
 	std::string in_filename;
@@ -172,6 +214,8 @@ int main(int argc, char **argv)
 	if (vm.count("query")) {
 		open_input_file = false;
 	}
+
+	return test8(in_filename.c_str());
 
 	//return test7(
 	//	host_name.c_str(),
@@ -238,7 +282,7 @@ int test5(
 		//std::cout << "ok" << std::endl;
 
 		{
-			ImageReconstructor recon;
+			ImagesReconstructor recon;
 			//std::cout << "ok" << std::endl;
 
 			recon.add_gadget("g1", ro);
@@ -470,7 +514,7 @@ int test7(
 		boost::replace_all(acq_file, ".h5", "_");
 		acq_file += ".h5";
 		std::cout << acq_file << std::endl;
-		void* h_proc = cGT_acquisitionsProcessor();
+		void* h_proc = cGT_newObject("AcquisitionsProcessor");//cGT_acquisitionsProcessor();
 		//void* h_proc = cGT_acquisitionsProcessor(acq_file.c_str());
 		cGT_addGadget(h_proc, "g1", h_ro);
 

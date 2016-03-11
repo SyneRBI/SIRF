@@ -53,6 +53,10 @@ private:
 
 class GadgetChain {
 public:
+	virtual ~GadgetChain() 
+	{
+		//std::cout << "~GadgetChain called" << std::endl;
+	}
 	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) {
 			readers_.push_back(boost::shared_ptr<GadgetHandle>
 				(new GadgetHandle(id, sptr_g)));
@@ -111,6 +115,10 @@ public:
 		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
 		set_endgadget(endgadget);
 	}
+	virtual ~AcquisitionsProcessor() 
+	{
+		//std::cout << "~AcquisitionsProcessor called" << std::endl;
+	}
 
 	void process(AcquisitionsContainer& acquisitions) {
 
@@ -119,7 +127,7 @@ public:
 
 		GTConnector conn;
 
-		sptr_acqs_= acquisitions.new_acquisitions_container();
+		sptr_acqs_ = acquisitions.new_acquisitions_container();
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));

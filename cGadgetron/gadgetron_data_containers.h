@@ -624,6 +624,7 @@ public:
 	AcquisitionsFile
 		(std::string filename, bool create_file = false, bool own_file = false)
 	{
+		//std::cout << "creating AcquisitionsFile" << std::endl;
 		own_file_ = own_file;
 		filename_ = filename;
 		int ndim = 0;
@@ -648,12 +649,16 @@ public:
 		mtx.unlock();
 	}
 	~AcquisitionsFile() {
+		//std::cout << "destroying AcquisitionsFile" << std::endl;
 		//std::cout << filename_.c_str() << std::endl;
 		//std::cout << own_file_ << std::endl;
 		dataset_.reset();
 		if (own_file_) {
+			Mutex mtx;
+			mtx.lock();
 			//std::cout << "removing " << filename_.c_str() << std::endl;
 			std::remove(filename_.c_str());
+			mtx.unlock();
 		}
 
 	}

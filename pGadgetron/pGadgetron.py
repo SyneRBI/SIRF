@@ -113,16 +113,18 @@ class ImagesContainer(PyGadgetronObject):
         nc = dim[3]
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('density data not available')
-        array = numpy.ndarray((nx, ny, nz, nc), dtype = numpy.float64)
+        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getImageDataAsDoubleArray\
             (self.handle, im_num, array.ctypes.data)
         return array
 
 class AcquisitionsContainer(PyGadgetronObject):
     def __init__(self):
+        #print('creating AcquisitionsContainer...')
         self.handle = None
     def __del__(self):
         if self.handle is not None:
+            #print('deleting AcquisitionsContainer...')
             pygadgetron.deleteObject(self.handle)
     def norm(self):
         handle = pygadgetron.cGT_acquisitionsNorm(self.handle)

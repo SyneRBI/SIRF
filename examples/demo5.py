@@ -84,7 +84,7 @@ try:
     for i in range(images.number()):
         data = images.image_as_array(i)
         pylab.figure(i + 1)
-        pylab.imshow(data[:,:,0,0])
+        pylab.imshow(data[0,0,:,:])
         pylab.show()
 
 except error as err:

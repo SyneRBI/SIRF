@@ -372,17 +372,6 @@ cGT_imagesAxpby
 	CATCH
 }
 
-//extern "C"
-//void*
-//cGT_acquisitionsProcessor()
-//{
-//	try {
-//		boost::shared_ptr<AcquisitionsProcessor> proc(new AcquisitionsProcessor());
-//		return sptrObjectHandle<AcquisitionsProcessor>(proc);
-//	}
-//	CATCH
-//}
-
 extern "C"
 void*
 cGT_reconstructImages(void* ptr_recon, void* ptr_input)
@@ -451,10 +440,10 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 			objectFromHandle<AcquisitionsContainer>(h_input);
 		proc.process(input);
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
-		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
-		//ObjectHandle<AcquisitionsContainer>* ptr_handle =
-		//	new ObjectHandle<AcquisitionsContainer>(sptr_im);
-		//return (void*)ptr_handle;
+		//return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+		ObjectHandle<AcquisitionsContainer>* ptr_handle =
+			new ObjectHandle<AcquisitionsContainer>(sptr_ac);
+		return (void*)ptr_handle;
 	}
 	CATCH;
 

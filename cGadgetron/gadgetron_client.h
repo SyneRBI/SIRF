@@ -238,7 +238,11 @@ public:
 	GadgetronClientAcquisitionMessageCollector
 		(boost::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 
-	~GadgetronClientAcquisitionMessageCollector() {}
+	~GadgetronClientAcquisitionMessageCollector() 
+	{
+		//std::cout << "destroying GadgetronClientAcquisitionMessageCollector..." 
+		//	<< std::endl;
+	}
 
 	virtual void read(tcp::socket* stream)
 	{
