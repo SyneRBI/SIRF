@@ -129,6 +129,7 @@ public:
 	virtual ~ObjectHandle() {
 		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
 		delete _status;
+		_status = 0;
 		delete ptr_sptr;
 	}
 	virtual anObjectHandle* copy() {
