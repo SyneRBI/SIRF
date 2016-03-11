@@ -147,6 +147,7 @@ newObjectHandle()
 {
 	NEW_SPTR(Base, ptr_sptr, Object);
 	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
+	delete ptr_sptr;
 	return (void*)ptr_handle;
 }
 
