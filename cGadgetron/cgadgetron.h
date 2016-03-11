@@ -18,7 +18,7 @@ extern "C" {
 	void* cGT_acquisitionsNorm(const void* ptr_x);
 	void* cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_acquisitionsAxpby
-		(double a, const void* ptr_x, double b, const void* ptr_y); // , void* ptr_z);
+		(double a, const void* ptr_x, double b, const void* ptr_y);
 	void* cGT_newImagesContainer(const void* ptr_x);
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_imagesNorm(const void* ptr_x);

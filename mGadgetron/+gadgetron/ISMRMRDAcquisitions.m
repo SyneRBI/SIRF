@@ -1,7 +1,6 @@
-classdef ISMRMRDAcquisitions < handle
+classdef ISMRMRDAcquisitions < gadgetron.AcquisitionsContainer
     properties
         name_
-        handle_
     end
     methods
         function self = ISMRMRDAcquisitions(filename)

@@ -59,9 +59,6 @@ EXPORTED_FUNCTION 	void* mGT_imagesDot(const void* ptr_x, const void* ptr_y) {
 EXPORTED_FUNCTION 	void* mGT_imagesAxpby(double a, const void* ptr_x, double b, const void* ptr_y) {
 	return cGT_imagesAxpby(a, ptr_x, b, ptr_y);
 }
-EXPORTED_FUNCTION 	void* mGT_acquisitionsProcessor() {
-	return cGT_acquisitionsProcessor();
-}
 EXPORTED_FUNCTION 	void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms) {
 	return cGT_setConnectionTimeout(ptr_con, timeout_ms);
 }

@@ -286,7 +286,7 @@ cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
 extern "C"
 void*
 cGT_acquisitionsAxpby
-(double a, const void* ptr_x, double b, const void* ptr_y) //, void* ptr_z)
+(double a, const void* ptr_x, double b, const void* ptr_y)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);

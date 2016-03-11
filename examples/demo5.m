@@ -38,6 +38,25 @@ try
     fprintf('processing images...\n')
     images = proc_img.process(interim_images);
 
+    % create acquisition model based on the acquisition parameters
+    % stored in input_data and image parameters stored in interim_images
+    am = gadgetron.AcquisitionModel(input_data, interim_images);
+
+    % use the acquisition model (forward projection) to produce acquisitions
+    acqs = am.forward(interim_images);
+%     acqs.norm()
+%     acqs.dot(input_data)
+
+    % compute the difference between real and modelled acquisitions
+    a = -acqs.dot(input_data) / input_data.dot(input_data);
+    a = real(a);
+    b = 1.0;
+    diff = gadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs);
+    fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())
+
+    % apply the adjoint model (backward projection)
+    imgs = am.backward(acqs);
+
     % plot obtained images
     for i = 1 : images.number()
         data = images.image_as_array(i);
