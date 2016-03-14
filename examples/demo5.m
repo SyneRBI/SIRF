@@ -49,7 +49,7 @@ try
 
     % compute the difference between real and modelled acquisitions
     a = -acqs.dot(input_data) / input_data.dot(input_data);
-    a = real(a);
+%     a = real(a);
     b = 1.0;
     diff = gadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs);
     fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())
@@ -65,6 +65,11 @@ try
     % test images norm and dot product
     s = imgs.norm();
     fprintf('(B x, B x) = %e = %e\n', imgs.dot(imgs), s*s)
+
+    % test linear combination of images
+    a = -1.0;
+    im_diff = gadgetron.ImagesContainer.axpby(a, imgs, b, imgs);
+    fprintf('0.0 = %e\n', im_diff.norm())
 
     % plot obtained images
     for i = 1 : images.number()

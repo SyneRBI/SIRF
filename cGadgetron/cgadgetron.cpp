@@ -285,6 +285,27 @@ cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
+cGT_acquisitionsZaxpby(
+double ar, double ai, const void* ptr_x, 
+double br, double bi, const void* ptr_y
+){
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		AcquisitionsContainer& x = objectFromHandle<AcquisitionsContainer>(h_x);
+		AcquisitionsContainer& y = objectFromHandle<AcquisitionsContainer>(h_y);
+		boost::shared_ptr<AcquisitionsContainer> z =
+			x.new_acquisitions_container();
+		complex_double_t a(ar, ai);
+		complex_double_t b(br, bi);
+		AcquisitionsContainer::axpby(a, x, b, y, *z);
+		return sptrObjectHandle<AcquisitionsContainer>(z);
+	}
+	CATCH
+}
+
+extern "C"
+void*
 cGT_acquisitionsAxpby
 (double a, const void* ptr_x, double b, const void* ptr_y)
 {
@@ -348,6 +369,26 @@ cGT_imagesDot(const void* ptr_x, const void* ptr_y)
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_imagesZaxpby(
+double ar, double ai, const void* ptr_x, 
+double br, double bi, const void* ptr_y
+){
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
+		ImagesContainer& y = objectFromHandle<ImagesContainer>(h_y);
+		boost::shared_ptr<ImagesContainer> z = x.newImagesContainer();
+		complex_double_t a(ar, ai);
+		complex_double_t b(br, bi);
+		ImagesContainer::axpby(a, x, b, y, *z);
+		return sptrObjectHandle<ImagesContainer>(z);
 	}
 	CATCH
 }

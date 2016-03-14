@@ -50,6 +50,14 @@ classdef ImagesContainer < handle
                 ('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
                 self.handle_, im_num - 1, ptr_v)
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
+            %data = reshape(ptr_v.Value, dim(4), dim(3), dim(2), dim(1));
+        end
+    end
+    methods(Static)
+        function z = axpby(a, x, b, y)
+            z = gadgetron.ImagesContainer();
+            z.handle_ = calllib('mgadgetron', 'mGT_imagesZaxpby', ...
+                real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
         end
     end
 end

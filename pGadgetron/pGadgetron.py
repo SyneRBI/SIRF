@@ -96,7 +96,9 @@ class ImagesContainer(PyGadgetronObject):
     @staticmethod
     def axpby(a, x, b, y):
         z = ImagesContainer()
-        z.handle = pygadgetron.cGT_imagesAxpby(a, x.handle, b, y.handle)
+        z.handle = pygadgetron.cGT_imagesZaxpby\
+            (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
+##        z.handle = pygadgetron.cGT_imagesAxpby(a, x.handle, b, y.handle)
         return z;
     def write(self, out_file, out_group):
         handle = pygadgetron.cGT_writeImages\
@@ -113,7 +115,8 @@ class ImagesContainer(PyGadgetronObject):
         nc = dim[3]
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('density data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        array = numpy.ndarray((nx, ny, nz, nc), dtype = numpy.float64)
+##        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getImageDataAsDoubleArray\
             (self.handle, im_num, array.ctypes.data)
         return array
@@ -142,7 +145,9 @@ class AcquisitionsContainer(PyGadgetronObject):
     @staticmethod
     def axpby(a, x, b, y):
         z = AcquisitionsContainer()
-        z.handle = pygadgetron.cGT_acquisitionsAxpby(a, x.handle, b, y.handle)
+        z.handle = pygadgetron.cGT_acquisitionsZaxpby\
+            (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
+##        z.handle = pygadgetron.cGT_acquisitionsAxpby(a, x.handle, b, y.handle)
         return z;
 
 class ISMRMRDAcquisitions(AcquisitionsContainer):

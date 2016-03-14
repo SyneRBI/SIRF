@@ -55,9 +55,10 @@ try:
     # use the acquisition model (forward projection) to produce acquisitions
     acqs = am.forward(interim_images)
 
-    # compute the difference between real and modelled acquisitions
+    # compute the difference between real and modelled acquisitions:
+    #   diff = acqs - P acqs,
+    # where P is the orthogonal projector onto input_data
     a = -acqs.dot(input_data) / input_data.dot(input_data)
-    a = a.real
     b = 1.0
     diff = AcquisitionsContainer.axpby(a, input_data, b, acqs)
     print('reconstruction residual:', diff.norm()/acqs.norm())
@@ -67,6 +68,7 @@ try:
 
     # test that the backward projection is the adjoint of forward
     # on x = diff and y = interim_images
+    # (note that x = (1 - P)F y, so the result must be numerically real)
     print('(x, F y) =', diff.dot(acqs))
     print('= (B x, y) =', imgs.dot(interim_images))
 
@@ -75,7 +77,7 @@ try:
     s = imgs.norm()
     print('(B x, B x) =', imgs.dot(imgs), '=', s*s)
 
-    #test linear combination of images
+    # test linear combination of images
     a = -1.0
     im_diff = ImagesContainer.axpby(a, imgs, b, imgs)
     print('0.0 =', im_diff.norm())
@@ -84,7 +86,8 @@ try:
     for i in range(images.number()):
         data = images.image_as_array(i)
         pylab.figure(i + 1)
-        pylab.imshow(data[0,0,:,:])
+        pylab.imshow(data[:,:,0,0])
+##        pylab.imshow(data[0,0,:,:])
         pylab.show()
 
 except error as err:

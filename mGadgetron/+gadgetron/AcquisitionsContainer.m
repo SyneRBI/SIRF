@@ -32,8 +32,10 @@ classdef AcquisitionsContainer < handle
     methods(Static)
         function z = axpby(a, x, b, y)
             z = gadgetron.AcquisitionsContainer();
-            z.handle_ = calllib('mgadgetron', 'mGT_acquisitionsAxpby', ...
-                a, x.handle_, b, y.handle_);
+            z.handle_ = calllib('mgadgetron', 'mGT_acquisitionsZaxpby', ...
+                real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
+%             z.handle_ = calllib('mgadgetron', 'mGT_acquisitionsAxpby', ...
+%                 a, x.handle_, b, y.handle_);
         end
     end
 end

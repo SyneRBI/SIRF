@@ -41,6 +41,9 @@ EXPORTED_FUNCTION 	void* mGT_acquisitionsNorm(const void* ptr_x) {
 EXPORTED_FUNCTION 	void* mGT_acquisitionsDot(const void* ptr_x, const void* ptr_y) {
 	return cGT_acquisitionsDot(ptr_x, ptr_y);
 }
+EXPORTED_FUNCTION 	void* mGT_acquisitionsZaxpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
+	return cGT_acquisitionsZaxpby(ar, ai, ptr_x, br, bi, ptr_y);
+}
 EXPORTED_FUNCTION 	void* mGT_acquisitionsAxpby(double a, const void* ptr_x, double b, const void* ptr_y) {
 	return cGT_acquisitionsAxpby(a, ptr_x, b, ptr_y);
 }
@@ -55,6 +58,9 @@ EXPORTED_FUNCTION 	void* mGT_imagesNorm(const void* ptr_x) {
 }
 EXPORTED_FUNCTION 	void* mGT_imagesDot(const void* ptr_x, const void* ptr_y) {
 	return cGT_imagesDot(ptr_x, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mGT_imagesZaxpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
+	return cGT_imagesZaxpby(ar, ai, ptr_x, br, bi, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mGT_imagesAxpby(double a, const void* ptr_x, double b, const void* ptr_y) {
 	return cGT_imagesAxpby(a, ptr_x, b, ptr_y);
