@@ -16,15 +16,15 @@ classdef AcquisitionsContainer < handle
             handle = calllib('mgadgetron', 'mGT_acquisitionsNorm', ...
                 self.handle_);
             gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
-            r = calllib('mgadgetron', 'mDoubleDataFromHandle', handle);
+            r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, acqs)
             handle = calllib('mgadgetron', 'mGT_acquisitionsDot', ...
                 self.handle_, acqs.handle_);
             gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
-            re = calllib('mgadgetron', 'mDoubleReDataFromHandle', handle);
-            im = calllib('mgadgetron', 'mDoubleImDataFromHandle', handle);
+            re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
+            im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end

@@ -8,17 +8,26 @@
 #ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
 #endif
-EXPORTED_FUNCTION void* mCopyOfObject(void* ptr) {
-	return copyOfObject(ptr);
+EXPORTED_FUNCTION void* mNewDataHandle() {
+	return newDataHandle();
+}
+EXPORTED_FUNCTION 	void* mCopyOfObjectHandle(void* ptr) {
+	return copyOfObjectHandle(ptr);
 }
 EXPORTED_FUNCTION 	void mDeleteObject(void* ptr) {
 	deleteObject(ptr);
 }
-EXPORTED_FUNCTION 	void* mNewDataHandle() {
-	return newDataHandle();
-}
 EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr) {
 	deleteDataHandle(ptr);
+}
+EXPORTED_FUNCTION 	double mDoubleDataFromHandle(const void* ptr) {
+	return doubleDataFromHandle(ptr);
+}
+EXPORTED_FUNCTION 	double mDoubleReDataFromHandle(const void* ptr) {
+	return doubleReDataFromHandle(ptr);
+}
+EXPORTED_FUNCTION 	double mDoubleImDataFromHandle(const void* ptr) {
+	return doubleImDataFromHandle(ptr);
 }
 EXPORTED_FUNCTION 	int mExecutionStatus(const void* ptr) {
 	return executionStatus(ptr);

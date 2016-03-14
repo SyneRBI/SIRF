@@ -5,45 +5,33 @@
 extern "C" {
 #endif
 	void* cGT_newObject(const char* name);
+
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void*	cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
-	void* cGT_AcquisitionModelFwd
-		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
-	void* cGT_AcquisitionModelBwd
-		(void* ptr_am, const void* ptr_imgs, void* ptr_acqs);
+
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_newAcquisitionsContainer(const void* ptr_x);
+	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
+
 	void* cGT_acquisitionsNorm(const void* ptr_x);
 	void* cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_acquisitionsZaxpby(
 		double ar, double ai, const void* ptr_x,
 		double br, double bi, const void* ptr_y);
-	void* cGT_acquisitionsAxpby
-		(double a, const void* ptr_x, double b, const void* ptr_y);
+
 	void* cGT_newImagesContainer(const void* ptr_x);
+	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
+	void* cGT_reconstructedImages(void* ptr_recon);
+	void* cGT_processImages(void* ptr_proc, void* ptr_input);
+
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_imagesNorm(const void* ptr_x);
 	void* cGT_imagesDot(const void* ptr_x, const void* ptr_y);
 	void* cGT_imagesZaxpby(
 		double ar, double ai, const void* ptr_x,
 		double br, double bi, const void* ptr_y);
-	void* cGT_imagesAxpby
-		(double a, const void* ptr_x, double b, const void* ptr_y); //, void* ptr_z);
-	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
-	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
-	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
-	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
-	void* cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
-	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
-	void* cGT_registerHDFReceiver
-		(void* ptr_con, const char* file, const char* group);
-	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
-	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
-	void* cGT_reconstructedImages(void* ptr_recon);
-	void* cGT_processImages(void* ptr_proc, void* ptr_input);
-	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	int cGT_numImages(void* ptr_imgs);
@@ -54,6 +42,17 @@ extern "C" {
 	void cGT_getImageDimensions(void* ptr_imgs, int im_num, int* dim);
 	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, double* data);
 #endif
+
+	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
+	void* cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
+	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
+	void* cGT_registerHDFReceiver
+		(void* ptr_con, const char* file, const char* group);
+	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
+
+	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
 	void* cGT_connect(void* ptr_con, const char* host, const char* port);
 	void* cGT_sendConfigScript(void* ptr_con, const char* config);
 	void* cGT_sendConfigFile(void* ptr_con, const char* file);
@@ -62,10 +61,6 @@ extern "C" {
 	void* cGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 	void* cGT_sendImages(void* ptr_con, void* ptr_img);
 	void* cGT_disconnect(void* ptr_con);
-
-	double doubleDataFromHandle(const void* ptr);
-	double doubleReDataFromHandle(const void* ptr);
-	double doubleImDataFromHandle(const void* ptr);
 #ifndef CGADGETRON_FOR_MATLAB
 }
 #endif

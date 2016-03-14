@@ -377,84 +377,6 @@ private:
 	}
 };
 
-class ImageHandle {
-public:
-	ImageHandle()
-	{
-		sptr_iw_.reset();
-	}
-	ImageHandle(uint16_t type, void* ptr_im)
-	{
-		sptr_iw_.reset(new ImageWrap(type, ptr_im));
-	}
-	ImageHandle(boost::shared_ptr<ImageWrap>& sptr_iw)
-	{
-		sptr_iw_ = sptr_iw;
-	}
-	ImageHandle(const ImageHandle& ih)
-	{
-		sptr_iw_.reset(new ImageWrap(ih.iw()));
-	}
-	void new_image_wrap(uint16_t type, void* ptr_im)
-	{
-		sptr_iw_.reset(new ImageWrap(type, ptr_im));
-	}
-	ImageWrap& iw()
-	{
-		return *sptr_iw_;
-	}
-	const ImageWrap& iw() const
-	{
-		return *sptr_iw_;
-	}
-	int type() const
-	{
-		return sptr_iw_->type();
-	}
-	void* ptr_image()
-	{
-		return sptr_iw_->ptr_image();
-	}
-	const void* ptr_image() const
-	{
-		return sptr_iw_->ptr_image();
-	}
-	size_t size() const
-	{
-		return sptr_iw_->size();
-	}
-	const void get_dim(int* dim) const
-	{
-		sptr_iw_->get_dim(dim);
-	}
-	const void get_data(double* data) const
-	{
-		sptr_iw_->get_data(data);
-	}
-	void write(ISMRMRD::Dataset& dataset) const
-	{
-		sptr_iw_->write(dataset);
-	}
-	void axpby(complex_float_t a, ImageHandle& x, complex_float_t b)
-	{
-		sptr_iw_->axpby(a, *x.sptr_iw_, b);
-	}
-	complex_double_t dot(ImageHandle& ih) const
-	{
-		return sptr_iw_->dot(*ih.sptr_iw_);
-	}
-	double norm(ImageHandle& ih) const
-	{
-		return sptr_iw_->norm();
-	}
-	float diff(ImageHandle& ih) const
-	{
-		return sptr_iw_->diff(*ih.sptr_iw_);
-	}
-private:
-	boost::shared_ptr<ImageWrap> sptr_iw_;
-};
-
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
@@ -784,14 +706,14 @@ private:
 class ImagesContainer : public aDataContainer {
 public:
 	virtual int number() const = 0;
-	virtual ImageWrap& imageWrap(unsigned int im_num) = 0;
-	virtual const ImageWrap& imageWrap(unsigned int im_num) const = 0;
+	virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
+	virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 	virtual void append(int image_data_type, void* ptr_image) = 0;
 	virtual void append(const ImageWrap& iw) = 0;
-	virtual void getImageDimensions(unsigned int im_num, int* dim) = 0;
-	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data) = 0;
+	virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
+	virtual void get_image_data_as_double_array(unsigned int im_num, double* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
-	virtual boost::shared_ptr<ImagesContainer> newImagesContainer() = 0;
+	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
 
 	static void axpby(
@@ -800,31 +722,23 @@ public:
 		ImagesContainer& z
 		)
 	{
-		ImageWrap w(x.imageWrap(0));
+		ImageWrap w(x.image_wrap(0));
 		complex_double_t zero(0.0, 0.0);
 		complex_double_t one(1.0, 0.0);
 		for (int i = 0; i < x.number() && i < y.number(); i++) {
-			const ImageWrap& u = x.imageWrap(i);
-			const ImageWrap& v = y.imageWrap(i);
+			const ImageWrap& u = x.image_wrap(i);
+			const ImageWrap& v = y.image_wrap(i);
 			w.axpby(a, u, zero);
 			w.axpby(b, v, one);
 			z.append(w);
 		}
 	}
-	//void axpby(complex_double_t a, const ImagesContainer& x, complex_double_t b)
-	//{
-	//	for (int i = 0; i < number() && i < x.number(); i++) {
-	//		ImageWrap& u = imageWrap(i);
-	//		const ImageWrap& v = x.imageWrap(i);
-	//		u.axpby(a, v, b);
-	//	}
-	//}
 	complex_double_t dot(const ImagesContainer& ic) const
 	{
 		complex_double_t z = 0;
 		for (int i = 0; i < number() && i < ic.number(); i++) {
-			const ImageWrap& u = imageWrap(i);
-			const ImageWrap& v = ic.imageWrap(i);
+			const ImageWrap& u = image_wrap(i);
+			const ImageWrap& v = ic.image_wrap(i);
 			z += u.dot(v);
 		}
 		return z;
@@ -833,7 +747,7 @@ public:
 	{
 		double r = 0;
 		for (int i = 0; i < number(); i++) {
-			const ImageWrap& u = imageWrap(i);
+			const ImageWrap& u = image_wrap(i);
 			double s = u.norm();
 			r += s*s;
 		}
@@ -872,19 +786,7 @@ public:
 	{
 		images_.push_back(boost::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
-	virtual ImageHandle image_handle(unsigned int im_num)
-	{
-#ifdef MSVC
-		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-		unsigned int count = 0;
-		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
-			count++;
-		return ImageHandle(*i);
-	}
-	virtual ImageWrap& imageWrap(unsigned int im_num)
+	virtual ImageWrap& image_wrap(unsigned int im_num)
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
@@ -897,7 +799,7 @@ public:
 		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 		return *sptr_iw;
 	}
-	virtual const ImageWrap& imageWrap(unsigned int im_num) const
+	virtual const ImageWrap& image_wrap(unsigned int im_num) const
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -929,19 +831,19 @@ public:
 			iw.write(dataset);
 		}
 	}
-	virtual void getImageDimensions(unsigned int im_num, int* dim)
+	virtual void get_image_dimensions(unsigned int im_num, int* dim)
 	{
 		if (im_num < 0 || im_num >= images_.size())
 			dim[0] = dim[1] = dim[2] = 0;
-		ImageWrap& iw = imageWrap(im_num);
+		ImageWrap& iw = image_wrap(im_num);
 		iw.get_dim(dim);
 	}
-	virtual void getImageDataAsDoubleArray(unsigned int im_num, double* data)
+	virtual void get_image_data_as_double_array(unsigned int im_num, double* data)
 	{
-		ImageWrap& iw = imageWrap(im_num);
+		ImageWrap& iw = image_wrap(im_num);
 		iw.get_data(data);
 	}
-	virtual boost::shared_ptr<ImagesContainer> newImagesContainer()
+	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{
 		return boost::shared_ptr<ImagesContainer>(new ImagesList());
 	}

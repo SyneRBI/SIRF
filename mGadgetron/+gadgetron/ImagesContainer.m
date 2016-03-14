@@ -26,15 +26,15 @@ classdef ImagesContainer < handle
             handle = calllib('mgadgetron', 'mGT_imagesNorm', ...
                 self.handle_);
             gadgetron.checkExecutionStatus('ImagesContainer', handle);
-            r = calllib('mgadgetron', 'mDoubleDataFromHandle', handle);
+            r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, acqs)
             handle = calllib('mgadgetron', 'mGT_imagesDot', ...
                 self.handle_, acqs.handle_);
             gadgetron.checkExecutionStatus('ImagesContainer', handle);
-            re = calllib('mgadgetron', 'mDoubleReDataFromHandle', handle);
-            im = calllib('mgadgetron', 'mDoubleImDataFromHandle', handle);
+            re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
+            im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end

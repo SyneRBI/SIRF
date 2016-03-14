@@ -268,8 +268,7 @@ public:
 
 		GTConnector conn;
 
-		//sptr_images_.reset(new ImagesList);
-		sptr_images_ = images.newImagesContainer();
+		sptr_images_ = images.new_images_container();
 		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images_)));
@@ -280,7 +279,7 @@ public:
 				conn().send_gadgetron_configuration_script(config);
 
 				for (int i = 0; i < images.number(); i++) {
-					ImageWrap& iw = images.imageWrap(i);
+					ImageWrap& iw = images.image_wrap(i);
 					conn().send_wrapped_image(iw);
 				}
 
@@ -327,22 +326,6 @@ public:
 		ac.get_acquisition(0, acq_);
 	}
 
-	//void fwd(ImageHandle& ih, AcquisitionsContainer& ac)
-	//{
-	//	ImageWrap& iw = ih.iw();
-	//	int type = iw.type();
-	//	void* ptr = iw.ptr_image();
-	//	IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, ac);
-	//}
-
-	//void bwd(ImageHandle& ih, AcquisitionsContainer& ac)
-	//{
-	//	ImageWrap& iw = ih.iw();
-	//	int type = iw.type();
-	//	void* ptr = iw.ptr_image();
-	//	IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, ac);
-	//}
-
 	void fwd(ImageWrap& iw, AcquisitionsContainer& ac)
 	{
 		int type = iw.type();
@@ -360,21 +343,21 @@ public:
 	void fwd(ImagesContainer& ic, AcquisitionsContainer& ac)
 	{
 		for (int i = 0; i < ic.number(); i++) {
-			ImageWrap& iw = ic.imageWrap(i);
+			ImageWrap& iw = ic.image_wrap(i);
 			fwd(iw, ac);
 		}
 	}
 	void bwd(ImagesContainer& ic, AcquisitionsContainer& ac)
 	{
 		for (int i = 0; i < ic.number(); i++) {
-			ImageWrap& iw = ic.imageWrap(i);
+			ImageWrap& iw = ic.image_wrap(i);
 			bwd(iw, ac, i);
 			//std::cout << i << ' ' << iw.norm() << std::endl;
 		}
 	}
 	void backwd(ImagesContainer& ic, AcquisitionsContainer& ac)
 	{
-		ImageWrap iw(sptr_imgs_->imageWrap(0));
+		ImageWrap iw(sptr_imgs_->image_wrap(0));
 		int dims[4];
 		iw.get_dim(dims);
 		for (int i = 0; i < ac.number() / dims[1]; i++) {
@@ -395,7 +378,7 @@ public:
 	boost::shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
 	{
 		boost::shared_ptr<ImagesContainer> sptr_imgs = 
-			sptr_imgs_->newImagesContainer();
+			sptr_imgs_->new_images_container();
 		backwd(*sptr_imgs, ac);
 		return sptr_imgs;
 	}

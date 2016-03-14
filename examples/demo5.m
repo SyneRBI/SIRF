@@ -44,12 +44,9 @@ try
 
     % use the acquisition model (forward projection) to produce acquisitions
     acqs = am.forward(interim_images);
-%     acqs.norm()
-%     acqs.dot(input_data)
 
     % compute the difference between real and modelled acquisitions
     a = -acqs.dot(input_data) / input_data.dot(input_data);
-%     a = real(a);
     b = 1.0;
     diff = gadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs);
     fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())

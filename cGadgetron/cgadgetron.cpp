@@ -46,29 +46,6 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 }
 
 extern "C"
-double
-doubleDataFromHandle(const void* ptr)
-{
-	return dataFromHandle<double>(ptr);
-}
-
-extern "C"
-double
-doubleReDataFromHandle(const void* ptr)
-{
-	std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
-	return z.real();
-}
-
-extern "C"
-double
-doubleImDataFromHandle(const void* ptr)
-{
-	std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
-	return z.imag();
-}
-
-extern "C"
 void* cGT_newObject(const char* name)
 {
 	try {
@@ -176,42 +153,6 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
-cGT_AcquisitionModelFwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs)
-{
-	try {
-		CAST_PTR(DataHandle, h_am, ptr_am);
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
-		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
-		AcquisitionsContainer& acqs =
-			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		am.fwd(imgs, acqs);
-		return (void*)new DataHandle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_AcquisitionModelBwd(void* ptr_am, const void* ptr_imgs, void* ptr_acqs)
-{
-	try {
-		CAST_PTR(DataHandle, h_am, ptr_am);
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
-		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
-		AcquisitionsContainer& acqs =
-			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		am.bwd(imgs, acqs);
-		return (void*)new DataHandle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	try {
@@ -246,6 +187,25 @@ cGT_newAcquisitionsContainer(const void* ptr_x)
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH
+}
+
+extern "C"
+void*
+cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_proc, ptr_proc);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		AcquisitionsProcessor& proc =
+			objectFromHandle<AcquisitionsProcessor>(h_proc);
+		AcquisitionsContainer& input =
+			objectFromHandle<AcquisitionsContainer>(h_input);
+		proc.process(input);
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+	}
+	CATCH;
+
 }
 
 extern "C"
@@ -306,36 +266,63 @@ double br, double bi, const void* ptr_y
 
 extern "C"
 void*
-cGT_acquisitionsAxpby
-(double a, const void* ptr_x, double b, const void* ptr_y)
+cGT_newImagesContainer(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		//CAST_PTR(DataHandle, h_z, ptr_z);
-		AcquisitionsContainer& x = objectFromHandle<AcquisitionsContainer>(h_x);
-		AcquisitionsContainer& y = objectFromHandle<AcquisitionsContainer>(h_y);
-		//AcquisitionsContainer& z = objectFromHandle<AcquisitionsContainer>(h_z);
-		boost::shared_ptr<AcquisitionsContainer> z =
-			x.new_acquisitions_container();
-		AcquisitionsContainer::axpby(a, x, b, y, *z);
-		return sptrObjectHandle<AcquisitionsContainer>(z);
-		//return (void*)new DataHandle;
+		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
+		boost::shared_ptr<ImagesContainer> y = x.new_images_container();
+		return sptrObjectHandle<ImagesContainer>(y);
 	}
 	CATCH
 }
 
 extern "C"
 void*
-cGT_newImagesContainer(const void* ptr_x)
+cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 {
 	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		boost::shared_ptr<ImagesContainer> y = x.newImagesContainer();
-		return sptrObjectHandle<ImagesContainer>(y);
+		CAST_PTR(DataHandle, h_recon, ptr_recon);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
+		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
+		recon.process(input);
+		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
 	}
-	CATCH
+	CATCH;
+
+}
+
+extern "C"
+void*
+cGT_reconstructedImages(void* ptr_recon)
+{
+	try {
+		CAST_PTR(DataHandle, h_recon, ptr_recon);
+		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
+		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
+	}
+	CATCH;
+
+}
+
+extern "C"
+void*
+cGT_processImages(void* ptr_proc, void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_proc, ptr_proc);
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
+		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
+		proc.process(input);
+		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_im);
+	}
+	CATCH;
+
 }
 
 extern "C"
@@ -376,7 +363,7 @@ cGT_imagesDot(const void* ptr_x, const void* ptr_y)
 extern "C"
 void*
 cGT_imagesZaxpby(
-double ar, double ai, const void* ptr_x, 
+double ar, double ai, const void* ptr_x,
 double br, double bi, const void* ptr_y
 ){
 	try {
@@ -384,7 +371,7 @@ double br, double bi, const void* ptr_y
 		CAST_PTR(DataHandle, h_y, ptr_y);
 		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
 		ImagesContainer& y = objectFromHandle<ImagesContainer>(h_y);
-		boost::shared_ptr<ImagesContainer> z = x.newImagesContainer();
+		boost::shared_ptr<ImagesContainer> z = x.new_images_container();
 		complex_double_t a(ar, ai);
 		complex_double_t b(br, bi);
 		ImagesContainer::axpby(a, x, b, y, *z);
@@ -395,99 +382,74 @@ double br, double bi, const void* ptr_y
 
 extern "C"
 void*
-cGT_imagesAxpby
-(double a, const void* ptr_x, double b, const void* ptr_y) //, void* ptr_z)
+cGT_imagesCopy(const void* ptr_imgs)
 {
 	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		//CAST_PTR(DataHandle, h_z, ptr_z);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		ImagesContainer& y = objectFromHandle<ImagesContainer>(h_y);
-		//ImagesContainer& acq_z = objectFromHandle<ImagesContainer>(h_z);
-		boost::shared_ptr<ImagesContainer> z = x.newImagesContainer();
-		ImagesContainer::axpby(a, x, b, y, *z);
-		return sptrObjectHandle<ImagesContainer>(z);
-		//return (void*)new DataHandle;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesContainer& imgs = 
+			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
+		boost::shared_ptr<ImagesContainer> clone = imgs.clone();
+		return sptrObjectHandle<ImagesContainer>(clone);
 	}
 	CATCH
 }
 
 extern "C"
 void*
-cGT_reconstructImages(void* ptr_recon, void* ptr_input)
+cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
-		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		CAST_PTR(DataHandle, h_input, ptr_input);
-		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
-		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
-		recon.process(input);
-		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
-		//ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-		//return (void*)ptr_handle;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+		list.write(out_file, out_group);
 	}
-	CATCH;
+	CATCH
 
+		return (void*)new DataHandle;
+}
+
+extern "C"
+int
+cGT_numImages(void* ptr_imgs)
+{
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	return list.number();
+}
+
+extern "C"
+void
+cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_image_dimensions(im_num, dim);
+}
+
+extern "C"
+void
+cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
+{
+	double* data = (double*)ptr_data;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_image_data_as_double_array(im_num, data);
 }
 
 extern "C"
 void*
-cGT_reconstructedImages(void* ptr_recon)
+cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 {
 	try {
-		CAST_PTR(DataHandle, h_recon, ptr_recon);
-		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
-		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
-		//ObjectHandle<ImagesContainer>* ptr_handle = new ObjectHandle<ImagesContainer>(sptr_im);
-		//return (void*)ptr_handle;
+		CAST_PTR(DataHandle, h_con, ptr_con);
+		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
+		GadgetronClientConnector& con = conn();
+		con.set_timeout(timeout_ms);
 	}
-	CATCH;
+	CATCH
 
-}
-
-extern "C"
-void*
-cGT_processImages(void* ptr_proc, void* ptr_input)
-{
-	try {
-		CAST_PTR(DataHandle, h_proc, ptr_proc);
-		CAST_PTR(DataHandle, h_input, ptr_input);
-		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
-		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
-		proc.process(input);
-		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
-		//ObjectHandle<ImagesContainer>* ptr_handle =
-		//	new ObjectHandle<ImagesContainer>(sptr_im);
-		//return (void*)ptr_handle;
-	}
-	CATCH;
-
-}
-
-extern "C"
-void*
-cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
-{
-	try {
-		CAST_PTR(DataHandle, h_proc, ptr_proc);
-		CAST_PTR(DataHandle, h_input, ptr_input);
-		AcquisitionsProcessor& proc = 
-			objectFromHandle<AcquisitionsProcessor>(h_proc);
-		AcquisitionsContainer& input = 
-			objectFromHandle<AcquisitionsContainer>(h_input);
-		proc.process(input);
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
-		//return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
-		ObjectHandle<AcquisitionsContainer>* ptr_handle =
-			new ObjectHandle<AcquisitionsContainer>(sptr_ac);
-		return (void*)ptr_handle;
-	}
-	CATCH;
-
+		return (void*)new DataHandle;
 }
 
 extern "C"
@@ -577,7 +539,7 @@ cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 	}
 	CATCH
 
-	return (void*)new DataHandle;
+		return (void*)new DataHandle;
 }
 
 extern "C"
@@ -590,7 +552,6 @@ cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
 		GadgetronClientConnector& con = conn();
 		Mutex mutex;
 		boost::mutex& mtx = mutex();
-		//boost::mutex& mtx = conn.mutex();
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageReader(file, group, &mtx)));
@@ -614,78 +575,6 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images)));
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_imagesCopy(const void* ptr_imgs)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesContainer& imgs = 
-			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
-		boost::shared_ptr<ImagesContainer> clone = imgs.clone();
-		return sptrObjectHandle<ImagesContainer>(clone);
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-		list.write(out_file, out_group);
-	}
-	CATCH
-
-		return (void*)new DataHandle;
-}
-
-extern "C"
-int
-cGT_numImages(void* ptr_imgs)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	return list.number();
-}
-
-extern "C"
-void
-cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
-{
-	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.getImageDimensions(im_num, dim);
-}
-
-extern "C"
-void
-cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
-{
-	double* data = (double*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.getImageDataAsDoubleArray(im_num, data);
-}
-
-extern "C"
-void*
-cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		con.set_timeout(timeout_ms);
 	}
 	CATCH
 
@@ -820,7 +709,7 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 		GadgetronClientConnector& con = conn();
 		ImagesContainer& images = objectFromHandle<ImagesContainer>(h_img);
 		for (int i = 0; i < images.number(); i++) {
-			ImageWrap& iw = images.imageWrap(i);
+			ImageWrap& iw = images.image_wrap(i);
 			con.send_wrapped_image(iw);
 		}
 	}
