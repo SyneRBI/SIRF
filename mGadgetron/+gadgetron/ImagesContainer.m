@@ -22,6 +22,22 @@ classdef ImagesContainer < handle
         function num = number(self)
             num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
         end
+        function r = norm(self)
+            handle = calllib('mgadgetron', 'mGT_imagesNorm', ...
+                self.handle_);
+            gadgetron.checkExecutionStatus('ImagesContainer', handle);
+            r = calllib('mgadgetron', 'mDoubleDataFromHandle', handle);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+        end
+        function z = dot(self, acqs)
+            handle = calllib('mgadgetron', 'mGT_imagesDot', ...
+                self.handle_, acqs.handle_);
+            gadgetron.checkExecutionStatus('ImagesContainer', handle);
+            re = calllib('mgadgetron', 'mDoubleReDataFromHandle', handle);
+            im = calllib('mgadgetron', 'mDoubleImDataFromHandle', handle);
+            z = complex(re, im);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+        end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
