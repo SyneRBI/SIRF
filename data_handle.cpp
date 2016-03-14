@@ -1,3 +1,5 @@
+#include <complex>
+
 #include "data_handle.h"
 
 extern "C" {
@@ -19,13 +21,30 @@ extern "C" {
 		delete ptr_obj;
 	}
 
-	void* copyOfObject(void* ptr)
+	void* copyOfObjectHandle(void* ptr)
 	{
 		try {
 			CAST_PTR(anObjectHandle, ptr_obj, ptr);
 			return (void*)ptr_obj->copy();
 		}
 		CATCH
+	}
+
+	double doubleDataFromHandle(const void* ptr)
+	{
+		return dataFromHandle<double>(ptr);
+	}
+
+	double doubleReDataFromHandle(const void* ptr)
+	{
+		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
+		return z.real();
+	}
+
+	double doubleImDataFromHandle(const void* ptr)
+	{
+		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
+		return z.imag();
 	}
 
 	int executionStatus(const void* ptr) {

@@ -4,10 +4,13 @@
 #ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
 #endif
-	void* copyOfObject(void* ptr);
-	void deleteObject(void* ptr);
 	void* newDataHandle();
+	void* copyOfObjectHandle(void* ptr);
+	void deleteObject(void* ptr);
 	void deleteDataHandle(void* ptr);
+	double doubleDataFromHandle(const void* ptr);
+	double doubleReDataFromHandle(const void* ptr);
+	double doubleImDataFromHandle(const void* ptr);
 	int executionStatus(const void* ptr);
 	const char* executionError(const void* ptr);
 	const char* executionErrorFile(const void* ptr);

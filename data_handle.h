@@ -7,8 +7,6 @@
 
 #include "localised_exception.h"
 
-#define is_null_ptr(sptr) ((sptr).get() == 0)
-
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
 #define NEW_SPTR(Base, X, Object) \
@@ -136,7 +134,7 @@ public:
 		if (_data == 0)
 			THROW("zero data pointer cannot be dereferenced");
 		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
-		if (is_null_ptr(*ptr_sptr))
+		if (!ptr_sptr->get())
 			THROW("zero object pointer cannot be dereferenced");
 		return new ObjectHandle<Base>(*ptr_sptr, _status);
 	}
@@ -174,7 +172,7 @@ objectFromHandle(const DataHandle* handle) {
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
 	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
-	if (is_null_ptr(*ptr_sptr))
+	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	CAST_PTR(Base, ptr_object, ptr_sptr->get());
 	return *ptr_object;
@@ -187,7 +185,7 @@ objectFromHandle(const DataHandle* handle) {
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
 	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
-	if (is_null_ptr(*ptr_sptr))
+	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	CAST_PTR(Object, ptr_object, ptr_sptr->get());
 	return *ptr_object;
@@ -200,7 +198,7 @@ objectSptrFromHandle(const DataHandle* handle) {
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
 	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
-	if (is_null_ptr(*ptr_sptr))
+	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	return *ptr_sptr;
 }
@@ -214,8 +212,6 @@ objectPtrFromHandle(const DataHandle* handle) {
 	if (ptr == 0)
 		return 0;
 	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
-	if (is_null_ptr(*ptr_sptr))
-		return 0;
 	return ptr_sptr->get();
 }
 
