@@ -73,7 +73,6 @@ try:
     print('= (B x, y) =', imgs.dot(interim_images))
 
     # test images norm
-    #print('|B x| =', imgs.norm())
     s = imgs.norm()
     print('(B x, B x) =', imgs.dot(imgs), '=', s*s)
 
@@ -86,7 +85,6 @@ try:
     for i in range(images.number()):
         data = images.image_as_array(i)
         pylab.figure(i + 1)
-##        pylab.imshow(data[:,:,0,0])
         pylab.imshow(data[0,0,:,:])
         pylab.show()
 
