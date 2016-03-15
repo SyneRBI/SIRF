@@ -13,15 +13,14 @@ classdef AcquisitionsContainer < handle
             end
         end
         function r = norm(self)
-            handle = calllib('mgadgetron', 'mGT_acquisitionsNorm', ...
-                self.handle_);
+            handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
             gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, acqs)
-            handle = calllib('mgadgetron', 'mGT_acquisitionsDot', ...
-                self.handle_, acqs.handle_);
+            handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
+                acqs.handle_);
             gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
             im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
@@ -32,10 +31,8 @@ classdef AcquisitionsContainer < handle
     methods(Static)
         function z = axpby(a, x, b, y)
             z = gadgetron.AcquisitionsContainer();
-            z.handle_ = calllib('mgadgetron', 'mGT_acquisitionsZaxpby', ...
+            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
-%             z.handle_ = calllib('mgadgetron', 'mGT_acquisitionsAxpby', ...
-%                 a, x.handle_, b, y.handle_);
         end
     end
 end

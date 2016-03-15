@@ -380,6 +380,12 @@ private:
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
+	virtual boost::shared_ptr<aDataContainer> new_data_container() = 0;
+	virtual double norm() = 0;
+	virtual complex_double_t dot(aDataContainer& dc) = 0;
+	virtual void axpby(
+		complex_double_t a, const aDataContainer& a_x,
+		complex_double_t b, const aDataContainer& a_y) = 0;
 };
 
 class AcquisitionsContainer : public aDataContainer {
@@ -466,11 +472,39 @@ public:
 		s /= sa;
 		return s;
 	}
-	static void axpby(
-		complex_double_t a, AcquisitionsContainer& x,
-		complex_double_t b, AcquisitionsContainer& y,
-		AcquisitionsContainer& z)
+	//static void axpby(
+	//	complex_double_t a, AcquisitionsContainer& x,
+	//	complex_double_t b, AcquisitionsContainer& y,
+	//	AcquisitionsContainer& z)
+	//{
+	//	int m = x.number();
+	//	int n = y.number();
+	//	ISMRMRD::Acquisition ax;
+	//	ISMRMRD::Acquisition ay;
+	//	for (int i = 0; i < n && i < m; i++) {
+	//		y.get_acquisition(i, ay);
+	//		x.get_acquisition(i, ax);
+	//		AcquisitionsContainer::axpby(a, ax, b, ay);
+	//		z.append_acquisition(ay);
+	//	}
+	//}
+
+	virtual int number() = 0;
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
+	virtual void copy_data(const AcquisitionsContainer& ac) = 0;
+	virtual void write_data() = 0;
+	//virtual boost::shared_ptr<aDataContainer> new_acquisitions_container() = 0;
+	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+
+	virtual void axpby(
+		complex_double_t a, const aDataContainer& a_x,
+		complex_double_t b, const aDataContainer& a_y)
+		//complex_double_t a, AcquisitionsContainer& x,
+		//complex_double_t b, AcquisitionsContainer& y)
 	{
+		AcquisitionsContainer& x = (AcquisitionsContainer&)a_x;
+		AcquisitionsContainer& y = (AcquisitionsContainer&)a_y;
 		int m = x.number();
 		int n = y.number();
 		ISMRMRD::Acquisition ax;
@@ -479,19 +513,13 @@ public:
 			y.get_acquisition(i, ay);
 			x.get_acquisition(i, ax);
 			AcquisitionsContainer::axpby(a, ax, b, ay);
-			z.append_acquisition(ay);
+			append_acquisition(ay);
 		}
 	}
-
-	virtual int number() = 0;
-	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
-	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copy_data(const AcquisitionsContainer& ac) = 0;
-	virtual void write_data() = 0;
-	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
-
-	complex_double_t dot(AcquisitionsContainer& other)
+	//complex_double_t dot(AcquisitionsContainer& other)
+	virtual complex_double_t dot(aDataContainer& dc)
 	{
+		AcquisitionsContainer& other = (AcquisitionsContainer&)dc;
 		int n = number();
 		int m = other.number();
 		complex_double_t z = 0;
@@ -504,7 +532,7 @@ public:
 		}
 		return z;
 	}
-	double norm()
+	virtual double norm()
 	{
 		int n = number();
 		double r = 0;
@@ -606,7 +634,8 @@ public:
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
 	}
-	virtual void copy_data(const AcquisitionsContainer& ac) {
+	virtual void copy_data(const AcquisitionsContainer& ac) 
+	{
 		par_ = ac.parameters();
 		coils_ = ac.coils();
 		Mutex mtx;
@@ -615,14 +644,16 @@ public:
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
-	virtual void write_data() {
+	virtual void write_data() 
+	{
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
 		dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
-	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() {
+	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	{
 		static int calls = 0;
 		char buff[32];
 		long long int ms = xGadgetronUtilities::milliseconds();
@@ -631,11 +662,34 @@ public:
 		std::string filename(filename_);
 		boost::replace_all(filename, ".h5", buff);
 		//std::cout << "new acquisitions file: " << filename << std::endl;
-		boost::shared_ptr<AcquisitionsContainer> 
+		AcquisitionsFile* ptr_ac = new AcquisitionsFile(filename, true, true);
+		ptr_ac->set_parameters(par_);
+		ptr_ac->set_coils(coils_);
+		ptr_ac->write_data();
+		boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
+		return sptr_ac;
+	}
+	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	//virtual boost::shared_ptr<aDataContainer> new_acquisitions_container()
+	{
+		static int calls = 0;
+		char buff[32];
+		long long int ms = xGadgetronUtilities::milliseconds();
+		calls++;
+		sprintf(buff, "_%d_%lld.h5", calls, ms);
+		std::string filename(filename_);
+		boost::replace_all(filename, ".h5", buff);
+		//std::cout << "new acquisitions file: " << filename << std::endl;
+		boost::shared_ptr<AcquisitionsContainer>
 			sptr_ac(new AcquisitionsFile(filename, true, true));
 		sptr_ac->set_parameters(par_);
 		sptr_ac->set_coils(coils_);
 		sptr_ac->write_data();
+		//AcquisitionsFile* ptr_ac = new AcquisitionsFile(filename, true, true);
+		//ptr_ac->set_parameters(par_);
+		//ptr_ac->set_coils(coils_);
+		//ptr_ac->write_data();
+		//boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 
@@ -716,12 +770,31 @@ public:
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
 
-	static void axpby(
-		complex_double_t a, const ImagesContainer& x,
-		complex_double_t b, const ImagesContainer& y,
-		ImagesContainer& z
-		)
+	//static void axpby(
+	//	complex_double_t a, const ImagesContainer& x,
+	//	complex_double_t b, const ImagesContainer& y,
+	//	ImagesContainer& z
+	//	)
+	//{
+	//	ImageWrap w(x.image_wrap(0));
+	//	complex_double_t zero(0.0, 0.0);
+	//	complex_double_t one(1.0, 0.0);
+	//	for (int i = 0; i < x.number() && i < y.number(); i++) {
+	//		const ImageWrap& u = x.image_wrap(i);
+	//		const ImageWrap& v = y.image_wrap(i);
+	//		w.axpby(a, u, zero);
+	//		w.axpby(b, v, one);
+	//		z.append(w);
+	//	}
+	//}
+	virtual void axpby(
+		complex_double_t a, const aDataContainer& a_x,
+		complex_double_t b, const aDataContainer& a_y)
+		//complex_double_t a, const ImagesContainer& x,
+		//complex_double_t b, const ImagesContainer& y)
 	{
+		ImagesContainer& x = (ImagesContainer&)a_x;
+		ImagesContainer& y = (ImagesContainer&)a_y;
 		ImageWrap w(x.image_wrap(0));
 		complex_double_t zero(0.0, 0.0);
 		complex_double_t one(1.0, 0.0);
@@ -730,11 +803,13 @@ public:
 			const ImageWrap& v = y.image_wrap(i);
 			w.axpby(a, u, zero);
 			w.axpby(b, v, one);
-			z.append(w);
+			append(w);
 		}
 	}
-	complex_double_t dot(const ImagesContainer& ic) const
+	//complex_double_t dot(const ImagesContainer& ic) const
+	virtual complex_double_t dot(aDataContainer& dc)
 	{
+		ImagesContainer& ic = (ImagesContainer&)dc;
 		complex_double_t z = 0;
 		for (int i = 0; i < number() && i < ic.number(); i++) {
 			const ImageWrap& u = image_wrap(i);
@@ -743,7 +818,8 @@ public:
 		}
 		return z;
 	}
-	double norm() const
+	//double norm() const
+	virtual double norm()
 	{
 		double r = 0;
 		for (int i = 0; i < number(); i++) {
@@ -842,6 +918,10 @@ public:
 	{
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_data(data);
+	}
+	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	{
+		return boost::shared_ptr<aDataContainer>((aDataContainer*)new ImagesList());
 	}
 	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{

@@ -23,14 +23,13 @@ classdef ImagesContainer < handle
             num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
         end
         function r = norm(self)
-            handle = calllib('mgadgetron', 'mGT_imagesNorm', ...
-                self.handle_);
+            handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
             gadgetron.checkExecutionStatus('ImagesContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, acqs)
-            handle = calllib('mgadgetron', 'mGT_imagesDot', ...
+            handle = calllib('mgadgetron', 'mGT_dot', ...
                 self.handle_, acqs.handle_);
             gadgetron.checkExecutionStatus('ImagesContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
@@ -56,7 +55,7 @@ classdef ImagesContainer < handle
     methods(Static)
         function z = axpby(a, x, b, y)
             z = gadgetron.ImagesContainer();
-            z.handle_ = calllib('mgadgetron', 'mGT_imagesZaxpby', ...
+            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
         end
     end

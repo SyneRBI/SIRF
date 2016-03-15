@@ -172,7 +172,7 @@ int c2m(
 		getline(fin, line);
 		cout << line << endl;
 		i = line.find_first_not_of(" \t\n\v\f\r");
-		if (i == string::npos)
+		if (i == string::npos || line[i] == '/' && line[i + 1] == '/')
 			continue;
 		if (line[i] == '#') {
 			if (line[i + 1] == 'e' && line[i + 2] == 'n' && line[i + 3] == 'd')

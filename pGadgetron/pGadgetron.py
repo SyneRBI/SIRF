@@ -81,13 +81,15 @@ class ImagesContainer(PyGadgetronObject):
     def number(self):
         return pygadgetron.cGT_numImages(self.handle)
     def norm(self):
-        handle = pygadgetron.cGT_imagesNorm(self.handle)
+##        handle = pygadgetron.cGT_imagesNorm(self.handle)
+        handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
         r = pygadgetron.doubleDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return r;
     def dot(self, images):
-        handle = pygadgetron.cGT_imagesDot(self.handle, images.handle)
+##        handle = pygadgetron.cGT_imagesDot(self.handle, images.handle)
+        handle = pygadgetron.cGT_dot(self.handle, images.handle)
         _check_status(handle)
         re = pygadgetron.doubleReDataFromHandle(handle)
         im = pygadgetron.doubleImDataFromHandle(handle)
@@ -96,7 +98,8 @@ class ImagesContainer(PyGadgetronObject):
     @staticmethod
     def axpby(a, x, b, y):
         z = ImagesContainer()
-        z.handle = pygadgetron.cGT_imagesZaxpby\
+##        z.handle = pygadgetron.cGT_imagesZaxpby\
+        z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
 ##        z.handle = pygadgetron.cGT_imagesAxpby(a, x.handle, b, y.handle)
         return z;
@@ -130,13 +133,15 @@ class AcquisitionsContainer(PyGadgetronObject):
             #print('deleting AcquisitionsContainer...')
             pygadgetron.deleteObject(self.handle)
     def norm(self):
-        handle = pygadgetron.cGT_acquisitionsNorm(self.handle)
+##        handle = pygadgetron.cGT_acquisitionsNorm(self.handle)
+        handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
         r = pygadgetron.doubleDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return r;
     def dot(self, acqs):
-        handle = pygadgetron.cGT_acquisitionsDot(self.handle, acqs.handle)
+##        handle = pygadgetron.cGT_acquisitionsDot(self.handle, acqs.handle)
+        handle = pygadgetron.cGT_dot(self.handle, acqs.handle)
         _check_status(handle)
         re = pygadgetron.doubleReDataFromHandle(handle)
         im = pygadgetron.doubleImDataFromHandle(handle)
@@ -145,7 +150,8 @@ class AcquisitionsContainer(PyGadgetronObject):
     @staticmethod
     def axpby(a, x, b, y):
         z = AcquisitionsContainer()
-        z.handle = pygadgetron.cGT_acquisitionsZaxpby\
+##        z.handle = pygadgetron.cGT_acquisitionsZaxpby\
+        z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
 ##        z.handle = pygadgetron.cGT_acquisitionsAxpby(a, x.handle, b, y.handle)
         return z;

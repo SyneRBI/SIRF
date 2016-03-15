@@ -26,23 +26,8 @@ EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file) {
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file) {
 	return cGT_ISMRMRDAcquisitionsFile(file);
 }
-EXPORTED_FUNCTION 	void* mGT_newAcquisitionsContainer(const void* ptr_x) {
-	return cGT_newAcquisitionsContainer(ptr_x);
-}
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input) {
 	return cGT_processAcquisitions(ptr_proc, ptr_input);
-}
-EXPORTED_FUNCTION 	void* mGT_acquisitionsNorm(const void* ptr_x) {
-	return cGT_acquisitionsNorm(ptr_x);
-}
-EXPORTED_FUNCTION 	void* mGT_acquisitionsDot(const void* ptr_x, const void* ptr_y) {
-	return cGT_acquisitionsDot(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_acquisitionsZaxpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
-	return cGT_acquisitionsZaxpby(ar, ai, ptr_x, br, bi, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_newImagesContainer(const void* ptr_x) {
-	return cGT_newImagesContainer(ptr_x);
 }
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
@@ -55,15 +40,6 @@ EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 }
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs) {
 	return cGT_imagesCopy(ptr_imgs);
-}
-EXPORTED_FUNCTION 	void* mGT_imagesNorm(const void* ptr_x) {
-	return cGT_imagesNorm(ptr_x);
-}
-EXPORTED_FUNCTION 	void* mGT_imagesDot(const void* ptr_x, const void* ptr_y) {
-	return cGT_imagesDot(ptr_x, ptr_y);
-}
-EXPORTED_FUNCTION 	void* mGT_imagesZaxpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
-	return cGT_imagesZaxpby(ar, ai, ptr_x, br, bi, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
 	return cGT_writeImages(ptr_imgs, out_file, out_group);
@@ -86,6 +62,15 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num
 	cGT_getImageDataAsDoubleArray(ptr_imgs, im_num, data);
 }
 #endif
+EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x) {
+	return cGT_norm(ptr_x);
+}
+EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y) {
+	return cGT_dot(ptr_x, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mGT_axpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
+	return cGT_axpby(ar, ai, ptr_x, br, bi, ptr_y);
+}
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r) {
 	return cGT_addReader(ptr_gc, id, ptr_r);
 }

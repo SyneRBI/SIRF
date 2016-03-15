@@ -177,20 +177,6 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 
 extern "C"
 void*
-cGT_newAcquisitionsContainer(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
-		boost::shared_ptr<AcquisitionsContainer> acquisitions = 
-			acq_x.new_acquisitions_container();
-		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
-	}
-	CATCH
-}
-
-extern "C"
-void*
 cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 {
 	try {
@@ -206,75 +192,6 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 	}
 	CATCH;
 
-}
-
-extern "C"
-void*
-cGT_acquisitionsNorm(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
-		double* result = (double*)malloc(sizeof(double));
-		*result = acq_x.norm();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_acquisitionsDot(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		AcquisitionsContainer& acq_x = objectFromHandle<AcquisitionsContainer>(h_x);
-		AcquisitionsContainer& acq_y = objectFromHandle<AcquisitionsContainer>(h_y);
-		complex_double_t* result =
-			(complex_double_t*)malloc(sizeof(complex_double_t));
-		*result = acq_x.dot(acq_y);
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_acquisitionsZaxpby(
-double ar, double ai, const void* ptr_x, 
-double br, double bi, const void* ptr_y
-){
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		AcquisitionsContainer& x = objectFromHandle<AcquisitionsContainer>(h_x);
-		AcquisitionsContainer& y = objectFromHandle<AcquisitionsContainer>(h_y);
-		boost::shared_ptr<AcquisitionsContainer> z =
-			x.new_acquisitions_container();
-		complex_double_t a(ar, ai);
-		complex_double_t b(br, bi);
-		AcquisitionsContainer::axpby(a, x, b, y, *z);
-		return sptrObjectHandle<AcquisitionsContainer>(z);
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_newImagesContainer(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		boost::shared_ptr<ImagesContainer> y = x.new_images_container();
-		return sptrObjectHandle<ImagesContainer>(y);
-	}
-	CATCH
 }
 
 extern "C"
@@ -323,61 +240,6 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 	}
 	CATCH;
 
-}
-
-extern "C"
-void*
-cGT_imagesNorm(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		ImagesContainer& acq_x = objectFromHandle<ImagesContainer>(h_x);
-		double* result = (double*)malloc(sizeof(double));
-		*result = acq_x.norm();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_imagesDot(const void* ptr_x, const void* ptr_y)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		ImagesContainer& imgs_x = objectFromHandle<ImagesContainer>(h_x);
-		ImagesContainer& imgs_y = objectFromHandle<ImagesContainer>(h_y);
-		complex_double_t* result =
-			(complex_double_t*)malloc(sizeof(complex_double_t));
-		*result = imgs_x.dot(imgs_y);
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH
-}
-
-extern "C"
-void*
-cGT_imagesZaxpby(
-double ar, double ai, const void* ptr_x,
-double br, double bi, const void* ptr_y
-){
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		CAST_PTR(DataHandle, h_y, ptr_y);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		ImagesContainer& y = objectFromHandle<ImagesContainer>(h_y);
-		boost::shared_ptr<ImagesContainer> z = x.new_images_container();
-		complex_double_t a(ar, ai);
-		complex_double_t b(br, bi);
-		ImagesContainer::axpby(a, x, b, y, *z);
-		return sptrObjectHandle<ImagesContainer>(z);
-	}
-	CATCH
 }
 
 extern "C"
@@ -435,6 +297,61 @@ cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.get_image_data_as_double_array(im_num, data);
+}
+
+extern "C"
+void*
+cGT_norm(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		double* result = (double*)malloc(sizeof(double));
+		*result = x.norm();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_dot(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
+		complex_double_t* result =
+			(complex_double_t*)malloc(sizeof(complex_double_t));
+		*result = x.dot(y);
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cGT_axpby(
+double ar, double ai, const void* ptr_x,
+double br, double bi, const void* ptr_y
+){
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
+		boost::shared_ptr<aDataContainer> sptr_z = x.new_data_container();
+		complex_double_t a(ar, ai);
+		complex_double_t b(br, bi);
+		sptr_z->axpby(a, x, b, y);
+		return sptrObjectHandle<aDataContainer>(sptr_z);
+	}
+	CATCH
 }
 
 extern "C"
