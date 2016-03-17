@@ -39,6 +39,9 @@
     <ClInclude Include="chain_lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cgadgetron_par.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cgadgetron.cpp">

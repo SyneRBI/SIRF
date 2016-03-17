@@ -699,12 +699,16 @@ private:
 class ImagesContainer : public aDataContainer {
 public:
 	virtual int number() const = 0;
+	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
+	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
+		(unsigned int im_num) const = 0;
 	virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 	virtual void append(int image_data_type, void* ptr_image) = 0;
 	virtual void append(const ImageWrap& iw) = 0;
 	virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-	virtual void get_image_data_as_double_array(unsigned int im_num, double* data) = 0;
+	virtual void get_image_data_as_double_array
+		(unsigned int im_num, double* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
@@ -780,7 +784,7 @@ public:
 	{
 		images_.push_back(boost::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
-	virtual ImageWrap& image_wrap(unsigned int im_num)
+	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
@@ -790,10 +794,10 @@ public:
 		unsigned int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
-		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
-		return *sptr_iw;
+		return *i;
 	}
-	virtual const ImageWrap& image_wrap(unsigned int im_num) const
+	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
+		(unsigned int im_num) const
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -803,7 +807,16 @@ public:
 		unsigned int count = 0;
 		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
 			count++;
-		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		return *i;
+	}
+	virtual ImageWrap& image_wrap(unsigned int im_num)
+	{
+		boost::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
+		return *sptr_iw;
+	}
+	virtual const ImageWrap& image_wrap(unsigned int im_num) const
+	{
+		boost::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual void write(std::string filename, std::string groupname)

@@ -23,6 +23,8 @@
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
 #include "data_handle.h"
+#include "iutilities.h"
+#include "cgadgetron_par.h"
 #include "xgadgetron.h"
 #include "gadget_lib.h"
 #include "chain_lib.h"
@@ -40,6 +42,18 @@ unknownObject(const char* obj, const char* name, const char* file, int line)
 	error += " '";
 	error += name;
 	error += "'";
+	ExecutionStatus status(error.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+static void*
+parameterNotFound(const char* name, const char* file, int line)
+{
+	DataHandle* handle = new DataHandle;
+	std::string error = "parameter ";
+	error += name;
+	error += " not found";
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
@@ -99,6 +113,18 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
 		std::cout << "object " << name << "		not found" << std::endl;
 		return unknownObject("object", name, __FILE__, __LINE__);
+	}
+	CATCH
+}
+
+extern "C"
+void* 
+cGT_parameter(void* ptr, const char* obj, const char* name)
+{
+	try {
+		if (boost::iequals(obj, "acquisition"))
+			return cGT_acquisitionParameter(ptr, name);
+		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH
 }
@@ -191,7 +217,47 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
 	}
 	CATCH;
+}
 
+extern "C"
+void*
+cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		acqs.get_acquisition(acq_num, *sptr_acq);
+		return sptrObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
+	}
+	CATCH;
+}
+
+//extern "C"
+void*
+cGT_acquisitionParameter(void* ptr_acq, const char* name)
+{
+	CAST_PTR(DataHandle, h_acq, ptr_acq);
+	ISMRMRD::Acquisition& acq =
+		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
+	if (boost::iequals(name, "number_of_samples"))
+		return intDataHandle(acq.number_of_samples());
+	if (boost::iequals(name, "active_channels"))
+		return intDataHandle(acq.active_channels());
+	if (boost::iequals(name, "trajectory_dimensions"))
+		return intDataHandle(acq.trajectory_dimensions());
+	if (boost::iequals(name, "flags"))
+		return intDataHandle(acq.flags());
+	if (boost::iequals(name, "idx_kspace_encode_step_1"))
+		return intDataHandle(acq.idx().kspace_encode_step_1);
+	if (boost::iequals(name, "idx_repetition"))
+		return intDataHandle(acq.idx().repetition);
+	if (boost::iequals(name, "idx_slice"))
+		return intDataHandle(acq.idx().slice);
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 extern "C"
@@ -204,8 +270,8 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
-		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_img = recon.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -218,8 +284,8 @@ cGT_reconstructedImages(void* ptr_recon)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
-		boost::shared_ptr<ImagesContainer> sptr_im = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_img = recon.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -235,8 +301,8 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
-		boost::shared_ptr<ImagesContainer> sptr_im = proc.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_im);
+		boost::shared_ptr<ImagesContainer> sptr_img = proc.get_output();
+		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -280,23 +346,32 @@ cGT_numImages(void* ptr_imgs)
 }
 
 extern "C"
-void
-cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim)
+void*
+cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 {
-	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_dimensions(im_num, dim);
+	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
+	return sptrObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
 }
 
 extern "C"
 void
-cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data)
+cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_image_dimensions(img_num, dim);
+}
+
+extern "C"
+void
+cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data)
 {
 	double* data = (double*)ptr_data;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_double_array(im_num, data);
+	list.get_image_data_as_double_array(img_num, data);
 }
 
 extern "C"

@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 	void* cGT_newObject(const char* name);
+	void* cGT_parameter(void* ptr, const char* obj, const char* name);
 
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
@@ -13,6 +14,7 @@ extern "C" {
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
+	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
@@ -22,12 +24,13 @@ extern "C" {
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	int cGT_numImages(void* ptr_imgs);
+	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 #ifndef CGADGETRON_FOR_MATLAB
-	void cGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim);
-	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data);
+	void cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim);
+	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data);
 #else
-	void cGT_getImageDimensions(void* ptr_imgs, int im_num, int* dim);
-	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, double* data);
+	void cGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim);
+	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
 #endif
 
 	void* cGT_norm(const void* ptr_x);

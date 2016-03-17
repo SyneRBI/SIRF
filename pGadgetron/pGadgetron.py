@@ -19,6 +19,13 @@ def _check_status(handle):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
+def _int_par(handle, set, par):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    _check_status(h)
+    value = pygadgetron.intDataFromHandle(h)
+    pygadgetron.deleteDataHandle(h)
+    return value
+
 class PyGadgetronObject:
     pass
 	
@@ -148,6 +155,27 @@ class AcquisitionsContainer(PyGadgetronObject):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
+class ISMRMRDAcquisition(PyGadgetronObject):
+    def __init__(self, file = None):
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    def flags(self):
+        return _int_par(self.handle, 'acquisition', 'flags')
+    def number_of_samples(self):
+        return _int_par(self.handle, 'acquisition', 'number_of_samples')
+    def active_channels(self):
+        return _int_par(self.handle, 'acquisition', 'active_channels')
+    def trajectory_dimensions(self):
+        return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
+    def idx_kspace_encode_step_1(self):
+        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
+    def idx_repetition(self):
+        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+    def idx_slice(self):
+        return _int_par(self.handle, 'acquisition', 'idx_slice')
+
 class ISMRMRDAcquisitions(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
@@ -157,6 +185,10 @@ class ISMRMRDAcquisitions(AcquisitionsContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def acquisition(self, num):
+        acq = ISMRMRDAcquisition()
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
+        return acq
 
 class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
