@@ -8,6 +8,9 @@ extern "C" {
 	void* copyOfObjectHandle(void* ptr);
 	void deleteObject(void* ptr);
 	void deleteDataHandle(void* ptr);
+	void* intDataHandle(int i);
+	void* doubleDataHandle(double i);
+	int intDataFromHandle(const void* ptr);
 	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);

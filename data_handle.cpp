@@ -30,6 +30,21 @@ extern "C" {
 		CATCH
 	}
 
+	void* intDataHandle(int i) 
+	{
+		return dataHandle<int>(i);
+	}
+	
+	void* doubleDataHandle(double i) 
+	{
+		return dataHandle<double>(i);
+	}
+
+	int intDataFromHandle(const void* ptr) 
+	{
+		return dataFromHandle<int>(ptr);
+	}
+
 	double doubleDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<double>(ptr);
