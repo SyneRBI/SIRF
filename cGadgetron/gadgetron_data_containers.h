@@ -816,7 +816,7 @@ public:
 	}
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const
 	{
-		boost::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
+		const boost::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual void write(std::string filename, std::string groupname)
