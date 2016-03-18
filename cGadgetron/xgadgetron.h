@@ -321,7 +321,7 @@ public:
 	{
 		AcquisitionsContainer& ac = *sptr_ac;
 		par_ = ac.parameters();
-		sptr_colis_ = ac.coils();
+		sptr_coils_ = ac.coils();
 		ISMRMRD::deserialize(par_.c_str(), header_);
 		ac.get_acquisition(0, acq_);
 	}
@@ -387,7 +387,7 @@ private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;
 	ISMRMRD::Acquisition acq_;
-	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > sptr_colis_;
+	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > sptr_coils_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 	boost::shared_ptr<ImagesContainer> sptr_imgs_;
 
@@ -408,10 +408,10 @@ private:
 
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
-		int ncdims = sptr_colis_->getNDim();
+		int ncdims = sptr_coils_->getNDim();
 		unsigned int ncoils;
 		if (ncdims > 0) {
-			const size_t *cdims = sptr_colis_->getDims();
+			const size_t *cdims = sptr_coils_->getDims();
 			ncoils = cdims[2];
 		}
 		else
@@ -434,7 +434,7 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = (complex_float_t)ptr[i];
 					if (ncdims > 0) {
-						complex_float_t zc = (*sptr_colis_)(x, y, c);
+						complex_float_t zc = (*sptr_coils_)(x, y, c);
 						cm(xout, y, c) = z * zc;
 					}
 					else
@@ -464,7 +464,7 @@ private:
 			ac.append_acquisition(acq);
 		}
 		ac.set_parameters(par_);
-		ac.set_coils(sptr_colis_);
+		ac.set_coils(sptr_coils_);
 		ac.write_data();
 
 	}
@@ -478,9 +478,9 @@ private:
 		int readout = e.encodedSpace.matrixSize.x;
 		unsigned int matrix_size = im.getMatrixSizeY();
 		unsigned int ncoils;
-		int ncdims = sptr_colis_->getNDim();
+		int ncdims = sptr_coils_->getNDim();
 		if (ncdims > 0) {
-			const size_t *cdims = sptr_colis_->getDims();
+			const size_t *cdims = sptr_coils_->getDims();
 			ncoils = cdims[2];
 		}
 		else
@@ -514,7 +514,7 @@ private:
 					uint16_t xout = x + (readout - matrix_size) / 2;
 					complex_float_t z = cm(xout, y, c);
 					if (ncdims > 0) {
-						complex_float_t zc = (*sptr_colis_)(x, y, c);
+						complex_float_t zc = (*sptr_coils_)(x, y, c);
 						xGadgetronUtilities::convert_complex(std::conj(zc) * z, s);
 					}
 					else
