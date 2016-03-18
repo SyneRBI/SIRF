@@ -121,10 +121,24 @@ class ImagesContainer(PyGadgetronObject):
         nz = dim[2]
         nc = dim[3]
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('density data not available')
+            raise error('image data not available')
 ##        array = numpy.ndarray((nx, ny, nz, nc), dtype = numpy.float64)
         array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getImageDataAsDoubleArray\
+            (self.handle, im_num, array.ctypes.data)
+        return array
+    def image_as_complex_array(self, im_num):
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getImageDimensions\
+            (self.handle, im_num, dim.ctypes.data)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        nc = dim[3]
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+            raise error('image data not available')
+        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.complex64)
+        pygadgetron.cGT_getImageDataAsComplexArray\
             (self.handle, im_num, array.ctypes.data)
         return array
 

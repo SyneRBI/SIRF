@@ -375,6 +375,26 @@ cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data)
 }
 
 extern "C"
+void
+cGT_getImageDataAsComplexArray(void* ptr_imgs, int img_num, size_t ptr_data)
+{
+	complex_float_t* data = (complex_float_t*)ptr_data;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_image_data_as_complex_array(img_num, data);
+}
+
+extern "C"
+void
+cGT_getImageDataAsCmplxArray
+(void* ptr_imgs, int img_num, double* re, double* im)
+{
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_image_data_as_cmplx_array(img_num, re, im);
+}
+
+extern "C"
 void*
 cGT_norm(const void* ptr_x)
 {

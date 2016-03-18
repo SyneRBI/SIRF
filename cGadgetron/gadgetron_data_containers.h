@@ -1,6 +1,8 @@
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
+#include <complex>
+
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -229,6 +231,35 @@ public:
 		float s;
 		IMAGE_PROCESSING_SWITCH_CONST(type_, diff_, iw.ptr_image(), &s);
 		return s;
+	}
+
+	void get_cmplx_data(complex_float_t* data) const
+	{
+		const ISMRMRD::Image<complex_float_t>& im = 
+			*(const ISMRMRD::Image<complex_float_t>*)ptr_;
+		long long int n = im.getMatrixSizeX();
+		n *= im.getMatrixSizeY();
+		n *= im.getMatrixSizeZ();
+		n *= im.getNumberOfChannels();
+		const complex_float_t* ptr = im.getDataPtr();
+		for (long long int i = 0; i < n; i++)
+			data[i] = ptr[i];
+	}
+
+	void get_cmplx_data(double* re, double* im) const
+	{
+		const ISMRMRD::Image<complex_float_t>& img =
+			*(const ISMRMRD::Image<complex_float_t>*)ptr_;
+		long long int n = img.getMatrixSizeX();
+		n *= img.getMatrixSizeY();
+		n *= img.getMatrixSizeZ();
+		n *= img.getNumberOfChannels();
+		const complex_float_t* ptr = img.getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			re[i] = std::real(z);
+			im[i] = std::imag(z);
+		}
 	}
 
 private:
@@ -709,6 +740,8 @@ public:
 	virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
 	virtual void get_image_data_as_double_array
 		(unsigned int im_num, double* data) = 0;
+	virtual void get_image_data_as_complex_array
+		(unsigned int im_num, complex_float_t* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
@@ -751,6 +784,13 @@ public:
 		}
 		r = sqrt(r);
 		return r;
+	}
+
+	void get_image_data_as_cmplx_array
+		(unsigned int im_num, double* re, double* im)
+	{
+		ImageWrap& iw = image_wrap(im_num);
+		iw.get_cmplx_data(re, im);
 	}
 };
 
@@ -849,6 +889,12 @@ public:
 	{
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_data(data);
+	}
+	virtual void get_image_data_as_complex_array
+		(unsigned int im_num, complex_float_t* data)
+	{
+		ImageWrap& iw = image_wrap(im_num);
+		iw.get_cmplx_data(data);
 	}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{

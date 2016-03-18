@@ -27,10 +27,15 @@ extern "C" {
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 #ifndef CGADGETRON_FOR_MATLAB
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim);
-	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data);
+	void cGT_getImageDataAsDoubleArray
+		(void* ptr_imgs, int img_num, size_t ptr_data);
+	void cGT_getImageDataAsComplexArray
+		(void* ptr_imgs, int img_num, size_t ptr_data);
 #else
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim);
 	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
+	void cGT_getImageDataAsCmplxArray
+		(void* ptr_imgs, int img_num, double* re, double* im);
 #endif
 
 	void* cGT_norm(const void* ptr_x);
