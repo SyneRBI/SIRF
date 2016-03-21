@@ -235,13 +235,14 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 	CATCH;
 }
 
-//extern "C"
+extern "C"
 void*
 cGT_acquisitionParameter(void* ptr_acq, const char* name)
 {
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
+//#if 0
 	if (boost::iequals(name, "number_of_samples"))
 		return intDataHandle(acq.number_of_samples());
 	if (boost::iequals(name, "active_channels"))
@@ -257,6 +258,7 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	if (boost::iequals(name, "idx_slice"))
 		return intDataHandle(acq.idx().slice);
 	else
+//#endif
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
 
