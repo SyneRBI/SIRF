@@ -243,19 +243,19 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
 	if (boost::iequals(name, "number_of_samples"))
-		return dataHandle(acq.number_of_samples());
+		return dataHandle((int)acq.number_of_samples());
 	if (boost::iequals(name, "active_channels"))
-		return dataHandle(acq.active_channels());
+		return dataHandle((int)acq.active_channels());
 	if (boost::iequals(name, "trajectory_dimensions"))
-		return dataHandle(acq.trajectory_dimensions());
+		return dataHandle((int)acq.trajectory_dimensions());
 	if (boost::iequals(name, "flags"))
-		return dataHandle(acq.flags());
+		return dataHandle((int)acq.flags());
 	if (boost::iequals(name, "idx_kspace_encode_step_1"))
-		return dataHandle(acq.idx().kspace_encode_step_1);
+		return dataHandle((int)acq.idx().kspace_encode_step_1);
 	if (boost::iequals(name, "idx_repetition"))
-		return dataHandle(acq.idx().repetition);
+		return dataHandle((int)acq.idx().repetition);
 	if (boost::iequals(name, "idx_slice"))
-		return dataHandle(acq.idx().slice);
+		return dataHandle((int)acq.idx().slice);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
