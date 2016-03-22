@@ -255,6 +255,8 @@ int c2m(
 
 	fc << endl;
 	if (with_print) {
+		fc << "void* newMexPrinter();" << endl;
+		fc << "void deleteMexPrinter(void* ptr);" << endl;
 		fc << "EXPORTED_FUNCTION void* mNewMexPrinter() {" << endl;
 		fc << "  return newMexPrinter();" << endl;
 		fc << "}" << endl;

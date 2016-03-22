@@ -11,6 +11,9 @@ extern "C" {
 EXPORTED_FUNCTION void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
+EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name) {
+	return cGT_parameter(ptr, obj, name);
+}
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
 	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
 }
@@ -28,6 +31,9 @@ EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file) {
 }
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input) {
 	return cGT_processAcquisitions(ptr_proc, ptr_input);
+}
+EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
+	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
@@ -47,19 +53,28 @@ EXPORTED_FUNCTION 	void* mGT_writeImages(void* ptr_imgs, const char* out_file, c
 EXPORTED_FUNCTION 	int mGT_numImages(void* ptr_imgs) {
 	return cGT_numImages(ptr_imgs);
 }
-#ifndef CGADGETRON_FOR_MATLAB
-EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int im_num, size_t ptr_dim) {
-	cGT_getImageDimensions(ptr_imgs, im_num, ptr_dim);
+EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num) {
+	return cGT_imageWrapFromContainer(ptr_imgs, img_num);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, size_t ptr_data) {
-	cGT_getImageDataAsDoubleArray(ptr_imgs, im_num, ptr_data);
+#ifndef CGADGETRON_FOR_MATLAB
+EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim) {
+	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);
+}
+EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data) {
+	cGT_getImageDataAsDoubleArray(ptr_imgs, img_num, ptr_data);
+}
+EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray(void* ptr_imgs, int img_num, size_t ptr_data) {
+	cGT_getImageDataAsComplexArray(ptr_imgs, img_num, ptr_data);
 }
 #else
-EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int im_num, int* dim) {
-	cGT_getImageDimensions(ptr_imgs, im_num, dim);
+EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim) {
+	cGT_getImageDimensions(ptr_imgs, img_num, dim);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int im_num, double* data) {
-	cGT_getImageDataAsDoubleArray(ptr_imgs, im_num, data);
+EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data) {
+	cGT_getImageDataAsDoubleArray(ptr_imgs, img_num, data);
+}
+EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray(void* ptr_imgs, int img_num, double* re, double* im) {
+	cGT_getImageDataAsCmplxArray(ptr_imgs, img_num, re, im);
 }
 #endif
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x) {

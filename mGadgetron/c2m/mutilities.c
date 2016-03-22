@@ -20,6 +20,15 @@ EXPORTED_FUNCTION 	void mDeleteObject(void* ptr) {
 EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr) {
 	deleteDataHandle(ptr);
 }
+EXPORTED_FUNCTION 	void* mIntDataHandle(int i) {
+	return intDataHandle(i);
+}
+EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i) {
+	return doubleDataHandle(i);
+}
+EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr) {
+	return intDataFromHandle(ptr);
+}
 EXPORTED_FUNCTION 	double mDoubleDataFromHandle(const void* ptr) {
 	return doubleDataFromHandle(ptr);
 }
@@ -73,6 +82,8 @@ EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
 #endif
 
 
+void* newMexPrinter();
+void deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();
 }
