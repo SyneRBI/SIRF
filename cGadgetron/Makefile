@@ -8,14 +8,6 @@ RANLIB = ranlib
 IUTILITIES = ../../iUtilities
 BUILDPATH = ../../build/xGadgetron
 
-LIBS = \
-	-lismrmrd \
-	-lboost_program_options \
-	-lboost_filesystem \
-	-lboost_thread \
-	-lboost_system \
-	-lpthread
-
 all: libcgt
 
 libcgt: cgadgetron.o ismrmrd_fftw.o

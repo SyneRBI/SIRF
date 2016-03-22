@@ -4,9 +4,6 @@ LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
-#PYTHON = python2.7
-#PYINCLUDE = /usr/include/$(PYTHON)
-#PYLIBPATH = /lib/$(PYTHON)/config-x86_64-linux-gnu
 PYLIB = -l$(PYTHON)
 
 IUTILITIES = ../../iUtilities
@@ -18,12 +15,13 @@ SWIG = swig
 LIBS = \
 	-lcgt -liutil \
 	-lismrmrd \
-	-lboost_program_options \
+	-lfftw3 -lfftw3f \
 	-lboost_filesystem \
 	-lboost_thread \
-	-lboost_system \
-	-lpthread \
-	-lfftw3 -lfftw3f
+#	-lboost_system \
+	-lpthread
+
+#	-lboost_program_options \
 
 all: pygadgetron
 
