@@ -72,6 +72,8 @@ EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
 }
 #endif
 
+void* newMexPrinter();
+void deleteMexPrinter(void* ptr);
 
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();

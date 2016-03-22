@@ -1,5 +1,5 @@
-GCC = /opt/gcc-4.7.4/bin/gcc
-CFLAGS = -O3 -fopenmp -fPIC -std=c++11 -DNDEBUG -DGCC
+#GCC = /opt/gcc-4.7.4/bin/gcc
+CFLAGS = -O3 -fopenmp -fPIC -DNDEBUG -DGCC
 INCLUDE =  -I$(MATLABROOT)/extern/include \
 	 -I$(ISMRMRD_INCLUDE) \
 	-I$(IUTILITIES) -I$(CGADGETRON)

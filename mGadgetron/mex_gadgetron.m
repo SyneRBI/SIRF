@@ -34,7 +34,7 @@ os = getenv('OS');
 
 fft_libpath = getenv('PATH2FFTW');
 
-if strcmp(os(1:7), 'Windows')
+if ~isempty(os) & strcmp(os(1:7), 'Windows')
     fft_lib = [fft_libpath '/libfftw3-3.lib'];
     fftf_lib = [fft_libpath '/libfftw3f-3.lib'];
 else
