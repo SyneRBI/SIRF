@@ -6,12 +6,14 @@ INCLUDE =  -I$(MATLABROOT)/extern/include \
 
 LIBS = \
 	-lismrmrd \
-	-lboost_program_options \
+	-lfftw3 -lfftw3f \
 	-lboost_filesystem \
 	-lboost_thread \
 	-lboost_system \
-	-lfftw3 -lfftw3f \
 	-lpthread
+
+#	-lboost_program_options \
+
 
 TARGET1 = mutilities.mexa64
 TARGET2 = mgadgetron.mexa64
@@ -30,7 +32,8 @@ TARGET2: $(OBJECTS2)
 	$(GCC) $(CFLAGS) \
 	-shared -Wl,-soname,$(TARGET2) \
 	-o $(TARGET2) $(OBJECTS2) \
-	$(IUTILITIES_LIBRARY) $(CGADGETRON_LIBRARY) \
+	$(IUTILITIES_LIBRARY) \
+	$(CGADGETRON_LIBRARY) \
 	$(LIBS)
 
 %.o: %.c
