@@ -12,6 +12,13 @@ classdef AcquisitionsContainer < handle
                 self.handle_ = [];
             end
         end
+        function num = number(self)
+            handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
+            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
+            num = calllib('mutilities', 'mIntDataFromHandle', handle);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+%             num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
+        end
         function r = norm(self)
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
             gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);

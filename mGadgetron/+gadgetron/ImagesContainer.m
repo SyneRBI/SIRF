@@ -20,7 +20,11 @@ classdef ImagesContainer < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function num = number(self)
-            num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
+            handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
+            gadgetron.checkExecutionStatus('ImagesContainer', handle);
+            num = calllib('mutilities', 'mIntDataFromHandle', handle);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+%             num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
         end
         function r = norm(self)
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);

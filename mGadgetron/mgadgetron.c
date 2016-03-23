@@ -20,7 +20,7 @@ EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* 
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs) {
 	return cGT_AcquisitionModelForward(ptr_am, ptr_imgs);
 }
-EXPORTED_FUNCTION 	void*	mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs) {
+EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs) {
 	return cGT_AcquisitionModelBackward(ptr_am, ptr_acqs);
 }
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file) {
@@ -50,9 +50,6 @@ EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs) {
 EXPORTED_FUNCTION 	void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
 	return cGT_writeImages(ptr_imgs, out_file, out_group);
 }
-EXPORTED_FUNCTION 	int mGT_numImages(void* ptr_imgs) {
-	return cGT_numImages(ptr_imgs);
-}
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num) {
 	return cGT_imageWrapFromContainer(ptr_imgs, img_num);
 }
@@ -77,6 +74,9 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray(void* ptr_imgs, int img_num
 	cGT_getImageDataAsCmplxArray(ptr_imgs, img_num, re, im);
 }
 #endif
+EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
+	return cGT_dataItems(ptr_x);
+}
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x) {
 	return cGT_norm(ptr_x);
 }

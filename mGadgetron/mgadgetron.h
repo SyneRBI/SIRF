@@ -11,7 +11,7 @@ EXPORTED_FUNCTION void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
-EXPORTED_FUNCTION 	void*	mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input);
@@ -21,7 +21,6 @@ EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group);
-EXPORTED_FUNCTION 	int mGT_numImages(void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 #ifndef CGADGETRON_FOR_MATLAB
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim);
@@ -32,6 +31,7 @@ EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, int*
 EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray(void* ptr_imgs, int img_num, double* re, double* im);
 #endif
+EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mGT_axpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y);
