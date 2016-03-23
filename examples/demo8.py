@@ -63,14 +63,14 @@ try:
     # on x = diff and y = interim_images
     # (note that x = (1 - P)F y, so the result must be numerically real)
     xFy = diff.dot(acqs)
-    print('---\n (x, F y) = %e + i%e' % (xFy.real, xFy.imag))
+    print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     Bxy = imgs.dot(interim_images)
-    print('= (B x, y) = %e + i%e' % (Bxy.real, Bxy.imag))
+    print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
     # test images norm
     s = imgs.norm()
     ss = imgs.dot(imgs)
-    print('---\n (B x, B x) = %e + i%e = %e' % (ss.real, ss.imag, s*s))
+    print('---\n (B x, B x) = (%e, %e) = %e' % (ss.real, ss.imag, s*s))
 
     # test linear combination of images
     a = -1.0
