@@ -781,6 +781,7 @@ public:
 			const ImageWrap& u = image_wrap(i);
 			double s = u.norm();
 			r += s*s;
+			std::cout << i << ' ' << s << ' ' << r << std::endl;
 		}
 		r = sqrt(r);
 		return r;
