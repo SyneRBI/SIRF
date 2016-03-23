@@ -444,12 +444,15 @@ private:
 		}
 
 		{
-			complex_float_t z(0.0, 0.0);
+			double s = 0.0;
+			complex_double_t z(0.0, 0.0);
 			for (unsigned int c = 0; c < ncoils; c++)
 				for (unsigned int y = 0; y < matrix_size; y++)
-					for (unsigned int x = 0; x < readout; x++)
+					for (unsigned int x = 0; x < readout; x++) {
+						s += std::abs(cm(x, y, c));
 						z += cm(x, y, c);
-			std::cout << "checksum: " << z << std::endl;
+					}
+			std::cout << "checksum: " << z/s << std::endl;
 		}
 
 		ISMRMRD::Acquisition acq(acq_);
@@ -458,12 +461,15 @@ private:
 		fft2c(cm);
 
 		{
-			complex_float_t z(0.0, 0.0);
+			double s = 0.0;
+			complex_double_t z(0.0, 0.0);
 			for (unsigned int c = 0; c < ncoils; c++)
 				for (unsigned int y = 0; y < matrix_size; y++)
-					for (unsigned int x = 0; x < readout; x++)
+					for (unsigned int x = 0; x < readout; x++) {
+						s += std::abs(cm(x, y, c));
 						z += cm(x, y, c);
-			std::cout << "checksum: " << z << std::endl;
+					}
+			std::cout << "checksum: " << z/s << std::endl;
 		}
 
 		for (size_t i = 0; i < matrix_size; i++) {
