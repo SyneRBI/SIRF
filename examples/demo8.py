@@ -57,6 +57,8 @@ try:
     # apply the adjoint model (backward projection)
     imgs = am.backward(diff)
 
+    print(imgs.norm())
+
     # test that the backward projection is the adjoint of forward
     # on x = diff and y = interim_images
     # (note that x = (1 - P)F y, so the result must be numerically real)
