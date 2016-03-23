@@ -452,7 +452,7 @@ private:
 						s += std::abs(cm(x, y, c));
 						z += cm(x, y, c);
 					}
-			std::cout << "checksum: " << z/s << std::endl;
+			std::cout << "checksums: " << z << ' ' << s << std::endl;
 		}
 
 		ISMRMRD::Acquisition acq(acq_);
@@ -469,7 +469,7 @@ private:
 						s += std::abs(cm(x, y, c));
 						z += cm(x, y, c);
 					}
-			std::cout << "checksum: " << z/s << std::endl;
+			std::cout << "checksums: " << z << ' ' << s << std::endl;
 		}
 
 		for (size_t i = 0; i < matrix_size; i++) {
