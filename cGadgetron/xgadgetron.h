@@ -443,7 +443,7 @@ private:
 			}
 		}
 
-		{
+		if (0) {
 			double s = 0.0;
 			complex_double_t z(0.0, 0.0);
 			for (unsigned int c = 0; c < ncoils; c++)
@@ -460,7 +460,7 @@ private:
 
 		fft2c(cm);
 
-		{
+		if (0) {
 			double s = 0.0;
 			complex_double_t z(0.0, 0.0);
 			for (unsigned int c = 0; c < ncoils; c++)
