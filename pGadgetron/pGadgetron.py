@@ -79,7 +79,7 @@ class ClientConnector(PyGadgetronObject):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
         
-class ImagesContainer(PyGadgetronObject):
+class DataContainer(PyGadgetronObject):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -91,15 +91,14 @@ class ImagesContainer(PyGadgetronObject):
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
-##        return pygadgetron.cGT_numImages(self.handle)
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
         r = pygadgetron.doubleDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return r;
-    def dot(self, images):
-        handle = pygadgetron.cGT_dot(self.handle, images.handle)
+    def dot(self, acqs):
+        handle = pygadgetron.cGT_dot(self.handle, acqs.handle)
         _check_status(handle)
         re = pygadgetron.doubleReDataFromHandle(handle)
         im = pygadgetron.doubleImDataFromHandle(handle)
@@ -107,11 +106,17 @@ class ImagesContainer(PyGadgetronObject):
         return complex(re, im)
     @staticmethod
     def axpby(a, x, b, y):
-        z = ImagesContainer()
-##        z.handle = pygadgetron.cGT_imagesZaxpby\
+        z = DataContainer()
         z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
+
+class ImagesContainer(DataContainer):
+    def __init__(self):
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
     def write(self, out_file, out_group):
         handle = pygadgetron.cGT_writeImages\
             (self.handle, out_file, out_group)
@@ -147,38 +152,12 @@ class ImagesContainer(PyGadgetronObject):
             (self.handle, im_num, array.ctypes.data)
         return array
 
-class AcquisitionsContainer(PyGadgetronObject):
+class AcquisitionsContainer(DataContainer):
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def number(self):
-        handle = pygadgetron.cGT_dataItems(self.handle)
-        _check_status(handle)
-        n = pygadgetron.intDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
-        return n
-    def norm(self):
-        handle = pygadgetron.cGT_norm(self.handle)
-        _check_status(handle)
-        r = pygadgetron.doubleDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
-        return r;
-    def dot(self, acqs):
-        handle = pygadgetron.cGT_dot(self.handle, acqs.handle)
-        _check_status(handle)
-        re = pygadgetron.doubleReDataFromHandle(handle)
-        im = pygadgetron.doubleImDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
-        return complex(re, im)
-    @staticmethod
-    def axpby(a, x, b, y):
-        z = AcquisitionsContainer()
-##        z.handle = pygadgetron.cGT_acquisitionsZaxpby\
-        z.handle = pygadgetron.cGT_axpby\
-            (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
-        return z;
 
 class ISMRMRDAcquisition(PyGadgetronObject):
     def __init__(self, file = None):

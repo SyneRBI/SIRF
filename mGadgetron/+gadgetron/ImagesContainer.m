@@ -1,44 +1,22 @@
-classdef ImagesContainer < handle
+classdef ImagesContainer < gadgetron.DataContainer
     properties
-        handle_
         name_
     end
     methods
-        function self = ImagesContainer(images)
-            self.name_ = 'ImagesList';
+        function self = ImagesContainer()
+            self.name_ = 'ImagesContainer';
             self.handle_ = [];
         end
         function delete(self)
             if ~isempty(self.handle_)
                 calllib('mutilities', 'mDeleteObject', self.handle_)
+                self.handle_ = [];
             end
         end
         function write(self, file, group)
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, group);
             gadgetron.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
-        end
-        function num = number(self)
-            handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            gadgetron.checkExecutionStatus('ImagesContainer', handle);
-            num = calllib('mutilities', 'mIntDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
-%             num = calllib('mgadgetron', 'mGT_numImages', self.handle_);
-        end
-        function r = norm(self)
-            handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            gadgetron.checkExecutionStatus('ImagesContainer', handle);
-            r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
-        end
-        function z = dot(self, acqs)
-            handle = calllib('mgadgetron', 'mGT_dot', ...
-                self.handle_, acqs.handle_);
-            gadgetron.checkExecutionStatus('ImagesContainer', handle);
-            re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
-            im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
-            z = complex(re, im);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = image_as_array(self, im_num)
@@ -53,14 +31,6 @@ classdef ImagesContainer < handle
                 ('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
                 self.handle_, im_num - 1, ptr_v)
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
-            %data = reshape(ptr_v.Value, dim(4), dim(3), dim(2), dim(1));
-        end
-    end
-    methods(Static)
-        function z = axpby(a, x, b, y)
-            z = gadgetron.ImagesContainer();
-            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
-                real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
         end
     end
 end
