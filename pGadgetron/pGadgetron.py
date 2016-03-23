@@ -86,7 +86,9 @@ class ImagesContainer(PyGadgetronObject):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     def number(self):
-        return pygadgetron.cGT_numImages(self.handle)
+        h = pygadgetron.cGT_dataItems(self.handle)
+        return pygadgetron.intDataFromHandle(h)
+##        return pygadgetron.cGT_numImages(self.handle)
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
@@ -148,6 +150,9 @@ class AcquisitionsContainer(PyGadgetronObject):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def number(self):
+        h = pygadgetron.cGT_dataItems(self.handle)
+        return pygadgetron.intDataFromHandle(h)
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)

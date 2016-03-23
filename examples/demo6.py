@@ -39,7 +39,7 @@ try:
     # plot reconstructed images
 
     nz = images.number()
-    print(nz, 'images')
+    print('%d images' % nz)
 
     while True:
         s = str(input('enter z-coordinate: '))

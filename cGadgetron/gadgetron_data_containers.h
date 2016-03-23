@@ -412,6 +412,7 @@ class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
 	virtual boost::shared_ptr<aDataContainer> new_data_container() = 0;
+	virtual int items() = 0;
 	virtual double norm() = 0;
 	virtual complex_double_t dot(aDataContainer& dc) = 0;
 	virtual void axpby(
@@ -616,13 +617,17 @@ public:
 		}
 
 	}
-	virtual int number()
+	virtual int items()
 	{
 		Mutex mtx;
 		mtx.lock();
 		int na = dataset_->getNumberOfAcquisitions();
 		mtx.unlock();
 		return na;
+	}
+	virtual int number()
+	{
+		return items();
 	}
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
@@ -812,7 +817,11 @@ public:
 			append(*sptr_iw);
 		}
 	}
-	virtual int number() const 
+	virtual int items()
+	{
+		return (int)images_.size();
+	}
+	virtual int number() const
 	{
 		return (int)images_.size();
 	}

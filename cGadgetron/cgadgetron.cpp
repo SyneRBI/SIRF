@@ -337,15 +337,6 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 }
 
 extern "C"
-int
-cGT_numImages(void* ptr_imgs)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	return list.number();
-}
-
-extern "C"
 void*
 cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 {
@@ -392,6 +383,22 @@ cGT_getImageDataAsCmplxArray
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.get_image_data_as_cmplx_array(img_num, re, im);
+}
+
+extern "C"
+void*
+cGT_dataItems(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		int* result = (int*)malloc(sizeof(int));
+		*result = x.items();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH
 }
 
 extern "C"

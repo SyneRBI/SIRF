@@ -14,13 +14,14 @@ try:
     #input_data = ISMRMRDAcquisitions('testdata.h5')
     input_data = ISMRMRDAcquisitions('opismrmrd.h5')
 
-    #na = input_data.number()
+    na = input_data.number()
+    print('%d acquisitions found' % na)
     while True:
         s = str(input('enter acquisition number: '))
         if len(s) < 1:
             break
         a = int(s)
-        if a < 0: #or a >= na:
+        if a < 0 or a >= na:
             break
         acq = input_data.acquisition(a)
         print('flags: %d' % acq.flags())
