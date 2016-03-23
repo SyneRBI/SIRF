@@ -23,13 +23,13 @@ try:
         if a < 0: #or a >= na:
             break
         acq = input_data.acquisition(a)
-        print('flags:', acq.flags())
-        print('number of samples:', acq.number_of_samples())
-        print('active_channels:', acq.active_channels())
-        print('trajectory_dimensions:', acq.trajectory_dimensions())
-        print('kspace_encode_step_1:', acq.idx_kspace_encode_step_1())
-        print('repetition:', acq.idx_repetition())
-        print('slice:', acq.idx_slice())
+        print('flags: %d' % acq.flags())
+        print('number of samples: %d' % acq.number_of_samples())
+        print('active_channels: %d' % acq.active_channels())
+        print('trajectory_dimensions: %d' % acq.trajectory_dimensions())
+        print('kspace_encode_step_1: %d' % acq.idx_kspace_encode_step_1())
+        print('repetition: %d' % acq.idx_repetition())
+        print('slice: %d' % acq.idx_slice())
 
 except error as err:
     # display error information
