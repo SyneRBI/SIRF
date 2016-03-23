@@ -443,10 +443,28 @@ private:
 			}
 		}
 
+		{
+			complex_float_t z(0.0, 0.0);
+			for (unsigned int c = 0; c < ncoils; c++)
+				for (unsigned int y = 0; y < matrix_size; y++)
+					for (unsigned int x = 0; x < readout; x++)
+						z += cm(x, y, c);
+			std::cout << "checksum: " << z << std::endl;
+		}
+
 		ISMRMRD::Acquisition acq(acq_);
 		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
 		fft2c(cm);
+
+		{
+			complex_float_t z(0.0, 0.0);
+			for (unsigned int c = 0; c < ncoils; c++)
+				for (unsigned int y = 0; y < matrix_size; y++)
+					for (unsigned int x = 0; x < readout; x++)
+						z += cm(x, y, c);
+			std::cout << "checksum: " << z << std::endl;
+		}
 
 		for (size_t i = 0; i < matrix_size; i++) {
 			acq.clearAllFlags();

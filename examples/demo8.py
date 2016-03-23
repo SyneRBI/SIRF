@@ -15,8 +15,12 @@ try:
     # acquisitions will be read from this HDF file
     input_data = ISMRMRDAcquisitions('testdata.h5')
 
+    print(input_data.norm())
+
     print('processing acquisitions...')
     interim_data = MR_remove_x_oversampling(input_data)
+
+    print(interim_data.norm())
 
     # perform reconstruction
     recon = SimpleReconstructionProcessor()
@@ -25,9 +29,13 @@ try:
     recon.process()
     interim_images = recon.get_output()
 
+    print(interim_images.norm())
+
     # post-process reconstructed images
     print('processing images...')
     images = MR_extract_real_images(interim_images)
+
+    print(images.norm())
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
@@ -35,6 +43,8 @@ try:
 
     # use the acquisition model (forward projection) to produce acquisitions
     acqs = am.forward(interim_images)
+
+    print(acqs.norm())
 
     # compute the difference between real and modelled acquisitions:
     #   diff = acqs - P acqs,
