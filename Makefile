@@ -1,11 +1,11 @@
 CPP = /usr/bin/g++
-CFLAGS = -O3 -fopenmp -fPIC  -std=c++11 -DNDEBUG
+CFLAGS = -O3 -fopenmp -fPIC -std=c++11 -DNDEBUG
 LDFLAGS = -lrt
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
-LIBIUTIL = ../build/iUtilities
+LIBIUTIL = $(BUILD_PATH)/iUtilities
 
 all: libiutil
 
