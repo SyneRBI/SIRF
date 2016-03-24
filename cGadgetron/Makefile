@@ -5,15 +5,14 @@ ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
-IUTILITIES = ../../iUtilities
-BUILDPATH = ../../build/xGadgetron
+IUTILITIES = $(SRC_PATH)/iUtilities
 
 all: libcgt
 
 libcgt: cgadgetron.o ismrmrd_fftw.o
 	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o ismrmrd_fftw.o
 	$(RANLIB) libcgt.a
-	mv libcgt.a $(BUILDPATH)
+	mv libcgt.a $(BUILD_PATH)/xGadgetron
 
 %.o: %.cpp
 	$(CPP) $(CFLAGS) -c -o $@ $<

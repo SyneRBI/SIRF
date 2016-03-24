@@ -1,5 +1,11 @@
 #GCC = /opt/gcc-4.7.4/bin/gcc
 CFLAGS = -O3 -fopenmp -fPIC -DNDEBUG -DGCC
+
+IUTILITIES = $(SRC_PATH)/iUtilities
+IUTILITIES_LIBRARY = $(BUILD_PATH)/iUtilities/libiutil.a
+CGADGETRON = $(SRC_PATH)/xGadgetron/cGadgetron
+CGADGETRON_LIBRARY = $(BUILD_PATH)/xGadgetron/libcgt.a
+
 INCLUDE =  -I$(MATLABROOT)/extern/include \
 	 -I$(ISMRMRD_INCLUDE) \
 	-I$(IUTILITIES) -I$(CGADGETRON)

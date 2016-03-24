@@ -6,9 +6,12 @@ ARCHFLAGS = cr
 RANLIB = ranlib
 PYLIB = -l$(PYTHON)
 
-IUTILITIES = ../../iUtilities
-LIBIUTIL = ../../build/iUtilities
-BUILDPATH = ../../build/xGadgetron
+IUTILITIES = $(SRC_PATH)/iUtilities
+LIBIUTIL = $(BUILD_PATH)/iUtilities
+BUILDPATH = $(BUILD_PATH)/xGadgetron
+#IUTILITIES = ../../iUtilities
+#LIBIUTIL = ../../build/iUtilities
+#BUILDPATH = ../../build/xGadgetron
 
 SWIG = swig
 
