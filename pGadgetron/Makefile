@@ -9,9 +9,6 @@ PYLIB = -l$(PYTHON)
 IUTILITIES = $(SRC_PATH)/iUtilities
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 BUILDPATH = $(BUILD_PATH)/xGadgetron
-#IUTILITIES = ../../iUtilities
-#LIBIUTIL = ../../build/iUtilities
-#BUILDPATH = ../../build/xGadgetron
 
 SWIG = swig
 
@@ -21,10 +18,7 @@ LIBS = \
 	-lfftw3 -lfftw3f \
 	-lboost_filesystem \
 	-lboost_thread \
-#	-lboost_system \
 	-lpthread
-
-#	-lboost_program_options \
 
 all: pygadgetron
 
