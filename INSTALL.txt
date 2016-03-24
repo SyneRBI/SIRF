@@ -8,8 +8,6 @@ DO NOT CHANGE DEFAULT FOLDERS.
 If you have installed the Gadgetron liraries in non-default folder, or where your 
 linker doesn't find it, add this folder to LIBRARY_PATH and LD_LIBRARY_PATH.
 
-If you have Matlab, define MATLABROOT as the path to Matlab root folder.
-
 Create folder 'build' with subfolders 'iUtilities' and 'xGadgetron'.
 
 Define the following environment variables:
@@ -22,6 +20,11 @@ PYLIBPATH     path to python shared libraries (e.g. /usr/lib/python2.7/
 PYTHON        python version (e.g. python2.7)
 SRC_PATH      path to <work_dir>
 BUILD_PATH    path to folder 'build'
+
+If you have Matlab, define MATLABROOT as the path to Matlab root folder, define
+GCC as the fullname (i.e. including the path) of gcc-4.7 compiler executable 
+(newer versions are not supported by Matlab) and define HDF5_DISABLE_VERSION_CHECK 
+as 2.
 
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
