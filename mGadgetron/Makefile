@@ -1,4 +1,3 @@
-#GCC = /opt/gcc-4.7.4/bin/gcc
 CFLAGS = -O3 -fopenmp -fPIC -DNDEBUG -DGCC
 
 IUTILITIES = $(SRC_PATH)/iUtilities
@@ -15,11 +14,7 @@ LIBS = \
 	-lfftw3 -lfftw3f \
 	-lboost_filesystem \
 	-lboost_thread \
-#	-lboost_system \
 	-lpthread
-
-#	-lboost_program_options \
-
 
 TARGET1 = mutilities.mexa64
 TARGET2 = mgadgetron.mexa64
