@@ -1,26 +1,27 @@
-====================================================================================
-Gadgetron Python interface installation under Linux (tested on Virtual Machine only)
-====================================================================================
+==================================================================================
+Gadgetron Python interface installation under Linux (tested on Lubuntu and Centos)
+==================================================================================
 
 Install Boost, SWIG, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
 DO NOT CHANGE DEFAULT FOLDERS.
 
-In your work directory <work_dir> create folder 'build' with subfolders 
-'iUtilities' and 'xGadgetron'.
+If you have installed the Gadgetron liraries in non-default folder, or where your 
+linker doesn't find it, add this folder to LIBRARY_PATH and LD_LIBRARY_PATH.
 
-For Python2.7 execute (or put in .bashrc)
+If you have Matlab, define MATLABROOT as the path to Matlab root folder.
 
-export PYINCLUDE=/usr/include/python2.7
-export PYLIBPATH=/usr/lib/python2.7/config-x86_64-linux-gnu
-export PYTHON=python2.7
+Create folder 'build' with subfolders 'iUtilities' and 'xGadgetron'.
 
-For other versions of Python modify accordingly.
+Define the following environment variables:
 
-If you have installed the Gadgetron liraries in non-default location,
-or where your linker doesn't find it, do for instance
+name                value
 
-export LIBRARY_PATH=/usr/local/lib/
-export LD_LIBRARY_PATH=/usr/local/lib/
+PYINCLUDE     path to python include folder (e.g. /usr/include/python2.7)
+PYLIBPATH     path to python shared libraries (e.g. /usr/lib/python2.7/
+                config-x86_64-linux-gnu)
+PYTHON        python version (e.g. python2.7)
+SRC_PATH      path to <work_dir>
+BUILD_PATH    path to folder 'build'
 
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
@@ -36,12 +37,14 @@ Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
 Go to <work_dir>/xGadgetron/pGadgetron and run make.
 
+If you have Matlab, go to <work_dir>/xGadgetron/mGadgetron and run make.
+
 Go to <work_dir>/xGadgetron/examples and run make. Start gadgetron (in a new terminal)
 and run python demos.
 
-====================================================================================
+=============================================================================
 Gadgetron Matlab interface installation under Windows for using with Linux VM
-====================================================================================
+=============================================================================
 
 Install Boost, SWIG and Ismsmrd.
 

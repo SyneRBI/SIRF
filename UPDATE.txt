@@ -1,6 +1,6 @@
-==============================================================================
-Gadgetron Python interface update under Linux (tested on Virtual Machine only)
-==============================================================================
+============================================================================
+Gadgetron Python interface update under Linux (tested on Lubuntu and Centos)
+============================================================================
 
 Change to iUtilities directory and check whether your repo is up-to-date by
 
@@ -25,9 +25,15 @@ If not up-to-date:
   make clean
   make
 
-=============================================================================
+If you have Matlab,
+
+  cd ../mGadgetron
+  make clean
+  make
+
+========================================================================
 Gadgetron Matlab interface upddate under Windows for using with Linux VM
-=============================================================================
+========================================================================
 
 Change to iUtilities directory and check whether your repo is up-to-date.
 
