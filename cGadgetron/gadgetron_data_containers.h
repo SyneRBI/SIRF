@@ -47,6 +47,8 @@
 		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
 
+typedef ISMRMRD::Image<complex_float_t> CFImage;
+
 class xGadgetronUtilities {
 public:
 	static long long milliseconds()
@@ -274,6 +276,7 @@ private:
 	template<typename T>
 	void copy_(const ISMRMRD::Image<T>* ptr_im)
 	{
+		type_ = ptr_im->getDataType();
 		ptr_ = (void*)new ISMRMRD::Image<T>(*ptr_im);
 	}
 
@@ -921,6 +924,71 @@ public:
 
 private:
 	std::list<boost::shared_ptr<ImageWrap> > images_;
+};
+
+class CoilSensitivitiesContainer : public aDataContainer {
+public:
+};
+
+class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
+public:
+	CoilSensitivitiesAsImages() 
+	{
+	}
+	CoilSensitivitiesAsImages(const char* file)
+	{
+		Mutex mtx;
+		mtx.lock();
+		ISMRMRD::Dataset csm_file(file, "dataset");
+		int nm = csm_file.getNumberOfImages("csm");
+		mtx.unlock();
+		for (int i = 0; i < nm; i++) {
+			boost::shared_ptr<CFImage> sptr_img(new CFImage);
+			mtx.lock();
+			csm_file.readImage("csm", i, *sptr_img);
+			mtx.unlock();
+			csm_.push_back(sptr_img);
+		}
+	}
+
+	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	{
+		return boost::shared_ptr<aDataContainer>
+			((aDataContainer*)new CoilSensitivitiesAsImages());
+	}
+	virtual int items()
+	{
+		return (int)csm_.size();
+	}
+	virtual double norm()
+	{
+		return 0.0;
+	}
+	virtual complex_double_t dot(aDataContainer& dc)
+	{
+		return complex_double_t(0.0, 0.0);
+	}
+	virtual void axpby(
+		complex_double_t a, const aDataContainer& a_x,
+		complex_double_t b, const aDataContainer& a_y)
+	{
+		return;
+	}
+
+	const CFImage& csm(int slice) const
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<CFImage> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<CFImage> >::const_iterator i;
+#endif
+		unsigned int count = 0;
+		for (i = csm_.begin(); i != csm_.end() && count < slice; i++)
+			count++;
+		return **i;
+	}
+private:
+	std::list< boost::shared_ptr<CFImage> > csm_;
 };
 
 #endif

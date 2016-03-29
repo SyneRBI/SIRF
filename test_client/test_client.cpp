@@ -115,47 +115,11 @@ int test7(
 
 #define NTRIALS 5
 
-int test8(
-	const char* in_file
-	)
-{
-	//GTConnector conn;
-	//std::string filename("tmp.h5");
-	//boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
-	//sptr_acqs_.reset(new AcquisitionsFile(filename, true, true));
-	//conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
-	//	boost::shared_ptr<GadgetronClientMessageReader>
-	//	(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+int test8(const char* in_file);
 
-	boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
-	AcquisitionsContainer& input = *sptr_input;
+int test9(const char* in_file);
 
-	//AcquisitionsProcessor proc;
-	//proc.process(input);
-	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
-
-	//void* ptr_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
-	void* ptr_proc = cGT_newObject("AcquisitionsProcessor");
-	//void* ptr_proc = cGT_acquisitionsProcessor();
-	//void* h_acqs = cGT_processAcquisitions(h_proc, h_input);
-	CAST_PTR(DataHandle, h_proc, ptr_proc);
-	//CAST_PTR(DataHandle, h_input, ptr_input);
-	AcquisitionsProcessor& proc =
-		objectFromHandle<AcquisitionsProcessor>(h_proc);
-	//AcquisitionsContainer& input =
-	//	objectFromHandle<AcquisitionsContainer>(h_input);
-	proc.process(input);
-	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
-	////return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
-	//ObjectHandle<AcquisitionsContainer>* ptr_handle =
-	//	new ObjectHandle<AcquisitionsContainer>(sptr_ac);
-
-	//deleteObject(ptr_input);
-	deleteDataHandle(ptr_proc);
-	//deleteObject(ptr_proc);
-	//deleteObject(h_acqs);
-	return 0;
-}
+int test10();
 
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
@@ -215,16 +179,20 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test8(in_filename.c_str());
+	return test10();
 
-	//return test7(
-	//	host_name.c_str(),
-	//	port.c_str(),
-	//	timeout_ms,
-	//	in_filename.c_str(),
-	//	hdf5_in_group.c_str(),
-	//	"out7.h5",
-	//	hdf5_out_group.c_str());
+	return test9(in_filename.c_str());
+
+	//return test8(in_filename.c_str());
+
+	return test7(
+		host_name.c_str(),
+		port.c_str(),
+		timeout_ms,
+		in_filename.c_str(),
+		hdf5_in_group.c_str(),
+		"out7.h5",
+		hdf5_out_group.c_str());
 
 	//return test6(
 	//	host_name.c_str(),
@@ -300,14 +268,14 @@ int test5(
 			ImagesList& imgs = (ImagesList&)*recon.get_output();
 			//std::cout << "ok" << std::endl;
 
-			ImageWrap& iw_cmplx = imgs.imageWrap(0);
+			ImageWrap& iw_cmplx = imgs.image_wrap(0);
 			//input.getPhantomAsComplexFloat(iw_cmplx);
 			//std::cout << iw_cmplx.dot(iw_cmplx) << std::endl;
 
 			//ImageHandle& ih_cmplx = imgs.image_handle(0);
 			//std::cout << ih_cmplx.dot(ih_cmplx) << std::endl;
 
-			ImageWrap& iw_cmplx1 = imgs.imageWrap(1);
+			ImageWrap& iw_cmplx1 = imgs.image_wrap(1);
 			//ImageHandle& ih_cmplx1 = imgs.image_handle(1);
 			//input.getPhantomAsComplexFloat(iw_cmplx1);
 
@@ -342,7 +310,7 @@ int test5(
 			//AcquisitionModel acq_mod(input);
 			AcquisitionModel acq_mod(sptr_input, sptr_imgs);
 
-			ImageWrap& iw = images.imageWrap(0);
+			ImageWrap& iw = images.image_wrap(0);
 
 			//input.getPhantomAsFloat(iw);
 			//std::cout << iw.dot(iw) << std::endl;
@@ -396,7 +364,8 @@ int test5(
 				input.new_acquisitions_container();
 			AcquisitionsContainer& diff = *sptr_diff;
 			a = -acqs.dot(input) / input.dot(input);
-			AcquisitionsContainer::axpby(a, input, b, acqs, diff);
+			//AcquisitionsContainer::axpby(a, input, b, acqs, diff);
+			diff.axpby(a, input, b, acqs);
 			std::cout << diff.norm()/acqs.norm() << std::endl;
 			//std::remove("tmp.h5");
 		}
@@ -462,7 +431,8 @@ int test6(
 			exit(1);
 		}
 
-		std::cout << cGT_numImages(h_imgs) << std::endl;
+		//std::cout << cGT_numImages(h_imgs) << std::endl;
+		std::cout << cGT_dataItems(h_imgs) << std::endl;
 
 		cGT_writeImages(h_imgs, out_file, out_group);
 
@@ -503,6 +473,10 @@ int test7(
 	try {
 		void* h_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
 
+		//DataHandle* h = (DataHandle*)h_input;
+		//printf("%p\n", h->data());
+		//std::cout << cGT_norm(h_input) << std::endl;
+
 		void* h_ro = cGT_newObject("RemoveROOversamplingGadget");
 		void* h_sr = cGT_newObject("SimpleReconGadgetSet");
 		void* h_e = cGT_newObject("ExtractGadget");
@@ -530,7 +504,7 @@ int test7(
 			exit(1);
 		}
 
-		void* h_recon = cGT_newObject("ImageReconstructor");
+		void* h_recon = cGT_newObject("ImagesReconstructor");
 		cGT_addGadget(h_recon, "g1", h_sr);
 		
 		//cGT_addGadget(h_recon, "g2", h_e);
@@ -567,3 +541,178 @@ int test7(
 	return 0;
 }
 
+int test8(const char* in_file)
+{
+	//GTConnector conn;
+	//std::string filename("tmp.h5");
+	//boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	//sptr_acqs_.reset(new AcquisitionsFile(filename, true, true));
+	//conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
+	//	boost::shared_ptr<GadgetronClientMessageReader>
+	//	(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
+
+	boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
+	AcquisitionsContainer& input = *sptr_input;
+
+	//AcquisitionsProcessor proc;
+	//proc.process(input);
+	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+
+	//void* ptr_input = cGT_ISMRMRDAcquisitionsFromFile(in_file);
+	void* ptr_proc = cGT_newObject("AcquisitionsProcessor");
+	//void* ptr_proc = cGT_acquisitionsProcessor();
+	//void* h_acqs = cGT_processAcquisitions(h_proc, h_input);
+	CAST_PTR(DataHandle, h_proc, ptr_proc);
+	//CAST_PTR(DataHandle, h_input, ptr_input);
+	AcquisitionsProcessor& proc =
+		objectFromHandle<AcquisitionsProcessor>(h_proc);
+	//AcquisitionsContainer& input =
+	//	objectFromHandle<AcquisitionsContainer>(h_input);
+	proc.process(input);
+	//boost::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+	////return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+	//ObjectHandle<AcquisitionsContainer>* ptr_handle =
+	//	new ObjectHandle<AcquisitionsContainer>(sptr_ac);
+
+	//deleteObject(ptr_input);
+	deleteDataHandle(ptr_proc);
+	//deleteObject(ptr_proc);
+	//deleteObject(h_acqs);
+	return 0;
+}
+
+int test9(const char* in_file)
+{
+	std::cout << "Gadgetron ISMRMRD client" << std::endl;
+	std::cout << "  -- hdf5 file  in   :      " << in_file << std::endl;
+
+	try {
+		boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
+		AcquisitionsContainer& input = *sptr_input;
+
+		//aVector<complex_double_t>& input_vector = (aVector<complex_double_t>&)input;
+		//std::cout << input_vector.norm() << std::endl;
+
+		//SPTR(aGadget, ro, RemoveOversamplingGadget);
+		//SPTR(aGadget, sr, SimpleReconstructionGadgetSet);
+
+		//ImagesReconstructor recon;
+		//recon.add_gadget("g1", ro);
+		//recon.add_gadget("g2", sr);
+		//recon.process(input);
+
+		//ImagesList& imgs = (ImagesList&)*recon.get_output();
+		//ImageWrap iw(imgs.image_wrap(0));
+		//ISMRMRD::Image<complex_float_t>* ptr_img = 
+		//	(ISMRMRD::Image<complex_float_t>*)iw.ptr_image();
+		//ISMRMRD::Image<complex_float_t>& img = *ptr_img;
+
+		boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > sptr_csm = input.coils();
+		int ndim = sptr_csm->getNDim();
+		const size_t *dims = sptr_csm->getDims();
+		for (int i = 0; i < ndim; i++)
+			std::cout << dims[i] << ' ';
+		std::cout << '\n';
+
+		int nx = dims[0];
+		int ny = dims[1];
+		int nc = dims[2];
+
+		ISMRMRD::Image<complex_float_t>* ptr_img = 
+			new ISMRMRD::Image<complex_float_t>(nx, ny, 1, nc);
+		ISMRMRD::Image<complex_float_t>& img = *ptr_img;
+
+		std::cout << img.getImageSeriesIndex() << std::endl;
+
+		for (int ic = 0; ic < nc; ic++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++)
+					img(ix, iy, 0, ic) = (*sptr_csm)(ix, iy, ic);
+
+		ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
+		Mutex mtx;
+		mtx.lock();
+		ISMRMRD::Dataset dataset("csm.h5", "dataset");
+		//ISMRMRD::Dataset dataset("csm.h5", get_date_time_string().c_str());
+		mtx.unlock();
+		iw.write(dataset);
+	}
+	catch (std::exception& ex) {
+		std::cout << "Error caught: " << ex.what() << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
+int test10()
+{
+	Mutex mtx;
+	mtx.lock();
+	ISMRMRD::Dataset input("opismrmrd_csm.h5", "coil_maps");
+	//ISMRMRD::Dataset output("csm_opismrmrd.h5", "dataset");
+	mtx.unlock();
+
+	int ni = input.getNumberOfImages("image_1000");
+	std::cout << ni << std::endl;
+	int mi = input.getNumberOfImages("image_2000");
+	std::cout << mi << std::endl;
+
+	ISMRMRD::Image<float> re;
+	ISMRMRD::Image<float> im;
+	CFImage img;
+
+	for (int i = 0; i < ni; i++) {
+		mtx.lock();
+		input.readImage("image_1000", i, re);
+		input.readImage("image_2000", i, im);
+		mtx.unlock();
+		int nx = re.getMatrixSizeX();
+		int ny = re.getMatrixSizeY();
+		int nz = re.getMatrixSizeZ();
+		int nc = re.getNumberOfChannels();
+		CFImage* ptr_img = new CFImage(nx, ny, nz, nc);
+		ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
+		CFImage& img = *ptr_img;
+		for (int ic = 0; ic < nc; ic++)
+			for (int iz = 0; iz < nz; iz++)
+				for (int iy = 0; iy < ny; iy++)
+					for (int ix = 0; ix < nx; ix++)
+						img(ix, iy, iz, ic) = 
+							complex_float_t(re(ix, iy, iz, ic), im(ix, iy, iz, ic));
+		//mtx.lock();
+		//output.appendImage("csm", img);
+		//mtx.unlock();
+	}
+
+	//for (int i = 0; i < ni; i++) {
+	//	input.readImage("image_1000", i, re);
+	//	int nx = re.getMatrixSizeX();
+	//	int ny = re.getMatrixSizeY();
+	//	int nz = re.getMatrixSizeZ();
+	//	int nc = re.getNumberOfChannels();
+	//	int ns = re.getSlice();
+	//	//std::cout << nx << std::endl;
+	//	//std::cout << ny << std::endl;
+	//	//std::cout << nz << std::endl;
+	//	//std::cout << nc << std::endl;
+	//	std::cout << ' ' << ns;
+	//}
+	//std::cout << std::endl;
+	//for (int i = 0; i < ni; i++) {
+	//	input.readImage("image_2000", i, im);
+	//	int nx = im.getMatrixSizeX();
+	//	int ny = im.getMatrixSizeY();
+	//	int nz = im.getMatrixSizeZ();
+	//	int nc = im.getNumberOfChannels();
+	//	int ns = im.getSlice();
+	//	//std::cout << nx << std::endl;
+	//	//std::cout << ny << std::endl;
+	//	//std::cout << nz << std::endl;
+	//	//std::cout << nc << std::endl;
+	//	std::cout << ' ' << ns;
+	//}
+	//std::cout << std::endl;
+
+	return 0;
+}
