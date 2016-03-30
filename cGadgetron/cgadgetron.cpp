@@ -131,6 +131,52 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 
 extern "C"
 void*
+cGT_CoilSensitivitiesFromFile(const char* file)
+{
+	try {
+		boost::shared_ptr<CoilSensitivitiesContainer>
+			csms(new CoilSensitivitiesAsImages(file));
+		return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+	}
+	CATCH
+}
+
+extern "C"
+void
+cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	CAST_PTR(DataHandle, h_csms, ptr_csms);
+	CoilSensitivitiesContainer& list = 
+		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	list.get_dim(csm_num, dim);
+}
+
+extern "C"
+void
+cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
+{
+	double* re = (double*)ptr_re;
+	double* im = (double*)ptr_im;
+	CAST_PTR(DataHandle, h_csms, ptr_csms);
+	CoilSensitivitiesContainer& list =
+		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	list.get_data(csm_num, re, im);
+}
+
+extern "C"
+void
+cGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr)
+{
+	double* v = (double*)ptr;
+	CAST_PTR(DataHandle, h_csms, ptr_csms);
+	CoilSensitivitiesContainer& list =
+		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	list.get_data_abs(csm_num, v);
+}
+
+extern "C"
+void*
 cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 {
 	try {

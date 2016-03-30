@@ -47,7 +47,47 @@
 		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
 
-typedef ISMRMRD::Image<complex_float_t> CFImage;
+//typedef ISMRMRD::Image<complex_float_t> CFImage;
+
+class CFImage : public ISMRMRD::Image < complex_float_t > {
+public:
+	CFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
+		ISMRMRD::Image < complex_float_t >(nx, ny, nz, nc)
+	{
+	}
+	void get_dim(int* dim) const
+	{
+		dim[0] = getMatrixSizeX();
+		dim[1] = getMatrixSizeY();
+		dim[2] = getMatrixSizeZ();
+		dim[3] = getNumberOfChannels();
+	}
+	void get_data(double* re, double* im) const
+	{
+		long long int n = getMatrixSizeX();
+		n *= getMatrixSizeY();
+		n *= getMatrixSizeZ();
+		n *= getNumberOfChannels();
+		const complex_float_t* ptr = getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			re[i] = std::real(z);
+			im[i] = std::imag(z);
+		}
+	}
+	void get_data_abs(double* v) const
+	{
+		long long int n = getMatrixSizeX();
+		n *= getMatrixSizeY();
+		n *= getMatrixSizeZ();
+		n *= getNumberOfChannels();
+		const complex_float_t* ptr = getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			v[i] = std::abs(z);
+		}
+	}
+};
 
 class xGadgetronUtilities {
 public:
@@ -250,18 +290,19 @@ public:
 
 	void get_cmplx_data(double* re, double* im) const
 	{
-		const ISMRMRD::Image<complex_float_t>& img =
-			*(const ISMRMRD::Image<complex_float_t>*)ptr_;
-		long long int n = img.getMatrixSizeX();
-		n *= img.getMatrixSizeY();
-		n *= img.getMatrixSizeZ();
-		n *= img.getNumberOfChannels();
-		const complex_float_t* ptr = img.getDataPtr();
-		for (long long int i = 0; i < n; i++) {
-			complex_float_t z = ptr[i];
-			re[i] = std::real(z);
-			im[i] = std::imag(z);
-		}
+		const CFImage& img = *(const CFImage*)ptr_;
+		//const ISMRMRD::Image<complex_float_t>& img =
+		//	*(const ISMRMRD::Image<complex_float_t>*)ptr_;
+		//long long int n = img.getMatrixSizeX();
+		//n *= img.getMatrixSizeY();
+		//n *= img.getMatrixSizeZ();
+		//n *= img.getNumberOfChannels();
+		//const complex_float_t* ptr = img.getDataPtr();
+		//for (long long int i = 0; i < n; i++) {
+		//	complex_float_t z = ptr[i];
+		//	re[i] = std::real(z);
+		//	im[i] = std::imag(z);
+		//}
 	}
 
 private:
@@ -845,7 +886,8 @@ public:
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
 #endif
 		unsigned int count = 0;
-		for (i = images_.begin(); i != images_.end() && count < im_num; i++)
+		for (i = images_.begin(); 
+			i != images_.end() && count < im_num && count < images_.size() - 1; i++)
 			count++;
 		return *i;
 	}
@@ -928,6 +970,9 @@ private:
 
 class CoilSensitivitiesContainer : public aDataContainer {
 public:
+	virtual void get_dim(int slice, int* dim) const = 0;
+	virtual void get_data(int slice, double* re, double* im) const = 0;
+	virtual void get_data_abs(int slice, double* v) const = 0;
 };
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
@@ -960,6 +1005,21 @@ public:
 	{
 		return (int)csm_.size();
 	}
+	virtual void get_dim(int slice, int* dim) const
+	{
+		const CFImage& csm = (*this)(slice);
+		csm.get_dim(dim);
+	}
+	virtual void get_data(int slice, double* re, double* im) const
+	{
+		const CFImage& csm = (*this)(slice);
+		csm.get_data(re, im);
+	}
+	virtual void get_data_abs(int slice, double* v) const
+	{
+		const CFImage& csm = (*this)(slice);
+		csm.get_data_abs(v);
+	}
 	virtual double norm()
 	{
 		return 0.0;
@@ -975,7 +1035,7 @@ public:
 		return;
 	}
 
-	const CFImage& csm(int slice) const
+	const CFImage& operator()(int slice) const
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<CFImage> >::const_iterator i;
@@ -983,7 +1043,8 @@ public:
 		typename std::list<boost::shared_ptr<CFImage> >::const_iterator i;
 #endif
 		unsigned int count = 0;
-		for (i = csm_.begin(); i != csm_.end() && count < slice; i++)
+		for (i = csm_.begin(); 
+			i != csm_.end() && count < slice && count < csm_.size() - 1; i++)
 			count++;
 		return **i;
 	}

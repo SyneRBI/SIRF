@@ -121,6 +121,8 @@ int test9(const char* in_file);
 
 int test10();
 
+int test11(const char* in_file);
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
@@ -179,7 +181,9 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test10();
+	return test11(in_filename.c_str());
+
+	//return test10();
 
 	return test9(in_filename.c_str());
 
@@ -618,9 +622,11 @@ int test9(const char* in_file)
 		int ny = dims[1];
 		int nc = dims[2];
 
-		ISMRMRD::Image<complex_float_t>* ptr_img = 
-			new ISMRMRD::Image<complex_float_t>(nx, ny, 1, nc);
-		ISMRMRD::Image<complex_float_t>& img = *ptr_img;
+		//ISMRMRD::Image<complex_float_t>* ptr_img = 
+		//	new ISMRMRD::Image<complex_float_t>(nx, ny, 1, nc);
+		//ISMRMRD::Image<complex_float_t>& img = *ptr_img;
+		CFImage* ptr_img = new CFImage(nx, ny, 1, nc);
+		CFImage& img = *ptr_img;
 
 		std::cout << img.getImageSeriesIndex() << std::endl;
 
@@ -629,13 +635,15 @@ int test9(const char* in_file)
 				for (int ix = 0; ix < nx; ix++)
 					img(ix, iy, 0, ic) = (*sptr_csm)(ix, iy, ic);
 
-		ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
+		//ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
 		Mutex mtx;
 		mtx.lock();
-		ISMRMRD::Dataset dataset("csm.h5", "dataset");
+		ISMRMRD::Dataset dataset("csm_testdata.h5", "dataset");
 		//ISMRMRD::Dataset dataset("csm.h5", get_date_time_string().c_str());
+		dataset.appendImage("csm", img);
 		mtx.unlock();
-		iw.write(dataset);
+		//iw.write(dataset);
+		delete ptr_img;
 	}
 	catch (std::exception& ex) {
 		std::cout << "Error caught: " << ex.what() << std::endl;
@@ -713,6 +721,64 @@ int test10()
 	//	std::cout << ' ' << ns;
 	//}
 	//std::cout << std::endl;
+
+	return 0;
+}
+
+int test11(const char* in_file)
+{
+	//CoilSensitivitiesAsImages csms(in_file);
+	//int n = csms.items();
+	void* ptr_csms = cGT_CoilSensitivitiesFromFile(in_file);
+	void* ptr_n = cGT_dataItems(ptr_csms);
+	int n = intDataFromHandle(ptr_n);
+
+	int dim[4];
+	//csms.get_dim(0, dim);
+	cGT_getCSMDimensions(ptr_csms, 0, (size_t)dim);
+	std::cout << n << std::endl;
+	int nx = dim[0];
+	int ny = dim[1];
+	int nz = dim[2];
+	int nc = dim[3];
+
+	//const CFImage& csm = csms(0);
+	//int nx = csm.getMatrixSizeX();
+	//int ny = csm.getMatrixSizeY();
+	//int nz = csm.getMatrixSizeZ();
+	//int nc = csm.getNumberOfChannels();
+
+	std::cout << nx << std::endl;
+	std::cout << ny << std::endl;
+	std::cout << nz << std::endl;
+	std::cout << nc << std::endl;
+
+	long long int size = nx;
+	size *= ny;
+	size *= nz;
+	size *= nc;
+	double* re = new double[size];
+	double* im = new double[size];
+	double* v = new double[size];
+
+	//csms.get_data(1, re, im);
+	cGT_getCSMData(ptr_csms, 1, (size_t)re, (size_t)im);
+	cGT_getCSMDataAbs(ptr_csms, 1, (size_t)v);
+
+	std::cout << re[0] << std::endl;
+	std::cout << im[0] << std::endl;
+	std::cout << v[0] << std::endl;
+
+	std::cout << re[1] << std::endl;
+	std::cout << im[1] << std::endl;
+	std::cout << v[1] << std::endl;
+
+	delete[] re;
+	delete[] im;
+	delete[] v;
+
+	deleteObject(ptr_csms);
+	deleteObject(ptr_n);
 
 	return 0;
 }
