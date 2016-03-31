@@ -186,6 +186,10 @@ class AcquisitionsContainer(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def order(self):
+        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
 
 class ISMRMRDAcquisition(PyGadgetronObject):
     def __init__(self, file = None):

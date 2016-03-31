@@ -426,6 +426,13 @@ public:
 
 class AcquisitionsContainer : public aDataContainer {
 public:
+	AcquisitionsContainer() : index_(0) {}
+	virtual ~AcquisitionsContainer()
+	{
+		if (index_)
+			delete[] index_;
+	}
+
 	std::string parameters() const
 	{
 		return par_;
@@ -580,7 +587,78 @@ public:
 		return save;
 	}
 
+	void order()
+	{
+		class triple {
+		public:
+			triple(int i, int f, int s, int t) : 
+				ind(i), first(f), second(s), third(t) {}
+			triple(const triple& t) : 
+				ind(t.ind), first(t.first), second(t.second), third(t.third) {}
+			int ind;
+			int first;
+			int second;
+			int third;
+		};
+		int na = number();
+		if (index_)
+			delete[] index_;
+		index_ = new int[na];
+		std::vector<triple> t;
+		ISMRMRD::Acquisition acq;
+		for (int i = 0; i < na; i++) {
+			get_acquisition(i, acq);
+			int rep = acq.idx().repetition;
+			int slice = acq.idx().slice;
+			int phase = acq.idx().kspace_encode_step_1;
+			t.push_back(triple(i, rep, slice, phase));
+		}
+		std::stable_sort(t.begin(), t.end(), 
+			[](triple a, triple b) { return b.first > a.first; });
+
+		int i = 0;
+		int j = i;
+		while (i < na) {
+			std::vector<triple> ts;
+			for (; j < na; j++) {
+				if (t[j].first != t[i].first)
+					break;
+			}
+			//std::cout << i << ' ' << j << '\n';
+			for (int k = i; k < j; k++)
+				ts.push_back(triple(t[k]));
+			std::stable_sort(ts.begin(), ts.end(),
+				[](triple a, triple b) { return b.second > a.second; });
+			i = j;
+		}
+		i = 0;
+		j = i;
+		while (i < na) {
+			std::vector<triple> ts;
+			for (; j < na; j++) {
+				if (t[j].first != t[i].first || t[j].second != t[i].second)
+					break;
+			}
+			//std::cout << i << ' ' << j << '\n';
+			for (int k = i; k < j; k++)
+				ts.push_back(triple(t[k]));
+			std::sort(ts.begin(), ts.end(),
+				[](triple a, triple b) { return b.third > a.third; });
+			for (int k = i; k < j; k++)
+				index_[k] = ts[k - i].ind;
+			i = j;
+		}
+	}
+	int index(int i)
+	{
+		if (index_)
+			return index_[i];
+		else
+			return i;
+	}
+
 protected:
+	int* index_;
 	std::string par_;
 	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
 };

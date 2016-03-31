@@ -249,6 +249,20 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
+cGT_orderAcquisitions(void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		acqs.order();
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
 	try {

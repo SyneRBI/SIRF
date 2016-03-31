@@ -125,6 +125,8 @@ int test11(const char* in_file);
 
 int test12();
 
+int test13(const char* in_file);
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
@@ -182,6 +184,8 @@ int main(int argc, char **argv)
 	if (vm.count("query")) {
 		open_input_file = false;
 	}
+
+	return test13(in_filename.c_str());
 
 	return test12();
 
@@ -824,6 +828,27 @@ int test12()
 		std::cout << a.first << ' ';
 	}
 	std::cout << '\n';
+
+	return 0;
+}
+
+int test13(const char* in_file)
+{
+	std::cout << "Gadgetron ISMRMRD client" << std::endl;
+	std::cout << "  -- hdf5 file  in   :      " << in_file << std::endl;
+
+	try {
+		boost::shared_ptr<AcquisitionsContainer> sptr_input(new AcquisitionsFile(in_file));
+		AcquisitionsContainer& input = *sptr_input;
+		input.order();
+		for (int i = 0; i < input.number(); i++)
+			std::cout << input.index(i) << ' ';
+		std::cout << '\n';
+	}
+	catch (std::exception& ex) {
+		std::cout << "Error caught: " << ex.what() << std::endl;
+		return -1;
+	}
 
 	return 0;
 }

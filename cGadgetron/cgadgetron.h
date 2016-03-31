@@ -18,6 +18,7 @@ extern "C" {
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
+	void* cGT_orderAcquisitions(void* ptr_acqs);
 
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);

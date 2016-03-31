@@ -16,6 +16,9 @@ try:
 
     na = input_data.number()
     print('%d acquisitions found' % na)
+
+    input_data.order()
+
     while True:
         s = str(input('enter acquisition number: '))
         if len(s) < 1:
@@ -23,6 +26,7 @@ try:
         a = int(s)
         if a < 0 or a >= na:
             break
+        #a = input_data.index(a)
         acq = input_data.acquisition(a)
         print('flags: %d' % acq.flags())
         print('number of samples: %d' % acq.number_of_samples())
