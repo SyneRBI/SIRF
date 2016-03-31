@@ -9,9 +9,10 @@ sys.path.append('../pGadgetron')
 from pGadgetron import *
 
 try:
-    #s = str(input('csm file: '))
-    s = 'csm_testdata.h5'
-    csms = MRCoilSensitivityMaps(s)
+    csms = MRCoilSensitivityMaps()
+    input_data = ISMRMRDAcquisitions('testdata.h5')
+    #input_data = ISMRMRDAcquisitions('opismrmrd.h5')
+    csms.compute(input_data)
     nz = csms.number()
     print('%d slices' % nz)
 
@@ -40,6 +41,7 @@ try:
         for i in range(nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
+            #pylab.imshow(data[i,0,:,:])
             pylab.show()
 
 except error as err:

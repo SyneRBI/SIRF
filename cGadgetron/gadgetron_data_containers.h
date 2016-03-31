@@ -10,6 +10,9 @@
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
+#include <ismrmrd/xml.h>
+
+#include "ismrmrd_fftw.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
@@ -986,6 +989,7 @@ public:
 	virtual void get_data(int slice, double* re, double* im) const = 0;
 	virtual void get_data_abs(int slice, double* v) const = 0;
 	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm) = 0;
+	virtual void compute(AcquisitionsContainer& ac) = 0;
 };
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
@@ -1003,7 +1007,9 @@ public:
 		for (int i = 0; i < nm; i++) {
 			boost::shared_ptr<CoilSensitivityMap> sptr_img(new CSMAsCFImage);
 			mtx.lock();
-			csm_file.readImage("csm", i, (*(CSMAsCFImage*)sptr_img.get()).image());
+			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			csm_file.readImage("csm", i, csm);
+			//csm_file.readImage("csm", i, (*(CSMAsCFImage*)sptr_img.get()).image());
 			mtx.unlock();
 			append(sptr_img);
 		}
@@ -1018,6 +1024,7 @@ public:
 	{
 		return (int)csm_.size();
 	}
+
 	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm)
 	{
 		csm_.push_back(sptr_csm);
@@ -1037,6 +1044,73 @@ public:
 		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
 		csm.get_data_abs(v);
 	}
+	virtual void compute(AcquisitionsContainer& ac)
+	{
+		std::string par;
+		ISMRMRD::IsmrmrdHeader header;
+		ISMRMRD::Acquisition acq;
+		par = ac.parameters();
+		ISMRMRD::deserialize(par.c_str(), header);
+		ac.get_acquisition(0, acq);
+
+		ISMRMRD::Encoding e = header.encoding[0];
+		unsigned int readout = e.encodedSpace.matrixSize.x;
+		unsigned int nx = e.reconSpace.matrixSize.x;
+		unsigned int ny = e.reconSpace.matrixSize.y;
+		unsigned int nc = acq.active_channels();
+
+		std::vector<size_t> cm_dims;
+		cm_dims.push_back(readout);
+		cm_dims.push_back(ny);
+		cm_dims.push_back(nc);
+
+		ISMRMRD::NDArray<complex_float_t> cm(cm_dims);
+
+		std::vector<size_t> img_dims;
+		img_dims.push_back(nx);
+		img_dims.push_back(ny);
+		ISMRMRD::NDArray<float> img(img_dims);
+
+		for (int na = 0; na < ac.number(); na += ny) {
+
+			for (size_t y = 0; y < ny; y++) {
+				ac.get_acquisition(na + y, acq);
+				for (size_t c = 0; c < nc; c++) {
+					for (size_t s = 0; s < readout; s++) {
+						cm(s, y, c) = acq.data(s, c);
+					}
+				}
+			}
+
+			ifft2c(cm);
+
+			float* ptr = img.getDataPtr();
+			memset(ptr, 0, img.getDataSize());
+			for (unsigned int c = 0; c < nc; c++) {
+				for (unsigned int y = 0; y < ny; y++) {
+					for (unsigned int x = 0; x < nx; x++) {
+						uint16_t xout = x + (readout - nx) / 2;
+						float s = std::abs(cm(xout, y, c));
+						img(x, y) += s*s;
+					}
+				}
+			}
+			boost::shared_ptr<CoilSensitivityMap> 
+				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
+			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			for (unsigned int c = 0; c < nc; c++) {
+				for (unsigned int y = 0; y < ny; y++) {
+					for (unsigned int x = 0; x < nx; x++) {
+						uint16_t xout = x + (readout - nx) / 2;
+						csm(x, y, 0, c) = cm(xout, y, c) / std::sqrt(img(x, y));
+					}
+				}
+			}
+			append(sptr_img);
+
+		}
+	}
+
 	virtual double norm()
 	{
 		return 0.0;

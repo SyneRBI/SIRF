@@ -114,7 +114,7 @@ void* cGT_newObject(const char* name)
 		std::cout << "object " << name << "		not found" << std::endl;
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -126,7 +126,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			return cGT_acquisitionParameter(ptr, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -134,11 +134,35 @@ void*
 cGT_CoilSensitivitiesFromFile(const char* file)
 {
 	try {
-		boost::shared_ptr<CoilSensitivitiesContainer>
-			csms(new CoilSensitivitiesAsImages(file));
-		return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+		if (std::strlen(file) > 0) {
+			boost::shared_ptr<CoilSensitivitiesContainer>
+				csms(new CoilSensitivitiesAsImages(file));
+			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+		}
+		else {
+			boost::shared_ptr<CoilSensitivitiesContainer>
+				csms(new CoilSensitivitiesAsImages());
+			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+		}
 	}
-	CATCH
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CoilSensitivitiesContainer& csms =
+			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		csms.compute(acqs);
+		return (void*)new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
@@ -189,7 +213,7 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 		boost::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs, imgs));
 		return sptrObjectHandle<AcquisitionModel>(am);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -204,7 +228,7 @@ cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
 		return sptrObjectHandle<AcquisitionsContainer>(sptr_acqs);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -220,7 +244,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 		boost::shared_ptr<ImagesContainer> sptr_imgs = am.bwd(acqs);
 		return sptrObjectHandle<ImagesContainer>(sptr_imgs);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -232,7 +256,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 			acquisitions(new AcquisitionsFile(file));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -244,7 +268,7 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 			acquisitions(new AcquisitionsFile(file, true, true));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -365,7 +389,7 @@ cGT_imagesCopy(const void* ptr_imgs)
 		boost::shared_ptr<ImagesContainer> clone = imgs.clone();
 		return sptrObjectHandle<ImagesContainer>(clone);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -377,9 +401,9 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 		list.write(out_file, out_group);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -444,7 +468,7 @@ cGT_dataItems(const void* ptr_x)
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -460,7 +484,7 @@ cGT_norm(const void* ptr_x)
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -479,7 +503,7 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -499,7 +523,7 @@ double br, double bi, const void* ptr_y
 		sptr_z->axpby(a, x, b, y);
 		return sptrObjectHandle<aDataContainer>(sptr_z);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -512,9 +536,9 @@ cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 		GadgetronClientConnector& con = conn();
 		con.set_timeout(timeout_ms);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -528,9 +552,9 @@ cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
 		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
 		gc.add_reader(id, g);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -544,9 +568,9 @@ cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
 		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
 		gc.add_writer(id, g);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -560,9 +584,9 @@ cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
 		boost::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
 		gc.add_gadget(id, g);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -583,9 +607,9 @@ cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
 		//	return unknownObject
 		//		("gadget with properties", g.name().c_str(), __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -602,9 +626,9 @@ cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 		//std::cout << config << std::endl;
 		con.send_gadgetron_configuration_script(config);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -621,9 +645,9 @@ cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageReader(file, group, &mtx)));
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -641,9 +665,9 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 			boost::shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images)));
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -656,9 +680,9 @@ cGT_connect(void* ptr_con, const char* host, const char* port)
 		GadgetronClientConnector& con = conn();
 		con.connect(host, port);
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -671,7 +695,7 @@ cGT_sendConfigScript(void* ptr_con, const char* config)
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_configuration_script(config);
 	}
-	CATCH
+	CATCH;
 
 	return (void*)new DataHandle;
 }
@@ -686,7 +710,7 @@ cGT_sendConfigFile(void* ptr_con, const char* file)
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_configuration_file(file);
 	}
-	CATCH
+	CATCH;
 
 	return (void*)new DataHandle;
 }
@@ -704,7 +728,7 @@ cGT_sendParameters(void* ptr_con, const void* ptr_par)
 		//std::cout << par << std::endl;
 		con.send_gadgetron_parameters(par);
 	}
-	CATCH
+	CATCH;
 
 	return (void*)new DataHandle;
 }
@@ -719,7 +743,7 @@ cGT_sendParametersString(void* ptr_con, const char* par)
 		GadgetronClientConnector& con = conn();
 		con.send_gadgetron_parameters(par);
 	}
-	CATCH
+	CATCH;
 
 	return (void*)new DataHandle;
 }
@@ -757,7 +781,7 @@ cGT_sendAcquisitions(void* ptr_con, void* ptr_dat)
 			con.send_ismrmrd_acquisition(acq_tmp);
 		}
 	}
-	CATCH
+	CATCH;
 
 	return (void*)new DataHandle;
 }
@@ -778,9 +802,9 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 			con.send_wrapped_image(iw);
 		}
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -794,8 +818,8 @@ cGT_disconnect(void* ptr_con)
 		con.send_gadgetron_close();
 		con.wait();
 	}
-	CATCH
+	CATCH;
 
-		return (void*)new DataHandle;
+	return (void*)new DataHandle;
 }
 

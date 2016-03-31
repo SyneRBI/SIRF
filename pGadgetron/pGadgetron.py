@@ -112,13 +112,18 @@ class DataContainer(PyGadgetronObject):
         return z;
 
 class MRCoilSensitivityMaps(DataContainer):
-    def __init__(self, file):
+    def __init__(self, file = ''):
         self.handle = None
         self.handle = pygadgetron.cGT_CoilSensitivitiesFromFile(file)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def compute(self, acqs):
+        handle = pygadgetron.cGT_computeCoilSensitivities\
+            (self.handle, acqs.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
     def csm_as_array(self, im_num):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCSMDimensions\
