@@ -123,6 +123,8 @@ int test10();
 
 int test11(const char* in_file);
 
+int test12();
+
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
@@ -180,6 +182,8 @@ int main(int argc, char **argv)
 	if (vm.count("query")) {
 		open_input_file = false;
 	}
+
+	return test12();
 
 	return test11(in_filename.c_str());
 
@@ -779,6 +783,47 @@ int test11(const char* in_file)
 
 	deleteObject(ptr_csms);
 	deleteObject(ptr_n);
+
+	return 0;
+}
+
+#include <algorithm>
+#include <functional>
+#include <array>
+#include <iostream>
+
+class pair {
+public:
+	pair(int f, int s) : first(f), second(s) {}
+	int first;
+	int second;
+};
+
+int test12()
+{
+	std::array<int, 10> s = { 5, 7, 4, 2, 8, 6, 1, 9, 0, 3 };
+
+	//// sort using the default operator<
+	//std::sort(s.begin(), s.end());
+	//for (int a : s) {
+	//	std::cout << a << " ";
+	//}
+	//std::cout << '\n';
+
+	std::vector<pair> p;
+	//= {
+	//	pair(0,5), pair(1,7), pair(2,4), pair(3,2), pair(4,8), pair(5,6), 
+	//	pair(6,1), pair(7,9), pair(8,0), pair(9,3) };
+
+	for (int i = 0; i < 10; i++)
+		p.push_back(pair(i, s[i]));
+
+	std::sort(p.begin(), p.end(), [](pair a, pair b) {return b.second > a.second;});
+
+	for (pair a : p) {
+		std::cout << a.first << ' ';
+	}
+	std::cout << '\n';
 
 	return 0;
 }

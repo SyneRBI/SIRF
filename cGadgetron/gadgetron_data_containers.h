@@ -47,47 +47,7 @@
 		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
 
-//typedef ISMRMRD::Image<complex_float_t> CFImage;
-
-class CFImage : public ISMRMRD::Image < complex_float_t > {
-public:
-	CFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
-		ISMRMRD::Image < complex_float_t >(nx, ny, nz, nc)
-	{
-	}
-	void get_dim(int* dim) const
-	{
-		dim[0] = getMatrixSizeX();
-		dim[1] = getMatrixSizeY();
-		dim[2] = getMatrixSizeZ();
-		dim[3] = getNumberOfChannels();
-	}
-	void get_data(double* re, double* im) const
-	{
-		long long int n = getMatrixSizeX();
-		n *= getMatrixSizeY();
-		n *= getMatrixSizeZ();
-		n *= getNumberOfChannels();
-		const complex_float_t* ptr = getDataPtr();
-		for (long long int i = 0; i < n; i++) {
-			complex_float_t z = ptr[i];
-			re[i] = std::real(z);
-			im[i] = std::imag(z);
-		}
-	}
-	void get_data_abs(double* v) const
-	{
-		long long int n = getMatrixSizeX();
-		n *= getMatrixSizeY();
-		n *= getMatrixSizeZ();
-		n *= getNumberOfChannels();
-		const complex_float_t* ptr = getDataPtr();
-		for (long long int i = 0; i < n; i++) {
-			complex_float_t z = ptr[i];
-			v[i] = std::abs(z);
-		}
-	}
-};
+typedef ISMRMRD::Image<complex_float_t> CFImage;
 
 class xGadgetronUtilities {
 public:
@@ -277,8 +237,7 @@ public:
 
 	void get_cmplx_data(complex_float_t* data) const
 	{
-		const ISMRMRD::Image<complex_float_t>& im = 
-			*(const ISMRMRD::Image<complex_float_t>*)ptr_;
+		const CFImage& im = *(const CFImage*)ptr_;
 		long long int n = im.getMatrixSizeX();
 		n *= im.getMatrixSizeY();
 		n *= im.getMatrixSizeZ();
@@ -291,18 +250,16 @@ public:
 	void get_cmplx_data(double* re, double* im) const
 	{
 		const CFImage& img = *(const CFImage*)ptr_;
-		//const ISMRMRD::Image<complex_float_t>& img =
-		//	*(const ISMRMRD::Image<complex_float_t>*)ptr_;
-		//long long int n = img.getMatrixSizeX();
-		//n *= img.getMatrixSizeY();
-		//n *= img.getMatrixSizeZ();
-		//n *= img.getNumberOfChannels();
-		//const complex_float_t* ptr = img.getDataPtr();
-		//for (long long int i = 0; i < n; i++) {
-		//	complex_float_t z = ptr[i];
-		//	re[i] = std::real(z);
-		//	im[i] = std::imag(z);
-		//}
+		long long int n = img.getMatrixSizeX();
+		n *= img.getMatrixSizeY();
+		n *= img.getMatrixSizeZ();
+		n *= img.getNumberOfChannels();
+		const complex_float_t* ptr = img.getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			re[i] = std::real(z);
+			im[i] = std::imag(z);
+		}
 	}
 
 private:
@@ -968,11 +925,67 @@ private:
 	std::list<boost::shared_ptr<ImageWrap> > images_;
 };
 
+class CoilSensitivityMap {
+public:
+	virtual ~CoilSensitivityMap() {}
+};
+
+class CSMAsCFImage : public CoilSensitivityMap {
+public:
+	CSMAsCFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
+		img_(nx, ny, nz, nc)
+	{
+	}
+	ISMRMRD::Image < complex_float_t >& image()
+	{
+		return img_;
+	}
+	const ISMRMRD::Image < complex_float_t >& image() const
+	{
+		return img_;
+	}
+	void get_dim(int* dim) const
+	{
+		dim[0] = img_.getMatrixSizeX();
+		dim[1] = img_.getMatrixSizeY();
+		dim[2] = img_.getMatrixSizeZ();
+		dim[3] = img_.getNumberOfChannels();
+	}
+	void get_data(double* re, double* im) const
+	{
+		long long int n = img_.getMatrixSizeX();
+		n *= img_.getMatrixSizeY();
+		n *= img_.getMatrixSizeZ();
+		n *= img_.getNumberOfChannels();
+		const complex_float_t* ptr = img_.getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			re[i] = std::real(z);
+			im[i] = std::imag(z);
+		}
+	}
+	void get_data_abs(double* v) const
+	{
+		long long int n = img_.getMatrixSizeX();
+		n *= img_.getMatrixSizeY();
+		n *= img_.getMatrixSizeZ();
+		n *= img_.getNumberOfChannels();
+		const complex_float_t* ptr = img_.getDataPtr();
+		for (long long int i = 0; i < n; i++) {
+			complex_float_t z = ptr[i];
+			v[i] = std::abs(z);
+		}
+	}
+private:
+	ISMRMRD::Image < complex_float_t > img_;
+};
+
 class CoilSensitivitiesContainer : public aDataContainer {
 public:
 	virtual void get_dim(int slice, int* dim) const = 0;
 	virtual void get_data(int slice, double* re, double* im) const = 0;
 	virtual void get_data_abs(int slice, double* v) const = 0;
+	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm) = 0;
 };
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
@@ -988,11 +1001,11 @@ public:
 		int nm = csm_file.getNumberOfImages("csm");
 		mtx.unlock();
 		for (int i = 0; i < nm; i++) {
-			boost::shared_ptr<CFImage> sptr_img(new CFImage);
+			boost::shared_ptr<CoilSensitivityMap> sptr_img(new CSMAsCFImage);
 			mtx.lock();
-			csm_file.readImage("csm", i, *sptr_img);
+			csm_file.readImage("csm", i, (*(CSMAsCFImage*)sptr_img.get()).image());
 			mtx.unlock();
-			csm_.push_back(sptr_img);
+			append(sptr_img);
 		}
 	}
 
@@ -1005,19 +1018,23 @@ public:
 	{
 		return (int)csm_.size();
 	}
+	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm)
+	{
+		csm_.push_back(sptr_csm);
+	}
 	virtual void get_dim(int slice, int* dim) const
 	{
-		const CFImage& csm = (*this)(slice);
+		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
 		csm.get_dim(dim);
 	}
 	virtual void get_data(int slice, double* re, double* im) const
 	{
-		const CFImage& csm = (*this)(slice);
+		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
 		csm.get_data(re, im);
 	}
 	virtual void get_data_abs(int slice, double* v) const
 	{
-		const CFImage& csm = (*this)(slice);
+		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
 		csm.get_data_abs(v);
 	}
 	virtual double norm()
@@ -1035,12 +1052,12 @@ public:
 		return;
 	}
 
-	const CFImage& operator()(int slice) const
+	const CoilSensitivityMap& operator()(int slice) const
 	{
 #ifdef MSVC
-		std::list<boost::shared_ptr<CFImage> >::const_iterator i;
+		std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
 #else
-		typename std::list<boost::shared_ptr<CFImage> >::const_iterator i;
+		typename std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
 #endif
 		unsigned int count = 0;
 		for (i = csm_.begin(); 
@@ -1049,7 +1066,7 @@ public:
 		return **i;
 	}
 private:
-	std::list< boost::shared_ptr<CFImage> > csm_;
+	std::list< boost::shared_ptr<CoilSensitivityMap> > csm_;
 };
 
 #endif
