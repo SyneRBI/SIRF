@@ -479,7 +479,7 @@ private:
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
 					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = img(x, y);
+					complex_float_t zi = (complex_float_t)img(x, y);
 					complex_float_t zc = csm(x, y, 0, c);
 					cm(xout, y, c) = zi * zc;
 				}
