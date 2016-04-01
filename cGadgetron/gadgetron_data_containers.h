@@ -1167,7 +1167,7 @@ public:
 
 		for (int na = 0; na < ac.number(); na += ny) {
 
-			std::cout << ++nmap << ' ';
+			std::cout << ++nmap << ' ' << std::flush;
 
 			for (size_t y = 0; y < ny; y++) {
 				ac.get_acquisition(na + y, acq);
