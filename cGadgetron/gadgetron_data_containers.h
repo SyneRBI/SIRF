@@ -600,10 +600,8 @@ public:
 			int second;
 			int third;
 		};
+
 		int na = number();
-		if (index_)
-			delete[] index_;
-		index_ = new int[na];
 		std::vector<triple> t;
 		ISMRMRD::Acquisition acq;
 		for (int i = 0; i < na; i++) {
@@ -629,8 +627,15 @@ public:
 				ts.push_back(triple(t[k]));
 			std::stable_sort(ts.begin(), ts.end(),
 				[](triple a, triple b) { return b.second > a.second; });
+			for (int k = i; k < j; k++)
+				t[k] = ts[k - i];
 			i = j;
 		}
+
+		if (index_)
+			delete[] index_;
+		index_ = new int[na];
+
 		i = 0;
 		j = i;
 		while (i < na) {
@@ -649,9 +654,13 @@ public:
 			i = j;
 		}
 	}
+	bool ordered() const
+	{
+		return (bool)index_;
+	}
 	int index(int i)
 	{
-		if (index_)
+		if (index_ && i >= 0 && i < number())
 			return index_[i];
 		else
 			return i;
@@ -713,9 +722,14 @@ public:
 	}
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
+		int ind = index(num);
+		//if (ordered())
+		//	std::cout << num << ' ' << ind << '\n';
 		Mutex mtx;
 		mtx.lock();
-		dataset_->readAcquisition(num, acq);
+		dataset_->readAcquisition(ind, acq);
+		//dataset_->readAcquisition(num, acq);
+		//dataset_->readAcquisition(index(num), acq); // ??? does not work!
 		mtx.unlock();
 	}
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
@@ -1087,7 +1101,6 @@ public:
 			mtx.lock();
 			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
 			csm_file.readImage("csm", i, csm);
-			//csm_file.readImage("csm", i, (*(CSMAsCFImage*)sptr_img.get()).image());
 			mtx.unlock();
 			append(sptr_img);
 		}
@@ -1149,7 +1162,12 @@ public:
 		img_dims.push_back(ny);
 		ISMRMRD::NDArray<float> img(img_dims);
 
+		int nmap = 0;
+		std::cout << "map ";
+
 		for (int na = 0; na < ac.number(); na += ny) {
+
+			std::cout << ++nmap << ' ';
 
 			for (size_t y = 0; y < ny; y++) {
 				ac.get_acquisition(na + y, acq);
@@ -1162,13 +1180,31 @@ public:
 
 			ifft2c(cm);
 
+			std::vector<size_t> cm0_dims;
+			cm0_dims.push_back(nx);
+			cm0_dims.push_back(ny);
+			cm0_dims.push_back(nc);
+
+			ISMRMRD::NDArray<complex_float_t> cm0(cm0_dims);
+			for (unsigned int c = 0; c < nc; c++) {
+				for (unsigned int y = 0; y < ny; y++) {
+					for (unsigned int x = 0; x < nx; x++) {
+						uint16_t xout = x + (readout - nx) / 2;
+						cm0(x, y, c) = cm(xout, y, c);
+					}
+				}
+			}
+
+			ISMRMRD::NDArray<complex_float_t> w(cm0);
+			for (int i = 0; i < 10; i++)
+				smoothen_(cm0, w);
+
 			float* ptr = img.getDataPtr();
 			memset(ptr, 0, img.getDataSize());
 			for (unsigned int c = 0; c < nc; c++) {
 				for (unsigned int y = 0; y < ny; y++) {
 					for (unsigned int x = 0; x < nx; x++) {
-						uint16_t xout = x + (readout - nx) / 2;
-						float s = std::abs(cm(xout, y, c));
+						float s = std::abs(cm0(x, y, c));
 						img(x, y) += s*s;
 					}
 				}
@@ -1179,14 +1215,15 @@ public:
 			for (unsigned int c = 0; c < nc; c++) {
 				for (unsigned int y = 0; y < ny; y++) {
 					for (unsigned int x = 0; x < nx; x++) {
-						uint16_t xout = x + (readout - nx) / 2;
-						csm(x, y, 0, c) = cm(xout, y, c) / std::sqrt(img(x, y));
+						csm(x, y, 0, c) = cm0(x, y, c) / std::sqrt(img(x, y));
 					}
 				}
 			}
+
 			append(sptr_img);
 
 		}
+		std::cout << '\n';
 	}
 
 	virtual double norm()
@@ -1219,6 +1256,29 @@ public:
 	}
 private:
 	std::list< boost::shared_ptr<CoilSensitivityMap> > csm_;
+
+	void smoothen_(ISMRMRD::NDArray<complex_float_t>& u, 
+		ISMRMRD::NDArray<complex_float_t>& v)
+	{
+		const complex_float_t TWO(2.0, 0.0);
+		const complex_float_t SIXTEEN(16.0, 0.0);
+		const size_t *dims = u.getDims();
+		int nx = dims[0];
+		int ny = dims[1];
+		int nz = dims[2];
+		for (int iz = 0; iz < nz; iz++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++)
+					if (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1)
+						v(ix, iy, iz) = u(ix, iy, iz);
+					else
+						v(ix, iy, iz) = u(ix, iy, iz) / TWO + (
+						u(ix - 1, iy - 1, iz) + u(ix, iy - 1, iz) + u(ix + 1, iy - 1, iz) +
+						u(ix - 1, iy    , iz)                     + u(ix + 1, iy    , iz) +
+						u(ix - 1, iy + 1, iz) + u(ix, iy + 1, iz) + u(ix + 1, iy + 1, iz)
+						) / SIXTEEN;
+		u = v;
+	}
 };
 
 #endif

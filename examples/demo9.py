@@ -10,7 +10,8 @@ from pGadgetron import *
 
 try:
     #s = str(input('csm file: '))
-    s = 'csm_testdata.h5'
+    #s = 'csm_testdata.h5'
+    s = 'csm_opismrmrd.h5'
     csms = MRCoilSensitivityMaps(s)
     nz = csms.number()
     print('%d slices' % nz)

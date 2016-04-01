@@ -11,12 +11,13 @@ from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = ISMRMRDAcquisitions('testdata.h5')
-    #input_data = ISMRMRDAcquisitions('opismrmrd.h5')
+    #input_data = ISMRMRDAcquisitions('testdata.h5')
+    input_data = ISMRMRDAcquisitions('opismrmrd.h5')
 
     na = input_data.number()
     print('%d acquisitions found' % na)
 
+    print('ordering acquisitions...')
     input_data.order()
 
     while True:
@@ -26,7 +27,6 @@ try:
         a = int(s)
         if a < 0 or a >= na:
             break
-        #a = input_data.index(a)
         acq = input_data.acquisition(a)
         print('flags: %d' % acq.flags())
         print('number of samples: %d' % acq.number_of_samples())
