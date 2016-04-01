@@ -218,6 +218,22 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 
 extern "C"
 void*
+cGT_setCSMs(void* ptr_am, const void* ptr_csms)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
+		boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms =
+			objectSptrFromHandle<CoilSensitivitiesContainer>(h_csms);
+		am.setCSMs(sptr_csms);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 {
 	try {

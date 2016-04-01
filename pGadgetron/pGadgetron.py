@@ -232,17 +232,27 @@ class AcquisitionModel(PyGadgetronObject):
         self.handle = \
             pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         _check_status(self.handle)
-        self.images = imgs
+        self.csms = None
+##        self.images = imgs
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def set_coil_sensitivity_maps(self, csm):
+        handle = pygadgetron.cGT_setCSMs(self.handle, csm.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+        self.csms = 'set'
     def forward(self, images):
+        if self.csms is None:
+            raise error('no coil sensitivities set')
         acqs = ISMRMRDAcquisitions()
         acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, images.handle)
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
+        if self.csms is None:
+            raise error('no coil sensitivities set')
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, acqs.handle)

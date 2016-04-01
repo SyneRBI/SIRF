@@ -746,7 +746,7 @@ public:
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
-		dataset_->appendNDArray("csm", *coils_);
+		//dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
 	virtual void write_data() 
@@ -754,14 +754,14 @@ public:
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
-		dataset_->appendNDArray("csm", *coils_);
+		//dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{
 		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
 		ptr_ac->set_parameters(par_);
-		ptr_ac->set_coils(coils_);
+		//ptr_ac->set_coils(coils_);
 		ptr_ac->write_data();
 		boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
@@ -771,7 +771,7 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> 
 			sptr_ac(acqs_scratch_file_(filename_));
 		sptr_ac->set_parameters(par_);
-		sptr_ac->set_coils(coils_);
+		//sptr_ac->set_coils(coils_);
 		sptr_ac->write_data();
 		return sptr_ac;
 	}
@@ -1023,6 +1023,7 @@ private:
 class CoilSensitivityMap {
 public:
 	virtual ~CoilSensitivityMap() {}
+	virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
 };
 
 class CSMAsCFImage : public CoilSensitivityMap {
@@ -1030,6 +1031,10 @@ public:
 	CSMAsCFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
 		img_(nx, ny, nz, nc)
 	{
+	}
+	virtual complex_float_t& operator()(int x, int y, int z, int c)
+	{
+		return img_(x, y, z, c);
 	}
 	ISMRMRD::Image < complex_float_t >& image()
 	{
@@ -1077,11 +1082,14 @@ private:
 
 class CoilSensitivitiesContainer : public aDataContainer {
 public:
-	virtual void get_dim(int slice, int* dim) const = 0;
-	virtual void get_data(int slice, double* re, double* im) const = 0;
-	virtual void get_data_abs(int slice, double* v) const = 0;
+	virtual void get_dim(int slice, int* dim) = 0;
+	virtual void get_data(int slice, double* re, double* im) = 0;
+	virtual void get_data_abs(int slice, double* v) = 0;
 	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm) = 0;
 	virtual void compute(AcquisitionsContainer& ac) = 0;
+	virtual CoilSensitivityMap& operator()(int slice) = 0;
+protected:
+	std::list< boost::shared_ptr<CoilSensitivityMap> > csms_;
 };
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
@@ -1113,26 +1121,26 @@ public:
 	}
 	virtual int items()
 	{
-		return (int)csm_.size();
+		return (int)csms_.size();
 	}
 
 	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm)
 	{
-		csm_.push_back(sptr_csm);
+		csms_.push_back(sptr_csm);
 	}
-	virtual void get_dim(int slice, int* dim) const
+	virtual void get_dim(int slice, int* dim)
 	{
-		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
+		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
 		csm.get_dim(dim);
 	}
-	virtual void get_data(int slice, double* re, double* im) const
+	virtual void get_data(int slice, double* re, double* im)
 	{
-		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
+		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
 		csm.get_data(re, im);
 	}
-	virtual void get_data_abs(int slice, double* v) const
+	virtual void get_data_abs(int slice, double* v)
 	{
-		const CSMAsCFImage& csm = (const CSMAsCFImage&)(*this)(slice);
+		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
 		csm.get_data_abs(v);
 	}
 	virtual void compute(AcquisitionsContainer& ac)
@@ -1240,8 +1248,7 @@ public:
 	{
 		return;
 	}
-
-	const CoilSensitivityMap& operator()(int slice) const
+	virtual CoilSensitivityMap& operator()(int slice)
 	{
 #ifdef MSVC
 		std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
@@ -1249,13 +1256,13 @@ public:
 		typename std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
 #endif
 		unsigned int count = 0;
-		for (i = csm_.begin(); 
-			i != csm_.end() && count < slice && count < csm_.size() - 1; i++)
+		for (i = csms_.begin(); 
+			i != csms_.end() && count < slice && count < csms_.size() - 1; i++)
 			count++;
 		return **i;
 	}
+
 private:
-	std::list< boost::shared_ptr<CoilSensitivityMap> > csm_;
 
 	void smoothen_(ISMRMRD::NDArray<complex_float_t>& u, 
 		ISMRMRD::NDArray<complex_float_t>& v)

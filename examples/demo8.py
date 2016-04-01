@@ -36,9 +36,22 @@ try:
     # print('processing images...')
     images = MR_extract_real_images(interim_images)
 
+##    s = 'csm_testdata.h5'
+##    csms = MRCoilSensitivityMaps(s)
+    csms = MRCoilSensitivityMaps()
+
+    print('ordering acquisitions...')
+    input_data.order()
+
+    print('computing sensitivity maps...')
+    csms.compute(input_data)
+
+
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
     am = AcquisitionModel(input_data, interim_images)
+
+    am.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce acquisitions
     acqs = am.forward(interim_images)
