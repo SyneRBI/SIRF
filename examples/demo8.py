@@ -15,10 +15,8 @@ try:
     # acquisitions will be read from this HDF file
     input_data = ISMRMRDAcquisitions('testdata.h5')
 
-#    print('---')
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    # print('processing acquisitions...')
     interim_data = MR_remove_x_oversampling(input_data)
 
     print('---\n processed acquisition data norm: %e' % interim_data.norm())
@@ -26,26 +24,21 @@ try:
     # perform reconstruction
     recon = SimpleReconstructionProcessor()
     recon.set_input(interim_data)
-    # print('reconstructing...')
     recon.process()
     interim_images = recon.get_output()
 
     print('---\n reconstructed images norm: %e' % interim_images.norm())
 
-    # post-process reconstructed images
-    # print('processing images...')
-    images = MR_extract_real_images(interim_images)
-
-##    s = 'csm_testdata.h5'
-##    csms = MRCoilSensitivityMaps(s)
     csms = MRCoilSensitivityMaps()
+
+##    csm_file = str(input('csm file: '))
+##    print('reading sensitivity maps...')
+##    csms.read(csm_file)
 
     print('ordering acquisitions...')
     input_data.order()
-
     print('computing sensitivity maps...')
     csms.compute(input_data)
-
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
@@ -89,6 +82,9 @@ try:
     a = -1.0
     im_diff = ImagesContainer.axpby(a, imgs, b, imgs)
     print('---\n 0.0 = %e' % im_diff.norm())
+
+    # post-process reconstructed images
+    images = MR_extract_real_images(interim_images)
 
     # plot obtained images
     for i in range(images.number()):

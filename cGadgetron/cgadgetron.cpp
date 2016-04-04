@@ -131,7 +131,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 
 extern "C"
 void*
-cGT_CoilSensitivitiesFromFile(const char* file)
+cGT_CoilSensitivities(const char* file)
 {
 	try {
 		if (std::strlen(file) > 0) {

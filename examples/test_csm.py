@@ -9,15 +9,17 @@ sys.path.append('../pGadgetron')
 from pGadgetron import *
 
 try:
-    csms = MRCoilSensitivityMaps()
     #input_data = ISMRMRDAcquisitions('testdata.h5')
-    input_data = ISMRMRDAcquisitions('opismrmrd.h5')
+    #input_data = ISMRMRDAcquisitions('opismrmrd.h5')
+    input_data = ISMRMRDAcquisitions('nn_no.h5')
 
     print('ordering acquisitions...')
     input_data.order()
 
     print('computing sensitivity maps...')
+    csms = MRCoilSensitivityMaps()
     csms.compute(input_data)
+
     nz = csms.number()
     print('%d slices' % nz)
 

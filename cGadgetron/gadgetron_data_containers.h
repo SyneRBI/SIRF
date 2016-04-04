@@ -441,14 +441,6 @@ public:
 	{
 		par_ = par;
 	}
-	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils() const 
-	{
-		return coils_;
-	}
-	void set_coils(boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils)
-	{
-		coils_ = coils;
-	}
 
 	static void axpby
 		(complex_double_t a, const ISMRMRD::Acquisition& acq_x, 
@@ -669,7 +661,6 @@ public:
 protected:
 	int* index_;
 	std::string par_;
-	boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> > coils_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
@@ -686,15 +677,6 @@ public:
 			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
 		if (!create_file) {
 			dataset_->readHeader(par_);
-			coils_ = boost::shared_ptr<ISMRMRD::NDArray<complex_float_t> >
-				(new ISMRMRD::NDArray<complex_float_t>);
-			try {
-				dataset_->readNDArray("csm", 0, *coils_);
-				//ndim = coils_->getNDim();
-			}
-			catch (...) {
-				std::cout << "WARNING: coil sensitivity map not found" << std::endl;
-			}
 		}
 		mtx.unlock();
 	}
@@ -742,11 +724,9 @@ public:
 	virtual void copy_data(const AcquisitionsContainer& ac) 
 	{
 		par_ = ac.parameters();
-		coils_ = ac.coils();
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
-		//dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
 	virtual void write_data() 
@@ -754,14 +734,12 @@ public:
 		Mutex mtx;
 		mtx.lock();
 		dataset_->writeHeader(par_);
-		//dataset_->appendNDArray("csm", *coils_);
 		mtx.unlock();
 	}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{
 		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
 		ptr_ac->set_parameters(par_);
-		//ptr_ac->set_coils(coils_);
 		ptr_ac->write_data();
 		boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
@@ -771,7 +749,6 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> 
 			sptr_ac(acqs_scratch_file_(filename_));
 		sptr_ac->set_parameters(par_);
-		//sptr_ac->set_coils(coils_);
 		sptr_ac->write_data();
 		return sptr_ac;
 	}
@@ -1145,6 +1122,9 @@ public:
 	}
 	virtual void compute(AcquisitionsContainer& ac)
 	{
+		//if (!ac.ordered())
+		//	ac.order();
+
 		std::string par;
 		ISMRMRD::IsmrmrdHeader header;
 		ISMRMRD::Acquisition acq;

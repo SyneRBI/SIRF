@@ -7,7 +7,7 @@ extern "C" {
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
 
-	void* cGT_CoilSensitivitiesFromFile(const char* file);
+	void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
 
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);

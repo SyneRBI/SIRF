@@ -112,14 +112,23 @@ class DataContainer(PyGadgetronObject):
         return z;
 
 class MRCoilSensitivityMaps(DataContainer):
-    def __init__(self, file = ''):
+    def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.cGT_CoilSensitivitiesFromFile(file)
-        _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def read(self, file):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities(file)
+        _check_status(self.handle)
     def compute(self, acqs):
+        if acqs.is_ordered() is False:
+            print('WARNING: acquisitions may be in a wrong order')
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+        self.handle = pygadgetron.cGT_CoilSensitivities('')
+        _check_status(self.handle)
         handle = pygadgetron.cGT_computeCoilSensitivities\
             (self.handle, acqs.handle)
         _check_status(handle)
@@ -186,10 +195,6 @@ class AcquisitionsContainer(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def order(self):
-        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
-        _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
 
 class ISMRMRDAcquisition(PyGadgetronObject):
     def __init__(self, file = None):
@@ -218,9 +223,17 @@ class ISMRMRDAcquisitions(AcquisitionsContainer):
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
+        self.ordered = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def order(self):
+        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+        self.ordered = True
+    def is_ordered(self):
+        return self.ordered
     def acquisition(self, num):
         acq = ISMRMRDAcquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
@@ -232,7 +245,7 @@ class AcquisitionModel(PyGadgetronObject):
         self.handle = \
             pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         _check_status(self.handle)
-        self.csms = None
+##        self.csms = None
 ##        self.images = imgs
     def __del__(self):
         if self.handle is not None:
@@ -243,16 +256,16 @@ class AcquisitionModel(PyGadgetronObject):
         pygadgetron.deleteDataHandle(handle)
         self.csms = 'set'
     def forward(self, images):
-        if self.csms is None:
-            raise error('no coil sensitivities set')
+##        if self.csms is None:
+##            raise error('no coil sensitivities set')
         acqs = ISMRMRDAcquisitions()
         acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, images.handle)
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
-        if self.csms is None:
-            raise error('no coil sensitivities set')
+##        if self.csms is None:
+##            raise error('no coil sensitivities set')
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, acqs.handle)

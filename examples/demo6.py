@@ -11,6 +11,13 @@ try:
     # acquisitions will be read from this HDF file
     input_data = pGadgetron.ISMRMRDAcquisitions('opismrmrd.h5')
     
+    print('ordering acquisitions...')
+    input_data.order()
+
+    print('computing sensitivity maps...')
+    csms = pGadgetron.MRCoilSensitivityMaps()
+    csms.compute(input_data)
+
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()
     gadget2 = pGadgets.SimpleReconstructionGadget()
