@@ -44,9 +44,8 @@ try:
     # compute the difference between real and modelled acquisitions:
     #   diff = acqs - P acqs,
     # where P is the orthogonal projector onto input_data
-    a = -acqs.dot(input_data) / input_data.dot(input_data)
-    b = 1.0
-    diff = AcquisitionsContainer.axpby(a, input_data, b, acqs)
+    a = (acqs * input_data) / (input_data * input_data)
+    diff = acqs - a * input_data
     rr = diff.norm()/acqs.norm()
     print('---\n reconstruction residual norm (rel): %e' % rr)
 

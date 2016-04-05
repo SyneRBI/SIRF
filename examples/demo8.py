@@ -53,33 +53,30 @@ try:
     # compute the difference between real and modelled acquisitions:
     #   diff = acqs - P acqs,
     # where P is the orthogonal projector onto input_data
-    a = -acqs.dot(input_data) / input_data.dot(input_data)
-    b = 1.0
-    diff = AcquisitionsContainer.axpby(a, input_data, b, acqs)
+    a = (acqs * input_data) / (input_data * input_data)
+    diff = acqs - a * input_data
     rr = diff.norm()/acqs.norm()
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
     # apply the adjoint model (backward projection)
     imgs = am.backward(diff)
-
     print('---\n its backward projection norm: %e' % imgs.norm())
 
     # test that the backward projection is the adjoint of forward
     # on x = diff and y = interim_images
     # (note that x = (1 - P)F y, so the result must be numerically real)
-    xFy = diff.dot(acqs)
+    xFy = diff * acqs
+    Bxy = imgs * complex_images
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
-    Bxy = imgs.dot(complex_images)
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
     # test images norm
     s = imgs.norm()
-    ss = imgs.dot(imgs)
+    ss = imgs * imgs
     print('---\n (B x, B x) = (%e, %e) = %e' % (ss.real, ss.imag, s*s))
 
     # test linear combination of images
-    a = -1.0
-    im_diff = ImagesContainer.axpby(a, imgs, b, imgs)
+    im_diff = imgs - imgs
     print('---\n 0.0 = %e' % im_diff.norm())
 
     # extract real images from complex
@@ -88,6 +85,8 @@ try:
     # plot obtained images
     for i in range(images.number()):
         data = images.image_as_array(i)
+        print(data[0,0,0,0])
+        print(numpy.amax(data))
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
         pylab.show()

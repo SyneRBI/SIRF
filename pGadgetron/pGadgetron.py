@@ -104,6 +104,45 @@ class DataContainer(PyGadgetronObject):
         im = pygadgetron.doubleImDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return complex(re, im)
+    def __add__(self, other):
+        z = DataContainer()
+        z.handle = pygadgetron.cGT_axpby\
+            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
+        return z;
+    def __sub__(self, other):
+        z = DataContainer()
+        z.handle = pygadgetron.cGT_axpby\
+            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
+        return z;
+    def __mul__(self, other):
+        #print(type(other))
+        if isinstance(other, DataContainer):
+            return self.dot(other)
+        elif type(other) == type(complex(0,0)):
+            z = DataContainer()
+            z.handle = pygadgetron.cGT_axpby\
+                (other.real, other.imag, self.handle, 0, 0, self.handle)
+            return z;
+        elif type(other) == type(0.0):
+            z = DataContainer()
+            z.handle = pygadgetron.cGT_axpby\
+                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+    def __rmul__(self, other):
+        if type(other) == type(complex(0,0)):
+            z = DataContainer()
+            z.handle = pygadgetron.cGT_axpby\
+                (other.real, other.imag, self.handle, 0, 0, self.handle)
+            return z;
+        elif type(other) == type(0.0):
+            z = DataContainer()
+            z.handle = pygadgetron.cGT_axpby\
+                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
     @staticmethod
     def axpby(a, x, b, y):
         z = DataContainer()
