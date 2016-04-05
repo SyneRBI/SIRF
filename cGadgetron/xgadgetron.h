@@ -316,20 +316,16 @@ public:
 	AcquisitionModel(
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac,
 		boost::shared_ptr<ImagesContainer> sptr_ic
-		) :
-		sptr_acqs_(sptr_ac),
-		sptr_imgs_(sptr_ic)
+		) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
 	{
-		AcquisitionsContainer& ac = *sptr_ac;
-		par_ = ac.parameters();
+		par_ = sptr_ac->parameters();
 		ISMRMRD::deserialize(par_.c_str(), header_);
-		ac.get_acquisition(0, acq_);
+		sptr_ac->get_acquisition(0, acq_);
 	}
 
 	void setCSMs(boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
 	{
 		sptr_csms_ = sptr_csms;
-		//std::cout << sptr_csms_->items() << '\n';
 	}
 
 	void fwd(ImageWrap& iw, CoilSensitivityMap& csm, AcquisitionsContainer& ac)
@@ -367,14 +363,10 @@ public:
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
 		ImageWrap iw(sptr_imgs_->image_wrap(0));
-		//int dims[4];
-		//iw.get_dim(dims);
-		//for (int i = 0; i < ac.number() / dims[1]; i++) {
 		for (int i = 0, a = 0; a < ac.number(); i++) {
 			CoilSensitivityMap& csm = cc(i%cc.items());
 			bwd(iw, csm, ac, a);
 			ic.append(iw);
-			//std::cout << i << ' ' << iw.norm() << std::endl;
 		}
 	}
 
@@ -404,9 +396,9 @@ private:
 	std::string par_;
 	ISMRMRD::IsmrmrdHeader header_;
 	ISMRMRD::Acquisition acq_;
-	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 	boost::shared_ptr<ImagesContainer> sptr_imgs_;
+	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 	float norm(ISMRMRD::NDArray<complex_float_t> arr)
 	{
@@ -435,15 +427,13 @@ private:
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
 
-		//std::cout << nx << ' ' << ny << ' ' << nc << '\n';
-
 		std::vector<size_t> dims;
 		dims.push_back(readout); 
 		dims.push_back(ny);
 		dims.push_back(nc);
 
-		ISMRMRD::NDArray<complex_float_t> cm(dims);
-		memset(cm.getDataPtr(), 0, cm.getDataSize());
+		ISMRMRD::NDArray<complex_float_t> ci(dims);
+		memset(ci.getDataPtr(), 0, ci.getDataSize());
 
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int y = 0; y < ny; y++) {
@@ -451,14 +441,14 @@ private:
 					uint16_t xout = x + (readout - nx) / 2;
 					complex_float_t zi = (complex_float_t)img(x, y);
 					complex_float_t zc = csm(x, y, 0, c);
-					cm(xout, y, c) = zi * zc;
+					ci(xout, y, c) = zi * zc;
 				}
 			}
 		}
 
 		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-		fft2c(cm);
+		fft2c(ci);
 
 		for (size_t y = 0; y < ny; y++) {
 			acq.clearAllFlags();
@@ -470,7 +460,7 @@ private:
 			acq.idx().repetition = 0;
 			for (size_t c = 0; c < nc; c++) {
 				for (size_t s = 0; s < readout; s++) {
-					acq.data(s, c) = cm(s, y, c);
+					acq.data(s, c) = ci(s, y, c);
 				}
 			}
 			ac.append_acquisition(acq);
@@ -498,25 +488,22 @@ private:
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
 
-		//std::cout << nx << ' ' << ny << ' ' << nc << '\n';
-
 		std::vector<size_t> dims;
 		dims.push_back(readout);
 		dims.push_back(ny);
 		dims.push_back(nc);
 
-		ISMRMRD::NDArray<complex_float_t> cm(dims);
+		ISMRMRD::NDArray<complex_float_t> ci(dims);
 		for (size_t y = 0; y < ny; y++) {
-			//ac.get_acquisition(y + ny*im_num, acq);
 			ac.get_acquisition(y + off, acq);
 			for (size_t c = 0; c < nc; c++) {
 				for (size_t s = 0; s < readout; s++) {
-					cm(s, y, c) = acq.data(s, c);
+					ci(s, y, c) = acq.data(s, c);
 				}
 			}
 		}
 		off += ny;
-		ifft2c(cm);
+		ifft2c(ci);
 
 		T* ptr = im.getDataPtr();
 		T s;
@@ -527,7 +514,7 @@ private:
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++, i++) {
 					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t z = cm(xout, y, c);
+					complex_float_t z = ci(xout, y, c);
 					complex_float_t zc = csm(x, y, 0, c);
 					xGadgetronUtilities::convert_complex(std::conj(zc) * z, s);
 					ptr[i] += s;

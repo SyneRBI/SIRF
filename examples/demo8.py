@@ -5,29 +5,28 @@ import time
 
 sys.path.append('../../build/xGadgetron')
 sys.path.append('../pGadgetron')
-#import pGadgetron
-#import pGadgets
 
 from pGadgetron import *
 from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = ISMRMRDAcquisitions('testdata.h5')
+    file = str(input('raw data file: '))
+    input_data = ISMRMRDAcquisitions(file)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    interim_data = MR_remove_x_oversampling(input_data)
+    processed_data = MR_remove_x_oversampling(input_data)
 
-    print('---\n processed acquisition data norm: %e' % interim_data.norm())
+    print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction
     recon = SimpleReconstructionProcessor()
-    recon.set_input(interim_data)
+    recon.set_input(processed_data)
     recon.process()
-    interim_images = recon.get_output()
+    complex_images = recon.get_output()
 
-    print('---\n reconstructed images norm: %e' % interim_images.norm())
+    print('---\n reconstructed images norm: %e' % complex_images.norm())
 
     csms = MRCoilSensitivityMaps()
 
@@ -35,21 +34,21 @@ try:
 ##    print('reading sensitivity maps...')
 ##    csms.read(csm_file)
 
-    print('ordering acquisitions...')
+    print('---\n ordering acquisitions...')
     input_data.order()
-    print('computing sensitivity maps...')
+    print('---\n computing sensitivity maps...')
     csms.compute(input_data)
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
-    am = AcquisitionModel(input_data, interim_images)
+    am = AcquisitionModel(input_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
-    # use the acquisition model (forward projection) to produce acquisitions
-    acqs = am.forward(interim_images)
+    # use the acquisition model (forward projection) to produce 'acquisitions'
+    acqs = am.forward(complex_images)
 
-    print('---\n their forward projection norm %e' % acqs.norm())
+    print('---\n reconstructed images forward projection norm %e' % acqs.norm())
 
     # compute the difference between real and modelled acquisitions:
     #   diff = acqs - P acqs,
@@ -70,7 +69,7 @@ try:
     # (note that x = (1 - P)F y, so the result must be numerically real)
     xFy = diff.dot(acqs)
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
-    Bxy = imgs.dot(interim_images)
+    Bxy = imgs.dot(complex_images)
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
     # test images norm
@@ -83,8 +82,8 @@ try:
     im_diff = ImagesContainer.axpby(a, imgs, b, imgs)
     print('---\n 0.0 = %e' % im_diff.norm())
 
-    # post-process reconstructed images
-    images = MR_extract_real_images(interim_images)
+    # extract real images from complex
+    images = MR_extract_real_images(complex_images)
 
     # plot obtained images
     for i in range(images.number()):

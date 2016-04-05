@@ -862,6 +862,7 @@ public:
 			//std::cout << i << ' ' << s << ' ' << r << std::endl;
 		}
 		r = sqrt(r);
+		//std::cout << r << std::endl;
 		return r;
 	}
 
