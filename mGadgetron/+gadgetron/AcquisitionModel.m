@@ -16,6 +16,12 @@ classdef AcquisitionModel < handle
             end
             self.handle_ = [];
         end
+        function set_coil_sensitivity_maps(self, csms)
+            handle = calllib('mgadgetron', 'mGT_setCSMs', ...
+                self.handle_, csms.handle_);
+            gadgetron.checkExecutionStatus(self.name_, handle);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+        end
         function acqs = forward(self, imgs)
             acqs = gadgetron.AcquisitionsContainer();
             acqs.handle_ = calllib...

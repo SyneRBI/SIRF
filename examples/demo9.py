@@ -12,13 +12,13 @@ try:
     # acquisitions will be read from this HDF file
     input_data = ISMRMRDAcquisitions('testdata.h5')
 
-    interim_data = MR_remove_x_oversampling(input_data)
+    processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
     recon = SimpleReconstructionProcessor()
-    recon.set_input(interim_data)
+    recon.set_input(processed_data)
     recon.process()
-    interim_images = recon.get_output()
+    complex_images = recon.get_output()
 
     csms = MRCoilSensitivityMaps()
 
@@ -34,12 +34,12 @@ try:
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in interim_images
-    am = AcquisitionModel(input_data, interim_images)
+    am = AcquisitionModel(input_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce acquisitions
-    acqs = am.forward(interim_images)
+    acqs = am.forward(complex_images)
 
     # compute the difference between real and modelled acquisitions:
     #   diff = acqs - P acqs,
@@ -52,6 +52,17 @@ try:
 
     # apply the adjoint model (backward projection)
     imgs = am.backward(diff)
+
+    # post-process reconstructed images
+    print('---\n processing images...')
+    images = MR_extract_real_images(complex_images)
+
+    # plot obtained images
+    for i in range(images.number()):
+        data = images.image_as_array(i)
+        pylab.figure(i + 1)
+        pylab.imshow(data[0,0,:,:])
+        pylab.show()
 
 except error as err:
     # display error information

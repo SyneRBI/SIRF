@@ -8,7 +8,6 @@ end
 try
     % acquisitions will be read from this HDF file
     input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
-    fprintf('%d acquisitions found\n', input_data.number())
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
@@ -21,10 +20,6 @@ try
     recon.process()
     complex_images = recon.get_output();
     
-    % post-process reconstructed images
-    fprintf('processing images...\n')
-    images = gadgetron.MR_extract_real_images(complex_images);
-
     csms = gadgetron.MRCoilSensitivityMaps();
     fprintf('ordering acquisitions...\n')
     input_data.order()
@@ -49,19 +44,9 @@ try
     % apply the adjoint model (backward projection)
     imgs = am.backward(diff);
 
-    % test that the backward projection is the adjoint of forward
-    % on x = diff and y = interim_images
-    fprintf('(x, F y) = %s\n', num2str(diff.dot(acqs)))
-    fprintf('= (B x, y) = %s\n', num2str(imgs.dot(complex_images)))
-
-    % test images norm and dot product
-    s = imgs.norm();
-    fprintf('(B x, B x) = %e = %e\n', imgs.dot(imgs), s*s)
-
-    % test linear combination of images
-    a = -1.0;
-    im_diff = gadgetron.ImagesContainer.axpby(a, imgs, b, imgs);
-    fprintf('0.0 = %e\n', im_diff.norm())
+    % post-process reconstructed images
+    fprintf('processing images...\n')
+    images = gadgetron.MR_extract_real_images(complex_images);
 
     % plot obtained images
     for i = 1 : images.number()

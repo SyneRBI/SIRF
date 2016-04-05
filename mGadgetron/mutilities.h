@@ -7,7 +7,7 @@
 #ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
 #endif
-EXPORTED_FUNCTION void* mNewDataHandle();
+EXPORTED_FUNCTION  void* mNewDataHandle();
 EXPORTED_FUNCTION 	void* mCopyOfObjectHandle(void* ptr);
 EXPORTED_FUNCTION 	void mDeleteObject(void* ptr);
 EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr);

@@ -14,18 +14,18 @@ try:
 
     # pre-process acquisition data
     print('processing acquisitions...')
-    interim_data = MR_remove_x_oversampling(input_data)
+    processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
     recon = SimpleReconstructionProcessor()
-    recon.set_input(interim_data)
+    recon.set_input(processed_data)
     print('reconstructing...')
     recon.process()
-    interim_images = recon.get_output()
+    complex_images = recon.get_output()
 
     # post-process reconstructed images
     print('processing images...')
-    images = MR_extract_real_images(interim_images)
+    images = MR_extract_real_images(complex_images)
 
     # plot obtained images
     for i in range(images.number()):

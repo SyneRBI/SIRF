@@ -8,14 +8,23 @@
 #ifndef CGADGETRON_FOR_MATLAB
 extern "C" {
 #endif
-EXPORTED_FUNCTION void* mGT_newObject(const char* name) {
+EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
 }
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name) {
 	return cGT_parameter(ptr, obj, name);
 }
+EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file) {
+	return cGT_CoilSensitivities(file);
+}
+EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs) {
+	return cGT_computeCoilSensitivities(ptr_csms, ptr_acqs);
+}
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
 	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
+}
+EXPORTED_FUNCTION 	void* mGT_setCSMs(void* ptr_am, const void* ptr_csms) {
+	return cGT_setCSMs(ptr_am, ptr_csms);
 }
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs) {
 	return cGT_AcquisitionModelForward(ptr_am, ptr_imgs);
@@ -35,6 +44,9 @@ EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
 	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
+EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
+	return cGT_orderAcquisitions(ptr_acqs);
+}
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
 }
@@ -47,31 +59,49 @@ EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs) {
 	return cGT_imagesCopy(ptr_imgs);
 }
-EXPORTED_FUNCTION 	void* mGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group) {
-	return cGT_writeImages(ptr_imgs, out_file, out_group);
+EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, const char* out_group) {
+	return cGT_writeImages (ptr_imgs, out_file, out_group);
 }
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num) {
 	return cGT_imageWrapFromContainer(ptr_imgs, img_num);
 }
 #ifndef CGADGETRON_FOR_MATLAB
+EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim) {
+	cGT_getCSMDimensions(ptr_csms, csm_num, ptr_dim);
+}
+EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im) {
+	cGT_getCSMData(ptr_csms, csm_num, ptr_re, ptr_im);
+}
+EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr) {
+	cGT_getCSMDataAbs(ptr_csms, csm_num, ptr);
+}
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim) {
 	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data) {
-	cGT_getImageDataAsDoubleArray(ptr_imgs, img_num, ptr_data);
+EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, size_t ptr_data) {
+	cGT_getImageDataAsDoubleArray (ptr_imgs, img_num, ptr_data);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray(void* ptr_imgs, int img_num, size_t ptr_data) {
-	cGT_getImageDataAsComplexArray(ptr_imgs, img_num, ptr_data);
+EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, size_t ptr_data) {
+	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
 }
 #else
+EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim) {
+	cGT_getCSMDimensions(ptr_csms, csm_num, dim);
+}
+EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, double* re, double* im) {
+	cGT_getCSMData(ptr_csms, csm_num, re, im);
+}
+EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, double* v) {
+	cGT_getCSMDataAbs(ptr_csms, csm_num, v);
+}
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim) {
 	cGT_getImageDimensions(ptr_imgs, img_num, dim);
 }
 EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data) {
 	cGT_getImageDataAsDoubleArray(ptr_imgs, img_num, data);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray(void* ptr_imgs, int img_num, double* re, double* im) {
-	cGT_getImageDataAsCmplxArray(ptr_imgs, img_num, re, im);
+EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray (void* ptr_imgs, int img_num, double* re, double* im) {
+	cGT_getImageDataAsCmplxArray (ptr_imgs, img_num, re, im);
 }
 #endif
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
@@ -83,7 +113,7 @@ EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x) {
 EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y) {
 	return cGT_dot(ptr_x, ptr_y);
 }
-EXPORTED_FUNCTION 	void* mGT_axpby(double ar, double ai, const void* ptr_x,double br, double bi, const void* ptr_y) {
+EXPORTED_FUNCTION 	void* mGT_axpby( double ar, double ai, const void* ptr_x, double br, double bi, const void* ptr_y) {
 	return cGT_axpby(ar, ai, ptr_x, br, bi, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r) {
@@ -101,8 +131,8 @@ EXPORTED_FUNCTION 	void* mGT_setGadgetProperty(void* ptr_g, const char* prop, co
 EXPORTED_FUNCTION 	void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc) {
 	return cGT_configGadgetChain(ptr_con, ptr_gc);
 }
-EXPORTED_FUNCTION 	void* mGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group) {
-	return cGT_registerHDFReceiver(ptr_con, file, group);
+EXPORTED_FUNCTION 	void* mGT_registerHDFReceiver (void* ptr_con, const char* file, const char* group) {
+	return cGT_registerHDFReceiver (ptr_con, file, group);
 }
 EXPORTED_FUNCTION 	void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img) {
 	return cGT_registerImagesReceiver(ptr_con, ptr_img);

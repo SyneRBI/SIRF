@@ -213,8 +213,10 @@ int c2m(
 				in.clear();
 				continue;
 			}
-			if (i != string::npos)
+			if (i != string::npos) {
+				in += " ";
 				in += line.substr(i);
+			}
 			i = line.find(';');
 		}
 		if (i == string::npos)

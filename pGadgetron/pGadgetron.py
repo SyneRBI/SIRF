@@ -192,9 +192,17 @@ class ImagesContainer(DataContainer):
 class AcquisitionsContainer(DataContainer):
     def __init__(self):
         self.handle = None
+        self.ordered = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def order(self):
+        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+        self.ordered = True
+    def is_ordered(self):
+        return self.ordered
 
 class ISMRMRDAcquisition(PyGadgetronObject):
     def __init__(self, file = None):
@@ -223,17 +231,9 @@ class ISMRMRDAcquisitions(AcquisitionsContainer):
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
-        self.ordered = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def order(self):
-        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
-        _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
-        self.ordered = True
-    def is_ordered(self):
-        return self.ordered
     def acquisition(self, num):
         acq = ISMRMRDAcquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
