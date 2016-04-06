@@ -10,14 +10,14 @@ from pGadgetron import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = ISMRMRDAcquisitions('testdata.h5')
+    input_data = MR_Acquisitions('testdata.h5')
 
     # pre-process acquisition data
     print('processing acquisitions...')
     processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
-    recon = SimpleReconstructionProcessor()
+    recon = MR_BasicReconstruction()
     recon.set_input(processed_data)
     print('reconstructing...')
     recon.process()

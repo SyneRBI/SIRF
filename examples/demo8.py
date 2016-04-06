@@ -12,7 +12,7 @@ from pGadgets import *
 try:
     # acquisitions will be read from this HDF file
     file = str(input('raw data file: '))
-    input_data = ISMRMRDAcquisitions(file)
+    input_data = MR_Acquisitions(file)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
@@ -21,27 +21,27 @@ try:
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction
-    recon = SimpleReconstructionProcessor()
+    recon = MR_BasicReconstruction()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
 
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
-    csms = MRCoilSensitivityMaps()
+    csms = MR_CoilSensitivityMaps()
 
 ##    csm_file = str(input('csm file: '))
 ##    print('reading sensitivity maps...')
 ##    csms.read(csm_file)
 
-    print('---\n ordering acquisitions...')
-    input_data.order()
+    print('---\n sorting acquisitions...')
+    input_data.sort()
     print('---\n computing sensitivity maps...')
-    csms.compute(input_data)
+    csms.calculate(input_data)
 
     # create acquisition model based on the acquisition parameters
-    # stored in input_data and image parameters stored in interim_images
-    am = AcquisitionModel(input_data, complex_images)
+    # stored in input_data and image parameters stored in complex_images
+    am = MR_AcquisitionModel(input_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -85,8 +85,6 @@ try:
     # plot obtained images
     for i in range(images.number()):
         data = images.image_as_array(i)
-        print(data[0,0,0,0])
-        print(numpy.amax(data))
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
         pylab.show()

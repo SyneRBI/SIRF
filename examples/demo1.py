@@ -9,7 +9,7 @@ import pGadgets
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.ISMRMRDAcquisitions('testdata.h5')
+    input_data = pGadgetron.MR_Acquisitions('testdata.h5')
     
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()

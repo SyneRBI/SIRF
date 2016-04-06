@@ -9,14 +9,14 @@ import pGadgets
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.ISMRMRDAcquisitions('opismrmrd.h5')
+    input_data = pGadgetron.MR_Acquisitions('opismrmrd.h5')
     
-    print('ordering acquisitions...')
-    input_data.order()
+    print('sorting acquisitions...')
+    input_data.sort()
 
-    print('computing sensitivity maps...')
-    csms = pGadgetron.MRCoilSensitivityMaps()
-    csms.compute(input_data)
+    print('calculating sensitivity maps...')
+    csms = pGadgetron.MR_CoilSensitivityMaps()
+    csms.calculate(input_data)
 
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()

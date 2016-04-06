@@ -13,7 +13,7 @@ from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = ISMRMRDAcquisitions('testdata.h5')
+    input_data = MR_Acquisitions('testdata.h5')
     # use noiseless data to check the acquisition model
     # input_data = pGadgetron.ISMRMRDAcquisitions('ex_data.h5')
 

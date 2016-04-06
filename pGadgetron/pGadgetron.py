@@ -150,7 +150,7 @@ class DataContainer(PyGadgetronObject):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
-class MRCoilSensitivityMaps(DataContainer):
+class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -161,8 +161,8 @@ class MRCoilSensitivityMaps(DataContainer):
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
-    def compute(self, acqs):
-        if acqs.is_ordered() is False:
+    def calculate(self, acqs):
+        if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -172,10 +172,10 @@ class MRCoilSensitivityMaps(DataContainer):
             (self.handle, acqs.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-    def csm_as_array(self, im_num):
+    def csm_as_array(self, csm_num):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCSMDimensions\
-            (self.handle, im_num, dim.ctypes.data)
+            (self.handle, csm_num, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
@@ -184,7 +184,7 @@ class MRCoilSensitivityMaps(DataContainer):
             raise error('image data not available')
         array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getCSMDataAbs\
-            (self.handle, im_num, array.ctypes.data)
+            (self.handle, csm_num, array.ctypes.data)
         return array
 
 class ImagesContainer(DataContainer):
@@ -231,19 +231,19 @@ class ImagesContainer(DataContainer):
 class AcquisitionsContainer(DataContainer):
     def __init__(self):
         self.handle = None
-        self.ordered = False
+        self.sorted = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def order(self):
+    def sort(self):
         handle = pygadgetron.cGT_orderAcquisitions(self.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-        self.ordered = True
-    def is_ordered(self):
-        return self.ordered
+        self.sorted = True
+    def is_sorted(self):
+        return self.sorted
 
-class ISMRMRDAcquisition(PyGadgetronObject):
+class MR_Acquisition(PyGadgetronObject):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -264,7 +264,7 @@ class ISMRMRDAcquisition(PyGadgetronObject):
     def idx_slice(self):
         return _int_par(self.handle, 'acquisition', 'idx_slice')
 
-class ISMRMRDAcquisitions(AcquisitionsContainer):
+class MR_Acquisitions(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
         if file is not None:
@@ -274,18 +274,16 @@ class ISMRMRDAcquisitions(AcquisitionsContainer):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     def acquisition(self, num):
-        acq = ISMRMRDAcquisition()
+        acq = MR_Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
 
-class AcquisitionModel(PyGadgetronObject):
+class MR_AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
         self.handle = None
         self.handle = \
             pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         _check_status(self.handle)
-##        self.csms = None
-##        self.images = imgs
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -295,16 +293,12 @@ class AcquisitionModel(PyGadgetronObject):
         pygadgetron.deleteDataHandle(handle)
         self.csms = 'set'
     def forward(self, images):
-##        if self.csms is None:
-##            raise error('no coil sensitivities set')
-        acqs = ISMRMRDAcquisitions()
+        acqs = MR_Acquisitions()
         acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, images.handle)
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
-##        if self.csms is None:
-##            raise error('no coil sensitivities set')
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, acqs.handle)
@@ -407,7 +401,7 @@ class AcquisitionsProcessor(GadgetChain):
 ##            #print('deleting acquisitions processor object...')
 ##            pygadgetron.deleteObject(self.handle)
     
-class SimpleReconstructionProcessor(ImagesReconstructor):
+class MR_BasicReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')

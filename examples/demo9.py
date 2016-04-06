@@ -10,47 +10,28 @@ from pGadgetron import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = ISMRMRDAcquisitions('testdata.h5')
+    input_data = MR_Acquisitions('testdata.h5')
 
     processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
-    recon = SimpleReconstructionProcessor()
-    recon.set_input(processed_data)
-    recon.process()
-    complex_images = recon.get_output()
+    br = MR_BasicReconstruction()
+    br.set_input(processed_data)
+    br.process()
+    complex_images = br.get_output()
 
-    csms = MRCoilSensitivityMaps()
-
-    # coil sensitivity maps can be read from a file
-##    csm_file = str(input('csm file: '))
-##    print('reading sensitivity maps...')
-##    csms.read(csm_file)
-    # or computed
-    print('---\n ordering acquisitions...')
-    input_data.order()
-    print('---\n computing sensitivity maps...')
-    csms.compute(input_data)
+    # calculate coil sensitivity maps
+    csms = MR_CoilSensitivityMaps()
+    print('---\n sorting acquisitions...')
+    input_data.sort()
+    print('---\n calculating sensitivity maps...')
+    csms.calculate(input_data)
 
     # create acquisition model based on the acquisition parameters
-    # stored in input_data and image parameters stored in interim_images
-    am = AcquisitionModel(input_data, complex_images)
+    # stored in input_data and image parameters stored in complex_images
+    am = MR_AcquisitionModel(input_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
-
-    # use the acquisition model (forward projection) to produce acquisitions
-    acqs = am.forward(complex_images)
-
-    # compute the difference between real and modelled acquisitions:
-    #   diff = acqs - P acqs,
-    # where P is the orthogonal projector onto input_data
-    a = (acqs * input_data) / (input_data * input_data)
-    diff = acqs - a * input_data
-    rr = diff.norm()/acqs.norm()
-    print('---\n reconstruction residual norm (rel): %e' % rr)
-
-    # apply the adjoint model (backward projection)
-    imgs = am.backward(diff)
 
     # post-process reconstructed images
     print('---\n processing images...')

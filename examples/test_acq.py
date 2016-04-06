@@ -11,14 +11,13 @@ from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    #input_data = ISMRMRDAcquisitions('testdata.h5')
-    input_data = ISMRMRDAcquisitions('opismrmrd.h5')
+    input_data = MR_Acquisitions('testdata.h5')
 
     na = input_data.number()
     print('%d acquisitions found' % na)
 
-    print('ordering acquisitions...')
-    input_data.order()
+    print('sorting acquisitions...')
+    input_data.sort()
 
     while True:
         s = str(input('enter acquisition number: '))
