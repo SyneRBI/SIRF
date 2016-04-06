@@ -26,7 +26,7 @@ try
 	recon.add_gadget('g3', gadget3);
     
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('opismrmrd.h5');
+    input_data = gadgetron.MR_Acquisitions('opismrmrd.h5');
     
     % connect to input data
     recon.set_input(input_data)
