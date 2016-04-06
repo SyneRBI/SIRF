@@ -48,7 +48,7 @@ try:
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction
-    recon = SimpleReconstructionProcessor()
+    recon = MR_BasicReconstruction()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()

@@ -9,7 +9,9 @@ sys.path.append('../pGadgetron')
 from pGadgetron import *
 
 try:
-    input_data = MR_Acquisitions('nn_no.h5')
+ 
+    file = str(input('raw data file: '))
+    input_data = MR_Acquisitions(file)
 
     print('sorting acquisitions...')
     input_data.sort()
