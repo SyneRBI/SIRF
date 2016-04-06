@@ -7,8 +7,7 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
-    %input_data = gadgetron.ISMRMRDataset('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
     % define gadgets
 	gadget1 = gadgets.RemoveROOversamplingGadget();

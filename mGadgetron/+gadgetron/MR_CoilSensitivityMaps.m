@@ -1,10 +1,10 @@
-classdef MRCoilSensitivityMaps < gadgetron.DataContainer
+classdef MR_CoilSensitivityMaps < gadgetron.DataContainer
     properties
         name_
     end
     methods
-        function self = MRCoilSensitivityMaps()
-            self.name_ = 'MRCoilSensitivityMaps';
+        function self = MR_CoilSensitivityMaps()
+            self.name_ = 'MR_CoilSensitivityMaps';
             self.handle_ = [];
         end
         function delete(self)
@@ -13,7 +13,10 @@ classdef MRCoilSensitivityMaps < gadgetron.DataContainer
                 self.handle_ = [];
             end
         end
-        function compute(self, acqs)
+        function calculate(self, acqs)
+            if ~acqs.is_sorted()
+                fprintf('WARNING: acquisitions may be in a wrong order\n')
+            end
             if ~isempty(self.handle_)
                 calllib('mutilities', 'mDeleteObject', self.handle_)
             end

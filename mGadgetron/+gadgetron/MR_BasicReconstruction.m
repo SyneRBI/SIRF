@@ -1,8 +1,8 @@
-classdef SimpleReconstructor < gadgetron.ImagesReconstructor
+classdef MR_BasicReconstruction < gadgetron.ImagesReconstructor
     properties
     end
     methods
-        function self = SimpleReconstructor()
+        function self = MR_BasicReconstruction()
             self.name_ = 'SimpleReconstructionProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];

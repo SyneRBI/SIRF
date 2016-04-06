@@ -7,7 +7,7 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     fprintf('%d acquisitions found\n', input_data.number())
     
     % pre-process acquisition data
@@ -15,7 +15,7 @@ try
     processed_data = gadgetron.MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.SimpleReconstructor();
+    recon = gadgetron.MR_BasicReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
@@ -25,15 +25,15 @@ try
     fprintf('processing images...\n')
     images = gadgetron.MR_extract_real_images(complex_images);
 
-    csms = gadgetron.MRCoilSensitivityMaps();
-    fprintf('ordering acquisitions...\n')
-    input_data.order()
-    fprintf('computing sensitivity maps...\n')
-    csms.compute(input_data)
+    csms = gadgetron.MR_CoilSensitivityMaps();
+    fprintf('sorting acquisitions...\n')
+    input_data.sort()
+    fprintf('calculating sensitivity maps...\n')
+    csms.calculate(input_data)
 
     % create acquisition model based on the acquisition parameters
     % stored in input_data and image parameters stored in interim_images
-    am = gadgetron.AcquisitionModel(input_data, complex_images);
+    am = gadgetron.MR_AcquisitionModel(input_data, complex_images);
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -41,26 +41,24 @@ try
     acqs = am.forward(complex_images);
 
     % compute the difference between real and modelled acquisitions
-    a = -acqs.dot(input_data) / input_data.dot(input_data);
-    b = 1.0;
-    diff = gadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs);
+    a = (acqs * input_data) / (input_data * input_data);
+    diff = acqs - input_data * a;
     fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())
 
     % apply the adjoint model (backward projection)
     imgs = am.backward(diff);
 
     % test that the backward projection is the adjoint of forward
-    % on x = diff and y = interim_images
-    fprintf('(x, F y) = %s\n', num2str(diff.dot(acqs)))
-    fprintf('= (B x, y) = %s\n', num2str(imgs.dot(complex_images)))
+    % on x = diff and y = complex_images
+    fprintf('(x, F y) = %s\n', num2str(diff * acqs))
+    fprintf('= (B x, y) = %s\n', num2str(imgs * complex_images))
 
     % test images norm and dot product
     s = imgs.norm();
-    fprintf('(B x, B x) = %e = %e\n', imgs.dot(imgs), s*s)
+    fprintf('(B x, B x) = %s = %e\n', num2str(imgs * imgs), s*s)
 
     % test linear combination of images
-    a = -1.0;
-    im_diff = gadgetron.ImagesContainer.axpby(a, imgs, b, imgs);
+    im_diff = imgs - imgs;
     fprintf('0.0 = %e\n', im_diff.norm())
 
     % plot obtained images

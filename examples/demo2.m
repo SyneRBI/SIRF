@@ -6,7 +6,7 @@ if ~libisloaded('mutilities')
 end
 
 try
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
 	gadget1 = gadgets.RemoveROOversamplingGadget();
 	gadget2 = gadgets.AcquisitionAccumulateTriggerGadget();

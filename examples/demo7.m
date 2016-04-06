@@ -7,14 +7,14 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
     processed_data = gadgetron.MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.SimpleReconstructor();
+    recon = gadgetron.MR_BasicReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()

@@ -14,24 +14,43 @@ classdef DataContainer < handle
         end
         function num = number(self)
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
+            gadgetron.checkExecutionStatus('DataContainer', handle);
             num = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function r = norm(self)
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
+            gadgetron.checkExecutionStatus('DataContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function z = dot(self, acqs)
+        function z = dot(self, other)
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
-                acqs.handle_);
-            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
+                other.handle_);
+            gadgetron.checkExecutionStatus('DataContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
             im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);
             calllib('mutilities', 'mDeleteDataHandle', handle)
+        end
+        function z = minus(self, other)
+            z = gadgetron.DataContainer();
+            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
+                1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
+        end
+        function z = mtimes(self, other)
+            if isobject(other)
+                z = self.dot(other);
+            elseif isreal(other)
+                z = gadgetron.DataContainer();
+                z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
+                    other, 0.0, self.handle_, 0.0, 0.0, self.handle_);
+            else
+                z = gadgetron.DataContainer();
+                z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
+                    real(other), imag(other), self.handle_, ...
+                    0.0, 0.0, self.handle_);
+            end
         end
     end
     methods(Static)

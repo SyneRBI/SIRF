@@ -7,42 +7,30 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
     processed_data = gadgetron.MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.SimpleReconstructor();
+    recon = gadgetron.MR_BasicReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
     complex_images = recon.get_output();
     
-    csms = gadgetron.MRCoilSensitivityMaps();
-    fprintf('ordering acquisitions...\n')
-    input_data.order()
-    fprintf('computing sensitivity maps...\n')
-    csms.compute(input_data)
+    csms = gadgetron.MR_CoilSensitivityMaps();
+    fprintf('sorting acquisitions...\n')
+    input_data.sort()
+    fprintf('calculating sensitivity maps...\n')
+    csms.calculate(input_data)
 
     % create acquisition model based on the acquisition parameters
     % stored in input_data and image parameters stored in interim_images
-    am = gadgetron.AcquisitionModel(input_data, complex_images);
+    am = gadgetron.MR_AcquisitionModel(input_data, complex_images);
 
     am.set_coil_sensitivity_maps(csms)
-
-    % use the acquisition model (forward projection) to produce acquisitions
-    acqs = am.forward(complex_images);
-
-    % compute the difference between real and modelled acquisitions
-    a = -acqs.dot(input_data) / input_data.dot(input_data);
-    b = 1.0;
-    diff = gadgetron.AcquisitionsContainer.axpby(a, input_data, b, acqs);
-    fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())
-
-    % apply the adjoint model (backward projection)
-    imgs = am.backward(diff);
 
     % post-process reconstructed images
     fprintf('processing images...\n')

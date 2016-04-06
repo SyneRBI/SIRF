@@ -1,10 +1,10 @@
-classdef ISMRMRDAcquisitions < gadgetron.AcquisitionsContainer
+classdef MR_Acquisitions < gadgetron.AcquisitionsContainer
     properties
         name_
     end
     methods
-        function self = ISMRMRDAcquisitions(filename)
-            self.name_ = 'ISMRMRDAcquisitions';
+        function self = MR_Acquisitions(filename)
+            self.name_ = 'MR_Acquisitions';
             self.handle_ = [];
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...

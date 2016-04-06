@@ -35,7 +35,7 @@ try
 	recon.add_gadget('g5', gadget5);
 	recon.add_gadget('g6', gadget6);
     
-    input_data = gadgetron.ISMRMRDAcquisitions('testdata.h5');
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
     recon.set_input(input_data)
     recon.process()

@@ -16,7 +16,7 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
             self.handle_ = [];
         end
         function acqs = process(self, input_data)
-            acqs = gadgetron.ISMRMRDAcquisitions();
+            acqs = gadgetron.AcquisitionsContainer();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, input_data.handle_);

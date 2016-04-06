@@ -1,11 +1,11 @@
-classdef AcquisitionModel < handle
+classdef MR_AcquisitionModel < handle
     properties
         handle_
         name_
     end
     methods
-        function self = AcquisitionModel(acqs, imgs)
-            self.name_ = 'AcquisitionModel';
+        function self = MR_AcquisitionModel(acqs, imgs)
+            self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acqs.handle_, imgs.handle_);
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
