@@ -1189,22 +1189,26 @@ public:
 				smoothen_(cm0, w);
 
 			float* ptr = img.getDataPtr();
-			memset(ptr, 0, img.getDataSize());
-			for (unsigned int c = 0; c < nc; c++) {
-				for (unsigned int y = 0; y < ny; y++) {
-					for (unsigned int x = 0; x < nx; x++) {
+			for (unsigned int y = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++) {
+					double r = 0.0;
+					for (unsigned int c = 0; c < nc; c++) {
 						float s = std::abs(cm0(x, y, c));
-						img(x, y) += s*s;
+						r += s*s;
 					}
+					img(x, y) = r;
 				}
 			}
 			boost::shared_ptr<CoilSensitivityMap> 
 				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
 			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
-			for (unsigned int c = 0; c < nc; c++) {
-				for (unsigned int y = 0; y < ny; y++) {
-					for (unsigned int x = 0; x < nx; x++) {
-						csm(x, y, 0, c) = cm0(x, y, c) / std::sqrt(img(x, y));
+			for (unsigned int y = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++) {
+					double r = img(x, y);
+					float s = 1.0 / std::sqrt(r);
+					complex_float_t z(s, 0.0);
+					for (unsigned int c = 0; c < nc; c++) {
+						csm(x, y, 0, c) = cm0(x, y, c) * z;
 					}
 				}
 			}
