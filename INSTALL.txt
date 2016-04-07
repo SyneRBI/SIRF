@@ -1,53 +1,63 @@
-==================================================================================
-Gadgetron Python interface installation under Linux (tested on Lubuntu and Centos)
-==================================================================================
+===============================================================
+Gadgetron Python and Matlab interfaces installation under Linux
+===============================================================
 
-Install Boost, SWIG, and clone+install Ismsmrd and Gadgetron from github.com/CCPPETMR. 
-DO NOT CHANGE DEFAULT FOLDERS.
+NOTE: Python interface successfully tried on Lubuntu VM and Centos, 
+Matlab interface on Centos only.
 
-If you have installed the Gadgetron liraries in non-default folder, or where your 
-linker doesn't find it, add this folder to LIBRARY_PATH and LD_LIBRARY_PATH.
+Install Boost, SWIG, and clone+install Ismsmrd and Gadgetron from 
+github.com/CCPPETMR. DO NOT CHANGE DEFAULT FOLDERS.
+
+If you have installed the Gadgetron liraries in non-default folder, 
+or where your linker doesn't find it, add this folder to LIBRARY_PATH 
+and LD_LIBRARY_PATH.
 
 Create folder 'build' with subfolders 'iUtilities' and 'xGadgetron'.
 
-Define the following environment variables:
-
-name                value
-
-PYINCLUDE     path to python include folder (e.g. /usr/include/python2.7)
-PYLIBPATH     path to python shared libraries (e.g. /usr/lib/python2.7/
-                config-x86_64-linux-gnu)
-PYTHON        python version (e.g. python2.7)
-SRC_PATH      path to <work_dir>
-BUILD_PATH    path to folder 'build'
-
-If you have Matlab, define MATLABROOT as the path to Matlab root folder, define
-GCC as the fullname (i.e. including the path) of gcc-4.7 compiler executable 
-(newer versions are not supported by Matlab) and define HDF5_DISABLE_VERSION_CHECK 
-as 2.
-
-Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
+Clone iUtilities from github.com/CCPPETMR/iUtilties into your work
+folder, referred to below as <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
-
-Run make in <work_dir>/iUtilities.
 
 Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
 
   git clone https://github.com/CCPPETMR/xGadgetron
 
+Set the following environment variables:
+
+Variable name              Variable value
+
+PYINCLUDE                  Path to python include folder (e.g. 
+                           /usr/include/python2.7)
+PYLIBPATH                  Path to python shared libraries (e.g. 
+                           /usr/lib/python2.7/config-x86_64-linux-gnu)
+PYTHON                     Python version (e.g. python2.7)
+SRC_PATH                   Path to <work_dir>
+BUILD_PATH                 Path to folder 'build'
+MATLABROOT                 Path to Matlab root folder
+GCC                        Fullname (i.e. including the path) of gcc-4.7 
+                           compiler executable (newer versions of gcc are 
+                           not supported by Matlab)
+HDF5_DISABLE_VERSION_CHECK 2
+
+Go to <work_dir>/iUtilities and run make.
+
 Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
 Go to <work_dir>/xGadgetron/pGadgetron and run make.
 
-If you have Matlab, go to <work_dir>/xGadgetron/mGadgetron and run make.
+Go to <work_dir>/xGadgetron/mGadgetron and run make.
 
-Go to <work_dir>/xGadgetron/examples and run make. Start gadgetron (in a new terminal)
-and run python demos.
+Go to <work_dir>/xGadgetron/examples and run make. 
 
-=============================================================================
-Gadgetron Matlab interface installation under Windows for using with Linux VM
-=============================================================================
+Open a new Linux terminal and run gadgetron there.
+
+Go to <work_dir>/xGadgetron/examples and run demos.
+
+=======================================================================
+Gadgetron Matlab interface installation under Windows and Visual Studio
+for using with a Linux Virtual Machine running Gadgetron
+=======================================================================
 
 Install Boost, SWIG and Ismsmrd.
 
@@ -55,8 +65,9 @@ Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
 
-Build iUtilities x64/Release solution (select "Release" in "Solution Configurations" box 
-and "x64" in "Solution Platforms" box) in <work_dir>/iUtilities folder.
+Build iUtilities x64/Release solution in <work_dir>/iUtilities folder
+(make sure you have "Release" in "Solution Configurations" box and "x64" 
+in "Solution Platforms" box).
 
 Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
 
@@ -66,21 +77,24 @@ Click Start -> Control Panel -> System and Security -> System ->
 Advanced System Settings -> Environment Variables
 and add the following user variables:
 
-Variable         Value
+Variable name    Variable value
 
-BOOST            Path to Boost include folder 'boost' (e.g. C:\Boost\boost_1_59_0)
+BOOST            Path to Boost include folder (e.g. C:\Boost\boost_1_59_0)
 BOOST_LIB        Path to Boost libraries folder
-BOOST_SUFFIX     Common part of boost libraries names (e.g.-vc120-mt-1_58.lib or -mt.so)
+BOOST_SUFFIX     Common part of boost libraries names (e.g.-vc120-mt-1_58.lib)
 ISMRMRD_INCLUDE  Path to Ismrmrd include folder
 ISMRMRD_LIB      Path to Ismrmrd library folder
 ISMRMRD_LIBRARY  Ismrmrd library name
 PATH2FFTW        Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
 CGADGETRON       <work_dir>/xGadgetron/cGadgetron
 
-Build cGadgetron x64/Release solution (select "Release" in "Solution Configurations" box 
-and "x64" in "Solution Platforms" box) in <work_dir>/xGadgetron/cGadgetron.
+Build cGadgetron x64/Release solution in <work_dir>/xGadgetron/cGadgetron
+(make sure you have "Release" in "Solution Configurations" box and "x64" 
+in "Solution Platforms" box).
 
-Run mex_gadgetron.m in <work_dir>/xGadgetron/mGadgetron.
+Start Matlab.
+
+Run mex_gadgetron.m (in <work_dir>/xGadgetron/mGadgetron).
 
 Add mGadgetron folder to Matlab path.
 
@@ -88,5 +102,15 @@ In <work_dir>/xGadgetron/examples execute
 
    <ismrmrd_root>\utilities\Release\ismrmrd_generate_cartesian_shepp_logan.exe -r 2
 
-to create the input file for demos. Start gadgetron (in a VM terminal) and run demos.
+to create the input file for demos.
+
+Start Virtual Machine.
+
+Forward port 9002 to VM (in Oracle VM VirtualBox Manager: go to Settings->Network,
+click on Port Forwarding, add new forwarding rule by clicking on +, set Host Port
+and Guest Port to 9002).
+
+Open a new Linux terminal and run gadgetron there.
+
+Run Matlab demos.
 
