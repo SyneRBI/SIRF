@@ -86,14 +86,14 @@ std::string get_date_time_string()
 	return ret;
 }
 
-int test5(
-	const char* host,
-	const char* port,
-	unsigned int timeout,
-	const char* in_file,
-	const char* in_group,
-	const char* out_file,
-	const char* out_group);
+//int test5(
+//	const char* host,
+//	const char* port,
+//	unsigned int timeout,
+//	const char* in_file,
+//	const char* in_group,
+//	const char* out_file,
+//	const char* out_group);
 
 int test6(
 	const char* host,
@@ -117,7 +117,7 @@ int test7(
 
 int test8(const char* in_file);
 
-int test9(const char* in_file);
+//int test9(const char* in_file);
 
 int test10();
 
@@ -185,15 +185,15 @@ int main(int argc, char **argv)
 		open_input_file = false;
 	}
 
-	return test13(in_filename.c_str());
+	//return test13(in_filename.c_str());
 
-	return test12();
+	//return test12();
 
-	return test11(in_filename.c_str());
+	//return test11(in_filename.c_str());
 
-	//return test10();
+	return test10();
 
-	return test9(in_filename.c_str());
+	//return test9(in_filename.c_str());
 
 	//return test8(in_filename.c_str());
 
@@ -215,19 +215,19 @@ int main(int argc, char **argv)
 	//	"out6.h5",
 	//	hdf5_out_group.c_str());
 
-	return test5(
-		host_name.c_str(),
-		port.c_str(),
-		timeout_ms,
-		in_filename.c_str(),
-		hdf5_in_group.c_str(),
-		"out5.h5",
-		hdf5_out_group.c_str());
+	//return test5(
+	//	host_name.c_str(),
+	//	port.c_str(),
+	//	timeout_ms,
+	//	in_filename.c_str(),
+	//	hdf5_in_group.c_str(),
+	//	"out5.h5",
+	//	hdf5_out_group.c_str());
 
 	return 0;
 }
 
-//#if 0
+#if 0
 int test5(
 	const char* host,
 	const char* port,
@@ -389,7 +389,7 @@ int test5(
 
 	return 0;
 }
-//#endif
+#endif
 
 int test6(
 	const char* host,
@@ -593,6 +593,7 @@ int test8(const char* in_file)
 	return 0;
 }
 
+#if 0
 int test9(const char* in_file)
 {
 	std::cout << "Gadgetron ISMRMRD client" << std::endl;
@@ -660,13 +661,16 @@ int test9(const char* in_file)
 
 	return 0;
 }
+#endif
 
 int test10()
 {
 	Mutex mtx;
 	mtx.lock();
-	ISMRMRD::Dataset input("opismrmrd_csm.h5", "coil_maps");
+	//ISMRMRD::Dataset input("opismrmrd_csm.h5", "coil_maps");
 	//ISMRMRD::Dataset output("csm_opismrmrd.h5", "dataset");
+	ISMRMRD::Dataset input("opismrmrd_with_csm.h5", "coil_maps");
+	ISMRMRD::Dataset output("csm1.h5", "dataset");
 	mtx.unlock();
 
 	int ni = input.getNumberOfImages("image_1000");
@@ -687,18 +691,26 @@ int test10()
 		int ny = re.getMatrixSizeY();
 		int nz = re.getMatrixSizeZ();
 		int nc = re.getNumberOfChannels();
-		CFImage* ptr_img = new CFImage(nx, ny, nz, nc);
-		ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
-		CFImage& img = *ptr_img;
+		if (i == 0) {
+			std::cout << nx << std::endl;
+			std::cout << ny << std::endl;
+			std::cout << nz << std::endl;
+			std::cout << nc << std::endl;
+		}
+		ISMRMRD::Image<complex_float_t>* ptr_img =
+			new ISMRMRD::Image<complex_float_t>(nx, ny, nz, nc);
+		//ImageWrap iw(ISMRMRD::ISMRMRD_CXFLOAT, ptr_img);
+		ISMRMRD::Image<complex_float_t>& img = *ptr_img;
 		for (int ic = 0; ic < nc; ic++)
 			for (int iz = 0; iz < nz; iz++)
 				for (int iy = 0; iy < ny; iy++)
 					for (int ix = 0; ix < nx; ix++)
 						img(ix, iy, iz, ic) = 
 							complex_float_t(re(ix, iy, iz, ic), im(ix, iy, iz, ic));
-		//mtx.lock();
-		//output.appendImage("csm", img);
-		//mtx.unlock();
+		mtx.lock();
+		output.appendImage("csm", img);
+		mtx.unlock();
+		delete ptr_img;
 	}
 
 	//for (int i = 0; i < ni; i++) {
@@ -737,7 +749,8 @@ int test11(const char* in_file)
 {
 	//CoilSensitivitiesAsImages csms(in_file);
 	//int n = csms.items();
-	void* ptr_csms = cGT_CoilSensitivitiesFromFile(in_file);
+	//void* ptr_csms = cGT_CoilSensitivitiesFromFile(in_file);
+	void* ptr_csms = cGT_CoilSensitivities(in_file);
 	void* ptr_n = cGT_dataItems(ptr_csms);
 	int n = intDataFromHandle(ptr_n);
 

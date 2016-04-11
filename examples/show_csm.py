@@ -36,13 +36,20 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = csms.csm_as_array(z)/maxv
-        shape = data.shape
+        #data = csms.csm_as_array(z)/maxv
+        #shape = data.shape
+        re, im = csms.csm_as_arrays(z)/maxv
+        shape = re.shape
         nc = shape[0]
         for i in range(nc):
-            pylab.figure(z*nc + i + 1)
-            pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
-            #pylab.imshow(data[i,0,:,:])
+##            pylab.figure(z*nc + i + 1)
+##            pylab.imshow(data[i,0,:,:], vmin = -1, vmax = 1)
+            pylab.figure((z + 1)*nc + i + 1)
+            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
+            pylab.colorbar();
+            pylab.figure((z + 2)*nc + i + 1)
+            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
+            pylab.colorbar();
             pylab.show()
 
 except error as err:
