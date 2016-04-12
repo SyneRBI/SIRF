@@ -1060,6 +1060,10 @@ private:
 
 class CoilSensitivitiesContainer : public aDataContainer {
 public:
+	void set_csm_smoothness(int s)
+	{
+		csm_smoothness_ = s;
+	}
 	virtual void get_dim(int slice, int* dim) = 0;
 	virtual void get_data(int slice, double* re, double* im) = 0;
 	virtual void get_data_abs(int slice, double* v) = 0;
@@ -1067,13 +1071,15 @@ public:
 	virtual void compute(AcquisitionsContainer& ac) = 0;
 	virtual CoilSensitivityMap& operator()(int slice) = 0;
 protected:
+	int csm_smoothness_;
 	std::list< boost::shared_ptr<CoilSensitivityMap> > csms_;
 };
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
 public:
-	CoilSensitivitiesAsImages() 
+	CoilSensitivitiesAsImages()
 	{
+		csm_smoothness_ = 0;
 	}
 	CoilSensitivitiesAsImages(const char* file)
 	{
@@ -1090,6 +1096,7 @@ public:
 			mtx.unlock();
 			append(sptr_img);
 		}
+		csm_smoothness_ = 0;
 	}
 
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
@@ -1185,7 +1192,7 @@ public:
 			}
 
 			ISMRMRD::NDArray<complex_float_t> w(cm0);
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < csm_smoothness_; i++)
 				smoothen_(cm0, w);
 
 			float* ptr = img.getDataPtr();

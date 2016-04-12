@@ -19,6 +19,14 @@ def _check_status(handle):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
+def _setParameter(hs, set, par, hv):
+    h = pygadgetron.cGT_setParameter(hs, set, par, hv)
+    _check_status(h)
+    pygadgetron.deleteDataHandle(h)
+def _set_int_par(handle, set, par, value):
+    h = pygadgetron.intDataHandle(value)
+    _setParameter(handle, set, par, h)
+    pygadgetron.deleteDataHandle(h)
 def _int_par(handle, set, par):
     h = pygadgetron.cGT_parameter(handle, set, par)
     _check_status(h)
@@ -153,6 +161,7 @@ class DataContainer(PyGadgetronObject):
 class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
+        self.smoothness = 0
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -161,6 +170,8 @@ class MR_CoilSensitivityMaps(DataContainer):
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
+    def set_smoothness(self, s):
+        self.smoothness = s
     def calculate(self, acqs):
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
@@ -168,6 +179,8 @@ class MR_CoilSensitivityMaps(DataContainer):
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
+        _set_int_par\
+            (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
         handle = pygadgetron.cGT_computeCoilSensitivities\
             (self.handle, acqs.handle)
         _check_status(handle)

@@ -131,6 +131,18 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 
 extern "C"
 void*
+cGT_setParameter(void* ptr, const char* obj, const char* par, const void* val)
+{
+	try {
+		if (boost::iequals(obj, "coil_sensitivity"))
+			return cGT_setCSParameter(ptr, par, val);
+		return unknownObject("object", obj, __FILE__, __LINE__);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_CoilSensitivities(const char* file)
 {
 	try {
@@ -146,6 +158,20 @@ cGT_CoilSensitivities(const char* file)
 		}
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cGT_setCSParameter(void* ptr, const char* par, const void* val)
+{
+	CAST_PTR(DataHandle, h_csms, ptr);
+	CoilSensitivitiesContainer& csms =
+		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	if (boost::iequals(par, "smoothness"))
+		csms.set_csm_smoothness(intDataFromHandle(val));
+	else
+		return unknownObject("parameter", par, __FILE__, __LINE__);
+	return new DataHandle;
 }
 
 extern "C"

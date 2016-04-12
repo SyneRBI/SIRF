@@ -6,6 +6,8 @@ extern "C" {
 #endif
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
+	void* cGT_setParameter
+		(void* ptr, const char* obj, const char* par, const void* val);
 
 	void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);

@@ -18,6 +18,7 @@ try:
 
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
+    csms.set_smoothness(5)
     csms.calculate(input_data)
 
     nz = csms.number()
@@ -42,14 +43,14 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-##        data = csms.csm_as_array(z)/maxv
+        data = csms.csm_as_array(z)/maxv
 ##        shape = data.shape
         re, im = csms.csm_as_arrays(z)/maxv
         shape = re.shape
         nc = shape[0]
         for i in range(nc):
-##            pylab.figure(z*nc + i + 1)
-##            pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
+            pylab.figure(z*nc + i + 1)
+            pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
             pylab.figure((z + 1)*nc + i + 1)
             pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
             pylab.figure((z + 2)*nc + i + 1)
