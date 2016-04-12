@@ -39,6 +39,7 @@ GCC                        Fullname (i.e. including the path) of gcc-4.7
                            compiler executable (newer versions of gcc are 
                            not supported by Matlab)
 HDF5_DISABLE_VERSION_CHECK 2
+LD_PRELOAD                 /lib64/libstdc++.so.6
 
 Go to <work_dir>/iUtilities and run make.
 
@@ -51,6 +52,8 @@ Go to <work_dir>/xGadgetron/mGadgetron and run make.
 Go to <work_dir>/xGadgetron/examples and run make. 
 
 Open a new Linux terminal and run gadgetron there.
+
+Add <work_dir>/xGadgetron/mGadgetron to Matlab path.
 
 Go to <work_dir>/xGadgetron/examples and run demos.
 
@@ -96,7 +99,7 @@ Start Matlab.
 
 Run mex_gadgetron.m (in <work_dir>/xGadgetron/mGadgetron).
 
-Add mGadgetron folder to Matlab path.
+Add <work_dir>/xGadgetron/mGadgetron to Matlab path.
 
 In <work_dir>/xGadgetron/examples execute
 
