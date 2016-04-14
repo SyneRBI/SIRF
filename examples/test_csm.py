@@ -11,14 +11,17 @@ from pGadgetron import *
 try:
  
     file = str(input('raw data file: '))
+##    file = 'testdata.h5'
     input_data = MR_Acquisitions(file)
 
     print('sorting acquisitions...')
     input_data.sort()
 
+    ns = int(input('smoothening loops: '))
+
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
-    csms.set_smoothness(5)
+    csms.set_smoothness(ns)
     csms.calculate(input_data)
 
     nz = csms.number()
@@ -47,15 +50,16 @@ try:
 ##        shape = data.shape
         re, im = csms.csm_as_arrays(z)/maxv
         shape = re.shape
-        nc = shape[0]
+        nc = 1 #shape[0]
         for i in range(nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
-            pylab.figure((z + 1)*nc + i + 1)
-            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
-            pylab.figure((z + 2)*nc + i + 1)
-            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
-            pylab.show()
+##            pylab.figure((z + 1)*nc + i + 1)
+##            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
+##            pylab.figure((z + 2)*nc + i + 1)
+##            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
+##            pylab.show()
+        pylab.show()
 
 except error as err:
     # display error information

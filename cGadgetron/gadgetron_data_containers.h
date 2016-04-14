@@ -1191,9 +1191,14 @@ public:
 				}
 			}
 
+			int* mask = new int[nx*ny*nc];
+			memset(mask, 0, nx*ny*nc*sizeof(int));
+			//for (long long int i = 0; i < nx*ny*nc; i++)
+			//	mask[i] = 1;
+
 			ISMRMRD::NDArray<complex_float_t> w(cm0);
-			for (int i = 0; i < csm_smoothness_; i++)
-				smoothen_(cm0, w);
+			//for (int i = 0; i < csm_smoothness_; i++)
+				//smoothen_(cm0, w);
 
 			float* ptr = img.getDataPtr();
 			for (unsigned int y = 0; y < ny; y++) {
@@ -1203,24 +1208,57 @@ public:
 						float s = std::abs(cm0(x, y, c));
 						r += s*s;
 					}
-					img(x, y) = r;
+					img(x, y) = std::sqrt(r);
 				}
 			}
-			boost::shared_ptr<CoilSensitivityMap> 
-				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
-			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			int* edge_mask = new int[nx*ny];
+			memset(edge_mask, 0, nx*ny*sizeof(int));
+			find_edges_(nx, ny, ptr, edge_mask);
+
+			float noise = max_(5, 5, ptr);
+			//std::cout << "noise: " << noise << '\n';
+			mask_noise_(nx, ny, ptr, noise, mask);
+			for (int i = 0; i < csm_smoothness_; i++)
+				smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), mask);
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
+					double r = 0.0;
+					for (unsigned int c = 0; c < nc; c++) {
+						float s = std::abs(cm0(x, y, c));
+						r += s*s;
+					}
+					img(x, y) = std::sqrt(r);
+				}
+			}
+
+			boost::shared_ptr<CoilSensitivityMap>
+				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
+			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			for (unsigned int y = 0, i = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++, i++) {
 					double r = img(x, y);
-					float s = 1.0 / std::sqrt(r);
+					float s;
+					if (r != 0.0)
+						s = 1.0 / r; //std::sqrt(r);
+					else
+						s = 0.0;
 					complex_float_t z(s, 0.0);
 					for (unsigned int c = 0; c < nc; c++) {
+						//csm(x, y, 0, c) = mask[i];
+						//csm(x, y, 0, c) = edge_mask[i];
+						//csm(x, y, 0, c) = img(x, y);
 						csm(x, y, 0, c) = cm0(x, y, c) * z;
 					}
 				}
 			}
 
+			//for (int i = 0; i < csm_smoothness_; i++)
+			//	smoothen_(nx, ny, nc, csm.getDataPtr(), w.getDataPtr(), edge_mask);
+
 			append(sptr_img);
+
+			delete[] mask;
+			delete[] edge_mask;
 
 		}
 		std::cout << '\n';
@@ -1277,6 +1315,133 @@ private:
 						u(ix - 1, iy + 1, iz) + u(ix, iy + 1, iz) + u(ix + 1, iy + 1, iz)
 						) / SIXTEEN;
 		u = v;
+	}
+	float max_(int nx, int ny, float* u)
+	{
+		float r = 0.0;
+		int i = 0;
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
+				float t = fabs(u[i]);
+				if (t > r)
+					r = t;
+			}
+		return r;
+	}
+	void mask_noise_
+		(int nx, int ny, float* u, float noise, int* mask)
+	{
+		int i = 0;
+		for (int iy = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
+				float t = fabs(u[i]);
+				mask[i] = (t > noise);
+			}
+	}
+	void smoothen_
+		(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v, int* mask)
+	{
+		const complex_float_t ONE(1.0, 0.0);
+		const complex_float_t TWO(2.0, 0.0);
+		for (int iz = 0, i = 0; iz < nz; iz++)
+			for (int iy = 0, k = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++, i++, k++) {
+					//float f = mask[k];
+					//v[i] = complex_float_t(f, 0.0);
+					//continue;
+					//if (!mask[k]) {
+					//	v[i] = 0.0;
+					//	continue;
+					//}
+					int n = 0;
+					complex_float_t r(0.0, 0.0);
+					complex_float_t s(0.0, 0.0);
+					for (int jy = -1; jy <= 1; jy++)
+						for (int jx = -1; jx <= 1; jx++) {
+							if (ix + jx < 0 || ix + jx >= nx)
+								continue;
+							if (iy + jy < 0 || iy + jy >= ny)
+								continue;
+							int j = i + jx + jy*nx;
+							if (i != j && mask[k + jx + jy*nx]) {
+								n++;
+								r += ONE;
+								s += u[j];
+							}
+						}
+					if (n > 0)
+						v[i] = (u[i] + s / r) / TWO;
+					else
+						v[i] = u[i];
+				}
+		memcpy(u, v, nx*ny*nz*sizeof(complex_float_t));
+	}
+	void smoothen_(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v)
+	{
+		const complex_float_t TWO(2.0, 0.0);
+		const complex_float_t SIXTEEN(16.0, 0.0);
+		for (int iz = 0, i = 0; iz < nz; iz++)
+			for (int iy = 0; iy < ny; iy++)
+				for (int ix = 0; ix < nx; ix++, i++)
+					if (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1)
+						v[i] = u[i];
+					else
+						v[i] = u[i] / TWO + (
+						u[i - nx - 1] + u[i - nx] + u[i - nx + 1] +
+						u[i - 1] + u[i + 1] +
+						u[i + nx - 1] + u[i + nx] + u[i + nx + 1]
+						) / SIXTEEN;
+		long long int n = nx;
+		n *= ny;
+		n *= nz;
+		memcpy(u, v, n*sizeof(complex_float_t));
+	}
+	void find_edges_(int nx, int ny, float* u, int* mask)
+	{
+		int ng = (nx - 2)*(ny - 2);
+		float* grad = new float[ng];
+		float max_grad = 0.0;
+		for (int iy = 1, i = 0; iy < ny - 1; iy++)
+			for (int ix = 1; ix < nx - 1; ix++, i++) {
+				int j = ix + iy*nx;
+				float dx = fabs(u[j + 1] - u[j - 1]);
+				float dy = fabs(u[j + nx] - u[j - nx]);
+				//float dx = fabs(u[j + 1] - u[j]);
+				//float dy = fabs(u[j + nx] - u[j]);
+				float d = std::sqrt(dx*dx + dy*dy);
+				if (d > max_grad)
+					max_grad = d;
+				grad[i] = d;
+			}
+		const float AH = 5;
+		int nh = ng / AH;
+		int* h = new int[nh];
+		memset(h, 0, nh*sizeof(int));
+		for (int i = 0; i < ng; i++) {
+			int j = (nh - 1) * (grad[i] / max_grad);
+			h[j]++;
+		}
+		std::ofstream out;
+		//out.open("h.txt");
+		//for (int i = 0; i < nh; i++)
+		//	out << h[i] << '\n';
+		//out.close();
+		float cutoff = 0.0;
+		float step = max_grad / nh;
+		for (int i = 10; i < nh; i++, cutoff += step)
+			if (h[i] < 1)
+				break;
+		//std::cout << "\nmax grad: " << max_grad << '\n';
+		//std::cout << "cutoff: " << cutoff << '\n';
+		for (int iy = 1, i = 0; iy < ny - 1; iy++)
+			for (int ix = 1; ix < nx - 1; ix++, i++) {
+				int j = ix + iy*nx;
+				if (grad[i] > cutoff)
+					mask[j] = 1;
+			}
+
+		delete[] grad;
+		delete[] h;
 	}
 };
 
