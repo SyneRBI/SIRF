@@ -1,6 +1,11 @@
 CXX = g++
-CFLAGS = -O3 -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
-LDFLAGS = $(X11LIB) -lrt
+EXTRA_CFLAGS=-O3 -DNDEBUG
+#EXTRA_CFLAGS=-g
+CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
+# enable this (or use it on the command line) if you compiled STIR with OPENMP=ON
+OPENMPFLAGS=-fopenmp
+#EXTRA_LDFLAGS=-g
+LDFLAGS = $(X11LIB) -lrt $(OPENMPFLAGS) $(EXTRA_LDFLAGS)
 
 SWIG = swig
 
@@ -42,9 +47,9 @@ REG_OBJECTS = \
 
 OBJECTS = ci_stir.o stir_p.o ci_dh.o ci_ex.o ci_tw.o
 
-all: libcstir pystir
+all: libcstir.a _pystir.so
 
-libcstir: $(OBJECTS)
+libcstir.a: $(OBJECTS)
 	$(ARCH) $(ARCHFLAGS) $(CSTIRLIB) $(OBJECTS)
 	$(RANLIB) $(CSTIRLIB)
 
@@ -91,14 +96,14 @@ main.exe: $(TEST_OBJECTS)
 	$(CXX) $(CFLAGS) -o main.exe $(TEST_OBJECTS) $(REG_OBJECTS)\
 		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
 
-pystir: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
+_pystir.so: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
 	$(CXX) $(CFLAGS) -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
-	$(CXX) $(CFLAGS) -shared pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) -l$(PYTHON) -o _pystir.so \
+	$(CXX) $(CFLAGS) -shared  -o _pystir.so pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) -l$(PYTHON) \
 		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
 
 %.o: %.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 clean:
-	-rm -f *.o *.exe
+	-rm -f *.o *.exe *.a *.pyc
