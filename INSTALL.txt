@@ -104,7 +104,9 @@ Cygwin/Linux installation steps (Python interface only)
 
 -Clone STIR from GitHub CCPPETMR, cd to STIR folder and run cmake (remove -fPIC flags on cygwin):
 
-   cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=<where STIR libraries re to be built> ./
+   mkdir build
+   cd build
+   cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_COMPILER=g++ -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=<where STIR libraries are to be built> ../
 
 -Run make to build STIR.
 
