@@ -1191,8 +1191,8 @@ public:
 				}
 			}
 
-			int* mask = new int[nx*ny*nc];
-			memset(mask, 0, nx*ny*nc*sizeof(int));
+			int* object_mask = new int[nx*ny*nc];
+			memset(object_mask, 0, nx*ny*nc*sizeof(int));
 			//for (long long int i = 0; i < nx*ny*nc; i++)
 			//	mask[i] = 1;
 
@@ -1200,7 +1200,7 @@ public:
 			//for (int i = 0; i < csm_smoothness_; i++)
 				//smoothen_(cm0, w);
 
-			float* ptr = img.getDataPtr();
+			float* ptr_img = img.getDataPtr();
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
 					double r = 0.0;
@@ -1213,13 +1213,21 @@ public:
 			}
 			int* edge_mask = new int[nx*ny];
 			memset(edge_mask, 0, nx*ny*sizeof(int));
-			find_edges_(nx, ny, ptr, edge_mask);
+			float* weight = new float[nx*ny];
+			find_edges_(nx, ny, ptr_img, edge_mask, weight);
+			cleanup_mask_(nx, ny, edge_mask, 0, 2, 4);
+			cleanup_mask_(nx, ny, edge_mask, 0, 4, 2);
+			cleanup_mask_(nx, ny, edge_mask, 0, 4, 2);
 
-			float noise = max_(5, 5, ptr);
+			float noise = max_(5, 5, ptr_img);
 			//std::cout << "noise: " << noise << '\n';
-			mask_noise_(nx, ny, ptr, noise, mask);
+			mask_noise_(nx, ny, ptr_img, noise, object_mask);
+			cleanup_mask_(nx, ny, object_mask, 0, 2, 0);
+			cleanup_mask_(nx, ny, object_mask, 0, 3, 0);
+			cleanup_mask_(nx, ny, object_mask, 0, 4, 0);
 			for (int i = 0; i < csm_smoothness_; i++)
-				smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), mask);
+				smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), 
+				object_mask, edge_mask);
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
 					double r = 0.0;
@@ -1234,6 +1242,7 @@ public:
 			boost::shared_ptr<CoilSensitivityMap>
 				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
 			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+
 			for (unsigned int y = 0, i = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++, i++) {
 					double r = img(x, y);
@@ -1244,7 +1253,8 @@ public:
 						s = 0.0;
 					complex_float_t z(s, 0.0);
 					for (unsigned int c = 0; c < nc; c++) {
-						//csm(x, y, 0, c) = mask[i];
+						//csm(x, y, 0, c) = weight[i];
+						//csm(x, y, 0, c) = object_mask[i];
 						//csm(x, y, 0, c) = edge_mask[i];
 						//csm(x, y, 0, c) = img(x, y);
 						csm(x, y, 0, c) = cm0(x, y, c) * z;
@@ -1252,12 +1262,23 @@ public:
 				}
 			}
 
+			//float* u = new float[nx*ny];
+			//for (unsigned int c = 0; c < nc; c++) {
+			//	for (unsigned int y = 0; y < ny; y++) {
+			//		for (unsigned int x = 0; x < nx; x++) {
+			//			csm(x, y, 0, c) = img(x, y);
+			//		}
+			//	}
+			//	smoothen_(nx, ny, ptr_img, u, object_mask, edge_mask);
+			//}
+			//delete[] u;
+
 			//for (int i = 0; i < csm_smoothness_; i++)
 			//	smoothen_(nx, ny, nc, csm.getDataPtr(), w.getDataPtr(), edge_mask);
 
 			append(sptr_img);
 
-			delete[] mask;
+			delete[] object_mask;
 			delete[] edge_mask;
 
 		}
@@ -1338,19 +1359,76 @@ private:
 				mask[i] = (t > noise);
 			}
 	}
+	void cleanup_mask_(int nx, int ny, int* mask, int bg, int minsz, int ex)
+	{
+		int ll, il;
+		int* listx = new int[nx*ny];
+		int* listy = new int[nx*ny];
+		int* inlist = new int[nx*ny];
+		memset(inlist, 0, nx*ny*sizeof(int));
+		for (int iy = 0, i = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
+				if (mask[i] == bg)
+					continue;
+				bool skip = false;
+				ll = 1;
+				listx[0] = ix;
+				listy[0] = iy;
+				inlist[i] = 1;
+				il = 0;
+				while (il < ll && ll < minsz) {
+					int lx = listx[il];
+					int ly = listy[il];
+					int l = ll + ex;
+					for (int jy = -l; jy <= l; jy++) {
+						for (int jx = -l; jx <= l; jx++) {
+							int kx = lx + jx;
+							int ky = ly + jy;
+							if (kx < 0 || kx >= nx)
+								continue;
+							if (ky < 0 || ky >= ny)
+								continue;
+							int j = kx + ky*nx;
+							if (inlist[j])
+								continue;
+							if (mask[j] != bg) {
+								ll++;
+								listx[ll] = kx;
+								listy[ll] = ky;
+								inlist[j] = 1;
+								//skip = true;
+								//break;
+							}
+						}
+						//if (skip)
+						//	break;
+					}
+					il++;
+				}
+				if (il == ll)
+					mask[i] = bg;
+				for (il = 0; il < ll; il++) {
+					int lx = listx[il];
+					int ly = listy[il];
+					int j = lx + ly*nx;
+					inlist[j] = 0;
+				}
+			}
+		delete[] listx;
+		delete[] listy;
+		delete[] inlist;
+	}
 	void smoothen_
-		(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v, int* mask)
+		(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v, 
+		int* obj_mask, int* edge_mask)
 	{
 		const complex_float_t ONE(1.0, 0.0);
 		const complex_float_t TWO(2.0, 0.0);
 		for (int iz = 0, i = 0; iz < nz; iz++)
 			for (int iy = 0, k = 0; iy < ny; iy++)
 				for (int ix = 0; ix < nx; ix++, i++, k++) {
-					//float f = mask[k];
-					//v[i] = complex_float_t(f, 0.0);
-					//continue;
-					//if (!mask[k]) {
-					//	v[i] = 0.0;
+					//if (edge_mask[k]) {
+					//	v[i] = u[i];
 					//	continue;
 					//}
 					int n = 0;
@@ -1363,7 +1441,8 @@ private:
 							if (iy + jy < 0 || iy + jy >= ny)
 								continue;
 							int j = i + jx + jy*nx;
-							if (i != j && mask[k + jx + jy*nx]) {
+							int l = k + jx + jy*nx;
+							if (i != j && obj_mask[l]) { // && !edge_mask[l]) {
 								n++;
 								r += ONE;
 								s += u[j];
@@ -1376,27 +1455,46 @@ private:
 				}
 		memcpy(u, v, nx*ny*nz*sizeof(complex_float_t));
 	}
-	void smoothen_(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v)
+	void smoothen_
+		(int nx, int ny, float* u, float* v,
+		int* obj_mask, int* edge_mask)
 	{
-		const complex_float_t TWO(2.0, 0.0);
-		const complex_float_t SIXTEEN(16.0, 0.0);
-		for (int iz = 0, i = 0; iz < nz; iz++)
-			for (int iy = 0; iy < ny; iy++)
-				for (int ix = 0; ix < nx; ix++, i++)
-					if (ix == 0 || ix == nx - 1 || iy == 0 || iy == ny - 1)
-						v[i] = u[i];
-					else
-						v[i] = u[i] / TWO + (
-						u[i - nx - 1] + u[i - nx] + u[i - nx + 1] +
-						u[i - 1] + u[i + 1] +
-						u[i + nx - 1] + u[i + nx] + u[i + nx + 1]
-						) / SIXTEEN;
-		long long int n = nx;
-		n *= ny;
-		n *= nz;
-		memcpy(u, v, n*sizeof(complex_float_t));
+		for (int iy = 0, i = 0; iy < ny; iy++)
+			for (int ix = 0; ix < nx; ix++, i++) {
+				if (edge_mask[i]) {
+					v[i] = u[i];
+					continue;
+				}
+				int n = 0;
+				float s = 0.0;
+				for (int jy = -1; jy <= 1; jy++)
+					for (int jx = -1; jx <= 1; jx++) {
+						if (ix + jx < 0 || ix + jx >= nx)
+							continue;
+						if (iy + jy < 0 || iy + jy >= ny)
+							continue;
+						int j = i + jx + jy*nx;
+						if (i != j && !edge_mask[j]) {
+							n++;
+							s += u[j];
+						}
+					}
+				//v[i] = (u[i] + s / 8.0) / 2;
+				if (n > 0)
+					v[i] = (u[i] + s / n) / 2;
+				else
+					v[i] = u[i];
+			}
+		memcpy(u, v, nx*ny*sizeof(float));
 	}
-	void find_edges_(int nx, int ny, float* u, int* mask)
+	float weight_(float x)
+	{
+		if (x*x > 1)
+			return 0;
+		float y = 1 - x*x;
+		return y*y;
+	}
+	void find_edges_(int nx, int ny, float* u, int* mask, float* weight)
 	{
 		int ng = (nx - 2)*(ny - 2);
 		float* grad = new float[ng];
@@ -1433,11 +1531,21 @@ private:
 				break;
 		//std::cout << "\nmax grad: " << max_grad << '\n';
 		//std::cout << "cutoff: " << cutoff << '\n';
+		for (int ix = 0; ix < nx; ix++) {
+			weight[ix] = 1.0;
+			weight[ix + nx*(ny - 1)] = 1.0;
+		}
+		for (int iy = 0; iy < ny; iy++) {
+			weight[nx*iy] = 1.0;
+			weight[nx*iy + nx - 1] = 1.0;
+		}
 		for (int iy = 1, i = 0; iy < ny - 1; iy++)
 			for (int ix = 1; ix < nx - 1; ix++, i++) {
 				int j = ix + iy*nx;
-				if (grad[i] > cutoff)
+				weight[j] = weight_(grad[i] / cutoff);
+				if (grad[i] > cutoff) {
 					mask[j] = 1;
+				}
 			}
 
 		delete[] grad;
