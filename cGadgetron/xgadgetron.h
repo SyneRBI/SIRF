@@ -318,9 +318,6 @@ public:
 		boost::shared_ptr<ImagesContainer> sptr_ic
 		) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
 	{
-		par_ = sptr_ac->parameters();
-		ISMRMRD::deserialize(par_.c_str(), header_);
-		sptr_ac->get_acquisition(0, acq_);
 	}
 
 	void setCSMs(boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
@@ -394,8 +391,6 @@ public:
 
 private:
 	std::string par_;
-	ISMRMRD::IsmrmrdHeader header_;
-	ISMRMRD::Acquisition acq_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 	boost::shared_ptr<ImagesContainer> sptr_imgs_;
 	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
@@ -420,12 +415,14 @@ private:
 		par = ac.parameters();
 		ISMRMRD::deserialize(par.c_str(), header);
 		ISMRMRD::Encoding e = header.encoding[0];
-		ISMRMRD::Acquisition acq(acq_);
+		ISMRMRD::Acquisition acq; // (acq_);
+		sptr_acqs_->get_acquisition(0, acq);
 
-		int readout = e.encodedSpace.matrixSize.x;
+		//int readout = e.encodedSpace.matrixSize.x;
 		unsigned int nx = e.reconSpace.matrixSize.x;
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
+		unsigned int readout = acq.number_of_samples();
 
 		std::vector<size_t> dims;
 		dims.push_back(readout); 
@@ -481,12 +478,14 @@ private:
 		par = ac.parameters();
 		ISMRMRD::deserialize(par.c_str(), header);
 		ISMRMRD::Encoding e = header.encoding[0];
-		ISMRMRD::Acquisition acq(acq_);
+		ISMRMRD::Acquisition acq; // (acq_);
+		sptr_acqs_->get_acquisition(0, acq);
 
-		int readout = e.encodedSpace.matrixSize.x;
+		//int readout = e.encodedSpace.matrixSize.x;
 		unsigned int nx = e.reconSpace.matrixSize.x;
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
+		unsigned int readout = acq.number_of_samples();
 
 		std::vector<size_t> dims;
 		dims.push_back(readout);

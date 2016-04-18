@@ -35,13 +35,13 @@ try:
 ##    csms.read(csm_file)
 
     print('---\n sorting acquisitions...')
-    input_data.sort()
+    processed_data.sort()
     print('---\n computing sensitivity maps...')
-    csms.calculate(input_data)
+    csms.calculate(processed_data)
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    am = MR_AcquisitionModel(input_data, complex_images)
+    am = MR_AcquisitionModel(processed_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -50,34 +50,25 @@ try:
 
     print('---\n reconstructed images forward projection norm %e' % acqs.norm())
 
-    # compute the difference between real and modelled acquisitions:
-    #   diff = acqs - P acqs,
-    # where P is the orthogonal projector onto input_data
-    a = (acqs * input_data) / (input_data * input_data)
-    diff = acqs - a * input_data
+    # compute the difference between real and modelled acquisitions
+    diff = acqs - processed_data
     rr = diff.norm()/acqs.norm()
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
     # apply the adjoint model (backward projection)
     imgs = am.backward(diff)
-    print('---\n its backward projection norm: %e' % imgs.norm())
 
     # test that the backward projection is the adjoint of forward
-    # on x = diff and y = interim_images
-    # (note that x = (1 - P)F y, so the result must be numerically real)
+    # on x = diff and y = complex_images
     xFy = diff * acqs
     Bxy = imgs * complex_images
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
-    # test images norm
-    s = imgs.norm()
-    ss = imgs * imgs
-    print('---\n (B x, B x) = (%e, %e) = %e' % (ss.real, ss.imag, s*s))
-
-    # test linear combination of images
-    im_diff = imgs - imgs
-    print('---\n 0.0 = %e' % im_diff.norm())
+    # comparint reconstructed images with backward-projected acquisitions
+    bwd_images = am.backward(processed_data)
+    im_diff = bwd_images - complex_images
+    print('---\n 0.0 = %e' % (im_diff.norm()/complex_images.norm()))
 
     # extract real images from complex
     images = MR_extract_real_images(complex_images)

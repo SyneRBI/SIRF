@@ -1141,10 +1141,13 @@ public:
 		ac.get_acquisition(0, acq);
 
 		ISMRMRD::Encoding e = header.encoding[0];
-		unsigned int readout = e.encodedSpace.matrixSize.x;
+		//unsigned int readout = e.encodedSpace.matrixSize.x;
 		unsigned int nx = e.reconSpace.matrixSize.x;
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
+		unsigned int readout = acq.number_of_samples();
+
+		//std::cout << readout << ' ' << acq.number_of_samples() << '\n';
 
 		std::vector<size_t> cm_dims;
 		cm_dims.push_back(readout);

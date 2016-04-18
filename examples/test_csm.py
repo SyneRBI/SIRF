@@ -14,6 +14,9 @@ try:
 ##    file = 'testdata.h5'
     input_data = MR_Acquisitions(file)
 
+    processed_data = MR_remove_x_oversampling(input_data)
+    processed_data.sort()
+
     print('sorting acquisitions...')
     input_data.sort()
 
@@ -22,7 +25,8 @@ try:
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
     csms.set_smoothness(ns)
-    csms.calculate(input_data)
+##    csms.calculate(input_data)
+    csms.calculate(processed_data)
 
     nz = csms.number()
     print('%d slices' % nz)
@@ -50,21 +54,21 @@ try:
 ##        shape = data.shape
         re, im = csms.csm_as_arrays(z)/maxv
         shape = re.shape
-        nc = 1 #shape[0]
+        nc = shape[0]
         ny = shape[1]
         nx = shape[2]
         for i in range(nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
-####            pylab.figure((z + 1)*nc + i + 1)
-####            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
-##            for iy in range(ny):
-##                for ix in range(nx):
-##                    im[i,0,iy,ix] = math.atan2(im[i,0,iy,ix], re[i,0,iy,ix])
-##            pylab.figure((z + 2)*nc + i + 1)
-##            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
-##            pylab.show()
-        pylab.show()
+            pylab.figure((z + 1)*nc + i + 1)
+            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
+            for iy in range(ny):
+                for ix in range(nx):
+                    im[i,0,iy,ix] = math.atan2(im[i,0,iy,ix], re[i,0,iy,ix])
+            pylab.figure((z + 2)*nc + i + 1)
+            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
+            pylab.show()
+##        pylab.show()
 
 except error as err:
     # display error information

@@ -23,13 +23,13 @@ try:
     # calculate coil sensitivity maps
     csms = MR_CoilSensitivityMaps()
     print('---\n sorting acquisitions...')
-    input_data.sort()
+    processed_data.sort()
     print('---\n calculating sensitivity maps...')
-    csms.calculate(input_data)
+    csms.calculate(processed_data)
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    am = MR_AcquisitionModel(input_data, complex_images)
+    am = MR_AcquisitionModel(processed_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
