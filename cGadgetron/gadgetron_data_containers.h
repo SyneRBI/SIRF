@@ -1176,7 +1176,7 @@ public:
 					}
 				}
 			}
-
+			
 			ifft2c(cm);
 
 			std::vector<size_t> cm0_dims;
@@ -1214,7 +1214,8 @@ public:
 					img(x, y) = std::sqrt(r);
 				}
 			}
-			int* edge_mask = new int[nx*ny];
+
+			int* edge_mask = new int[nx*ny];			
 			memset(edge_mask, 0, nx*ny*sizeof(int));
 			float* weight = new float[nx*ny];
 			find_edges_(nx, ny, ptr_img, edge_mask, weight);
@@ -1231,6 +1232,7 @@ public:
 			for (int i = 0; i < csm_smoothness_; i++)
 				smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), 
 				object_mask, edge_mask);
+
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
 					double r = 0.0;
@@ -1283,6 +1285,7 @@ public:
 
 			delete[] object_mask;
 			delete[] edge_mask;
+			delete[] weight;
 
 		}
 		std::cout << '\n';
@@ -1368,8 +1371,8 @@ private:
 		int* listx = new int[nx*ny];
 		int* listy = new int[nx*ny];
 		int* inlist = new int[nx*ny];
-		memset(inlist, 0, nx*ny*sizeof(int));
-		for (int iy = 0, i = 0; iy < ny; iy++)
+		std::memset(inlist, 0, nx*ny*sizeof(int));
+		for (int iy = 0, i = 0; iy < ny; iy++) {
 			for (int ix = 0; ix < nx; ix++, i++) {
 				if (mask[i] == bg)
 					continue;
@@ -1395,16 +1398,12 @@ private:
 							if (inlist[j])
 								continue;
 							if (mask[j] != bg) {
-								ll++;
 								listx[ll] = kx;
 								listy[ll] = ky;
 								inlist[j] = 1;
-								//skip = true;
-								//break;
+								ll++;
 							}
 						}
-						//if (skip)
-						//	break;
 					}
 					il++;
 				}
@@ -1417,6 +1416,7 @@ private:
 					inlist[j] = 0;
 				}
 			}
+		}
 		delete[] listx;
 		delete[] listy;
 		delete[] inlist;
