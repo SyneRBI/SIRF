@@ -471,3 +471,30 @@ def MR_extract_real_images(complex_images):
     _check_status(real_images.handle)
     pygadgetron.deleteObject(handle)
     return real_images
+
+def edge_weight(u):
+    shape = u.shape
+    nx = shape[0]
+    ny = shape[1]
+    mx = 2*nx - 1
+    my = 2*ny - 1
+    w = numpy.ndarray((mx, my), dtype = numpy.float32)
+    pygadgetron.find_edges(nx, ny, u.ctypes.data, w.ctypes.data)
+    return w
+
+def smoothen(u, w):
+    shape = u.shape
+    nx = shape[0]
+    ny = shape[1]
+##    v = numpy.ndarray((nx, ny), dtype = numpy.float64)
+    pygadgetron.smoothen(nx, ny, u.ctypes.data, w.ctypes.data)
+    #return v
+
+class NoiseFilter(PyGadgetronObject):
+    def __init__(self):
+        self.iter = 10
+    def filter(self, data):
+        for iter in range(self.iter):
+            w = edge_weight(data)
+            smoothen(data, w)
+            

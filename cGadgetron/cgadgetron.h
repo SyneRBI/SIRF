@@ -78,6 +78,10 @@ extern "C" {
 	void* cGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 	void* cGT_sendImages(void* ptr_con, void* ptr_img);
 	void* cGT_disconnect(void* ptr_con);
+
+	void find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w);
+	void smoothen(int nx, int ny, size_t ptr_u, size_t ptr_w);
+
 #ifndef CGADGETRON_FOR_MATLAB
 }
 #endif

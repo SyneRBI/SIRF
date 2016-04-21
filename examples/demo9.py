@@ -44,6 +44,16 @@ try:
         pylab.imshow(data[0,0,:,:])
         pylab.show()
 
+    pp = NoiseFilter()
+
+    # plot obtained images
+    for i in range(images.number()):
+        data = images.image_as_array(i)
+        pp.filter(data[0,0,:,:])
+        pylab.figure(i + 1)
+        pylab.imshow(data[0,0,:,:])
+        pylab.show()
+
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)
