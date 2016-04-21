@@ -1,4 +1,6 @@
 #include <iostream>
+#include <math.h>
+#include <string.h>
 
 extern "C"
 void
@@ -20,16 +22,16 @@ find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w)
 			if (ix % 2 == 0 && iy % 2 == 0)
 				continue;
 			if (ix % 2 == 1 && iy % 2 == 1) {
-				float s = std::abs(u[j + nx + 1] - u[j]);
-				float t = std::abs(u[j + nx] - u[j + 1]);
+				float s = fabs(u[j + nx + 1] - u[j]);
+				float t = fabs(u[j + nx] - u[j + 1]);
 				if (s > t)
 					t = s;
 				w[i] = t;
 			}
 			else if (ix % 2 == 1)
-				w[i] = std::abs(u[j + 1] - u[j]);
+				w[i] = fabs(u[j + 1] - u[j]);
 			else
-				w[i] = std::abs(u[j + nx] - u[j]);
+				w[i] = fabs(u[j + nx] - u[j]);
 			if (w[i] > max_grad)
 				max_grad = w[i];
 		}

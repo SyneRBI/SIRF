@@ -9,8 +9,8 @@ IUTILITIES = $(SRC_PATH)/iUtilities
 
 all: libcgt
 
-libcgt: cgadgetron.o ismrmrd_fftw.o
-	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o ismrmrd_fftw.o
+libcgt: cgadgetron.o ismrmrd_fftw.o noise_filter.o
+	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o ismrmrd_fftw.o noise_filter.o
 	$(RANLIB) libcgt.a
 	mv libcgt.a $(BUILD_PATH)/xGadgetron
 
