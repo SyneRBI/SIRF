@@ -59,20 +59,19 @@ try:
     rr = diff.norm()/acqs.norm()
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
-    # apply the adjoint model (backward projection)
-    imgs = am.backward(diff)
-
-    # test that the backward projection is the adjoint of forward
-    # on x = diff and y = complex_images
-    xFy = diff * acqs
-    Bxy = imgs * complex_images
-    print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
-    print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
-
-    # comparint reconstructed images with backward-projected acquisitions
+    # compare reconstructed images with backward-projected acquisitions
     bwd_images = am.backward(processed_data)
     im_diff = bwd_images - complex_images
-    print('---\n 0.0 = %e' % (im_diff.norm()/complex_images.norm()))
+    print(\
+        '---\n difference between reconstructed and back-projected images: %e'\
+        % (im_diff.norm()/complex_images.norm()))
+
+    # test that the backward projection is the adjoint of forward
+    # on x = processed_data and y = complex_images
+    xFy = processed_data * acqs
+    Bxy = bwd_images * complex_images
+    print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
+    print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
     # extract real images from complex
     images = MR_extract_real_images(complex_images)
