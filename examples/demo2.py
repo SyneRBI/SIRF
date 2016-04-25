@@ -1,9 +1,14 @@
+import os
 import pylab
 import sys
 import time
 
-sys.path.append('../../build/xGadgetron')
-sys.path.append('../pGadgetron')
+BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
+SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+
+sys.path.append(BUILD_PATH)
+sys.path.append(SRC_PATH)
+
 import pGadgetron
 import pGadgets
 
