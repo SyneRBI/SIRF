@@ -16,7 +16,6 @@ def main():
     # acquisitions will be read from this HDF file
     file = str(input('raw data file (with apostrophys in Python2.*): '))
     input_data = pGadgetron.MR_Acquisitions(file)
-##    input_data = pGadgetron.MR_Acquisitions('opismrmrd.h5')
 
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()
@@ -65,6 +64,7 @@ def main():
 
     # write images to a new group in 'output6.h5'
     # named after the current date and time
+    print('appending output6.h5...')
     time_str = time.asctime()
     images.write('output6.h5', time_str)
 

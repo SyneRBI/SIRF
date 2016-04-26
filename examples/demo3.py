@@ -51,6 +51,7 @@ try:
 
     # write images to a new group in 'output3.h5'
     # named after the current date and time
+    print('appending output3.h5...')
     time_str = time.asctime()
     images.write('output3.h5', time_str)
 
