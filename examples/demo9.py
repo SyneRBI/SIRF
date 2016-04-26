@@ -46,6 +46,7 @@ try:
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
     pp = NoiseFilter()
@@ -56,6 +57,7 @@ try:
         pp.filter(data[0,0,:,:])
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
 except error as err:

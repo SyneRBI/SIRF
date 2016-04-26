@@ -15,8 +15,6 @@ from pGadgets import *
 try:
     # acquisitions will be read from this HDF file
     input_data = MR_Acquisitions('testdata.h5')
-    # use noiseless data to check the acquisition model
-    # input_data = pGadgetron.ISMRMRDAcquisitions('ex_data.h5')
 
     # define gadgets
     gadget1 = RemoveROOversamplingGadget()
@@ -54,6 +52,7 @@ try:
         data = interim_images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
 except error as err:

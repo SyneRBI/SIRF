@@ -51,6 +51,7 @@ try:
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
     # write images to a new group in 'output1.h5'
