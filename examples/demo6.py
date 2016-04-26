@@ -12,9 +12,11 @@ sys.path.append(SRC_PATH)
 import pGadgetron
 import pGadgets
 
-try:
+def main():
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.MR_Acquisitions('opismrmrd.h5')
+    file = str(input('raw data file (with apostrophys in Python2.*): '))
+    input_data = pGadgetron.MR_Acquisitions(file)
+##    input_data = pGadgetron.MR_Acquisitions('opismrmrd.h5')
 
     # define gadgets
     gadget1 = pGadgets.RemoveROOversamplingGadget()
@@ -46,8 +48,10 @@ try:
     nz = images.number()
     print('%d images' % nz)
 
+    print('Please enter z-coordinate of the slice to view it')
+    print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:
-        s = str(input('enter z-coordinate: '))
+        s = str(input('z-coordinate: '))
         if len(s) < 1:
             break
         z = int(s)
@@ -56,6 +60,7 @@ try:
         data = images.image_as_array(z)
         pylab.figure(z)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
     # write images to a new group in 'output6.h5'
@@ -63,6 +68,9 @@ try:
     time_str = time.asctime()
     images.write('output6.h5', time_str)
 
+try:
+    main()
 except pGadgetron.error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)
+

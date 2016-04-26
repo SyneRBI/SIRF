@@ -13,9 +13,9 @@ sys.path.append(SRC_PATH)
 from pGadgetron import *
 from pGadgets import *
 
-try:
+def main():
     # acquisitions will be read from this HDF file
-    file = str(input('raw data file: '))
+    file = str(input('raw data file (with apostrophys in Python2.*): '))
     input_data = MR_Acquisitions(file)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
@@ -81,8 +81,11 @@ try:
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
+        print('delete the plot window to continue...')
         pylab.show()
 
+try:
+    main()
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)
