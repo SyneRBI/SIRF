@@ -52,14 +52,15 @@ find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w)
 			break;
 
 	//std::cout << cutoff << ' ' << max_grad << '\n';
+	float eps = 1e-6;
 
 	for (int iy = 0, i = 0; iy < my; iy++) {
 		for (int ix = 0; ix < mx; ix++, i++) {
 			float t = w[i] / cutoff;
 			if (t > 1)
-				w[i] = 0.0;
+				w[i] = eps; //0.0;
 			else
-				w[i] = 1.0;
+				w[i] = pow((1 - t*t*t*t), 2) + eps;//1.0;
 		}
 	}
 	for (int jy = 0; jy < ny; jy++)

@@ -492,9 +492,17 @@ def smoothen(u, w):
 
 class NoiseFilter(PyGadgetronObject):
     def __init__(self):
-        self.iter = 10
+        self.iter = 20
     def filter(self, data):
+##        for iter in range(self.iter):
+##            w = edge_weight(data)
+##            smoothen(data, w)
+        w = edge_weight(data)
+        smoothen(data, w)
+        smoothen(data, w)
+        smoothen(data, w)
+        smoothen(data, w)
+        w = edge_weight(data)
         for iter in range(self.iter):
-            w = edge_weight(data)
             smoothen(data, w)
             
