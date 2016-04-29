@@ -335,6 +335,19 @@ class MR_AcquisitionModel(PyGadgetronObject):
         _check_status(images.handle)
         return images
 
+class Gadget(PyGadgetronObject):
+    def __init__(self, name):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject(name)
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    def set_property(self, prop, value):
+        handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+
 class GadgetChain(PyGadgetronObject):
     def __init__(self):
         self.handle = pygadgetron.cGT_newObject('GadgetChain')

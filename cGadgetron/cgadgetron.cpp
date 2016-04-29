@@ -93,14 +93,26 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, IsmrmrdImgMsgReader>();
 		else if (boost::iequals(name, "MRIImageWriter"))
 			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
+		else if (boost::iequals(name, "NoiseAdjustGadget"))
+			return newObjectHandle<aGadget, NoiseAdjustGadget>();
+		else if (boost::iequals(name, "AsymmetricEchoGadget"))
+			return newObjectHandle<aGadget, AsymmetricEchoGadget>();
 		else if (boost::iequals(name, "RemoveROOversamplingGadget"))
 			return newObjectHandle<aGadget, RemoveOversamplingGadget>();
 		else if (boost::iequals(name, "AcquisitionAccumulateTriggerGadget"))
 			return newObjectHandle<aGadget, AcqAccTrigGadget>();
 		else if (boost::iequals(name, "BucketToBufferGadget"))
 			return newObjectHandle<aGadget, BucketToBuffGadget>();
+		else if (boost::iequals(name, "PrepRefGadget"))
+			return newObjectHandle<aGadget, PrepRefGadget>();
+		else if (boost::iequals(name, "CartesianGrappaGadget"))
+			return newObjectHandle<aGadget, CartesianGrappaGadget>();
 		else if (boost::iequals(name, "SimpleReconGadget"))
 			return newObjectHandle<aGadget, SimpleReconstructionGadget>();
+		else if (boost::iequals(name, "FOVAdjustmentGadget"))
+			return newObjectHandle<aGadget, FOVAdjustmentGadget>();
+		else if (boost::iequals(name, "ScalingGadget"))
+			return newObjectHandle<aGadget, ScalingGadget>();
 		else if (boost::iequals(name, "ImageArraySplitGadget"))
 			return newObjectHandle<aGadget, ImgArrSplitGadget>();
 		else if (boost::iequals(name, "ExtractGadget"))

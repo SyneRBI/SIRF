@@ -294,6 +294,7 @@ public:
 		(tcp::socket* stream, const ISMRMRD::ImageHeader& h, ISMRMRD::Image<T>& im)
 	{
 		im.setHead(h);
+		im.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
 
 		//Read meta attributes
 		typedef unsigned long long size_t_type;

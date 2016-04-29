@@ -84,6 +84,38 @@ public:
 	}
 };
 
+class NoiseAdjustGadget : public aGadget {
+public:
+	NoiseAdjustGadget() {
+		name_ = "NoiseAdjustGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>NoiseAdjust</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>NoiseAdjustGadget</classname>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+};
+
+class AsymmetricEchoGadget : public aGadget {
+public:
+	AsymmetricEchoGadget() {
+		name_ = "AsymmetricEchoGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>AsymmetricEcho</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>AsymmetricEchoAdjustROGadget</classname>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+};
+
 class RemoveOversamplingGadget : public aGadget {
 public:
 	RemoveOversamplingGadget() {
@@ -92,7 +124,7 @@ public:
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string xml() const {
 		std::string xml_script("<gadget>\n");
-	        xml_script += " <name>RemoveROOversampling</name>\n";
+		xml_script += " <name>RemoveROOversampling</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>RemoveROOversamplingGadget</classname>\n";
 		xml_script += "</gadget>\n";
@@ -178,6 +210,64 @@ private:
 	std::string split_slices_;
 };
 
+class PrepRefGadget : public aGadget {
+public:
+	PrepRefGadget() : 
+		debug_folder_("DebugFolder"), 
+		perform_timing_("true"), 
+		verbose_("true"),
+		av_all_ref_N_("true"),
+		av_all_ref_S_("true")
+	{
+		name_ = "PrepRefGadget";
+	}
+	virtual void set_property(const char* prop, const char* value)
+	{
+		if (boost::iequals(prop, "debug_folder"))
+			debug_folder_ = value;
+		else if (boost::iequals(prop, "perform_timing"))
+			perform_timing_ = value;
+		else if (boost::iequals(prop, "verbose"))
+			verbose_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>PrepRef</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>GenericCartesianReconReferencePrepGadget</classname>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>debug_folder</name>\n";
+		xml_script += "  <value>" + debug_folder_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>perform_timing</name>\n";
+		xml_script += "  <value>" + perform_timing_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>verbose</name>\n";
+		xml_script += "  <value>" + verbose_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>average_all_ref_N</name>\n";
+		xml_script += "  <value>" + av_all_ref_N_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>average_all_ref_S</name>\n";
+		xml_script += "  <value>" + av_all_ref_S_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+private:
+	std::string debug_folder_;
+	std::string perform_timing_;
+	std::string verbose_;
+	std::string av_all_ref_N_;
+	std::string av_all_ref_S_;
+};
+
 class SimpleReconstructionGadget : public aGadget {
 public:
 	SimpleReconstructionGadget() {
@@ -192,6 +282,180 @@ public:
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
+};
+
+class CartesianGrappaGadget : public aGadget {
+public:
+	CartesianGrappaGadget() :
+		debug_folder_("DebugFolder"),
+		perform_timing_("true"),
+		verbose_("true"),
+		send_out_gfactor_("true")
+	{
+		name_ = "CartesianGrappaGadget";
+	}
+	virtual void set_property(const char* prop, const char* value)
+	{
+		if (boost::iequals(prop, "debug_folder"))
+			debug_folder_ = value;
+		else if (boost::iequals(prop, "perform_timing"))
+			perform_timing_ = value;
+		else if (boost::iequals(prop, "verbose"))
+			verbose_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>CartesianGrappa</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>GenericCartesianGrappaReconGadget</classname>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>debug_folder</name>\n";
+		xml_script += "  <value>" + debug_folder_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>perform_timing</name>\n";
+		xml_script += "  <value>" + perform_timing_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>verbose</name>\n";
+		xml_script += "  <value>" + verbose_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>send_out_gfactor</name>\n";
+		xml_script += "  <value>" + send_out_gfactor_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+private:
+	std::string debug_folder_;
+	std::string perform_timing_;
+	std::string verbose_;
+	std::string send_out_gfactor_;
+};
+
+class FOVAdjustmentGadget : public aGadget {
+public:
+	FOVAdjustmentGadget() :
+		debug_folder_("DebugFolder"),
+		perform_timing_("false"),
+		verbose_("false")
+	{
+		name_ = "FOVAdjustmentGadget";
+	}
+	virtual void set_property(const char* prop, const char* value)
+	{
+		if (boost::iequals(prop, "debug_folder"))
+			debug_folder_ = value;
+		else if (boost::iequals(prop, "perform_timing"))
+			perform_timing_ = value;
+		else if (boost::iequals(prop, "verbose"))
+			verbose_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>FOVAdjustment</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += 
+			" <classname>GenericReconFieldOfViewAdjustmentGadget</classname>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>debug_folder</name>\n";
+		xml_script += "  <value>" + debug_folder_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>perform_timing</name>\n";
+		xml_script += "  <value>" + perform_timing_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>verbose</name>\n";
+		xml_script += "  <value>" + verbose_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+private:
+	std::string debug_folder_;
+	std::string perform_timing_;
+	std::string verbose_;
+};
+
+class ScalingGadget : public aGadget {
+public:
+	ScalingGadget() :
+		perform_timing_("false"),
+		verbose_("false"),
+		min_intensity_value_("64"),
+		max_intensity_value_("4095"),
+		scalingFactor_("10.0"),
+		use_constant_scalingFactor_("true"),
+		auto_scaling_only_once_("true"),
+		scalingFactor_dedicated_("100.0")
+	{
+		name_ = "ScalingGadget";
+	}
+	virtual void set_property(const char* prop, const char* value)
+	{
+		if (boost::iequals(prop, "perform_timing"))
+			perform_timing_ = value;
+		else if (boost::iequals(prop, "verbose"))
+			verbose_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>Scaling</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script +=
+			" <classname>GenericReconImageArrayScalingGadget</classname>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>perform_timing</name>\n";
+		xml_script += "  <value>" + perform_timing_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>verbose</name>\n";
+		xml_script += "  <value>" + verbose_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>min_intensity_value</name>\n";
+		xml_script += "  <value>" + min_intensity_value_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>max_intensity_value</name>\n";
+		xml_script += "  <value>" + max_intensity_value_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>scalingFactor</name>\n";
+		xml_script += "  <value>" + scalingFactor_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>use_constant_scalingFactor</name>\n";
+		xml_script += "  <value>" + use_constant_scalingFactor_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>scalingFactor_dedicated</name>\n";
+		xml_script += "  <value>" + scalingFactor_dedicated_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>auto_scaling_only_once</name>\n";
+		xml_script += "  <value>" + auto_scaling_only_once_ + "</value>\n";
+		xml_script += " </property>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+private:
+	std::string perform_timing_;
+	std::string verbose_;
+	std::string min_intensity_value_;
+	std::string max_intensity_value_;
+	std::string scalingFactor_;
+	std::string use_constant_scalingFactor_;
+	std::string auto_scaling_only_once_;
+	std::string scalingFactor_dedicated_;
 };
 
 class ImgArrSplitGadget : public aGadget {
