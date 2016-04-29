@@ -203,6 +203,16 @@ public:
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 		return s;
 	}
+	ISMRMRD::ImageHeader* ptr_head()
+	{
+		ISMRMRD::ImageHeader** h;
+		IMAGE_PROCESSING_SWITCH(type_, get_head_ptr_, ptr_, h);
+		return *h;
+	}
+	void set_imtype(ISMRMRD::ISMRMRD_ImageTypes imtype)
+	{
+		IMAGE_PROCESSING_SWITCH(type_, set_imtype_, ptr_, imtype);
+	}
 	void get_dim(int* dim) const
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_dim_, ptr_, dim);
@@ -279,6 +289,18 @@ private:
 	{
 		type_ = ptr_im->getDataType();
 		ptr_ = (void*)new ISMRMRD::Image<T>(*ptr_im);
+	}
+
+	template<typename T>
+	void get_head_ptr_(ISMRMRD::Image<T>* ptr_im, ISMRMRD::ImageHeader** h)
+	{
+		*h = &(ptr_im->getHead());
+	}
+
+	template<typename T>
+	void set_imtype_(ISMRMRD::Image<T>* ptr_im, ISMRMRD::ISMRMRD_ImageTypes type)
+	{
+		ptr_im->setImageType(type);
 	}
 
 	template<typename T>
@@ -871,6 +893,14 @@ public:
 	{
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_cmplx_data(re, im);
+	}
+
+	void set_image_to_real_conversion(int type)
+	{
+		for (int i = 0; i < number(); i++) {
+			ImageWrap& u = image_wrap(i);
+			u.set_imtype((ISMRMRD::ISMRMRD_ImageTypes)type);
+		}
 	}
 };
 

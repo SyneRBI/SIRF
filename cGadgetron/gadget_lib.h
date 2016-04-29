@@ -226,6 +226,43 @@ public:
 	}
 };
 
+class ComplexToFloatGadget : public aGadget {
+public:
+	ComplexToFloatGadget() {
+		name_ = "ComplexToFloatGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const {
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>ComplexToFloatAttrib</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>ComplexToFloatGadget</classname>\n";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+};
+
+class FloatToShortGadget : public aGadget {
+public:
+	FloatToShortGadget()
+	{
+		name_ = "FloatToShortGadget";
+	}
+	virtual void set_property(const char* prop, const char* value) {}
+	virtual std::string xml() const 
+	{
+		std::string xml_script("<gadget>\n");
+		xml_script += " <name>FloatToShortAttrib</name>\n";
+		xml_script += " <dll>gadgetron_mricore</dll>\n";
+		xml_script += " <classname>FloatToUShortGadget</classname>\n";
+		xml_script += "<property><name>max_intensity</name><value>32767</value></property>";
+		xml_script += "<property><name>min_intensity</name><value>0</value></property>";
+		xml_script += "<property><name>intensity_offset</name><value>0</value></property>";
+		xml_script += "</gadget>\n";
+		return xml_script;
+	}
+};
+
 class ImgFinishGadget : public aGadget {
 public:
 	ImgFinishGadget() {

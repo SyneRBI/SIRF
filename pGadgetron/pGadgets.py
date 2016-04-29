@@ -105,6 +105,24 @@ class ExtractGadget:
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
 
+class ComplexToFloatGadget:
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('ComplexToFloatGadget')
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+
+class FloatToShortGadget:
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('FloatToShortGadget')
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+
 class ImageFinishGadget:
     def __init__(self):
         self.handle = None

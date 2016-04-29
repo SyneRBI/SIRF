@@ -226,6 +226,8 @@ class ImagesContainer(DataContainer):
             (self.handle, out_file, out_group)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
+    def conversion_to_real(self, ctype):
+        pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
     def image_as_array(self, im_num):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\

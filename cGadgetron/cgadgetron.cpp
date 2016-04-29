@@ -105,6 +105,10 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, ImgArrSplitGadget>();
 		else if (boost::iequals(name, "ExtractGadget"))
 			return newObjectHandle<aGadget, ExtGadget>();
+		else if (boost::iequals(name, "ComplexToFloatGadget"))
+			return newObjectHandle<aGadget, ComplexToFloatGadget>();
+		else if (boost::iequals(name, "FloatToShortGadget"))
+			return newObjectHandle<aGadget, FloatToShortGadget>();
 		else if (boost::iequals(name, "ImageFinishGadget"))
 			return newObjectHandle<aGadget, ImgFinishGadget>();
 		else if (boost::iequals(name, "AcquisitionFinishGadget"))
@@ -469,6 +473,15 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
 	return sptrObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
+}
+
+extern "C"
+void
+cGT_setImageToRealConversion(void* ptr_imgs, int type)
+{
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
+	images.set_image_to_real_conversion(type);
 }
 
 extern "C"
