@@ -6,7 +6,6 @@ CGADGETRON = $(SRC_PATH)/xGadgetron/cGadgetron
 CGADGETRON_LIBRARY = $(BUILD_PATH)/xGadgetron/libcgt.a
 
 INCLUDE =  -I$(MATLABROOT)/extern/include \
-	 -I$(ISMRMRD_INCLUDE) \
 	-I$(IUTILITIES) -I$(CGADGETRON)
 
 LIBS = \

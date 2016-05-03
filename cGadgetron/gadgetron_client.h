@@ -593,11 +593,17 @@ public:
 			(*socket_, 
 			boost::asio::buffer(&im.getHead(), sizeof(ISMRMRD::ImageHeader)));
 
-		size_t meta_attrib_length = im.getAttributeStringLength() + 1;
-		std::string meta_attrib(meta_attrib_length, 0);
+		size_t meta_attrib_length = im.getAttributeStringLength();
+		std::string meta_attrib(meta_attrib_length + 1, 0);
 		im.getAttributeString(meta_attrib);
 
 		//std::cout << "attributes:" << std::endl << meta_attrib << std::endl;
+
+		if (meta_attrib_length > 0) {
+			size_t l = meta_attrib.find("</ismrmrdMeta>") + std::strlen("</ismrmrdMeta>");
+			//std::cout << meta_attrib_length << ' ' << l << '\n';
+			meta_attrib.erase(l);
+		}
 
 		boost::asio::write
 			(*socket_, boost::asio::buffer(&meta_attrib_length, sizeof(size_t)));

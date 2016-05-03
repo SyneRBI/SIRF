@@ -23,7 +23,7 @@
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
 #include "data_handle.h"
-#include "iutilities.h"
+//#include "iutilities.h" // causes problems with Matlab (cf. the same message below)
 #include "cgadgetron_par.h"
 #include "xgadgetron.h"
 #include "gadget_lib.h"
@@ -187,7 +187,8 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 	CoilSensitivitiesContainer& csms =
 		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 	if (boost::iequals(par, "smoothness"))
-		csms.set_csm_smoothness(intDataFromHandle(val));
+		csms.set_csm_smoothness(dataFromHandle<int>(val));
+	//csms.set_csm_smoothness(intDataFromHandle(val)); // causes problems with Matlab
 	else
 		return unknownObject("parameter", par, __FILE__, __LINE__);
 	return new DataHandle;
