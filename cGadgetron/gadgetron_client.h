@@ -593,7 +593,7 @@ public:
 			(*socket_, 
 			boost::asio::buffer(&im.getHead(), sizeof(ISMRMRD::ImageHeader)));
 
-		size_t meta_attrib_length = im.getAttributeStringLength();
+		size_t meta_attrib_length = im.getAttributeStringLength() + 1;
 		std::string meta_attrib(meta_attrib_length, 0);
 		im.getAttributeString(meta_attrib);
 

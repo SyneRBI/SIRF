@@ -14,8 +14,8 @@ from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
-    #input_data = MR_Acquisitions('test_2D_2x.h5')
+    file = str(input('raw data file (with apostrophys in Python2.*): '))
+    input_data = MR_Acquisitions(file)
 
     # define gadgets
     gadget11 = Gadget('NoiseAdjustGadget')
@@ -24,14 +24,12 @@ try:
     gadget21 = Gadget('AcquisitionAccumulateTriggerGadget')
     gadget22 = Gadget('BucketToBufferGadget')
     gadget221 = Gadget('PrepRefGadget')
-    #gadget23 = Gadget('SimpleReconGadget')
     gadget23 = Gadget('CartesianGrappaGadget')
     gadget241 = Gadget('FOVAdjustmentGadget')
     gadget242 = Gadget('ScalingGadget')
     gadget25 = Gadget('ImageArraySplitGadget')
     gadget31 = Gadget('ComplexToFloatGadget')
     gadget32 = Gadget('FloatToShortGadget')
-    gadget6 = Gadget('ExtractGadget')
 
     acq_proc = AcquisitionsProcessor()
     acq_proc.add_gadget('g1', gadget11)
@@ -49,39 +47,22 @@ try:
     recon.add_gadget('g41', gadget241)
     recon.add_gadget('g42', gadget242)
     recon.add_gadget('g5', gadget25)
-    #recon.add_gadget('g31', gadget31)
-    #recon.add_gadget('g32', gadget32)
-    recon.add_gadget('g6', gadget6)
     # connect to input data
     recon.set_input(interim_data)
     # perform reconstruction
     print('reconstructing...')
     recon.process()
     # get reconstructed images
-    #interim_images = recon.get_output()
-    images = recon.get_output()
+    interim_images = recon.get_output()
+    #images = recon.get_output()
 
-    # build image post-processing chain
-    img_proc0 = ImagesProcessor()
-    images0 = img_proc0.process(images)
-    #images0 = img_proc0.process(interim_images)
-
-##    img_proc = ImagesProcessor()
-##    img_proc.add_gadget('g6', gadget6)
-##    #img_proc.add_gadget('g1', gadget31)
-##    #img_proc.add_gadget('g2', gadget32)
-##    # post-process reconstructed images
-##    #interim_images.conversion_to_real(1)
-##    print('processing images...')
-##    images = img_proc.process(interim_images)
-
-##    # plot obtained images
-##    for i in range(images.number()):
-##        data = images.image_as_array(i)
-##        pylab.figure(i + 1)
-##        pylab.imshow(data[0,0,:,:])
-##        print('close the plot window to continue...')
-##        pylab.show()
+    img_proc = ImagesProcessor()
+    img_proc.add_gadget('g1', gadget31)
+    img_proc.add_gadget('g2', gadget32)
+    # post-process reconstructed images
+    interim_images.conversion_to_real(1)
+    print('processing images...')
+    images = img_proc.process(interim_images)
 
     nz = images.number()
     print('%d images' % nz)
