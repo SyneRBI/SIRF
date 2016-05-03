@@ -1,3 +1,7 @@
+'''
+Basic GRAPPA reconstruction demo
+'''
+
 import os
 import pylab
 import sys
@@ -23,11 +27,11 @@ try:
     gadget13 = Gadget('RemoveROOversamplingGadget')
     gadget21 = Gadget('AcquisitionAccumulateTriggerGadget')
     gadget22 = Gadget('BucketToBufferGadget')
-    gadget221 = Gadget('PrepRefGadget')
-    gadget23 = Gadget('CartesianGrappaGadget')
-    gadget241 = Gadget('FOVAdjustmentGadget')
-    gadget242 = Gadget('ScalingGadget')
-    gadget25 = Gadget('ImageArraySplitGadget')
+    gadget23 = Gadget('PrepRefGadget')
+    gadget24 = Gadget('CartesianGrappaGadget')
+    gadget25 = Gadget('FOVAdjustmentGadget')
+    gadget26 = Gadget('ScalingGadget')
+    gadget27 = Gadget('ImageArraySplitGadget')
     gadget31 = Gadget('ComplexToFloatGadget')
     gadget32 = Gadget('FloatToShortGadget')
 
@@ -36,38 +40,37 @@ try:
     acq_proc.add_gadget('g2', gadget12)
     acq_proc.add_gadget('g3', gadget13)
     print('processing acquisitions...')
-    interim_data = acq_proc.process(input_data)
+    preprocessed_data = acq_proc.process(input_data)
 
     # create reconstruction object
     recon = ImagesReconstructor()
     recon.add_gadget('g1', gadget21)
     recon.add_gadget('g2', gadget22)
-    recon.add_gadget('g21', gadget221)
     recon.add_gadget('g3', gadget23)
-    recon.add_gadget('g41', gadget241)
-    recon.add_gadget('g42', gadget242)
+    recon.add_gadget('g4', gadget24)
     recon.add_gadget('g5', gadget25)
+    recon.add_gadget('g6', gadget26)
+    recon.add_gadget('g7', gadget27)
     # connect to input data
-    recon.set_input(interim_data)
+    recon.set_input(preprocessed_data)
     # perform reconstruction
     print('reconstructing...')
     recon.process()
     # get reconstructed images
-    interim_images = recon.get_output()
-    #images = recon.get_output()
+    complex_images = recon.get_output()
 
     img_proc = ImagesProcessor()
     img_proc.add_gadget('g1', gadget31)
     img_proc.add_gadget('g2', gadget32)
     # post-process reconstructed images
-    interim_images.conversion_to_real(1)
+    complex_images.conversion_to_real(1)
     print('processing images...')
-    images = img_proc.process(interim_images)
+    images = img_proc.process(complex_images)
 
     nz = images.number()
-    print('%d images' % nz)
+    print('%d images reconstructed.' % nz)
 
-    print('Please enter z-coordinate of the slice to view it')
+    print('Enter z-coordinate of the slice to view it')
     print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:
         s = str(input('z-coordinate: '))
@@ -77,9 +80,9 @@ try:
         if z < 0 or z >= nz:
             break
         data = images.image_as_array(z)
-        pylab.figure(z)
+        pylab.figure(z + 1)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (z + 1))
         pylab.show()
 
 except error as err:
