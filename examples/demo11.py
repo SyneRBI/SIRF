@@ -1,5 +1,5 @@
 '''
-Basic GRAPPA reconstruction demo (low level interface)
+Basic GRAPPA reconstruction demo (high level interface)
 '''
 
 import os
@@ -21,36 +21,13 @@ try:
     file = str(input('raw data file (with apostrophys in Python2.*): '))
     input_data = MR_Acquisitions(file)
 
-    # define gadgets
-    gadget11 = Gadget('NoiseAdjustGadget')
-    gadget12 = Gadget('AsymmetricEchoGadget')
-    gadget13 = Gadget('RemoveROOversamplingGadget')
-    gadget21 = Gadget('AcquisitionAccumulateTriggerGadget')
-    gadget22 = Gadget('BucketToBufferGadget')
-    gadget23 = Gadget('PrepRefGadget')
-    gadget24 = Gadget('CartesianGrappaGadget')
-    gadget25 = Gadget('FOVAdjustmentGadget')
-    gadget26 = Gadget('ScalingGadget')
-    gadget27 = Gadget('ImageArraySplitGadget')
-    gadget31 = Gadget('ComplexToFloatGadget')
-    gadget32 = Gadget('FloatToShortGadget')
-
-    acq_proc = AcquisitionsProcessor()
-    acq_proc.add_gadget('g1', gadget11)
-    acq_proc.add_gadget('g2', gadget12)
-    acq_proc.add_gadget('g3', gadget13)
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+         'RemoveROOversamplingGadget']
+    acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
 
-    # create reconstruction object
-    recon = ImagesReconstructor()
-    recon.add_gadget('g1', gadget21)
-    recon.add_gadget('g2', gadget22)
-    recon.add_gadget('g3', gadget23)
-    recon.add_gadget('g4', gadget24)
-    recon.add_gadget('g5', gadget25)
-    recon.add_gadget('g6', gadget26)
-    recon.add_gadget('g7', gadget27)
+    recon = MR_BasicGRAPPAReconstruction()
     # connect to input data
     recon.set_input(preprocessed_data)
     # perform reconstruction
@@ -59,17 +36,14 @@ try:
     # get reconstructed images
     complex_images = recon.get_output()
 
-    img_proc = ImagesProcessor()
-    img_proc.add_gadget('g1', gadget31)
-    img_proc.add_gadget('g2', gadget32)
     # post-process reconstructed images
-    complex_images.conversion_to_real(1)
     print('processing images...')
-    images = img_proc.process(complex_images)
+    images = MR_extract_real_images(complex_images)
 
     nz = images.number()
     print('%d images reconstructed.' % nz)
 
+    # plot obtained images
     print('Enter z-coordinate of the slice to view it')
     print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:

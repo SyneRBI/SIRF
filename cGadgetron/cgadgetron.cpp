@@ -83,6 +83,9 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GadgetChain, RemoveOversamplingProcessor>();
 		else if (boost::iequals(name, "SimpleReconstructionProcessor"))
 			return newObjectHandle<GadgetChain, SimpleReconstructionProcessor>();
+		else if (boost::iequals(name, "SimpleGRAPPAReconstructionProcessor"))
+			return 
+			newObjectHandle<GadgetChain, SimpleGRAPPAReconstructionProcessor>();
 		else if (boost::iequals(name, "ExtractRealImagesProcessor"))
 			return newObjectHandle<GadgetChain, ExtractRealImagesProcessor>();
 		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))

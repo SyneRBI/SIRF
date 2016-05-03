@@ -419,11 +419,15 @@ class ImagesProcessor(GadgetChain):
 ##        return images
 
 class AcquisitionsProcessor(GadgetChain):
-    def __init__(self):
+    def __init__(self, list = None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('AcquisitionsProcessor')
         _check_status(self.handle)
         self.input_data = None
+        if list is None:
+            return
+        for i in range(len(list)):
+            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -448,6 +452,17 @@ class MR_BasicReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')
+        _check_status(self.handle)
+        self.input_data = None
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    
+class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject\
+            ('SimpleGRAPPAReconstructionProcessor')
         _check_status(self.handle)
         self.input_data = None
     def __del__(self):
