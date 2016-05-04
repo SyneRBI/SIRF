@@ -11,7 +11,6 @@ sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
 from pGadgetron import *
-from pGadgets import *
 
 def main():
     # acquisitions will be read from this HDF file
@@ -81,7 +80,7 @@ def main():
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
 
 try:

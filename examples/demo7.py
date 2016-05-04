@@ -36,7 +36,7 @@ try:
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
 
 except error as err:

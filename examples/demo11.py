@@ -14,7 +14,6 @@ sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
 from pGadgetron import *
-from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file

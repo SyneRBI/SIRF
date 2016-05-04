@@ -9,25 +9,24 @@ SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
-import pGadgetron
-import pGadgets
+from pGadgetron import *
 
 def main():
     # acquisitions will be read from this HDF file
     file = str(input('raw data file (with apostrophys in Python2.*): '))
-    input_data = pGadgetron.MR_Acquisitions(file)
+    input_data = MR_Acquisitions(file)
 
     # define gadgets
-    gadget1 = pGadgets.RemoveROOversamplingGadget()
-    gadget2 = pGadgets.SimpleReconstructionGadget()
-    gadget3 = pGadgets.ExtractGadget()
+    gadget1 = Gadget('RemoveROOversamplingGadget')
+    gadget2 = Gadget('SimpleReconGadgetSet')
+    gadget3 = Gadget('ExtractGadget')
 
     # set gadgets parameters
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget2.set_property('split_slices', 'true')
 
     # create reconstruction object
-    recon = pGadgetron.ImagesReconstructor()
+    recon = ImagesReconstructor()
 
     # build gadgets chain
     recon.add_gadget('g1', gadget1)
@@ -59,7 +58,7 @@ def main():
         data = images.image_as_array(z)
         pylab.figure(z)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (z + 1))
         pylab.show()
 
     # write images to a new group in 'output6.h5'
@@ -70,7 +69,7 @@ def main():
 
 try:
     main()
-except pGadgetron.error as err:
+except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)
 

@@ -9,26 +9,25 @@ SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
-import pGadgetron
-import pGadgets
+from pGadgetron import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = pGadgetron.MR_Acquisitions('testdata.h5')
+    input_data = MR_Acquisitions('testdata.h5')
     
     # define gadgets
-    gadget1 = pGadgets.RemoveROOversamplingGadget()
-    gadget2 = pGadgets.AcquisitionAccumulateTriggerGadget()
-    gadget3 = pGadgets.BucketToBufferGadget()
-    gadget4 = pGadgets.SimpleReconGadget()
-    gadget5 = pGadgets.ImageArraySplitGadget()
-    gadget6 = pGadgets.ExtractGadget()
+    gadget1 = Gadget('RemoveROOversamplingGadget')
+    gadget2 = Gadget('AcquisitionAccumulateTriggerGadget')
+    gadget3 = Gadget('BucketToBufferGadget')
+    gadget4 = Gadget('SimpleReconGadget')
+    gadget5 = Gadget('ImageArraySplitGadget')
+    gadget6 = Gadget('ExtractGadget')
 
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget3.set_property('split_slices', 'true')
 
     # create reconstruction object
-    recon = pGadgetron.ImagesReconstructor()
+    recon = ImagesReconstructor()
 
     # build gadgets chain
     recon.add_gadget('g1', gadget1)
@@ -51,7 +50,7 @@ try:
         data = images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
 
     # write images to a new group in 'output1.h5'
@@ -60,6 +59,6 @@ try:
     time_str = time.asctime()
     images.write('output1.h5', time_str)
 
-except pGadgetron.error as err:
+except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

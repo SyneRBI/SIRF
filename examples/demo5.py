@@ -10,16 +10,15 @@ sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
 from pGadgetron import *
-from pGadgets import *
 
 try:
     # acquisitions will be read from this HDF file
     input_data = MR_Acquisitions('testdata.h5')
 
     # define gadgets
-    gadget1 = RemoveROOversamplingGadget()
-    gadget2 = SimpleReconstructionGadget()
-    gadget3 = ExtractGadget()
+    gadget1 = Gadget('RemoveROOversamplingGadget')
+    gadget2 = Gadget('SimpleReconGadgetSet')
+    gadget3 = Gadget('ExtractGadget')
 
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget2.set_property('split_slices', 'true')
@@ -52,7 +51,7 @@ try:
         data = interim_images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
-        print('delete the plot window to continue...')
+        print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
 
 except error as err:

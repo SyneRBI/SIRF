@@ -11,7 +11,6 @@ sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
 from pGadgetron import *
-from pGadgets import *
 
 def edge_weight(u):
     shape = u.shape

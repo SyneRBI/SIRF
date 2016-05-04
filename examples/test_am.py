@@ -11,7 +11,6 @@ sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
 from pGadgetron import *
-from pGadgets import *
 
 def rel_diff(u, v):
     a = (u * v) / (v * v)
