@@ -1,4 +1,4 @@
-CFLAGS = -O3 -fopenmp -fPIC -DNDEBUG -DGCC
+CFLAGS = -O3 -fPIC -DNDEBUG -DGCC
 
 IUTILITIES = $(SRC_PATH)/iUtilities
 IUTILITIES_LIBRARY = $(BUILD_PATH)/iUtilities/libiutil.a
