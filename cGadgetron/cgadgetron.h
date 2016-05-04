@@ -31,6 +31,7 @@ extern "C" {
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
+	void* cGT_imageTypes(const void* ptr_x);
 
 #ifndef CGADGETRON_FOR_MATLAB
 	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim);

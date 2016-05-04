@@ -40,7 +40,11 @@ try:
     print('processing images...')
     images = MR_extract_real_images(complex_images)
 
-    nz = images.number()
+    # for undersampled acquisition data GRAPPA computes Gfactor images
+    # in addition to reconstructed ones
+    nt = images.types() # 1 for fully sampled, 2 for undersampled
+    ni = images.number()
+    nz = ni/nt
     print('%d images reconstructed.' % nz)
 
     # plot obtained images
@@ -53,10 +57,12 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = images.image_as_array(z)
-        pylab.figure(z + 1)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (z + 1))
+        for j in range(nt):
+            i = nt*z + j
+            data = images.image_as_array(i)
+            pylab.figure(i + 1)
+            pylab.imshow(data[0,0,:,:])
+            print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
 
 except error as err:

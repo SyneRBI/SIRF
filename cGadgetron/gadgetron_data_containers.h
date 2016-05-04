@@ -829,7 +829,9 @@ private:
 
 class ImagesContainer : public aDataContainer {
 public:
-	virtual int number() const = 0;
+	virtual int number() = 0;
+	virtual int types() = 0;
+	virtual void count(int i) = 0;
 	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
 	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
 		(unsigned int im_num) const = 0;
@@ -906,28 +908,42 @@ public:
 
 class ImagesList : public ImagesContainer {
 public:
-	ImagesList() : images_()
+	ImagesList() : images_(), nimages_(0)
 	{
 	}
 	ImagesList(const ImagesList& list)
 	{
+		int n = 0;
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
-		for (i = list.images_.begin(); i != list.images_.end(); i++) {
+		for (i = list.images_.begin(); i != list.images_.end(); i++, n++) {
 			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 			append(*sptr_iw);
 		}
+		nimages_ = n;
 	}
 	virtual int items()
 	{
 		return (int)images_.size();
 	}
-	virtual int number() const
+	virtual int number()
 	{
 		return (int)images_.size();
+	}
+	virtual int types()
+	{
+		if (nimages_ > 0)
+			return images_.size() / nimages_;
+		else
+			return 1;
+	}
+	virtual void count(int i)
+	{
+		if (i > nimages_)
+			nimages_ = i;
 	}
 	virtual void append(int image_data_type, void* ptr_image)
 	{
@@ -1026,6 +1042,7 @@ public:
 
 private:
 	std::list<boost::shared_ptr<ImageWrap> > images_;
+	int nimages_;
 };
 
 class CoilSensitivityMap {

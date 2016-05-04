@@ -542,6 +542,22 @@ cGT_getImageDataAsCmplxArray
 
 extern "C"
 void*
+cGT_imageTypes(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
+		int* result = (int*)malloc(sizeof(int));
+		*result = x.types();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_dataItems(const void* ptr_x)
 {
 	try {

@@ -221,6 +221,12 @@ class ImagesContainer(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def types(self):
+        handle = pygadgetron.cGT_imageTypes(self.handle)
+        _check_status(handle)
+        n = pygadgetron.intDataFromHandle(handle)
+        pygadgetron.deleteDataHandle(handle)
+        return n
     def write(self, out_file, out_group):
         handle = pygadgetron.cGT_writeImages\
             (self.handle, out_file, out_group)

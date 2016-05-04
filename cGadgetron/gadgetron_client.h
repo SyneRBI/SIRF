@@ -364,8 +364,10 @@ public:
 			this->read_data_attrib
 				(stream, h, *(ISMRMRD::Image< std::complex<double> >* )ptr);
 		}
-		if (ptr)
+		if (ptr) {
 			ptr_images_->append(h.data_type, ptr);
+			ptr_images_->count(h.image_index);
+		}
 	}
 
 private:
