@@ -43,6 +43,8 @@ extern "C" {
 		(void* ptr_imgs, int img_num, size_t ptr_data);
 	void cGT_getImageDataAsComplexArray
 		(void* ptr_imgs, int img_num, size_t ptr_data);
+	void find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w);
+	void smoothen(int nx, int ny, size_t ptr_u, size_t ptr_w);
 #else
 	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim);
 	void
@@ -52,6 +54,8 @@ extern "C" {
 	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
 	void cGT_getImageDataAsCmplxArray
 		(void* ptr_imgs, int img_num, double* re, double* im);
+	void find_edges(int nx, int ny, double* ptr_u, float* ptr_w);
+	void smoothen(int nx, int ny, double* ptr_u, float* ptr_w);
 #endif
 
 	void* cGT_dataItems(const void* ptr_x);
@@ -79,9 +83,6 @@ extern "C" {
 	void* cGT_sendAcquisitions(void* ptr_con, void* ptr_dat);
 	void* cGT_sendImages(void* ptr_con, void* ptr_img);
 	void* cGT_disconnect(void* ptr_con);
-
-	void find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w);
-	void smoothen(int nx, int ny, size_t ptr_u, size_t ptr_w);
 
 #ifndef CGADGETRON_FOR_MATLAB
 }

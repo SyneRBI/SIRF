@@ -9,9 +9,9 @@ end
 
 try
     % define gadgets
-    gadget1 = gadgets.RemoveROOversamplingGadget();
-	gadget2 = gadgets.SimpleReconstructionGadget();
-	gadget3 = gadgets.ExtractGadget();
+    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
+    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
+    gadget3 = gadgetron.Gadget('ExtractGadget');
     
     % set gadgets parameters
     gadget2.set_property('trigger_dimension', 'repetition')
@@ -26,7 +26,8 @@ try
 	recon.add_gadget('g3', gadget3);
     
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('opismrmrd.h5');
+    file = input('raw data file: ', 's');
+    input_data = gadgetron.MR_Acquisitions(file);
     
     % connect to input data
     recon.set_input(input_data)

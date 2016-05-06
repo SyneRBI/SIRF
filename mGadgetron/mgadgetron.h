@@ -9,6 +9,7 @@ extern "C" {
 #endif
 EXPORTED_FUNCTION  void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
+EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val);
 EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file);
 EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
@@ -23,9 +24,11 @@ EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs);
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input);
+EXPORTED_FUNCTION 	void mGT_setImageToRealConversion(void* ptr_imgs, int type);
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, const char* out_group);
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
+EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x);
 #ifndef CGADGETRON_FOR_MATLAB
 EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim);
 EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im);
@@ -33,6 +36,8 @@ EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t pt
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, size_t ptr_data);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, size_t ptr_data);
+EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, size_t ptr_u, size_t ptr_w);
+EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, size_t ptr_u, size_t ptr_w);
 #else
 EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim);
 EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, double* re, double* im);
@@ -40,6 +45,8 @@ EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, double* v
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray (void* ptr_imgs, int img_num, double* re, double* im);
+EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, double* ptr_u, float* ptr_w);
+EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, double* ptr_u, float* ptr_w);
 #endif
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x);

@@ -27,13 +27,13 @@ try
 
     csms = gadgetron.MR_CoilSensitivityMaps();
     fprintf('sorting acquisitions...\n')
-    input_data.sort()
+    processed_data.sort()
     fprintf('calculating sensitivity maps...\n')
-    csms.calculate(input_data)
+    csms.calculate(processed_data)
 
     % create acquisition model based on the acquisition parameters
     % stored in input_data and image parameters stored in interim_images
-    am = gadgetron.MR_AcquisitionModel(input_data, complex_images);
+    am = gadgetron.MR_AcquisitionModel(processed_data, complex_images);
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -41,16 +41,15 @@ try
     acqs = am.forward(complex_images);
 
     % compute the difference between real and modelled acquisitions
-    a = (acqs * input_data) / (input_data * input_data);
-    diff = acqs - input_data * a;
+    diff = acqs - processed_data;
     fprintf('reconstruction residual: %e\n', diff.norm()/acqs.norm())
 
     % apply the adjoint model (backward projection)
-    imgs = am.backward(diff);
+    imgs = am.backward(processed_data);
 
     % test that the backward projection is the adjoint of forward
     % on x = diff and y = complex_images
-    fprintf('(x, F y) = %s\n', num2str(diff * acqs))
+    fprintf('(x, F y) = %s\n', num2str(processed_data * acqs))
     fprintf('= (B x, y) = %s\n', num2str(imgs * complex_images))
 
     % test images norm and dot product
@@ -58,8 +57,8 @@ try
     fprintf('(B x, B x) = %s = %e\n', num2str(imgs * imgs), s*s)
 
     % test linear combination of images
-    im_diff = imgs - imgs;
-    fprintf('0.0 = %e\n', im_diff.norm())
+    im_diff = imgs - complex_images;
+    fprintf('0.0 = %e\n', im_diff.norm()/complex_images.norm())
 
     % plot obtained images
     for i = 1 : images.number()
@@ -68,7 +67,7 @@ try
         data = data/max(max(max(data)));
         imshow(data(:,:,1,1));
     end
-    
+
 catch err
     % display error information
     fprintf('%s\n', err.message)

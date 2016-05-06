@@ -14,6 +14,9 @@ EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name) {
 	return cGT_parameter(ptr, obj, name);
 }
+EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val) {
+	return cGT_setParameter (ptr, obj, par, val);
+}
 EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file) {
 	return cGT_CoilSensitivities(file);
 }
@@ -56,6 +59,9 @@ EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon) {
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 	return cGT_processImages(ptr_proc, ptr_input);
 }
+EXPORTED_FUNCTION 	void mGT_setImageToRealConversion(void* ptr_imgs, int type) {
+	cGT_setImageToRealConversion(ptr_imgs, type);
+}
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs) {
 	return cGT_imagesCopy(ptr_imgs);
 }
@@ -64,6 +70,9 @@ EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, 
 }
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num) {
 	return cGT_imageWrapFromContainer(ptr_imgs, img_num);
+}
+EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
+	return cGT_imageTypes(ptr_x);
 }
 #ifndef CGADGETRON_FOR_MATLAB
 EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim) {
@@ -84,6 +93,12 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_n
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, size_t ptr_data) {
 	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
 }
+EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, size_t ptr_u, size_t ptr_w) {
+	find_edges(nx, ny, ptr_u, ptr_w);
+}
+EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, size_t ptr_u, size_t ptr_w) {
+	smoothen(nx, ny, ptr_u, ptr_w);
+}
 #else
 EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim) {
 	cGT_getCSMDimensions(ptr_csms, csm_num, dim);
@@ -102,6 +117,12 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_nu
 }
 EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray (void* ptr_imgs, int img_num, double* re, double* im) {
 	cGT_getImageDataAsCmplxArray (ptr_imgs, img_num, re, im);
+}
+EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, double* ptr_u, float* ptr_w) {
+	find_edges(nx, ny, ptr_u, ptr_w);
+}
+EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, double* ptr_u, float* ptr_w) {
+	smoothen(nx, ny, ptr_u, ptr_w);
 }
 #endif
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {

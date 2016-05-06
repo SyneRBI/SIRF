@@ -16,7 +16,7 @@ classdef AcquisitionsContainer < gadgetron.DataContainer
         function sort(self)
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
-            gadgetron.checkExecutionStatus(self.name_, handle);
+            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end

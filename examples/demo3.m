@@ -9,9 +9,9 @@ end
 
 try
     % define gadgets
-    gadget1 = gadgets.RemoveROOversamplingGadget();
-	gadget2 = gadgets.SimpleReconstructionGadget();
-	gadget3 = gadgets.ExtractGadget();
+    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
+    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
+    gadget3 = gadgetron.Gadget('ExtractGadget');
     
     % set gadgets parameters
     gadget2.set_property('trigger_dimension', 'repetition')

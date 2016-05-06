@@ -84,6 +84,12 @@ try:
         print('Close Figure %d window to continue...' % (z + 1))
         pylab.show()
 
+    # write images to a new group in 'output10.h5'
+    # named after the current date and time
+    print('appending output10.h5...')
+    time_str = time.asctime()
+    images.write('output10.h5', time_str)
+
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

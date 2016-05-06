@@ -10,9 +10,9 @@ try
     input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
     % define gadgets
-	gadget1 = gadgets.RemoveROOversamplingGadget();
-	gadget2 = gadgets.SimpleReconstructionGadget();
-	gadget3 = gadgets.ExtractGadget();
+    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
+    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
+    gadget3 = gadgetron.Gadget('ExtractGadget');
     
     % build acquisitions pre-processing chain
     acq_proc = gadgetron.AcquisitionsProcessor();

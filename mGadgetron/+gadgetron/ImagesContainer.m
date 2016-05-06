@@ -19,6 +19,10 @@ classdef ImagesContainer < gadgetron.DataContainer
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
+        function conversion_to_real(self, type)
+            calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
+                self.handle_, type)
+        end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
