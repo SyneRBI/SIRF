@@ -23,9 +23,11 @@ try
     image = stir.Image('my_image0.hv');
 
     % set up the reconstructor
+    fprintf('setting up, please wait...\n')
     recon.set_up(image)
 
     % run reconstruction
+    fprintf('reconstructing, please wait...\n')
     tic
     recon.reconstruct(image)
     toc

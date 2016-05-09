@@ -64,7 +64,7 @@ try:
     # obtain the subiterations range
     start = recon.get_start_subiteration_num()
     stop = recon.get_num_subiterations()
-    print('subiteration range:', start, stop)
+    print('subiteration range: %d to %d' % (start, stop))
 
     # in order to see the reconstructed image evolution
     # take over the control of the iterative process
@@ -73,8 +73,7 @@ try:
     # not needed (set by set_up), just to show we can start at any iteration 
     recon.set_subiteration_num(start)
     for iter in range(start, stop + 1):
-        print('\n--------------------- Subiteration ',\
-              recon.get_subiteration_num())
+        print('\n------------- Subiteration %d' % recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
         if HAVE_PYLAB:
@@ -82,20 +81,23 @@ try:
             data = image.as_array()
             pylab.figure(iter)
             pylab.imshow(data[10,:,:])
+            print('close Figure %d window to continue' % iter)
             pylab.show()
 
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image()
     expectedImage.read_from_file('test_image_OSSPS_PM_QP_8.hv')
     diff = expectedImage.diff_from(image)
-    print('difference from expected image:', diff)
+    print('difference from expected image: %e' % diff)
 
     if HAVE_PYLAB:
         # let the user inspect any z-crossections of the image they want to
         data = image.as_array()
         nz = data.shape[0]
+        print('Enter z-coordinate of the slice to view it')
+        print('(a value outside the range [0 : %d] will stop the loop)'%(nz - 1))
         while True:
-            s = str(input('enter z-coordinate: '))
+            s = str(input('z-coordinate: '))
             if len(s) < 1:
                 break
             z = int(s)
@@ -103,6 +105,7 @@ try:
                 break
             pylab.figure(z)
             pylab.imshow(data[z,:,:])
+            print('close Figure %d window to continue' % z)
             pylab.show()
 
 except stir.error as err:

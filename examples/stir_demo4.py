@@ -45,7 +45,9 @@ try:
     if HAVE_PYLAB:
         # plot the phantom image to be reconstructed
         data = image.as_array()
+        pylab.figure(1000)
         pylab.imshow(data[z,:,:])
+        print('Figure 1000: exact image - close window to continue')
         pylab.show()
 
     # define the matrix to be used by the acquisition model
@@ -75,6 +77,7 @@ try:
         data = reconstructedImage.as_array()
         pylab.figure(1)
         pylab.imshow(data[z,:,:])
+        print('Figure 1: initial image - close window to continue')
         pylab.show()
 
     print('projecting image...')
@@ -122,6 +125,7 @@ try:
             data = reconstructedImage.as_array()
             pylab.figure(iter + 1)
             pylab.imshow(data[z,:,:])
+            print('close Figure %d window to continue' % (iter + 1))
             pylab.show()
 
 except stir.error as err:
