@@ -77,6 +77,7 @@ try:
         data = image.as_array()
         pylab.figure(1)
         pylab.imshow(data[20,:,:])
+        print('close Figure 1 window to continue')
         pylab.show()
 
     #recon.reconstruct(image)
@@ -85,8 +86,7 @@ try:
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
     for iter in range(1, num_subiterations + 1):
-        print('\n--------------------- Subiteration ',\
-              recon.get_subiteration_num())
+        print('\n------------- Subiteration %d' % recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
         if HAVE_PYLAB:
@@ -94,6 +94,7 @@ try:
             data = image.as_array()
             pylab.figure(iter + 1)
             pylab.imshow(data[20,:,:])
+            print('close Figure %d window to continue' % (iter + 1))
             pylab.show()
         # image can be post-processed
         #filter.apply(image)
@@ -101,7 +102,7 @@ try:
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image('expected_image.hv')
     diff = expectedImage.diff_from(image)
-    print('difference from expected image:', diff)
+    print('difference from expected image: %e' % diff)
 
     # compare the reconstructed image to the exact image
     exactImage = stir.Image('my_image.hv')
@@ -109,10 +110,12 @@ try:
     data = image.as_array()
 
     if HAVE_PYLAB:
-        pylab.figure(100000)
+        pylab.figure(1000)
         pylab.imshow(data[20,:,:])
-        pylab.figure(100001)
+        pylab.figure(1001)
         pylab.imshow(x_data[20,:,:])
+        print('close Figure 1001 window, then')
+        print('close Figure 1000 window to continue')
         pylab.show()
 
 except stir.error as err:

@@ -23,11 +23,11 @@ try:
     f.set_strictly_less_than_radius(True)
     obj = recon.get_objective_function()
     prior = obj.get_prior()
-    print('prior penalisation factor:', prior.get_penalisation_factor())
+    print('prior penalisation factor: %f' % prior.get_penalisation_factor())
     prior.set_penalisation_factor(0.001)
-    print('prior penalisation factor:', prior.get_penalisation_factor())
+    print('prior penalisation factor: %f' % prior.get_penalisation_factor())
     am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_acquisition_model()
-    print('tangential_LORs:', am.get_matrix().get_num_tangential_LORs())
+    print('tangential_LORs: %d' % am.get_matrix().get_num_tangential_LORs())
     am.get_matrix().set_num_tangential_LORs(2)
 
     # read an initial estimate for the reconstructed image from a file
@@ -38,21 +38,24 @@ try:
         data = image.as_array()
         pylab.figure(1)
         pylab.imshow(data[20,:,:])
+        print('Figure 1: initial image - close window to continue')
         pylab.show()
 
     # set up the reconstructor
+    print('setting up, please wait...')
     recon.set_up(image)
 
     # run reconstruction
+    print('reconstructing, please wait...')
     start_time = time.time()
     recon.reconstruct(image)
     elapsed_time = time.time() - start_time
-    print('elapsed time:', elapsed_time)
+    print('elapsed time: %f' % elapsed_time)
 
     # compare the reconstructed image to the expected image
     expectedImage = stir.Image('expected_image.hv')
     diff = expectedImage.diff_from(image)
-    print('difference from expected image:', diff)
+    print('difference from expected image: %e' % diff)
 
     # compare the reconstructed image to the exact image
     exactImage = stir.Image('my_image.hv')
@@ -62,8 +65,10 @@ try:
         data = image.as_array()
         x_data = exactImage.as_array()
         nz = data.shape[0]
+        print('Enter z-coordinate of the slice to view it')
+        print('(a value outside the range [0 : %d] will stop the loop)'%(nz - 1))
         while True:
-            s = str(input('enter z-coordinate: '))
+            s = str(input('z-coordinate: '))
             if len(s) < 1:
                 break
             z = int(s)
@@ -71,8 +76,10 @@ try:
                 break
             pylab.figure(z)
             pylab.imshow(data[z,:,:])
-            pylab.figure(100000 + z)
+            pylab.figure(1000 + z)
             pylab.imshow(x_data[z,:,:])
+            print('close Figure %d window, then' % (1000 + z))
+            print('close Figure %d window to continue' % z)
             pylab.show()
 
 except stir.error as err:
