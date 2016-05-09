@@ -59,6 +59,7 @@ try:
     image.read_from_file('test_image_PM_QP_6.hv')
 
     # set up the reconstructor
+    print('setting up, please wait...')
     recon.set_up(image)
 
     # obtain the subiterations range
