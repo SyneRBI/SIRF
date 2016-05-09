@@ -70,6 +70,7 @@ try:
     recon.set_output_filename_prefix('reconstructedImage')
 
     # set up the reconstructor
+    print('setting up, please wait...')
     recon.set_up(image)
 
     if HAVE_PYLAB:
@@ -77,7 +78,7 @@ try:
         data = image.as_array()
         pylab.figure(1)
         pylab.imshow(data[20,:,:])
-        print('close Figure 1 window to continue')
+        print('Figure 1: initial image - close window to continue')
         pylab.show()
 
     #recon.reconstruct(image)
