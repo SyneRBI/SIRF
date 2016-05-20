@@ -1,3 +1,9 @@
+'''
+Upper level interface demo that illustrates pre-processing of acquisitions,
+reconstructing images and post-processing them.
+'''
+
+import math
 import os
 import pylab
 import sys
@@ -14,36 +20,21 @@ from pGadgetron import *
 try:
     # acquisitions will be read from this HDF file
     input_data = MR_Acquisitions('testdata.h5')
-    
-    # define gadgets
-    gadget1 = Gadget('RemoveROOversamplingGadget')
-    gadget2 = Gadget('SimpleReconGadgetSet')
-    gadget3 = Gadget('ExtractGadget')
 
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
+    # pre-process acquisition data
+    print('processing acquisitions...')
+    processed_data = MR_remove_x_oversampling(input_data)
 
-    # create reconstruction object
-    recon = ImagesReconstructor()
-
-    # build reconstruction chain
-    recon.add_gadget('g1', gadget1)
-    recon.add_gadget('g2', gadget2)
-
-    # connect to input data
-    recon.set_input(input_data)
     # perform reconstruction
+    recon = MR_BasicReconstruction()
+    recon.set_input(processed_data)
+    print('reconstructing...')
     recon.process()
-
-    # get reconstructed images
-    imgs = recon.get_output()
-
-    # build image post-processing chain
-    proc = ImagesProcessor()
-    proc.add_gadget('g3', gadget3)
+    complex_images = recon.get_output()
 
     # post-process reconstructed images
-    images = proc.process(imgs)
+    print('processing images...')
+    images = MR_extract_real_images(complex_images)
 
     # plot obtained images
     for i in range(images.number()):

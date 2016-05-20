@@ -1,3 +1,8 @@
+'''
+Lower level interface demo that illustrates creating and running a chain
+of gadgets.
+'''
+
 import os
 import pylab
 import sys
@@ -23,6 +28,7 @@ try:
     gadget5 = Gadget('ImageArraySplitGadget')
     gadget6 = Gadget('ExtractGadget')
 
+    # set gadget properties
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget3.set_property('split_slices', 'true')
 

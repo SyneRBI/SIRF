@@ -9,33 +9,56 @@ end
 
 try
     % define gadgets
-    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
-    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
-    gadget3 = gadgetron.Gadget('ExtractGadget');
+    gadget11 = gadgetron.Gadget('NoiseAdjustGadget');
+    gadget12 = gadgetron.Gadget('AsymmetricEchoGadget');
+    gadget13 = gadgetron.Gadget('RemoveROOversamplingGadget');
+    gadget21 = gadgetron.Gadget('AcquisitionAccumulateTriggerGadget');
+    gadget22 = gadgetron.Gadget('BucketToBufferGadget');
+    gadget23 = gadgetron.Gadget('PrepRefGadget');
+    gadget24 = gadgetron.Gadget('CartesianGrappaGadget');
+    gadget25 = gadgetron.Gadget('FOVAdjustmentGadget');
+    gadget26 = gadgetron.Gadget('ScalingGadget');
+    gadget27 = gadgetron.Gadget('ImageArraySplitGadget');
+    gadget31 = gadgetron.Gadget('ComplexToFloatGadget');
+    gadget32 = gadgetron.Gadget('FloatToShortGadget');
     
-    % set gadgets parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
-    
-    % create reconstruction object
-    recon = gadgetron.ImagesReconstructor();
-
-    % build gadgets chain
-    recon.add_gadget('g1', gadget1);
-	recon.add_gadget('g2', gadget2);
-	recon.add_gadget('g3', gadget3);
-    
-    % acquisitions will be read from this HDF file
+    % define raw data source
     file = input('raw data file: ', 's');
     input_data = gadgetron.MR_Acquisitions(file);
-    
-    % connect to input data
-    recon.set_input(input_data)
+
+    % define acquisitions pre-processor
+    acq_proc = gadgetron.AcquisitionsProcessor();
+    acq_proc.add_gadget('g1', gadget11)
+    acq_proc.add_gadget('g2', gadget12)
+    acq_proc.add_gadget('g3', gadget13)
+    fprintf('pre-processing acquisitions...\n')
+    preprocessed_data = acq_proc.process(input_data);
+
+    % define reconstructor
+    recon = gadgetron.ImagesReconstructor();
+    recon.add_gadget('g1', gadget21)
+    recon.add_gadget('g2', gadget22)
+    recon.add_gadget('g3', gadget23)
+    recon.add_gadget('g4', gadget24)
+    recon.add_gadget('g5', gadget25)
+    recon.add_gadget('g6', gadget26)
+    recon.add_gadget('g7', gadget27)    
+
     % perform reconstruction
+    recon.set_input(preprocessed_data)
+    fprintf('reconstructing images...\n')
     recon.process()
-    % get reconstructed images
-    images = recon.get_output();
+    % get reconstructed complex images
+    complex_images = recon.get_output();
     
+    % extract real images
+    img_proc = gadgetron.ImagesProcessor();
+    img_proc.add_gadget('g1', gadget31)
+    img_proc.add_gadget('g2', gadget32)
+    complex_images.conversion_to_real(1)
+    fprintf('processing images...\n')
+    images = img_proc.process(complex_images);
+
     % plot reconstructed images
     n = images.number();
     while (true)
@@ -44,14 +67,15 @@ try
             break
         end
         data = images.image_as_array(i);
-        figure(1000000 + i)
+        figure(i)
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
     end
 
-    % write images to a new group in 'output.h5'
+    % write images to a new group in 'output10.h5'
     % named after the current date and time
-    images.write('output.h5', datestr(datetime))
+    fprintf('appending output10.h5...\n')
+    images.write('output10.h5', datestr(datetime))
 
 catch err
     % display error information

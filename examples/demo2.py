@@ -1,3 +1,8 @@
+'''
+Lower level interface demo that illustrates creating and running a chain
+of gadgets and gadget sets.
+'''
+
 import os
 import pylab
 import sys
@@ -11,53 +16,61 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
-try:
+def main():
     # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
-    
+    file = str(input('raw data file (with apostrophys in Python2.*): '))
+    input_data = MR_Acquisitions(file)
+
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
-    gadget2 = Gadget('AcquisitionAccumulateTriggerGadget')
-    gadget3 = Gadget('BucketToBufferGadget')
-    gadget4 = Gadget('SimpleReconGadget')
-    gadget5 = Gadget('ImageArraySplitGadget')
-    gadget6 = Gadget('ExtractGadget')
-
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget3.set_property('split_slices', 'true')
+    gadget2 = Gadget('SimpleReconGadgetSet')
+    gadget3 = Gadget('ExtractGadget')
 
     # create reconstruction object
     recon = ImagesReconstructor()
 
-    # build reconstruction chain
+    # build gadgets chain
     recon.add_gadget('g1', gadget1)
     recon.add_gadget('g2', gadget2)
     recon.add_gadget('g3', gadget3)
-    recon.add_gadget('g4', gadget4)
-    recon.add_gadget('g5', gadget5)
 
     # connect to input data
     recon.set_input(input_data)
     # perform reconstruction
     recon.process()
-
+    
     # get reconstructed images
-    imgs = recon.get_output()
-
-    # build image processing chain
-    proc = ImagesProcessor()
-    proc.add_gadget('g6', gadget6)
-
-    images = proc.process(imgs)
+    images = recon.get_output()
 
     # plot reconstructed images
-    for i in range(images.number()):
-        data = images.image_as_array(i)
-        pylab.figure(i + 1)
+
+    nz = images.number()
+    print('%d images' % nz)
+
+    print('Please enter z-coordinate of the slice to view it')
+    print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
+    while True:
+        s = str(input('z-coordinate: '))
+        if len(s) < 1:
+            break
+        z = int(s)
+        if z < 0 or z >= nz:
+            break
+        data = images.image_as_array(z)
+        pylab.figure(z)
         pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
+        print('Close Figure %d window to continue...' % (z + 1))
         pylab.show()
 
+    # write images to a new group in 'output6.h5'
+    # named after the current date and time
+    print('appending output2.h5...')
+    time_str = time.asctime()
+    images.write('output2.h5', time_str)
+
+try:
+    main()
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)
+

@@ -1,52 +1,51 @@
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
 if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
+    loadlibrary('mgadgetron')
+end
+if ~libisloaded('mutilities')
+    loadlibrary('mutilities')
 end
 
 try
+    % acquisitions will be read from this HDF file
+    input_data = gadgetron.MR_Acquisitions('testdata.h5');
+    
     % define gadgets
     gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
     gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
     gadget3 = gadgetron.Gadget('ExtractGadget');
     
-    % set gadgets parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
-    
-    % create reconstruction object
+    % build acquisitions pre-processing chain
+    acq_proc = gadgetron.AcquisitionsProcessor();
+    acq_proc.add_gadget('g1', gadget1)
+    fprintf('processing acquisitions...\n')
+    interim_data = acq_proc.process(input_data);
+	
+    % build reconstruction chain
     recon = gadgetron.ImagesReconstructor();
-
-    % build gadgets chain
-    recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
-	recon.add_gadget('g3', gadget3);
-    
-    % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
-    
     % connect to input data
-    recon.set_input(input_data)
+    recon.set_input(interim_data)
     % perform reconstruction
+    fprintf('reconstructing...\n')
     recon.process()
     % get reconstructed images
-    images = recon.get_output();
+    interim_images = recon.get_output();
     
-    % plot reconstructed images
+    % build image post-processing chain
+    proc_img = gadgetron.ImagesProcessor();
+    proc_img.add_gadget('g3', gadget3);
+    % post-process reconstructed images
+    fprintf('processing images...\n')
+    images = proc_img.process(interim_images);
+
+    % plot obtained images
     for i = 1 : images.number()
         data = images.image_as_array(i);
         figure(1000000 + i)
         data = data/max(max(max(data)));
-        imshow(data(:,:,1));
+        imshow(data(:,:,1,1));
     end
-
-    % write images to a new group in 'output3.h5'
-    % named after the current date and time
-    images.write('output3.h5', datestr(datetime))
-
+    
 catch err
     % display error information
     fprintf('%s\n', err.message)

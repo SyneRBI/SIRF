@@ -1,44 +1,57 @@
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
-end
 if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
+    fprintf('loading mutilities library...\n')
+    [notfound, warnings] = loadlibrary('mutilities');
+end
+if ~libisloaded('mgadgetron')
+    fprintf('loading mgadgetron library...\n')
+    [notfound, warnings] = loadlibrary('mgadgetron');
 end
 
 try
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
-    
+    % define gadgets
     gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
-	gadget2 = gadgetron.Gadget('AcquisitionAccumulateTriggerGadget');
-	gadget3 = gadgetron.Gadget('BucketToBufferGadget');
-	gadget4 = gadgetron.Gadget('SimpleReconGadget');
-	gadget5 = gadgetron.Gadget('ImageArraySplitGadget');
-	gadget6 = gadgetron.Gadget('ExtractGadget');
-	
+    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
+    gadget3 = gadgetron.Gadget('ExtractGadget');
+    
+    % set gadgets parameters
+    gadget2.set_property('trigger_dimension', 'repetition')
+    gadget2.set_property('split_slices', 'true')
+    
+    % create reconstruction object
     recon = gadgetron.ImagesReconstructor();
 
+    % build gadgets chain
     recon.add_gadget('g1', gadget1);
 	recon.add_gadget('g2', gadget2);
 	recon.add_gadget('g3', gadget3);
-	recon.add_gadget('g4', gadget4);
-	recon.add_gadget('g5', gadget5);
     
+    % acquisitions will be read from this HDF file
+    file = input('raw data file: ', 's');
+    input_data = gadgetron.MR_Acquisitions(file);
+    
+    % connect to input data
     recon.set_input(input_data)
+    % perform reconstruction
     recon.process()
-    complex_images = recon.get_output();
+    % get reconstructed images
+    images = recon.get_output();
     
-    proc = gadgetron.ImagesProcessor();
-    proc.add_gadget('g6', gadget6);
-    images = proc.process(complex_images);
-
-    for i = 1 : images.number()
+    % plot reconstructed images
+    n = images.number();
+    while (true)
+        i = input('slice: ');
+        if i < 1 | i > n
+            break
+        end
         data = images.image_as_array(i);
         figure(1000000 + i)
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
     end
 
-    images.write('output2.h5', datestr(datetime))
+    % write images to a new group in 'output.h5'
+    % named after the current date and time
+    images.write('output.h5', datestr(datetime))
 
 catch err
     % display error information

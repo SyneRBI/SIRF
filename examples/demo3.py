@@ -1,3 +1,11 @@
+'''
+Lower level interface demo that illustrates creating and running gadget chains
+of 3 types:
+- acquisition processing chain
+- reconstruction chain
+- image processing chain
+'''
+
 import os
 import pylab
 import sys
@@ -14,7 +22,7 @@ from pGadgetron import *
 try:
     # acquisitions will be read from this HDF file
     input_data = MR_Acquisitions('testdata.h5')
-    
+
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
     gadget2 = Gadget('SimpleReconGadgetSet')
@@ -24,35 +32,37 @@ try:
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget2.set_property('split_slices', 'true')
 
+    # build acquisition processing chain
+    acq_proc = AcquisitionsProcessor()
+    acq_proc.add_gadget('g1', gadget1)
+    print('processing acquisitions...')
+    interim_data = acq_proc.process(input_data)
+
     # create reconstruction object
     recon = ImagesReconstructor()
-
-    # build gadgets chain
-    recon.add_gadget('g1', gadget1)
     recon.add_gadget('g2', gadget2)
-    recon.add_gadget('g3', gadget3)
-
     # connect to input data
-    recon.set_input(input_data)
+    recon.set_input(interim_data)
     # perform reconstruction
+    print('reconstructing...')
     recon.process()
-    
     # get reconstructed images
-    images = recon.get_output()
+    interim_images = recon.get_output()
 
-    # plot reconstructed images
+    # build image processing chain
+    img_proc = ImagesProcessor()
+    img_proc.add_gadget('g3', gadget3)
+    # post-process reconstructed images
+    print('processing images...')
+    images = img_proc.process(interim_images)
+
+    # plot obtained images
     for i in range(images.number()):
-        data = images.image_as_array(i)
+        data = interim_images.image_as_array(i)
         pylab.figure(i + 1)
         pylab.imshow(data[0,0,:,:])
         print('Close Figure %d window to continue...' % (i + 1))
         pylab.show()
-
-    # write images to a new group in 'output3.h5'
-    # named after the current date and time
-    print('appending output3.h5...')
-    time_str = time.asctime()
-    images.write('output3.h5', time_str)
 
 except error as err:
     # display error information
