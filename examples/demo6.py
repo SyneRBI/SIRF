@@ -86,9 +86,9 @@ try:
 
     # write images to a new group in 'output10.h5'
     # named after the current date and time
-    print('appending output10.h5...')
+    print('appending output6.h5...')
     time_str = time.asctime()
-    images.write('output10.h5', time_str)
+    images.write('output6.h5', time_str)
 
 except error as err:
     # display error information
