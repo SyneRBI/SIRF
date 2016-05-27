@@ -11,23 +11,35 @@ extern "C" {
 EXPORTED_FUNCTION  void* mNewDataHandle() {
 	return newDataHandle();
 }
+EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr) {
+	deleteDataHandle(ptr);
+}
 EXPORTED_FUNCTION 	void* mCopyOfObjectHandle(void* ptr) {
 	return copyOfObjectHandle(ptr);
 }
 EXPORTED_FUNCTION 	void mDeleteObject(void* ptr) {
 	deleteObject(ptr);
 }
-EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr) {
-	deleteDataHandle(ptr);
+EXPORTED_FUNCTION 	void* mCharDataHandle(const char* s) {
+	return charDataHandle(s);
 }
 EXPORTED_FUNCTION 	void* mIntDataHandle(int i) {
 	return intDataHandle(i);
 }
+EXPORTED_FUNCTION 	void* mFloatDataHandle(float i) {
+	return floatDataHandle(i);
+}
 EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i) {
 	return doubleDataHandle(i);
 }
+EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr) {
+	return charDataFromHandle(ptr);
+}
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr) {
 	return intDataFromHandle(ptr);
+}
+EXPORTED_FUNCTION 	float mFloatDataFromHandle(const void* ptr) {
+	return floatDataFromHandle(ptr);
 }
 EXPORTED_FUNCTION 	double mDoubleDataFromHandle(const void* ptr) {
 	return doubleDataFromHandle(ptr);
@@ -49,33 +61,6 @@ EXPORTED_FUNCTION 	const char* mExecutionErrorFile(const void* ptr) {
 }
 EXPORTED_FUNCTION 	int mExecutionErrorLine(const void* ptr) {
 	return executionErrorLine(ptr);
-}
-EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
-	return newTextPrinter(stream);
-}
-EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream) {
-	return newTextWriter(stream);
-}
-EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w) {
-	openChannel(channel, ptr_w);
-}
-EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w) {
-	closeChannel(channel, ptr_w);
-}
-EXPORTED_FUNCTION 	void mSetWriter(void* ptr_w, int channel) {
-	setWriter(ptr_w, channel);
-}
-EXPORTED_FUNCTION 	void mResetWriter() {
-	resetWriter();
-}
-EXPORTED_FUNCTION 	void mPrintText(const char* text) {
-	printText(text);
-}
-EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr) {
-	deleteTextPrinter(ptr);
-}
-EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
-	deleteTextWriter(ptr_w);
 }
 #ifndef CGADGETRON_FOR_MATLAB
 }

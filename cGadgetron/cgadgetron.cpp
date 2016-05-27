@@ -33,6 +33,20 @@
 
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
+#define CATCH \
+	catch (LocalisedException& le) {\
+		ExecutionStatus status(le.what(), le.file(), le.line());\
+		DataHandle* handle = new DataHandle;\
+		handle->set(0, &status);\
+		return (void*)handle;\
+		}\
+	catch (...) {\
+		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
+		DataHandle* handle = new DataHandle;\
+		handle->set(0, &status);\
+		return (void*)handle;\
+		}\
+
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
