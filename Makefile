@@ -9,8 +9,8 @@ LIBIUTIL = $(BUILD_PATH)/iUtilities
 
 all: libiutil
 
-libiutil: ci_tw.o data_handle.o text_writer.o
-	$(ARCH) $(ARCHFLAGS) libiutil.a ci_tw.o data_handle.o text_writer.o
+libiutil: data_handle.o
+	$(ARCH) $(ARCHFLAGS) libiutil.a data_handle.o
 	$(RANLIB) libiutil.a
 	mv libiutil.a $(LIBIUTIL)
 
