@@ -132,12 +132,9 @@
     <ClInclude Include="data_handle.h" />
     <ClInclude Include="iutilities.h" />
     <ClInclude Include="localised_exception.h" />
-    <ClInclude Include="text_writer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ci_tw.cpp" />
     <ClCompile Include="data_handle.cpp" />
-    <ClCompile Include="text_writer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

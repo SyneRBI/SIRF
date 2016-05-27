@@ -5,12 +5,16 @@
 extern "C" {
 #endif
 	void* newDataHandle();
+	void deleteDataHandle(void* ptr);
 	void* copyOfObjectHandle(void* ptr);
 	void deleteObject(void* ptr);
-	void deleteDataHandle(void* ptr);
+	void* charDataHandle(const char* s);
 	void* intDataHandle(int i);
+	void* floatDataHandle(float i);
 	void* doubleDataHandle(double i);
+	char* charDataFromHandle(const void* ptr);
 	int intDataFromHandle(const void* ptr);
+	float floatDataFromHandle(const void* ptr);
 	double doubleDataFromHandle(const void* ptr);
 	double doubleReDataFromHandle(const void* ptr);
 	double doubleImDataFromHandle(const void* ptr);
@@ -18,15 +22,6 @@ extern "C" {
 	const char* executionError(const void* ptr);
 	const char* executionErrorFile(const void* ptr);
 	int executionErrorLine(const void* ptr);
-	void* newTextPrinter(const char* stream);
-	void* newTextWriter(const char* stream);
-	void openChannel(int channel, void* ptr_w);
-	void closeChannel(int channel, void* ptr_w);
-	void setWriter(void* ptr_w, int channel);
-	void resetWriter();
-	void printText(const char* text);
-	void deleteTextPrinter(void* ptr);
-	void deleteTextWriter(void* ptr_w);
 #ifndef CGADGETRON_FOR_MATLAB
 }
 #endif

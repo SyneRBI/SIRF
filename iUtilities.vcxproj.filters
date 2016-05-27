@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="text_writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="localised_exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -29,13 +26,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="text_writer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="data_handle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ci_tw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

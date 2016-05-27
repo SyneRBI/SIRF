@@ -2,13 +2,23 @@
 
 #include "data_handle.h"
 
+char* charDataFromHandle(const DataHandle* ptr_h) 
+{
+	void* ptr_d = ptr_h->data();
+	if (!ptr_d)
+		return 0;
+	else
+		return (char*)ptr_d;
+}
+
 extern "C" {
 
-	void* newDataHandle() {
+	void* newDataHandle() 
+	{
 		return (void*)new DataHandle;
 	}
-
-	void deleteDataHandle(void* ptr) {
+	void deleteDataHandle(void* ptr) 
+	{
 		if (ptr)
 			delete (DataHandle*)ptr;
 	}
@@ -27,24 +37,50 @@ extern "C" {
 			CAST_PTR(anObjectHandle, ptr_obj, ptr);
 			return (void*)ptr_obj->copy();
 		}
-		CATCH
+		catch (LocalisedException& le) {
+			ExecutionStatus status(le.what(), le.file(), le.line());
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
+		}
 	}
 
-	void* intDataHandle(int i) 
+	void* charDataHandle(const char* s) 
+	{
+		DataHandle* h = new DataHandle;
+		size_t len = strlen(s);
+		char* d = (char*)malloc(len + 1);
+		//strcpy_s(d, len + 1, s);
+		strcpy(d, s);
+		h->set((void*)d, 0, GRAB);
+		return (void*)h;
+	}
+
+	void* intDataHandle(int i)
 	{
 		return dataHandle<int>(i);
+	}	
+	void* floatDataHandle(float i) 
+	{
+		return dataHandle<float>(i);
 	}
-	
-	void* doubleDataHandle(double i) 
+	void* doubleDataHandle(double i)
 	{
 		return dataHandle<double>(i);
 	}
 
-	int intDataFromHandle(const void* ptr) 
+	char* charDataFromHandle(const void* ptr)
+	{
+		return charDataFromHandle((const DataHandle*)ptr);
+	}
+	int intDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<int>(ptr);
 	}
-
+	float floatDataFromHandle(const void* ptr) 
+	{
+		return dataFromHandle<float>(ptr);
+	}
 	double doubleDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<double>(ptr);
@@ -55,7 +91,6 @@ extern "C" {
 		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
 		return z.real();
 	}
-
 	double doubleImDataFromHandle(const void* ptr)
 	{
 		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);
