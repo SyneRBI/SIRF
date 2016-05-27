@@ -24,7 +24,7 @@
 
 using boost::asio::ip::tcp;
 
-#include "text_writer.h"
+//#include "text_writer.h"
 
 #include "gadgetron_data_containers.h"
 
