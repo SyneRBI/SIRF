@@ -89,6 +89,7 @@ ISMRMRD_INCLUDE  Path to Ismrmrd include folder
 ISMRMRD_LIB      Path to Ismrmrd library folder
 ISMRMRD_LIBRARY  Ismrmrd library name
 PATH2FFTW        Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
+IUTILITIES       <work_dir>/iUtilities
 CGADGETRON       <work_dir>/xGadgetron/cGadgetron
 
 Build cGadgetron x64/Release solution in <work_dir>/xGadgetron/cGadgetron
