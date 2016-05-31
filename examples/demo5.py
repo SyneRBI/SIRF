@@ -6,7 +6,11 @@ defined by the aquisition model, and images and acquisitions algebra.
 
 import math
 import os
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 import time
 
@@ -78,16 +82,16 @@ def main():
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
-    # extract real images from complex
-    images = MR_extract_real_images(complex_images)
-
-    # plot obtained images
-    for i in range(images.number()):
-        data = images.image_as_array(i)
-        pylab.figure(i + 1)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
-        pylab.show()
+    if HAVE_PYLAB:
+        # extract real images from complex
+        images = MR_extract_real_images(complex_images)
+        # plot obtained images
+        for i in range(images.number()):
+            data = images.image_as_array(i)
+            pylab.figure(i + 1)
+            pylab.imshow(data[0,0,:,:])
+            print('Close Figure %d window to continue...' % (i + 1))
+            pylab.show()
 
 try:
     main()
