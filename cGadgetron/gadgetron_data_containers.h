@@ -532,9 +532,10 @@ public:
 
 	virtual int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+	virtual void get_acq_dimensions(unsigned int im_num, int* dim) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copy_data(const AcquisitionsContainer& ac) = 0;
-	virtual void write_data() = 0;
+	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
+	virtual void write_parameters() = 0;
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 
 	virtual void axpby(
@@ -736,6 +737,21 @@ public:
 		//dataset_->readAcquisition(index(num), acq); // ??? does not work!
 		mtx.unlock();
 	}
+	virtual void get_acq_dimensions(unsigned int im_num, int* dim)
+	{
+		int ind = index(im_num);
+		ISMRMRD::Acquisition acq;
+		ISMRMRD::IsmrmrdHeader header;
+		Mutex mtx;
+		mtx.lock();
+		dataset_->readAcquisition(ind, acq);
+		mtx.unlock();
+		ISMRMRD::deserialize(par_.c_str(), header);
+		ISMRMRD::Encoding e = header.encoding[0];
+		dim[0] = acq.number_of_samples();
+		dim[1] = e.reconSpace.matrixSize.y;
+		dim[2] = acq.active_channels();
+	}
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{
 		Mutex mtx;
@@ -743,7 +759,7 @@ public:
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
 	}
-	virtual void copy_data(const AcquisitionsContainer& ac) 
+	virtual void copy_parameters(const AcquisitionsContainer& ac) 
 	{
 		par_ = ac.parameters();
 		Mutex mtx;
@@ -751,7 +767,7 @@ public:
 		dataset_->writeHeader(par_);
 		mtx.unlock();
 	}
-	virtual void write_data() 
+	virtual void write_parameters()
 	{
 		Mutex mtx;
 		mtx.lock();
@@ -762,7 +778,7 @@ public:
 	{
 		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
 		ptr_ac->set_parameters(par_);
-		ptr_ac->write_data();
+		ptr_ac->write_parameters();
 		boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
@@ -771,7 +787,7 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> 
 			sptr_ac(acqs_scratch_file_(filename_));
 		sptr_ac->set_parameters(par_);
-		sptr_ac->write_data();
+		sptr_ac->write_parameters();
 		return sptr_ac;
 	}
 

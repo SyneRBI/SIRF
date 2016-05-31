@@ -139,7 +139,7 @@ public:
 				conn().send_gadgetron_configuration_script(config);
 
 				conn().send_gadgetron_parameters(acquisitions.parameters());
-				sptr_acqs_->copy_data(acquisitions);
+				sptr_acqs_->copy_parameters(acquisitions);
 
 				uint32_t nacq = 0;
 				nacq = acquisitions.number();
@@ -463,7 +463,7 @@ private:
 			ac.append_acquisition(acq);
 		}
 		ac.set_parameters(par);
-		ac.write_data();
+		ac.write_parameters();
 
 	}
 

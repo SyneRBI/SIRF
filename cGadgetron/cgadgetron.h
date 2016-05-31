@@ -2,7 +2,14 @@
 #define GADGETRON_C_INTERFACE
 
 #ifndef CGADGETRON_FOR_MATLAB
+#define PTR_INT size_t
+#define PTR_FLOAT size_t
+#define PTR_DOUBLE size_t
 extern "C" {
+#else
+#define PTR_INT int*
+#define PTR_FLOAT float*
+#define PTR_DOUBLE double*
 #endif
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
@@ -33,30 +40,17 @@ extern "C" {
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 	void* cGT_imageTypes(const void* ptr_x);
 
-#ifndef CGADGETRON_FOR_MATLAB
-	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim);
+	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 	void
-		cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im);
-	void cGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr);
-	void cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim);
+		cGT_getCSMData(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
+	void cGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr);
+	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 	void cGT_getImageDataAsDoubleArray
-		(void* ptr_imgs, int img_num, size_t ptr_data);
+		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
 	void cGT_getImageDataAsComplexArray
-		(void* ptr_imgs, int img_num, size_t ptr_data);
-	void find_edges(int nx, int ny, size_t ptr_u, size_t ptr_w);
-	void smoothen(int nx, int ny, size_t ptr_u, size_t ptr_w);
-#else
-	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim);
-	void
-		cGT_getCSMData(void* ptr_csms, int csm_num, double* re, double* im);
-	void cGT_getCSMDataAbs(void* ptr_csms, int csm_num, double* v);
-	void cGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim);
-	void cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data);
-	void cGT_getImageDataAsCmplxArray
-		(void* ptr_imgs, int img_num, double* re, double* im);
-	void find_edges(int nx, int ny, double* ptr_u, float* ptr_w);
-	void smoothen(int nx, int ny, double* ptr_u, float* ptr_w);
-#endif
+		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
+	void find_edges(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
+	void smoothen(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
 
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);

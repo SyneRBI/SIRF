@@ -6,7 +6,18 @@
 #include "cgadgetron.h"
 
 #ifndef CGADGETRON_FOR_MATLAB
+#define PTR_INT size_t
+#define PTR_FLOAT size_t
+#define PTR_DOUBLE size_t
 extern "C" {
+#else
+
+#define PTR_INT int*
+
+#define PTR_FLOAT float*
+
+#define PTR_DOUBLE double*
+
 #endif
 EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
@@ -74,57 +85,30 @@ EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int
 EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
 	return cGT_imageTypes(ptr_x);
 }
-#ifndef CGADGETRON_FOR_MATLAB
-EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim) {
+EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim) {
 	cGT_getCSMDimensions(ptr_csms, csm_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im) {
+EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
 	cGT_getCSMData(ptr_csms, csm_num, ptr_re, ptr_im);
 }
-EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr) {
+EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr) {
 	cGT_getCSMDataAbs(ptr_csms, csm_num, ptr);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim) {
+EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim) {
 	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, size_t ptr_data) {
+EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
 	cGT_getImageDataAsDoubleArray (ptr_imgs, img_num, ptr_data);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, size_t ptr_data) {
+EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
 	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
 }
-EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, size_t ptr_u, size_t ptr_w) {
+EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w) {
 	find_edges(nx, ny, ptr_u, ptr_w);
 }
-EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, size_t ptr_u, size_t ptr_w) {
+EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w) {
 	smoothen(nx, ny, ptr_u, ptr_w);
 }
-#else
-EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, int* dim) {
-	cGT_getCSMDimensions(ptr_csms, csm_num, dim);
-}
-EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, double* re, double* im) {
-	cGT_getCSMData(ptr_csms, csm_num, re, im);
-}
-EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, double* v) {
-	cGT_getCSMDataAbs(ptr_csms, csm_num, v);
-}
-EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, int* dim) {
-	cGT_getImageDimensions(ptr_imgs, img_num, dim);
-}
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, double* data) {
-	cGT_getImageDataAsDoubleArray(ptr_imgs, img_num, data);
-}
-EXPORTED_FUNCTION 	void mGT_getImageDataAsCmplxArray (void* ptr_imgs, int img_num, double* re, double* im) {
-	cGT_getImageDataAsCmplxArray (ptr_imgs, img_num, re, im);
-}
-EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, double* ptr_u, float* ptr_w) {
-	find_edges(nx, ny, ptr_u, ptr_w);
-}
-EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, double* ptr_u, float* ptr_w) {
-	smoothen(nx, ny, ptr_u, ptr_w);
-}
-#endif
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
 	return cGT_dataItems(ptr_x);
 }

@@ -30,6 +30,4 @@ EXPORTED_FUNCTION 	int mExecutionErrorLine(const void* ptr);
 #endif
 
 
-EXPORTED_FUNCTION void* mNewMexPrinter();
-EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);
 #endif

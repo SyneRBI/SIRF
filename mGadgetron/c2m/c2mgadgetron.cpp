@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	if (status)
 		cout << "wrong input file format" << endl;
 	path = "../../../iUtilities/";
-	status = c2m(path, "iutilities.h", "mutilities.h", "mutilities.c", 1);
+	status = c2m(path, "iutilities.h", "mutilities.h", "mutilities.c");
 	if (status)
 		cout << "wrong input file format" << endl;
 	cout << "Press any key to continue ";
