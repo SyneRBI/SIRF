@@ -29,6 +29,9 @@ extern "C" {
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_orderAcquisitions(void* ptr_acqs);
+	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
+	void* cGT_getAcquisitionsData
+		(void* ptr_acqs, unsigned int slice, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);

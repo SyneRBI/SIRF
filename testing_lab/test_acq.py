@@ -6,6 +6,7 @@ import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
@@ -14,13 +15,39 @@ from pGadgetron import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
+    #input_data = MR_Acquisitions(DATA_PATH + 'test_2D_2x.h5')
+    input_data = MR_Acquisitions(DATA_PATH + 'testdata.h5')
+
+    processed_data = MR_remove_x_oversampling(input_data)
 
     na = input_data.number()
     print('%d acquisitions found' % na)
 
     print('sorting acquisitions...')
     input_data.sort()
+
+    data = abs(input_data.slice_as_array(0))
+    pdata = abs(processed_data.slice_as_array(0))
+    nx, ny, nc = input_data.dimensions()
+    print('acquisition dimensions: %d %d %d' % (nx, ny, nc))
+##    shape = data.shape
+##    nc = shape[0]
+##    ny = shape[1]
+##    nx = shape[2]
+    for i in range(2):
+        pylab.figure(i)
+        pylab.imshow(data[i,:,:])
+        pylab.figure(i + nc)
+        pylab.imshow(pdata[i,:,:])
+##        re = abs(re + 1j*im)
+##        pylab.imshow(re[i,:,:])
+##        minv = numpy.amin(re)
+##        maxv = numpy.amax(re)
+##        print(minv, maxv)
+##        pylab.imshow(re[i,:,:])
+##        pylab.figure(i + nc)
+##        pylab.imshow(im[i,:,:])
+        pylab.show()
 
     while True:
         s = str(input('enter acquisition number: '))

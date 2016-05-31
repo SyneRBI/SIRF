@@ -464,6 +464,39 @@ public:
 		par_ = par;
 	}
 
+	void get_acquisitions_dimensions(size_t ptr_dim)
+	{
+		ISMRMRD::Acquisition acq;
+		ISMRMRD::IsmrmrdHeader header;
+		get_acquisition(0, acq);
+		ISMRMRD::deserialize(par_.c_str(), header);
+		ISMRMRD::Encoding e = header.encoding[0];
+		int* dim = (int*)ptr_dim;
+		dim[0] = acq.number_of_samples();
+		dim[1] = e.reconSpace.matrixSize.y;
+		dim[2] = acq.active_channels();
+	}
+	void get_acquisitions_data(unsigned int slice, double* re, double* im)
+	{
+		ISMRMRD::Acquisition acq;
+		ISMRMRD::IsmrmrdHeader header;
+		ISMRMRD::deserialize(par_.c_str(), header);
+		ISMRMRD::Encoding e = header.encoding[0];
+		unsigned int ny = e.reconSpace.matrixSize.y;
+		for (size_t y = 0; y < ny; y++) {
+			get_acquisition(y + ny*slice, acq);
+			unsigned int nc = acq.active_channels();
+			unsigned int ns = acq.number_of_samples();
+			for (size_t c = 0; c < nc; c++) {
+				for (size_t s = 0; s < ns; s++) {
+					complex_float_t z = acq.data(s, c);
+					re[s + ns*(y + ny*c)] = std::real(z);
+					im[s + ns*(y + ny*c)] = std::imag(z);
+				}
+			}
+		}
+	}
+
 	static void axpby
 		(complex_double_t a, const ISMRMRD::Acquisition& acq_x, 
 		complex_double_t b, ISMRMRD::Acquisition& acq_y)
@@ -532,11 +565,14 @@ public:
 
 	virtual int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
-	virtual void get_acq_dimensions(unsigned int im_num, int* dim) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
+	//virtual void get_acquisitions_dimensions(size_t dim) = 0;
+	//virtual void get_acquisitions_data
+	//	(unsigned int slice, double* re, double* im) = 0;
 	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
 	virtual void write_parameters() = 0;
-	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+	virtual 
+		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 
 	virtual void axpby(
 		complex_double_t a, const aDataContainer& a_x,
@@ -736,21 +772,6 @@ public:
 		//dataset_->readAcquisition(num, acq);
 		//dataset_->readAcquisition(index(num), acq); // ??? does not work!
 		mtx.unlock();
-	}
-	virtual void get_acq_dimensions(unsigned int im_num, int* dim)
-	{
-		int ind = index(im_num);
-		ISMRMRD::Acquisition acq;
-		ISMRMRD::IsmrmrdHeader header;
-		Mutex mtx;
-		mtx.lock();
-		dataset_->readAcquisition(ind, acq);
-		mtx.unlock();
-		ISMRMRD::deserialize(par_.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
-		dim[0] = acq.number_of_samples();
-		dim[1] = e.reconSpace.matrixSize.y;
-		dim[2] = acq.active_channels();
 	}
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{

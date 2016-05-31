@@ -278,6 +278,29 @@ class AcquisitionsContainer(DataContainer):
         self.sorted = True
     def is_sorted(self):
         return self.sorted
+    def acquisition(self, num):
+        acq = MR_Acquisition()
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
+        return acq
+    def dimensions(self):
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
+        ns = dim[0]
+        ny = dim[1]
+        nc = dim[2]
+        return ns, ny, nc
+    def slice_as_array(self, num):
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
+        ns = dim[0]
+        ny = dim[1]
+        nc = dim[2]
+        #print( ns, ny, nc )
+        re = numpy.ndarray((nc, ny, ns), dtype = numpy.float64)
+        im = numpy.ndarray((nc, ny, ns), dtype = numpy.float64)
+        pygadgetron.cGT_getAcquisitionsData\
+            (self.handle, num, re.ctypes.data, im.ctypes.data)
+        return re + 1j*im
 
 class MR_Acquisition(PyGadgetronObject):
     def __init__(self, file = None):
@@ -309,10 +332,6 @@ class MR_Acquisitions(AcquisitionsContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def acquisition(self, num):
-        acq = MR_Acquisition()
-        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
-        return acq
 
 class MR_AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
