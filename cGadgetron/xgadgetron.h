@@ -412,7 +412,8 @@ private:
 
 		std::string par;
 		ISMRMRD::IsmrmrdHeader header;
-		par = ac.parameters();
+		//par = ac.parameters();
+		par = sptr_acqs_->parameters();
 		ISMRMRD::deserialize(par.c_str(), header);
 		ISMRMRD::Encoding e = header.encoding[0];
 		ISMRMRD::Acquisition acq; // (acq_);
@@ -447,20 +448,33 @@ private:
 
 		fft2c(ci);
 
-		for (size_t y = 0; y < ny; y++) {
-			acq.clearAllFlags();
-			if (y == 0)
-				acq.setFlag(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE);
-			if (y == ny - 1)
-				acq.setFlag(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE);
-			acq.idx().kspace_encode_step_1 = y;
-			acq.idx().repetition = 0;
+		int y = 0;
+		for (;;){
+			sptr_acqs_->get_acquisition(y, acq);
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+				break;
+			y++;
+		}
+		for (;;) {
+		//for (size_t y = 0; y < ny; y++) {
+			//acq.clearAllFlags();
+			//if (y == 0)
+			//	acq.setFlag(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE);
+			//if (y == ny - 1)
+			//	acq.setFlag(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE);
+			//acq.idx().kspace_encode_step_1 = y;
+			//acq.idx().repetition = 0;
+			sptr_acqs_->get_acquisition(y, acq);
+			int yy = acq.idx().kspace_encode_step_1;
 			for (size_t c = 0; c < nc; c++) {
 				for (size_t s = 0; s < readout; s++) {
-					acq.data(s, c) = ci(s, y, c);
+					acq.data(s, c) = ci(s, yy, c);
 				}
 			}
 			ac.append_acquisition(acq);
+			y++;
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+				break;
 		}
 		ac.set_parameters(par);
 		ac.write_parameters();
@@ -493,15 +507,29 @@ private:
 		dims.push_back(nc);
 
 		ISMRMRD::NDArray<complex_float_t> ci(dims);
-		for (size_t y = 0; y < ny; y++) {
-			ac.get_acquisition(y + off, acq);
+		memset(ci.getDataPtr(), 0, ci.getDataSize());
+		int y = 0;
+		for (;;){
+			ac.get_acquisition(off + y, acq);
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+				break;
+			y++;
+		}
+		for (;;) {
+		//for (size_t y = 0; y < ny; y++) {
+			ac.get_acquisition(off + y, acq);
+			int yy = acq.idx().kspace_encode_step_1;
 			for (size_t c = 0; c < nc; c++) {
 				for (size_t s = 0; s < readout; s++) {
-					ci(s, y, c) = acq.data(s, c);
+					ci(s, yy, c) = acq.data(s, c);
 				}
 			}
+			y++;
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+				break;
 		}
-		off += ny;
+		off += y;
+		//off += ny;
 		ifft2c(ci);
 
 		T* ptr = im.getDataPtr();

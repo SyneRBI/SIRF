@@ -27,6 +27,12 @@ try:
     print('pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
 
+    csms = MR_CoilSensitivityMaps()
+    print('---\n sorting acquisitions...')
+    preprocessed_data.sort()
+    print('---\n computing sensitivity maps...')
+    csms.calculate(preprocessed_data)
+
     recon = MR_BasicGRAPPAReconstruction()
     # connect to input data
     recon.set_input(preprocessed_data)

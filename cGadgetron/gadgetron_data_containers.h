@@ -1248,18 +1248,33 @@ public:
 		int nmap = 0;
 		std::cout << "map ";
 
-		for (int na = 0; na < ac.number(); na += ny) {
+		for (int na = 0; na < ac.number();) {
+		//for (int na = 0; na < ac.number(); na += ny) {
 
 			std::cout << ++nmap << ' ' << std::flush;
 
-			for (size_t y = 0; y < ny; y++) {
+			memset(cm.getDataPtr(), 0, cm.getDataSize());
+			int y = 0;
+			for (;;){
 				ac.get_acquisition(na + y, acq);
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+					break;
+				y++;
+			}
+			for (;;) {
+			//for (size_t y = 0; y < ny; y++) {
+				ac.get_acquisition(na + y, acq);
+				int yy = acq.idx().kspace_encode_step_1;
 				for (size_t c = 0; c < nc; c++) {
 					for (size_t s = 0; s < readout; s++) {
-						cm(s, y, c) = acq.data(s, c);
+						cm(s, yy, c) = acq.data(s, c);
 					}
 				}
+				y++;
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+					break;
 			}
+			na += y;
 			
 			ifft2c(cm);
 

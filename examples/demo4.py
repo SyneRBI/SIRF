@@ -19,7 +19,8 @@ from pGadgetron import *
 
 try:
     # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
+    file = str(input('raw data file (with apostrophys in Python2.*): '))
+    input_data = MR_Acquisitions(file)
 
     # pre-process acquisition data
     print('processing acquisitions...')
