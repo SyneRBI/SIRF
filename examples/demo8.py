@@ -63,6 +63,24 @@ try:
             print('Close Figures %d and %d windows to continue...'% (c, c + nc))
             pylab.show()
 
+    # perform reconstruction
+    recon = MR_BasicReconstruction()
+    recon.set_input(processed_data)
+    recon.process()
+    complex_images = recon.get_output()
+
+    # extract real images from complex
+    images = MR_extract_real_images(complex_images)
+    # plot obtained images
+    for i in range(images.number()):
+        data = images.image_as_array(i)
+        pylab.figure(i + 1)
+        pylab.imshow(data[0,0,:,:])
+        print('Close Figure %d window to continue...' % (i + 1))
+        pylab.show()
+
+    print('done')
+
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

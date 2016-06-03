@@ -27,12 +27,6 @@ try:
     print('pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
 
-    csms = MR_CoilSensitivityMaps()
-    print('---\n sorting acquisitions...')
-    preprocessed_data.sort()
-    print('---\n computing sensitivity maps...')
-    csms.calculate(preprocessed_data)
-
     recon = MR_BasicGRAPPAReconstruction()
     # connect to input data
     recon.set_input(preprocessed_data)
@@ -46,14 +40,9 @@ try:
     print('processing images...')
     images = MR_extract_real_images(complex_images)
 
-    # for undersampled acquisition data GRAPPA computes Gfactor images
-    # in addition to reconstructed ones
-    nt = images.types() # 1 for fully sampled, 2 for undersampled
-    ni = images.number()
-    nz = ni/nt
-    print('%d images reconstructed.' % nz)
-
     # plot obtained images
+    nz = images.number()
+    print('%d images reconstructed.' % nz)
     print('Enter z-coordinate of the slice to view it')
     print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:
@@ -63,13 +52,13 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        for j in range(nt):
-            i = nt*z + j
-            data = images.image_as_array(i)
-            pylab.figure(i + 1)
-            pylab.imshow(data[0,0,:,:])
-            print('Close Figure %d window to continue...' % (i + 1))
+        data = images.image_as_array(z)
+        pylab.figure(z + 1)
+        pylab.imshow(data[0,0,:,:])
+        print('Close Figure %d window to continue...' % (z + 1))
         pylab.show()
+
+    print('done')
 
 except error as err:
     # display error information
