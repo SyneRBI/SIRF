@@ -507,7 +507,7 @@ public:
 			px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
 			if (b == complex_double_t(0.0))
 				*py = a*complex_double_t(*px);
-			else
+			else 
 				*py = a*complex_double_t(*px) + b*complex_double_t(*py);
 		}
 	}
@@ -1265,9 +1265,13 @@ public:
 			//for (size_t y = 0; y < ny; y++) {
 				ac.get_acquisition(na + y, acq);
 				int yy = acq.idx().kspace_encode_step_1;
-				for (size_t c = 0; c < nc; c++) {
-					for (size_t s = 0; s < readout; s++) {
-						cm(s, yy, c) = acq.data(s, c);
+				if (!e.parallelImaging.is_present() || 
+					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
+					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
+					for (size_t c = 0; c < nc; c++) {
+						for (size_t s = 0; s < readout; s++) {
+							cm(s, yy, c) = acq.data(s, c);
+						}
 					}
 				}
 				y++;

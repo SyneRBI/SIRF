@@ -326,6 +326,7 @@ class MR_Acquisition(PyGadgetronObject):
 class MR_Acquisitions(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
+        self.sorted = False
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
