@@ -232,6 +232,11 @@ class ImagesContainer(DataContainer):
             (self.handle, out_file, out_group)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
+    def select(self, inc = 1, off = 0):
+        images = ImagesContainer()
+        images.handle = pygadgetron.cGT_selectImages(self.handle, inc, off)
+        _check_status(images.handle)
+        return images
     def conversion_to_real(self, ctype):
         pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
     def image_as_array(self, im_num):

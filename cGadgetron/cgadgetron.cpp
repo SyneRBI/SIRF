@@ -503,6 +503,19 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 
 extern "C"
 void*
+cGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off)
+{
+	try {
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
+		boost::shared_ptr<ImagesContainer> sptr_img = input.clone(inc, off);
+		return sptrObjectHandle<ImagesContainer>(sptr_img);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_imagesCopy(const void* ptr_imgs)
 {
 	try {

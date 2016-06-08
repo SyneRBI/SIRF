@@ -467,23 +467,44 @@ public:
 	void get_acquisitions_dimensions(size_t ptr_dim)
 	{
 		ISMRMRD::Acquisition acq;
-		ISMRMRD::IsmrmrdHeader header;
-		get_acquisition(0, acq);
-		ISMRMRD::deserialize(par_.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
 		int* dim = (int*)ptr_dim;
+
+		int y = 0;
+		for (;;){
+			get_acquisition(y, acq);
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+				break;
+			y++;
+		}
+		int ny = 0;
+		for (;;) {
+			get_acquisition(y, acq);
+			y++;
+			ny++;
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+				break;
+		}
+
 		dim[0] = acq.number_of_samples();
-		dim[1] = e.reconSpace.matrixSize.y;
+		dim[1] = ny; // e.reconSpace.matrixSize.y;
 		dim[2] = acq.active_channels();
 	}
 	void get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
 		ISMRMRD::Acquisition acq;
-		ISMRMRD::IsmrmrdHeader header;
-		ISMRMRD::deserialize(par_.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
-		unsigned int ny = e.reconSpace.matrixSize.y;
-		for (size_t y = 0; y < ny; y++) {
+		int* dim = new int[3];
+		size_t ptr_dim = (size_t)dim;
+		get_acquisitions_dimensions(ptr_dim);
+		unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
+		delete[] dim;
+		int y = 0;
+		for (;;){
+			get_acquisition(y + ny*slice, acq);
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+				break;
+			y++;
+		}
+		for (;;) {
 			get_acquisition(y + ny*slice, acq);
 			unsigned int nc = acq.active_channels();
 			unsigned int ns = acq.number_of_samples();
@@ -494,6 +515,9 @@ public:
 					im[s + ns*(y + ny*c)] = std::imag(z);
 				}
 			}
+			y++;
+			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+				break;
 		}
 	}
 
@@ -566,9 +590,6 @@ public:
 	virtual int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	//virtual void get_acquisitions_dimensions(size_t dim) = 0;
-	//virtual void get_acquisitions_data
-	//	(unsigned int slice, double* re, double* im) = 0;
 	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
 	virtual void write_parameters() = 0;
 	virtual 
@@ -883,7 +904,8 @@ public:
 		(unsigned int im_num, complex_float_t* data) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
-	virtual boost::shared_ptr<ImagesContainer> clone() = 0;
+	virtual boost::shared_ptr<ImagesContainer> 
+		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
 
 	virtual void axpby(
 		complex_double_t a, const aDataContainer& a_x,
@@ -920,10 +942,8 @@ public:
 			const ImageWrap& u = image_wrap(i);
 			double s = u.norm();
 			r += s*s;
-			//std::cout << i << ' ' << s << ' ' << r << std::endl;
 		}
 		r = sqrt(r);
-		//std::cout << r << std::endl;
 		return r;
 	}
 
@@ -948,17 +968,23 @@ public:
 	ImagesList() : images_(), nimages_(0)
 	{
 	}
-	ImagesList(const ImagesList& list)
+	ImagesList(const ImagesList& list, unsigned int inc = 1, unsigned int off = 0)
 	{
 		int n = 0;
+		int j = 0;
 #ifdef MSVC
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
-		for (i = list.images_.begin(); i != list.images_.end(); i++, n++) {
+		for (i = list.images_.begin(); i != list.images_.end(), j < off; i++, j++);
+
+		for (; i != list.images_.end(); i++, j++) {
+			if ((j - off) % inc)
+				continue;
 			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
 			append(*sptr_iw);
+			n++;
 		}
 		nimages_ = n;
 	}
@@ -979,8 +1005,8 @@ public:
 	}
 	virtual void count(int i)
 	{
-		if (i > nimages_)
-			nimages_ = i;
+		if (i > nimages_ - 1)
+			nimages_ = i + 1;
 	}
 	virtual void append(int image_data_type, void* ptr_image)
 	{
@@ -1072,9 +1098,10 @@ public:
 	{
 		return boost::shared_ptr<ImagesContainer>(new ImagesList());
 	}
-	virtual boost::shared_ptr<ImagesContainer> clone()
+	virtual boost::shared_ptr<ImagesContainer> 
+		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this));
+		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this, inc, off));
 	}
 
 private:
@@ -1249,7 +1276,6 @@ public:
 		std::cout << "map ";
 
 		for (int na = 0; na < ac.number();) {
-		//for (int na = 0; na < ac.number(); na += ny) {
 
 			std::cout << ++nmap << ' ' << std::flush;
 
@@ -1262,7 +1288,6 @@ public:
 				y++;
 			}
 			for (;;) {
-			//for (size_t y = 0; y < ny; y++) {
 				ac.get_acquisition(na + y, acq);
 				int yy = acq.idx().kspace_encode_step_1;
 				if (!e.parallelImaging.is_present() || 

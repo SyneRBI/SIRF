@@ -36,6 +36,7 @@ extern "C" {
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
+	void* cGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off);
 	void cGT_setImageToRealConversion(void* ptr_imgs, int type);
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_writeImages
@@ -44,8 +45,8 @@ extern "C" {
 	void* cGT_imageTypes(const void* ptr_x);
 
 	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void
-		cGT_getCSMData(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
+	void cGT_getCSMData
+		(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 	void cGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr);
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 	void cGT_getImageDataAsDoubleArray

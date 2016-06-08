@@ -3,6 +3,7 @@ Upper level interface demo that illustrates acquisitions
 pre-processing, sorting and plotting.
 '''
 
+import argparse
 import math
 import os
 import pylab
@@ -17,9 +18,20 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
+parser = argparse.ArgumentParser(description = \
+'''
+Upper level interface demo that illustrates acquisitions
+pre-processing, sorting and plotting.
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
 try:
     # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
+    input_data = MR_Acquisitions(args.filename)
+    #input_data = MR_Acquisitions('testdata.h5')
 
     # pre-process acquisition data
     print('processing acquisitions...')
