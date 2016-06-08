@@ -21,7 +21,8 @@ try:
     # acquisitions will be read from this HDF file
     file = str(input('raw data file (with apostrophys in Python2.*): '))
     input_data = MR_Acquisitions(DATA_PATH + file)
-    print('---\n acquisitions norm: %e' % input_data.norm())
+    input_norm = input_data.norm()
+    print('---\n acquisitions norm: %e' % input_norm)
 
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
@@ -53,19 +54,20 @@ try:
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    am = MR_AcquisitionModel(preprocessed_data, complex_images)
-    #am = MR_AcquisitionModel(input_data, complex_images)
+    #am = MR_AcquisitionModel(preprocessed_data, complex_images)
+    am = MR_AcquisitionModel(input_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
     # use the acquisition model (forward projection) to produce 'acquisitions'
     fwd_data = am.forward(complex_images)
-    print('---\n their forward projection norm %e' % fwd_data.norm())
+    fwd_norm = fwd_data.norm()
+    print('---\n their forward projection norm %e' % fwd_norm)
 
     # compute the difference between real and modelled acquisitions
     #diff = fwd_data - preprocessed_data
-    #diff = fwd_data - input_data * (fwd_data.norm()/input_data.norm())
-    c = fwd_data.norm()/preprocessed_data.norm()
-    diff = fwd_data - preprocessed_data * c
-    rr = diff.norm()/fwd_data.norm()
+    diff = fwd_data - input_data * (fwd_norm/input_norm)
+    #c = fwd_data.norm()/preprocessed_data.norm()
+    #diff = fwd_data - preprocessed_data * c
+    rr = diff.norm()/fwd_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
     # post-process reconstructed images

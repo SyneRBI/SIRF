@@ -14,6 +14,12 @@
 
 #include "ismrmrd_fftw.h"
 
+#define TO_BE_IGNORED(acq) \
+	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
+
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
 		Operation ((ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
@@ -605,11 +611,23 @@ public:
 		int n = y.number();
 		ISMRMRD::Acquisition ax;
 		ISMRMRD::Acquisition ay;
-		for (int i = 0; i < n && i < m; i++) {
+		for (int i = 0, j = 0; i < n && j < m;) {
 			y.get_acquisition(i, ay);
-			x.get_acquisition(i, ax);
+			x.get_acquisition(j, ax);
+			if (TO_BE_IGNORED(ay)) {
+				std::cout << i << " ignored (ay)\n";
+				i++;
+				continue;
+			}
+			if (TO_BE_IGNORED(ax)) {
+				std::cout << j << " ignored (ax)\n";
+				j++;
+				continue;
+			}
 			AcquisitionsContainer::axpby(a, ax, b, ay);
 			append_acquisition(ay);
+			i++;
+			j++;
 		}
 	}
 	virtual complex_double_t dot(aDataContainer& dc)
@@ -620,10 +638,23 @@ public:
 		complex_double_t z = 0;
 		ISMRMRD::Acquisition a;
 		ISMRMRD::Acquisition b;
-		for (int i = 0; i < n && i < m; i++) {
+		//for (int i = 0; i < n && i < m; i++) {
+		for (int i = 0, j = 0; i < n && j < m;) {
 			get_acquisition(i, a);
-			other.get_acquisition(i, b);
+			if (TO_BE_IGNORED(a)) {
+				std::cout << i << " ignored (a)\n";
+				i++;
+				continue;
+			}
+			other.get_acquisition(j, b);
+			if (TO_BE_IGNORED(b)) {
+				std::cout << j << " ignored (b)\n";
+				j++;
+				continue;
+			}
 			z += AcquisitionsContainer::dot(a, b);
+			i++;
+			j++;
 		}
 		return z;
 	}
@@ -634,6 +665,10 @@ public:
 		ISMRMRD::Acquisition a;
 		for (int i = 0; i < n; i++) {
 			get_acquisition(i, a);
+			if (TO_BE_IGNORED(a)) {
+				std::cout << i << " ignored (norm)\n";
+				continue;
+			}
 			double s = AcquisitionsContainer::norm(a);
 			r += s*s;
 		}
