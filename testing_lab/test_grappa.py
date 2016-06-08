@@ -30,7 +30,8 @@ try:
     acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
-    print('---\n processed acquisitions norm: %e' % preprocessed_data.norm())
+    pp_norm = preprocessed_data.norm()
+    print('---\n processed acquisitions norm: %e' % pp_norm)
 
     csms = MR_CoilSensitivityMaps()
     print('---\n sorting acquisitions...')
@@ -54,25 +55,63 @@ try:
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    #am = MR_AcquisitionModel(preprocessed_data, complex_images)
-    am = MR_AcquisitionModel(input_data, complex_images)
+    am = MR_AcquisitionModel(preprocessed_data, complex_images)
+    #am = MR_AcquisitionModel(input_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
+
     # use the acquisition model (forward projection) to produce 'acquisitions'
     fwd_data = am.forward(complex_images)
     fwd_norm = fwd_data.norm()
     print('---\n their forward projection norm %e' % fwd_norm)
 
+##    #bwd_images = am.backward(preprocessed_data)
+##    bwd_images = am.backward(fwd_data)
+##    c = (bwd_images.norm()/complex_images.norm())
+##    im_diff = bwd_images - complex_images*c
+##    print('---\n 0.0 = %e' % (im_diff.norm()/bwd_images.norm()))
+
     # compute the difference between real and modelled acquisitions
     #diff = fwd_data - preprocessed_data
-    diff = fwd_data - input_data * (fwd_norm/input_norm)
-    #c = fwd_data.norm()/preprocessed_data.norm()
-    #diff = fwd_data - preprocessed_data * c
+    #diff = fwd_data - input_data * (fwd_norm/input_norm)
+    diff = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
     rr = diff.norm()/fwd_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
+    # try to improve the reconstruction by steepest descent iterations
+    x = complex_images*(pp_norm/fwd_norm)
+    f = am.forward(x)
+    r = f - preprocessed_data
+    g = am.backward(r)
+    w = am.forward(g)
+    alpha = (g*g)/(w*w)
+    x = x - g*alpha
+    imgs = MR_extract_real_images(x)
+##    gamma = g*g
+##    p = g
+##    for iter in range(3):
+##        w = am.forward(p)
+##        alpha = (g*p)/(w*w)
+##        x = x - p*alpha
+##        imgs = MR_extract_real_images(x)
+##        idata = imgs.image_as_array(0)
+##        pylab.figure(iter + 1)
+##        pylab.title('iterated image')
+##        pylab.imshow(idata[0,0,:,:])
+##        f = f - w*alpha
+##        #f = am.forward(x)
+##        r = f - preprocessed_data
+##        g = am.backward(r)
+##        print('---\n residual norm %e, gradient norm %e' % (r.norm()/pp_norm, g.norm()))
+##        beta = g*g
+##        p = g + p*(beta/gamma)
+##        gamma = beta
+    pylab.show()
+
     # post-process reconstructed images
     print('processing images...')
+    #images = MR_extract_real_images(bwd_images)
     images = MR_extract_real_images(complex_images)
+##    imgs = MR_extract_real_images(x)
     gfactors = MR_extract_real_images(complex_gfactors)
 
     nz = images.number()
@@ -90,14 +129,17 @@ try:
             break
         i = z
         data = images.image_as_array(i)
-        gdata = gfactors.image_as_array(i)
+        idata = imgs.image_as_array(i)
+##        gdata = gfactors.image_as_array(i)
         pylab.figure(i + 1)
-        pylab.title('image')
+        pylab.title('GRAPPA image')
         pylab.imshow(data[0,0,:,:])
         print('Close Figure %d window to continue...' % (i + 1))
         pylab.figure(i + nz + 1)
-        pylab.title('G factor')
-        pylab.imshow(gdata[0,0,:,:])
+##        pylab.title('G factor')
+##        pylab.imshow(gdata[0,0,:,:])
+        pylab.title('iterated image')
+        pylab.imshow(idata[0,0,:,:])
         print('Close Figure %d window to continue...' % (i + nz + 1))
         pylab.show()
 

@@ -6,6 +6,7 @@ import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
@@ -50,7 +51,7 @@ def ndarray_diff(data, alt_data):
 try:
     # acquisitions will be read from this HDF file
     file = str(input('raw data file: '))
-    input_data = MR_Acquisitions(file)
+    input_data = MR_Acquisitions(DATA_PATH + file)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
@@ -84,7 +85,7 @@ try:
 
     # use the acquisition model (forward projection) to produce 'acquisitions'
     acqs = am.forward(complex_images)
-    diff = acqs - input_data
+    diff = acqs - input_data*(acqs.norm()/input_data.norm())
     rr = diff.norm()/acqs.norm()
     #rr = rel_diff(acqs, input_data)
     print('---\n reconstruction residual norm (rel): %e' % rr)
@@ -102,30 +103,30 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-##        data = abs(input_data.slice_as_array(z))
-##        pdata = abs(acqs.slice_as_array(z))
-        data = input_data.slice_as_array(z)
-        pdata = acqs.slice_as_array(z)
+        data = abs(input_data.slice_as_array(z))
+        pdata = abs(acqs.slice_as_array(z))
+##        data = input_data.slice_as_array(z)
+##        pdata = acqs.slice_as_array(z)
         diff_max, diff_ave = ndarray_diff(data[0,:,:], pdata[0,:,:])
         print('relative maximal difference: %e' % diff_max)
         print('relative average difference: %e' % diff_ave)
-##        print('Enter coil number to view the acquired data for it')
-##        print('(a value outside the range [0 : %d) will stop this loop)' % nc)
-##        while True:
-##            s = str(input('coil: '))
-##            if len(s) < 1:
-##                break
-##            c = int(s)
-##            if c < 0 or c >= nc:
-##                break
-##            pylab.figure(c)
-##            pylab.title('input data')
-##            pylab.imshow(data[c,:,:])
-##            pylab.figure(c + nc)
-##            pylab.title('am data')
-##            pylab.imshow(pdata[c,:,:])
-##            print('Close Figures %d and %d windows to continue...'% (c, c + nc))
-##            pylab.show()
+        print('Enter coil number to view the acquired data for it')
+        print('(a value outside the range [0 : %d) will stop this loop)' % nc)
+        while True:
+            s = str(input('coil: '))
+            if len(s) < 1:
+                break
+            c = int(s)
+            if c < 0 or c >= nc:
+                break
+            pylab.figure(c)
+            pylab.title('input data')
+            pylab.imshow(data[c,:,:])
+            pylab.figure(c + nc)
+            pylab.title('am data')
+            pylab.imshow(pdata[c,:,:])
+            print('Close Figures %d and %d windows to continue...'% (c, c + nc))
+            pylab.show()
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
@@ -133,11 +134,11 @@ try:
     imgs = am.backward(input_data)
     print('---\n back projected images norm: %e' % imgs.norm())
 
-    im_diff = imgs - complex_images
+    im_diff = imgs - complex_images*(imgs.norm()/complex_images.norm())
     print('---\n 0.0 = %e' % (im_diff.norm()/imgs.norm()))
 
     acqs = am.forward(imgs)
-    diff = acqs - input_data
+    diff = acqs - input_data*(acqs.norm()/input_data.norm())
     rr = diff.norm()/acqs.norm()
     #rr = rel_diff(acqs, input_data)
     print('---\n reconstruction residual norm (rel): %e' % rr)
@@ -151,21 +152,22 @@ try:
 ##    alt_complex_images = b * alt_complex_images
 ####    print('---\n reconstructed images norm: %e' % alt_complex_images.norm())
 ##
-##    # extract real images from complex
-##    images = MR_extract_real_images(complex_images)
-##    alt_images = MR_extract_real_images(alt_complex_images)
-##
-##    # plot obtained images
-##    for i in range(images.number()):
-##        data = images.image_as_array(i)
-##        alt_data = alt_images.image_as_array(i)
-##        rel_diff = ndarray_diff(data[0,0,:,:], alt_data[0,0,:,:])
-##        print('relative maximal difference: %e' % rel_diff)
-##        pylab.figure(i + 1)
+    # extract real images from complex
+    images = MR_extract_real_images(complex_images)
+    alt_images = MR_extract_real_images(imgs)
+    #alt_images = MR_extract_real_images(alt_complex_images)
+
+    # plot obtained images
+    for i in range(images.number()):
+        data = images.image_as_array(i)
+        alt_data = alt_images.image_as_array(i)
+        rel_diff = ndarray_diff(data[0,0,:,:], alt_data[0,0,:,:])
+        print('relative maximal difference: %e %e' % rel_diff)
+        pylab.figure(i + 1)
+        pylab.imshow(alt_data[0,0,:,:])
+##        pylab.figure(i + 101)
 ##        pylab.imshow(alt_data[0,0,:,:])
-####        pylab.figure(i + 101)
-####        pylab.imshow(alt_data[0,0,:,:])
-##        pylab.show()
+        pylab.show()
 
 except error as err:
     # display error information
