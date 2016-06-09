@@ -19,6 +19,18 @@ classdef ImagesContainer < gadgetron.DataContainer
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
+        function images = select(self, inc, off)
+            images = gadgetron.ImagesContainer();
+            if nargin < 3
+                off = 0;
+            end
+            if nargin < 2
+                inc = 1;
+            end
+            images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
+                self.handle_, inc, off);
+            gadgetron.checkExecutionStatus(self.name_, images.handle_);
+        end
         function conversion_to_real(self, type)
             calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
                 self.handle_, type)

@@ -61,6 +61,12 @@ EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned i
 EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
 	return cGT_orderAcquisitions(ptr_acqs);
 }
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
+	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
+}
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionsData (void* ptr_acqs, unsigned int slice, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	return cGT_getAcquisitionsData (ptr_acqs, slice, ptr_re, ptr_im);
+}
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
 }
@@ -69,6 +75,9 @@ EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon) {
 }
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 	return cGT_processImages(ptr_proc, ptr_input);
+}
+EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off) {
+	return cGT_selectImages(ptr_input, inc, off);
 }
 EXPORTED_FUNCTION 	void mGT_setImageToRealConversion(void* ptr_imgs, int type) {
 	cGT_setImageToRealConversion(ptr_imgs, type);
@@ -88,8 +97,8 @@ EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
 EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim) {
 	cGT_getCSMDimensions(ptr_csms, csm_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getCSMData(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
-	cGT_getCSMData(ptr_csms, csm_num, ptr_re, ptr_im);
+EXPORTED_FUNCTION 	void mGT_getCSMData (void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	cGT_getCSMData (ptr_csms, csm_num, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr) {
 	cGT_getCSMDataAbs(ptr_csms, csm_num, ptr);

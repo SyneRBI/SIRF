@@ -3,11 +3,17 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
         file_
     end
     methods
-        function self = AcquisitionsProcessor()
+        function self = AcquisitionsProcessor(list)
             self.name_ = 'AcquisitionsProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            if nargin > 0
+                class(list)
+                for i = 1 : size(list, 2)
+                    self.add_gadget(['g' num2str(i)], gadgetron.Gadget(list{i}));
+                end
+            end
         end
         function delete(self)
             if ~isempty(self.handle_)
