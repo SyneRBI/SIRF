@@ -48,34 +48,40 @@ try
     recon.set_input(preprocessed_data)
     fprintf('reconstructing images...\n')
     recon.process()
-    % get reconstructed complex images
-    complex_images = recon.get_output();
+    % get reconstructed complex images and G-factors
+    complex_output = recon.get_output();
     
     % extract real images
     img_proc = gadgetron.ImagesProcessor();
     img_proc.add_gadget('g1', gadget31)
     img_proc.add_gadget('g2', gadget32)
-    complex_images.conversion_to_real(1)
+    complex_output.conversion_to_real(1)
     fprintf('processing images...\n')
-    images = img_proc.process(complex_images);
+    output = img_proc.process(complex_output);
 
-    % plot reconstructed images
-    n = images.number();
+    % plot reconstructed images and G-factors
+    n = output.number()/2;
+    fprintf('Enter slice number to view its data\n')
+    fprintf('(a value outside the range [1 : %d] will stop this loop).\n', n)
     while (true)
         i = input('slice: ');
-        if i < 1 | i > n
+        if i < 1 || i > n
             break
         end
-        data = images.image_as_array(i);
+        data = output.image_as_array(2*i - 1);
+        gdata = output.image_as_array(2*i);
         figure(i)
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
+        figure(i + n)
+        gdata = gdata/max(max(max(gdata)));
+        imshow(gdata(:,:,1));
     end
 
-    % write images to a new group in 'output10.h5'
+    % write images to a new group in 'output6.h5'
     % named after the current date and time
-    fprintf('appending output10.h5...\n')
-    images.write('output10.h5', datestr(datetime))
+    fprintf('appending output6.h5...\n')
+    output.write('output6.h5', datestr(datetime))
 
 catch err
     % display error information

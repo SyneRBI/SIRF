@@ -287,7 +287,7 @@ class AcquisitionsContainer(DataContainer):
         acq = MR_Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
-    def dimensions(self):
+    def slice_dimensions(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
         ns = dim[0]

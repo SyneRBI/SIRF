@@ -26,7 +26,7 @@ try:
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
          'RemoveROOversamplingGadget']
     acq_proc = AcquisitionsProcessor(prep_gadgets)
-    print('pre-processing acquisitions...')
+    print('---\n pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
     pp_norm = preprocessed_data.norm()
 
@@ -42,23 +42,21 @@ try:
     recon.set_input(preprocessed_data)
     print('---\n reconstructing...')
     recon.process()
-    # get reconstructed images
     output = recon.get_output()
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
     complex_images = output.select(2)
 
     # create acquisition model based on the acquisition parameters
-    # stored in input_data and image parameters stored in complex_images
+    # stored in preprocessed_data and image parameters stored in complex_images
     am = MR_AcquisitionModel(preprocessed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
 
-    # use the acquisition model (forward projection) to produce 'acquisitions'
+    # use the acquisition model (forward projection) to simulate acquisitions
     fwd_data = am.forward(complex_images)
     fwd_norm = fwd_data.norm()
-    print('---\n their forward projection norm %e' % fwd_norm)
 
-    # compute the difference between real and modelled acquisitions
+    # compute the difference between real and simulated acquisitions
     diff = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
     rr = diff.norm()/fwd_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
@@ -67,16 +65,16 @@ try:
     g = am.backward(diff)
     w = am.forward(g)
     alpha = (g*g)/(w*w)
-    complex_imgs = complex_images - g*alpha
+    r_complex_imgs = complex_images - g*alpha
 
-    # post-process reconstructed images
-    print('processing images...')
+    # get real-valued reconstructed and refined images
+    print('---\n processing images...')
     images = MR_extract_real_images(complex_images)
-    imgs = MR_extract_real_images(complex_imgs)
+    r_imgs = MR_extract_real_images(r_complex_imgs)
     nz = images.number()
     print('%d images reconstructed.' % nz)
 
-    # plot obtained images
+    # plot images
     print('Enter z-coordinate of the slice to view it')
     print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:
@@ -88,14 +86,14 @@ try:
             break
         i = z
         data = images.image_as_array(i)
-        idata = imgs.image_as_array(i)
+        rdata = r_imgs.image_as_array(i)
         pylab.figure(i + 1)
         pylab.title('GRAPPA image')
         pylab.imshow(data[0,0,:,:])
         print('Close Figure %d window to continue...' % (i + 1))
         pylab.figure(i + nz + 1)
-        pylab.title('iterated image')
-        pylab.imshow(idata[0,0,:,:])
+        pylab.title('refined image')
+        pylab.imshow(rdata[0,0,:,:])
         print('Close Figure %d window to continue...' % (i + nz + 1))
         pylab.show()
 

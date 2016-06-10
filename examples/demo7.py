@@ -25,7 +25,7 @@ try:
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
          'RemoveROOversamplingGadget']
     acq_proc = AcquisitionsProcessor(prep_gadgets)
-    print('pre-processing acquisitions...')
+    print('---\n pre-processing acquisitions...')
     preprocessed_data = acq_proc.process(input_data)
 
     # perform reconstruction
@@ -40,7 +40,7 @@ try:
     complex_gfactors = output.select(2, 1)
 
     # get real-valued reconstructed images and gfactors
-    print('processing images...')
+    print('---\n processing images...')
     images = MR_extract_real_images(complex_images)
     gfactors = MR_extract_real_images(complex_gfactors)
 

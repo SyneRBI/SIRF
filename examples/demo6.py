@@ -56,29 +56,29 @@ try:
     print('reconstructing...')
     recon.process()
     # get reconstructed images
-    complex_images = recon.get_output()
+    complex_output = recon.get_output()
 
     img_proc = ImagesProcessor()
     img_proc.add_gadget('g1', gadget31)
     img_proc.add_gadget('g2', gadget32)
     # post-process reconstructed images
-    complex_images.conversion_to_real(1)
+    complex_output.conversion_to_real(1)
     print('processing images...')
-    images = img_proc.process(complex_images)
+    output = img_proc.process(complex_output)
 
-    nz = images.number()
+    nz = output.number()
     print('%d images reconstructed.' % nz)
 
-    print('Enter z-coordinate of the slice to view it')
+    print('Enter image number to view it')
     print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
     while True:
-        s = str(input('z-coordinate: '))
+        s = str(input('image: '))
         if len(s) < 1:
             break
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = images.image_as_array(z)
+        data = output.image_as_array(z)
         pylab.figure(z + 1)
         pylab.imshow(data[0,0,:,:])
         print('Close Figure %d window to continue...' % (z + 1))
@@ -88,7 +88,7 @@ try:
     # named after the current date and time
     print('appending output6.h5...')
     time_str = time.asctime()
-    images.write('output6.h5', time_str)
+    output.write('output6.h5', time_str)
 
 except error as err:
     # display error information

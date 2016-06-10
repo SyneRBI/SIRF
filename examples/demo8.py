@@ -43,7 +43,7 @@ try:
     print('sorting acquisitions...')
     input_data.sort()
 
-    nx, ny, nc = input_data.dimensions()
+    nx, ny, nc = input_data.slice_dimensions()
     nz = na//ny
 
     print('Enter z-coordinate of the slice to view the acquired data for it')
