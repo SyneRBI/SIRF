@@ -1,5 +1,5 @@
 '''
-Upper level 3-chains GRAPPA reconstruction demo.
+Upper-level demo, GRAPPA reconstruction of undersampled data.
 '''
 
 import math

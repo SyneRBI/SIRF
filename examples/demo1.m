@@ -1,3 +1,5 @@
+% Lower-level interface demo, creates and runs a chain of gadgets.
+
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')
     [notfound, warnings] = loadlibrary('mutilities');

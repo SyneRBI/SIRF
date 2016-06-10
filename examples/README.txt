@@ -29,7 +29,7 @@ defined by the aquisition model, and images and acquisitions algebra.
 
 demo6:
 
-Lower level single-chain GRAPPA reconstruction demo.
+Lower level 3-chain GRAPPA reconstruction demo.
 
 demo7:
 

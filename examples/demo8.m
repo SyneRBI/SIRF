@@ -1,3 +1,5 @@
+% Upper-level interface demo, illustrates acquisitions pre-processing and plotting.
+
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end

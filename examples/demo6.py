@@ -1,5 +1,5 @@
 '''
-Lower level single-chain GRAPPA reconstruction demo.
+Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
 '''
 
 import os

@@ -1,3 +1,5 @@
+% Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
+
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')
     [notfound, warnings] = loadlibrary('mutilities');

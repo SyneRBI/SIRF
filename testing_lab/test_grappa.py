@@ -77,6 +77,47 @@ try:
     rr = diff.norm()/fwd_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
+    nx, ny, nc = input_data.slice_dimensions()
+    nz = complex_images.number()
+    print('Enter z-coordinate of the slice to view the acquired data for it')
+    print('(a value outside the range [0 : %d) will stop this loop)' % nz)
+    while True:
+        s = str(input('z-coordinate: '))
+        if len(s) < 1:
+            break
+        z = int(s)
+        if z < 0 or z >= nz:
+            break
+##        data = abs(diff.slice_as_array(z))
+        data = abs(preprocessed_data.slice_as_array(z)) * (fwd_norm/pp_norm)
+        pdata = abs(fwd_data.slice_as_array(z))
+        pdata = data - pdata
+####        data = input_data.slice_as_array(z)
+####        pdata = acqs.slice_as_array(z)
+##        diff_max, diff_ave = ndarray_diff(data[0,:,:], pdata[0,:,:])
+##        print('relative maximal difference: %e' % diff_max)
+##        print('relative average difference: %e' % diff_ave)
+        print('Enter coil number to view the acquired data for it')
+        print('(a value outside the range [0 : %d) will stop this loop)' % nc)
+        while True:
+            s = str(input('coil: '))
+            if len(s) < 1:
+                break
+            c = int(s)
+            if c < 0 or c >= nc:
+                break
+            pylab.figure(c)
+            pylab.title('input data')
+            pylab.imshow(data[c,:,:])
+            pylab.colorbar();
+            pylab.figure(c + nc)
+            pylab.title('diff')
+            #pylab.title('am data')
+            pylab.imshow(pdata[c,:,:])
+            print('Close Figures %d and %d windows to continue...'% (c, c + nc))
+            pylab.colorbar();
+            pylab.show()
+
     # try to improve the reconstruction by steepest descent iterations
     x = complex_images*(pp_norm/fwd_norm)
     f = am.forward(x)

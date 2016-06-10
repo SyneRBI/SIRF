@@ -1,3 +1,7 @@
+% Upper-level interface demo, illustrates pre-processing of acquisitions,
+% reconstructing images and post-processing them.
+% See also an equivalent lower-level demo3.m.
+
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end

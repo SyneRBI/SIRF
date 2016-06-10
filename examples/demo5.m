@@ -1,3 +1,7 @@
+% Upper-level demo, illustrates the use of acquisition models and images and acquisitions algebra.
+% Involves the computation of coil sensitivity maps and
+% the projection from the image space into acquisition space and back.
+
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end

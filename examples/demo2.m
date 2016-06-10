@@ -1,3 +1,6 @@
+% Lower-level interface demo, runs a chain of gadgets and a gadget set.
+% See also an equivalent standard gadget chain in demo1.m.
+
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')
     [notfound, warnings] = loadlibrary('mutilities');

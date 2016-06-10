@@ -1,3 +1,6 @@
+% GRAPPA reconstruction with the steepest descent step
+% to illustrate the use of Acquisition Model projections.
+
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')
     [notfound, warnings] = loadlibrary('mutilities');

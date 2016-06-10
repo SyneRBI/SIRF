@@ -1,3 +1,8 @@
+% Lower-level interface demo, runs 3 gadget chains of different type:
+% - acquisition processing chain,
+% - reconstruction chain,
+% - image processing chain
+
 if ~libisloaded('mgadgetron')
     loadlibrary('mgadgetron')
 end
