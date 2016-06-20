@@ -237,7 +237,7 @@ class ImagesContainer(DataContainer):
         if not HAVE_PYLAB:
             print('pylab not found')
             return
-        ni = super(ImagesContainer, self).number()
+        ni = self.number()
         print('%d images' % ni)
         print('Please enter the number of the image to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % ni)
