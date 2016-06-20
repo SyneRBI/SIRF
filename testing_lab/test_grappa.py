@@ -148,6 +148,39 @@ try:
 ##        gamma = beta
     pylab.show()
 
+    print('Enter z-coordinate of the slice to view the acquired data for it')
+    print('(a value outside the range [0 : %d) will stop this loop)' % nz)
+    while True:
+        s = str(input('z-coordinate: '))
+        if len(s) < 1:
+            break
+        z = int(s)
+        if z < 0 or z >= nz:
+            break
+        data = abs(preprocessed_data.slice_as_array(z))
+        f = am.forward(x)
+        fdata = abs(f.slice_as_array(z))
+        pdata = data - fdata
+        print('Enter coil number to view the acquired data for it')
+        print('(a value outside the range [0 : %d) will stop this loop)' % nc)
+        while True:
+            s = str(input('coil: '))
+            if len(s) < 1:
+                break
+            c = int(s)
+            if c < 0 or c >= nc:
+                break
+            pylab.figure(c)
+            pylab.title('input data')
+            pylab.imshow(data[c,:,:])
+            pylab.colorbar();
+            pylab.figure(c + nc)
+            pylab.title('diff')
+            pylab.imshow(pdata[c,:,:])
+            print('Close Figures %d and %d windows to continue...'% (c, c + nc))
+            pylab.colorbar();
+            pylab.show()
+
     # post-process reconstructed images
     print('processing images...')
     #images = MR_extract_real_images(bwd_images)
@@ -171,7 +204,7 @@ try:
         i = z
         data = images.image_as_array(i)
         idata = imgs.image_as_array(i)
-##        gdata = gfactors.image_as_array(i)
+        gdata = gfactors.image_as_array(i)
         pylab.figure(i + 1)
         pylab.title('GRAPPA image')
         pylab.imshow(data[0,0,:,:])

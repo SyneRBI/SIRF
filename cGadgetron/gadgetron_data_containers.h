@@ -1012,7 +1012,7 @@ public:
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
-		for (i = list.images_.begin(); i != list.images_.end(), j < off; i++, j++);
+		for (i = list.images_.begin(); i != list.images_.end() && j < off; i++, j++);
 
 		for (; i != list.images_.end(); i++, j++) {
 			if ((j - off) % inc)
