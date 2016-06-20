@@ -24,6 +24,7 @@ Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
   git clone https://github.com/CCPPETMR/xGadgetron
 
 Set the following environment variables:
+(Note that SRC_PATH and BUILD_PATH are required for the demos as well as installation.)
 
 Variable name              Variable value
 
