@@ -45,9 +45,11 @@ Go to <work_dir>/iUtilities and run make.
 
 Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
-Go to <work_dir>/xGadgetron/pGadgetron and run make.
+Go to <work_dir>/xGadgetron/pGadgetron and run make. 
+(Mac OS users may have to change -lboost_thread to -lboost_thread-mt in the Makefile.)
 
 Go to <work_dir>/xGadgetron/mGadgetron and run make.
+(Currently failing on Mac due to -soname flag.)
 
 Go to <work_dir>/xGadgetron/examples and run make. 
 
