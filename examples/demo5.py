@@ -1,18 +1,12 @@
 '''
-Upper level demo that illustrates the computation of coil sensitivity maps,
+Upper-level demo that illustrates the computation of coil sensitivity maps,
 applying projection from the image space into acquisition space and back
 defined by the aquisition model, and images and acquisitions algebra.
 '''
 
-import math
+import argparse
 import os
-try:
-    import pylab
-    HAVE_PYLAB = True
-except:
-    HAVE_PYLAB = False
 import sys
-import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
@@ -22,10 +16,21 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
+parser = argparse.ArgumentParser(description = \
+'''
+Upper-level demo that illustrates the computation of coil sensitivity maps,
+applying projection from the image space into acquisition space and back
+defined by the aquisition model, and images and acquisitions algebra.
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
 def main():
-    # acquisitions will be read from this HDF file
-    file = str(input('raw data file (with apostrophys in Python2.*): '))
-    input_data = MR_Acquisitions(file)
+
+    # acquisitions will be read from an HDF file args.filename
+    input_data = MR_Acquisitions(args.filename)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
@@ -42,10 +47,6 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
     csms = MR_CoilSensitivityMaps()
-
-##    csm_file = str(input('csm file: '))
-##    print('reading sensitivity maps...')
-##    csms.read(csm_file)
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
@@ -82,19 +83,14 @@ def main():
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
-    if HAVE_PYLAB:
-        # extract real images from complex
-        images = MR_extract_real_images(complex_images)
-        # plot obtained images
-        for i in range(images.number()):
-            data = images.image_as_array(i)
-            pylab.figure(i + 1)
-            pylab.imshow(data[0,0,:,:])
-            print('Close Figure %d window to continue...' % (i + 1))
-            pylab.show()
+    # extract real images from complex
+    images = MR_extract_real_images(complex_images)
+    images.show()
 
 try:
     main()
+    print('done')
+
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

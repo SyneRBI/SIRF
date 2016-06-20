@@ -1,14 +1,12 @@
 '''
-Upper level interface demo that illustrates acquisitions
+Upper-level interface demo that illustrates acquisitions
 pre-processing, sorting and plotting.
 '''
 
 import argparse
-import math
 import os
 import pylab
 import sys
-import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
@@ -20,7 +18,7 @@ from pGadgetron import *
 
 parser = argparse.ArgumentParser(description = \
 '''
-Upper level interface demo that illustrates acquisitions
+Upper-level interface demo that illustrates acquisitions
 pre-processing, sorting and plotting.
 ''')
 parser.add_argument\
@@ -28,10 +26,10 @@ parser.add_argument\
  help = 'raw data file name (default: testdata.h5)')
 args = parser.parse_args()                                 
 
-try:
-    # acquisitions will be read from this HDF file
+def main():
+
+    # acquisitions will be read from an HDF file args.filename
     input_data = MR_Acquisitions(args.filename)
-    #input_data = MR_Acquisitions('testdata.h5')
 
     # pre-process acquisition data
     print('processing acquisitions...')
@@ -46,32 +44,32 @@ try:
     nx, ny, nc = input_data.slice_dimensions()
     nz = na//ny
 
-    print('Enter z-coordinate of the slice to view the acquired data for it')
-    print('(a value outside the range [0 : %d) will stop this loop)' % nz)
+    print('Enter the number of the slice to view the acquired data for it')
+    print('(a value outside the range [1 : %d] will stop this loop)' % nz)
     while True:
         s = str(input('z-coordinate: '))
         if len(s) < 1:
             break
         z = int(s)
-        if z < 0 or z >= nz:
+        if z < 1 or z > nz:
             break
-        data = abs(input_data.slice_as_array(z))
-        pdata = abs(processed_data.slice_as_array(z))
+        data = abs(input_data.slice_as_array(z - 1))
+        pdata = abs(processed_data.slice_as_array(z - 1))
         print('Enter coil number to view the acquired data for it')
-        print('(a value outside the range [0 : %d) will stop this loop)' % nc)
+        print('(a value outside the range [1 : %d] will stop this loop)' % nc)
         while True:
             s = str(input('coil: '))
             if len(s) < 1:
                 break
             c = int(s)
-            if c < 0 or c >= nc:
+            if c < 1 or c > nc:
                 break
             pylab.figure(c)
             pylab.title('oversampled data')
-            pylab.imshow(data[c,:,:])
+            pylab.imshow(data[c - 1, :, :])
             pylab.figure(c + nc)
             pylab.title('de-oversampled data')
-            pylab.imshow(pdata[c,:,:])
+            pylab.imshow(pdata[c - 1, :, :])
             print('Close Figures %d and %d windows to continue...'% (c, c + nc))
             pylab.show()
 
@@ -83,14 +81,11 @@ try:
 
     # extract real images from complex
     images = MR_extract_real_images(complex_images)
-    # plot obtained images
-    for i in range(images.number()):
-        data = images.image_as_array(i)
-        pylab.figure(i + 1)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
-        pylab.show()
+    # show obtained images
+    images.show()
 
+try:
+    main()
     print('done')
 
 except error as err:

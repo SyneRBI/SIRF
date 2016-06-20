@@ -1,10 +1,10 @@
 '''
-Lower level interface demo that illustrates creating and running a chain
+Lower-level interface demo that illustrates creating and running a chain
 of gadgets and gadget sets.
 '''
 
+import argparse
 import os
-import pylab
 import sys
 import time
 
@@ -16,14 +16,24 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
+parser = argparse.ArgumentParser(description = \
+'''
+Lower-level interface demo that illustrates creating and running a chain
+of gadgets and gadget sets.
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
 def main():
-    # acquisitions will be read from this HDF file
-    file = str(input('raw data file (with apostrophys in Python2.*): '))
-    input_data = MR_Acquisitions(file)
+
+    # acquisitions will be read from an HDF file args.filename
+    input_data = MR_Acquisitions(args.filename)
 
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
-    gadget2 = Gadget('SimpleReconGadgetSet')
+    gadget2 = Gadget('SimpleReconGadgetSet') # set of 4 gadgets - cf. demo1.py
     gadget3 = Gadget('ExtractGadget')
 
     # create reconstruction object
@@ -42,27 +52,10 @@ def main():
     # get reconstructed images
     images = recon.get_output()
 
-    # plot reconstructed images
+    # show reconstructed images
+    images.show()
 
-    nz = images.number()
-    print('%d images' % nz)
-
-    print('Please enter z-coordinate of the slice to view it')
-    print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
-    while True:
-        s = str(input('z-coordinate: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 0 or z >= nz:
-            break
-        data = images.image_as_array(z)
-        pylab.figure(z)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (z + 1))
-        pylab.show()
-
-    # write images to a new group in 'output6.h5'
+    # write images to a new group in 'output2.h5'
     # named after the current date and time
     print('appending output2.h5...')
     time_str = time.asctime()
@@ -70,6 +63,8 @@ def main():
 
 try:
     main()
+    print('done')
+
 except error as err:
     # display error information
     print ('Gadgetron exception occured:\n', err.value)

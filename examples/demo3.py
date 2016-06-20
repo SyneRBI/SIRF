@@ -1,15 +1,14 @@
 '''
-Lower level interface demo that illustrates creating and running gadget chains
+Lower-level interface demo that illustrates creating and running gadget chains
 of 3 types:
 - acquisition processing chain
 - reconstruction chain
 - image processing chain
 '''
 
+import argparse
 import os
-import pylab
 import sys
-import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
@@ -19,9 +18,23 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
-try:
-    # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
+parser = argparse.ArgumentParser(description = \
+'''
+Lower-level interface demo that illustrates creating and running gadget chains
+of 3 types:
+(i) acquisition processing chain
+(ii) reconstruction chain
+(iii) image processing chain
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
+def main():
+
+    # acquisitions will be read from an HDF file args.filename
+    input_data = MR_Acquisitions(args.filename)
 
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
@@ -32,37 +45,36 @@ try:
     gadget2.set_property('trigger_dimension', 'repetition')
     gadget2.set_property('split_slices', 'true')
 
-    # build acquisition processing chain
+    # build acquisition pre-processing chain
     acq_proc = AcquisitionsProcessor()
     acq_proc.add_gadget('g1', gadget1)
     print('processing acquisitions...')
-    interim_data = acq_proc.process(input_data)
+    preprocessed_data = acq_proc.process(input_data)
 
     # create reconstruction object
     recon = ImagesReconstructor()
     recon.add_gadget('g2', gadget2)
-    # connect to input data
-    recon.set_input(interim_data)
+    # connect to preprocessed data
+    recon.set_input(preprocessed_data)
     # perform reconstruction
     print('reconstructing...')
     recon.process()
     # get reconstructed images
-    interim_images = recon.get_output()
+    complex_images = recon.get_output()
 
     # build image processing chain
     img_proc = ImagesProcessor()
     img_proc.add_gadget('g3', gadget3)
     # post-process reconstructed images
     print('processing images...')
-    images = img_proc.process(interim_images)
+    images = img_proc.process(complex_images)
 
-    # plot obtained images
-    for i in range(images.number()):
-        data = interim_images.image_as_array(i)
-        pylab.figure(i + 1)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
-        pylab.show()
+    # show obtained images
+    images.show()
+
+try:
+    main()
+    print('done')
 
 except error as err:
     # display error information

@@ -1,10 +1,10 @@
 '''
-Lower level interface demo that illustrates creating and running a chain
+Lower-level interface demo that illustrates creating and running a chain
 of gadgets.
 '''
 
+import argparse
 import os
-import pylab
 import sys
 import time
 
@@ -16,9 +16,19 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
-try:
-    # acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5')
+parser = argparse.ArgumentParser(description = \
+'''
+Lower-level interface demo that illustrates creating and running a chain
+of gadgets.
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
+def main():
+    # acquisitions will be read from an HDF file args.filename
+    input_data = MR_Acquisitions(args.filename)
     
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
@@ -51,19 +61,18 @@ try:
     # get reconstructed images
     images = recon.get_output()
 
-    # plot reconstructed images
-    for i in range(images.number()):
-        data = images.image_as_array(i)
-        pylab.figure(i + 1)
-        pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
-        pylab.show()
+    # show reconstructed images
+    images.show()
 
     # write images to a new group in 'output1.h5'
     # named after the current date and time
     print('appending output1.h5...')
     time_str = time.asctime()
     images.write('output1.h5', time_str)
+
+try:
+    main()
+    print('done')
 
 except error as err:
     # display error information

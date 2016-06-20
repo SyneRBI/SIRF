@@ -2,11 +2,10 @@
 Upper-level demo, GRAPPA reconstruction of undersampled data.
 '''
 
-import math
+import argparse
 import os
 import pylab
 import sys
-import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
@@ -16,10 +15,19 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
-try:
-    # acquisitions will be read from this HDF file
-    file = str(input('raw data file (with apostrophys in Python2.*): '))
-    input_data = MR_Acquisitions(file)
+parser = argparse.ArgumentParser(description = \
+'''
+Upper-level demo, GRAPPA reconstruction of undersampled data.
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
+def main():
+
+    # acquisitions will be read from an HDF file args.filename
+    input_data = MR_Acquisitions(args.filename)
 
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
@@ -48,28 +56,29 @@ try:
     print('%d images reconstructed.' % nz)
 
     # plot images and gfactors
-    print('Enter z-coordinate of the slice to view it')
-    print('(a value outside the range [0 : %d] will stop this loop)'%(nz - 1))
+    print('Enter the number of the slice to view it')
+    print('(a value outside the range [1 : %d] will stop this loop)'% nz)
     while True:
-        s = str(input('z-coordinate: '))
+        s = str(input('slice: '))
         if len(s) < 1:
             break
         z = int(s)
-        if z < 0 or z >= nz:
+        if z < 1 or z > nz:
             break
-        i = z
-        data = images.image_as_array(i)
-        gdata = gfactors.image_as_array(i)
-        pylab.figure(i + 1)
+        data = images.image_as_array(z - 1)
+        gdata = gfactors.image_as_array(z - 1)
+        pylab.figure(z)
         pylab.title('image')
         pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + 1))
-        pylab.figure(i + nz + 1)
+        print('Close Figure %d window to continue...' % z)
+        pylab.figure(z + nz)
         pylab.title('G factor')
         pylab.imshow(gdata[0,0,:,:])
-        print('Close Figure %d window to continue...' % (i + nz + 1))
+        print('Close Figure %d window to continue...' % (z + nz))
         pylab.show()
 
+try:
+    main()
     print('done')
 
 except error as err:
