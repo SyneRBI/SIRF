@@ -24,6 +24,7 @@ Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
   git clone https://github.com/CCPPETMR/xGadgetron
 
 Set the following environment variables:
+(Note that SRC_PATH and BUILD_PATH are required for the demos as well as installation.)
 
 Variable name              Variable value
 
@@ -49,7 +50,7 @@ Go to <work_dir>/xGadgetron/pGadgetron and run make.
 (Mac OS users may have to change -lboost_thread to -lboost_thread-mt in the Makefile.)
 
 Go to <work_dir>/xGadgetron/mGadgetron and run make.
-(Currently failing on Mac due to -soname flag.)
+(Currently failing on Mac.)
 
 Go to <work_dir>/xGadgetron/examples and run make. 
 
