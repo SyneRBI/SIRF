@@ -20,7 +20,7 @@ TARGET2 = mgadgetron.mexa64
 
 all: TARGET1 TARGET2
 
-OBJECTS1 = mutilities.o printer.o
+OBJECTS1 = mutilities.o
 OBJECTS2 = mgadgetron.o
 
 TARGET1: $(OBJECTS1)
