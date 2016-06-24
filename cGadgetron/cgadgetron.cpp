@@ -794,25 +794,6 @@ cGT_configGadgetChain(void* ptr_con, void* ptr_gc)
 
 extern "C"
 void*
-cGT_registerHDFReceiver(void* ptr_con, const char* file, const char* group)
-{
-	try {
-		CAST_PTR(DataHandle, h_con, ptr_con);
-		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
-		GadgetronClientConnector& con = conn();
-		Mutex mutex;
-		boost::mutex& mtx = mutex();
-		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageReader(file, group, &mtx)));
-	}
-	CATCH;
-
-	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
 cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 {
 	try {

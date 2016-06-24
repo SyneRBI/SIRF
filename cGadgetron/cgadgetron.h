@@ -68,8 +68,6 @@ extern "C" {
 	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
 	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
-	void* cGT_registerHDFReceiver
-		(void* ptr_con, const char* file, const char* group);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
