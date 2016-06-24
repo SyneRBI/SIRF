@@ -49,8 +49,6 @@ EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBL
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
-EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
-EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y);
@@ -60,7 +58,6 @@ EXPORTED_FUNCTION 	void* mGT_addWriter(void* ptr_gc, const char* id, const void*
 EXPORTED_FUNCTION 	void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
 EXPORTED_FUNCTION 	void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc);
-EXPORTED_FUNCTION 	void* mGT_registerHDFReceiver (void* ptr_con, const char* file, const char* group);
 EXPORTED_FUNCTION 	void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 EXPORTED_FUNCTION 	void* mGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
 EXPORTED_FUNCTION 	void* mGT_connect(void* ptr_con, const char* host, const char* port);

@@ -112,12 +112,6 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_n
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
 	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
 }
-EXPORTED_FUNCTION 	void mFind_edges(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w) {
-	find_edges(nx, ny, ptr_u, ptr_w);
-}
-EXPORTED_FUNCTION 	void mSmoothen(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w) {
-	smoothen(nx, ny, ptr_u, ptr_w);
-}
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
 	return cGT_dataItems(ptr_x);
 }
@@ -144,9 +138,6 @@ EXPORTED_FUNCTION 	void* mGT_setGadgetProperty(void* ptr_g, const char* prop, co
 }
 EXPORTED_FUNCTION 	void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc) {
 	return cGT_configGadgetChain(ptr_con, ptr_gc);
-}
-EXPORTED_FUNCTION 	void* mGT_registerHDFReceiver (void* ptr_con, const char* file, const char* group) {
-	return cGT_registerHDFReceiver (ptr_con, file, group);
 }
 EXPORTED_FUNCTION 	void* mGT_registerImagesReceiver(void* ptr_con, void* ptr_img) {
 	return cGT_registerImagesReceiver(ptr_con, ptr_img);
