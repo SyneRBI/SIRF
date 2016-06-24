@@ -50,8 +50,5 @@
     <ClCompile Include="ismrmrd_fftw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="noise_filter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

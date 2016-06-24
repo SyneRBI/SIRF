@@ -53,8 +53,6 @@ extern "C" {
 		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
 	void cGT_getImageDataAsComplexArray
 		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
-	void find_edges(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
-	void smoothen(int nx, int ny, PTR_DOUBLE ptr_u, PTR_FLOAT ptr_w);
 
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);

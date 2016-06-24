@@ -24,8 +24,6 @@
 
 using boost::asio::ip::tcp;
 
-//#include "text_writer.h"
-
 #include "gadgetron_data_containers.h"
 
 enum GadgetronMessageID {
@@ -63,61 +61,45 @@ enum GadgetronMessageID {
 	GADGET_MESSAGE_EXT_ID_MAX = 4096
 };
 
-struct GadgetMessageIdentifier
-{
+struct GadgetMessageIdentifier {
 	uint16_t id;
 };
 
-struct GadgetMessageConfigurationFile
-{
+struct GadgetMessageConfigurationFile {
 	char configuration_file[1024];
 };
 
-struct GadgetMessageScript
-{
+struct GadgetMessageScript {
 	uint32_t script_length;
 };
 
-class GadgetronClientException : public std::exception
-{
-
+class GadgetronClientException : public std::exception {
 public:
 	GadgetronClientException(std::string msg) : msg_(msg) {}
-
 	virtual ~GadgetronClientException() throw() {}
-
-	virtual const char* what() const throw()
+	virtual const char* what() const throw() 
 	{
 		return msg_.c_str();
 	}
-
 protected:
 	std::string msg_;
 };
 
-class GadgetronClientMessageReader
-{
+class GadgetronClientMessageReader {
 public:
 	virtual ~GadgetronClientMessageReader() {}
-
 	/**
 	Function must be implemented to read a specific message.
 	*/
 	virtual void read(tcp::socket* s) = 0;
-
 };
 
-class GadgetronClientAcquisitionMessageCollector : public GadgetronClientMessageReader
-{
+class GadgetronClientAcquisitionMessageCollector : 
+	public GadgetronClientMessageReader {
 public:
 	GadgetronClientAcquisitionMessageCollector
 		(boost::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
-
-	~GadgetronClientAcquisitionMessageCollector() 
-	{
-		//std::cout << "destroying GadgetronClientAcquisitionMessageCollector..." 
-		//	<< std::endl;
-	}
+	virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
 	virtual void read(tcp::socket* stream)
 	{
@@ -143,31 +125,28 @@ public:
 				(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
 		}
 
-		{
-			//Mutex mutex;
-			//boost::mutex& mtx = mutex();
-			//mtx.lock();
-			ptr_acqs_->append_acquisition(acq);
-			//mtx.unlock();
-		}
+		ptr_acqs_->append_acquisition(acq);
 	}
 
 private:
 	boost::shared_ptr<AcquisitionsContainer> ptr_acqs_;
 };
 
-class GadgetronClientImageMessageCollector : public GadgetronClientMessageReader
-{
+class GadgetronClientImageMessageCollector : 
+	public GadgetronClientMessageReader {
 public:
 	GadgetronClientImageMessageCollector
 		(boost::shared_ptr<ImagesContainer> ptr_images) : ptr_images_(ptr_images) {}
-
-	~GadgetronClientImageMessageCollector() {}
+	virtual ~GadgetronClientImageMessageCollector() {}
 
 	template <typename T>
-	void read_data_attrib
-		(tcp::socket* stream, const ISMRMRD::ImageHeader& h, ISMRMRD::Image<T>& im)
+	void read_data_attributes
+		(ISMRMRD::Image<T>* ptr, const ISMRMRD::ImageHeader& h, void** ptr_ptr, 
+		tcp::socket* stream)
 	{
+		ISMRMRD::Image < T >* ptr_im = new ISMRMRD::Image < T > ;
+		*ptr_ptr = (void*)ptr_im;
+		ISMRMRD::Image<T>& im = *ptr_im;
 		im.setHead(h);
 		im.setImageType(ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE);
 
@@ -193,55 +172,15 @@ public:
 		ISMRMRD::ImageHeader h;
 		boost::asio::read
 			(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
-
-		//writeText("ok\n");
-		//std::cout << "data type: " << h.data_type << std::endl;
-		//std::stringstream ss;
-		//ss << "data type: " << h.data_type << std::endl;
-		//Mutex mutex;
-		//boost::mutex& mtx = mutex();
-		//mtx.lock();
-		//writeText(ss.str().c_str(), INFORMATION_CHANNEL);
-		//mtx.unlock();
-
 		void* ptr = 0;
-		if (h.data_type == ISMRMRD::ISMRMRD_USHORT) {
-			ptr = (void*)new ISMRMRD::Image<unsigned short>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<unsigned short>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_SHORT) {
-			ptr = (void*)new ISMRMRD::Image<short>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<short>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_UINT) {
-			ptr = (void*)new ISMRMRD::Image<unsigned int>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<unsigned int>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_INT) {
-			ptr = (void*)new ISMRMRD::Image<int>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<int>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_FLOAT) {
-			ptr = (void*)new ISMRMRD::Image<float>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<float>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_DOUBLE) {
-			ptr = (void*)new ISMRMRD::Image<double>;
-			this->read_data_attrib(stream, h, *(ISMRMRD::Image<double>* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_CXFLOAT) {
-			ptr = (void*)new ISMRMRD::Image< std::complex<float> >;
-			this->read_data_attrib
-				(stream, h, *(ISMRMRD::Image< std::complex<float> >* )ptr);
-		}
-		else if (h.data_type == ISMRMRD::ISMRMRD_CXDOUBLE) {
-			ptr = (void*)new ISMRMRD::Image< std::complex<double> >;
-			this->read_data_attrib
-				(stream, h, *(ISMRMRD::Image< std::complex<double> >* )ptr);
-		}
+		IMAGE_PROCESSING_SWITCH
+			(h.data_type, read_data_attributes, ptr, h, &ptr, stream);
 		if (ptr) {
 			ptr_images_->append(h.data_type, ptr);
 			ptr_images_->count(h.image_index);
+		}
+		else {
+			throw GadgetronClientException("Invalid image data type");
 		}
 	}
 
@@ -249,12 +188,10 @@ private:
 	boost::shared_ptr<ImagesContainer> ptr_images_;
 };
 
-class GadgetronClientConnector
-{
+class GadgetronClientConnector {
 public:
 	GadgetronClientConnector() : socket_(0), timeout_ms_(2000)
 	{}
-
 	virtual ~GadgetronClientConnector()
 	{
 		if (socket_) {
@@ -456,8 +393,9 @@ public:
 	}
 
 	template<typename T>
-	void send_ismrmrd_image(ISMRMRD::Image<T>& im)
+	void send_ismrmrd_image(ISMRMRD::Image<T>* ptr_im)
 	{
+		ISMRMRD::Image<T>& im = *ptr_im;
 		if (!socket_)
 			throw GadgetronClientException("Invalid socket.");
 
@@ -467,7 +405,7 @@ public:
 		boost::asio::write
 			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
 		boost::asio::write
-			(*socket_, 
+			(*socket_,
 			boost::asio::buffer(&im.getHead(), sizeof(ISMRMRD::ImageHeader)));
 
 		size_t meta_attrib_length = im.getAttributeStringLength();
@@ -493,24 +431,7 @@ public:
 
 	void send_wrapped_image(ImageWrap& iw)
 	{
-		if (iw.type() == ISMRMRD::ISMRMRD_USHORT)
-			send_ismrmrd_image(*(ISMRMRD::Image<unsigned short>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_SHORT)
-			send_ismrmrd_image(*(ISMRMRD::Image<short>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_UINT)
-			send_ismrmrd_image(*(ISMRMRD::Image<unsigned int>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_INT)
-			send_ismrmrd_image(*(ISMRMRD::Image<int>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_FLOAT)
-			send_ismrmrd_image(*(ISMRMRD::Image<float>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_DOUBLE)
-			send_ismrmrd_image(*(ISMRMRD::Image<double>*)iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_CXFLOAT)
-			send_ismrmrd_image(*(ISMRMRD::Image< std::complex<float> >*)
-			iw.ptr_image());
-		else if (iw.type() == ISMRMRD::ISMRMRD_CXDOUBLE)
-			send_ismrmrd_image(*(ISMRMRD::Image< std::complex<double> >*)
-			iw.ptr_image());
+		IMAGE_PROCESSING_SWITCH(iw.type(), send_ismrmrd_image, iw.ptr_image());
 	}
 
 	void register_reader
@@ -527,13 +448,10 @@ protected:
 	GadgetronClientMessageReader* find_reader(unsigned short r)
 	{
 		GadgetronClientMessageReader* ret = 0;
-
 		maptype::iterator it = readers_.find(r);
-
 		if (it != readers_.end()) {
 			ret = it->second.get();
 		}
-
 		return ret;
 	}
 
@@ -542,7 +460,6 @@ protected:
 	boost::thread reader_thread_;
 	maptype readers_;
 	unsigned int timeout_ms_;
-
 };
 
 #endif
