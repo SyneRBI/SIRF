@@ -50,5 +50,8 @@
     <ClCompile Include="ismrmrd_fftw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xgadgetron.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

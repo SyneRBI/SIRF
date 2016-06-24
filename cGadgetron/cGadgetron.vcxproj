@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="cgadgetron.cpp" />
     <ClCompile Include="ismrmrd_fftw.cpp" />
+    <ClCompile Include="xgadgetron.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

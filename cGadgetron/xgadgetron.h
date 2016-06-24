@@ -1,7 +1,31 @@
+/*
+CCP PETMR toolbox
+Copyright 2015 - 2016 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2016 Institute of Nuclear Medicine, University College London.
+
+This product includes software developed for the Collaborative Computational
+Project in Positron Emission Tomograph and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/) at RAL STFC (http://www.stfc.ac.uk) and
+the Institute of Nuclear Medicine(http ://www.ucl.ac.uk/medicine/nuclear-medicine).
+
+See xGadgetron/LICENSE.txt for license details.
+
+*/
+
+/*!
+\file
+\ingroup Gadgetron Extensions
+\brief Specification file for extended Gadgetron functionality classes.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #ifndef GADGETRON_EXTENSIONS
 #define GADGETRON_EXTENSIONS
 
 #include <cmath>
+#include <string>
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -18,33 +42,51 @@
 
 #define N_TRIALS 5
 
+/*!
+\ingroup Gadgetron Extensions
+\brief Shared pointer wrap-up for GadgetronClientConnector.
+
+*/
+
 class GTConnector {
 public:
-	GTConnector() {
+	GTConnector() 
+	{
 		sptr_con_ = boost::shared_ptr<GadgetronClientConnector>
 			(new GadgetronClientConnector);
 	}
-	GadgetronClientConnector& operator()() {
+	GadgetronClientConnector& operator()() 
+	{
 		return *sptr_con_.get();
 	}
-	boost::shared_ptr<GadgetronClientConnector> sptr() {
+	boost::shared_ptr<GadgetronClientConnector> sptr() 
+	{
 		return sptr_con_;
 	}
 private:
 	boost::shared_ptr<GadgetronClientConnector> sptr_con_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief Shared pointer wrap-up for the abstract gadget class aGadget.
+
+*/
+
 class GadgetHandle {
 public:
 	GadgetHandle(std::string id, boost::shared_ptr<aGadget> sptr_g) : 
 		id_(id), sptr_g_(sptr_g) {}
-	std::string id() const {
+	std::string id() const 
+	{
 		return id_;
 	}
-	aGadget& gadget() {
+	aGadget& gadget() 
+	{
 		return *sptr_g_.get();
 	}
-	const aGadget& gadget() const {
+	const aGadget& gadget() const 
+	{
 		return *sptr_g_.get();
 	}
 private:
@@ -52,50 +94,61 @@ private:
 	boost::shared_ptr<aGadget> sptr_g_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief Gadget chain class.
+
+Gadgetron gadget chains have the following form:
+
+reader gadget 
+(receives data from the client and passes it down the chain)
+-
+first gadget 
+(processes data received from the reader gadget and passes the result on)
+-
+second gadget 
+(processes data received from the first gadget and passes the result on)
+-
+...
+-
+last gadget
+(as above)
+-
+finishing gadget
+(prepares the final result for sending to the client)
+-
+writer gadget
+(sends the final result to the client)
+*/
+
 class GadgetChain {
 public:
-	virtual ~GadgetChain() 
+	virtual ~GadgetChain() {}
+	// adds reader gadget
+	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) 
 	{
-		//std::cout << "~GadgetChain called" << std::endl;
-	}
-	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) {
 			readers_.push_back(boost::shared_ptr<GadgetHandle>
 				(new GadgetHandle(id, sptr_g)));
 	}
-	void add_writer(std::string id, boost::shared_ptr<aGadget> sptr_g) {
+	// adds writer gadget
+	void add_writer(std::string id, boost::shared_ptr<aGadget> sptr_g) 
+	{
 		writers_.push_back(boost::shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
-	void add_gadget(std::string id, boost::shared_ptr<aGadget> sptr_g) {
+	// sdds finishig gadget
+	void set_endgadget(boost::shared_ptr<aGadget> sptr_g) 
+	{
+		endgadget_ = sptr_g;
+	}
+	// adds any other gadget
+	void add_gadget(std::string id, boost::shared_ptr<aGadget> sptr_g)
+	{
 		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
-	void set_endgadget(boost::shared_ptr<aGadget> sptr_g) {
-		endgadget_ = sptr_g;
-	}
-	std::string xml() const {
-		std::string xml_script("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-		xml_script += "<gadgetronStreamConfiguration xsi:schemaLocation=";
-		xml_script += "\"http://gadgetron.sf.net/gadgetron gadgetron.xsd\"\n";
-        	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
-        	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
-
-#ifdef MSVC
-		std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
-#else
-		typename std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
-#endif
-		for (gh = readers_.begin(); gh != readers_.end(); gh++)
-			xml_script += gh->get()->gadget().xml() + '\n';
-		for (gh = writers_.begin(); gh != writers_.end(); gh++)
-			xml_script += gh->get()->gadget().xml() + '\n';
-		for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++)
-			xml_script += gh->get()->gadget().xml() + '\n';
-		xml_script += endgadget_->xml() + '\n';
-		xml_script += "</gadgetronStreamConfiguration>\n";
-
-		return xml_script;
-	}
+	// returns string containing the definition of the chain in xml format
+	std::string xml() const;
 private:
 	std::list<boost::shared_ptr<GadgetHandle> > readers_;
 	std::list<boost::shared_ptr<GadgetHandle> > writers_;
@@ -116,57 +169,11 @@ public:
 		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
 		set_endgadget(endgadget);
 	}
-	virtual ~AcquisitionsProcessor() 
+	virtual ~AcquisitionsProcessor() {}
+
+	void process(AcquisitionsContainer& acquisitions);
+	boost::shared_ptr<AcquisitionsContainer> get_output() 
 	{
-		//std::cout << "~AcquisitionsProcessor called" << std::endl;
-	}
-
-	void process(AcquisitionsContainer& acquisitions) {
-
-		std::string config = xml();
-		//std::cout << config << std::endl;
-
-		GTConnector conn;
-
-		sptr_acqs_ = acquisitions.new_acquisitions_container();
-		conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
-
-		for (int nt = 0; nt < N_TRIALS; nt++) {
-			try {
-				conn().connect(host_, port_);
-				conn().send_gadgetron_configuration_script(config);
-
-				conn().send_gadgetron_parameters(acquisitions.parameters());
-				sptr_acqs_->copy_parameters(acquisitions);
-
-				uint32_t nacq = 0;
-				nacq = acquisitions.number();
-
-				//std::cout << nacq << " acquisitions" << std::endl;
-
-				ISMRMRD::Acquisition acq_tmp;
-				for (uint32_t i = 0; i < nacq; i++) {
-					acquisitions.get_acquisition(i, acq_tmp);
-					conn().send_ismrmrd_acquisition(acq_tmp);
-				}
-
-				conn().send_gadgetron_close();
-				conn().wait();
-
-				break;
-			}
-			catch (...) {
-				std::cout << "connection failed";
-				if (nt < N_TRIALS - 1)
-					std::cout << ", trying again...";
-				std::cout << std::endl;
-			}
-		}
-	}
-
-	boost::shared_ptr<AcquisitionsContainer> get_output() {
 		return sptr_acqs_;
 	}
 
@@ -193,51 +200,9 @@ public:
 		set_endgadget(endgadget);
 	}
 
-	void process(AcquisitionsContainer& acquisitions) {
-
-		std::string config = xml();
-		//std::cout << "config:\n" << config << std::endl;
-
-		GTConnector conn;
-
-		sptr_images_.reset(new ImagesList);
-		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(sptr_images_)));
-
-		for (int nt = 0; nt < N_TRIALS; nt++) {
-			try {
-				conn().connect(host_, port_);
-				conn().send_gadgetron_configuration_script(config);
-
-				conn().send_gadgetron_parameters(acquisitions.parameters());
-
-				uint32_t nacquisitions = 0;
-				nacquisitions = acquisitions.number();
-
-				//std::cout << nacquisitions << " acquisitions" << std::endl;
-
-				ISMRMRD::Acquisition acq_tmp;
-				for (uint32_t i = 0; i < nacquisitions; i++) {
-					acquisitions.get_acquisition(i, acq_tmp);
-					conn().send_ismrmrd_acquisition(acq_tmp);
-				}
-
-				conn().send_gadgetron_close();
-				conn().wait();
-
-				break;
-			}
-			catch (...) {
-				std::cout << "connection failed";
-				if (nt < N_TRIALS - 1)
-					std::cout << ", trying again...";
-				std::cout << std::endl;
-			}
-		}
-	}
-
-	boost::shared_ptr<ImagesContainer> get_output() {
+	void process(AcquisitionsContainer& acquisitions);
+	boost::shared_ptr<ImagesContainer> get_output() 
+	{
 		return sptr_images_;
 	}
 
@@ -262,43 +227,9 @@ public:
 		set_endgadget(endgadget);
 	}
 
-	void process(ImagesContainer& images)
+	void process(ImagesContainer& images);
+	boost::shared_ptr<ImagesContainer> get_output() 
 	{
-		std::string config = xml();
-		//std::cout << config << std::endl;
-
-		GTConnector conn;
-
-		sptr_images_ = images.new_images_container();
-		conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			boost::shared_ptr<GadgetronClientMessageReader>
-			(new GadgetronClientImageMessageCollector(sptr_images_)));
-
-		for (int nt = 0; nt < N_TRIALS; nt++) {
-			try {
-				conn().connect(host_, port_);
-				conn().send_gadgetron_configuration_script(config);
-
-				for (int i = 0; i < images.number(); i++) {
-					ImageWrap& iw = images.image_wrap(i);
-					conn().send_wrapped_image(iw);
-				}
-
-				conn().send_gadgetron_close();
-				conn().wait();
-
-				break;
-			}
-			catch (...) {
-				std::cout << "connection failed";
-				if (nt < N_TRIALS - 1)
-					std::cout << ", trying again...";
-				std::cout << std::endl;
-			}
-		}
-	}
-
-	boost::shared_ptr<ImagesContainer> get_output() {
 		return sptr_images_;
 	}
 
@@ -341,31 +272,10 @@ public:
 	}
 
 	void fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
-		AcquisitionsContainer& ac)
-	{
-		if (cc.items() < 1)
-			throw LocalisedException
-			("coil sensitivity maps not found", __FILE__, __LINE__);
-		for (int i = 0; i < ic.number(); i++) {
-			ImageWrap& iw = ic.image_wrap(i);
-			CoilSensitivityMap& csm = cc(i%cc.items());
-			fwd(iw, csm, ac);
-		}
-	}
+		AcquisitionsContainer& ac);
 
-	void bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc, 
-		AcquisitionsContainer& ac)
-	{
-		if (cc.items() < 1)
-			throw LocalisedException
-			("coil sensitivity maps not found", __FILE__, __LINE__);
-		ImageWrap iw(sptr_imgs_->image_wrap(0));
-		for (int i = 0, a = 0; a < ac.number(); i++) {
-			CoilSensitivityMap& csm = cc(i%cc.items());
-			bwd(iw, csm, ac, a);
-			ic.append(iw);
-		}
-	}
+	void bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
+		AcquisitionsContainer& ac);
 
 	boost::shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
 	{
@@ -395,161 +305,12 @@ private:
 	boost::shared_ptr<ImagesContainer> sptr_imgs_;
 	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
-	float norm(ISMRMRD::NDArray<complex_float_t> arr)
-	{
-		float s = 0;
-		complex_float_t* ia;
-		for (ia = arr.begin(); ia != arr.end(); ia++)
-			s += std::abs(std::conj(*ia) * (*ia));
-		return sqrt(s);
-	}
-
 	template< typename T>
-	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm, 
-		AcquisitionsContainer& ac)
-	{
-		ISMRMRD::Image<T>& img = *ptr_img;
-
-		std::string par;
-		ISMRMRD::IsmrmrdHeader header;
-		//par = ac.parameters();
-		par = sptr_acqs_->parameters();
-		ISMRMRD::deserialize(par.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
-		ISMRMRD::Acquisition acq; // (acq_);
-		sptr_acqs_->get_acquisition(0, acq);
-
-		//int readout = e.encodedSpace.matrixSize.x;
-		unsigned int nx = e.reconSpace.matrixSize.x;
-		unsigned int ny = e.reconSpace.matrixSize.y;
-		unsigned int nc = acq.active_channels();
-		unsigned int readout = acq.number_of_samples();
-
-		std::vector<size_t> dims;
-		dims.push_back(readout); 
-		dims.push_back(ny);
-		dims.push_back(nc);
-
-		ISMRMRD::NDArray<complex_float_t> ci(dims);
-		memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t zi = (complex_float_t)img(x, y);
-					complex_float_t zc = csm(x, y, 0, c);
-					ci(xout, y, c) = zi * zc;
-				}
-			}
-		}
-
-		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
-
-		fft2c(ci);
-
-		int y = 0;
-		for (;;){
-			sptr_acqs_->get_acquisition(y, acq);
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-				break;
-			y++;
-		}
-		for (;;) {
-		//for (size_t y = 0; y < ny; y++) {
-			//acq.clearAllFlags();
-			//if (y == 0)
-			//	acq.setFlag(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE);
-			//if (y == ny - 1)
-			//	acq.setFlag(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE);
-			//acq.idx().kspace_encode_step_1 = y;
-			//acq.idx().repetition = 0;
-			sptr_acqs_->get_acquisition(y, acq);
-			int yy = acq.idx().kspace_encode_step_1;
-			for (size_t c = 0; c < nc; c++) {
-				for (size_t s = 0; s < readout; s++) {
-					acq.data(s, c) = ci(s, yy, c);
-				}
-			}
-			ac.append_acquisition(acq);
-			y++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-				break;
-		}
-		ac.set_parameters(par);
-		ac.write_parameters();
-
-	}
-
+	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
+		AcquisitionsContainer& ac);
 	template< typename T>
-	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm, 
-		AcquisitionsContainer& ac, int& off)
-	{
-		ISMRMRD::Image<T>& im = *ptr_im;
-
-		std::string par;
-		ISMRMRD::IsmrmrdHeader header;
-		par = ac.parameters();
-		ISMRMRD::deserialize(par.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
-		ISMRMRD::Acquisition acq; // (acq_);
-		sptr_acqs_->get_acquisition(0, acq);
-
-		//int readout = e.encodedSpace.matrixSize.x;
-		unsigned int nx = e.reconSpace.matrixSize.x;
-		unsigned int ny = e.reconSpace.matrixSize.y;
-		unsigned int nc = acq.active_channels();
-		unsigned int readout = acq.number_of_samples();
-
-		std::vector<size_t> dims;
-		dims.push_back(readout);
-		dims.push_back(ny);
-		dims.push_back(nc);
-
-		ISMRMRD::NDArray<complex_float_t> ci(dims);
-		memset(ci.getDataPtr(), 0, ci.getDataSize());
-		int y = 0;
-		for (;;){
-			ac.get_acquisition(off + y, acq);
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-				break;
-			y++;
-		}
-		for (;;) {
-		//for (size_t y = 0; y < ny; y++) {
-			ac.get_acquisition(off + y, acq);
-			int yy = acq.idx().kspace_encode_step_1;
-			for (size_t c = 0; c < nc; c++) {
-				for (size_t s = 0; s < readout; s++) {
-					ci(s, yy, c) = acq.data(s, c);
-				}
-			}
-			y++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-				break;
-		}
-		off += y;
-		//off += ny;
-		ifft2c(ci);
-
-		T* ptr = im.getDataPtr();
-		T s;
-		memset(ptr, 0, im.getDataSize());
-		long long int i = 0;
-		for (unsigned int c = 0; c < nc; c++) {
-			i = 0;
-			for (unsigned int y = 0; y < ny; y++) {
-				for (unsigned int x = 0; x < nx; x++, i++) {
-					uint16_t xout = x + (readout - nx) / 2;
-					complex_float_t z = ci(xout, y, c);
-					complex_float_t zc = csm(x, y, 0, c);
-					xGadgetronUtilities::convert_complex(std::conj(zc) * z, s);
-					ptr[i] += s;
-				}
-			}
-		}
-
-	}
-
+	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm,
+		AcquisitionsContainer& ac, int& off);
 };
+
 #endif
