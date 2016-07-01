@@ -758,15 +758,7 @@ cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
 		CAST_PTR(DataHandle, h_g, ptr_g);
 		aGadget& g = objectFromHandle<aGadget>(h_g);
 		//std::cout << g.name() << std::endl;
-		if (boost::iequals(g.name(), "AcquisitionAccumulateTriggerGadget"))
-			g.set_property(prop, value);
-		else if (boost::iequals(g.name(), "BucketToBufferGadget"))
-			g.set_property(prop, value);
-		else if (boost::iequals(g.name(), "SimpleReconGadgetSet"))
-			g.set_property(prop, value);
-		//else
-		//	return unknownObject
-		//		("gadget with properties", g.name().c_str(), __FILE__, __LINE__);
+		g.set_property(prop, value);
 	}
 	CATCH;
 

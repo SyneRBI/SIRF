@@ -302,6 +302,8 @@ public:
 			perform_timing_ = value;
 		else if (boost::iequals(prop, "verbose"))
 			verbose_ = value;
+		else if (boost::iequals(prop, "send_out_gfactor"))
+			send_out_gfactor_ = value;
 		else
 			THROW("unknown gadget parameter");
 	}

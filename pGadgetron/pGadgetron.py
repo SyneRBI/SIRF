@@ -512,6 +512,11 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def get_output(self):
+        output = ImagesReconstructor.get_output(self)
+        images = output.select(2)
+        gfactors = output.select(2,1)
+        return images, gfactors
     
 def MR_remove_x_oversampling(input_data):
     handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')

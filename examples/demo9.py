@@ -51,10 +51,9 @@ def main():
     recon.set_input(preprocessed_data)
     print('---\n reconstructing...')
     recon.process()
-    output = recon.get_output()
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
-    complex_images = output.select(2)
+    complex_images, complex_gfactors = recon.get_output()
 
     # create acquisition model based on the acquisition parameters
     # stored in preprocessed_data and image parameters stored in complex_images

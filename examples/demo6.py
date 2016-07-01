@@ -22,6 +22,8 @@ Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
+parser.add_argument\
+('--no_gfactors', help = 'no gfactors to be computed', action = 'store_true')
 args = parser.parse_args()                                 
 
 def main():
@@ -43,6 +45,11 @@ def main():
     gadget31 = Gadget('ComplexToFloatGadget')
     gadget32 = Gadget('FloatToShortGadget')
 
+    if args.no_gfactors:
+        # gfactors are not needed
+        gadget24.set_property('send_out_gfactor', 'false')
+
+    # pre-process acquisitions
     acq_proc = AcquisitionsProcessor()
     acq_proc.add_gadget('g1', gadget11)
     acq_proc.add_gadget('g2', gadget12)
