@@ -34,7 +34,9 @@ def main():
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    processed_data = MR_remove_x_oversampling(input_data)
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+         'RemoveROOversamplingGadget']
+    processed_data = input_data.process(prep_gadgets)
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
@@ -84,7 +86,7 @@ def main():
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
     # extract real images from complex
-    images = MR_extract_real_images(complex_images)
+    images = complex_images.real()
     images.show()
 
 try:

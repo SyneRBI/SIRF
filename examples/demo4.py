@@ -32,7 +32,9 @@ def main():
 
     # pre-process acquisition data
     print('processing acquisitions...')
-    processed_data = MR_remove_x_oversampling(input_data)
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+         'RemoveROOversamplingGadget']
+    processed_data = input_data.process(prep_gadgets)
 
     # perform reconstruction
     recon = MR_BasicReconstruction()
@@ -41,9 +43,9 @@ def main():
     recon.process()
     complex_images = recon.get_output()
 
-    # post-process reconstructed images
+    # extract real images from complex
     print('processing images...')
-    images = MR_extract_real_images(complex_images)
+    images = complex_images.real()
 
     # show obtained images
     images.show()

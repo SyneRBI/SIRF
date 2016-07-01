@@ -92,6 +92,7 @@ class ClientConnector(PyGadgetronObject):
 class DataContainer(PyGadgetronObject):
     def __init__(self):
         self.handle = None
+        self.is_real = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -101,6 +102,18 @@ class DataContainer(PyGadgetronObject):
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
+    def real(self):
+        if self.is_real:
+            return self
+        handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
+        _check_status(handle)
+        real_images = ImagesContainer()
+        real_images.handle = pygadgetron.cGT_processImages\
+             (handle, self.handle)
+        _check_status(real_images.handle)
+        pygadgetron.deleteObject(handle)
+        real_images.is_real = True
+        return real_images
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
@@ -220,6 +233,7 @@ class MR_CoilSensitivityMaps(DataContainer):
 class ImagesContainer(DataContainer):
     def __init__(self):
         self.handle = None
+        self.is_real = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -306,6 +320,9 @@ class AcquisitionsContainer(DataContainer):
         self.sorted = True
     def is_sorted(self):
         return self.sorted
+    def process(self, list):
+        ap = AcquisitionsProcessor(list)
+        return ap.process(self)
     def acquisition(self, num):
         acq = MR_Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)

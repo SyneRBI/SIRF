@@ -36,7 +36,7 @@ def main():
          'RemoveROOversamplingGadget']
     acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('---\n pre-processing acquisitions...')
-    preprocessed_data = acq_proc.process(input_data)
+    preprocessed_data = input_data.process(prep_gadgets)
     pp_norm = preprocessed_data.norm()
 
     # compute coil sensitivity maps
@@ -77,8 +77,8 @@ def main():
 
     # get real-valued reconstructed and refined images
     print('---\n processing images...')
-    images = MR_extract_real_images(complex_images)
-    r_imgs = MR_extract_real_images(r_complex_imgs)
+    images = complex_images.real()
+    r_imgs = r_complex_imgs.real()
     nz = images.number()
     print('%d images reconstructed.' % nz)
 

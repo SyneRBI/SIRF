@@ -33,7 +33,9 @@ def main():
 
     # pre-process acquisition data
     print('processing acquisitions...')
-    processed_data = MR_remove_x_oversampling(input_data)
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+         'RemoveROOversamplingGadget']
+    processed_data = input_data.process(prep_gadgets)
 
     na = input_data.number()
     print('%d acquisitions found' % na)
@@ -65,10 +67,10 @@ def main():
             if c < 1 or c > nc:
                 break
             pylab.figure(c)
-            pylab.title('oversampled data')
+            pylab.title('input data')
             pylab.imshow(data[c - 1, :, :])
             pylab.figure(c + nc)
-            pylab.title('de-oversampled data')
+            pylab.title('processed data')
             pylab.imshow(pdata[c - 1, :, :])
             print('Close Figures %d and %d windows to continue...'% (c, c + nc))
             pylab.show()
@@ -80,7 +82,7 @@ def main():
     complex_images = recon.get_output()
 
     # extract real images from complex
-    images = MR_extract_real_images(complex_images)
+    images = complex_images.real()
     # show obtained images
     images.show()
 

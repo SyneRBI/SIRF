@@ -32,9 +32,8 @@ def main():
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
          'RemoveROOversamplingGadget']
-    acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('---\n pre-processing acquisitions...')
-    preprocessed_data = acq_proc.process(input_data)
+    preprocessed_data = input_data.process(prep_gadgets)
 
     # perform reconstruction
     recon = MR_BasicGRAPPAReconstruction()
@@ -47,8 +46,8 @@ def main():
 
     # get real-valued reconstructed images and gfactors
     print('---\n processing images...')
-    images = MR_extract_real_images(complex_images)
-    gfactors = MR_extract_real_images(complex_gfactors)
+    images = complex_images.real()
+    gfactors = complex_gfactors.real()
 
     nz = images.number()
     print('%d images reconstructed.' % nz)
