@@ -2,7 +2,13 @@
 #define GADGETRON_DATA_CONTAINERS
 
 #include <complex>
+#include <fstream>
+#include <map>
+#include <thread>
+#include <chrono>
+#include <condition_variable>
 
+#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/replace.hpp>

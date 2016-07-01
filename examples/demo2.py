@@ -31,21 +31,18 @@ def main():
     # acquisitions will be read from an HDF file args.filename
     input_data = MR_Acquisitions(args.filename)
 
-    # define gadgets
-    gadget1 = Gadget('RemoveROOversamplingGadget')
-    gadget2 = Gadget('SimpleReconGadgetSet') # set of 4 gadgets - cf. demo1.py
-    gadget3 = Gadget('ExtractGadget')
+    # define gadgets and their properties
+    gadgets = \
+        ['RemoveROOversamplingGadget', \
+         'SimpleReconGadgetSet(trigger_dimension=repetition,split_slices=true)', \
+         'ExtractGadget']
 
     # create reconstruction object
-    recon = ImagesReconstructor()
-
-    # build gadgets chain
-    recon.add_gadget('g1', gadget1)
-    recon.add_gadget('g2', gadget2)
-    recon.add_gadget('g3', gadget3)
+    recon = ImagesReconstructor(gadgets)
 
     # connect to input data
     recon.set_input(input_data)
+
     # perform reconstruction
     recon.process()
     

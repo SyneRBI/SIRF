@@ -38,12 +38,9 @@ def main():
 
     # define gadgets
     gadget1 = Gadget('RemoveROOversamplingGadget')
-    gadget2 = Gadget('SimpleReconGadgetSet')
+    gadget2 = Gadget\
+        ('SimpleReconGadgetSet(trigger_dimension=repetition,split_slices=true)')
     gadget3 = Gadget('ExtractGadget')
-
-    # set gadgets parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
 
     # build acquisition pre-processing chain
     acq_proc = AcquisitionsProcessor()

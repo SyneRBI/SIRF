@@ -409,13 +409,30 @@ class MR_AcquisitionModel(PyGadgetronObject):
 class Gadget(PyGadgetronObject):
     def __init__(self, name):
         self.handle = None
+        i = name.find('(')
+        if i > -1:
+            j = name.find(')', i)
+            prop = name[i + 1 : j]
+            name = name[: i]
+            #name.rstrip() # does not work, have to do this way:
+            i = name.find(' ')
+            if i > -1:
+                name = name[:i]
+            i = 0
+            #print(name, prop)
         self.handle = pygadgetron.cGT_newObject(name)
         _check_status(self.handle)
+        if i > -1:
+            self.set_properties(prop)
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     def set_property(self, prop, value):
         handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+    def set_properties(self, prop):
+        handle = pygadgetron.cGT_setGadgetProperties(self.handle, prop)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
 
@@ -440,11 +457,15 @@ class GadgetChain(PyGadgetronObject):
         pygadgetron.deleteDataHandle(handle)
 
 class ImagesReconstructor(GadgetChain):
-    def __init__(self):
+    def __init__(self, list = None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
         _check_status(self.handle)
         self.input_data = None
+        if list is None:
+            return
+        for i in range(len(list)):
+            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
             #print('deleting reconstructor object...')
@@ -465,11 +486,15 @@ class ImagesReconstructor(GadgetChain):
         return images
 
 class ImagesProcessor(GadgetChain):
-    def __init__(self):
+    def __init__(self, list = None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesProcessor')
         _check_status(self.handle)
         self.input_data = None
+        if list is None:
+            return
+        for i in range(len(list)):
+            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)

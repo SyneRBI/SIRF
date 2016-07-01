@@ -1,24 +1,11 @@
-#include <boost/program_options.hpp>
-#include <boost/asio.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <exception>
+#include <iostream>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
-#include <ismrmrd/meta.h>
-
-#include <fstream>
-#include <streambuf>
-#include <time.h>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <exception>
-#include <map>
-#include <thread>
-#include <chrono>
-#include <condition_variable>
 
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
@@ -759,6 +746,47 @@ cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value)
 		aGadget& g = objectFromHandle<aGadget>(h_g);
 		//std::cout << g.name() << std::endl;
 		g.set_property(prop, value);
+	}
+	CATCH;
+
+	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_setGadgetProperties(void* ptr_g, const char* props)
+{
+	try {
+		CAST_PTR(DataHandle, h_g, ptr_g);
+		aGadget& g = objectFromHandle<aGadget>(h_g);
+		std::string in(props);
+		std::string prop;
+		std::string value;
+		size_t n = in.length();
+		size_t i, j, k;
+		i = 0;
+		for (;;) {
+			j = in.find_first_not_of(" \t\n\v\f\r", i);
+			if (j == std::string::npos)
+				break;
+			i = j;
+			j = in.find_first_of("= \t\n\v\f\r", i);
+			if (j == std::string::npos)
+				j = n;
+			prop = in.substr(i, j - i);
+			//std::cout << prop << '\n';
+			i = j;
+			i = in.find_first_not_of("= \t\n\v\f\r", i);
+			j = in.find_first_of(", \t\n\v\f\r", i);
+			if (j == std::string::npos)
+				j = n;
+			value = in.substr(i, j - i);
+			//std::cout << value << '\n';
+			g.set_property(prop.c_str(), value.c_str());
+			if (j < n && in[j] == ',')
+				j++;
+			i = j;
+		}
 	}
 	CATCH;
 
