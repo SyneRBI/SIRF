@@ -24,7 +24,8 @@ Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
   git clone https://github.com/CCPPETMR/xGadgetron
 
 Set the following environment variables:
-(Note that SRC_PATH and BUILD_PATH are required for the demos as well as installation.)
+(Note that SRC_PATH and BUILD_PATH are required for the Python demos as well as installation. 
+ If installation needs to be re-started these variables will need to be set again - suggest putting into a file and using the source command. Also, if re-starting run make clean prior to make.)
 
 Variable name              Variable value
 
@@ -40,7 +41,10 @@ GCC                        Fullname (i.e. including the path) of gcc-4.7
                            compiler executable (newer versions of gcc are 
                            not supported by Matlab)
 HDF5_DISABLE_VERSION_CHECK 2
-LD_PRELOAD                 /lib64/libstdc++.so.6
+LD_PRELOAD                 /lib64/libstdc++.so.6  (maybe /usr/lib/libstdc++.6.dylib on a Mac)
+
+(May additionally need to set ISMRMRD_INCLUDE to ~/ISMRMRD/include/ismrmrd)
+
 
 Go to <work_dir>/iUtilities and run make.
 
@@ -50,13 +54,22 @@ Go to <work_dir>/xGadgetron/pGadgetron and run make.
 (Mac OS users may have to change -lboost_thread to -lboost_thread-mt in the Makefile.)
 
 Go to <work_dir>/xGadgetron/mGadgetron and run make.
-(Currently failing on Mac.)
+(Mac OS users may need to make the following changes to Makefile:
+    Change extensions in TARGET1 and TARGET2 to 
+    TARGET1 = mutilities.mexmaci64
+    TARGET2 = mgadgetron.mexmaci64
+    
+    Change -soname to -install_name (two occurrences)
+    Add -lc++ to the end of the TARGET1: (after the $(IUTILITIES_LIBRARY) ).
+    Add -lc++ and -lboost_system to LIBS, and change -lboost_thread to -lboost_thread-mt
+)
 
 Go to <work_dir>/xGadgetron/examples and run make. 
 
-Open a new Linux terminal and run gadgetron there.
+Open a new Linux terminal and start gadgetron there.
 
 Add <work_dir>/xGadgetron/mGadgetron to Matlab path.
+(In MATLAB, as a one-off you may need to first type mex -setup. On a Mac, you may need to install, or re-install, Xcode, open the app and accept the license before the mex -setup)
 
 Go to <work_dir>/xGadgetron/examples and run demos.
 
