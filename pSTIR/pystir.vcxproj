@@ -130,7 +130,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PYSTIR_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%CSTIR%;%BOOST%;%STIR_INCLUDE%;%PYTHON_INCLUDE%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%IUTILITIES%;%CSTIR%;%BOOST%;%STIR_INCLUDE%;%PYTHON_INCLUDE%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -139,8 +139,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>_$(TargetName).pyd</OutputFile>
-      <AdditionalLibraryDirectories>%STIR_BUILD%\spatial_transformation_buildblock\Release;%STIR_BUILD%\Shape_buildblock\Release;%STIR_BUILD%\scatter_buildblock\Release;%STIR_BUILD%\recon_buildblock\Release;%STIR_BUILD%\numerics_buildblock\Release;%STIR_BUILD%\modelling_buildblock\Release;%STIR_BUILD%\listmode_buildblock\Release;%STIR_BUILD%\iterative\OSSPS\Release;%STIR_BUILD%\iterative\OSMAPOSL\Release;%STIR_BUILD%\IO\Release;%STIR_BUILD%\eval_buildblock\Release;%STIR_BUILD%\display\Release;%STIR_BUILD%\data_buildblock\Release;%STIR_BUILD%\buildblock\Release;%CSTIR%\x64\Release;%PYTHON_LIBPATH%;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%PYTHON%.lib;cSTIR.lib;buildblock.lib;data_buildblock.lib;display.lib;eval_buildblock.lib;IO.lib;iterative_OSMAPOSL.lib;iterative_OSSPS.lib;listmode_buildblock.lib;modelling_buildblock.lib;numerics_buildblock.lib;recon_buildblock.lib;scatter_buildblock.lib;Shape_buildblock.lib;spatial_transformation_buildblock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%STIR_BUILD%\spatial_transformation_buildblock\Release;%STIR_BUILD%\Shape_buildblock\Release;%STIR_BUILD%\scatter_buildblock\Release;%STIR_BUILD%\recon_buildblock\Release;%STIR_BUILD%\numerics_buildblock\Release;%STIR_BUILD%\modelling_buildblock\Release;%STIR_BUILD%\listmode_buildblock\Release;%STIR_BUILD%\iterative\OSSPS\Release;%STIR_BUILD%\iterative\OSMAPOSL\Release;%STIR_BUILD%\IO\Release;%STIR_BUILD%\eval_buildblock\Release;%STIR_BUILD%\display\Release;%STIR_BUILD%\data_buildblock\Release;%STIR_BUILD%\buildblock\Release;%IUTILITIES%\x64\Release;%CSTIR%\x64\Release;%PYTHON_LIBPATH%;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%PYTHON%.lib;iUtilities.lib;cSTIR.lib;buildblock.lib;data_buildblock.lib;display.lib;eval_buildblock.lib;IO.lib;iterative_OSMAPOSL.lib;iterative_OSSPS.lib;listmode_buildblock.lib;modelling_buildblock.lib;numerics_buildblock.lib;recon_buildblock.lib;scatter_buildblock.lib;Shape_buildblock.lib;spatial_transformation_buildblock.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
