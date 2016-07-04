@@ -1,4 +1,4 @@
-#include "dh.h"
+#include "data_handle.h"
 #include "stir.h"
 #include "stir_p.h"
 #include "stir_x.h"
@@ -7,7 +7,7 @@
 #define NEW_SPTR(Base, X, Object) \
 	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
 #define CATCH \
-	catch (StirException& se) {\
+	catch (LocalisedException& se) {\
 		ExecutionStatus status(se);\
 		DataHandle* handle = new DataHandle;\
 		handle->set(0, &status);\

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "cstir.h"
-#include "dh.h"
+#include "data_handle.h"
 #include "stir.h"
 #include "stir_p.h"
 #include "stir_x.h"

@@ -1,7 +1,7 @@
 #ifndef STIR_PARAMETERS_HANDLERS
 #define STIR_PARAMETERS_HANDLERS
 
-#include "dh.h"
+#include "data_handle.h"
 
 void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
