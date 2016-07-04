@@ -1,11 +1,13 @@
 CXX = g++
 EXTRA_CFLAGS=-O3 -DNDEBUG
 #EXTRA_CFLAGS=-g
-CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(STIR_SRC)/include -I$(CSTIR_SRC)
+CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(IUTILITIES) -I$(STIR_SRC)/include -I$(CSTIR_SRC)
 # enable this (or use it on the command line) if you compiled STIR with OPENMP=ON
 OPENMPFLAGS=-fopenmp
 #EXTRA_LDFLAGS=-g
 LDFLAGS = $(X11LIB) -lrt $(OPENMPFLAGS) $(EXTRA_LDFLAGS)
+
+BUILDPATH = $(BUILD_PATH)/xSTIR
 
 SWIG = swig
 
@@ -16,6 +18,10 @@ endif
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
+
+IUTILITIES = $(SRC_PATH)/iUtilities
+LIBIUTIL = $(BUILD_PATH)/iUtilities
+IUTIL_LIB = -liutil
 
 CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
@@ -45,13 +51,7 @@ REG_OBJECTS = \
 	Shape_buildblock_registries.o \
 	spatial_transformation_registries.o
 
-OBJECTS = ci_stir.o stir_p.o ci_dh.o ci_ex.o ci_tw.o
-
-all: libcstir.a _pystir.so
-
-libcstir.a: $(OBJECTS)
-	$(ARCH) $(ARCHFLAGS) $(CSTIRLIB) $(OBJECTS)
-	$(RANLIB) $(CSTIRLIB)
+all: _pystir.so
 
 buildblock_registries.o: $(STIR_SRC)/buildblock/buildblock_registries.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
@@ -75,32 +75,12 @@ spatial_transformation_registries.o: \
 		$(STIR_SRC)/spatial_transformation_buildblock/spatial_transformation_registries.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
-ci_stir.o: $(CSTIR_SRC)/ci_stir.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-stir_p.o: $(CSTIR_SRC)/stir_p.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-ci_dh.o: $(CSTIR_SRC)/ci_dh.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-ci_ex.o: $(CSTIR_SRC)/ci_ex.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-ci_tw.o: $(CSTIR_SRC)/ci_tw.cpp
-	$(CXX) $(CFLAGS) -c -o $@ $<
-
-TEST_OBJECTS = main.o cstir_tests.o
-
-main.exe: $(TEST_OBJECTS)
-	$(CXX) $(CFLAGS) -o main.exe $(TEST_OBJECTS) $(REG_OBJECTS)\
-		-L./ $(CSTIR_LIB) $(STIR_LIBS) $(LDFLAGS)
-
-_pystir.so: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(CSTIRLIB)
+_pystir.so: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(BUILDPATH)/$(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
 	$(CXX) $(CFLAGS) -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
 	$(CXX) $(CFLAGS) -shared  -o _pystir.so pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) -l$(PYTHON) \
-		-L./ $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
+		-L$(LIBIUTIL) $(IUTIL_LIB) \
+		-L$(BUILDPATH) $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
 
 %.o: %.cxx
 	$(CXX) $(CFLAGS) -c -o $@ $<
