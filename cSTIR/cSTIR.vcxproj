@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>%BOOST%;%STIR_INCLUDE%</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%BOOST%;%STIR_INCLUDE%;%IUTILITIES%</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -132,15 +132,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ci_dh.cpp" />
-    <ClCompile Include="ci_ex.cpp" />
     <ClCompile Include="ci_stir.cpp" />
     <ClCompile Include="ci_tw.cpp" />
     <ClCompile Include="stir_p.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cstir.h" />
-    <ClInclude Include="dh.h" />
     <ClInclude Include="stir.h" />
     <ClInclude Include="stir_p.h" />
     <ClInclude Include="stir_x.h" />
