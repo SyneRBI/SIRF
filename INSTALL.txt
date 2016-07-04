@@ -64,6 +64,12 @@ STIR_BUILD    Path to src folder in STIR build folder
 STIR_INCLUDE  Path to STIR include folder
 
 
+Build CCPPETMR C++-to-C interface utilities library
+------------------------_--------------------------
+
+-Clone iUtilities from GitHub CCPPETMR and follow the instructions in INSTALL.txt.
+
+
 Build C interface to STIR:
 --------------------------
 
