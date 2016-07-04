@@ -118,6 +118,8 @@ Cygwin/Linux installation steps (Python interface only)
 
 -Run make install to install STIR libraries.
 
+-Clone iUtilities from GitHub CCPPETMR and follow the instructions in INSTALL.txt.
+
 -Clone xSTIR from GitHub CCPPETMR.
 
 -Export the following environment  variables:
