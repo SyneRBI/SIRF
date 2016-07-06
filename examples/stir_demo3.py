@@ -1,19 +1,24 @@
-# import graphics library
+import argparse
+import numpy
+import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
-# pylab draws numpy arrays
-import numpy
-# import STIR interface library
 import sys
-sys.path.append('../pSTIR')
+sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
 import stir
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
+parser = argparse.ArgumentParser(description = \
+'''
+OSSPS reconstruction demo with all parameters defined in the script
+and user-controlled iterations
+''')
+args = parser.parse_args()
+
+def main():
+
     # direct all diagnostic printing to a file
     printer = stir.printerTo('stir_demo3.txt')
 
@@ -109,6 +114,10 @@ try:
             print('close Figure %d window to continue' % z)
             pylab.show()
 
+# if anything goes wrong, an exception will be thrown 
+# (cf. Error Handling section in the spec)
+try:
+    main()
 except stir.error as err:
     # display error information
     print('STIR exception occured:\n', err.value)

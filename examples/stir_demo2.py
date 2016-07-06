@@ -1,17 +1,25 @@
+import argparse
 import numpy
+import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import sys
-sys.path.append('../pSTIR')
+sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
 import stir
 import time
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
+parser = argparse.ArgumentParser(description = \
+'''
+OSMAPOSL reconstruction demo with all parameters defined in the script
+and user-controlled iterations
+''')
+args = parser.parse_args()
+
+def main():
+
     # direct all information printing to a file
     info_printer = stir.printerTo('stir_demo2info.txt', stir.INFO_CHANNEL)
     # direct all warning printing to a file
@@ -29,7 +37,7 @@ try:
 
     # read acquisition model data
     ad = stir.AcquisitionData('my_forward_projection.hs')
-    #amd.read_from_file('my_forward_projection.hs')
+    #ad.read_from_file('my_forward_projection.hs')
 
     # create prior
     prior = stir.QuadraticPrior()
@@ -119,6 +127,10 @@ try:
         print('close Figure 1000 window to continue')
         pylab.show()
 
+# if anything goes wrong, an exception will be thrown 
+# (cf. Error Handling section in the spec)
+try:
+    main()
 except stir.error as err:
     # display error information
     print('STIR exception occured:\n', err.value)

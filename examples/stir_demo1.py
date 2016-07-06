@@ -1,17 +1,24 @@
+import argparse
 import numpy
+import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import sys
-sys.path.append('../pSTIR')
+sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
 import stir
 import time
 
-# if anything goes wrong, an exception will be thrown 
-# (cf. Error Handling section in the spec)
-try:
+parser = argparse.ArgumentParser(description = \
+'''
+Mutator/accessor methods demo
+''')
+args = parser.parse_args()
+
+def main():
+
     # direct all printing to a file
     printer = stir.printerTo('stir_demo1.txt')
 
@@ -82,6 +89,10 @@ try:
             print('close Figure %d window to continue' % z)
             pylab.show()
 
+# if anything goes wrong, an exception will be thrown 
+# (cf. Error Handling section in the spec)
+try:
+    main()
 except stir.error as err:
     # display error information
     print('STIR exception occured:\n', err.value)
