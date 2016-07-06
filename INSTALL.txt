@@ -83,17 +83,19 @@ Click Start -> Control Panel -> System and Security -> System ->
 Advanced System Settings -> Environment Variables
 and add the following user variables:
 
-Variable name    Variable value
+Variable name      Variable value
 
-BOOST            Path to Boost include folder (e.g. C:\Boost\boost_1_59_0)
-BOOST_LIB        Path to Boost libraries folder
-BOOST_SUFFIX     Common part of boost libraries names (e.g.-vc120-mt-1_58.lib)
-ISMRMRD_INCLUDE  Path to Ismrmrd include folder
-ISMRMRD_LIB      Path to Ismrmrd library folder
-ISMRMRD_LIBRARY  Ismrmrd library name
-PATH2FFTW        Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
-IUTILITIES       <work_dir>/iUtilities
-CGADGETRON       <work_dir>/xGadgetron/cGadgetron
+BOOST              Path to Boost include folder (e.g. C:\Boost\boost_1_59_0)
+BOOST_LIB          Path to Boost libraries folder
+BOOST_SUFFIX       Common part of boost libraries names (e.g.-vc120-mt-1_58.lib)
+ISMRMRD_INCLUDE    Path to Ismrmrd include folder
+ISMRMRD_LIB        Path to Ismrmrd library folder
+ISMRMRD_LIBRARY    Ismrmrd library name
+PATH2FFTW          Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
+IUTILITIES         <work_dir>/iUtilities
+IUTILITIES_LIBRARY <work_dir>/iUtilities/x64/Release/iUtilities.lib
+CGADGETRON         <work_dir>/xGadgetron/cGadgetron
+CGADGETRON_LIBRARY <work_dir>/xGadgetron/cGadgetron/x64/Release/cGadgetron.lib
 
 Build cGadgetron x64/Release solution in <work_dir>/xGadgetron/cGadgetron
 (make sure you have "Release" in "Solution Configurations" box and "x64" 
