@@ -1,14 +1,23 @@
+import argparse
 import numpy
+import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import sys
-sys.path.append('../pSTIR')
+sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
 import stir
 
-try:
+parser = argparse.ArgumentParser(description = \
+'''
+Phantom creating demo
+''')
+args = parser.parse_args()
+
+def main():
+
     image = stir.Image()
     image_dim = (100, 100, 50)
     voxel_size = (0.8, 0.8, 1)
@@ -63,6 +72,9 @@ try:
         pylab.imshow(data[0,:,:])
         print('close Figure 5 window to continue')
         pylab.show()
+
+try:
+    main()
 
 except stir.error as err:
     print('STIR exception occured:\n', err.value)

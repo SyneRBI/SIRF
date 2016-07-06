@@ -1,14 +1,25 @@
+import argparse
+import numpy
+import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
-
 import sys
-sys.path.append('../pSTIR')
+sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
 import stir
 
-try:
+parser = argparse.ArgumentParser(description = \
+'''
+Forward projection demo: creates an image, forward-projects it to simulate
+acquisition data and uses this data to reconstruct this image
+''')
+args = parser.parse_args()
+
+def main():
+
+    # all output goes to stdout
     printer = stir.Printer('stdout')
 ##    printer = stir.Printer\
 ##        ('stir_demo4_info.txt',\
@@ -128,5 +139,7 @@ try:
             print('close Figure %d window to continue' % (iter + 1))
             pylab.show()
 
+try:
+    main()
 except stir.error as err:
     print('STIR exception occured:\n', err.value)
