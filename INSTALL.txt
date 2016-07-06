@@ -69,6 +69,13 @@ Build CCPPETMR C++-to-C interface utilities library
 
 -Clone iUtilities from GitHub CCPPETMR and follow the instructions in INSTALL.txt.
 
+-Add two user variables to Windows environment variables:
+
+Variable name      Variable value
+
+IUTILITIES         Path to the folder where iUtilities was cloned
+IUTILITIES_LIBRARY <iUtilities folder>/x64/Release/iUtilities.lib
+
 
 Build C interface to STIR:
 --------------------------
@@ -95,7 +102,7 @@ Build Python interface to STIR:
 -Click on BUILD and select "build Solution"
 
 
-Build MAtlab interface to STIR:
+Build Matlab interface to STIR:
 -------------------------------
 
 -Run mex_stir.m
