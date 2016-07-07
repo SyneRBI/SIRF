@@ -7,7 +7,7 @@ try:
 except:
     HAVE_PYLAB = False
 import sys
-sys.path.append(os.environ.get('CSTIR') + '/../pSTIR')
+sys.path.append(os.environ.get('CSTIR_SRC') + '/../pSTIR')
 import stir
 
 parser = argparse.ArgumentParser(description = \
