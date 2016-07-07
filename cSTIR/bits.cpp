@@ -3173,3 +3173,31 @@ return 0;
 //*ptr_sptr = sptr;
 //ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(*ptr_sptr);
 
+//// DataHandle methods
+//void* newDataHandle();
+//void* charDataHandle(const char* s);
+//void* intDataHandle(int i);
+//void* floatDataHandle(float i);
+//void* doubleDataHandle(double i);
+//char* charDataFromHandle(const void* ptr);
+//int intDataFromHandle(const void* ptr);
+//float floatDataFromHandle(const void* ptr);
+//double doubleDataFromHandle(const void* ptr);
+//void deleteDataHandle(void* ptr);
+
+//// ExecutionStatus methods
+//int executionStatus(const void* ptr);
+//const char* executionError(const void* ptr);
+//const char* executionErrorFile(const void* ptr);
+//int executionErrorLine(const void* ptr);
+
+//extern "C" {
+
+//#ifndef CSTIR_FOR_MATLAB
+//	void cSTIR_getImageDimensions(const void* ptr, size_t pd);
+//	void cSTIR_getImageData(const void* ptr, size_t pd);
+//#else
+//	void cSTIR_getImageDimensions(const void* ptr, int* pd);
+//	void cSTIR_getImageData(const void* ptr, double* pd);
+//#endif
+

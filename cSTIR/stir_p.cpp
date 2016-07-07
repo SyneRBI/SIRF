@@ -3,6 +3,7 @@
 
 #include "cstir.h"
 #include "data_handle.h"
+#include "iutilities.h"
 #include "stir.h"
 #include "stir_p.h"
 #include "stir_x.h"
