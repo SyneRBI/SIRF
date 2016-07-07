@@ -1,7 +1,7 @@
 #ifndef INTERFACE_UTILITIES
 #define INTERFACE_UTILITIES
 
-#ifndef CGADGETRON_FOR_MATLAB
+#ifndef IUTILITIES_FOR_MATLAB
 extern "C" {
 #endif
 	void* newDataHandle();
@@ -22,7 +22,7 @@ extern "C" {
 	const char* executionError(const void* ptr);
 	const char* executionErrorFile(const void* ptr);
 	int executionErrorLine(const void* ptr);
-#ifndef CGADGETRON_FOR_MATLAB
+#ifndef IUTILITIES_FOR_MATLAB
 }
 #endif
 
