@@ -8,7 +8,7 @@ util_path = getenv('IUTILITIES');
 util_lib = getenv('IUTILITIES_LIBRARY');
 util_ipath = ['-I' util_path];
 
-cstir_path = getenv('CSTIR');
+cstir_path = getenv('CSTIR_SRC');
 cstir_lib = [cstir_path '\x64\Release\cSTIR.lib'];
 
 boost_path = getenv('BOOST');

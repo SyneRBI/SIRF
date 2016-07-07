@@ -88,7 +88,7 @@ Build C interface to STIR:
 
 -Click on BUILD and select "build Solution"
 
--Add user variable CSTIR containing the path to cSTIR folder to Windows environment
+-Add user variable CSTIR_SRC containing the path to cSTIR folder to Windows environment
  variables
 
 
