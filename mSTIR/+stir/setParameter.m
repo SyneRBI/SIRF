@@ -1,11 +1,11 @@
 function setParameter(hs, set, par, value, type)
     has_handle = false;
     if ischar(value)
-        hv = calllib('mstir', 'mCharDataHandle', value);
+        hv = calllib('mutilities', 'mCharDataHandle', value);
     elseif strcmp(type, 'i')
-        hv = calllib('mstir', 'mIntDataHandle', value);
+        hv = calllib('mutilities', 'mIntDataHandle', value);
     elseif strcmp(type, 'f')
-        hv = calllib('mstir', 'mFloatDataHandle', value);
+        hv = calllib('mutilities', 'mFloatDataHandle', value);
     else
         has_handle = true;
     end
@@ -14,8 +14,8 @@ function setParameter(hs, set, par, value, type)
             ('mstir', 'mSTIR_setParameter', hs, set, par, value.handle);
     else
         handle = calllib('mstir', 'mSTIR_setParameter', hs, set, par, hv);
-        calllib('mstir', 'mDeleteDataHandle', hv)
+        calllib('mutilities', 'mDeleteDataHandle', hv)
     end
     stir.checkExecutionStatus('setParameter', handle)
-    calllib('mstir', 'mDeleteDataHandle', handle)
+    calllib('mutilities', 'mDeleteDataHandle', handle)
 end

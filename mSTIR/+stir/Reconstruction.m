@@ -11,8 +11,8 @@ classdef Reconstruction < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
-%                calllib('mstir', 'mDeleteDataHandle', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mstir', 'mDeleteDataHandle', self.handle)
             end
         end
         function set_output_filename_prefix(self, prefix)

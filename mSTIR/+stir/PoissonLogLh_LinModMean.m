@@ -5,8 +5,8 @@ classdef PoissonLogLh_LinModMean < stir.ObjectiveFunction
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
-%                calllib('mstir', 'mDeleteDataHandle', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
                 self.handle = [];
             end
         end

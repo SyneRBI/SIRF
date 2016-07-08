@@ -8,8 +8,8 @@ classdef IterativeReconstruction < stir.Reconstruction
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
-%                calllib('mstir', 'mDeleteDataHandle', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
                 self.handle = [];
             end
         end
@@ -78,19 +78,19 @@ classdef IterativeReconstruction < stir.Reconstruction
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle, image.handle);
             stir.checkExecutionStatus([self.IR ':set_up'], h)
-            calllib('mstir', 'mDeleteDataHandle', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function update(self, image)
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, image.handle);
             stir.checkExecutionStatus([self.IR ':update'], h)
-            calllib('mstir', 'mDeleteDataHandle', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function reconstruct(self, image)
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
             stir.checkExecutionStatus([self.IR ':reconstruct'], h)
-            calllib('mstir', 'mDeleteDataHandle', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
 end

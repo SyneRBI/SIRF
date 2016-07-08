@@ -12,7 +12,8 @@ classdef CylindricFilter < stir.DataProcessor
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 self.handle = [];
             end
         end
