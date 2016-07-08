@@ -11,25 +11,15 @@
 #define PTR_DOUBLE size_t
 extern "C" {
 #else
-
 #define PTR_INT int*
-
 #define PTR_FLOAT float*
-
 #define PTR_DOUBLE double*
-
 #endif
 EXPORTED_FUNCTION  void* mSTIR_newObject(const char* name) {
 	return cSTIR_newObject(name);
 }
-EXPORTED_FUNCTION 	void mSTIR_deleteObject(void* ptr) {
-	cSTIR_deleteObject(ptr);
-}
 EXPORTED_FUNCTION 	void* mSTIR_objectFromFile(const char* name, const char* filename) {
 	return cSTIR_objectFromFile(name, filename);
-}
-EXPORTED_FUNCTION 	void* mSTIR_copyOfObject(void* ptr) {
-	return cSTIR_copyOfObject(ptr);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const char* name, const void* value) {
 	return cSTIR_setParameter (ptr, obj, name, value);
@@ -112,7 +102,6 @@ EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif
-
 void* newMexPrinter();
 void deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {

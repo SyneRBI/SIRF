@@ -10,13 +10,9 @@
 #define PTR_DOUBLE size_t
 extern "C" {
 #else
-
 #define PTR_INT int*
-
 #define PTR_FLOAT float*
-
 #define PTR_DOUBLE double*
-
 #endif
 EXPORTED_FUNCTION  void* mGT_newObject(const char* name);
 EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* name);
@@ -72,6 +68,5 @@ EXPORTED_FUNCTION 	void* mGT_disconnect(void* ptr_con);
 #ifndef CGADGETRON_FOR_MATLAB
 }
 #endif
-
 
 #endif

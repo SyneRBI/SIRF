@@ -66,5 +66,4 @@ EXPORTED_FUNCTION 	int mExecutionErrorLine(const void* ptr) {
 }
 #endif
 
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}

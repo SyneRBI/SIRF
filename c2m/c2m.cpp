@@ -199,8 +199,10 @@ int c2m(
 				line.erase(m);
 			i = line.find_first_not_of(" \t\n\v\f\r");
 			if (i != string::npos && line[i] == '#') {
-				fh << in << endl;
-				fc << in << endl;
+				if (in.length()) {
+					fh << in << endl;
+					fc << in << endl;
+				}
 				if (line[i + 1] == 'e' && line[i + 2] == 'n' && line[i + 3] == 'd')
 					ifcount--;
 				if (print_hash(ifcount, hashcount)) {
