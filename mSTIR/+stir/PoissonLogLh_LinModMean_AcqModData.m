@@ -7,7 +7,8 @@ classdef PoissonLogLh_LinModMean_AcqModData < stir.PoissonLogLh_LinModMean
                 self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
             else
                 self.handle = calllib...
-                    ('mstir', 'mSTIR_copyOfObject', obj_fun.handle);
+                    ('mutilities', 'mCopyOfObjectHandle', obj_fun.handle);
+%                    ('mstir', 'mSTIR_copyOfObject', obj_fun.handle);
             end
         end
         function delete(self)

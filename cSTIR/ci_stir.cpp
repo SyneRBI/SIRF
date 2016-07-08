@@ -77,24 +77,24 @@ void* cSTIR_newObject(const char* name)
 	CATCH
 }
 
-extern "C"
-void* cSTIR_copyOfObject(void* ptr)
-{
-	try {
-		CAST_PTR(anObjectHandle, ptr_obj, ptr);
-		return (void*)ptr_obj->copy();
-	}
-	CATCH
-}
-
-extern "C"
-void cSTIR_deleteObject(void* ptr)
-{
-	if (!ptr)
-		return;
-	CAST_PTR(anObjectHandle, ptr_obj, ptr);
-	delete ptr_obj;
-}
+//extern "C"
+//void* cSTIR_copyOfObject(void* ptr)
+//{
+//	try {
+//		CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//		return (void*)ptr_obj->copy();
+//	}
+//	CATCH
+//}
+//
+//extern "C"
+//void cSTIR_deleteObject(void* ptr)
+//{
+//	if (!ptr)
+//		return;
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	delete ptr_obj;
+//}
 
 extern "C"
 void* cSTIR_setParameter

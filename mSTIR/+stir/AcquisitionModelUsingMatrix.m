@@ -33,7 +33,8 @@ classdef AcquisitionModelUsingMatrix < handle
                 self.handle, template, image.handle);
             stir.checkExecutionStatus...
                 ([self.name ':set_up'], self.template)
-            self.image = calllib('mstir', 'mSTIR_copyOfObject', image.handle);
+            self.image = calllib('mutilities', 'mCopyOfObjectHandle', image.handle);
+%            self.image = calllib('mstir', 'mSTIR_copyOfObject', image.handle);
         end
         function ad = forward(self, image, filename)
             if isempty(self.template)

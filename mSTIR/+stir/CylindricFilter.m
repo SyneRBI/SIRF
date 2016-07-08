@@ -7,7 +7,8 @@ classdef CylindricFilter < stir.DataProcessor
                     ('mstir', 'mSTIR_newObject', self.name);
             else
                 self.handle = calllib...
-                    ('mstir', 'mSTIR_copyOfObject', filter.handle);
+                    ('mutilities', 'mCopyOfObjectHandle', filter.handle);
+%                    ('mstir', 'mSTIR_copyOfObject', filter.handle);
             end
         end
         function delete(self)

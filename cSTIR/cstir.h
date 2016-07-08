@@ -14,9 +14,9 @@ extern "C" {
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
-	void cSTIR_deleteObject(void* ptr);
+	//void cSTIR_deleteObject(void* ptr);
 	void* cSTIR_objectFromFile(const char* name, const char* filename);
-	void* cSTIR_copyOfObject(void* ptr);
+	//void* cSTIR_copyOfObject(void* ptr);
 	void* cSTIR_setParameter
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
