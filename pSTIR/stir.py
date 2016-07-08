@@ -155,7 +155,8 @@ class Shape:
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_origin(self, origin):
         _set_float_par(self.handle, 'Shape', 'x', origin[0])
         _set_float_par(self.handle, 'Shape', 'y', origin[1])
@@ -174,7 +175,8 @@ class EllipsoidalCylinder(Shape):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_length(self, value):
         _set_float_par(self.handle, self.name, 'length', value)
     def get_length(self):
@@ -206,7 +208,8 @@ class Voxels:
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
 
 class Image:
     def __init__(self, arg = None):
@@ -224,9 +227,11 @@ class Image:
         self.rimsize = -1
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
         if self.voxels is not None:
-            pystir.cSTIR_deleteObject(self.voxels)
+            pystir.deleteDataHandle(self.voxels)
+##            pystir.cSTIR_deleteObject(self.voxels)
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
@@ -246,9 +251,11 @@ class Image:
             vsize = (arg4, arg5, arg6)
             origin = (arg7, arg8, arg9)
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
         if self.voxels is not None:
-            pystir.cSTIR_deleteObject(self.voxels)
+            pystir.deleteDataHandle(self.voxels)
+##            pystir.cSTIR_deleteObject(self.voxels)
         self.handle = None
         self.voxels = pystir.cSTIR_voxels3DF\
                       (dim[0], dim[1], dim[2], \
@@ -279,9 +286,11 @@ class Image:
         pystir.deleteDataHandle(handle)
     def read_from_file(self, filename):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
         if self.voxels is not None:
-            pystir.cSTIR_deleteObject(self.voxels)
+            pystir.deleteDataHandle(self.voxels)
+##            pystir.cSTIR_deleteObject(self.voxels)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         _check_status(self.handle)
     def diff_from(self, image):
@@ -308,14 +317,16 @@ class DataProcessor:
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def apply(self, image):
         handle = pystir.cSTIR_applyDataProcessor\
                  (self.handle, image.handle)
         _check_status(handle)
         pystir.deleteDataHandle(handle)
     def __del__(self):
-        pystir.cSTIR_deleteObject(self.handle)
+        pystir.deleteDataHandle(self.handle)
+##        pystir.cSTIR_deleteObject(self.handle)
 
 class CylindricFilter(DataProcessor):
     def __init__(self, data_processor = None):
@@ -324,11 +335,13 @@ class CylindricFilter(DataProcessor):
         if data_processor is None:
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
-            self.handle = pystir.cSTIR_copyOfObject(data_processor.handle)
+            self.handle = pystir.copyOfObjectHandle(data_processor.handle)
+##            self.handle = pystir.cSTIR_copyOfObject(data_processor.handle)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_strictly_less_than_radius(self, flag):
         _set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
@@ -346,7 +359,8 @@ class RayTracingMatrix:
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_num_tangential_LORs(self, value):
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
     def get_num_tangential_LORs(self):
@@ -368,7 +382,8 @@ class AcquisitionData:
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
@@ -381,11 +396,14 @@ class AcquisitionModelUsingMatrix:
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
         if self.templ is not None:
             pystir.deleteDataHandle(self.templ)
+##            pystir.deleteDataHandle(self.templ)
         if self.image is not None:
-            pystir.cSTIR_deleteObject(self.image)
+            pystir.deleteDataHandle(self.image)
+##            pystir.cSTIR_deleteObject(self.image)
     def set_matrix(self, matrix):
         _setParameter(self.handle, self.name, 'matrix_type', matrix.handle)
     def get_matrix(self):
@@ -399,7 +417,8 @@ class AcquisitionModelUsingMatrix:
             (self.handle, templ, image.handle)
         _check_status(self.templ)
         self.templ_name = templ
-        self.image = pystir.cSTIR_copyOfObject(image.handle)
+        self.image = pystir.copyOfObjectHandle(image.handle)
+##        self.image = pystir.cSTIR_copyOfObject(image.handle)
     def forward(self, image, filename = ''):
         if self.templ is None:
             raise error('forward projection failed: setup not done')
@@ -408,7 +427,8 @@ class AcquisitionModelUsingMatrix:
             (self.handle, filename, self.templ, image.handle)
         _check_status(ad.handle)
         if len(filename) > 0:
-            pystir.cSTIR_deleteObject(ad.handle)
+            pystir.deleteDataHandle(ad.handle)
+##            pystir.cSTIR_deleteObject(ad.handle)
             ad.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
         return ad
     def backward(self, ad, image = None):
@@ -416,7 +436,8 @@ class AcquisitionModelUsingMatrix:
             raise error('backward projection failed: setup not done')
         update = Image()
         if update.handle is not None:
-            pystir.cSTIR_deleteObject(update.handle)
+            pystir.deleteDataHandle(update.handle)
+##            pystir.cSTIR_deleteObject(update.handle)
         if image is None:
             update.handle = pystir.cSTIR_acquisitionModelBackward\
                 (self.handle, ad.handle, self.image)
@@ -431,7 +452,8 @@ class Prior:
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_penalisation_factor(self, value):
         _set_float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
@@ -451,14 +473,16 @@ class QuadraticPrior(Prior):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
 
 class ObjectiveFunction:
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_prior(self, prior):
         _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
@@ -480,7 +504,8 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_sensitivity_filename(self, name):
         _set_char_par\
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
@@ -501,11 +526,13 @@ class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
         if obj_fun is None:
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
-            self.handle = pystir.cSTIR_copyOfObject(obj_fun.handle)
+            self.handle = pystir.copyOfObjectHandle(obj_fun.handle)
+##            self.handle = pystir.cSTIR_copyOfObject(obj_fun.handle)
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_input_filename(self, name):
         _set_char_par\
             (self.handle, self.name, 'input_filename', name)
@@ -532,7 +559,8 @@ class Reconstruction:
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_output_filename_prefix(self, prefix):
         _set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
@@ -623,7 +651,8 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_MAP_model(self, model):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
@@ -643,7 +672,8 @@ class OSSPSReconstruction(IterativeReconstruction):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pystir.deleteDataHandle(self.handle)
+##            pystir.cSTIR_deleteObject(self.handle)
     def set_relaxation_parameter(self, value):
         _set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)
