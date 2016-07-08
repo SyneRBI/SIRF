@@ -1,3 +1,6 @@
+% OSMAPOSL reconstruction demo with all parameters defined in the script
+% and user-controlled iterations
+
 % load C++-to-C interface library
 if ~libisloaded('mutilities')
     loadlibrary('mutilities')
@@ -8,7 +11,10 @@ if ~libisloaded('mstir')
 end
 
 try
+    % information on computation progress to go to this file
     printer_info = stir.printerTo('stir_demo2.txt', 0);
+
+    % warning and error messages to go to Matlab Command Window
     printer_warn = stir.printerTo('stdout', 1);
     printer_errr = stir.printerTo('stdout', 2);
 
@@ -89,9 +95,9 @@ try
         filter.apply(image)
     end
 
-    % compare the reconstructed image to the expected image
-    expectedImage = stir.Image('my_image.hv');
-    x_data = expectedImage.as_array();
+    % compare the reconstructed image to the exact image
+    exactImage = stir.Image('my_image.hv');
+    x_data = exactImage.as_array();
     figure(1000000 + iter + 1)
     x_data = x_data/max(max(max(x_data)));
     imshow(x_data(:,:,20));

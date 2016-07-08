@@ -1,3 +1,5 @@
+% Mutator/accessor methods demo
+
 % load C++-to-C interface library
 if ~libisloaded('mutilities')
     loadlibrary('mutilities')
