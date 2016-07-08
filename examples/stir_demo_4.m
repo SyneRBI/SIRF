@@ -1,3 +1,6 @@
+% Forward projection demo: creates an image, forward-projects it to simulate
+% acquisition data and uses this data to reconstruct this image
+
 % load C++-to-C interface library
 if ~libisloaded('mutilities')
     loadlibrary('mutilities')
@@ -91,7 +94,7 @@ try
     
     fprintf('setting up the reconstructor...')
 
-    % define OSMAPOSL rerconstructor
+    % define OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction();
     recon.set_objective_function(obj_fun)
     recon.set_MAP_model('multiplicative')
