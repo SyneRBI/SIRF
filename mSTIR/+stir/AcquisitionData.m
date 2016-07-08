@@ -22,12 +22,14 @@ classdef AcquisitionData < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
             end
         end
         function read_from_file(self, filename)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
             end
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...

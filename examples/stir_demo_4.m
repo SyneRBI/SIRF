@@ -1,3 +1,7 @@
+% load C++-to-C interface library
+if ~libisloaded('mutilities')
+    loadlibrary('mutilities')
+end
 % load STIR interface library
 if ~libisloaded('mstir')
     loadlibrary('mstir')

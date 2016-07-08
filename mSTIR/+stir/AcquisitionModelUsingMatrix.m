@@ -13,7 +13,8 @@ classdef AcquisitionModelUsingMatrix < handle
             self.image = [];
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle)
+            calllib('mutilities', 'mDeleteDataHandle', self.handle)
+%            calllib('mstir', 'mSTIR_deleteObject', self.handle)
         end
         function set_matrix(self, matrix)
             stir.setParameter...
@@ -44,7 +45,8 @@ classdef AcquisitionModelUsingMatrix < handle
                 self.handle, filename, self.template, image.handle);
             stir.checkExecutionStatus...
                 ([self.name '.forward'], ad.handle)
-            calllib('mstir', 'mSTIR_deleteObject', ad.handle)
+            calllib('mutilities', 'mDeleteDataHandle', ad.handle)
+            %calllib('mstir', 'mSTIR_deleteObject', ad.handle)
             ad.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'AcquisitionData', filename);
             stir.checkExecutionStatus...

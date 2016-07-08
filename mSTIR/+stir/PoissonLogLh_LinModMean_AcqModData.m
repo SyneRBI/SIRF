@@ -11,7 +11,8 @@ classdef PoissonLogLh_LinModMean_AcqModData < stir.PoissonLogLh_LinModMean
             end
         end
         function delete(self)
-            calllib('mstir', 'mSTIR_deleteObject', self.handle)
+            calllib('mutilities', 'mDeleteDataHandle', self.handle)
+%            calllib('mstir', 'mSTIR_deleteObject', self.handle)
             self.handle = [];
         end
         function set_input_filename(self, filename)

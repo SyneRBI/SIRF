@@ -9,14 +9,15 @@ classdef DataProcessor < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mstir', 'mSTIR_deleteObject', self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
             end
         end
         function apply(self, image)
             h = calllib('mstir', 'mSTIR_applyDataProcessor',...
                 self.handle, image.handle);
             stir.checkExecutionStatus('DataProcessor:apply', h)
-            calllib('mstir', 'mDeleteDataHandle', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
 end

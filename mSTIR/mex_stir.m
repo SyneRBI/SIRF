@@ -1,5 +1,8 @@
 clear all
 
+if libisloaded('mutilities')
+    unloadlibrary('mutilities')
+end
 if libisloaded('mstir')
     unloadlibrary('mstir')
 end
@@ -52,6 +55,11 @@ stir_reg5 = [stir_regpath 'recon_buildblock\recon_buildblock_registries.cxx'];
 stir_reg6 = [stir_regpath 'Shape_buildblock\Shape_buildblock_registries.cxx'];
 stir_reg7 = [stir_regpath...
     'spatial_transformation_buildblock\spatial_transformation_registries.cxx'];
+
+mex('-largeArrayDims', ...
+    boost_ipath, util_ipath, ...
+    'mutilities.c', ...
+    util_lib) 
 
 mex('-largeArrayDims',...
     boost_ipath, stir_ipath, util_ipath,...
