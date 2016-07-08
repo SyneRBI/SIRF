@@ -1,11 +1,11 @@
 #include <mex.h>
 #define EXPORT_FCNS
-#define CGADGETRON_FOR_MATLAB
+#define IUTILITIES_FOR_MATLAB
 #include "matrix.h"
 #include "shrhelp.h"
 #include "iutilities.h"
 
-#ifndef CGADGETRON_FOR_MATLAB
+#ifndef IUTILITIES_FOR_MATLAB
 extern "C" {
 #endif
 EXPORTED_FUNCTION  void* mNewDataHandle() {
@@ -62,9 +62,8 @@ EXPORTED_FUNCTION 	const char* mExecutionErrorFile(const void* ptr) {
 EXPORTED_FUNCTION 	int mExecutionErrorLine(const void* ptr) {
 	return executionErrorLine(ptr);
 }
-#ifndef CGADGETRON_FOR_MATLAB
+#ifndef IUTILITIES_FOR_MATLAB
 }
 #endif
-
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}

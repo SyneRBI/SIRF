@@ -11,13 +11,9 @@
 #define PTR_DOUBLE size_t
 extern "C" {
 #else
-
 #define PTR_INT int*
-
 #define PTR_FLOAT float*
-
 #define PTR_DOUBLE double*
-
 #endif
 EXPORTED_FUNCTION  void* mGT_newObject(const char* name) {
 	return cGT_newObject(name);
@@ -136,6 +132,9 @@ EXPORTED_FUNCTION 	void* mGT_addGadget(void* ptr_gc, const char* id, const void*
 EXPORTED_FUNCTION 	void* mGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value) {
 	return cGT_setGadgetProperty(ptr_g, prop, value);
 }
+EXPORTED_FUNCTION 	void* mGT_setGadgetProperties(void* ptr_g, const char* props) {
+	return cGT_setGadgetProperties(ptr_g, props);
+}
 EXPORTED_FUNCTION 	void* mGT_configGadgetChain(void* ptr_con, void* ptr_gc) {
 	return cGT_configGadgetChain(ptr_con, ptr_gc);
 }
@@ -172,6 +171,5 @@ EXPORTED_FUNCTION 	void* mGT_disconnect(void* ptr_con) {
 #ifndef CGADGETRON_FOR_MATLAB
 }
 #endif
-
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}
