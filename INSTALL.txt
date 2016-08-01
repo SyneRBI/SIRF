@@ -69,7 +69,9 @@ Go to <work_dir>/xGadgetron/examples and run make.
 Open a new Linux terminal and start gadgetron there.
 
 Add <work_dir>/xGadgetron/mGadgetron to Matlab path.
-(In MATLAB, as a one-off you may need to first type mex -setup. On a Mac, you may need to install, or re-install, Xcode, open the app and accept the license before the mex -setup)
+(In MATLAB, as a one-off you may need to first type mex -setup. 
+On a Mac, you may need to install, or re-install, Xcode, open 
+the app and accept the license before the mex -setup)
 
 Go to <work_dir>/xGadgetron/examples and run demos.
 
@@ -78,37 +80,42 @@ Gadgetron Matlab interface installation under Windows and Visual Studio
 for using with a Linux Virtual Machine running Gadgetron
 =======================================================================
 
-Install Boost, SWIG and Ismsmrd.
+Install SWIG.
 
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
 
-Build iUtilities x64/Release solution in <work_dir>/iUtilities folder
-(make sure you have "Release" in "Solution Configurations" box and "x64" 
-in "Solution Platforms" box).
-
 Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
 
   git clone https://github.com/CCPPETMR/xGadgetron
 
+Install Boost, FFTW3, HDF5 and Ismsmrd or unpack the corresponding four 
+7-Zip files in xGadgetron/mGadgetron/winlib into four folders referred to
+below as <Boost>, <FFTW3>, <HDF5> and <Ismrmrd> respectively.
+
 Click Start -> Control Panel -> System and Security -> System -> 
 Advanced System Settings -> Environment Variables
-and add the following user variables:
+and add the following user variables (values in square brackets are
+for the case where the above four libraries were unpacked from winlib):
 
 Variable name      Variable value
 
-BOOST              Path to Boost include folder (e.g. C:\Boost\boost_1_59_0)
-BOOST_LIB          Path to Boost libraries folder
-BOOST_SUFFIX       Common part of boost libraries names (e.g.-vc120-mt-1_58.lib)
-ISMRMRD_INCLUDE    Path to Ismrmrd include folder
-ISMRMRD_LIB        Path to Ismrmrd library folder
-ISMRMRD_LIBRARY    Ismrmrd library name
-PATH2FFTW          Path to FFTW3 library (e.g. C:\FFTW-3.3.4)
+BOOST              Path to Boost include folder [<Boost>\boost_1_58_0]
+BOOST_LIB          Path to Boost libraries folder [<Boost>\lib]
+BOOST_SUFFIX       Common part of boost libraries names [-vc120-mt-1_58.lib]
+ISMRMRD_INCLUDE    Path to Ismrmrd include folder [<Ismrmrd>]
+ISMRMRD_LIB        Path to Ismrmrd library folder [<Ismrmrd>]
+ISMRMRD_LIBRARY    Ismrmrd library name [ismrmrd.lib]
+PATH2FFTW          Path to FFTW3 library [<FFTW3>]
 IUTILITIES         <work_dir>/iUtilities
 IUTILITIES_LIBRARY <work_dir>/iUtilities/x64/Release/iUtilities.lib
 CGADGETRON         <work_dir>/xGadgetron/cGadgetron
 CGADGETRON_LIBRARY <work_dir>/xGadgetron/cGadgetron/x64/Release/cGadgetron.lib
+
+Build iUtilities x64/Release solution in <work_dir>/iUtilities folder
+(make sure you have "Release" in "Solution Configurations" box and "x64" 
+in "Solution Platforms" box).
 
 Build cGadgetron x64/Release solution in <work_dir>/xGadgetron/cGadgetron
 (make sure you have "Release" in "Solution Configurations" box and "x64" 
