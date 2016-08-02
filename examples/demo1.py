@@ -28,6 +28,7 @@ parser.add_argument\
 args = parser.parse_args()                                 
 
 def main():
+
     # acquisitions will be read from an HDF file args.filename
     input_data = MR_Acquisitions(args.filename)
     
