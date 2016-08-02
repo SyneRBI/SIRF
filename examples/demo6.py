@@ -79,7 +79,7 @@ def main():
     img_proc = ImagesProcessor()
     img_proc.add_gadget('g1', gadget31)
     img_proc.add_gadget('g2', gadget32)
-    complex_output.conversion_to_real(1)
+    complex_output.conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
     print('processing images...')
     output = img_proc.process(complex_output)
 

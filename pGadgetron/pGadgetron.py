@@ -9,6 +9,11 @@ import time
 
 import pygadgetron
 
+ISMRMRD_IMTYPE_MAGNITUDE = 1
+ISMRMRD_IMTYPE_PHASE     = 2
+ISMRMRD_IMTYPE_REAL      = 3
+ISMRMRD_IMTYPE_IMAG      = 4
+
 class error(Exception):
     def __init__(self, value):
         self.value = value
