@@ -242,16 +242,11 @@ class ImagesContainer(DataContainer):
     def process(self, list):
         ip = ImagesProcessor(list)
         return ip.process(self)
-    def real(self):
+    def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
         if self.is_real:
             return self
-        handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
-        _check_status(handle)
-        real_images = ImagesContainer()
-        real_images.handle = pygadgetron.cGT_processImages\
-             (handle, self.handle)
-        _check_status(real_images.handle)
-        pygadgetron.deleteObject(handle)
+        self.conversion_to_real(ctype)
+        real_images = self.process(['ComplexToFloatGadget'])
         real_images.is_real = True
         return real_images
     def show(self):
