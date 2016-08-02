@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(description = \
 Lower-level interface demo that illustrates creating and running a chain
 of gadgets.
 ''')
+parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
@@ -64,11 +65,12 @@ def main():
     # show reconstructed images
     images.show()
 
-    # write images to a new group in 'output1.h5'
-    # named after the current date and time
-    print('appending output1.h5...')
-    time_str = time.asctime()
-    images.write('output1.h5', time_str)
+    if args.output is not None:
+        # write images to a new group in args.output
+        # named after the current date and time
+        print('writing to %s' % args.output)
+        time_str = time.asctime()
+        images.write(args.output, time_str)
 
 try:
     main()
