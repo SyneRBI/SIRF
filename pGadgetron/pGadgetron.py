@@ -239,6 +239,9 @@ class ImagesContainer(DataContainer):
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
+    def process(self, list):
+        ip = ImagesProcessor(list)
+        return ip.process(self)
     def real(self):
         if self.is_real:
             return self
