@@ -34,7 +34,6 @@ def main():
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
          'RemoveROOversamplingGadget']
-    acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('---\n pre-processing acquisitions...')
     preprocessed_data = input_data.process(prep_gadgets)
     pp_norm = preprocessed_data.norm()
