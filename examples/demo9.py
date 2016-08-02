@@ -36,14 +36,6 @@ def main():
          'RemoveROOversamplingGadget']
     print('---\n pre-processing acquisitions...')
     preprocessed_data = input_data.process(prep_gadgets)
-    pp_norm = preprocessed_data.norm()
-
-    # compute coil sensitivity maps
-    csms = MR_CoilSensitivityMaps()
-    print('---\n sorting acquisitions...')
-    preprocessed_data.sort()
-    print('---\n computing sensitivity maps...')
-    csms.calculate(preprocessed_data)
 
     # perform reconstruction
     recon = MR_BasicGRAPPAReconstruction()
@@ -54,6 +46,13 @@ def main():
     # in addition to reconstructed ones
     complex_images, complex_gfactors = recon.get_output()
 
+    # compute coil sensitivity maps
+    csms = MR_CoilSensitivityMaps()
+    print('---\n sorting acquisitions...')
+    preprocessed_data.sort()
+    print('---\n computing sensitivity maps...')
+    csms.calculate(preprocessed_data)
+
     # create acquisition model based on the acquisition parameters
     # stored in preprocessed_data and image parameters stored in complex_images
     am = MR_AcquisitionModel(preprocessed_data, complex_images)
@@ -61,31 +60,32 @@ def main():
 
     # use the acquisition model (forward projection) to simulate acquisitions
     fwd_data = am.forward(complex_images)
-    fwd_norm = fwd_data.norm()
 
     # compute the difference between real and simulated acquisitions
-    diff = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
-    rr = diff.norm()/fwd_norm
+    pp_norm = preprocessed_data.norm()
+    fwd_norm = fwd_data.norm()
+    res = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
+    rr = res.norm()/fwd_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
 
     # try to improve the reconstruction by the steepest descent step
-    g = am.backward(diff)
-    w = am.forward(g)
-    alpha = (g*g)/(w*w)
-    r_complex_imgs = complex_images - g*alpha
+    grad = am.backward(res)
+    w = am.forward(grad)
+    alpha = (grad*grad)/(w*w)
+    r_complex_imgs = complex_images - grad*alpha
 
     # get real-valued reconstructed and refined images
     print('---\n processing images...')
     images = complex_images.real()
     r_imgs = r_complex_imgs.real()
     nz = images.number()
-    print('%d images reconstructed.' % nz)
+    print('---\n images reconstructed: %d' % nz)
 
     # plot images and gfactors
-    print('Enter the number of the slice to view it')
-    print('(a value outside the range [1 : %d] will stop this loop)'% nz)
+    print('---\n Enter the slice number to view it.')
+    print(' A value outside the range [1 : %d] will stop this loop.'% nz)
     while True:
-        s = str(input('slice: '))
+        s = str(input('---\n slice: '))
         if len(s) < 1:
             break
         z = int(s)
@@ -96,11 +96,11 @@ def main():
         pylab.figure(z)
         pylab.title('image')
         pylab.imshow(data[0,0,:,:])
-        print('Close Figure %d window to continue...' % z)
+        print(' Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('refined image')
         pylab.imshow(rdata[0,0,:,:])
-        print('Close Figure %d window to continue...' % (z + nz))
+        print(' Close Figure %d window to continue...' % (z + nz))
         pylab.show()
 
 try:
