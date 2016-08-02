@@ -97,75 +97,65 @@ class ClientConnector(PyGadgetronObject):
 class DataContainer(PyGadgetronObject):
     def __init__(self):
         self.handle = None
-        self.is_real = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def same_object(self):
+        if isinstance(self, ImagesContainer):
+            return ImagesContainer()
+        if isinstance(self, AcquisitionsContainer):
+            return AcquisitionsContainer()
+        return DataContainer()
     def number(self):
         handle = pygadgetron.cGT_dataItems(self.handle)
         _check_status(handle)
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
-    def real(self):
-        if self.is_real:
-            return self
-        handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
-        _check_status(handle)
-        real_images = ImagesContainer()
-        real_images.handle = pygadgetron.cGT_processImages\
-             (handle, self.handle)
-        _check_status(real_images.handle)
-        pygadgetron.deleteObject(handle)
-        real_images.is_real = True
-        return real_images
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
         r = pygadgetron.doubleDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return r;
-    def dot(self, acqs):
-        handle = pygadgetron.cGT_dot(self.handle, acqs.handle)
+    def dot(self, other):
+        handle = pygadgetron.cGT_dot(self.handle, other.handle)
         _check_status(handle)
         re = pygadgetron.doubleReDataFromHandle(handle)
         im = pygadgetron.doubleImDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return complex(re, im)
     def __add__(self, other):
-        z = DataContainer()
+        z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
         return z;
     def __sub__(self, other):
-        z = DataContainer()
+        z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
         return z;
     def __mul__(self, other):
-        #print(type(other))
         if isinstance(other, DataContainer):
             return self.dot(other)
-        elif type(other) == type(complex(0,0)):
-            z = DataContainer()
+        z = self.same_object()
+        if type(other) == type(complex(0,0)):
             z.handle = pygadgetron.cGT_axpby\
                 (other.real, other.imag, self.handle, 0, 0, self.handle)
             return z;
         elif type(other) == type(0.0):
-            z = DataContainer()
             z.handle = pygadgetron.cGT_axpby\
                 (other, 0, self.handle, 0, 0, self.handle)
             return z;
         else:
             raise error('wrong multiplier')
     def __rmul__(self, other):
+        z = self.same_object()
         if type(other) == type(complex(0,0)):
-            z = DataContainer()
             z.handle = pygadgetron.cGT_axpby\
                 (other.real, other.imag, self.handle, 0, 0, self.handle)
             return z;
         elif type(other) == type(0.0):
-            z = DataContainer()
             z.handle = pygadgetron.cGT_axpby\
                 (other, 0, self.handle, 0, 0, self.handle)
             return z;
@@ -173,7 +163,8 @@ class DataContainer(PyGadgetronObject):
             raise error('wrong multiplier')
     @staticmethod
     def axpby(a, x, b, y):
-        z = DataContainer()
+        #z = DataContainer()
+        z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
@@ -248,6 +239,18 @@ class ImagesContainer(DataContainer):
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
+    def real(self):
+        if self.is_real:
+            return self
+        handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
+        _check_status(handle)
+        real_images = ImagesContainer()
+        real_images.handle = pygadgetron.cGT_processImages\
+             (handle, self.handle)
+        _check_status(real_images.handle)
+        pygadgetron.deleteObject(handle)
+        real_images.is_real = True
+        return real_images
     def show(self):
         if not HAVE_PYLAB:
             print('pylab not found')
