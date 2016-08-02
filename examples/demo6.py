@@ -22,6 +22,7 @@ Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
+parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
 ('--no_gfactors', help = 'no gfactors to be computed', action = 'store_true')
 args = parser.parse_args()                                 
@@ -85,11 +86,12 @@ def main():
     # show images
     output.show()
 
-    # write images to a new group in 'output10.h5'
-    # named after the current date and time
-    print('appending output6.h5...')
-    time_str = time.asctime()
-    output.write('output6.h5', time_str)
+    if args.output is not None:
+        # write images to a new group in args.output
+        # named after the current date and time
+        print('writing to %s' % args.output)
+        time_str = time.asctime()
+        images.write(args.output, time_str)
 
 try:
     main()
