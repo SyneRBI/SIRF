@@ -37,7 +37,7 @@ def main():
     preprocessed_data = input_data.process(['NoiseAdjustGadget', \
          'AsymmetricEchoGadget', 'RemoveROOversamplingGadget'])
 
-    par = ''
+    grappa_par = ''
     if args.no_gfactors:
         # gfactors are not needed
         grappa_par = '(send_out_gfactor=false)'
