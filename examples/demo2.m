@@ -13,12 +13,12 @@ end
 try
     % define gadgets
     gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
-    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
+    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet(trigger_dimension=repetition, split_slices=true)');
     gadget3 = gadgetron.Gadget('ExtractGadget');
     
     % set gadgets parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget2.set_property('split_slices', 'true')
+%     gadget2.set_property('trigger_dimension', 'repetition')
+%     gadget2.set_property('split_slices', 'true')
     
     % create reconstruction object
     recon = gadgetron.ImagesReconstructor();
@@ -43,7 +43,7 @@ try
     n = images.number();
     while (true)
         i = input('slice: ');
-        if i < 1 | i > n
+        if i < 1 || i > n
             break
         end
         data = images.image_as_array(i);
