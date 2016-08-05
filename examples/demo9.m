@@ -65,7 +65,7 @@ try
     % plot images
     n = images.number();
     fprintf('Enter slice number to view it\n')
-    fprintf('(a value outside the range [1 : %d] will stop this loop)', n)
+    fprintf('(a value outside the range [1 : %d] will stop this loop)\n', n)
     while (true)
         i = input('slice: ');
         if i < 1 || i > n

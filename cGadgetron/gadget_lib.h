@@ -236,7 +236,7 @@ public:
 		std::string xml_script("<gadget>\n");
 		xml_script += " <name>PrepRef</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
-		xml_script += " <classname>GenericCartesianReconReferencePrepGadget</classname>\n";
+		xml_script += " <classname>GenericReconCartesianReferencePrepGadget</classname>\n";
 		xml_script += " <property>\n";
 		xml_script += "  <name>debug_folder</name>\n";
 		xml_script += "  <value>" + debug_folder_ + "</value>\n";
@@ -311,7 +311,7 @@ public:
 		std::string xml_script("<gadget>\n");
 		xml_script += " <name>CartesianGrappa</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
-		xml_script += " <classname>GenericCartesianGrappaReconGadget</classname>\n";
+		xml_script += " <classname>GenericReconCartesianGrappaGadget</classname>\n";
 		xml_script += " <property>\n";
 		xml_script += "  <name>debug_folder</name>\n";
 		xml_script += "  <value>" + debug_folder_ + "</value>\n";
