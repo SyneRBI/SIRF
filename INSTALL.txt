@@ -22,5 +22,7 @@ Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
 
+Create folder <work_dir>/build/iUtilities.
+
 Change to <work_dir>/iUtilities and run make.
 
