@@ -138,5 +138,9 @@ export PYTHON=<Python version e.g. python2.7>
 export PYINCLUDE=<Path to Python include folder, e.g. /usr/include/python2.7>
 export PYLIBPATH=<Path to Python libraries, e.g. /usr/lib/python2.7/config-x86_64-linux-gnu>
 
+Create folder <work_dir>/build/xSTIR.
+
+-Go to cSTIR sub-folder and run make.
+
 -Go to pSTIR sub-folder and run make.
 
