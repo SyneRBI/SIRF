@@ -27,6 +27,8 @@ CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
 
 STIR_LIBS = \
+			-lanalytic_FBP2D \
+			-lanalytic_FBP3DRP \
 			-literative_OSMAPOSL \
 			-literative_OSSPS \
 			-lrecon_buildblock \
