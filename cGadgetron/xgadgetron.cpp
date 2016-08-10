@@ -24,15 +24,17 @@ See xGadgetron/LICENSE.txt for license details.
 #include "data_handle.h"
 #include "xgadgetron.h"
 
-void
-report_connection_failure(int nt)
+bool
+connection_failed(int nt)
 {
 	std::cout << "connection failed";
-	if (nt < N_TRIALS - 1)
+	if (nt < N_TRIALS - 1) {
 		std::cout << ", trying again...\n";
+		return false;
+	}
 	else {
 		std::cout << std::endl;
-		THROW("Connection to Gadgetron failed");
+		return true;
 	}
 
 }
@@ -102,7 +104,8 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			report_connection_failure(nt);
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
@@ -145,7 +148,8 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			report_connection_failure(nt);
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
@@ -179,7 +183,8 @@ ImagesProcessor::process(ImagesContainer& images)
 			break;
 		}
 		catch (...) {
-			report_connection_failure(nt);
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
