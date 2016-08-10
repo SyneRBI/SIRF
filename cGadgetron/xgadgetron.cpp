@@ -21,7 +21,21 @@ See xGadgetron/LICENSE.txt for license details.
 \author CCP PETMR
 */
 
+#include "data_handle.h"
 #include "xgadgetron.h"
+
+void
+report_connection_failure(int nt)
+{
+	std::cout << "connection failed";
+	if (nt < N_TRIALS - 1)
+		std::cout << ", trying again...\n";
+	else {
+		std::cout << std::endl;
+		THROW("Connection to Gadgetron failed");
+	}
+
+}
 
 std::string 
 GadgetChain::xml() const 
@@ -88,10 +102,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			report_connection_failure(nt);
 		}
 	}
 }
@@ -134,10 +145,7 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			report_connection_failure(nt);
 		}
 	}
 }
@@ -171,10 +179,7 @@ ImagesProcessor::process(ImagesContainer& images)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			report_connection_failure(nt);
 		}
 	}
 }
