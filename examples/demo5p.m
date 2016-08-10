@@ -1,7 +1,7 @@
 % equivalent of demo5 using python interpreter
 
 PYPATH = py.sys.path;
-PGPATH = [getenv('SRC_PATH') '\xGadgetron\pGadgetron'];
+PGPATH = [getenv('SRC_PATH') '/xGadgetron/pGadgetron'];
 if count(PYPATH, PGPATH) == 0
     insert(PYPATH, int32(0), PGPATH);
 end
