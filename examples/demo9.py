@@ -109,4 +109,4 @@ try:
 
 except error as err:
     # display error information
-    print ('Gadgetron exception occured:\n', err.value)
+    print('??? %s' % err.value)
