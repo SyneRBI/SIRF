@@ -6,6 +6,7 @@ function checkExecutionStatus(f, handle)
         msg = calllib(lib, 'mExecutionError', handle);
         file = calllib(lib, 'mExecutionErrorFile', handle);
         line = calllib(lib', 'mExecutionErrorLine', handle);
-        error(errId, '%s at line %d of %s', msg, line, file)
+        error(errId, '??? %s exception thrown at line %d of %s', ...
+            msg, line, file)
     end
 end

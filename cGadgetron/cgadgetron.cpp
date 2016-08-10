@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+#include <boost/filesystem/operations.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -38,7 +39,7 @@ static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
-	std::string error = "unknown ";
+	std::string error = "Unknown ";
 	error += obj;
 	error += " '";
 	error += name;
@@ -52,7 +53,19 @@ static void*
 parameterNotFound(const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
-	std::string error = "parameter ";
+	std::string error = "Parameter ";
+	error += name;
+	error += " not found";
+	ExecutionStatus status(error.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+static void*
+fileNotFound(const char* name, const char* file, int line)
+{
+	DataHandle* handle = new DataHandle;
+	std::string error = "File ";
 	error += name;
 	error += " not found";
 	ExecutionStatus status(error.c_str(), file, line);
@@ -328,6 +341,8 @@ extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
+	if (!boost::filesystem::exists(file))
+		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		boost::shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file));
