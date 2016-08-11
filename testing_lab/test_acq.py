@@ -1,8 +1,8 @@
+import argparse
 import math
 import os
 import pylab
 import sys
-import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
@@ -13,10 +13,20 @@ sys.path.append(SRC_PATH)
 
 from pGadgetron import *
 
+parser = argparse.ArgumentParser(description = \
+'''
+Acquisition data viewer
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
+
 try:
     # acquisitions will be read from this HDF file
     #input_data = MR_Acquisitions(DATA_PATH + 'test_2D_2x.h5')
-    input_data = MR_Acquisitions(DATA_PATH + 'testdata.h5')
+    #input_data = MR_Acquisitions(DATA_PATH + 'testdata.h5')
+    input_data = MR_Acquisitions(DATA_PATH + args.filename)
 
     processed_data = MR_remove_x_oversampling(input_data)
 
@@ -34,7 +44,7 @@ try:
 ##    nc = shape[0]
 ##    ny = shape[1]
 ##    nx = shape[2]
-    for i in range(2):
+    for i in range(0):
         pylab.figure(i)
         pylab.imshow(data[i,:,:])
         pylab.figure(i + nc)
