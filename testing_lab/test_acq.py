@@ -28,7 +28,7 @@ try:
 
     data = abs(input_data.slice_as_array(0))
     pdata = abs(processed_data.slice_as_array(0))
-    nx, ny, nc = input_data.dimensions()
+    nx, ny, nc = input_data.slice_dimensions()
     print('acquisition dimensions: %d %d %d' % (nx, ny, nc))
 ##    shape = data.shape
 ##    nc = shape[0]
