@@ -22,12 +22,59 @@ def test_failed(ntest, expected, actual, abstol, reltol):
         print('+++ test %d failed' % ntest)
         return 1
 
+def acquisitions_tests_failed(acqs):
+
+    na = acqs.number()
+    if na != 160:
+        print('??? wrong number of acquisitions')
+        return 160*2 + 4
+
+    nx, ny, nc = acqs.slice_dimensions()
+    if (nx, ny, nc) != (512, 160, 8):
+        print('??? wrong slice dimensions')
+        return 160*2 + 3
+
+    flags_failed = 0
+    encode_steps_failed = 0
+    for i in range(160):
+        acq = acqs.acquisition(i)
+        flags = 0
+        if i == 0:
+            flags = 64
+        elif i == 159:
+            flags = 128
+        elif i > 47 and i < 112:
+            if (i - 48)%2 == 0:
+                flags = 1048576
+            else:
+                flags = 524288
+        if i < 48:
+            encode_step = 2*i
+        elif i < 112:
+            encode_step = i + 48
+        else:
+            encode_step = (i - 32)*2            
+            
+        if acq.flags() != flags:
+            flags_failed += 1
+        if acq.idx_kspace_encode_step_1() != encode_step:
+            encode_steps_failed += 1
+
+    if flags_failed > 0:
+        print('??? flags failed: %d' % flags_failed)
+    if encode_steps_failed > 0:
+        print('??? encode_steps failed: %d' % encode_steps_failed)
+    failed = flags_failed + encode_steps_failed
+    if failed == 0:
+        print('+++ all acquisitions tests passed')
+    return failed
+
 def main():
 
     failed = 0
 
     input_data = MR_Acquisitions('testdata_a2.h5')
-    #failed += acquisitions_tests_failed(input_data)
+    failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
     print('---\n acquisition data norm: %e' % input_data_norm)
@@ -85,12 +132,9 @@ def main():
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
     failed += test_failed(7, xFy.real, Bxy.real, 0, 1e-6)
-##    failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-6, 0)
-##    failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-6, 0)
 
     images = complex_images.real()
     data = images.image_as_array(0)
-    #print(data[0, 0, 142, 130])
     failed += test_failed(10, 0.5952597, data[0, 0, 142, 130], 0, 1e-6)
 
     if failed == 0:
