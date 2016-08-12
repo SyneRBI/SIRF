@@ -8,6 +8,7 @@ import sys
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
@@ -73,7 +74,7 @@ def main():
 
     failed = 0
 
-    input_data = MR_Acquisitions('testdata_a2.h5')
+    input_data = MR_Acquisitions(DATA_PATH + 'testdata_a2.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
