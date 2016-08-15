@@ -1150,15 +1150,15 @@ private:
 	int nimages_;
 };
 
-class CoilSensitivityMap {
+class CoilData {
 public:
-	virtual ~CoilSensitivityMap() {}
+	virtual ~CoilData() {}
 	virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
 };
 
-class CSMAsCFImage : public CoilSensitivityMap {
+class CoilDataAsCFImage : public CoilData {
 public:
-	CSMAsCFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
+	CoilDataAsCFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
 		img_(nx, ny, nz, nc)
 	{
 	}
@@ -1210,24 +1210,113 @@ private:
 	ISMRMRD::Image < complex_float_t > img_;
 };
 
-class CoilSensitivitiesContainer : public aDataContainer {
+class CoilDataContainer : public aDataContainer {
+public:
+	virtual void get_dim(int slice, int* dim) = 0;
+	virtual void get_data(int slice, double* re, double* im) = 0;
+	virtual void get_data_abs(int slice, double* v) = 0;
+	virtual void append(boost::shared_ptr<CoilData> sptr_csm) = 0;
+	virtual CoilData& operator()(int slice) = 0;
+};
+
+class CoilDataList : public CoilDataContainer {
+public:
+	int nitems()
+	{
+		return (int)list_.size();
+	}
+	virtual double norm()
+	{
+		return 0.0;
+	}
+	virtual complex_double_t dot(aDataContainer& dc)
+	{
+		return complex_double_t(0.0, 0.0);
+	}
+	virtual void axpby(
+		complex_double_t a, const aDataContainer& a_x,
+		complex_double_t b, const aDataContainer& a_y)
+	{
+		return;
+	}
+	//virtual CoilData& operator()(int slice)
+	CoilData& data(int slice)
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<CoilData> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<CoilData> >::const_iterator i;
+#endif
+		unsigned int count = 0;
+		for (i = list_.begin();
+			i != list_.end() && count < slice && count < list_.size() - 1; i++)
+			count++;
+		return **i;
+	}
+	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
+	{
+		list_.push_back(sptr_cd);
+	}
+	virtual void get_dim(int slice, int* dim)
+	{
+		CoilDataAsCFImage& ci = (CoilDataAsCFImage&)(*this)(slice);
+		ci.get_dim(dim);
+	}
+	virtual void get_data(int slice, double* re, double* im)
+	{
+		CoilDataAsCFImage& ci = (CoilDataAsCFImage&)(*this)(slice);
+		ci.get_data(re, im);
+	}
+	virtual void get_data_abs(int slice, double* v)
+	{
+		CoilDataAsCFImage& ci = (CoilDataAsCFImage&)(*this)(slice);
+		ci.get_data_abs(v);
+	}
+protected:
+	std::list< boost::shared_ptr<CoilData> > list_;
+};
+
+class CoilImagesContainer { //: public CoilDataContainer {
+public:
+	virtual void compute(AcquisitionsContainer& ac) = 0;
+};
+
+class CoilImagesList : public CoilImagesContainer, 
+	public CoilDataList {
+public:
+	virtual int items()
+	{
+		return this->nitems();
+	}
+	virtual CoilData& operator()(int slice)
+	{
+		return this->data(slice);
+	}
+	virtual void compute(AcquisitionsContainer& ac) {}
+	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	{
+		return boost::shared_ptr<aDataContainer>
+			((aDataContainer*)new CoilImagesList());
+	}
+};
+
+class CoilSensitivitiesContainer { //: public CoilDataContainer {
 public:
 	void set_csm_smoothness(int s)
 	{
 		csm_smoothness_ = s;
 	}
-	virtual void get_dim(int slice, int* dim) = 0;
-	virtual void get_data(int slice, double* re, double* im) = 0;
-	virtual void get_data_abs(int slice, double* v) = 0;
-	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm) = 0;
+	virtual int items() = 0;
+	virtual CoilData& operator()(int slice) = 0;
 	virtual void compute(AcquisitionsContainer& ac) = 0;
-	virtual CoilSensitivityMap& operator()(int slice) = 0;
 protected:
 	int csm_smoothness_;
-	std::list< boost::shared_ptr<CoilSensitivityMap> > csms_;
 };
 
-class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer {
+class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer,
+	public CoilDataList {
+//protected:
+//	std::list< boost::shared_ptr<CoilData> > csms_;
 public:
 	CoilSensitivitiesAsImages()
 	{
@@ -1241,9 +1330,9 @@ public:
 		int nm = csm_file.getNumberOfImages("csm");
 		mtx.unlock();
 		for (int i = 0; i < nm; i++) {
-			boost::shared_ptr<CoilSensitivityMap> sptr_img(new CSMAsCFImage);
+			boost::shared_ptr<CoilData> sptr_img(new CoilDataAsCFImage);
 			mtx.lock();
-			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			CFImage& csm = (*(CoilDataAsCFImage*)sptr_img.get()).image();
 			csm_file.readImage("csm", i, csm);
 			mtx.unlock();
 			append(sptr_img);
@@ -1258,28 +1347,37 @@ public:
 	}
 	virtual int items()
 	{
-		return (int)csms_.size();
+		return this->nitems();
+		//CoilDataList& list = *((CoilDataList*)this);
+		//return list.items();
+		//return (int)csms_.size();
+	}
+	virtual CoilData& operator()(int slice)
+	{
+		return this->data(slice);
+		//CoilDataList& list = *((CoilDataList*)this);
+		//return list(slice);
 	}
 
-	virtual void append(boost::shared_ptr<CoilSensitivityMap> sptr_csm)
-	{
-		csms_.push_back(sptr_csm);
-	}
-	virtual void get_dim(int slice, int* dim)
-	{
-		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
-		csm.get_dim(dim);
-	}
-	virtual void get_data(int slice, double* re, double* im)
-	{
-		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
-		csm.get_data(re, im);
-	}
-	virtual void get_data_abs(int slice, double* v)
-	{
-		CSMAsCFImage& csm = (CSMAsCFImage&)(*this)(slice);
-		csm.get_data_abs(v);
-	}
+	//virtual void append(boost::shared_ptr<CoilData> sptr_csm)
+	//{
+	//	csms_.push_back(sptr_csm);
+	//}
+	//virtual void get_dim(int slice, int* dim)
+	//{
+	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
+	//	csm.get_dim(dim);
+	//}
+	//virtual void get_data(int slice, double* re, double* im)
+	//{
+	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
+	//	csm.get_data(re, im);
+	//}
+	//virtual void get_data_abs(int slice, double* v)
+	//{
+	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
+	//	csm.get_data_abs(v);
+	//}
 	virtual void compute(AcquisitionsContainer& ac)
 	{
 		//if (!ac.ordered())
@@ -1413,9 +1511,9 @@ public:
 				}
 			}
 
-			boost::shared_ptr<CoilSensitivityMap>
-				sptr_img(new CSMAsCFImage(nx, ny, 1, nc));
-			CFImage& csm = (*(CSMAsCFImage*)sptr_img.get()).image();
+			boost::shared_ptr<CoilData>
+				sptr_img(new CoilDataAsCFImage(nx, ny, 1, nc));
+			CFImage& csm = (*(CoilDataAsCFImage*)sptr_img.get()).image();
 
 			for (unsigned int y = 0, i = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++, i++) {
@@ -1460,33 +1558,33 @@ public:
 		std::cout << '\n';
 	}
 
-	virtual double norm()
-	{
-		return 0.0;
-	}
-	virtual complex_double_t dot(aDataContainer& dc)
-	{
-		return complex_double_t(0.0, 0.0);
-	}
-	virtual void axpby(
-		complex_double_t a, const aDataContainer& a_x,
-		complex_double_t b, const aDataContainer& a_y)
-	{
-		return;
-	}
-	virtual CoilSensitivityMap& operator()(int slice)
-	{
-#ifdef MSVC
-		std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
-#else
-		typename std::list<boost::shared_ptr<CoilSensitivityMap> >::const_iterator i;
-#endif
-		unsigned int count = 0;
-		for (i = csms_.begin(); 
-			i != csms_.end() && count < slice && count < csms_.size() - 1; i++)
-			count++;
-		return **i;
-	}
+//	virtual double norm()
+//	{
+//		return 0.0;
+//	}
+//	virtual complex_double_t dot(aDataContainer& dc)
+//	{
+//		return complex_double_t(0.0, 0.0);
+//	}
+//	virtual void axpby(
+//		complex_double_t a, const aDataContainer& a_x,
+//		complex_double_t b, const aDataContainer& a_y)
+//	{
+//		return;
+//	}
+//	virtual CoilData& operator()(int slice)
+//	{
+//#ifdef MSVC
+//		std::list<boost::shared_ptr<CoilData> >::const_iterator i;
+//#else
+//		typename std::list<boost::shared_ptr<CoilData> >::const_iterator i;
+//#endif
+//		unsigned int count = 0;
+//		for (i = csms_.begin(); 
+//			i != csms_.end() && count < slice && count < csms_.size() - 1; i++)
+//			count++;
+//		return **i;
+//	}
 
 private:
 
