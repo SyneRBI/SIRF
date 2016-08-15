@@ -198,7 +198,7 @@ AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (int i = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
-		CoilSensitivityMap& csm = cc(i%cc.items());
+		CoilData& csm = cc(i%cc.items());
 		fwd(iw, csm, ac);
 	}
 }
@@ -212,7 +212,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	ImageWrap iw(sptr_imgs_->image_wrap(0));
 	for (int i = 0, a = 0; a < ac.number(); i++) {
-		CoilSensitivityMap& csm = cc(i%cc.items());
+		CoilData& csm = cc(i%cc.items());
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
@@ -220,7 +220,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 
 template< typename T>
 void 
-AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
+AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	AcquisitionsContainer& ac)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
@@ -290,7 +290,7 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
 
 template< typename T>
 void 
-AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm,
+AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	AcquisitionsContainer& ac, int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;

@@ -256,14 +256,14 @@ public:
 		sptr_csms_ = sptr_csms;
 	}
 
-	void fwd(ImageWrap& iw, CoilSensitivityMap& csm, AcquisitionsContainer& ac)
+	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac)
 	{
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
 		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac);
 	}
 
-	void bwd(ImageWrap& iw, CoilSensitivityMap& csm, AcquisitionsContainer& ac, 
+	void bwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
 		int& off)
 	{
 		int type = iw.type();
@@ -306,10 +306,10 @@ private:
 	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 	template< typename T>
-	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
+	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		AcquisitionsContainer& ac);
 	template< typename T>
-	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm,
+	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 		AcquisitionsContainer& ac, int& off);
 };
 
