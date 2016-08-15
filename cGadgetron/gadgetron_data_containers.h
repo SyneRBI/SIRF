@@ -1292,11 +1292,77 @@ public:
 	{
 		return this->data(slice);
 	}
-	virtual void compute(AcquisitionsContainer& ac) {}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{
 		return boost::shared_ptr<aDataContainer>
 			((aDataContainer*)new CoilImagesList());
+	}
+	virtual void compute(AcquisitionsContainer& ac)
+	{
+		std::string par;
+		ISMRMRD::IsmrmrdHeader header;
+		ISMRMRD::Acquisition acq;
+		par = ac.parameters();
+		ISMRMRD::deserialize(par.c_str(), header);
+		ac.get_acquisition(0, acq);
+
+		ISMRMRD::Encoding e = header.encoding[0];
+		//unsigned int readout = e.encodedSpace.matrixSize.x;
+		unsigned int nx = e.reconSpace.matrixSize.x;
+		unsigned int ny = e.reconSpace.matrixSize.y;
+		unsigned int nc = acq.active_channels();
+		unsigned int readout = acq.number_of_samples();
+
+		//std::cout << readout << ' ' << acq.number_of_samples() << '\n';
+
+		int nmap = 0;
+		std::cout << "map ";
+
+		for (int na = 0; na < ac.number();) {
+
+			std::cout << ++nmap << ' ' << std::flush;
+
+			std::vector<size_t> ci_dims;
+			ci_dims.push_back(readout);
+			ci_dims.push_back(ny);
+			ci_dims.push_back(nc);
+			ISMRMRD::NDArray<complex_float_t> ci(ci_dims);
+			memset(ci.getDataPtr(), 0, ci.getDataSize());
+
+			int y = 0;
+			for (;;){
+				ac.get_acquisition(na + y, acq);
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+					break;
+				y++;
+			}
+			for (;;) {
+				ac.get_acquisition(na + y, acq);
+				int yy = acq.idx().kspace_encode_step_1;
+				if (!e.parallelImaging.is_present() ||
+					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
+					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
+					for (size_t c = 0; c < nc; c++) {
+						for (size_t s = 0; s < readout; s++) {
+							ci(s, yy, c) = acq.data(s, c);
+						}
+					}
+				}
+				y++;
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+					break;
+			}
+			na += y;
+
+			ifft2c(ci);
+
+			boost::shared_ptr<CoilData>
+				sptr_ci(new CoilDataAsCFImage(readout, ny, 1, nc));
+			CFImage& coil_im = (*(CoilDataAsCFImage*)sptr_ci.get()).image();
+			memcpy(coil_im.getDataPtr(), ci.getDataPtr(), ci.getDataSize());
+			append(sptr_ci);
+		}
+		std::cout << '\n';
 	}
 };
 
@@ -1348,36 +1414,12 @@ public:
 	virtual int items()
 	{
 		return this->nitems();
-		//CoilDataList& list = *((CoilDataList*)this);
-		//return list.items();
-		//return (int)csms_.size();
 	}
 	virtual CoilData& operator()(int slice)
 	{
 		return this->data(slice);
-		//CoilDataList& list = *((CoilDataList*)this);
-		//return list(slice);
 	}
 
-	//virtual void append(boost::shared_ptr<CoilData> sptr_csm)
-	//{
-	//	csms_.push_back(sptr_csm);
-	//}
-	//virtual void get_dim(int slice, int* dim)
-	//{
-	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
-	//	csm.get_dim(dim);
-	//}
-	//virtual void get_data(int slice, double* re, double* im)
-	//{
-	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
-	//	csm.get_data(re, im);
-	//}
-	//virtual void get_data_abs(int slice, double* v)
-	//{
-	//	CoilDataAsCFImage& csm = (CoilDataAsCFImage&)(*this)(slice);
-	//	csm.get_data_abs(v);
-	//}
 	virtual void compute(AcquisitionsContainer& ac)
 	{
 		//if (!ac.ordered())
