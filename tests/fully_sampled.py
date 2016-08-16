@@ -90,12 +90,16 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images_norm)
     failed += test_failed(3, 209.021, complex_images_norm, 0, 1e-5)
 
+    cis = MR_CoilImages()
+
     csms = MR_CoilSensitivityMaps()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
+    print('---\n computing coil images...')
+    cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
-    csms.calculate(processed_data)
+    csms.calculate(cis)
 
     am = MR_AcquisitionModel(processed_data, complex_images)
 

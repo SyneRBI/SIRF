@@ -169,6 +169,22 @@ class DataContainer(PyGadgetronObject):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
+class MR_CoilImages(DataContainer):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('CoilImagesList')
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pygadgetron.deleteObject(self.handle)
+    def calculate(self, acqs):
+        if acqs.is_sorted() is False:
+            print('WARNING: acquisitions may be in a wrong order')
+        handle = pygadgetron.cGT_computeCoilImages\
+            (self.handle, acqs.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+
 class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
@@ -183,17 +199,21 @@ class MR_CoilSensitivityMaps(DataContainer):
         _check_status(self.handle)
     def set_smoothness(self, s):
         self.smoothness = s
-    def calculate(self, acqs):
-        if acqs.is_sorted() is False:
-            print('WARNING: acquisitions may be in a wrong order')
+    def calculate(self, data):
+        if isinstance(data, AcquisitionsContainer):
+            if data.is_sorted() is False:
+                print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
         _set_int_par\
             (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-        handle = pygadgetron.cGT_computeCoilSensitivities\
-            (self.handle, acqs.handle)
+        if isinstance(data, AcquisitionsContainer):
+            handle = pygadgetron.cGT_computeCoilSensitivities\
+                (self.handle, data.handle)
+        else:
+            handle = pygadgetron.cGT_computeCSMsFromCIs(self.handle, data.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def csm_as_array(self, csm_num):

@@ -6,6 +6,7 @@ import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
@@ -16,7 +17,7 @@ try:
  
     file = str(input('raw data file: '))
 ##    file = 'testdata.h5'
-    input_data = MR_Acquisitions(file)
+    input_data = MR_Acquisitions(DATA_PATH + file)
 
     processed_data = MR_remove_x_oversampling(input_data)
     processed_data.sort()
