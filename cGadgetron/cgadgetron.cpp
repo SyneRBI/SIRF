@@ -85,6 +85,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<std::string, std::string>();
 		else if (boost::iequals(name, "ImagesList"))
 			return newObjectHandle<ImagesContainer, ImagesList>();
+		else if (boost::iequals(name, "CoilImagesList"))
+			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
 		else if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
 		else if (boost::iequals(name, "AcquisitionsProcessor"))
@@ -210,6 +212,40 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 
 extern "C"
 void*
+cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_cis);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CoilImagesContainer& cis =
+			objectFromHandle<CoilImagesContainer>(h_csms);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		cis.compute(acqs);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		CAST_PTR(DataHandle, h_cis, ptr_cis);
+		CoilSensitivitiesContainer& csms =
+			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		CoilImagesContainer& cis =
+			objectFromHandle<CoilImagesContainer>(h_cis);
+		csms.compute(cis);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 {
 	try {
@@ -231,8 +267,6 @@ cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	//CoilSensitivitiesContainer& list =
-	//	objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_dim(csm_num, dim);
@@ -245,8 +279,6 @@ cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 	double* re = (double*)ptr_re;
 	double* im = (double*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	//CoilSensitivitiesContainer& list =
-	//	objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_data(csm_num, re, im);
@@ -258,8 +290,6 @@ cGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr)
 {
 	double* v = (double*)ptr;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	//CoilSensitivitiesContainer& list =
-	//	objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_data_abs(csm_num, v);

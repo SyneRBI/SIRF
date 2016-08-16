@@ -16,6 +16,8 @@ extern "C" {
 	void* cGT_setParameter
 		(void* ptr, const char* obj, const char* par, const void* val);
 
+	void*	cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
+	void*	cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
 	void* cGT_CoilSensitivities(const char* file);
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
 
