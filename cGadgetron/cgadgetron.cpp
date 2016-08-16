@@ -263,7 +263,7 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 
 extern "C"
 void
-cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
+cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
@@ -274,7 +274,7 @@ cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 
 extern "C"
 void
-cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
+cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 {
 	double* re = (double*)ptr_re;
 	double* im = (double*)ptr_im;
@@ -286,7 +286,7 @@ cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 
 extern "C"
 void
-cGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr)
+cGT_getCoilDataAbs(void* ptr_csms, int csm_num, size_t ptr)
 {
 	double* v = (double*)ptr;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
