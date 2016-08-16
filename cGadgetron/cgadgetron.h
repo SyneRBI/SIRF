@@ -46,10 +46,10 @@ extern "C" {
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 	void* cGT_imageTypes(const void* ptr_x);
 
-	void cGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void cGT_getCSMData
+	void cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
+	void cGT_getCoilData
 		(void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
-	void cGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr);
+	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr);
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 	void cGT_getImageDataAsDoubleArray
 		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);

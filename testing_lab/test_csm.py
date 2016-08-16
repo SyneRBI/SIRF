@@ -1,3 +1,4 @@
+import argparse
 import math
 import os
 import pylab
@@ -7,37 +8,57 @@ import time
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
+IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools/ismrmrdtools'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
+sys.path.append(IPT_PATH)
 
 from pGadgetron import *
+from ismrmrdtools import simulation, coils, show
+
+parser = argparse.ArgumentParser(description = \
+'''
+Test script for CSMs and coil images
+''')
+parser.add_argument\
+('filename', nargs='?', default = 'testdata.h5', \
+ help = 'raw data file name (default: testdata.h5)')
+args = parser.parse_args()                                 
 
 try:
  
-    file = str(input('raw data file: '))
+##    file = str(input('raw data file: '))
 ##    file = 'testdata.h5'
-    input_data = MR_Acquisitions(DATA_PATH + file)
+##    input_data = MR_Acquisitions(DATA_PATH + file)
+    input_data = MR_Acquisitions(DATA_PATH + args.filename)
 
     processed_data = MR_remove_x_oversampling(input_data)
-    processed_data.sort()
 
     print('sorting acquisitions...')
-    input_data.sort()
+    processed_data.sort()
+##    input_data.sort()
 
     ns = int(input('smoothening loops: '))
+
+    cis = MR_CoilImages()
+
+    print('computing coil images...')
+    cis.calculate(processed_data)
 
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
     csms.set_smoothness(ns)
 ##    csms.calculate(input_data)
-    csms.calculate(processed_data)
+##    csms.calculate(processed_data)
+    csms.calculate(cis)
 
     nz = csms.number()
     print('%d slices' % nz)
 
     maxv = 0
     for z in range(nz):
+##        data = cis.coil_image_as_array(z)
         data = csms.csm_as_array(z)
         minvz = numpy.amin(data)
         maxvz = numpy.amax(data)
@@ -55,14 +76,19 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = csms.csm_as_array(z)/maxv
+        data = cis.coil_image_as_array(z) #/maxv
+        (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
+        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
+##        data = csms.csm_as_array(z)/maxv
 ##        shape = data.shape
         re, im = csms.csm_as_arrays(z)/maxv
         shape = re.shape
         nc = shape[0]
         ny = shape[1]
         nx = shape[2]
-        for i in range(nc):
+        data = csms.csm_as_array(z)
+        show.imshow(data[:,0,:,:], tile_shape=(4,2), scale=(0,1))
+        for i in range(-nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
 ##            pylab.figure((z + 1)*nc + i + 1)
