@@ -262,6 +262,23 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 }
 
 extern "C"
+void*
+cGT_appendCSM
+(void* ptr_csms, int nx, int ny, int nz, int nc, size_t ptr_re, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		double* re = (double*)ptr_re;
+		double* im = (double*)ptr_im;
+		CoilSensitivitiesContainer& list =
+			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		list.append_csm(nx, ny, nz, nc, re, im);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void
 cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {

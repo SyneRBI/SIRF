@@ -32,26 +32,43 @@ try:
 ##    file = 'testdata.h5'
 ##    input_data = MR_Acquisitions(DATA_PATH + file)
     input_data = MR_Acquisitions(DATA_PATH + args.filename)
+    input_data.sort()
+    readout = input_data.slice_dimensions()[0]
+##    print(input_data.slice_dimensions())
 
     processed_data = MR_remove_x_oversampling(input_data)
+    nx = processed_data.slice_dimensions()[0]
+##    print(processed_data.slice_dimensions())
+
+    print(readout, nx)
 
     print('sorting acquisitions...')
     processed_data.sort()
-##    input_data.sort()
 
     ns = int(input('smoothening loops: '))
 
     cis = MR_CoilImages()
 
     print('computing coil images...')
+##    cis.calculate(input_data)
     cis.calculate(processed_data)
+
+    nz = cis.number()
+    print('%d slices' % nz)
 
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
+
     csms.set_smoothness(ns)
 ##    csms.calculate(input_data)
 ##    csms.calculate(processed_data)
+
     csms.calculate(cis)
+
+##    for z in range(nz):
+##        data = cis.coil_image_as_array(z)
+##        (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
+##        csms.append(csm)
 
     nz = csms.number()
     print('%d slices' % nz)
@@ -78,17 +95,20 @@ try:
             break
         data = cis.coil_image_as_array(z) #/maxv
         (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
+        print(numpy.amin(abs(csm)), numpy.amax(abs(csm)))
+##        i = (readout - nx)//2
+##        csm = csm[:, :, i + 1 : i + nx]
         show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
 ##        data = csms.csm_as_array(z)/maxv
 ##        shape = data.shape
-        re, im = csms.csm_as_arrays(z)/maxv
-        shape = re.shape
-        nc = shape[0]
-        ny = shape[1]
-        nx = shape[2]
+##        re, im = csms.csm_as_arrays(z)/maxv
+##        shape = re.shape
+##        nc = shape[0]
+##        ny = shape[1]
+##        nx = shape[2]
         data = csms.csm_as_array(z)
         show.imshow(data[:,0,:,:], tile_shape=(4,2), scale=(0,1))
-        for i in range(-nc):
+        for i in range(0): #(nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
 ##            pylab.figure((z + 1)*nc + i + 1)

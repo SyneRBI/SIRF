@@ -1155,6 +1155,9 @@ public:
 	virtual ~CoilData() {}
 	virtual void get_dim(int* dim) const = 0;
 	virtual void get_data(double* re, double* im) const = 0;
+	virtual void set_data(const double* re, const double* im) = 0;
+	virtual void get_data(complex_float_t* data) const = 0;
+	virtual void set_data(const complex_float_t* data) = 0;
 	virtual void get_data_abs(double* v) const = 0;
 	virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
 };
@@ -1184,7 +1187,7 @@ public:
 		dim[2] = img_.getMatrixSizeZ();
 		dim[3] = img_.getNumberOfChannels();
 	}
-	void get_data(double* re, double* im) const
+	virtual void get_data(double* re, double* im) const
 	{
 		long long int n = img_.getMatrixSizeX();
 		n *= img_.getMatrixSizeY();
@@ -1197,7 +1200,33 @@ public:
 			im[i] = std::imag(z);
 		}
 	}
-	void get_data_abs(double* v) const
+	virtual void set_data(const double* re, const double* im)
+	{
+		long long int n = img_.getMatrixSizeX();
+		n *= img_.getMatrixSizeY();
+		n *= img_.getMatrixSizeZ();
+		n *= img_.getNumberOfChannels();
+		complex_float_t* ptr = img_.getDataPtr();
+		for (long long int i = 0; i < n; i++)
+			ptr[i] = complex_float_t(re[i], im[i]);
+	}
+	virtual void get_data(complex_float_t* data) const
+	{
+		long long int n = img_.getMatrixSizeX();
+		n *= img_.getMatrixSizeY();
+		n *= img_.getMatrixSizeZ();
+		n *= img_.getNumberOfChannels();
+		memcpy(data, img_.getDataPtr(), n*sizeof(complex_float_t));
+	}
+	virtual void set_data(const complex_float_t* data)
+	{
+		long long int n = img_.getMatrixSizeX();
+		n *= img_.getMatrixSizeY();
+		n *= img_.getMatrixSizeZ();
+		n *= img_.getNumberOfChannels();
+		memcpy(img_.getDataPtr(), data, n*sizeof(complex_float_t));
+	}
+	virtual void get_data_abs(double* v) const
 	{
 		long long int n = img_.getMatrixSizeX();
 		n *= img_.getMatrixSizeY();
@@ -1229,23 +1258,39 @@ public:
 	{
 		return;
 	}
-	void get_dim(int slice, int* dim)
+	void get_dim(int slice, int* dim) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_dim(dim);
 	}
-	void get_data(int slice, double* re, double* im)
+	void get_data(int slice, double* re, double* im) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data(re, im);
 	}
-	void get_data_abs(int slice, double* v)
+	void set_data(int slice, double* re, double* im)
+	{
+		CoilData& ci = (CoilData&)(*this)(slice);
+		ci.set_data(re, im);
+	}
+	void get_data(int slice, complex_float_t* data) //const
+	{
+		CoilData& ci = (CoilData&)(*this)(slice);
+		ci.get_data(data);
+	}
+	void set_data(int slice, complex_float_t* data)
+	{
+		CoilData& ci = (CoilData&)(*this)(slice);
+		ci.set_data(data);
+	}
+	void get_data_abs(int slice, double* v) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data_abs(v);
 	}
 	virtual void append(boost::shared_ptr<CoilData> sptr_csm) = 0;
 	virtual CoilData& operator()(int slice) = 0;
+	//virtual const CoilData& operator()(int slice) const = 0;
 };
 
 class CoilDataList {
@@ -1372,13 +1417,15 @@ public:
 	}
 };
 
-class CoilSensitivitiesContainer : public CoilDataContainer {
+template<class CoilDataType>
+class CoilSensitivitiesContainerTemplate : public CoilDataContainer {
 public:
 	void set_csm_smoothness(int s)
 	{
 		csm_smoothness_ = s;
 	}
 	virtual CoilData& operator()(int slice) = 0;
+
 	virtual void compute(AcquisitionsContainer& ac)
 	{
 		//if (!ac.ordered())
@@ -1393,19 +1440,25 @@ public:
 	{
 
 		ISMRMRD::Encoding e = cis.encoding();
-		CoilDataAsCFImage& ci = (CoilDataAsCFImage&)cis(0);
-		CFImage& im = ci.image();
 		unsigned int nx = e.reconSpace.matrixSize.x;
 		unsigned int ny = e.reconSpace.matrixSize.y;
-		unsigned int nc = im.getNumberOfChannels();
-		unsigned int readout = im.getMatrixSizeX();
+		int dim[4];
+		cis(0).get_dim(dim);
+		unsigned int readout = dim[0];
+		unsigned int nc = dim[3];
 
 		std::vector<size_t> cm_dims;
 		cm_dims.push_back(readout);
 		cm_dims.push_back(ny);
 		cm_dims.push_back(nc);
-
 		ISMRMRD::NDArray<complex_float_t> cm(cm_dims);
+
+		std::vector<size_t> csm_dims;
+		csm_dims.push_back(nx);
+		csm_dims.push_back(ny);
+		csm_dims.push_back(1);
+		csm_dims.push_back(nc);
+		ISMRMRD::NDArray<complex_float_t> csm(csm_dims);
 
 		std::vector<size_t> img_dims;
 		img_dims.push_back(nx);
@@ -1415,20 +1468,26 @@ public:
 		int nmap = 0;
 
 		std::cout << "map ";
-
 		for (nmap = 1; nmap <= cis.items(); nmap++) {
 			std::cout << nmap << ' ' << std::flush;
-			CoilDataAsCFImage& ci = (CoilDataAsCFImage&)cis(nmap - 1);
-			CFImage& im = ci.image();
-			memcpy(cm.getDataPtr(), im.getDataPtr(), im.getDataSize());
-			boost::shared_ptr<CoilData>
-				sptr_img(new CoilDataAsCFImage(nx, ny, 1, nc));
-			CFImage& csm = (*(CoilDataAsCFImage*)sptr_img.get()).image();
+			cis(nmap - 1).get_data(cm.getDataPtr());
+			//CoilDataAsCFImage* ptr_img = new CoilDataAsCFImage(nx, ny, 1, nc);
+			CoilData* ptr_img = new CoilDataType(nx, ny, 1, nc);
+			boost::shared_ptr<CoilData> sptr_img(ptr_img);
 			compute_(cm, img, csm);
+			ptr_img->set_data(csm.getDataPtr());
 			append(sptr_img);
 		}
-
 		std::cout << '\n';
+	}
+
+	void append_csm
+		(int nx, int ny, int nz, int nc, const double* re, const double* im)
+	{
+		CoilData* ptr_img = new CoilDataType(nx, ny, nz, nc);
+		boost::shared_ptr<CoilData> sptr_img(ptr_img);
+		ptr_img->set_data(re, im);
+		append(sptr_img);
 	}
 
 protected:
@@ -1438,7 +1497,8 @@ private:
 	void compute_(
 		ISMRMRD::NDArray<complex_float_t>& cm,
 		ISMRMRD::NDArray<float>& img,
-		CFImage& csm)
+		ISMRMRD::NDArray<complex_float_t>& csm
+		)
 	{
 		int ndims = cm.getNDim();
 		const size_t* dims = cm.getDims();
@@ -1710,6 +1770,8 @@ private:
 	}
 
 };
+
+typedef CoilSensitivitiesContainerTemplate<CoilDataAsCFImage> CoilSensitivitiesContainer;
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer, 
 	public CoilDataList {
