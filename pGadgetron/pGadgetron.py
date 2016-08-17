@@ -1,11 +1,20 @@
 import numpy
 import os
+import sys
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import time
+try:
+    IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools/ismrmrdtools'
+    sys.path.append(IPT_PATH)
+    from ismrmrdtools import coils
+    HAVE_ISMRMRDTOOLS = True
+except:
+    print('ismrmrd-python-tools not installed')
+    HAVE_ISMRMRDTOOLS = False
 
 import pygadgetron
 
@@ -213,7 +222,7 @@ class MR_CoilSensitivityMaps(DataContainer):
         _check_status(self.handle)
     def set_smoothness(self, s):
         self.smoothness = s
-    def calculate(self, data):
+    def calculate(self, data, Inati = False):
         if isinstance(data, AcquisitionsContainer):
             if data.is_sorted() is False:
                 print('WARNING: acquisitions may be in a wrong order')
@@ -226,8 +235,38 @@ class MR_CoilSensitivityMaps(DataContainer):
         if isinstance(data, AcquisitionsContainer):
             handle = pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle)
+            _check_status(handle)
+            pygadgetron.deleteDataHandle(handle)
+        elif isinstance(data, MR_CoilImages):
+            if HAVE_ISMRMRDTOOLS and Inati:
+                nz = data.number()
+                for z in range(nz):
+                    ci = data.coil_image_as_array(z)
+                    (csm, rho) = coils.calculate_csm_inati_iter(ci[:,0,:,:])
+                    self.append(csm)
+            else:
+                handle = pygadgetron.cGT_computeCSMsFromCIs\
+                    (self.handle, data.handle)
+                _check_status(handle)
+                pygadgetron.deleteDataHandle(handle)
+    def append(self, csm):
+        if self.handle is None:
+            self.handle = pygadgetron.cGT_CoilSensitivities('')
+            _check_status(self.handle)
+        shape = csm.shape
+        nc = shape[0]
+        if csm.ndim == 4:
+            nz = shape[1]
+            iy = 2
         else:
-            handle = pygadgetron.cGT_computeCSMsFromCIs(self.handle, data.handle)
+            nz = 1
+            iy = 1
+        ny = shape[iy]
+        nx = shape[iy + 1]
+        re = csm.real.copy()
+        im = csm.imag.copy()
+        handle = pygadgetron.cGT_appendCSM\
+            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def csm_as_array(self, csm_num):
