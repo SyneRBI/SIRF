@@ -644,17 +644,14 @@ public:
 		complex_double_t z = 0;
 		ISMRMRD::Acquisition a;
 		ISMRMRD::Acquisition b;
-		//for (int i = 0; i < n && i < m; i++) {
 		for (int i = 0, j = 0; i < n && j < m;) {
 			get_acquisition(i, a);
 			if (TO_BE_IGNORED(a)) {
-				std::cout << i << " ignored (a)\n";
 				i++;
 				continue;
 			}
 			other.get_acquisition(j, b);
 			if (TO_BE_IGNORED(b)) {
-				std::cout << j << " ignored (b)\n";
 				j++;
 				continue;
 			}
@@ -672,7 +669,6 @@ public:
 		for (int i = 0; i < n; i++) {
 			get_acquisition(i, a);
 			if (TO_BE_IGNORED(a)) {
-				std::cout << i << " ignored (norm)\n";
 				continue;
 			}
 			double s = AcquisitionsContainer::norm(a);
@@ -735,7 +731,6 @@ public:
 				if (t[j].first != t[i].first)
 					break;
 			}
-			//std::cout << i << ' ' << j << '\n';
 			for (int k = i; k < j; k++)
 				ts.push_back(triple(t[k]));
 			std::stable_sort(ts.begin(), ts.end(),
@@ -757,7 +752,6 @@ public:
 				if (t[j].first != t[i].first || t[j].second != t[i].second)
 					break;
 			}
-			//std::cout << i << ' ' << j << '\n';
 			for (int k = i; k < j; k++)
 				ts.push_back(triple(t[k]));
 			std::sort(ts.begin(), ts.end(),
@@ -826,12 +820,9 @@ public:
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
 		int ind = index(num);
-		//if (ordered())
-		//	std::cout << num << ' ' << ind << '\n';
 		Mutex mtx;
 		mtx.lock();
 		dataset_->readAcquisition(ind, acq);
-		//dataset_->readAcquisition(num, acq);
 		//dataset_->readAcquisition(index(num), acq); // ??? does not work!
 		mtx.unlock();
 	}
@@ -872,30 +863,6 @@ public:
 		sptr_ac->set_parameters(par_);
 		sptr_ac->write_parameters();
 		return sptr_ac;
-	}
-
-	void getPhantomAsFloat(ImageWrap& iw)
-	{
-		ISMRMRD::NDArray<complex_float_t> arr;
-		dataset_->readNDArray("phantom", 0, arr);
-		ISMRMRD::Image<float>* ptr_im =
-			(ISMRMRD::Image<float>*)iw.ptr_image();
-		complex_float_t* ia;
-		float* ii;
-		for (ia = arr.begin(), ii = ptr_im->begin(); ia != arr.end(); ia++, ii++)
-			*ii = std::abs(*ia);
-	}
-
-	void getPhantomAsComplexFloat(ImageWrap& iw)
-	{
-		ISMRMRD::NDArray<complex_float_t> arr;
-		dataset_->readNDArray("phantom", 0, arr);
-		ISMRMRD::Image<complex_float_t>* ptr_im =
-			(ISMRMRD::Image<complex_float_t>*)iw.ptr_image();
-		complex_float_t* ia;
-		complex_float_t* ii;
-		for (ia = arr.begin(), ii = ptr_im->begin(); ia != arr.end(); ia++, ii++)
-			*ii = std::abs(*ia);
 	}
 
 private:
@@ -1471,7 +1438,6 @@ public:
 		for (nmap = 1; nmap <= cis.items(); nmap++) {
 			std::cout << nmap << ' ' << std::flush;
 			cis(nmap - 1).get_data(cm.getDataPtr());
-			//CoilDataAsCFImage* ptr_img = new CoilDataAsCFImage(nx, ny, 1, nc);
 			CoilData* ptr_img = new CoilDataType(nx, ny, 1, nc);
 			boost::shared_ptr<CoilData> sptr_img(ptr_img);
 			compute_(cm, img, csm);
@@ -1539,23 +1505,14 @@ private:
 			}
 		}
 
-		int* edge_mask = new int[nx*ny];
-		memset(edge_mask, 0, nx*ny*sizeof(int));
-		float* weight = new float[nx*ny];
-		find_edges_(nx, ny, ptr_img, edge_mask, weight);
-		cleanup_mask_(nx, ny, edge_mask, 0, 2, 4);
-		cleanup_mask_(nx, ny, edge_mask, 0, 4, 2);
-		cleanup_mask_(nx, ny, edge_mask, 0, 4, 2);
-
-		float noise = max_(5, 5, ptr_img);
+		float noise = max_(5, 5, ptr_img) + 1e-6*max_(nx, ny, ptr_img);
 		mask_noise_(nx, ny, ptr_img, noise, object_mask);
 		cleanup_mask_(nx, ny, object_mask, 0, 2, 0);
 		cleanup_mask_(nx, ny, object_mask, 0, 3, 0);
 		cleanup_mask_(nx, ny, object_mask, 0, 4, 0);
 
 		for (int i = 0; i < csm_smoothness_; i++)
-			smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(),
-			object_mask, edge_mask);
+			smoothen_(nx, ny, nc, cm0.getDataPtr(), w.getDataPtr(), object_mask);
 
 		for (unsigned int y = 0; y < ny; y++) {
 			for (unsigned int x = 0; x < nx; x++) {
@@ -1573,7 +1530,7 @@ private:
 				double r = img(x, y);
 				float s;
 				if (r != 0.0)
-					s = 1.0 / r; //std::sqrt(r);
+					s = 1.0 / r;
 				else
 					s = 0.0;
 				complex_float_t z(s, 0.0);
@@ -1584,8 +1541,6 @@ private:
 		}
 
 		delete[] object_mask;
-		delete[] edge_mask;
-		delete[] weight;
 
 	}
 
@@ -1668,8 +1623,9 @@ private:
 		delete[] inlist;
 	}
 	void smoothen_
-		(int nx, int ny, int nz, complex_float_t* u, complex_float_t* v,
-		int* obj_mask, int* edge_mask)
+		(int nx, int ny, int nz, 
+		complex_float_t* u, complex_float_t* v, 
+		int* obj_mask)
 	{
 		const complex_float_t ONE(1.0, 0.0);
 		const complex_float_t TWO(2.0, 0.0);
@@ -1704,71 +1660,6 @@ private:
 				}
 		memcpy(u, v, nx*ny*nz*sizeof(complex_float_t));
 	}
-	float weight_(float x)
-	{
-		if (x*x > 1)
-			return 0;
-		float y = 1 - x*x;
-		return y*y;
-	}
-	void find_edges_(int nx, int ny, float* u, int* mask, float* weight)
-	{
-		int ng = (nx - 2)*(ny - 2);
-		float* grad = new float[ng];
-		float max_grad = 0.0;
-		for (int iy = 1, i = 0; iy < ny - 1; iy++)
-			for (int ix = 1; ix < nx - 1; ix++, i++) {
-				int j = ix + iy*nx;
-				float dx = fabs(u[j + 1] - u[j - 1]);
-				float dy = fabs(u[j + nx] - u[j - nx]);
-				//float dx = fabs(u[j + 1] - u[j]);
-				//float dy = fabs(u[j + nx] - u[j]);
-				float d = std::sqrt(dx*dx + dy*dy);
-				if (d > max_grad)
-					max_grad = d;
-				grad[i] = d;
-			}
-		const float AH = 5;
-		int nh = ng / AH;
-		int* h = new int[nh];
-		memset(h, 0, nh*sizeof(int));
-		for (int i = 0; i < ng; i++) {
-			int j = (nh - 1) * (grad[i] / max_grad);
-			h[j]++;
-		}
-		std::ofstream out;
-		//out.open("h.txt");
-		//for (int i = 0; i < nh; i++)
-		//	out << h[i] << '\n';
-		//out.close();
-		float cutoff = 0.0;
-		float step = max_grad / nh;
-		for (int i = 10; i < nh; i++, cutoff += step)
-			if (h[i] < 1)
-				break;
-		//std::cout << "\nmax grad: " << max_grad << '\n';
-		//std::cout << "cutoff: " << cutoff << '\n';
-		for (int ix = 0; ix < nx; ix++) {
-			weight[ix] = 1.0;
-			weight[ix + nx*(ny - 1)] = 1.0;
-		}
-		for (int iy = 0; iy < ny; iy++) {
-			weight[nx*iy] = 1.0;
-			weight[nx*iy + nx - 1] = 1.0;
-		}
-		for (int iy = 1, i = 0; iy < ny - 1; iy++)
-			for (int ix = 1; ix < nx - 1; ix++, i++) {
-				int j = ix + iy*nx;
-				weight[j] = weight_(grad[i] / cutoff);
-				if (grad[i] > cutoff) {
-					mask[j] = 1;
-				}
-			}
-
-		delete[] grad;
-		delete[] h;
-	}
-
 };
 
 typedef CoilSensitivitiesContainerTemplate<CoilDataAsCFImage> CoilSensitivitiesContainer;

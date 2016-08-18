@@ -24,7 +24,14 @@ Test script for CSMs and coil images
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
-args = parser.parse_args()                                 
+args = parser.parse_args()
+
+def csm_sum_range(data):
+    u = numpy.conj(data)*data
+    u = numpy.sum(u, axis = 0)
+    minu = numpy.amin(u)
+    maxu = numpy.amax(u)
+    return minu, maxu
 
 try:
  
@@ -45,7 +52,8 @@ try:
     print('sorting acquisitions...')
     processed_data.sort()
 
-    ns = int(input('smoothening loops: '))
+    #ns = int(input('smoothening loops: '))
+    ns = 5
 
     cis = MR_CoilImages()
 
@@ -84,8 +92,14 @@ try:
         else:
             minv = min(minvz, minv)
         maxv = max(maxvz, maxv)
-    print(minv, maxv)
+        re, im = csms.csm_as_arrays(z)
+        zdata = re + 1j*im
+##        print(csm_sum_range(zdata))
+##        print(minu, maxu)
+##    print(minv, maxv)
 
+    nc, m, ny, nx = data.shape
+    allcsms = numpy.ndarray((2*nc,ny,nx), dtype = data.dtype)
     while True:
         s = str(input('enter z-coordinate: '))
         if len(s) < 1:
@@ -95,19 +109,15 @@ try:
             break
         data = cis.coil_image_as_array(z) #/maxv
         (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
-        print(numpy.amin(abs(csm)), numpy.amax(abs(csm)))
-##        i = (readout - nx)//2
-##        csm = csm[:, :, i + 1 : i + nx]
-        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
-##        data = csms.csm_as_array(z)/maxv
-##        shape = data.shape
-##        re, im = csms.csm_as_arrays(z)/maxv
-##        shape = re.shape
-##        nc = shape[0]
-##        ny = shape[1]
-##        nx = shape[2]
         data = csms.csm_as_array(z)
-        show.imshow(data[:,0,:,:], tile_shape=(4,2), scale=(0,1))
+
+        allcsms[0:nc,:,:] = data[:,0,:,:]
+        allcsms[nc:2*nc,:,:] = abs(csm)
+##        allcsms = numpy.concatenate(abs(csm), data[:,0,:,:])
+        show.imshow(allcsms, tile_shape=(4,4), scale=(0,1))
+##        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
+##        show.imshow(data[:,0,:,:], tile_shape=(4,2), scale=(0,1))
+
         for i in range(0): #(nc):
             pylab.figure(z*nc + i + 1)
             pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
