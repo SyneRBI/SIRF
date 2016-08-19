@@ -71,7 +71,7 @@ try:
 ##    csms.calculate(input_data)
 ##    csms.calculate(processed_data)
 
-    csms.calculate(cis)
+    csms.calculate(cis) #, Inati = True)
 
 ##    for z in range(nz):
 ##        data = cis.coil_image_as_array(z)
@@ -99,7 +99,8 @@ try:
 ##    print(minv, maxv)
 
     nc, m, ny, nx = data.shape
-    allcsms = numpy.ndarray((2*nc,ny,nx), dtype = data.dtype)
+    images = numpy.ndarray((2, ny, nx), dtype = data.dtype)
+    allcsms = numpy.ndarray((2*nc, ny, nx), dtype = data.dtype)
     while True:
         s = str(input('enter z-coordinate: '))
         if len(s) < 1:
@@ -107,29 +108,36 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = cis.coil_image_as_array(z) #/maxv
-        (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
-        data = csms.csm_as_array(z)
+        re, im = cis.coil_image_as_arrays(z)
+        coil_data = numpy.squeeze(re + 1j*im)
+        (csm, rho) = coils.calculate_csm_inati_iter(coil_data)
+##        csm = simulation.generate_birdcage_sensitivities(ny)
+##        print(csm_sum_range(csm))
 
-        allcsms[0:nc,:,:] = data[:,0,:,:]
-        allcsms[nc:2*nc,:,:] = abs(csm)
-##        allcsms = numpy.concatenate(abs(csm), data[:,0,:,:])
+        re, im = csms.csm_as_arrays(z)
+        csm_data = numpy.squeeze(re + 1j*im)
+        images[0, :, :] = abs(numpy.sum(csm_data * coil_data, axis = 0))
+        images[1, :, :] = abs(numpy.sum(csm * coil_data, axis = 0))
+        maxv = numpy.amax(images)
+        show.imshow(images, tile_shape=(1,2), scale = (0, maxv))
+
+        allcsms[ 0 :   nc, :, :] = abs(csm_data)
+        allcsms[nc : 2*nc, :, :] = abs(csm)
         show.imshow(allcsms, tile_shape=(4,4), scale=(0,1))
 ##        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
-##        show.imshow(data[:,0,:,:], tile_shape=(4,2), scale=(0,1))
+##        show.imshow(abs(csm_data), tile_shape=(4,2), scale=(0,1))
 
-        for i in range(0): #(nc):
-            pylab.figure(z*nc + i + 1)
-            pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
-##            pylab.figure((z + 1)*nc + i + 1)
-##            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
-##            for iy in range(ny):
-##                for ix in range(nx):
-##                    im[i,0,iy,ix] = math.atan2(im[i,0,iy,ix], re[i,0,iy,ix])
-##            pylab.figure((z + 2)*nc + i + 1)
-##            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
-            pylab.show()
-##        pylab.show()
+##        for i in range(nc):
+##            pylab.figure(z*nc + i + 1)
+##            pylab.imshow(data[i,0,:,:], vmin = 0, vmax = 1)
+####            pylab.figure((z + 1)*nc + i + 1)
+####            pylab.imshow(re[i,0,:,:], vmin = -1, vmax = 1)
+####            for iy in range(ny):
+####                for ix in range(nx):
+####                    im[i,0,iy,ix] = math.atan2(im[i,0,iy,ix], re[i,0,iy,ix])
+####            pylab.figure((z + 2)*nc + i + 1)
+####            pylab.imshow(im[i,0,:,:], vmin = -1, vmax = 1)
+##            pylab.show()
 
 except error as err:
     # display error information

@@ -101,8 +101,13 @@ def main():
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
+##    print('---\n computing sensitivity maps...')
+##    csms.calculate(processed_data)
+    print('---\n computing coil images...')
+    cis = MR_CoilImages()
+    cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
-    csms.calculate(processed_data)
+    csms.calculate(cis) #, Inati = True)
 
     am = MR_AcquisitionModel(processed_data, complex_images)
 
