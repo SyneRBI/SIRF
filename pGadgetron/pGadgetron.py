@@ -207,6 +207,22 @@ class MR_CoilImages(DataContainer):
         pygadgetron.cGT_getCoilDataAbs\
             (self.handle, ci_num, array.ctypes.data)
         return array
+    def coil_image_as_arrays(self, csm_num):
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getCoilDataDimensions\
+            (self.handle, csm_num, dim.ctypes.data)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        nc = dim[3]
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+            raise error('image data not available')
+        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        pygadgetron.cGT_getCoilData\
+            (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
+        return re, im
+
 
 class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
@@ -241,8 +257,9 @@ class MR_CoilSensitivityMaps(DataContainer):
             if HAVE_ISMRMRDTOOLS and Inati:
                 nz = data.number()
                 for z in range(nz):
-                    ci = data.coil_image_as_array(z)
-                    (csm, rho) = coils.calculate_csm_inati_iter(ci[:,0,:,:])
+                    re, im = data.coil_image_as_arrays(z)
+                    ci = numpy.squeeze(re  + 1j*im)
+                    (csm, rho) = coils.calculate_csm_inati_iter(ci)
                     self.append(csm)
             else:
                 handle = pygadgetron.cGT_computeCSMsFromCIs\
@@ -341,6 +358,7 @@ class ImagesContainer(DataContainer):
             pylab.figure(i)
             pylab.title('image %d' % i)
             pylab.imshow(data[0,0,:,:])
+            print(numpy.amax(data[0,0,:,:]))
             print('Close Figure %d window to continue...' % i)
             pylab.show()
     def write(self, out_file, out_group):
