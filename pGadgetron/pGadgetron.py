@@ -54,6 +54,35 @@ def _int_par(handle, set, par):
     pygadgetron.deleteDataHandle(h)
     return value
 
+def object_name_and_parameters(obj):
+    name = obj.lstrip()
+    i = name.find('(')
+    if i > -1:
+        j = name.find(')', i)
+        prop = name[i + 1 : j]
+        name = name[: i].rstrip()
+        i = 0
+    else:
+        prop = None
+    return name, prop
+
+def parse_arglist(arglist):
+    argdict = {}
+    while True:
+        arglist = arglist.lstrip()
+        ieq = arglist.find('=')
+        if ieq < 0:
+            return argdict
+        name = arglist[0:ieq].rstrip()
+        arglist = arglist[ieq + 1 :].lstrip()
+        ic = arglist.find(',')
+        if ic < 0:
+            argdict[name] = arglist.rstrip()
+            return argdict
+        else:
+            argdict[name] = arglist[0:ic].rstrip()
+            arglist = arglist[ic + 1 :]
+
 class PyGadgetronObject:
     pass
 	
@@ -223,7 +252,6 @@ class MR_CoilImages(DataContainer):
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re, im
 
-
 class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
@@ -236,9 +264,7 @@ class MR_CoilSensitivityMaps(DataContainer):
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
-    def set_smoothness(self, s):
-        self.smoothness = s
-    def calculate(self, data, Inati = False):
+    def calculate(self, data, method = None):
         if isinstance(data, AcquisitionsContainer):
             if data.is_sorted() is False:
                 print('WARNING: acquisitions may be in a wrong order')
@@ -246,15 +272,19 @@ class MR_CoilSensitivityMaps(DataContainer):
             pygadgetron.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
-        _set_int_par\
-            (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
+        if method is not None:
+            method_name, parm_list = object_name_and_parameters(method)
+            parm = parse_arglist(parm_list)
+        else:
+            method_name = ''
+            parm = {}
         if isinstance(data, AcquisitionsContainer):
             handle = pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle)
             _check_status(handle)
             pygadgetron.deleteDataHandle(handle)
         elif isinstance(data, MR_CoilImages):
-            if HAVE_ISMRMRDTOOLS and Inati:
+            if HAVE_ISMRMRDTOOLS and method_name == 'Inati':
                 nz = data.number()
                 for z in range(nz):
                     re, im = data.coil_image_as_arrays(z)
@@ -262,6 +292,10 @@ class MR_CoilSensitivityMaps(DataContainer):
                     (csm, rho) = coils.calculate_csm_inati_iter(ci)
                     self.append(csm)
             else:
+                if 'niter' in parm:
+                    nit = int(parm['niter'])
+                    _set_int_par\
+                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
                 handle = pygadgetron.cGT_computeCSMsFromCIs\
                     (self.handle, data.handle)
                 _check_status(handle)
@@ -358,7 +392,6 @@ class ImagesContainer(DataContainer):
             pylab.figure(i)
             pylab.title('image %d' % i)
             pylab.imshow(data[0,0,:,:])
-            print(numpy.amax(data[0,0,:,:]))
             print('Close Figure %d window to continue...' % i)
             pylab.show()
     def write(self, out_file, out_group):
@@ -506,20 +539,10 @@ class MR_AcquisitionModel(PyGadgetronObject):
 class Gadget(PyGadgetronObject):
     def __init__(self, name):
         self.handle = None
-        i = name.find('(')
-        if i > -1:
-            j = name.find(')', i)
-            prop = name[i + 1 : j]
-            name = name[: i]
-            #name.rstrip() # does not work, have to do this way:
-            i = name.find(' ')
-            if i > -1:
-                name = name[:i]
-            i = 0
-            #print(name, prop)
+        name, prop = object_name_and_parameters(name)
         self.handle = pygadgetron.cGT_newObject(name)
         _check_status(self.handle)
-        if i > -1:
+        if prop is not None:
             self.set_properties(prop)
     def __del__(self):
         if self.handle is not None:

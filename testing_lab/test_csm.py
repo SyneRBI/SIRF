@@ -35,9 +35,6 @@ def csm_sum_range(data):
 
 try:
  
-##    file = str(input('raw data file: '))
-##    file = 'testdata.h5'
-##    input_data = MR_Acquisitions(DATA_PATH + file)
     input_data = MR_Acquisitions(DATA_PATH + args.filename)
     input_data.sort()
     readout = input_data.slice_dimensions()[0]
@@ -52,9 +49,6 @@ try:
     print('sorting acquisitions...')
     processed_data.sort()
 
-    #ns = int(input('smoothening loops: '))
-    ns = 5
-
     cis = MR_CoilImages()
 
     print('computing coil images...')
@@ -67,23 +61,17 @@ try:
     print('computing sensitivity maps...')
     csms = MR_CoilSensitivityMaps()
 
-    csms.set_smoothness(ns)
 ##    csms.calculate(input_data)
 ##    csms.calculate(processed_data)
 
-    csms.calculate(cis) #, Inati = True)
-
-##    for z in range(nz):
-##        data = cis.coil_image_as_array(z)
-##        (csm, rho) = coils.calculate_csm_inati_iter(data[:,0,:,:])
-##        csms.append(csm)
+    csms.calculate(cis, method = 'Inati(iter = 1)')
+##    csms.calculate(cis, method = '(niter = 10)')
 
     nz = csms.number()
     print('%d slices' % nz)
 
     maxv = 0
     for z in range(nz):
-##        data = cis.coil_image_as_array(z)
         data = csms.csm_as_array(z)
         minvz = numpy.amin(data)
         maxvz = numpy.amax(data)
@@ -110,7 +98,7 @@ try:
             break
         re, im = cis.coil_image_as_arrays(z)
         coil_data = numpy.squeeze(re + 1j*im)
-        (csm, rho) = coils.calculate_csm_inati_iter(coil_data)
+        (csm, rho) = coils.calculate_csm_inati_iter(coil_data, niter = 10)
 ##        csm = simulation.generate_birdcage_sensitivities(ny)
 ##        print(csm_sum_range(csm))
 
