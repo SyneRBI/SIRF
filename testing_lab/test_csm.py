@@ -64,8 +64,8 @@ try:
 ##    csms.calculate(input_data)
 ##    csms.calculate(processed_data)
 
-    csms.calculate(cis, method = 'Inati(iter = 1)')
-##    csms.calculate(cis, method = '(niter = 10)')
+##    csms.calculate(cis, method = 'Inati(iter = 1)')
+    csms.calculate(cis, method = '(niter = 10)')
 
     nz = csms.number()
     print('%d slices' % nz)
@@ -107,10 +107,16 @@ try:
         images[0, :, :] = abs(numpy.sum(csm_data * coil_data, axis = 0))
         images[1, :, :] = abs(numpy.sum(csm * coil_data, axis = 0))
         maxv = numpy.amax(images)
+        diff = images[0, :, :] - images[1, :, :]
+        print('difference between images: %e' % (numpy.amax(diff)/maxv))
         show.imshow(images, tile_shape=(1,2), scale = (0, maxv))
 
         allcsms[ 0 :   nc, :, :] = abs(csm_data)
+##        allcsms[nc : 2*nc, :, :] = images[0, :, :] > 0.2
+##        allcsms[nc : 2*nc, :, :] = abs((csm - csm_data)*images[0, :, :])
         allcsms[nc : 2*nc, :, :] = abs(csm)
+        diff = abs((csm - csm_data)*images[0, :, :]/maxv)
+        print('difference between CSMs: %e' % (numpy.amax(diff)))
         show.imshow(allcsms, tile_shape=(4,4), scale=(0,1))
 ##        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
 ##        show.imshow(abs(csm_data), tile_shape=(4,2), scale=(0,1))
