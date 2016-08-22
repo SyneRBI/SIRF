@@ -23,7 +23,7 @@ try:
 
     maxv = 0
     for z in range(nz):
-        data = csms.csm_as_array(z)
+        data = csms.abs_as_ndarray(z)
         minvz = numpy.amin(data)
         maxvz = numpy.amax(data)
         if z == 0:
@@ -40,13 +40,19 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        data = csms.csm_as_array(z)/maxv
+        data = csms.abs_as_ndarray(z)/maxv
+##        data = csms.csm_as_array(z)/maxv
         #shape = data.shape
-        re, im = csms.csm_as_arrays(z)/maxv        
-        shape = re.shape
-        nc = shape[0]
-        ny = shape[1]
-        nx = shape[2]
+        zdata = csms.as_ndarray(z)/maxv
+        nx, ny, m, nc = csms.map_dimensions()
+        re = zdata.real.copy()
+        im = zdata.imag.copy()
+##        re, im = csms.csm_as_arrays(z)/maxv        
+##        shape = re.shape
+##        nc = shape[0]
+##        ny = shape[1]
+##        nx = shape[2]
+        print(nx, ny, nc)
         for i in range(nc):
             for iy in range(ny):
                 for ix in range(nx):

@@ -222,35 +222,50 @@ class MR_CoilImages(DataContainer):
             (self.handle, acqs.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-    def coil_image_as_array(self, ci_num):
+    def image_dimensions(self):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
-            (self.handle, ci_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        pygadgetron.cGT_getCoilDataAbs\
-            (self.handle, ci_num, array.ctypes.data)
-        return array
-    def coil_image_as_arrays(self, csm_num):
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getCoilDataDimensions\
-            (self.handle, csm_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
+            (self.handle, 0, dim.ctypes.data)
+        return tuple(numpy.asarray(dim))
+    def as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.image_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
-        return re, im
+        return re + 1j * im
+
+##    def coil_image_as_array(self, ci_num):
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        pygadgetron.cGT_getCoilDataDimensions\
+##            (self.handle, ci_num, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        pygadgetron.cGT_getCoilDataAbs\
+##            (self.handle, ci_num, array.ctypes.data)
+##        return array
+##    def coil_image_as_arrays(self, csm_num):
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        pygadgetron.cGT_getCoilDataDimensions\
+##            (self.handle, csm_num, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        pygadgetron.cGT_getCoilData\
+##            (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
+##        return re, im
 
 class MR_CoilSensitivityMaps(DataContainer):
     def __init__(self):
@@ -320,35 +335,46 @@ class MR_CoilSensitivityMaps(DataContainer):
             (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
-    def csm_as_array(self, csm_num):
+    def map_dimensions(self):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
-            (self.handle, csm_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        pygadgetron.cGT_getCoilDataAbs\
-            (self.handle, csm_num, array.ctypes.data)
-        return array
-    def csm_as_arrays(self, csm_num):
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getCoilDataDimensions\
-            (self.handle, csm_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
+            (self.handle, 0, dim.ctypes.data)
+        return tuple(numpy.asarray(dim))
+    def as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
-        return re, im
+        return re + 1j * im
+    def abs_as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.map_dimensions()
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+            raise error('image data not available')
+        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        pygadgetron.cGT_getCoilDataAbs\
+            (self.handle, csm_num, array.ctypes.data)
+        return array
+
+##    def csm_as_array(self, csm_num):
+##        nx, ny, nz, nc = self.map_dimensions()
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        pygadgetron.cGT_getCoilDataAbs\
+##            (self.handle, csm_num, array.ctypes.data)
+##        return array
+##    def csm_as_arrays(self, csm_num):
+##        nx, ny, nz, nc = self.map_dimensions()
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        pygadgetron.cGT_getCoilData\
+##            (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
+##        return re, im
 
 class ImagesContainer(DataContainer):
     def __init__(self):

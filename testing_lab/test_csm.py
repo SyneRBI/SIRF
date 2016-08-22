@@ -72,7 +72,7 @@ try:
 
     maxv = 0
     for z in range(nz):
-        data = csms.csm_as_array(z)
+        data = csms.abs_as_ndarray(z)
         minvz = numpy.amin(data)
         maxvz = numpy.amax(data)
         if z == 0:
@@ -80,8 +80,9 @@ try:
         else:
             minv = min(minvz, minv)
         maxv = max(maxvz, maxv)
-        re, im = csms.csm_as_arrays(z)
-        zdata = re + 1j*im
+##        re, im = csms.csm_as_arrays(z)
+##        zdata = re + 1j*im
+        zdata = csms.as_ndarray(z)
 ##        print(csm_sum_range(zdata))
 ##        print(minu, maxu)
 ##    print(minv, maxv)
@@ -96,14 +97,12 @@ try:
         z = int(s)
         if z < 0 or z >= nz:
             break
-        re, im = cis.coil_image_as_arrays(z)
-        coil_data = numpy.squeeze(re + 1j*im)
+        coil_data = numpy.squeeze(cis.as_ndarray(z))
         (csm, rho) = coils.calculate_csm_inati_iter(coil_data, niter = 10)
 ##        csm = simulation.generate_birdcage_sensitivities(ny)
 ##        print(csm_sum_range(csm))
 
-        re, im = csms.csm_as_arrays(z)
-        csm_data = numpy.squeeze(re + 1j*im)
+        csm_data = numpy.squeeze(csms.as_ndarray(z))
         images[0, :, :] = abs(numpy.sum(csm_data * coil_data, axis = 0))
         images[1, :, :] = abs(numpy.sum(csm * coil_data, axis = 0))
         maxv = numpy.amax(images)
