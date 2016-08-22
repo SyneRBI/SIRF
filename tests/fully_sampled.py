@@ -99,7 +99,7 @@ def main():
     print('---\n computing coil images...')
     cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
-    csms.calculate(cis) #, Inati = True)
+    csms.calculate(cis) #, method = 'Inati(niter = 5)')
 
     am = MR_AcquisitionModel(processed_data, complex_images)
 
