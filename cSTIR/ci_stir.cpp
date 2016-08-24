@@ -374,6 +374,38 @@ void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 }
 
 extern "C"
+void*
+cSTIR_value(void* ptr_f, void* ptr_i)
+{
+	try {
+		CAST_PTR(DataHandle, hf, ptr_f);
+		CAST_PTR(DataHandle, hi, ptr_i);
+		 ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(hf);
+		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		float v = (float)fun.compute_objective_function(image);
+		return dataHandle<float>(v);
+	}
+	CATCH
+}
+
+extern "C"
+void*
+cSTIR_gradient(void* ptr_f, void* ptr_i, int subset)
+{
+	try {
+		CAST_PTR(DataHandle, hf, ptr_f);
+		CAST_PTR(DataHandle, hi, ptr_i);
+		 ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(hf);
+		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		sptrImage3DF* sptr = new sptrImage3DF(image.clone());
+		Image3DF& grad = *sptr->get();
+		fun.compute_sub_gradient(grad, image, subset);
+		return newObjectHandle(sptr);
+	}
+	CATCH
+}
+
+extern "C"
 void* cSTIR_voxels3DF
 (int nx, int ny, int nz,
 double sx, double sy, double sz,
@@ -467,7 +499,7 @@ void cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 }
 
 extern "C"
-void cSTIR_getImageData(const void* ptr_im, size_t ptr_dim) 
+void cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
 {
 	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
 	if (ptr_image == 0)
@@ -475,13 +507,34 @@ void cSTIR_getImageData(const void* ptr_im, size_t ptr_dim)
 	Image3DF& image = *ptr_image;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	double* data = (double*)ptr_dim;
+	double* data = (double*)ptr_data;
 	if (!image.get_regular_range(min_indices, max_indices))
 		return;
 	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
 		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
 			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
 				data[i] = image[z][y][x];
+			}
+		}
+	}
+}
+
+extern "C"
+void cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
+{
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	if (ptr_image == 0)
+		return;
+	Image3DF& image = *ptr_image;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	double* data = (double*)ptr_data;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return;
+	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+				image[z][y][x] = data[i];
 			}
 		}
 	}
