@@ -265,7 +265,11 @@ class Image:
         self.handle = pystir.cSTIR_imageFromVoxels(self.voxels)
         _check_status(self.handle)
     def fill(self, value):
-        pystir.cSTIR_fillImage(self.handle, value)
+        if isinstance(value, numpy.ndarray):
+            pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
+        else:
+            pystir.cSTIR_fillImage(self.handle, value)
+        return self
     def clone(self):
         image = Image()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
@@ -498,6 +502,15 @@ class ObjectiveFunction:
             ('GeneralisedObjectiveFunction', self.handle)
         _check_status(handle)
         pystir.deleteDataHandle(handle)
+    def value(self, image):
+        handle = pystir.cSTIR_value(self.handle, image.handle)
+        _check_status(handle)
+        return pystir.floatDataFromHandle(handle)
+    def gradient(self, image, subset):
+        grad = Image()
+        grad.handle = pystir.cSTIR_gradient(self.handle, image.handle, subset)
+        _check_status(grad.handle)
+        return grad
 
 class PoissonLogLh_LinModMean(ObjectiveFunction):
     def __init__(self):

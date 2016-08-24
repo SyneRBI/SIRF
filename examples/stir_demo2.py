@@ -104,6 +104,7 @@ def main():
             pylab.figure(iter + 1)
             pylab.imshow(data[20,:,:])
             print('close Figure %d window to continue' % (iter + 1))
+            pylab.colorbar()
             pylab.show()
         # image can be post-processed
         #filter.apply(image)
