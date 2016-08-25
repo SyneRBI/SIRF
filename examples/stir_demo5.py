@@ -13,11 +13,13 @@ parser = argparse.ArgumentParser(description = \
 '''
 Steepest descent demo
 ''')
-parser.add_argument('--tau', action = 'store', type = float, default = -1, \
+parser.add_argument('-t', '--tau', action = 'store', type = float, default = -1, \
 help = 'steepest descent step parameter, use a negative value to opt for the optimal value, \
 default -1')
-parser.add_argument('--steps', action = 'store', type = int, default = 3, \
+parser.add_argument('-s', '--steps', action = 'store', type = int, default = 3, \
 help = 'number of steepest descent steps, default 3')
+parser.add_argument('-v', '--verbose', action = 'store_true', default = False, \
+help = 'if present and optimal steepest descent step opted for, prints optimal step search info') 
 args = parser.parse_args()
 
 def main():
@@ -90,6 +92,11 @@ def main():
 
 	tau = args.tau
 	steps = args.steps
+	if args.verbose:
+		disp = 3
+		print('NOTE: below f(x) is the negative of the objective function valaue')
+	else:
+		disp = 0
 	eps = 1e-6
 
 	for iter in range(steps):
@@ -115,7 +122,7 @@ def main():
 		if tau < 0:
 			# find the optimal x
 			fun = lambda x: -obj_fun.value(image.fill(idata + x*gdata))
-			x = scipy.optimize.fminbound(fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = 0)
+			x = scipy.optimize.fminbound(fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
 		else:
 			# x is such that the relative change in image is not greater than tau
 			x = tau*max_image/max_grad
@@ -145,8 +152,9 @@ def main():
 			print('image minimum is negative: %e' % min_image)
 			break
 
-	print('computing final objective function value...')
-	print('objective function value: %e' % (obj_fun.value(image)))
+	if tau > 0 or disp == 0:
+		print('computing final objective function value...')
+		print('objective function value: %e' % (obj_fun.value(image)))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
@@ -155,4 +163,4 @@ try:
     print('done')
 except stir.error as err:
     # display error information
-    print('STIR exception occured:\n', err.value)
+    print('STIR exception occured: %s' % err.value)
