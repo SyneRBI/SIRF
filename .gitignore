@@ -253,7 +253,4 @@ pSTIR/pystir_wrap.cxx
 pSTIR/_pystir.pyd
 pSTIR/__pycache__/pystir.cpython-34.pyc
 pSTIR/__pycache__/stir.cpython-34.pyc
-examples/stir_demo1*.txt
-examples/stir_demo2*.txt
-examples/stir_demo3*.txt
-examples/stir_demo4*.txt
+examples/stir_demo*.txt
