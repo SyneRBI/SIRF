@@ -130,7 +130,7 @@ def main():
 				x = maxstep
 
 		# perform steepest descent step
-		print('step %d, step size %e' % (iter, x*max_grad))
+		print('step %d, max change in image %e' % (iter, x*max_grad))
 		idata = idata + x*gdata
 
 		# filter the new image
