@@ -36,7 +36,7 @@ EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file) {
 EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs) {
 	return cGT_computeCoilSensitivities(ptr_csms, ptr_acqs);
 }
-EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  size_t ptr_re, size_t ptr_im) {
+EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
 	return cGT_appendCSM (ptr_csms, nx, ny, nz, nc, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {

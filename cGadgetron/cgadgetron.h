@@ -22,7 +22,7 @@ extern "C" {
 	void* cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
 	void* cGT_appendCSM
 		(void* ptr_csms, int nx, int ny, int nz, int nc, 
-		size_t ptr_re, size_t ptr_im);
+		PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
