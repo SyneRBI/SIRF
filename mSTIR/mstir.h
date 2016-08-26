@@ -26,8 +26,11 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
-EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT pd);
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE pd);
+EXPORTED_FUNCTION 	void* mSTIR_value(void* ptr_f, void* ptr_i);
+EXPORTED_FUNCTION 	void* mSTIR_gradient(void* ptr_f, void* ptr_i, int subset);
+EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data);
+EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, double sx, double sy, double sz, double x, double y, double z);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v);
