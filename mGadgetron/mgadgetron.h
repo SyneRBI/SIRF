@@ -21,7 +21,7 @@ EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
 EXPORTED_FUNCTION 	void*	mGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
 EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file);
 EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs);
-EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  size_t ptr_re, size_t ptr_im);
+EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_setCSMs(void* ptr_am, const void* ptr_csms);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
