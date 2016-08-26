@@ -41,9 +41,9 @@ extern "C" {
 	void* cSTIR_gradient(void* ptr_f, void* ptr_i, int subset);
 
 	// Image methods
-	void cSTIR_getImageDimensions(const void* ptr, PTR_INT pd);
-	void cSTIR_getImageData(const void* ptr, PTR_DOUBLE pd);
-	void cSTIR_setImageData(const void* ptr_im, size_t ptr_data);
+	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+	void cSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data);
+	void cSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
 		double sx, double sy, double sz, double x, double y, double z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
