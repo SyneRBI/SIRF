@@ -89,8 +89,8 @@ try:
 
     nc, m, ny, nx = data.shape
     print('%d coils' % nc)
-    raw_input = input('plot rows and cols: ')
-    rows, cols = tuple(map(int, raw_input.split(' ')))
+    rows = int(str(input('plot rows: ')))
+    cols = int(str(input('plot cols: ')))
     images = numpy.ndarray((2, ny, nx), dtype = data.dtype)
     allcsms = numpy.ndarray((2*nc, ny, nx), dtype = data.dtype)
     while True:
