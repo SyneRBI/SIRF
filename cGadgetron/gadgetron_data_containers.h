@@ -1301,10 +1301,22 @@ public:
 		encoding_ = header.encoding[0];
 
 		ISMRMRD::Encoding e = header.encoding[0];
+		bool parallel = e.parallelImaging.is_present() &&
+			e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
 		unsigned int nx = e.reconSpace.matrixSize.x;
 		unsigned int ny = e.reconSpace.matrixSize.y;
 		unsigned int nc = acq.active_channels();
 		unsigned int readout = acq.number_of_samples();
+
+		//std::cout << nx << ' ' << ny << ' ' << nc << ' ' << readout << '\n';
+		//if (e.parallelImaging.is_present()) {
+		//	std::cout << "parallel imaging present\n";
+		//	std::cout << "acceleration factors: " 
+		//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_1 << ' '
+		//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_2 << '\n';
+		//}
+		//else
+		//	std::cout << "parallel imaging not present\n";
 
 		int nmap = 0;
 		std::cout << "map ";
@@ -1330,7 +1342,8 @@ public:
 			for (;;) {
 				ac.get_acquisition(na + y, acq);
 				int yy = acq.idx().kspace_encode_step_1;
-				if (!e.parallelImaging.is_present() ||
+				//if (!e.parallelImaging.is_present() ||
+				if ( !parallel ||
 					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) ||
 					acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING)) {
 					for (size_t c = 0; c < nc; c++) {

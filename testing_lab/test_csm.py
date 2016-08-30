@@ -88,6 +88,9 @@ try:
 ##    print(minv, maxv)
 
     nc, m, ny, nx = data.shape
+    print('%d coils' % nc)
+    raw_input = input('plot rows and cols: ')
+    rows, cols = tuple(map(int, raw_input.split(' ')))
     images = numpy.ndarray((2, ny, nx), dtype = data.dtype)
     allcsms = numpy.ndarray((2*nc, ny, nx), dtype = data.dtype)
     while True:
@@ -103,10 +106,12 @@ try:
 ##        print(csm_sum_range(csm))
 
         csm_data = numpy.squeeze(csms.as_ndarray(z))
-        images[0, :, :] = abs(numpy.sum(csm_data * coil_data, axis = 0))
-        images[1, :, :] = abs(numpy.sum(csm * coil_data, axis = 0))
+        images0 = numpy.sum(csm_data * coil_data, axis = 0)
+        images1 = numpy.sum(csm * coil_data, axis = 0)
+        images[0, :, :] = abs(images0) #.real
+        images[1, :, :] = abs(images1) #.real
         maxv = numpy.amax(images)
-        diff = images[0, :, :] - images[1, :, :]
+        diff = abs(images[0, :, :]) - abs(images[1, :, :])
         print('difference between images: %e' % (numpy.amax(diff)/maxv))
         show.imshow(images, tile_shape=(1,2), scale = (0, maxv))
 
@@ -114,9 +119,10 @@ try:
 ##        allcsms[nc : 2*nc, :, :] = images[0, :, :] > 0.2
 ##        allcsms[nc : 2*nc, :, :] = abs((csm - csm_data)*images[0, :, :])
         allcsms[nc : 2*nc, :, :] = abs(csm)
-        diff = abs((csm - csm_data)*images[0, :, :]/maxv)
+        diff = abs((abs(csm) - abs(csm_data))*images[0, :, :]/maxv)
         print('difference between CSMs: %e' % (numpy.amax(diff)))
-        show.imshow(allcsms, tile_shape=(4,4), scale=(0,1))
+        show.imshow(allcsms, tile_shape=(2*rows, cols), scale=(0,1))
+##        show.imshow(allcsms, tile_shape=(4,4), scale=(0,1))
 ##        show.imshow(abs(csm), tile_shape=(4,2), scale=(0,1))
 ##        show.imshow(abs(csm_data), tile_shape=(4,2), scale=(0,1))
 
