@@ -30,13 +30,15 @@ extern "C" {
 	void* cSTIR_acquisitionModelForward
 		(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
 	void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
+	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim);
+	void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data);
 
 	// Reconstruction methods
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 
-	// OBJECTIVE FUNCTION METHODS
+	// Ojective function methods
 	void* cSTIR_value(void* ptr_f, void* ptr_i);
 	void* cSTIR_gradient(void* ptr_f, void* ptr_i, int subset);
 

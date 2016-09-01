@@ -43,6 +43,14 @@ def main():
 
     # read acquisition model data
     ad = stir.AcquisitionData('my_forward_projection.hs')
+    adata = ad.as_array()
+    print(adata.shape)
+    pylab.figure(1)
+    pylab.title('acquisitions')
+    pylab.imshow(adata[10,:,:])
+    print('close window to continue')
+    pylab.colorbar()
+    pylab.show()
 
     # create prior
     prior = stir.QuadraticPrior()
