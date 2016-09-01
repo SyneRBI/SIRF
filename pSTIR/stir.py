@@ -388,6 +388,23 @@ class AcquisitionData:
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
 ##            pystir.cSTIR_deleteObject(self.handle)
+    def as_array(self):
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        handle = pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data)
+        _check_status(handle)
+        pystir.deleteDataHandle(handle)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        if nx == 0 or ny == 0 or nz == 0:
+            raise error('density data not available')
+        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+        handle = pystir.cSTIR_getAcquisitionsData\
+            (self.handle, array.ctypes.data)
+        _check_status(handle)
+        pystir.deleteDataHandle(handle)
+        return array
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):

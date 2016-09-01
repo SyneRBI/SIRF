@@ -17,6 +17,17 @@ void test1()
 		std::string filename(path + "my_forward_projection.hs");
 		boost::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
 		std::cout << "segments: " << sptr_ad->get_num_segments() << '\n';
+		size_t size = sptr_ad->size_all();
+		size_t sinos = sptr_ad->get_num_sinograms();
+		size_t views = sptr_ad->get_num_views();
+		size_t tang_pos = sptr_ad->get_num_tangential_poss();
+		std::cout << "sinograms: " << sinos << '\n';
+		std::cout << "views: " << views << '\n';
+		std::cout << "tangential positions: " << tang_pos << '\n';
+		std::cout << "size: " << size << ' ' << sinos*views*tang_pos << '\n';
+		double* acq_data = new double[size];
+		sptr_ad->copy_to(acq_data);
+		delete[] acq_data;
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";

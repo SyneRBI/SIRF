@@ -322,6 +322,32 @@ void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im)
 }
 
 extern "C"
+void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
+{
+	try {
+		int* dim = (int*)ptr_dim;
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		dim[0] = sptr_ad->get_num_tangential_poss();
+		dim[1] = sptr_ad->get_num_views();
+		dim[2] = sptr_ad->get_num_sinograms();
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
+{
+	try {
+		double* data = (double*)ptr_data;
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		sptr_ad->copy_to(data);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
