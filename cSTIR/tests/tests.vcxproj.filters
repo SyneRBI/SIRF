@@ -42,6 +42,9 @@
     <ClCompile Include="..\..\..\STIR\src\spatial_transformation_buildblock\spatial_transformation_registries.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests.h">
