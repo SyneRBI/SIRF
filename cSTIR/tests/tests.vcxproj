@@ -127,6 +127,7 @@
     <ClCompile Include="..\..\..\STIR\src\spatial_transformation_buildblock\spatial_transformation_registries.cxx" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="test1.cpp" />
+    <ClCompile Include="test2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tests.h" />
