@@ -1,34 +1,133 @@
 #include <string>
 
 #include "data_handle.h"
+#include "cstir.h"
 #include "stir.h"
 #include "stir_x.h"
 #include "tests.h"
+#include "xstir.h"
+
+double diff(size_t n, double* u, double*v)
+{
+	double umax = 0;
+	double vmax = 0;
+	double d = 0;
+	for (size_t i = 0; i < n; i++) {
+		double ui = abs(u[i]);
+		double vi = abs(v[i]);
+		double di = abs(u[i] - v[i]);
+		if (ui > umax)
+			umax = ui;
+		if (vi > vmax)
+			vmax = vi;
+		if (di > d)
+			d = di;
+	}
+	double uvmax = (umax > vmax ? umax : vmax);
+	return d / uvmax;
+}
+
+int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
+{
+	dim[0] = 0;
+	dim[1] = 0;
+	dim[2] = 0;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	for (int i = 0; i < 3; i++)
+		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
+	return 0;
+}
+
+int xSTIR_getImageDataAsDoubleArray(const Image3DF& image, double* data)
+{
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+				data[i] = image[z][y][x];
+			}
+		}
+	}
+	return 0;
+}
 
 void test1()
 {
 	try {
+		//TextWriter w;
+		//openChannel(-1, &w);
+
+		std::string path("../../examples/");
+		std::string filename;
+		int dim[3];
+		size_t size, sinos, views, tangs, segments;
+
+		filename = path + "expected_image.hv";
+		sptrImage3DF sptr_image(read_from_file<Image3DF>(filename));
+		Image3DF& image = *sptr_image;
+		xSTIR_getImageDimensions(image, dim);
+		size_t image_size = dim[0] * dim[1] * dim[2];
+		double* image_data = new double[image_size];
+		xSTIR_getImageDataAsDoubleArray(image, image_data);
+
 		OBJECT(ProjMatrixByBin, RayTracingMatrix, matrix, sptr_matrix);
 		matrix.set_num_tangential_LORs(2);
 
-		OBJECT(ProjectorByBinPair, ProjectorPairUsingMatrix, am, sptr_am);
-		am.set_proj_matrix_sptr(sptr_matrix);
+		OBJECT(ProjectorByBinPair, ProjectorPairUsingMatrix, ppm, sptr_ppm);
+		ppm.set_proj_matrix_sptr(sptr_matrix);
 
-		std::string path("../../examples/");
-		std::string filename(path + "my_forward_projection.hs");
+		filename = path + "my_forward_projection.hs";
 		boost::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
-		size_t size = sptr_ad->size_all();
-		size_t sinos = sptr_ad->get_num_sinograms();
-		size_t views = sptr_ad->get_num_views();
-		size_t tang_pos = sptr_ad->get_num_tangential_poss();
-		std::cout << "segments: " << sptr_ad->get_num_segments() << '\n';
+		size = sptr_ad->size_all();
+		segments = sptr_ad->get_num_segments();
+		sinos = sptr_ad->get_num_sinograms();
+		views = sptr_ad->get_num_views();
+		tangs = sptr_ad->get_num_tangential_poss();
+		std::cout << "segments: " << segments << '\n';
 		std::cout << "sinograms: " << sinos << '\n';
 		std::cout << "views: " << views << '\n';
-		std::cout << "tangential positions: " << tang_pos << '\n';
-		std::cout << "size: " << size << ' ' << sinos*views*tang_pos << '\n';
+		std::cout << "tangential positions: " << tangs << '\n';
+		std::cout << "size: " << size << ' ' << sinos*views*tangs << '\n';
 		double* acq_data = new double[size];
 		sptr_ad->copy_to(acq_data);
+
+		//Succeeded s =
+		//	sptr_am->set_up(sptr_ad->get_proj_data_info_sptr(), sptr_image);
+		//boost::shared_ptr<ProjData> sptr_fd(
+		//	new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
+		//	sptr_ad->get_proj_data_info_sptr()));
+		//sptr_am->get_forward_projector_sptr()->forward_project
+		//	(*sptr_fd, *sptr_image);
+		boost::shared_ptr<ProjData> sptr_b(
+			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
+			sptr_ad->get_proj_data_info_sptr()));
+		sptr_b->fill(0.01f);
+		PETAcquisitionModel<Image3DF> acq_mod(sptr_ppm, sptr_ad, sptr_image);
+		acq_mod.set_background_term(sptr_b);
+		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
+		size = sptr_fd->size_all();
+		segments = sptr_fd->get_num_segments();
+		sinos = sptr_fd->get_num_sinograms();
+		views = sptr_fd->get_num_views();
+		tangs = sptr_fd->get_num_tangential_poss();
+		std::cout << "segments: " << segments << '\n';
+		std::cout << "sinograms: " << sinos << '\n';
+		std::cout << "views: " << views << '\n';
+		std::cout << "tangential positions: " << tangs << '\n';
+		std::cout << "size: " << size << ' ' << sinos*views*tangs << '\n';
+
+		double* fwd_data = new double[size];
+		sptr_fd->copy_to(fwd_data);
+		std::cout << "acq diff: " << diff(size, acq_data, fwd_data) << '\n';
+
 		delete[] acq_data;
+		delete[] fwd_data;
 
 		OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior);
 		prior.set_penalisation_factor(0.001f);
@@ -39,11 +138,11 @@ void test1()
 			sptr_fun);
 		obj_fun.set_zero_seg0_end_planes(true);
 		obj_fun.set_max_segment_num_to_process(3);
-		obj_fun.set_projector_pair_sptr(sptr_am);
-		obj_fun.set_proj_data_sptr(sptr_ad);
+		obj_fun.set_projector_pair_sptr(sptr_ppm);
+		obj_fun.set_proj_data_sptr(sptr_fd);
 		obj_fun.set_prior_sptr(sptr_prior);
 
-		int num_subiterations = 6;
+		int num_subiterations = 2;
 		OBJECT(Reconstruction<Image3DF>, OSMAPOSLReconstruction<Image3DF>, recon,
 			sptr_recon);
 		recon.set_MAP_model("multiplicative");
@@ -54,10 +153,7 @@ void test1()
 		recon.set_output_filename_prefix("reconstructedImage");
 		recon.set_objective_function_sptr(sptr_fun);
 		recon.set_inter_iteration_filter_ptr(sptr_filter);
-
-		filename = path + "expected_image.hv";
-		sptrImage3DF sptr_image(read_from_file<Image3DF>(filename));
-		Image3DF& image = *sptr_image;
+		recon.set_additive_proj_data_sptr(sptr_b);
 
 		Succeeded s = xSTIR_setupReconstruction((void*)&sptr_recon, sptr_image);
 		if (s != Succeeded::yes) {
@@ -68,6 +164,13 @@ void test1()
 			std::cout << "iteration " << iter << '\n';
 			xSTIR_updateReconstruction((void*)&sptr_recon, image);
 		}
+
+		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		double* rec_image_data = new double[image_size];
+		xSTIR_getImageDataAsDoubleArray(image, rec_image_data);
+		std::cout << "images diff: " << diff(image_size, image_data, rec_image_data) << '\n';
+		delete[] image_data;
+		delete[] rec_image_data;
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
