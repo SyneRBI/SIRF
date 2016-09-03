@@ -405,6 +405,12 @@ class AcquisitionData:
         _check_status(handle)
         pystir.deleteDataHandle(handle)
         return array
+    def fill(self, value):
+        if isinstance(value, numpy.ndarray):
+            pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+        else:
+            pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+        return self
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):

@@ -32,6 +32,9 @@ extern "C" {
 	void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim);
 	void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data);
+ 	void cSTIR_setAcquisitionsData(void* ptr_im, PTR_DOUBLE ptr_data);
+	void cSTIR_fillAcquisitionsData(void* ptr_i, double v);
+	
 
 	// Reconstruction methods
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);

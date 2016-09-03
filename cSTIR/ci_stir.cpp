@@ -348,6 +348,25 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
+void cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
+{
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	if (sptr_ad.get() == 0)
+		return;
+	sptr_ad->fill((float)v);
+}
+
+extern "C"
+void cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
+{
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	if (sptr_ad.get() == 0)
+		return;
+       double *data = (double *)ptr_data;
+	sptr_ad->fill_from(data);
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
