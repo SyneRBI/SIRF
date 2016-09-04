@@ -3070,20 +3070,6 @@ void* refDataHandle(void* ptr) {
 
 //data[i] = (*image)[z][y][x];
 
-extern "C"
-void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t)
-{
-	try {
-		sptrProjData& sptr_t =
-			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
-		NEW_SPTR(ProjData, ptr_sptr,
-			ProjDataInMemory(sptr_t->get_exam_info_sptr(),
-			sptr_t->get_proj_data_info_sptr()));
-		return newObjectHandle(ptr_sptr);
-	}
-	CATCH
-}
-
 void* cSTIR_acquisitionModelDataFromTemplate(void* ptr_t);
 
 // obsolete model methods

@@ -408,9 +408,23 @@ class AcquisitionData:
     def fill(self, value):
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
-        else:
+        elif isinstance(value, AcquisitionData):
+            pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData(self.handle, value)
+        else : # should check on double really
             pystir.cSTIR_fillAcquisitionsData(self.handle, value)
         return self
+    def clone(self):
+        tmp = AcquisitionData()
+        tmp.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
+        _check_status(tmp.handle)
+        tmp.fill(self)
+        return tmp
+    def get_empty_copy(self, value = 0):
+        tmp = AcquisitionData()
+        tmp.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
+        _check_status(tmp.handle)
+        tmp.fill(value)
+        return tmp
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
