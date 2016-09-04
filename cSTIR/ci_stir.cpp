@@ -322,6 +322,20 @@ void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im)
 }
 
 extern "C"
+void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
+{
+	try {
+		sptrProjData& sptr_t =
+			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+		NEW_SPTR(ProjData, ptr_sptr,
+			ProjDataInMemory(sptr_t->get_exam_info_sptr(),
+							 sptr_t->get_proj_data_info_sptr()));
+		return newObjectHandle(ptr_sptr);
+	}
+	CATCH
+}
+
+extern "C"
 void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
@@ -354,6 +368,18 @@ void cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
 	if (sptr_ad.get() == 0)
 		return;
 	sptr_ad->fill((float)v);
+}
+
+extern "C"
+void cSTIR_fillAcquisitionsDataFromAcquisitionsData(void* ptr_acq, const void * ptr_from)
+{
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	if (sptr_ad.get() == 0)
+		return;
+	sptrProjData& sptr_from = objectSptrFromHandle<ProjData>((DataHandle*)ptr_from);
+	if (sptr_from.get() == 0)
+		return;
+	sptr_ad->fill(*sptr_from);
 }
 
 extern "C"

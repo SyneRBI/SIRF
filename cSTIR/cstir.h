@@ -30,10 +30,14 @@ extern "C" {
 	void* cSTIR_acquisitionModelForward
 		(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
 	void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
+	// AcquisitionData
+	// create empty-copy in memory
+	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim);
 	void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data);
- 	void cSTIR_setAcquisitionsData(void* ptr_im, PTR_DOUBLE ptr_data);
-	void cSTIR_fillAcquisitionsData(void* ptr_i, double v);
+ 	void cSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
+	void cSTIR_fillAcquisitionsData(void* ptr_acq, double v);
+	void cSTIR_fillAcquisitionsDataFromAcquisitionsData(void* ptr_acq, const void * ptr_from);
 	
 
 	// Reconstruction methods
