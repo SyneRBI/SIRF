@@ -20,9 +20,15 @@ EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const c
 EXPORTED_FUNCTION 	void* mSTIR_parameter(const void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION 	void* mSTIR_setupObject(const char* obj, void* ptr_obj);
 EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelSetup (void* ptr_am, const char* templ, void* ptr_im);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelForward (void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward (void* ptr_am, void* ptr_ad, void* ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data);
+EXPORTED_FUNCTION  	void mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
+EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsData(void* ptr_acq, double v);
+EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from);
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i);

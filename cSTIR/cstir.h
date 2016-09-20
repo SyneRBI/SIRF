@@ -14,9 +14,7 @@ extern "C" {
 
 	// Common STIR Object methods
 	void* cSTIR_newObject(const char* name);
-	//void cSTIR_deleteObject(void* ptr);
 	void* cSTIR_objectFromFile(const char* name, const char* filename);
-	//void* cSTIR_copyOfObject(void* ptr);
 	void* cSTIR_setParameter
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
@@ -26,19 +24,21 @@ extern "C" {
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
-	void* cSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im);
+	void* cSTIR_acquisitionModelSetup
+		(void* ptr_am, const char* templ, void* ptr_im);
 	void* cSTIR_acquisitionModelForward
 		(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
-	void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im);
-	// AcquisitionData
-	// create empty-copy in memory
+	void* cSTIR_acquisitionModelBackward
+		(void* ptr_am, void* ptr_ad, void* ptr_im);
+
+	// Acquisition data methods
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
-	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim);
-	void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data);
+	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
+	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data);
  	void cSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
 	void cSTIR_fillAcquisitionsData(void* ptr_acq, double v);
-	void cSTIR_fillAcquisitionsDataFromAcquisitionsData(void* ptr_acq, const void * ptr_from);
-	
+	void cSTIR_fillAcquisitionsDataFromAcquisitionsData
+		(void* ptr_acq, const void * ptr_from);
 
 	// Reconstruction methods
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
