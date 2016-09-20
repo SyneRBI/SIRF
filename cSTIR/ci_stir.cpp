@@ -77,25 +77,6 @@ void* cSTIR_newObject(const char* name)
 	CATCH
 }
 
-//extern "C"
-//void* cSTIR_copyOfObject(void* ptr)
-//{
-//	try {
-//		CAST_PTR(anObjectHandle, ptr_obj, ptr);
-//		return (void*)ptr_obj->copy();
-//	}
-//	CATCH
-//}
-//
-//extern "C"
-//void cSTIR_deleteObject(void* ptr)
-//{
-//	if (!ptr)
-//		return;
-//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
-//	delete ptr_obj;
-//}
-
 extern "C"
 void* cSTIR_setParameter
 (void* ptr_s, const char* obj, const char* name, const void* ptr_v)
@@ -388,7 +369,7 @@ void cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
 	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
 	if (sptr_ad.get() == 0)
 		return;
-       double *data = (double *)ptr_data;
+  double *data = (double *)ptr_data;
 	sptr_ad->fill_from(data);
 }
 

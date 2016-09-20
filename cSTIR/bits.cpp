@@ -3187,3 +3187,28 @@ return 0;
 //	void cSTIR_getImageData(const void* ptr, double* pd);
 //#endif
 
+//void cSTIR_deleteObject(void* ptr);
+
+//void* cSTIR_copyOfObject(void* ptr);
+
+// create empty-copy in memory
+
+//extern "C"
+//void* cSTIR_copyOfObject(void* ptr)
+//{
+//	try {
+//		CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//		return (void*)ptr_obj->copy();
+//	}
+//	CATCH
+//}
+//
+//extern "C"
+//void cSTIR_deleteObject(void* ptr)
+//{
+//	if (!ptr)
+//		return;
+//	CAST_PTR(anObjectHandle, ptr_obj, ptr);
+//	delete ptr_obj;
+//}
+
