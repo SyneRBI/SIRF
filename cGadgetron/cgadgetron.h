@@ -48,6 +48,7 @@ extern "C" {
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 	void* cGT_imageTypes(const void* ptr_x);
+	void* cGT_imageDataType(const void* ptr_x, int im_num);
 
 	void cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 	void cGT_getCoilData
@@ -58,6 +59,9 @@ extern "C" {
 		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
 	void cGT_getImageDataAsComplexArray
 		(void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
+	void cGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBLE ptr_data);
+	void cGT_getImagesDataAsComplexArray
+		(void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);

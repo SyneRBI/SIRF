@@ -656,6 +656,27 @@ cGT_getImageDataAsCmplxArray
 }
 
 extern "C"
+void
+cGT_getImagesDataAsDoubleArray(void* ptr_imgs, size_t ptr_data)
+{
+	double* data = (double*)ptr_data;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_images_data_as_double_array(data);
+}
+
+extern "C"
+void
+cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
+{
+	double* re = (double*)ptr_re;
+	double* im = (double*)ptr_im;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_images_data_as_complex_array(re, im);
+}
+
+extern "C"
 void*
 cGT_imageTypes(const void* ptr_x)
 {
@@ -664,6 +685,22 @@ cGT_imageTypes(const void* ptr_x)
 		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
 		int* result = (int*)malloc(sizeof(int));
 		*result = x.types();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_imageDataType(const void* ptr_x, int im_num)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
+		int* result = (int*)malloc(sizeof(int));
+		*result = x.image_data_type(im_num);
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
 		return (void*)handle;
