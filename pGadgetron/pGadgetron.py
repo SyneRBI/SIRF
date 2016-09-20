@@ -23,6 +23,15 @@ ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
 ISMRMRD_IMTYPE_IMAG      = 4
 
+ISMRMRD_USHORT   = 1##, /**< corresponds to uint16_t */
+ISMRMRD_SHORT    = 2##, /**< corresponds to int16_t */
+ISMRMRD_UINT     = 3##, /**< corresponds to uint32_t */
+ISMRMRD_INT      = 4##, /**< corresponds to int32_t */
+ISMRMRD_FLOAT    = 5##, /**< corresponds to float */
+ISMRMRD_DOUBLE   = 6##, /**< corresponds to double */
+ISMRMRD_CXFLOAT  = 7##, /**< corresponds to complex float */
+ISMRMRD_CXDOUBLE = 8##  /**< corresponds to complex double */
+
 class error(Exception):
     def __init__(self, value):
         self.value = value
@@ -379,7 +388,7 @@ class MR_CoilSensitivityMaps(DataContainer):
 class ImagesContainer(DataContainer):
     def __init__(self):
         self.handle = None
-        self.is_real = False
+##        self.is_real = False
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
@@ -389,20 +398,32 @@ class ImagesContainer(DataContainer):
         n = pygadgetron.intDataFromHandle(handle)
         pygadgetron.deleteDataHandle(handle)
         return n
+    def data_type(self, im_num):
+        handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
+        _check_status(handle)
+        n = pygadgetron.intDataFromHandle(handle)
+        pygadgetron.deleteDataHandle(handle)
+        return n
+    def is_real(self):
+        t = self.data_type(0)
+        return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def process(self, list):
         ip = ImagesProcessor(list)
         return ip.process(self)
     def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
-        if self.is_real:
+        if self.is_real():
             return self
         self.conversion_to_real(ctype)
         real_images = self.process(['ComplexToFloatGadget'])
-        real_images.is_real = True
+##        real_images.is_real = True
         return real_images
     def show(self):
         if not HAVE_PYLAB:
             print('pylab not found')
             return
+        data = self.as_array()
+        if not self.is_real():
+            data = abs(data)
         ni = self.number()
         print('%d images' % ni)
         print('Please enter the number of the image to view')
@@ -414,10 +435,11 @@ class ImagesContainer(DataContainer):
             i = int(s)
             if i < 1 or i > ni:
                 break
-            data = self.image_as_array(i - 1)
+##            data = self.image_as_array(i - 1)
             pylab.figure(i)
             pylab.title('image %d' % i)
-            pylab.imshow(data[0,0,:,:])
+            pylab.imshow(data[i - 1, :, :])
+##            pylab.imshow(data[0,0,:,:])
             print('Close Figure %d window to continue...' % i)
             pylab.show()
     def write(self, out_file, out_group):
@@ -432,7 +454,28 @@ class ImagesContainer(DataContainer):
         return images
     def conversion_to_real(self, ctype):
         pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
-    def image_as_array(self, im_num):
+    def as_array(self):
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getImageDimensions\
+            (self.handle, 0, dim.ctypes.data)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        nc = dim[3]
+        nz = nz*nc*self.number()
+##        print(self.data_type(0))
+        if self.is_real():
+            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            pygadgetron.cGT_getImagesDataAsDoubleArray\
+                (self.handle, array.ctypes.data)
+            return array
+        else:
+            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            pygadgetron.cGT_getImagesDataAsComplexArray\
+                (self.handle, re.ctypes.data, im.ctypes.data)
+            return re + 1j*im
+    def image_as_array(self, im_num = None):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\
             (self.handle, im_num, dim.ctypes.data)

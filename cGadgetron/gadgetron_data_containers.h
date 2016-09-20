@@ -910,10 +910,18 @@ public:
 		(unsigned int im_num, double* data) = 0;
 	virtual void get_image_data_as_complex_array
 		(unsigned int im_num, complex_float_t* data) = 0;
+	virtual void get_images_data_as_double_array(double* data) const = 0;
+	virtual void get_images_data_as_complex_array
+		(double* re, double* im) const = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer> 
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
+
+	virtual int image_data_type(unsigned int im_num) const
+	{
+		return image_wrap(im_num).type();
+	}
 
 	virtual void axpby(
 		complex_double_t a, const aDataContainer& a_x,
@@ -1083,7 +1091,7 @@ public:
 	virtual void get_image_dimensions(unsigned int im_num, int* dim)
 	{
 		if (im_num >= images_.size())
-			dim[0] = dim[1] = dim[2] = 0;
+			dim[0] = dim[1] = dim[2] = dim[3] = 0;
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_dim(dim);
 	}
@@ -1097,6 +1105,54 @@ public:
 	{
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_cmplx_data(data);
+	}
+	virtual void get_images_data_as_double_array(double* data) const
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#endif
+		int dim[4];
+		for (i = images_.begin(); i != images_.end(); i++) {
+			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			ImageWrap& iw = *sptr_iw;
+			iw.get_data(data);
+			iw.get_dim(dim);
+			size_t size = dim[0];
+			size *= dim[1];
+			size *= dim[2];
+			size *= dim[3];
+			data += size;
+		}
+	}
+	virtual void get_images_data_as_complex_array(double* re, double* im) const
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#endif
+		int dim[4];
+		for (i = images_.begin(); i != images_.end(); i++) {
+			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			ImageWrap& iw = *sptr_iw;
+			iw.get_dim(dim);
+			size_t size = dim[0];
+			size *= dim[1];
+			size *= dim[2];
+			size *= dim[3];
+			int type = iw.type();
+			if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
+				iw.get_cmplx_data(re, im);
+			else {
+				iw.get_data(re);
+				for (int i = 0; i < size; i++)
+					im[i] = 0;
+			}
+			re += size;
+			im += size;
+		}
 	}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{
