@@ -3212,3 +3212,12 @@ return 0;
 //	delete ptr_obj;
 //}
 
+//filename = path + "Utahscat600k_ca_seg4.hs";
+//boost::shared_ptr<ProjData> sptr_t = ProjData::read_from_file(filename);
+//Succeeded sppm =
+//	sptr_ppm->set_up(sptr_t->get_proj_data_info_sptr(), sptr_image);
+//boost::shared_ptr<ProjData> sptr_fd(
+//	new ProjDataInMemory(sptr_t->get_exam_info_sptr(),
+//	sptr_t->get_proj_data_info_sptr()));
+//sptr_ppm->get_forward_projector_sptr()->forward_project
+//	(*sptr_fd, *sptr_image);

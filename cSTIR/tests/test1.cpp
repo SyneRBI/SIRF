@@ -60,15 +60,16 @@ int xSTIR_getImageDataAsDoubleArray(const Image3DF& image, double* data)
 void test1()
 {
 	try {
-		//TextWriter w;
-		//openChannel(-1, &w);
+		TextWriter w;
+		openChannel(0, &w);
 
 		std::string path("../../examples/");
 		std::string filename;
 		int dim[3];
 		size_t size, sinos, views, tangs, segments;
 
-		filename = path + "expected_image.hv";
+		//filename = path + "expected_image.hv";
+		filename = path + "my_image.hv";
 		sptrImage3DF sptr_image(read_from_file<Image3DF>(filename));
 		Image3DF& image = *sptr_image;
 		xSTIR_getImageDimensions(image, dim);
@@ -77,7 +78,7 @@ void test1()
 		xSTIR_getImageDataAsDoubleArray(image, image_data);
 
 		OBJECT(ProjMatrixByBin, RayTracingMatrix, matrix, sptr_matrix);
-		matrix.set_num_tangential_LORs(2);
+		//matrix.set_num_tangential_LORs(2);
 
 		OBJECT(ProjectorByBinPair, ProjectorPairUsingMatrix, ppm, sptr_ppm);
 		ppm.set_proj_matrix_sptr(sptr_matrix);
@@ -94,20 +95,14 @@ void test1()
 		std::cout << "views: " << views << '\n';
 		std::cout << "tangential positions: " << tangs << '\n';
 		std::cout << "size: " << size << ' ' << sinos*views*tangs << '\n';
+
 		double* acq_data = new double[size];
 		sptr_ad->copy_to(acq_data);
 
-		//Succeeded s =
-		//	sptr_am->set_up(sptr_ad->get_proj_data_info_sptr(), sptr_image);
-		//boost::shared_ptr<ProjData> sptr_fd(
-		//	new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
-		//	sptr_ad->get_proj_data_info_sptr()));
-		//sptr_am->get_forward_projector_sptr()->forward_project
-		//	(*sptr_fd, *sptr_image);
 		boost::shared_ptr<ProjData> sptr_b(
 			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()));
-		sptr_b->fill(0.01f);
+		sptr_b->fill(0.05f);
 		PETAcquisitionModel<Image3DF> acq_mod(sptr_ppm, sptr_ad, sptr_image);
 		acq_mod.set_background_term(sptr_b);
 		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
@@ -130,7 +125,7 @@ void test1()
 		delete[] fwd_data;
 
 		OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior);
-		prior.set_penalisation_factor(0.001f);
+		prior.set_penalisation_factor(0.00f);
 
 		OBJECT(DataProcessor3DF, CylindricFilter3DF, filter, sptr_filter);
 
@@ -169,8 +164,8 @@ void test1()
 		double* rec_image_data = new double[image_size];
 		xSTIR_getImageDataAsDoubleArray(image, rec_image_data);
 		std::cout << "images diff: " << diff(image_size, image_data, rec_image_data) << '\n';
-		delete[] image_data;
 		delete[] rec_image_data;
+		delete[] image_data;
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
