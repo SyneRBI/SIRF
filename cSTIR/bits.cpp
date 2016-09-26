@@ -3221,3 +3221,21 @@ return 0;
 //	sptr_t->get_proj_data_info_sptr()));
 //sptr_ppm->get_forward_projector_sptr()->forward_project
 //	(*sptr_fd, *sptr_image);
+
+//size_t size = sptr_background_->size_all();
+//size_t foreground_size = sptr_fd->size_all();
+//if (size != foreground_size) {
+//	std::cout << "wrong background term size " << size
+//		<< ", must be " << foreground_size << ", skipping\n";
+//	return sptr_fd;
+//}
+//std::cout << "adding background term...\n";
+//double* fdata = new double[size];
+//double* bdata = new double[size];
+//sptr_fd->copy_to(fdata);
+//sptr_background_->copy_to(bdata);
+//add_(size, fdata, bdata);
+//sptr_fd->fill_from(fdata);
+//delete[] fdata;
+//delete[] bdata;
+

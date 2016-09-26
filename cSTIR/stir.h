@@ -29,6 +29,7 @@
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInMemory.h"
 #include "stir/ProjDataInterfile.h"
+#include "stir/recon_buildblock/BinNormalisationFromProjData.h"
 #include "stir/recon_buildblock/distributable_main.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
