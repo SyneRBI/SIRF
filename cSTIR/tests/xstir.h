@@ -35,15 +35,15 @@ public:
 	//{
 	//	sptr_mult_ = sptr;
 	//}
-	void drop_background_term()
+	void cancel_background_term()
 	{
 		sptr_background_.reset();
 	}
-	void drop_additive_term()
+	void cancel_additive_term()
 	{
 		sptr_add_.reset();
 	}
-	void drop_normalisation()
+	void cancel_normalisation()
 	{
 		sptr_normalisation_.reset();
 	}
@@ -54,23 +54,20 @@ public:
 			sptr_acq_template_->get_proj_data_info_sptr()));
 		sptr_projectors_->get_forward_projector_sptr()->forward_project
 			(*sptr_fd, image);
+		if (sptr_add_.get()) {
+			add_(sptr_fd, sptr_add_);
+			std::cout << "adding additive term...\n";
+		}
+		else
+			std::cout << "no additive term to add\n";
+		if (sptr_normalisation_.get()) {
+			std::cout << "applying normalisation...\n";
+			sptr_normalisation_->undo(*sptr_fd, 0, 1);
+			//sptr_normalisation_->apply(*sptr_fd, 0, 1);
+		}
 		if (sptr_background_.get()) {
+			add_(sptr_fd, sptr_background_);
 			std::cout << "adding background term...\n";
-			size_t size = sptr_background_->size_all();
-			size_t foreground_size = sptr_fd->size_all();
-			if (size != foreground_size) {
-				std::cout << "wrong background term size " << size
-					<< ", must be " << foreground_size << ", skipping\n";
-				return sptr_fd;
-			}
-			double* fdata = new double[size];
-			double* bdata = new double[size];
-			sptr_fd->copy_to(fdata);
-			sptr_background_->copy_to(bdata);
-			add_(size, fdata, bdata);
-			sptr_fd->fill_from(fdata);
-			delete[] fdata;
-			delete[] bdata;
 		}
 		else
 			std::cout << "no background term to add\n";
@@ -86,6 +83,25 @@ private:
 	boost::shared_ptr<ProjData> sptr_background_;
 	boost::shared_ptr<BinNormalisation> sptr_normalisation_;
 
+	void add_
+		(boost::shared_ptr<ProjData> sptr_a, boost::shared_ptr<ProjData> sptr_b)
+	{
+		size_t size_a = sptr_a->size_all();
+		size_t size_b = sptr_b->size_all();
+		if (size_a != size_b) {
+			std::cout << "ERROR: mismatching sizes " << size_a
+				<< " and " << size_b << ", skipping\n";
+			return;
+		}
+		double* data_a = new double[size_a];
+		double* data_b = new double[size_b];
+		sptr_a->copy_to(data_a);
+		sptr_b->copy_to(data_b);
+		add_(size_a, data_a, data_b);
+		sptr_a->fill_from(data_a);
+		delete[] data_a;
+		delete[] data_b;
+	}
 	void add_(size_t n, double* u, double* v)
 	{
 		for (size_t i = 0; i < n; i++)

@@ -99,12 +99,25 @@ void test1()
 		double* acq_data = new double[size];
 		sptr_ad->copy_to(acq_data);
 
+		boost::shared_ptr<ProjData> sptr_a(
+			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
+			sptr_ad->get_proj_data_info_sptr()));
+		sptr_a->fill(0.05f);
+
 		boost::shared_ptr<ProjData> sptr_b(
 			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()));
 		sptr_b->fill(0.05f);
+
+		boost::shared_ptr<ProjData> sptr_nd(
+			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
+			sptr_ad->get_proj_data_info_sptr()));
+		sptr_nd->fill(2.0f);
+		boost::shared_ptr<BinNormalisation> sptr_n(
+			new BinNormalisationFromProjData(sptr_nd));
+		sptr_n->set_up(sptr_ad->get_proj_data_info_sptr());
+
 		PETAcquisitionModel<Image3DF> acq_mod(sptr_ppm, sptr_ad, sptr_image);
-		acq_mod.set_background_term(sptr_b);
 		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
 		size = sptr_fd->size_all();
 		segments = sptr_fd->get_num_segments();
@@ -124,6 +137,11 @@ void test1()
 		delete[] acq_data;
 		delete[] fwd_data;
 
+		acq_mod.set_additive_term(sptr_a);
+		//acq_mod.set_background_term(sptr_b);
+		acq_mod.set_normalisation(sptr_n);
+		sptr_fd = acq_mod.forward(image);
+
 		OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior);
 		prior.set_penalisation_factor(0.00f);
 
@@ -132,10 +150,13 @@ void test1()
 		OBJECT(ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF, obj_fun,
 			sptr_fun);
 		obj_fun.set_zero_seg0_end_planes(true);
-		obj_fun.set_max_segment_num_to_process(3);
+		//obj_fun.set_max_segment_num_to_process(4);
+		//obj_fun.set_max_segment_num_to_process(3);
 		obj_fun.set_projector_pair_sptr(sptr_ppm);
 		obj_fun.set_proj_data_sptr(sptr_fd);
 		obj_fun.set_prior_sptr(sptr_prior);
+		obj_fun.set_additive_proj_data_sptr(sptr_b);
+		obj_fun.set_normalisation_sptr(sptr_n);
 
 		int num_subiterations = 2;
 		OBJECT(Reconstruction<Image3DF>, OSMAPOSLReconstruction<Image3DF>, recon,
@@ -148,9 +169,10 @@ void test1()
 		recon.set_output_filename_prefix("reconstructedImage");
 		recon.set_objective_function_sptr(sptr_fun);
 		recon.set_inter_iteration_filter_ptr(sptr_filter);
-		recon.set_additive_proj_data_sptr(sptr_b);
 
-		Succeeded s = xSTIR_setupReconstruction((void*)&sptr_recon, sptr_image);
+		Succeeded s = 
+			//recon.set_up(sptr_image);
+			xSTIR_setupReconstruction((void*)&sptr_recon, sptr_image);
 		if (s != Succeeded::yes) {
 			std::cout << "xSTIR_setupReconstruction failed\n";
 		}
