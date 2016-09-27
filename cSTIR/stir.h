@@ -1,11 +1,15 @@
 #ifndef STIR_DATA_TYPES
 #define STIR_DATA_TYPES
 
-//#include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include <fstream>
+#include <iostream>
+#include <numeric>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
@@ -41,11 +45,6 @@
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
-
-#include <fstream>
-#include <iostream>
-#include <numeric>
-#include <string>
 
 #define GRAB 1
 

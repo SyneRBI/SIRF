@@ -3,23 +3,6 @@
 #include "stir_p.h"
 #include "stir_x.h"
 
-#define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define NEW_SPTR(Base, X, Object) \
-	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
-#define CATCH \
-	catch (LocalisedException& se) {\
-		ExecutionStatus status(se);\
-		DataHandle* handle = new DataHandle;\
-		handle->set(0, &status);\
-		return (void*)handle;\
-	}\
-	catch (...) {\
-		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
-		DataHandle* handle = new DataHandle;\
-		handle->set(0, &status);\
-		return (void*)handle;\
-	}\
-
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
@@ -59,6 +42,8 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return newObjectHandle
 			< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >();
+		if (boost::iequals(name, "PETAcquisitionModelUsingMatrix"))
+			return newObjectHandle< AcqMod3DF, AcqModUsingMatrix3DF >();
 		if (boost::iequals(name, "ProjectorsUsingMatrix"))
 			return newObjectHandle
 			< ProjectorByBinPair, ProjectorPairUsingMatrix >();
@@ -93,6 +78,8 @@ void* cSTIR_setParameter
 			(hs, name, hv);
 		else if (boost::iequals(obj, "ProjectorsUsingMatrix"))
 			return cSTIR_setProjectorsUsingMatrixParameter(hs, name, hv);
+		else if (boost::iequals(obj, "AcqModUsingMatrix"))
+			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_setRayTracingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedPrior"))
@@ -223,10 +210,66 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 }
 
 extern "C"
+void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, ht, ptr_dt);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
+		sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ht);
+		sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		Succeeded s = am.set_up(sptr_dt, sptr_im);
+		DataHandle* handle = new DataHandle;
+		if (s != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelFwd
+(void* ptr_am, void* ptr_im, const char* datafile)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hi, ptr_im);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
+		Image3DF& im = objectFromHandle<Image3DF>(hi);
+		DataHandle* handle = new DataHandle;
+		sptrProjData* ptr_sptr = new sptrProjData;
+		*ptr_sptr = am.forward(im, datafile);
+		handle->set((void*)ptr_sptr);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
+void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
+{
+	try {
+		CAST_PTR(DataHandle, ha, ptr_am);
+		CAST_PTR(DataHandle, hd, ptr_ad);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
+		ProjData& ad = objectFromHandle<ProjData>(hd);
+		sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(ad));
+		DataHandle* handle = new DataHandle;
+		handle->set((void*)ptr_sptr);
+		return (void*)handle;
+	}
+	CATCH
+}
+
+extern "C"
 void* cSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im)
 {
 	try {
-		sptrProjData* ptr_sptr = 
+		sptrProjData* ptr_sptr =
 			new sptrProjData(ProjData::read_from_file(templ));
 		sptrProjData& sptr_t = *ptr_sptr;
 		CAST_PTR(DataHandle, ha, ptr_am);

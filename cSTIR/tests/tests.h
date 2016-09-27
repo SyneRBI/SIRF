@@ -20,6 +20,8 @@
 		return (void*)handle;\
 		}\
 
+double diff(size_t n, double* u, double*v);
+double dot(size_t n, double* u, double*v);
 void test1();
 void test2();
 
