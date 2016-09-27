@@ -33,14 +33,32 @@ EXPORTED_FUNCTION 	void* mSTIR_setupObject(const char* obj, void* ptr_obj) {
 EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im) {
-	return cSTIR_acquisitionModelSetup(ptr_am, templ, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelSetup (void* ptr_am, const char* templ, void* ptr_im) {
+	return cSTIR_acquisitionModelSetup (ptr_am, templ, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelForward (void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im) {
 	return cSTIR_acquisitionModelForward (ptr_am, datafile, ptr_dt, ptr_im);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im) {
-	return cSTIR_acquisitionModelBackward(ptr_am, ptr_ad, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward (void* ptr_am, void* ptr_ad, void* ptr_im) {
+	return cSTIR_acquisitionModelBackward (ptr_am, ptr_ad, ptr_im);
+}
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
+	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
+}
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
+	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);
+}
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data) {
+	return cSTIR_getAcquisitionsData(ptr_acq, ptr_data);
+}
+EXPORTED_FUNCTION  	void mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data) {
+	cSTIR_setAcquisitionsData(ptr_acq, ptr_data);
+}
+EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsData(void* ptr_acq, double v) {
+	cSTIR_fillAcquisitionsData(ptr_acq, v);
+}
+EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from) {
+	cSTIR_fillAcquisitionsDataFromAcquisitionsData (ptr_acq, ptr_from);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);

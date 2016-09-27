@@ -142,6 +142,7 @@ static void*
 newObjectHandle(boost::shared_ptr<Base>* ptr_sptr)
 {
 	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
+	delete ptr_sptr;
 	return (void*)ptr_handle;
 }
 
