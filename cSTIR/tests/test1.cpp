@@ -5,7 +5,7 @@
 #include "stir.h"
 #include "stir_x.h"
 #include "tests.h"
-#include "xstir.h"
+//#include "xstir.h"
 
 double diff(size_t n, double* u, double*v)
 {
@@ -25,6 +25,14 @@ double diff(size_t n, double* u, double*v)
 	}
 	double uvmax = (umax > vmax ? umax : vmax);
 	return d / uvmax;
+}
+
+double dot(size_t n, double* u, double*v)
+{
+	double d = 0;
+	for (size_t i = 0; i < n; i++)
+		d += u[i] * v[i];
+	return d;
 }
 
 int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
@@ -80,10 +88,11 @@ void test1()
 		OBJECT(ProjMatrixByBin, RayTracingMatrix, matrix, sptr_matrix);
 		//matrix.set_num_tangential_LORs(2);
 
-		OBJECT(ProjectorByBinPair, ProjectorPairUsingMatrix, ppm, sptr_ppm);
-		ppm.set_proj_matrix_sptr(sptr_matrix);
+		//OBJECT(ProjectorByBinPair, ProjectorPairUsingMatrix, ppm, sptr_ppm);
+		//ppm.set_proj_matrix_sptr(sptr_matrix);
 
 		filename = path + "my_forward_projection.hs";
+		//filename = "tmp.hs";
 		boost::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
 		size = sptr_ad->size_all();
 		segments = sptr_ad->get_num_segments();
@@ -117,8 +126,14 @@ void test1()
 			new BinNormalisationFromProjData(sptr_nd));
 		sptr_n->set_up(sptr_ad->get_proj_data_info_sptr());
 
-		PETAcquisitionModel<Image3DF> acq_mod(sptr_ppm, sptr_ad, sptr_image);
-		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
+		//PETAcquisitionModel<Image3DF> acq_mod;
+		//acq_mod.set_up(sptr_ppm, sptr_ad, sptr_image);
+		PETAcquisitionModelUsingMatrix<Image3DF> acq_mod;
+		acq_mod.set_matrix(sptr_matrix);
+		acq_mod.set_up(sptr_ad, sptr_image);
+		boost::shared_ptr<ProjectorByBinPair> sptr_ppm = acq_mod.projectors_sptr();
+
+		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image, "tmp1.hs");
 		size = sptr_fd->size_all();
 		segments = sptr_fd->get_num_segments();
 		sinos = sptr_fd->get_num_sinograms();
@@ -134,12 +149,25 @@ void test1()
 		sptr_fd->copy_to(fwd_data);
 		std::cout << "acq diff: " << diff(size, acq_data, fwd_data) << '\n';
 
+		sptrImage3DF sptr_im = acq_mod.backward(*sptr_fd);
+		Image3DF& im = *sptr_im;
+		xSTIR_getImageDimensions(im, dim);
+		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		size_t im_size = dim[0] * dim[1] * dim[2];
+		double* im_data = new double[im_size];
+		xSTIR_getImageDataAsDoubleArray(im, im_data);
+
+		std::cout << dot(size, acq_data, fwd_data) << '\n';
+		std::cout << dot(im_size, image_data, im_data) << '\n';
+
 		delete[] acq_data;
 		delete[] fwd_data;
+		delete[] im_data;
 
 		acq_mod.set_additive_term(sptr_a);
 		//acq_mod.set_background_term(sptr_b);
-		acq_mod.set_normalisation(sptr_n);
+		//acq_mod.set_normalisation(sptr_n);
+		acq_mod.set_normalisation(sptr_nd);
 		sptr_fd = acq_mod.forward(image);
 
 		OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior);

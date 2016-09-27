@@ -24,6 +24,11 @@ extern "C" {
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
+	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
+	void* cSTIR_acquisitionModelFwd
+		(void* ptr_am, void* ptr_im, const char* datafile);
+	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
+
 	void* cSTIR_acquisitionModelSetup
 		(void* ptr_am, const char* templ, void* ptr_im);
 	void* cSTIR_acquisitionModelForward

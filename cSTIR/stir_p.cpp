@@ -192,6 +192,19 @@ cSTIR_projectorsUsingMatrixParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+cSTIR_setAcqModUsingMatrixParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	AcqModUsingMatrix3DF& am = objectFromHandle
+		< AcqMod3DF, AcqModUsingMatrix3DF >(hp);
+	if (boost::iequals(name, "matrix"))
+		am.set_matrix(sptrDataFromHandle<ProjMatrixByBin>(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

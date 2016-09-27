@@ -3239,3 +3239,96 @@ return 0;
 //delete[] fdata;
 //delete[] bdata;
 
+//#define CAST_PTR(T, X, Y) T* X = (T*)Y
+//#define NEW_SPTR(Base, X, Object) \
+//	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
+//#define CATCH \
+//	catch (LocalisedException& se) {\
+//		ExecutionStatus status(se);\
+//		DataHandle* handle = new DataHandle;\
+//		handle->set(0, &status);\
+//		return (void*)handle;\
+//	}\
+//	catch (...) {\
+//		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
+//		DataHandle* handle = new DataHandle;\
+//		handle->set(0, &status);\
+//		return (void*)handle;\
+//	}\
+
+//((ProjectorPairUsingMatrix*)sptr_ppm_.get())->
+//	set_proj_matrix_sptr(sptr_matrix);
+
+//boost::shared_ptr<ProjectorByBinPair> sptr_ppm_;
+
+//PETAcquisitionModel(
+
+//boost::shared_ptr<ProjectorByBinPair> sptr_projectors,
+
+//sptr_projectors_ = sptr_projectors;
+
+//void set_multiplicative_term(boost::shared_ptr<ProjData> sptr)
+//{
+//	sptr_mult_ = sptr;
+//}
+
+//boost::shared_ptr<ProjData> sptr_mult_;
+
+//sptr_ppm_->set_proj_matrix_sptr(sptr_matrix);
+
+//void set_up(
+//	boost::shared_ptr<ProjData> sptr_acq,
+//	boost::shared_ptr<Image> sptr_image)
+//{
+//	PETAcquisitionModel::set_up(sptr_ppm_, sptr_acq, sptr_image);
+//}
+
+//return sptr_ppm_->get_proj_matrix_sptr();
+
+//boost::shared_ptr<ProjectorByBinPair> projectors_sptr()
+//{
+//	return sptr_ppm_;
+//}
+
+//sptr_ppm_.reset(new ProjectorPairUsingMatrix);
+//set_projectors(sptr_ppm_);
+
+//boost::shared_ptr<ProjectorPairUsingMatrix> sptr_ppm_;
+
+size_t segments, sinos, views, tangs;
+segments = sptr_acq->get_num_segments();
+sinos = sptr_acq->get_num_sinograms();
+views = sptr_acq->get_num_views();
+tangs = sptr_acq->get_num_tangential_poss();
+std::cout << "segments: " << segments << '\n';
+std::cout << "sinograms: " << sinos << '\n';
+std::cout << "views: " << views << '\n';
+std::cout << "tangential positions: " << tangs << '\n';
+Coordinate3D<int> min_indices;
+Coordinate3D<int> max_indices;
+sptr_image->get_regular_range(min_indices, max_indices);
+for (int i = 0; i < 3; i++)
+	std::cout << max_indices[i + 1] - min_indices[i + 1] + 1 << '\n';
+
+std::cout << "ok\n";
+int dim[3];
+cSTIR_getAcquisitionsDimensions(ptr_dt, (size_t)&dim[0]);
+std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+
+//std::cout << "ok\n";
+
+//sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(hi);
+
+//*ptr_sptr = sptr_am->forward(*sptr_im, datafile);
+
+//sptrAcqMod3DF sptr_am = objectSptrFromHandle<AcqMod3DF>(ha);
+
+//Succeeded s = sptr_am->set_up(sptr_dt, sptr_im);
+
+//sptrAcqMod3DF sptr_am = objectSptrFromHandle<AcqMod3DF>(ha);
+
+//*ptr_sptr = sptr_am->forward(im, datafile);
+
+//sptrAcqMod3DF sptr_am = objectSptrFromHandle<AcqMod3DF>(ha);
+//sptrProjData sptr_ad = objectSptrFromHandle<ProjData>(hd);
+//sptrImage3DF* ptr_sptr = new sptrImage3DF(sptr_am->backward(*sptr_ad));
