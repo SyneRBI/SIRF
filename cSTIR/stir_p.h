@@ -32,6 +32,10 @@ cSTIR_projectorsUsingMatrixParameter
 (const DataHandle* handle, const char* name);
 
 void*
+cSTIR_setAcquisitionModelParameter
+(DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
 cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 

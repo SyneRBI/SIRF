@@ -183,7 +183,7 @@ void test1()
 		obj_fun.set_projector_pair_sptr(sptr_ppm);
 		obj_fun.set_proj_data_sptr(sptr_fd);
 		obj_fun.set_prior_sptr(sptr_prior);
-		obj_fun.set_additive_proj_data_sptr(sptr_b);
+		obj_fun.set_additive_proj_data_sptr(sptr_a);
 		obj_fun.set_normalisation_sptr(sptr_n);
 
 		int num_subiterations = 2;

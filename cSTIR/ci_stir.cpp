@@ -42,7 +42,7 @@ void* cSTIR_newObject(const char* name)
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return newObjectHandle
 			< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >();
-		if (boost::iequals(name, "PETAcquisitionModelUsingMatrix"))
+		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return newObjectHandle< AcqMod3DF, AcqModUsingMatrix3DF >();
 		if (boost::iequals(name, "ProjectorsUsingMatrix"))
 			return newObjectHandle
@@ -78,6 +78,8 @@ void* cSTIR_setParameter
 			(hs, name, hv);
 		else if (boost::iequals(obj, "ProjectorsUsingMatrix"))
 			return cSTIR_setProjectorsUsingMatrixParameter(hs, name, hv);
+		else if (boost::iequals(obj, "AcquisitionModel"))
+			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_setAcqModUsingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "RayTracingMatrix"))

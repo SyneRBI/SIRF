@@ -26,45 +26,49 @@ def main():
     warning_printer = stir.printerTo('stir_demo2warn.txt', stir.WARNING_CHANNEL)
     # direct all error printing to stdout
     error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
+##    printer = stir.Printer('stdout')
+
+    exact_image = stir.Image('my_image.hv')
+    image = exact_image.get_empty_copy()
+    image.fill(1.0)
+
+    acq_templ = stir.AcquisitionData('my_forward_projection.hs')
 
     # create matrix to be used by the acquisition model
     matrix = stir.RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
 
     # create acquisition model
+    #am = stir.AcquisitionModelUsingMatrix()
     am = stir.PETAcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
+    am.set_up(acq_templ, exact_image)
 
-    # read acquisition model data
-    ad = stir.AcquisitionData('my_forward_projection.hs')
-    #ad.read_from_file('my_forward_projection.hs')
+    add = stir.AcquisitionData(acq_templ)
+    nrm = stir.AcquisitionData(acq_templ)
+    add.fill(0.0)
+    nrm.fill(3.0)
+    ##am.set_additive_term(add)
 
-    # create prior
+    print('projecting image...')
+    ad = am.forward(exact_image)
+
+    # define a prior
     prior = stir.QuadraticPrior()
     prior.set_penalisation_factor(0.001)
 
-    # create filter
+    # define a filter
     filter = stir.CylindricFilter()
 
-    # create initial image estimate
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
-    image = stir.Image()
-    image.initialise(image_size, voxel_size)
-    image.fill(1.0)
-##    filter.set_strictly_less_than_radius(False)
-##    filter.apply(image)
-##    filter.set_strictly_less_than_radius(True)
-
-    # create objective function
+    # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
-    obj_fun.set_zero_seg0_end_planes(True)
-    obj_fun.set_max_segment_num_to_process(3)
+    # causes crush
+##    obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
-    num_subiterations = 6
+    num_subiterations = 2
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
@@ -78,54 +82,38 @@ def main():
     recon.set_output_filename_prefix('reconstructedImage')
 
     # set up the reconstructor
-    print('setting up, please wait...')
+    print('setting up reconstructor, please wait...')
     recon.set_up(image)
 
-    if HAVE_PYLAB:
-        # plot the initial image
-        data = image.as_array()
-        pylab.figure(1)
-        pylab.imshow(data[20,:,:])
-        print('Figure 1: initial image - close window to continue')
-        pylab.show()
-
-    #recon.reconstruct(image)
-
-    # in order to see the reconstructed image evolution
-    # take over the control of the iterative process
-    # rather than allow recon.reconstruct to do all job at once
     for iter in range(1, num_subiterations + 1):
-        print('\n------------- Subiteration %d' % recon.get_subiteration_num())
+        print('\n--------------------- Subiteration ',\
+              recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
-        if HAVE_PYLAB:
-            # plot the current image
-            data = image.as_array()
-            pylab.figure(iter + 1)
-            pylab.imshow(data[20,:,:])
-            print('close Figure %d window to continue' % (iter + 1))
-            pylab.show()
-        # image can be post-processed
-        #filter.apply(image)
+
+    expected_image = image.clone()
+    image.fill(1.0)
+
+    ##add.fill(0.5)
+    ##am.set_additive_term(add)
+    am.set_normalisation(nrm)
+    print('projecting image...')
+    new_ad = am.forward(exact_image)
+    obj_fun.set_pet_acquisition_model(am)
+    obj_fun.set_acquisition_data(new_ad)
+
+    print('setting up reconstructor, please wait...')
+    recon.set_up(image)
+
+    for iter in range(1, num_subiterations + 1):
+        print('\n--------------------- Subiteration ',\
+              recon.get_subiteration_num())
+        # perform an iteration
+        recon.update(image)
 
     # compare the reconstructed image to the expected image
-    expectedImage = stir.Image('expected_image.hv')
-    diff = expectedImage.diff_from(image)
+    diff = expected_image.diff_from(image)
     print('difference from expected image: %e' % diff)
-
-    # compare the reconstructed image to the exact image
-    exactImage = stir.Image('my_image.hv')
-    x_data = exactImage.as_array()
-    data = image.as_array()
-
-    if HAVE_PYLAB:
-        pylab.figure(1000)
-        pylab.imshow(data[20,:,:])
-        pylab.figure(1001)
-        pylab.imshow(x_data[20,:,:])
-        print('close Figure 1001 window, then')
-        print('close Figure 1000 window to continue')
-        pylab.show()
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

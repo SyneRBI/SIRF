@@ -164,9 +164,17 @@ public:
 	{
 		sptr_add_ = sptr;
 	}
+	boost::shared_ptr<ProjData> additive_term_sptr()
+	{
+		return sptr_add_;
+	}
 	void set_normalisation(boost::shared_ptr<BinNormalisation> sptr)
 	{
 		sptr_normalisation_ = sptr;
+	}
+	boost::shared_ptr<BinNormalisation> normalisation_sptr()
+	{
+		return sptr_normalisation_;
 	}
 	void set_normalisation(boost::shared_ptr<ProjData> sptr)
 	{

@@ -192,6 +192,22 @@ cSTIR_projectorsUsingMatrixParameter(const DataHandle* handle, const char* name)
 }
 
 void*
+cSTIR_setAcquisitionModelParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hp);
+	if (boost::iequals(name, "additive_term"))
+		am.set_additive_term(sptrDataFromHandle<ProjData>(hv));
+	else if (boost::iequals(name, "background_term"))
+		am.set_background_term(sptrDataFromHandle<ProjData>(hv));
+	else if (boost::iequals(name, "normalisation"))
+		am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -305,6 +321,14 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(sptrDataFromHandle<ProjectorByBinPair>(hv));
 	else if (boost::iequals(name, "proj_data_sptr"))
 		obj_fun.set_proj_data_sptr(sptrDataFromHandle<ProjData>(hv));
+	else if (boost::iequals(name, "acquisition_model")) {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(hv);
+		obj_fun.set_projector_pair_sptr(am.projectors_sptr());
+		if (am.additive_term_sptr().get())
+			obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr());
+		if (am.normalisation_sptr().get())
+			obj_fun.set_normalisation_sptr(am.normalisation_sptr());
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
