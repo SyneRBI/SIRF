@@ -371,19 +371,32 @@ class RayTracingMatrix:
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
 class AcquisitionData:
-    def __init__(self, file = None, templ = None):
+    def __init__(self, src = None):
         self.handle = None
         self.name = 'AcquisitionData'
-        self.tmp = False
-        if file is None:
+        if src is None:
             return
-        self.file = file
-        if templ is None:
-            self.handle = pystir.cSTIR_objectFromFile\
-                ('AcquisitionData', file)
+        if isinstance(src, str):
+            self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
+        elif isinstance(src, AcquisitionData):
+            self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
+                (src.handle)
         else:
-            self.handle = pystir.cSTIR_acquisitionDataFromTemplate(file, templ)
+            raise error('wrong source in AcquisitionData constructor')
         _check_status(self.handle)
+##    def __init__(self, file = None, templ = None):
+##        self.handle = None
+##        self.name = 'AcquisitionData'
+##        self.tmp = False
+##        if file is None:
+##            return
+##        self.file = file
+##        if templ is None:
+##            self.handle = pystir.cSTIR_objectFromFile\
+##                ('AcquisitionData', file)
+##        else:
+##            self.handle = pystir.cSTIR_acquisitionDataFromTemplate(file, templ)
+##        _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
@@ -425,6 +438,42 @@ class AcquisitionData:
         _check_status(tmp.handle)
         tmp.fill(value)
         return tmp
+
+class PETAcquisitionModel:
+    def __init__(self):
+        self.handle = None
+        self.name = 'AcquisitionModel'
+    def set_up(self, templ, image):
+        handle = pystir.cSTIR_setupAcquisitionModel\
+            (self.handle, templ.handle, image.handle)
+        _check_status(handle)
+    def set_additive_term(self, at):
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+    def set_normalisation(self, norm):
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+    def forward(self, image, filename = ''):
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_acquisitionModelFwd\
+            (self.handle, image.handle, filename)
+        _check_status(ad.handle)
+        return ad;
+    def backward(self, ad):
+        image = Image()
+        image.handle = pystir.cSTIR_acquisitionModelBwd\
+            (self.handle, ad.handle)
+        _check_status(image.handle)
+        return image
+
+class PETAcquisitionModelUsingMatrix(PETAcquisitionModel):
+    def __init__(self):
+        self.handle = None
+        self.name = 'AcqModUsingMatrix'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        _check_status(self.handle)
+    def set_matrix(self, matrix):
+        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 
 class AcquisitionModelUsingMatrix:
     def __init__(self):
@@ -591,6 +640,9 @@ class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
             (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
     def set_max_segment_num_to_process(self, n):
         _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+    def set_pet_acquisition_model(self, am):
+        _setParameter\
+            (self.handle, self.name, 'acquisition_model', am.handle)
     def set_acquisition_model(self, pp):
         _setParameter\
             (self.handle, self.name, 'projector_pair_type', pp.handle)
