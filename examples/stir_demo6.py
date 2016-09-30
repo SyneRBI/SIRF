@@ -78,8 +78,8 @@ def main():
     recon.set_up(image)
 
     for iter in range(1, num_subiterations + 1):
-        print('\n--------------------- Subiteration ',\
-              recon.get_subiteration_num())
+        print('\n--------------------- Subiteration %d'\
+              % recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
 
