@@ -214,23 +214,25 @@ public:
 
 		if (sptr_add_.get()) {
 			add_(sptr_fd, sptr_add_);
-			std::cout << "adding additive term...\n";
+			std::cout << "additive term added\n";
 		}
 		else
-			std::cout << "no additive term to add\n";
+			std::cout << "no additive term added\n";
 
-		if (sptr_normalisation_.get()) {
-			std::cout << "applying normalisation...\n";
+		if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 			sptr_normalisation_->undo(*sptr_fd, 0, 1);
 			//sptr_normalisation_->apply(*sptr_fd, 0, 1);
+			std::cout << "normalisation applied\n";
 		}
+		else
+			std::cout << "no normalisation applied\n";
 
 		if (sptr_background_.get()) {
 			add_(sptr_fd, sptr_background_);
-			std::cout << "adding background term...\n";
+			std::cout << "background term added\n";
 		}
 		else
-			std::cout << "no background term to add\n";
+			std::cout << "no background term added\n";
 		return sptr_fd;
 	}
 
@@ -301,7 +303,7 @@ public:
 	boost::shared_ptr<ProjMatrixByBin> matrix_sptr()
 	{
 		return ((ProjectorPairUsingMatrix*)sptr_projectors_.get())->
-			get_proj_matrix_sptr(sptr_matrix);
+			get_proj_matrix_sptr();
 	}
 	virtual Succeeded set_up(
 		boost::shared_ptr<ProjData> sptr_acq,
@@ -309,7 +311,7 @@ public:
 	{
 		if (!sptr_matrix_.get())
 			return Succeeded::no;
-		return PETAcquisitionModel::set_up(sptr_acq, sptr_image);
+		return PETAcquisitionModel<Image>::set_up(sptr_acq, sptr_image);
 	}
 
 private:
