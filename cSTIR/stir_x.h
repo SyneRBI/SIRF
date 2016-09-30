@@ -292,17 +292,17 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel<Image> {
 public:
 	PETAcquisitionModelUsingMatrix()
 	{
-		sptr_projectors_.reset(new ProjectorPairUsingMatrix);
+		this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
 	}
 	void set_matrix(boost::shared_ptr<ProjMatrixByBin> sptr_matrix)
 	{
 		sptr_matrix_ = sptr_matrix;
-		((ProjectorPairUsingMatrix*)sptr_projectors_.get())->
+		((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			set_proj_matrix_sptr(sptr_matrix);
 	}
 	boost::shared_ptr<ProjMatrixByBin> matrix_sptr()
 	{
-		return ((ProjectorPairUsingMatrix*)sptr_projectors_.get())->
+		return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			get_proj_matrix_sptr();
 	}
 	virtual Succeeded set_up(
