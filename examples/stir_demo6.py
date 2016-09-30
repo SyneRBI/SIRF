@@ -16,6 +16,10 @@ parser = argparse.ArgumentParser(description = \
 OSMAPOSL reconstruction demo with all parameters defined in the script
 and user-controlled iterations
 ''')
+parser.add_argument('-n', '--normalisation', action = 'store', type = float, \
+    default = 1, help = 'normalisation, default 1')
+parser.add_argument('-a', '--additive', action = 'store', type = float, \
+    default = 0, help = 'additive term, default 1')
 args = parser.parse_args()
 
 def main():
@@ -46,9 +50,8 @@ def main():
 
     add = stir.AcquisitionData(acq_templ)
     nrm = stir.AcquisitionData(acq_templ)
-    add.fill(0.0)
-    nrm.fill(3.0)
-    ##am.set_additive_term(add)
+    add.fill(args.additive)
+    nrm.fill(args.normalisation)
 
     print('projecting image...')
     ad = am.forward(exact_image)
@@ -73,6 +76,7 @@ def main():
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
+##    recon.set_MAP_model('additive')
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
     recon.set_num_subiterations(num_subiterations)
@@ -94,8 +98,8 @@ def main():
     expected_image = image.clone()
     image.fill(1.0)
 
-    ##add.fill(0.5)
-    ##am.set_additive_term(add)
+    #add.fill(0.3)
+    am.set_additive_term(add)
     am.set_normalisation(nrm)
     print('projecting image...')
     new_ad = am.forward(exact_image)
