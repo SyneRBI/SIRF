@@ -91,7 +91,7 @@ def main():
     add.fill(args.additive)
     nrm.fill(args.normalisation)
 
-    print('testing normalisation only...')
+    print('\n--- testing normalisation only...')
     am.set_normalisation(nrm)
     print('projecting image...')
     new_ad = am.forward(exact_image)
@@ -109,9 +109,9 @@ def main():
 
     # compare the reconstructed image to the expected image
     diff = expected_image.diff_from(image)
-    print('difference from expected image: %e' % diff)
+    print('\n--- difference from expected image: %e' % diff)
 
-    print('testing normalisation and additive term...')
+    print('\n--- testing normalisation and additive term...')
     am.set_additive_term(add)
     am.set_normalisation(nrm)
     print('projecting image...')
@@ -131,7 +131,7 @@ def main():
 
     # compare the reconstructed image to the expected image
     diff = exact_image.diff_from(image)
-    print('difference from expected image: %e' % diff)
+    print('\n--- difference from expected image: %e' % diff)
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
