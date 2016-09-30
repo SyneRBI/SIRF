@@ -127,8 +127,8 @@ def main():
     recon.set_up(reconstructedImage)
 
     for iter in range(1, num_subiterations + 1):
-        print('\n--------------------- Subiteration ',\
-              recon.get_subiteration_num())
+        print('\n--------------------- Subiteration %d'\
+              % recon.get_subiteration_num())
         # perform an iteration
         recon.update(reconstructedImage)
         if HAVE_PYLAB:
@@ -142,4 +142,4 @@ def main():
 try:
     main()
 except stir.error as err:
-    print('STIR exception occured:\n', err.value)
+    print('STIR exception occured: %s\n' % err.value)

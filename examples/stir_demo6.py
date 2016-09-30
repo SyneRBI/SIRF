@@ -30,7 +30,6 @@ def main():
     warning_printer = stir.printerTo('stir_demo2warn.txt', stir.WARNING_CHANNEL)
     # direct all error printing to stdout
     error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
-##    printer = stir.Printer('stdout')
 
     exact_image = stir.Image('my_image.hv')
     image = exact_image.get_empty_copy()
@@ -48,17 +47,8 @@ def main():
     am.set_matrix(matrix)
     am.set_up(acq_templ, exact_image)
 
-    add = stir.AcquisitionData(acq_templ)
-    nrm = stir.AcquisitionData(acq_templ)
-    add.fill(args.additive)
-    nrm.fill(args.normalisation)
-
     print('projecting image...')
     ad = am.forward(exact_image)
-
-    # define a prior
-    prior = stir.QuadraticPrior()
-    prior.set_penalisation_factor(0.001)
 
     # define a filter
     filter = stir.CylindricFilter()
@@ -69,14 +59,12 @@ def main():
 ##    obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
-    obj_fun.set_prior(prior)
 
     num_subiterations = 2
 
     # create OSMAPOSL reconstructor
     recon = stir.OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
-##    recon.set_MAP_model('additive')
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
     recon.set_num_subiterations(num_subiterations)
@@ -98,8 +86,12 @@ def main():
     expected_image = image.clone()
     image.fill(1.0)
 
-    #add.fill(0.3)
-    am.set_additive_term(add)
+    add = stir.AcquisitionData(acq_templ)
+    nrm = stir.AcquisitionData(acq_templ)
+    add.fill(args.additive)
+    nrm.fill(args.normalisation)
+
+    print('testing normalisation only...')
     am.set_normalisation(nrm)
     print('projecting image...')
     new_ad = am.forward(exact_image)
@@ -110,13 +102,35 @@ def main():
     recon.set_up(image)
 
     for iter in range(1, num_subiterations + 1):
-        print('\n--------------------- Subiteration ',\
-              recon.get_subiteration_num())
+        print('\n--------------------- Subiteration %d'\
+              % recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
 
     # compare the reconstructed image to the expected image
     diff = expected_image.diff_from(image)
+    print('difference from expected image: %e' % diff)
+
+    print('testing normalisation and additive term...')
+    am.set_additive_term(add)
+    am.set_normalisation(nrm)
+    print('projecting image...')
+    new_ad = am.forward(exact_image)
+    obj_fun.set_pet_acquisition_model(am)
+    obj_fun.set_acquisition_data(new_ad)
+
+    image = exact_image.clone()
+    print('setting up reconstructor, please wait...')
+    recon.set_up(image)
+
+    for iter in range(1, num_subiterations + 1):
+        print('\n--------------------- Subiteration %d'\
+              % recon.get_subiteration_num())
+        # perform an iteration
+        recon.update(image)
+
+    # compare the reconstructed image to the expected image
+    diff = exact_image.diff_from(image)
     print('difference from expected image: %e' % diff)
 
 # if anything goes wrong, an exception will be thrown 
@@ -125,4 +139,4 @@ try:
     main()
 except stir.error as err:
     # display error information
-    print('STIR exception occured:\n', err.value)
+    print('STIR exception occured: %s\n' % err.value)
