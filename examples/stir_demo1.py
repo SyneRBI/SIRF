@@ -33,9 +33,9 @@ def main():
     print('prior penalisation factor: %f' % prior.get_penalisation_factor())
     prior.set_penalisation_factor(0.001)
     print('prior penalisation factor: %f' % prior.get_penalisation_factor())
-    am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_acquisition_model()
-    print('tangential_LORs: %d' % am.get_matrix().get_num_tangential_LORs())
-    am.get_matrix().set_num_tangential_LORs(2)
+    #am = stir.PoissonLogLh_LinModMean_AcqModData(obj).get_pet_acquisition_model()
+    #print('tangential_LORs: %d' % am.get_matrix().get_num_tangential_LORs())
+    #am.get_matrix().set_num_tangential_LORs(2)
 
     # read an initial estimate for the reconstructed image from a file
     image = stir.Image('my_image0.hv')
@@ -95,4 +95,4 @@ try:
     main()
 except stir.error as err:
     # display error information
-    print('STIR exception occured:\n', err.value)
+    print('STIR exception occured: %s' % err.value)

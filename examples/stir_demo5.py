@@ -38,7 +38,7 @@ def main():
     matrix.set_num_tangential_LORs(2)
 
     # create acquisition model
-    am = stir.AcquisitionModelUsingMatrix()
+    am = stir.PETAcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # read acquisition model data
@@ -74,7 +74,7 @@ def main():
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_acquisition_model(am)
+    obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 

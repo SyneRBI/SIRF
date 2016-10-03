@@ -20,11 +20,12 @@ args = parser.parse_args()
 def main():
 
     # all output goes to stdout
-    printer = stir.Printer('stdout')
-##    printer = stir.Printer\
-##        ('stir_demo4_info.txt',\
-##         'stir_demo4_warn.txt',\
-##         'stir_demo4_errr.txt')
+##    printer = stir.Printer('stdout')
+    # output goes to files
+    printer = stir.Printer\
+        ('stir_demo4_info.txt',\
+         'stir_demo4_warn.txt',\
+         'stir_demo4_errr.txt')
 
     # create an empty image
     image = stir.Image()
@@ -66,7 +67,7 @@ def main():
     matrix.set_num_tangential_LORs(2)
 
     # define the acquisition model
-    am = stir.AcquisitionModelUsingMatrix()
+    am = stir.PETAcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # define a prior
@@ -94,7 +95,9 @@ def main():
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
     # 'Utahscat600k_ca_seg4.hs' is used as a template
-    am.set_up('Utahscat600k_ca_seg4.hs', image)
+    templ = stir.AcquisitionData('Utahscat600k_ca_seg4.hs')
+    am.set_up(templ, image)
+    #am.set_up('Utahscat600k_ca_seg4.hs', image)
     ad = am.forward(image)
     # if the raw data is very large, it can be stored in a file
     # ad = am.forward(image, 'demo4data.hs')
@@ -106,7 +109,7 @@ def main():
     # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_acquisition_model(am)
+    obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 

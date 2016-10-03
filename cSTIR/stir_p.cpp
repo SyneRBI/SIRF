@@ -209,12 +209,25 @@ cSTIR_setAcquisitionModelParameter
 
 void*
 cSTIR_setAcqModUsingMatrixParameter
-(DataHandle* hp, const char* name, const DataHandle* hv)
+(DataHandle* hm, const char* name, const DataHandle* hv)
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle
-		< AcqMod3DF, AcqModUsingMatrix3DF >(hp);
+		< AcqMod3DF, AcqModUsingMatrix3DF >(hm);
 	if (boost::iequals(name, "matrix"))
 		am.set_matrix(sptrDataFromHandle<ProjMatrixByBin>(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_acqModUsingMatrixParameter
+(DataHandle* hm, const char* name)
+{
+	AcqModUsingMatrix3DF& am = objectFromHandle
+		< AcqMod3DF, AcqModUsingMatrix3DF >(hm);
+	if (boost::iequals(name, "matrix"))
+		return sptrObjectHandle(am.matrix_sptr());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -321,14 +334,16 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(sptrDataFromHandle<ProjectorByBinPair>(hv));
 	else if (boost::iequals(name, "proj_data_sptr"))
 		obj_fun.set_proj_data_sptr(sptrDataFromHandle<ProjData>(hv));
-	else if (boost::iequals(name, "acquisition_model")) {
-		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(hv);
-		obj_fun.set_projector_pair_sptr(am.projectors_sptr());
-		if (am.additive_term_sptr().get())
-			obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr());
-		if (am.normalisation_sptr().get())
-			obj_fun.set_normalisation_sptr(am.normalisation_sptr());
-	}
+	else if (boost::iequals(name, "acquisition_model"))
+		obj_fun.set_acquisition_model(sptrDataFromHandle<AcqMod3DF>(hv));
+	//{	
+	  //AcqMod3DF& am = objectFromHandle<AcqMod3DF>(hv);
+		//obj_fun.set_projector_pair_sptr(am.projectors_sptr());
+		//if (am.additive_term_sptr().get())
+		//	obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr());
+		//if (am.normalisation_sptr().get())
+		//	obj_fun.set_normalisation_sptr(am.normalisation_sptr());
+	//}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -345,6 +360,8 @@ cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		(handle);
 	if (boost::iequals(name, "projector_pair_type"))
 		return sptrObjectHandle(obj_fun.get_projector_pair_sptr());
+	else if (boost::iequals(name, "acquisition_model"))
+		return sptrObjectHandle(obj_fun.acquisition_model_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
