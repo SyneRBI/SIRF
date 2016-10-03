@@ -28,7 +28,7 @@ def main():
     n = matrix.get_num_tangential_LORs()
 
     # create acquisition model
-    am = stir.AcquisitionModelUsingMatrix()
+    am = stir.PETAcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # read acquisition model data
@@ -46,7 +46,7 @@ def main():
     obj_fun.set_use_subset_sensitivities(False)
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_acquisition_model(am)
+    obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
@@ -120,4 +120,4 @@ try:
     main()
 except stir.error as err:
     # display error information
-    print('STIR exception occured:\n', err.value)
+    print('STIR exception occured: %s' % err.value)

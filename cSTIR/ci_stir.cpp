@@ -41,7 +41,9 @@ void* cSTIR_newObject(const char* name)
 		if (boost::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return newObjectHandle
-			< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >();
+			< ObjectiveFunction3DF, 
+			xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF >();
+//			< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >();
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return newObjectHandle< AcqMod3DF, AcqModUsingMatrix3DF >();
 		if (boost::iequals(name, "ProjectorsUsingMatrix"))

@@ -56,7 +56,7 @@ def main():
 
     # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
-    obj_fun.set_max_segment_num_to_process(3)
+    #obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
 
