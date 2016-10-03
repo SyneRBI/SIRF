@@ -25,6 +25,7 @@ args = parser.parse_args()
 def main():
 
     # direct all information printing to a file
+    #info_printer = stir.printerTo('stdout', stir.INFO_CHANNEL)
     info_printer = stir.printerTo('stir_demo2info.txt', stir.INFO_CHANNEL)
     # direct all warning printing to a file
     warning_printer = stir.printerTo('stir_demo2warn.txt', stir.WARNING_CHANNEL)
@@ -55,8 +56,7 @@ def main():
 
     # define the objective function
     obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
-    # causes crush
-##    obj_fun.set_max_segment_num_to_process(3)
+    obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_pet_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
 
@@ -87,12 +87,15 @@ def main():
     image.fill(1.0)
 
     add = stir.AcquisitionData(acq_templ)
+    bkg = stir.AcquisitionData(acq_templ)
     nrm = stir.AcquisitionData(acq_templ)
     add.fill(args.additive)
+    bkg.fill(args.additive)
     nrm.fill(args.normalisation)
 
     print('\n--- testing normalisation only...')
     am.set_normalisation(nrm)
+    am.set_up(acq_templ, exact_image)
     print('projecting image...')
     new_ad = am.forward(exact_image)
     obj_fun.set_pet_acquisition_model(am)
@@ -114,6 +117,7 @@ def main():
     print('\n--- testing normalisation and additive term...')
     am.set_additive_term(add)
     am.set_normalisation(nrm)
+    am.set_up(acq_templ, exact_image)
     print('projecting image...')
     new_ad = am.forward(exact_image)
     obj_fun.set_pet_acquisition_model(am)
@@ -132,6 +136,32 @@ def main():
     # compare the reconstructed image to the expected image
     diff = exact_image.diff_from(image)
     print('\n--- difference from expected image: %e' % diff)
+
+## not possible to test - background term not implemented in STIR yet
+##    print('\n--- testing background term...')
+##    add.fill(0.0)
+##    nrm.fill(1.0)
+##    am.set_background_term(bkg)
+##    am.set_normalisation(nrm)
+##    am.set_up(acq_templ, exact_image)
+##    print('projecting image...')
+##    new_ad = am.forward(exact_image)
+##    obj_fun.set_pet_acquisition_model(am)
+##    obj_fun.set_acquisition_data(new_ad)
+##
+##    image = exact_image.clone()
+##    print('setting up reconstructor, please wait...')
+##    recon.set_up(image)
+##
+##    for iter in range(1, num_subiterations + 1):
+##        print('\n--------------------- Subiteration %d'\
+##              % recon.get_subiteration_num())
+##        # perform an iteration
+##        recon.update(image)
+##
+##    # compare the reconstructed image to the expected image
+##    diff = exact_image.diff_from(image)
+##    print('\n--- difference from expected image: %e' % diff)
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
