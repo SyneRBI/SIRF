@@ -450,6 +450,9 @@ class PETAcquisitionModel:
     def set_additive_term(self, at):
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+    def set_background_term(self, at):
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'background_term', at.handle)
     def set_normalisation(self, norm):
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)

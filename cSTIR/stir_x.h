@@ -132,6 +132,8 @@ inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename)
 	recon->set_initial_estimate_file(filename);
 }
 
+#define MIN_BIN_EFFICIENCY 1.0e-20f
+
 template<class Image>
 class PETAcquisitionModel {
 public:
@@ -143,26 +145,13 @@ public:
 	{
 		return sptr_projectors_;
 	}
-	virtual Succeeded set_up(
-		boost::shared_ptr<ProjData> sptr_acq,
-		boost::shared_ptr<Image> sptr_image)
+	void set_additive_term(boost::shared_ptr<ProjData> sptr)
 	{
-		Succeeded s = Succeeded::no;
-		if (sptr_projectors_.get()) {
-			s = sptr_projectors_->set_up
-				(sptr_acq->get_proj_data_info_sptr(), sptr_image);
-			sptr_acq_template_ = sptr_acq;
-			sptr_image_template_ = sptr_image;
-		}
-		return s;
+		sptr_add_ = sptr;
 	}
 	void set_background_term(boost::shared_ptr<ProjData> sptr)
 	{
 		sptr_background_ = sptr;
-	}
-	void set_additive_term(boost::shared_ptr<ProjData> sptr)
-	{
-		sptr_add_ = sptr;
 	}
 	boost::shared_ptr<ProjData> additive_term_sptr()
 	{
@@ -176,8 +165,10 @@ public:
 	{
 		return sptr_normalisation_;
 	}
-	void set_normalisation(boost::shared_ptr<ProjData> sptr)
+	void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
 	{
+		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+		inv_(sptr.get(), MIN_BIN_EFFICIENCY);
 		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 	}
 	void cancel_background_term()
@@ -192,6 +183,21 @@ public:
 	{
 		sptr_normalisation_.reset();
 	}
+
+	virtual Succeeded set_up(
+		boost::shared_ptr<ProjData> sptr_acq,
+		boost::shared_ptr<Image> sptr_image)
+	{
+		Succeeded s = Succeeded::no;
+		if (sptr_projectors_.get()) {
+			s = sptr_projectors_->set_up
+				(sptr_acq->get_proj_data_info_sptr(), sptr_image);
+			sptr_acq_template_ = sptr_acq;
+			sptr_image_template_ = sptr_image;
+		}
+		return s;
+	}
+
 	boost::shared_ptr<ProjData> forward(const Image& image, const char* file = 0)
 	{
 		boost::shared_ptr<ProjData> sptr_fd;
@@ -233,22 +239,25 @@ public:
 		}
 		else
 			std::cout << "no background term added\n";
+
 		return sptr_fd;
 	}
 
 	boost::shared_ptr<Image> backward(const ProjData& ad)
 	{
-		ProjDataInMemory adc(ad.get_exam_info_sptr(), ad.get_proj_data_info_sptr());
-		adc.fill(ad);
-
-		if (sptr_normalisation_.get()) {
-			std::cout << "applying normalisation...\n";
-			sptr_normalisation_->undo(adc, 0, 1);
-		}
-
 		boost::shared_ptr<Image> sptr_im(sptr_image_template_->clone());
-		sptr_projectors_->get_back_projector_sptr()->back_project
-			(*sptr_im, adc);
+
+		if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+			std::cout << "applying normalisation...\n";
+			ProjDataInMemory adc(ad);
+			sptr_normalisation_->undo(adc, 0, 1);
+			sptr_projectors_->get_back_projector_sptr()->back_project
+				(*sptr_im, adc);
+		}
+		else
+			sptr_projectors_->get_back_projector_sptr()->back_project
+				(*sptr_im, ad);
+
 		return sptr_im;
 	}
 
@@ -261,6 +270,15 @@ protected:
 	boost::shared_ptr<BinNormalisation> sptr_normalisation_;
 
 private:
+	void inv_(ProjData* ptr, float minval)
+	{
+		size_t size = ptr->size_all();
+		float* data = new float[size];
+		ptr->copy_to(data);
+		inv_(size, data, minval);
+		ptr->fill_from(data);
+		delete[] data;
+	}
 	void add_
 		(boost::shared_ptr<ProjData> sptr_a, boost::shared_ptr<ProjData> sptr_b)
 	{
@@ -271,8 +289,8 @@ private:
 				<< " and " << size_b << ", skipping\n";
 			return;
 		}
-		double* data_a = new double[size_a];
-		double* data_b = new double[size_b];
+		float* data_a = new float[size_a];
+		float* data_b = new float[size_b];
 		sptr_a->copy_to(data_a);
 		sptr_b->copy_to(data_b);
 		add_(size_a, data_a, data_b);
@@ -280,7 +298,12 @@ private:
 		delete[] data_a;
 		delete[] data_b;
 	}
-	void add_(size_t n, double* u, double* v)
+	void inv_(size_t n, float* u, float minval)
+	{
+		for (size_t i = 0; i < n; i++)
+			u[i] = 1/std::max(minval, u[i]);
+	}
+	void add_(size_t n, float* u, float* v)
 	{
 		for (size_t i = 0; i < n; i++)
 			u[i] += v[i];

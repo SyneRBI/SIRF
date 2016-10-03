@@ -3332,3 +3332,12 @@ std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 //sptrAcqMod3DF sptr_am = objectSptrFromHandle<AcqMod3DF>(ha);
 //sptrProjData sptr_ad = objectSptrFromHandle<ProjData>(hd);
 //sptrImage3DF* ptr_sptr = new sptrImage3DF(sptr_am->backward(*sptr_ad));
+
+//ProjDataInMemory adc(ad.get_exam_info_sptr(), ad.get_proj_data_info_sptr());
+//adc.fill(ad);
+
+//double* data_a = new double[size_a];
+//double* data_b = new double[size_b];
+
+//void add_(size_t n, double* u, double* v)
+
