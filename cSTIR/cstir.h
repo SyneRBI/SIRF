@@ -29,13 +29,6 @@ extern "C" {
 		(void* ptr_am, void* ptr_im, const char* datafile);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
-	void* cSTIR_acquisitionModelSetup
-		(void* ptr_am, const char* templ, void* ptr_im);
-	void* cSTIR_acquisitionModelForward
-		(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
-	void* cSTIR_acquisitionModelBackward
-		(void* ptr_am, void* ptr_ad, void* ptr_im);
-
 	// Acquisition data methods
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
@@ -51,8 +44,8 @@ extern "C" {
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 
 	// Ojective function methods
-	void* cSTIR_value(void* ptr_f, void* ptr_i);
-	void* cSTIR_gradient(void* ptr_f, void* ptr_i, int subset);
+	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
+	void* cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset);
 
 	// Image methods
 	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);

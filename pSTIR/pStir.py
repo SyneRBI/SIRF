@@ -507,12 +507,13 @@ class ObjectiveFunction:
         _check_status(handle)
         pystir.deleteDataHandle(handle)
     def value(self, image):
-        handle = pystir.cSTIR_value(self.handle, image.handle)
+        handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         _check_status(handle)
         return pystir.floatDataFromHandle(handle)
     def gradient(self, image, subset):
         grad = PETImage()
-        grad.handle = pystir.cSTIR_gradient(self.handle, image.handle, subset)
+        grad.handle = pystir.cSTIR_objectiveFunctionGradient\
+            (self.handle, image.handle, subset)
         _check_status(grad.handle)
         return grad
 

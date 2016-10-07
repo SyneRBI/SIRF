@@ -3341,3 +3341,89 @@ std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
 //void add_(size_t n, double* u, double* v)
 
+//void* cSTIR_acquisitionModelSetup
+//	(void* ptr_am, const char* templ, void* ptr_im);
+//void* cSTIR_acquisitionModelForward
+//	(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im);
+//void* cSTIR_acquisitionModelBackward
+//	(void* ptr_am, void* ptr_ad, void* ptr_im);
+
+//extern "C"
+//void* cSTIR_acquisitionModelSetup(void* ptr_am, const char* templ, void* ptr_im)
+//{
+//	try {
+//		sptrProjData* ptr_sptr =
+//			new sptrProjData(ProjData::read_from_file(templ));
+//		sptrProjData& sptr_t = *ptr_sptr;
+//		CAST_PTR(DataHandle, ha, ptr_am);
+//		CAST_PTR(DataHandle, hi, ptr_im);
+//		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+//		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+//		Succeeded s =
+//			sptr_am->set_up(sptr_t->get_proj_data_info_sptr(), sptr_im);
+//		DataHandle* handle = new DataHandle;
+//		if (s != Succeeded::yes) {
+//			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
+//				__FILE__, __LINE__);
+//			handle->set(0, &status);
+//		}
+//		else
+//			handle->set((void*)ptr_sptr);
+//		return (void*)handle;
+//	}
+//	CATCH
+//}
+//
+//extern "C"
+//void* cSTIR_acquisitionModelForward
+//(void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im)
+//{
+//	try {
+//		CAST_PTR(DataHandle, ha, ptr_am);
+//		CAST_PTR(DataHandle, ht, ptr_dt);
+//		CAST_PTR(DataHandle, hi, ptr_im);
+//		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+//		sptrProjData& sptr_dt = objectSptrFromHandle<ProjData>(ht);
+//		sptrImage3DF& sptr_im = objectSptrFromHandle<Image3DF>(hi);
+//		DataHandle* handle = new DataHandle;
+//		if (strlen(datafile) < 1) {
+//			NEW_SPTR(ProjData, ptr_sptr,
+//				ProjDataInMemory(sptr_dt->get_exam_info_sptr(),
+//				sptr_dt->get_proj_data_info_sptr()));
+//			sptrProjData& sptr_t = *ptr_sptr;
+//			sptr_am->get_forward_projector_sptr()->forward_project
+//				(*sptr_t, *sptr_im);
+//			handle->set((void*)ptr_sptr);
+//		}
+//		else {
+//			NEW_SPTR(ProjData, ptr_sptr,
+//				ProjDataInterfile(sptr_dt->get_exam_info_sptr(),
+//				sptr_dt->get_proj_data_info_sptr(), datafile));
+//			sptrProjData& sptr_t = *ptr_sptr;
+//			sptr_am->get_forward_projector_sptr()->forward_project
+//				(*sptr_t, *sptr_im);
+//			handle->set((void*)ptr_sptr);
+//		}
+//		return (void*)handle;
+//	}
+//	CATCH
+//}
+//
+//extern "C"
+//void* cSTIR_acquisitionModelBackward(void* ptr_am, void* ptr_ad, void* ptr_im)
+//{
+//	try {
+//		CAST_PTR(DataHandle, ha, ptr_am);
+//		CAST_PTR(DataHandle, hd, ptr_ad);
+//		CAST_PTR(DataHandle, hi, ptr_im);
+//		sptrProjPair& sptr_am = objectSptrFromHandle<ProjectorByBinPair>(ha);
+//		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(hd);
+//		Image3DF& image = objectFromHandle<Image3DF>(hi);
+//		sptrImage3DF* ptr_sptr = new sptrImage3DF(image.clone());
+//		sptrImage3DF& sptr_im = *ptr_sptr;
+//		sptr_im->fill(0.0F);
+//		sptr_am->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
+//		return newObjectHandle(ptr_sptr);
+//	}
+//	CATCH
+//}
