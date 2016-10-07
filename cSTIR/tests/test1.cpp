@@ -105,6 +105,11 @@ void test1()
 		std::cout << "tangential positions: " << tangs << '\n';
 		std::cout << "size: " << size << ' ' << sinos*views*tangs << '\n';
 
+		boost::shared_ptr<ProjDataInfo> sptr_pdi = sptr_ad->get_proj_data_info_sptr();
+		ProjDataInfoCylindrical* ptr_pdic = (ProjDataInfoCylindrical*)sptr_pdi.get();
+		double rs = ptr_pdic->get_ring_spacing();
+		std::cout << "ring spacing: " << rs << '\n';
+
 		double* acq_data = new double[size];
 		sptr_ad->copy_to(acq_data);
 
@@ -167,7 +172,9 @@ void test1()
 		acq_mod.set_additive_term(sptr_a);
 		//acq_mod.set_background_term(sptr_b);
 		//acq_mod.set_normalisation(sptr_n);
+		sptr_nd->fill(0.5f);
 		acq_mod.set_normalisation(sptr_nd);
+		sptr_nd->fill(2.0f);
 		sptr_fd = acq_mod.forward(image);
 
 		OBJECT(Prior3DF, QuadPrior3DF, prior, sptr_prior);

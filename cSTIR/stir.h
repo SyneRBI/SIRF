@@ -31,6 +31,7 @@
 #include "stir/IO/read_from_file.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
 #include "stir/OSSPS/OSSPSReconstruction.h"
+#include "stir/ProjDataInfoCylindrical.h"
 #include "stir/ProjDataInMemory.h"
 #include "stir/ProjDataInterfile.h"
 #include "stir/recon_buildblock/BinNormalisationFromProjData.h"

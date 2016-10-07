@@ -1,13 +1,14 @@
 import argparse
 import numpy
-import os
 import pylab
+import os
 import sys
 sys.path.append(os.environ.get('CSTIR_SRC') + '/../pSTIR')
 import scipy
 from scipy import optimize
-import stir
 import time
+
+from pStir import *
 
 parser = argparse.ArgumentParser(description = \
 '''
@@ -27,22 +28,23 @@ args = parser.parse_args()
 def main():
 
     # direct all information printing to a file
-    info_printer = stir.printerTo('stir_demo5info.txt', stir.INFO_CHANNEL)
+    info_printer = printerTo('stir_demo5info.txt', INFO_CHANNEL)
     # direct all warning printing to a file
-    warning_printer = stir.printerTo('stir_demo5warn.txt', stir.WARNING_CHANNEL)
+    warning_printer = printerTo('stir_demo5warn.txt', WARNING_CHANNEL)
     # direct all error printing to stdout
-    error_printer = stir.printerTo('stdout', stir.ERROR_CHANNEL)
+    error_printer = printerTo('stdout', ERROR_CHANNEL)
 
     # create matrix to be used by the acquisition model
-    matrix = stir.RayTracingMatrix()
+    matrix = RayTracingMatrix()
     matrix.set_num_tangential_LORs(2)
 
     # create acquisition model
-    am = stir.PETAcquisitionModelUsingMatrix()
+    am = PETAcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # read acquisition model data
-    ad = stir.AcquisitionData('my_forward_projection.hs')
+    # define acquisition data
+    ad = PETAcquisitionData('my_forward_projection.hs')
+    # plot acquisition data
     adata = ad.as_array()
     print(adata.shape)
     pylab.figure(1)
@@ -53,11 +55,11 @@ def main():
     pylab.show()
 
     # create prior
-    prior = stir.QuadraticPrior()
+    prior = QuadraticPrior()
     prior.set_penalisation_factor(0.001)
 
     # create filter
-    filter = stir.CylindricFilter()
+    filter = CylindricFilter()
 
     # create initial image estimate
     nx = 111
@@ -65,21 +67,21 @@ def main():
     nz = 31
     image_size = (nx, ny, nz)
     voxel_size = (3, 3, 3.375)
-    image = stir.Image()
+    image = PETImage()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
     filter.apply(image)
 
     # create objective function
-    obj_fun = stir.PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_pet_acquisition_model(am)
+    obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
 
     # create OSMAPOSL reconstructor
-    recon = stir.OSMAPOSLReconstruction()
+    recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
@@ -172,6 +174,6 @@ def main():
 try:
     main()
     print('done')
-except stir.error as err:
+except error as err:
     # display error information
     print('STIR exception occured: %s' % err.value)
