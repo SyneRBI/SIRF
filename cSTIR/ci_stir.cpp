@@ -31,7 +31,7 @@ cSTIR_newReconstructionMethod(const char* parFile)
 			return newObjectHandle(ptr_sptr);
 		}
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -61,7 +61,7 @@ void* cSTIR_newObject(const char* name)
 			return newObjectHandle< Shape3D, EllipsoidalCylinder >();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -111,7 +111,7 @@ void* cSTIR_setParameter
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -147,7 +147,7 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_OSSPSParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -174,7 +174,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		}
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -195,7 +195,7 @@ void* cSTIR_setupObject(const char* obj, void* ptr_obj)
 		}
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -210,7 +210,7 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 		processor.apply(image);
 		return (void*) new DataHandle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -232,7 +232,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		}
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -250,7 +250,7 @@ void* cSTIR_acquisitionModelFwd
 		handle->set((void*)ptr_sptr);
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -266,7 +266,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 		handle->set((void*)ptr_sptr);
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -280,7 +280,7 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 							 sptr_t->get_proj_data_info_sptr()));
 		return newObjectHandle(ptr_sptr);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -356,7 +356,7 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		}
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -376,7 +376,7 @@ void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i)
 		}
 		return (void*)handle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -389,7 +389,7 @@ void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 		xSTIR_updateReconstruction(hr->data(), image);
 		return (void*) new DataHandle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -404,7 +404,7 @@ cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i)
 		float v = (float)fun.compute_objective_function(image);
 		return dataHandle<float>(v);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -421,7 +421,7 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 		fun.compute_sub_gradient(grad, image, subset);
 		return newObjectHandle(sptr);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -439,7 +439,7 @@ double x, double y, double z)
 		(*sptr)->fill(0);
 		return newObjectHandle(sptr);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -451,7 +451,7 @@ void* cSTIR_imageFromVoxels(void* ptr_v)
 		sptrImage3DF* sptr = new sptrImage3DF(voxels.clone());
 		return newObjectHandle(sptr);
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -463,7 +463,21 @@ void* cSTIR_imageFromImage(void* ptr_i)
 		sptrImage3DF* sptr = new sptrImage3DF(image.clone());
 		return newObjectHandle(sptr);
 	}
-	CATCH
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
+{
+	try {
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_ad);
+		boost::shared_ptr<ProjDataInfo> sptr_adi = 
+			sptr_ad->get_proj_data_info_sptr();
+		Voxels3DF* ptr_voxels = new Voxels3DF(*sptr_adi);
+		sptrImage3DF* sptr = new sptrImage3DF(ptr_voxels);
+		return newObjectHandle(sptr);
+	}
+	CATCH;
 }
 
 extern "C"
@@ -485,7 +499,7 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v)
 
 		return new DataHandle;
 	}
-	CATCH
+	CATCH;
 }
 
 extern "C"
@@ -612,6 +626,6 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 		return (void*)handle;
 
 	}
-	CATCH
+	CATCH;
 }
 
