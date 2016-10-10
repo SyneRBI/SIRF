@@ -1,10 +1,252 @@
 
 WARNING: recompute_sensitivity is set to false, but sensitivity pointer is empty and (sub)sensitivity filename is not set. I will compute the sensitivity anyway.
 
-WARNING: WARNING: ProjMatrixByBinUsingRayTracing used for pixel size (in x,y) that is larger than the bin size.
-Backprojecting with this matrix might have artefacts at views 0 and 90 degrees.
+WARNING: ray tracing with equal start and end point. Returning zero
 
+WARNING: ray tracing with equal start and end point. Returning zero
 
-WARNING: WARNING: ProjMatrixByBinUsingRayTracing used for pixel size (in x,y) that is larger than the bin size.
-Backprojecting with this matrix might have artefacts at views 0 and 90 degrees.
+WARNING: ray tracing with equal start and end point. Returning zero
 
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero
+
+WARNING: ray tracing with equal start and end point. Returning zero

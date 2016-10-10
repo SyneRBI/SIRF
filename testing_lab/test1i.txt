@@ -1,4 +1,6 @@
 
+INFO: Determined voxel size by dividing default_bin_size (3.1088) by zoom
+
 INFO: Computing sensitivity
 
 INFO: Done computing sensitivity
@@ -138,11 +140,11 @@ INFO: calculating segment_num: 4, view_num: 24
 INFO: Number of (cancelled) singularities: 0
 Number of (cancelled) negative numerators: 0
 
-INFO: Computation times for distributable_computation, CPU 6.69244s, wall-clock 61598s
+INFO: Computation times for distributable_computation, CPU 10.8109s, wall-clock 98688s
 
 INFO: Number of (cancelled) singularities in Sensitivity division: 0
 OSEM subiteration #1 completed
-  min and max in current estimate 0 1.21314
+  min and max in current estimate 0 0.849788
 
 INFO: Now processing subset #: 1
 
@@ -269,10 +271,10 @@ INFO: calculating segment_num: 4, view_num: 23
 INFO: Number of (cancelled) singularities: 0
 Number of (cancelled) negative numerators: 0
 
-INFO: Computation times for distributable_computation, CPU 6.73924s, wall-clock 61503s
+INFO: Computation times for distributable_computation, CPU 10.7953s, wall-clock 98404s
 
 INFO: Number of (cancelled) singularities in Sensitivity division: 0
 
-INFO: Update image old min,max: 0, 1.82605, new min,max 0, 3.40282e+038
+INFO: Update image old min,max: 0, 1.97381, new min,max 0, 3.40282e+038
 OSEM subiteration #2 completed
-  min and max in current estimate 0 2.19659
+  min and max in current estimate 0 1.63283

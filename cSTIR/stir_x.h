@@ -362,4 +362,19 @@ inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename)
 	recon->set_initial_estimate_file(filename);
 }
 
+inline int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
+{
+	dim[0] = 0;
+	dim[1] = 0;
+	dim[2] = 0;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	dim[0] = max_indices[1] - min_indices[1] + 1;
+	dim[1] = max_indices[2] - min_indices[2] + 1;
+	dim[2] = max_indices[3] - min_indices[3] + 1;
+	return 0;
+}
+
 #endif

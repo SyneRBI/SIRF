@@ -55,6 +55,7 @@ extern "C" {
 		double sx, double sy, double sz, double x, double y, double z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromImage(void* ptr_v);
+	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void cSTIR_fillImage(void* ptr_i, double v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
 	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);

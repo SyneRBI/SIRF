@@ -215,6 +215,9 @@ class PETImage:
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
+        elif isinstance(arg, PETAcquisitionData):
+            self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            _check_status(self.handle)
         elif arg is None:
             self.handle = pystir.cSTIR_newObject('Image')
         else:

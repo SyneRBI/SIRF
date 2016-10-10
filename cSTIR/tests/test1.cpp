@@ -35,19 +35,19 @@ double dot(size_t n, double* u, double*v)
 	return d;
 }
 
-int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
-{
-	dim[0] = 0;
-	dim[1] = 0;
-	dim[2] = 0;
-	Coordinate3D<int> min_indices;
-	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
-		return -1;
-	for (int i = 0; i < 3; i++)
-		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
-	return 0;
-}
+//int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
+//{
+//	dim[0] = 0;
+//	dim[1] = 0;
+//	dim[2] = 0;
+//	Coordinate3D<int> min_indices;
+//	Coordinate3D<int> max_indices;
+//	if (!image.get_regular_range(min_indices, max_indices))
+//		return -1;
+//	for (int i = 0; i < 3; i++)
+//		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
+//	return 0;
+//}
 
 int xSTIR_getImageDataAsDoubleArray(const Image3DF& image, double* data)
 {
@@ -82,6 +82,9 @@ void test1()
 		Image3DF& image = *sptr_image;
 		xSTIR_getImageDimensions(image, dim);
 		size_t image_size = dim[0] * dim[1] * dim[2];
+		std::cout << dim[0] << '\n';
+		std::cout << dim[1] << '\n';
+		std::cout << dim[2] << '\n';
 		double* image_data = new double[image_size];
 		xSTIR_getImageDataAsDoubleArray(image, image_data);
 

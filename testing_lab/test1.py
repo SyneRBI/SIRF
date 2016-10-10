@@ -21,16 +21,19 @@ def main():
     # write all warnings in a file
     warn_printer = printerTo('test1w.txt', WARNING_CHANNEL)
 
-    # create acquisition model
+    # define acquisition data
+    ad = PETAcquisitionData('my_raw_data.hs')
+
+    # define acquisition model
     am = PETAcquisitionModelUsingMatrix()
     am.set_matrix(RayTracingMatrix())
 
-    # create objective function
+    # define objective function
     obj_fun = PoissonLogLh_LinModMean_AcqModData()
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(PETAcquisitionData('my_raw_data.hs'))
+    obj_fun.set_acquisition_data(ad)
 
-    # create OSMAPOSL reconstructor
+    # define reconstructor
     recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
     recon.set_num_subiterations(2)
@@ -38,8 +41,7 @@ def main():
     recon.set_output_filename_prefix('reconstructedImage')
 
     # create initial image estimate
-    image = PETImage()
-    image.initialise((90, 90, 31), (4, 4, 3.375))
+    image = PETImage(ad)
     image.fill(1.0)
 
     # set up the reconstructor
