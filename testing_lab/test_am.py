@@ -22,9 +22,9 @@ args = parser.parse_args()
 def main():
 
     # direct all information printing to a file
-    info_printer = printerTo('stir_demo2info.txt', INFO_CHANNEL)
+    info_printer = printerTo('info.txt', INFO_CHANNEL)
     # direct all warning printing to a file
-    warning_printer = printerTo('stir_demo2warn.txt', WARNING_CHANNEL)
+    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
     # direct all error printing to stdout
     error_printer = printerTo('stdout', ERROR_CHANNEL)
 
@@ -32,7 +32,7 @@ def main():
     image = exact_image.get_empty_copy()
     image.fill(1.0)
 
-    acq_templ = PETAcquisitionData('my_forward_projection.hs')
+    acq_templ = PETAcquisitionData('my_raw_data.hs')
 
     # create matrix to be used by the acquisition model
     matrix = RayTracingMatrix()

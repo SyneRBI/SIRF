@@ -253,4 +253,5 @@ pSTIR/pystir_wrap.cxx
 pSTIR/_pystir.pyd
 pSTIR/__pycache__/pystir.cpython-34.pyc
 pSTIR/__pycache__/stir.cpython-34.pyc
-examples/stir_demo*.txt
+examples/*.txt
+testing_lab/*.txt
