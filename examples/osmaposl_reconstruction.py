@@ -29,11 +29,11 @@ def main():
     matrix.set_num_tangential_LORs(2)
 
     # create acquisition model
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # define acquisition data
-    ad = PETAcquisitionData('my_forward_projection.hs')
+    ad = AcquisitionData('my_forward_projection.hs')
 
     # create prior
     prior = QuadraticPrior()
@@ -45,7 +45,7 @@ def main():
     # create initial image estimate
     image_size = (111, 111, 31)
     voxel_size = (3, 3, 3.375)
-    image = PETImage()
+    image = Image()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
 ##    filter.set_strictly_less_than_radius(False)
@@ -101,12 +101,12 @@ def main():
         #filter.apply(image)
 
     # compare the reconstructed image to the expected image
-    expectedImage = PETImage('expected_image.hv')
+    expectedImage = Image('expected_image.hv')
     diff = expectedImage.diff_from(image)
     print('difference from expected image: %e' % diff)
 
     # compare the reconstructed image to the exact image
-    exactImage = PETImage('my_image.hv')
+    exactImage = Image('my_image.hv')
     x_data = exactImage.as_array()
     data = image.as_array()
 

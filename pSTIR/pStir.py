@@ -208,14 +208,14 @@ class Voxels:
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
 
-class PETImage:
+class Image:
     def __init__(self, arg = None):
         self.handle = None
         self.voxels = None
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
-        elif isinstance(arg, PETAcquisitionData):
+        elif isinstance(arg, AcquisitionData):
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
             _check_status(self.handle)
         elif arg is None:
@@ -267,12 +267,12 @@ class PETImage:
             pystir.cSTIR_fillImage(self.handle, value)
         return self
     def clone(self):
-        image = PETImage()
+        image = Image()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
-        image = PETImage()
+        image = Image()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
         image.fill(value)
@@ -360,7 +360,7 @@ class RayTracingMatrix:
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
-class PETAcquisitionData:
+class AcquisitionData:
     def __init__(self, src = None):
         self.handle = None
         self.name = 'AcquisitionData'
@@ -368,7 +368,7 @@ class PETAcquisitionData:
             return
         if isinstance(src, str):
             self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
-        elif isinstance(src, PETAcquisitionData):
+        elif isinstance(src, AcquisitionData):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
         else:
@@ -397,26 +397,26 @@ class PETAcquisitionData:
     def fill(self, value):
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
-        elif isinstance(value, PETAcquisitionData):
+        elif isinstance(value, AcquisitionData):
             pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value)
         else : # should check on double really
             pystir.cSTIR_fillAcquisitionsData(self.handle, value)
         return self
     def clone(self):
-        ad = PETAcquisitionData()
+        ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
         _check_status(ad.handle)
         ad.fill(self)
         return ad
     def get_empty_copy(self, value = 0):
-        ad = PETAcquisitionData()
+        ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
         _check_status(ad.handle)
         ad.fill(value)
         return ad
 
-class PETAcquisitionModel:
+class AcquisitionModel:
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
@@ -434,19 +434,19 @@ class PETAcquisitionModel:
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def forward(self, image, filename = ''):
-        ad = PETAcquisitionData()
+        ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelFwd\
             (self.handle, image.handle, filename)
         _check_status(ad.handle)
         return ad;
     def backward(self, ad):
-        image = PETImage()
+        image = Image()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
             (self.handle, ad.handle)
         _check_status(image.handle)
         return image
 
-class PETAcquisitionModelUsingMatrix(PETAcquisitionModel):
+class AcquisitionModelUsingMatrix(AcquisitionModel):
     def __init__(self):
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -514,7 +514,7 @@ class ObjectiveFunction:
         _check_status(handle)
         return pystir.floatDataFromHandle(handle)
     def gradient(self, image, subset):
-        grad = PETImage()
+        grad = Image()
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
         _check_status(grad.handle)
@@ -564,7 +564,7 @@ class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
         _setParameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
     def get_acquisition_model(self):
-        am = PETAcquisitionModelUsingMatrix()
+        am = AcquisitionModelUsingMatrix()
         if am.handle is not None:
             pystir.deleteDataHandle(am.handle)
         am.handle = pystir.cSTIR_parameter\

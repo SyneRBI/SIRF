@@ -25,11 +25,11 @@ def main():
     n = matrix.get_num_tangential_LORs()
 
     # create acquisition model
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # read acquisition model data
-    ad = PETAcquisitionData('Utahscat600k_ca_seg4.hs')
+    ad = AcquisitionData('Utahscat600k_ca_seg4.hs')
 
     # create prior
     prior = QuadraticPrior()
@@ -56,7 +56,7 @@ def main():
     recon.set_objective_function(obj_fun)
 
     # read an initial estimate for the reconstructed image from a file
-    image = PETImage()
+    image = Image()
     image.read_from_file('test_image_PM_QP_6.hv')
 
     # set up the reconstructor
@@ -86,7 +86,7 @@ def main():
         pylab.show()
 
     # compare the reconstructed image to the expected image
-    expectedImage = PETImage()
+    expectedImage = Image()
     expectedImage.read_from_file('test_image_OSSPS_PM_QP_8.hv')
     diff = expectedImage.diff_from(image)
     print('difference from expected image: %e' % diff)

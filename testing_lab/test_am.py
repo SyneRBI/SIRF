@@ -28,11 +28,11 @@ def main():
     # direct all error printing to stdout
     error_printer = printerTo('stdout', ERROR_CHANNEL)
 
-    exact_image = PETImage('my_image.hv')
+    exact_image = Image('my_image.hv')
     image = exact_image.get_empty_copy()
     image.fill(1.0)
 
-    acq_templ = PETAcquisitionData('my_raw_data.hs')
+    acq_templ = AcquisitionData('my_raw_data.hs')
 
     # create matrix to be used by the acquisition model
     matrix = RayTracingMatrix()
@@ -40,7 +40,7 @@ def main():
 
     # create acquisition model
     #am = stir.AcquisitionModelUsingMatrix()
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
     am.set_up(acq_templ, exact_image)
 
@@ -82,9 +82,9 @@ def main():
     expected_image = image.clone()
     image.fill(1.0)
 
-    add = PETAcquisitionData(acq_templ)
-    bkg = PETAcquisitionData(acq_templ)
-    nrm = PETAcquisitionData(acq_templ)
+    add = AcquisitionData(acq_templ)
+    bkg = AcquisitionData(acq_templ)
+    nrm = AcquisitionData(acq_templ)
     add.fill(args.additive)
     bkg.fill(args.additive)
     nrm.fill(args.normalisation)
