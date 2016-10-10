@@ -22,10 +22,10 @@ def main():
     warn_printer = printerTo('test1w.txt', WARNING_CHANNEL)
 
     # define acquisition data
-    ad = PETAcquisitionData('my_raw_data.hs')
+    ad = AcquisitionData('my_raw_data.hs')
 
     # define acquisition model
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(RayTracingMatrix())
 
     # define objective function
@@ -41,7 +41,7 @@ def main():
     recon.set_output_filename_prefix('reconstructedImage')
 
     # create initial image estimate
-    image = PETImage(ad)
+    image = Image(ad)
     image.fill(1.0)
 
     # set up the reconstructor
@@ -53,7 +53,7 @@ def main():
     recon.reconstruct(image)
 
     # compare the reconstructed image to the exact image
-    exactImage = PETImage('my_image.hv')
+    exactImage = Image('my_image.hv')
     x_data = exactImage.as_array()
     data = image.as_array()
     pylab.figure(1000)

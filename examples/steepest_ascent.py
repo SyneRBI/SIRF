@@ -39,11 +39,11 @@ def main():
     matrix.set_num_tangential_LORs(2)
 
     # create acquisition model
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # define acquisition data
-    ad = PETAcquisitionData('my_forward_projection.hs')
+    ad = AcquisitionData('my_forward_projection.hs')
     # plot acquisition data
     adata = ad.as_array()
     print(adata.shape)
@@ -67,7 +67,7 @@ def main():
     nz = 31
     image_size = (nx, ny, nz)
     voxel_size = (3, 3, 3.375)
-    image = PETImage()
+    image = Image()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
     filter.apply(image)

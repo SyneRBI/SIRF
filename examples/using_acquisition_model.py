@@ -20,7 +20,7 @@ def main():
     printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create an empty image
-    image = PETImage()
+    image = Image()
     image_size = (111, 111, 31)
     voxel_size = (3, 3, 3.375)
     image.initialise(image_size, voxel_size)
@@ -58,7 +58,7 @@ def main():
     matrix.set_num_tangential_LORs(2)
 
     # define the acquisition model
-    am = PETAcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
     # define a prior
@@ -69,7 +69,7 @@ def main():
     filter = CylindricFilter()
 
     # create an initial image estimate
-    reconstructedImage = PETImage()
+    reconstructedImage = Image()
     reconstructedImage.initialise(image_size, voxel_size)
     reconstructedImage.fill(1.0)
     # apply filter to get a cylindric initial image
@@ -85,7 +85,7 @@ def main():
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
     # 'Utahscat600k_ca_seg4.hs' is used as a template
-    templ = PETAcquisitionData('Utahscat600k_ca_seg4.hs')
+    templ = AcquisitionData('Utahscat600k_ca_seg4.hs')
     am.set_up(templ, image)
     ad = am.forward(image)
     # if the raw data is very large, it can be stored in a file
