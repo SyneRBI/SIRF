@@ -140,7 +140,7 @@ INFO: calculating segment_num: 4, view_num: 24
 INFO: Number of (cancelled) singularities: 0
 Number of (cancelled) negative numerators: 0
 
-INFO: Computation times for distributable_computation, CPU 10.8109s, wall-clock 98688s
+INFO: Computation times for distributable_computation, CPU 10.8889s, wall-clock 99269s
 
 INFO: Number of (cancelled) singularities in Sensitivity division: 0
 OSEM subiteration #1 completed
@@ -271,7 +271,7 @@ INFO: calculating segment_num: 4, view_num: 23
 INFO: Number of (cancelled) singularities: 0
 Number of (cancelled) negative numerators: 0
 
-INFO: Computation times for distributable_computation, CPU 10.7953s, wall-clock 98404s
+INFO: Computation times for distributable_computation, CPU 10.8889s, wall-clock 100331s
 
 INFO: Number of (cancelled) singularities in Sensitivity division: 0
 

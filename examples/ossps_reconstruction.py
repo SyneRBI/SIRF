@@ -17,7 +17,7 @@ args = parser.parse_args()
 def main():
 
     # direct all diagnostic printing to a file
-    printer = printerTo('stir_demo3.txt')
+    printer = printerTo('output.txt')
 
     # create matrix to be used by projectors
     matrix = RayTracingMatrix()

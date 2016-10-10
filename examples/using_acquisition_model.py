@@ -17,10 +17,7 @@ args = parser.parse_args()
 def main():
 
     # output goes to files
-    printer = Printer\
-        ('stir_demo4_info.txt',\
-         'stir_demo4_warn.txt',\
-         'stir_demo4_errr.txt')
+    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create an empty image
     image = PETImage()
