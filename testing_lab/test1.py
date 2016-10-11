@@ -41,8 +41,7 @@ def main():
     recon.set_output_filename_prefix('reconstructedImage')
 
     # create initial image estimate
-    image = Image(ad)
-    image.fill(1.0)
+    image = Image(ad).fill(1.0)
 
     # set up the reconstructor
     print('setting up, please wait...')

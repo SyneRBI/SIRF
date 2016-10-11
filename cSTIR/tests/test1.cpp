@@ -198,6 +198,8 @@ void test1()
 
 		int num_subiterations = 2;
 		OBJECT(Reconstruction<Image3DF>, OSMAPOSLReconstruction<Image3DF>, recon,
+		//OBJECT(xSTIR_IterativeReconstruction3DF, 
+		//	OSMAPOSLReconstruction<Image3DF>, recon,
 			sptr_recon);
 		recon.set_MAP_model("multiplicative");
 		recon.set_num_subsets(12);
@@ -208,16 +210,25 @@ void test1()
 		recon.set_objective_function_sptr(sptr_fun);
 		recon.set_inter_iteration_filter_ptr(sptr_filter);
 
-		Succeeded s = 
-			//recon.set_up(sptr_image);
-			xSTIR_setupReconstruction((void*)&sptr_recon, sptr_image);
-		if (s != Succeeded::yes) {
-			std::cout << "xSTIR_setupReconstruction failed\n";
+		//Succeeded s = 
+		//	//recon.set_up(sptr_image);
+		//	xSTIR_setupReconstruction((void*)&sptr_recon, sptr_image);
+		//if (s != Succeeded::yes) {
+		//	std::cout << "xSTIR_setupReconstruction failed\n";
+		//}
+		xSTIR_IterativeReconstruction3DF& xrecon =
+			(xSTIR_IterativeReconstruction3DF&)(recon);
+		//(xSTIR_IterativeReconstruction3DF&)(*sptr_recon);
+		Succeeded s = Succeeded::no;
+		if (!xrecon.post_process()) {
+			s = xrecon.setup(sptr_image);
+			xrecon.subiteration() = xrecon.get_start_subiteration_num();
 		}
 
 		for (int iter = 0; iter < num_subiterations; iter++) {
 			std::cout << "iteration " << iter << '\n';
-			xSTIR_updateReconstruction((void*)&sptr_recon, image);
+			xrecon.update(image);
+			//xSTIR_updateReconstruction((void*)&sptr_recon, image);
 		}
 
 		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';

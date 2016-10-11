@@ -177,26 +177,26 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
-extern "C"
-void* cSTIR_setupObject(const char* obj, void* ptr_obj)
-{
-	try {
-		CAST_PTR(DataHandle, ho, ptr_obj);
-		bool status = 1;
-		if (boost::iequals(obj, "GeneralisedPrior"))
-			status = xSTIR_setupPrior(ho->data());
-		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
-			status = xSTIR_setupObjectiveFunction(ho->data());
-		DataHandle* handle = new DataHandle;
-		if (status) {
-			ExecutionStatus status
-				("cSTIR_setupObject failed", __FILE__, __LINE__);
-			handle->set(0, &status);
-		}
-		return (void*)handle;
-	}
-	CATCH;
-}
+//extern "C"
+//void* cSTIR_setupObject(const char* obj, void* ptr_obj)
+//{
+//	try {
+//		CAST_PTR(DataHandle, ho, ptr_obj);
+//		bool status = 1;
+//		if (boost::iequals(obj, "GeneralisedPrior"))
+//			status = xSTIR_setupPrior(ho->data());
+//		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
+//			status = xSTIR_setupObjectiveFunction(ho->data());
+//		DataHandle* handle = new DataHandle;
+//		if (status) {
+//			ExecutionStatus status
+//				("cSTIR_setupObject failed", __FILE__, __LINE__);
+//			handle->set(0, &status);
+//		}
+//		return (void*)handle;
+//	}
+//	CATCH;
+//}
 
 extern "C"
 void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
@@ -348,7 +348,14 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		CAST_PTR(DataHandle, hi, ptr_i);
 		DataHandle* handle = new DataHandle;
 		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(hi);
-		Succeeded s = xSTIR_setupReconstruction(hr->data(), sptr_image);
+		xSTIR_IterativeReconstruction3DF& recon =
+			objectFromHandle<xSTIR_IterativeReconstruction3DF>(hr);
+		Succeeded s = Succeeded::no;
+		if (!recon.post_process()) {
+			s = recon.setup(sptr_image);
+			recon.subiteration() = recon.get_start_subiteration_num();
+		}
+		//Succeeded s = xSTIR_setupReconstruction(hr->data(), sptr_image);
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupReconstruction failed",
 				__FILE__, __LINE__);
@@ -386,7 +393,10 @@ void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 		CAST_PTR(DataHandle, hr, ptr_r);
 		CAST_PTR(DataHandle, hi, ptr_i);
 		Image3DF& image = objectFromHandle<Image3DF>(hi);
-		xSTIR_updateReconstruction(hr->data(), image);
+		xSTIR_IterativeReconstruction3DF& recon = 
+			objectFromHandle<xSTIR_IterativeReconstruction3DF>(hr);
+		recon.update(image);
+		//xSTIR_updateReconstruction(hr->data(), image);
 		return (void*) new DataHandle;
 	}
 	CATCH;

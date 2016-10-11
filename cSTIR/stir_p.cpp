@@ -390,8 +390,12 @@ cSTIR_setIterativeReconstructionParameter
 	else if (boost::iequals(name, "objective_function"))
 		recon.set_objective_function_sptr
 			(sptrDataFromHandle< ObjectiveFunction3DF >(hv));
-	else if (boost::iequals(name, "initial_estimate"))
-		xSTIR_set_initial_estimate_file(&recon, charDataFromHandle(hv));
+	else if (boost::iequals(name, "initial_estimate")) {
+		xSTIR_IterativeReconstruction3DF& xrecon =
+			(xSTIR_IterativeReconstruction3DF&)(recon);
+		xrecon.set_initial_estimate_file(charDataFromHandle(hv));
+		//xSTIR_set_initial_estimate_file(&recon, charDataFromHandle(hv));
+	}
 	else {
 		int value = intDataFromHandle((void*)hv);
 		if (boost::iequals(name, "num_subsets"))
@@ -402,8 +406,12 @@ cSTIR_setIterativeReconstructionParameter
 			recon.set_num_subiterations(value);
 		else if (boost::iequals(name, "start_subiteration_num"))
 			recon.set_start_subiteration_num(value);
-		else if (boost::iequals(name, "subiteration_num"))
-			xSTIR_subiteration(&recon) = value;
+		else if (boost::iequals(name, "subiteration_num")) {
+			xSTIR_IterativeReconstruction3DF& xrecon =
+				(xSTIR_IterativeReconstruction3DF&)(recon);
+			xrecon.subiteration() = value;
+			//xSTIR_subiteration(&recon) = value;
+		}
 		else if (boost::iequals(name, "save_interval"))
 			recon.set_save_interval(value);
 		else if (boost::iequals(name, "inter_iteration_filter_interval"))
@@ -428,8 +436,12 @@ cSTIR_iterativeReconstructionParameter
 		return intDataHandle(recon.get_num_subiterations());
 	if (boost::iequals(name, "start_subiteration_num"))
 		return intDataHandle(recon.get_start_subiteration_num());
-	if (boost::iequals(name, "subiteration_num"))
-		return intDataHandle(xSTIR_subiteration(&recon));
+	if (boost::iequals(name, "subiteration_num")) {
+		xSTIR_IterativeReconstruction3DF& xrecon =
+			(xSTIR_IterativeReconstruction3DF&)(recon);
+		return intDataHandle(xrecon.subiteration());
+		//return intDataHandle(xSTIR_subiteration(&recon));
+	}
 	if (boost::iequals(name, "objective_function"))
 		return sptrObjectHandle(recon.get_objective_function_sptr());
 	if (boost::iequals(name, "inter_iteration_filter_type"))

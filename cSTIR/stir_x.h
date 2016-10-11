@@ -312,55 +312,55 @@ public:
 	}
 };
 
-inline bool xSTIR_setupPrior(void* ptr)
-{
-	CAST_PTR(boost::shared_ptr< GeneralisedPrior<Image3DF> >, sptr_obj, ptr);
-	CAST_PTR(xSTIR_GeneralisedPrior3DF, obj, sptr_obj->get());
-	bool status = obj->post_process();
-	return status;
-}
+//inline bool xSTIR_setupPrior(void* ptr)
+//{
+//	CAST_PTR(boost::shared_ptr< GeneralisedPrior<Image3DF> >, sptr_obj, ptr);
+//	CAST_PTR(xSTIR_GeneralisedPrior3DF, obj, sptr_obj->get());
+//	bool status = obj->post_process();
+//	return status;
+//}
+//
+//inline bool xSTIR_setupObjectiveFunction(void* ptr)
+//{
+//	CAST_PTR(boost::shared_ptr< GeneralisedObjectiveFunction<Image3DF> >,
+//		sptr_obj, ptr);
+//	CAST_PTR(xSTIR_GeneralisedObjectiveFunction3DF, obj, sptr_obj->get());
+//	bool status = obj->post_process();
+//	return status;
+//}
 
-inline bool xSTIR_setupObjectiveFunction(void* ptr)
-{
-	CAST_PTR(boost::shared_ptr< GeneralisedObjectiveFunction<Image3DF> >,
-		sptr_obj, ptr);
-	CAST_PTR(xSTIR_GeneralisedObjectiveFunction3DF, obj, sptr_obj->get());
-	bool status = obj->post_process();
-	return status;
-}
+//inline Succeeded xSTIR_setupReconstruction(void* ptr, sptrImage3DF const& image)
+//{
+//	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+//	// not needed - default is non-zero string ("1") anyway
+//	//recon->set_initial_estimate_file("dummy.hv");
+//	Succeeded s = Succeeded::no;
+//	if (recon->post_process())
+//		return s;
+//	s = recon->setup(image);
+//	recon->subiteration() = recon->get_start_subiteration_num();
+//	return s;
+//}
+//
+//inline void xSTIR_updateReconstruction(void* ptr, Image3DF& image) 
+//{
+//	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+//	recon->update(image);
+//}
 
-inline Succeeded xSTIR_setupReconstruction(void* ptr, sptrImage3DF const& image)
-{
-	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
-	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
-	// not needed - default is non-zero string ("1") anyway
-	//recon->set_initial_estimate_file("dummy.hv");
-	Succeeded s = Succeeded::no;
-	if (recon->post_process())
-		return s;
-	s = recon->setup(image);
-	recon->subiteration() = recon->get_start_subiteration_num();
-	return s;
-}
-
-inline void xSTIR_updateReconstruction(void* ptr, Image3DF& image) 
-{
-	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
-	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
-	recon->update(image);
-}
-
-inline int& xSTIR_subiteration(void* ptr) 
-{
-	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
-	return recon->subiteration();
-}
-
-inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename) 
-{
-	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
-	recon->set_initial_estimate_file(filename);
-}
+//inline int& xSTIR_subiteration(void* ptr) 
+//{
+//	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+//	return recon->subiteration();
+//}
+//
+//inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename) 
+//{
+//	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+//	recon->set_initial_estimate_file(filename);
+//}
 
 inline int xSTIR_getImageDimensions(const Image3DF& image, int* dim)
 {
