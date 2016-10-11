@@ -320,8 +320,6 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
 		xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(hp);
-	//PoissonLogLhLinModMeanProjData3DF& obj_fun = objectFromHandle
-	//	< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >(hp);
 	if (boost::iequals(name, "input_filename"))
 		obj_fun.set_input_file(charDataFromHandle(hv));
 	else if (boost::iequals(name, "zero_seg0_end_planes"))
@@ -336,14 +334,6 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		obj_fun.set_proj_data_sptr(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "acquisition_model"))
 		obj_fun.set_acquisition_model(sptrDataFromHandle<AcqMod3DF>(hv));
-	//{	
-	  //AcqMod3DF& am = objectFromHandle<AcqMod3DF>(hv);
-		//obj_fun.set_projector_pair_sptr(am.projectors_sptr());
-		//if (am.additive_term_sptr().get())
-		//	obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr());
-		//if (am.normalisation_sptr().get())
-		//	obj_fun.set_normalisation_sptr(am.normalisation_sptr());
-	//}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -394,7 +384,6 @@ cSTIR_setIterativeReconstructionParameter
 		xSTIR_IterativeReconstruction3DF& xrecon =
 			(xSTIR_IterativeReconstruction3DF&)(recon);
 		xrecon.set_initial_estimate_file(charDataFromHandle(hv));
-		//xSTIR_set_initial_estimate_file(&recon, charDataFromHandle(hv));
 	}
 	else {
 		int value = intDataFromHandle((void*)hv);
@@ -410,7 +399,6 @@ cSTIR_setIterativeReconstructionParameter
 			xSTIR_IterativeReconstruction3DF& xrecon =
 				(xSTIR_IterativeReconstruction3DF&)(recon);
 			xrecon.subiteration() = value;
-			//xSTIR_subiteration(&recon) = value;
 		}
 		else if (boost::iequals(name, "save_interval"))
 			recon.set_save_interval(value);
@@ -440,7 +428,6 @@ cSTIR_iterativeReconstructionParameter
 		xSTIR_IterativeReconstruction3DF& xrecon =
 			(xSTIR_IterativeReconstruction3DF&)(recon);
 		return intDataHandle(xrecon.subiteration());
-		//return intDataHandle(xSTIR_subiteration(&recon));
 	}
 	if (boost::iequals(name, "objective_function"))
 		return sptrObjectHandle(recon.get_objective_function_sptr());
