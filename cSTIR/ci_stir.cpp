@@ -177,36 +177,40 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
-//extern "C"
-//void* cSTIR_setupObject(const char* obj, void* ptr_obj)
-//{
-//	try {
-//		CAST_PTR(DataHandle, ho, ptr_obj);
-//		bool status = 1;
-//		if (boost::iequals(obj, "GeneralisedPrior"))
-//			status = xSTIR_setupPrior(ho->data());
-//		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
-//			status = xSTIR_setupObjectiveFunction(ho->data());
-//		DataHandle* handle = new DataHandle;
-//		if (status) {
-//			ExecutionStatus status
-//				("cSTIR_setupObject failed", __FILE__, __LINE__);
-//			handle->set(0, &status);
-//		}
-//		return (void*)handle;
-//	}
-//	CATCH;
-//}
+extern "C"
+void* cSTIR_setupObject(const char* obj, void* ptr_obj)
+{
+	try {
+		//CAST_PTR(DataHandle, ho, ptr_obj);
+		bool status = 1;
+		if (boost::iequals(obj, "GeneralisedObjectiveFunction")) {
+			xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
+				objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_obj);
+			status = obj_fun.post_process();
+			//status = xSTIR_setupObjectiveFunction(ho->data());
+		}
+		//else if (boost::iequals(obj, "GeneralisedPrior"))
+		//		status = xSTIR_setupPrior(ho->data());
+		DataHandle* handle = new DataHandle;
+		if (status) {
+			ExecutionStatus status
+				("cSTIR_setupObject failed", __FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
 
 extern "C"
 void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
-		CAST_PTR(DataHandle, hp, ptr_p);
-		CAST_PTR(DataHandle, hi, ptr_i);
+		//CAST_PTR(DataHandle, hp, ptr_p);
+		//CAST_PTR(DataHandle, hi, ptr_i);
 		DataProcessor<Image3DF>& processor =
-			objectFromHandle<DataProcessor<Image3DF> >(hp);
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
+			objectFromHandle<DataProcessor<Image3DF> >(ptr_p);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		processor.apply(image);
 		return (void*) new DataHandle;
 	}
@@ -217,12 +221,12 @@ extern "C"
 void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 {
 	try {
-		CAST_PTR(DataHandle, ha, ptr_am);
-		CAST_PTR(DataHandle, ht, ptr_dt);
-		CAST_PTR(DataHandle, hi, ptr_im);
-		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
-		sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ht);
-		sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, ha, ptr_am);
+		//CAST_PTR(DataHandle, ht, ptr_dt);
+		//CAST_PTR(DataHandle, hi, ptr_im);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ptr_dt);
+		sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		Succeeded s = am.set_up(sptr_dt, sptr_im);
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
@@ -240,10 +244,10 @@ void* cSTIR_acquisitionModelFwd
 (void* ptr_am, void* ptr_im, const char* datafile)
 {
 	try {
-		CAST_PTR(DataHandle, ha, ptr_am);
-		CAST_PTR(DataHandle, hi, ptr_im);
-		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
-		Image3DF& im = objectFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, ha, ptr_am);
+		//CAST_PTR(DataHandle, hi, ptr_im);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		Image3DF& im = objectFromHandle<Image3DF>(ptr_im);
 		DataHandle* handle = new DataHandle;
 		sptrProjData* ptr_sptr = new sptrProjData;
 		*ptr_sptr = am.forward(im, datafile);
@@ -257,10 +261,10 @@ extern "C"
 void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 {
 	try {
-		CAST_PTR(DataHandle, ha, ptr_am);
-		CAST_PTR(DataHandle, hd, ptr_ad);
-		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ha);
-		ProjData& ad = objectFromHandle<ProjData>(hd);
+		//CAST_PTR(DataHandle, ha, ptr_am);
+		//CAST_PTR(DataHandle, hd, ptr_ad);
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		ProjData& ad = objectFromHandle<ProjData>(ptr_ad);
 		sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(ad));
 		DataHandle* handle = new DataHandle;
 		handle->set((void*)ptr_sptr);
@@ -273,8 +277,9 @@ extern "C"
 void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 {
 	try {
-		sptrProjData& sptr_t =
-			objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+		//sptrProjData& sptr_t =
+		//	objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+		sptrProjData& sptr_t = objectSptrFromHandle<ProjData>(ptr_t);
 		NEW_SPTR(ProjData, ptr_sptr,
 			ProjDataInMemory(sptr_t->get_exam_info_sptr(),
 							 sptr_t->get_proj_data_info_sptr()));
@@ -288,7 +293,8 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
 		dim[2] = sptr_ad->get_num_sinograms();
@@ -302,7 +308,8 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		double* data = (double*)ptr_data;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		sptr_ad->copy_to(data);
 		return (void*)new DataHandle;
 	}
@@ -312,19 +319,23 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 extern "C"
 void cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 	if (sptr_ad.get() == 0)
 		return;
 	sptr_ad->fill((float)v);
 }
 
 extern "C"
-void cSTIR_fillAcquisitionsDataFromAcquisitionsData(void* ptr_acq, const void * ptr_from)
+void cSTIR_fillAcquisitionsDataFromAcquisitionsData
+(void* ptr_acq, const void * ptr_from)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 	if (sptr_ad.get() == 0)
 		return;
-	sptrProjData& sptr_from = objectSptrFromHandle<ProjData>((DataHandle*)ptr_from);
+	//sptrProjData& sptr_from = objectSptrFromHandle<ProjData>((DataHandle*)ptr_from);
+	sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
 	if (sptr_from.get() == 0)
 		return;
 	sptr_ad->fill(*sptr_from);
@@ -333,7 +344,8 @@ void cSTIR_fillAcquisitionsDataFromAcquisitionsData(void* ptr_acq, const void * 
 extern "C"
 void cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 	if (sptr_ad.get() == 0)
 		return;
   double *data = (double *)ptr_data;
@@ -344,12 +356,12 @@ extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
-		CAST_PTR(DataHandle, hr, ptr_r);
-		CAST_PTR(DataHandle, hi, ptr_i);
+		//CAST_PTR(DataHandle, hr, ptr_r);
+		//CAST_PTR(DataHandle, hi, ptr_i);
 		DataHandle* handle = new DataHandle;
-		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(hi);
+		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		xSTIR_IterativeReconstruction3DF& recon =
-			objectFromHandle<xSTIR_IterativeReconstruction3DF>(hr);
+			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
 		if (!recon.post_process()) {
 			s = recon.setup(sptr_image);
@@ -370,12 +382,12 @@ extern "C"
 void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i) 
 {
 	try {
-		CAST_PTR(DataHandle, hr, ptr_r);
-		CAST_PTR(DataHandle, hi, ptr_i);
+		//CAST_PTR(DataHandle, hr, ptr_r);
+		//CAST_PTR(DataHandle, hi, ptr_i);
 		DataHandle* handle = new DataHandle;
 		Reconstruction<Image3DF>& recon =
-			objectFromHandle< Reconstruction<Image3DF> >(hr);
-		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(hi);
+			objectFromHandle< Reconstruction<Image3DF> >(ptr_r);
+		sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		if (recon.reconstruct(sptr_image) != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_reconstruct failed",
 				__FILE__, __LINE__);
@@ -390,11 +402,11 @@ extern "C"
 void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
-		CAST_PTR(DataHandle, hr, ptr_r);
-		CAST_PTR(DataHandle, hi, ptr_i);
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, hr, ptr_r);
+		//CAST_PTR(DataHandle, hi, ptr_i);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		xSTIR_IterativeReconstruction3DF& recon = 
-			objectFromHandle<xSTIR_IterativeReconstruction3DF>(hr);
+			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
 		recon.update(image);
 		//xSTIR_updateReconstruction(hr->data(), image);
 		return (void*) new DataHandle;
@@ -407,10 +419,10 @@ void*
 cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i)
 {
 	try {
-		CAST_PTR(DataHandle, hf, ptr_f);
-		CAST_PTR(DataHandle, hi, ptr_i);
-		 ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(hf);
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, hf, ptr_f);
+		//CAST_PTR(DataHandle, hi, ptr_i);
+		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		float v = (float)fun.compute_objective_function(image);
 		return dataHandle<float>(v);
 	}
@@ -422,10 +434,10 @@ void*
 cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
-		CAST_PTR(DataHandle, hf, ptr_f);
-		CAST_PTR(DataHandle, hi, ptr_i);
-		 ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(hf);
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, hf, ptr_f);
+		//CAST_PTR(DataHandle, hi, ptr_i);
+		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		sptrImage3DF* sptr = new sptrImage3DF(image.clone());
 		Image3DF& grad = *sptr->get();
 		fun.compute_sub_gradient(grad, image, subset);
@@ -456,8 +468,8 @@ extern "C"
 void* cSTIR_imageFromVoxels(void* ptr_v)
 {
 	try {
-		CAST_PTR(DataHandle, hv, ptr_v);
-		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(hv);
+		//CAST_PTR(DataHandle, hv, ptr_v);
+		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
 		sptrImage3DF* sptr = new sptrImage3DF(voxels.clone());
 		return newObjectHandle(sptr);
 	}
@@ -468,8 +480,8 @@ extern "C"
 void* cSTIR_imageFromImage(void* ptr_i)
 {
 	try {
-		CAST_PTR(DataHandle, hi, ptr_i);
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
+		//CAST_PTR(DataHandle, hi, ptr_i);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		sptrImage3DF* sptr = new sptrImage3DF(image.clone());
 		return newObjectHandle(sptr);
 	}
@@ -480,8 +492,9 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_ad);
-		boost::shared_ptr<ProjDataInfo> sptr_adi = 
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_ad);
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_ad);
+		boost::shared_ptr<ProjDataInfo> sptr_adi =
 			sptr_ad->get_proj_data_info_sptr();
 		Voxels3DF* ptr_voxels = new Voxels3DF(*sptr_adi);
 		sptrImage3DF* sptr = new sptrImage3DF(ptr_voxels);
@@ -494,19 +507,17 @@ extern "C"
 void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v) 
 {
 	try {
-		CAST_PTR(DataHandle, hi, ptr_i);
-		CAST_PTR(DataHandle, hv, ptr_v);
-		CAST_PTR(DataHandle, hs, ptr_s);
-
-		Image3DF& image = objectFromHandle<Image3DF>(hi);
-		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(hv);
-		Shape3D& shape = objectFromHandle<Shape3D>(hs);
+		//CAST_PTR(DataHandle, hi, ptr_i);
+		//CAST_PTR(DataHandle, hv, ptr_v);
+		//CAST_PTR(DataHandle, hs, ptr_s);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
+		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
+		Shape3D& shape = objectFromHandle<Shape3D>(ptr_s);
 		CartesianCoordinate3D<int> num_samples(1, 1, 1);
 		voxels.fill(0);
 		shape.construct_volume(voxels, num_samples);
 		voxels *= v;
 		image += voxels;
-
 		return new DataHandle;
 	}
 	CATCH;
@@ -515,7 +526,8 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v)
 extern "C"
 void cSTIR_fillImage(void* ptr_i, double v)
 {
-	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_i);
+	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_i);
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_i);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
@@ -529,7 +541,8 @@ void cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 	dim[0] = 0;
 	dim[1] = 0;
 	dim[2] = 0;
-	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
@@ -544,7 +557,8 @@ void cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 extern "C"
 void cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
 {
-	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
@@ -565,7 +579,8 @@ void cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 extern "C"
 void cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
 {
-	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
@@ -588,10 +603,10 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 {
 	try {
 
-		CAST_PTR(DataHandle, first_h, first);
-		CAST_PTR(DataHandle, second_h, second);
-		Image3DF& first_image = objectFromHandle<Image3DF>(first_h);
-		Image3DF& second_image = objectFromHandle<Image3DF>(second_h);
+		//CAST_PTR(DataHandle, first_h, first);
+		//CAST_PTR(DataHandle, second_h, second);
+		Image3DF& first_image = objectFromHandle<Image3DF>(first);
+		Image3DF& second_image = objectFromHandle<Image3DF>(second);
 
 		std::string explanation;
 		if (!first_image.has_same_characteristics(second_image, explanation))
