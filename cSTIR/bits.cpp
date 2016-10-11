@@ -3427,3 +3427,146 @@ std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 //	}
 //	CATCH
 //}
+
+//inline bool xSTIR_setupPrior(void* ptr)
+//{
+//	CAST_PTR(boost::shared_ptr< GeneralisedPrior<Image3DF> >, sptr_obj, ptr);
+//	CAST_PTR(xSTIR_GeneralisedPrior3DF, obj, sptr_obj->get());
+//	bool status = obj->post_process();
+//	return status;
+//}
+//
+//inline bool xSTIR_setupObjectiveFunction(void* ptr)
+//{
+//	CAST_PTR(boost::shared_ptr< GeneralisedObjectiveFunction<Image3DF> >,
+//		sptr_obj, ptr);
+//	CAST_PTR(xSTIR_GeneralisedObjectiveFunction3DF, obj, sptr_obj->get());
+//	bool status = obj->post_process();
+//	return status;
+//}
+
+//inline Succeeded xSTIR_setupReconstruction(void* ptr, sptrImage3DF const& image)
+//{
+//	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+//	// not needed - default is non-zero string ("1") anyway
+//	//recon->set_initial_estimate_file("dummy.hv");
+//	Succeeded s = Succeeded::no;
+//	if (recon->post_process())
+//		return s;
+//	s = recon->setup(image);
+//	recon->subiteration() = recon->get_start_subiteration_num();
+//	return s;
+//}
+//
+//inline void xSTIR_updateReconstruction(void* ptr, Image3DF& image) 
+//{
+//	CAST_PTR(boost::shared_ptr<xSTIR_IterativeReconstruction3DF>, sptr, ptr);
+//	xSTIR_IterativeReconstruction3DF* recon = sptr->get();
+//	recon->update(image);
+//}
+
+//inline int& xSTIR_subiteration(void* ptr) 
+//{
+//	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+//	return recon->subiteration();
+//}
+//
+//inline void xSTIR_set_initial_estimate_file(void* ptr, const char* filename) 
+//{
+//	CAST_PTR(xSTIR_IterativeReconstruction3DF, recon, ptr);
+//	recon->set_initial_estimate_file(filename);
+//}
+
+//			< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >();
+
+//CAST_PTR(DataHandle, ho, ptr_obj);
+
+//status = xSTIR_setupObjectiveFunction(ho->data());
+
+//CAST_PTR(DataHandle, hp, ptr_p);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//CAST_PTR(DataHandle, ha, ptr_am);
+//CAST_PTR(DataHandle, ht, ptr_dt);
+//CAST_PTR(DataHandle, hi, ptr_im);
+
+//CAST_PTR(DataHandle, ha, ptr_am);
+//CAST_PTR(DataHandle, hi, ptr_im);
+
+//CAST_PTR(DataHandle, ha, ptr_am);
+//CAST_PTR(DataHandle, hd, ptr_ad);
+
+//sptrProjData& sptr_t =
+//	objectSptrFromHandle<ProjData>((DataHandle*)ptr_t);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+
+//sptrProjData& sptr_from = objectSptrFromHandle<ProjData>((DataHandle*)ptr_from);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_acq);
+
+//CAST_PTR(DataHandle, hr, ptr_r);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//Succeeded s = xSTIR_setupReconstruction(hr->data(), sptr_image);
+
+//CAST_PTR(DataHandle, hr, ptr_r);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//CAST_PTR(DataHandle, hr, ptr_r);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//xSTIR_updateReconstruction(hr->data(), image);
+
+//CAST_PTR(DataHandle, hf, ptr_f);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//CAST_PTR(DataHandle, hf, ptr_f);
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//CAST_PTR(DataHandle, hv, ptr_v);
+
+//CAST_PTR(DataHandle, hi, ptr_i);
+
+//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>((DataHandle*)ptr_ad);
+
+//CAST_PTR(DataHandle, hi, ptr_i);
+//CAST_PTR(DataHandle, hv, ptr_v);
+//CAST_PTR(DataHandle, hs, ptr_s);
+
+//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_i);
+
+//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+
+//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+
+//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>((DataHandle*)ptr_im);
+
+//CAST_PTR(DataHandle, first_h, first);
+//CAST_PTR(DataHandle, second_h, second);
+
+//PoissonLogLhLinModMeanProjData3DF& obj_fun = objectFromHandle
+//	< ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF >(hp);
+
+//{	
+//AcqMod3DF& am = objectFromHandle<AcqMod3DF>(hv);
+//obj_fun.set_projector_pair_sptr(am.projectors_sptr());
+//if (am.additive_term_sptr().get())
+//	obj_fun.set_additive_proj_data_sptr(am.additive_term_sptr());
+//if (am.normalisation_sptr().get())
+//	obj_fun.set_normalisation_sptr(am.normalisation_sptr());
+//}
+
+//xSTIR_set_initial_estimate_file(&recon, charDataFromHandle(hv));
+
+//xSTIR_subiteration(&recon) = value;
+
+//return intDataHandle(xSTIR_subiteration(&recon));
+
