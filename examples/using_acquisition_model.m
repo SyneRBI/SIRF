@@ -78,8 +78,9 @@ try
     % forward-project the image to obtain 'raw data'
     % 'Utahscat600k_ca_seg4.hs' is used as a template
     fprintf('projecting the image...')
-    am.set_up('Utahscat600k_ca_seg4.hs', image)    
-    ad = am.forward(image, 'demo4data.hs');
+    templ = stir.AcquisitionData('Utahscat600k_ca_seg4.hs');
+    am.set_up(templ, image)
+    ad = am.forward(image, ''); % 'demo4data.hs');
     fprintf('ok\n')
 
     % define the objective function

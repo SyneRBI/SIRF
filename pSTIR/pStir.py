@@ -424,6 +424,7 @@ class AcquisitionModel:
         handle = pystir.cSTIR_setupAcquisitionModel\
             (self.handle, templ.handle, image.handle)
         _check_status(handle)
+        pystir.deleteDataHandle(handle)
     def set_additive_term(self, at):
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
