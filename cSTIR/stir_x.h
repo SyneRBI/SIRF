@@ -79,6 +79,7 @@ public:
 	{
 		Succeeded s = Succeeded::no;
 		if (sptr_projectors_.get()) {
+			//writeText("setting up PETAcquisitionModel\n");
 			s = sptr_projectors_->set_up
 				(sptr_acq->get_proj_data_info_sptr(), sptr_image);
 			sptr_acq_template_ = sptr_acq;

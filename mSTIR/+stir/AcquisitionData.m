@@ -4,19 +4,15 @@ classdef AcquisitionData < handle
         handle
     end
     methods
-        function self = AcquisitionData(filename, template)
+        function self = AcquisitionData(filename)
             self.handle = [];
             self.name = 'AcquisitionData';
             if nargin < 1
                 return
-            elseif nargin < 2
+            else
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', filename);
-            else
-                self.handle = calllib...
-                    ('mstir', 'mSTIR_acquisitionDataFromTemplate',...
-                    filename, template);
             end
             stir.checkExecutionStatus(self.name, self.handle);
         end

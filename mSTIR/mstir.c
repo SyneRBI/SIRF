@@ -33,14 +33,14 @@ EXPORTED_FUNCTION 	void* mSTIR_setupObject(const char* obj, void* ptr_obj) {
 EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelSetup (void* ptr_am, const char* templ, void* ptr_im) {
-	return cSTIR_acquisitionModelSetup (ptr_am, templ, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
+	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelForward (void* ptr_am, const char* datafile, void* ptr_dt, void* ptr_im) {
-	return cSTIR_acquisitionModelForward (ptr_am, datafile, ptr_dt, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd (void* ptr_am, void* ptr_im, const char* datafile) {
+	return cSTIR_acquisitionModelFwd (ptr_am, ptr_im, datafile);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBackward (void* ptr_am, void* ptr_ad, void* ptr_im) {
-	return cSTIR_acquisitionModelBackward (ptr_am, ptr_ad, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
+	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
@@ -69,11 +69,11 @@ EXPORTED_FUNCTION 	void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i) {
 EXPORTED_FUNCTION 	void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_updateReconstruction(ptr_r, ptr_i);
 }
-EXPORTED_FUNCTION 	void* mSTIR_value(void* ptr_f, void* ptr_i) {
-	return cSTIR_value(ptr_f, ptr_i);
+EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i) {
+	return cSTIR_objectiveFunctionValue(ptr_f, ptr_i);
 }
-EXPORTED_FUNCTION 	void* mSTIR_gradient(void* ptr_f, void* ptr_i, int subset) {
-	return cSTIR_gradient(ptr_f, ptr_i, subset);
+EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset) {
+	return cSTIR_objectiveFunctionGradient(ptr_f, ptr_i, subset);
 }
 EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
 	cSTIR_getImageDimensions(ptr, ptr_data);
@@ -92,6 +92,9 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 	return cSTIR_imageFromImage(ptr_v);
+}
+EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
+	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
 EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v) {
 	cSTIR_fillImage(ptr_i, v);

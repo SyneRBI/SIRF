@@ -35,14 +35,14 @@ classdef PoissonLogLh_LinModMean_AcqModData < stir.PoissonLogLh_LinModMean
         end
         function set_acquisition_model(self, am)
             stir.setParameter(self.handle, self.name,...
-                'projector_pair_type', am.handle, 'h')
+                'acquisition_model', am.handle, 'h')
         end
         function am = get_acquisition_model(self)
             am = stir.AcquisitionModelUsingMatrix();
             am.handle = calllib('mstir', 'mSTIR_parameter',...
-                self.handle, self.name, 'projector_pair_type');
+                self.handle, self.name, 'acquisition_model');
             stir.checkExecutionStatus...
-                ([self.name ':get_projector_pair'], am.handle)
+                ([self.name ':get_acquisition_model'], am.handle)
         end
         function set_acquisition_data(self, am)
             stir.setParameter(self.handle, self.name,...

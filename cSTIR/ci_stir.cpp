@@ -167,8 +167,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			return newObjectHandle(ptr_sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
+			//writeText("\nreading ");
+			//writeText(filename);
 			NEW(boost::shared_ptr<ProjData>, ptr_sptr);
 			*ptr_sptr = ProjData::read_from_file(filename);
+			//writeText("ok\n");
 			return newObjectHandle(ptr_sptr);
 		}
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -216,10 +219,12 @@ extern "C"
 void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 {
 	try {
+		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ptr_dt);
 		sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		Succeeded s = am.set_up(sptr_dt, sptr_im);
+		//s = Succeeded::no;
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",

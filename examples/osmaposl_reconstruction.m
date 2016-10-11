@@ -27,8 +27,8 @@ try
     am.set_matrix(matrix);
     
     % read acquisition model data
-    ad = stir.AcquisitionData();
-    ad.read_from_file('my_forward_projection.hs')
+    ad = stir.AcquisitionData('my_forward_projection.hs');
+%     ad.read_from_file('my_forward_projection.hs')
 
     % create prior
     prior = stir.QuadraticPrior();
