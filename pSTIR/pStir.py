@@ -388,24 +388,22 @@ class AcquisitionData:
         pystir.deleteDataHandle(handle)
         return array
     def fill(self, value):
+        if self.handle is None:
+            return self
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
         elif isinstance(value, AcquisitionData):
             pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
-                (self.handle, value)
+                (self.handle, value.handle)
         else : # should check on double really
             pystir.cSTIR_fillAcquisitionsData(self.handle, value)
         return self
     def clone(self):
-        ad = AcquisitionData()
-        ad.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
-        _check_status(ad.handle)
+        ad = AcquisitionData(self)
         ad.fill(self)
         return ad
     def get_empty_copy(self, value = 0):
-        ad = AcquisitionData()
-        ad.handle = pystir.cSTIR_acquisitionsDataFromTemplate(self.handle)
-        _check_status(ad.handle)
+        ad = AcquisitionData(self)
         ad.fill(value)
         return ad
 
@@ -441,11 +439,13 @@ class AcquisitionModel:
         return image
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
-    def __init__(self):
+    def __init__(self, matrix = None):
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
         _check_status(self.handle)
+        if matrix is not None:
+            _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_matrix(self, matrix):
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):

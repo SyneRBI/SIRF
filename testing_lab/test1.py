@@ -25,8 +25,8 @@ def main():
     ad = AcquisitionData('my_raw_data.hs')
 
     # define acquisition model
-    am = AcquisitionModelUsingMatrix()
-    am.set_matrix(RayTracingMatrix())
+    am = AcquisitionModelUsingMatrix(RayTracingMatrix())
+##    am.set_matrix(RayTracingMatrix())
 
     # define objective function
     obj_fun = PoissonLogLh_LinModMean_AcqModData()
