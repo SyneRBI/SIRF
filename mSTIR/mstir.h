@@ -42,7 +42,7 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v);
-EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
+EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);

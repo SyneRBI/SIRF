@@ -211,7 +211,6 @@ class Voxels:
 class Image:
     def __init__(self, arg = None):
         self.handle = None
-        self.voxels = None
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
             _check_status(self.handle)
@@ -228,8 +227,6 @@ class Image:
     def __del__(self):
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
-        if self.voxels is not None:
-            pystir.deleteDataHandle(self.voxels)
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
@@ -250,16 +247,15 @@ class Image:
             origin = (arg7, arg8, arg9)
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
-        if self.voxels is not None:
-            pystir.deleteDataHandle(self.voxels)
         self.handle = None
-        self.voxels = pystir.cSTIR_voxels3DF\
+        voxels = pystir.cSTIR_voxels3DF\
                       (dim[0], dim[1], dim[2], \
                        vsize[0], vsize[1], vsize[2], \
                        origin[0], origin[1], origin[2])
-        _check_status(self.voxels)
-        self.handle = pystir.cSTIR_imageFromVoxels(self.voxels)
+        _check_status(voxels)
+        self.handle = pystir.cSTIR_imageFromVoxels(voxels)
         _check_status(self.handle)
+        pystir.deleteDataHandle(voxels)
     def fill(self, value):
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
@@ -280,15 +276,12 @@ class Image:
     def add_shape(self, shape, scale):
         if self.handle is None:
             raise error('cannot add shapes to uninitialised image')
-        handle = pystir.cSTIR_addShape\
-                 (self.handle, self.voxels, shape.handle, scale)
+        handle = pystir.cSTIR_addShape(self.handle, shape.handle, scale)
         _check_status(handle)
         pystir.deleteDataHandle(handle)
     def read_from_file(self, filename):
         if self.handle is not None:
             pystir.deleteDataHandle(self.handle)
-        if self.voxels is not None:
-            pystir.deleteDataHandle(self.voxels)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         _check_status(self.handle)
     def diff_from(self, image):

@@ -474,11 +474,12 @@ void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 }
 
 extern "C"
-void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v) 
+void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 {
 	try {
 		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
-		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
+		sptrVoxels3DF sptr_v((Voxels3DF*)image.clone());
+		Voxels3DF& voxels = *sptr_v;
 		Shape3D& shape = objectFromHandle<Shape3D>(ptr_s);
 		CartesianCoordinate3D<int> num_samples(1, 1, 1);
 		voxels.fill(0);
