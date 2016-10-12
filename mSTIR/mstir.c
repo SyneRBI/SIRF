@@ -99,8 +99,8 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v) {
 	cSTIR_fillImage(ptr_i, v);
 }
-EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v) {
-	return cSTIR_addShape(ptr_i, ptr_v, ptr_s, v);
+EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
+	return cSTIR_addShape(ptr_i, ptr_s, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
 	return cSTIR_imagesDifference(first, second, rimsize);

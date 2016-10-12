@@ -2,7 +2,6 @@ classdef Image < handle
     properties
         name
         handle
-        voxels
         rimsize
     end
     methods
@@ -13,20 +12,13 @@ classdef Image < handle
             else
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-%                self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
                 stir.checkExecutionStatus('Image', self.handle)
             end
-            self.voxels = [];
             self.rimsize = -1;
         end
         function delete(self)
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
-            end
-            if ~isempty(self.voxels)
-                calllib('mutilities', 'mDeleteDataHandle', self.voxels)
-%                calllib('mstir', 'mSTIR_deleteObject', self.voxels)
             end
         end
         function initialise(self,...
@@ -52,20 +44,15 @@ classdef Image < handle
             end
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
             end
-            if ~isempty(self.voxels)
-                calllib('mutilities', 'mDeleteDataHandle', self.voxels)
-%                calllib('mstir', 'mSTIR_deleteObject', self.voxels)
-            end
-            self.voxels = calllib('mstir', 'mSTIR_voxels3DF',...
+            voxels = calllib('mstir', 'mSTIR_voxels3DF',...
                 dim(1), dim(2), dim(3),...
                 vsize(1), vsize(2), vsize(3),...
                 origin(1), origin(2), origin(3));
-            stir.checkExecutionStatus('Image:initialise', self.voxels)
-            self.handle = calllib('mstir', 'mSTIR_imageFromVoxels',...
-                self.voxels);
+            stir.checkExecutionStatus('Image:initialise', voxels)
+            self.handle = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
             stir.checkExecutionStatus('Image:initialise', self.handle)
+            calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
             calllib('mstir', 'mSTIR_fillImage', self.handle, value)
@@ -89,15 +76,9 @@ classdef Image < handle
         function read_from_file(self, filename)
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
-            end
-            if ~isempty(self.voxels)
-                calllib('mutilities', 'mDeleteDataHandle', self.voxels)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
             end
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-%            self.handle = calllib('mstir', 'mSTIR_imageFromFile', filename);
             stir.checkExecutionStatus('Image:read_from_file', self.handle);
         end
         function add_shape(self, shape, scale)
@@ -105,7 +86,7 @@ classdef Image < handle
                 error('Image:error', 'cannot add shapes to uninitialised image');
             end
             h = calllib...
-                ('mstir', 'mSTIR_addShape', self.handle, self.voxels,...
+                ('mstir', 'mSTIR_addShape', self.handle,...
                 shape.handle, scale);
             stir.checkExecutionStatus('Image:add_shape', h);
             calllib('mutilities', 'mDeleteDataHandle', h)

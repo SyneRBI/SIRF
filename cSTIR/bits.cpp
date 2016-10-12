@@ -3570,3 +3570,7 @@ std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
 //return intDataHandle(xSTIR_subiteration(&recon));
 
+//void* cSTIR_addShape(void* ptr_i, void* ptr_v, void* ptr_s, float v);
+
+//Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
+
