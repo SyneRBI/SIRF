@@ -73,7 +73,7 @@ def main():
     filter.apply(image)
 
     # create objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
@@ -83,9 +83,7 @@ def main():
     # create OSMAPOSL reconstructor
     recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
-    recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
-    recon.set_output_filename_prefix('reconstructedImage')
     # set up the reconstructor
     print('setting up, please wait...')
     recon.set_up(image)

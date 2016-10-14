@@ -51,7 +51,7 @@ def main():
     filter = CylindricFilter()
 
     # define the objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqMod()
     #obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
@@ -67,7 +67,6 @@ def main():
     recon.set_save_interval(num_subiterations)
     recon.set_inter_iteration_filter_interval(1)
     recon.set_inter_iteration_filter(filter)
-    recon.set_output_filename_prefix('reconstructedImage')
 
     # set up the reconstructor
     print('setting up reconstructor, please wait...')

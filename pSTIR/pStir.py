@@ -533,7 +533,7 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
 
-class PoissonLogLh_LinModMean_AcqModData(PoissonLogLh_LinModMean):
+class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
