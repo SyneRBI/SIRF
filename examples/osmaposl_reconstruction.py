@@ -53,7 +53,7 @@ def main():
 ##    filter.set_strictly_less_than_radius(True)
 
     # create objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_zero_seg0_end_planes(True)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
@@ -71,7 +71,6 @@ def main():
     recon.set_save_interval(num_subiterations)
     recon.set_inter_iteration_filter_interval(1)
     recon.set_inter_iteration_filter(filter)
-    recon.set_output_filename_prefix('reconstructedImage')
 
     # set up the reconstructor
     print('setting up, please wait...')

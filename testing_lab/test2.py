@@ -29,7 +29,7 @@ def main():
     am.set_matrix(RayTracingMatrix())
 
     # define objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(AcquisitionData('my_raw_data.hs'))
 
@@ -40,7 +40,6 @@ def main():
     recon.set_objective_function(obj_fun)
     recon.set_num_subiterations(num_subiterations)
     recon.set_num_subsets(num_subiterations)
-    recon.set_output_filename_prefix('reconstructedImage')
 
     # create initial image estimate
     image = Image(ad).fill(1.0)

@@ -285,9 +285,12 @@ class xSTIR_IterativeReconstruction3DF :
 	public IterativeReconstruction<Image3DF> {
 public:
 	bool post_process() {
+		if (this->output_filename_prefix.length() < 1)
+			this->set_output_filename_prefix("reconstructed_image");
 		return post_processing();
 	}
 	Succeeded setup(sptrImage3DF const& image) {
+		//std::cout << this->output_filename_prefix << '\n';
 		return set_up(image);
 	}
 	void update(Image3DF &image) {

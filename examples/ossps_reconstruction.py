@@ -36,7 +36,7 @@ def main():
     prior.set_penalisation_factor(0.5)
 
     # create objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData()
+    obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_sensitivity_filename('RPTsens_seg3_PM.hv')
     obj_fun.set_recompute_sensitivity(True)
     obj_fun.set_use_subset_sensitivities(False)
@@ -48,7 +48,6 @@ def main():
 
     # create OSSPS reconstructor
     recon = OSSPSReconstruction()
-    recon.set_output_filename_prefix('reconstructedImage')
     recon.set_num_subsets(4)
     recon.set_num_subiterations(8)
     recon.set_save_interval(8)
