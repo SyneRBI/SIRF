@@ -57,13 +57,13 @@ EXPORTED_FUNCTION 	void* mSTIR_value(void* ptr_f, void* ptr_i) {
 EXPORTED_FUNCTION 	void* mSTIR_gradient(void* ptr_f, void* ptr_i, int subset) {
 	return cSTIR_gradient(ptr_f, ptr_i, subset);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
-	cSTIR_getImageDimensions(ptr, ptr_data);
+EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT pd) {
+	cSTIR_getImageDimensions(ptr, pd);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data) {
-	cSTIR_getImageData(ptr, ptr_data);
+EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE pd) {
+	cSTIR_getImageData(ptr, pd);
 }
-EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, size_t ptr_data) {
 	cSTIR_setImageData(ptr_im, ptr_data);
 }
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, double sx, double sy, double sz, double x, double y, double z) {

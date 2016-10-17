@@ -24,20 +24,11 @@ EXPORTED_FUNCTION 	void* mGT_parameter(void* ptr, const char* obj, const char* n
 EXPORTED_FUNCTION 	void* mGT_setParameter (void* ptr, const char* obj, const char* par, const void* val) {
 	return cGT_setParameter (ptr, obj, par, val);
 }
-EXPORTED_FUNCTION 	void*	mGT_computeCoilImages(void* ptr_cis, void* ptr_acqs) {
-	return cGT_computeCoilImages(ptr_cis, ptr_acqs);
-}
-EXPORTED_FUNCTION 	void*	mGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis) {
-	return cGT_computeCSMsFromCIs(ptr_csms, ptr_cis);
-}
 EXPORTED_FUNCTION 	void* mGT_CoilSensitivities(const char* file) {
 	return cGT_CoilSensitivities(file);
 }
 EXPORTED_FUNCTION 	void* mGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs) {
 	return cGT_computeCoilSensitivities(ptr_csms, ptr_acqs);
-}
-EXPORTED_FUNCTION 	void* mGT_appendCSM (void* ptr_csms, int nx, int ny, int nz, int nc,  PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
-	return cGT_appendCSM (ptr_csms, nx, ny, nz, nc, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs) {
 	return cGT_AcquisitionModel(ptr_acqs, ptr_imgs);
@@ -99,14 +90,14 @@ EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int
 EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
 	return cGT_imageTypes(ptr_x);
 }
-EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim) {
-	cGT_getCoilDataDimensions(ptr_csms, csm_num, ptr_dim);
+EXPORTED_FUNCTION 	void mGT_getCSMDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim) {
+	cGT_getCSMDimensions(ptr_csms, csm_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getCoilData (void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
-	cGT_getCoilData (ptr_csms, csm_num, ptr_re, ptr_im);
+EXPORTED_FUNCTION 	void mGT_getCSMData (void* ptr_csms, int csm_num, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	cGT_getCSMData (ptr_csms, csm_num, ptr_re, ptr_im);
 }
-EXPORTED_FUNCTION 	void mGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr) {
-	cGT_getCoilDataAbs(ptr_csms, csm_num, ptr);
+EXPORTED_FUNCTION 	void mGT_getCSMDataAbs(void* ptr_csms, int csm_num, PTR_DOUBLE ptr) {
+	cGT_getCSMDataAbs(ptr_csms, csm_num, ptr);
 }
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim) {
 	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);

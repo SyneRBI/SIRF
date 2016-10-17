@@ -2,7 +2,9 @@
 #include <string>
 using namespace std;
 
+#ifdef MSVC
 #include <conio.h>
+#endif
 
 int c2m(
 	const char* library,
@@ -34,8 +36,10 @@ int main(int argc, char **argv)
 	if (status)
 		cout << "wrong input file format" << endl;
 
+#ifdef MSVC
 	cout << "Press any key to continue ";
 	_getch();
+#endif
 	return 0;
 }
 
