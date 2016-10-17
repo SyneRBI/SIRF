@@ -1,4 +1,3 @@
-#include <conio.h>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -140,7 +139,7 @@ int c2m(
 
 	quit = false;
 
-	fin.open(path + chfile, ios::in);
+	fin.open((path + chfile).c_str(), ios::in);
 	if (!fin) {
 		cout << "file " << path + chfile << " not found" << endl;
 		return -1;
@@ -149,8 +148,8 @@ int c2m(
 	size_t i = string::npos;
 	size_t m;
 
-	fh.open(mhfile, ios::out);
-	fc.open(mcfile, ios::out);
+	fh.open(mhfile.c_str(), ios::out);
+	fc.open(mcfile.c_str(), ios::out);
 
 	fh << "#ifndef " << library << "_TO_MATLAB_INTERFACE" << endl;
 	fh << "#define " << library << "_TO_MATLAB_INTERFACE" << endl << endl;
