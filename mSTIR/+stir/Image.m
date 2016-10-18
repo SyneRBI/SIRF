@@ -55,7 +55,12 @@ classdef Image < handle
             calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
-            calllib('mstir', 'mSTIR_fillImage', self.handle, value)
+            if numel(value) == 1
+                calllib('mstir', 'mSTIR_fillImage', self.handle, value)
+            else
+                ptr_v = libpointer('doublePtr', value);
+                calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v)
+            end
         end
         function image = clone(self)
             image = stir.Image();

@@ -116,7 +116,7 @@ def main():
         filter.apply(grad)
         gdata = grad.as_array()
 
-        # find maximal steepest descent step parameter x in image + x*grad 
+        # find maximal steepest descent step parameter t in image + t*grad 
         # such that the new image remains positive
         max_image = idata.max()
         max_grad = abs(gdata).max()
@@ -130,19 +130,19 @@ def main():
             maxstep = abs(tau)*max_image/max_grad
 
         if tau < 0:
-            # find the optimal x
-            fun = lambda x: -obj_fun.value(image.fill(idata + x*gdata))
-            x = scipy.optimize.fminbound \
+            # find the optimal t
+            fun = lambda t: -obj_fun.value(image.fill(idata + x*gdata))
+            t = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
-            # x is such that the relative change in image is not greater than tau
-            x = tau*max_image/max_grad
-            if x > maxstep:
-                x = maxstep
+            # t is such that the relative change in image is not greater than tau
+            t = tau*max_image/max_grad
+            if t > maxstep:
+                t = maxstep
 
         # perform steepest descent step
-        print('step %d, max change in image %e' % (iter, x*max_grad))
-        idata = idata + x*gdata
+        print('step %d, max change in image %e' % (iter, t*max_grad))
+        idata = idata + t*gdata
 
         # filter the new image
         image.fill(idata)
