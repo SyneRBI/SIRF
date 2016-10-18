@@ -75,6 +75,11 @@ try
     % apply filter to get a cylindric initial image
     filter.apply(reconstructedImage)
 
+    data = reconstructedImage.as_array();
+    figure(1000000)
+    data = data/max(max(max(data)));
+    imshow(data(:,:,z));
+
     % forward-project the image to obtain 'raw data'
     % 'Utahscat600k_ca_seg4.hs' is used as a template
     fprintf('projecting the image...')
@@ -109,11 +114,6 @@ try
     recon.set_up(reconstructedImage)
     
     fprintf('ok\n')
-
-    data = reconstructedImage.as_array();
-    figure(1000000)
-    data = data/max(max(max(data)));
-    imshow(data(:,:,z));
 
     for iter = 1 : num_subiterations
         fprintf('\n--------------------- Subiteration %d\n',...

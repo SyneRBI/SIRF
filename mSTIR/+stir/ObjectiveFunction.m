@@ -33,5 +33,20 @@ classdef ObjectiveFunction < handle
                 ('GeneralisedObjectiveFunction:set_up', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
+        function v = value(self, image)
+            h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
+                self.handle, image.handle);
+            stir.checkExecutionStatus...
+                ('GeneralisedObjectiveFunction:value', h)
+            v = calllib('mutilities', 'mFloatDataFromHandle', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function g = gradient(self, image, subset)
+            g = stir.Image();
+            g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
+                self.handle, image.handle, subset);
+            stir.checkExecutionStatus...
+                ('GeneralisedObjectiveFunction:gradient', g.handle)
+        end
     end
 end
