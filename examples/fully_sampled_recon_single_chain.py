@@ -37,13 +37,9 @@ def main():
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
-    # connect to input data
-    recon.set_input(input_data)
-    # perform reconstruction
-    recon.process()
-    
-    # get reconstructed images
-    images = recon.get_output()
+
+    # reconstruct
+    images = recon.reconstruct(input_data)
 
     # show reconstructed images
     images.show()
