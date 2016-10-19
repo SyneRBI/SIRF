@@ -490,6 +490,15 @@ class ImagesReconstructor(GadgetChain):
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
         return images
+    def reconstruct(self, input_data):
+        handle = pygadgetron.cGT_reconstructImages\
+             (self.handle, input_data.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+        images = ImagesContainer()
+        images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
+        _check_status(images.handle)
+        return images
 
 class ImagesProcessor(GadgetChain):
     def __init__(self, list = None):
