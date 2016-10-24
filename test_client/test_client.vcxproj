@@ -19,7 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test_client.cpp" />
+    <ClCompile Include="client.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NHLBICompression.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8F1DE07F-A274-4BF1-A89D-61582F637D70}</ProjectGuid>
