@@ -66,7 +66,7 @@ def main():
         # named after the current date and time
         print('writing to %s' % args.output)
         time_str = time.asctime()
-        images.write(args.output, time_str)
+        output.write(args.output, time_str)
 
 try:
     main()
