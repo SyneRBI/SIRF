@@ -35,7 +35,7 @@ def main():
     # create reconstruction object
     recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
-        'BucketToBufferGadget(split_slices=true)', \
+        'BucketToBufferGadget(split_slices=true, verbose=false)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ExtractGadget'])
     # connect to input data
     recon.set_input(input_data)

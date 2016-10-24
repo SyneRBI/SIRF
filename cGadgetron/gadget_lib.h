@@ -170,7 +170,12 @@ private:
 
 class BucketToBuffGadget : public aGadget {
 public:
-	BucketToBuffGadget() : n_dimension_(""), s_dimension_(""), split_slices_("true") {
+	BucketToBuffGadget() : 
+		verbose_("true"),
+		n_dimension_(""),
+		s_dimension_(""), 
+		split_slices_("true") 
+	{
 		name_ = "BucketToBufferGadget";
 	}
 	virtual void set_property(const char* prop, const char* value) 
@@ -181,6 +186,8 @@ public:
 			s_dimension_ = value;
 		else if (boost::iequals(prop, "split_slices"))
 			split_slices_ = value;
+		else if (boost::iequals(prop, "verbose"))
+			verbose_ = value;
 		else
 			THROW("unknown gadget parameter");
 	}
@@ -201,6 +208,10 @@ public:
 	  xml_script += "  <name>split_slices</name>\n";
 	  xml_script += "  <value>" + split_slices_ + "</value>\n";
 	  xml_script += " </property>\n";
+		xml_script += " <property>\n";
+		xml_script += "  <name>verbose</name>\n";
+		xml_script += "  <value>" + verbose_ + "</value>\n";
+		xml_script += " </property>\n";
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -208,13 +219,15 @@ private:
 	std::string n_dimension_;
 	std::string s_dimension_;
 	std::string split_slices_;
+	std::string verbose_;
 };
 
 class PrepRefGadget : public aGadget {
 public:
 	PrepRefGadget() : 
-		debug_folder_("DebugFolder"), 
-		perform_timing_("true"), 
+		//debug_folder_("DebugFolder"),
+		debug_folder_(""),
+		perform_timing_("true"),
 		verbose_("true"),
 		av_all_ref_N_("true"),
 		av_all_ref_S_("true")
@@ -287,7 +300,8 @@ public:
 class CartesianGrappaGadget : public aGadget {
 public:
 	CartesianGrappaGadget() :
-		debug_folder_("DebugFolder"),
+		//debug_folder_("DebugFolder"),
+		debug_folder_(""),
 		perform_timing_("true"),
 		verbose_("true"),
 		send_out_gfactor_("true")
@@ -341,7 +355,8 @@ private:
 class FOVAdjustmentGadget : public aGadget {
 public:
 	FOVAdjustmentGadget() :
-		debug_folder_("DebugFolder"),
+		//debug_folder_("DebugFolder"),
+		debug_folder_(""),
 		perform_timing_("false"),
 		verbose_("false")
 	{
