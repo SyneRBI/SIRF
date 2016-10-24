@@ -5,6 +5,12 @@
 
 #include "data_handle.h"
 
+#define ADD_PROPERTY(P, V) \
+	  xml_script += " <property>\n"; \
+		xml_script += "  <name>" + std::string(P) + "</name>\n"; \
+		xml_script += "  <value>" + V + "</value>\n"; \
+		xml_script += " </property>\n";
+
 class aGadget {
 public:
 	//	virtual ~aGadget() {}
@@ -134,7 +140,10 @@ public:
 
 class AcqAccTrigGadget : public aGadget {
 public:
-	AcqAccTrigGadget() : trigger_dimension_("repetition"), sorting_dimension_("slice") {
+	AcqAccTrigGadget() : 
+		trigger_dimension_("repetition"), 
+		sorting_dimension_("slice") 
+	{
 		name_ = "AcquisitionAccumulateTriggerGadget";
 	}
 	virtual void set_property(const char* prop, const char* value) 
@@ -152,14 +161,8 @@ public:
 	        xml_script += " <name>AccTrig</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>AcquisitionAccumulateTriggerGadget</classname>\n";
-	  xml_script += " <property>\n";
-	  xml_script += "  <name>trigger_dimension</name>\n";
-	  xml_script += "  <value>" + trigger_dimension_ + "</value>\n";
-	  xml_script += " </property>\n";
-	  xml_script += " <property>\n";
-	  xml_script += "  <name>sorting_dimension</name>\n";
-	  xml_script += "  <value>" + sorting_dimension_ + "</value>\n";
-	  xml_script += " </property>\n";
+		ADD_PROPERTY("trigger_dimension", trigger_dimension_);
+		ADD_PROPERTY("sorting_dimension", sorting_dimension_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -171,10 +174,11 @@ private:
 class BucketToBuffGadget : public aGadget {
 public:
 	BucketToBuffGadget() : 
-		verbose_("true"),
 		n_dimension_(""),
 		s_dimension_(""), 
-		split_slices_("true") 
+		split_slices_("true"),
+		ignore_segment_("true"),
+		verbose_("true")
 	{
 		name_ = "BucketToBufferGadget";
 	}
@@ -186,6 +190,8 @@ public:
 			s_dimension_ = value;
 		else if (boost::iequals(prop, "split_slices"))
 			split_slices_ = value;
+		else if (boost::iequals(prop, "ignore_segment"))
+			ignore_segment_ = value;
 		else if (boost::iequals(prop, "verbose"))
 			verbose_ = value;
 		else
@@ -196,22 +202,11 @@ public:
     xml_script += " <name>Buff</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>BucketToBufferGadget</classname>\n";
-	  xml_script += " <property>\n";
-	  xml_script += "  <name>N_dimension</name>\n";
-	  xml_script += "  <value>" + n_dimension_ + "</value>\n";
-	  xml_script += " </property>\n";
-	  xml_script += " <property>\n";
-	  xml_script += "  <name>S_dimension</name>\n";
-	  xml_script += "  <value>" + s_dimension_ + "</value>\n";
-	  xml_script += " </property>\n";
-	  xml_script += " <property>\n";
-	  xml_script += "  <name>split_slices</name>\n";
-	  xml_script += "  <value>" + split_slices_ + "</value>\n";
-	  xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>verbose</name>\n";
-		xml_script += "  <value>" + verbose_ + "</value>\n";
-		xml_script += " </property>\n";
+		ADD_PROPERTY("verbose", verbose_);
+		ADD_PROPERTY("N_dimension", n_dimension_);
+		ADD_PROPERTY("S_dimension", s_dimension_);
+		ADD_PROPERTY("split_slices", split_slices_);
+		ADD_PROPERTY("ignore_segment", ignore_segment_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -219,18 +214,19 @@ private:
 	std::string n_dimension_;
 	std::string s_dimension_;
 	std::string split_slices_;
+	std::string ignore_segment_;
 	std::string verbose_;
 };
 
 class PrepRefGadget : public aGadget {
 public:
 	PrepRefGadget() : 
-		//debug_folder_("DebugFolder"),
 		debug_folder_(""),
 		perform_timing_("true"),
 		verbose_("true"),
 		av_all_ref_N_("true"),
-		av_all_ref_S_("true")
+		av_all_ref_S_("true"),
+		prep_ref_always_("true")
 	{
 		name_ = "PrepRefGadget";
 	}
@@ -242,6 +238,12 @@ public:
 			perform_timing_ = value;
 		else if (boost::iequals(prop, "verbose"))
 			verbose_ = value;
+		else if (boost::iequals(prop, "average_all_ref_n"))
+			av_all_ref_N_ = value;
+		else if (boost::iequals(prop, "average_all_ref_s"))
+			av_all_ref_S_ = value;
+		else if (boost::iequals(prop, "prepare_ref_always"))
+			prep_ref_always_ = value;
 		else
 			THROW("unknown gadget parameter");
 	}
@@ -250,26 +252,12 @@ public:
 		xml_script += " <name>PrepRef</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>GenericReconCartesianReferencePrepGadget</classname>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>debug_folder</name>\n";
-		xml_script += "  <value>" + debug_folder_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>perform_timing</name>\n";
-		xml_script += "  <value>" + perform_timing_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>verbose</name>\n";
-		xml_script += "  <value>" + verbose_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>average_all_ref_N</name>\n";
-		xml_script += "  <value>" + av_all_ref_N_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>average_all_ref_S</name>\n";
-		xml_script += "  <value>" + av_all_ref_S_ + "</value>\n";
-		xml_script += " </property>\n";
+		ADD_PROPERTY("debug_folder", debug_folder_);
+		ADD_PROPERTY("perform_timing", perform_timing_);
+		ADD_PROPERTY("verbose", verbose_);
+		ADD_PROPERTY("average_all_ref_N", av_all_ref_N_);
+		ADD_PROPERTY("average_all_ref_S", av_all_ref_S_);
+		ADD_PROPERTY("prepare_ref_always", prep_ref_always_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -279,6 +267,7 @@ private:
 	std::string verbose_;
 	std::string av_all_ref_N_;
 	std::string av_all_ref_S_;
+	std::string prep_ref_always_;
 };
 
 class SimpleReconstructionGadget : public aGadget {
@@ -300,7 +289,11 @@ public:
 class CartesianGrappaGadget : public aGadget {
 public:
 	CartesianGrappaGadget() :
-		//debug_folder_("DebugFolder"),
+		image_series_("0"),
+		coil_map_alg_("Inati"),
+		dwnstr_coil_compr_("true"),
+		dwnstr_coil_compr_th_("0.01"),
+		dwnstr_coil_compr_nmod_("0"),
 		debug_folder_(""),
 		perform_timing_("true"),
 		verbose_("true"),
@@ -310,7 +303,17 @@ public:
 	}
 	virtual void set_property(const char* prop, const char* value)
 	{
-		if (boost::iequals(prop, "debug_folder"))
+		if (boost::iequals(prop, "image_series"))
+			image_series_ = value;
+		else if (boost::iequals(prop, "coil_map_algorithm"))
+			coil_map_alg_ = value;
+		else if (boost::iequals(prop, "downstream_coil_compression"))
+			dwnstr_coil_compr_ = value;
+		else if (boost::iequals(prop, "downstream_coil_compression_thres"))
+			dwnstr_coil_compr_th_ = value;
+		else if (boost::iequals(prop, "downstream_coil_compression_modes"))
+			dwnstr_coil_compr_nmod_ = value;
+		else if (boost::iequals(prop, "debug_folder"))
 			debug_folder_ = value;
 		else if (boost::iequals(prop, "perform_timing"))
 			perform_timing_ = value;
@@ -326,26 +329,25 @@ public:
 		xml_script += " <name>CartesianGrappa</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>GenericReconCartesianGrappaGadget</classname>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>debug_folder</name>\n";
-		xml_script += "  <value>" + debug_folder_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>perform_timing</name>\n";
-		xml_script += "  <value>" + perform_timing_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>verbose</name>\n";
-		xml_script += "  <value>" + verbose_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>send_out_gfactor</name>\n";
-		xml_script += "  <value>" + send_out_gfactor_ + "</value>\n";
-		xml_script += " </property>\n";
+		ADD_PROPERTY("image_series", image_series_);
+		ADD_PROPERTY("coil_map_algorithm", coil_map_alg_);
+		ADD_PROPERTY("downstream_coil_compression", dwnstr_coil_compr_);
+		ADD_PROPERTY("downstream_coil_compression_thres", dwnstr_coil_compr_th_);
+		ADD_PROPERTY
+			("downstream_coil_compression_num_modesKept", dwnstr_coil_compr_nmod_);
+		ADD_PROPERTY("debug_folder", debug_folder_);
+		ADD_PROPERTY("perform_timing", perform_timing_);
+		ADD_PROPERTY("verbose", verbose_);
+		ADD_PROPERTY("send_out_gfactor", send_out_gfactor_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
 private:
+	std::string image_series_;
+	std::string coil_map_alg_;
+	std::string dwnstr_coil_compr_;
+	std::string dwnstr_coil_compr_th_;
+	std::string dwnstr_coil_compr_nmod_;
 	std::string debug_folder_;
 	std::string perform_timing_;
 	std::string verbose_;
@@ -355,7 +357,6 @@ private:
 class FOVAdjustmentGadget : public aGadget {
 public:
 	FOVAdjustmentGadget() :
-		//debug_folder_("DebugFolder"),
 		debug_folder_(""),
 		perform_timing_("false"),
 		verbose_("false")
@@ -379,18 +380,9 @@ public:
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += 
 			" <classname>GenericReconFieldOfViewAdjustmentGadget</classname>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>debug_folder</name>\n";
-		xml_script += "  <value>" + debug_folder_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>perform_timing</name>\n";
-		xml_script += "  <value>" + perform_timing_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>verbose</name>\n";
-		xml_script += "  <value>" + verbose_ + "</value>\n";
-		xml_script += " </property>\n";
+		ADD_PROPERTY("debug_folder", debug_folder_);
+		ADD_PROPERTY("perform_timing", perform_timing_);
+		ADD_PROPERTY("verbose", verbose_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -409,8 +401,8 @@ public:
 		max_intensity_value_("4095"),
 		scalingFactor_("10.0"),
 		use_constant_scalingFactor_("true"),
-		auto_scaling_only_once_("true"),
-		scalingFactor_dedicated_("100.0")
+		scalingFactor_dedicated_("100.0"),
+		auto_scaling_only_once_("true")
 	{
 		name_ = "ScalingGadget";
 	}
@@ -420,6 +412,18 @@ public:
 			perform_timing_ = value;
 		else if (boost::iequals(prop, "verbose"))
 			verbose_ = value;
+		else if (boost::iequals(prop, "min_intensity_value"))
+			min_intensity_value_ = value;
+		else if (boost::iequals(prop, "max_intensity_value"))
+			max_intensity_value_ = value;
+		else if (boost::iequals(prop, "scaling_factor"))
+			scalingFactor_ = value;
+		else if (boost::iequals(prop, "use_constant_scaling_factor"))
+			use_constant_scalingFactor_ = value;
+		else if (boost::iequals(prop, "scaling_factor_dedicated"))
+			scalingFactor_dedicated_ = value;
+		else if (boost::iequals(prop, "auto_scaling_only_once"))
+			auto_scaling_only_once_ = value;
 		else
 			THROW("unknown gadget parameter");
 	}
@@ -429,38 +433,14 @@ public:
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script +=
 			" <classname>GenericReconImageArrayScalingGadget</classname>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>perform_timing</name>\n";
-		xml_script += "  <value>" + perform_timing_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>verbose</name>\n";
-		xml_script += "  <value>" + verbose_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>min_intensity_value</name>\n";
-		xml_script += "  <value>" + min_intensity_value_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>max_intensity_value</name>\n";
-		xml_script += "  <value>" + max_intensity_value_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>scalingFactor</name>\n";
-		xml_script += "  <value>" + scalingFactor_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>use_constant_scalingFactor</name>\n";
-		xml_script += "  <value>" + use_constant_scalingFactor_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>scalingFactor_dedicated</name>\n";
-		xml_script += "  <value>" + scalingFactor_dedicated_ + "</value>\n";
-		xml_script += " </property>\n";
-		xml_script += " <property>\n";
-		xml_script += "  <name>auto_scaling_only_once</name>\n";
-		xml_script += "  <value>" + auto_scaling_only_once_ + "</value>\n";
-		xml_script += " </property>\n";
+		ADD_PROPERTY("perform_timing", perform_timing_);
+		ADD_PROPERTY("verbose", verbose_);
+		ADD_PROPERTY("min_intensity_value", min_intensity_value_);
+		ADD_PROPERTY("max_intensity_value", max_intensity_value_);
+		ADD_PROPERTY("scalingFactor", scalingFactor_);
+		ADD_PROPERTY("use_constant_scalingFactor", use_constant_scalingFactor_);
+		ADD_PROPERTY("scalingFactor_dedicated", scalingFactor_dedicated_);
+		ADD_PROPERTY("auto_scaling_only_once", auto_scaling_only_once_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
@@ -525,23 +505,40 @@ public:
 
 class FloatToShortGadget : public aGadget {
 public:
-	FloatToShortGadget()
+	FloatToShortGadget() :
+		min_intensity_("0"),
+		max_intensity_("32767"),
+		intensity_offset_("0")
 	{
 		name_ = "FloatToShortGadget";
 	}
-	virtual void set_property(const char* prop, const char* value) {}
+	virtual void set_property(const char* prop, const char* value) 
+	{
+		if (boost::iequals(prop, "min_intensity"))
+			min_intensity_ = value;
+		else if (boost::iequals(prop, "max_intensity"))
+			max_intensity_ = value;
+		else if (boost::iequals(prop, "intensity_offset"))
+			intensity_offset_ = value;
+		else
+			THROW("unknown gadget parameter");
+	}
 	virtual std::string xml() const 
 	{
 		std::string xml_script("<gadget>\n");
 		xml_script += " <name>FloatToShortAttrib</name>\n";
 		xml_script += " <dll>gadgetron_mricore</dll>\n";
 		xml_script += " <classname>FloatToUShortGadget</classname>\n";
-		xml_script += "<property><name>max_intensity</name><value>32767</value></property>";
-		xml_script += "<property><name>min_intensity</name><value>0</value></property>";
-		xml_script += "<property><name>intensity_offset</name><value>0</value></property>";
+		ADD_PROPERTY("min_intensity", min_intensity_);
+		ADD_PROPERTY("max_intensity", max_intensity_);
+		ADD_PROPERTY("intensity_offset", intensity_offset_);
 		xml_script += "</gadget>\n";
 		return xml_script;
 	}
+private:
+	std::string min_intensity_;
+	std::string max_intensity_;
+	std::string intensity_offset_;
 };
 
 class ImgFinishGadget : public aGadget {
