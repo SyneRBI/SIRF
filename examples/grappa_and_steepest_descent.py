@@ -40,11 +40,12 @@ def main():
     # perform reconstruction
     recon = MR_BasicGRAPPAReconstruction()
     recon.set_input(preprocessed_data)
+    recon.gfactors('off')
     print('---\n reconstructing...')
     recon.process()
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
-    complex_images, complex_gfactors = recon.get_output()
+    complex_images = recon.get_output()
 
     # compute coil sensitivity maps
     csms = MR_CoilSensitivityMaps()

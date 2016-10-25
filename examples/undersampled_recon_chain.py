@@ -24,7 +24,7 @@ parser.add_argument\
  help = 'raw data file name (default: testdata.h5)')
 parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
-('--no_gfactors', help = 'no gfactors to be computed', action = 'store_true')
+('--gfactors', help = 'gfactors to be computed', action = 'store_true')
 args = parser.parse_args()                                 
 
 def main():
@@ -37,25 +37,21 @@ def main():
     preprocessed_data = input_data.process(['NoiseAdjustGadget', \
          'AsymmetricEchoGadget', 'RemoveROOversamplingGadget'])
 
-    grappa_par = ''
-    if args.no_gfactors:
-        # gfactors are not needed
-        grappa_par = '(send_out_gfactor=false)'
-
-    # perform reconstruction
-    bb_par = '(N_dimension=contrast,S_dimension=average,split_slices=false)'
-    recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget', \
-         'BucketToBufferGadget' + bb_par, \
-         'PrepRefGadget', \
-         'CartesianGrappaGadget' + grappa_par, \
+    # set up reconstruction chain
+    recon = ImagesReconstructor([\
+         'AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget' \
+         '(N_dimension=contrast,S_dimension=average,split_slices=false)', \
+         'PrepRefGadget', 'GRAPPA:CartesianGrappaGadget', \
          'FOVAdjustmentGadget', 'ScalingGadget', 'ImageArraySplitGadget'])
-    recon.set_input(preprocessed_data)
+    # change a property of the gadget labelled by 'GRAPPA'
+    recon.set_gadget_property('GRAPPA', 'send_out_gfactor', args.gfactors)
+    # reconstruct
     print('reconstructing...')
-    recon.process()
-    complex_output = recon.get_output()
+    complex_output = recon.reconstruct(preprocessed_data)
 
-    # post-process reconstructed images
+    # convert reconstructed images to real
     print('processing images...')
+    # specify conversion mode
     complex_output.conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
     output = complex_output.process\
              (['ComplexToFloatGadget', 'FloatToShortGadget'])

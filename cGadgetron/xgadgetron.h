@@ -89,6 +89,10 @@ public:
 	{
 		return *sptr_g_.get();
 	}
+	boost::shared_ptr<aGadget> gadget_sptr()
+	{
+		return sptr_g_;
+	}
 private:
 	std::string id_;
 	boost::shared_ptr<aGadget> sptr_g_;
@@ -147,6 +151,7 @@ public:
 		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
+	boost::shared_ptr<aGadget> gadget_sptr(std::string id);
 	// returns string containing the definition of the chain in xml format
 	std::string xml() const;
 private:
