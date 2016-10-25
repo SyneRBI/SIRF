@@ -43,13 +43,9 @@ def main():
         grappa_par = '(send_out_gfactor=false)'
 
     # perform reconstruction
-    nd = 'n_dimension=contrast,'
-    sd = 's_dimension=average,'
-    ss = 'split_slices=false,'
-    ig = 'ignore_segment=true,'
-    vb = 'verbose=true)'
+    bb_par = '(N_dimension=contrast,S_dimension=average,split_slices=false)'
     recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget', \
-         'BucketToBufferGadget(' + nd + sd + ss + ig + vb, \
+         'BucketToBufferGadget' + bb_par, \
          'PrepRefGadget', \
          'CartesianGrappaGadget' + grappa_par, \
          'FOVAdjustmentGadget', 'ScalingGadget', 'ImageArraySplitGadget'])
