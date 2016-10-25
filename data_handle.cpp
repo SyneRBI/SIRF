@@ -2,7 +2,7 @@
 
 #include "data_handle.h"
 
-char* charDataFromHandle(const DataHandle* ptr_h) 
+char* charDataFromDataHandle(const DataHandle* ptr_h) 
 {
 	void* ptr_d = ptr_h->data();
 	if (!ptr_d)
@@ -71,7 +71,7 @@ extern "C" {
 
 	char* charDataFromHandle(const void* ptr)
 	{
-		return charDataFromHandle((const DataHandle*)ptr);
+		return charDataFromDataHandle((const DataHandle*)ptr);
 	}
 	int intDataFromHandle(const void* ptr)
 	{

@@ -249,7 +249,10 @@ sptrDataFromHandle(const DataHandle* handle) {
 	return *(boost::shared_ptr<T>*)handle->data();
 }
 
-char* charDataFromHandle(const DataHandle* ptr_h);
+extern "C"
+void* charDataHandle(const char* s);
+
+char* charDataFromDataHandle(const DataHandle* ptr_h);
 
 #define GRAB 1
 
