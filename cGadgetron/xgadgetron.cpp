@@ -39,6 +39,21 @@ connection_failed(int nt)
 
 }
 
+boost::shared_ptr<aGadget> 
+GadgetChain::gadget_sptr(std::string id)
+{
+#ifdef MSVC
+	std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+#else
+	typename std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+#endif
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+		if (boost::iequals(gh->get()->id(), id))
+			return gh->get()->gadget_sptr();
+	}
+	return boost::shared_ptr<aGadget>();
+}
+
 std::string 
 GadgetChain::xml() const 
 {

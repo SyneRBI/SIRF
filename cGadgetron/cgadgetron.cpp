@@ -159,6 +159,26 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 	try {
 		if (boost::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
+		if (boost::iequals(obj, "gadget_chain")) {
+			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
+			boost::shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
+			if (sptr.get())
+				return sptrObjectHandle(sptr);
+			else {
+				DataHandle* handle = new DataHandle;
+				std::string error = "Gadget ";
+				error += name;
+				error += " not in the chain";
+				ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
+				handle->set(0, &status);
+				return (void*)handle;
+			}
+		}
+		if (boost::iequals(obj, "gadget")) {
+			aGadget& g = objectFromHandle<aGadget>(ptr);
+			std::string value = g.value_of(name);
+			return charDataHandle(value.c_str());
+		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;

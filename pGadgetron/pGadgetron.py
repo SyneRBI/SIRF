@@ -62,9 +62,31 @@ def _int_par(handle, set, par):
     value = pygadgetron.intDataFromHandle(h)
     pygadgetron.deleteDataHandle(h)
     return value
+def _char_par(handle, set, par):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    _check_status(h)
+    value = pygadgetron.charDataFromHandle(h)
+    pygadgetron.deleteDataHandle(h)
+    return value
+def _parameterHandle(hs, set, par):
+    handle = pygadgetron.cGT_parameter(hs, set, par)
+    _check_status(handle)
+    return handle
+
+def gadget_label_and_name(g):
+    name = g.lstrip()
+    name = name.rstrip()
+    i = name.find(':')
+    if i > -1:
+        label = name[: i].rstrip()
+        name = name[i + 1 :].lstrip()
+    else:
+        label = ''
+    return label, name
 
 def object_name_and_parameters(obj):
     name = obj.lstrip()
+    name = name.rstrip()
     i = name.find('(')
     if i > -1:
         j = name.find(')', i)
@@ -624,6 +646,8 @@ class Gadget(PyGadgetronObject):
         handle = pygadgetron.cGT_setGadgetProperties(self.handle, prop)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
+    def value_of(self, prop):
+        return _char_par(self.handle, 'gadget', prop)
 
 class GadgetChain(PyGadgetronObject):
     def __init__(self):
@@ -644,6 +668,19 @@ class GadgetChain(PyGadgetronObject):
         handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
+    def set_gadget_property(self, id, prop, value):
+        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        handle = pygadgetron.cGT_setGadgetProperty(hg, prop, repr(value).lower())
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
+        pygadgetron.deleteDataHandle(hg)
+    def value_of_gadget_property(self, id, prop):
+        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        hv = _parameterHandle(hg, 'gadget', prop)
+        value = pygadgetron.charDataFromHandle(hv)
+        pygadgetron.deleteDataHandle(hg)
+        pygadgetron.deleteDataHandle(hv)
+        return value
 
 class ImagesReconstructor(GadgetChain):
     def __init__(self, list = None):
@@ -654,7 +691,9 @@ class ImagesReconstructor(GadgetChain):
         if list is None:
             return
         for i in range(len(list)):
-            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
+            label, name = gadget_label_and_name(list[i])
+            self.add_gadget(label, Gadget(name))
+##            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
             #print('deleting reconstructor object...')
@@ -669,6 +708,15 @@ class ImagesReconstructor(GadgetChain):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def get_output(self):
+        images = ImagesContainer()
+        images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
+        _check_status(images.handle)
+        return images
+    def reconstruct(self, input_data):
+        handle = pygadgetron.cGT_reconstructImages\
+             (self.handle, input_data.handle)
+        _check_status(handle)
+        pygadgetron.deleteDataHandle(handle)
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
@@ -743,11 +791,21 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+    def gfactors(self, flag):
+        if flag == 'on':
+            gf = 'true'
+        else:
+            gf = 'false'
+        self.set_gadget_property('gadget4', 'send_out_gfactor', gf)
     def get_output(self):
         output = ImagesReconstructor.get_output(self)
-        images = output.select(2)
-        gfactors = output.select(2,1)
-        return images, gfactors
+        gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
+        if gf == 'true':
+            images = output.select(2)
+            gfactors = output.select(2,1)
+            return images, gfactors
+        else:
+            return output
     
 def MR_remove_x_oversampling(input_data):
     handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
