@@ -252,7 +252,9 @@ class ExtGadget : public Gadget {
 public:
 	ExtGadget() :
 		Gadget("Extract", "gadgetron_mricore", "ExtractGadget")
-	{}
+	{
+		add_property("extract_mask", "1");
+	}
 };
 
 class ComplexToFloatGadget : public Gadget {
