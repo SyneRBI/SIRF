@@ -671,8 +671,12 @@ class GadgetChain(PyGadgetronObject):
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
     def set_gadget_property(self, id, prop, value):
+        if type(value) == type('abc'):
+            v = value
+        else:
+            v = repr(value).lower()
         hg = _parameterHandle(self.handle, 'gadget_chain', id)
-        handle = pygadgetron.cGT_setGadgetProperty(hg, prop, repr(value).lower())
+        handle = pygadgetron.cGT_setGadgetProperty(hg, prop, v)
         _check_status(handle)
         pygadgetron.deleteDataHandle(handle)
         pygadgetron.deleteDataHandle(hg)
@@ -794,14 +798,11 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     def gfactors(self, flag):
-        if flag == 'on':
-            gf = 'true'
-        else:
-            gf = 'false'
-        self.set_gadget_property('gadget4', 'send_out_gfactor', gf)
+        self.set_gadget_property('gadget4', 'send_out_gfactor', flag == 'on')
     def get_output(self):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
+        print(gf)
         if gf == 'true':
             images = output.select(2)
             gfactors = output.select(2,1)

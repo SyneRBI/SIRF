@@ -37,11 +37,12 @@ def main():
 
     # perform reconstruction
     recon = MR_BasicGRAPPAReconstruction()
+    # for undersampled acquisition data GRAPPA will compute Gfactor images
+    # in addition to reconstructed ones
+    recon.gfactors('on')
     recon.set_input(preprocessed_data)
     print('---\n reconstructing...')
     recon.process()
-    # for undersampled acquisition data GRAPPA computes Gfactor images
-    # in addition to reconstructed ones
     complex_images, complex_gfactors = recon.get_output()
 
     # get real-valued reconstructed images and gfactors
