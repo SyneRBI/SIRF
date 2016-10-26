@@ -797,8 +797,8 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
-    def gfactors(self, flag):
-        self.set_gadget_property('gadget4', 'send_out_gfactor', flag == 'on')
+    def compute_gfactors(self, flag):
+        self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
     def get_output(self):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
