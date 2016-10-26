@@ -475,7 +475,14 @@ public:
 	{
 		par_ = par;
 	}
-
+	bool undersampled() const
+	{
+		ISMRMRD::IsmrmrdHeader header;
+		ISMRMRD::deserialize(par_.c_str(), header);
+		ISMRMRD::Encoding e = header.encoding[0];
+		return e.parallelImaging.is_present() &&
+			e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
+	}
 	void get_acquisitions_dimensions(size_t ptr_dim)
 	{
 		ISMRMRD::Acquisition acq;

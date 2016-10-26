@@ -543,6 +543,8 @@ class AcquisitionsContainer(DataContainer):
         self.sorted = True
     def is_sorted(self):
         return self.sorted
+    def is_undersampled(self):
+        return _int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         ap = AcquisitionsProcessor(list)
         return ap.process(self)

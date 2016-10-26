@@ -28,6 +28,9 @@ def main():
 
     # acquisitions will be read from an HDF file args.filename
     input_data = MR_Acquisitions(args.filename)
+    if not input_data.is_undersampled():
+        print('this demo needs undersampled raw data')
+        return
 
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \

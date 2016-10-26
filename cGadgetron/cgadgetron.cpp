@@ -159,6 +159,8 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 	try {
 		if (boost::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
+		if (boost::iequals(obj, "acquisitions"))
+			return cGT_acquisitionsParameter(ptr, name);
 		if (boost::iequals(obj, "gadget_chain")) {
 			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
 			boost::shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
@@ -526,6 +528,20 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 		return dataHandle((int)acq.idx().slice);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+extern "C"
+void*
+cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		if (boost::iequals(name, "undersampled"))
+			return dataHandle((int)acqs.undersampled());
+	}
+	CATCH;
 }
 
 extern "C"
