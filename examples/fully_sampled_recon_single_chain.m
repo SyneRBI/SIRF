@@ -14,28 +14,21 @@ end
 
 try
     % define gadgets
-    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
-	gadget2 = gadgetron.Gadget('AcquisitionAccumulateTriggerGadget');
-	gadget3 = gadgetron.Gadget('BucketToBufferGadget');
-	gadget4 = gadgetron.Gadget('SimpleReconGadget');
-	gadget5 = gadgetron.Gadget('ImageArraySplitGadget');
-	gadget6 = gadgetron.Gadget('ExtractGadget');
-    
-    % set gadget parameters
-    gadget2.set_property('trigger_dimension', 'repetition')
-    gadget3.set_property('split_slices', 'true')
+    gadgets = [...
+        {'RemoveROOversamplingGadget'}, ...
+        {'AcquisitionAccumulateTriggerGadget'}, ...
+        {'BucketToBufferGadget'}, ...
+        {'SimpleReconGadget'}, ...
+        {'ImageArraySplitGadget'}, ...
+        {'ex:ExtractGadget'} ...
+        ];
     
     % create reconstructor
-    recon = gadgetron.ImagesReconstructor();
+    recon = gadgetron.ImagesReconstructor(gadgets);
 
-    % build gadget chain
-    recon.add_gadget('g1', gadget1);
-	recon.add_gadget('g2', gadget2);
-	recon.add_gadget('g3', gadget3);
-	recon.add_gadget('g4', gadget4);
-	recon.add_gadget('g5', gadget5);
-	recon.add_gadget('g6', gadget6);
-    
+    % change a property of the gadget labelled 'ex'
+    recon.set_gadget_property('ex', 'extract_mask', 5);
+
     % define raw data source
     input_data = gadgetron.MR_Acquisitions('testdata.h5');    
     recon.set_input(input_data)

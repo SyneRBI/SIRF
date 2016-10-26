@@ -23,6 +23,10 @@ classdef AcquisitionsContainer < gadgetron.DataContainer
         function sorted = is_sorted(self)
             sorted = self.sorted_;
         end
+        function a = process(self, list)
+            ap = gadgetron.AcquisitionsProcessor(list);
+            a = ap.process(self);
+        end
         function [ns, ny, nc] = slice_dimensions(self)
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             calllib...

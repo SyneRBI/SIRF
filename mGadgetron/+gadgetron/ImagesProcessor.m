@@ -2,10 +2,16 @@ classdef ImagesProcessor < gadgetron.GadgetChain
     properties
     end
     methods
-        function self = ImagesProcessor()
+        function self = ImagesProcessor(list)
             self.name_ = 'ImagesProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            if nargin > 0
+                for i = 1 : size(list, 2)
+                    [label, name] = gadgetron.label_and_name(list{i});
+                    self.add_gadget(label, gadgetron.Gadget(name));
+                end
+            end
         end
         function delete(self)
             if ~isempty(self.handle_)

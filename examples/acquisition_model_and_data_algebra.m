@@ -27,7 +27,7 @@ try
     
     % post-process reconstructed images
     fprintf('processing images...\n')
-    images = gadgetron.MR_extract_real_images(complex_images);
+    images = complex_images.real();
 
     csms = gadgetron.MR_CoilSensitivityMaps();
     fprintf('sorting acquisitions...\n')
