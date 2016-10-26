@@ -1021,8 +1021,8 @@ public:
 	}
 	virtual void count(int i)
 	{
-		if (i > nimages_ - 1)
-			nimages_ = i + 1;
+		if (i > nimages_)
+			nimages_ = i;
 	}
 	virtual void append(int image_data_type, void* ptr_image)
 	{

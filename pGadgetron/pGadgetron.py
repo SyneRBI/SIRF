@@ -447,7 +447,9 @@ class ImagesContainer(DataContainer):
         if not self.is_real():
             data = abs(data)
         ni = self.number()
-        print('%d images' % ni)
+        nt = self.types()
+##        print('%d images' % ni)
+        print('%d images of %d types' % (ni, nt))
         print('Please enter the number of the image to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % ni)
         while True:
