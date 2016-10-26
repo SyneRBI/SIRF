@@ -14,34 +14,19 @@ try
     % acquisitions will be read from this HDF file
     input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
-    % define gadgets
-    gadget1 = gadgetron.Gadget('RemoveROOversamplingGadget');
-    gadget2 = gadgetron.Gadget('SimpleReconGadgetSet');
-    gadget3 = gadgetron.Gadget('ExtractGadget');
-    
-    % build acquisitions pre-processing chain
-    acq_proc = gadgetron.AcquisitionsProcessor();
-    acq_proc.add_gadget('g1', gadget1)
-    fprintf('processing acquisitions...\n')
-    interim_data = acq_proc.process(input_data);
+    processed_data = input_data.process({'RemoveROOversamplingGadget'});
 	
     % build reconstruction chain
-    recon = gadgetron.ImagesReconstructor();
-	recon.add_gadget('g2', gadget2);
+    recon = gadgetron.ImagesReconstructor({'SimpleReconGadgetSet'});
     % connect to input data
-    recon.set_input(interim_data)
+    recon.set_input(processed_data)
     % perform reconstruction
     fprintf('reconstructing...\n')
     recon.process()
     % get reconstructed images
-    interim_images = recon.get_output();
+    complex_images = recon.get_output();
     
-    % build image post-processing chain
-    proc_img = gadgetron.ImagesProcessor();
-    proc_img.add_gadget('g3', gadget3);
-    % post-process reconstructed images
-    fprintf('processing images...\n')
-    images = proc_img.process(interim_images);
+    images = complex_images.real();
 
     % plot obtained images
     for i = 1 : images.number()

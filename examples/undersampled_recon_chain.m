@@ -10,41 +10,25 @@ if ~libisloaded('mgadgetron')
 end
 
 try
-    % define gadgets
-    gadget11 = gadgetron.Gadget('NoiseAdjustGadget');
-    gadget12 = gadgetron.Gadget('AsymmetricEchoGadget');
-    gadget13 = gadgetron.Gadget('RemoveROOversamplingGadget');
-    gadget21 = gadgetron.Gadget('AcquisitionAccumulateTriggerGadget');
-    gadget22 = gadgetron.Gadget('BucketToBufferGadget');
-    gadget23 = gadgetron.Gadget('PrepRefGadget');
-    gadget24 = gadgetron.Gadget('CartesianGrappaGadget');
-    gadget25 = gadgetron.Gadget('FOVAdjustmentGadget');
-    gadget26 = gadgetron.Gadget('ScalingGadget');
-    gadget27 = gadgetron.Gadget('ImageArraySplitGadget');
-    gadget31 = gadgetron.Gadget('ComplexToFloatGadget');
-    gadget32 = gadgetron.Gadget('FloatToShortGadget');
-    
     % define raw data source
     file = input('raw data file: ', 's');
     input_data = gadgetron.MR_Acquisitions(file);
 
-    % define acquisitions pre-processor
-    acq_proc = gadgetron.AcquisitionsProcessor();
-    acq_proc.add_gadget('g1', gadget11)
-    acq_proc.add_gadget('g2', gadget12)
-    acq_proc.add_gadget('g3', gadget13)
-    fprintf('pre-processing acquisitions...\n')
-    preprocessed_data = acq_proc.process(input_data);
+    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoGadget'} ...
+         {'RemoveROOversamplingGadget'}];
+    preprocessed_data = input_data.process(prep_gadgets);
 
     % define reconstructor
-    recon = gadgetron.ImagesReconstructor();
-    recon.add_gadget('g1', gadget21)
-    recon.add_gadget('g2', gadget22)
-    recon.add_gadget('g3', gadget23)
-    recon.add_gadget('g4', gadget24)
-    recon.add_gadget('g5', gadget25)
-    recon.add_gadget('g6', gadget26)
-    recon.add_gadget('g7', gadget27)    
+    gadgets = [...
+        {'AcquisitionAccumulateTriggerGadget'}, ...
+        {'BucketToBufferGadget'}, ...
+        {'PrepRefGadget'}, ...
+        {'CartesianGrappaGadget'}, ...
+        {'FOVAdjustmentGadget'}, ...
+        {'ScalingGadget'}, ...
+        {'ImageArraySplitGadget'} ...
+        ];
+    recon = gadgetron.ImagesReconstructor(gadgets);
 
     % perform reconstruction
     recon.set_input(preprocessed_data)
@@ -54,12 +38,8 @@ try
     complex_output = recon.get_output();
     
     % extract real images
-    img_proc = gadgetron.ImagesProcessor();
-    img_proc.add_gadget('g1', gadget31)
-    img_proc.add_gadget('g2', gadget32)
-    complex_output.conversion_to_real(1)
     fprintf('processing images...\n')
-    output = img_proc.process(complex_output);
+    output = complex_output.real();
 
     % plot reconstructed images and G-factors
     n = output.number()/2;

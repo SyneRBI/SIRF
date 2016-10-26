@@ -5,16 +5,7 @@ classdef Gadget < handle
     end
     methods
         function self = Gadget(fullname)
-            i = strfind(fullname, '(');
-            if isempty(i)
-                name = strtrim(fullname);
-                prop = [];
-            else
-                j = strfind(fullname(i + 1 : end), ')');
-                name = strtrim(fullname(1 : i - 1));
-                prop = fullname(i + 1 : i + j - 1);
-            end
-            %fprintf(name, prop);
+            [name, prop] = gadgetron.name_and_parameters(fullname);
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', name);
             gadgetron.checkExecutionStatus(name, self.handle_);
             if ~isempty(prop)

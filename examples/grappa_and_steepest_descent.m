@@ -19,9 +19,7 @@ try
     % pre-process acquisitions
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoGadget'} ...
          {'RemoveROOversamplingGadget'}];
-    acq_proc = gadgetron.AcquisitionsProcessor(prep_gadgets);
-    fprintf('---\n pre-processing acquisitions...\n')
-    preprocessed_data = acq_proc.process(input_data);
+    preprocessed_data = input_data.process(prep_gadgets);
     pp_norm = preprocessed_data.norm();
 
     % perform reconstruction
@@ -59,8 +57,8 @@ try
     r_complex_imgs = complex_images - g*alpha;
 
     % get real-valued reconstructed and refined images
-    images = gadgetron.MR_extract_real_images(complex_images);
-    r_imgs = gadgetron.MR_extract_real_images(r_complex_imgs);
+    images = complex_images.real();
+    r_imgs = r_complex_imgs.real();
 
     % plot images
     n = images.number();

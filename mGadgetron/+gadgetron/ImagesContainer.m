@@ -31,9 +31,20 @@ classdef ImagesContainer < gadgetron.DataContainer
                 self.handle_, inc, off);
             gadgetron.checkExecutionStatus(self.name_, images.handle_);
         end
+        function images = process(self, list)
+            ip = gadgetron.ImagesProcessor(list);
+            images = ip.process(self);
+        end
         function conversion_to_real(self, type)
             calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
                 self.handle_, type)
+        end
+        function images = real(self, ctype)
+            if nargin < 2
+                ctype = 1;
+            end
+            self.conversion_to_real(ctype);
+            images = self.process({'ComplexToFloatGadget'});
         end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(4, 1));

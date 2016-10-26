@@ -4,12 +4,18 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
         images_
     end
     methods
-        function self = ImagesReconstructor()
+        function self = ImagesReconstructor(list)
             self.name_ = 'ImagesReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            if nargin > 0
+                for i = 1 : size(list, 2)
+                    [label, name] = gadgetron.label_and_name(list{i});
+                    self.add_gadget(label, gadgetron.Gadget(name));
+                end
+            end
         end
         function delete(self)
             if ~isempty(self.handle_)

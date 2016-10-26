@@ -32,5 +32,36 @@ classdef GadgetChain < handle
             gadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
+        function set_gadget_property(self, id, prop, value)
+            if isstring(value)
+                v = value;
+            elseif islogical(value)
+                if value
+                    v = 'true';
+                else
+                    v = 'false';
+                end
+            else
+                v = num2str(value);
+            end
+            hg = calllib('mgadgetron', 'mGT_parameter', ...
+                self.handle_, 'gadget_chain', id);
+            gadgetron.checkExecutionStatus(self.name_, hg);
+            hv = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
+                hg, prop, v);
+            gadgetron.checkExecutionStatus(self.name_, hv)
+            calllib('mutilities', 'mDeleteDataHandle', hg)
+            calllib('mutilities', 'mDeleteDataHandle', hv)
+        end
+        function v = value_of_gadget_property(self, id, prop)
+            hg = calllib('mgadgetron', 'mGT_parameter', ...
+                self.handle_, 'gadget_chain', id);
+            gadgetron.checkExecutionStatus(self.name_, hg);
+            hv = calllib('mgadgetron', 'mGT_parameter', hg, 'gadget', prop);
+            gadgetron.checkExecutionStatus(self.name_, hv);
+            v = calllib('mutilities', 'mCharDataFromHandle', hv);
+            calllib('mutilities', 'mDeleteDataHandle', hg)
+            calllib('mutilities', 'mDeleteDataHandle', hv)
+        end
     end
 end

@@ -10,7 +10,9 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
             gadgetron.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    self.add_gadget(['g' num2str(i)], gadgetron.Gadget(list{i}));
+                    [label, name] = gadgetron.label_and_name(list{i});
+                    self.add_gadget(label, gadgetron.Gadget(name));
+%                    self.add_gadget(['g' num2str(i)], gadgetron.Gadget(list{i}));
                 end
             end
         end
