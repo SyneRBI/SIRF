@@ -481,15 +481,16 @@ public:
 		ISMRMRD::Acquisition acq;
 		int* dim = (int*)ptr_dim;
 
+		int na = number();
 		int y = 0;
-		for (;;){
+		for (; y < na;){
 			get_acquisition(y, acq);
 			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 				break;
 			y++;
 		}
 		int ny = 0;
-		for (;;) {
+		for (; y < na;) {
 			get_acquisition(y, acq);
 			y++;
 			ny++;
@@ -509,14 +510,15 @@ public:
 		get_acquisitions_dimensions(ptr_dim);
 		unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
 		delete[] dim;
+		int na = number();
 		int y = 0;
-		for (;;){
+		for (; y < na;){
 			get_acquisition(y + ny*slice, acq);
 			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 				break;
 			y++;
 		}
-		for (;;) {
+		for (; y < na;) {
 			get_acquisition(y + ny*slice, acq);
 			unsigned int nc = acq.active_channels();
 			unsigned int ns = acq.number_of_samples();
