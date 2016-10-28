@@ -5,7 +5,11 @@ Demo for CSMs computation from coil images by xGadgetron and ismrmrd-python-tool
 import argparse
 import math
 import os
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 import time
 
@@ -50,9 +54,9 @@ try:
     nz = CSMs.number()
     print('%d slices' % nz)
 
-    print('Please enter the number of the slice to view')
-    print('(a value outside the range [1 : %d] will stop this loop)' % nz)
-    while True:
+    while HAVE_PYLAB:
+        print('---\n Enter the slice number to view it.')
+        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
         s = str(input('slice: '))
         if len(s) < 1:
             break

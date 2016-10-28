@@ -5,7 +5,11 @@ pre-processing, sorting and plotting.
 
 import argparse
 import os
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
@@ -46,9 +50,9 @@ def main():
     nx, ny, nc = input_data.slice_dimensions()
     nz = na//ny
 
-    print('Enter the number of the slice to view the acquired data for it')
-    print('(a value outside the range [1 : %d] will stop this loop)' % nz)
-    while True:
+    while HAVE_PYLAB:
+        print('---\n Enter the slice number to view it.')
+        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
         s = str(input('z-coordinate: '))
         if len(s) < 1:
             break
