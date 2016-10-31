@@ -46,13 +46,9 @@ try
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
+    obj_fun.set_num_subsets(12)
+    obj_fun.set_up(image)
 
-    % define OSMAPOSL reconstructor
-    recon = stir.OSMAPOSLReconstruction();
-    recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(12)
-    recon.set_up(image)
-    
     z = 20;
     
     % plot the image

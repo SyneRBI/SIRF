@@ -79,14 +79,8 @@ def main():
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_prior(prior)
-
-    # create OSMAPOSL reconstructor
-    recon = OSMAPOSLReconstruction()
-    recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(12)
-    # set up the reconstructor
-    print('setting up, please wait...')
-    recon.set_up(image)
+    obj_fun.set_num_subsets(12)
+    obj_fun.set_up(image)
 
     # plot the initial image
     idata = image.as_array()
