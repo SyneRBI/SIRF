@@ -32,7 +32,7 @@ def main():
     am.set_matrix(matrix)
 
     # define acquisition data
-    ad = AcquisitionData('my_raw_data.hs')
+    ad = AcquisitionData('../examples/my_forward_projection.hs')
 
     # create filter
     filter = CylindricFilter()
@@ -76,6 +76,8 @@ def main():
 ##    print('Figure 2: subset 0 gradient - close window to continue')
 ##    pylab.show()
 
+    eps = 1e-6
+
     for iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % recon.get_subiteration_num())
         subset = iter - 1
@@ -83,6 +85,7 @@ def main():
         data = image.as_array()
         ss = obj_fun.get_subset_sensitivity(subset)
         sdata = ss.as_array()
+        sdata[sdata < eps] = eps
         grad = obj_fun.get_gradient_not_divided(image, subset)
         gdata = grad.as_array()
         data = data*gdata/sdata
