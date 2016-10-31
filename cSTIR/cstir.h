@@ -44,8 +44,12 @@ extern "C" {
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 
 	// Ojective function methods
+	void*	cSTIR_subsetSensitivity(void* ptr_f, int subset);
 	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
-	void* cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset);
+	void* cSTIR_objectiveFunctionGradient
+		(void* ptr_f, void* ptr_i, int subset);
+	void* cSTIR_objectiveFunctionGradientNotDivided
+		(void* ptr_f, void* ptr_i, int subset);
 
 	// Image methods
 	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
