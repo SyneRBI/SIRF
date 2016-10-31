@@ -498,9 +498,11 @@ class ObjectiveFunction:
             (self.handle, 'GeneralisedObjectiveFunction', 'prior')
         _check_status(prior.handle)
         return prior
-    def set_up(self):
-        handle = pystir.cSTIR_setupObject\
-            ('GeneralisedObjectiveFunction', self.handle)
+    def set_num_subsets(self, n):
+        _set_int_par\
+            (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
+    def set_up(self, image):
+        handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
         _check_status(handle)
         pystir.deleteDataHandle(handle)
     def value(self, image):
@@ -539,6 +541,13 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         _check_status(ss.handle)
         return ss
+    def get_gradient_not_divided(self, image, subset):
+        grad = Image()
+        pystir.deleteDataHandle(grad.handle)
+        grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
+            (self.handle, image.handle, subset)
+        _check_status(grad.handle)
+        return grad
 
 class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
     def __init__(self, obj_fun = None):
@@ -575,13 +584,6 @@ class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
     def set_acquisition_data(self, am):
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', am.handle)
-    def get_gradient_not_divided(self, image, subset):
-        grad = Image()
-        pystir.deleteDataHandle(grad.handle)
-        grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
-            (self.handle, image.handle, subset)
-        _check_status(grad.handle)
-        return grad
 
 class Reconstruction:
     def __init__(self):
