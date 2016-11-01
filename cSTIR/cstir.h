@@ -52,6 +52,9 @@ extern "C" {
 	void* cSTIR_objectiveFunctionGradientNotDivided
 		(void* ptr_f, void* ptr_i, int subset);
 
+	// Prior methods
+	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
+
 	// Image methods
 	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
 	void cSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data);

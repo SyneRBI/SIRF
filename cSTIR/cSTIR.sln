@@ -42,7 +42,6 @@ Global
 		{20FB393D-66C4-4135-BE4B-6AD475A60024}.Release|Win32.ActiveCfg = Release|Win32
 		{20FB393D-66C4-4135-BE4B-6AD475A60024}.Release|Win32.Build.0 = Release|Win32
 		{20FB393D-66C4-4135-BE4B-6AD475A60024}.Release|x64.ActiveCfg = Release|x64
-		{20FB393D-66C4-4135-BE4B-6AD475A60024}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
