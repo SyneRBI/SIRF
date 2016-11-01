@@ -12,8 +12,7 @@ IUTILITIES = $(SRC_PATH)/iUtilities
 CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
 
-#OBJECTS = ci_stir.o stir_p.o ci_dh.o ci_ex.o ci_tw.o
-OBJECTS = ci_stir.o stir_p.o ci_tw.o
+OBJECTS = cstir.o stir_p.o cstir_tw.o
 
 all: libcstir.a
 

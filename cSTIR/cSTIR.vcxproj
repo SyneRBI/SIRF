@@ -132,15 +132,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ci_stir.cpp" />
-    <ClCompile Include="ci_tw.cpp" />
-    <ClCompile Include="stir_p.cpp" />
+    <ClInclude Include="cstir.h" />
+    <ClInclude Include="cstir_p.h" />
+    <ClInclude Include="stir.h" />
+    <ClInclude Include="stir_x.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cstir.h" />
-    <ClInclude Include="stir.h" />
-    <ClInclude Include="stir_p.h" />
-    <ClInclude Include="stir_x.h" />
+    <ClCompile Include="cstir.cpp" />
+    <ClCompile Include="cstir_p.cpp" />
+    <ClCompile Include="cstir_tw.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
