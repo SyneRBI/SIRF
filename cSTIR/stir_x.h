@@ -3,8 +3,8 @@
 
 #include "data_handle.h"
 #include "cstir.h"
+#include "cstir_p.h"
 #include "stir.h"
-#include "stir_p.h"
 
 #define CATCH \
 	catch (LocalisedException& se) {\

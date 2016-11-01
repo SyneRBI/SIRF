@@ -1,6 +1,6 @@
 #include "data_handle.h"
+#include "cstir_p.h"
 #include "stir.h"
-#include "stir_p.h"
 #include "stir_x.h"
 
 static void*
