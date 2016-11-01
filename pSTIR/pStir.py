@@ -467,10 +467,16 @@ class Prior:
     def get_penalisation_factor(self):
         return _float_par\
         (self.handle, 'GeneralisedPrior', 'penalisation_factor')
-    def set_up(self):
-        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
-        _check_status(handle)
-        pystir.deleteDataHandle(handle)
+    def get_gradient(self, image):
+        grad = Image()
+        pystir.deleteDataHandle(grad.handle)
+        grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
+        _check_status(grad.handle)
+        return grad
+##    def set_up(self):
+##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
+##        _check_status(handle)
+##        pystir.deleteDataHandle(handle)
 
 class QuadraticPrior(Prior):
     def __init__(self):

@@ -447,7 +447,7 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
 		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		sptrImage3DF* sptr = new sptrImage3DF(image.get_empty_copy());
-		Image3DF& grad = *sptr->get();
+		Image3DF& grad = **sptr; // ->get();
 		fun.compute_sub_gradient(grad, image, subset);
 		return newObjectHandle(sptr);
 	}
@@ -463,9 +463,24 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
 		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		sptrImage3DF* sptr = new sptrImage3DF(image.get_empty_copy());
-		Image3DF& grad = *sptr->get();
+		Image3DF& grad = **sptr; // ->get();
 		fun.compute_sub_gradient_without_penalty_plus_sensitivity
 			(grad, image, subset);
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_priorGradient(void* ptr_p, void* ptr_i)
+{
+	try {
+		Prior3DF& prior = objectFromHandle< Prior3DF>(ptr_p);
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
+		sptrImage3DF* sptr = new sptrImage3DF(image.get_empty_copy());
+		Image3DF& grad = **sptr; // ->get();
+		prior.compute_gradient(grad, image);
 		return newObjectHandle(sptr);
 	}
 	CATCH;

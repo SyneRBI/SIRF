@@ -44,11 +44,17 @@ def main():
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
 
+    # create prior
+    prior = QuadraticPrior()
+    prior.set_penalisation_factor(0.5)
+
+    num_subsets = 12
+
     # create objective function
     obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
-    obj_fun.set_num_subsets(12)
+    obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
     num_subiterations = 2
@@ -78,7 +84,10 @@ def main():
         sdata[sdata < eps] = eps
         grad = obj_fun.get_gradient_not_divided(image, subset)
         gdata = grad.as_array()
-        data = data*gdata/sdata
+        pgrad = prior.get_gradient(image)
+        pdata = pgrad.as_array()
+        pdata = pdata/num_subsets + sdata
+        data = data*gdata/pdata
         image.fill(data)
         filter.apply(image)
 
