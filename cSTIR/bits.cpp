@@ -3574,3 +3574,17 @@ std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
 //Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
 
+// On Linux, Matlab cannot stand this
+//#include "iutilities.h"
+//#include "cstir.h"
+//#include "stir_p.h"
+// and cannot find charDataFromHandle
+char* _charDataFromHandle(const DataHandle* ptr_h)
+{
+	void* ptr_d = ptr_h->data();
+	if (!ptr_d)
+		return 0;
+	else
+		return (char*)ptr_d;
+}
+
