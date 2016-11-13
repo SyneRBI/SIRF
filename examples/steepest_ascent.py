@@ -125,7 +125,7 @@ def main():
 
         if tau < 0:
             # find the optimal t
-            fun = lambda t: -obj_fun.value(image.fill(idata + x*gdata))
+            fun = lambda t: -obj_fun.value(image.fill(idata + t*gdata))
             t = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
