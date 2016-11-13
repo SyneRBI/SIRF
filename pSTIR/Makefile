@@ -4,14 +4,16 @@ EXTRA_CFLAGS=-O3 -DNDEBUG
 CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(IUTILITIES) -I$(STIR_SRC)/include -I$(CSTIR_SRC)
 # enable this (or use it on the command line) if you compiled STIR with OPENMP=ON
 OPENMPFLAGS=-fopenmp
+# enable this if you compiled STIR with HDF5 support
+#HDF5_LDFLAGS=-lhdf5_cpp -lhdf5
 #EXTRA_LDFLAGS=-g
-LDFLAGS = $(X11LIB) -lrt $(OPENMPFLAGS) $(EXTRA_LDFLAGS)
+LDFLAGS = -lrt $(OPENMPFLAGS) $(HDF5_LDFLAGS) $(EXTRA_LDFLAGS) $(X11LIB)
 
 BUILDPATH = $(BUILD_PATH)/xSTIR
 
 SWIG = swig
 
-ifneq ($(wildcard /*/lib/X11/.*),)
+ifneq ($(wildcard /*/lib*/*X11*),)
 	X11LIB = -lX11
 endif
 
@@ -34,6 +36,7 @@ STIR_LIBS = \
 			-lrecon_buildblock \
 			-lIO \
 			-ldata_buildblock \
+			-lrecon_buildblock \
 			-ldisplay \
 			-leval_buildblock \
 			-llistmode_buildblock \
@@ -42,6 +45,7 @@ STIR_LIBS = \
 			-lShape_buildblock \
 			-lnumerics_buildblock \
 			-lspatial_transformation_buildblock \
+			-lIO \
 			-lbuildblock
 
 REG_OBJECTS = \
