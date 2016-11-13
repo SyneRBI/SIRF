@@ -140,7 +140,6 @@ export PYLIBPATH=<Path to Python libraries, e.g. /usr/lib/python2.7/config-x86_6
 
 Create folder <work_dir>/build/xSTIR.
 
--Go to cSTIR sub-folder and run make.
+-run make.
 
--Go to pSTIR sub-folder and run make.
 
