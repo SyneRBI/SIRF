@@ -25,7 +25,7 @@ try:
     print('---\n acquisitions norm: %e' % input_norm)
 
     # pre-process acquisitions
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget']
     acq_proc = AcquisitionsProcessor(prep_gadgets)
     print('pre-processing acquisitions...')

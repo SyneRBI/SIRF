@@ -32,9 +32,7 @@ def main():
 
     # pre-process acquisition data
     print('processing acquisitions...')
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
-         'RemoveROOversamplingGadget']
-    processed_data = input_data.process(prep_gadgets)
+    processed_data = input_data.process(['RemoveROOversamplingGadget'])
 
     # perform reconstruction
     recon = MR_BasicReconstruction()

@@ -34,9 +34,8 @@ def main():
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
-         'RemoveROOversamplingGadget']
-    processed_data = input_data.process(prep_gadgets)
+    print('---\n processing acquisitions...')
+    processed_data = input_data.process(['RemoveROOversamplingGadget'])
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 

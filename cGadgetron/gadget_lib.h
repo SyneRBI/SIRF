@@ -133,25 +133,25 @@ public:
 	{}
 };
 
-class AsymmetricEchoGadget : public Gadget {
+class AsymmetricEchoAdjustROGadget : public Gadget {
 public:
-	AsymmetricEchoGadget() :
+	AsymmetricEchoAdjustROGadget() :
 		Gadget("AsymmetricEcho", "gadgetron_mricore", 
 		"AsymmetricEchoAdjustROGadget")
 	{}
 };
 
-class RemoveOversamplingGadget : public Gadget {
+class RemoveROOversamplingGadget : public Gadget {
 public:
-	RemoveOversamplingGadget() :
+	RemoveROOversamplingGadget() :
 		Gadget("RemoveROOversampling", "gadgetron_mricore",
 		"RemoveROOversamplingGadget")
 	{}
 };
 
-class AcqAccTrigGadget : public Gadget {
+class AcquisitionAccumulateTriggerGadget : public Gadget {
 public:
-	AcqAccTrigGadget() :
+	AcquisitionAccumulateTriggerGadget() :
 		Gadget("AccTrig", "gadgetron_mricore", "AcquisitionAccumulateTriggerGadget")
 	{
 		add_property("trigger_dimension", "repetition");
@@ -159,9 +159,9 @@ public:
 	}
 };
 
-class BucketToBuffGadget : public Gadget {
+class BucketToBufferGadget : public Gadget {
 public:
-	BucketToBuffGadget() :
+	BucketToBufferGadget() :
 		Gadget("Buff", "gadgetron_mricore", "BucketToBufferGadget")
 	{
 		add_property("N_dimension", "");
@@ -172,9 +172,9 @@ public:
 	}
 };
 
-class PrepRefGadget : public Gadget {
+class GenericReconCartesianReferencePrepGadget : public Gadget {
 public:
-	PrepRefGadget() :
+	GenericReconCartesianReferencePrepGadget() :
 		Gadget("PrepRef", "gadgetron_mricore", 
 		"GenericReconCartesianReferencePrepGadget")
 	{
@@ -187,16 +187,16 @@ public:
 	}
 };
 
-class SimpleReconstructionGadget : public Gadget {
+class SimpleReconGadget : public Gadget {
 public:
-	SimpleReconstructionGadget() :
+	SimpleReconGadget() :
 		Gadget("SimpleRecon", "gadgetron_mricore", "SimpleReconGadget")
 	{}
 };
 
-class CartesianGrappaGadget : public Gadget {
+class GenericReconCartesianGrappaGadget : public Gadget {
 public:
-	CartesianGrappaGadget() :
+	GenericReconCartesianGrappaGadget() :
 		Gadget("CartesianGrappa", "gadgetron_mricore",
 		"GenericReconCartesianGrappaGadget")
 	{
@@ -212,9 +212,9 @@ public:
 	}
 };
 
-class FOVAdjustmentGadget : public Gadget {
+class GenericReconFieldOfViewAdjustmentGadget : public Gadget {
 public:
-	FOVAdjustmentGadget() :
+	GenericReconFieldOfViewAdjustmentGadget() :
 		Gadget("FOVAdjustment", "gadgetron_mricore",
 		"GenericReconFieldOfViewAdjustmentGadget")
 	{
@@ -224,9 +224,9 @@ public:
 	}
 };
 
-class ScalingGadget : public Gadget {
+class GenericReconImageArrayScalingGadget : public Gadget {
 public:
-	ScalingGadget() :
+	GenericReconImageArrayScalingGadget() :
 		Gadget("Scaling", "gadgetron_mricore",
 		"GenericReconImageArrayScalingGadget")
 	{
@@ -241,16 +241,16 @@ public:
 	}
 };
 
-class ImgArrSplitGadget : public Gadget {
+class ImageArraySplitGadget : public Gadget {
 public:
-	ImgArrSplitGadget() :
+	ImageArraySplitGadget() :
 		Gadget("ImageArraySplit", "gadgetron_mricore", "ImageArraySplitGadget")
 	{}
 };
 
-class ExtGadget : public Gadget {
+class ExtractGadget : public Gadget {
 public:
-	ExtGadget() :
+	ExtractGadget() :
 		Gadget("Extract", "gadgetron_mricore", "ExtractGadget")
 	{
 		add_property("extract_mask", "1");
@@ -276,16 +276,16 @@ public:
 	}
 };
 
-class ImgFinishGadget : public Gadget {
+class ImageFinishGadget : public Gadget {
 public:
-	ImgFinishGadget() :
+	ImageFinishGadget() :
 		Gadget("ImageFinish", "gadgetron_mricore", "ImageFinishGadget")
 	{}
 };
 
-class AcqFinishGadget : public Gadget {
+class AcquisitionFinishGadget : public Gadget {
 public:
-	AcqFinishGadget() :
+	AcquisitionFinishGadget() :
 		Gadget("AcquisitionFinish", "gadgetron_mricore", "AcquisitionFinishGadget")
 	{}
 };
@@ -325,10 +325,10 @@ public:
 		return xml_script;
 	}
 private:
-	AcqAccTrigGadget aat_;
-	BucketToBuffGadget bb_;
-	SimpleReconstructionGadget sr_;
-	ImgArrSplitGadget ias_;
+	AcquisitionAccumulateTriggerGadget aat_;
+	BucketToBufferGadget bb_;
+	SimpleReconGadget sr_;
+	ImageArraySplitGadget ias_;
 };
 
 #endif

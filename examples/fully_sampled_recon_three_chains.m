@@ -14,6 +14,7 @@ try
     % acquisitions will be read from this HDF file
     input_data = gadgetron.MR_Acquisitions('testdata.h5');
     
+    % process data using Acquisitions processing chain
     processed_data = input_data.process({'RemoveROOversamplingGadget'});
 	
     % build reconstruction chain
@@ -25,7 +26,8 @@ try
     recon.process()
     % get reconstructed images
     complex_images = recon.get_output();
-    
+
+    % extract real images using Images processing chain
     images = complex_images.real();
 
     % plot obtained images
