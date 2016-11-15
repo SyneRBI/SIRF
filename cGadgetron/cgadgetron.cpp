@@ -167,7 +167,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 		if (boost::iequals(obj, "gadget")) {
 			aGadget& g = objectFromHandle<aGadget>(ptr);
 			std::string value = g.value_of(name);
-			return charDataHandle(value.c_str());
+			return charDataHandleFromCharData(value.c_str());
 		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
