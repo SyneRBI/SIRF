@@ -171,7 +171,8 @@ public:
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
+		boost::shared_ptr<AcquisitionFinishGadget> 
+			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 	}
 	virtual ~AcquisitionsProcessor() {}
@@ -201,7 +202,7 @@ public:
 		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
 	}
 
@@ -228,7 +229,7 @@ public:
 	{
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
 	}
 

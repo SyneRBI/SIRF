@@ -100,36 +100,38 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
 		else if (boost::iequals(name, "NoiseAdjustGadget"))
 			return newObjectHandle<aGadget, NoiseAdjustGadget>();
-		else if (boost::iequals(name, "AsymmetricEchoGadget"))
-			return newObjectHandle<aGadget, AsymmetricEchoGadget>();
+		else if (boost::iequals(name, "AsymmetricEchoAdjustROGadget"))
+			return newObjectHandle<aGadget, AsymmetricEchoAdjustROGadget>();
 		else if (boost::iequals(name, "RemoveROOversamplingGadget"))
-			return newObjectHandle<aGadget, RemoveOversamplingGadget>();
+			return newObjectHandle<aGadget, RemoveROOversamplingGadget>();
 		else if (boost::iequals(name, "AcquisitionAccumulateTriggerGadget"))
-			return newObjectHandle<aGadget, AcqAccTrigGadget>();
+			return newObjectHandle<aGadget, AcquisitionAccumulateTriggerGadget>();
 		else if (boost::iequals(name, "BucketToBufferGadget"))
-			return newObjectHandle<aGadget, BucketToBuffGadget>();
-		else if (boost::iequals(name, "PrepRefGadget"))
-			return newObjectHandle<aGadget, PrepRefGadget>();
-		else if (boost::iequals(name, "CartesianGrappaGadget"))
-			return newObjectHandle<aGadget, CartesianGrappaGadget>();
+			return newObjectHandle<aGadget, BucketToBufferGadget>();
+		else if (boost::iequals(name, "GenericReconCartesianReferencePrepGadget"))
+			return 
+			newObjectHandle<aGadget, GenericReconCartesianReferencePrepGadget>();
+		else if (boost::iequals(name, "GenericReconCartesianGrappaGadget"))
+			return newObjectHandle<aGadget, GenericReconCartesianGrappaGadget>();
 		else if (boost::iequals(name, "SimpleReconGadget"))
-			return newObjectHandle<aGadget, SimpleReconstructionGadget>();
-		else if (boost::iequals(name, "FOVAdjustmentGadget"))
-			return newObjectHandle<aGadget, FOVAdjustmentGadget>();
-		else if (boost::iequals(name, "ScalingGadget"))
-			return newObjectHandle<aGadget, ScalingGadget>();
+			return newObjectHandle<aGadget, SimpleReconGadget>();
+		else if (boost::iequals(name, "GenericReconFieldOfViewAdjustmentGadget"))
+			return 
+			newObjectHandle<aGadget, GenericReconFieldOfViewAdjustmentGadget>();
+		else if (boost::iequals(name, "GenericReconImageArrayScalingGadget"))
+			return newObjectHandle<aGadget, GenericReconImageArrayScalingGadget>();
 		else if (boost::iequals(name, "ImageArraySplitGadget"))
-			return newObjectHandle<aGadget, ImgArrSplitGadget>();
+			return newObjectHandle<aGadget, ImageArraySplitGadget>();
 		else if (boost::iequals(name, "ExtractGadget"))
-			return newObjectHandle<aGadget, ExtGadget>();
+			return newObjectHandle<aGadget, ExtractGadget>();
 		else if (boost::iequals(name, "ComplexToFloatGadget"))
 			return newObjectHandle<aGadget, ComplexToFloatGadget>();
 		else if (boost::iequals(name, "FloatToShortGadget"))
 			return newObjectHandle<aGadget, FloatToShortGadget>();
 		else if (boost::iequals(name, "ImageFinishGadget"))
-			return newObjectHandle<aGadget, ImgFinishGadget>();
+			return newObjectHandle<aGadget, ImageFinishGadget>();
 		else if (boost::iequals(name, "AcquisitionFinishGadget"))
-			return newObjectHandle<aGadget, AcqFinishGadget>();
+			return newObjectHandle<aGadget, AcquisitionFinishGadget>();
 		else if (boost::iequals(name, "SimpleReconGadgetSet"))
 			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
 		std::cout << "object " << name << "		not found" << std::endl;

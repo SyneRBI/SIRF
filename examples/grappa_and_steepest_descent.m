@@ -17,7 +17,7 @@ try
     input_data = gadgetron.MR_Acquisitions(file);
 
     % pre-process acquisitions
-    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoGadget'} ...
+    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
     preprocessed_data = input_data.process(prep_gadgets);
     pp_norm = preprocessed_data.norm();

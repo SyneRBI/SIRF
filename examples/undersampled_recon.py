@@ -37,7 +37,7 @@ def main():
         return
 
     # pre-process acquisitions
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
          'RemoveROOversamplingGadget']
     print('---\n pre-processing acquisitions...')
     preprocessed_data = input_data.process(prep_gadgets)

@@ -35,14 +35,16 @@ def main():
     # pre-process acquisitions
     print('pre-processing acquisitions...')
     preprocessed_data = input_data.process(['NoiseAdjustGadget', \
-         'AsymmetricEchoGadget', 'RemoveROOversamplingGadget'])
+         'AsymmetricEchoAdjustROGadget', 'RemoveROOversamplingGadget'])
 
     # set up reconstruction chain
     recon = ImagesReconstructor([\
          'AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget' \
          '(N_dimension=contrast,S_dimension=average,split_slices=false)', \
-         'PrepRefGadget', 'GRAPPA:CartesianGrappaGadget', \
-         'FOVAdjustmentGadget', 'ScalingGadget', 'ImageArraySplitGadget'])
+         'GenericReconCartesianReferencePrepGadget', \
+         'GRAPPA:GenericReconCartesianGrappaGadget', \
+         'GenericReconFieldOfViewAdjustmentGadget', \
+         'GenericReconImageArrayScalingGadget', 'ImageArraySplitGadget'])
     # change a property of the gadget labelled by 'GRAPPA'
     recon.set_gadget_property('GRAPPA', 'send_out_gfactor', args.gfactors)
     # reconstruct
