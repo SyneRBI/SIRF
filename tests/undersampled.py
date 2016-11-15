@@ -73,41 +73,41 @@ def acquisitions_tests_failed(acqs):
 def main():
 
     failed = 0
+    eps = 1e-5
 
     input_data = MR_Acquisitions(DATA_PATH + 'testdata_a2.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
     print('---\n acquisition data norm: %e' % input_data_norm)
-    failed += test_failed(1, 147.9937, input_data_norm, 0, 1e-5)
+    failed += test_failed(1, 147.9937, input_data_norm, 0, eps)
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
 
     processed_data_norm = processed_data.norm()
     print('---\n processed acquisition data norm: %e' % processed_data_norm)
-    failed += test_failed(2, 142.3433, processed_data_norm, 0, 1e-5)
+    failed += test_failed(2, 142.3433, processed_data_norm, 0, eps)
 
-    recon = MR_BasicReconstruction()
+    recon = MR_BasicGRAPPAReconstruction()
+    recon.compute_gfactors(False)
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
 
     complex_images_norm = complex_images.norm()
     print('---\n reconstructed images norm: %e' % complex_images_norm)
-    failed += test_failed(3, 114.1564, complex_images_norm, 0, 1e-5)
+    failed += test_failed(3, 996.5304, complex_images_norm, 0, eps)
 
     csms = MR_CoilSensitivityMaps()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
-##    print('---\n computing sensitivity maps...')
-##    csms.calculate(processed_data)
     print('---\n computing coil images...')
     cis = MR_CoilImages()
     cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
-    csms.calculate(cis) #, Inati = True)
+    csms.calculate(cis)
 
     am = MR_AcquisitionModel(processed_data, complex_images)
 
@@ -118,12 +118,12 @@ def main():
     fwd_acqs_norm = fwd_acqs.norm()
     print('---\n reconstructed images forward projection norm %e'\
           % fwd_acqs_norm)
-    failed += test_failed(4, 112.8888, fwd_acqs_norm, 0, 1e-5)
+    failed += test_failed(4, 971.9004, fwd_acqs_norm, 0, eps)
 
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
-    failed += test_failed(5, 0.7259499, rr, 1e-6, 0)
+    failed += test_failed(5, 0.8598439, rr, eps, 0)
 
     bwd_images = am.backward(processed_data)
     imgs_diff = bwd_images - complex_images
@@ -131,17 +131,13 @@ def main():
     print(\
         '---\n difference between reconstructed and back-projected images: %e'\
         % rd)
-    failed += test_failed(6, 0.6749271, rd, 1e-6, 0)
+    failed += test_failed(6, 0.8665925, rd, eps, 0)
 
     xFy = processed_data * fwd_acqs
     Bxy = bwd_images * complex_images
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
-    failed += test_failed(7, xFy.real, Bxy.real, 0, 1e-6)
-
-    images = complex_images.real()
-    data = images.image_as_array(0)
-    failed += test_failed(8, 0.5952597, data[0, 0, 142, 130], 0, 1e-6)
+    failed += test_failed(7, xFy.real, Bxy.real, 0, eps)
 
     if failed == 0:
         print('all tests passed')
