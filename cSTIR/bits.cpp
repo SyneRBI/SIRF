@@ -3588,3 +3588,17 @@ char* _charDataFromHandle(const DataHandle* ptr_h)
 		return (char*)ptr_d;
 }
 
+//#define CATCH \
+//	catch (LocalisedException& se) {\
+//		ExecutionStatus status(se);\
+//		DataHandle* handle = new DataHandle;\
+//		handle->set(0, &status);\
+//		return (void*)handle;\
+//		}\
+//	catch (...) {\
+//		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
+//		DataHandle* handle = new DataHandle;\
+//		handle->set(0, &status);\
+//		return (void*)handle;\
+//		}\
+
