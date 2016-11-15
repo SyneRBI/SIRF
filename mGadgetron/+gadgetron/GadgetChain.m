@@ -33,7 +33,7 @@ classdef GadgetChain < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_gadget_property(self, id, prop, value)
-            if isstring(value)
+            if ischar(value)
                 v = value;
             elseif islogical(value)
                 if value

@@ -319,4 +319,16 @@ private:
 		AcquisitionsContainer& ac, int& off);
 };
 
+// yet another kludge to stop matlab on linux from crushing
+inline void* charDataHandleFromCharData(const char* s)
+{
+	DataHandle* h = new DataHandle;
+	size_t len = strlen(s);
+	char* d = (char*)malloc(len + 1);
+	//strcpy_s(d, len + 1, s);
+	strcpy(d, s);
+	h->set((void*)d, 0, GRAB);
+	return (void*)h;
+}
+
 #endif

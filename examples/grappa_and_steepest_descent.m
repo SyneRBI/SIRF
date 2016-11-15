@@ -19,10 +19,12 @@ try
     % pre-process acquisitions
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
+    fprintf('---\n preprocessing...\n');
     preprocessed_data = input_data.process(prep_gadgets);
     pp_norm = preprocessed_data.norm();
 
     % perform reconstruction
+    %fprintf('ok\n');
     recon = gadgetron.MR_BasicGRAPPAReconstruction();
     recon.compute_gfactors(false);
     recon.set_input(preprocessed_data);
@@ -62,7 +64,7 @@ try
 
     % plot images
     n = images.number();
-    fprintf('Enter slice number to view it\n')
+    fprintf('---\nEnter slice number to view it\n')
     fprintf('(a value outside the range [1 : %d] will stop this loop)\n', n)
     while (true)
         i = input('slice: ');
