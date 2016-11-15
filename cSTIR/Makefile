@@ -12,7 +12,7 @@ IUTILITIES = $(SRC_PATH)/iUtilities
 CSTIRLIB = libcstir.a
 CSTIR_LIB = -lcstir
 
-OBJECTS = cstir.o stir_p.o cstir_tw.o
+OBJECTS = cstir.o cstir_p.o cstir_tw.o
 
 all: libcstir.a
 
@@ -25,4 +25,4 @@ libcstir.a: $(OBJECTS)
 	$(CXX) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f *.o
+	rm -f *.o *.a
