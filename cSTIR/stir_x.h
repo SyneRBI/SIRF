@@ -6,21 +6,6 @@
 #include "cstir_p.h"
 #include "stir.h"
 
-#define CATCH \
-	catch (LocalisedException& se) {\
-		ExecutionStatus status(se);\
-		DataHandle* handle = new DataHandle;\
-		handle->set(0, &status);\
-		return (void*)handle;\
-		}\
-	catch (...) {\
-		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
-		DataHandle* handle = new DataHandle;\
-		handle->set(0, &status);\
-		return (void*)handle;\
-		}\
-
-
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 
 template<class Image>
