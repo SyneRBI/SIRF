@@ -4,7 +4,11 @@ Upper-level demo, GRAPPA reconstruction of undersampled data.
 
 import argparse
 import os
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
@@ -57,9 +61,9 @@ def main():
     print('%d images reconstructed.' % nz)
 
     # plot images and gfactors
-    print('Enter the number of the slice to view it')
-    print('(a value outside the range [1 : %d] will stop this loop)'% nz)
-    while True:
+    while HAVE_PYLAB:
+        print('---\n Enter the slice number to view it.')
+        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
         s = str(input('slice: '))
         if len(s) < 1:
             break
