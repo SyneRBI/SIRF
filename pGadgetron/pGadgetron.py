@@ -809,7 +809,7 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
     def get_output(self):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
-        print(gf)
+##        print(gf)
         if gf == 'true':
             images = output.select(2)
             gfactors = output.select(2,1)

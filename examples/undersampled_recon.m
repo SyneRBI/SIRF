@@ -23,16 +23,17 @@ try
 
     % perform reconstruction
     recon = gadgetron.MR_BasicGRAPPAReconstruction();
+    % for undersampled acquisition data GRAPPA can compute G-factors
+    % in addition to reconstructed images
+    recon.compute_gfactors(true);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
     recon.process();
-    % for undersampled acquisition data GRAPPA computes G-factors
-    % in addition to reconstructed images
-    output = recon.get_output();
+    [images, gfacts] = recon.get_output();
 
     % get real-valued reconstructed images and G-factors
-    images = gadgetron.MR_extract_real_images(output.select(2));
-    gfacts = gadgetron.MR_extract_real_images(output.select(2,1));
+    images = images.real();
+    gfacts = gfacts.real();
 
     n = images.number();
     fprintf('Enter slice number to view its data\n')

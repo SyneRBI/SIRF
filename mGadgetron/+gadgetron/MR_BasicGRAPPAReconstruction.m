@@ -15,5 +15,19 @@ classdef MR_BasicGRAPPAReconstruction < gadgetron.ImagesReconstructor
             end
             self.handle_ = [];
         end
+        function compute_gfactors(self, flag)
+            self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
+        end
+        function [images, gfactors] = get_output(self)
+            gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor');
+            output = get_output@gadgetron.ImagesReconstructor(self);
+            if gf
+                images = output.select(2);
+                gfactors = output.select(2, 1);
+            else
+                images = output;
+                gfactors = [];
+            end
+        end
     end
 end
