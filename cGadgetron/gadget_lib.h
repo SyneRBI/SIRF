@@ -4,17 +4,13 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 
-class aGadget {
+#include "an_object.h"
+
+class aGadget : public anObject {
 public:
-	std::string class_name() const
-	{
-		return class_;
-	}
 	virtual void set_property(const char* prop, const char* value) = 0;
 	virtual std::string value_of(const char* prop) = 0;
 	virtual std::string xml() const = 0;
-protected:
-	std::string class_;
 };
 
 class Gadget : public aGadget {

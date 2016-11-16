@@ -35,6 +35,7 @@ See xGadgetron/LICENSE.txt for license details.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "an_object.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
@@ -125,8 +126,12 @@ writer gadget
 (sends the final result to the client)
 */
 
-class GadgetChain {
+class GadgetChain : public anObject {
 public:
+	GadgetChain()
+	{
+		class_ = "GadgetChain";
+	}
 	virtual ~GadgetChain() {}
 	// adds reader gadget
 	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) 
@@ -168,6 +173,7 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdAcqMsgWriter)
 	{
+		class_ = "AcquisitionsProcessor";
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
@@ -199,6 +205,7 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
+		class_ = "ImagesReconstructor";
 		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
@@ -227,6 +234,7 @@ public:
 		reader_(new IsmrmrdImgMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
+		class_ = "ImagesProcessor";
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);

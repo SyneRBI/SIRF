@@ -21,6 +21,8 @@
 
 #define NEW_GADGET(G) if (boost::iequals(name, G().class_name())) \
 return newObjectHandle<aGadget, G>();
+#define NEW_GADGET_CHAIN(G) if (boost::iequals(name, G().class_name())) \
+return newObjectHandle<GadgetChain, G>();
 
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -70,29 +72,20 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<Mutex, Mutex>();
 		if (boost::iequals(name, "GTConnector"))
 			return newObjectHandle<GTConnector, GTConnector>();
-		if (boost::iequals(name, "string"))
-			return newObjectHandle<std::string, std::string>();
+		//if (boost::iequals(name, "string"))
+		//	return newObjectHandle<std::string, std::string>();
 		if (boost::iequals(name, "ImagesList"))
 			return newObjectHandle<ImagesContainer, ImagesList>();
 		if (boost::iequals(name, "CoilImagesList"))
 			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
-		if (boost::iequals(name, "GadgetChain"))
-			return newObjectHandle<GadgetChain, GadgetChain>();
-		if (boost::iequals(name, "AcquisitionsProcessor"))
-			return newObjectHandle<GadgetChain, AcquisitionsProcessor>();
-		if (boost::iequals(name, "ImagesReconstructor"))
-			return newObjectHandle<GadgetChain, ImagesReconstructor>();
-		if (boost::iequals(name, "ImagesProcessor"))
-			return newObjectHandle<GadgetChain, ImagesProcessor>();
-		if (boost::iequals(name, "RemoveOversamplingProcessor"))
-			return newObjectHandle<GadgetChain, RemoveOversamplingProcessor>();
-		if (boost::iequals(name, "SimpleReconstructionProcessor"))
-			return newObjectHandle<GadgetChain, SimpleReconstructionProcessor>();
-		if (boost::iequals(name, "SimpleGRAPPAReconstructionProcessor"))
-			return 
-			newObjectHandle<GadgetChain, SimpleGRAPPAReconstructionProcessor>();
-		if (boost::iequals(name, "ExtractRealImagesProcessor"))
-			return newObjectHandle<GadgetChain, ExtractRealImagesProcessor>();
+		NEW_GADGET_CHAIN(GadgetChain);
+		NEW_GADGET_CHAIN(AcquisitionsProcessor);
+		NEW_GADGET_CHAIN(ImagesReconstructor);
+		NEW_GADGET_CHAIN(ImagesProcessor);
+		NEW_GADGET_CHAIN(RemoveOversamplingProcessor);
+		NEW_GADGET_CHAIN(ExtractRealImagesProcessor);
+		NEW_GADGET_CHAIN(SimpleReconstructionProcessor);
+		NEW_GADGET_CHAIN(SimpleGRAPPAReconstructionProcessor);
 		NEW_GADGET(IsmrmrdAcqMsgReader);
 		NEW_GADGET(IsmrmrdAcqMsgWriter);
 		NEW_GADGET(IsmrmrdImgMsgReader);
