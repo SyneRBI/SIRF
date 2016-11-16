@@ -16,7 +16,7 @@ class SimpleReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleReconstructionProcessor()
 	{
-		boost::shared_ptr<aGadget> sptr_g(new SimpleReconstructionGadgetSet);
+		boost::shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
 		add_gadget("gadget", sptr_g);
 	}
 };
