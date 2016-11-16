@@ -132,7 +132,8 @@ public:
 	{
 		class_ = "GadgetChain";
 	}
-	virtual ~GadgetChain() {}
+	// apparently caused crash in linux
+	//virtual ~GadgetChain() {}
 	// adds reader gadget
 	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) 
 	{
@@ -181,7 +182,8 @@ public:
 			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 	}
-	virtual ~AcquisitionsProcessor() {}
+	// apparently caused crash in linux
+	//virtual ~AcquisitionsProcessor() {}
 
 	void process(AcquisitionsContainer& acquisitions);
 	boost::shared_ptr<AcquisitionsContainer> get_output() 
