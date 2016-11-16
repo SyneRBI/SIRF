@@ -7,6 +7,7 @@ class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
 	RemoveOversamplingProcessor()
 	{
+		class_ = "RemoveOversamplingProcessor";
 		boost::shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
 		add_gadget("gadget", sptr_g);
 	}
@@ -16,6 +17,7 @@ class SimpleReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleReconstructionProcessor()
 	{
+		class_ = "SimpleReconstructionProcessor";
 		boost::shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
 		add_gadget("gadget", sptr_g);
 	}
@@ -25,6 +27,7 @@ class SimpleGRAPPAReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleGRAPPAReconstructionProcessor()
 	{
+		class_ = "SimpleGRAPPAReconstructionProcessor";
 		boost::shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
 		boost::shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
 		boost::shared_ptr<aGadget> sptr_g3
@@ -48,6 +51,7 @@ class ExtractRealImagesProcessor : public ImagesProcessor {
 public:
 	ExtractRealImagesProcessor()
 	{
+		class_ = "ExtractRealImagesProcessor";
 		boost::shared_ptr<aGadget> sptr_g(new ExtractGadget);
 		add_gadget("gadget", sptr_g);
 	}
