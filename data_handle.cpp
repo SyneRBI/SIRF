@@ -2,15 +2,6 @@
 
 #include "data_handle.h"
 
-char* charDataFromDataHandle(const DataHandle* ptr_h) 
-{
-	void* ptr_d = ptr_h->data();
-	if (!ptr_d)
-		return 0;
-	else
-		return (char*)ptr_d;
-}
-
 extern "C" {
 
 	void* newDataHandle() 

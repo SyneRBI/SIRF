@@ -262,11 +262,6 @@ sptrDataFromHandle(const DataHandle* handle) {
 	return *(boost::shared_ptr<T>*)handle->data();
 }
 
-extern "C"
-void* charDataHandle(const char* s);
-
-char* charDataFromDataHandle(const DataHandle* ptr_h);
-
 #define GRAB 1
 
 template <typename T>
@@ -297,6 +292,28 @@ dataFromHandle(const void* ptr)
 		return 0;
 	else
 		return *((T*)ptr_d);
+}
+
+// yet another kludge to stop matlab on linux from crushing
+
+inline char* charDataFromDataHandle(const DataHandle* ptr_h) 
+{
+	void* ptr_d = ptr_h->data();
+	if (!ptr_d)
+		return 0;
+	else
+		return (char*)ptr_d;
+}
+
+inline void* charDataHandleFromCharData(const char* s)
+{
+	DataHandle* h = new DataHandle;
+	size_t len = strlen(s);
+	char* d = (char*)malloc(len + 1);
+	//strcpy_s(d, len + 1, s);
+	strcpy(d, s);
+	h->set((void*)d, 0, GRAB);
+	return (void*)h;
 }
 
 #endif
