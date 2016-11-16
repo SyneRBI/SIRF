@@ -311,6 +311,10 @@ public:
 
 class SimpleReconGadgetSet : public aGadget {
 public:
+	SimpleReconGadgetSet()
+	{
+		class_ = "SimpleReconGadgetSet";
+	}
 	virtual void set_property(const char* prop, const char* value) 
 	{
 		if (boost::iequals(prop, "trigger_dimension") || 
