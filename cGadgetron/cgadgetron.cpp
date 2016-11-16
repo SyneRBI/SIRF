@@ -19,6 +19,9 @@
 
 #define GRAB 1
 
+#define NEW_GADGET(G) if (boost::iequals(name, G().class_name())) \
+return newObjectHandle<aGadget, G>();
+
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
 static void*
@@ -65,76 +68,52 @@ void* cGT_newObject(const char* name)
 	try {
 		if (boost::iequals(name, "Mutex"))
 			return newObjectHandle<Mutex, Mutex>();
-		else if (boost::iequals(name, "GTConnector"))
+		if (boost::iequals(name, "GTConnector"))
 			return newObjectHandle<GTConnector, GTConnector>();
-		else if (boost::iequals(name, "string"))
+		if (boost::iequals(name, "string"))
 			return newObjectHandle<std::string, std::string>();
-		else if (boost::iequals(name, "ImagesList"))
+		if (boost::iequals(name, "ImagesList"))
 			return newObjectHandle<ImagesContainer, ImagesList>();
-		else if (boost::iequals(name, "CoilImagesList"))
+		if (boost::iequals(name, "CoilImagesList"))
 			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
-		else if (boost::iequals(name, "GadgetChain"))
+		if (boost::iequals(name, "GadgetChain"))
 			return newObjectHandle<GadgetChain, GadgetChain>();
-		else if (boost::iequals(name, "AcquisitionsProcessor"))
+		if (boost::iequals(name, "AcquisitionsProcessor"))
 			return newObjectHandle<GadgetChain, AcquisitionsProcessor>();
-		else if (boost::iequals(name, "ImagesReconstructor"))
+		if (boost::iequals(name, "ImagesReconstructor"))
 			return newObjectHandle<GadgetChain, ImagesReconstructor>();
-		else if (boost::iequals(name, "ImagesProcessor"))
+		if (boost::iequals(name, "ImagesProcessor"))
 			return newObjectHandle<GadgetChain, ImagesProcessor>();
-		else if (boost::iequals(name, "RemoveOversamplingProcessor"))
+		if (boost::iequals(name, "RemoveOversamplingProcessor"))
 			return newObjectHandle<GadgetChain, RemoveOversamplingProcessor>();
-		else if (boost::iequals(name, "SimpleReconstructionProcessor"))
+		if (boost::iequals(name, "SimpleReconstructionProcessor"))
 			return newObjectHandle<GadgetChain, SimpleReconstructionProcessor>();
-		else if (boost::iequals(name, "SimpleGRAPPAReconstructionProcessor"))
+		if (boost::iequals(name, "SimpleGRAPPAReconstructionProcessor"))
 			return 
 			newObjectHandle<GadgetChain, SimpleGRAPPAReconstructionProcessor>();
-		else if (boost::iequals(name, "ExtractRealImagesProcessor"))
+		if (boost::iequals(name, "ExtractRealImagesProcessor"))
 			return newObjectHandle<GadgetChain, ExtractRealImagesProcessor>();
-		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
-			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
-		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageWriter"))
-			return newObjectHandle<aGadget, IsmrmrdAcqMsgWriter>();
-		else if (boost::iequals(name, "MRIImageReader"))
-			return newObjectHandle<aGadget, IsmrmrdImgMsgReader>();
-		else if (boost::iequals(name, "MRIImageWriter"))
-			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
-		else if (boost::iequals(name, "NoiseAdjustGadget"))
-			return newObjectHandle<aGadget, NoiseAdjustGadget>();
-		else if (boost::iequals(name, "AsymmetricEchoAdjustROGadget"))
-			return newObjectHandle<aGadget, AsymmetricEchoAdjustROGadget>();
-		else if (boost::iequals(name, "RemoveROOversamplingGadget"))
-			return newObjectHandle<aGadget, RemoveROOversamplingGadget>();
-		else if (boost::iequals(name, "AcquisitionAccumulateTriggerGadget"))
-			return newObjectHandle<aGadget, AcquisitionAccumulateTriggerGadget>();
-		else if (boost::iequals(name, "BucketToBufferGadget"))
-			return newObjectHandle<aGadget, BucketToBufferGadget>();
-		else if (boost::iequals(name, "GenericReconCartesianReferencePrepGadget"))
-			return 
-			newObjectHandle<aGadget, GenericReconCartesianReferencePrepGadget>();
-		else if (boost::iequals(name, "GenericReconCartesianGrappaGadget"))
-			return newObjectHandle<aGadget, GenericReconCartesianGrappaGadget>();
-		else if (boost::iequals(name, "SimpleReconGadget"))
-			return newObjectHandle<aGadget, SimpleReconGadget>();
-		else if (boost::iequals(name, "GenericReconFieldOfViewAdjustmentGadget"))
-			return 
-			newObjectHandle<aGadget, GenericReconFieldOfViewAdjustmentGadget>();
-		else if (boost::iequals(name, "GenericReconImageArrayScalingGadget"))
-			return newObjectHandle<aGadget, GenericReconImageArrayScalingGadget>();
-		else if (boost::iequals(name, "ImageArraySplitGadget"))
-			return newObjectHandle<aGadget, ImageArraySplitGadget>();
-		else if (boost::iequals(name, "ExtractGadget"))
-			return newObjectHandle<aGadget, ExtractGadget>();
-		else if (boost::iequals(name, "ComplexToFloatGadget"))
-			return newObjectHandle<aGadget, ComplexToFloatGadget>();
-		else if (boost::iequals(name, "FloatToShortGadget"))
-			return newObjectHandle<aGadget, FloatToShortGadget>();
-		else if (boost::iequals(name, "ImageFinishGadget"))
-			return newObjectHandle<aGadget, ImageFinishGadget>();
-		else if (boost::iequals(name, "AcquisitionFinishGadget"))
-			return newObjectHandle<aGadget, AcquisitionFinishGadget>();
-		else if (boost::iequals(name, "SimpleReconGadgetSet"))
-			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
-		std::cout << "object " << name << "		not found" << std::endl;
+		NEW_GADGET(IsmrmrdAcqMsgReader);
+		NEW_GADGET(IsmrmrdAcqMsgWriter);
+		NEW_GADGET(IsmrmrdImgMsgReader);
+		NEW_GADGET(IsmrmrdImgMsgWriter);
+		NEW_GADGET(NoiseAdjustGadget);
+		NEW_GADGET(AsymmetricEchoAdjustROGadget);
+		NEW_GADGET(RemoveROOversamplingGadget);
+		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
+		NEW_GADGET(BucketToBufferGadget);
+		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
+		NEW_GADGET(GenericReconCartesianGrappaGadget);
+		NEW_GADGET(SimpleReconGadget);
+		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
+		NEW_GADGET(GenericReconImageArrayScalingGadget);
+		NEW_GADGET(ImageArraySplitGadget);
+		NEW_GADGET(ExtractGadget);
+		NEW_GADGET(ComplexToFloatGadget);
+		NEW_GADGET(FloatToShortGadget);
+		NEW_GADGET(ImageFinishGadget);
+		NEW_GADGET(AcquisitionFinishGadget);
+		NEW_GADGET(SimpleReconGadgetSet);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;

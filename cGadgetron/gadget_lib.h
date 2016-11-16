@@ -6,16 +6,24 @@
 
 class aGadget {
 public:
+	std::string class_name() const
+	{
+		return class_;
+	}
 	virtual void set_property(const char* prop, const char* value) = 0;
 	virtual std::string value_of(const char* prop) = 0;
 	virtual std::string xml() const = 0;
+protected:
+	std::string class_;
 };
 
 class Gadget : public aGadget {
 public:
 	Gadget(std::string name, std::string dll, std::string cl) :
-		gadget_(name), dll_(dll), class_(cl)
-	{	}
+		gadget_(name), dll_(dll)
+	{	
+		class_ = cl;
+	}
 	virtual void set_property(const char* prop, const char* value)
 	{
 		par_[prop] = value;
@@ -51,12 +59,15 @@ public:
 protected:
 	std::string gadget_;
 	std::string dll_;
-	std::string class_;
 	std::map<std::string, std::string> par_;
 };
 
 class IsmrmrdAcqMsgReader : public aGadget {
 public:
+	IsmrmrdAcqMsgReader()
+	{
+		class_ = "GadgetIsmrmrdAcquisitionMessageReader";
+	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
 	{
@@ -75,6 +86,10 @@ public:
 
 class IsmrmrdAcqMsgWriter : public aGadget {
 public:
+	IsmrmrdAcqMsgWriter()
+	{
+		class_ = "GadgetIsmrmrdAcquisitionMessageWriter";
+	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
 	{
@@ -93,6 +108,10 @@ public:
 
 class IsmrmrdImgMsgReader : public aGadget {
 public:
+	IsmrmrdImgMsgReader()
+	{
+		class_ = "MRIImageReader";
+	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
 	{
@@ -111,6 +130,10 @@ public:
 
 class IsmrmrdImgMsgWriter : public aGadget {
 public:
+	IsmrmrdImgMsgWriter() 
+	{
+		class_ = "MRIImageWriter";
+	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
 	{
@@ -290,7 +313,7 @@ public:
 	{}
 };
 
-class SimpleReconstructionGadgetSet : public aGadget {
+class SimpleReconGadgetSet : public aGadget {
 public:
 	virtual void set_property(const char* prop, const char* value) 
 	{
