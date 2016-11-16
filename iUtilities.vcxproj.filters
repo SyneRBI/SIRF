@@ -24,6 +24,9 @@
     <ClInclude Include="iutilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="an_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="data_handle.cpp">

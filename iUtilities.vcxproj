@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="an_object.h" />
     <ClInclude Include="data_handle.h" />
     <ClInclude Include="iutilities.h" />
     <ClInclude Include="localised_exception.h" />

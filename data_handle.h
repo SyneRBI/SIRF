@@ -294,7 +294,7 @@ dataFromHandle(const void* ptr)
 		return *((T*)ptr_d);
 }
 
-// yet another kludge to stop matlab on linux from crushing
+// yet another kludge to stop matlab on linux from crashing
 
 inline char* charDataFromDataHandle(const DataHandle* ptr_h) 
 {
