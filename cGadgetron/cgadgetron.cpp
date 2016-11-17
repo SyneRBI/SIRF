@@ -19,10 +19,10 @@
 
 #define GRAB 1
 
-#define NEW_GADGET(G) if (boost::iequals(name, G().class_name())) \
+#define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
 return newObjectHandle<aGadget, G>();
-#define NEW_GADGET_CHAIN(G) if (boost::iequals(name, G().class_name())) \
-return newObjectHandle<GadgetChain, G>();
+#define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
+return newObjectHandle<GadgetChain, C>();
 
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 

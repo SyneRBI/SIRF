@@ -35,7 +35,7 @@ See xGadgetron/LICENSE.txt for license details.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
-#include "an_object.h"
+//#include "an_object.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
@@ -126,11 +126,15 @@ writer gadget
 (sends the final result to the client)
 */
 
-class GadgetChain : public anObject {
+class GadgetChain { //: public anObject {
 public:
-	GadgetChain()
+	//GadgetChain()
+	//{
+	//	class_ = "GadgetChain";
+	//}
+	static const char* class_name()
 	{
-		class_ = "GadgetChain";
+		return "GadgetChain";
 	}
 	// apparently caused crash in linux
 	//virtual ~GadgetChain() {}
@@ -174,7 +178,7 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdAcqMsgWriter)
 	{
-		class_ = "AcquisitionsProcessor";
+		//class_ = "AcquisitionsProcessor";
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
@@ -184,6 +188,10 @@ public:
 	}
 	// apparently caused crash in linux
 	//virtual ~AcquisitionsProcessor() {}
+	static const char* class_name()
+	{
+		return "AcquisitionsProcessor";
+	}
 
 	void process(AcquisitionsContainer& acquisitions);
 	boost::shared_ptr<AcquisitionsContainer> get_output() 
@@ -207,12 +215,16 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
-		class_ = "ImagesReconstructor";
+		//class_ = "ImagesReconstructor";
 		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
+	}
+	static const char* class_name()
+	{
+		return "ImagesReconstructor";
 	}
 
 	void process(AcquisitionsContainer& acquisitions);
@@ -236,11 +248,15 @@ public:
 		reader_(new IsmrmrdImgMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
-		class_ = "ImagesProcessor";
+		//class_ = "ImagesProcessor";
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
 		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
+	}
+	static const char* class_name()
+	{
+		return "ImagesProcessor";
 	}
 
 	void process(ImagesContainer& images);

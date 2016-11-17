@@ -4,9 +4,9 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 
-#include "an_object.h"
+//#include "an_object.h"
 
-class aGadget : public anObject {
+class aGadget { // : public anObject {
 public:
 	virtual void set_property(const char* prop, const char* value) = 0;
 	virtual std::string value_of(const char* prop) = 0;
@@ -55,14 +55,19 @@ public:
 protected:
 	std::string gadget_;
 	std::string dll_;
+	std::string class_;
 	std::map<std::string, std::string> par_;
 };
 
 class IsmrmrdAcqMsgReader : public aGadget {
 public:
-	IsmrmrdAcqMsgReader()
+	//IsmrmrdAcqMsgReader()
+	//{
+	//	class_ = "GadgetIsmrmrdAcquisitionMessageReader";
+	//}
+	static const char* class_name()
 	{
-		class_ = "GadgetIsmrmrdAcquisitionMessageReader";
+		return "GadgetIsmrmrdAcquisitionMessageReader";
 	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
@@ -82,9 +87,13 @@ public:
 
 class IsmrmrdAcqMsgWriter : public aGadget {
 public:
-	IsmrmrdAcqMsgWriter()
+	//IsmrmrdAcqMsgWriter()
+	//{
+	//	class_ = "GadgetIsmrmrdAcquisitionMessageWriter";
+	//}
+	static const char* class_name()
 	{
-		class_ = "GadgetIsmrmrdAcquisitionMessageWriter";
+		return "GadgetIsmrmrdAcquisitionMessageWriter";
 	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
@@ -104,9 +113,13 @@ public:
 
 class IsmrmrdImgMsgReader : public aGadget {
 public:
-	IsmrmrdImgMsgReader()
+	//IsmrmrdImgMsgReader()
+	//{
+	//	class_ = "MRIImageReader";
+	//}
+	static const char* class_name()
 	{
-		class_ = "MRIImageReader";
+		return "MRIImageReader";
 	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
@@ -126,9 +139,13 @@ public:
 
 class IsmrmrdImgMsgWriter : public aGadget {
 public:
-	IsmrmrdImgMsgWriter() 
+	//IsmrmrdImgMsgWriter() 
+	//{
+	//	class_ = "MRIImageWriter";
+	//}
+	static const char* class_name()
 	{
-		class_ = "MRIImageWriter";
+		return "MRIImageWriter";
 	}
 	virtual void set_property(const char* prop, const char* value) {}
 	virtual std::string value_of(const char* prop)
@@ -150,6 +167,10 @@ public:
 	NoiseAdjustGadget() :
 		Gadget("NoiseAdjust", "gadgetron_mricore", "NoiseAdjustGadget")
 	{}
+	static const char* class_name()
+	{
+		return "NoiseAdjustGadget";
+	}
 };
 
 class AsymmetricEchoAdjustROGadget : public Gadget {
@@ -158,6 +179,10 @@ public:
 		Gadget("AsymmetricEcho", "gadgetron_mricore", 
 		"AsymmetricEchoAdjustROGadget")
 	{}
+	static const char* class_name()
+	{
+		return "AsymmetricEchoAdjustROGadget";
+	}
 };
 
 class RemoveROOversamplingGadget : public Gadget {
@@ -166,6 +191,10 @@ public:
 		Gadget("RemoveROOversampling", "gadgetron_mricore",
 		"RemoveROOversamplingGadget")
 	{}
+	static const char* class_name()
+	{
+		return "RemoveROOversamplingGadget";
+	}
 };
 
 class AcquisitionAccumulateTriggerGadget : public Gadget {
@@ -175,6 +204,10 @@ public:
 	{
 		add_property("trigger_dimension", "repetition");
 		add_property("sorting_dimension", "slice");
+	}
+	static const char* class_name()
+	{
+		return "AcquisitionAccumulateTriggerGadget";
 	}
 };
 
@@ -188,6 +221,10 @@ public:
 		add_property("split_slices", "true");
 		add_property("ignore_segment", "true");
 		add_property("verbose", "true");
+	}
+	static const char* class_name()
+	{
+		return "BucketToBufferGadget";
 	}
 };
 
@@ -204,6 +241,10 @@ public:
 		add_property("average_all_ref_S", "true");
 		add_property("prepare_ref_always", "true");
 	}
+	static const char* class_name()
+	{
+		return "GenericReconCartesianReferencePrepGadget";
+	}
 };
 
 class SimpleReconGadget : public Gadget {
@@ -211,6 +252,10 @@ public:
 	SimpleReconGadget() :
 		Gadget("SimpleRecon", "gadgetron_mricore", "SimpleReconGadget")
 	{}
+	static const char* class_name()
+	{
+		return "SimpleReconGadget";
+	}
 };
 
 class GenericReconCartesianGrappaGadget : public Gadget {
@@ -229,6 +274,10 @@ public:
 		add_property("perform_timing", "true");
 		add_property("verbose", "true");
 	}
+	static const char* class_name()
+	{
+		return "GenericReconCartesianGrappaGadget";
+	}
 };
 
 class GenericReconFieldOfViewAdjustmentGadget : public Gadget {
@@ -240,6 +289,10 @@ public:
 		add_property("debug_folder", "");
 		add_property("perform_timing", "false");
 		add_property("verbose", "false");
+	}
+	static const char* class_name()
+	{
+		return "GenericReconFieldOfViewAdjustmentGadget";
 	}
 };
 
@@ -258,6 +311,10 @@ public:
 		add_property("scalingFactor_dedicated", "100.0");
 		add_property("auto_scaling_only_once", "true");
 	}
+	static const char* class_name()
+	{
+		return "GenericReconImageArrayScalingGadget";
+	}
 };
 
 class ImageArraySplitGadget : public Gadget {
@@ -265,6 +322,10 @@ public:
 	ImageArraySplitGadget() :
 		Gadget("ImageArraySplit", "gadgetron_mricore", "ImageArraySplitGadget")
 	{}
+	static const char* class_name()
+	{
+		return "ImageArraySplitGadget";
+	}
 };
 
 class ExtractGadget : public Gadget {
@@ -274,6 +335,10 @@ public:
 	{
 		add_property("extract_mask", "1");
 	}
+	static const char* class_name()
+	{
+		return "ExtractGadget";
+	}
 };
 
 class ComplexToFloatGadget : public Gadget {
@@ -281,6 +346,10 @@ public:
 	ComplexToFloatGadget() :
 		Gadget("ComplexToFloatAttrib", "gadgetron_mricore", "ComplexToFloatGadget")
 	{}
+	static const char* class_name()
+	{
+		return "ComplexToFloatGadget";
+	}
 };
 
 class FloatToShortGadget : public Gadget {
@@ -293,6 +362,10 @@ public:
 		add_property("max_intensity", "32767");
 		add_property("intensity_offset", "0");
 	}
+	static const char* class_name()
+	{
+		return "FloatToShortGadget";
+	}
 };
 
 class ImageFinishGadget : public Gadget {
@@ -300,6 +373,10 @@ public:
 	ImageFinishGadget() :
 		Gadget("ImageFinish", "gadgetron_mricore", "ImageFinishGadget")
 	{}
+	static const char* class_name()
+	{
+		return "ImageFinishGadget";
+	}
 };
 
 class AcquisitionFinishGadget : public Gadget {
@@ -307,15 +384,23 @@ public:
 	AcquisitionFinishGadget() :
 		Gadget("AcquisitionFinish", "gadgetron_mricore", "AcquisitionFinishGadget")
 	{}
+	static const char* class_name()
+	{
+		return "AcquisitionFinishGadget";
+	}
 };
 
 class SimpleReconGadgetSet : public aGadget {
 public:
-	SimpleReconGadgetSet()
+	//SimpleReconGadgetSet()
+	//{
+	//	class_ = "SimpleReconGadgetSet";
+	//}
+	static const char* class_name()
 	{
-		class_ = "SimpleReconGadgetSet";
+		return "SimpleReconGadgetSet";
 	}
-	virtual void set_property(const char* prop, const char* value) 
+	virtual void set_property(const char* prop, const char* value)
 	{
 		if (boost::iequals(prop, "trigger_dimension") || 
 			boost::iequals(prop, "sorting_dimension"))
