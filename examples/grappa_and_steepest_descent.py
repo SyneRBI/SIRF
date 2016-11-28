@@ -33,7 +33,7 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
@@ -42,7 +42,7 @@ def main():
     preprocessed_data = input_data.process(prep_gadgets)
 
     # perform reconstruction
-    recon = MR_BasicGRAPPAReconstruction()
+    recon = GenericCartesianGRAPPAReconstruction()
     recon.set_input(preprocessed_data)
     recon.compute_gfactors(False)
     print('---\n reconstructing...')
@@ -52,7 +52,7 @@ def main():
     complex_images = recon.get_output()
 
     # compute coil sensitivity maps
-    csms = MR_CoilSensitivityMaps()
+    csms = CoilSensitivityMaps()
     print('---\n sorting acquisitions...')
     preprocessed_data.sort()
     print('---\n computing sensitivity maps...')
@@ -60,7 +60,7 @@ def main():
 
     # create acquisition model based on the acquisition parameters
     # stored in preprocessed_data and image parameters stored in complex_images
-    am = MR_AcquisitionModel(preprocessed_data, complex_images)
+    am = AcquisitionModel(preprocessed_data, complex_images)
     am.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to simulate acquisitions

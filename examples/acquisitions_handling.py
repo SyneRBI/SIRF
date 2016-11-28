@@ -33,7 +33,7 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisition data
     print('processing acquisitions...')
@@ -78,7 +78,7 @@ def main():
             pylab.show()
 
     # perform reconstruction
-    recon = MR_BasicReconstruction()
+    recon = SimpleReconstruction()
     recon.set_input(processed_data)
     recon.process()
     images = recon.get_output()

@@ -31,7 +31,7 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
     if not input_data.is_undersampled():
         print('this demo needs undersampled raw data')
         return
@@ -43,7 +43,7 @@ def main():
     preprocessed_data = input_data.process(prep_gadgets)
 
     # perform reconstruction
-    recon = MR_BasicGRAPPAReconstruction()
+    recon = GenericCartesianGRAPPAReconstruction()
     # for undersampled acquisition data GRAPPA will compute Gfactor images
     # in addition to reconstructed ones
     recon.compute_gfactors(True)

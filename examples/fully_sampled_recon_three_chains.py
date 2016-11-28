@@ -34,7 +34,7 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisitions
     acq_proc = AcquisitionsProcessor(['RemoveROOversamplingGadget'])

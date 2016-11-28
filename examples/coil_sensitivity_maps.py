@@ -37,17 +37,17 @@ try:
  
     from ismrmrdtools import coils, show
 
-    input_data = MR_Acquisitions(DATA_PATH + args.filename)
+    input_data = AcquisitionData(DATA_PATH + args.filename)
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
     print('sorting acquisitions...')
     processed_data.sort()
 
-    CIs = MR_CoilImages()
+    CIs = CoilImages()
     print('computing coil images...')
     CIs.calculate(processed_data)
 
-    CSMs = MR_CoilSensitivityMaps()
+    CSMs = CoilSensitivityMaps()
     print('computing sensitivity maps...')
     CSMs.calculate(CIs, method = 'SRSS(niter = 10)')
 

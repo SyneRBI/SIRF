@@ -31,14 +31,14 @@ exec('from ' + args.engine + ' import *')
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisition data
     print('---\n pre-processing acquisitions...')
     processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
-    recon = MR_BasicReconstruction()
+    recon = SimpleReconstruction()
     recon.set_input(processed_data)
     print('---\n reconstructing...')
     recon.process()

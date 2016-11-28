@@ -27,7 +27,7 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisitions
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
@@ -38,10 +38,10 @@ def main():
     # perform reconstruction
     if not input_data.is_undersampled():
         print('---\n reconstructing fully sampled data...')
-        recon = MR_BasicReconstruction()
+        recon = SimpleReconstruction()
     else:
         print('---\n reconstructing undersampled data using GRAPPA...')
-        recon = MR_BasicGRAPPAReconstruction()
+        recon = GenericCartesianGRAPPAReconstruction()
         recon.compute_gfactors(False)
     images = recon.reconstruct(preprocessed_data)
 

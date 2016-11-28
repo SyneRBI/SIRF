@@ -75,7 +75,7 @@ def main():
     failed = 0
     eps = 1e-5
 
-    input_data = MR_Acquisitions(DATA_PATH + 'testdata_a2.h5')
+    input_data = AcquisitionData(DATA_PATH + 'testdata_a2.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
@@ -89,7 +89,7 @@ def main():
     print('---\n processed acquisition data norm: %e' % processed_data_norm)
     failed += test_failed(2, 142.3433, processed_data_norm, 0, eps)
 
-    recon = MR_BasicGRAPPAReconstruction()
+    recon = GenericCartesianGRAPPAReconstruction()
     recon.compute_gfactors(False)
     recon.set_input(processed_data)
     recon.process()
@@ -99,17 +99,17 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images_norm)
     failed += test_failed(3, 996.5304, complex_images_norm, 0, eps)
 
-    csms = MR_CoilSensitivityMaps()
+    csms = CoilSensitivityMaps()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
     print('---\n computing coil images...')
-    cis = MR_CoilImages()
+    cis = CoilImages()
     cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
     csms.calculate(cis)
 
-    am = MR_AcquisitionModel(processed_data, complex_images)
+    am = AcquisitionModel(processed_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
