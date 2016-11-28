@@ -68,7 +68,7 @@ def main():
     failed = 0
     eps = 1e-4
 
-    input_data = MR_Acquisitions(DATA_PATH + 'testdata.h5')
+    input_data = AcquisitionData(DATA_PATH + 'testdata.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
@@ -82,7 +82,7 @@ def main():
     print('---\n processed acquisition data norm: %e' % processed_data_norm)
     failed += test_failed(2, 209.021, processed_data_norm, 0, eps)
 
-    recon = MR_BasicReconstruction()
+    recon = SimpleReconstruction()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
@@ -91,9 +91,9 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images_norm)
     failed += test_failed(3, 209.021, complex_images_norm, 0, eps)
 
-    cis = MR_CoilImages()
+    cis = CoilImages()
 
-    csms = MR_CoilSensitivityMaps()
+    csms = CoilSensitivityMaps()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
@@ -102,7 +102,7 @@ def main():
     print('---\n computing sensitivity maps...')
     csms.calculate(cis) #, method = 'Inati(niter = 5)')
 
-    am = MR_AcquisitionModel(processed_data, complex_images)
+    am = AcquisitionModel(processed_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 

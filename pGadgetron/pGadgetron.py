@@ -238,7 +238,7 @@ class DataContainer(PyGadgetronObject):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
-class MR_CoilImages(DataContainer):
+class CoilImages(DataContainer):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('CoilImagesList')
@@ -268,7 +268,7 @@ class MR_CoilImages(DataContainer):
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
 
-class MR_CoilSensitivityMaps(DataContainer):
+class CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
         self.smoothness = 0
@@ -299,7 +299,7 @@ class MR_CoilSensitivityMaps(DataContainer):
                 (self.handle, data.handle)
             _check_status(handle)
             pygadgetron.deleteDataHandle(handle)
-        elif isinstance(data, MR_CoilImages):
+        elif isinstance(data, CoilImages):
             if HAVE_ISMRMRDTOOLS and method_name == 'Inati':
                 nz = data.number()
                 for z in range(nz):
@@ -503,7 +503,7 @@ class AcquisitionsContainer(DataContainer):
         ap = AcquisitionsProcessor(list)
         return ap.process(self)
     def acquisition(self, num):
-        acq = MR_Acquisition()
+        acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
     def slice_dimensions(self):
@@ -526,7 +526,7 @@ class AcquisitionsContainer(DataContainer):
             (self.handle, num, re.ctypes.data, im.ctypes.data)
         return re + 1j*im
 
-class MR_Acquisition(PyGadgetronObject):
+class Acquisition(PyGadgetronObject):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -547,7 +547,7 @@ class MR_Acquisition(PyGadgetronObject):
     def idx_slice(self):
         return _int_par(self.handle, 'acquisition', 'idx_slice')
 
-class MR_Acquisitions(AcquisitionsContainer):
+class AcquisitionData(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
         self.sorted = False
@@ -557,8 +557,20 @@ class MR_Acquisitions(AcquisitionsContainer):
     def __del__(self):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
+##    def as_array(self):
+##        dim = numpy.ndarray((3,), dtype = numpy.int32)
+##        pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
+##        ns = dim[0]
+##        ny = dim[1]
+##        nc = dim[2]
+##        nz = self.number()
+##        re = numpy.ndarray((nz, nc, ny, ns), dtype = numpy.float64)
+##        im = numpy.ndarray((nz, nc, ny, ns), dtype = numpy.float64)
+##        pygadgetron.cGT_getAcquisitionsData\
+##            (self.handle, -1, re.ctypes.data, im.ctypes.data)
+##        return re + 1j*im
 
-class MR_AcquisitionModel(PyGadgetronObject):
+class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
         self.handle = None
         self.handle = \
@@ -573,7 +585,7 @@ class MR_AcquisitionModel(PyGadgetronObject):
         pygadgetron.deleteDataHandle(handle)
         self.csms = 'set'
     def forward(self, images):
-        acqs = MR_Acquisitions()
+        acqs = AcquisitionData()
         acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, images.handle)
         _check_status(acqs.handle)
@@ -733,7 +745,7 @@ class AcquisitionsProcessor(GadgetChain):
         _check_status(acquisitions.handle)
         return acquisitions
 
-class MR_BasicReconstruction(ImagesReconstructor):
+class SimpleReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')
@@ -743,7 +755,7 @@ class MR_BasicReconstruction(ImagesReconstructor):
         if self.handle is not None:
             pygadgetron.deleteObject(self.handle)
     
-class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
+class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject\
