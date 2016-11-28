@@ -99,6 +99,9 @@ EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int
 EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
 	return cGT_imageTypes(ptr_x);
 }
+EXPORTED_FUNCTION 	void* mGT_imageDataType(const void* ptr_x, int im_num) {
+	return cGT_imageDataType(ptr_x, im_num);
+}
 EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim) {
 	cGT_getCoilDataDimensions(ptr_csms, csm_num, ptr_dim);
 }
@@ -116,6 +119,12 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_n
 }
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
 	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
+}
+EXPORTED_FUNCTION 	void mGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBLE ptr_data) {
+	cGT_getImagesDataAsDoubleArray(ptr_imgs, ptr_data);
+}
+EXPORTED_FUNCTION 	void mGT_getImagesDataAsComplexArray (void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	cGT_getImagesDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
 	return cGT_dataItems(ptr_x);

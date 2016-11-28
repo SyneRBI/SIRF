@@ -17,18 +17,15 @@ try
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
-    complex_images = recon.get_output();
+    images = recon.get_output();
     
-    % post-process reconstructed images
-    fprintf('processing images...\n')
-    images = MR_extract_real_images(complex_images);
-
     % plot obtained images
-    for i = 1 : images.number()
-        data = images.image_as_array(i);
-        figure(1000000 + i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1,1));
+    data = abs(images.as_array());
+    data = data/max(max(max(data)));
+    dim = size(data);
+    for i = 1 : dim(3)
+        figure(i)
+        imshow(data(:,:,i))
     end
     
 catch err
