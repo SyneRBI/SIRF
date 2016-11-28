@@ -33,7 +33,7 @@ def main():
     input_data = MR_Acquisitions(args.filename)
 
     # pre-process acquisitions
-    print('pre-processing acquisitions...')
+    print('---\n pre-processing acquisitions...')
     preprocessed_data = input_data.process(['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', 'RemoveROOversamplingGadget'])
 
@@ -47,16 +47,11 @@ def main():
          'GenericReconImageArrayScalingGadget', 'ImageArraySplitGadget'])
     # change a property of the gadget labelled by 'GRAPPA'
     recon.set_gadget_property('GRAPPA', 'send_out_gfactor', args.gfactors)
+    recon.set_input(preprocessed_data)
     # reconstruct
-    print('reconstructing...')
-    complex_output = recon.reconstruct(preprocessed_data)
-
-    # convert reconstructed images to real
-    print('processing images...')
-    # specify conversion mode
-    complex_output.conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
-    output = complex_output.process\
-             (['ComplexToFloatGadget', 'FloatToShortGadget'])
+    print('---\n reconstructing...')
+    recon.process()
+    output = recon.get_output()
 
     # show images
     output.show()
