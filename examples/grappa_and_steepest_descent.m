@@ -30,7 +30,7 @@ try
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
     recon.process();
-    [complex_images, gfactors] = recon.get_output();
+    complex_images = recon.get_output();
 
     % compute coil sensitivity maps
     csms = gadgetron.MR_CoilSensitivityMaps();

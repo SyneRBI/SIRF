@@ -810,9 +810,9 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
         if gf == 'true' and subset is not None:
-            if subset == 'images':
+            if subset == 'image':
                 return output.select(2)
-            elif subset == 'gfactors':
+            elif subset == 'gfactor':
                 return output.select(2,1)
             else:
                 raise(error('??? unknown reconstrtuction output requested'))

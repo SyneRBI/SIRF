@@ -33,9 +33,9 @@ classdef MR_BasicGRAPPAReconstruction < gadgetron.ImagesReconstructor
             gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor');
             output = get_output@gadgetron.ImagesReconstructor(self);
             if strcmp(gf, 'true') && nargin > 1
-                if strcmp(subset, 'images')
+                if strcmp(subset, 'image')
                     output = output.select(2);
-                elseif strcmp(subset, 'gfactors')
+                elseif strcmp(subset, 'gfactor')
                     output = output.select(2, 1);
                 else
                     error('MR_BasicGRAPPAReconstruction:output', ...
