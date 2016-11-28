@@ -34,19 +34,15 @@ def main():
     input_data = MR_Acquisitions(args.filename)
 
     # pre-process acquisition data
-    print('processing acquisitions...')
-    processed_data = input_data.process(['RemoveROOversamplingGadget'])
+    print('---\n pre-processing acquisitions...')
+    processed_data = MR_remove_x_oversampling(input_data)
 
     # perform reconstruction
     recon = MR_BasicReconstruction()
     recon.set_input(processed_data)
-    print('reconstructing...')
+    print('---\n reconstructing...')
     recon.process()
-    complex_images = recon.get_output()
-
-    # extract real images from complex
-    print('processing images...')
-    images = complex_images.real()
+    images = recon.get_output()
 
     # show obtained images
     images.show()
