@@ -35,6 +35,14 @@ classdef ImagesContainer < gadgetron.DataContainer
             ip = gadgetron.ImagesProcessor(list);
             images = ip.process(self);
         end
+        function ft = is_real(self)
+            handle = calllib('mgadgetron', 'mGT_imageDataType', ...
+                self.handle_, 0);
+            gadgetron.checkExecutionStatus(self.name_, handle);
+            v = calllib('mutilities', 'mIntDataFromHandle', handle);
+            calllib('mutilities', 'mDeleteDataHandle', handle)
+            ft = (v ~= 7 && v ~= 8);
+        end
         function conversion_to_real(self, type)
             calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
                 self.handle_, type)
@@ -58,6 +66,29 @@ classdef ImagesContainer < gadgetron.DataContainer
                 ('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
                 self.handle_, im_num - 1, ptr_v)
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
+        end
+        function data = as_array(self)
+            ptr_i = libpointer('int32Ptr', zeros(4, 1));
+            calllib('mgadgetron', 'mGT_getImageDimensions', ...
+                self.handle_, 0, ptr_i);
+            dim = ptr_i.Value;
+            nz = dim(3)*dim(4)*self.number();
+            n = dim(1)*dim(2)*nz;
+            if self.is_real()
+                ptr_v = libpointer('doublePtr', zeros(n, 1));
+                calllib('mgadgetron', 'mGT_getImagesDataAsDoubleArray', ...
+                    self.handle_, ptr_v)
+                data = reshape(ptr_v.Value, dim(1), dim(2), nz);
+            else
+                ptr_re = libpointer('doublePtr', zeros(n, 1));
+                ptr_im = libpointer('doublePtr', zeros(n, 1));
+                calllib...
+                    ('mgadgetron', 'mGT_getImagesDataAsComplexArray', ...
+                    self.handle_, ptr_re, ptr_im)
+                re = reshape(ptr_re.Value, dim(1), dim(2), nz);
+                im = reshape(ptr_im.Value, dim(1), dim(2), nz);
+                data = re + 1j*im;
+            end
         end
     end
 end
