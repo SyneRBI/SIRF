@@ -13,7 +13,7 @@ libcgt: cgadgetron.o xgadgetron.o ismrmrd_fftw.o
 	$(RANLIB) libcgt.a
 	mv libcgt.a $(BUILD_PATH)/xGadgetron
 
-%.o: %.cpp
+%.o: %.cpp xgadgetron.h $(BUILD_PATH)/iUtilities/libiutil.a
 	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:
