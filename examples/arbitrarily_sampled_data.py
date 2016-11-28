@@ -43,8 +43,7 @@ def main():
         print('---\n reconstructing undersampled data using GRAPPA...')
         recon = MR_BasicGRAPPAReconstruction()
         recon.compute_gfactors(False)
-    complex_images = recon.reconstruct(preprocessed_data)
-    images = complex_images.real()
+    images = recon.reconstruct(preprocessed_data)
 
     # show reconstructed images
     images.show()

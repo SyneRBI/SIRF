@@ -84,9 +84,7 @@ def main():
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
-    # extract real images from complex
-    images = complex_images.real()
-    images.show()
+    complex_images.show()
 
 try:
     main()
