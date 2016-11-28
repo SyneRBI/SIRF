@@ -806,14 +806,16 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
             pygadgetron.deleteObject(self.handle)
     def compute_gfactors(self, flag):
         self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
-    def get_output(self):
+    def get_output(self, subset = None):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
-##        print(gf)
-        if gf == 'true':
-            images = output.select(2)
-            gfactors = output.select(2,1)
-            return images, gfactors
+        if gf == 'true' and subset is not None:
+            if subset == 'images':
+                return output.select(2)
+            elif subset == 'gfactors':
+                return output.select(2,1)
+            else:
+                raise(error('??? unknown reconstrtuction output requested'))
         else:
             return output
     
