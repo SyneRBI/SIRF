@@ -1,13 +1,6 @@
 % Lower-level interface demo, creates and runs a chain of gadgets.
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
+select_gadgetron
 
 %libfunctions('mutilities')
 %libfunctions('mgadgetron')
@@ -24,13 +17,13 @@ try
         ];
     
     % create reconstructor
-    recon = gadgetron.ImagesReconstructor(gadgets);
+    recon = ImagesReconstructor(gadgets);
 
     % change a property of the gadget labelled 'ex'
     recon.set_gadget_property('ex', 'extract_mask', 5);
 
     % define raw data source
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');    
+    input_data = MR_Acquisitions('testdata.h5');    
     recon.set_input(input_data)
     % perform reconstruction
     recon.process()
