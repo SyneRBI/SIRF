@@ -29,7 +29,8 @@ try
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
     recon.process();
-    [images, gfacts] = recon.get_output();
+    images = recon.get_output('images');
+    gfacts = recon.get_output('gfactors');
 
     % get real-valued reconstructed images and G-factors
     images = images.real();

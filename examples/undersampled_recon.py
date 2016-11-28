@@ -50,7 +50,8 @@ def main():
     recon.set_input(preprocessed_data)
     print('---\n reconstructing...')
     recon.process()
-    complex_images, complex_gfactors = recon.get_output()
+    complex_images = recon.get_output('images')
+    complex_gfactors = recon.get_output('gfactors')
 
     # get real-valued reconstructed images and gfactors
     print('---\n processing images...')
