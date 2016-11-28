@@ -134,10 +134,6 @@ def main():
     failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-6, 0)
     failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-6, 0)
 
-#    images = complex_images.real()
-#    data = images.image_as_array(0)
-#    failed += test_failed(10, 0.80951, data[0, 0, 142, 130], 0, 1e-6)
-
     if failed == 0:
         print('all tests passed')
     else:

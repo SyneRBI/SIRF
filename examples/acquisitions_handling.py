@@ -81,10 +81,8 @@ def main():
     recon = MR_BasicReconstruction()
     recon.set_input(processed_data)
     recon.process()
-    complex_images = recon.get_output()
+    images = recon.get_output()
 
-    # extract real images from complex
-    images = complex_images.real()
     # show obtained images
     images.show()
 

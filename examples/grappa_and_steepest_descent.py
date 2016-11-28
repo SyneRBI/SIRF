@@ -77,16 +77,13 @@ def main():
     grad = am.backward(res)
     w = am.forward(grad)
     alpha = (grad*grad)/(w*w)
-    r_complex_imgs = complex_images - grad*alpha
+    r_complex_imgs = complex_images - grad*alpha # refined images
 
-    # get real-valued reconstructed and refined images
-    print('---\n processing images...')
-    images = complex_images.real()
-    r_imgs = r_complex_imgs.real()
-    nz = images.number()
-    print('---\n images reconstructed: %d' % nz)
+    idata = abs(complex_images.as_array())
+    rdata = abs(r_complex_imgs.as_array())
+    nz = idata.shape[0]
 
-    # plot images and gfactors
+    # plot images
     while HAVE_PYLAB:
         print('---\n Enter the slice number to view it.')
         print(' A value outside the range [1 : %d] will stop this loop.'% nz)
@@ -96,15 +93,13 @@ def main():
         z = int(s)
         if z < 1 or z > nz:
             break
-        data = images.image_as_array(z - 1)
-        rdata = r_imgs.image_as_array(z - 1)
         pylab.figure(z)
         pylab.title('image')
-        pylab.imshow(data[0,0,:,:])
+        pylab.imshow(idata[z - 1, :, :])
         print(' Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('refined image')
-        pylab.imshow(rdata[0,0,:,:])
+        pylab.imshow(rdata[z - 1, :, :])
         print(' Close Figure %d window to continue...' % (z + nz))
         pylab.show()
 

@@ -1,6 +1,6 @@
 '''
 Lower-level interface demo that illustrates creating and running a chain
-of gadgets.
+of gadgets - shortest version.
 '''
 
 import argparse
@@ -30,23 +30,14 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
-    
+    input_data = MR_Acquisitions(args.filename)    
     # create reconstruction object
     recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
         'SimpleReconGadgetSet'])
     # reconstruct images
     images = recon.reconstruct(input_data)
-
     # show reconstructed images
     images.show()
-
-    if args.output is not None:
-        # write images to a new group in args.output
-        # named after the current date and time
-        print('writing to %s' % args.output)
-        time_str = time.asctime()
-        images.write(args.output, time_str)
 
 try:
     main()

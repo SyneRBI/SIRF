@@ -50,18 +50,13 @@ def main():
     recon.set_input(preprocessed_data)
     print('---\n reconstructing...')
     recon.process()
-    complex_images = recon.get_output('image')
-    complex_gfactors = recon.get_output('gfactor')
+    image = recon.get_output('image')
+    gfactor = recon.get_output('gfactor')
+    data = abs(image.as_array())
+    gdata = abs(gfactor.as_array())
 
-    # get real-valued reconstructed images and gfactors
-    print('---\n processing images...')
-    images = complex_images.real()
-    gfactors = complex_gfactors.real()
-
-    nz = images.number()
-    print('%d images reconstructed.' % nz)
-
-    # plot images and gfactors
+    nz = data.shape[0]
+    # plot image and gfactor slices
     while HAVE_PYLAB:
         print('---\n Enter the slice number to view it.')
         print(' A value outside the range [1 : %d] will stop this loop.'% nz)
@@ -71,15 +66,13 @@ def main():
         z = int(s)
         if z < 1 or z > nz:
             break
-        data = images.image_as_array(z - 1)
-        gdata = gfactors.image_as_array(z - 1)
         pylab.figure(z)
         pylab.title('image')
-        pylab.imshow(data[0,0,:,:])
+        pylab.imshow(data[z - 1,:,:])
         print('Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('G factor')
-        pylab.imshow(gdata[0,0,:,:])
+        pylab.imshow(gdata[z - 1,:,:])
         print('Close Figure %d window to continue...' % (z + nz))
         pylab.show()
 
