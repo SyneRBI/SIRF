@@ -13,17 +13,20 @@ SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
-from pGadgetron import *
+#from pGadgetron import *
 
 parser = argparse.ArgumentParser(description = \
 '''
 Upper-level interface demo that illustrates pre-processing of acquisitions,
 reconstructing images and post-processing them.
 ''')
+parser.add_argument('-e', '--engine', default = 'pGadgetron', help = 'engine')
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
 args = parser.parse_args()                                 
+
+exec 'from ' + args.engine + ' import *'
 
 def main():
 

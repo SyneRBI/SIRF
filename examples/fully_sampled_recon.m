@@ -2,23 +2,18 @@
 % reconstructing images and post-processing them.
 % See also an equivalent lower-level demo3.m.
 
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
-end
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
+set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
+    input_data = MR_Acquisitions('testdata.h5');
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
-    processed_data = gadgetron.MR_remove_x_oversampling(input_data);
+    processed_data = MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.MR_BasicReconstruction();
+    recon = MR_BasicReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
@@ -26,7 +21,7 @@ try
     
     % post-process reconstructed images
     fprintf('processing images...\n')
-    images = gadgetron.MR_extract_real_images(complex_images);
+    images = MR_extract_real_images(complex_images);
 
     % plot obtained images
     for i = 1 : images.number()
