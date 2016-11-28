@@ -4,6 +4,6 @@ catch
     if exist('MR_ENGINE', 'var')
         error('package %s not found\n', MR_ENGINE)
     else
-        import gadgetron.*
+        select_gadgetron
     end
 end

@@ -26,7 +26,7 @@ parser.add_argument\
  help = 'raw data file name (default: testdata.h5)')
 args = parser.parse_args()                                 
 
-exec 'from ' + args.engine + ' import *'
+exec('from ' + args.engine + ' import *')
 
 def main():
 
