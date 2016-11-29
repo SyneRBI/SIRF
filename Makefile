@@ -1,4 +1,4 @@
-CPP = /usr/bin/g++
+#CPP = /usr/bin/g++
 CFLAGS = -O3 -fopenmp -fPIC -std=c++11 -DNDEBUG
 LDFLAGS = -lrt
 ARCH = ar
@@ -21,7 +21,7 @@ mutilities.mexa64: mutilities.o
 	-o mutilities.mexa64 mutilities.o $(LIBIUTIL)/libiutil.a
 
 %.o: %.cpp data_handle.h
-	$(CPP) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(GCC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
 	rm -f *.o
