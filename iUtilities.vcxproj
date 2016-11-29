@@ -135,7 +135,7 @@
     <ClInclude Include="localised_exception.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="data_handle.cpp" />
+    <ClCompile Include="iutilities.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

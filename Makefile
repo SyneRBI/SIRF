@@ -9,7 +9,7 @@ LIBIUTIL = $(BUILD_PATH)/iUtilities
 
 all: libiutil
 
-libiutil: data_handle.o
+libiutil: iutilities.o
 	$(ARCH) $(ARCHFLAGS) libiutil.a data_handle.o
 	$(RANLIB) libiutil.a
 	mv libiutil.a $(LIBIUTIL)
