@@ -23,7 +23,7 @@ try
     recon.set_gadget_property('ex', 'extract_mask', 5);
 
     % define raw data source
-    input_data = MR_Acquisitions('testdata.h5');    
+    input_data = AcquisitionData('testdata.h5');    
     recon.set_input(input_data)
     % perform reconstruction
     recon.process()
@@ -37,11 +37,6 @@ try
         data = data/max(max(max(data)));
         imshow(data(:,:,1));
     end
-
-    % write images to a new group in 'output1.h5'
-    % named after the current date and time
-    fprintf('appending output1.h5...\n')
-    images.write('output1.h5', datestr(datetime))
 
 catch err
     % display error information

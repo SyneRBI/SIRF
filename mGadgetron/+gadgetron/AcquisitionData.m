@@ -1,9 +1,9 @@
-classdef MR_Acquisitions < gadgetron.AcquisitionsContainer
+classdef AcquisitionData < gadgetron.AcquisitionsContainer
     properties
         name_
     end
     methods
-        function self = MR_Acquisitions(filename)
+        function self = AcquisitionData(filename)
             self.name_ = 'MR_Acquisitions';
             self.handle_ = [];
             if nargin > 0

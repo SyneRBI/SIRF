@@ -1,5 +1,4 @@
 % Upper-level demo, GRAPPA reconstruction of undersampled data.
-% See also an equivalent lower-level demo6.m.
 
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')
@@ -14,7 +13,7 @@ try
 
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.MR_Acquisitions(file);
+    input_data = gadgetron.AcquisitionData(file);
 
     % pre-process acquisitions
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
@@ -22,7 +21,7 @@ try
     preprocessed_data = input_data.process(prep_gadgets);
 
     % perform reconstruction
-    recon = gadgetron.MR_BasicGRAPPAReconstruction();
+    recon = gadgetron.GenericCartesianGRAPPAReconstruction();
     % for undersampled acquisition data GRAPPA can compute G-factors
     % in addition to reconstructed images
     recon.compute_gfactors(true);

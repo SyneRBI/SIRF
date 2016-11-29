@@ -9,7 +9,7 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
+    input_data = gadgetron.AcquisitionData('testdata.h5');
     
     na = input_data.number();
     fprintf('%d acquisitions found\n', na)
@@ -30,7 +30,7 @@ try
         ('(a value outside the range [1 : %d] will stop this loop)\n', nz)
     while (true)
         z = int32(input('slice: '));
-        if z < 1 | z > nz
+        if z < 1 || z > nz
             break
         end
         idata = abs(input_data.slice_as_array(z));
@@ -40,7 +40,7 @@ try
             ('(a value outside the range [1 : %d] will stop this loop)\n', nc)
         while (true)
             c = input('coil: ');
-            if c < 1 | c > nc
+            if c < 1 || c > nc
                 break
             end
             idata = idata/max(max(max(idata)));
