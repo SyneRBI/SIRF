@@ -1,18 +1,11 @@
 % Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
+select_gadgetron
 
 try
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.AcquisitionData(file);
+    input_data = AcquisitionData(file);
 
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
@@ -28,7 +21,7 @@ try
         {'GenericReconImageArrayScalingGadget'}, ...
         {'ImageArraySplitGadget'} ...
         ];
-    recon = gadgetron.ImagesReconstructor(gadgets);
+    recon = ImagesReconstructor(gadgets);
 
     % perform reconstruction
     recon.set_input(preprocessed_data)

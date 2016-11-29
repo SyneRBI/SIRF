@@ -2,9 +2,6 @@
 
 select_gadgetron
 
-%libfunctions('mutilities')
-%libfunctions('mgadgetron')
-
 try
     % define gadgets
     gadgets = [...
