@@ -161,10 +161,7 @@ echo PYTHON_INCLUDE: %PYTHON_INCLUDE%
 echo PYTHON_LIB: %PYTHON_LIB% 
 echo on 
 C:\SWIG\swigwin-3.0.5\swig.exe -c++ -python "%(FullPath)" </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">echo In order to function correctly, please ensure the following environment variables are correctly set: 
-echo PYTHON_INCLUDE: %PYTHON_INCLUDE% 
-echo PYTHON_LIB: %PYTHON_LIB% 
-echo on 
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">echo on 
 %SWIG_PATH%\swig.exe -c++ -python "%(FullPath)" </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(InputName)_wrap.cxx;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(InputName)_wrap.cxx;%(Outputs)</Outputs>

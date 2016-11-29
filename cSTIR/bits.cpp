@@ -3602,3 +3602,6 @@ char* _charDataFromHandle(const DataHandle* ptr_h)
 //		return (void*)handle;\
 //		}\
 
+#include "../../iUtilities/iutilities.h"
+
+%include "../../iUtilities/iutilities.h"
