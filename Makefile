@@ -5,6 +5,7 @@ ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
+INCLUDE =  -I$(MATLABROOT)/extern/include -I$(IUTILITIES)
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 
 all: libiutil mutilities.mexa64
@@ -20,7 +21,7 @@ mutilities.mexa64: mutilities.o
 	-o mutilities.mexa64 mutilities.o $(LIBIUTIL)/libiutil.a
 
 %.o: %.cpp data_handle.h
-	$(CPP) $(CFLAGS) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
 	rm -f *.o
