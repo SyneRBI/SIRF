@@ -5,18 +5,27 @@ ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
+SWIG = swig
+
 IUTILITIES = $(SRC_PATH)/iUtilities
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 INCLUDE =  -I$(MATLABROOT)/extern/include -I$(IUTILITIES)
 
-all: libiutil mutilities.mexa64
+all: libiutil.a _pyiutil.so mutilities.mexa64
 
-libiutil: iutilities.o
+libiutil.a: iutilities.o
 	$(ARCH) $(ARCHFLAGS) libiutil.a iutilities.o
 	$(RANLIB) libiutil.a
 	mv libiutil.a $(LIBIUTIL)
 
-mutilities.mexa64: mutilities.o
+_pyiutil.so: $(LIBIUTIL)/libiutil.a
+	$(SWIG) -c++ -python pyiutil.i
+	$(CPP) $(CFLAGS) -c pyiutil_wrap.cxx -I$(PYINCLUDE)
+	$(CPP) $(CFLAGS) -shared  -o _pyiutil.so pyiutil_wrap.o -L$(PYLIBPATH) -l$(PYTHON) \
+		$(LIBIUTIL)/libiutil.a \
+		$(LDFLAGS)
+
+mutilities.mexa64: mutilities.o $(LIBIUTIL)/libiutil.a
 	$(GCC) $(CFLAGS) \
 	-shared -Wl,-soname,mutilities.mexa64 \
 	-o mutilities.mexa64 mutilities.o $(LIBIUTIL)/libiutil.a
