@@ -512,20 +512,35 @@ public:
 	void get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
 		ISMRMRD::Acquisition acq;
+		int na = number();
+		if (slice >= na) {
+			for (int y = 0; y < na; y++) {
+				get_acquisition(y, acq);
+				unsigned int nc = acq.active_channels();
+				unsigned int ns = acq.number_of_samples();
+				for (size_t c = 0, i = 0; c < nc; c++) {
+					for (size_t s = 0; s < ns; s++, i++) {
+						complex_float_t z = acq.data(s, c);
+						re[i] = std::real(z);
+						im[i] = std::imag(z);
+					}
+				}
+			}
+			return;
+		}
 		int* dim = new int[3];
 		size_t ptr_dim = (size_t)dim;
 		get_acquisitions_dimensions(ptr_dim);
 		unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
 		delete[] dim;
-		int na = number();
 		int y = 0;
-		for (; y < na;){
+		for (; y + ny*slice < na;){
 			get_acquisition(y + ny*slice, acq);
 			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 				break;
 			y++;
 		}
-		for (; y < na;) {
+		for (; y + ny*slice < na;) {
 			get_acquisition(y + ny*slice, acq);
 			unsigned int nc = acq.active_channels();
 			unsigned int ns = acq.number_of_samples();
