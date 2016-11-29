@@ -36,5 +36,8 @@ mutilities.mexa64: mutilities.o $(LIBIUTIL)/libiutil.a
 %.o: %.cpp data_handle.h
 	$(CPP) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
+%.o: %.cxx
+	$(CPP) $(CFLAGS) -c -o $@ $<
+
 clean:
 	rm -f *.o
