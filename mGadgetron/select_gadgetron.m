@@ -9,3 +9,5 @@ if ~libisloaded('mgadgetron')
     [notfound, warnings] = loadlibrary('mgadgetron');
 end
 
+%libfunctions('mutilities')
+%libfunctions('mgadgetron')

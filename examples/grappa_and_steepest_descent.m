@@ -1,20 +1,13 @@
 % GRAPPA reconstruction with the steepest descent step
 % to illustrate the use of Acquisition Model projections.
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
+select_gadgetron
 
 try
 
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.AcquisitionData(file);
+    input_data = AcquisitionData(file);
 
     % pre-process acquisitions
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
@@ -25,7 +18,7 @@ try
 
     % perform reconstruction
     %fprintf('ok\n');
-    recon = gadgetron.GenericCartesianGRAPPAReconstruction();
+    recon = GenericCartesianGRAPPAReconstruction();
     recon.compute_gfactors(false);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
@@ -33,7 +26,7 @@ try
     complex_images = recon.get_output();
 
     % compute coil sensitivity maps
-    csms = gadgetron.CoilSensitivityMaps();
+    csms = CoilSensitivityMaps();
     fprintf('---\n sorting acquisitions...\n')
     preprocessed_data.sort()
     fprintf('---\n calculating sensitivity maps...\n')
@@ -41,7 +34,7 @@ try
 
     % create acquisition model based on the acquisition parameters
     % stored in preprocessed_data and image parameters stored in complex_images
-    am = gadgetron.AcquisitionModel(preprocessed_data, complex_images);
+    am = AcquisitionModel(preprocessed_data, complex_images);
     am.set_coil_sensitivity_maps(csms)
 
     % use the acquisition model (forward projection) to simulate acquisitions

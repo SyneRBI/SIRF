@@ -1,15 +1,10 @@
 % Upper-level interface demo, illustrates acquisitions pre-processing and plotting.
 
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
-end
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
+set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.AcquisitionData('testdata.h5');
+    input_data = AcquisitionData('testdata.h5');
     
     na = input_data.number();
     fprintf('%d acquisitions found\n', na)
@@ -21,7 +16,7 @@ try
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
-    processed_data = gadgetron.MR_remove_x_oversampling(input_data);
+    processed_data = MR_remove_x_oversampling(input_data);
 
     nz = idivide(na,ny);
     fprintf...

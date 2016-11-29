@@ -3,22 +3,17 @@
 % - reconstruction chain,
 % - image processing chain
 
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
-end
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
+select_gadgetron
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.AcquisitionData('testdata.h5');
+    input_data = AcquisitionData('testdata.h5');
     
     % process data using Acquisitions processing chain
     processed_data = input_data.process({'RemoveROOversamplingGadget'});
 	
     % build reconstruction chain
-    recon = gadgetron.ImagesReconstructor({'SimpleReconGadgetSet'});
+    recon = ImagesReconstructor({'SimpleReconGadgetSet'});
     % connect to input data
     recon.set_input(processed_data)
     % perform reconstruction
