@@ -559,18 +559,17 @@ class AcquisitionData(AcquisitionsContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-##    def as_array(self):
-##        dim = numpy.ndarray((3,), dtype = numpy.int32)
-##        pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
-##        ns = dim[0]
-##        ny = dim[1]
-##        nc = dim[2]
-##        nz = self.number()
-##        re = numpy.ndarray((nz, nc, ny, ns), dtype = numpy.float64)
-##        im = numpy.ndarray((nz, nc, ny, ns), dtype = numpy.float64)
-##        pygadgetron.cGT_getAcquisitionsData\
-##            (self.handle, -1, re.ctypes.data, im.ctypes.data)
-##        return re + 1j*im
+    def as_array(self):
+        acq = Acquisition()
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
+        ns = acq.number_of_samples()
+        nc = acq.active_channels()
+        na = self.number()
+        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        pygadgetron.cGT_getAcquisitionsData\
+            (self.handle, na, re.ctypes.data, im.ctypes.data)
+        return re + 1j*im
 
 class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):

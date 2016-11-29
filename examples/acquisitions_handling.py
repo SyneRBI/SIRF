@@ -34,6 +34,9 @@ def main():
 
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
+    input_data_array = input_data.as_array()
+    input_data_shape = input_data_array.shape
+    print('input data dimensions: %dx%dx%d' % input_data_shape)
 
     # pre-process acquisition data
     print('processing acquisitions...')
@@ -46,6 +49,8 @@ def main():
     input_data.sort()
 
     nx, ny, nc = input_data.slice_dimensions()
+    print('input data slice dimensions: %dx%dx%d' % (nx, ny, nc))
+
     nz = na//ny
 
     while HAVE_PYLAB:
