@@ -1,10 +1,10 @@
-classdef MR_CoilSensitivityMaps < gadgetron.DataContainer
+classdef CoilSensitivityMaps < gadgetron.DataContainer
     properties
         name_
     end
     methods
-        function self = MR_CoilSensitivityMaps()
-            self.name_ = 'MR_CoilSensitivityMaps';
+        function self = CoilSensitivityMaps()
+            self.name_ = 'CoilSensitivityMaps';
             self.handle_ = [];
         end
         function delete(self)

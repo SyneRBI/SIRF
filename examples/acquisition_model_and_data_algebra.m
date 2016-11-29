@@ -11,7 +11,7 @@ end
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
+    input_data = gadgetron.AcquisitionData('testdata.h5');
     fprintf('%d acquisitions found\n', input_data.number())
     
     % pre-process acquisition data
@@ -19,7 +19,7 @@ try
     processed_data = gadgetron.MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.MR_BasicReconstruction();
+    recon = gadgetron.SimpleReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
@@ -29,7 +29,7 @@ try
     fprintf('processing images...\n')
     images = complex_images.real();
 
-    csms = gadgetron.MR_CoilSensitivityMaps();
+    csms = gadgetron.CoilSensitivityMaps();
     fprintf('sorting acquisitions...\n')
     processed_data.sort()
     fprintf('calculating sensitivity maps...\n')
@@ -37,7 +37,7 @@ try
 
     % create acquisition model based on the acquisition parameters
     % stored in input_data and image parameters stored in interim_images
-    am = gadgetron.MR_AcquisitionModel(processed_data, complex_images);
+    am = gadgetron.AcquisitionModel(processed_data, complex_images);
 
     am.set_coil_sensitivity_maps(csms)
 

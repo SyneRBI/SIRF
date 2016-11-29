@@ -12,7 +12,7 @@ end
 try
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.MR_Acquisitions(file);
+    input_data = gadgetron.AcquisitionData(file);
 
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
@@ -59,11 +59,6 @@ try
         gdata = gdata/max(max(max(gdata)));
         imshow(gdata(:,:,1));
     end
-
-    % write images to a new group in 'output6.h5'
-    % named after the current date and time
-    fprintf('appending output6.h5...\n')
-    output.write('output6.h5', datestr(datetime))
 
 catch err
     % display error information

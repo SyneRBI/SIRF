@@ -1,19 +1,18 @@
 % Upper-level interface demo, illustrates pre-processing of acquisitions,
 % reconstructing images and post-processing them.
-% See also an equivalent lower-level demo3.m.
 
 set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = MR_Acquisitions('testdata.h5');
+    input_data = AcquisitionData('testdata.h5');
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
     processed_data = MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = MR_BasicReconstruction();
+    recon = SimpleReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()

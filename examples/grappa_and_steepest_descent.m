@@ -14,7 +14,7 @@ try
 
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.MR_Acquisitions(file);
+    input_data = gadgetron.AcquisitionData(file);
 
     % pre-process acquisitions
     prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
@@ -25,7 +25,7 @@ try
 
     % perform reconstruction
     %fprintf('ok\n');
-    recon = gadgetron.MR_BasicGRAPPAReconstruction();
+    recon = gadgetron.GenericCartesianGRAPPAReconstruction();
     recon.compute_gfactors(false);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
@@ -33,7 +33,7 @@ try
     complex_images = recon.get_output();
 
     % compute coil sensitivity maps
-    csms = gadgetron.MR_CoilSensitivityMaps();
+    csms = gadgetron.CoilSensitivityMaps();
     fprintf('---\n sorting acquisitions...\n')
     preprocessed_data.sort()
     fprintf('---\n calculating sensitivity maps...\n')
@@ -41,7 +41,7 @@ try
 
     % create acquisition model based on the acquisition parameters
     % stored in preprocessed_data and image parameters stored in complex_images
-    am = gadgetron.MR_AcquisitionModel(preprocessed_data, complex_images);
+    am = gadgetron.AcquisitionModel(preprocessed_data, complex_images);
     am.set_coil_sensitivity_maps(csms)
 
     % use the acquisition model (forward projection) to simulate acquisitions
