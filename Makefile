@@ -11,7 +11,11 @@ IUTILITIES = $(SRC_PATH)/iUtilities
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 INCLUDE =  -I$(MATLABROOT)/extern/include -I$(IUTILITIES)
 
+ifneq ($(MATLABROOT),)
 all: libiutil.a _pyiutil.so mutilities.mexa64
+else
+all: libiutil.a _pyiutil.so
+endif
 
 libiutil.a: iutilities.o
 	$(ARCH) $(ARCHFLAGS) libiutil.a iutilities.o
