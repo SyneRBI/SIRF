@@ -7,14 +7,19 @@ RANLIB = ranlib
 
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 
-all: libiutil
+all: libiutil mutilities.mexa64
 
 libiutil: iutilities.o
 	$(ARCH) $(ARCHFLAGS) libiutil.a data_handle.o
 	$(RANLIB) libiutil.a
 	mv libiutil.a $(LIBIUTIL)
 
-%.o: %.cpp
+mutilities.mexa64: mutilities.o
+	$(GCC) $(CFLAGS) \
+	-shared -Wl,-soname,mutilities.mexa64 \
+	-o mutilities.mexa64 mutilities.o $(LIBIUTIL)/libiutil.a
+
+%.o: %.cpp data_handle.h
 	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:
