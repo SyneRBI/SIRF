@@ -25,10 +25,12 @@ _pyiutil.so: $(LIBIUTIL)/libiutil.a
 		$(LIBIUTIL)/libiutil.a \
 		$(LDFLAGS)
 
+ifneq ($(MATLABROOT),)
 mutilities.mexa64: mutilities.o $(LIBIUTIL)/libiutil.a
 	$(GCC) $(CFLAGS) \
 	-shared -Wl,-soname,mutilities.mexa64 \
 	-o mutilities.mexa64 mutilities.o $(LIBIUTIL)/libiutil.a
+endif
 
 %.o: %.c
 	$(GCC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
