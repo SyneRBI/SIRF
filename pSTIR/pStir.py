@@ -292,7 +292,7 @@ class Image:
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)
         _check_status(handle)
-        diff = pystir.doubleDataFromHandle(handle)
+        diff = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return diff
     def as_array(self):
