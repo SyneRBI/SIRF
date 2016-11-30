@@ -1,4 +1,4 @@
-classdef AcquisitionData < gadgetron.AcquisitionsContainer
+classdef AcquisitionData < mGadgetron.AcquisitionsContainer
     properties
         name_
     end
@@ -9,7 +9,7 @@ classdef AcquisitionData < gadgetron.AcquisitionsContainer
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
-                gadgetron.checkExecutionStatus(self.name_, self.handle_);
+                mGadgetron.checkExecutionStatus(self.name_, self.handle_);
             end
         end
         function delete(self)

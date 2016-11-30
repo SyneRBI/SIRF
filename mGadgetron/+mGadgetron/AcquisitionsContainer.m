@@ -1,4 +1,4 @@
-classdef AcquisitionsContainer < gadgetron.DataContainer
+classdef AcquisitionsContainer < mGadgetron.DataContainer
     properties
         sorted_
     end
@@ -16,7 +16,7 @@ classdef AcquisitionsContainer < gadgetron.DataContainer
         function sort(self)
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
-            gadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
+            mGadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end
@@ -24,7 +24,7 @@ classdef AcquisitionsContainer < gadgetron.DataContainer
             sorted = self.sorted_;
         end
         function a = process(self, list)
-            ap = gadgetron.AcquisitionsProcessor(list);
+            ap = mGadgetron.AcquisitionsProcessor(list);
             a = ap.process(self);
         end
         function [ns, ny, nc] = slice_dimensions(self)

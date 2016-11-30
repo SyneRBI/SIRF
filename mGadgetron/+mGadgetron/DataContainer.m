@@ -13,33 +13,30 @@ classdef DataContainer < handle
             end
         end
         function obj = same_object(self)
-            if isa(self, class(gadgetron.ImagesContainer))
-%                 fprintf('image\n');
-                obj = gadgetron.ImagesContainer();
-            elseif isa(self, class(gadgetron.AcquisitionsContainer))
-%                 fprintf('acquisition\n');
-                obj = gadgetron.AcquisitionsContainer();
+            if isa(self, class(mGadgetron.ImagesContainer))
+                obj = mGadgetron.ImagesContainer();
+            elseif isa(self, class(mGadgetron.AcquisitionsContainer))
+                obj = mGadgetron.AcquisitionsContainer();
             else
-%                 fprintf('abstract\n');
-                obj = gadgetron.DataContainer();
+                obj = mGadgetron.DataContainer();
             end
         end
         function num = number(self)
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            gadgetron.checkExecutionStatus('DataContainer', handle);
+            mGadgetron.checkExecutionStatus('DataContainer', handle);
             num = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function r = norm(self)
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            gadgetron.checkExecutionStatus('DataContainer', handle);
+            mGadgetron.checkExecutionStatus('DataContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, other)
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
-            gadgetron.checkExecutionStatus('DataContainer', handle);
+            mGadgetron.checkExecutionStatus('DataContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
             im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);
@@ -47,7 +44,6 @@ classdef DataContainer < handle
         end
         function z = minus(self, other)
             z = self.same_object();
-%             z = gadgetron.DataContainer();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
         end
@@ -55,12 +51,10 @@ classdef DataContainer < handle
             if isobject(other)
                 z = self.dot(other);
             elseif isreal(other)
-                %z = gadgetron.DataContainer();
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     other, 0.0, self.handle_, 0.0, 0.0, self.handle_);
             else
-                %z = gadgetron.DataContainer();
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     real(other), imag(other), self.handle_, ...
@@ -70,7 +64,6 @@ classdef DataContainer < handle
     end
     methods(Static)
         function z = axpby(a, x, b, y)
-            %z = gadgetron.DataContainer();
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);

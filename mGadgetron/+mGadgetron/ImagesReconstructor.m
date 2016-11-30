@@ -1,4 +1,4 @@
-classdef ImagesReconstructor < gadgetron.GadgetChain
+classdef ImagesReconstructor < mGadgetron.GadgetChain
     properties
         input_
         images_
@@ -9,11 +9,11 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = gadgetron.label_and_name(list{i});
-                    self.add_gadget(label, gadgetron.Gadget(name));
+                    [label, name] = mGadgetron.label_and_name(list{i});
+                    self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
         end
@@ -31,11 +31,11 @@ classdef ImagesReconstructor < gadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
-            self.images_ = gadgetron.ImagesContainer();
+            self.images_ = mGadgetron.ImagesContainer();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
-            gadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self)
             images = self.images_;

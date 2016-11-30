@@ -1,4 +1,4 @@
-classdef AcquisitionsProcessor < gadgetron.GadgetChain
+classdef AcquisitionsProcessor < mGadgetron.GadgetChain
     properties
         file_
     end
@@ -7,12 +7,11 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
             self.name_ = 'AcquisitionsProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
-            gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = gadgetron.label_and_name(list{i});
-                    self.add_gadget(label, gadgetron.Gadget(name));
-%                    self.add_gadget(['g' num2str(i)], gadgetron.Gadget(list{i}));
+                    [label, name] = mGadgetron.label_and_name(list{i});
+                    self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
         end
@@ -23,11 +22,11 @@ classdef AcquisitionsProcessor < gadgetron.GadgetChain
             self.handle_ = [];
         end
         function acqs = process(self, input_data)
-            acqs = gadgetron.AcquisitionsContainer();
+            acqs = mGadgetron.AcquisitionsContainer();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, input_data.handle_);
-            gadgetron.checkExecutionStatus(self.name_, acqs.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, acqs.handle_);
         end
     end
 end

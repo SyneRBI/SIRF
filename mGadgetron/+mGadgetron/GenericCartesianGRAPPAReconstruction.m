@@ -1,4 +1,4 @@
-classdef GenericCartesianGRAPPAReconstruction < gadgetron.ImagesReconstructor
+classdef GenericCartesianGRAPPAReconstruction < mGadgetron.ImagesReconstructor
     properties
     end
     methods
@@ -7,7 +7,7 @@ classdef GenericCartesianGRAPPAReconstruction < gadgetron.ImagesReconstructor
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -31,7 +31,7 @@ classdef GenericCartesianGRAPPAReconstruction < gadgetron.ImagesReconstructor
 %         end
         function output = get_output(self, subset)
             gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor');
-            output = get_output@gadgetron.ImagesReconstructor(self);
+            output = get_output@mGadgetron.ImagesReconstructor(self);
             if strcmp(gf, 'true') && nargin > 1
                 if strcmp(subset, 'image')
                     output = output.select(2);
