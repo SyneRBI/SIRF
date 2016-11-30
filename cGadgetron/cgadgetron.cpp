@@ -459,8 +459,9 @@ cGT_getAcquisitionsData
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		acqs.get_acquisitions_data(slice, re, im);
-		return new DataHandle;
+		int n = acqs.get_acquisitions_data(slice, re, im);
+		return dataHandle(n);
+		//return new DataHandle;
 	}
 	CATCH;
 }

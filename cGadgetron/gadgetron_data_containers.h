@@ -509,16 +509,22 @@ public:
 		dim[1] = ny; // e.reconSpace.matrixSize.y;
 		dim[2] = acq.active_channels();
 	}
-	void get_acquisitions_data(unsigned int slice, double* re, double* im)
+	int get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
 		ISMRMRD::Acquisition acq;
 		int na = number();
+		int n = 0;
 		if (slice >= na) {
-			for (int y = 0; y < na; y++) {
-				get_acquisition(y, acq);
+			for (int a = 0, i = 0; a < na; a++) {
+				get_acquisition(a, acq);
+				if (TO_BE_IGNORED(acq)) {
+					std::cout << "ignoring acquisition " << a << '\n';
+					continue;
+				}
+				n++;
 				unsigned int nc = acq.active_channels();
 				unsigned int ns = acq.number_of_samples();
-				for (size_t c = 0, i = 0; c < nc; c++) {
+				for (size_t c = 0; c < nc; c++) {
 					for (size_t s = 0; s < ns; s++, i++) {
 						complex_float_t z = acq.data(s, c);
 						re[i] = std::real(z);
@@ -526,7 +532,7 @@ public:
 					}
 				}
 			}
-			return;
+			return n;
 		}
 		int* dim = new int[3];
 		size_t ptr_dim = (size_t)dim;
@@ -540,21 +546,22 @@ public:
 				break;
 			y++;
 		}
-		for (; y + ny*slice < na;) {
+		for (; y + ny*slice < na; n++) {
 			get_acquisition(y + ny*slice, acq);
 			unsigned int nc = acq.active_channels();
 			unsigned int ns = acq.number_of_samples();
 			for (size_t c = 0; c < nc; c++) {
 				for (size_t s = 0; s < ns; s++) {
 					complex_float_t z = acq.data(s, c);
-					re[s + ns*(y + ny*c)] = std::real(z);
-					im[s + ns*(y + ny*c)] = std::imag(z);
+					re[s + ns*(n + ny*c)] = std::real(z);
+					im[s + ns*(n + ny*c)] = std::imag(z);
 				}
 			}
 			y++;
 			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
 				break;
 		}
+		return n;
 	}
 
 	static void axpby
