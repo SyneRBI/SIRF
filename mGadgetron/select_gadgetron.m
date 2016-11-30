@@ -1,3 +1,4 @@
+clear import
 import mGadgetron.*
 
 if ~libisloaded('mutilities')
