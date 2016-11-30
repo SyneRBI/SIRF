@@ -1,4 +1,4 @@
-classdef OSMAPOSLReconstruction < stir.IterativeReconstruction
+classdef OSMAPOSLReconstruction < mStir.IterativeReconstruction
     properties
         name
     end
@@ -11,7 +11,7 @@ classdef OSMAPOSLReconstruction < stir.IterativeReconstruction
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'OSMAPOSLReconstruction', filename);
-            stir.checkExecutionStatus(self.name, self.handle);
+            mStir.checkExecutionStatus(self.name, self.handle);
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
@@ -19,13 +19,13 @@ classdef OSMAPOSLReconstruction < stir.IterativeReconstruction
             self.handle = [];
         end
         function set_MAP_model(self, model)
-            stir.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
+            mStir.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
         end
         function obj_fun = get_objective_function(self)
-            obj_fun = stir.PoissonLogLh_LinModMean();
+            obj_fun = mStir.PoissonLogLh_LinModMean();
             obj_fun.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'objective_function');
-            stir.checkExecutionStatus...
+            mStir.checkExecutionStatus...
                 ([self.name ':get_objective_function'], obj_fun.handle)
         end
     end

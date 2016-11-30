@@ -1,44 +1,37 @@
 % OSMAPOSL reconstruction demo with all parameters defined in the script
 % and user-controlled iterations
 
-% load C++-to-C interface library
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
-% load STIR interface library
-if ~libisloaded('mstir')
-    loadlibrary('mstir')
-end
+set_up_pet
 
 try
     % information on computation progress to go to this file
-    printer_info = stir.printerTo('stir_demo2.txt', 0);
+    printer_info = printerTo('info.txt', 0);
 
     % warning and error messages to go to Matlab Command Window
-    printer_warn = stir.printerTo('stdout', 1);
-    printer_errr = stir.printerTo('stdout', 2);
+    printer_warn = printerTo('stdout', 1);
+    printer_errr = printerTo('stdout', 2);
 
     % create matrix to be used by the acquisition model
-    matrix = stir.RayTracingMatrix();
+    matrix = RayTracingMatrix();
     matrix.set_num_tangential_LORs(2)
     
     % create acquisition model
-    am = stir.AcquisitionModelUsingMatrix();
+    am = AcquisitionModelUsingMatrix();
     am.set_matrix(matrix);
     
     % read acquisition model data
-    ad = stir.AcquisitionData('my_forward_projection.hs');
+    ad = AcquisitionData('my_forward_projection.hs');
 %     ad.read_from_file('my_forward_projection.hs')
 
     % create prior
-    prior = stir.QuadraticPrior();
+    prior = QuadraticPrior();
     prior.set_penalisation_factor(0.001)
 
     % create filter
-    filter = stir.CylindricFilter();
+    filter = CylindricFilter();
 
     % create initial image estimate
-    image = stir.Image();
+    image = Image();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)    
@@ -48,7 +41,7 @@ try
     filter.set_strictly_less_than_radius(true)
 
     % create objective function
-    obj_fun = stir.PoissonLogLh_LinModMean_AcqModData();
+    obj_fun = PoissonLogLh_LinModMean_AcqModData();
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
@@ -60,7 +53,7 @@ try
     %fprintf('ok\n')
 
     % create OSMAPOSL reconstructor
-    recon = stir.OSMAPOSLReconstruction();    
+    recon = OSMAPOSLReconstruction();    
     recon.set_objective_function(obj_fun)
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)
@@ -96,7 +89,7 @@ try
     end
 
     % compare the reconstructed image to the exact image
-    exactImage = stir.Image('my_image.hv');
+    exactImage = Image('my_image.hv');
     x_data = exactImage.as_array();
     figure(1000000 + iter + 1)
     x_data = x_data/max(max(max(x_data)));

@@ -1,46 +1,39 @@
 % Steepest ascent demo
 
-% load C++-to-C interface library
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
-% load STIR interface library
-if ~libisloaded('mstir')
-    loadlibrary('mstir')
-end
+set_up_pet
 
 try
     % info() printing suppressed, warning() and error() print to stdout
-    printer = stir.Printer();
+    printer = Printer();
 
     % create empty image
-    image = stir.Image();
+    image = Image();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
 
     % define a filter
-    filter = stir.CylindricFilter();
+    filter = CylindricFilter();
     filter.apply(image)
 
     % define acquisition data
-    ad = stir.AcquisitionData('my_forward_projection.hs');
+    ad = AcquisitionData('my_forward_projection.hs');
 
     % define the matrix to be used by the acquisition model
-    matrix = stir.RayTracingMatrix();
+    matrix = RayTracingMatrix();
     matrix.set_num_tangential_LORs(2)
 
     % define the acquisition model
-    am = stir.AcquisitionModelUsingMatrix();
+    am = AcquisitionModelUsingMatrix();
     am.set_matrix(matrix)
 
     % define a prior
-    prior = stir.QuadraticPrior();
+    prior = QuadraticPrior();
     prior.set_penalisation_factor(0.001)
 
     % define the objective function
-    obj_fun = stir.PoissonLogLh_LinModMean_AcqModData();
+    obj_fun = PoissonLogLh_LinModMean_AcqModData();
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)

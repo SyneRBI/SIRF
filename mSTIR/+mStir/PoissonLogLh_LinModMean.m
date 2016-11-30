@@ -1,4 +1,4 @@
-classdef PoissonLogLh_LinModMean < stir.ObjectiveFunction
+classdef PoissonLogLh_LinModMean < mStir.ObjectiveFunction
     methods
         function self = PoissonLogLh_LinModMean()
             self.handle = [];
@@ -11,7 +11,7 @@ classdef PoissonLogLh_LinModMean < stir.ObjectiveFunction
             end
         end
         function set_sensitivity_filename(self, name)
-            stir.setParameter...
+            mStir.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'sensitivity_filename', name, 'c')
         end
@@ -21,7 +21,7 @@ classdef PoissonLogLh_LinModMean < stir.ObjectiveFunction
             else
                 str = 'false';
             end
-            stir.setParameter...
+            mStir.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'use_subset_sensitivities', str, 'c')
         end
@@ -31,7 +31,7 @@ classdef PoissonLogLh_LinModMean < stir.ObjectiveFunction
             else
                 str = 'false';
             end
-            stir.setParameter...
+            mStir.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'recompute_sensitivity', str, 'c')
         end

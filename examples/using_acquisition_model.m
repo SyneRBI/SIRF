@@ -1,36 +1,29 @@
 % Forward projection demo: creates an image, forward-projects it to simulate
 % acquisition data and uses this data to reconstruct this image
 
-% load C++-to-C interface library
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
-% load STIR interface library
-if ~libisloaded('mstir')
-    loadlibrary('mstir')
-end
+set_up_pet
 
 try
     % info() printing suppressed, warning() and error() print to stdout
-    printer = stir.Printer();
+    printer = Printer();
     % all printing goes to stdout 
-    % printer = stir.Printer('stdout');
+    % printer = Printer('stdout');
     % info() prints to file
-    % printer = stir.Printer('stir_demo4_info.txt');
+    % printer = Printer('stir_demo4_info.txt');
     % info() and warning() print to file
-    % printer = stir.Printer('stir_demo4_info.txt', 'stir_demo4_warn.txt');
+    % printer = Printer('stir_demo4_info.txt', 'stir_demo4_warn.txt');
     % all printing goes to files
-    % printer = stir.Printer...
+    % printer = Printer...
     %     ('stir_demo4_info.txt', 'stir_demo4_warn.txt', 'stir_demo4_errr.txt');
 
     % create empty image
-    image = stir.Image();
+    image = Image();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
 
     % add ellipsoidal cylinders
-    shape = stir.EllipsoidalCylinder();
+    shape = EllipsoidalCylinder();
 
     shape.set_length(400);
     shape.set_radii([40, 100]);
@@ -54,22 +47,22 @@ try
     imshow(data(:,:,z));
 
     % define the matrix to be used by the acquisition model
-    matrix = stir.RayTracingMatrix();
+    matrix = RayTracingMatrix();
     matrix.set_num_tangential_LORs(2)
 
     % define the acquisition model
-    am = stir.AcquisitionModelUsingMatrix();
+    am = AcquisitionModelUsingMatrix();
     am.set_matrix(matrix)
 
     % define a prior
-    prior = stir.QuadraticPrior();
+    prior = QuadraticPrior();
     prior.set_penalisation_factor(0.001)
 
     % define a filter
-    filter = stir.CylindricFilter();
+    filter = CylindricFilter();
 
     % create an initial image estimate
-    reconstructedImage = stir.Image();
+    reconstructedImage = Image();
     reconstructedImage.initialise(image_size, voxel_size)
     reconstructedImage.fill(1.0)
     % apply filter to get a cylindric initial image
@@ -83,13 +76,13 @@ try
     % forward-project the image to obtain 'raw data'
     % 'Utahscat600k_ca_seg4.hs' is used as a template
     fprintf('projecting the image...')
-    templ = stir.AcquisitionData('Utahscat600k_ca_seg4.hs');
+    templ = AcquisitionData('Utahscat600k_ca_seg4.hs');
     am.set_up(templ, image)
     ad = am.forward(image, ''); % 'demo4data.hs');
     fprintf('ok\n')
 
     % define the objective function
-    obj_fun = stir.PoissonLogLh_LinModMean_AcqModData();
+    obj_fun = PoissonLogLh_LinModMean_AcqModData();
     obj_fun.set_zero_seg0_end_planes(true)
     obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
@@ -101,7 +94,7 @@ try
     fprintf('setting up the reconstructor...')
 
     % define OSMAPOSL reconstructor
-    recon = stir.OSMAPOSLReconstruction();
+    recon = OSMAPOSLReconstruction();
     recon.set_objective_function(obj_fun)
     recon.set_MAP_model('multiplicative')
     recon.set_num_subsets(12)

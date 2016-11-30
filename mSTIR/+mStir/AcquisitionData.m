@@ -14,7 +14,7 @@ classdef AcquisitionData < handle
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', filename);
             end
-            stir.checkExecutionStatus(self.name, self.handle);
+            mStir.checkExecutionStatus(self.name, self.handle);
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -30,7 +30,7 @@ classdef AcquisitionData < handle
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'AcquisitionData', filename);
-            stir.checkExecutionStatus(self.name, self.handle);
+            mStir.checkExecutionStatus(self.name, self.handle);
         end
     end
 end
