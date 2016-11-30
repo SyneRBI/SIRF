@@ -551,7 +551,8 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         _check_status(ss.handle)
         return ss
-    def get_gradient_not_divided(self, image, subset):
+##    def get_gradient_not_divided(self, image, subset):
+    def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
         grad = Image()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
