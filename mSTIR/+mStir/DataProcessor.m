@@ -16,7 +16,7 @@ classdef DataProcessor < handle
         function apply(self, image)
             h = calllib('mstir', 'mSTIR_applyDataProcessor',...
                 self.handle, image.handle);
-            stir.checkExecutionStatus('DataProcessor:apply', h)
+            mStir.checkExecutionStatus('DataProcessor:apply', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end

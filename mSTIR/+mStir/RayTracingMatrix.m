@@ -13,11 +13,11 @@ classdef RayTracingMatrix < handle
 %            calllib('mstir', 'mSTIR_deleteObject', self.handle)
         end
         function set_num_tangential_LORs(self, value)
-            stir.setParameter...
+            mStir.setParameter...
                 (self.handle, self.name, 'num_tangential_LORs', value, 'i')
         end
         function value = get_num_tangential_LORs(self)
-            value = stir.parameter...
+            value = mStir.parameter...
                 (self.handle, self.name, 'num_tangential_LORs', 'i');
         end
     end

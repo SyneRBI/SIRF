@@ -1,4 +1,4 @@
-classdef CylindricFilter < stir.DataProcessor
+classdef CylindricFilter < mStir.DataProcessor
     methods
         function self = CylindricFilter(filter)
             self.name = 'TruncateToCylindricalFOVImageProcessor';
@@ -24,12 +24,12 @@ classdef CylindricFilter < stir.DataProcessor
             else
                 str = 'false';
             end
-            stir.setParameter(self.handle,...
+            mStir.setParameter(self.handle,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', str, 'c')
         end
         function flag = get_strictly_less_than_radius(self)
-            flag = stir.parameter(self.handle,...
+            flag = mStir.parameter(self.handle,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', 'i');
         end

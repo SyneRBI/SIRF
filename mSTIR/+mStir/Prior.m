@@ -14,11 +14,11 @@ classdef Prior < handle
             end
         end
         function set_penalisation_factor(self, value)
-            stir.setParameter...
+            mStir.setParameter...
                 (self.handle, 'GeneralisedPrior', 'penalisation_factor', value, 'f')
         end
         function value = get_penalisation_factor(self)
-            value = stir.parameter...
+            value = mStir.parameter...
                 (self.handle, 'GeneralisedPrior', 'penalisation_factor', 'f');
         end
     end

@@ -1,4 +1,4 @@
-classdef EllipsoidalCylinder < stir.Shape
+classdef EllipsoidalCylinder < mStir.Shape
     properties
         name
     end
@@ -15,14 +15,14 @@ classdef EllipsoidalCylinder < stir.Shape
             end
         end
         function set_length(self, value)
-            stir.setParameter(self.handle, self.name, 'length', value, 'f')
+            mStir.setParameter(self.handle, self.name, 'length', value, 'f')
         end
         function value = get_length(self)
-            value = stir.parameter(self.handle, self.name, 'length', 'f');
+            value = mStir.parameter(self.handle, self.name, 'length', 'f');
         end
         function set_radii(self, r)
-            stir.setParameter(self.handle, self.name, 'radius_x', r(1), 'f')
-            stir.setParameter(self.handle, self.name, 'radius_y', r(2), 'f')
+            mStir.setParameter(self.handle, self.name, 'radius_x', r(1), 'f')
+            mStir.setParameter(self.handle, self.name, 'radius_y', r(2), 'f')
         end
     end
 end
