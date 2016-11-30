@@ -1,4 +1,4 @@
-import gadgetron.*
+import mGadgetron.*
 
 if ~libisloaded('mutilities')
     fprintf('loading mutilities library...\n')

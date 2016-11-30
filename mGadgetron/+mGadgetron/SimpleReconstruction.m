@@ -1,4 +1,4 @@
-classdef SimpleReconstruction < gadgetron.ImagesReconstructor
+classdef SimpleReconstruction < mGadgetron.ImagesReconstructor
     properties
     end
     methods
@@ -7,7 +7,7 @@ classdef SimpleReconstruction < gadgetron.ImagesReconstructor
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)

@@ -8,7 +8,7 @@ classdef AcquisitionModel < handle
             self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acqs.handle_, imgs.handle_);
-            gadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -19,22 +19,22 @@ classdef AcquisitionModel < handle
         function set_coil_sensitivity_maps(self, csms)
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
-            gadgetron.checkExecutionStatus(self.name_, handle);
+            mGadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, imgs)
-            acqs = gadgetron.AcquisitionsContainer();
+            acqs = mGadgetron.AcquisitionsContainer();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
                 self.handle_, imgs.handle_);
-            gadgetron.checkExecutionStatus(self.name_, acqs.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
-            imgs = gadgetron.ImagesContainer();
+            imgs = mGadgetron.ImagesContainer();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...
                 self.handle_, acqs.handle_);
-            gadgetron.checkExecutionStatus(self.name_, imgs.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, imgs.handle_);
         end
     end
 end

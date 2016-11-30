@@ -1,4 +1,4 @@
-classdef ImagesContainer < gadgetron.DataContainer
+classdef ImagesContainer < mGadgetron.DataContainer
     properties
         name_
     end
@@ -16,11 +16,11 @@ classdef ImagesContainer < gadgetron.DataContainer
         function write(self, file, group)
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, group);
-            gadgetron.checkExecutionStatus(self.name_, handle);
+            mGadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = select(self, inc, off)
-            images = gadgetron.ImagesContainer();
+            images = mGadgetron.ImagesContainer();
             if nargin < 3
                 off = 0;
             end
@@ -29,16 +29,16 @@ classdef ImagesContainer < gadgetron.DataContainer
             end
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, inc, off);
-            gadgetron.checkExecutionStatus(self.name_, images.handle_);
+            mGadgetron.checkExecutionStatus(self.name_, images.handle_);
         end
         function images = process(self, list)
-            ip = gadgetron.ImagesProcessor(list);
+            ip = mGadgetron.ImagesProcessor(list);
             images = ip.process(self);
         end
         function ft = is_real(self)
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
-            gadgetron.checkExecutionStatus(self.name_, handle);
+            mGadgetron.checkExecutionStatus(self.name_, handle);
             v = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
             ft = (v ~= 7 && v ~= 8);
