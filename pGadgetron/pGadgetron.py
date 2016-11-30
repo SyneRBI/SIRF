@@ -511,9 +511,9 @@ class AcquisitionsContainer(DataContainer):
     def slice_dimensions(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
-        ns = dim[0]
+        nc = dim[0]
         ny = dim[1]
-        nc = dim[2]
+        ns = dim[2]
         return ns, ny, nc
     def slice_as_array(self, num):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
@@ -527,6 +527,21 @@ class AcquisitionsContainer(DataContainer):
         pygadgetron.cGT_getAcquisitionsData\
             (self.handle, num, re.ctypes.data, im.ctypes.data)
         return re + 1j*im
+    def as_array(self, all = False):
+        acq = Acquisition()
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
+        ns = acq.number_of_samples()
+        nc = acq.active_channels()
+        na = self.number()
+        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        hv = pygadgetron.cGT_getAcquisitionsData\
+            (self.handle, na, re.ctypes.data, im.ctypes.data)
+        if all:
+            n = na
+        else:
+            n = pyiutil.intDataFromHandle(hv)
+        return re[0 : n, :, :] + 1j*im[0 : n, :, :]
 
 class Acquisition(PyGadgetronObject):
     def __init__(self, file = None):
@@ -559,17 +574,6 @@ class AcquisitionData(AcquisitionsContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-    def as_array(self):
-        acq = Acquisition()
-        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
-        ns = acq.number_of_samples()
-        nc = acq.active_channels()
-        na = self.number()
-        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
-        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
-        pygadgetron.cGT_getAcquisitionsData\
-            (self.handle, na, re.ctypes.data, im.ctypes.data)
-        return re + 1j*im
 
 class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
@@ -772,9 +776,9 @@ class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
         if gf == 'true' and subset is not None:
-            if subset == 'image':
+            if subset[0:5] == 'image':
                 return output.select(2)
-            elif subset == 'gfactor':
+            elif subset[0:7] == 'gfactor':
                 return output.select(2,1)
             else:
                 raise(error('??? unknown reconstrtuction output requested'))

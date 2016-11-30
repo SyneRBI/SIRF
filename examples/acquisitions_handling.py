@@ -34,22 +34,30 @@ def main():
 
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
-    input_data_array = input_data.as_array()
-    input_data_shape = input_data_array.shape
-    print('input data dimensions: %dx%dx%d' % input_data_shape)
+
+    na = input_data.number()
+    nc, ny, nx = input_data.slice_dimensions()
+    print('%d acquisitions found' % na)
+
+    # copy acquisitions into an array
+    input_array = input_data.as_array().transpose((1, 0, 2))
+    input_shape = input_array.shape
+    print('input data dimensions: %dx%dx%d' % input_shape)
+    print('input data slice dimensions: %dx%dx%d' % (nc, ny, nx))
 
     # pre-process acquisition data
     print('processing acquisitions...')
     processed_data = input_data.process(['RemoveROOversamplingGadget'])
 
-    na = input_data.number()
-    print('%d acquisitions found' % na)
+    # copy processed acquisitions into an array
+    processed_array = processed_data.as_array().transpose((1, 0, 2))
+    processed_shape = processed_array.shape
+    print('processed data dimensions: %dx%dx%d' % processed_shape)
+    print('processed data slice dimensions: %dx%dx%d'\
+          % (processed_data.slice_dimensions()))
 
     print('sorting acquisitions...')
     input_data.sort()
-
-    nx, ny, nc = input_data.slice_dimensions()
-    print('input data slice dimensions: %dx%dx%d' % (nx, ny, nc))
 
     nz = na//ny
 
@@ -62,8 +70,8 @@ def main():
         z = int(s)
         if z < 1 or z > nz:
             break
-        data = abs(input_data.slice_as_array(z - 1))
-        pdata = abs(processed_data.slice_as_array(z - 1))
+        input_slice = abs(input_array[:, (z - 1)*ny : z*ny, :])
+        processed_slice = abs(processed_array[:, (z - 1)*ny : z*ny, :])
         print('Enter coil number to view the acquired data for it')
         print('(a value outside the range [1 : %d] will stop this loop)' % nc)
         while True:
@@ -73,20 +81,30 @@ def main():
             c = int(s)
             if c < 1 or c > nc:
                 break
+            cp = c + nc
             pylab.figure(c)
             pylab.title('input data')
-            pylab.imshow(data[c - 1, :, :])
-            pylab.figure(c + nc)
+            pylab.imshow(input_slice[c - 1, :, :])
+            pylab.figure(cp)
             pylab.title('processed data')
-            pylab.imshow(pdata[c - 1, :, :])
-            print('Close Figures %d and %d windows to continue...'% (c, c + nc))
+            pylab.imshow(processed_slice[c - 1, :, :])
+            print('Close Figures %d and %d windows to continue...'% (c, cp))
             pylab.show()
 
     # perform reconstruction
-    recon = SimpleReconstruction()
+    undersampled = input_data.is_undersampled()
+    if not undersampled:
+        print('---\n reconstructing fully sampled data...')
+        recon = SimpleReconstruction()
+    else:
+        print('---\n reconstructing undersampled data using GRAPPA...')
+        recon = GenericCartesianGRAPPAReconstruction()
     recon.set_input(processed_data)
     recon.process()
-    images = recon.get_output()
+    if not undersampled:
+        images = recon.get_output()
+    else:
+        images = recon.get_output('images')
 
     # show obtained images
     images.show()
