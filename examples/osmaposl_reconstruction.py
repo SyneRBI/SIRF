@@ -24,15 +24,15 @@ def main():
     info_printer = printerTo('info.txt', INFO_CHANNEL)
     warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
 
-    # define acquisition model as one whereby the geometric
-    # forward projection is represented by a ray tracing matrix
+    # select acquisition model that implements the geometric
+    # forward projection by a ray tracing matrix multiplication
     am = AcquisitionModelUsingMatrix(RayTracingMatrix())
 
-    # define acquisition data source
+    # indicate acquisition data source
     ad = AcquisitionData('my_forward_projection.hs')
 
-    # define initial image estimate compatible with raw data
-    # and initialize it to value 1.0 at each voxel
+    # create initial image estimate compatible with raw data
+    # and initialize each voxel to 1.0
     image = ad.create_empty_image(1.0)
 
     # define objective function to be maximized as
@@ -44,8 +44,8 @@ def main():
 
     num_subiterations = 2
 
-    # define reconstruction algorithm to be used as
-    # Ordered Subsets Maximum A-Priori One Step Late
+    # select Ordered Subsets Maximum A-Priori One Step Late
+    # as the reconstruction algorithm
     recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(12)
