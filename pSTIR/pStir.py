@@ -268,11 +268,13 @@ class Image:
         return self
     def clone(self):
         image = Image()
+        pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
         image = Image()
+        pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
         image.fill(value)
@@ -374,6 +376,13 @@ class AcquisitionData:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def create_empty_image(self, value = 0):
+        image = Image()
+        pyiutil.deleteDataHandle(image.handle)
+        image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
+        _check_status(image.handle)
+        image.fill(value)
+        return image
     def as_array(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         handle = pystir.cSTIR_getAcquisitionsDimensions\
@@ -592,9 +601,9 @@ class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
             (self.handle, self.name, 'acquisition_model')
         _check_status(am.handle)
         return am
-    def set_acquisition_data(self, am):
+    def set_acquisition_data(self, ad):
         _setParameter\
-            (self.handle, self.name, 'proj_data_sptr', am.handle)
+            (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
 class Reconstruction:
     def __init__(self):
@@ -609,6 +618,9 @@ class Reconstruction:
 class IterativeReconstruction(Reconstruction):
     def __init__(self):
         self.handle = None
+        self.input = None
+        self.image = None
+        self.subset = 0
     def __del__(self):
         if self.handle is not None:
             pystir.cSTIR_deleteObject(self.handle)
@@ -674,14 +686,37 @@ class IterativeReconstruction(Reconstruction):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
+    def set_input(self, input_data):
+        self.input = input_data
+    def set_current_estimate(self, image):
+        self.image = image
+    def get_current_estimate(self):
+        return self.image
+    def update_current_estimate(self):
+        if self.image is None:
+            raise error('current estimate not set')
+        handle = pystir.cSTIR_updateReconstruction(self.handle, self.image.handle)
+        _check_status(handle)
+        pyiutil.deleteDataHandle(handle)
+    def set_current_subset(self, subset):
+        self.subset = subset
+    def get_subset_sensitivity(self):
+        obj_fun = self.get_objective_function()
+        obj_fun.get_subset_sensitivity(self.subset)
     def reconstruct(self, image):
         handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def update(self, image):
-        handle = pystir.cSTIR_updateReconstruction(self.handle, image.handle)
+    def process(self):
+        if self.image is None:
+            raise error('current estimate not set')
+        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
+    def update(self, image):
+        self.set_current_estimate(image)
+        self.update_current_estimate()
+        return self.get_current_estimate()
 
 class OSMAPOSLReconstruction(IterativeReconstruction):
     def __init__(self, filename = ''):
