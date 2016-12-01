@@ -244,6 +244,7 @@ $RECYCLE.BIN/
 *.pyd
 *.pyc
 *.mexw64
+*.mexa64
 *.mat
 *.am
 *.thresholded

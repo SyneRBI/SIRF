@@ -33,7 +33,6 @@ STIR_LIBS = \
 			-lanalytic_FBP3DRP \
 			-literative_OSMAPOSL \
 			-literative_OSSPS \
-			-lrecon_buildblock \
 			-lIO \
 			-ldata_buildblock \
 			-lrecon_buildblock \
@@ -83,7 +82,7 @@ spatial_transformation_registries.o: \
 
 _pystir.so: $(CSTIR_SRC)/cstir.h $(REG_OBJECTS) $(BUILDPATH)/$(CSTIRLIB)
 	$(SWIG) -c++ -python pystir.i
-	$(CXX) $(CFLAGS) -c pystir_wrap.cxx -I$(PYINCLUDE) -I$(PYLIBPATH)
+	$(CXX) $(CFLAGS) -c pystir_wrap.cxx -I$(PYINCLUDE)
 	$(CXX) $(CFLAGS) -shared  -o _pystir.so pystir_wrap.o $(REG_OBJECTS) -L$(PYLIBPATH) -l$(PYTHON) \
 		-L$(LIBIUTIL) $(IUTIL_LIB) \
 		-L$(BUILDPATH) $(CSTIR_LIB) -L$(STIR_LIBPATH) $(STIR_LIBS) $(LDFLAGS)
