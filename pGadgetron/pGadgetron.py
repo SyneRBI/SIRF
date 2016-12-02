@@ -1,18 +1,38 @@
 import numpy
 import os
+import sys
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
 import time
+try:
+    IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools/ismrmrdtools'
+    sys.path.append(IPT_PATH)
+    from ismrmrdtools import coils
+    HAVE_ISMRMRDTOOLS = True
+except:
+    print('ismrmrd-python-tools not installed')
+    HAVE_ISMRMRDTOOLS = False
 
+sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
+import pyiutil
 import pygadgetron
 
 ISMRMRD_IMTYPE_MAGNITUDE = 1
 ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
 ISMRMRD_IMTYPE_IMAG      = 4
+
+ISMRMRD_USHORT   = 1##, /**< corresponds to uint16_t */
+ISMRMRD_SHORT    = 2##, /**< corresponds to int16_t */
+ISMRMRD_UINT     = 3##, /**< corresponds to uint32_t */
+ISMRMRD_INT      = 4##, /**< corresponds to int32_t */
+ISMRMRD_FLOAT    = 5##, /**< corresponds to float */
+ISMRMRD_DOUBLE   = 6##, /**< corresponds to double */
+ISMRMRD_CXFLOAT  = 7##, /**< corresponds to complex float */
+ISMRMRD_CXDOUBLE = 8##  /**< corresponds to complex double */
 
 class error(Exception):
     def __init__(self, value):
@@ -21,10 +41,10 @@ class error(Exception):
         return repr(self.value)
 
 def _check_status(handle):
-    if pygadgetron.executionStatus(handle) != 0:
-        msg = pygadgetron.executionError(handle)
-        file = pygadgetron.executionErrorFile(handle)
-        line = pygadgetron.executionErrorLine(handle)
+    if pyiutil.executionStatus(handle) != 0:
+        msg = pyiutil.executionError(handle)
+        file = pyiutil.executionErrorFile(handle)
+        line = pyiutil.executionErrorLine(handle)
         errorMsg = \
             repr(msg) + ' exception thrown at line ' + \
             repr(line) + ' of ' + file
@@ -33,17 +53,68 @@ def _check_status(handle):
 def _setParameter(hs, set, par, hv):
     h = pygadgetron.cGT_setParameter(hs, set, par, hv)
     _check_status(h)
-    pygadgetron.deleteDataHandle(h)
+    pyiutil.deleteDataHandle(h)
 def _set_int_par(handle, set, par, value):
-    h = pygadgetron.intDataHandle(value)
+    h = pyiutil.intDataHandle(value)
     _setParameter(handle, set, par, h)
-    pygadgetron.deleteDataHandle(h)
+    pyiutil.deleteDataHandle(h)
 def _int_par(handle, set, par):
     h = pygadgetron.cGT_parameter(handle, set, par)
     _check_status(h)
-    value = pygadgetron.intDataFromHandle(h)
-    pygadgetron.deleteDataHandle(h)
+    value = pyiutil.intDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
     return value
+def _char_par(handle, set, par):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    _check_status(h)
+    value = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _parameterHandle(hs, set, par):
+    handle = pygadgetron.cGT_parameter(hs, set, par)
+    _check_status(handle)
+    return handle
+
+def gadget_label_and_name(g):
+    name = g.lstrip()
+    name = name.rstrip()
+    i = name.find(':')
+    if i > -1:
+        label = name[: i].rstrip()
+        name = name[i + 1 :].lstrip()
+    else:
+        label = ''
+    return label, name
+
+def object_name_and_parameters(obj):
+    name = obj.lstrip()
+    name = name.rstrip()
+    i = name.find('(')
+    if i > -1:
+        j = name.find(')', i)
+        prop = name[i + 1 : j]
+        name = name[: i].rstrip()
+        i = 0
+    else:
+        prop = None
+    return name, prop
+
+def parse_arglist(arglist):
+    argdict = {}
+    while True:
+        arglist = arglist.lstrip()
+        ieq = arglist.find('=')
+        if ieq < 0:
+            return argdict
+        name = arglist[0:ieq].rstrip()
+        arglist = arglist[ieq + 1 :].lstrip()
+        ic = arglist.find(',')
+        if ic < 0:
+            argdict[name] = arglist.rstrip()
+            return argdict
+        else:
+            argdict[name] = arglist[0:ic].rstrip()
+            arglist = arglist[ic + 1 :]
 
 class PyGadgetronObject:
     pass
@@ -55,51 +126,51 @@ class ClientConnector(PyGadgetronObject):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def set_timeout(self, timeout):
         handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def connect(self, host, port):
         handle = pygadgetron.cGT_connect(self.handle, host, port)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def disconnect(self):
         handle = pygadgetron.cGT_disconnect(self.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def register_images_receiver(self, imgs):
         handle = pygadgetron.cGT_registerImagesReceiver\
             (self.handle, imgs.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def config_gadget_chain(self, gc):
         handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def send_config_file(self, file):
         handle = pygadgetron.cGT_sendConfigFile(self.handle, file)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def send_parameters(self, par):
         handle = pygadgetron.cGT_sendParameters(self.handle, par)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def send_acquisitions(self, acq):
         handle = pygadgetron.cGT_sendAcquisitions(self.handle, acq.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def send_images(self, img):
         handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         
 class DataContainer(PyGadgetronObject):
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def same_object(self):
         if isinstance(self, ImagesContainer):
             return ImagesContainer()
@@ -109,21 +180,21 @@ class DataContainer(PyGadgetronObject):
     def number(self):
         handle = pygadgetron.cGT_dataItems(self.handle)
         _check_status(handle)
-        n = pygadgetron.intDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
+        n = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         return n
     def norm(self):
         handle = pygadgetron.cGT_norm(self.handle)
         _check_status(handle)
-        r = pygadgetron.doubleDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
+        r = pyiutil.doubleDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         return r;
     def dot(self, other):
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         _check_status(handle)
-        re = pygadgetron.doubleReDataFromHandle(handle)
-        im = pygadgetron.doubleImDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
+        re = pyiutil.doubleReDataFromHandle(handle)
+        im = pyiutil.doubleImDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         return complex(re, im)
     def __add__(self, other):
         z = self.same_object()
@@ -169,92 +240,173 @@ class DataContainer(PyGadgetronObject):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
-class MR_CoilSensitivityMaps(DataContainer):
+class CoilImages(DataContainer):
+    def __init__(self):
+        self.handle = None
+        self.handle = pygadgetron.cGT_newObject('CoilImagesList')
+        _check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteObject(self.handle)
+    def calculate(self, acqs):
+        if acqs.is_sorted() is False:
+            print('WARNING: acquisitions may be in a wrong order')
+        handle = pygadgetron.cGT_computeCoilImages\
+            (self.handle, acqs.handle)
+        _check_status(handle)
+        pyiutil.deleteDataHandle(handle)
+    def image_dimensions(self):
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getCoilDataDimensions\
+            (self.handle, 0, dim.ctypes.data)
+        return tuple(numpy.asarray(dim))
+    def as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.image_dimensions()
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+            raise error('image data not available')
+        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        pygadgetron.cGT_getCoilData\
+            (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
+        return re + 1j * im
+
+class CoilSensitivityMaps(DataContainer):
     def __init__(self):
         self.handle = None
         self.smoothness = 0
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def read(self, file):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
-    def set_smoothness(self, s):
-        self.smoothness = s
-    def calculate(self, acqs):
-        if acqs.is_sorted() is False:
-            print('WARNING: acquisitions may be in a wrong order')
+    def calculate(self, data, method = None):
+        if isinstance(data, AcquisitionsContainer):
+            if data.is_sorted() is False:
+                print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
-        _set_int_par\
-            (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-        handle = pygadgetron.cGT_computeCoilSensitivities\
-            (self.handle, acqs.handle)
+        if method is not None:
+            method_name, parm_list = object_name_and_parameters(method)
+            parm = parse_arglist(parm_list)
+        else:
+            method_name = ''
+            parm = {}
+        if isinstance(data, AcquisitionsContainer):
+            handle = pygadgetron.cGT_computeCoilSensitivities\
+                (self.handle, data.handle)
+            _check_status(handle)
+            pyiutil.deleteDataHandle(handle)
+        elif isinstance(data, CoilImages):
+            if HAVE_ISMRMRDTOOLS and method_name == 'Inati':
+                nz = data.number()
+                for z in range(nz):
+                    re, im = data.coil_image_as_arrays(z)
+                    ci = numpy.squeeze(re  + 1j*im)
+                    (csm, rho) = coils.calculate_csm_inati_iter(ci)
+                    self.append(csm)
+            else:
+                if 'niter' in parm:
+                    nit = int(parm['niter'])
+                    _set_int_par\
+                        (self.handle, 'coil_sensitivity', 'smoothness', nit)
+                handle = pygadgetron.cGT_computeCSMsFromCIs\
+                    (self.handle, data.handle)
+                _check_status(handle)
+                pyiutil.deleteDataHandle(handle)
+    def append(self, csm):
+        if self.handle is None:
+            self.handle = pygadgetron.cGT_CoilSensitivities('')
+            _check_status(self.handle)
+        shape = csm.shape
+        nc = shape[0]
+        if csm.ndim == 4:
+            nz = shape[1]
+            iy = 2
+        else:
+            nz = 1
+            iy = 1
+        ny = shape[iy]
+        nx = shape[iy + 1]
+        re = csm.real.copy()
+        im = csm.imag.copy()
+        handle = pygadgetron.cGT_appendCSM\
+            (self.handle, nx, ny, nz, nc, re.ctypes.data, im.ctypes.data)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
-    def csm_as_array(self, csm_num):
+        pyiutil.deleteDataHandle(handle)
+    def map_dimensions(self):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getCSMDimensions\
-            (self.handle, csm_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        pygadgetron.cGT_getCSMDataAbs\
-            (self.handle, csm_num, array.ctypes.data)
-        return array
-    def csm_as_arrays(self, csm_num):
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getCSMDimensions\
-            (self.handle, csm_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
+        pygadgetron.cGT_getCoilDataDimensions\
+            (self.handle, 0, dim.ctypes.data)
+        return tuple(numpy.asarray(dim))
+    def as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
         re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
         im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        pygadgetron.cGT_getCSMData\
+        pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
-        return re, im
+        return re + 1j * im
+    def abs_as_ndarray(self, csm_num):
+        nx, ny, nz, nc = self.map_dimensions()
+        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+            raise error('image data not available')
+        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        pygadgetron.cGT_getCoilDataAbs\
+            (self.handle, csm_num, array.ctypes.data)
+        return array
 
 class ImagesContainer(DataContainer):
     def __init__(self):
         self.handle = None
-        self.is_real = False
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def types(self):
         handle = pygadgetron.cGT_imageTypes(self.handle)
         _check_status(handle)
-        n = pygadgetron.intDataFromHandle(handle)
-        pygadgetron.deleteDataHandle(handle)
+        n = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         return n
+    def data_type(self, im_num):
+        handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
+        _check_status(handle)
+        n = pyiutil.intDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return n
+    def is_real(self):
+        t = self.data_type(0)
+        return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def process(self, list):
         ip = ImagesProcessor(list)
         return ip.process(self)
     def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
-        if self.is_real:
+        if self.is_real():
             return self
         self.conversion_to_real(ctype)
         real_images = self.process(['ComplexToFloatGadget'])
-        real_images.is_real = True
         return real_images
     def show(self):
         if not HAVE_PYLAB:
             print('pylab not found')
             return
+        data = self.as_array()
+        if not self.is_real():
+            data = abs(data)
         ni = self.number()
-        print('%d images' % ni)
+        nt = self.types()
+        if nt == 1:
+            if ni == 1:
+                print('%d image' % ni)
+            else:
+                print('%d images' % ni)
+        else:
+            print('%d images of %d types' % (ni, nt))
         print('Please enter the number of the image to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % ni)
         while True:
@@ -264,53 +416,74 @@ class ImagesContainer(DataContainer):
             i = int(s)
             if i < 1 or i > ni:
                 break
-            data = self.image_as_array(i - 1)
             pylab.figure(i)
             pylab.title('image %d' % i)
-            pylab.imshow(data[0,0,:,:])
+            pylab.imshow(data[i - 1, :, :])
             print('Close Figure %d window to continue...' % i)
             pylab.show()
     def write(self, out_file, out_group):
         handle = pygadgetron.cGT_writeImages\
             (self.handle, out_file, out_group)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def select(self, inc = 1, off = 0):
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_selectImages(self.handle, inc, off)
         _check_status(images.handle)
         return images
-    def conversion_to_real(self, ctype):
-        pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
-    def image_as_array(self, im_num):
+##    def conversion_to_real(self, ctype):
+##        pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
+    def as_array(self):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\
-            (self.handle, im_num, dim.ctypes.data)
+            (self.handle, 0, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
         nc = dim[3]
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-##        array = numpy.ndarray((nx, ny, nz, nc), dtype = numpy.float64)
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        pygadgetron.cGT_getImageDataAsDoubleArray\
-            (self.handle, im_num, array.ctypes.data)
-        return array
-    def image_as_complex_array(self, im_num):
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getImageDimensions\
-            (self.handle, im_num, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
-            raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.complex64)
-        pygadgetron.cGT_getImageDataAsComplexArray\
-            (self.handle, im_num, array.ctypes.data)
-        return array
+        nz = nz*nc*self.number()
+        if self.is_real():
+            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            pygadgetron.cGT_getImagesDataAsDoubleArray\
+                (self.handle, array.ctypes.data)
+            return array
+        else:
+            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            pygadgetron.cGT_getImagesDataAsComplexArray\
+                (self.handle, re.ctypes.data, im.ctypes.data)
+            return re + 1j*im
+##    def image_as_array(self, im_num = None):
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        pygadgetron.cGT_getImageDimensions\
+##            (self.handle, im_num, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+##        pygadgetron.cGT_getImageDataAsDoubleArray\
+##            (self.handle, im_num, array.ctypes.data)
+##        return array
+##    def image_as_complex_array(self, im_num):
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        pygadgetron.cGT_getImageDimensions\
+##            (self.handle, im_num, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        if nx == 0 or ny == 0 or nz == 0 or nc == 0:
+##            raise error('image data not available')
+##        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.complex64)
+##        pygadgetron.cGT_getImageDataAsComplexArray\
+##            (self.handle, im_num, array.ctypes.data)
+##        return array
+
+class Image(ImagesContainer):
+    pass
 
 class AcquisitionsContainer(DataContainer):
     def __init__(self):
@@ -318,27 +491,29 @@ class AcquisitionsContainer(DataContainer):
         self.sorted = False
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def sort(self):
         handle = pygadgetron.cGT_orderAcquisitions(self.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         self.sorted = True
     def is_sorted(self):
         return self.sorted
+    def is_undersampled(self):
+        return _int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         ap = AcquisitionsProcessor(list)
         return ap.process(self)
     def acquisition(self, num):
-        acq = MR_Acquisition()
+        acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
     def slice_dimensions(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
-        ns = dim[0]
+        nc = dim[0]
         ny = dim[1]
-        nc = dim[2]
+        ns = dim[2]
         return ns, ny, nc
     def slice_as_array(self, num):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
@@ -352,13 +527,28 @@ class AcquisitionsContainer(DataContainer):
         pygadgetron.cGT_getAcquisitionsData\
             (self.handle, num, re.ctypes.data, im.ctypes.data)
         return re + 1j*im
+    def as_array(self, all = False):
+        acq = Acquisition()
+        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
+        ns = acq.number_of_samples()
+        nc = acq.active_channels()
+        na = self.number()
+        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        hv = pygadgetron.cGT_getAcquisitionsData\
+            (self.handle, na, re.ctypes.data, im.ctypes.data)
+        if all:
+            n = na
+        else:
+            n = pyiutil.intDataFromHandle(hv)
+        return re[0 : n, :, :] + 1j*im[0 : n, :, :]
 
-class MR_Acquisition(PyGadgetronObject):
+class Acquisition(PyGadgetronObject):
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def flags(self):
         return _int_par(self.handle, 'acquisition', 'flags')
     def number_of_samples(self):
@@ -374,7 +564,7 @@ class MR_Acquisition(PyGadgetronObject):
     def idx_slice(self):
         return _int_par(self.handle, 'acquisition', 'idx_slice')
 
-class MR_Acquisitions(AcquisitionsContainer):
+class AcquisitionData(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
         self.sorted = False
@@ -383,9 +573,9 @@ class MR_Acquisitions(AcquisitionsContainer):
             _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
 
-class MR_AcquisitionModel(PyGadgetronObject):
+class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
         self.handle = None
         self.handle = \
@@ -393,14 +583,14 @@ class MR_AcquisitionModel(PyGadgetronObject):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def set_coil_sensitivity_maps(self, csm):
         handle = pygadgetron.cGT_setCSMs(self.handle, csm.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         self.csms = 'set'
     def forward(self, images):
-        acqs = MR_Acquisitions()
+        acqs = AcquisitionData()
         acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, images.handle)
         _check_status(acqs.handle)
@@ -415,32 +605,24 @@ class MR_AcquisitionModel(PyGadgetronObject):
 class Gadget(PyGadgetronObject):
     def __init__(self, name):
         self.handle = None
-        i = name.find('(')
-        if i > -1:
-            j = name.find(')', i)
-            prop = name[i + 1 : j]
-            name = name[: i]
-            #name.rstrip() # does not work, have to do this way:
-            i = name.find(' ')
-            if i > -1:
-                name = name[:i]
-            i = 0
-            #print(name, prop)
+        name, prop = object_name_and_parameters(name)
         self.handle = pygadgetron.cGT_newObject(name)
         _check_status(self.handle)
-        if i > -1:
+        if prop is not None:
             self.set_properties(prop)
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def set_property(self, prop, value):
         handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def set_properties(self, prop):
         handle = pygadgetron.cGT_setGadgetProperties(self.handle, prop)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+    def value_of(self, prop):
+        return _char_par(self.handle, 'gadget', prop)
 
 class GadgetChain(PyGadgetronObject):
     def __init__(self):
@@ -448,19 +630,36 @@ class GadgetChain(PyGadgetronObject):
         _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def add_reader(self, id, reader):
         handle = pygadgetron.cGT_addReader(self.handle, id, reader.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def add_writer(self, id, writer):
         handle = pygadgetron.cGT_addWriter(self.handle, id, writer.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def add_gadget(self, id, gadget):
         handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+    def set_gadget_property(self, id, prop, value):
+        if type(value) == type('abc'):
+            v = value
+        else:
+            v = repr(value).lower()
+        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        handle = pygadgetron.cGT_setGadgetProperty(hg, prop, v)
+        _check_status(handle)
+        pyiutil.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(hg)
+    def value_of_gadget_property(self, id, prop):
+        hg = _parameterHandle(self.handle, 'gadget_chain', id)
+        hv = _parameterHandle(hg, 'gadget', prop)
+        value = pyiutil.charDataFromHandle(hv)
+        pyiutil.deleteDataHandle(hg)
+        pyiutil.deleteDataHandle(hv)
+        return value
 
 class ImagesReconstructor(GadgetChain):
     def __init__(self, list = None):
@@ -471,11 +670,13 @@ class ImagesReconstructor(GadgetChain):
         if list is None:
             return
         for i in range(len(list)):
-            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
+            label, name = gadget_label_and_name(list[i])
+            self.add_gadget(label, Gadget(name))
+##            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
             #print('deleting reconstructor object...')
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def set_input(self, input_data):
         self.input_data = input_data
     def process(self):
@@ -484,7 +685,7 @@ class ImagesReconstructor(GadgetChain):
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, self.input_data.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
     def get_output(self):
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
@@ -494,7 +695,7 @@ class ImagesReconstructor(GadgetChain):
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
         _check_status(handle)
-        pygadgetron.deleteDataHandle(handle)
+        pyiutil.deleteDataHandle(handle)
         images = ImagesContainer()
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
@@ -512,7 +713,7 @@ class ImagesProcessor(GadgetChain):
             self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
 ##    def set_input(self, input_data):
 ##        self.input_data = input_data
     def process(self, input_data):
@@ -541,7 +742,7 @@ class AcquisitionsProcessor(GadgetChain):
             self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def process(self, input_data):
         acquisitions = AcquisitionsContainer()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
@@ -549,7 +750,7 @@ class AcquisitionsProcessor(GadgetChain):
         _check_status(acquisitions.handle)
         return acquisitions
 
-class MR_BasicReconstruction(ImagesReconstructor):
+class SimpleReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')
@@ -557,9 +758,9 @@ class MR_BasicReconstruction(ImagesReconstructor):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     
-class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
+class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject\
@@ -568,12 +769,21 @@ class MR_BasicGRAPPAReconstruction(ImagesReconstructor):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            pygadgetron.deleteObject(self.handle)
-    def get_output(self):
+            pyiutil.deleteObject(self.handle)
+    def compute_gfactors(self, flag):
+        self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
+    def get_output(self, subset = None):
         output = ImagesReconstructor.get_output(self)
-        images = output.select(2)
-        gfactors = output.select(2,1)
-        return images, gfactors
+        gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
+        if gf == 'true' and subset is not None:
+            if subset[0:5] == 'image':
+                return output.select(2)
+            elif subset[0:7] == 'gfactor':
+                return output.select(2,1)
+            else:
+                raise(error('??? unknown reconstrtuction output requested'))
+        else:
+            return output
     
 def MR_remove_x_oversampling(input_data):
     handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
@@ -582,16 +792,6 @@ def MR_remove_x_oversampling(input_data):
     output_data.handle = pygadgetron.cGT_processAcquisitions\
          (handle, input_data.handle)
     _check_status(output_data.handle)
-    pygadgetron.deleteObject(handle)
+    pyiutil.deleteObject(handle)
     return output_data
-
-def MR_extract_real_images(complex_images):
-    handle = pygadgetron.cGT_newObject('ExtractRealImagesProcessor')
-    _check_status(handle)
-    real_images = ImagesContainer()
-    real_images.handle = pygadgetron.cGT_processImages\
-         (handle, complex_images.handle)
-    _check_status(real_images.handle)
-    pygadgetron.deleteObject(handle)
-    return real_images
 

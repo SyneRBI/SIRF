@@ -12,8 +12,10 @@ libcgt: cgadgetron.o xgadgetron.o ismrmrd_fftw.o
 	$(ARCH) $(ARCHFLAGS) libcgt.a cgadgetron.o xgadgetron.o ismrmrd_fftw.o
 	$(RANLIB) libcgt.a
 	mv libcgt.a $(BUILD_PATH)/xGadgetron
+	
+HEADERS = xgadgetron.h gadgetron_data_containers.h
 
-%.o: %.cpp
+%.o: %.cpp $(HEADERS) $(BUILD_PATH)/iUtilities/libiutil.a
 	$(CPP) $(CFLAGS) -c -o $@ $<
 
 clean:

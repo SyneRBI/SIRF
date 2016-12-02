@@ -7,8 +7,13 @@ class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
 	RemoveOversamplingProcessor()
 	{
-		boost::shared_ptr<aGadget> sptr_g(new RemoveOversamplingGadget);
+		//class_ = "RemoveOversamplingProcessor";
+		boost::shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
 		add_gadget("gadget", sptr_g);
+	}
+	static const char* class_name()
+	{
+		return "RemoveOversamplingProcessor";
 	}
 };
 
@@ -16,8 +21,13 @@ class SimpleReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleReconstructionProcessor()
 	{
-		boost::shared_ptr<aGadget> sptr_g(new SimpleReconstructionGadgetSet);
+		//class_ = "SimpleReconstructionProcessor";
+		boost::shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
 		add_gadget("gadget", sptr_g);
+	}
+	static const char* class_name()
+	{
+		return "SimpleReconstructionProcessor";
 	}
 };
 
@@ -25,13 +35,16 @@ class SimpleGRAPPAReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleGRAPPAReconstructionProcessor()
 	{
-		boost::shared_ptr<aGadget> sptr_g1(new AcqAccTrigGadget);
-		boost::shared_ptr<aGadget> sptr_g2(new BucketToBuffGadget);
-		boost::shared_ptr<aGadget> sptr_g3(new PrepRefGadget);
-		boost::shared_ptr<aGadget> sptr_g4(new CartesianGrappaGadget);
-		boost::shared_ptr<aGadget> sptr_g5(new FOVAdjustmentGadget);
-		boost::shared_ptr<aGadget> sptr_g6(new ScalingGadget);
-		boost::shared_ptr<aGadget> sptr_g7(new ImgArrSplitGadget);
+		//class_ = "SimpleGRAPPAReconstructionProcessor";
+		boost::shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
+		boost::shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
+		boost::shared_ptr<aGadget> sptr_g3
+			(new GenericReconCartesianReferencePrepGadget);
+		boost::shared_ptr<aGadget> sptr_g4(new GenericReconCartesianGrappaGadget);
+		boost::shared_ptr<aGadget> sptr_g5
+			(new GenericReconFieldOfViewAdjustmentGadget);
+		boost::shared_ptr<aGadget> sptr_g6(new GenericReconImageArrayScalingGadget);
+		boost::shared_ptr<aGadget> sptr_g7(new ImageArraySplitGadget);
 		add_gadget("gadget1", sptr_g1);
 		add_gadget("gadget2", sptr_g2);
 		add_gadget("gadget3", sptr_g3);
@@ -40,14 +53,23 @@ public:
 		add_gadget("gadget6", sptr_g6);
 		add_gadget("gadget7", sptr_g7);
 	}
+	static const char* class_name()
+	{
+		return "SimpleGRAPPAReconstructionProcessor";
+	}
 };
 
 class ExtractRealImagesProcessor : public ImagesProcessor {
 public:
 	ExtractRealImagesProcessor()
 	{
-		boost::shared_ptr<aGadget> sptr_g(new ExtGadget);
+		//class_ = "ExtractRealImagesProcessor";
+		boost::shared_ptr<aGadget> sptr_g(new ExtractGadget);
 		add_gadget("gadget", sptr_g);
+	}
+	static const char* class_name()
+	{
+		return "ExtractRealImagesProcessor";
 	}
 };
 

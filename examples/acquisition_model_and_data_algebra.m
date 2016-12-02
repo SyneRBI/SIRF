@@ -2,34 +2,25 @@
 % Involves the computation of coil sensitivity maps and
 % the projection from the image space into acquisition space and back.
 
-if ~libisloaded('mgadgetron')
-    loadlibrary('mgadgetron')
-end
-if ~libisloaded('mutilities')
-    loadlibrary('mutilities')
-end
+set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = gadgetron.MR_Acquisitions('testdata.h5');
+    input_data = AcquisitionData('testdata.h5');
     fprintf('%d acquisitions found\n', input_data.number())
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
-    processed_data = gadgetron.MR_remove_x_oversampling(input_data);
+    processed_data = MR_remove_x_oversampling(input_data);
 	
     % perform reconstruction
-    recon = gadgetron.MR_BasicReconstruction();
+    recon = SimpleReconstruction();
     recon.set_input(processed_data)
     fprintf('reconstructing...\n')
     recon.process()
     complex_images = recon.get_output();
     
-    % post-process reconstructed images
-    fprintf('processing images...\n')
-    images = gadgetron.MR_extract_real_images(complex_images);
-
-    csms = gadgetron.MR_CoilSensitivityMaps();
+    csms = CoilSensitivityMaps();
     fprintf('sorting acquisitions...\n')
     processed_data.sort()
     fprintf('calculating sensitivity maps...\n')
@@ -37,7 +28,7 @@ try
 
     % create acquisition model based on the acquisition parameters
     % stored in input_data and image parameters stored in interim_images
-    am = gadgetron.MR_AcquisitionModel(processed_data, complex_images);
+    am = AcquisitionModel(processed_data, complex_images);
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -64,13 +55,7 @@ try
     im_diff = imgs - complex_images;
     fprintf('0.0 = %e\n', im_diff.norm()/complex_images.norm())
 
-    % plot obtained images
-    for i = 1 : images.number()
-        data = images.image_as_array(i);
-        figure(1000000 + i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1,1));
-    end
+    complex_images.show()
 
 catch err
     % display error information

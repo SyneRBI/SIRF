@@ -24,39 +24,34 @@ parser.add_argument\
  help = 'raw data file name (default: testdata.h5)')
 parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
-('--no_gfactors', help = 'no gfactors to be computed', action = 'store_true')
+('--gfactors', help = 'gfactors to be computed', action = 'store_true')
 args = parser.parse_args()                                 
 
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     # pre-process acquisitions
-    print('pre-processing acquisitions...')
+    print('---\n pre-processing acquisitions...')
     preprocessed_data = input_data.process(['NoiseAdjustGadget', \
-         'AsymmetricEchoGadget', 'RemoveROOversamplingGadget'])
+         'AsymmetricEchoAdjustROGadget', 'RemoveROOversamplingGadget'])
 
-    grappa_par = ''
-    if args.no_gfactors:
-        # gfactors are not needed
-        grappa_par = '(send_out_gfactor=false)'
-
-    # perform reconstruction
-    recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget', \
-         'BucketToBufferGadget', 'PrepRefGadget', \
-         'CartesianGrappaGadget' + grappa_par, \
-         'FOVAdjustmentGadget', 'ScalingGadget', 'ImageArraySplitGadget'])
+    # set up reconstruction chain
+    recon = ImagesReconstructor([\
+         'AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget' \
+         '(N_dimension=contrast,S_dimension=average,split_slices=false)', \
+         'GenericReconCartesianReferencePrepGadget', \
+         'GRAPPA:GenericReconCartesianGrappaGadget', \
+         'GenericReconFieldOfViewAdjustmentGadget', \
+         'GenericReconImageArrayScalingGadget', 'ImageArraySplitGadget'])
+    # change a property of the gadget labelled by 'GRAPPA'
+    recon.set_gadget_property('GRAPPA', 'send_out_gfactor', args.gfactors)
     recon.set_input(preprocessed_data)
-    print('reconstructing...')
+    # reconstruct
+    print('---\n reconstructing...')
     recon.process()
-    complex_output = recon.get_output()
-
-    # post-process reconstructed images
-    print('processing images...')
-    complex_output.conversion_to_real(ISMRMRD_IMTYPE_MAGNITUDE)
-    output = complex_output.process\
-             (['ComplexToFloatGadget', 'FloatToShortGadget'])
+    output = recon.get_output()
 
     # show images
     output.show()
@@ -66,7 +61,7 @@ def main():
         # named after the current date and time
         print('writing to %s' % args.output)
         time_str = time.asctime()
-        images.write(args.output, time_str)
+        output.write(args.output, time_str)
 
 try:
     main()
@@ -74,4 +69,4 @@ try:
 
 except error as err:
     # display error information
-    print ('Gadgetron exception occured:\n', err.value)
+    print('??? %s' % err.value)

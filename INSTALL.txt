@@ -5,10 +5,10 @@ Gadgetron Python and Matlab interfaces installation under Linux
 NOTE: Python interface successfully tried on Lubuntu VM and Centos, 
 Matlab interface on Centos only.
 
-Install Boost, SWIG, and clone+install Ismsmrd and Gadgetron from 
+Install Boost, SWIG, and clone+install ISMRMRD and Gadgetron from 
 github.com/CCPPETMR. DO NOT CHANGE DEFAULT FOLDERS.
 
-If you have installed the Gadgetron liraries in non-default folder, 
+If you have installed the Gadgetron libraries in non-default folder, 
 or where your linker doesn't find it, add this folder to LIBRARY_PATH 
 and LD_LIBRARY_PATH.
 
@@ -25,7 +25,10 @@ Clone xGadgetron from github.com/CCPPETMR/xGadgetron into <work_dir>:
 
 Set the following environment variables:
 (Note that SRC_PATH and BUILD_PATH are required for the Python demos as well as installation. 
- If installation needs to be re-started these variables will need to be set again - suggest putting into a file and using the source command. Also, if re-starting run make clean prior to make.)
+ If installation needs to be re-started these variables will need to be set again - suggest putting into a file and using the source command.)
+ 
+If installation needs to be re-started due to an error, or when major code changes have taken place, it can help to start from a clean status by removing the files in the build folder, and running make clean before make.
+
 
 Variable name              Variable value
 

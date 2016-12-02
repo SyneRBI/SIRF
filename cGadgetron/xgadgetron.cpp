@@ -21,7 +21,38 @@ See xGadgetron/LICENSE.txt for license details.
 \author CCP PETMR
 */
 
+#include "data_handle.h"
 #include "xgadgetron.h"
+
+bool
+connection_failed(int nt)
+{
+	std::cout << "connection failed";
+	if (nt < N_TRIALS - 1) {
+		std::cout << ", trying again...\n";
+		return false;
+	}
+	else {
+		std::cout << std::endl;
+		return true;
+	}
+
+}
+
+boost::shared_ptr<aGadget> 
+GadgetChain::gadget_sptr(std::string id)
+{
+#ifdef MSVC
+	std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+#else
+	typename std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+#endif
+	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
+		if (boost::iequals(gh->get()->id(), id))
+			return gh->get()->gadget_sptr();
+	}
+	return boost::shared_ptr<aGadget>();
+}
 
 std::string 
 GadgetChain::xml() const 
@@ -88,10 +119,8 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
@@ -134,10 +163,8 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
@@ -171,10 +198,8 @@ ImagesProcessor::process(ImagesContainer& images)
 			break;
 		}
 		catch (...) {
-			std::cout << "connection failed";
-			if (nt < N_TRIALS - 1)
-				std::cout << ", trying again...";
-			std::cout << std::endl;
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron failed");
 		}
 	}
 }
@@ -188,7 +213,7 @@ AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	for (int i = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
-		CoilSensitivityMap& csm = cc(i%cc.items());
+		CoilData& csm = cc(i%cc.items());
 		fwd(iw, csm, ac);
 	}
 }
@@ -202,7 +227,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	ImageWrap iw(sptr_imgs_->image_wrap(0));
 	for (int i = 0, a = 0; a < ac.number(); i++) {
-		CoilSensitivityMap& csm = cc(i%cc.items());
+		CoilData& csm = cc(i%cc.items());
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
 	}
@@ -210,7 +235,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 
 template< typename T>
 void 
-AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
+AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	AcquisitionsContainer& ac)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
@@ -280,7 +305,7 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
 
 template< typename T>
 void 
-AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm,
+AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	AcquisitionsContainer& ac, int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;

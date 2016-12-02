@@ -35,6 +35,7 @@ See xGadgetron/LICENSE.txt for license details.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+//#include "an_object.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
@@ -89,6 +90,10 @@ public:
 	{
 		return *sptr_g_.get();
 	}
+	boost::shared_ptr<aGadget> gadget_sptr()
+	{
+		return sptr_g_;
+	}
 private:
 	std::string id_;
 	boost::shared_ptr<aGadget> sptr_g_;
@@ -121,9 +126,18 @@ writer gadget
 (sends the final result to the client)
 */
 
-class GadgetChain {
+class GadgetChain { //: public anObject {
 public:
-	virtual ~GadgetChain() {}
+	//GadgetChain()
+	//{
+	//	class_ = "GadgetChain";
+	//}
+	static const char* class_name()
+	{
+		return "GadgetChain";
+	}
+	// apparently caused crash in linux
+	//virtual ~GadgetChain() {}
 	// adds reader gadget
 	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) 
 	{
@@ -147,6 +161,7 @@ public:
 		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
+	boost::shared_ptr<aGadget> gadget_sptr(std::string id);
 	// returns string containing the definition of the chain in xml format
 	std::string xml() const;
 private:
@@ -163,13 +178,20 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdAcqMsgWriter)
 	{
+		//class_ = "AcquisitionsProcessor";
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<AcqFinishGadget> endgadget(new AcqFinishGadget);
+		boost::shared_ptr<AcquisitionFinishGadget> 
+			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 	}
-	virtual ~AcquisitionsProcessor() {}
+	// apparently caused crash in linux
+	//virtual ~AcquisitionsProcessor() {}
+	static const char* class_name()
+	{
+		return "AcquisitionsProcessor";
+	}
 
 	void process(AcquisitionsContainer& acquisitions);
 	boost::shared_ptr<AcquisitionsContainer> get_output() 
@@ -193,11 +215,16 @@ public:
 		reader_(new IsmrmrdAcqMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
+		//class_ = "ImagesReconstructor";
 		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
+	}
+	static const char* class_name()
+	{
+		return "ImagesReconstructor";
 	}
 
 	void process(AcquisitionsContainer& acquisitions);
@@ -221,10 +248,15 @@ public:
 		reader_(new IsmrmrdImgMsgReader),
 		writer_(new IsmrmrdImgMsgWriter)
 	{
+		//class_ = "ImagesProcessor";
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImgFinishGadget> endgadget(new ImgFinishGadget);
+		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
+	}
+	static const char* class_name()
+	{
+		return "ImagesProcessor";
 	}
 
 	void process(ImagesContainer& images);
@@ -256,14 +288,14 @@ public:
 		sptr_csms_ = sptr_csms;
 	}
 
-	void fwd(ImageWrap& iw, CoilSensitivityMap& csm, AcquisitionsContainer& ac)
+	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac)
 	{
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
 		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac);
 	}
 
-	void bwd(ImageWrap& iw, CoilSensitivityMap& csm, AcquisitionsContainer& ac, 
+	void bwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
 		int& off)
 	{
 		int type = iw.type();
@@ -306,10 +338,10 @@ private:
 	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 	template< typename T>
-	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilSensitivityMap& csm,
+	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		AcquisitionsContainer& ac);
 	template< typename T>
-	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilSensitivityMap& csm,
+	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 		AcquisitionsContainer& ac, int& off);
 };
 

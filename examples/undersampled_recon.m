@@ -1,40 +1,33 @@
 % Upper-level demo, GRAPPA reconstruction of undersampled data.
-% See also an equivalent lower-level demo6.m.
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
+select_gadgetron
 
 try
 
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.MR_Acquisitions(file);
+    input_data = AcquisitionData(file);
 
     % pre-process acquisitions
-    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoGadget'} ...
+    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
-    acq_proc = gadgetron.AcquisitionsProcessor(prep_gadgets);
-    fprintf('---\n pre-processing acquisitions...\n')
-    preprocessed_data = acq_proc.process(input_data);
+    preprocessed_data = input_data.process(prep_gadgets);
 
     % perform reconstruction
-    recon = gadgetron.MR_BasicGRAPPAReconstruction();
+    recon = GenericCartesianGRAPPAReconstruction();
+    % for undersampled acquisition data GRAPPA can compute G-factors
+    % in addition to reconstructed images
+    recon.compute_gfactors(true);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
     recon.process();
-    % for undersampled acquisition data GRAPPA computes G-factors
-    % in addition to reconstructed images
-    output = recon.get_output();
+    images = recon.get_output('image');
+    gfacts = recon.get_output('gfactor');
 
-    % get real-valued reconstructed images and G-factors
-    images = gadgetron.MR_extract_real_images(output.select(2));
-    gfacts = gadgetron.MR_extract_real_images(output.select(2,1));
+    idata = abs(images.as_array());
+    gdata = abs(gfacts.as_array());
+    idata = idata/max(max(max(idata)));
+    gdata = gdata/max(max(max(gdata)));
 
     n = images.number();
     fprintf('Enter slice number to view its data\n')
@@ -44,15 +37,11 @@ try
         if i < 1 || i > n
             break
         end
-        idata = images.image_as_array(i);
-        gdata = gfacts.image_as_array(i);
-        idata = idata/max(max(max(idata)));
-        gdata = gdata/max(max(max(gdata)));
         figure(i)
-        imshow(idata(:,:,1));
+        imshow(idata(:,:,i));
         title(['image ' num2str(i)])
         figure(i + n)
-        imshow(gdata(:,:,1));
+        imshow(gdata(:,:,i));
         title(['G-factor ' num2str(i)])
     end
     
