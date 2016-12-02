@@ -51,12 +51,12 @@ try
     alpha = (g*g)/(w*w);
     r_complex_imgs = complex_images - g*alpha;
 
-    % get real-valued reconstructed and refined images
-    images = complex_images.real();
-    r_imgs = r_complex_imgs.real();
+    idata = abs(complex_images.as_array());
+    rdata = abs(r_complex_imgs.as_array());
+    idata = idata/max(max(max(idata)));
+    rdata = rdata/max(max(max(rdata)));
+    n = complex_images.number();
 
-    % plot images
-    n = images.number();
     fprintf('---\nEnter slice number to view it\n')
     fprintf('(a value outside the range [1 : %d] will stop this loop)\n', n)
     while (true)
@@ -64,15 +64,11 @@ try
         if i < 1 || i > n
             break
         end
-        data = images.image_as_array(i);
-        rdata = r_imgs.image_as_array(i);
-        data = data/max(max(max(data)));
-        rdata = rdata/max(max(max(rdata)));
         figure(i)
-        imshow(data(:,:,1));
+        imshow(idata(:,:,i));
         title('GRAPPA image')
         figure(i + n)
-        imshow(rdata(:,:,1));
+        imshow(rdata(:,:,i));
         title('refined image')
     end
     

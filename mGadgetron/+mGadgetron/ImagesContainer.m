@@ -43,17 +43,17 @@ classdef ImagesContainer < mGadgetron.DataContainer
             calllib('mutilities', 'mDeleteDataHandle', handle)
             ft = (v ~= 7 && v ~= 8);
         end
-        function conversion_to_real(self, type)
-            calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
-                self.handle_, type)
-        end
-        function images = real(self, ctype)
-            if nargin < 2
-                ctype = 1;
-            end
-            self.conversion_to_real(ctype);
-            images = self.process({'ComplexToFloatGadget'});
-        end
+%         function conversion_to_real(self, type)
+%             calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
+%                 self.handle_, type)
+%         end
+%         function images = real(self, ctype)
+%             if nargin < 2
+%                 ctype = 1;
+%             end
+%             self.conversion_to_real(ctype);
+%             images = self.process({'ComplexToFloatGadget'});
+%         end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
@@ -88,6 +88,25 @@ classdef ImagesContainer < mGadgetron.DataContainer
                 re = reshape(ptr_re.Value, dim(1), dim(2), nz);
                 im = reshape(ptr_im.Value, dim(1), dim(2), nz);
                 data = re + 1j*im;
+            end
+        end
+        function show(self)
+            data = self.as_array();
+            if ~self.is_real()
+                data = abs(data);
+            end
+            data = data/max(max(max(data)));
+            ni = self.number();
+            fprintf('Please enter the number of the image to view\n')
+            fprintf('(a value outside the range [1 : %d] will stop this loop)\n', ni)
+            while true
+                i = input('image: ');
+                if i < 1 || i > ni
+                    break
+                end
+                figure(i)
+                imshow(data(:, :, i))
+                title(['image ' num2str(i)])
             end
         end
     end

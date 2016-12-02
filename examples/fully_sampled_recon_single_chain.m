@@ -27,13 +27,8 @@ try
     % get reconstructed images
     images = recon.get_output();
     
-    % plot reconstructed images
-    for i = 1 : images.number()
-        data = images.image_as_array(i);
-        figure(i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1));
-    end
+    % plot obtained images
+    images.show()
 
 catch err
     % display error information

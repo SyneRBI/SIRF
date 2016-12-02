@@ -20,10 +20,6 @@ try
     recon.process()
     complex_images = recon.get_output();
     
-    % post-process reconstructed images
-    fprintf('processing images...\n')
-    images = complex_images.real();
-
     csms = CoilSensitivityMaps();
     fprintf('sorting acquisitions...\n')
     processed_data.sort()
@@ -59,13 +55,7 @@ try
     im_diff = imgs - complex_images;
     fprintf('0.0 = %e\n', im_diff.norm()/complex_images.norm())
 
-    % plot obtained images
-    for i = 1 : images.number()
-        data = images.image_as_array(i);
-        figure(1000000 + i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1,1));
-    end
+    complex_images.show()
 
 catch err
     % display error information
