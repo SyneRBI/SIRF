@@ -1,10 +1,12 @@
 import numpy
+import pylab
 import os
 import sys
 import time
 
 sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
 import pyiutil
+sys.path.append(os.environ.get('SRC_PATH') + '/xSTIR/pSTIR')
 import pystir
 
 INFO_CHANNEL = 0
