@@ -16,42 +16,25 @@ try
         {'AcquisitionAccumulateTriggerGadget'}, ...
         {'BucketToBufferGadget'}, ...
         {'GenericReconCartesianReferencePrepGadget'}, ...
-        {'GenericReconCartesianGrappaGadget'}, ...
+        {'GRAPPA:GenericReconCartesianGrappaGadget'}, ...
         {'GenericReconFieldOfViewAdjustmentGadget'}, ...
         {'GenericReconImageArrayScalingGadget'}, ...
         {'ImageArraySplitGadget'} ...
         ];
     recon = ImagesReconstructor(gadgets);
+    % switch off the computation of G-factors
+    recon.set_gadget_property...
+        ('GRAPPA', 'send_out_gfactor', false)
 
     % perform reconstruction
     recon.set_input(preprocessed_data)
     fprintf('reconstructing images...\n')
     recon.process()
-    % get reconstructed complex images and G-factors
-    complex_output = recon.get_output();
+    % get reconstructed complex images
+    output = recon.get_output();
     
-    % extract real images
-    fprintf('processing images...\n')
-    output = complex_output.real();
-
-    % plot reconstructed images and G-factors
-    n = output.number()/2;
-    fprintf('Enter slice number to view its data\n')
-    fprintf('(a value outside the range [1 : %d] will stop this loop).\n', n)
-    while (true)
-        i = input('slice: ');
-        if i < 1 || i > n
-            break
-        end
-        data = output.image_as_array(2*i - 1);
-        gdata = output.image_as_array(2*i);
-        figure(i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1));
-        figure(i + n)
-        gdata = gdata/max(max(max(gdata)));
-        imshow(gdata(:,:,1));
-    end
+    % plot reconstructed images
+    output.show()
 
 catch err
     % display error information

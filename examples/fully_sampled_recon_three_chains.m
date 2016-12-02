@@ -10,7 +10,9 @@ try
     input_data = AcquisitionData('testdata.h5');
     
     % process data using Acquisitions processing chain
-    processed_data = input_data.process({'RemoveROOversamplingGadget'});
+    acq_proc = AcquisitionsProcessor({'RemoveROOversamplingGadget'});
+    fprintf('processing acquisitions...\n')
+    processed_data = acq_proc.process(input_data);
 	
     % build reconstruction chain
     recon = ImagesReconstructor({'SimpleReconGadgetSet'});
@@ -23,15 +25,12 @@ try
     complex_images = recon.get_output();
 
     % extract real images using Images processing chain
-    images = complex_images.real();
+    img_proc = ImagesProcessor({'ExtractGadget'});
+    fprintf('processing images...\n')
+    images = img_proc.process(complex_images);
 
     % plot obtained images
-    for i = 1 : images.number()
-        data = images.image_as_array(i);
-        figure(1000000 + i)
-        data = data/max(max(max(data)));
-        imshow(data(:,:,1,1));
-    end
+    images.show()
     
 catch err
     % display error information

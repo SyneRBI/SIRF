@@ -24,9 +24,10 @@ try
     images = recon.get_output('image');
     gfacts = recon.get_output('gfactor');
 
-    % get real-valued reconstructed images and G-factors
-    images = images.real();
-    gfacts = gfacts.real();
+    idata = abs(images.as_array());
+    gdata = abs(gfacts.as_array());
+    idata = idata/max(max(max(idata)));
+    gdata = gdata/max(max(max(gdata)));
 
     n = images.number();
     fprintf('Enter slice number to view its data\n')
@@ -36,15 +37,11 @@ try
         if i < 1 || i > n
             break
         end
-        idata = images.image_as_array(i);
-        gdata = gfacts.image_as_array(i);
-        idata = idata/max(max(max(idata)));
-        gdata = gdata/max(max(max(gdata)));
         figure(i)
-        imshow(idata(:,:,1));
+        imshow(idata(:,:,i));
         title(['image ' num2str(i)])
         figure(i + n)
-        imshow(gdata(:,:,1));
+        imshow(gdata(:,:,i));
         title(['G-factor ' num2str(i)])
     end
     
