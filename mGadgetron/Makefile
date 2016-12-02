@@ -1,12 +1,9 @@
 CFLAGS = -O3 -fPIC -DNDEBUG -DGCC
 
-IUTILITIES = $(SRC_PATH)/iUtilities
-IUTILITIES_LIBRARY = $(BUILD_PATH)/iUtilities/libiutil.a
 CGADGETRON = $(SRC_PATH)/xGadgetron/cGadgetron
 CGADGETRON_LIBRARY = $(BUILD_PATH)/xGadgetron/libcgt.a
 
-INCLUDE =  -I$(MATLABROOT)/extern/include \
-	-I$(IUTILITIES) -I$(CGADGETRON)
+INCLUDE =  -I$(MATLABROOT)/extern/include -I$(CGADGETRON)
 
 LIBS = \
 	-lismrmrd \
@@ -15,23 +12,16 @@ LIBS = \
 	-lboost_thread \
 	-lpthread
 
-TARGET1 = mutilities.mexa64
-TARGET2 = mgadgetron.mexa64
+TARGET = mgadgetron.mexa64
 
-all: TARGET1 TARGET2
+all: TARGET
 
-OBJECTS1 = mutilities.o
-OBJECTS2 = mgadgetron.o
+OBJECTS = mgadgetron.o
 
-TARGET1: $(OBJECTS1)
+TARGET: $(OBJECTS)
 	$(GCC) $(CFLAGS) \
-	-shared -Wl,-soname,$(TARGET1) \
-	-o $(TARGET1) $(OBJECTS1) $(IUTILITIES_LIBRARY)
-
-TARGET2: $(OBJECTS2)
-	$(GCC) $(CFLAGS) \
-	-shared -Wl,-soname,$(TARGET2) \
-	-o $(TARGET2) $(OBJECTS2) \
+	-shared -Wl,-soname,$(TARGET) \
+	-o $(TARGET) $(OBJECTS) \
 	$(IUTILITIES_LIBRARY) \
 	$(CGADGETRON_LIBRARY) \
 	$(LIBS)

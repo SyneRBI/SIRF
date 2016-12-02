@@ -1,39 +1,32 @@
 % GRAPPA reconstruction with the steepest descent step
 % to illustrate the use of Acquisition Model projections.
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
+select_gadgetron
 
 try
 
     % define raw data source
     file = input('raw data file: ', 's');
-    input_data = gadgetron.MR_Acquisitions(file);
+    input_data = AcquisitionData(file);
 
     % pre-process acquisitions
-    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoGadget'} ...
+    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
          {'RemoveROOversamplingGadget'}];
-    acq_proc = gadgetron.AcquisitionsProcessor(prep_gadgets);
-    fprintf('---\n pre-processing acquisitions...\n')
-    preprocessed_data = acq_proc.process(input_data);
+    fprintf('---\n preprocessing...\n');
+    preprocessed_data = input_data.process(prep_gadgets);
     pp_norm = preprocessed_data.norm();
 
     % perform reconstruction
-    recon = gadgetron.MR_BasicGRAPPAReconstruction();
+    %fprintf('ok\n');
+    recon = GenericCartesianGRAPPAReconstruction();
+    recon.compute_gfactors(false);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
     recon.process();
-    output = recon.get_output();
-    complex_images = output.select(2);
+    complex_images = recon.get_output();
 
     % compute coil sensitivity maps
-    csms = gadgetron.MR_CoilSensitivityMaps();
+    csms = CoilSensitivityMaps();
     fprintf('---\n sorting acquisitions...\n')
     preprocessed_data.sort()
     fprintf('---\n calculating sensitivity maps...\n')
@@ -41,7 +34,7 @@ try
 
     % create acquisition model based on the acquisition parameters
     % stored in preprocessed_data and image parameters stored in complex_images
-    am = gadgetron.MR_AcquisitionModel(preprocessed_data, complex_images);
+    am = AcquisitionModel(preprocessed_data, complex_images);
     am.set_coil_sensitivity_maps(csms)
 
     % use the acquisition model (forward projection) to simulate acquisitions
@@ -58,28 +51,24 @@ try
     alpha = (g*g)/(w*w);
     r_complex_imgs = complex_images - g*alpha;
 
-    % get real-valued reconstructed and refined images
-    images = gadgetron.MR_extract_real_images(complex_images);
-    r_imgs = gadgetron.MR_extract_real_images(r_complex_imgs);
+    idata = abs(complex_images.as_array());
+    rdata = abs(r_complex_imgs.as_array());
+    idata = idata/max(max(max(idata)));
+    rdata = rdata/max(max(max(rdata)));
+    n = complex_images.number();
 
-    % plot images
-    n = images.number();
-    fprintf('Enter slice number to view it\n')
-    fprintf('(a value outside the range [1 : %d] will stop this loop)', n)
+    fprintf('---\nEnter slice number to view it\n')
+    fprintf('(a value outside the range [1 : %d] will stop this loop)\n', n)
     while (true)
         i = input('slice: ');
         if i < 1 || i > n
             break
         end
-        data = images.image_as_array(i);
-        rdata = r_imgs.image_as_array(i);
-        data = data/max(max(max(data)));
-        rdata = rdata/max(max(max(rdata)));
         figure(i)
-        imshow(data(:,:,1));
+        imshow(idata(:,:,i));
         title('GRAPPA image')
         figure(i + n)
-        imshow(rdata(:,:,1));
+        imshow(rdata(:,:,i));
         title('refined image')
     end
     

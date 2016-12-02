@@ -1,10 +1,10 @@
 '''
-Upper-level interface demo that illustrates pre-processing of acquisitions,
-reconstructing images and post-processing them.
+Upper-level demo, reconstruction of arbitrarily sampled data.
 '''
 
 import argparse
 import os
+import pylab
 import sys
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
@@ -13,38 +13,39 @@ SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 
-#from pGadgetron import *
+from pGadgetron import *
 
 parser = argparse.ArgumentParser(description = \
 '''
-Upper-level interface demo that illustrates pre-processing of acquisitions,
-reconstructing images and post-processing them.
+Upper-level demo, reconstruction of arbitrarily sampled data.
 ''')
-parser.add_argument('-e', '--engine', default = 'pGadgetron', help = 'engine')
 parser.add_argument\
 ('filename', nargs='?', default = 'testdata.h5', \
  help = 'raw data file name (default: testdata.h5)')
 args = parser.parse_args()                                 
-
-exec('from ' + args.engine + ' import *')
 
 def main():
 
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
 
-    # pre-process acquisition data
+    # pre-process acquisitions
+    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
+         'RemoveROOversamplingGadget']
     print('---\n pre-processing acquisitions...')
-    processed_data = MR_remove_x_oversampling(input_data)
+    preprocessed_data = input_data.process(prep_gadgets)
 
     # perform reconstruction
-    recon = SimpleReconstruction()
-    recon.set_input(processed_data)
-    print('---\n reconstructing...')
-    recon.process()
-    images = recon.get_output()
+    if not input_data.is_undersampled():
+        print('---\n reconstructing fully sampled data...')
+        recon = SimpleReconstruction()
+    else:
+        print('---\n reconstructing undersampled data using GRAPPA...')
+        recon = GenericCartesianGRAPPAReconstruction()
+        recon.compute_gfactors(False)
+    images = recon.reconstruct(preprocessed_data)
 
-    # show obtained images
+    # show reconstructed images
     images.show()
 
 try:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+#include <boost/filesystem/operations.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -18,13 +19,18 @@
 
 #define GRAB 1
 
+#define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
+return newObjectHandle<aGadget, G>();
+#define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
+return newObjectHandle<GadgetChain, C>();
+
 boost::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
-	std::string error = "unknown ";
+	std::string error = "Unknown ";
 	error += obj;
 	error += " '";
 	error += name;
@@ -38,7 +44,19 @@ static void*
 parameterNotFound(const char* name, const char* file, int line)
 {
 	DataHandle* handle = new DataHandle;
-	std::string error = "parameter ";
+	std::string error = "Parameter ";
+	error += name;
+	error += " not found";
+	ExecutionStatus status(error.c_str(), file, line);
+	handle->set(0, &status);
+	return (void*)handle;
+}
+
+static void*
+fileNotFound(const char* name, const char* file, int line)
+{
+	DataHandle* handle = new DataHandle;
+	std::string error = "File ";
 	error += name;
 	error += " not found";
 	ExecutionStatus status(error.c_str(), file, line);
@@ -52,72 +70,43 @@ void* cGT_newObject(const char* name)
 	try {
 		if (boost::iequals(name, "Mutex"))
 			return newObjectHandle<Mutex, Mutex>();
-		else if (boost::iequals(name, "GTConnector"))
+		if (boost::iequals(name, "GTConnector"))
 			return newObjectHandle<GTConnector, GTConnector>();
-		else if (boost::iequals(name, "string"))
-			return newObjectHandle<std::string, std::string>();
-		else if (boost::iequals(name, "ImagesList"))
+		//if (boost::iequals(name, "string"))
+		//	return newObjectHandle<std::string, std::string>();
+		if (boost::iequals(name, "ImagesList"))
 			return newObjectHandle<ImagesContainer, ImagesList>();
-		else if (boost::iequals(name, "GadgetChain"))
-			return newObjectHandle<GadgetChain, GadgetChain>();
-		else if (boost::iequals(name, "AcquisitionsProcessor"))
-			return newObjectHandle<GadgetChain, AcquisitionsProcessor>();
-		else if (boost::iequals(name, "ImagesReconstructor"))
-			return newObjectHandle<GadgetChain, ImagesReconstructor>();
-		else if (boost::iequals(name, "ImagesProcessor"))
-			return newObjectHandle<GadgetChain, ImagesProcessor>();
-		else if (boost::iequals(name, "RemoveOversamplingProcessor"))
-			return newObjectHandle<GadgetChain, RemoveOversamplingProcessor>();
-		else if (boost::iequals(name, "SimpleReconstructionProcessor"))
-			return newObjectHandle<GadgetChain, SimpleReconstructionProcessor>();
-		else if (boost::iequals(name, "SimpleGRAPPAReconstructionProcessor"))
-			return 
-			newObjectHandle<GadgetChain, SimpleGRAPPAReconstructionProcessor>();
-		else if (boost::iequals(name, "ExtractRealImagesProcessor"))
-			return newObjectHandle<GadgetChain, ExtractRealImagesProcessor>();
-		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageReader"))
-			return newObjectHandle<aGadget, IsmrmrdAcqMsgReader>();
-		else if (boost::iequals(name, "GadgetIsmrmrdAcquisitionMessageWriter"))
-			return newObjectHandle<aGadget, IsmrmrdAcqMsgWriter>();
-		else if (boost::iequals(name, "MRIImageReader"))
-			return newObjectHandle<aGadget, IsmrmrdImgMsgReader>();
-		else if (boost::iequals(name, "MRIImageWriter"))
-			return newObjectHandle<aGadget, IsmrmrdImgMsgWriter>();
-		else if (boost::iequals(name, "NoiseAdjustGadget"))
-			return newObjectHandle<aGadget, NoiseAdjustGadget>();
-		else if (boost::iequals(name, "AsymmetricEchoGadget"))
-			return newObjectHandle<aGadget, AsymmetricEchoGadget>();
-		else if (boost::iequals(name, "RemoveROOversamplingGadget"))
-			return newObjectHandle<aGadget, RemoveOversamplingGadget>();
-		else if (boost::iequals(name, "AcquisitionAccumulateTriggerGadget"))
-			return newObjectHandle<aGadget, AcqAccTrigGadget>();
-		else if (boost::iequals(name, "BucketToBufferGadget"))
-			return newObjectHandle<aGadget, BucketToBuffGadget>();
-		else if (boost::iequals(name, "PrepRefGadget"))
-			return newObjectHandle<aGadget, PrepRefGadget>();
-		else if (boost::iequals(name, "CartesianGrappaGadget"))
-			return newObjectHandle<aGadget, CartesianGrappaGadget>();
-		else if (boost::iequals(name, "SimpleReconGadget"))
-			return newObjectHandle<aGadget, SimpleReconstructionGadget>();
-		else if (boost::iequals(name, "FOVAdjustmentGadget"))
-			return newObjectHandle<aGadget, FOVAdjustmentGadget>();
-		else if (boost::iequals(name, "ScalingGadget"))
-			return newObjectHandle<aGadget, ScalingGadget>();
-		else if (boost::iequals(name, "ImageArraySplitGadget"))
-			return newObjectHandle<aGadget, ImgArrSplitGadget>();
-		else if (boost::iequals(name, "ExtractGadget"))
-			return newObjectHandle<aGadget, ExtGadget>();
-		else if (boost::iequals(name, "ComplexToFloatGadget"))
-			return newObjectHandle<aGadget, ComplexToFloatGadget>();
-		else if (boost::iequals(name, "FloatToShortGadget"))
-			return newObjectHandle<aGadget, FloatToShortGadget>();
-		else if (boost::iequals(name, "ImageFinishGadget"))
-			return newObjectHandle<aGadget, ImgFinishGadget>();
-		else if (boost::iequals(name, "AcquisitionFinishGadget"))
-			return newObjectHandle<aGadget, AcqFinishGadget>();
-		else if (boost::iequals(name, "SimpleReconGadgetSet"))
-			return newObjectHandle<aGadget, SimpleReconstructionGadgetSet>();
-		std::cout << "object " << name << "		not found" << std::endl;
+		if (boost::iequals(name, "CoilImagesList"))
+			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
+		NEW_GADGET_CHAIN(GadgetChain);
+		NEW_GADGET_CHAIN(AcquisitionsProcessor);
+		NEW_GADGET_CHAIN(ImagesReconstructor);
+		NEW_GADGET_CHAIN(ImagesProcessor);
+		NEW_GADGET_CHAIN(RemoveOversamplingProcessor);
+		NEW_GADGET_CHAIN(ExtractRealImagesProcessor);
+		NEW_GADGET_CHAIN(SimpleReconstructionProcessor);
+		NEW_GADGET_CHAIN(SimpleGRAPPAReconstructionProcessor);
+		NEW_GADGET(IsmrmrdAcqMsgReader);
+		NEW_GADGET(IsmrmrdAcqMsgWriter);
+		NEW_GADGET(IsmrmrdImgMsgReader);
+		NEW_GADGET(IsmrmrdImgMsgWriter);
+		NEW_GADGET(NoiseAdjustGadget);
+		NEW_GADGET(AsymmetricEchoAdjustROGadget);
+		NEW_GADGET(RemoveROOversamplingGadget);
+		NEW_GADGET(AcquisitionAccumulateTriggerGadget);
+		NEW_GADGET(BucketToBufferGadget);
+		NEW_GADGET(GenericReconCartesianReferencePrepGadget);
+		NEW_GADGET(GenericReconCartesianGrappaGadget);
+		NEW_GADGET(SimpleReconGadget);
+		NEW_GADGET(GenericReconFieldOfViewAdjustmentGadget);
+		NEW_GADGET(GenericReconImageArrayScalingGadget);
+		NEW_GADGET(ImageArraySplitGadget);
+		NEW_GADGET(ExtractGadget);
+		NEW_GADGET(ComplexToFloatGadget);
+		NEW_GADGET(FloatToShortGadget);
+		NEW_GADGET(ImageFinishGadget);
+		NEW_GADGET(AcquisitionFinishGadget);
+		NEW_GADGET(SimpleReconGadgetSet);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -130,6 +119,28 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 	try {
 		if (boost::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
+		if (boost::iequals(obj, "acquisitions"))
+			return cGT_acquisitionsParameter(ptr, name);
+		if (boost::iequals(obj, "gadget_chain")) {
+			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
+			boost::shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
+			if (sptr.get())
+				return sptrObjectHandle(sptr);
+			else {
+				DataHandle* handle = new DataHandle;
+				std::string error = "Gadget ";
+				error += name;
+				error += " not in the chain";
+				ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
+				handle->set(0, &status);
+				return (void*)handle;
+			}
+		}
+		if (boost::iequals(obj, "gadget")) {
+			aGadget& g = objectFromHandle<aGadget>(ptr);
+			std::string value = g.value_of(name);
+			return charDataHandleFromCharData(value.c_str());
+		}
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -183,6 +194,40 @@ cGT_setCSParameter(void* ptr, const char* par, const void* val)
 
 extern "C"
 void*
+cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_cis);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CoilImagesContainer& cis =
+			objectFromHandle<CoilImagesContainer>(h_csms);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		cis.compute(acqs);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		CAST_PTR(DataHandle, h_cis, ptr_cis);
+		CoilSensitivitiesContainer& csms =
+			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		CoilImagesContainer& cis =
+			objectFromHandle<CoilImagesContainer>(h_cis);
+		csms.compute(cis);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 {
 	try {
@@ -199,36 +244,53 @@ cGT_computeCoilSensitivities(void* ptr_csms, void* ptr_acqs)
 }
 
 extern "C"
+void*
+cGT_appendCSM
+(void* ptr_csms, int nx, int ny, int nz, int nc, size_t ptr_re, size_t ptr_im)
+{
+	try {
+		CAST_PTR(DataHandle, h_csms, ptr_csms);
+		double* re = (double*)ptr_re;
+		double* im = (double*)ptr_im;
+		CoilSensitivitiesContainer& list =
+			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+		list.append_csm(nx, ny, nz, nc, re, im);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void
-cGT_getCSMDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
+cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilSensitivitiesContainer& list = 
-		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	CoilDataContainer& list =
+		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_dim(csm_num, dim);
 }
 
 extern "C"
 void
-cGT_getCSMData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
+cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 {
 	double* re = (double*)ptr_re;
 	double* im = (double*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilSensitivitiesContainer& list =
-		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	CoilDataContainer& list =
+		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_data(csm_num, re, im);
 }
 
 extern "C"
 void
-cGT_getCSMDataAbs(void* ptr_csms, int csm_num, size_t ptr)
+cGT_getCoilDataAbs(void* ptr_csms, int csm_num, size_t ptr)
 {
 	double* v = (double*)ptr;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
-	CoilSensitivitiesContainer& list =
-		objectFromHandle<CoilSensitivitiesContainer>(h_csms);
+	CoilDataContainer& list =
+		objectFromHandle<CoilDataContainer>(h_csms);
 	list.get_data_abs(csm_num, v);
 }
 
@@ -314,6 +376,8 @@ extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
+	if (!boost::filesystem::exists(file))
+		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		boost::shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file));
@@ -395,8 +459,9 @@ cGT_getAcquisitionsData
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		acqs.get_acquisitions_data(slice, re, im);
-		return new DataHandle;
+		int n = acqs.get_acquisitions_data(slice, re, im);
+		return dataHandle(n);
+		//return new DataHandle;
 	}
 	CATCH;
 }
@@ -424,6 +489,20 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 		return dataHandle((int)acq.idx().slice);
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+extern "C"
+void*
+cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		if (boost::iequals(name, "undersampled"))
+			return dataHandle((int)acqs.undersampled());
+	}
+	CATCH;
 }
 
 extern "C"
@@ -574,6 +653,27 @@ cGT_getImageDataAsCmplxArray
 }
 
 extern "C"
+void
+cGT_getImagesDataAsDoubleArray(void* ptr_imgs, size_t ptr_data)
+{
+	double* data = (double*)ptr_data;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_images_data_as_double_array(data);
+}
+
+extern "C"
+void
+cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
+{
+	double* re = (double*)ptr_re;
+	double* im = (double*)ptr_im;
+	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	list.get_images_data_as_complex_array(re, im);
+}
+
+extern "C"
 void*
 cGT_imageTypes(const void* ptr_x)
 {
@@ -582,6 +682,22 @@ cGT_imageTypes(const void* ptr_x)
 		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
 		int* result = (int*)malloc(sizeof(int));
 		*result = x.types();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_imageDataType(const void* ptr_x, int im_num)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
+		int* result = (int*)malloc(sizeof(int));
+		*result = x.image_data_type(im_num);
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
 		return (void*)handle;

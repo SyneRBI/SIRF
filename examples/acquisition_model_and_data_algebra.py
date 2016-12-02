@@ -30,25 +30,24 @@ args = parser.parse_args()
 def main():
 
     # acquisitions will be read from an HDF file args.filename
-    input_data = MR_Acquisitions(args.filename)
+    input_data = AcquisitionData(args.filename)
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoGadget', \
-         'RemoveROOversamplingGadget']
-    processed_data = input_data.process(prep_gadgets)
+    print('---\n processing acquisitions...')
+    processed_data = input_data.process(['RemoveROOversamplingGadget'])
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction
-    recon = MR_BasicReconstruction()
+    recon = SimpleReconstruction()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
 
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
-    csms = MR_CoilSensitivityMaps()
+    csms = CoilSensitivityMaps()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
@@ -57,7 +56,7 @@ def main():
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    am = MR_AcquisitionModel(processed_data, complex_images)
+    am = AcquisitionModel(processed_data, complex_images)
 
     am.set_coil_sensitivity_maps(csms)
 
@@ -85,9 +84,7 @@ def main():
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
 
-    # extract real images from complex
-    images = complex_images.real()
-    images.show()
+    complex_images.show()
 
 try:
     main()
@@ -95,4 +92,4 @@ try:
 
 except error as err:
     # display error information
-    print ('Gadgetron exception occured:\n', err.value)
+    print('??? %s' % err.value)
