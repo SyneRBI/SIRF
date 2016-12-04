@@ -1,30 +1,48 @@
-import argparse
-parser = argparse.ArgumentParser(description = \
-'''
-OSMAPOSL reconstruction demo with user-controlled iterations
-''')
-parser.add_argument\
-    ('-e', '--engine', default = 'Stir', help = 'reconstruction engine')
-args = parser.parse_args()
+"""OSMAPOSL reconstruction demo with user-controlled iterations
 
-exec('from p' + args.engine + ' import *')
+Usage:
+  osmaposl_reconstruction [--help | options]
+
+Options:
+  -e=<e>, --engine=<e>  reconstruction engine [default: Stir]
+  --log=<lvl>  CRITICAL|ERROR|WARN(ING)|[default: INFO]|DEBUG
+"""
+# @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+# argparse replaced with docopt
+import logging
+# @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+# add built-in logging framework
+import matplotlib.pyplot as plt
+# @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+# replace pylab with plt <- matplotlib.pyplot
+__version__ = "0.1.0"
+# @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+# version number added
+
 
 # a simplistic example of user's involvement in the reconstruction
 def my_image_data_processor(image_array, im_num):
+    log = logging.getLogger(__name__)
     # plot the current estimate of the image
-    pylab.figure(im_num)
-    pylab.title('image estimate %d' % im_num)
-    pylab.imshow(image_array[20,:,:])
-    print('close Figure %d window to continue' % im_num)
-    pylab.show()
+    plt.figure(im_num)
+    plt.title('image estimate %d' % im_num)
+    plt.imshow(image_array[20, :, :])
+    log.info('close Figure %d window to continue' % im_num)
+    plt.show()
     # image is not modified in this simplistic example - but might have been
     return image_array
 
-def main():
 
-    # direct all information printing and warnings to files
-    info_printer = printerTo('info.txt', INFO_CHANNEL)
-    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
+def run(args):
+    exec("from p" + args["--engine"] + " import *")
+    # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+    # The following is preferable but we may not want it for simplicity
+    #   from importlib import import_module
+    #   pEngine = import_module("p" + args["--engine"])
+    # Then use:
+    #   pEngine.AcquisitionModelUsingMatrix, etc...
+
+    log = logging.getLogger(__name__)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -45,6 +63,11 @@ def main():
     obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
+    # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+    # do not like apparently thoroughly inconsistent combination of:
+    # - title case
+    # - lowercase
+    # - underscores
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late
     # as the reconstruction algorithm
@@ -53,7 +76,7 @@ def main():
     recon.set_num_subsets(12)
 
     # set up the reconstructor
-    print('setting up, please wait...')
+    log.info('setting up, please wait...')
     recon.set_up(image)
 
     # in order to see the reconstructed image evolution
@@ -61,7 +84,7 @@ def main():
     # rather than allow recon.reconstruct to do all job at once
     recon.set_current_estimate(image)
     for iteration in range(2):
-        print('\n------------- iteration %d' % iteration)
+        log.debug('\n------------- iteration %d' % iteration)
         # perform an iteration
         recon.update_current_estimate()
         # copy current image estimate into python array to inspect/process
@@ -73,20 +96,44 @@ def main():
 
     # compare the reconstructed image to the actual image
     actual_image_array = Image('my_image.hv').as_array()
-    pylab.figure(iteration + 1)
-    pylab.title('reconstructed image')
-    pylab.imshow(image_array[20,:,:])
-    pylab.figure(0)
-    pylab.title('actual image')
-    pylab.imshow(actual_image_array[20,:,:])
-    print('close Figure 1001 window, then')
-    print('close Figure 1000 window to continue')
-    pylab.show()
+    plt.figure(iteration + 1)
+    plt.title('reconstructed image')
+    plt.imshow(image_array[20, :, :])
+    plt.figure(0)
+    plt.title('actual image')
+    plt.imshow(actual_image_array[20, :, :])
+    log.info('close Figure windows %d and %d to continue' % (
+        0, iteration + 1))
+    plt.show()
 
-# if anything goes wrong, an exception will be thrown 
+
+def main():
+    from docopt import docopt
+    args = docopt(__doc__, version=__version__)
+    logging.basicConfig(level=getattr(logging, args.log, logging.INFO))
+    # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+    # print replaced with logging. customisations replaced with:
+    # Optional: direct all information printing and warnings to files
+    # (only need to do this once in sirf base package).
+    #   log = logging.getLogger(__name__)
+    #   infoHand = logging.FileHandler('info.txt')
+    #   infoHand.setLevel(logging.INFO)
+    #   log.addHandler(infoHand)
+    #   warnHand = logging.FileHandler('warn.txt')
+    #   warnHand.setLevel(logging.WARN)
+    #   log.addHandler(warnHand)
+
+    run(args)
+
+
+# if anything goes wrong, an exception will be thrown
 # (cf. Error Handling section in the spec)
-try:
-    main()
-except error as err:
-    # display error information
-    print('STIR exception occured: %s' % err.value)
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        # display error information
+        import sys.stderr
+        # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
+        # error to console error stream
+        sys.stderr.write(__file__ + ':ERROR:' + str(e))
