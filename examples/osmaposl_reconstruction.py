@@ -133,7 +133,7 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         # display error information
-        import sys.stderr
+        from sys import stderr
         # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
         # error to console error stream
-        sys.stderr.write(__file__ + ':ERROR:' + str(e))
+        stderr.write(__file__ + ':ERROR:' + str(e))
