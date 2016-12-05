@@ -1,5 +1,5 @@
 CPP = /usr/bin/g++
-CFLAGS = -O3 -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include
+CFLAGS = -O3 -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include -I$(HDF5_INCLUDE)
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
