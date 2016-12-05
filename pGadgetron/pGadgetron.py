@@ -511,9 +511,9 @@ class AcquisitionsContainer(DataContainer):
     def slice_dimensions(self):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
-        nc = dim[0]
+        ns = dim[0]
         ny = dim[1]
-        ns = dim[2]
+        nc = dim[2]
         return ns, ny, nc
     def slice_as_array(self, num):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
