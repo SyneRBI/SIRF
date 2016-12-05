@@ -110,7 +110,7 @@ def run(args):
 def main():
     from docopt import docopt
     args = docopt(__doc__, version=__version__)
-    logging.basicConfig(level=getattr(logging, args.log, logging.INFO))
+    logging.basicConfig(level=getattr(logging, args["--log"], logging.INFO))
     # @comment 2016-12-02 Casper dC-L <imaging@caspersci.uk.to>
     # print replaced with logging. customisations replaced with:
     # Optional: direct all information printing and warnings to files
