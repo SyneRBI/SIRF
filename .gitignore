@@ -66,6 +66,7 @@ install_manifest.txt
 *.pdf
 *.manifest
 *.exp
+*.opensdf
 
 PYTHON
 pygadgetron.py
