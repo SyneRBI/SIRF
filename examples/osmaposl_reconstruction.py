@@ -4,7 +4,10 @@ Usage:
   osmaposl_reconstruction [--help | options]
 
 Options:
-  -e=<e>, --engine=<e>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -s <subs>, --subs=<subs>    number of subsets [default: 12]
+  -i <iter>, --iter=<iter>    number of iterations [default: 2]
 '''
 
 __version__ = '0.1.0'
@@ -30,15 +33,18 @@ def my_image_data_processor(image_array, im_num):
 def main():
 
     # direct all information printing and warnings to files
-    info_printer = printerTo('info.txt', INFO_CHANNEL)
-    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
+    printer = Printer('info.txt', 'warn.txt')
+##    info_printer = printerTo('info.txt', INFO_CHANNEL)
+##    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     am = AcquisitionModelUsingMatrix(RayTracingMatrix())
 
     # PET acquisition data to be read from this file
-    ad = AcquisitionData('my_forward_projection.hs')
+    raw_data_file = args['--file']
+    print('raw data: %s' % raw_data_file)
+    ad = AcquisitionData(raw_data_file)
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with acquisition data and initialize each voxel to 1.0
@@ -55,7 +61,7 @@ def main():
     # (or prior) in this example, we will actually run OSEM)
     recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(12)
+    recon.set_num_subsets(int(args['--subs']))
 
     # set up the reconstructor
     print('setting up, please wait...')
@@ -65,7 +71,7 @@ def main():
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
     recon.set_current_estimate(image)
-    for iteration in range(2):
+    for iteration in range(int(args['--iter'])):
         print('\n------------- iteration %d' % iteration)
         # perform an iteration
         recon.update_current_estimate()
