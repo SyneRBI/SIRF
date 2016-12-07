@@ -43,6 +43,7 @@ MATLABROOT                 Path to Matlab root folder
 GCC                        Fullname (i.e. including the path) of gcc-4.7 
                            compiler executable (newer versions of gcc are 
                            not supported by Matlab)
+HDF5_INCLUDE               Path to hdf5.h
 HDF5_DISABLE_VERSION_CHECK 2
 LD_PRELOAD                 /lib64/libstdc++.so.6  (maybe /usr/lib/libstdc++.6.dylib on a Mac)
 
