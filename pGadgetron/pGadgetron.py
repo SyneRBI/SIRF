@@ -260,7 +260,7 @@ class CoilImages(DataContainer):
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
         return tuple(numpy.asarray(dim))
-    def as_ndarray(self, csm_num):
+    def as_array(self, csm_num):
         nx, ny, nz, nc = self.image_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
@@ -343,7 +343,7 @@ class CoilSensitivityMaps(DataContainer):
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
         return tuple(numpy.asarray(dim))
-    def as_ndarray(self, csm_num):
+    def as_array(self, csm_num):
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
@@ -352,7 +352,7 @@ class CoilSensitivityMaps(DataContainer):
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
-    def abs_as_ndarray(self, csm_num):
+    def abs_as_array(self, csm_num):
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')

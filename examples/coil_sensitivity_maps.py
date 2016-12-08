@@ -64,13 +64,13 @@ try:
         if z < 0 or z >= nz:
             break
 
-        coil_images = numpy.squeeze(CIs.as_ndarray(z))
+        coil_images = numpy.squeeze(CIs.as_array(z))
 
         print('computing sensitivity maps (Inati)...')
         (csm_inati, rho) = coils.calculate_csm_inati_iter\
                            (coil_images, niter = 10)
 
-        csm_srss = numpy.squeeze(CSMs.as_ndarray(z))
+        csm_srss = numpy.squeeze(CSMs.as_array(z))
         nc, ny, nx = csm_srss.shape
         images = numpy.ndarray((2, ny, nx), dtype = numpy.float64)
         images[0, :, :] = abs(numpy.sum(csm_srss * coil_images, axis = 0))
