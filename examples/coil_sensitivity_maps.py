@@ -4,23 +4,21 @@ Demo for CSMs computation from coil images by xGadgetron and ismrmrd-python-tool
 
 import argparse
 import math
+import matplotlib.pyplot as plt
 import os
-try:
-    import pylab
-    HAVE_PYLAB = True
-except:
-    HAVE_PYLAB = False
 import sys
 import time
 
 BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
 SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
 DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
-IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools/ismrmrdtools'
+IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools'
 
 sys.path.append(BUILD_PATH)
 sys.path.append(SRC_PATH)
 sys.path.append(IPT_PATH)
+
+from ismrmrdtools import coils
 
 from pGadgetron import *
 
@@ -33,10 +31,23 @@ parser.add_argument\
  help = 'raw data file name (default: testdata.h5)')
 args = parser.parse_args()
 
+def show(image_matrix, tile_shape, scale, titles):
+    assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
+            "image tile rows x columns must equal the 3rd dim"\
+            " extent of image_matrix"
+    cols, rows = tile_shape
+    vmin, vmax = scale
+    fig = plt.figure()
+    for z in range(image_matrix.shape[0]):
+        ax = fig.add_subplot(cols, rows, z+1)
+        ax.set_title(titles[z])
+        ax.set_axis_off()
+        imgplot = ax.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax)
+    plt.show()
+    plt.draw()
+
 try:
  
-    from ismrmrdtools import coils, show
-
     input_data = AcquisitionData(DATA_PATH + args.filename)
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
@@ -54,7 +65,7 @@ try:
     nz = CSMs.number()
     print('%d slices' % nz)
 
-    while HAVE_PYLAB:
+    while True:
         print('---\n Enter the slice number to view it.')
         print(' A value outside the range [1 : %d] will stop this loop.'% nz)
         s = str(input('slice: '))
@@ -76,7 +87,7 @@ try:
         images[0, :, :] = abs(numpy.sum(csm_srss * coil_images, axis = 0))
         images[1, :, :] = abs(numpy.sum(csm_inati * coil_images, axis = 0))
         maxv = numpy.amax(images)
-        show.imshow(images, tile_shape = (1,2), scale = (0, maxv),\
+        show(images, tile_shape = (1,2), scale = (0, maxv),\
             titles = ['Square Root of the Sum of Squares', 'Inati'])
 
         csms = numpy.ndarray((2*nc, ny, nx), dtype = numpy.float64)
@@ -86,13 +97,13 @@ try:
         t.extend(['' for x in range(nc - 1)])
         t.extend(['Inati'])
         t.extend(['' for x in range(nc - 1)])
-        show.imshow(csms, tile_shape = (4,4), scale = (0,1), titles = t)
+        show(csms, tile_shape = (4,4), scale = (0,1), titles = t)
 
         print('computing sensitivity maps (Walsh)...')
         (csm_walsh, rho) = coils.calculate_csm_walsh(coil_images)
         csms[nc : 2*nc, :, :] = abs(csm_walsh)
         t[8] = 'Walsh'
-        show.imshow(csms, tile_shape = (4,4), scale = (0,1), titles = t)
+        show(csms, tile_shape = (4,4), scale = (0,1), titles = t)
 
 except error as err:
     # display error information
