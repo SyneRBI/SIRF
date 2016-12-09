@@ -8,7 +8,7 @@ except:
     HAVE_PYLAB = False
 import time
 try:
-    IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools/ismrmrdtools'
+    IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools'
     sys.path.append(IPT_PATH)
     from ismrmrdtools import coils
     HAVE_ISMRMRDTOOLS = True
@@ -276,7 +276,8 @@ class CoilSensitivityMaps(DataContainer):
         self.smoothness = 0
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
+##            pyiutil.deleteObject(self.handle)
     def read(self, file):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
