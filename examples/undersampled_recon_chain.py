@@ -20,8 +20,8 @@ parser = argparse.ArgumentParser(description = \
 Lower-level demo, 3-chain GRAPPA reconstruction of undersampled data.
 ''')
 parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
+('filename', nargs='?', default = 'simulated_MR_2D_cartesian_Grappa2.h5', \
+ help = 'raw data file name (default: simulated_MR_2D_cartesian_Grappa2.h5)')
 parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
 ('--gfactors', help = 'gfactors to be computed', action = 'store_true')
