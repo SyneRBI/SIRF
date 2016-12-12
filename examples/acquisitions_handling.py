@@ -26,8 +26,8 @@ Upper-level interface demo that illustrates acquisitions
 pre-processing, sorting and plotting.
 ''')
 parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
+('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
+ help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
 args = parser.parse_args()                                 
 
 def main():
@@ -91,23 +91,23 @@ def main():
             print('Close Figures %d and %d windows to continue...'% (c, cp))
             pylab.show()
 
-    # perform reconstruction
-    undersampled = input_data.is_undersampled()
-    if not undersampled:
-        print('---\n reconstructing fully sampled data...')
-        recon = SimpleReconstruction()
-    else:
-        print('---\n reconstructing undersampled data using GRAPPA...')
-        recon = GenericCartesianGRAPPAReconstruction()
-    recon.set_input(processed_data)
-    recon.process()
-    if not undersampled:
-        images = recon.get_output()
-    else:
-        images = recon.get_output('images')
-
-    # show obtained images
-    images.show()
+##    # perform reconstruction
+##    undersampled = input_data.is_undersampled()
+##    if not undersampled:
+##        print('---\n reconstructing fully sampled data...')
+##        recon = SimpleReconstruction()
+##    else:
+##        print('---\n reconstructing undersampled data using GRAPPA...')
+##        recon = GenericCartesianGRAPPAReconstruction()
+##    recon.set_input(processed_data)
+##    recon.process()
+##    if not undersampled:
+##        images = recon.get_output()
+##    else:
+##        images = recon.get_output('images')
+##
+##    # show obtained images
+##    images.show()
 
 try:
     main()

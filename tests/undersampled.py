@@ -75,7 +75,8 @@ def main():
     failed = 0
     eps = 1e-5
 
-    input_data = AcquisitionData(DATA_PATH + 'testdata_a2.h5')
+    input_data = AcquisitionData\
+        (DATA_PATH + 'simulated_MR_2D_cartesian_Grappa2.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()

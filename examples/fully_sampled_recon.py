@@ -22,8 +22,8 @@ reconstructing images and post-processing them.
 ''')
 parser.add_argument('-e', '--engine', default = 'pGadgetron', help = 'engine')
 parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
+('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
+ help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
 args = parser.parse_args()                                 
 
 exec('from ' + args.engine + ' import *')

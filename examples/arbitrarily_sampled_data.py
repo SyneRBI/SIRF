@@ -20,8 +20,8 @@ parser = argparse.ArgumentParser(description = \
 Upper-level demo, reconstruction of arbitrarily sampled data.
 ''')
 parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
+('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
+ help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
 args = parser.parse_args()                                 
 
 def main():

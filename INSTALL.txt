@@ -14,8 +14,12 @@ and LD_LIBRARY_PATH.
 
 Create folder 'build' with subfolders 'iUtilities' and 'xGadgetron'.
 
-Clone iUtilities from github.com/CCPPETMR/iUtilties into your work
+Clone CCPPETMR_VM from github.com/CCPPETMR/CCPPETMR_VM into your work
 folder, referred to below as <work_dir>:
+
+  git clone https://github.com/CCPPETMR/CCPPETMR_VM
+
+Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
 
@@ -86,6 +90,11 @@ for using with a Linux Virtual Machine running Gadgetron
 
 Install SWIG.
 
+Clone CCPPETMR_VM from github.com/CCPPETMR/CCPPETMR_VM into your work
+folder, referred to below as <work_dir>:
+
+  git clone https://github.com/CCPPETMR/CCPPETMR_VM
+
 Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
 
   git clone https://github.com/CCPPETMR/iUtilities
@@ -131,11 +140,7 @@ Run mex_gadgetron.m (in <work_dir>/xGadgetron/mGadgetron).
 
 Add <work_dir>/xGadgetron/mGadgetron to Matlab path.
 
-In <work_dir>/xGadgetron/examples execute
-
-   <ismrmrd_root>\utilities\Release\ismrmrd_generate_cartesian_shepp_logan.exe -r 2
-
-to create the input file for demos.
+Copy the input file for demos from <work_dir>/CCPPETMR_VM/data/Gadgetron into <work_dir>/xGadgetron/examples.
 
 Start Virtual Machine.
 

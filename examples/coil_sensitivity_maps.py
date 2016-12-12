@@ -27,8 +27,8 @@ parser = argparse.ArgumentParser(description = \
 Demo for CSMs computation from coil images by xGadgetron and ismrmrd-python-tools
 ''')
 parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
+('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
+ help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
 args = parser.parse_args()
 
 def show(image_matrix, tile_shape, scale, titles):
@@ -43,8 +43,8 @@ def show(image_matrix, tile_shape, scale, titles):
         ax.set_title(titles[z])
         ax.set_axis_off()
         imgplot = ax.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax)
+    print('close figure 1 to continue')
     plt.show()
-    plt.draw()
 
 try:
  
