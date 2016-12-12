@@ -1,29 +1,26 @@
-import argparse
-import numpy
-import pylab
+'''Steepest ascent demo
+
+Usage:
+  steepest_ascent [--help | options]
+
+Options:
+  -t <step>, --tau=<step>     steepest ascent step size parameter,
+                              use a negative value to opt for the optimal value
+                              [default: -1]
+  -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
+  -v, --verbose               verbose
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
+'''
+
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 import sys
-sys.path.append(os.environ.get('CSTIR_SRC') + '/../pSTIR')
-import scipy
-from scipy import optimize
-import time
-
-from pStir import *
-
-parser = argparse.ArgumentParser(description = \
-'''
-Steepest descent demo
-''')
-parser.add_argument('-t', '--tau', action = 'store', type = float, \
-    default = -1, \
-    help = 'steepest descent step parameter, use a negative value to opt \
-for the optimal value, default -1')
-parser.add_argument('-s', '--steps', action = 'store', type = int, default = 3, \
-    help = 'number of steepest descent steps, default 3')
-parser.add_argument('-v', '--verbose', action = 'store_true', default = False, \
-    help = 'if present and optimal steepest descent step opted for, \
-prints optimal step search info') 
-args = parser.parse_args()
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
@@ -94,9 +91,9 @@ def main():
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
 
-    tau = args.tau
-    steps = args.steps
-    if args.verbose:
+    tau = float(args['--tau'])
+    steps = int(args['--steps'])
+    if args['--verbose']:
         disp = 3
         print('NOTE: below f(x) is the negative of the objective function value')
     else:
