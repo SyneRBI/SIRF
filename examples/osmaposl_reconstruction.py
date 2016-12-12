@@ -21,7 +21,7 @@ sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 exec('from p' + args['--engine'] + ' import *')
 
 # a simplistic example of user's involvement in the reconstruction
-def my_image_data_processor(image_array, im_num):
+def image_data_processor(image_array, im_num):
     # plot the current estimate of the image at z = 20
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
@@ -83,9 +83,10 @@ def main():
         # copy current image estimate into python array to inspect/process
         image_array = recon.get_current_estimate().as_array()
         # apply user defined image data processor/visualizer
-        my_image_array = my_image_data_processor(image_array, iteration + 1)
+        processed_image_array = image_data_processor(image_array, iteration + 1)
         # fill the current image estimate with new data
-        recon.get_current_estimate().fill(my_image_array)
+        image.fill(processed_image_array)
+        recon.set_current_estimate(image)
     pylab.show()
 
 # if anything goes wrong, an exception will be thrown 
