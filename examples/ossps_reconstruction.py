@@ -1,18 +1,21 @@
-import argparse
-import numpy
-import pylab
+'''OSSPS reconstruction demo with user-controlled iterations
+
+Usage:
+  ossps_reconstruction [--help | options]
+
+Options:
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
+'''
+
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 import sys
-sys.path.append(os.environ.get('CSTIR_SRC') + '/../pSTIR')
-
-from pStir import *
-
-parser = argparse.ArgumentParser(description = \
-'''
-OSSPS reconstruction demo with all parameters defined in the script
-and user-controlled iterations
-''')
-args = parser.parse_args()
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
