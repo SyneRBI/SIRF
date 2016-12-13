@@ -1,12 +1,11 @@
 import numpy
-import pylab
 import os
+import pylab
 import sys
 import time
 
 sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
 import pyiutil
-sys.path.append(os.environ.get('SRC_PATH') + '/xSTIR/pSTIR')
 import pystir
 
 INFO_CHANNEL = 0
@@ -358,6 +357,7 @@ class RayTracingMatrix:
             pyiutil.deleteDataHandle(self.handle)
     def set_num_tangential_LORs(self, value):
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
+        return self
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
@@ -479,9 +479,10 @@ class Prior:
     def set_penalisation_factor(self, value):
         _set_float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
+        return self
     def get_penalisation_factor(self):
         return _float_par\
-        (self.handle, 'GeneralisedPrior', 'penalisation_factor')
+            (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
         grad = Image()
         pyiutil.deleteDataHandle(grad.handle)
