@@ -517,7 +517,7 @@ public:
 		if (slice >= na) {
 			for (int a = 0, i = 0; a < na; a++) {
 				get_acquisition(a, acq);
-				if (TO_BE_IGNORED(acq)) {
+				if (TO_BE_IGNORED(acq) && slice > na) {
 					std::cout << "ignoring acquisition " << a << '\n';
 					continue;
 				}
