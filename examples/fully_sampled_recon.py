@@ -31,6 +31,9 @@ exec('from ' + args.engine + ' import *')
 def main():
 
     # acquisitions will be read from an HDF file args.filename
+    # MR raw data formats from different vendors can be transformed to 
+    # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
+    # bruker_to_ismrmrd on https://github.com/ismrmrd/
     input_data = AcquisitionData(args.filename)
 
     # pre-process acquisition data
