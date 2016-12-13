@@ -536,12 +536,13 @@ class AcquisitionsContainer(DataContainer):
         na = self.number()
         re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
         im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+##        if all:
+##            n = na
+##        else:
+##            n = na + 1
         hv = pygadgetron.cGT_getAcquisitionsData\
-            (self.handle, na, re.ctypes.data, im.ctypes.data)
-        if all:
-            n = na
-        else:
-            n = pyiutil.intDataFromHandle(hv)
+            (self.handle, na + 1, re.ctypes.data, im.ctypes.data)
+        n = pyiutil.intDataFromHandle(hv)
         return re[0 : n, :, :] + 1j*im[0 : n, :, :]
 
 class Acquisition(PyGadgetronObject):

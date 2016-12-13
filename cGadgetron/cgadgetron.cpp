@@ -487,8 +487,7 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 		return dataHandle((int)acq.idx().repetition);
 	if (boost::iequals(name, "idx_slice"))
 		return dataHandle((int)acq.idx().slice);
-	else
-		return parameterNotFound(name, __FILE__, __LINE__);
+	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 extern "C"
@@ -501,6 +500,7 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
 		if (boost::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
+		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
 }

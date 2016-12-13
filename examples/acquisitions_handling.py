@@ -36,8 +36,11 @@ def main():
     input_data = AcquisitionData(args.filename)
 
     na = input_data.number()
-    nc, ny, nx = input_data.slice_dimensions()
+    nx, ny, nc = input_data.slice_dimensions()
     print('%d acquisitions found' % na)
+
+    print('sorting acquisitions...')
+    input_data.sort()
 
     # copy acquisitions into an array
     input_array = input_data.as_array().transpose((1, 0, 2))
@@ -55,9 +58,6 @@ def main():
     print('processed data dimensions: %dx%dx%d' % processed_shape)
     print('processed data slice dimensions: %dx%dx%d'\
           % (processed_data.slice_dimensions()))
-
-    print('sorting acquisitions...')
-    input_data.sort()
 
     nz = na//ny
 
