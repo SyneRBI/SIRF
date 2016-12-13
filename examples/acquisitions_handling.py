@@ -36,7 +36,7 @@ def main():
     input_data = AcquisitionData(args.filename)
 
     na = input_data.number()
-    nc, ny, nx = input_data.slice_dimensions()
+    nx, ny, nc = input_data.slice_dimensions()
     print('%d acquisitions found' % na)
 
     print('sorting acquisitions...')
