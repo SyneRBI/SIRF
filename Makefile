@@ -1,4 +1,4 @@
-CPP = /usr/bin/g++
+CPP = g++
 CFLAGS = -O3 -fopenmp -fPIC -std=c++11 -DNDEBUG
 LDFLAGS = -lrt
 ARCH = ar
