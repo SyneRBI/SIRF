@@ -1,4 +1,4 @@
-CPP = /usr/bin/g++
+CPP = g++
 CFLAGS = -O3 -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include
 ARCH = ar
 ARCHFLAGS = cr
