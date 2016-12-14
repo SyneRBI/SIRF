@@ -1,3 +1,5 @@
+''' Object-Oriented wrap for low-level STIR Python interface pystir.py
+'''
 import numpy
 import os
 import pylab
@@ -17,7 +19,7 @@ class error(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
-        return repr(self.value)
+        return '??? ' + repr(self.value)
 
 def _check_status(handle):
     if pyiutil.executionStatus(handle) != 0:
@@ -72,6 +74,7 @@ def _tmp_filename():
     return repr(int(1000*time.time()))
 
 class Printer:
+    'Redirects STIR printing to files/stdout'
     def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
         self.info_case = -1
         self.warn_case = -1
@@ -362,7 +365,12 @@ class RayTracingMatrix:
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
 class AcquisitionData:
+    'Class for PET acquisition data.'
     def __init__(self, src = None):
+        ''' Creates new AcquisitionData object from a file or another
+            AcquisitionData object;
+            src:  file name (Python str) or AcquisitionData object.
+        '''
         self.handle = None
         self.name = 'AcquisitionData'
         if src is None:
@@ -379,6 +387,12 @@ class AcquisitionData:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def create_empty_image(self, value = 0):
+        ''' Creates Image object containing PET image of dimensions
+            and voxel sizes compatible with the scanner geometry stored
+            in this AcquisitionData object and assigns a given value
+            to all voxels;
+            value:  a Python float.
+        '''
         image = Image()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
@@ -386,6 +400,12 @@ class AcquisitionData:
         image.fill(value)
         return image
     def as_array(self):
+        ''' Returns a copy of acquisition data stored in this object as a
+            NumPy ndarray of 3 dimensions (in default C ordering of data):
+            - number of sinograms
+            - number of views
+            - number of tangential positions.
+        '''
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         handle = pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data)
@@ -403,50 +423,103 @@ class AcquisitionData:
         pyiutil.deleteDataHandle(handle)
         return array
     def fill(self, value):
+        ''' Fills the object with values;
+            value:  either NumPy ndarray or another AcquisitionData object
+                    or Python float.
+        '''
         if self.handle is None:
-            return self
+            raise error('AcquisitionData object not initialized')
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
         elif isinstance(value, AcquisitionData):
             pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value.handle)
-        else : # should check on double really
+        elif isinstance(value, float):
             pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+        else:
+            raise error('wrong fill value')
         return self
     def clone(self):
+        ''' Returns a true copy of this object (not Python handle).
+        '''
         ad = AcquisitionData(self)
         ad.fill(self)
         return ad
     def get_empty_copy(self, value = 0):
+        ''' Returns a copy of this object filled with a given value;
+            value:  a Python float.
+        '''
         ad = AcquisitionData(self)
         ad.fill(value)
         return ad
 
 class AcquisitionModel:
+    ''' Class for a PET acquisition model that relates an image x to the
+        acquisition data y as
+        (F)    y = [1/n](G x + [a]) + [b]
+        where:
+        G is the geometric (ray tracing) projector from the image voxels
+        to the scanner's pairs of detectors (bins);
+        a and b are otional additive and background terms representing
+        the effects of noise and scattering; assumed to be 0 if not present;
+        n is an optional bin normalization term representing the inverse of
+        detector (bin) efficiencies; assumed to be 1 if not present.
+        The computation of y for a given x by the above formula (F) is
+        referred to as forward projection, and the computation of
+        (B)    z = G' m y
+        where G' is the transpose of G, is referred to as backward projection.
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
-    def set_up(self, templ, image):
+    def set_up(self, acq_templ, img_templ):
+        ''' Prepares this object for performing forward and backward
+            projections;
+            acq_templ:  an AcquisitionData object used as a template for
+                        creating an AcquisitionData object to store forward
+                        projection;
+            img_templ:  an Image object used as a template for creating an
+                        Image object to store backward projection.
+        '''
         handle = pystir.cSTIR_setupAcquisitionModel\
-            (self.handle, templ.handle, image.handle)
+            (self.handle, acq_templ.handle, img_templ.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_additive_term(self, at):
+        ''' Sets the additive term a in (F);
+            at:  an AcquisitionData object containing a.
+        '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
-    def set_background_term(self, at):
+    def set_background_term(self, bt):
+        ''' Sets the additive term b in (F);
+            bt:  an AcquisitionData object containing b.
+        '''
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'background_term', at.handle)
-    def set_normalisation(self, norm):
+            (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+    def set_normalisation(self, bin_eff):
+        ''' Sets the normalization n in (F);
+            bin_eff:  an AcquisitionData object containing bin efficiencies
+                      (the inverse of n).
+        '''
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+            (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
     def forward(self, image, filename = ''):
+        ''' Returns the forward projection of x given by (F);
+            image   :  an Image object containing x;
+            filename:  an optional name of the file to store projection data;
+                       if not present, projection data is stored in memory
+                       (not recommended as it can be huge).
+        '''
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelFwd\
             (self.handle, image.handle, filename)
         _check_status(ad.handle)
         return ad;
     def backward(self, ad):
+        ''' Returns the backward projection of y giben by (B);
+            ad:  an AcquisitionData object containing y.
+        '''
         image = Image()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
             (self.handle, ad.handle)
@@ -454,7 +527,14 @@ class AcquisitionModel:
         return image
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
+    ''' Class for a PET acquisition model that uses (implicitly) a sparse
+        matrix for G in (F).
+    '''
     def __init__(self, matrix = None):
+        ''' Creates an AcquisitionModelUsingMatrix object, optionally setting
+            the ray tracing matrix to be used for projecting;
+            matrix:  a RayTracingMatrix object to represent G in (F).
+        '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
@@ -462,11 +542,16 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         if matrix is not None:
             _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_matrix(self, matrix):
+        ''' Sets the ray tracing matrix to be used for projecting;
+            matrix:  a RayTracingMatrix object to represent G in (F).
+        '''
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):
+        ''' Returns the ray tracing matrix used for projecting;
+            matrix:  a RayTracingMatrix object representing G in (F).
+        '''
         matrix = RayTracingMatrix()
-        matrix.handle = pystir.cSTIR_parameter\
-            (self.handle, self.name, 'matrix')
+        matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
         _check_status(matrix.handle)
         return matrix
 
