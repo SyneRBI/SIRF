@@ -1,6 +1,6 @@
 '''
-Upper-level interface demo that illustrates pre-processing of acquisitions,
-reconstructing images and post-processing them.
+Low-level interface demo that illustrates pre-processing of MR raw (k-
+space) data, 2D image reconstruction using FFT and image display.
 '''
 
 import argparse
@@ -17,8 +17,8 @@ sys.path.append(SRC_PATH)
 
 parser = argparse.ArgumentParser(description = \
 '''
-Upper-level interface demo that illustrates pre-processing of acquisitions,
-reconstructing images and post-processing them.
+Low-level interface demo that illustrates pre-processing of MR raw (k-
+space) data, 2D image reconstruction using FFT and image display.
 ''')
 parser.add_argument('-e', '--engine', default = 'pGadgetron', help = 'engine')
 parser.add_argument\
@@ -33,21 +33,32 @@ def main():
     # acquisitions will be read from an HDF file args.filename
     # MR raw data formats from different vendors can be transformed to 
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
-    # bruker_to_ismrmrd on https://github.com/ismrmrd/
+    # bruker_to_ismrmrd on https://github.com/ismrmrd/.
+    print "---\n reading in file " + args.filename + "..."
     input_data = AcquisitionData(args.filename)
 
-    # pre-process acquisition data
+    # pre-process acquired k-space data
+    # Prior to image reconstruction several pre-processing steps such as 
+    # assymetric echo compensation, noise decorelation for multi-coil data or 
+    # removal of oversampling along frequency encoding (i.e. readout or kx)
+    # direction. So far only the removal of readout oversampling is implemented
     print('---\n pre-processing acquisitions...')
     processed_data = MR_remove_x_oversampling(input_data)
 
-    # perform reconstruction
+    # setup reconstruction
+    # Create a reconstruction object (in this case simple 2D Cartesian FFT) and
+    # provide pre-processed k-space data as input
     recon = SimpleReconstruction()
     recon.set_input(processed_data)
+    
+    # perform reconstruction
     print('---\n reconstructing...')
     recon.process()
+    
+    # retrieve reconstruced images
     images = recon.get_output()
 
-    # show obtained images
+    # show reconstructed images
     images.show()
 
 try:

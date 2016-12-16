@@ -1,6 +1,7 @@
 '''
-Lower-level interface demo that illustrates creating and running a chain
-of gadgets.
+Medium-level interface demo that illustrates 2D Cartesian MR image 
+reconstruction using Gadgetron by directly creating and running a chain of 
+gadgets.
 '''
 
 import argparse
@@ -18,8 +19,9 @@ from pGadgetron import *
 
 parser = argparse.ArgumentParser(description = \
 '''
-Lower-level interface demo that illustrates creating and running a chain
-of gadgets.
+Medium-level interface demo that illustrates 2D Cartesian MR image 
+reconstruction using Gadgetron by directly creating and running a chain of 
+gadgets.
 ''')
 parser.add_argument('-o', '--output', default = None, help = 'output file name')
 parser.add_argument\
@@ -33,17 +35,39 @@ def main():
     input_data = AcquisitionData(args.filename)
     
     # create reconstruction object
+    # Rather than using a predefined image reconstruction object, here a new 
+    # image reconstruction object is created by concatinating multiple gadgets 
+    # (for more information on Gadgetron and its gadgets please see: 
+    # https://github.com/gadgetron/.).
+    # Parameters for individual gadgets can be defined either during the 
+    # creation of the reconstruction object:
+    #   e.g. AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)
+    #   
+    # or by using set_gadget_property()
+    # The gadgets will be concatinated and will be executed as soon as 
+    # process() is called
     recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
-    recon.set_gadget_property('ex', 'extract_mask', 5)
-    # connect to input data
+        
+    # ExtractGadget defines which type of image should be returned:
+    # none      0
+    # magnitude 1
+    # real      2
+    # imag      4
+    # phase     8
+    # max       16  
+    # in this example '5' returns both magnitude and imag    
+    recon.set_gadget_property('ex', 'extract_mask', 5) 
+    
+    # provide raw k-space data as input
     recon.set_input(input_data)
+    
     # perform reconstruction
     recon.process()
     
-    # get reconstructed images
+    # retrieve reconstructed images
     images = recon.get_output()
 
     # show reconstructed images
