@@ -1,5 +1,5 @@
 # Copyright Nov 2016 Casper da Costa-Luis
-# Mozilla Public License 2.0 (https://mozilla.org/MPL/2.0/)
+# Apache License 2.0
 
 # This file builds to ./build and installs to ./build/dist[bin|lib|include]
 .PHONY:
