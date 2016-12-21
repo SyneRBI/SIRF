@@ -41,32 +41,53 @@ def gaussian(x, mu, sig):
     
 def main():
 
-    # acquisitions will be read from an HDF file args.filename
+    # Acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
+    # Get number of acquisitions
+    # TODO: rename to number_of_acquisitions()
+    na = input_data.number()
     
-    # Get size of current k-space data
+    # Get size of current k-space slices data as tuple
+    # (number of samples, number of acquisitions per slice, number of coils)
+    # TODO: reverse the tuple elements' order
+    # TODO: replace with dimensions() method that returns the shape of as_array()
     kdim = input_data.slice_dimensions()
-    print "Size of k-space reduced from", kdim,
+    # This way of printing works for both Python 2.* and Python 3.*
+    print('Size of k-space slice reduced from %dx%dx%d' % kdim)
+##    print "Size of k-space reduced from", kdim,
     
-    # pre-process acquisitions
+    # Pre-process acquisitions
     # Create an object which removes the readout oversampling from the acquired 
     # k-space data
     acq_proc = AcquisitionsProcessor(['RemoveROOversamplingGadget'])
     preprocessed_data = acq_proc.process(input_data)
     
-    # Get size of k-space after removal of oversampling
+    # Get size of k-space slices after removal of oversampling
     kdim = preprocessed_data.slice_dimensions()
-    print "to", kdim, "."
+    print('to %dx%dx%d' % kdim)
+##    print "to", kdim, "."
     
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
-    print "Apply Gaussian weighting function along readout"
+    print('Apply Gaussian weighting function along readout')
+##    print "Apply Gaussian weighting function along readout"
     gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[0]/2, kdim[0]/2, kdim[0])]),0,20)
-    gauss_weight = numpy.tile(gauss_weight.T, (1,kdim[1]))
+
+    # This looks like the correct way of applying Gaussian weights
+    gauss_weight = numpy.tile(gauss_weight, (na, 1))
+##    gauss_weight = numpy.tile(gauss_weight.T, (1,kdim[1]))
+    # TODO: make as_array() return ndarray of shape
+    # (number of coils, number of slices, acquis. per slice, number of samples)
+    # or even more dimensions
     dat_array = preprocessed_data.as_array()
+##    dat_array = preprocessed_data.as_array()
     for c in range(kdim[2]):
-        dat_array[:,:,c] = numpy.multiply(dat_array[:,:,c], gauss_weight)
-        
+        dat_array[:,c,:] = numpy.multiply(dat_array[:,c,:], gauss_weight)
+##        dat_array[:,:,c] = numpy.multiply(dat_array[:,:,c], gauss_weight)
+
+    # TODO: preprocessed_data.fill(dat_array)
+    # Difficulty: need to make room for non-standard situations -
+    # acquisitions of different type and shape etc.
 
     # create reconstruction object
     recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
