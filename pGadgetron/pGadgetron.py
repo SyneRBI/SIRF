@@ -20,6 +20,8 @@ sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
 import pyiutil
 import pygadgetron
 
+MAX_ACQ_DIMENSIONS = 16
+
 ISMRMRD_IMTYPE_MAGNITUDE = 1
 ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
@@ -509,19 +511,26 @@ class AcquisitionsContainer(DataContainer):
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
+    def dimensions(self):
+        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+             (self.handle, dim.ctypes.data)
+        nr = pyiutil.intDataFromHandle(hv)
+        return dim, nr
     def slice_dimensions(self):
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
-        pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
+        dim = numpy.ndarray((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+             (self.handle, dim.ctypes.data)
         ns = dim[0]
-        ny = dim[1]
-        nc = dim[2]
+        nc = dim[1]
+        ny = dim[2]
         return ns, ny, nc
     def slice_as_array(self, num):
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        dim = numpy.ndarray((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         pygadgetron.cGT_getAcquisitionsDimensions(self.handle, dim.ctypes.data)
         ns = dim[0]
-        ny = dim[1]
-        nc = dim[2]
+        nc = dim[1]
+        ny = dim[2]
         #print( ns, ny, nc )
         re = numpy.ndarray((nc, ny, ns), dtype = numpy.float64)
         im = numpy.ndarray((nc, ny, ns), dtype = numpy.float64)
@@ -529,13 +538,23 @@ class AcquisitionsContainer(DataContainer):
             (self.handle, num, re.ctypes.data, im.ctypes.data)
         return re + 1j*im
     def as_array(self, all = False):
-        acq = Acquisition()
-        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
-        ns = acq.number_of_samples()
-        nc = acq.active_channels()
+##        acq = Acquisition()
+##        acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, 0)
+##        ns = acq.number_of_samples()
+##        nc = acq.active_channels()
         na = self.number()
-        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
-        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+        dim = numpy.ndarray((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+             (self.handle, dim.ctypes.data)
+        nr = pyiutil.intDataFromHandle(hv)
+        ns = dim[0]
+        nc = dim[1]
+        ny = dim[2]
+        nsl = dim[3]
+        re = numpy.ndarray((nsl, ny, nc, ns), dtype = numpy.float64)
+        im = numpy.ndarray((nsl, ny, nc, ns), dtype = numpy.float64)
+##        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
+##        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
 ##        if all:
 ##            n = na
 ##        else:
@@ -543,7 +562,10 @@ class AcquisitionsContainer(DataContainer):
         hv = pygadgetron.cGT_getAcquisitionsData\
             (self.handle, na + 1, re.ctypes.data, im.ctypes.data)
         n = pyiutil.intDataFromHandle(hv)
-        return re[0 : n, :, :] + 1j*im[0 : n, :, :]
+##        print('not a rectangular array: %d, slices: %d' % (nr, nsl))
+##        print('acquisitions: %d %d %d' % (na, ny*nsl, n))
+        return re + 1j*im
+##        return re[0 : n, :, :] + 1j*im[0 : n, :, :]
 
 class Acquisition(PyGadgetronObject):
     def __init__(self, file = None):

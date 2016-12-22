@@ -483,31 +483,45 @@ public:
 		return e.parallelImaging.is_present() &&
 			e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
 	}
-	void get_acquisitions_dimensions(size_t ptr_dim)
+	int get_acquisitions_dimensions(size_t ptr_dim)
 	{
 		ISMRMRD::Acquisition acq;
 		int* dim = (int*)ptr_dim;
 
 		int na = number();
 		int y = 0;
+		int ns = 0;
+		int my;
+		int ny;
+		int not_reg = 0;
 		for (; y < na;){
-			get_acquisition(y, acq);
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-				break;
-			y++;
-		}
-		int ny = 0;
-		for (; y < na;) {
-			get_acquisition(y, acq);
-			y++;
-			ny++;
-			if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-				break;
+			for (; y < na;){
+				get_acquisition(y, acq);
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+					break;
+				y++;
+			}
+			ny = 0;
+			for (; y < na;) {
+				get_acquisition(y, acq);
+				y++;
+				ny++;
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+					break;
+			}
+			if (ns == 0)
+				my = ny;
+			else
+				if (my != ny)
+					not_reg = 1;
+			ns++;
 		}
 
 		dim[0] = acq.number_of_samples();
-		dim[1] = ny; // e.reconSpace.matrixSize.y;
-		dim[2] = acq.active_channels();
+		dim[1] = acq.active_channels();
+		dim[2] = my; // e.reconSpace.matrixSize.y;
+		dim[3] = ns;
+		return not_reg;
 	}
 	int get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
@@ -537,7 +551,8 @@ public:
 		int* dim = new int[3];
 		size_t ptr_dim = (size_t)dim;
 		get_acquisitions_dimensions(ptr_dim);
-		unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
+		unsigned int ny = dim[2]; //e.reconSpace.matrixSize.y;
+		//unsigned int ny = dim[1]; //e.reconSpace.matrixSize.y;
 		delete[] dim;
 		int y = 0;
 		for (; y + ny*slice < na;){

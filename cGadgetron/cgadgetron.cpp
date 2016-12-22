@@ -442,8 +442,9 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
 		boost::shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisitions_dimensions(ptr_dim);
-		return new DataHandle;
+		int not_reg = acqs.get_acquisitions_dimensions(ptr_dim);
+		return dataHandle(not_reg);
+		//return new DataHandle;
 	}
 	CATCH;
 }

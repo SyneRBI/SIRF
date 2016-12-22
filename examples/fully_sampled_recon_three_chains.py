@@ -47,6 +47,15 @@ def main():
     # TODO: rename to number_of_acquisitions()
     na = input_data.number()
     
+    print('sorting acquisitions...')
+    input_data.sort()
+
+    dim, nr = input_data.dimensions()
+    print('not a rectangular array: %d' % nr)
+    print(dim)
+    ny = dim[2]
+    nz = dim[3]
+
     # Get size of current k-space slices data as tuple
     # (number of samples, number of acquisitions per slice, number of coils)
     # TODO: reverse the tuple elements' order
@@ -74,7 +83,8 @@ def main():
     gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[0]/2, kdim[0]/2, kdim[0])]),0,20)
 
     # This looks like the correct way of applying Gaussian weights
-    gauss_weight = numpy.tile(gauss_weight, (na, 1))
+    gauss_weight = numpy.tile(gauss_weight, (nz, ny, 1))
+##    gauss_weight = numpy.tile(gauss_weight, (na, 1))
 ##    gauss_weight = numpy.tile(gauss_weight.T, (1,kdim[1]))
     # TODO: make as_array() return ndarray of shape
     # (number of coils, number of slices, acquis. per slice, number of samples)
@@ -82,7 +92,7 @@ def main():
     dat_array = preprocessed_data.as_array()
 ##    dat_array = preprocessed_data.as_array()
     for c in range(kdim[2]):
-        dat_array[:,c,:] = numpy.multiply(dat_array[:,c,:], gauss_weight)
+        dat_array[:,:,c,:] = numpy.multiply(dat_array[:,:,c,:], gauss_weight)
 ##        dat_array[:,:,c] = numpy.multiply(dat_array[:,:,c], gauss_weight)
 
     # TODO: preprocessed_data.fill(dat_array)
