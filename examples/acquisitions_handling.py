@@ -1,6 +1,6 @@
 '''
-Upper-level interface demo that illustrates acquisitions
-pre-processing, sorting and plotting.
+Upper-level interface demo that illustrates how MR data can be interfaced 
+from python.
 '''
 
 import argparse
@@ -22,8 +22,8 @@ from pGadgetron import *
 
 parser = argparse.ArgumentParser(description = \
 '''
-Upper-level interface demo that illustrates acquisitions
-pre-processing, sorting and plotting.
+Upper-level interface demo that illustrates how MR data can be interfaced 
+from python.
 ''')
 parser.add_argument\
 ('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
@@ -35,79 +35,30 @@ def main():
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
 
-    na = input_data.number()
-    nx, ny, nc = input_data.slice_dimensions()
-    print('%d acquisitions found' % na)
-
-    print('sorting acquisitions...')
+    # sort data acquisition
+    # prior to this step the raw k-space data is a list of different 1D 
+    # acquisitions (readouts) of different data type (e.g. noise correlation 
+    # data, navigator data, image data,...). Afterwards input_data contains 
+    # only image data
     input_data.sort()
 
-    # copy acquisitions into an array
-    input_array = input_data.as_array().transpose((1, 0, 2))
+    # copy raw data into python array and determine its size
+    # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
+    # size is 256 phase encoding, 8 receiver coils and points 512 readout 
+    # points (frequency encoding dimension)
+    input_array = input_data.as_array()
     input_shape = input_array.shape
     print('input data dimensions: %dx%dx%d' % input_shape)
-    print('input data slice dimensions: %dx%dx%d' % (nc, ny, nx))
 
-    # pre-process acquisition data
-    print('processing acquisitions...')
+    # remove oversampling along readout
     processed_data = input_data.process(['RemoveROOversamplingGadget'])
 
-    # copy processed acquisitions into an array
-    processed_array = processed_data.as_array().transpose((1, 0, 2))
+    # copy processed acquisitions into an array and determine its size
+    # by removing the oversampling factor of 2 along the readout direction, the
+    # number of readout samples was halfed
+    processed_array = processed_data.as_array()
     processed_shape = processed_array.shape
     print('processed data dimensions: %dx%dx%d' % processed_shape)
-    print('processed data slice dimensions: %dx%dx%d'\
-          % (processed_data.slice_dimensions()))
-
-    nz = na//ny
-
-    while HAVE_PYLAB:
-        print('---\n Enter the slice number to view it.')
-        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
-        s = str(input('z-coordinate: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 1 or z > nz:
-            break
-        input_slice = abs(input_array[:, (z - 1)*ny : z*ny, :])
-        processed_slice = abs(processed_array[:, (z - 1)*ny : z*ny, :])
-        print('Enter coil number to view the acquired data for it')
-        print('(a value outside the range [1 : %d] will stop this loop)' % nc)
-        while True:
-            s = str(input('coil: '))
-            if len(s) < 1:
-                break
-            c = int(s)
-            if c < 1 or c > nc:
-                break
-            cp = c + nc
-            pylab.figure(c)
-            pylab.title('input data')
-            pylab.imshow(input_slice[c - 1, :, :])
-            pylab.figure(cp)
-            pylab.title('processed data')
-            pylab.imshow(processed_slice[c - 1, :, :])
-            print('Close Figures %d and %d windows to continue...'% (c, cp))
-            pylab.show()
-
-##    # perform reconstruction
-##    undersampled = input_data.is_undersampled()
-##    if not undersampled:
-##        print('---\n reconstructing fully sampled data...')
-##        recon = SimpleReconstruction()
-##    else:
-##        print('---\n reconstructing undersampled data using GRAPPA...')
-##        recon = GenericCartesianGRAPPAReconstruction()
-##    recon.set_input(processed_data)
-##    recon.process()
-##    if not undersampled:
-##        images = recon.get_output()
-##    else:
-##        images = recon.get_output('images')
-##
-##    # show obtained images
-##    images.show()
 
 try:
     main()
