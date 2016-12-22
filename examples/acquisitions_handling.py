@@ -48,7 +48,7 @@ def main():
     # points (frequency encoding dimension)
     input_array = input_data.as_array()
     input_shape = input_array.shape
-    print('input data dimensions: %dx%dx%d' % input_shape)
+    print('input data dimensions: %dx%dx%dx%d' % input_shape)
 
     # remove oversampling along readout
     processed_data = input_data.process(['RemoveROOversamplingGadget'])
@@ -58,7 +58,7 @@ def main():
     # number of readout samples was halfed
     processed_array = processed_data.as_array()
     processed_shape = processed_array.shape
-    print('processed data dimensions: %dx%dx%d' % processed_shape)
+    print('processed data dimensions: %dx%dx%dx%d' % processed_shape)
 
 try:
     main()

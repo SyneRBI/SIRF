@@ -308,8 +308,9 @@ class CoilSensitivityMaps(DataContainer):
             if HAVE_ISMRMRDTOOLS and method_name == 'Inati':
                 nz = data.number()
                 for z in range(nz):
-                    re, im = data.coil_image_as_arrays(z)
-                    ci = numpy.squeeze(re  + 1j*im)
+##                    re, im = data.coil_image_as_arrays(z)
+##                    ci = numpy.squeeze(re  + 1j*im)
+                    ci = numpy.squeeze(data.as_array(z))
                     (csm, rho) = coils.calculate_csm_inati_iter(ci)
                     self.append(csm)
             else:
