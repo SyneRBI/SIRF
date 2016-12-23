@@ -144,11 +144,16 @@ def main():
         print('all tests passed')
     else:
         print('%d tests failed' % failed)
+    return failed
 
 try:
-    main()
+    failed = main()
     print('done')
+    if failed != 0:
+        sys.exit(failed)
 
 except error as err:
     # display error information
     print('??? %s' % err.value)
+    sys.exit(-1)
+
