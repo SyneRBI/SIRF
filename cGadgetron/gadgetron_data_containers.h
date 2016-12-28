@@ -489,11 +489,16 @@ public:
 		int* dim = (int*)ptr_dim;
 
 		int na = number();
+		int ms, ns;
+		int mc, nc;
+		int my, ny;
+		int slice = 0;
 		int y = 0;
-		int ns = 0;
-		int my;
-		int ny;
-		int not_reg = 0;
+		// assume all 3 dimensions (samples, coils, acqs per slice) regular
+		int nrd = 3;
+		// number of regular readouts
+		int nrr = 0;
+		//int not_reg = 0;
 		for (; y < na;){
 			for (; y < na;){
 				get_acquisition(y, acq);
@@ -504,24 +509,58 @@ public:
 			ny = 0;
 			for (; y < na;) {
 				get_acquisition(y, acq);
+				if (TO_BE_IGNORED(acq)) // not a regular acquisition
+					continue;
+				ns = acq.number_of_samples();
+				nc = acq.active_channels();
+				nrr += ns*nc;
+				if (slice == 0) {
+					ms = ns;
+					mc = nc;
+				}
+				else {
+					if (ms != ns)
+						nrd = 0;
+					else if (mc != nc && nrd > 1)
+						nrd = 1;
+				}
 				y++;
 				ny++;
 				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
 					break;
 			}
-			if (ns == 0)
+			if (slice == 0) {
 				my = ny;
-			else
-				if (my != ny)
-					not_reg = 1;
-			ns++;
+			}
+			else {
+				if (my != ny && nrd > 2)
+					nrd = 2;
+				//if (my != ny)
+				//	not_reg = 1;
+			}
+			slice++;
 		}
 
-		dim[0] = acq.number_of_samples();
-		dim[1] = acq.active_channels();
-		dim[2] = my; // e.reconSpace.matrixSize.y;
-		dim[3] = ns;
-		return not_reg;
+		int reg_size = 1;
+		if (nrd > 0) {
+			dim[0] = ms;
+			reg_size *= ms;
+		}
+		if (nrd > 1) {
+			dim[1] = mc;
+			reg_size *= mc;
+		}
+		if (nrd > 2) {
+			dim[2] = my;
+			reg_size *= my;
+		}
+		dim[nrd] = nrr / reg_size;
+		return nrd;
+		//dim[0] = acq.number_of_samples();
+		//dim[1] = acq.active_channels();
+		//dim[2] = my; // e.reconSpace.matrixSize.y;
+		//dim[3] = slice;
+		//return not_reg;
 	}
 	int get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
