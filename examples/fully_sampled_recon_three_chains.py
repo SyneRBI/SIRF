@@ -43,27 +43,27 @@ def main():
 
     # Acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
-    # Get number of acquisitions
-    # TODO: rename to number_of_acquisitions()
-    na = input_data.number()
-    
+    # Get number of acquisitions:
+    # all aquisitions
+    na = input_data.number_of_acquisitions()
+    # regular acquisitions (not TO_BE_IGNORED - see gadgetron_data_containers.h)
+    nra = input_data.number_of_acquisitions('regular')
+    print('acquisitions: total %d, regular %d' % (na, nra))
+
     print('sorting acquisitions...')
     input_data.sort()
 
-    dim, nr = input_data.dimensions()
-    print('not a rectangular array: %d' % nr)
+    # Get dimensions of a python array that can store input_data
+    dim = input_data.dimensions()
     print(dim)
-    ny = dim[2]
-    nz = dim[3]
+    ny = dim[1]
+    nz = dim[0]
 
     # Get size of current k-space slices data as tuple
-    # (number of samples, number of acquisitions per slice, number of coils)
-    # TODO: reverse the tuple elements' order
-    # TODO: replace with dimensions() method that returns the shape of as_array()
-    kdim = input_data.slice_dimensions()
+    # (number of acquisitions per slice, number of coils, number of samples)
+    kdim = dim[1:]
     # This way of printing works for both Python 2.* and Python 3.*
     print('Size of k-space slice reduced from %dx%dx%d' % kdim)
-##    print "Size of k-space reduced from", kdim,
     
     # Pre-process acquisitions
     # Create an object which removes the readout oversampling from the acquired 
@@ -72,28 +72,18 @@ def main():
     preprocessed_data = acq_proc.process(input_data)
     
     # Get size of k-space slices after removal of oversampling
-    kdim = preprocessed_data.slice_dimensions()
+    dim = preprocessed_data.dimensions()
+    kdim = dim[1:]
     print('to %dx%dx%d' % kdim)
-##    print "to", kdim, "."
     
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
-##    print "Apply Gaussian weighting function along readout"
-    gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[0]/2, kdim[0]/2, kdim[0])]),0,20)
-
-    # This looks like the correct way of applying Gaussian weights
+    gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,20)
     gauss_weight = numpy.tile(gauss_weight, (nz, ny, 1))
-##    gauss_weight = numpy.tile(gauss_weight, (na, 1))
-##    gauss_weight = numpy.tile(gauss_weight.T, (1,kdim[1]))
-    # TODO: make as_array() return ndarray of shape
-    # (number of coils, number of slices, acquis. per slice, number of samples)
-    # or even more dimensions
-    dat_array = preprocessed_data.as_array()
-##    dat_array = preprocessed_data.as_array()
-    for c in range(kdim[2]):
-        dat_array[:,:,c,:] = numpy.multiply(dat_array[:,:,c,:], gauss_weight)
-##        dat_array[:,:,c] = numpy.multiply(dat_array[:,:,c], gauss_weight)
+    data_array = preprocessed_data.as_array()
+    for c in range(kdim[1]):
+        data_array[:,:,c,:] = numpy.multiply(data_array[:,:,c,:], gauss_weight)
 
     # TODO: preprocessed_data.fill(dat_array)
     # Difficulty: need to make room for non-standard situations -
