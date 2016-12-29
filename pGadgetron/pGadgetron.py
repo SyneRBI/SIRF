@@ -579,6 +579,17 @@ class AcquisitionsContainer(DataContainer):
 ##        n = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         return re + 1j*im
+    def fill(self, data):
+        if self.handle is None:
+            raise error('Undefined AcquisitionsContainer object cannot be filled')
+        na, nc, ns = data.shape
+        re = numpy.copy(numpy.real(data))
+        im = numpy.copy(numpy.imag(data))
+        handle = pygadgetron.cGT_setAcquisitionsData\
+            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data)
+        _check_status(handle)
+        pyiutil.deleteObject(self.handle)
+        self.handle = handle
 
 class Acquisition(PyGadgetronObject):
     def __init__(self, file = None):

@@ -442,9 +442,8 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
 		boost::shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
-		int not_reg = acqs.get_acquisitions_dimensions(ptr_dim);
-		return dataHandle(not_reg);
-		//return new DataHandle;
+		int num_reg_dim = acqs.get_acquisitions_dimensions(ptr_dim);
+		return dataHandle(num_reg_dim);
 	}
 	CATCH;
 }
@@ -463,6 +462,33 @@ cGT_getAcquisitionsData
 		int n = acqs.get_acquisitions_data(slice, re, im);
 		return dataHandle(n);
 		//return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionsData
+(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns, 
+size_t ptr_re, size_t ptr_im)
+{
+	try {
+		double* re = (double*)ptr_re;
+		double* im = (double*)ptr_im;
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac =
+			acqs.new_acquisitions_container();
+		int err = acqs.set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
+		if (err) {
+			DataHandle* handle = new DataHandle;
+			std::string error = "Mismatching acquisition dimensions";
+			ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
+			handle->set(0, &status);
+			return (void*)handle;
+		}
+		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
 	}
 	CATCH;
 }

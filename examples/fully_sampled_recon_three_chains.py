@@ -75,7 +75,7 @@ def main():
     for c in range(kdim[1]):
         data_array[:,c,:] = numpy.multiply(data_array[:,c,:], gauss_weight)
 
-    # TODO: preprocessed_data.fill(data_array)
+    preprocessed_data.fill(data_array)
 
     # create reconstruction object
     recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \

@@ -562,6 +562,36 @@ public:
 		//dim[3] = slice;
 		//return not_reg;
 	}
+
+	int set_acquisitions_data
+		 (boost::shared_ptr<AcquisitionsContainer> sptr_ac, 
+		 int na, int nc, int ns, const double* re, const double* im)
+	{
+		sptr_ac->set_parameters(par_);
+		sptr_ac->write_parameters();
+		sptr_ac->ordered_ = ordered();
+		ISMRMRD::Acquisition acq;
+		int ma = number();
+		for (int a = 0, i = 0; a < ma; a++) {
+			get_acquisition(a, acq);
+			if (TO_BE_IGNORED(acq) && ma > na) {
+				std::cout << "ignoring acquisition " << a << '\n';
+				continue;
+			}
+			unsigned int mc = acq.active_channels();
+			unsigned int ms = acq.number_of_samples();
+			if (mc != nc || ms != ns)
+				return -1;
+			for (size_t c = 0; c < nc; c++) {
+				for (size_t s = 0; s < ns; s++, i++) {
+					acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
+				}
+			}
+			sptr_ac->append_acquisition(acq);
+		}
+		return 0;
+	}
+
 	int get_acquisitions_data(unsigned int slice, double* re, double* im)
 	{
 		ISMRMRD::Acquisition acq;
