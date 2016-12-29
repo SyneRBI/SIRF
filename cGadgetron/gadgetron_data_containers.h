@@ -460,7 +460,7 @@ public:
 
 class AcquisitionsContainer : public aDataContainer {
 public:
-	AcquisitionsContainer() : index_(0) {}
+	AcquisitionsContainer() : ordered_(false), index_(0) {}
 	virtual ~AcquisitionsContainer()
 	{
 		if (index_)
@@ -494,13 +494,13 @@ public:
 		int my, ny;
 		int slice = 0;
 		int y = 0;
-		// assume all 3 dimensions (samples, coils, acqs per slice) regular
-		int nrd = 3;
+		// assume all dimensions (samples, coils [, acqs per slice]) regular
+		int nrd = ordered() ? 3 : 2;
 		// number of regular readouts
 		int nrr = 0;
 		//int not_reg = 0;
 		for (; y < na;){
-			for (; y < na;){
+			for (; y < na && ordered();){
 				get_acquisition(y, acq);
 				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 					break;
@@ -526,7 +526,7 @@ public:
 				}
 				y++;
 				ny++;
-				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && ordered())
 					break;
 			}
 			if (slice == 0) {
@@ -845,10 +845,12 @@ public:
 				index_[k] = ts[k - i].ind;
 			i = j;
 		}
+		ordered_ = true;
 	}
 	bool ordered() const
 	{
-		return (bool)index_;
+		return ordered_;
+		//return (bool)index_;
 	}
 	int index(int i)
 	{
@@ -859,6 +861,7 @@ public:
 	}
 
 protected:
+	bool ordered_;
 	int* index_;
 	std::string par_;
 };
