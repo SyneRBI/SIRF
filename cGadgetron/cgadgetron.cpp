@@ -450,6 +450,22 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
+cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
+{
+	try {
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(h_acqs);
+		boost::shared_ptr<ISMRMRD::Acquisition>
+			sptr_acq(new ISMRMRD::Acquisition);
+		acqs.get_acquisitions_flags(n, (int*)ptr_f);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_getAcquisitionsData
 (void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
 {
