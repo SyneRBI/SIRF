@@ -498,13 +498,7 @@ class AcquisitionsContainer(DataContainer):
             pyiutil.deleteObject(self.handle)
     def number_of_acquisitions(self, select = 'all'):
         dim = self.dimensions(select)
-        return dim[2]
-##        if select == 'all':
-##            return self.number()
-##        else:
-##            dim = numpy.asarray(self.dimensions())
-##            nr = len(dim)
-##            return numpy.prod(dim[: nr - 2])
+        return dim[0]
     def sort(self):
         handle = pygadgetron.cGT_orderAcquisitions(self.handle)
         _check_status(handle)
@@ -552,20 +546,28 @@ class AcquisitionsContainer(DataContainer):
 ##        pygadgetron.cGT_getAcquisitionsData\
 ##            (self.handle, num, re.ctypes.data, im.ctypes.data)
 ##        return re + 1j*im
-    def as_array(self, all = False):
+    def flags(self, select = 'all'):
+        na, nc, ns = self.dimensions(select)
+        flags = numpy.ndarray((na,), dtype = numpy.int32)
+        hv = pygadgetron.cGT_getAcquisitionsFlags\
+             (self.handle, int(na), flags.ctypes.data)
+        pyiutil.deleteDataHandle(hv)
+        return flags
+    def as_array(self, select = 'all'):
         na = self.number()
-        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-        hv = pygadgetron.cGT_getAcquisitionsDimensions\
-             (self.handle, dim.ctypes.data)
-        nr = pyiutil.intDataFromHandle(hv)
-        ns = dim[0]
-        nc = dim[1]
-        if all:
+        ny, nc, ns = self.dimensions(select)
+##        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
+##        hv = pygadgetron.cGT_getAcquisitionsDimensions\
+##             (self.handle, dim.ctypes.data)
+##        nr = pyiutil.intDataFromHandle(hv)
+##        ns = dim[0]
+##        nc = dim[1]
+        if select == 'all':
             n = na
-            ny = na
+##            ny = na
         else:
             n = na + 1
-            ny = numpy.prod(dim[2:])
+##            ny = numpy.prod(dim[2:])
         re = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
         im = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
 ##        ny = dim[2]
@@ -575,7 +577,7 @@ class AcquisitionsContainer(DataContainer):
 ##        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
 ##        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
         hv = pygadgetron.cGT_getAcquisitionsData\
-            (self.handle, na + 1, re.ctypes.data, im.ctypes.data)
+            (self.handle, n, re.ctypes.data, im.ctypes.data)
 ##        n = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         return re + 1j*im

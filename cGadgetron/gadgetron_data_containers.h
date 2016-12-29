@@ -507,7 +507,7 @@ public:
 				y++;
 			}
 			ny = 0;
-			for (; y < na;) {
+			for (; y < na; y++) {
 				get_acquisition(y, acq);
 				if (TO_BE_IGNORED(acq)) // not a regular acquisition
 					continue;
@@ -524,7 +524,6 @@ public:
 					else if (mc != nc && nrd > 1)
 						nrd = 1;
 				}
-				y++;
 				ny++;
 				if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE) && ordered())
 					break;
@@ -590,6 +589,20 @@ public:
 			sptr_ac->append_acquisition(acq);
 		}
 		return 0;
+	}
+
+	void get_acquisitions_flags(unsigned int n, int* flags)
+	{
+		ISMRMRD::Acquisition acq;
+		int na = number();
+		for (int a = 0, i = 0; a < na; a++) {
+			get_acquisition(a, acq);
+			if (TO_BE_IGNORED(acq) && n < na) {
+				std::cout << "ignoring acquisition " << a << '\n';
+				continue;
+			}
+			flags[i++] = acq.flags();
+		}
 	}
 
 	int get_acquisitions_data(unsigned int slice, double* re, double* im)

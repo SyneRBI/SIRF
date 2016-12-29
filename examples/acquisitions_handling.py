@@ -35,12 +35,21 @@ def main():
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
 
-    # sort data acquisition
-    # prior to this step the raw k-space data is a list of different 1D 
+    # Get number of acquisitions:
+    # the raw k-space data is a list of different 1D 
     # acquisitions (readouts) of different data type (e.g. noise correlation 
-    # data, navigator data, image data,...). Afterwards input_data contains 
-    # only image data
+    # data, navigator data, image data,...).
+    # The number of all aquisitions is
+    na = input_data.number_of_acquisitions()
+    # The number of image data acquisitions is
+    nra = input_data.number_of_acquisitions('image')
+    print('acquisitions: total %d, image data %d' % (na, nra))
+
+    # sort data acquisition
     input_data.sort()
+
+    flags = input_data.flags()
+    print(flags[:3])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 

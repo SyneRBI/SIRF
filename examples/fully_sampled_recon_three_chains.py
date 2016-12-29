@@ -43,12 +43,6 @@ def main():
 
     # Acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
-    # Get number of acquisitions:
-    # all aquisitions
-    na = input_data.number_of_acquisitions()
-    # regular acquisitions (not TO_BE_IGNORED - see gadgetron_data_containers.h)
-    nra = input_data.number_of_acquisitions('regular')
-    print('acquisitions: total %d, regular %d' % (na, nra))
 
     # Get size of current k-space data as tuple
     # (number of acquisitions, number of coils, number of samples)
