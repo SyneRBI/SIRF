@@ -50,8 +50,9 @@ def main():
     nra = input_data.number_of_acquisitions('regular')
     print('acquisitions: total %d, regular %d' % (na, nra))
 
-    print('sorting acquisitions...')
-    input_data.sort()
+## not needed in this demo
+##    print('sorting acquisitions...')
+##    input_data.sort()
 
     # Get dimensions of a python array that can store input_data
     dim = input_data.dimensions()
@@ -61,7 +62,7 @@ def main():
 
     # Get size of current k-space slices data as tuple
     # (number of acquisitions per slice, number of coils, number of samples)
-    kdim = dim[1:]
+    kdim = dim#[1:]
     # This way of printing works for both Python 2.* and Python 3.*
     print('Size of k-space slice reduced from %dx%dx%d' % kdim)
     
@@ -70,20 +71,23 @@ def main():
     # k-space data
     acq_proc = AcquisitionsProcessor(['RemoveROOversamplingGadget'])
     preprocessed_data = acq_proc.process(input_data)
+##    preprocessed_data.sort()
     
     # Get size of k-space slices after removal of oversampling
     dim = preprocessed_data.dimensions()
-    kdim = dim[1:]
+    kdim = dim#[1:]
     print('to %dx%dx%d' % kdim)
     
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
     gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,20)
-    gauss_weight = numpy.tile(gauss_weight, (nz, ny, 1))
+##    gauss_weight = numpy.tile(gauss_weight, (nz, ny, 1))
+    gauss_weight = numpy.tile(gauss_weight, (nra, 1))
     data_array = preprocessed_data.as_array()
     for c in range(kdim[1]):
-        data_array[:,:,c,:] = numpy.multiply(data_array[:,:,c,:], gauss_weight)
+        data_array[:,c,:] = numpy.multiply(data_array[:,c,:], gauss_weight)
+##        data_array[:,:,c,:] = numpy.multiply(data_array[:,:,c,:], gauss_weight)
 
     # TODO: preprocessed_data.fill(dat_array)
     # Difficulty: need to make room for non-standard situations -
