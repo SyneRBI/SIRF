@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(cGadgetron)
+ADD_SUBDIRECTORY(pGadgetron)
