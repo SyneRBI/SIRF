@@ -27,14 +27,14 @@ ISMRMRD_IMTYPE_PHASE     = 2
 ISMRMRD_IMTYPE_REAL      = 3
 ISMRMRD_IMTYPE_IMAG      = 4
 
-ISMRMRD_USHORT   = 1##, /**< corresponds to uint16_t */
-ISMRMRD_SHORT    = 2##, /**< corresponds to int16_t */
-ISMRMRD_UINT     = 3##, /**< corresponds to uint32_t */
-ISMRMRD_INT      = 4##, /**< corresponds to int32_t */
-ISMRMRD_FLOAT    = 5##, /**< corresponds to float */
-ISMRMRD_DOUBLE   = 6##, /**< corresponds to double */
-ISMRMRD_CXFLOAT  = 7##, /**< corresponds to complex float */
-ISMRMRD_CXDOUBLE = 8##  /**< corresponds to complex double */
+ISMRMRD_USHORT   = 1 ##, /**< corresponds to uint16_t */
+ISMRMRD_SHORT    = 2 ##, /**< corresponds to int16_t */
+ISMRMRD_UINT     = 3 ##, /**< corresponds to uint32_t */
+ISMRMRD_INT      = 4 ##, /**< corresponds to int32_t */
+ISMRMRD_FLOAT    = 5 ##, /**< corresponds to float */
+ISMRMRD_DOUBLE   = 6 ##, /**< corresponds to double */
+ISMRMRD_CXFLOAT  = 7 ##, /**< corresponds to complex float */
+ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 
 class error(Exception):
     def __init__(self, value):
@@ -279,10 +279,10 @@ class CoilSensitivityMaps(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-##            pyiutil.deleteObject(self.handle)
     def read(self, file):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
+##            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
     def calculate(self, data, method = None):
@@ -290,7 +290,8 @@ class CoilSensitivityMaps(DataContainer):
             if data.is_sorted() is False:
                 print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
+##            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
         if method is not None:
@@ -389,12 +390,12 @@ class ImagesContainer(DataContainer):
     def process(self, list):
         ip = ImagesProcessor(list)
         return ip.process(self)
-    def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
-        if self.is_real():
-            return self
-        self.conversion_to_real(ctype)
-        real_images = self.process(['ComplexToFloatGadget'])
-        return real_images
+##    def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
+##        if self.is_real():
+##            return self
+##        self.conversion_to_real(ctype)
+##        real_images = self.process(['ComplexToFloatGadget'])
+##        return real_images
     def show(self):
         if not HAVE_PYLAB:
             print('pylab not found')
@@ -489,10 +490,39 @@ class ImagesContainer(DataContainer):
 class Image(ImagesContainer):
     pass
 
+class AcquisitionInfo(PyGadgetronObject):
+    def __init__(self):
+        self.flags = 0
+        self.encode_step_1 = 0
+        self.slice = 0
+        self.repetition = 0
+
+class Acquisition(PyGadgetronObject):
+    def __init__(self, file = None):
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteObject(self.handle)
+    def flags(self):
+        return _int_par(self.handle, 'acquisition', 'flags')
+    def number_of_samples(self):
+        return _int_par(self.handle, 'acquisition', 'number_of_samples')
+    def active_channels(self):
+        return _int_par(self.handle, 'acquisition', 'active_channels')
+    def trajectory_dimensions(self):
+        return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
+    def idx_kspace_encode_step_1(self):
+        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
+    def idx_repetition(self):
+        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+    def idx_slice(self):
+        return _int_par(self.handle, 'acquisition', 'idx_slice')
+
 class AcquisitionsContainer(DataContainer):
     def __init__(self):
         self.handle = None
         self.sorted = False
+        self.info = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
@@ -526,6 +556,43 @@ class AcquisitionsContainer(DataContainer):
         else:
             dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
+    def set_info(self):
+        na, nc, ns = self.dimensions()
+        self.info = numpy.empty((na,), dtype = object)
+        for a in range(na):
+            acq = self.acquisition(a)
+            info = AcquisitionInfo()
+            info.flags = acq.flags()
+            info.encode_step_1 = acq.idx_kspace_encode_step_1()
+            info.slice = acq.idx_slice()
+            info.repetition = acq.idx_repetition()
+            self.info[a] = info
+    def get_info(self, par):
+        na, nc, ns = self.dimensions()
+        if self.info is None:
+            self.set_info()
+        if par == 'flags':
+            flags = numpy.empty((na,), dtype = numpy.int64)
+            for a in range(na):
+                flags[a] = self.info[a].flags
+            return flags
+        elif par == 'encode_step_1':
+            es1 = numpy.empty((na,), dtype = numpy.int32)
+            for a in range(na):
+                es1[a] = self.info[a].encode_step_1
+            return es1
+        elif par == 'slice':
+            s = numpy.empty((na,), dtype = numpy.int32)
+            for a in range(na):
+                s[a] = self.info[a].slice
+            return s
+        elif par == 'repetition':
+            r = numpy.empty((na,), dtype = numpy.int32)
+            for a in range(na):
+                r[a] = self.info[a].repetition
+            return r
+        else:
+            raise error('unknown acquisition parameter ' + par)
 ##    def slice_dimensions(self):
 ##        dim = numpy.ndarray((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
 ##        hv = pygadgetron.cGT_getAcquisitionsDimensions\
@@ -546,39 +613,24 @@ class AcquisitionsContainer(DataContainer):
 ##        pygadgetron.cGT_getAcquisitionsData\
 ##            (self.handle, num, re.ctypes.data, im.ctypes.data)
 ##        return re + 1j*im
-    def flags(self, select = 'all'):
-        na, nc, ns = self.dimensions(select)
-        flags = numpy.ndarray((na,), dtype = numpy.int32)
-        hv = pygadgetron.cGT_getAcquisitionsFlags\
-             (self.handle, int(na), flags.ctypes.data)
-        pyiutil.deleteDataHandle(hv)
-        return flags
+##    def flags(self, select = 'all'):
+##        na, nc, ns = self.dimensions(select)
+##        flags = numpy.ndarray((na,), dtype = numpy.int32)
+##        hv = pygadgetron.cGT_getAcquisitionsFlags\
+##             (self.handle, int(na), flags.ctypes.data)
+##        pyiutil.deleteDataHandle(hv)
+##        return flags
     def as_array(self, select = 'all'):
         na = self.number()
         ny, nc, ns = self.dimensions(select)
-##        dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
-##        hv = pygadgetron.cGT_getAcquisitionsDimensions\
-##             (self.handle, dim.ctypes.data)
-##        nr = pyiutil.intDataFromHandle(hv)
-##        ns = dim[0]
-##        nc = dim[1]
         if select == 'all':
             n = na
-##            ny = na
         else:
             n = na + 1
-##            ny = numpy.prod(dim[2:])
         re = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
         im = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
-##        ny = dim[2]
-##        nsl = dim[3]
-##        re = numpy.ndarray((nsl, ny, nc, ns), dtype = numpy.float64)
-##        im = numpy.ndarray((nsl, ny, nc, ns), dtype = numpy.float64)
-##        re = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
-##        im = numpy.ndarray((na, nc, ns), dtype = numpy.float64)
         hv = pygadgetron.cGT_getAcquisitionsData\
             (self.handle, n, re.ctypes.data, im.ctypes.data)
-##        n = pyiutil.intDataFromHandle(hv)
         pyiutil.deleteDataHandle(hv)
         return re + 1j*im
     def fill(self, data):
@@ -593,31 +645,11 @@ class AcquisitionsContainer(DataContainer):
         pyiutil.deleteObject(self.handle)
         self.handle = handle
 
-class Acquisition(PyGadgetronObject):
-    def __init__(self, file = None):
-        self.handle = None
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
-    def flags(self):
-        return _int_par(self.handle, 'acquisition', 'flags')
-    def number_of_samples(self):
-        return _int_par(self.handle, 'acquisition', 'number_of_samples')
-    def active_channels(self):
-        return _int_par(self.handle, 'acquisition', 'active_channels')
-    def trajectory_dimensions(self):
-        return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
-    def idx_kspace_encode_step_1(self):
-        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
-    def idx_repetition(self):
-        return _int_par(self.handle, 'acquisition', 'idx_repetition')
-    def idx_slice(self):
-        return _int_par(self.handle, 'acquisition', 'idx_slice')
-
 class AcquisitionData(AcquisitionsContainer):
     def __init__(self, file = None):
         self.handle = None
         self.sorted = False
+        self.info = None
         if file is not None:
             self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
             _check_status(self.handle)
