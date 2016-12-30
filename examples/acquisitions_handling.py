@@ -42,18 +42,34 @@ def main():
     # The number of all aquisitions is
     na = input_data.number_of_acquisitions()
     # The number of image data acquisitions is
-    nra = input_data.number_of_acquisitions('image')
-    print('acquisitions: total %d, image data %d' % (na, nra))
+    ni = input_data.number_of_acquisitions('image')
+    print('acquisitions: total %d, image data %d' % (na, ni))
 
     # sort data acquisition
     input_data.sort()
 
-    flags = input_data.flags()
-    print(flags[:3])
+    where = range(254, 258)
+    # inspect some acquisitions flags
+    flags = input_data.get_info('flags')
+    if flags[0] & IMAGE_DATA_MASK:
+        print('first acquisition is image data')
+    else:
+        # should see this if input data file is test_2D_2x.h5
+        print('first acquisition is not image data')
+    print(flags[where])
+    # inspect some kspace_encode_step_1 counters
+    es1 = input_data.get_info('encode_step_1')
+    print(es1[where])
+    # inspect some slice counters
+    slices = input_data.get_info('slice')
+    print(slices[where])
+    # inspect some repetition counters
+    reps = input_data.get_info('repetition')
+    print(reps[where])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
-    # size is 256 phase encoding, 8 receiver coils and points 512 readout 
+    # size is 2x256 phase encoding, 8 receiver coils and points 512 readout 
     # points (frequency encoding dimension)
     input_array = input_data.as_array()
     input_shape = input_array.shape
