@@ -48,8 +48,15 @@ def main():
     # sort data acquisition
     input_data.sort()
 
-    flags = input_data.flags()
-    print(flags[:3])
+    where = range(254, 258)
+    flags = input_data.get_info('flags')
+    print(flags[where])
+    es1 = input_data.get_info('encode_step_1')
+    print(es1[where])
+    slices = input_data.get_info('slice')
+    print(slices[where])
+    reps = input_data.get_info('repetition')
+    print(reps[where])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
