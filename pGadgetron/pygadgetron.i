@@ -1,5 +1,5 @@
 %module pygadgetron
 %{
-#include "../cGadgetron/cgadgetron.h"
+#include "cgadgetron.h"
 %}
-%include "../cGadgetron/cgadgetron.h"
+%include "cgadgetron.h"

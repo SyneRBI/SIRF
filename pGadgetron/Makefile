@@ -9,6 +9,7 @@ PYLIB = -l$(PYTHON)
 IUTILITIES = $(SRC_PATH)/iUtilities
 LIBIUTIL = $(BUILD_PATH)/iUtilities
 BUILDPATH = $(BUILD_PATH)/xGadgetron
+CGADGETRON = ../cGadgetron
 
 SWIG = swig
 
@@ -24,8 +25,8 @@ LIBS = \
 all: pygadgetron
 
 pygadgetron: $(BUILDPATH)/libcgt.a
-	$(SWIG) -c++ -python pygadgetron.i
-	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE)
+	$(SWIG) -c++ -python -I$(CGADGETRON) pygadgetron.i
+	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE) -I$(CGADGETRON)
 	$(CPP) $(CFLAGS) -shared pygadgetron_wrap.o -L$(PYLIBPATH) $(PYLIB)\
 		 -o $(BUILDPATH)/_pygadgetron.so \
 		-L$(BUILDPATH) -L$(LIBIUTIL) $(LIBS) $(LDFLAGS)
