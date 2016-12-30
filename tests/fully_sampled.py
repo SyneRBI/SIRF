@@ -30,8 +30,10 @@ def acquisitions_tests_failed(acqs):
         print('??? wrong number of acquisitions')
         return 512*3 + 4
 
-    nz, ny, nc, nx = acqs.dimensions()
-    if (nx, ny, nc) != (512, 256, 8):
+##    nz, ny, nc, nx = acqs.dimensions()
+##    if (nx, ny, nc) != (512, 256, 8):
+    na, nc, nx = acqs.dimensions()
+    if (nx, na, nc) != (512, 512, 8):
         print('??? wrong slice dimensions')
         return 512*3 + 3
 
