@@ -1,10 +1,11 @@
-CPP = g++
-CFLAGS = -O3 -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include
+CPP = /usr/bin/g++
+CFLAGS = -O3 -fPIC -std=c++11 -DNDEBUG -I$(IUTILITIES) -I$(ISMRMRD_HOME)/include -I$(HDF5_INCLUDE)
 ARCH = ar
 ARCHFLAGS = cr
 RANLIB = ranlib
 
 IUTILITIES = $(SRC_PATH)/iUtilities
+HDF5_INCLUDE=/usr/lib/x86_64-linux-gnu/hdf5/serial/include
 
 all: libcgt
 
