@@ -56,14 +56,23 @@ def main():
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first acquisition is not image data')
+        
+    # display flags for readout number 254 to 257    
+    print('Flags'),
     print(flags[where])
+    
     # inspect some kspace_encode_step_1 counters
     es1 = input_data.get_info('encode_step_1')
+    print('Ky/PE - encoding'),
     print(es1[where])
+    
     # inspect some slice counters
     slices = input_data.get_info('slice')
+    print('Slices'),
     print(slices[where])
+    
     # inspect some repetition counters
+    print('Repetitions'),
     reps = input_data.get_info('repetition')
     print(reps[where])
 
