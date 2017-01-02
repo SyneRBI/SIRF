@@ -16,22 +16,6 @@
 #
 #=========================================================================
 
-set(CMAKE_POSITION_INDEPENDENT_CODE True)
-
-if (CMAKE_VERSION VERSION_LESS "3.1")
-   set (CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
-else ()
-   set (CMAKE_CXX_STANDARD 11)
-endif ()
-  
-find_package(ISMRMRD REQUIRED)
-set(CMAKE_MODULE_PATH ${ISMRMRD_DIR})
-find_package(FFTW3 COMPONENTS single double REQUIRED)
-
-find_package(HDF5 1.8 COMPONENTS C REQUIRED)
-
-include_directories(${FFTW3_INCLUDE_DIR})
-
 add_library(cgt cgadgetron.cpp xgadgetron.cpp ismrmrd_fftw.cpp)
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
