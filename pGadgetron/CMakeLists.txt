@@ -16,18 +16,8 @@
 #
 #=========================================================================
 
-set(CMAKE_POSITION_INDEPENDENT_CODE True)
-
-if (CMAKE_VERSION VERSION_LESS "3.1")
-   set (CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
-else ()
-   set (CMAKE_CXX_STANDARD 11)
-endif ()
-
 find_package(Boost COMPONENTS system thread filesystem REQUIRED)
 
-find_package(ISMRMRD REQUIRED)
-set(CMAKE_MODULE_PATH ${ISMRMRD_DIR})
 link_directories(${ISMRMRD_LIBRARY_DIRS})
 
 # try to find the location of cgadgetron.h from the include_directories property of the library
