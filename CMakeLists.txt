@@ -34,4 +34,8 @@ include_directories(${ISMRMRD_INCLUDE_DIR})
 include_directories(${FFTW3_INCLUDE_DIR})
 
 ADD_SUBDIRECTORY(cGadgetron)
+
+set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
+
 ADD_SUBDIRECTORY(pGadgetron)
+ADD_SUBDIRECTORY(mGadgetron)

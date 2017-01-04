@@ -20,20 +20,7 @@ find_package(Boost COMPONENTS system thread filesystem REQUIRED)
 
 link_directories(${ISMRMRD_LIBRARY_DIRS})
 
-# try to find the location of cgadgetron.h from the include_directories property of the library
-# this doesn't work though, probably because the usage of $<BUILD_INTERFACE:...>
-#get_property(cGadgetron_INCLUDE_DIRS TARGET cgt PROPERTY INCLUDE_DIRECTORIES)
-#foreach(dir ${cGadgetron_INCLUDE_DIRS})
-#  if(EXISTS "${dir}/cgadgetron.h")
-#    set(cGadgetron_INCLUDE_DIR "$dir")
-#  endif()
-#endforeach()
-#message("STATUS cgadgetron.h is found in ${cGadgetron_INCLUDE_DIR}")
-# So instead we rely on its location w.r.t. the current source-dir, which is somewhat dangerous (TODO: replace)
-set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cGadgetron")
-
-
-#if(BUILD_PYTHON)
+if(BUILD_PYTHON)
 
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
@@ -49,8 +36,8 @@ set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cGadgetron")
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
   SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
   SWIG_LINK_LIBRARIES(pygadgetron cgt iutil ismrmrd fftw3 ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) #fftw3f
-  set(PYTHON_DEST ${CMAKE_INSTALL_PREFIX}/python CACHE PATH "Destination for python module")
+
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION ${PYTHON_DEST})
   INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py  DESTINATION ${PYTHON_DEST})
 
-#endif(BUILD_PYTHON)
+endif(BUILD_PYTHON)
