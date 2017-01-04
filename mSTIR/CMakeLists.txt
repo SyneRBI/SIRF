@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 University College London
+# Copyright 2017 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,24 +16,25 @@
 #
 #=========================================================================
 
-if(BUILD_PYTHON)
+if(BUILD_MATLAB)
+
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  FIND_PACKAGE(SWIG REQUIRED)
-  INCLUDE("${SWIG_USE_FILE}")
+  include_directories(${MATLAB_INCLUDE_DIR})
+  add_definitions(${MATLAB_CXXFLAGS})
 
-  SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES CPLUSPLUS ON)
-  # find libraries and include files
-  # TODO would be better to use target_include_directories
+  add_library(mstir SHARED mstir.c printer.cpp  ${STIR_REGISTRIES})
+  # fix output name and link flags
+  SET_TARGET_PROPERTIES(mstir PROPERTIES
+        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
+        LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
+  target_link_libraries(mstir  cstir iutil ${STIR_LIBRARIES} ${MATLAB_LIBRARIES} )
 
-  FIND_PACKAGE(PythonLibs REQUIRED)
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-  #FIND_PACKAGE(Numpy REQUIRED)
-  #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
-  SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
-  SWIG_LINK_LIBRARIES(pystir cstir iutil ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
+  INSTALL(TARGETS mstir DESTINATION ${MATLAB_DEST})
+  INSTALL(FILES mstir.h DESTINATION ${MATLAB_DEST})
+  INSTALL(DIRECTORY +mStir DESTINATION ${MATLAB_DEST})
+  file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
+  INSTALL(FILES ${MatlabFiles} DESTINATION ${MATLAB_DEST})
 
-  INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION ${PYTHON_DEST})
-  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pystir.py pStir.py DESTINATION ${PYTHON_DEST})
 
-endif(BUILD_PYTHON)
+endif(BUILD_MATLAB)
