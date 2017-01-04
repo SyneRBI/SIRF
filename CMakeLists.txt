@@ -44,6 +44,9 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
+####### CMake path
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+
 ####### External packages
 
 #### we need the boost library from boost.org
@@ -51,8 +54,14 @@ set(BOOST_ROOT CACHE PATH "root of Boost")
 find_package( Boost 1.36.0 REQUIRED )
 include_directories(${Boost_INCLUDE_DIRS})
 
-#### optional external libraries. 
-find_package(STIR)
+#### optional back-ends
+FIND_PACKAGE(PythonLibs REQUIRED)
+set (BUILD_PYTHON ${PythonLibs_FOUND})
+set(PYTHON_DEST ${CMAKE_INSTALL_PREFIX}/python CACHE PATH "Destination for python module")
+
+FIND_PACKAGE(MATLAB)
+set (BUILD_MATLAB ${MATLAB_FOUND})
+set(MATLAB_DEST ${CMAKE_INSTALL_PREFIX}/matlab CACHE PATH "Destination for matlab module")
 
 #### enable support for ctest
 ENABLE_TESTING()
