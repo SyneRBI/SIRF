@@ -1,6 +1,9 @@
 coil_sensitivity_maps.py
 Python only. Demonstrates methods for calculating coil sensitivity maps.
 
+fully_samp_basic.m
+Demo showing reconstruction of fully sampled MR data. 
+
 gen_us_data.m  (requires add_noise.m)
 Matlab function to simulate the ISMRMRD HDF5 data from a GRAPPA undersampled acquisition.
 
