@@ -5,6 +5,8 @@ Gadgetron Python and Matlab interfaces installation under Linux
 NOTE: Python interface successfully tried on Lubuntu VM and Centos, 
 Matlab interface on Centos only.
 
+On MacOSx, the MATLAB interface has been tested successfully. Alternative make files called Makefile_mac are available and a script called build-mac is in the xGadgetron folder to replace some of the instructions below. CMake is in development and should replace some of these problems.
+
 Install Boost, SWIG, and clone+install ISMRMRD and Gadgetron from 
 github.com/CCPPETMR. DO NOT CHANGE DEFAULT FOLDERS.
 
@@ -59,18 +61,9 @@ Go to <work_dir>/iUtilities and run make.
 Go to <work_dir>/xGadgetron/cGadgetron and run make.
 
 Go to <work_dir>/xGadgetron/pGadgetron and run make. 
-(Mac OS users may have to change -lboost_thread to -lboost_thread-mt in the Makefile.)
 
 Go to <work_dir>/xGadgetron/mGadgetron and run make.
-(Mac OS users may need to make the following changes to Makefile:
-    Change extensions in TARGET1 and TARGET2 to 
-    TARGET1 = mutilities.mexmaci64
-    TARGET2 = mgadgetron.mexmaci64
-    
-    Change -soname to -install_name (two occurrences)
-    Add -lc++ to the end of the TARGET1: (after the $(IUTILITIES_LIBRARY) ).
-    Add -lc++ and -lboost_system to LIBS, and change -lboost_thread to -lboost_thread-mt
-)
+
 
 Go to <work_dir>/xGadgetron/examples and run make. 
 
