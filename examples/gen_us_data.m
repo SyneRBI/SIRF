@@ -18,6 +18,9 @@ function gen_us_data( varargin )
 %  <property><name>downstream_coil_compression_thres</name><value>0.0001</value></property>
 %  <property><name>use_constant_scalingFactor</name><value>false</value></property>
 %
+% (NOTE the above seems to no longer apply with the newer GRAPPA gadget
+% chain).
+%
 % David Atkinson, code based on test_create_dataset and test_create_undersampled_dataset
 %
 % Requires ISMRMRD Matlab code (from https://github.com/ismrmrd )
