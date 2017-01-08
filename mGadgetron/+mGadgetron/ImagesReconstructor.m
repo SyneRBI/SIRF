@@ -1,10 +1,23 @@
 classdef ImagesReconstructor < mGadgetron.GadgetChain
+% ImagesReconstructor 
+% Class for reconstructing images using Gadgetron 
+% 
+% ImagesReconstructor Methods:
+%    ImagesReconstructor - can accept a list of gadgets for gadgetron chain
+%    set_input(input_data)  - sets the input data for recon
+%    process  - performs the call to gadgetron
+%    get_output  - returns output
+
     properties
         input_
         images_
     end
     methods
         function self = ImagesReconstructor(list)
+        % Accepts a cell array of gadget names as input to form the Gadgetron chain.
+        % Each element of list is a string of the form 
+        % 'LABEL:gadget_name' with the 'LABEL:' optional. Use of a label
+        % enables subsequent setting of gadget property using set_gadget_property
             self.name_ = 'ImagesReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
@@ -24,9 +37,12 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function set_input(self, input_data)
+         % set_input - Sets the Acquisition Data used for the recon
+         % See also PROCESS
             self.input_ = input_data;
         end
         function process(self)
+        % process - Calls the Gadgetron
             if isempty(self.input_)
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
@@ -38,6 +54,7 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
             mGadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self)
+        % get_output - Returns an ImagesContainer?
             images = self.images_;
         end
     end
