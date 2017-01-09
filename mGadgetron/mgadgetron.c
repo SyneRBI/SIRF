@@ -69,8 +69,14 @@ EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
 	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
 }
+EXPORTED_FUNCTION 	void* mGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, PTR_INT ptr_f) {
+	return cGT_getAcquisitionsFlags(ptr_acqs, n, ptr_f);
+}
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsData (void* ptr_acqs, unsigned int slice, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
 	return cGT_getAcquisitionsData (ptr_acqs, slice, ptr_re, ptr_im);
+}
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsData (void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	return cGT_setAcquisitionsData (ptr_acqs, na, nc, ns, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);
