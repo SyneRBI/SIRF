@@ -1,4 +1,7 @@
-clear import
+function select_gadgetron()
+% Selects Gadgetron as MR Engine
+
+%clear import
 import mGadgetron.*
 
 if ~libisloaded('mutilities')
@@ -12,3 +15,4 @@ end
 
 %libfunctions('mutilities')
 %libfunctions('mgadgetron')
+end
