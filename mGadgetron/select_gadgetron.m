@@ -1,4 +1,4 @@
-function select_gadgetron()
+%function select_gadgetron() - does not work
 % Selects Gadgetron as MR Engine
 
 %clear import
@@ -15,4 +15,4 @@ end
 
 %libfunctions('mutilities')
 %libfunctions('mgadgetron')
-end
+%end

@@ -1,4 +1,4 @@
-function set_up_mr()
+%function set_up_mr() - does not work
 % Sets up MR Engine
 
 try
@@ -10,4 +10,4 @@ catch
         select_gadgetron
     end
 end
-end
+%end
