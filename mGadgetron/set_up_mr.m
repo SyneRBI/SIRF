@@ -1,3 +1,6 @@
+function set_up_mr()
+% Sets up MR Engine
+
 try
     eval(['select_' MR_ENGINE])
 catch
@@ -6,4 +9,5 @@ catch
     else
         select_gadgetron
     end
+end
 end
