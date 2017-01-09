@@ -34,16 +34,17 @@ def main():
     # MR raw data formats from different vendors can be transformed to 
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
-    print "---\n reading in file " + args.filename + "..."
+    print('---\n reading in file %s...' % args.filename)
     input_data = AcquisitionData(args.filename)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
     # assymetric echo compensation, noise decorelation for multi-coil data or 
     # removal of oversampling along frequency encoding (i.e. readout or kx)
-    # direction. So far only the removal of readout oversampling is implemented
+    # direction. So far only the removal of readout oversampling and noise and
+    # asymmetric echo adjusting is implemented
     print('---\n pre-processing acquisitions...')
-    processed_data = MR_remove_x_oversampling(input_data)
+    processed_data = PreprocessAcquisitions(input_data)
 
     # setup reconstruction
     # Create a reconstruction object (in this case simple 2D Cartesian FFT) and

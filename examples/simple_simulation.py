@@ -34,8 +34,9 @@ def main():
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
+    # pre-process acquisitions
     print('---\n processing acquisitions...')
-    processed_data = input_data.process(['RemoveROOversamplingGadget'])
+    processed_data = PreprocessAcquisitions(input_data)
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 

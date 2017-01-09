@@ -36,10 +36,8 @@ def main():
     input_data = AcquisitionData(args.filename)
 
     # pre-process acquisitions
-    prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
-         'RemoveROOversamplingGadget']
     print('---\n pre-processing acquisitions...')
-    preprocessed_data = input_data.process(prep_gadgets)
+    preprocessed_data = PreprocessAcquisitions(input_data)
 
     # perform reconstruction
     recon = GenericCartesianGRAPPAReconstruction()
