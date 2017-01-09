@@ -84,8 +84,9 @@ def main():
     input_shape = input_array.shape
     print('input data dimensions: %dx%dx%d' % input_shape)
 
-    # remove oversampling along readout
-    processed_data = input_data.process(['RemoveROOversamplingGadget'])
+    # pre-process acquisitions
+    print('---\n pre-processing acquisitions...')
+    processed_data = PreprocessAcquisitions(input_data)
 
     # copy processed acquisitions into an array and determine its size
     # by removing the oversampling factor of 2 along the readout direction, the

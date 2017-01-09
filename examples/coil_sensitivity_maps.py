@@ -49,8 +49,8 @@ def main():
     # acquisitions will be read from an HDF file args.filename
     input_data = AcquisitionData(args.filename)
     
-    # pre-process acquired k-space data
-    processed_data = MR_remove_x_oversampling(input_data)
+    # pre-process acquisitions
+    processed_data = PreprocessAcquisitions(input_data)
     
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()

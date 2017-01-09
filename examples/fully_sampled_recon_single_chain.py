@@ -42,10 +42,10 @@ def main():
     # Parameters for individual gadgets can be defined either during the 
     # creation of the reconstruction object:
     #   e.g. AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)
-    #   
-    # or by using set_gadget_property()
-    # The gadgets will be concatinated and will be executed as soon as 
-    # process() is called
+    # or by giving a gadget a label (cf. label ex: for the last gadget)
+    # and using set_gadget_property(label, propery, value).
+    # The gadgets will be concatenated and will be executed as soon as 
+    # process() is called.
     recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
