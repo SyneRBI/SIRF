@@ -506,6 +506,8 @@ public:
 					break;
 				y++;
 			}
+			if (y >= na)
+				break;
 			ny = 0;
 			for (; y < na; y++) {
 				get_acquisition(y, acq);
@@ -532,8 +534,9 @@ public:
 				my = ny;
 			}
 			else {
-				if (my != ny && nrd > 2)
+				if (my != ny && nrd > 2) {
 					nrd = 2;
+				}
 				//if (my != ny)
 				//	not_reg = 1;
 			}
