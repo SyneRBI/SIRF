@@ -1,9 +1,12 @@
 classdef AcquisitionsContainer < mGadgetron.DataContainer
+    % Abstract base class for MR acquisition data
     properties
+        % Are acquisitions sorted?
         sorted_
     end
     methods
         function self = AcquisitionsContainer()
+            % Creates empty AcquisitionsContainer object.
             self.handle_ = [];
             self.sorted_ = false;
         end
@@ -14,6 +17,11 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             end
         end
         function sort(self)
+            % Sorts acquisitions.
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
             mGadgetron.checkExecutionStatus('AcquisitionsContainer', handle);
@@ -24,10 +32,31 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             sorted = self.sorted_;
         end
         function a = process(self, list)
+            % Returns acquisitions processed by a chain of gadgets.
+            % The argument is a cell array of gadget definitions
+            % [{gadget1_definition}, {gadget2_definition}, ...],
+            % where gadget definitions are strings of the form
+            % 'label:name(property1=value1,property2=value2,...)',
+            % where the only mandatory field is name, the Gadgetron 
+            % name of the gadget. An optional expression in round 
+            % brackets can be used to assign values to gadget properties,
+            % and an optional label can be used to change the labelled
+            % gadget properties after the chain has been defined.
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             ap = mGadgetron.AcquisitionsProcessor(list);
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)
+            % Finds number of samples, coils and acquisitions.
+            % If the argument is supplied that is not 'all', then
+            % non-image related acquisitions are ignored.
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             ptr_i = libpointer('int32Ptr', ones(16, 1));
             calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
@@ -46,6 +75,12 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             end
         end
         function data = as_array(self, select)
+            % Returns 3D complex array containing acquisition data.
+            % The dimensions are those returned by dimensions().
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             if nargin < 2
                 select = 'all';
             end
@@ -68,6 +103,11 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             data = re + 1i*im;
         end
         function fill(self, data)
+            % Changes acquisition data to that provided by 3D array argument.
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             [ns, nc, na] = size(data);
             re = real(data);
             im = imag(data);
@@ -80,6 +120,10 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             self.handle_ = h;
         end
         function [ns, ny, nc] = slice_dimensions(self)
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             ptr_i = libpointer('int32Ptr', ones(16, 1));
             calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
@@ -90,6 +134,10 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             ny = dim(3);
         end
         function data = slice_as_array(self, num)
+            if isempty(self.handle_)
+                error('AcquisitionsContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             ptr_i = libpointer('int32Ptr', ones(16, 1));
             calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
@@ -99,7 +147,6 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             nc = dim(2);
             ny = dim(3);
             n = ns*nc*ny;
-            %n = dim(1)*dim(2)*dim(3);
             ptr_re = libpointer('doublePtr', zeros(n, 1));
             ptr_im = libpointer('doublePtr', zeros(n, 1));
             calllib...
@@ -107,8 +154,6 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
                 self.handle_, num - 1, ptr_re, ptr_im);
             re = reshape(ptr_re.Value, ns, ny, nc);
             im = reshape(ptr_im.Value, ns, ny, nc);
-%             re = reshape(ptr_re.Value, dim(1), dim(2), dim(3));
-%             im = reshape(ptr_im.Value, dim(1), dim(2), dim(3));
             data = re + 1i*im;
         end
     end

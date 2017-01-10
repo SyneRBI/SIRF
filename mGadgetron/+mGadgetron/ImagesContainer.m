@@ -1,9 +1,11 @@
 classdef ImagesContainer < mGadgetron.DataContainer
+    % Abstract base class for MR images.
     properties
         name_
     end
     methods
         function self = ImagesContainer()
+            % Creates empty ImagesContainer object.
             self.name_ = 'ImagesContainer';
             self.handle_ = [];
         end
@@ -14,18 +16,38 @@ classdef ImagesContainer < mGadgetron.DataContainer
             end
         end
         function write(self, file, group)
+            % Writes images to a file in HDF5 format.
+            if isempty(self.handle_)
+                error('ImagesContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, group);
             mGadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = select(self, attr, value)
+            % Returns images with given value of given attribute.
+            if isempty(self.handle_)
+                error('ImagesContainer:empty_object', ...
+                    'cannot handle empty object')
+            end
             images = mGadgetron.ImagesContainer();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attr, value);
             mGadgetron.checkExecutionStatus(self.name_, images.handle_);
         end
         function images = process(self, list)
+            % Returns images processed by a chain of gadgets.
+            % The argument is a cell array of gadget definitions
+            % [{gadget1_definition}, {gadget2_definition}, ...],
+            % where gadget definitions are strings of the form
+            % 'label:name(property1=value1,property2=value2,...)',
+            % where the only mandatory field is name, the Gadgetron 
+            % name of the gadget. An optional expression in round 
+            % brackets can be used to assign values to gadget properties,
+            % and an optional label can be used to change the labelled
+            % gadget properties after the chain has been defined.
             ip = mGadgetron.ImagesProcessor(list);
             images = ip.process(self);
         end
@@ -37,20 +59,8 @@ classdef ImagesContainer < mGadgetron.DataContainer
             calllib('mutilities', 'mDeleteDataHandle', handle)
             ft = (v ~= 7 && v ~= 8);
         end
-        function data = image_as_array(self, im_num)
-            ptr_i = libpointer('int32Ptr', zeros(4, 1));
-            calllib...
-                ('mgadgetron', 'mGT_getImageDimensions', ...
-                self.handle_, im_num - 1, ptr_i);
-            dim = ptr_i.Value;
-            n = dim(1)*dim(2)*dim(3)*dim(4);
-            ptr_v = libpointer('doublePtr', zeros(n, 1));
-            calllib...
-                ('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
-                self.handle_, im_num - 1, ptr_v)
-            data = reshape(ptr_v.Value, dim(1), dim(2), dim(3), dim(4));
-        end
         function data = as_array(self)
+            % Returns 3D complex array representing 3D image.
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib('mgadgetron', 'mGT_getImageDimensions', ...
                 self.handle_, 0, ptr_i);
@@ -74,6 +84,7 @@ classdef ImagesContainer < mGadgetron.DataContainer
             end
         end
         function show(self)
+            % Plots 2D images (slices).
             ni = self.number();
             if ni < 1
                 return
