@@ -53,9 +53,12 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
                 self.handle_, self.input_.handle_);
             mGadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
         end
-        function images = get_output(self)
+        function images = get_output(self, subset)
         % get_output - Returns an ImagesContainer?
             images = self.images_;
+            if nargin > 1
+                images = images.select('GADGETRON_DataRole', subset);
+            end
         end
     end
 end

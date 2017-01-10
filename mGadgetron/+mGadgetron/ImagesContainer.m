@@ -19,16 +19,10 @@ classdef ImagesContainer < mGadgetron.DataContainer
             mGadgetron.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function images = select(self, inc, off)
+        function images = select(self, attr, value)
             images = mGadgetron.ImagesContainer();
-            if nargin < 3
-                off = 0;
-            end
-            if nargin < 2
-                inc = 1;
-            end
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
-                self.handle_, inc, off);
+                self.handle_, attr, value);
             mGadgetron.checkExecutionStatus(self.name_, images.handle_);
         end
         function images = process(self, list)
@@ -43,17 +37,6 @@ classdef ImagesContainer < mGadgetron.DataContainer
             calllib('mutilities', 'mDeleteDataHandle', handle)
             ft = (v ~= 7 && v ~= 8);
         end
-%         function conversion_to_real(self, type)
-%             calllib('mgadgetron', 'mGT_setImageToRealConversion', ...
-%                 self.handle_, type)
-%         end
-%         function images = real(self, ctype)
-%             if nargin < 2
-%                 ctype = 1;
-%             end
-%             self.conversion_to_real(ctype);
-%             images = self.process({'ComplexToFloatGadget'});
-%         end
         function data = image_as_array(self, im_num)
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
@@ -91,12 +74,15 @@ classdef ImagesContainer < mGadgetron.DataContainer
             end
         end
         function show(self)
+            ni = self.number();
+            if ni < 1
+                return
+            end
             data = self.as_array();
             if ~self.is_real()
                 data = abs(data);
             end
             data = data/max(max(max(data)));
-            ni = self.number();
             fprintf('Please enter the number of the image to view\n')
             fprintf('(a value outside the range [1 : %d] will stop this loop)\n', ni)
             while true

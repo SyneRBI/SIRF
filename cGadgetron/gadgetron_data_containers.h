@@ -11,6 +11,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -221,6 +222,12 @@ public:
 		IMAGE_PROCESSING_SWITCH(type_, get_head_ptr_, ptr_, h);
 		return *h;
 	}
+	std::string attributes() const
+	{
+		std::string attr;
+		IMAGE_PROCESSING_SWITCH_CONST(type_, get_attr_, ptr_, attr);
+		return attr;
+	}
 	void set_imtype(ISMRMRD::ISMRMRD_ImageTypes imtype)
 	{
 		IMAGE_PROCESSING_SWITCH(type_, set_imtype_, ptr_, imtype);
@@ -319,6 +326,12 @@ private:
 	void get_size_(const ISMRMRD::Image<T>* ptr_im, size_t& size) const
 	{
 		size = ptr_im->getDataSize();
+	}
+
+	template<typename T>
+	void get_attr_(const ISMRMRD::Image<T>* ptr_im, std::string& attr) const
+	{
+		ptr_im->getAttributeString(attr);
 	}
 
 	template<typename T>
@@ -1049,8 +1062,10 @@ public:
 		(double* re, double* im) const = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
-	virtual boost::shared_ptr<ImagesContainer> 
+	virtual boost::shared_ptr<ImagesContainer>
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
+	virtual boost::shared_ptr<ImagesContainer>
+		clone(const char* attr, const char* target) = 0;
 
 	virtual int image_data_type(unsigned int im_num) const
 	{
@@ -1117,6 +1132,23 @@ class ImagesList : public ImagesContainer {
 public:
 	ImagesList() : images_(), nimages_(0)
 	{
+	}
+	ImagesList(const ImagesList& list, const char* attr, const char* target)
+	{
+#ifdef MSVC
+		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+#endif
+		for (i = list.images_.begin(); i != list.images_.end(); i++) {
+			const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			std::string atts = sptr_iw->attributes();
+			ISMRMRD::MetaContainer mc;
+			ISMRMRD::deserialize(atts.c_str(), mc);
+			std::string value = mc.as_str(attr);
+			if (boost::iequals(value, target))
+				append(*sptr_iw);
+		}
 	}
 	ImagesList(const ImagesList& list, unsigned int inc = 1, unsigned int off = 0)
 	{
@@ -1228,6 +1260,11 @@ public:
 			dim[0] = dim[1] = dim[2] = dim[3] = 0;
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_dim(dim);
+		//std::string attr = iw.attributes();
+		//ISMRMRD::MetaContainer mc;
+		//ISMRMRD::deserialize(attr.c_str(), mc);
+		//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
+		//std::cout << attr << '\n';
 	}
 	virtual void get_image_data_as_double_array(unsigned int im_num, double* data)
 	{
@@ -1296,7 +1333,12 @@ public:
 	{
 		return boost::shared_ptr<ImagesContainer>(new ImagesList());
 	}
-	virtual boost::shared_ptr<ImagesContainer> 
+	virtual boost::shared_ptr<ImagesContainer>
+		clone(const char* attr, const char* target)
+	{
+		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this, attr, target));
+	}
+	virtual boost::shared_ptr<ImagesContainer>
 		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
 		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this, inc, off));
