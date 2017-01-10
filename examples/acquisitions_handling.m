@@ -24,11 +24,19 @@ try
     iarr0 = input_data.as_array();
     parr0 = processed_data.as_array();
     
+    is = ns/2;
+    ic = nc/2;
+    ia = na/2;
+    disp(iarr0(is, ic, ia))
+    iarr0(is, ic, ia) = iarr0(is, ic, ia)*10;
+    
     input_data.fill(iarr0);
     processed_data.fill(parr0);
 
     iarr = input_data.as_array();
     parr = processed_data.as_array();
+
+    disp(iarr(is, ic, ia))
 
     iarr = abs(iarr);
     parr = abs(parr);

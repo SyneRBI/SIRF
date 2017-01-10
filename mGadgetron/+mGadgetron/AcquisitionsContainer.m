@@ -76,7 +76,8 @@ classdef AcquisitionsContainer < mGadgetron.DataContainer
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mGadgetron.checkExecutionStatus('AcquisitionsContainer', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+            self.handle_ = h;
         end
         function [ns, ny, nc] = slice_dimensions(self)
             ptr_i = libpointer('int32Ptr', ones(16, 1));
