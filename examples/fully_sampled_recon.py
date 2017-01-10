@@ -44,7 +44,7 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('---\n pre-processing acquisitions...')
-    processed_data = PreprocessAcquisitions(input_data)
+    processed_data = preprocess_acquisitions(input_data)
 
     # setup reconstruction
     # Create a reconstruction object (in this case simple 2D Cartesian FFT) and

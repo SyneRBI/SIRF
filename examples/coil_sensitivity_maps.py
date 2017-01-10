@@ -50,7 +50,7 @@ def main():
     input_data = AcquisitionData(args.filename)
     
     # pre-process acquisitions
-    processed_data = PreprocessAcquisitions(input_data)
+    processed_data = preprocess_acquisitions(input_data)
     
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()

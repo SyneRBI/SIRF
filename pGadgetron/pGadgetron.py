@@ -859,7 +859,7 @@ def MR_remove_x_oversampling(input_data):
     pyiutil.deleteObject(handle)
     return output_data
 
-def PreprocessAcquisitions(input_data):
+def preprocess_acquisitions(input_data):
     return input_data.process(\
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
