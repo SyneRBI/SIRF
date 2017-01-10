@@ -36,7 +36,7 @@ def main():
 
     # pre-process acquisitions
     print('---\n processing acquisitions...')
-    processed_data = PreprocessAcquisitions(input_data)
+    processed_data = preprocess_acquisitions(input_data)
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 

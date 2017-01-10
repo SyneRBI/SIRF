@@ -38,7 +38,7 @@ def main():
 
     # pre-process acquisitions
     print('---\n pre-processing acquisitions...')
-    preprocessed_data = PreprocessAcquisitions(input_data)
+    preprocessed_data = preprocess_acquisitions(input_data)
 
     # perform reconstruction
     recon = GenericCartesianGRAPPAReconstruction()
