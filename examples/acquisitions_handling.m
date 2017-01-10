@@ -18,7 +18,7 @@ try
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
-    processed_data = MR_remove_x_oversampling(input_data);
+    processed_data = preprocess_acquisitions(input_data);
     processed_data.sort()
     
     iarr0 = input_data.as_array();
