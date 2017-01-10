@@ -284,7 +284,6 @@ class CoilSensitivityMaps(DataContainer):
     def read(self, file):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-##            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
     def calculate(self, data, method = None):
@@ -293,7 +292,6 @@ class CoilSensitivityMaps(DataContainer):
                 print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-##            pyiutil.deleteObject(self.handle)
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         _check_status(self.handle)
         if method is not None:
@@ -374,12 +372,6 @@ class ImagesContainer(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-    def types(self):
-        handle = pygadgetron.cGT_imageTypes(self.handle)
-        _check_status(handle)
-        n = pyiutil.intDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return n
     def data_type(self, im_num):
         handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
         _check_status(handle)
@@ -392,28 +384,20 @@ class ImagesContainer(DataContainer):
     def process(self, list):
         ip = ImagesProcessor(list)
         return ip.process(self)
-##    def real(self, ctype = ISMRMRD_IMTYPE_MAGNITUDE):
-##        if self.is_real():
-##            return self
-##        self.conversion_to_real(ctype)
-##        real_images = self.process(['ComplexToFloatGadget'])
-##        return real_images
     def show(self):
         if not HAVE_PYLAB:
             print('pylab not found')
             return
+        ni = self.number()
+        if ni == 1:
+            print('%d image' % ni)
+        else:
+            print('%d images' % ni)
+        if ni < 1:
+            return
         data = self.as_array()
         if not self.is_real():
             data = abs(data)
-        ni = self.number()
-        nt = self.types()
-        if nt == 1:
-            if ni == 1:
-                print('%d image' % ni)
-            else:
-                print('%d images' % ni)
-        else:
-            print('%d images of %d types' % (ni, nt))
         print('Please enter the number of the image to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % ni)
         while True:
@@ -433,14 +417,14 @@ class ImagesContainer(DataContainer):
             (self.handle, out_file, out_group)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def select(self, inc = 1, off = 0):
+    def select(self, attr, value):
         images = ImagesContainer()
-        images.handle = pygadgetron.cGT_selectImages(self.handle, inc, off)
+        images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         _check_status(images.handle)
         return images
-##    def conversion_to_real(self, ctype):
-##        pygadgetron.cGT_setImageToRealConversion(self.handle, ctype)
     def as_array(self):
+        if self.number() < 1:
+            return numpy.ndarray((0,0,0), dtype = numpy.float64)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\
             (self.handle, 0, dim.ctypes.data)
@@ -756,11 +740,9 @@ class ImagesReconstructor(GadgetChain):
         for i in range(len(list)):
             label, name = gadget_label_and_name(list[i])
             self.add_gadget(label, Gadget(name))
-##            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
     def __del__(self):
         if self.handle is not None:
-            #print('deleting reconstructor object...')
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_input(self, input_data):
         self.input_data = input_data
     def process(self):
@@ -770,11 +752,14 @@ class ImagesReconstructor(GadgetChain):
              (self.handle, self.input_data.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def get_output(self):
-        images = ImagesContainer()
-        images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
-        _check_status(images.handle)
-        return images
+    def get_output(self, subset = None):
+        output = ImagesContainer()
+        output.handle = pygadgetron.cGT_reconstructedImages(self.handle)
+        _check_status(output.handle)
+        if subset is None:
+            return output
+        else:
+            return output.select('GADGETRON_DataRole', subset)
     def reconstruct(self, input_data):
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
@@ -860,12 +845,7 @@ class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
         output = ImagesReconstructor.get_output(self)
         gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
         if gf == 'true' and subset is not None:
-            if subset[0:5] == 'image':
-                return output.select(2)
-            elif subset[0:7] == 'gfactor':
-                return output.select(2,1)
-            else:
-                raise(error('??? unknown reconstrtuction output requested'))
+            return output.select('GADGETRON_DataRole', subset)
         else:
             return output
     

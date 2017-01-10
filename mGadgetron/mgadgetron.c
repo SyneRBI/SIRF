@@ -87,8 +87,8 @@ EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon) {
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 	return cGT_processImages(ptr_proc, ptr_input);
 }
-EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off) {
-	return cGT_selectImages(ptr_input, inc, off);
+EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, const char* attr, const char* target) {
+	return cGT_selectImages(ptr_input, attr, target);
 }
 EXPORTED_FUNCTION 	void mGT_setImageToRealConversion(void* ptr_imgs, int type) {
 	cGT_setImageToRealConversion(ptr_imgs, type);

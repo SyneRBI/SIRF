@@ -38,7 +38,7 @@ EXPORTED_FUNCTION 	void* mGT_setAcquisitionsData (void* ptr_acqs, unsigned int n
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input);
-EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off);
+EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, const char* attr, const char* target);
 EXPORTED_FUNCTION 	void mGT_setImageToRealConversion(void* ptr_imgs, int type);
 EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, const char* out_group);
