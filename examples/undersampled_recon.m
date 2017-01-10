@@ -9,9 +9,7 @@ try
     input_data = AcquisitionData(file);
 
     % pre-process acquisitions
-    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
-         {'RemoveROOversamplingGadget'}];
-    preprocessed_data = input_data.process(prep_gadgets);
+    preprocessed_data = preprocess_acquisitions(input_data);
 
     % perform reconstruction
     recon = GenericCartesianGRAPPAReconstruction();

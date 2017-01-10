@@ -10,14 +10,11 @@ try
     input_data = AcquisitionData(file);
 
     % pre-process acquisitions
-    prep_gadgets = [{'NoiseAdjustGadget'} {'AsymmetricEchoAdjustROGadget'} ...
-         {'RemoveROOversamplingGadget'}];
     fprintf('---\n preprocessing...\n');
-    preprocessed_data = input_data.process(prep_gadgets);
+    preprocessed_data = preprocess_acquisitions(input_data);
     pp_norm = preprocessed_data.norm();
 
     % perform reconstruction
-    %fprintf('ok\n');
     recon = GenericCartesianGRAPPAReconstruction();
     recon.compute_gfactors(false);
     recon.set_input(preprocessed_data);

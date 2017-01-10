@@ -6,12 +6,13 @@ set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = AcquisitionData('testdata.h5');
+    file = input('raw data file: ', 's');
+    input_data = AcquisitionData(file);
     fprintf('%d acquisitions found\n', input_data.number())
     
     % pre-process acquisition data
     fprintf('processing acquisitions...\n')
-    processed_data = MR_remove_x_oversampling(input_data);
+    processed_data = preprocess_acquisitions(input_data);
 	
     % perform reconstruction
     recon = SimpleReconstruction();
