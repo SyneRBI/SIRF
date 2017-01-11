@@ -6,43 +6,36 @@ of 3 types:
 - reconstruction chain
 - image processing chain
 and how to visualise or modify data in between these chains.
+
+Usage:
+  fully_sampled_recon_three_chains.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 import sys
 import matplotlib.pyplot as plt
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
-
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
 from pGadgetron import *
-
-parser = argparse.ArgumentParser(description = \
-'''
-Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by creating and running multiple gadget chains
-of 3 types:
-- acquisition processing chain
-- reconstruction chain
-- image processing chain
-and how to visualise or modify data in between these chains.
-''')
-parser.add_argument\
-('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
- help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
-args = parser.parse_args()                                 
 
 def gaussian(x, mu, sig):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sig, 2.)))
     
 def main():
 
-    # Acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)
+    # Acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
 
     # Get size of current k-space data as tuple
     # (number of acquisitions, number of coils, number of samples)
