@@ -56,12 +56,23 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
 FIND_PACKAGE(PythonLibs REQUIRED)
-set (BUILD_PYTHON ${PythonLibs_FOUND})
-set(PYTHON_DEST ${CMAKE_INSTALL_PREFIX}/python CACHE PATH "Destination for python module")
+set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
+if (BUILD_PYTHON)
+  set(PYTHON_DEST ${CMAKE_INSTALL_PREFIX}/python CACHE PATH "Destination for python module")
+  message(STATUS "Python libraries found")
+endif()
+
 
 FIND_PACKAGE(MATLAB)
 set (BUILD_MATLAB ${MATLAB_FOUND})
+if (BUILD_MATLAB)
 set(MATLAB_DEST ${CMAKE_INSTALL_PREFIX}/matlab CACHE PATH "Destination for matlab module")
+  message(STATUS "MATLAB libraries found")
+endif()
+
+if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
+  message(FATAL_ERROR "SIRF needs either MATLAB or Python")
+endif()
 
 #### enable support for ctest
 ENABLE_TESTING()
