@@ -1,9 +1,22 @@
 '''
 GRAPPA reconstruction with the steepest descent step: illustrates
 the use of Acquisition Model projections
+
+Usage:
+  grappa_and_steepest_descent.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian_Grappa2.h5]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 try:
     import pylab
@@ -12,28 +25,14 @@ except:
     HAVE_PYLAB = False
 import sys
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
-
-from pGadgetron import *
-
-parser = argparse.ArgumentParser(description = \
-'''
-GRAPPA reconstruction with the steepest descent step: illustrates
-the use of Acquisition Model projections
-''')
-parser.add_argument\
-('filename', nargs='?', default = 'simulated_MR_2D_cartesian_Grappa2.h5', \
- help = 'raw data file name (default: simulated_MR_2D_cartesian_Grappa2.h5)')
-args = parser.parse_args()                                 
+exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
-    # acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)
+    # acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
 
     # pre-process acquisitions
     print('---\n pre-processing acquisitions...')

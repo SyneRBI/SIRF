@@ -1,36 +1,34 @@
 '''
 Lower-level interface demo that illustrates creating and running a chain
 of gadgets - shortest version.
+
+Usage:
+  fully_sampled_recon_single_chain.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
+  -o <file>, --output=<file>  images output file
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 import sys
 import time
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
-
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
 from pGadgetron import *
 
-parser = argparse.ArgumentParser(description = \
-'''
-Lower-level interface demo that illustrates creating and running a chain
-of gadgets.
-''')
-parser.add_argument('-o', '--output', default = None, help = 'output file name')
-parser.add_argument\
-('filename', nargs='?', default = 'testdata.h5', \
- help = 'raw data file name (default: testdata.h5)')
-args = parser.parse_args()                                 
-
 def main():
 
-    # acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)    
+    # acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
     # create reconstruction object
     recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
         'SimpleReconGadgetSet'])
