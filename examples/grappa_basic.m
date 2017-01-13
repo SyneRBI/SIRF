@@ -32,70 +32,49 @@ function grappa_basic
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
 
+% Load CCP (SIRF) libraries, including SIRF Gadgetron library
+ccp_libload
 
-% load the SIRF mutilities library
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-
-% This demo uses gadgetron as the MR reconstruction engine. 
-% Load the SIRF library and import the SIRF class.
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
-
+% Import SIRF MATLAB Gadgetron package
 import mGadgetron.*
 
+% Get the filename of the input ISMRMRD h5 file
+disp('Select ISMRMRD H5 file')
+[fn,pn] = uigetfile('*','Select ISMRMRD H5 file') ;
+filein = fullfile(pn,fn) ;
 
-try 
-    % Get the filename of the input ISMRMRD h5 file
-    disp('Select ISMRMRD H5 file')
-    [fn,pn] = uigetfile('*','Select ISMRMRD H5 file') ;
-    filein = fullfile(pn,fn) ;
-    
-    % Load this ISMRMRD h5 file
-    input_data = AcquisitionData(filein);
-    
-    % Pre-process this input data using three preparation gadgets 
-    % from gadgetron
-    prep_gadgets = [{'NoiseAdjustGadget'}, ...
-                    {'AsymmetricEchoAdjustROGadget'} ...
-                    {'RemoveROOversamplingGadget'} ];
-    
-    preprocessed = input_data.process(prep_gadgets);
-    
-    
-    % Perform reconstruction of the preprocessed data.
-    % 1. set the reconstruction to be for Cartesian GRAPPA data.
-    recon = GenericCartesianGRAPPAReconstruction();
-    
-    % 2. set the reconstruction input to be the data we just preprocessed.
-    recon.set_input(preprocessed);
-    
-    % 3. run (i.e. 'process') the reconstruction.
-    fprintf('---\n reconstructing...\n');
-    recon.process();
-    
-    % Extract an image object from the reconstruction and convert this 
-    % to a MATLAB array.
-    image_obj = recon.get_output('image');
-    idata = image_obj.as_array();  % returns a complex array
-    
-    sl = 5 ; % Number of the slice to be displayed.
-    if size(idata,3) < sl
-        sl = 1 ;
-    end
-    
-    % Display the modulus and phase for this reconstructed slice.
-    figure('Name',['idata, slice: ',num2str(sl)])
-    subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
-    subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
-    
+% Load this ISMRMRD h5 file, creating an input Container
+input_Cont = AcquisitionData(filein);
 
-catch err
-    % display error information
-    fprintf('%s\n', err.message)
-    fprintf('error id is %s\n', err.identifier)
+% Pre-process this input data. (Currently this is a MATLAB script that just
+% sets up a 3 chain gadget. In the future it will be independent of the MR
+% recon engine.)
+preprocessed_Cont = preprocess_acquisitions(input_Cont);
+
+% Perform reconstruction of the preprocessed data.
+% 1. set the reconstruction to be for Cartesian GRAPPA data.
+recon = GenericCartesianGRAPPAReconstruction();
+
+% 2. set the reconstruction input to be the data we just preprocessed.
+recon.set_input(preprocessed_Cont);
+
+% 3. run (i.e. 'process') the reconstruction.
+fprintf('---\n reconstructing...\n');
+recon.process();
+
+% Extract an image Container from the reconstruction and convert this
+% to a MATLAB array.
+image_Cont = recon.get_output('image');
+idata = image_Cont.as_array();  % returns a complex array
+
+sl = 5 ; % Number of the slice to be displayed.
+if size(idata,3) < sl
+    sl = 1 ;
 end
+
+% Display the modulus and phase for this reconstructed slice.
+figure('Name',['idata, slice: ',num2str(sl)])
+subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
+subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
+
+
