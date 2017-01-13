@@ -1,33 +1,32 @@
 '''
 Medium-level demo demonstrating how 2D coil sensitivity maps can be obtained 
 from a multi-coil 2D Cartesian MR acquisition
+
+Usage:
+  coil_sensitivity_maps.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian.h5]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import math
 import matplotlib.pyplot as plt
 import os
 import sys
-import time
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
+exec('from p' + args['--engine'] + ' import *')
 
-from pGadgetron import *
 from ismrmrdtools import coils
-
-parser = argparse.ArgumentParser(description = \
-'''
-Medium-level demo demonstrating how 2D coil sensitivity maps can be obtained 
-from a multi-coil 2D Cartesian MR acquisition
-''')
-parser.add_argument\
-('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
- help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
-args = parser.parse_args()
 
 def show(image_matrix, tile_shape, scale, titles):
     assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
@@ -44,10 +43,10 @@ def show(image_matrix, tile_shape, scale, titles):
     print('close figure 1 to continue')
     plt.show()
 
-
 def main():
-    # acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)
+
+    # acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
     
     # pre-process acquisitions
     processed_data = preprocess_acquisitions(input_data)
@@ -68,7 +67,6 @@ def main():
     # to the image data prior to the caluclation of the coil sensitivity maps
     CSMs.calculate(CIs, method = 'SRSS(niter = 10)')
 
-
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
     maxv = numpy.amax(abs(coil_images))
@@ -76,8 +74,7 @@ def main():
         titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
     show(numpy.angle(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
         titles = ['Angle(Coil1)', 'Angle(Coil3)','Angle(Coil5)','Angle(Coil7)']) 
-        
-        
+
     # calculate coil sensitivity maps directly from the raw k-space data 
     # so far no additional parameters can be set for this method such as the
     # number of smoothing iterations which leads to noisier coil sensitivity 
@@ -90,8 +87,7 @@ def main():
     maxv = numpy.amax(abs(coil_images))
     show(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
         titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
-      
-      
+
     # calculate coil sensitivity maps using an approach suggested by 
     #   Inati SJ, Hansen MS, Kellman P.
     #   A solution to the phase problem in adaptive coil combination.
@@ -106,6 +102,7 @@ def main():
     maxv = numpy.amax(abs(coil_images))
     show(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
         titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
+
 try:
     main()
     print('done')
