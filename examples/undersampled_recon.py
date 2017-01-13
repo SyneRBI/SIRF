@@ -1,8 +1,21 @@
 '''
 Upper-level demo, GRAPPA reconstruction of undersampled data.
+
+Usage:
+  undersampled_recon.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian_Grappa2.h5]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 try:
     import pylab
@@ -11,27 +24,14 @@ except:
     HAVE_PYLAB = False
 import sys
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
-
-from pGadgetron import *
-
-parser = argparse.ArgumentParser(description = \
-'''
-Upper-level demo, GRAPPA reconstruction of undersampled data.
-''')
-parser.add_argument\
-('filename', nargs='?', default = 'simulated_MR_2D_cartesian_Grappa2.h5', \
- help = 'raw data file name (default: simulated_MR_2D_cartesian_Grappa2.h5)')
-args = parser.parse_args()                                 
+exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
-    # acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)
+    # acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
     if not input_data.is_undersampled():
         print('this demo needs undersampled raw data')
         return
@@ -49,11 +49,11 @@ def main():
     print('---\n reconstructing...')
     recon.process()
     image = recon.get_output('image')
-    gfactor = recon.get_output('gfactor')
-    data = abs(image.as_array())
-    gdata = abs(gfactor.as_array())
+    gfact = recon.get_output('gfactor')
+    idata = abs(image.as_array())
+    gdata = abs(gfact.as_array())
 
-    nz = data.shape[0]
+    nz = idata.shape[0]
     # plot image and gfactor slices
     while HAVE_PYLAB:
         print('---\n Enter the slice number to view it.')
@@ -66,7 +66,7 @@ def main():
             break
         pylab.figure(z)
         pylab.title('image')
-        pylab.imshow(data[z - 1,:,:])
+        pylab.imshow(idata[z - 1,:,:])
         print('Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('G factor')

@@ -2,37 +2,34 @@
 Medium-level interface demo that illustrates 2D Cartesian MR image 
 reconstruction using Gadgetron by directly creating and running a chain of 
 gadgets.
+
+Usage:
+  fully_sampled_recon_single_chain.py [--help | options]
+
+Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: simulated_MR_2D_cartesian.h5]
+  -p <path>, --path=<path>    sub-path to engine module
+                              [default: /xGadgetron/pGadgetron]
+  -o <file>, --output=<file>  images output file
 '''
 
-import argparse
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
 import os
 import sys
 import time
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
-
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
+sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
 from pGadgetron import *
 
-parser = argparse.ArgumentParser(description = \
-'''
-Medium-level interface demo that illustrates 2D Cartesian MR image 
-reconstruction using Gadgetron by directly creating and running a chain of 
-gadgets.
-''')
-parser.add_argument('-o', '--output', default = None, help = 'output file name')
-parser.add_argument\
-('filename', nargs='?', default = 'simulated_MR_2D_cartesian.h5', \
- help = 'raw data file name (default: simulated_MR_2D_cartesian.h5)')
-args = parser.parse_args()                                 
-
 def main():
 
-    # acquisitions will be read from an HDF file args.filename
-    input_data = AcquisitionData(args.filename)
+    # acquisitions will be read from an HDF file
+    input_data = AcquisitionData(args['--file'])
     
     # create reconstruction object
     # Rather than using a predefined image reconstruction object, here a new 
@@ -73,12 +70,12 @@ def main():
     # show reconstructed images
     images.show()
 
-    if args.output is not None:
+    if args['--output'] is not None:
         # write images to a new group in args.output
         # named after the current date and time
-        print('writing to %s' % args.output)
         time_str = time.asctime()
-        images.write(args.output, time_str)
+        print('writing to %s' % args['--output'])
+        images.write(args['--output'], time_str)
 
 try:
     main()
