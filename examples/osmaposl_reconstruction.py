@@ -20,8 +20,14 @@ import sys
 sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 exec('from p' + args['--engine'] + ' import *')
 
-# a simplistic example of user's involvement in the reconstruction
+raw_data_file = args['--file']
+num_subsets = int(args['--subs'])
+num_iterations = int(args['--iter'])
+
+# Define a function that does something with an image. This function
+# provides a simplistic example of user's involvement in the reconstruction
 def image_data_processor(image_array, im_num):
+    """ Process/display an image"""
     # plot the current estimate of the image at z = 20
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
@@ -30,7 +36,7 @@ def image_data_processor(image_array, im_num):
     return image_array
 
 def main():
-
+ 
     # direct all engine's information and warnings printing to files
     printer = Printer('info.txt', 'warn.txt')
 
@@ -40,7 +46,6 @@ def main():
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
-    raw_data_file = args['--file']
     print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
 
@@ -61,7 +66,7 @@ def main():
     # or prior, in this example, we will actually run OSEM)
     recon = OSMAPOSLReconstruction()
     recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(int(args['--subs']))
+    recon.set_num_subsets(num_subsets)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
@@ -76,7 +81,7 @@ def main():
     # in order to see the reconstructed image evolution
     # take over the control of the iterative process
     # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(int(args['--iter'])):
+    for iteration in range(num_iterations):
         print('\n------------- iteration %d' % iteration)
         # perform one OSMAPOSL iteration
         recon.update_current_estimate()
@@ -95,4 +100,4 @@ try:
     main()
 except error as err:
     # display error information
-    print('STIR exception occured: %s' % err.value)
+    print('Exception occured: %s' % err.value)

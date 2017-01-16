@@ -1,5 +1,5 @@
 '''Forward projection demo: creates an image, forward-projects it to simulate
-acquisition data and uses this data to reconstruct this image
+acquisition data and displays
 
 Usage:
   using_acquisition_model [--help | options]
@@ -7,6 +7,9 @@ Usage:
 Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
   -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
+
+There is an interactive demo with much more documentation on this process.
+You probably want to check that instead.
 '''
 
 __version__ = '0.1.0'
@@ -65,10 +68,6 @@ def main():
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # define a prior
-    prior = QuadraticPrior()
-    prior.set_penalisation_factor(0.001)
-
     # define a filter
     filter = CylindricFilter()
 
@@ -99,41 +98,8 @@ def main():
     # backward-project the computed forward projection
     update = am.backward(ad)
 
-    # define the objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqMod()
-    obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
-    obj_fun.set_prior(prior)
-
-    num_subiterations = 2
-
-    # create OSMAPOSL reconstructor
-    recon = OSMAPOSLReconstruction()
-    recon.set_objective_function(obj_fun)
-    recon.set_MAP_model('multiplicative')
-    recon.set_num_subsets(12)
-    recon.set_num_subiterations(num_subiterations)
-    recon.set_save_interval(num_subiterations)
-    recon.set_inter_iteration_filter_interval(1)
-    recon.set_inter_iteration_filter(filter)
-
-    # set up the reconstructor
-    recon.set_up(reconstructedImage)
-
-    for iter in range(1, num_subiterations + 1):
-        print('\n--------------------- Subiteration %d'\
-              % recon.get_subiteration_num())
-        # perform an iteration
-        recon.update(reconstructedImage)
-        # plot the current image
-        data = reconstructedImage.as_array()
-        pylab.figure(iter + 1)
-        pylab.imshow(data[z,:,:])
-        print('close Figure %d window to continue' % (iter + 1))
-        pylab.show()
 
 try:
     main()
 except error as err:
-    print('STIR exception occured: %s' % err.value)
+    print('exception occured: %s' % err.value)
