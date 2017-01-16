@@ -1,0 +1,9 @@
+[submodule "iUtilities"]
+	path = iUtilities
+	url = https://github.com/CCPPETMR/iUtilities.git
+[submodule "xSTIR"]
+	path = xSTIR
+	url = https://github.com/CCPPETMR/xSTIR.git
+[submodule "xGadgetron"]
+	path = xGadgetron
+	url = https://github.com/CCPPETMR/xGadgetron.git
