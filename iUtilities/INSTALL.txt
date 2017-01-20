@@ -1,0 +1,28 @@
+Windows 7/Visual Studio 2013 64-bit installation steps
+======================================================
+
+Install Boost and set environmental variable BOOST 
+containing the path to Boost include folder.
+
+Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
+
+  git clone https://github.com/CCPPETMR/iUtilities
+
+Build iUtilities x64/Release solution in <work_dir>\iUtilities folder
+(make sure you have "Release" in "Solution Configurations" box and "x64" 
+in "Solution Platforms" box).
+
+Cygwin/Linux installation steps
+===============================
+
+Install Boost and set environmental variable BOOST 
+containing the path to Boost include folder.
+
+Clone iUtilities from github.com/CCPPETMR/iUtilties into <work_dir>:
+
+  git clone https://github.com/CCPPETMR/iUtilities
+
+Create folder <work_dir>/build/iUtilities.
+
+Change to <work_dir>/iUtilities and run make.
+
