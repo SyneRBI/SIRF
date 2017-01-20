@@ -176,10 +176,10 @@ class DataContainer(PyGadgetronObject):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def same_object(self):
-        if isinstance(self, ImagesContainer):
-            return ImagesContainer()
-        if isinstance(self, AcquisitionsContainer):
-            return AcquisitionsContainer()
+        if isinstance(self, ImageData):
+            return ImageData()
+        if isinstance(self, AcquisitionData):
+            return AcquisitionData()
         return DataContainer()
     def number(self):
         handle = pygadgetron.cGT_dataItems(self.handle)
@@ -287,7 +287,7 @@ class CoilSensitivityMaps(DataContainer):
         self.handle = pygadgetron.cGT_CoilSensitivities(file)
         _check_status(self.handle)
     def calculate(self, data, method = None):
-        if isinstance(data, AcquisitionsContainer):
+        if isinstance(data, AcquisitionData):
             if data.is_sorted() is False:
                 print('WARNING: acquisitions may be in a wrong order')
         if self.handle is not None:
@@ -300,7 +300,7 @@ class CoilSensitivityMaps(DataContainer):
         else:
             method_name = ''
             parm = {}
-        if isinstance(data, AcquisitionsContainer):
+        if isinstance(data, AcquisitionData):
             handle = pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle)
             _check_status(handle)
@@ -366,7 +366,7 @@ class CoilSensitivityMaps(DataContainer):
             (self.handle, csm_num, array.ctypes.data)
         return array
 
-class ImagesContainer(DataContainer):
+class ImageData(DataContainer):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -418,7 +418,7 @@ class ImagesContainer(DataContainer):
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def select(self, attr, value):
-        images = ImagesContainer()
+        images = ImageData()
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         _check_status(images.handle)
         return images
@@ -473,8 +473,8 @@ class ImagesContainer(DataContainer):
 ##            (self.handle, im_num, array.ctypes.data)
 ##        return array
 
-class Image(ImagesContainer):
-    pass
+##class Image(ImageData):
+##    pass
 
 class AcquisitionInfo(PyGadgetronObject):
     def __init__(self):
@@ -504,11 +504,14 @@ class Acquisition(PyGadgetronObject):
     def idx_slice(self):
         return _int_par(self.handle, 'acquisition', 'idx_slice')
 
-class AcquisitionsContainer(DataContainer):
-    def __init__(self):
+class AcquisitionData(DataContainer):
+    def __init__(self, file = None):
         self.handle = None
         self.sorted = False
         self.info = None
+        if file is not None:
+            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
+            _check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
@@ -621,7 +624,7 @@ class AcquisitionsContainer(DataContainer):
         return re + 1j*im
     def fill(self, data):
         if self.handle is None:
-            raise error('Undefined AcquisitionsContainer object cannot be filled')
+            raise error('Undefined AcquisitionData object cannot be filled')
         na, nc, ns = data.shape
         re = numpy.copy(numpy.real(data))
         im = numpy.copy(numpy.imag(data))
@@ -630,18 +633,6 @@ class AcquisitionsContainer(DataContainer):
         _check_status(handle)
         pyiutil.deleteObject(self.handle)
         self.handle = handle
-
-class AcquisitionData(AcquisitionsContainer):
-    def __init__(self, file = None):
-        self.handle = None
-        self.sorted = False
-        self.info = None
-        if file is not None:
-            self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(file)
-            _check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
 
 class AcquisitionModel(PyGadgetronObject):
     def __init__(self, acqs, imgs):
@@ -664,7 +655,7 @@ class AcquisitionModel(PyGadgetronObject):
         _check_status(acqs.handle)
         return acqs;
     def backward(self, acqs):
-        images = ImagesContainer()
+        images = ImageData()
         images.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, acqs.handle)
         _check_status(images.handle)
@@ -753,7 +744,7 @@ class ImagesReconstructor(GadgetChain):
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def get_output(self, subset = None):
-        output = ImagesContainer()
+        output = ImageData()
         output.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(output.handle)
         if subset is None:
@@ -765,7 +756,7 @@ class ImagesReconstructor(GadgetChain):
              (self.handle, input_data.handle)
         _check_status(handle)
         pyiutil.deleteDataHandle(handle)
-        images = ImagesContainer()
+        images = ImageData()
         images.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         _check_status(images.handle)
         return images
@@ -788,13 +779,13 @@ class ImagesProcessor(GadgetChain):
     def process(self, input_data):
 ##        if self.input_data is None:
 ##            raise error('no input data')
-        images = ImagesContainer()
+        images = ImageData()
         images.handle = pygadgetron.cGT_processImages\
              (self.handle, input_data.handle)
         _check_status(images.handle)
         return images
 ##    def get_output(self):
-##        images = ImagesContainer()
+##        images = ImageData()
 ##        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
 ##        _check_status(images.handle)
 ##        return images
@@ -813,7 +804,7 @@ class AcquisitionsProcessor(GadgetChain):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def process(self, input_data):
-        acquisitions = AcquisitionsContainer()
+        acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, input_data.handle)
         _check_status(acquisitions.handle)
@@ -852,7 +843,7 @@ class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
 def MR_remove_x_oversampling(input_data):
     handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
     _check_status(handle)
-    output_data = AcquisitionsContainer()
+    output_data = AcquisitionData()
     output_data.handle = pygadgetron.cGT_processAcquisitions\
          (handle, input_data.handle)
     _check_status(output_data.handle)
