@@ -33,7 +33,19 @@ target_include_directories(cgt PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgt PRIVATE "${FFTW3_INCLUDE_DIR}")
 
 target_link_libraries(cgt iutil)
-target_link_libraries(cgt Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+# Add boost library dependencies
+if(CMAKE_VERSION VERSION_LESS 3.5.0)
+  # This is harder than it should be on older CMake versions to be able to cope with
+  # spaces in filenames.
+  foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
+    target_link_libraries(cgt optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(cgt debug  "${Boost_${C}_LIBRARY_DEBUG}")
+  endforeach()
+else()
+  # Nice and simple for recent CMake
+  target_link_libraries(cgt Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+endif()
+
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
 # Luckily, we know what libraries it uses
