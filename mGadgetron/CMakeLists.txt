@@ -20,7 +20,6 @@ if(BUILD_MATLAB)
 
   find_package(Boost COMPONENTS system thread filesystem REQUIRED)
 
-  link_directories(${ISMRMRD_LIBRARY_DIRS})
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
   include_directories(${MATLAB_INCLUDE_DIR})
@@ -32,7 +31,7 @@ if(BUILD_MATLAB)
   SET_TARGET_PROPERTIES(mgadgetron PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
         LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mgadgetron  cgt iutil ismrmrd fftw3 ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${MATLAB_LIBRARIES} )
+  target_link_libraries(mgadgetron  cgt iutil ${MATLAB_LIBRARIES} )
 
   INSTALL(TARGETS mgadgetron DESTINATION ${MATLAB_DEST})
   INSTALL(FILES mgadgetron.h DESTINATION ${MATLAB_DEST})
