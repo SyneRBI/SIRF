@@ -16,10 +16,6 @@
 #
 #=========================================================================
 
-find_package(Boost COMPONENTS system thread filesystem REQUIRED)
-
-link_directories(${ISMRMRD_LIBRARY_DIRS})
-
 if(BUILD_PYTHON)
 
   FIND_PACKAGE(SWIG REQUIRED)
@@ -35,9 +31,9 @@ if(BUILD_PYTHON)
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
   SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
-  SWIG_LINK_LIBRARIES(pygadgetron cgt iutil ismrmrd fftw3 ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) #fftw3f
+  SWIG_LINK_LIBRARIES(pygadgetron cgt iutil "${PYTHON_LIBRARIES}")
 
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION ${PYTHON_DEST})
-  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py  DESTINATION ${PYTHON_DEST})
+  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py pGadgetron.py DESTINATION ${PYTHON_DEST})
 
 endif(BUILD_PYTHON)
