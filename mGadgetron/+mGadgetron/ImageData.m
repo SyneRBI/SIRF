@@ -1,12 +1,12 @@
-classdef ImagesContainer < mGadgetron.DataContainer
+classdef ImageData < mGadgetron.DataContainer
     % Abstract base class for MR images.
     properties
         name_
     end
     methods
-        function self = ImagesContainer()
-            % Creates empty ImagesContainer object.
-            self.name_ = 'ImagesContainer';
+        function self = ImageData()
+            % Creates empty ImageData object.
+            self.name_ = 'ImageData';
             self.handle_ = [];
         end
         function delete(self)
@@ -18,7 +18,7 @@ classdef ImagesContainer < mGadgetron.DataContainer
         function write(self, file, group)
             % Writes images to a file in HDF5 format.
             if isempty(self.handle_)
-                error('ImagesContainer:empty_object', ...
+                error('ImageData:empty_object', ...
                     'cannot handle empty object')
             end
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
@@ -29,10 +29,10 @@ classdef ImagesContainer < mGadgetron.DataContainer
         function images = select(self, attr, value)
             % Returns images with given value of given attribute.
             if isempty(self.handle_)
-                error('ImagesContainer:empty_object', ...
+                error('ImageData:empty_object', ...
                     'cannot handle empty object')
             end
-            images = mGadgetron.ImagesContainer();
+            images = mGadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attr, value);
             mGadgetron.checkExecutionStatus(self.name_, images.handle_);
@@ -74,7 +74,7 @@ classdef ImagesContainer < mGadgetron.DataContainer
             n = dim(1)*dim(2)*nz;
             if self.is_real()
                 ptr_v = libpointer('doublePtr', zeros(n, 1));
-                calllib('mgadgetron', 'mGT_getImagesDataAsDoubleArray', ...
+                calllib('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
                     self.handle_, ptr_v)
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else
