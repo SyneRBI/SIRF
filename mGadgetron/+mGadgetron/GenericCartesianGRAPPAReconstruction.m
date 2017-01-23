@@ -18,12 +18,5 @@ classdef GenericCartesianGRAPPAReconstruction < mGadgetron.ImagesReconstructor
         function compute_gfactors(self, flag)
             self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
         end
-        function output = get_output(self, subset)
-            gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor');
-            output = get_output@mGadgetron.ImagesReconstructor(self);
-            if strcmp(gf, 'true') && nargin > 1
-                output = output.select('GADGETRON_DataRole', subset);
-            end
-        end
     end
 end

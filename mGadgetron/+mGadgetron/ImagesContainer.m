@@ -62,8 +62,13 @@ classdef ImagesContainer < mGadgetron.DataContainer
         function data = as_array(self)
             % Returns 3D complex array representing 3D image.
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
-            calllib('mgadgetron', 'mGT_getImageDimensions', ...
-                self.handle_, 0, ptr_i);
+            if self.number() > 0
+                calllib('mgadgetron', 'mGT_getImageDimensions', ...
+                    self.handle_, 0, ptr_i);
+            else
+                data = [];
+                return
+            end
             dim = ptr_i.Value;
             nz = dim(3)*dim(4)*self.number();
             n = dim(1)*dim(2)*nz;
