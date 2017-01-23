@@ -47,14 +47,14 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
-            self.images_ = mGadgetron.ImagesContainer();
+            self.images_ = mGadgetron.ImageData();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
             mGadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
-        % get_output - Returns an ImagesContainer?
+        % get_output - Returns ImageData?
             images = self.images_;
             if nargin > 1
                 images = images.select('GADGETRON_DataRole', subset);

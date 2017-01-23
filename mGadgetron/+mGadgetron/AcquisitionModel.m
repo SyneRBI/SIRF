@@ -30,7 +30,7 @@ classdef AcquisitionModel < handle
             mGadgetron.checkExecutionStatus(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
-            imgs = mGadgetron.ImagesContainer();
+            imgs = mGadgetron.ImageData();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...
                 self.handle_, acqs.handle_);
