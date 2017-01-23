@@ -50,10 +50,10 @@ shutil.rmtree('working_folder/single_slice',True)
 shutil.copytree('EX_single_slice','working_folder/single_slice')
 os.chdir('working_folder/single_slice')
 #%% Read in images
-image = pet.Image('emission.hv');
+image = pet.ImageData('emission.hv');
 image_array=image.as_array()*.05
 image.fill(image_array);
-mu_map = pet.Image('CTAC.hv');
+mu_map = pet.ImageData('CTAC.hv');
 mu_map_array=mu_map.as_array();
 #%% bitmap display of images
 slice=image_array.shape[0]/2;

@@ -108,7 +108,7 @@ def run(args):
         recon.get_current_estimate().fill(my_image_array)
 
     # compare the reconstructed image to the actual image
-    actual_image_array = Image('my_image.hv').as_array()
+    actual_image_array = ImageData('my_image.hv').as_array()
     plt.figure(iteration + 1)
     plt.title('reconstructed image')
     plt.imshow(image_array[20, :, :])

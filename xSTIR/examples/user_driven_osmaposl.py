@@ -42,7 +42,7 @@ def main():
     # create initial image estimate
     image_size = (111, 111, 31)
     voxel_size = (3, 3, 3.375)
-    image = Image()
+    image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
 
@@ -68,14 +68,14 @@ def main():
         # select subset
         subset = iter - 1
 
-        # get sensitivity as Image
+        # get sensitivity as ImageData
         ss_img = obj_fun.get_subset_sensitivity(subset)
 
-        # get gradient (without penalty) + sensitivity as Image
+        # get gradient (without penalty) + sensitivity as ImageData
         # (back projection of the ratio of measured to estimated acquisition data)
         grad_img = obj_fun.get_gradient_plus_sensitivity_no_penalty(image, subset)
 
-        # get gradient of prior as Image
+        # get gradient of prior as ImageData
         pgrad_img = prior.get_gradient(image)
 
         # copy to Python arrays
