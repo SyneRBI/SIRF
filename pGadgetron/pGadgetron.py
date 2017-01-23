@@ -832,13 +832,6 @@ class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
             pyiutil.deleteObject(self.handle)
     def compute_gfactors(self, flag):
         self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
-    def get_output(self, subset = None):
-        output = ImagesReconstructor.get_output(self)
-        gf = self.value_of_gadget_property('gadget4', 'send_out_gfactor')
-        if gf == 'true' and subset is not None:
-            return output.select('GADGETRON_DataRole', subset)
-        else:
-            return output
     
 def MR_remove_x_oversampling(input_data):
     handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
