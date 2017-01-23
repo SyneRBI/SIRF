@@ -216,7 +216,7 @@ class Voxels:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-class Image:
+class ImageData:
     def __init__(self, arg = None):
         self.handle = None
         if isinstance(arg, str):
@@ -229,8 +229,8 @@ class Image:
             self.handle = pystir.cSTIR_newObject('Image')
         else:
             raise error\
-                  ('wrong argument ' + repr(arg) + ' for Image constructor')
-        self.name = 'Image'
+                  ('wrong argument ' + repr(arg) + ' for ImageData constructor')
+        self.name = 'ImageData'
         self.rimsize = -1
     def __del__(self):
         if self.handle is not None:
@@ -271,13 +271,13 @@ class Image:
             pystir.cSTIR_fillImage(self.handle, value)
         return self
     def clone(self):
-        image = Image()
+        image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
-        image = Image()
+        image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         _check_status(image.handle)
@@ -387,13 +387,13 @@ class AcquisitionData:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def create_empty_image(self, value = 0):
-        ''' Creates Image object containing PET image of dimensions
+        ''' Creates ImageData object containing PET image of dimensions
             and voxel sizes compatible with the scanner geometry stored
             in this AcquisitionData object and assigns a given value
             to all voxels;
             value:  a Python float.
         '''
-        image = Image()
+        image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
         _check_status(image.handle)
@@ -478,8 +478,8 @@ class AcquisitionModel:
             acq_templ:  an AcquisitionData object used as a template for
                         creating an AcquisitionData object to store forward
                         projection;
-            img_templ:  an Image object used as a template for creating an
-                        Image object to store backward projection.
+            img_templ:  an ImageData object used as a template for creating an
+                        ImageData object to store backward projection.
         '''
         handle = pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle)
@@ -506,7 +506,7 @@ class AcquisitionModel:
             (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
     def forward(self, image, filename = ''):
         ''' Returns the forward projection of x given by (F);
-            image   :  an Image object containing x;
+            image   :  an ImageData object containing x;
             filename:  an optional name of the file to store projection data;
                        if not present, projection data is stored in memory
                        (not recommended as it can be huge).
@@ -520,7 +520,7 @@ class AcquisitionModel:
         ''' Returns the backward projection of y giben by (B);
             ad:  an AcquisitionData object containing y.
         '''
-        image = Image()
+        image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
             (self.handle, ad.handle)
         _check_status(image.handle)
@@ -569,7 +569,7 @@ class Prior:
         return _float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
-        grad = Image()
+        grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         _check_status(grad.handle)
@@ -617,7 +617,7 @@ class ObjectiveFunction:
         _check_status(handle)
         return pyiutil.floatDataFromHandle(handle)
     def gradient(self, image, subset):
-        grad = Image()
+        grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
@@ -643,14 +643,14 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
     def get_subset_sensitivity(self, subset):
-        ss = Image()
+        ss = ImageData()
         pyiutil.deleteDataHandle(ss.handle)
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         _check_status(ss.handle)
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
     def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
-        grad = Image()
+        grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)

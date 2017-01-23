@@ -27,7 +27,7 @@ def main():
     printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create an empty image
-    image = Image()
+    image = ImageData()
     image_size = (111, 111, 31)
     voxel_size = (3, 3, 3.375)
     image.initialise(image_size, voxel_size)
@@ -72,7 +72,7 @@ def main():
     filter = CylindricFilter()
 
     # create an initial image estimate
-    reconstructedImage = Image()
+    reconstructedImage = ImageData()
     reconstructedImage.initialise(image_size, voxel_size)
     reconstructedImage.fill(1.0)
     # apply filter to get a cylindric initial image
