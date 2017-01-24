@@ -31,7 +31,7 @@ try
     filter = CylindricFilter();
 
     % create initial image estimate
-    image = Image();
+    image = ImageData();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)    
@@ -89,7 +89,7 @@ try
     end
 
     % compare the reconstructed image to the exact image
-    exactImage = Image('my_image.hv');
+    exactImage = ImageData('my_image.hv');
     x_data = exactImage.as_array();
     figure(1000000 + iter + 1)
     x_data = x_data/max(max(max(x_data)));
