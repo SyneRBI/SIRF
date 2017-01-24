@@ -23,7 +23,8 @@ classdef AcquisitionModel < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, imgs)
-            acqs = mGadgetron.AcquisitionsContainer();
+%            acqs = mGadgetron.AcquisitionsContainer();
+            acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
                 self.handle_, imgs.handle_);
