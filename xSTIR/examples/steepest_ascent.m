@@ -7,7 +7,7 @@ try
     printer = Printer();
 
     % create empty image
-    image = Image();
+    image = ImageData();
     image_size = [111, 111, 31];
     voxel_size = [3, 3, 3.375];
     image.initialise(image_size, voxel_size)
