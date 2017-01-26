@@ -1135,7 +1135,7 @@ public:
 	}
 	ImagesList(const ImagesList& list, const char* attr, const char* target)
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -1154,7 +1154,7 @@ public:
 	{
 		int n = 0;
 		int j = 0;
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -1201,7 +1201,7 @@ public:
 	}
 	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
@@ -1215,7 +1215,7 @@ public:
 	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
 		(unsigned int im_num) const
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -1243,7 +1243,7 @@ public:
 		mtx.lock();
 		ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 		mtx.unlock();
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
@@ -1279,7 +1279,7 @@ public:
 	}
 	virtual void get_images_data_as_double_array(double* data) const
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -1299,7 +1299,7 @@ public:
 	}
 	virtual void get_images_data_as_complex_array(double* re, double* im) const
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -1500,7 +1500,7 @@ public:
 	}
 	CoilData& data(int slice)
 	{
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::list<boost::shared_ptr<CoilData> >::const_iterator i;
 #else
 		typename std::list<boost::shared_ptr<CoilData> >::const_iterator i;
