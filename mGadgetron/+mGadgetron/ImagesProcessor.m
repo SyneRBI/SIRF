@@ -20,7 +20,7 @@ classdef ImagesProcessor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function images = process(self, input_data)
-            images = mGadgetron.ImagesContainer();
+            images = mGadgetron.ImageData();
             images.handle_ = calllib...
                 ('mgadgetron', 'mGT_processImages', ...
                 self.handle_, input_data.handle_);

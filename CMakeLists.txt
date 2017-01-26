@@ -1,6 +1,6 @@
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 University College London
+# Copyright 2016,2017 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -24,18 +24,23 @@ else ()
    set (CMAKE_CXX_STANDARD 11)
 endif ()
   
-find_package(ISMRMRD REQUIRED)
-set(CMAKE_MODULE_PATH ${ISMRMRD_DIR})
-find_package(FFTW3 COMPONENTS single double REQUIRED)
+find_package(ISMRMRD)
+if (ISMRMRD_FOUND)
+  set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
 
-find_package(HDF5 1.8 COMPONENTS C REQUIRED)
+  find_package(FFTW3 COMPONENTS single REQUIRED)
 
-include_directories(${ISMRMRD_INCLUDE_DIR})
-include_directories(${FFTW3_INCLUDE_DIR})
+  find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
-ADD_SUBDIRECTORY(cGadgetron)
+  include_directories(${ISMRMRD_INCLUDE_DIR})
+  # need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library
+  link_directories(${ISMRMRD_LIBRARY_DIRS})
 
-set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
+  ADD_SUBDIRECTORY(cGadgetron)
 
-ADD_SUBDIRECTORY(pGadgetron)
-ADD_SUBDIRECTORY(mGadgetron)
+  set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")
+
+  ADD_SUBDIRECTORY(pGadgetron)
+  ADD_SUBDIRECTORY(mGadgetron)
+
+endif()

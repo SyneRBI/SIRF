@@ -22,7 +22,8 @@ classdef AcquisitionsProcessor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function acqs = process(self, input_data)
-            acqs = mGadgetron.AcquisitionsContainer();
+%            acqs = mGadgetron.AcquisitionsContainer();
+            acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, input_data.handle_);

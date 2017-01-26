@@ -20,7 +20,6 @@ if(BUILD_MATLAB)
 
   find_package(Boost COMPONENTS system thread filesystem REQUIRED)
 
-  link_directories(${ISMRMRD_LIBRARY_DIRS})
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
   include_directories("${MATLAB_INCLUDE_DIR}")

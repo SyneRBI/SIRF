@@ -13,10 +13,12 @@ classdef DataContainer < handle
             end
         end
         function obj = same_object(self)
-            if isa(self, class(mGadgetron.ImagesContainer))
-                obj = mGadgetron.ImagesContainer();
-            elseif isa(self, class(mGadgetron.AcquisitionsContainer))
-                obj = mGadgetron.AcquisitionsContainer();
+            if isa(self, class(mGadgetron.ImageData))
+                obj = mGadgetron.ImageData();
+            elseif isa(self, class(mGadgetron.AcquisitionData))
+                obj = mGadgetron.AcquisitionData();
+%            elseif isa(self, class(mGadgetron.AcquisitionsContainer))
+%                obj = mGadgetron.AcquisitionsContainer();
             else
                 obj = mGadgetron.DataContainer();
             end

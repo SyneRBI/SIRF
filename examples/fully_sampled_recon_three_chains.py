@@ -11,6 +11,7 @@ Usage:
   fully_sampled_recon_three_chains.py [--help | options]
 
 Options:
+  -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    sub-path to engine module
@@ -23,7 +24,6 @@ args = docopt(__doc__, version=__version__)
 
 import os
 import sys
-import matplotlib.pyplot as plt
 
 sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
 
@@ -56,7 +56,8 @@ def main():
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
-    gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,20)
+    sigma = float(args['--sigma'])
+    gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,sigma)
     gauss_weight = numpy.tile(gauss_weight, (kdim[0], 1))
     data_array = preprocessed_data.as_array()
     for c in range(kdim[1]):
