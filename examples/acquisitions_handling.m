@@ -21,6 +21,24 @@ try
     processed_data = preprocess_acquisitions(input_data);
     processed_data.sort()
     
+    flags = input_data.get_info('flags');
+    es1 = input_data.get_info('encode_step_1');
+    slice = input_data.get_info('slice');
+    repetition = input_data.get_info('repetition');
+    
+    while true
+        num = input('enter acquisition number: ');
+        if num < 1 || num > na
+            break
+        end
+        a = input_data.acquisition(num);
+        fprintf('samples: %d\n', a.number_of_samples())
+        fprintf('flags: %d %d\n', a.flags(), flags(num))
+        fprintf('encode step 1: %d %d\n', a.idx_kspace_encode_step_1(), es1(num))
+        fprintf('slice: %d %d\n', a.idx_slice(), slice(num))
+        fprintf('repetition: %d %d\n', a.idx_repetition(), repetition(num))
+    end
+    
     iarr0 = input_data.as_array();
     parr0 = processed_data.as_array();
     
@@ -53,8 +71,6 @@ try
         if z < 1 || z > nz
             break
         end
-%         idata = abs(input_data.slice_as_array(z));
-%         pdata = abs(processed_data.slice_as_array(z));
         fprintf('Enter coil number to view the acquired data for it\n')
         fprintf...
             ('(a value outside the range [1 : %d] will stop this loop)\n', nc)
@@ -63,18 +79,14 @@ try
             if c < 1 || c > nc
                 break
             end
-%             idata = idata/max(max(max(idata)));
-%             pdata = pdata/max(max(max(pdata)));
             figure(c)
             data = squeeze(iarr(:, c, ny*(z - 1) + 1 : ny*z));
             imshow(data)
-            %imshow(idata(:,:,c));
             title('oversampled data')
             cc = double(c + nc);
             figure(cc)
             data = squeeze(parr(:, c, ny*(z - 1) + 1 : ny*z));
             imshow(data)
-            %imshow(pdata(:,:,c));
             title('de-oversampled data')
         end
     end

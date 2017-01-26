@@ -15,6 +15,7 @@ try
     recon = GenericCartesianGRAPPAReconstruction();
     % for undersampled acquisition data GRAPPA can compute G-factors
     % in addition to reconstructed images
+%    recon.compute_gfactors(false);
     recon.compute_gfactors(true);
     recon.set_input(preprocessed_data);
     fprintf('---\n reconstructing...\n');
@@ -38,9 +39,11 @@ try
         figure(i)
         imshow(idata(:,:,i));
         title(['image ' num2str(i)])
+        %if i <= gfacts.number()
         figure(i + n)
         imshow(gdata(:,:,i));
         title(['G-factor ' num2str(i)])
+        %end
     end
     
 catch err
