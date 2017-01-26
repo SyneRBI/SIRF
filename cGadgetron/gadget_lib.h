@@ -38,7 +38,7 @@ public:
 		xml_script += " <name>" + gadget_ + "</name>\n";
 		xml_script += " <dll>" + dll_ +"</dll>\n";
 		xml_script += " <classname>" + class_ + "</classname>\n";
-#ifdef MSVC
+#ifdef _MSC_VER
 		std::map<std::string, std::string>::const_iterator it;
 #else
 		typename std::map<std::string, std::string>::const_iterator it;

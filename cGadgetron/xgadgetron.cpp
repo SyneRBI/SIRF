@@ -42,7 +42,7 @@ connection_failed(int nt)
 boost::shared_ptr<aGadget> 
 GadgetChain::gadget_sptr(std::string id)
 {
-#ifdef MSVC
+#ifdef _MSC_VER
 	std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
 #else
 	typename std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
@@ -63,7 +63,7 @@ GadgetChain::xml() const
 	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
 	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
 
-#ifdef MSVC
+#ifdef _MSC_VER
 	std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
 #else
 	typename std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
