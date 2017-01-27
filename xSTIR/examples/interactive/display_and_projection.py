@@ -74,15 +74,15 @@ os.chdir('working_folder/brain')
 #%% OK. finally done with initial set-up...
 
 #%% Read in images
-# Here we will read some images provided with the demo using the Image class.
+# Here we will read some images provided with the demo using the ImageData class.
 # These are in Interfile format. Check the main SIRF doc.
-image = pet.Image('emission.hv');
-mu_map = pet.Image('attenuation.hv');
-#%% What is an Image?
+image = pet.ImageData('emission.hv');
+mu_map = pet.ImageData('attenuation.hv');
+#%% What is an ImageData?
 # Images are represented by objects with several methods. The most important method 
 # is as_array() which we'll use below.
 # Let's see what all the methods are.
-help(pet.Image)
+help(pet.ImageData)
 
 #%% Use as_array to get the underlying array of numbers
 image_array=image.as_array();
@@ -137,7 +137,7 @@ am.set_up(templ,image);
 
 #%% Do a forward projection of our image
 # 'forward projection' is the terminology used in PET to simulate the acquisition.
-# Input is an Image, output is AcquisitionData
+# Input is an ImageData, output is AcquisitionData
 # Note that we need to use SIRF image object (not image_array)
 # The result is an AcquisitionData object
 acquired=am.forward(image)
@@ -171,7 +171,7 @@ ani = animation.ArtistAnimation(fig, bitmaps, interval=100, blit=True, repeat_de
 
 #%% Let's do a back-projection
 # Backprojection uses the transpose of the forward-projection matrix to
-# go from AcquisitionData to an Image
+# go from AcquisitionData to an ImageData
 backprojected = am.backward(acquired);
 # let's display a slice
 plt.figure()

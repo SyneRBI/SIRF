@@ -64,7 +64,7 @@ def main():
     nz = 31
     image_size = (nx, ny, nz)
     voxel_size = (3, 3, 3.375)
-    image = Image()
+    image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
     filter.apply(image)
