@@ -1,0 +1,6 @@
+all:
+	cp ../../CCPPETMR_VM/data/Gadgetron/* .
+#	@if [ ! -r testdata.h5 ]; then \
+#	ismrmrd_generate_cartesian_shepp_logan -r 2; \
+#	fi;
+
