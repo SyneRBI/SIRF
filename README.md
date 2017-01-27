@@ -1,1 +1,1 @@
-Work In Progress. See https://github.com/CCPPETMR/SIRF/issues/2
+Work In Progress. See [CCPPETMR/SIRF/wiki/Installation-instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions) and [CCPPETMR/SIRF#1](https://github.com/CCPPETMR/SIRF/issues/1)
