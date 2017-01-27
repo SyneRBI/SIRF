@@ -48,7 +48,7 @@ classdef ObjectiveFunction < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function g = gradient(self, image, subset)
-            g = mStir.Image();
+            g = mStir.ImageData();
             g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle, image.handle, subset);
             mStir.checkExecutionStatus...

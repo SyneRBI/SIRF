@@ -1,7 +1,7 @@
 CXX = g++
 EXTRA_CFLAGS=-O3 -DNDEBUG
 #EXTRA_CFLAGS=-g
-CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(IUTILITIES) -I$(STIR_SRC)/include -I$(CSTIR_SRC)
+CFLAGS = $(EXTRA_CFLAGS) -fpermissive -fPIC -std=c++11 -I$(IUTILITIES) -I$(BUILD_PATH)/include -I$(CSTIR_SRC)
 
 ARCH = ar
 ARCHFLAGS = cr

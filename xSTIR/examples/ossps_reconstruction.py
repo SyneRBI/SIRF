@@ -57,7 +57,7 @@ def main():
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
-    image = Image(args['--init'])
+    image = ImageData(args['--init'])
 
     # set up the reconstructor
     print('setting up, please wait...')
