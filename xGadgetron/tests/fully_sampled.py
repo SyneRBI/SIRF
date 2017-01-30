@@ -6,12 +6,7 @@ import argparse
 import os
 import sys
 
-BUILD_PATH = os.environ.get('BUILD_PATH') + '/xGadgetron'
-SRC_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/pGadgetron'
-DATA_PATH = os.environ.get('SRC_PATH') + '/xGadgetron/examples/'
-
-sys.path.append(BUILD_PATH)
-sys.path.append(SRC_PATH)
+DATA_PATH = os.environ.get('SRC_PATH') + '/SIRF/xGadgetron/examples/'
 
 from pGadgetron import *
 
