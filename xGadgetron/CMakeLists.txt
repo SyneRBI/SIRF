@@ -32,9 +32,9 @@ if (ISMRMRD_FOUND)
 
   find_package(HDF5 1.8 COMPONENTS C REQUIRED)
 
-  include_directories(${ISMRMRD_INCLUDE_DIR})
+  include_directories("${ISMRMRD_INCLUDE_DIR}")
   # need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library
-  link_directories(${ISMRMRD_LIBRARY_DIRS})
+  link_directories("${ISMRMRD_LIBRARY_DIRS}")
 
   ADD_SUBDIRECTORY(cGadgetron)
 

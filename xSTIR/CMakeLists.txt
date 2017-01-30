@@ -28,6 +28,6 @@ if (STIR_FOUND)
 
 else()
 
-  message(STATUS "STIR not found. This is probably not what you want...")
+  message(WARNING "STIR not found. This is probably not what you want. If you need it, set STIR_DIR.")
 
 endif()

@@ -27,9 +27,6 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 # require 2.8.3 to get FOLDER properties support
 cmake_minimum_required(VERSION 2.8.3)
 
-# add project source to cmake path such that it can use our find_package modules and .cmake files
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/src/cmake)
-
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "type of build: Debug Release RelWithDebInfo MinSizeRel." FORCE)
@@ -45,7 +42,7 @@ set(SIRF_VERSION
   ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 ####### CMake path
-set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 ####### External packages
 
@@ -58,7 +55,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 FIND_PACKAGE(PythonLibs REQUIRED)
 set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
-  set(PYTHON_DEST ${CMAKE_INSTALL_PREFIX}/python CACHE PATH "Destination for python module")
+  set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python" CACHE PATH "Destination for python module")
   message(STATUS "Python libraries found")
 endif()
 
@@ -66,7 +63,7 @@ endif()
 FIND_PACKAGE(MATLAB)
 set (BUILD_MATLAB ${MATLAB_FOUND})
 if (BUILD_MATLAB)
-set(MATLAB_DEST ${CMAKE_INSTALL_PREFIX}/matlab CACHE PATH "Destination for matlab module")
+set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab" CACHE PATH "Destination for matlab module")
   message(STATUS "MATLAB libraries found")
 endif()
 

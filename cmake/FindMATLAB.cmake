@@ -19,7 +19,7 @@
 # your CMake file. You should probably use
 #
 #  set(CMAKE_POSITION_INDEPENDENT_CODE True)
-#  include_directories(${MATLAB_INCLUDE_DIR})
+#  include_directories("${MATLAB_INCLUDE_DIR}")
 #  add_definitions(${MATLAB_CXXFLAGS})
 #  add_library(yourmexfile SHARED yourmexfile.c other_sources)
 #  # fix output name and link flags
@@ -118,10 +118,10 @@ if ("${MATLAB_ROOT}" STREQUAL "")
   # TODO should really skip rest of configuration as it will all fail anyway.
 else()
   message(STATUS "MATLAB_ROOT set to ${MATLAB_ROOT}")
-endif()
+#endif()
 
 # Find out where MATLAB libraries are
-IF (NOT MATLAB_LIBRARIES_DIR)
+#IF (NOT MATLAB_LIBRARIES_DIR)
 
   if (WIN32 OR CYGWIN)
     # Directory name depending on whether the Windows architecture is 32
