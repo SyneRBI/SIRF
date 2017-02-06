@@ -5,10 +5,11 @@ Usage:
 
 Options:
   -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+                              subfolder of $SRC_PATH/SIRF
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
   -i <iter>, --iter=<iter>    number of iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
-  -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
 '''
 
 __version__ = '0.1.0'
@@ -17,10 +18,23 @@ args = docopt(__doc__, version=__version__)
 
 import os
 import sys
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
+raw_data_file = data_path + '/' + args['--file']
+if not os.path.isfile(raw_data_file):
+    print('file %s not found' % raw_data_file)
+    sys.exit()
+
+# import engine module
 exec('from p' + args['--engine'] + ' import *')
 
-raw_data_file = args['--file']
 num_subsets = int(args['--subs'])
 num_iterations = int(args['--iter'])
 

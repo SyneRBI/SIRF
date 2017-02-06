@@ -4,15 +4,16 @@ Usage:
   ossps_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>  raw data file
-                            [default: Utahscat600k_ca_seg4.hs]
-  -g <file>, --init=<file>  initial image guess file
-                            [default: test_image_PM_QP_6.hv]
-  -p <fact>, --penf=<fact>  penalty factor [default: 0]
-  -s <subs>, --subs=<subs>  number of subsets [default: 4]
-  -i <iter>, --iter=<iter>  number of iterations [default: 2]
-  --engine=<engn>  reconstruction engine [default: Stir]
-  --enpath=<path>  sub-path to engine module [default: /xSTIR/pSTIR]
+  -f <file>, --file=<file>    raw data file
+                              [default: Utahscat600k_ca_seg4.hs]
+  -P <path>, --path=<path>    path to data files, defaults to data/examples/PET
+                              subfolder of $SRC_PATH/SIRF
+  -g <file>, --init=<file>    initial image guess file
+                              [default: test_image_PM_QP_6.hv]
+  -p <fact>, --penf=<fact>    penalty factor [default: 0]
+  -s <subs>, --subs=<subs>    number of subsets [default: 4]
+  -i <iter>, --iter=<iter>    number of iterations [default: 2]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
 '''
 
 __version__ = '0.1.0'
@@ -21,7 +22,31 @@ args = docopt(__doc__, version=__version__)
 
 import os
 import sys
-sys.path.append(os.environ.get('SRC_PATH') + args['--enpath'])
+
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
+raw_data_file = data_path + '/' + args['--file']
+if not os.path.isfile(raw_data_file):
+    print('file %s not found' % raw_data_file)
+    sys.exit()
+
+# locate the initial guess file
+init_image_file = data_path + '/' + args['--init']
+if not os.path.isfile(init_image_file):
+    print('file %s not found' % init_image_file)
+    sys.exit()
+
+pen_factor = args['--penf']
+num_subsets = int(args['--subs'])
+num_subiterations = int(args['--iter'])
+
+# import engine module
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
@@ -35,18 +60,15 @@ def main():
          (RayTracingMatrix().set_num_tangential_LORs(2))
 
     # PET acquisition data to be read from the file specified by --file option
-    ad = AcquisitionData(args['--file'])
+    ad = AcquisitionData(raw_data_file)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood with linear model for mean
     obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
-    fact = float(args['--penf'])
+    fact = float(pen_factor)
     obj_fun.set_prior(QuadraticPrior().set_penalisation_factor(fact))
-
-    num_subsets = int(args['--subs'])
-    num_subiterations = int(args['--iter'])
 
     # select Ordered Subsets Separable Paraboloidal Surrogate
     # as the reconstruction algorithm
@@ -57,7 +79,7 @@ def main():
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
-    image = ImageData(args['--init'])
+    image = ImageData(init_image_file)
 
     # set up the reconstructor
     print('setting up, please wait...')

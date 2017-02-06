@@ -5,8 +5,10 @@ Usage:
   using_acquisition_model [--help | options]
 
 Options:
+  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+                              subfolder of $SRC_PATH/SIRF
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
-  -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
 
 There is an interactive demo with much more documentation on this process.
 You probably want to check that instead.
@@ -18,7 +20,20 @@ args = docopt(__doc__, version=__version__)
 
 import os
 import sys
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
+raw_data_file = data_path + '/' + args['--file']
+if not os.path.isfile(raw_data_file):
+    print('file %s not found' % raw_data_file)
+    sys.exit()
+
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
@@ -87,17 +102,16 @@ def main():
 
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
-    # 'Utahscat600k_ca_seg4.hs' is used as a template
-    templ = AcquisitionData('Utahscat600k_ca_seg4.hs')
+    # raw_data_file is used as a template
+    templ = AcquisitionData(raw_data_file)
     am.set_up(templ, image)
     ad = am.forward(image)
     # if the raw data is very large, it can be stored in a file
-    # ad = am.forward(image, 'demo4data.hs')
+    # ad = am.forward(image, 'proj_data.hs')
 
     print('back-projecting image...')
     # backward-project the computed forward projection
     update = am.backward(ad)
-
 
 try:
     main()

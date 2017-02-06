@@ -4,13 +4,16 @@ Usage:
   steepest_ascent [--help | options]
 
 Options:
+  -f <file>, --file=<file>    raw data file
+                              [default: my_forward_projection.hs]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
+                              subfolder of $SRC_PATH/SIRF
   -t <step>, --tau=<step>     steepest ascent step size parameter,
                               use a negative value to opt for the optimal value
                               [default: -1]
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
   -v, --verbose               verbose
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
-  -p <path>, --path=<path>    sub-path to engine module [default: /xSTIR/pSTIR]
 '''
 
 __version__ = '0.1.0'
@@ -19,7 +22,24 @@ args = docopt(__doc__, version=__version__)
 
 import os
 import sys
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
+raw_data_file = data_path + '/' + args['--file']
+if not os.path.isfile(raw_data_file):
+    print('file %s not found' % raw_data_file)
+    sys.exit()
+
+tau = float(args['--tau'])
+steps = int(args['--steps'])
+verbose = args['--verbose']
+
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
@@ -40,7 +60,7 @@ def main():
     am.set_matrix(matrix)
 
     # define acquisition data
-    ad = AcquisitionData('my_forward_projection.hs')
+    ad = AcquisitionData(raw_data_file)
     # plot acquisition data
     adata = ad.as_array()
     print(adata.shape)
@@ -91,9 +111,7 @@ def main():
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
 
-    tau = float(args['--tau'])
-    steps = int(args['--steps'])
-    if args['--verbose']:
+    if verbose:
         disp = 3
         print('NOTE: below f(x) is the negative of the objective function value')
     else:
