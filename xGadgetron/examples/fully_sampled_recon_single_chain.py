@@ -33,6 +33,7 @@ if data_path is None:
 input_file = data_path + '/' + args['--file']
 if not os.path.isfile(input_file):
     print('file %s not found' % input_file)
+    sys.exit()
 
 output_file = args['--output']
 
