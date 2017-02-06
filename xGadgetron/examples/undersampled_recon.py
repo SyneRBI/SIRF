@@ -7,9 +7,9 @@ Usage:
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
+                              subfolder of $SRC_PATH/SIRF
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
-  -p <path>, --path=<path>    sub-path to engine module
-                              [default: /xGadgetron/pGadgetron]
 '''
 
 __version__ = '0.1.0'
@@ -24,14 +24,25 @@ except:
     HAVE_PYLAB = False
 import sys
 
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/MR'
+input_file = data_path + '/' + args['--file']
+if not os.path.isfile(input_file):
+    print('file %s not found' % input_file)
 
+# import engine module
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
     # acquisitions will be read from an HDF file
-    input_data = AcquisitionData(args['--file'])
+    input_data = AcquisitionData(input_file)
     if not input_data.is_undersampled():
         print('this demo needs undersampled raw data')
         return

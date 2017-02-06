@@ -11,11 +11,11 @@ Usage:
   fully_sampled_recon_three_chains.py [--help | options]
 
 Options:
-  -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    sub-path to engine module
-                              [default: /xGadgetron/pGadgetron]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
+                              subfolder of $SRC_PATH/SIRF
+  -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
 '''
 
 __version__ = '0.1.0'
@@ -25,8 +25,21 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/MR'
+input_file = data_path + '/' + args['--file']
+if not os.path.isfile(input_file):
+    print('file %s not found' % input_file)
 
+sigma = float(args['--sigma'])
+
+# import engine module
 from pGadgetron import *
 
 def gaussian(x, mu, sig):
@@ -35,7 +48,7 @@ def gaussian(x, mu, sig):
 def main():
 
     # Acquisitions will be read from an HDF file
-    input_data = AcquisitionData(args['--file'])
+    input_data = AcquisitionData(input_file)
 
     # Get size of current k-space data as tuple
     # (number of acquisitions, number of coils, number of samples)
@@ -56,7 +69,6 @@ def main():
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
-    sigma = float(args['--sigma'])
     gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,sigma)
     gauss_weight = numpy.tile(gauss_weight, (kdim[0], 1))
     data_array = preprocessed_data.as_array()

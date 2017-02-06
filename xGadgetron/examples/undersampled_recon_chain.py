@@ -7,8 +7,8 @@ Usage:
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
-  -p <path>, --path=<path>    sub-path to engine module
-                              [default: /xGadgetron/pGadgetron]
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
+                              subfolder of $SRC_PATH/SIRF
   -g, --gfactors              compute Gfactors
   -o <file>, --output=<file>  images output file
 '''
@@ -21,14 +21,28 @@ import os
 import sys
 import time
 
-sys.path.append(os.environ.get('SRC_PATH') + args['--path'])
+# locate the input data file
+data_path = args['--path']
+if data_path is None:
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
+        sys.exit()
+    data_path =  SRC_PATH + '/SIRF/data/examples/MR'
+input_file = data_path + '/' + args['--file']
+if not os.path.isfile(input_file):
+    print('file %s not found' % input_file)
 
+output_file = args['--output']
+get_gfactors = args['--gfactors']
+
+# import engine module
 from pGadgetron import *
 
 def main():
 
     # acquisitions will be read from an HDF file
-    input_data = AcquisitionData(args['--file'])
+    input_data = AcquisitionData(input_file)
 
     # pre-process acquisitions
     print('---\n pre-processing acquisitions...')
@@ -44,7 +58,7 @@ def main():
          'GenericReconFieldOfViewAdjustmentGadget', \
          'GenericReconImageArrayScalingGadget', 'ImageArraySplitGadget'])
     # change a property of the gadget labelled by 'GRAPPA'
-    recon.set_gadget_property('GRAPPA', 'send_out_gfactor', args['--gfactors'])
+    recon.set_gadget_property('GRAPPA', 'send_out_gfactor', get_gfactors)
     recon.set_input(preprocessed_data)
     # reconstruct
     print('---\n reconstructing...')
@@ -54,12 +68,12 @@ def main():
     # show images
     output.show()
 
-    if args['--output'] is not None:
+    if output_file is not None:
         # write images to a new group in args.output
         # named after the current date and time
         time_str = time.asctime()
-        print('writing to %s' % args['--output'])
-        output.write(args['--output'], time_str)
+        print('writing to %s' % output_file)
+        output.write(output_file, time_str)
 
 try:
     main()
