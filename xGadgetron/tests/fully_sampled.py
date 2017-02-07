@@ -1,13 +1,6 @@
 '''
 Fully sampled data tests
 '''
-
-import argparse
-import os
-import sys
-
-DATA_PATH = os.environ.get('SRC_PATH') + '/SIRF/xGadgetron/examples/'
-
 from pGadgetron import *
 
 def test_failed(ntest, expected, actual, abstol, reltol):
@@ -25,8 +18,6 @@ def acquisitions_tests_failed(acqs):
         print('??? wrong number of acquisitions')
         return 512*3 + 4
 
-##    nz, ny, nc, nx = acqs.dimensions()
-##    if (nx, ny, nc) != (512, 256, 8):
     na, nc, nx = acqs.dimensions()
     if (nx, na, nc) != (512, 512, 8):
         print('??? wrong slice dimensions')
@@ -65,7 +56,8 @@ def main():
     failed = 0
     eps = 1e-4
 
-    input_data = AcquisitionData(DATA_PATH + 'simulated_MR_2D_cartesian.h5')
+    data_path = mr_data_path()
+    input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()

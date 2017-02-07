@@ -1,13 +1,6 @@
 '''
 Undersampled data tests
 '''
-
-import argparse
-import os
-import sys
-
-DATA_PATH = os.environ.get('SRC_PATH') + '/SIRF/xGadgetron/examples/'
-
 from pGadgetron import *
 
 def test_failed(ntest, expected, actual, abstol, reltol):
@@ -25,7 +18,6 @@ def acquisitions_tests_failed(acqs):
         print('??? wrong number of acquisitions')
         return 160*2 + 4
 
-##    nz, ny, nc, nx = acqs.dimensions()
     ny, nc, nx = acqs.dimensions()
     if (nx, ny, nc) != (512, 160, 8):
         print('??? wrong slice dimensions')
@@ -71,8 +63,9 @@ def main():
     failed = 0
     eps = 1e-5
 
+    data_path = mr_data_path()
     input_data = AcquisitionData\
-        (DATA_PATH + 'simulated_MR_2D_cartesian_Grappa2.h5')
+        (data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
     failed += acquisitions_tests_failed(input_data)
 
     input_data_norm = input_data.norm()
