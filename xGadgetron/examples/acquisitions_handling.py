@@ -10,6 +10,8 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of $SRC_PATH/SIRF
+  -r <rnge>, --range=<rnge>   range of acquisitions to examine as string '(a,b)'
+                              [default: (254, 258)]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -17,26 +19,20 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from ast import literal_eval
 import os
 import sys
-
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/MR'
-input_file = data_path + '/' + args['--file']
-if not os.path.isfile(input_file):
-    print('file %s not found' % input_file)
-    sys.exit()
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
+
+    # locate the input data file
+    data_path = args['--path']
+    if data_path is None:
+        data_path = mr_data_path()
+    input_file = existing_file(data_path, args['--file'])
 
     # acquisitions will be read from an HDF file
     input_data = AcquisitionData(input_file)
@@ -54,16 +50,23 @@ def main():
     # sort data acquisition
     input_data.sort()
 
-    where = range(254, 258)
-    # inspect some acquisitions flags
+    # retrieve the range of acquisitions to examine
+    t = literal_eval(args['--range'])
+    if t[0] >= t[1] or t[1] >= na:
+        raise error('Wrong acquisitions range')
+    where = range(t[0], t[1])
+
+    # retrieve acquisitions flags
     flags = input_data.get_info('flags')
+
+    # inspect the first acquisition flag
     if flags[0] & IMAGE_DATA_MASK:
         print('first acquisition is image data')
     else:
         # should see this if input data file is test_2D_2x.h5
         print('first acquisition is not image data')
         
-    # display flags for readout number 254 to 257    
+    # display flags
     print('Flags'),
     print(flags[where])
     
