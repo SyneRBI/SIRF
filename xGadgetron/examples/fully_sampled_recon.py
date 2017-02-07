@@ -29,12 +29,12 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
-    input_file = existing_file(data_path, args['--file'])
+    input_file = existing_filepath(data_path, args['--file'])
 
-    # acquisitions will be read from an HDF file
     # MR raw data formats from different vendors can be transformed to 
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
+    # Acquisitions will be read from an HDF file input_file
     print('---\n reading in file %s...' % input_file)
     input_data = AcquisitionData(input_file)
 

@@ -33,7 +33,7 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
-    input_file = existing_file(data_path, args['--file'])
+    input_file = existing_filepath(data_path, args['--file'])
 
     # acquisitions will be read from an HDF file
     input_data = AcquisitionData(input_file)

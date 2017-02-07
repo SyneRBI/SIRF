@@ -33,9 +33,9 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
-    input_file = existing_file(data_path, args['--file'])
+    input_file = existing_filepath(data_path, args['--file'])
 
-    # acquisitions will be read from an HDF file
+    # acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
     if not input_data.is_undersampled():
         print('this demo needs undersampled raw data')

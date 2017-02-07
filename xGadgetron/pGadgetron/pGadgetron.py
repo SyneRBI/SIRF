@@ -51,7 +51,7 @@ def mr_data_path():
         raise error(errorMsg)
     return SRC_PATH + '/SIRF/data/examples/MR'
 
-def existing_file(data_path, file_name):
+def existing_filepath(data_path, file_name):
     full_name = data_path + '/' + file_name
     if not os.path.isfile(full_name):
         raise error('file %s not found' % full_name)
