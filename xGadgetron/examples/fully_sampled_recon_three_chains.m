@@ -7,7 +7,8 @@ select_gadgetron
 
 try
     % acquisitions will be read from this HDF file
-    input_data = AcquisitionData('simulated_MR_2D_cartesian.h5');
+    [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+    input_data = AcquisitionData(fullfile(pathname, filename));
     
     % process data using Acquisitions processing chain
     acq_proc = AcquisitionsProcessor({'RemoveROOversamplingGadget'});

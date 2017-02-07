@@ -4,7 +4,8 @@ set_up_mr
 
 try
     % acquisitions will be read from this HDF file
-    input_data = AcquisitionData('simulated_MR_2D_cartesian.h5');
+    [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+    input_data = AcquisitionData(fullfile(pathname, filename));
     
     na = input_data.number();
     fprintf('%d acquisitions found\n', na)

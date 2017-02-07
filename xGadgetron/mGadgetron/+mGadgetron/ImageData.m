@@ -74,7 +74,7 @@ classdef ImageData < mGadgetron.DataContainer
             n = dim(1)*dim(2)*nz;
             if self.is_real()
                 ptr_v = libpointer('doublePtr', zeros(n, 1));
-                calllib('mgadgetron', 'mGT_getImageDataAsDoubleArray', ...
+                calllib('mgadgetron', 'mGT_getImagesDataAsDoubleArray', ...
                     self.handle_, ptr_v)
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else

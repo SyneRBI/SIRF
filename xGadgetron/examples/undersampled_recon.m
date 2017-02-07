@@ -5,8 +5,8 @@ select_gadgetron
 try
 
     % define raw data source
-    file = input('raw data file: ', 's');
-    input_data = AcquisitionData(file);
+    [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+    input_data = AcquisitionData(fullfile(pathname, filename));
 
     % pre-process acquisitions
     preprocessed_data = preprocess_acquisitions(input_data);

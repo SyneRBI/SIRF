@@ -20,7 +20,8 @@ try
     recon.set_gadget_property('ex', 'extract_mask', 5);
 
     % define raw data source
-    input_data = AcquisitionData('simulated_MR_2D_cartesian.h5');    
+    [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+    input_data = AcquisitionData(fullfile(pathname, filename));
     recon.set_input(input_data)
     % perform reconstruction
     recon.process()
