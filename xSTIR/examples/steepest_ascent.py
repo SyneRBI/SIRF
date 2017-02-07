@@ -23,19 +23,6 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
-raw_data_file = data_path + '/' + args['--file']
-if not os.path.isfile(raw_data_file):
-    print('file %s not found' % raw_data_file)
-    sys.exit()
-
 tau = float(args['--tau'])
 steps = int(args['--steps'])
 verbose = args['--verbose']
@@ -59,7 +46,13 @@ def main():
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # define acquisition data
+    # locate the input data file folder
+    data_path = args['--path']
+    if data_path is None:
+        data_path = pet_data_path()
+
+    # PET acquisition data to be read from the file specified by --file option
+    raw_data_file = existing_filepath(data_path, args['--file'])
     ad = AcquisitionData(raw_data_file)
     # plot acquisition data
     adata = ad.as_array()

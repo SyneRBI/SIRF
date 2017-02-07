@@ -19,19 +19,6 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
-raw_data_file = data_path + '/' + args['--file']
-if not os.path.isfile(raw_data_file):
-    print('file %s not found' % raw_data_file)
-    sys.exit()
-
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -57,6 +44,12 @@ def main():
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     am = AcquisitionModelUsingMatrix(RayTracingMatrix())
+
+    # locate the input data file
+    data_path = args['--path']
+    if data_path is None:
+        data_path = pet_data_path()
+    raw_data_file = existing_filepath(data_path, args['--file'])
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)

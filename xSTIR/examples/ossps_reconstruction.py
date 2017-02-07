@@ -23,25 +23,6 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
-raw_data_file = data_path + '/' + args['--file']
-if not os.path.isfile(raw_data_file):
-    print('file %s not found' % raw_data_file)
-    sys.exit()
-
-# locate the initial guess file
-init_image_file = data_path + '/' + args['--init']
-if not os.path.isfile(init_image_file):
-    print('file %s not found' % init_image_file)
-    sys.exit()
-
 pen_factor = args['--penf']
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--iter'])
@@ -59,7 +40,13 @@ def main():
     am = AcquisitionModelUsingMatrix\
          (RayTracingMatrix().set_num_tangential_LORs(2))
 
+    # locate the input data file folder
+    data_path = args['--path']
+    if data_path is None:
+        data_path = pet_data_path()
+
     # PET acquisition data to be read from the file specified by --file option
+    raw_data_file = existing_filepath(data_path, args['--file'])
     ad = AcquisitionData(raw_data_file)
 
     # define objective function to be maximized as
@@ -79,6 +66,7 @@ def main():
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
+    init_image_file = existing_filepath(data_path, args['--init'])
     image = ImageData(init_image_file)
 
     # set up the reconstructor

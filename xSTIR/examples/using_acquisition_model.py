@@ -100,9 +100,15 @@ def main():
     print('Figure 1: initial image - close window to continue')
     pylab.show()
 
+    # locate the input data file folder
+    data_path = args['--path']
+    if data_path is None:
+        data_path = pet_data_path()
+
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
     # raw_data_file is used as a template
+    raw_data_file = existing_filepath(data_path, args['--file'])
     templ = AcquisitionData(raw_data_file)
     am.set_up(templ, image)
     ad = am.forward(image)

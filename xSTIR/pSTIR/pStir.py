@@ -21,6 +21,19 @@ class error(Exception):
     def __str__(self):
         return '??? ' + repr(self.value)
 
+def pet_data_path():
+    SRC_PATH = os.environ.get('SRC_PATH')
+    if SRC_PATH is None:
+        errorMsg = 'Path to raw data files not set, please use -p <path> or --path=<path> to set it'
+        raise error(errorMsg)
+    return SRC_PATH + '/SIRF/data/examples/PET'
+
+def existing_filepath(data_path, file_name):
+    full_name = data_path + '/' + file_name
+    if not os.path.isfile(full_name):
+        raise error('file %s not found' % full_name)
+    return full_name
+
 def _check_status(handle):
     if pyiutil.executionStatus(handle) != 0:
         msg = pyiutil.executionError(handle)
