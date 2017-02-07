@@ -20,23 +20,16 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/MR'
-input_file = data_path + '/' + args['--file']
-if not os.path.isfile(input_file):
-    print('file %s not found' % input_file)
-    sys.exit()
-
 # import engine module
 from pGadgetron import *
 
 def main():
+
+    # locate the input data file
+    data_path = args['--path']
+    if data_path is None:
+        data_path = mr_data_path()
+    input_file = existing_file(data_path, args['--file'])
 
     # acquisitions will be read from an HDF file
     input_data = AcquisitionData(input_file)
