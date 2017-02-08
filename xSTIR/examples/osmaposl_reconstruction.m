@@ -1,6 +1,5 @@
 % OSMAPOSL reconstruction demo with all parameters defined in the script
 % and user-controlled iterations.
-% For quick access to data files assign path to SIRF folder to SIRF_PATH.
 
 set_up_pet
 
@@ -21,11 +20,6 @@ try
     am.set_matrix(matrix);
     
     % read acquisition model data
-    if exist('SIRF_PATH', 'var')
-        path = [SIRF_PATH '/data/examples/PET'];
-    else
-        path = '';
-    end
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
     ad = AcquisitionData(fullfile(pathname, filename));
 

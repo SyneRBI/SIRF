@@ -1,5 +1,4 @@
 % Steepest ascent demo
-% For quick access to data files assign path to SIRF folder to SIRF_PATH.
 
 set_up_pet
 
@@ -19,12 +18,8 @@ try
     filter.apply(image)
 
     % define acquisition data
-    if exist('SIRF_PATH', 'var')
-        path = [SIRF_PATH '/data/examples/PET'];
-    else
-        path = '';
-    end
-    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    [filename, pathname] = uigetfile...
+        ('*.hs', 'Select raw data file', SIRF_PET_DATA_PATH);
     ad = AcquisitionData(fullfile(pathname, filename));
 
     % define the matrix to be used by the acquisition model

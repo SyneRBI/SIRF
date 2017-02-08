@@ -73,14 +73,8 @@ try
     data = data/max(max(max(data)));
     imshow(data(:,:,z));
 
-    % forward-project the image to obtain 'raw data'
-    % 'Utahscat600k_ca_seg4.hs' is used as a template
-    fprintf('projecting the image...\n')
-    if exist('SIRF_PATH', 'var')
-        path = [SIRF_PATH '/data/examples/PET'];
-    else
-        path = '';
-    end
+    % forward-project the image to obtain 'raw data';
+    % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
     templ = AcquisitionData(fullfile(pathname, filename));
     am.set_up(templ, image)
