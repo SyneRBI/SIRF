@@ -1,4 +1,5 @@
 % Steepest ascent demo
+% For quick access to data files assign path to SIRF folder to SIRF_PATH.
 
 set_up_pet
 
@@ -18,7 +19,13 @@ try
     filter.apply(image)
 
     % define acquisition data
-    ad = AcquisitionData('my_forward_projection.hs');
+    if exist('SIRF_PATH', 'var')
+        path = [SIRF_PATH '/data/examples/PET'];
+    else
+        path = '';
+    end
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    ad = AcquisitionData(fullfile(pathname, filename));
 
     % define the matrix to be used by the acquisition model
     matrix = RayTracingMatrix();

@@ -34,6 +34,9 @@ classdef AcquisitionModelUsingMatrix < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image, filename)
+            if nargin < 3
+                filename = '';
+            end
             ad = mStir.AcquisitionData();
             ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
                 self.handle, image.handle, filename);

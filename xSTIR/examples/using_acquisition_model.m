@@ -75,11 +75,17 @@ try
 
     % forward-project the image to obtain 'raw data'
     % 'Utahscat600k_ca_seg4.hs' is used as a template
-    fprintf('projecting the image...')
-    templ = AcquisitionData('Utahscat600k_ca_seg4.hs');
+    fprintf('projecting the image...\n')
+    if exist('SIRF_PATH', 'var')
+        path = [SIRF_PATH '/data/examples/PET'];
+    else
+        path = '';
+    end
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    templ = AcquisitionData(fullfile(pathname, filename));
     am.set_up(templ, image)
-    ad = am.forward(image, ''); % 'demo4data.hs');
-    fprintf('ok\n')
+    ad = am.forward(image); % ad sits in memory
+%     ad = am.forward(image, 'demo4data.hs'); % ad sits in this file
 
     % define the objective function
     obj_fun = PoissonLogLh_LinModMean_AcqModData();
@@ -106,8 +112,6 @@ try
 
     recon.set_up(reconstructedImage)
     
-    fprintf('ok\n')
-
     for iter = 1 : num_subiterations
         fprintf('\n--------------------- Subiteration %d\n',...
               recon.get_subiteration_num())

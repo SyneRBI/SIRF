@@ -1,5 +1,6 @@
 % OSMAPOSL reconstruction demo with all parameters defined in the script
-% and user-controlled iterations
+% and user-controlled iterations.
+% For quick access to data files assign path to SIRF folder to SIRF_PATH.
 
 set_up_pet
 
@@ -20,8 +21,13 @@ try
     am.set_matrix(matrix);
     
     % read acquisition model data
-    ad = AcquisitionData('my_forward_projection.hs');
-%     ad.read_from_file('my_forward_projection.hs')
+    if exist('SIRF_PATH', 'var')
+        path = [SIRF_PATH '/data/examples/PET'];
+    else
+        path = '';
+    end
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    ad = AcquisitionData(fullfile(pathname, filename));
 
     % create prior
     prior = QuadraticPrior();
@@ -50,8 +56,6 @@ try
     
     num_subiterations = 6;
     
-    %fprintf('ok\n')
-
     % create OSMAPOSL reconstructor
     recon = OSMAPOSLReconstruction();    
     recon.set_objective_function(obj_fun)
@@ -87,13 +91,6 @@ try
         % image can be post-processed
         filter.apply(image)
     end
-
-    % compare the reconstructed image to the exact image
-    exactImage = ImageData('my_image.hv');
-    x_data = exactImage.as_array();
-    figure(1000000 + iter + 1)
-    x_data = x_data/max(max(max(x_data)));
-    imshow(x_data(:,:,20));
 
 catch err
     % display error information
