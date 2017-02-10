@@ -21,19 +21,6 @@ args = docopt(__doc__, version=__version__)
 import os
 import sys
 
-# locate the input data file
-data_path = args['--path']
-if data_path is None:
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        print('Path to raw data files not set, please use -p <path> or --path=<path> to set it')
-        sys.exit()
-    data_path =  SRC_PATH + '/SIRF/data/examples/PET'
-raw_data_file = data_path + '/' + args['--file']
-if not os.path.isfile(raw_data_file):
-    print('file %s not found' % raw_data_file)
-    sys.exit()
-
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
