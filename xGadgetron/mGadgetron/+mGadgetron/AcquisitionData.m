@@ -59,7 +59,7 @@ classdef AcquisitionData < mGadgetron.DataContainer %mGadgetron.AcquisitionsCont
                 self.set_info()
             end
             na = self.number();
-            info = zeros(na);
+            info = zeros(na, 1);
             if strcmp(par, 'flags')
                 for a = 1 : na
                     info(a) = self.info_(a).flags_;
