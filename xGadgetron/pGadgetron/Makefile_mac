@@ -24,8 +24,8 @@ LIBS = \
 all: pygadgetron
 
 pygadgetron: $(BUILDPATH)/libcgt.a
-	$(SWIG) -I$(WORK_DIR)/xGadgetron/cGadgetron -c++ -python pygadgetron.i
-	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE) -I$(WORK_DIR)/xGadgetron/cGadgetron
+	$(SWIG) -I$(SRC_PATH)/xGadgetron/cGadgetron -c++ -python pygadgetron.i
+	$(CPP) $(CFLAGS) -c pygadgetron_wrap.cxx -I$(PYINCLUDE) -I$(SRC_PATH)/xGadgetron/cGadgetron
 	$(CPP) $(CFLAGS) -shared pygadgetron_wrap.o -L$(PYLIBPATH) $(PYLIB)\
 		 -o $(BUILDPATH)/_pygadgetron.so \
 		-L$(LIBISMRMRD) -L$(BUILDPATH) -L$(LIBIUTIL) $(LIBS) $(LDFLAGS)
