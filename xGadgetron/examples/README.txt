@@ -2,7 +2,16 @@ coil_sensitivity_maps.py
 Python only. Demonstrates methods for calculating coil sensitivity maps.
 
 fully_samp_basic.m
-Demo showing reconstruction of fully sampled MR data. 
+Demo showing reconstruction of fully sampled MR data. Includes info on example data sets.
+
+fully_sampled_recon.m ./ py
+Alternative demo for recon of fully sampled data.
+
+fully_sampled_recon_single_chain.m / .py
+Demo with data procssing and recon in a single chain
+
+fully_sampled_recon_threee_chains.m / .py
+Demo showing process split into 3 Gadgetron chains with data interaction (filterng applied).
 
 gen_us_data.m  (requires add_noise.m)
 Matlab function to simulate the ISMRMRD HDF5 data from a GRAPPA undersampled acquisition.
