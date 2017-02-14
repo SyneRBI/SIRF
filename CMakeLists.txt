@@ -74,6 +74,6 @@ endif()
 #### enable support for ctest
 ENABLE_TESTING()
 
-ADD_SUBDIRECTORY(iUtilities)
-ADD_SUBDIRECTORY(xSTIR)
-ADD_SUBDIRECTORY(xGadgetron)
+ADD_SUBDIRECTORY(src/iUtilities)
+ADD_SUBDIRECTORY(src/xSTIR)
+ADD_SUBDIRECTORY(src/xGadgetron)
