@@ -236,6 +236,7 @@ $RECYCLE.BIN/
 *.a
 *.dll
 *.so
+*.h5
 *.ahv
 *.hv
 *.v
@@ -248,3 +249,5 @@ $RECYCLE.BIN/
 *.mat
 *.am
 *.thresholded
+info.txt
+warn.txt
