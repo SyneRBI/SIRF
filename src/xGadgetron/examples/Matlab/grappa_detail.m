@@ -69,9 +69,11 @@ ksp = preprocessed_AcCont.as_array ;
 [ns,nc,nro] = preprocessed_AcCont.dimensions ; % [nx ncoil ny]
 ksp = permute(ksp,[3 1 2]) ; %  [ny nx ncoil]
 ksp_coil_as_col = reshape(ksp,[nro nc*ns]) ; 
-figure('Name','Input k-space')
-imshow(imadjust(mat2gray(abs(ksp_coil_as_col)),[0 0.7],[],0.2))
-
+if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file')
+    figure('Name','Input k-space')
+    disp(['Displaying k-space'])
+    imshow(imadjust(mat2gray(abs(ksp_coil_as_col)),[0 0.7],[],0.2))
+end
 
 % Perform reconstruction of the preprocessed data.
 
@@ -140,17 +142,23 @@ idata = images_imcont.as_array();
 gdata = gfacts_imcont.as_array();
 
 % Display figures of modulus image, phase image and gfactor map
-figure('Name',['recon modulus images of file: ',fn])
-idisp = mat2gray(abs(idata));
-montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
+% Requires ImageProcessing Toolbox
+if exist('mat2gray','file') && exist('montage','file')
+    figure('Name',['recon modulus images of file: ',fn])
+    idisp = mat2gray(abs(idata));
+    montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
+    
+    figure('Name',['recon phase images of file: ',fn])
+    idisp = mat2gray(angle(idata),[-pi pi]);
+    montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
+    
+    figure('Name','Gfactor')
+    idisp = mat2gray(abs(gdata));
+    montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
+else
+    disp(['Display section of demo requires Image Processing Toolbox'])
+end
 
-figure('Name',['recon phase images of file: ',fn])
-idisp = mat2gray(angle(idata),[-pi pi]);
-montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
-
-figure('Name','Gfactor')
-idisp = mat2gray(abs(gdata));
-montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 
 
 

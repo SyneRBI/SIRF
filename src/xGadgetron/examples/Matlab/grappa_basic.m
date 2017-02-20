@@ -73,8 +73,12 @@ if size(idata,3) < sl
 end
 
 % Display the modulus and phase for this reconstructed slice.
-figure('Name',['idata, slice: ',num2str(sl)])
-subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
-subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
+if exist('imshow','file')
+    figure('Name',['idata, slice: ',num2str(sl)])
+    subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
+    subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
+else
+    disp(['Display section of demo requires Image Processing Toolbox'])
+end
 
 

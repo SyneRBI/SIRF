@@ -88,33 +88,38 @@ iarr = iarr/max(max(max(iarr)));
 parr = parr/max(max(max(parr)));
 
 nz = idivide(na, ny);
-fprintf...
-    ('Enter z-coordinate of the slice to view the acquired data for it\n')
-fprintf...
-    ('(a value outside the range [1 : %d] will stop this loop)\n', nz)
-while (true)
-    z = int32(input('slice: '));
-    if z < 1 || z > nz
-        break
-    end
-    fprintf('Enter coil number to view the acquired data for it\n')
+
+if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file')
     fprintf...
-        ('(a value outside the range [1 : %d] will stop this loop)\n', nc)
+        ('Enter z-coordinate of the slice to view the acquired data for it\n')
+    fprintf...
+        ('(a value outside the range [1 : %d] will stop this loop)\n', nz)
     while (true)
-        c = input('coil: ');
-        if c < 1 || c > nc
+        z = int32(input('slice: '));
+        if z < 1 || z > nz
             break
         end
-        figure('Name',['Input Data as array, coil: ',num2str(c)])
-        data = squeeze(iarr(:, c, ny*(z - 1) + 1 : ny*z));
-        imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
-        title('Input data')
-        cc = double(c + nc);
-        figure('Name',['Processed data as array, coil: ',num2str(c)])
-        data = squeeze(parr(:, c, ny*(z - 1) + 1 : ny*z));
-        imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
-        title('Processed data')
+        fprintf('Enter coil number to view the acquired data for it\n')
+        fprintf...
+            ('(a value outside the range [1 : %d] will stop this loop)\n', nc)
+        while (true)
+            c = input('coil: ');
+            if c < 1 || c > nc
+                break
+            end
+            figure('Name',['Input Data as array, coil: ',num2str(c)])
+            data = squeeze(iarr(:, c, ny*(z - 1) + 1 : ny*z));
+            imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
+            title('Input data')
+            cc = double(c + nc);
+            figure('Name',['Processed data as array, coil: ',num2str(c)])
+            data = squeeze(parr(:, c, ny*(z - 1) + 1 : ny*z));
+            imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
+            title('Processed data')
+        end
     end
+else
+    disp(['Image Processing Toolbox needed to display output.'])
 end
 
 
