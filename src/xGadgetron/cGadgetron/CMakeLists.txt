@@ -23,6 +23,15 @@ find_package(Boost COMPONENTS system filesystem thread date_time chrono REQUIRED
 # See http://stackoverflow.com/questions/32252016/cmake-visual-studio-build-looks-for-wrong-library
 add_definitions(-DBOOST_ALL_NO_LIB)
 
+if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
+    set(Boost_DLL_DIR ${Boost_LIBRARY_DIR_RELEASE})
+    message(STATUS "Install boost shared libraries from ${Boost_DLL_DIR} ")
+	foreach (__boost_lib system filesystem thread date_time chrono)
+	   file(GLOB Boost_DLL "${Boost_DLL_DIR}/boost_${__boost_lib}*.dll")
+       install( FILES ${Boost_DLL} DESTINATION bin )
+	endforeach()
+  endif()
+	
 add_library(cgt cgadgetron.cpp xgadgetron.cpp ismrmrd_fftw.cpp)
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
