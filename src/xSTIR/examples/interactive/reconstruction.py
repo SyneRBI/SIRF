@@ -15,7 +15,7 @@ import sys
 import shutil
 #import scipy
 #from scipy import optimize
-sys.path.append(os.environ.get('SRC_PATH') + '/xSTIR/pSTIR')
+sys.path.append(os.environ.get('SRC_PATH') + '/SIRF/src/xSTIR/pSTIR')
 import pStir as pet
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -44,7 +44,7 @@ def make_cylindrical_FOV(image):
 
 #%% go to directory with input files
 # adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(os.getenv('SRC_PATH')+'/xSTIR/examples/interactive')
+os.chdir(os.getenv('SRC_PATH')+'/SIRF/src/xSTIR/examples/interactive')
 #%% copy files to working folder and change directory to where the output files are
 shutil.rmtree('working_folder/single_slice',True)
 shutil.copytree('EX_single_slice','working_folder/single_slice')

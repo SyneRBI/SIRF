@@ -9,7 +9,7 @@ Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of $SRC_PATH/SIRF
+                              subfolder of SIRF root folder
   -r <rnge>, --range=<rnge>   range of acquisitions to examine as string '(a,b)'
                               [default: (254, 258)]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]

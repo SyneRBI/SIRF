@@ -7,7 +7,7 @@ Options:
   -f <file>, --file=<file>    raw data file
                               [default: Utahscat600k_ca_seg4.hs]
   -P <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of $SRC_PATH/SIRF
+                              subfolder of SIRF root folder
   -g <file>, --init=<file>    initial image guess file
                               [default: test_image_PM_QP_6.hv]
   -p <fact>, --penf=<fact>    penalty factor [default: 0]

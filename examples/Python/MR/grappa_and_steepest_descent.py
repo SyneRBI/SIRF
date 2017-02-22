@@ -9,7 +9,7 @@ Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of $SRC_PATH/SIRF
+                              subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 

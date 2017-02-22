@@ -7,7 +7,7 @@ Options:
   -f <file>, --file=<file>    raw data file
                               [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of $SRC_PATH/SIRF
+                              subfolder of SIRF root folder
   -t <step>, --tau=<step>     steepest ascent step size parameter,
                               use a negative value to opt for the optimal value
                               [default: -1]
