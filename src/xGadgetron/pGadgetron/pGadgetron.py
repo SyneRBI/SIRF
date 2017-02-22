@@ -42,9 +42,12 @@ class error(Exception):
         return repr(self.value)
 
 def mr_data_path():
+    SIRF_PATH = os.environ.get('SIRF_PATH')
+    if SIRF_PATH is not None:
+        return SIRF_PATH + '/data/examples/MR'
     SRC_PATH = os.environ.get('SRC_PATH')
     if SRC_PATH is None:
-        errorMsg = 'Path to raw data files not set, please use -p <path> or --path=<path> to set it'
+        errorMsg = 'Path to raw data not found, please use --path=<path> to set it'
         raise error(errorMsg)
     return SRC_PATH + '/SIRF/data/examples/MR'
 

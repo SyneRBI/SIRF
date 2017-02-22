@@ -21,6 +21,9 @@ class error(Exception):
         return '??? ' + repr(self.value)
 
 def pet_data_path():
+    SIRF_PATH = os.environ.get('SIRF_PATH')
+    if SIRF_PATH is not None:
+        return SIRF_PATH + '/data/examples/PET'
     SRC_PATH = os.environ.get('SRC_PATH')
     if SRC_PATH is None:
         errorMsg = 'Path to raw data files not set, please use -p <path> or --path=<path> to set it'
