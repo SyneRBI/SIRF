@@ -28,27 +28,28 @@ def main():
     # acquisitions will be read from an HDF file input_file
     input_data = MR.AcquisitionData(input_file)
 
-    print('---\n acquisition data norm: %e' % input_data.norm())
-
     # pre-process acquisitions
-    print('---\n processing acquisitions...')
     processed_data = MR.preprocess_acquisitions(input_data)
-
-    print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction
     recon = MR.SimpleReconstruction()
     recon.set_input(processed_data)
     recon.process()
-    complex_images = recon.get_output()
+    complex_image = recon.get_output()
 
-    image_arr = abs(complex_images.as_array())
-    nz, ny, nx = image_arr.shape
+    # convert MR image into PET image
     image = PET.ImageData()
+    image_arr = abs(complex_image.as_array())
+    nz, ny, nx = image_arr.shape
     image_size = (nx, ny, nz)
     voxel_size = (3, 3, 3.375)
     image.initialise(image_size, voxel_size)
     image.fill(image_arr)
+
+    # apply cylindric filter
+    filter = PET.CylindricFilter()
+    filter.apply(image)
+
     image.show()
 
 try:
