@@ -86,10 +86,14 @@ idata = image_obj.as_array();
 % by square root sum of squres and so the next line is not necessary:
 idata = abs(idata) ;
 
-idata = idata./max(idata(:)) ;
-idata = reshape(idata,[size(idata,1) size(idata,2) 1 size(idata,3)]) ;
-figure('Name',['recon of file: ',fn])
-montage(idata)
+if exist('montage','file') && exist('mat2gray','file')
+    idata = idata./max(idata(:)) ;
+    idata = reshape(idata,[size(idata,1) size(idata,2) 1 size(idata,3)]) ;
+    figure('Name',['recon of file: ',fn])
+    montage(idata)
+else
+    image_obj.show()
+end
 
 
     

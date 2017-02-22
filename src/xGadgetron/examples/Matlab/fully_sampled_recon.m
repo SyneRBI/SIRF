@@ -44,9 +44,11 @@ recon.process()
 images = recon.get_output();
 
 % use as_array method and plot obtained images
-
-idisp = mat2gray(abs(images.as_array()));
-montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
-
+if exist('montage','file') && exist('mat2gray','file')
+    idisp = mat2gray(abs(images.as_array()));
+    montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
+else
+    images.show()
+end
 
 

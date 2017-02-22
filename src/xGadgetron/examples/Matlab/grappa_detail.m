@@ -156,7 +156,25 @@ if exist('mat2gray','file') && exist('montage','file')
     idisp = mat2gray(abs(gdata));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    disp(['Display section of demo requires Image Processing Toolbox'])
+    idata = abs(idata);
+    gdata = abs(gdata);
+    idata = idata/max(max(max(idata)));
+    gdata = gdata/max(max(max(gdata)));
+    n = images_imcont.number();
+    fprintf('Enter slice number to view its data\n')
+    fprintf('(a value outside the range [1 : %d] will stop this loop).\n', n)
+    while (true)
+        i = input('slice: ');
+        if i < 1 || i > n
+            break
+        end
+        figure(i)
+        imshow(idata(:,:,i));
+        title(['image ' num2str(i)])
+        figure(i + n)
+        imshow(gdata(:,:,i));
+        title(['G-factor ' num2str(i)])
+    end
 end
 
 
