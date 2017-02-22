@@ -17,13 +17,11 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import os
 try:
     import pylab
     HAVE_PYLAB = True
 except:
     HAVE_PYLAB = False
-import sys
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
