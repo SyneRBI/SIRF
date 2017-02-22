@@ -2,7 +2,11 @@
 '''
 import numpy
 import os
-import pylab
+try:
+    import pylab
+    HAVE_PYLAB = True
+except:
+    HAVE_PYLAB = False
 import sys
 import time
 
@@ -327,6 +331,26 @@ class ImageData:
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
         pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
         return array
+    def show(self):
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = self.as_array()
+        nz = data.shape[0]
+        print('Please enter the number of the image to view')
+        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
+        while True:
+            s = str(input('image: '))
+            if len(s) < 1:
+                break
+            z = int(s)
+            if z < 1 or z > nz:
+                break
+            pylab.figure(z)
+            pylab.title('image %d' % z)
+            pylab.imshow(data[z - 1, :, :])
+            print('Close Figure %d window to continue...' % z)
+            pylab.show()
 
 class DataProcessor:
     def __init__(self):
