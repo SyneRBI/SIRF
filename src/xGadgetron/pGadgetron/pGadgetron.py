@@ -8,15 +8,12 @@ except:
     HAVE_PYLAB = False
 import time
 try:
-    IPT_PATH = os.environ.get('SRC_PATH') + '/ismrmrd-python-tools'
-    sys.path.append(IPT_PATH)
     from ismrmrdtools import coils
     HAVE_ISMRMRDTOOLS = True
 except:
     print('ismrmrd-python-tools not installed')
     HAVE_ISMRMRDTOOLS = False
 
-sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
 import pyiutil
 import pygadgetron
 

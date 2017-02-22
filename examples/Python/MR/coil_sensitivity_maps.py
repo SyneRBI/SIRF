@@ -25,7 +25,11 @@ import sys
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
-from ismrmrdtools import coils
+try:
+    from ismrmrdtools import coils
+except:
+    print('This demo requires ismrmrd-python-tools.')
+    sys.exit()
 
 def show(image_matrix, tile_shape, scale, titles):
     assert numpy.prod(tile_shape) >= image_matrix.shape[0],\

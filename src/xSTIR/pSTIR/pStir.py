@@ -6,7 +6,6 @@ import pylab
 import sys
 import time
 
-sys.path.append(os.environ.get('SRC_PATH') + '/iUtilities')
 import pyiutil
 import pystir
 
