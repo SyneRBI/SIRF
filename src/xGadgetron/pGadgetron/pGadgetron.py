@@ -308,7 +308,7 @@ class CoilSensitivityMaps(DataContainer):
             method_name, parm_list = object_name_and_parameters(method)
             parm = parse_arglist(parm_list)
         else:
-            method_name = ''
+            method_name = 'SRSS'
             parm = {}
         if isinstance(data, AcquisitionData):
             handle = pygadgetron.cGT_computeCoilSensitivities\
@@ -316,15 +316,15 @@ class CoilSensitivityMaps(DataContainer):
             _check_status(handle)
             pyiutil.deleteDataHandle(handle)
         elif isinstance(data, CoilImages):
-            if HAVE_ISMRMRDTOOLS and method_name == 'Inati':
+            if method_name == 'Inati':
+                if not HAVE_ISMRMRDTOOLS:
+                    raise error('Inati method requires ismrmrd-python-tools')
                 nz = data.number()
                 for z in range(nz):
-##                    re, im = data.coil_image_as_arrays(z)
-##                    ci = numpy.squeeze(re  + 1j*im)
                     ci = numpy.squeeze(data.as_array(z))
                     (csm, rho) = coils.calculate_csm_inati_iter(ci)
                     self.append(csm)
-            else:
+            elif method_name == 'SRSS':
                 if 'niter' in parm:
                     nit = int(parm['niter'])
                     _set_int_par\
@@ -333,6 +333,8 @@ class CoilSensitivityMaps(DataContainer):
                     (self.handle, data.handle)
                 _check_status(handle)
                 pyiutil.deleteDataHandle(handle)
+            else:
+                raise error('Unknown method %s' % method_name)
     def append(self, csm):
         if self.handle is None:
             self.handle = pygadgetron.cGT_CoilSensitivities('')
