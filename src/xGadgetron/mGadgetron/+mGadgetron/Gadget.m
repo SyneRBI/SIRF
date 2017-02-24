@@ -5,9 +5,9 @@ classdef Gadget < handle
     end
     methods
         function self = Gadget(fullname)
-            [name, prop] = mGadgetron.name_and_parameters(fullname);
+            [name, prop] = mUtil.name_and_parameters(fullname);
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', name);
-            mGadgetron.checkExecutionStatus(name, self.handle_);
+            mUtil.checkExecutionStatus(name, self.handle_);
             if ~isempty(prop)
                 self.set_properties(prop)
             end
@@ -21,13 +21,13 @@ classdef Gadget < handle
         function set_property(self, prop, value)
             handle = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 self.handle_, prop, value);
-            mGadgetron.checkExecutionStatus(self.name_, handle)
+            mUtil.checkExecutionStatus(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_properties(self, prop)
             handle = calllib('mgadgetron', 'mGT_setGadgetProperties', ...
                 self.handle_, prop);
-            mGadgetron.checkExecutionStatus(self.name_, handle)
+            mUtil.checkExecutionStatus(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
     end

@@ -71,25 +71,25 @@ classdef IterativeReconstruction < mStir.Reconstruction
             filter = mStir.DataProcessor();
             filter.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.IR, 'inter_iteration_filter_type');
-            mStir.checkExecutionStatus...
+            mUtil.checkExecutionStatus...
                 ([self.IR ':get_inter_iteration_filter'], filter.handle)
         end
         function set_up(self, image)
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle, image.handle);
-            mStir.checkExecutionStatus([self.IR ':set_up'], h)
+            mUtil.checkExecutionStatus([self.IR ':set_up'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function update(self, image)
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, image.handle);
-            mStir.checkExecutionStatus([self.IR ':update'], h)
+            mUtil.checkExecutionStatus([self.IR ':update'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function reconstruct(self, image)
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
-            mStir.checkExecutionStatus([self.IR ':reconstruct'], h)
+            mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end

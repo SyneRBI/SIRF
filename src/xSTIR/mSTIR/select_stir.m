@@ -1,5 +1,5 @@
-clear import
-import mStir.*
+%clear import
+%import mStir.*
 
 % load C++-to-C interface library
 if ~libisloaded('mutilities')

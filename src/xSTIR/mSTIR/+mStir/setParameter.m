@@ -16,6 +16,6 @@ function setParameter(hs, set, par, value, type)
         handle = calllib('mstir', 'mSTIR_setParameter', hs, set, par, hv);
         calllib('mutilities', 'mDeleteDataHandle', hv)
     end
-    mStir.checkExecutionStatus('setParameter', handle)
+    mUtil.checkExecutionStatus('setParameter', handle)
     calllib('mutilities', 'mDeleteDataHandle', handle)
 end

@@ -7,7 +7,7 @@ classdef GadgetChain < handle
         function self = GadgetChain()
             self.name_ = 'GadgetChain';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
-            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -17,19 +17,19 @@ classdef GadgetChain < handle
         function add_reader(self, id, reader)
             handle = calllib...
                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, handle);
+            mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_writer(self, id, writer)
             handle = calllib...
                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, handle);
+            mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_gadget(self, id, gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, handle);
+            mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_gadget_property(self, id, prop, value)
@@ -46,19 +46,19 @@ classdef GadgetChain < handle
             end
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mGadgetron.checkExecutionStatus(self.name_, hg);
+            mUtil.checkExecutionStatus(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 hg, prop, v);
-            mGadgetron.checkExecutionStatus(self.name_, hv)
+            mUtil.checkExecutionStatus(self.name_, hv)
             calllib('mutilities', 'mDeleteDataHandle', hg)
             calllib('mutilities', 'mDeleteDataHandle', hv)
         end
         function v = value_of_gadget_property(self, id, prop)
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mGadgetron.checkExecutionStatus(self.name_, hg);
+            mUtil.checkExecutionStatus(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_parameter', hg, 'gadget', prop);
-            mGadgetron.checkExecutionStatus(self.name_, hv);
+            mUtil.checkExecutionStatus(self.name_, hv);
             v = calllib('mutilities', 'mCharDataFromHandle', hv);
             calllib('mutilities', 'mDeleteDataHandle', hg)
             calllib('mutilities', 'mDeleteDataHandle', hv)

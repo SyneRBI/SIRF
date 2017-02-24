@@ -25,20 +25,20 @@ classdef DataContainer < handle
         end
         function num = number(self)
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            mGadgetron.checkExecutionStatus('DataContainer', handle);
+            mUtil.checkExecutionStatus('DataContainer', handle);
             num = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function r = norm(self)
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            mGadgetron.checkExecutionStatus('DataContainer', handle);
+            mUtil.checkExecutionStatus('DataContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, other)
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
-            mGadgetron.checkExecutionStatus('DataContainer', handle);
+            mUtil.checkExecutionStatus('DataContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
             im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);

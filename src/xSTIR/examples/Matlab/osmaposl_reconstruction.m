@@ -2,6 +2,7 @@
 % and user-controlled iterations.
 
 set_up_pet
+import mStir.*
 
 try
     % information on computation progress to go to this file

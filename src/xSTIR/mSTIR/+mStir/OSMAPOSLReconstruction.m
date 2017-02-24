@@ -11,7 +11,7 @@ classdef OSMAPOSLReconstruction < mStir.IterativeReconstruction
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'OSMAPOSLReconstruction', filename);
-            mStir.checkExecutionStatus(self.name, self.handle);
+            mUtil.checkExecutionStatus(self.name, self.handle);
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
@@ -25,7 +25,7 @@ classdef OSMAPOSLReconstruction < mStir.IterativeReconstruction
             obj_fun = mStir.PoissonLogLh_LinModMean();
             obj_fun.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'objective_function');
-            mStir.checkExecutionStatus...
+            mUtil.checkExecutionStatus...
                 ([self.name ':get_objective_function'], obj_fun.handle)
         end
     end

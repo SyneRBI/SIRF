@@ -21,10 +21,10 @@ classdef CoilSensitivityMaps < mGadgetron.DataContainer
                 calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = calllib('mgadgetron', 'mGT_CoilSensitivities', '');
-            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.handle_);
             handle = calllib('mgadgetron', 'mGT_computeCoilSensitivities', ...
                 self.handle_, acqs.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, handle);
+            mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = csm_as_array(self, csm_num)

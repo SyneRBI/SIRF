@@ -7,10 +7,10 @@ classdef AcquisitionsProcessor < mGadgetron.GadgetChain
             self.name_ = 'AcquisitionsProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
-            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mGadgetron.label_and_name(list{i});
+                    [label, name] = mUtil.label_and_name(list{i});
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
@@ -27,7 +27,7 @@ classdef AcquisitionsProcessor < mGadgetron.GadgetChain
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, input_data.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, acqs.handle_);
+            mUtil.checkExecutionStatus(self.name_, acqs.handle_);
         end
     end
 end

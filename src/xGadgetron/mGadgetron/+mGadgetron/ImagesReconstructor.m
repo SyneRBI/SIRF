@@ -22,10 +22,10 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mGadgetron.label_and_name(list{i});
+                    [label, name] = mUtil.label_and_name(list{i});
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
@@ -51,7 +51,7 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
-            mGadgetron.checkExecutionStatus(self.name_, self.images_.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
         % get_output - Returns ImageData?

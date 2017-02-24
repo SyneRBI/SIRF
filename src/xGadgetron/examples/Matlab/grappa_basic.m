@@ -40,7 +40,7 @@ import mGadgetron.*
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
-[fn,pn] = uigetfile('*','Select ISMRMRD H5 file') ;
+[fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file') ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file, creating an input Container

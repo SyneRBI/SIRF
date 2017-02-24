@@ -7,7 +7,7 @@ classdef GenericCartesianGRAPPAReconstruction < mGadgetron.ImagesReconstructor
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mGadgetron.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
