@@ -10,6 +10,7 @@ except:
 import sys
 import time
 
+from pUtil import *
 import pyiutil
 import pystir
 
@@ -18,41 +19,12 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
-class error(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return '??? ' + repr(self.value)
-
 def pet_data_path():
-    SIRF_PATH = os.environ.get('SIRF_PATH')
-    if SIRF_PATH is not None:
-        return SIRF_PATH + '/data/examples/PET'
-    SRC_PATH = os.environ.get('SRC_PATH')
-    if SRC_PATH is None:
-        errorMsg = 'Path to raw data files not set, please use -p <path> or --path=<path> to set it'
-        raise error(errorMsg)
-    return SRC_PATH + '/SIRF/data/examples/PET'
-
-def existing_filepath(data_path, file_name):
-    full_name = data_path + '/' + file_name
-    if not os.path.isfile(full_name):
-        raise error('file %s not found' % full_name)
-    return full_name
-
-def _check_status(handle):
-    if pyiutil.executionStatus(handle) != 0:
-        msg = pyiutil.executionError(handle)
-        file = pyiutil.executionErrorFile(handle)
-        line = pyiutil.executionErrorLine(handle)
-        errorMsg = \
-            repr(msg) + ' exception thrown at line ' + \
-            repr(line) + ' of ' + file
-        raise error(errorMsg)
+    return petmr_data_path('pet')
 
 def _setParameter(hs, set, par, hv):
     h = pystir.cSTIR_setParameter(hs, set, par, hv)
-    _check_status(h)
+    check_status(h)
     pyiutil.deleteDataHandle(h)
 def _set_char_par(handle, set, par, value):
     h = pyiutil.charDataHandle(value)
@@ -68,25 +40,25 @@ def _set_float_par(handle, set, par, value):
     pyiutil.deleteDataHandle(h)
 def _char_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    _check_status(h)
+    check_status(h)
     value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _int_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    _check_status(h)
+    check_status(h)
     value = pyiutil.intDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _float_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    _check_status(h)
+    check_status(h)
     value = pyiutil.floatDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
-    _check_status(handle)
+    check_status(handle)
     return handle
 
 def _tmp_filename():
@@ -198,7 +170,7 @@ class EllipsoidalCylinder(Shape):
         self.handle = None
         self.name = 'EllipsoidalCylinder'
         self.handle = pystir.cSTIR_newObject(self.name)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -230,7 +202,7 @@ class Voxels:
                       (dim[0], dim[1], dim[2], \
                        vsize[0], vsize[1], vsize[2], \
                        origin[0], origin[1], origin[2])
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -240,10 +212,10 @@ class ImageData:
         self.handle = None
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
-            _check_status(self.handle)
+            check_status(self.handle)
         elif isinstance(arg, AcquisitionData):
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
-            _check_status(self.handle)
+            check_status(self.handle)
         elif arg is None:
             self.handle = pystir.cSTIR_newObject('Image')
         else:
@@ -279,9 +251,9 @@ class ImageData:
                       (dim[0], dim[1], dim[2], \
                        vsize[0], vsize[1], vsize[2], \
                        origin[0], origin[1], origin[2])
-        _check_status(voxels)
+        check_status(voxels)
         self.handle = pystir.cSTIR_imageFromVoxels(voxels)
-        _check_status(self.handle)
+        check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
     def fill(self, value):
         if isinstance(value, numpy.ndarray):
@@ -293,30 +265,30 @@ class ImageData:
         image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
-        _check_status(image.handle)
+        check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
         image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
-        _check_status(image.handle)
+        check_status(image.handle)
         image.fill(value)
         return image
     def add_shape(self, shape, scale):
         if self.handle is None:
             raise error('cannot add shapes to uninitialised image')
         handle = pystir.cSTIR_addShape(self.handle, shape.handle, scale)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def read_from_file(self, filename):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
-        _check_status(self.handle)
+        check_status(self.handle)
     def diff_from(self, image):
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)
-        _check_status(handle)
+        check_status(handle)
         diff = pyiutil.doubleDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return diff
@@ -361,7 +333,7 @@ class DataProcessor:
     def apply(self, image):
         handle = pystir.cSTIR_applyDataProcessor\
                  (self.handle, image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def __del__(self):
         pyiutil.deleteDataHandle(self.handle)
@@ -375,7 +347,7 @@ class CylindricFilter(DataProcessor):
         else:
             self.handle = pystir.copyOfObjectHandle(data_processor.handle)
 ##            self.handle = pystir.cSTIR_copyOfObject(data_processor.handle)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -393,7 +365,7 @@ class RayTracingMatrix:
         self.handle = None
         self.name = 'RayTracingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -421,7 +393,7 @@ class AcquisitionData:
                 (src.handle)
         else:
             raise error('wrong source in AcquisitionData constructor')
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -435,7 +407,7 @@ class AcquisitionData:
         image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
-        _check_status(image.handle)
+        check_status(image.handle)
         image.fill(value)
         return image
     def as_array(self):
@@ -448,7 +420,7 @@ class AcquisitionData:
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         handle = pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
         nx = dim[0]
         ny = dim[1]
@@ -458,7 +430,7 @@ class AcquisitionData:
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
         handle = pystir.cSTIR_getAcquisitionsData\
             (self.handle, array.ctypes.data)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
         return array
     def fill(self, value):
@@ -522,7 +494,7 @@ class AcquisitionModel:
         '''
         handle = pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_additive_term(self, at):
         ''' Sets the additive term a in (F);
@@ -553,7 +525,7 @@ class AcquisitionModel:
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelFwd\
             (self.handle, image.handle, filename)
-        _check_status(ad.handle)
+        check_status(ad.handle)
         return ad;
     def backward(self, ad):
         ''' Returns the backward projection of y giben by (B);
@@ -562,7 +534,7 @@ class AcquisitionModel:
         image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
             (self.handle, ad.handle)
-        _check_status(image.handle)
+        check_status(image.handle)
         return image
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
@@ -577,7 +549,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         self.handle = None
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
-        _check_status(self.handle)
+        check_status(self.handle)
         if matrix is not None:
             _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_matrix(self, matrix):
@@ -591,7 +563,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         '''
         matrix = RayTracingMatrix()
         matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
-        _check_status(matrix.handle)
+        check_status(matrix.handle)
         return matrix
 
 class Prior:
@@ -611,11 +583,11 @@ class Prior:
         grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
-        _check_status(grad.handle)
+        check_status(grad.handle)
         return grad
 ##    def set_up(self):
 ##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
-##        _check_status(handle)
+##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
 
 class QuadraticPrior(Prior):
@@ -623,7 +595,7 @@ class QuadraticPrior(Prior):
         self.handle = None
         self.name = 'QuadraticPrior'
         self.handle = pystir.cSTIR_newObject(self.name)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -642,25 +614,25 @@ class ObjectiveFunction:
         prior = Prior()
         prior.handle = pystir.cSTIR_parameter\
             (self.handle, 'GeneralisedObjectiveFunction', 'prior')
-        _check_status(prior.handle)
+        check_status(prior.handle)
         return prior
     def set_num_subsets(self, n):
         _set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
     def set_up(self, image):
         handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def value(self, image):
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
-        _check_status(handle)
+        check_status(handle)
         return pyiutil.floatDataFromHandle(handle)
     def gradient(self, image, subset):
         grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
-        _check_status(grad.handle)
+        check_status(grad.handle)
         return grad
 
 class PoissonLogLh_LinModMean(ObjectiveFunction):
@@ -685,7 +657,7 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
         ss = ImageData()
         pyiutil.deleteDataHandle(ss.handle)
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
-        _check_status(ss.handle)
+        check_status(ss.handle)
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
     def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
@@ -693,7 +665,7 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)
-        _check_status(grad.handle)
+        check_status(grad.handle)
         return grad
 
 class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
@@ -705,7 +677,7 @@ class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
         else:
             self.handle = pyiutil.copyOfObjectHandle(obj_fun.handle)
 ##            self.handle = pystir.cSTIR_copyOfObject(obj_fun.handle)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -726,7 +698,7 @@ class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
             pyiutil.deleteDataHandle(am.handle)
         am.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'acquisition_model')
-        _check_status(am.handle)
+        check_status(am.handle)
         return am
     def set_acquisition_data(self, ad):
         _setParameter\
@@ -796,7 +768,7 @@ class IterativeReconstruction(Reconstruction):
         obj_fun = ObjectiveFunction()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, 'IterativeReconstruction', 'objective_function')
-        _check_status(obj_fun.handle)
+        check_status(obj_fun.handle)
         return obj_fun
     def set_inter_iteration_filter(self, f):
         pystir.cSTIR_setParameter\
@@ -807,11 +779,11 @@ class IterativeReconstruction(Reconstruction):
         filter.handle = pystir.cSTIR_parameter\
             (self.handle, 'IterativeReconstruction',\
              'inter_iteration_filter_type')
-        _check_status(filter.handle)
+        check_status(filter.handle)
         return filter
     def set_up(self, image):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_input(self, input_data):
         self.input = input_data
@@ -823,7 +795,7 @@ class IterativeReconstruction(Reconstruction):
         if self.image is None:
             raise error('current estimate not set')
         handle = pystir.cSTIR_updateReconstruction(self.handle, self.image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_current_subset(self, subset):
         self.subset = subset
@@ -832,13 +804,13 @@ class IterativeReconstruction(Reconstruction):
         obj_fun.get_subset_sensitivity(self.subset)
     def reconstruct(self, image):
         handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def process(self):
         if self.image is None:
             raise error('current estimate not set')
         handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
-        _check_status(handle)
+        check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def update(self, image):
         self.set_current_estimate(image)
@@ -851,7 +823,7 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         self.name = 'OSMAPOSL'
         self.handle = pystir.cSTIR_objectFromFile\
             ('OSMAPOSLReconstruction', filename)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -862,7 +834,7 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         obj_fun = PoissonLogLh_LinModMean()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'objective_function')
-        _check_status(obj_fun.handle)
+        check_status(obj_fun.handle)
         return obj_fun
 
 class OSSPSReconstruction(IterativeReconstruction):
@@ -871,7 +843,7 @@ class OSSPSReconstruction(IterativeReconstruction):
         self.name = 'OSSPS'
         self.handle = pystir.cSTIR_objectFromFile\
                       ('OSSPSReconstruction', filename)
-        _check_status(self.handle)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
