@@ -4,23 +4,25 @@ Usage:
   using_acquisition_model [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
-                              [default: simulated_MR_2D_cartesian.h5]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
-                              subfolder of SIRF root folder
+  -f <file>, --file=<file>   raw data file
+                                  [default: simulated_MR_2D_cartesian.h5]
+  --mr_path=<path>      path to MR data files, defaults to data/examples/MR
+                                  subfolder of SIRF root folder
+  --mr_engine=<mr>     MR reconstruction engine [default: Gadgetron]
+  --pet_engine=<pet>    reconstruction engine [default: Stir]
 '''
 
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import pGadgetron as MR
-import pStir as PET
+exec('import p' + args['--mr_engine'] + ' as MR')
+exec('import p' + args['--pet_engine'] + ' as PET')
 
 def main():
 
     # locate the input data file
-    data_path = args['--path']
+    data_path = args['--mr_path']
     if data_path is None:
         data_path = MR.mr_data_path()
     input_file = MR.existing_filepath(data_path, args['--file'])
