@@ -39,6 +39,9 @@ ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 def mr_data_path():
     return petmr_data_path('mr')
 
+def raw_data_path():
+    return petmr_data_path('mr')
+
 def _setParameter(hs, set, par, hv):
     h = pygadgetron.cGT_setParameter(hs, set, par, hv)
     check_status(h)

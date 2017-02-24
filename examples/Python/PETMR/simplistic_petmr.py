@@ -1,7 +1,7 @@
 '''Simplistic PET-MR demo
 
 Usage:
-  using_acquisition_model [--help | options]
+  simplistic_petmr [--help | options]
 
 Options:
   -f <file>, --file=<file>   raw data file
@@ -24,7 +24,7 @@ def main():
     # locate the input data file
     data_path = args['--mr_path']
     if data_path is None:
-        data_path = MR.mr_data_path()
+        data_path = MR.raw_data_path()
     input_file = MR.existing_filepath(data_path, args['--file'])
 
     # acquisitions will be read from an HDF file input_file
