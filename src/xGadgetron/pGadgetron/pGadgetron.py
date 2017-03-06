@@ -67,47 +67,6 @@ def _parameterHandle(hs, set, par):
     check_status(handle)
     return handle
 
-def gadget_label_and_name(g):
-    name = g.lstrip()
-    name = name.rstrip()
-    i = name.find(':')
-    if i > -1:
-        label = name[: i].rstrip()
-        name = name[i + 1 :].lstrip()
-    else:
-        label = ''
-    return label, name
-
-def object_name_and_parameters(obj):
-    name = obj.lstrip()
-    name = name.rstrip()
-    i = name.find('(')
-    if i > -1:
-        j = name.find(')', i)
-        prop = name[i + 1 : j]
-        name = name[: i].rstrip()
-        i = 0
-    else:
-        prop = None
-    return name, prop
-
-def parse_arglist(arglist):
-    argdict = {}
-    while True:
-        arglist = arglist.lstrip()
-        ieq = arglist.find('=')
-        if ieq < 0:
-            return argdict
-        name = arglist[0:ieq].rstrip()
-        arglist = arglist[ieq + 1 :].lstrip()
-        ic = arglist.find(',')
-        if ic < 0:
-            argdict[name] = arglist.rstrip()
-            return argdict
-        else:
-            argdict[name] = arglist[0:ic].rstrip()
-            arglist = arglist[ic + 1 :]
-
 class PyGadgetronObject:
     pass
 	
@@ -283,7 +242,7 @@ class CoilSensitivityMaps(DataContainer):
         self.handle = pygadgetron.cGT_CoilSensitivities('')
         check_status(self.handle)
         if method is not None:
-            method_name, parm_list = object_name_and_parameters(method)
+            method_name, parm_list = name_and_parameters(method)
             parm = parse_arglist(parm_list)
         else:
             method_name = 'SRSS'
@@ -654,7 +613,7 @@ class AcquisitionModel(PyGadgetronObject):
 class Gadget(PyGadgetronObject):
     def __init__(self, name):
         self.handle = None
-        name, prop = object_name_and_parameters(name)
+        name, prop = name_and_parameters(name)
         self.handle = pygadgetron.cGT_newObject(name)
         check_status(self.handle)
         if prop is not None:
@@ -719,7 +678,7 @@ class ImagesReconstructor(GadgetChain):
         if list is None:
             return
         for i in range(len(list)):
-            label, name = gadget_label_and_name(list[i])
+            label, name = label_and_name(list[i])
             self.add_gadget(label, Gadget(name))
     def __del__(self):
         if self.handle is not None:

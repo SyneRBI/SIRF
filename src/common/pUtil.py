@@ -36,3 +36,44 @@ def check_status(handle):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
+def label_and_name(g):
+    name = g.lstrip()
+    name = name.rstrip()
+    i = name.find(':')
+    if i > -1:
+        label = name[: i].rstrip()
+        name = name[i + 1 :].lstrip()
+    else:
+        label = ''
+    return label, name
+
+def name_and_parameters(obj):
+    name = obj.lstrip()
+    name = name.rstrip()
+    i = name.find('(')
+    if i > -1:
+        j = name.find(')', i)
+        prop = name[i + 1 : j]
+        name = name[: i].rstrip()
+        i = 0
+    else:
+        prop = None
+    return name, prop
+
+def parse_arglist(arglist):
+    argdict = {}
+    while True:
+        arglist = arglist.lstrip()
+        ieq = arglist.find('=')
+        if ieq < 0:
+            return argdict
+        name = arglist[0:ieq].rstrip()
+        arglist = arglist[ieq + 1 :].lstrip()
+        ic = arglist.find(',')
+        if ic < 0:
+            argdict[name] = arglist.rstrip()
+            return argdict
+        else:
+            argdict[name] = arglist[0:ic].rstrip()
+            arglist = arglist[ic + 1 :]
+
