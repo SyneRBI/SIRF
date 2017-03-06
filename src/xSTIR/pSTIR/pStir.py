@@ -19,12 +19,6 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
-def pet_data_path():
-    return petmr_data_path('pet')
-
-def raw_data_path():
-    return petmr_data_path('pet')
-
 def _setParameter(hs, set, par, hv):
     h = pystir.cSTIR_setParameter(hs, set, par, hv)
     check_status(h)

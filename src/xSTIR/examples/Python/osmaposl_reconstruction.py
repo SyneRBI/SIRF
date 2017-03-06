@@ -19,8 +19,14 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
 num_subsets = int(args['--subs'])
 num_iterations = int(args['--iter'])
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+raw_data_file = existing_filepath(data_path, data_file)
 
 # Define a function that does something with an image. This function
 # provides a simplistic example of user's involvement in the reconstruction
@@ -41,12 +47,6 @@ def main():
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     am = AcquisitionModelUsingMatrix(RayTracingMatrix())
-
-    # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = pet_data_path()
-    raw_data_file = existing_filepath(data_path, args['--file'])
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)

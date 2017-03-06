@@ -6,26 +6,33 @@ Usage:
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: Utahscat600k_ca_seg4.hs]
-  -P <path>, --path=<path>    path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -g <file>, --init=<file>    initial image guess file
                               [default: test_image_PM_QP_6.hv]
-  -p <fact>, --penf=<fact>    penalty factor [default: 0]
+  -f <fact>, --penf=<fact>    penalty factor [default: 0]
   -s <subs>, --subs=<subs>    number of subsets [default: 4]
   -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engn=<engn>    reconstruction engine [default: Stir]
 '''
 
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+# import engine module
+exec('from p' + args['--engn'] + ' import *')
+
+# process command-line options
 pen_factor = args['--penf']
 num_subsets = int(args['--subs'])
 num_subiterations = int(args['--iter'])
-
-# import engine module
-exec('from p' + args['--engine'] + ' import *')
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+raw_data_file = existing_filepath(data_path, data_file)
+init_file = args['--init']
 
 def main():
 
@@ -37,13 +44,8 @@ def main():
     am = AcquisitionModelUsingMatrix\
          (RayTracingMatrix().set_num_tangential_LORs(2))
 
-    # locate the input data file folder
-    data_path = args['--path']
-    if data_path is None:
-        data_path = pet_data_path()
-
     # PET acquisition data to be read from the file specified by --file option
-    raw_data_file = existing_filepath(data_path, args['--file'])
+    print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
 
     # define objective function to be maximized as
@@ -63,7 +65,7 @@ def main():
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
-    init_image_file = existing_filepath(data_path, args['--init'])
+    init_image_file = existing_filepath(data_path, init_file)
     image = ImageData(init_image_file)
 
     # set up the reconstructor

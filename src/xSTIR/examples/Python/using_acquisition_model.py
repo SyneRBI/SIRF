@@ -18,7 +18,15 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+# import engine module
 exec('from p' + args['--engine'] + ' import *')
+
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
@@ -84,22 +92,16 @@ def main():
     print('Figure 1: initial image - close window to continue')
     pylab.show()
 
-    # locate the input data file folder
-    data_path = args['--path']
-    if data_path is None:
-        data_path = pet_data_path()
-
     print('projecting image...')
     # forward-project the image to obtain 'raw data'
     # raw_data_file is used as a template
-    raw_data_file = existing_filepath(data_path, args['--file'])
     templ = AcquisitionData(raw_data_file)
     am.set_up(templ, image)
     ad = am.forward(image)
     # if the raw data is very large, it can be stored in a file
     # ad = am.forward(image, 'proj_data.hs')
 
-    print('back-projecting image...')
+    print('back-projecting the forward projection...')
     # backward-project the computed forward projection
     update = am.backward(ad)
 

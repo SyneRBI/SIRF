@@ -251,3 +251,5 @@ $RECYCLE.BIN/
 *.thresholded
 info.txt
 warn.txt
+errr.txt
+output.txt

@@ -8,6 +8,8 @@ Options:
                               [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
+  -s <subs>, --subs=<subs>    number of subsets [default: 12]
+  -i <iter>, --iter=<iter>    number of iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
 '''
 
@@ -15,7 +17,17 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+# import engine module
 exec('from p' + args['--engine'] + ' import *')
+
+# process command-line options
+num_subsets = int(args['--subs'])
+num_subiterations = int(args['--iter'])
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
@@ -33,13 +45,8 @@ def main():
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # locate the input data file folder
-    data_path = args['--path']
-    if data_path is None:
-        data_path = pet_data_path()
-
     # PET acquisition data to be read from the file specified by --file option
-    raw_data_file = existing_filepath(data_path, args['--file'])
+    print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
 
     # create filter
@@ -56,17 +63,12 @@ def main():
     prior = QuadraticPrior()
     prior.set_penalisation_factor(0.5)
 
-    # set number of subsets
-    num_subsets = 12
-
     # create objective function
     obj_fun = PoissonLogLh_LinModMean_AcqMod()
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
-
-    num_subiterations = 2
 
     for iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % iter) 

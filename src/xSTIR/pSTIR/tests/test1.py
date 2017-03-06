@@ -33,7 +33,7 @@ def main():
     am.set_matrix(matrix)
 
     # locate the input data file folder
-    data_path = pet_data_path()
+    data_path = petmr_data_path('pet')
 
     # PET acquisition data to be read from this file
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')

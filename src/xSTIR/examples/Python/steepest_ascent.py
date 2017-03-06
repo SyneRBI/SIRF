@@ -20,11 +20,18 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+# import engine module
+exec('from p' + args['--engine'] + ' import *')
+
+# process command-line options
 tau = float(args['--tau'])
 steps = int(args['--steps'])
 verbose = args['--verbose']
-
-exec('from p' + args['--engine'] + ' import *')
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
@@ -43,13 +50,8 @@ def main():
     am = AcquisitionModelUsingMatrix()
     am.set_matrix(matrix)
 
-    # locate the input data file folder
-    data_path = args['--path']
-    if data_path is None:
-        data_path = pet_data_path()
-
     # PET acquisition data to be read from the file specified by --file option
-    raw_data_file = existing_filepath(data_path, args['--file'])
+    print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
     # plot acquisition data
     adata = ad.as_array()
