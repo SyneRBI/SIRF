@@ -312,10 +312,10 @@ class ImageData:
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter the number of the image to view')
+        print('Please enter the number of the slice to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
-            s = str(input('image: '))
+            s = str(input('slice: '))
             if len(s) < 1:
                 break
             z = int(s)
