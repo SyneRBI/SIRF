@@ -2,10 +2,10 @@ function grappa_and_steepest_descent
 % GRAPPA reconstruction with the steepest descent step
 % to illustrate the use of Acquisition Model projections.
 
-ccp_libload
-
-% Import SIRF MATLAB Gadgetron package
-import mGadgetron.*
+% Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
+% created in this function without using the prefix 'MR.'
+set_up_mr
+import MR.*
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
