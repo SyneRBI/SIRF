@@ -1,6 +1,7 @@
 % Steepest ascent demo
 
 set_up_pet
+import PET.*
 
 try
     % info() printing suppressed, warning() and error() print to stdout
@@ -19,7 +20,7 @@ try
 
     % define acquisition data
     [filename, pathname] = uigetfile...
-        ('*.hs', 'Select raw data file', SIRF_PET_DATA_PATH);
+        ('*.hs', 'Select raw data file', pet_data_path);
     ad = AcquisitionData(fullfile(pathname, filename));
 
     % define the matrix to be used by the acquisition model

@@ -2,6 +2,7 @@
 % acquisition data and uses this data to reconstruct this image
 
 set_up_pet
+import PET.*
 
 try
     % info() printing suppressed, warning() and error() print to stdout
@@ -75,7 +76,7 @@ try
 
     % forward-project the image to obtain 'raw data';
     % raw data selected by the user is used as a template
-    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
     templ = AcquisitionData(fullfile(pathname, filename));
     am.set_up(templ, image)
     ad = am.forward(image); % ad sits in memory

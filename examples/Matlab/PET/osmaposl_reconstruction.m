@@ -2,7 +2,7 @@
 % and user-controlled iterations.
 
 set_up_pet
-import mStir.*
+import PET.*
 
 try
     % information on computation progress to go to this file
@@ -21,7 +21,7 @@ try
     am.set_matrix(matrix);
     
     % read acquisition model data
-    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', path);
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file');
     ad = AcquisitionData(fullfile(pathname, filename));
 
     % create prior
