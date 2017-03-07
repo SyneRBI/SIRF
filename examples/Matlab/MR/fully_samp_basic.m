@@ -37,21 +37,10 @@ function fully_samp_basic
 %
 % See also GRAPPA_BASIC
 
-
-% load the SIRF mutilities library
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-
-% This demo uses gadgetron as the MR reconstruction engine. 
-% Load the SIRF library and import the SIRF class.
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
-
-import mGadgetron.*
+% Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
+% created in this function without using the prefix 'MR.'
+set_up_mr
+import MR.*
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
