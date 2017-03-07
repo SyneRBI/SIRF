@@ -2,6 +2,7 @@
 % reconstructing images and post-processing them.
 
 set_up_mr
+import MR.*
 
 try
     % acquisitions will be read from this HDF file

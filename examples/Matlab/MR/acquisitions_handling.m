@@ -1,6 +1,7 @@
 % Upper-level interface demo, illustrates acquisitions pre-processing and plotting.
 
-%set_up_mr
+set_up_mr
+import MR.*
 
 try
     % acquisitions will be read from this HDF file
