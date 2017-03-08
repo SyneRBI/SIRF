@@ -1,10 +1,9 @@
 '''
 Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
-See function grappa_detail.m for an example showing more of the 
-workings and functionality of the SIRF code.
+See function grappa_basic.py for a simpler example.
 
 Pre-requisites:
- 1) This MATLAB code needs to be able to access a listening gadgetron.
+ 1) This Python script needs to be able to access a listening gadgetron.
     On the Virtual Machine, gadgetron is installed and the user just needs
     to type 'gadgetron' in a terminal window.
     On standalone systems, the user will need to have installed ISMRMRD
@@ -21,14 +20,13 @@ Pre-requisites:
     b) A simulated ISMRMRD h5 file is available as default
 
 Usage:
-  grappa_basic.py [--help | options]
+  grappa_detail.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
 __version__ = '0.1.0'
@@ -38,8 +36,7 @@ args = docopt(__doc__, version=__version__)
 import matplotlib.pyplot as plt
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
-
+from pGadgetron import *
 
 def show(image_matrix, tile_shape, scale, titles):
     assert numpy.prod(tile_shape) >= image_matrix.shape[0],\

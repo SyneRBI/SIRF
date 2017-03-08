@@ -1,10 +1,11 @@
 '''
 Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
-See function grappa_detail.m for an example showing more of the 
+See function grappa_detail.py for an example showing more of the 
 workings and functionality of the SIRF code.
 
 Pre-requisites:
- 1) This MATLAB code needs to be able to access a listening gadgetron.
+ 1) If the reconstruction engine is set to Gadgetron (default), then
+    this Python script needs to be able to access a listening gadgetron.
     On the Virtual Machine, gadgetron is installed and the user just needs
     to type 'gadgetron' in a terminal window.
     On standalone systems, the user will need to have installed ISMRMRD
