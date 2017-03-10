@@ -205,7 +205,14 @@ class Voxels:
             pyiutil.deleteDataHandle(self.handle)
 
 class ImageData:
+    '''Class for PET image data objects.'''
     def __init__(self, arg = None):
+        '''Creates an ImageData object based on the argument <arg> type.
+        str            : the object is read from file specified by <arg>
+        AcquisitionData: the object compatible with the scanner data
+                         recorded in an AcquisitionData object <arg> is created
+        None           : the empty ImageData object is created
+        '''
         self.handle = None
         if isinstance(arg, str):
             self.handle = pystir.cSTIR_objectFromFile('Image', arg)
@@ -221,11 +228,22 @@ class ImageData:
         self.name = 'ImageData'
         self.rimsize = -1
     def __del__(self):
+        '''Deallocates this ImageData object.'''
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
+        '''Sets this image size in voxels, voxel sizes in mm and the origin.
+        All arguments except the first one are optional.
+        Present arguments are either all scalars or all tuples.
+        The first tuple argument or three scalar arguments set the image
+        sizes in voxels.
+        The second tuple argument or three scalar arguments set the voxel
+        sizes in mm (if absent, sizes default to (1,1,1)).
+        The third tuple argument or three scalar arguments set the origin
+        (if absent, defaults to (0,0,0)).
+        '''
         if type(arg1) == type((0,0,0)):
             dim = arg1
             if arg2 == 0:
@@ -253,18 +271,24 @@ class ImageData:
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
     def fill(self, value):
+        '''Sets this image values at voxels.
+        The argument is either 3D Numpy ndarray of values or a scalar to be
+        assigned at each voxel.
+        '''
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
         else:
             pystir.cSTIR_fillImage(self.handle, value)
         return self
     def clone(self):
+        '''Creates a copy of this image.'''
         image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
+        '''Creates a copy of this image filled with 1.0.'''
         image = ImageData()
         pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
@@ -290,6 +314,7 @@ class ImageData:
         pyiutil.deleteDataHandle(handle)
         return diff
     def as_array(self):
+        '''Returns 3D Numpy ndarray of this image values at voxels.'''
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
         nz = dim[0]
@@ -301,6 +326,7 @@ class ImageData:
         pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
         return array
     def show(self):
+        '''Displays xy-cross-sections of this image at z selected interactively.'''
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -321,13 +347,15 @@ class ImageData:
             print('Close Figure %d window to continue...' % z)
             pylab.show()
 
-class DataProcessor:
+class ImageFilter:
+    '''Abstract base class for image filters.'''
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def apply(self, image):
+        '''Applies this filter to <image>.'''
         handle = pystir.cSTIR_applyDataProcessor\
                  (self.handle, image.handle)
         check_status(handle)
@@ -335,7 +363,10 @@ class DataProcessor:
     def __del__(self):
         pyiutil.deleteDataHandle(self.handle)
 
-class CylindricFilter(DataProcessor):
+class CylindricFilter(ImageFilter):
+    '''Class for the image filter that zeroes the image outside the cylinder
+    of the same xy-diameter and z-size as those of the image.
+    '''
     def __init__(self, data_processor = None):
         self.handle = None
         self.name = 'TruncateToCylindricalFOVImageProcessor'
@@ -343,21 +374,28 @@ class CylindricFilter(DataProcessor):
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
             self.handle = pystir.copyOfObjectHandle(data_processor.handle)
-##            self.handle = pystir.cSTIR_copyOfObject(data_processor.handle)
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_strictly_less_than_radius(self, flag):
+        '''Specifies whether the area not affected by filtering is strictly
+        inside the cylinder (flag = True) or not (flag = False).'''
         _set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
              'strictly_less_than_radius', repr(flag))
     def get_strictly_less_than_radius(self):
+        '''Returns the answer to the question: Is the area not affected by 
+        filtering strictly inside the cylinder?
+        '''
         return _int_par\
                (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
                 'strictly_less_than_radius') != 0
 
 class RayTracingMatrix:
+    '''Class for objects holding sparse matrix representation of the ray
+    tracing projector G (see AcquisitionModel class).
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'RayTracingMatrix'
@@ -373,7 +411,7 @@ class RayTracingMatrix:
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
 class AcquisitionData:
-    'Class for PET acquisition data.'
+    '''Class for PET acquisition data.'''
     def __init__(self, src = None):
         ''' Creates new AcquisitionData object from a file or another
             AcquisitionData object;
@@ -564,19 +602,30 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         return matrix
 
 class Prior:
+    '''Class for objects handling the prior: a penalty term to be added to the
+    objective function maximized by iterative reconstruction algorithms.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_penalisation_factor(self, value):
+        '''Sets the factor by which the penalty term (prior) is to be multiplied
+        before adding to the objective function.
+        '''
         _set_float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
         return self
     def get_penalisation_factor(self):
+        '''Returns the penalty factor in front of the prior.
+        '''
         return _float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
+        '''Returns the value of the gradient of the prior for a given value of
+        the image.
+        '''
         grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
@@ -588,6 +637,8 @@ class Prior:
 ##        pyiutil.deleteDataHandle(handle)
 
 class QuadraticPrior(Prior):
+    '''Class for priors that are quadratic functions of the image values at voxels.
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'QuadraticPrior'
@@ -598,33 +649,54 @@ class QuadraticPrior(Prior):
             pyiutil.deleteDataHandle(self.handle)
 
 class ObjectiveFunction:
+    '''Class for the objective function maximized by the iterative reconstruction
+    algorithms.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_prior(self, prior):
+        '''Sets the prior (penalty term to be added to the objective function).
+        '''
         _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
+        '''Returns the prior currently used by this objective function.
+        '''
         prior = Prior()
         prior.handle = pystir.cSTIR_parameter\
             (self.handle, 'GeneralisedObjectiveFunction', 'prior')
         check_status(prior.handle)
         return prior
     def set_num_subsets(self, n):
+        '''Sets the number of subsets of ray projections to be used for computing
+        additive components of the gradient used by Ordered Subset algorithms
+        for maximizing this objective function.
+        Assuming for simplicity of illustration that the ray tracing projector G
+        is a matrix, the subsets in question are subsets of its rows.
+        '''
         _set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
     def set_up(self, image):
+        '''Prepares this object for use.
+        '''
         handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def value(self, image):
+        '''Returns the value of this objective function on <image>.
+        '''
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
         return pyiutil.floatDataFromHandle(handle)
     def gradient(self, image, subset):
+        '''Returns the value of the additive component of the gradient of this 
+        objective function on <image> corresponding to a given <subset>
+        (see set_num_subsets() method).
+        '''
         grad = ImageData()
         pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
