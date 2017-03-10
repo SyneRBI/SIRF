@@ -48,11 +48,10 @@ def main():
         data_path = mr_data_path()
     input_file = existing_filepath(data_path, args['--file'])
     
-    # Initially we create a container that points to the h5 file. Data is
-    # not read from file until the gadgetron is called using
-    # the 'process' method.
+    # Initially we create a container that points to the h5 file. Data is not read from file
+    # until the 'process' method of the reconstructor object is called.
     
-    # Create an Acquisition Container of type pGadgetron.AcquisitionData
+    # Create an Acquisition Container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
     input_Cont = AcquisitionData(input_file)
     
