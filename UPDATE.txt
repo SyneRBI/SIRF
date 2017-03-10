@@ -1,0 +1,31 @@
+Update instructions assume you installed SIRF following 
+the installation instructions in INSTALL.txt.
+
+===========================
+Common to Linux and Windows
+===========================
+
+cd YOUR_PATH/SIRF
+git pull
+git submodule update
+
+=====
+LINUX
+=====
+
+cd YOUR_PATH/build/SIRF
+make install
+
+=======
+WINDOWS
+=======
+
+Start CMake GUI.
+
+Click Confugure.
+
+Click Generate.
+
+Click Open Project.
+
+Right-click on INSTALL in Solution Explorer and select Build.

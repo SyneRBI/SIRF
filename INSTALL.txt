@@ -1,0 +1,103 @@
+===============
+General remarks
+===============
+
+Instructions are for CMake that is not older than 3.7.2.
+
+Instructions assume that Boost, SWIG, HDF5_1.8.18, FFTW3 and ismrmrd packages are 
+installed and you know the paths to their root folders. They also assume that you 
+installed STIR using CMake and cloned SIRF repository from CCPPETMR:
+
+git clone --recursive https://github.com/CCPPETMR/SIRF 
+
+in a folder referred to below as YOUR_PATH. 
+
+You need to create folder named build in YOUR_PATH with a subfolder install. 
+YOUR_PATH/build/install/bin (will be created by installation) must be in Windows path.
+Folder YOUR_PATH/build/install/python must be in Python path (i.e. listed in PYTHONPATH
+environment variable value) and folder YOUR_PATH/build/install/matlab in Matlab path.
+To use Matlab doc feature you, also need to add YOUR_PATH/SIRF/examples/Matlab/MR and
+YOUR_PATH/SIRF/examples/Matlab/PET and their sub-folders to Matlab path.
+
+=====
+LINUX
+=====
+
+Set/export (depending on your Linux shell) the following variables:
+
+INSTALL_DIR=YOUR_PATH/build/install
+LD_LIBRARY_PATH=$INSTALL_DIR/lib:$LD_LIBRARY_PATH
+PYTHONPATH=$INSTALL_DIR/python:$PYTHONPATH
+CMAKE="cmake -DCMAKE_PREFIX_PATH:PATH=$INSTALL_DIR/lib/cmake -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_DIR"
+
+Change to YOUR_PATH/build and do
+
+mkdir SIRF
+cd SIRF
+$CMAKE YOUR_PATH/SIRF
+make install
+
+=======
+WINDOWS
+=======
+
+General remarks
+---------------
+
+Instructions are for CMake GUI.
+
+For selecting folder and file paths click on the value field of a CMake variable and
+then click on button marked ... on the right-hand side. If the folder you select does 
+not exist yet, you can create it in CMake Select Path window.
+
+WARNING: during installation you may see various error messages. These are likely to
+be caused by CMake bugs - carry on regardless (as we did).
+
+----------------
+
+Start CMake GUI.
+
+Select YOUR_PATH/SIRF folder as Source and YOUR_PATH/build/SIRF folder as Build.
+
+Click Configure.
+
+Select correct generator: e.g. when using Visual Studio 2015, select Visual Studio 2014
+and click Finish.
+
+If Boost_INCLUDE_DIR is not found, set it, and also BOOST_ROOT, to the path to 
+Boost root folder.
+
+Set CMAKE_INSTALL_PREFIX to YOUR_PATH/build/install.
+
+Set MATLAB_DEST to YOUR_PATH/build/install/matlab.
+
+Set PYTHON_DEST to YOUR_PATH/build/install/python.
+
+Set SWIG_EXECUTABLE to the filepath (<path>/<filename>) to swig.exe.
+
+Click Configure.
+
+If FFTW3F_LIBRARY is not found, set it to the filepath to libfftw3f-3.lib.
+
+If FFTW3_INCLUDE_DIR is not found, set it to the path to FFTW3 folder.
+
+If STIR_DIR is not foun, set it to YOUR_PATH/build/install/lib/cmake.
+
+Click Configure.
+
+Set the value of HDF5_hdf5_LIBRARY_RELEASE to C:/Packages/HDF5/1.8.18/lib/libhdf5.lib.
+
+Check the box agains SIRF_INSTALL_DEPENDENCIES.
+
+Click Configure.
+
+Click Generate.
+
+Click Open Project.
+
+Select Release as Solution Configuration and x64 as Solution Platform.
+
+Click Build and select Build Solution.
+
+Right-click INSTALL in Solution Explorer and select Build.
+
