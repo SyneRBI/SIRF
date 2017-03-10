@@ -20,6 +20,8 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import scipy.optimize
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -33,6 +35,14 @@ if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
 
+def show(fig, title, data):
+    pylab.figure(fig)
+    pylab.title(title)
+    pylab.imshow(data)
+    pylab.colorbar()
+    print('close window to continue')
+    pylab.show()
+
 def main():
 
     # direct all information printing to a file
@@ -43,29 +53,14 @@ def main():
     error_printer = printerTo('stdout', ERROR_CHANNEL)
 
     # create matrix to be used by the acquisition model
-    matrix = RayTracingMatrix()
-    matrix.set_num_tangential_LORs(2)
+    matrix = RayTracingMatrix().set_num_tangential_LORs(2)
 
     # create acquisition model
-    am = AcquisitionModelUsingMatrix()
-    am.set_matrix(matrix)
+    am = AcquisitionModelUsingMatrix(matrix)
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
-    # plot acquisition data
-    adata = ad.as_array()
-    print(adata.shape)
-    pylab.figure(1)
-    pylab.title('acquisitions')
-    pylab.imshow(adata[10,:,:])
-    print('close window to continue')
-    pylab.colorbar()
-    pylab.show()
-
-    # create prior
-    prior = QuadraticPrior()
-    prior.set_penalisation_factor(0.001)
 
     # create filter
     filter = CylindricFilter()
@@ -83,22 +78,14 @@ def main():
 
     # create objective function
     obj_fun = PoissonLogLh_LinModMean_AcqMod()
-    obj_fun.set_zero_seg0_end_planes(True)
-    obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
-    obj_fun.set_prior(prior)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)
 
     # plot the initial image
     idata = image.as_array()
-    pylab.figure(1)
-    pylab.title('initial image')
-    pylab.imshow(idata[20,:,:])
-    print('close window to continue')
-    pylab.colorbar()
-    pylab.show()
+    show(1, 'initial image', idata[20,:,:])
 
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
@@ -151,12 +138,7 @@ def main():
         idata = image.as_array()
 
         # plot the new image
-        pylab.figure(iter + 1)
-        pylab.title('image')
-        pylab.imshow(idata[20,:,:])
-        print('close window to continue...')
-        pylab.colorbar()
-        pylab.show()
+        show(iter + 1, 'current image', idata[20,:,:])
 
         # quit if the new image has negative values
         min_image = idata.min()

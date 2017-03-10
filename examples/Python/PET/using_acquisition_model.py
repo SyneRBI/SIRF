@@ -28,6 +28,14 @@ if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
 
+def show(fig, title, data):
+    pylab.figure(fig)
+    pylab.title(title)
+    pylab.imshow(data)
+    pylab.colorbar()
+    print('close window to continue')
+    pylab.show()
+
 def main():
 
     # output goes to files
@@ -42,7 +50,7 @@ def main():
     # create a shape
     shape = EllipsoidalCylinder()
 
-    # add a shape
+    # add a shape to the image
     shape.set_length(400)
     shape.set_radii((100, 40))
     shape.set_origin((0, 60, 10))
@@ -60,52 +68,38 @@ def main():
     # z-pixel coordinate of the xy-crossection to plot
     z = int(image_size[2]/2)
 
-    # plot the phantom image to be reconstructed
+    # plot the phantom image
     data = image.as_array()
-    pylab.figure(1000)
-    pylab.imshow(data[z,:,:])
-    print('Figure 1000: exact image - close window to continue')
-    pylab.show()
+    show(1, 'Figure 1: phantom image', data[z,:,:])
 
     # define the matrix to be used by the acquisition model
-    matrix = RayTracingMatrix()
-    matrix.set_num_tangential_LORs(2)
+    matrix = RayTracingMatrix().set_num_tangential_LORs(2)
 
     # define the acquisition model
-    am = AcquisitionModelUsingMatrix()
-    am.set_matrix(matrix)
-
-    # define a filter
-    filter = CylindricFilter()
-
-    # create an initial image estimate
-    reconstructedImage = ImageData()
-    reconstructedImage.initialise(image_size, voxel_size)
-    reconstructedImage.fill(1.0)
-    # apply filter to get a cylindric initial image
-    filter.apply(reconstructedImage)
-
-    # plot the initial image
-    data = reconstructedImage.as_array()
-    pylab.figure(1)
-    pylab.imshow(data[z,:,:])
-    print('Figure 1: initial image - close window to continue')
-    pylab.show()
+    am = AcquisitionModelUsingMatrix(matrix)
 
     print('projecting image...')
-    # forward-project the image to obtain 'raw data'
-    # raw_data_file is used as a template
+    # forward-project the image to obtain simulated acquisition data
+    # data from raw_data_file is used as a template
     templ = AcquisitionData(raw_data_file)
     am.set_up(templ, image)
     ad = am.forward(image)
-    # if the raw data is very large, it can be stored in a file
+    # if the projection data is very large, it can be stored in a file
     # ad = am.forward(image, 'proj_data.hs')
+
+    # plot simulated acquisition data
+    adata = ad.as_array()
+    show(2, 'Figure 2: forward projection', adata[z,:,:])
 
     print('back-projecting the forward projection...')
     # backward-project the computed forward projection
     update = am.backward(ad)
 
+    data = update.as_array()
+    show(3, 'Figure 3: back projection', data[z,:,:])
+
 try:
     main()
+    print('done')
 except error as err:
     print('exception occured: %s' % err.value)
