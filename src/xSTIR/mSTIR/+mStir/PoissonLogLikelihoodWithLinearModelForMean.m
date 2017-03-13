@@ -1,6 +1,6 @@
-classdef PoissonLogLh_LinModMean < mStir.ObjectiveFunction
+classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
     methods
-        function self = PoissonLogLh_LinModMean()
+        function self = PoissonLogLikelihoodWithLinearModelForMean()
             self.handle = [];
         end
         function delete(self)

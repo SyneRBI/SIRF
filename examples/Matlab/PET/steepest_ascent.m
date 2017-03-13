@@ -27,7 +27,7 @@ try
     am = AcquisitionModelUsingMatrix();
 
     % define the objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData();
+    obj_fun = make_Poisson_loglikelihood(ad);
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_num_subsets(12)

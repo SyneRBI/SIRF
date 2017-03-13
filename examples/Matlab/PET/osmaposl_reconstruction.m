@@ -23,7 +23,7 @@ try
     image = ad.create_empty_image(1.0);
 
     % create objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData();
+    obj_fun = make_Poisson_loglikelihood(ad);
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     

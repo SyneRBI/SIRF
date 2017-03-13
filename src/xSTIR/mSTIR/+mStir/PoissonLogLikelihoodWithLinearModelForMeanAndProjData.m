@@ -1,6 +1,8 @@
-classdef PoissonLogLh_LinModMean_AcqModData < mStir.PoissonLogLh_LinModMean
+classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
+        mStir.PoissonLogLikelihoodWithLinearModelForMean
     methods
-        function self = PoissonLogLh_LinModMean_AcqModData(obj_fun)
+        function self = ...
+                PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj_fun)
             self.name =...
                 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
             if nargin < 1
