@@ -47,33 +47,8 @@ try
     data = data/max(max(max(data)));
     imshow(data(:,:,z));
 
-    % define the matrix to be used by the acquisition model
-    matrix = RayTracingMatrix();
-    matrix.set_num_tangential_LORs(2)
-
     % define the acquisition model
     am = AcquisitionModelUsingMatrix();
-    am.set_matrix(matrix)
-
-    % define a prior
-    prior = QuadraticPrior();
-    prior.set_penalisation_factor(0.001)
-
-    % define a filter
-    filter = CylindricFilter();
-
-    % create an initial image estimate
-    reconstructedImage = ImageData();
-    reconstructedImage.initialise(image_size, voxel_size)
-    reconstructedImage.fill(1.0)
-    % apply filter to get a cylindric initial image
-    filter.apply(reconstructedImage)
-
-    data = reconstructedImage.as_array();
-    figure(1000000)
-    data = data/max(max(max(data)));
-    imshow(data(:,:,z));
-
     % forward-project the image to obtain 'raw data';
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
@@ -82,42 +57,15 @@ try
     ad = am.forward(image); % ad sits in memory
 %     ad = am.forward(image, 'demo4data.hs'); % ad sits in this file
 
-    % define the objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqModData();
-    obj_fun.set_zero_seg0_end_planes(true)
-    obj_fun.set_max_segment_num_to_process(3)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
-    obj_fun.set_prior(prior)
-
-    num_subiterations = 6;
+    data = ad.as_array();
+    figure(2)
+    imshow(data(:,:,z)/max(max(max(data))));
     
-    fprintf('setting up the reconstructor...')
+    update = am.backward(ad);
+    data = update.as_array();
+    figure(3)
+    imshow(data(:,:,z)/max(max(max(data))));
 
-    % define OSMAPOSL reconstructor
-    recon = OSMAPOSLReconstruction();
-    recon.set_objective_function(obj_fun)
-    recon.set_MAP_model('multiplicative')
-    recon.set_num_subsets(12)
-    recon.set_num_subiterations(num_subiterations)
-    recon.set_save_interval(num_subiterations)
-    recon.set_inter_iteration_filter_interval(1)
-    recon.set_inter_iteration_filter(filter)
-    recon.set_output_filename_prefix('reconstructedImage')
-
-    recon.set_up(reconstructedImage)
-    
-    for iter = 1 : num_subiterations
-        fprintf('\n--------------------- Subiteration %d\n',...
-              recon.get_subiteration_num())
-        % perform an iteration
-        recon.update(reconstructedImage)
-        % plot the current image
-        data = reconstructedImage.as_array();
-        figure(1000000 + iter)
-        imshow(data(:,:,z)/max(max(max(data))));
-    end
-    
 catch err
     % display error information
     fprintf('??? %s\n', err.message)

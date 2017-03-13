@@ -23,25 +23,13 @@ try
         ('*.hs', 'Select raw data file', pet_data_path);
     ad = AcquisitionData(fullfile(pathname, filename));
 
-    % define the matrix to be used by the acquisition model
-    matrix = RayTracingMatrix();
-    matrix.set_num_tangential_LORs(2)
-
     % define the acquisition model
     am = AcquisitionModelUsingMatrix();
-    am.set_matrix(matrix)
-
-    % define a prior
-    prior = QuadraticPrior();
-    prior.set_penalisation_factor(0.001)
 
     % define the objective function
     obj_fun = PoissonLogLh_LinModMean_AcqModData();
-    obj_fun.set_zero_seg0_end_planes(true)
-    obj_fun.set_max_segment_num_to_process(3)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
-    obj_fun.set_prior(prior)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)
 

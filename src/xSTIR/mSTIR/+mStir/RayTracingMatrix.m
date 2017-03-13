@@ -7,10 +7,12 @@ classdef RayTracingMatrix < handle
         function self = RayTracingMatrix()
             self.name = 'RayTracingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+            mUtil.checkExecutionStatus(self.name, self.handle)
+            mStir.setParameter...
+                (self.handle, self.name, 'num_tangential_LORs', 2, 'i')
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%            calllib('mstir', 'mSTIR_deleteObject', self.handle)
         end
         function set_num_tangential_LORs(self, value)
             mStir.setParameter...

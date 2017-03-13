@@ -6,10 +6,15 @@ classdef AcquisitionModelUsingMatrix < handle
         image
     end
     methods
-        function self = AcquisitionModelUsingMatrix()
+        function self = AcquisitionModelUsingMatrix(matrix)
             self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtil.checkExecutionStatus([self.name ':ctor'], self.handle)
+            if nargin < 1
+                matrix = mStir.RayTracingMatrix();
+            end
+            mStir.setParameter...
+                (self.handle, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
@@ -40,8 +45,14 @@ classdef AcquisitionModelUsingMatrix < handle
             ad = mStir.AcquisitionData();
             ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
                 self.handle, image.handle, filename);
-            mUtil.checkExecutionStatus... %(self.name, ad.handle)
-                ([self.name ':forward'], ad.handle)
+            mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
+        end
+        function image = backward(self, ad)
+            image = mStir.ImageData();
+            image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
+                self.handle, ad.handle);
+            mUtil.checkExecutionStatus...
+                ([self.name ':backward'], image.handle)
         end
     end
 end
