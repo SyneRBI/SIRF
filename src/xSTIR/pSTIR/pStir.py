@@ -220,9 +220,7 @@ class ImageData:
         elif isinstance(arg, AcquisitionData):
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
             check_status(self.handle)
-        elif arg is None:
-            self.handle = pystir.cSTIR_newObject('Image')
-        else:
+        elif arg is not None:
             raise error\
                   ('wrong argument ' + repr(arg) + ' for ImageData constructor')
         self.name = 'ImageData'
@@ -283,14 +281,12 @@ class ImageData:
     def clone(self):
         '''Creates a copy of this image.'''
         image = ImageData()
-        pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
         '''Creates a copy of this image filled with 1.0.'''
         image = ImageData()
-        pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         image.fill(value)
@@ -441,7 +437,6 @@ class AcquisitionData:
             value:  a Python float.
         '''
         image = ImageData()
-        pyiutil.deleteDataHandle(image.handle)
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
         check_status(image.handle)
         image.fill(value)
@@ -629,7 +624,6 @@ class Prior:
         the image.
         '''
         grad = ImageData()
-        pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
@@ -700,13 +694,12 @@ class ObjectiveFunction:
         (see set_num_subsets() method).
         '''
         grad = ImageData()
-        pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
         check_status(grad.handle)
         return grad
 
-class PoissonLogLh_LinModMean(ObjectiveFunction):
+class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -726,20 +719,19 @@ class PoissonLogLh_LinModMean(ObjectiveFunction):
              'recompute_sensitivity', repr(flag))
     def get_subset_sensitivity(self, subset):
         ss = ImageData()
-        pyiutil.deleteDataHandle(ss.handle)
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         check_status(ss.handle)
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
     def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
         grad = ImageData()
-        pyiutil.deleteDataHandle(grad.handle)
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)
         check_status(grad.handle)
         return grad
 
-class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
+class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
+(PoissonLogLikelihoodWithLinearModelForMean):
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
@@ -747,7 +739,6 @@ class PoissonLogLh_LinModMean_AcqMod(PoissonLogLh_LinModMean):
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
             self.handle = pyiutil.copyOfObjectHandle(obj_fun.handle)
-##            self.handle = pystir.cSTIR_copyOfObject(obj_fun.handle)
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -902,7 +893,7 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         _set_char_par\
             (self.handle, self.name, 'MAP_model', model)
     def get_objective_function(self):
-        obj_fun = PoissonLogLh_LinModMean()
+        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
         obj_fun.handle = pystir.cSTIR_parameter\
             (self.handle, self.name, 'objective_function')
         check_status(obj_fun.handle)
@@ -921,3 +912,7 @@ class OSSPSReconstruction(IterativeReconstruction):
     def set_relaxation_parameter(self, value):
         _set_float_par\
             (self.handle, self.name, 'relaxation_parameter', value)
+
+def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):
+    # only this objective function is implemented for now
+    return PoissonLogLikelihoodWithLinearModelForMeanAndProjData()

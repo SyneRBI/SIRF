@@ -59,9 +59,8 @@ def main():
     image = ad.create_empty_image(1.0)
 
     # define objective function to be maximized as
-    # Poisson logarithmic likelihood with linear model for mean
-    # (TODO: find a good descriptive name for this object)
-    obj_fun = PoissonLogLh_LinModMean_AcqMod()
+    # Poisson logarithmic likelihood (with linear model for mean)
+    obj_fun = make_Poisson_loglikelihood(ad)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
 

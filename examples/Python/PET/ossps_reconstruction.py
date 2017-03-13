@@ -48,8 +48,8 @@ def main():
     ad = AcquisitionData(raw_data_file)
 
     # define objective function to be maximized as
-    # Poisson logarithmic likelihood with linear model for mean
-    obj_fun = PoissonLogLh_LinModMean_AcqMod()
+    # Poisson logarithmic likelihood (with linear model for mean)
+    obj_fun = make_Poisson_loglikelihood(ad)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     fact = float(pen_factor)

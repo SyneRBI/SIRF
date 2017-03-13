@@ -71,7 +71,7 @@ def main():
     num_subsets = 12
 
     # create objective function
-    obj_fun = PoissonLogLh_LinModMean_AcqMod()
+    obj_fun = make_Poisson_loglikelihood(ad)
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
     obj_fun.set_num_subsets(num_subsets)
