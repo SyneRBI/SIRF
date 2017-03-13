@@ -401,6 +401,7 @@ class RayTracingMatrix:
         self.name = 'RayTracingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
+        _set_int_par(self.handle, self.name, 'num_tangential_LORs', 2)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -585,8 +586,9 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         self.name = 'AcqModUsingMatrix'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
-        if matrix is not None:
-            _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+        if matrix is None:
+            matrix = RayTracingMatrix()
+        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_matrix(self, matrix):
         ''' Sets the ray tracing matrix to be used for projecting;
             matrix:  a RayTracingMatrix object to represent G in (F).

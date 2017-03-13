@@ -72,11 +72,8 @@ def main():
     data = image.as_array()
     show(1, 'Figure 1: phantom image', data[z,:,:])
 
-    # define the matrix to be used by the acquisition model
-    matrix = RayTracingMatrix().set_num_tangential_LORs(2)
-
     # define the acquisition model
-    am = AcquisitionModelUsingMatrix(matrix)
+    am = AcquisitionModelUsingMatrix()
 
     print('projecting image...')
     # forward-project the image to obtain simulated acquisition data

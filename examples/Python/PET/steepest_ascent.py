@@ -52,11 +52,8 @@ def main():
     # direct all error printing to stdout
     error_printer = printerTo('stdout', ERROR_CHANNEL)
 
-    # create matrix to be used by the acquisition model
-    matrix = RayTracingMatrix().set_num_tangential_LORs(2)
-
     # create acquisition model
-    am = AcquisitionModelUsingMatrix(matrix)
+    am = AcquisitionModelUsingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)

@@ -41,8 +41,7 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    am = AcquisitionModelUsingMatrix\
-         (RayTracingMatrix().set_num_tangential_LORs(2))
+    am = AcquisitionModelUsingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
@@ -86,27 +85,14 @@ def main():
         print('close Figure %d window to continue' % iter)
         pylab.show()
 
-    # let the user inspect any z-crossections of the image they want to
-    data = image.as_array()
-    nz = data.shape[0]
-    print('Enter z-coordinate of the slice to view it')
-    print('(a value outside the range [1 : %d] will stop the loop)'%nz)
-    while True:
-        s = str(input('z-coordinate: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 1 or z > nz:
-            break
-        pylab.figure(z)
-        pylab.imshow(data[z - 1,:,:])
-        print('close Figure %d window to continue' % z)
-        pylab.show()
+    # display image
+    image.show()
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
+    print('done')
 except error as err:
     # display error information
     print('STIR exception occured: %s' % err.value)

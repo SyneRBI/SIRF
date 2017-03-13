@@ -46,7 +46,7 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    am = AcquisitionModelUsingMatrix(RayTracingMatrix())
+    am = AcquisitionModelUsingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
@@ -102,6 +102,7 @@ def main():
 # (cf. Error Handling section in the spec)
 try:
     main()
+    print('done')
 except error as err:
     # display error information
     print('Exception occured: %s' % err.value)
