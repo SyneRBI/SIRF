@@ -16,8 +16,12 @@ You need to create folder named build in YOUR_PATH with a subfolder install.
 YOUR_PATH/build/install/bin (will be created by installation) must be in Windows path.
 Folder YOUR_PATH/build/install/python must be in Python path (i.e. listed in PYTHONPATH
 environment variable value) and folder YOUR_PATH/build/install/matlab in Matlab path.
-To use Matlab doc feature you, also need to add YOUR_PATH/SIRF/examples/Matlab/MR and
-YOUR_PATH/SIRF/examples/Matlab/PET and their sub-folders to Matlab path.
+
+To use Matlab doc feature on demo scripts, you also need to add folders YOUR_PATH/SIRF/examples/Matlab/MR and YOUR_PATH/SIRF/examples/Matlab/PET and their sub-folders to Matlab path.
+
+To run Python demo scripts, you are advised either to create an environment variable 
+SRC_PATH with the value YOUR_PATH, or SIRF_PATH with the value YOUR_PATH/SIRF, otherwise 
+you will have to give full path to raw data files via command-line options -p or --path.
 
 =====
 LINUX
