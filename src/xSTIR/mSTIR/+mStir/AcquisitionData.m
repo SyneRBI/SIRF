@@ -14,7 +14,7 @@ classdef AcquisitionData < handle
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', arg);
-            elseif isa(arg, mStir.AcquisitionData)
+            elseif isa(arg, 'mStir.AcquisitionData')
                 self.handle = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
                     arg.handle);
@@ -58,6 +58,27 @@ classdef AcquisitionData < handle
             ptr_v = libpointer('doublePtr', zeros(n, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle, ptr_v);
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
+        end
+        function fill(self, value)
+            if isempty(self.handle)
+                error([self.name ':fill'], ...
+                    'AcquisitionData object not initialized')
+            elseif isa(value, 'double')
+                if numel(value) > 1
+                    ptr_v = libpointer('doublePtr', value);
+                    calllib('mstir', 'mSTIR_setAcquisitionsData', ...
+                        self.handle, ptr_v);
+                else
+                    calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
+                        self.handle, value);
+                end
+            elseif isa(value, 'mStir.AcquisitionData')
+                calllib('mstir', ...
+                    'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
+                    self.handle, value.handle);
+            else
+                error([self.name ':fill'], 'wrong fill value')
+            end
         end
     end
 end

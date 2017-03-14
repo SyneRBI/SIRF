@@ -46,6 +46,7 @@ try
     figure(1)
     data = data/max(max(max(data)));
     imshow(data(:,:,z));
+    title('phantom')
 
     % define the acquisition model
     am = AcquisitionModelUsingMatrix();
@@ -53,18 +54,32 @@ try
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
     templ = AcquisitionData(fullfile(pathname, filename));
+    fprintf('setting up acquisition model...\n')
     am.set_up(templ, image)
-    ad = am.forward(image); % ad sits in memory
-%     ad = am.forward(image, 'demo4data.hs'); % ad sits in this file
+    fprintf('projecting...\n')
+    fd = am.forward(image); % ad sits in memory
+%     fd = am.forward(image, 'demo4data.hs'); % ad sits in this file
 
+    data = fd.as_array();
+    x = int32(image_size(1)/2);
+    y = int32(image_size(2)/2);
+    fprintf('data(%d,%d,%d) = %f\n', x, y, z, data(x, y, z))
+    fd.fill(10*data)
+    data = fd.as_array();
+    fprintf('data(%d,%d,%d) = %f\n', x, y, z, data(x, y, z))
+    ad = AcquisitionData(fd);
+    ad.fill(fd)
     data = ad.as_array();
     figure(2)
     imshow(data(:,:,z)/max(max(max(data))));
+    title('simulated acquisition data')
     
-    update = am.backward(ad);
+    fprintf('back-projecting...\n')
+    update = am.backward(fd);
     data = update.as_array();
     figure(3)
     imshow(data(:,:,z)/max(max(max(data))));
+    title('back-projection of simulated data')
 
 catch err
     % display error information
