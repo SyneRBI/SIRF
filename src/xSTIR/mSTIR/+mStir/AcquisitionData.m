@@ -1,11 +1,14 @@
 classdef AcquisitionData < handle
-    % Class for MR acquisition data objects.
+    % Class for PET acquisition data objects.
     properties
         name
         handle
     end
     methods
         function self = AcquisitionData(arg)
+%         Creates new AcquisitionData object from a file or another
+%         AcquisitionData object;
+%         arg:  file name or AcquisitionData object.
             self.handle = [];
             self.name = 'AcquisitionData';
             if nargin < 1
@@ -38,6 +41,11 @@ classdef AcquisitionData < handle
             mUtil.checkExecutionStatus(self.name, self.handle);
         end
         function image = create_empty_image(self, value)
+%         Creates ImageData object containing PET image of dimensions
+%         and voxel sizes compatible with the scanner geometry stored
+%         in this AcquisitionData object and assigns a given value
+%         to all voxels;
+%         value: a double.
             image = mStir.ImageData();
             image.handle = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
@@ -48,8 +56,11 @@ classdef AcquisitionData < handle
             end
         end
         function data = as_array(self)
-%         Returns 3D array of this acquisition data values.
-
+%         Returns 3D array of the acquisition data values.
+%         Dimensions are:
+%         - number of tangential positions
+%         - number of views
+%         - number of sinograms
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
                 self.handle, ptr_i);
@@ -60,6 +71,8 @@ classdef AcquisitionData < handle
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function fill(self, value)
+%         Fills the object with values;
+%         value: double or array of doubles or an AcquisitionData object
             if isempty(self.handle)
                 error([self.name ':fill'], ...
                     'AcquisitionData object not initialized')

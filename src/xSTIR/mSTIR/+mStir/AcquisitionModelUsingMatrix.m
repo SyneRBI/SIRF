@@ -1,9 +1,9 @@
-classdef AcquisitionModelUsingMatrix < handle
+classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
+    % Class for PET acquisition model with the geometric projection G
+    % represented by a sparse matrix
     properties
-        name
-        handle
-        template
-        image
+%         name
+%         handle
     end
     methods
         function self = AcquisitionModelUsingMatrix(matrix)
@@ -17,7 +17,10 @@ classdef AcquisitionModelUsingMatrix < handle
                 (self.handle, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
-            calllib('mutilities', 'mDeleteDataHandle', self.handle)
+            if ~isempty(self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                self.handle = [];
+            end
         end
         function set_matrix(self, matrix)
             mStir.setParameter...
@@ -29,30 +32,6 @@ classdef AcquisitionModelUsingMatrix < handle
                 self.handle, self.name, 'matrix');
             mUtil.checkExecutionStatus...
                 ([self.name ':get_matrix'], matrix.handle)
-        end
-        function set_up(self, template, image)
-            h = calllib...
-                ('mstir', 'mSTIR_setupAcquisitionModel',...
-                self.handle, template.handle, image.handle);
-            mUtil.checkExecutionStatus([self.name ':set_up'], h)
-            %mUtil.checkExecutionStatus(self.name, h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
-        end
-        function ad = forward(self, image, filename)
-            if nargin < 3
-                filename = '';
-            end
-            ad = mStir.AcquisitionData();
-            ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
-                self.handle, image.handle, filename);
-            mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
-        end
-        function image = backward(self, ad)
-            image = mStir.ImageData();
-            image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
-                self.handle, ad.handle);
-            mUtil.checkExecutionStatus...
-                ([self.name ':backward'], image.handle)
         end
     end
 end

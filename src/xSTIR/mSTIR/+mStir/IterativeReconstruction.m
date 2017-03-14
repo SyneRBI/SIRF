@@ -61,11 +61,11 @@ classdef IterativeReconstruction < mStir.Reconstruction
         end
         function set_objective_function(self, obj_fun)
             mStir.setParameter(self.handle, self.IR,...
-                'objective_function', obj_fun.handle, 'h')
+                'objective_function', obj_fun, 'h')
         end
         function set_inter_iteration_filter(self, filter)
             mStir.setParameter(self.handle, self.IR,...
-                'inter_iteration_filter_type', filter.handle, 'h')
+                'inter_iteration_filter_type', filter, 'h')
         end
         function filter = get_inter_iteration_filter(self)
             filter = mStir.DataProcessor();

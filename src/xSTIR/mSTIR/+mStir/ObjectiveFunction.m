@@ -9,14 +9,14 @@ classdef ObjectiveFunction < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                self.handle = [];
             end
         end
         function set_prior(self, prior)
             mStir.setParameter...
                 (self.handle, 'GeneralisedObjectiveFunction', 'prior',...
-                prior.handle, 'h')
+                prior, 'h')
         end
         function prior = get_prior(self)
             prior = mStir.Prior();

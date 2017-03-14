@@ -37,7 +37,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_acquisition_model(self, am)
             mStir.setParameter(self.handle, self.name,...
-                'acquisition_model', am.handle, 'h')
+                'acquisition_model', am, 'h')
         end
         function am = get_acquisition_model(self)
             am = mStir.AcquisitionModelUsingMatrix();
@@ -48,7 +48,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_acquisition_data(self, am)
             mStir.setParameter(self.handle, self.name,...
-                'proj_data_sptr', am.handle, 'h')
+                'proj_data_sptr', am, 'h')
         end
     end
 end
