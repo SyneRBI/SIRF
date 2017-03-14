@@ -93,5 +93,19 @@ classdef AcquisitionData < handle
                 error([self.name ':fill'], 'wrong fill value')
             end
         end
+        function ad = clone(self)
+%         Returns a true copy of this object (not Python handle).
+            ad = mStir.AcquisitionData(self);
+            ad.fill(self)
+        end
+        function ad = get_empty_copy(self, value)
+%         Returns a true copy of this object (not Python handle)
+%         filled with a given double value.
+            if nargin < 2
+                value = 0;
+            end
+            ad = mStir.AcquisitionData(self);
+            ad.fill(value)
+        end
     end
 end

@@ -1,4 +1,6 @@
 classdef RayTracingMatrix < handle
+    % Class for objects holding sparse matrix representation of the ray
+    % tracing projector G (see AcquisitionModel class).
     properties
         name
         handle

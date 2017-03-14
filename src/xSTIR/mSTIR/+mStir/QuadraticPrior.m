@@ -1,4 +1,5 @@
 classdef QuadraticPrior < mStir.Prior
+    % Class for the priors that is a quadratic function of the image values.
     methods
         function self = QuadraticPrior()
             self.name = 'QuadraticPrior';
@@ -6,7 +7,6 @@ classdef QuadraticPrior < mStir.Prior
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%            calllib('mstir', 'mSTIR_deleteObject', self.handle)
             self.handle = [];
         end
     end
