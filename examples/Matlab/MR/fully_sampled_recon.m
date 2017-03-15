@@ -5,10 +5,8 @@ function fully_sampled_recon
 % See also FULLY_SAMP_BASIC FULLY_SAMPLED_RECON_SINGLE_CHAIN
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 
-% Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
-% created in this function without using the prefix 'MR.'
-set_up_mr
-import MR.*
+ccp_libload  % Load SIRF ('CCP') libraries
+import mGadgetron.*  % Use Gadgetron recon engine
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or

@@ -2,8 +2,8 @@ function acquisitions_handling
 % ACQUISITIONS_HANDLING Demo illustrating acquisitions pre-processing 
 % and plotting.
 %
-% In MATLAB, there are also ISMRMRD tools available examining data before
-% processing.
+% In MATLAB, there are also ISMRMRD tools available for examining 
+% data before processing.
 %
 
 

@@ -26,9 +26,6 @@ function grappa_detail
 %  grappa_detail
 %
 %
-% Adapted by David Atkinson (D.Atkinson@ucl.ac.uk) from original 
-% code by Evgueni Ovtchinnikov
-%
 % See also GRAPPA_BASIC GEN_US_DATA
 
 % load mutilities and mgadgetron libraries

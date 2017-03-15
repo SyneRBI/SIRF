@@ -3,7 +3,8 @@ function grappa_basic
 % 
 % Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
 % See function grappa_detail.m for an example showing more of the 
-% workings and functionality of the SIRF code.
+% workings and functionality of the SIRF code with the explicit use of the
+% Gadgetron reconstruction engine.
 %
 % Pre-requisites:
 % 1) This MATLAB code needs to be able to access a listening gadgetron.
@@ -27,15 +28,10 @@ function grappa_basic
 %  grappa_basic
 %
 %
-% Adapted by David Atkinson (D.Atkinson@ucl.ac.uk) from original 
-% code by Evgueni Ovtchinnikov
-%
 % See also GRAPPA_DETAIL GEN_US_DATA
 
-% Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
-% created in this function without using the prefix 'MR.'
-set_up_mr
-import MR.*
+ccp_libload  % Load SIRF ('CCP') libraries
+import mGadgetron.*  % Use Gadgetron recon engine
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
@@ -72,12 +68,9 @@ if size(idata,3) < sl
 end
 
 % Display the modulus and phase for this reconstructed slice.
-if exist('imshow','file')
-    figure('Name',['idata, slice: ',num2str(sl)])
-    subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
-    subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
-else
-    disp(['Display section of demo requires Image Processing Toolbox'])
-end
+figure('Name',['idata, slice: ',num2str(sl)])
+subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
+subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
+
 
 

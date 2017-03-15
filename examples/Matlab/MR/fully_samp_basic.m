@@ -32,15 +32,10 @@ function fully_samp_basic
 %  fully_samp_basic
 %
 %
-% Adapted by David Atkinson (D.Atkinson@ucl.ac.uk) from original 
-% code by Evgueni Ovtchinnikov
-%
 % See also GRAPPA_BASIC
 
-% Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
-% created in this function without using the prefix 'MR.'
-set_up_mr
-import MR.*
+ccp_libload  % Load SIRF ('CCP') libraries
+import mGadgetron.*  % Use Gadgetron recon engine
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
