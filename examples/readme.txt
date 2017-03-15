@@ -1,1 +1,1 @@
-Please also see the Wiki page Demo (MR).
+Please also see the Wiki page Demos (MR).
