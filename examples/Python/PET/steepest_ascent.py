@@ -45,12 +45,8 @@ def show(fig, title, data):
 
 def main():
 
-    # direct all information printing to a file
-    info_printer = printerTo('info.txt', INFO_CHANNEL)
-    # direct all warning printing to a file
-    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
-    # direct all error printing to stdout
-    error_printer = printerTo('stdout', ERROR_CHANNEL)
+    # output goes to files
+    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     am = AcquisitionModelUsingMatrix()

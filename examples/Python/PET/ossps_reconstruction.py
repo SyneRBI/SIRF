@@ -36,8 +36,8 @@ init_file = args['--init']
 
 def main():
 
-    # direct all printing to this file
-    printer = printerTo('output.txt')
+    # output goes to files
+    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
