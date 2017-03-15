@@ -1,2 +1,1 @@
-Please also see Wiki page on Demos (MR) and further demos in SIRF/src/xGadgetron/examples/Matlab/MR
-§
+Please also see the Wiki page on Demos (MR)
