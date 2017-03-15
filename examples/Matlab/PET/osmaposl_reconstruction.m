@@ -43,15 +43,18 @@ try
     data = data/max(max(max(data)));
     imshow(data(:,:,1));
 
+    % set the initial image estimate
+    recon.set_current_estimate(image)
+
     % in order to see the reconstructed image evolution
     % take over the control of the iterative process
     % rather than allow recon.reconstruct to do all job at once
     for iter = 1 : num_subiterations
         fprintf('\n--------------------- Subiteration %d\n', iter)
         % perform an iteration
-        recon.update(image)
+        recon.update_current_estimate()
         % plot the current image
-        data = image.as_array();
+        data = recon.get_current_estimate().as_array();
         figure(iter)
         imshow(data(:,:,20)/max(max(max(data))));
     end
