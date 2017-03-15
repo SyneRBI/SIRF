@@ -31,11 +31,8 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
-    # direct all information and error printing to files
-    info_printer = printerTo('info.txt', INFO_CHANNEL)
-    warning_printer = printerTo('warn.txt', WARNING_CHANNEL)
-    # direct all error printing to stdout
-    error_printer = printerTo('stdout', ERROR_CHANNEL)
+    # output goes to files
+    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     am = AcquisitionModelUsingMatrix()

@@ -12,7 +12,8 @@ classdef AcquisitionModel < handle
 %     The computation of y for a given x by the above formula (F) is
 %     referred to as forward projection, and the computation of
 %     (B)    z = G' m y
-%     where G' is the transpose of G, is referred to as backward projection.
+%     where G' is the transpose of G and m = 1/n, is referred to as 
+%     backward projection.
     properties
         name
         handle

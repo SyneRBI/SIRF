@@ -1,14 +1,22 @@
 classdef IterativeReconstruction < mStir.Reconstruction
+%     Class for generic iterative PET reconstruction objects.
     properties (Constant)
         IR = 'IterativeReconstruction';
+    end
+    properties
+        input
+        image
+        subset
     end
     methods
         function self = IterativeReconstruction()
             self.handle = [];
+            self.input = [];
+            self.image = [];
+            self.subset = 0;
         end
         function delete(self)
             if ~isempty(self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
                 self.handle = [];
             end
@@ -78,6 +86,37 @@ classdef IterativeReconstruction < mStir.Reconstruction
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus([self.IR ':set_up'], h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function set_input(self, input)
+            self.input = input;
+        end
+        function set_current_subset(self, subset)
+            self.subset = subset;
+        end
+        function set_current_estimate(self, image)
+            self.image = image;
+        end
+        function image = get_current_estimate(self)
+            image = self.image;
+        end
+        function update_current_estimate(self)
+            if isempty(self.image)
+                error([self.IR ':update_current_image'], ...
+                    'current estimate not set')
+            end
+            h = calllib('mstir', 'mSTIR_updateReconstruction',...
+                self.handle, self.image.handle);
+            mUtil.checkExecutionStatus([self.IR ':update_current_image'], h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function process(self)
+            if isempty(self.image)
+                error([self.IR ':process'], 'current estimate not set')
+            end
+            h = calllib('mstir', 'mSTIR_runReconstruction',...
+                self.handle, self.image.handle);
+            mUtil.checkExecutionStatus([self.IR ':process'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function update(self, image)

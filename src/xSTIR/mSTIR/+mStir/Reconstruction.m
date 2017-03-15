@@ -1,4 +1,5 @@
 classdef Reconstruction < handle
+%     Class for generic PET reconstruction objects.
     properties (Constant)
         R = 'Reconstruction';
     end
@@ -11,7 +12,6 @@ classdef Reconstruction < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 calllib('mstir', 'mDeleteDataHandle', self.handle)
             end
         end

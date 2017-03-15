@@ -57,8 +57,8 @@ try
     fprintf('setting up acquisition model...\n')
     am.set_up(templ, image)
     fprintf('projecting...\n')
-    fd = am.forward(image); % ad sits in memory
-%     fd = am.forward(image, 'demo4data.hs'); % ad sits in this file
+    fd = am.forward(image); % fd sits in memory
+%     fd = am.forward(image, 'demo4data.hs'); % fd sits in this file
 
     data = fd.as_array();
     x = int32(image_size(1)/2);

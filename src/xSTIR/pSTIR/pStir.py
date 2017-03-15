@@ -1,4 +1,5 @@
-''' Object-Oriented wrap for low-level STIR Python interface pystir.py
+''' 
+Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 '''
 import numpy
 import os
@@ -19,6 +20,8 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
+###########################################################
+############ Utilities for internal use only ##############
 def _setParameter(hs, set, par, hv):
     h = pystir.cSTIR_setParameter(hs, set, par, hv)
     check_status(h)
@@ -57,13 +60,22 @@ def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
     check_status(handle)
     return handle
-
 def _tmp_filename():
     return repr(int(1000*time.time()))
+###########################################################
 
 class Printer:
-    'Redirects STIR printing to files/stdout'
+    '''
+    Class for STIR printing redirection to files/stdout/stderr.
+    '''
     def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
+        '''
+        Creates Printer object that redirects the output of STIR's info,
+        warning and error functions to destinations specified respectively by
+        info, warn and err arguments.
+        The argument values other than None, stdout, stderr, cout and cerr
+        are interpreted as filenames.
+        '''
         self.info_case = -1
         self.warn_case = -1
         self.errr_case = -1
@@ -124,7 +136,19 @@ class Printer:
             pystir.closeChannel(2, self.errr)
 
 class printerTo:
+    '''
+    Class for STIR printing redirection to a file/stdout/stderr.
+    '''
     def __init__(self, dest, channel = -1):
+        '''
+        Creates an object that redirects printing to specified channel to
+        the destination specified by dest.
+        The values 0, 1, and 2 of channel correspond to STIR's functions info,
+        warning and error respectively.
+        The value -1 redirects all output to specified destination.
+        The argument dest value other than None, stdout, stderr, cout and cerr
+        is interpreted as filenames.
+        '''
         self.case = -1
         if dest is None:
             return
@@ -147,22 +171,35 @@ class printerTo:
                 pystir.deleteTextWriter(self.printer)
 
 class Shape:
+    '''
+    Class for an abstract geometric shape used as a building block for
+    creating phantom images.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_origin(self, origin):
+        '''
+        Sets the (discrete) coordinates of the shape centre on a voxel grid.
+        '''
         _set_float_par(self.handle, 'Shape', 'x', origin[0])
         _set_float_par(self.handle, 'Shape', 'y', origin[1])
         _set_float_par(self.handle, 'Shape', 'z', origin[2])
     def get_origin(self):
+        '''
+        Returns the coordinates of the shape centre on a voxel grid.
+        '''
         x = _float_par(self.handle, 'Shape', 'x')
         y = _float_par(self.handle, 'Shape', 'y')
         z = _float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
 class EllipsoidalCylinder(Shape):
+    '''
+    Class for ellipsoidal cylinder shape.
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'EllipsoidalCylinder'
@@ -192,7 +229,14 @@ class EllipsoidalCylinder(Shape):
         return (rx, ry)
 
 class Voxels:
+    '''
+    Class for the 3D voxel grid.
+    '''
     def __init__(self, dim, vsize, origin = (0,0,0)):
+        '''
+        Creates voxel grid of specified dimensions, voxel sizes in mm and
+        origin.
+        '''
         self.handle = None
         self.name = 'Voxels'
         self.handle = pystir.cSTIR_voxels3DF\
@@ -207,7 +251,8 @@ class Voxels:
 class ImageData:
     '''Class for PET image data objects.'''
     def __init__(self, arg = None):
-        '''Creates an ImageData object based on the argument <arg> type.
+        '''
+        Creates an ImageData object based on the argument <arg> type.
         str            : the object is read from file specified by <arg>
         AcquisitionData: the object compatible with the scanner data
                          recorded in an AcquisitionData object <arg> is created
@@ -232,7 +277,8 @@ class ImageData:
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
-        '''Sets this image size in voxels, voxel sizes in mm and the origin.
+        '''
+        Sets this image size in voxels, voxel sizes in mm and the origin.
         All arguments except the first one are optional.
         Present arguments are either all scalars or all tuples.
         The first tuple argument or three scalar arguments set the image
@@ -269,7 +315,8 @@ class ImageData:
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
     def fill(self, value):
-        '''Sets this image values at voxels.
+        '''
+        Sets this image values at voxels.
         The argument is either 3D Numpy ndarray of values or a scalar to be
         assigned at each voxel.
         '''
@@ -285,7 +332,7 @@ class ImageData:
         check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
-        '''Creates a copy of this image filled with 1.0.'''
+        '''Creates a copy of this image filled with <value>.'''
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
@@ -317,7 +364,7 @@ class ImageData:
         ny = dim[1]
         nx = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
-            raise error('density data not available')
+            raise error('image data not available')
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
         pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
         return array
@@ -344,7 +391,7 @@ class ImageData:
             pylab.show()
 
 class ImageFilter:
-    '''Abstract base class for image filters.'''
+    '''Class for image filters.'''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -360,7 +407,8 @@ class ImageFilter:
         pyiutil.deleteDataHandle(self.handle)
 
 class CylindricFilter(ImageFilter):
-    '''Class for the image filter that zeroes the image outside the cylinder
+    '''
+    Class for the image filter that zeroes the image outside the cylinder
     of the same xy-diameter and z-size as those of the image.
     '''
     def __init__(self, data_processor = None):
@@ -375,13 +423,16 @@ class CylindricFilter(ImageFilter):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_strictly_less_than_radius(self, flag):
-        '''Specifies whether the area not affected by filtering is strictly
-        inside the cylinder (flag = True) or not (flag = False).'''
+        '''
+        Specifies whether the area not affected by filtering is strictly
+        inside the cylinder (flag = True) or not (flag = False).
+        '''
         _set_char_par\
             (self.handle, 'TruncateToCylindricalFOVImageProcessor',\
              'strictly_less_than_radius', repr(flag))
     def get_strictly_less_than_radius(self):
-        '''Returns the answer to the question: Is the area not affected by 
+        '''
+        Returns the answer to the question: Is the area not affected by 
         filtering strictly inside the cylinder?
         '''
         return _int_par\
@@ -389,7 +440,8 @@ class CylindricFilter(ImageFilter):
                 'strictly_less_than_radius') != 0
 
 class RayTracingMatrix:
-    '''Class for objects holding sparse matrix representation of the ray
+    '''
+    Class for objects holding sparse matrix representation of the ray
     tracing projector G (see AcquisitionModel class).
     '''
     def __init__(self):
@@ -410,9 +462,10 @@ class RayTracingMatrix:
 class AcquisitionData:
     '''Class for PET acquisition data.'''
     def __init__(self, src = None):
-        ''' Creates new AcquisitionData object from a file or another
-            AcquisitionData object;
-            src:  file name (Python str) or AcquisitionData object.
+        ''' 
+        Creates new AcquisitionData object from a file or another
+        AcquisitionData object;
+        src:  file name (Python str) or AcquisitionData object.
         '''
         self.handle = None
         self.name = 'AcquisitionData'
@@ -430,11 +483,12 @@ class AcquisitionData:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def create_empty_image(self, value = 0):
-        ''' Creates ImageData object containing PET image of dimensions
-            and voxel sizes compatible with the scanner geometry stored
-            in this AcquisitionData object and assigns a given value
-            to all voxels;
-            value:  a Python float.
+        ''' 
+        Creates ImageData object containing PET image of dimensions
+        and voxel sizes compatible with the scanner geometry stored
+        in this AcquisitionData object and assigns a given value
+        to all voxels;
+        value:  a Python float.
         '''
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
@@ -442,11 +496,12 @@ class AcquisitionData:
         image.fill(value)
         return image
     def as_array(self):
-        ''' Returns a copy of acquisition data stored in this object as a
-            NumPy ndarray of 3 dimensions (in default C ordering of data):
-            - number of sinograms
-            - number of views
-            - number of tangential positions.
+        ''' 
+        Returns a copy of acquisition data stored in this object as a
+        NumPy ndarray of 3 dimensions (in default C ordering of data):
+        - number of sinograms
+        - number of views
+        - number of tangential positions.
         '''
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         handle = pystir.cSTIR_getAcquisitionsDimensions\
@@ -465,9 +520,10 @@ class AcquisitionData:
         pyiutil.deleteDataHandle(handle)
         return array
     def fill(self, value):
-        ''' Fills the object with values;
-            value:  either NumPy ndarray or another AcquisitionData object
-                    or Python float.
+        ''' 
+        Fills the object with values;
+        value:  either NumPy ndarray or another AcquisitionData object
+                or Python float.
         '''
         if self.handle is None:
             raise error('AcquisitionData object not initialized')
@@ -482,76 +538,85 @@ class AcquisitionData:
             raise error('wrong fill value')
         return self
     def clone(self):
-        ''' Returns a true copy of this object (not Python handle).
+        ''' 
+        Returns a true copy of this object (not Python handle).
         '''
         ad = AcquisitionData(self)
         ad.fill(self)
         return ad
     def get_empty_copy(self, value = 0):
-        ''' Returns a copy of this object filled with a given value;
-            value:  a Python float.
+        ''' 
+        Returns a true copy of this object filled with a given value;
+        value:  a Python float.
         '''
         ad = AcquisitionData(self)
         ad.fill(value)
         return ad
 
 class AcquisitionModel:
-    ''' Class for a PET acquisition model that relates an image x to the
-        acquisition data y as
-        (F)    y = [1/n](G x + [a]) + [b]
-        where:
-        G is the geometric (ray tracing) projector from the image voxels
-        to the scanner's pairs of detectors (bins);
-        a and b are otional additive and background terms representing
-        the effects of noise and scattering; assumed to be 0 if not present;
-        n is an optional bin normalization term representing the inverse of
-        detector (bin) efficiencies; assumed to be 1 if not present.
-        The computation of y for a given x by the above formula (F) is
-        referred to as forward projection, and the computation of
-        (B)    z = G' m y
-        where G' is the transpose of G, is referred to as backward projection.
+    ''' 
+    Class for a PET acquisition model that relates an image x to the
+    acquisition data y as
+    (F)    y = [1/n](G x + [a]) + [b]
+    where:
+    G is the geometric (ray tracing) projector from the image voxels
+    to the scanner's pairs of detectors (bins);
+    a and b are otional additive and background terms representing
+    the effects of noise and scattering; assumed to be 0 if not present;
+    n is an optional bin normalization term representing the inverse of
+    detector (bin) efficiencies; assumed to be 1 if not present.
+    The computation of y for a given x by the above formula (F) is
+    referred to as forward projection, and the computation of
+    (B)    z = G' m y
+    where G' is the transpose of G and m = 1/n, is referred to as 
+    backward projection.
     '''
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
     def set_up(self, acq_templ, img_templ):
-        ''' Prepares this object for performing forward and backward
-            projections;
-            acq_templ:  an AcquisitionData object used as a template for
-                        creating an AcquisitionData object to store forward
-                        projection;
-            img_templ:  an ImageData object used as a template for creating an
-                        ImageData object to store backward projection.
+        ''' 
+        Prepares this object for performing forward and backward
+        projections;
+        acq_templ:  an AcquisitionData object used as a template for
+                    creating an AcquisitionData object to store forward
+                    projection;
+        img_templ:  an ImageData object used as a template for creating an
+                    ImageData object to store backward projection.
         '''
         handle = pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_additive_term(self, at):
-        ''' Sets the additive term a in (F);
-            at:  an AcquisitionData object containing a.
+        ''' 
+        Sets the additive term a in (F);
+        at:  an AcquisitionData object containing a.
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
-        ''' Sets the additive term b in (F);
-            bt:  an AcquisitionData object containing b.
+        ''' 
+        Sets the background term b in (F);
+        bt:  an AcquisitionData object containing b.
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_normalisation(self, bin_eff):
-        ''' Sets the normalization n in (F);
-            bin_eff:  an AcquisitionData object containing bin efficiencies
-                      (the inverse of n).
+        ''' 
+        Sets the normalization n in (F);
+        bin_eff:  an AcquisitionData object containing bin efficiencies
+                  (the inverse of n).
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
     def forward(self, image, filename = ''):
-        ''' Returns the forward projection of x given by (F);
-            image   :  an ImageData object containing x;
-            filename:  an optional name of the file to store projection data;
-                       if not present, projection data is stored in memory
-                       (not recommended as it can be huge).
+        ''' 
+        Returns the forward projection of x given by (F);
+        image   :  an ImageData object containing x;
+        filename:  an optional name of the file to store projection data;
+                   if not present, projection data is stored in memory
+                   (not recommended as it can be huge).
         '''
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelFwd\
@@ -559,8 +624,9 @@ class AcquisitionModel:
         check_status(ad.handle)
         return ad;
     def backward(self, ad):
-        ''' Returns the backward projection of y giben by (B);
-            ad:  an AcquisitionData object containing y.
+        ''' 
+        Returns the backward projection of y giben by (B);
+        ad:  an AcquisitionData object containing y.
         '''
         image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
@@ -569,13 +635,15 @@ class AcquisitionModel:
         return image
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
-    ''' Class for a PET acquisition model that uses (implicitly) a sparse
-        matrix for G in (F).
+    ''' 
+    Class for a PET acquisition model that uses (implicitly) a sparse
+    matrix for G in (F).
     '''
     def __init__(self, matrix = None):
-        ''' Creates an AcquisitionModelUsingMatrix object, optionally setting
-            the ray tracing matrix to be used for projecting;
-            matrix:  a RayTracingMatrix object to represent G in (F).
+        ''' 
+        Creates an AcquisitionModelUsingMatrix object, optionally setting
+        the ray tracing matrix to be used for projecting;
+        matrix:  a RayTracingMatrix object to represent G in (F).
         '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -585,13 +653,15 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
             matrix = RayTracingMatrix()
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def set_matrix(self, matrix):
-        ''' Sets the ray tracing matrix to be used for projecting;
-            matrix:  a RayTracingMatrix object to represent G in (F).
+        ''' 
+        Sets the ray tracing matrix to be used for projecting;
+        matrix:  a RayTracingMatrix object to represent G in (F).
         '''
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):
-        ''' Returns the ray tracing matrix used for projecting;
-            matrix:  a RayTracingMatrix object representing G in (F).
+        ''' 
+        Returns the ray tracing matrix used for projecting;
+        matrix:  a RayTracingMatrix object representing G in (F).
         '''
         matrix = RayTracingMatrix()
         matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
@@ -599,7 +669,8 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         return matrix
 
 class Prior:
-    '''Class for objects handling the prior: a penalty term to be added to the
+    '''
+    Class for objects handling the prior: a penalty term to be added to the
     objective function maximized by iterative reconstruction algorithms.
     '''
     def __init__(self):
@@ -608,19 +679,22 @@ class Prior:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_penalisation_factor(self, value):
-        '''Sets the factor by which the penalty term (prior) is to be multiplied
+        '''
+        Sets the factor by which the penalty term (prior) is to be multiplied
         before adding to the objective function.
         '''
         _set_float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor', value)
         return self
     def get_penalisation_factor(self):
-        '''Returns the penalty factor in front of the prior.
+        '''
+        Returns the penalty factor in front of the prior.
         '''
         return _float_par\
             (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
-        '''Returns the value of the gradient of the prior for a given value of
+        '''
+        Returns the value of the gradient of the prior for a given value of
         the image.
         '''
         grad = ImageData()
@@ -633,7 +707,8 @@ class Prior:
 ##        pyiutil.deleteDataHandle(handle)
 
 class QuadraticPrior(Prior):
-    '''Class for priors that are quadratic functions of the image values at voxels.
+    '''
+    Class for the prior that is a quadratic functions of the image values.
     '''
     def __init__(self):
         self.handle = None
@@ -645,7 +720,8 @@ class QuadraticPrior(Prior):
             pyiutil.deleteDataHandle(self.handle)
 
 class ObjectiveFunction:
-    '''Class for the objective function maximized by the iterative reconstruction
+    '''
+    Class for the objective function maximized by the iterative reconstruction
     algorithms.
     '''
     def __init__(self):
@@ -654,13 +730,15 @@ class ObjectiveFunction:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_prior(self, prior):
-        '''Sets the prior (penalty term to be added to the objective function).
+        '''
+        Sets the prior (penalty term to be added to the objective function).
         '''
         _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
         self.prior = prior
     def get_prior(self):
-        '''Returns the prior currently used by this objective function.
+        '''
+        Returns the prior currently used by this objective function.
         '''
         prior = Prior()
         prior.handle = pystir.cSTIR_parameter\
@@ -668,28 +746,32 @@ class ObjectiveFunction:
         check_status(prior.handle)
         return prior
     def set_num_subsets(self, n):
-        '''Sets the number of subsets of ray projections to be used for computing
+        '''
+        Sets the number of subsets of ray projections to be used for computing
         additive components of the gradient used by Ordered Subset algorithms
         for maximizing this objective function.
-        Assuming for simplicity of illustration that the ray tracing projector G
-        is a matrix, the subsets in question are subsets of its rows.
+        If the ray tracing projector G is a matrix, the subsets in question are 
+        subsets of its rows.
         '''
         _set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
     def set_up(self, image):
-        '''Prepares this object for use.
+        '''
+        Prepares this object for use.
         '''
         handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def value(self, image):
-        '''Returns the value of this objective function on <image>.
+        '''
+        Returns the value of this objective function on <image>.
         '''
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
         return pyiutil.floatDataFromHandle(handle)
     def gradient(self, image, subset):
-        '''Returns the value of the additive component of the gradient of this 
+        '''
+        Returns the value of the additive component of the gradient of this 
         objective function on <image> corresponding to a given <subset>
         (see set_num_subsets() method).
         '''
@@ -700,6 +782,10 @@ class ObjectiveFunction:
         return grad
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
+    '''
+    Class for STIR PoissonLogLikelihoodWithLinearModelForMean object, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -724,6 +810,10 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
     def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
+        '''
+        Computes back-projection of the ratio of measured to estimated 
+        acquisition data.
+        '''
         grad = ImageData()
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)
@@ -732,6 +822,11 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 (PoissonLogLikelihoodWithLinearModelForMean):
+    '''
+    Class for STIR PoissonLogLikelihoodWithLinearModelForMeanAndProjData object,
+    see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMeanAndProjData.html
+    '''
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
@@ -752,9 +847,15 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
     def set_max_segment_num_to_process(self, n):
         _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
+        '''
+        Sets the acquisition model to be used by this objective function.
+        '''
         _setParameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
     def get_acquisition_model(self):
+        '''
+        Returns the acquisition model used by this objective function.
+        '''
         am = AcquisitionModelUsingMatrix()
         if am.handle is not None:
             pyiutil.deleteDataHandle(am.handle)
@@ -763,10 +864,16 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         check_status(am.handle)
         return am
     def set_acquisition_data(self, ad):
+        '''
+        Sets the acquisition data to be used by this objective function.
+        '''
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
 class Reconstruction:
+    '''
+    Class for generic PET reconstruction objects.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -777,6 +884,9 @@ class Reconstruction:
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
 
 class IterativeReconstruction(Reconstruction):
+    '''
+    Class for generic iterative PET reconstruction objects.
+    '''
     def __init__(self):
         self.handle = None
         self.input = None
@@ -863,7 +973,7 @@ class IterativeReconstruction(Reconstruction):
         self.subset = subset
     def get_subset_sensitivity(self):
         obj_fun = self.get_objective_function()
-        obj_fun.get_subset_sensitivity(self.subset)
+        return obj_fun.get_subset_sensitivity(self.subset)
     def reconstruct(self, image):
         handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
         check_status(handle)
@@ -880,6 +990,11 @@ class IterativeReconstruction(Reconstruction):
         return self.get_current_estimate()
 
 class OSMAPOSLReconstruction(IterativeReconstruction):
+    '''
+    Class for Ordered Subsets Maximum A Posteriori One Step Late reconstruction
+    algorithm, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
+    '''
     def __init__(self, filename = ''):
         self.handle = None
         self.name = 'OSMAPOSL'
@@ -900,6 +1015,11 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         return obj_fun
 
 class OSSPSReconstruction(IterativeReconstruction):
+    '''
+    Class for Ordered Subsets Separable Paraboloidal Surrogate reconstruction
+    algorithm, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html
+    '''
     def __init__(self, filename = ''):
         self.handle = None
         self.name = 'OSSPS'
@@ -914,5 +1034,9 @@ class OSSPSReconstruction(IterativeReconstruction):
             (self.handle, self.name, 'relaxation_parameter', value)
 
 def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):
+    '''
+    Selects the objective function based on the acquisition data and acquisition
+    model types.
+    '''
     # only this objective function is implemented for now
     return PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
