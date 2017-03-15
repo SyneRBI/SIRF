@@ -1,4 +1,5 @@
-''' Object-Oriented wrap for low-level STIR Python interface pystir.py
+''' 
+Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 '''
 import numpy
 import os
@@ -19,6 +20,8 @@ WARNING_CHANNEL = 1
 ERROR_CHANNEL = 2
 ALL_CHANNELS = -1
 
+###########################################################
+############ Utilities for internal use only ##############
 def _setParameter(hs, set, par, hv):
     h = pystir.cSTIR_setParameter(hs, set, par, hv)
     check_status(h)
@@ -57,13 +60,22 @@ def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
     check_status(handle)
     return handle
-
 def _tmp_filename():
     return repr(int(1000*time.time()))
+###########################################################
 
 class Printer:
-    'Redirects STIR printing to files/stdout'
+    '''
+    Class for STIR printing redirection to files/stdout/stderr.
+    '''
     def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
+        '''
+        Creates Printer object that redirects the output of STIR's info,
+        warning and error functions to destinations specified respectively by
+        info, warn and err arguments.
+        The argument values other than None, stdout, stderr, cout and cerr
+        are interpreted as filenames.
+        '''
         self.info_case = -1
         self.warn_case = -1
         self.errr_case = -1
@@ -124,7 +136,19 @@ class Printer:
             pystir.closeChannel(2, self.errr)
 
 class printerTo:
+    '''
+    Class for STIR printing redirection to a file/stdout/stderr.
+    '''
     def __init__(self, dest, channel = -1):
+        '''
+        Creates an object that redirects printing to specified channel to
+        the destination specified by dest.
+        The values 0, 1, and 2 of channel correspond to STIR's functions info,
+        warning and error respectively.
+        The value -1 redirects all output to specified destination.
+        The argument dest value other than None, stdout, stderr, cout and cerr
+        is interpreted as filenames.
+        '''
         self.case = -1
         if dest is None:
             return
@@ -147,22 +171,35 @@ class printerTo:
                 pystir.deleteTextWriter(self.printer)
 
 class Shape:
+    '''
+    Class for an abstract geometric shape used as a building block for
+    creating phantom images.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_origin(self, origin):
+        '''
+        Sets the (discrete) coordinates of the shape centre on a voxel grid.
+        '''
         _set_float_par(self.handle, 'Shape', 'x', origin[0])
         _set_float_par(self.handle, 'Shape', 'y', origin[1])
         _set_float_par(self.handle, 'Shape', 'z', origin[2])
     def get_origin(self):
+        '''
+        Returns the coordinates of the shape centre on a voxel grid.
+        '''
         x = _float_par(self.handle, 'Shape', 'x')
         y = _float_par(self.handle, 'Shape', 'y')
         z = _float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
 class EllipsoidalCylinder(Shape):
+    '''
+    Class for ellipsoidal cylinder shape.
+    '''
     def __init__(self):
         self.handle = None
         self.name = 'EllipsoidalCylinder'
@@ -192,7 +229,14 @@ class EllipsoidalCylinder(Shape):
         return (rx, ry)
 
 class Voxels:
+    '''
+    Class for the 3D voxel grid.
+    '''
     def __init__(self, dim, vsize, origin = (0,0,0)):
+        '''
+        Creates voxel grid of specified dimensions, voxel sizes in mm and
+        origin.
+        '''
         self.handle = None
         self.name = 'Voxels'
         self.handle = pystir.cSTIR_voxels3DF\
@@ -738,6 +782,10 @@ class ObjectiveFunction:
         return grad
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
+    '''
+    Class for STIR PoissonLogLikelihoodWithLinearModelForMean object, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -762,6 +810,10 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
     def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
+        '''
+        Computes back-projection of the ratio of measured to estimated 
+        acquisition data.
+        '''
         grad = ImageData()
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)
@@ -770,6 +822,11 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
 
 class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 (PoissonLogLikelihoodWithLinearModelForMean):
+    '''
+    Class for STIR PoissonLogLikelihoodWithLinearModelForMeanAndProjData object,
+    see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMeanAndProjData.html
+    '''
     def __init__(self, obj_fun = None):
         self.handle = None
         self.name = 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData'
@@ -790,9 +847,15 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
     def set_max_segment_num_to_process(self, n):
         _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
+        '''
+        Sets the acquisition model to be used by this objective function.
+        '''
         _setParameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
     def get_acquisition_model(self):
+        '''
+        Returns the acquisition model used by this objective function.
+        '''
         am = AcquisitionModelUsingMatrix()
         if am.handle is not None:
             pyiutil.deleteDataHandle(am.handle)
@@ -801,10 +864,16 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         check_status(am.handle)
         return am
     def set_acquisition_data(self, ad):
+        '''
+        Sets the acquisition data to be used by this objective function.
+        '''
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
 class Reconstruction:
+    '''
+    Class for generic PET reconstruction objects.
+    '''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -815,6 +884,9 @@ class Reconstruction:
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
 
 class IterativeReconstruction(Reconstruction):
+    '''
+    Class for generic iterative PET reconstruction objects.
+    '''
     def __init__(self):
         self.handle = None
         self.input = None
@@ -918,6 +990,11 @@ class IterativeReconstruction(Reconstruction):
         return self.get_current_estimate()
 
 class OSMAPOSLReconstruction(IterativeReconstruction):
+    '''
+    Class for Ordered Subsets Maximum A Posteriori One Step Late reconstruction
+    algorithm, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
+    '''
     def __init__(self, filename = ''):
         self.handle = None
         self.name = 'OSMAPOSL'
@@ -938,6 +1015,11 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         return obj_fun
 
 class OSSPSReconstruction(IterativeReconstruction):
+    '''
+    Class for Ordered Subsets Separable Paraboloidal Surrogate reconstruction
+    algorithm, see
+    http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html
+    '''
     def __init__(self, filename = ''):
         self.handle = None
         self.name = 'OSSPS'
@@ -952,5 +1034,9 @@ class OSSPSReconstruction(IterativeReconstruction):
             (self.handle, self.name, 'relaxation_parameter', value)
 
 def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):
+    '''
+    Selects the objective function based on the acquisition data and acquisition
+    model types.
+    '''
     # only this objective function is implemented for now
     return PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
