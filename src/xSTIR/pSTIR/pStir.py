@@ -973,7 +973,7 @@ class IterativeReconstruction(Reconstruction):
         self.subset = subset
     def get_subset_sensitivity(self):
         obj_fun = self.get_objective_function()
-        obj_fun.get_subset_sensitivity(self.subset)
+        return obj_fun.get_subset_sensitivity(self.subset)
     def reconstruct(self, image):
         handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
         check_status(handle)

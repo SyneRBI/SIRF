@@ -1,5 +1,5 @@
 classdef ImageFilter < handle
-    % Abstract base class for image filters.
+    % Class for image filters.
     properties
         name
         handle
