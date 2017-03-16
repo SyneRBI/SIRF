@@ -22,6 +22,7 @@ To use Matlab doc feature on demo scripts, you also need to add folders YOUR_PAT
 To run Python demo scripts, you are advised either to create an environment variable 
 SRC_PATH with the value YOUR_PATH, or SIRF_PATH with the value YOUR_PATH/SIRF, otherwise 
 you will have to give full path to raw data files via command-line options -p or --path.
+NOTE: even on Windows, you must use / in paths.
 
 =====
 LINUX
@@ -59,7 +60,7 @@ be caused by CMake bugs - carry on regardless (as we did).
 
 ----------------
 
-Start CMake GUI.
+Start CMake GUI. Check Advanced.
 
 Select YOUR_PATH/SIRF folder as Source and YOUR_PATH/build/SIRF folder as Build.
 
@@ -89,7 +90,8 @@ If STIR_DIR is not foun, set it to YOUR_PATH/build/install/lib/cmake.
 
 Click Configure.
 
-Set the value of HDF5_hdf5_LIBRARY_RELEASE to C:/Packages/HDF5/1.8.18/lib/libhdf5.lib.
+If HDF5 is not found, set HDF5_C_INCLUDE_DIR to <HDF5_ROOT>/include and 
+the value of HDF5_hdf5_LIBRARY_RELEASE to C:/Packages/HDF5/1.8.18/lib/libhdf5.lib.
 
 Check the box agains SIRF_INSTALL_DEPENDENCIES.
 
