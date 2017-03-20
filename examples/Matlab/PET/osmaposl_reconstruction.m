@@ -18,7 +18,7 @@ try
     am = AcquisitionModelUsingMatrix();
     
     % read acquisition model data
-    [filename, pathname] = uigetfile('*.hs', 'Select raw data file');
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
     ad = AcquisitionData(fullfile(pathname, filename));
 
     % create initial image estimate

@@ -12,7 +12,7 @@ end
 eval(setup_MR(engine))
 
 % define raw data source
-[filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+[filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
 input_data = AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisitions

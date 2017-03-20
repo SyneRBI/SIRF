@@ -17,7 +17,7 @@ end
 eval(setup_MR(engine))
 
 % acquisitions will be read from an HDF file
-[filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+[filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
 input_data = AcquisitionData(fullfile(pathname, filename));
 
 na = input_data.number();
