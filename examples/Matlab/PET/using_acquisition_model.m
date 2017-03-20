@@ -1,8 +1,13 @@
+function using_acquisition_model(engine)
 % Forward projection demo: creates an image, forward-projects it to simulate
 % acquisition data and uses this data to reconstruct this image
 
-set_up_pet
-import PET.*
+% set_up_pet
+% import PET.*
+if nargin < 1
+    engine = [];
+end
+eval(setup_PET(engine))
 
 try
     % info() printing suppressed, warning() and error() print to stdout
@@ -85,4 +90,5 @@ catch err
     % display error information
     fprintf('??? %s\n', err.message)
     fprintf('error id is %s\n', err.identifier)
+end
 end

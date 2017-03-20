@@ -1,4 +1,4 @@
-function acquisitions_handling
+function acquisitions_handling(engine)
 % ACQUISITIONS_HANDLING Demo illustrating acquisitions pre-processing 
 % and plotting.
 %
@@ -9,9 +9,12 @@ function acquisitions_handling
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
-set_up_mr
-import MR.*
-
+%set_up_mr
+%import MR.*
+if nargin < 1
+    engine = [];
+end
+eval(setup_MR(engine))
 
 % acquisitions will be read from an HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file');

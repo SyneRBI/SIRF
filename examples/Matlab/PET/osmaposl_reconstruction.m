@@ -1,8 +1,13 @@
+function osmaposl_reconstruction(engine)
 % OSMAPOSL reconstruction demo with all parameters defined in the script
 % and user-controlled iterations.
 
-set_up_pet
-import PET.*
+% set_up_pet
+% import PET.*
+if nargin < 1
+    engine = [];
+end
+eval(setup_PET(engine))
 
 try
     % direct all information printing to info.txt;
@@ -60,4 +65,5 @@ catch err
     % display error information
     fprintf('%s\n', err.message)
     fprintf('error id is %s\n', err.identifier)
+end
 end

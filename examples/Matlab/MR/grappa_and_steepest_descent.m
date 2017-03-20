@@ -1,11 +1,15 @@
-function grappa_and_steepest_descent
+function grappa_and_steepest_descent(engine)
 % GRAPPA reconstruction with the steepest descent step
 % to illustrate the use of Acquisition Model projections.
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
-set_up_mr
-import MR.*
+% set_up_mr
+% import MR.*
+if nargin < 1
+    engine = [];
+end
+eval(setup_MR(engine))
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file');
