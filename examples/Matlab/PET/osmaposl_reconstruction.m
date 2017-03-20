@@ -5,12 +5,9 @@ set_up_pet
 import PET.*
 
 try
-    % information on computation progress to go to this file
-    printer_info = printerTo('info.txt', 0);
-
+    % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    printer_warn = printerTo('stdout', 1);
-    printer_errr = printerTo('stdout', 2);
+    printer = Printer('info.txt');
 
     % create acquisition model
     am = AcquisitionModelUsingMatrix();
