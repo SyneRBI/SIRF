@@ -1,22 +1,24 @@
+function osmaposl_reconstruction(engine)
 % OSMAPOSL reconstruction demo with all parameters defined in the script
 % and user-controlled iterations.
 
-set_up_pet
-import PET.*
+% set_up_pet
+% import PET.*
+if nargin < 1
+    engine = [];
+end
+eval(setup_PET(engine))
 
 try
-    % information on computation progress to go to this file
-    printer_info = printerTo('info.txt', 0);
-
+    % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    printer_warn = printerTo('stdout', 1);
-    printer_errr = printerTo('stdout', 2);
+    printer = Printer('info.txt');
 
     % create acquisition model
     am = AcquisitionModelUsingMatrix();
     
     % read acquisition model data
-    [filename, pathname] = uigetfile('*.hs', 'Select raw data file');
+    [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);
     ad = AcquisitionData(fullfile(pathname, filename));
 
     % create initial image estimate
@@ -63,4 +65,5 @@ catch err
     % display error information
     fprintf('%s\n', err.message)
     fprintf('error id is %s\n', err.identifier)
+end
 end

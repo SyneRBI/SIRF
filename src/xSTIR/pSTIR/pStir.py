@@ -135,41 +135,6 @@ class Printer:
                 pystir.deleteTextWriter(self.errr)
             pystir.closeChannel(2, self.errr)
 
-class printerTo:
-    '''
-    Class for STIR printing redirection to a file/stdout/stderr.
-    '''
-    def __init__(self, dest, channel = -1):
-        '''
-        Creates an object that redirects printing to specified channel to
-        the destination specified by dest.
-        The values 0, 1, and 2 of channel correspond to STIR's functions info,
-        warning and error respectively.
-        The value -1 redirects all output to specified destination.
-        The argument dest value other than None, stdout, stderr, cout and cerr
-        is interpreted as filenames.
-        '''
-        self.case = -1
-        if dest is None:
-            return
-        elif type(dest) is not type(' '):
-            raise error('wrong info argument for Printer constructor')
-        elif dest in {'stdout', 'stderr', 'cout', 'cerr'}:
-            self.printer = pystir.newTextPrinter(dest)
-            self.case = 0
-        else:
-            self.printer = pystir.newTextWriter(dest)
-            self.case = 1
-        pystir.openChannel(channel, self.printer)
-        self.channel = channel
-    def __del__(self):
-        if self.case is not -1:
-            pystir.closeChannel(self.channel, self.printer)
-            if self.case == 0:
-                pystir.deleteTextPrinter(self.printer)
-            else:
-                pystir.deleteTextWriter(self.printer)
-
 class Shape:
     '''
     Class for an abstract geometric shape used as a building block for
@@ -227,26 +192,6 @@ class EllipsoidalCylinder(Shape):
         rx = _float_par(self.handle, self.name, 'radius_x')
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
-
-class Voxels:
-    '''
-    Class for the 3D voxel grid.
-    '''
-    def __init__(self, dim, vsize, origin = (0,0,0)):
-        '''
-        Creates voxel grid of specified dimensions, voxel sizes in mm and
-        origin.
-        '''
-        self.handle = None
-        self.name = 'Voxels'
-        self.handle = pystir.cSTIR_voxels3DF\
-                      (dim[0], dim[1], dim[2], \
-                       vsize[0], vsize[1], vsize[2], \
-                       origin[0], origin[1], origin[2])
-        check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
 
 class ImageData:
     '''Class for PET image data objects.'''
