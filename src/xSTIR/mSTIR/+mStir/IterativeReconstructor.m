@@ -1,5 +1,5 @@
 classdef IterativeReconstructor < mStir.Reconstructor
-%     Class for generic iterative PET reconstruction objects.
+%     Class for generic iterative PET reconstructor.
     properties (Constant)
         IR = 'IterativeReconstruction';
     end

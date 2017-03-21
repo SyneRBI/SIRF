@@ -1,5 +1,5 @@
 classdef QuadraticPrior < mStir.Prior
-    % Class for the priors that is a quadratic function of the image values.
+    % Class for the prior that is a quadratic function of the image values.
     methods
         function self = QuadraticPrior()
             self.name = 'QuadraticPrior';

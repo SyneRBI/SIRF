@@ -1,4 +1,5 @@
 classdef EllipsoidalCylinder < mStir.Shape
+% Class for ellipsoidal cylinder shape.
     properties
         name
     end
@@ -10,7 +11,6 @@ classdef EllipsoidalCylinder < mStir.Shape
         function delete(self)
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
-%                calllib('mstir', 'mSTIR_deleteObject', self.handle)
                 self.handle = [];
             end
         end

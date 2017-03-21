@@ -14,7 +14,7 @@ classdef ImageDataProcessor < handle
             end
         end
         function apply(self, image)
-%         Applies this filter to <image>.
+%         Applies this filter to specified image.
             h = calllib('mstir', 'mSTIR_applyDataProcessor',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus('DataProcessor:apply', h)
