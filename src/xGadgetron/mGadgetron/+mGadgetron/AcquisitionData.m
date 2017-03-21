@@ -1,5 +1,7 @@
-classdef AcquisitionData < mGadgetron.DataContainer %mGadgetron.AcquisitionsContainer
-    % Class for MR acquisition data
+classdef AcquisitionData < mGadgetron.DataContainer
+    % Class for MR acquisitions container.
+    % Each item in the container is a 2D complex array of acquisition 
+    % samples for each coil.
     properties
         % Class name
         name_
@@ -27,7 +29,10 @@ classdef AcquisitionData < mGadgetron.DataContainer %mGadgetron.AcquisitionsCont
             end
         end
         function sort(self)
-            % Sorts acquisitions.
+%         Sorts acquisitions with respect to (in this order):
+%             - repetition
+%             - slice
+%             - kspace_encode_step_1
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')

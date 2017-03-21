@@ -1,5 +1,5 @@
 classdef FullySampledCartesianReconstructor < mGadgetron.Reconstructor
-% Class to perform recon of fully sampled MR data
+% Class to perform reconstruction of fully sampled MR data
 
     properties
     end

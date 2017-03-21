@@ -1,4 +1,5 @@
 classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
+    % Class for a reconstructor from undersampled Cartesian raw data.
     properties
     end
     methods

@@ -1,4 +1,5 @@
 classdef AcquisitionInfo < handle
+    % Class for acquisition information parameters.
     properties
         flags_
         encode_step_1_
