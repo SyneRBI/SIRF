@@ -31,7 +31,7 @@ def main():
     # acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
     # create reconstruction object
-    recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
+    recon = Reconstructor(['RemoveROOversamplingGadget', \
         'SimpleReconGadgetSet'])
     # reconstruct images
     images = recon.reconstruct(input_data)

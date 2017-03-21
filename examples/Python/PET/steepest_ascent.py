@@ -56,7 +56,7 @@ def main():
     ad = AcquisitionData(raw_data_file)
 
     # create filter
-    filter = CylindricFilter()
+    filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
     nx = 111

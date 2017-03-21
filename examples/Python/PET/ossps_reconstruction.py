@@ -57,7 +57,7 @@ def main():
 
     # select Ordered Subsets Separable Paraboloidal Surrogate
     # as the reconstruction algorithm
-    recon = OSSPSReconstruction()
+    recon = OSSPSReconstructor()
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
     recon.set_objective_function(obj_fun)
@@ -82,7 +82,7 @@ def main():
         data = image.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(data[10,:,:])
-        print('close Figure %d window to continue' % iter)
+        print('close Figure %d window to continue' % (iter + 1))
         pylab.show()
 
     # display image

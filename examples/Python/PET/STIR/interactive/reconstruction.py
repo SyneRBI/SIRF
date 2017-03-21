@@ -39,7 +39,7 @@ def make_positive(image_array):
 
 def make_cylindrical_FOV(image):
     """truncate to cylindrical FOV"""
-    filter = pet.CylindricFilter()
+    filter = pet.TruncateToCylinderProcessor()
     filter.apply(image)
 
 #%% go to directory with input files
@@ -94,7 +94,7 @@ obj_fun.set_acquisition_data(acquired_data)
 
 #%% create OSMAPOSL reconstructor
 # This defaults to using EM, but we will modify it to OSEM
-recon = pet.OSMAPOSLReconstruction()
+recon = pet.OSMAPOSLReconstructor()
 recon.set_objective_function(obj_fun)
 recon.set_num_subsets(2)
 num_iters=10;

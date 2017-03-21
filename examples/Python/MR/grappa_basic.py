@@ -65,7 +65,7 @@ def main():
     
     # Perform reconstruction of the preprocessed data.
     # 1. set the reconstruction to be for Cartesian GRAPPA data.
-    recon = GenericCartesianGRAPPAReconstruction();
+    recon = CartesianGRAPPAReconstruction();
     
     # 2. set the reconstruction input to be the data we just preprocessed.
     recon.set_input(preprocessed_AcCont);

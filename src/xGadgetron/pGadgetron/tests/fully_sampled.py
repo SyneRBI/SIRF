@@ -71,7 +71,7 @@ def main():
     print('---\n processed acquisition data norm: %e' % processed_data_norm)
     failed += test_failed(2, 209.021, processed_data_norm, 0, eps)
 
-    recon = SimpleReconstruction()
+    recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()

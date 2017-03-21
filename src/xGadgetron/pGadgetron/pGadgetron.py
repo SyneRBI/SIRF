@@ -462,7 +462,7 @@ class ImageData(DataContainer):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
-        ip = ImagesProcessor(list)
+        ip = ImageDataProcessor(list)
         return ip.process(self)
     def show(self):
         '''
@@ -625,7 +625,7 @@ class AcquisitionData(DataContainer):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
-        ap = AcquisitionsProcessor(list)
+        ap = AcquisitionDataProcessor(list)
         return ap.process(self)
     def acquisition(self, num):
         '''
@@ -887,7 +887,7 @@ class GadgetChain(PyGadgetronObject):
         pyiutil.deleteDataHandle(hv)
         return value
 
-class ImagesReconstructor(GadgetChain):
+class Reconstructor(GadgetChain):
     '''
     Class for a chain of gadgets that has AcquisitionData on input and 
     ImageData on output.
@@ -948,7 +948,7 @@ class ImagesReconstructor(GadgetChain):
         check_status(images.handle)
         return images
 
-class ImagesProcessor(GadgetChain):
+class ImageDataProcessor(GadgetChain):
     '''
     Class for a chain of gadgets that has ImageData on input and output.
     '''
@@ -983,7 +983,7 @@ class ImagesProcessor(GadgetChain):
         check_status(images.handle)
         return images
 
-class AcquisitionsProcessor(GadgetChain):
+class AcquisitionDataProcessor(GadgetChain):
     '''
     Class for a chain of gadgets that has AcquisitionData on input and output.
     '''
@@ -1018,7 +1018,7 @@ class AcquisitionsProcessor(GadgetChain):
         check_status(acquisitions.handle)
         return acquisitions
 
-class SimpleReconstruction(ImagesReconstructor):
+class FullySampledReconstructor(Reconstructor):
     '''
     Class for a reconstructor from fully sampled Cartesian raw data.
     '''
@@ -1031,7 +1031,7 @@ class SimpleReconstruction(ImagesReconstructor):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     
-class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
+class CartesianGRAPPAReconstruction(Reconstructor):
     '''
     Class for a reconstructor from undersampled Cartesian raw data.
     '''

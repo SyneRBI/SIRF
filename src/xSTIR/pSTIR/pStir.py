@@ -335,8 +335,8 @@ class ImageData:
             print('Close Figure %d window to continue...' % z)
             pylab.show()
 
-class ImageFilter:
-    '''Class for image filters.'''
+class ImageDataProcessor:
+    '''Class for image processors.'''
     def __init__(self):
         self.handle = None
     def __del__(self):
@@ -351,7 +351,7 @@ class ImageFilter:
     def __del__(self):
         pyiutil.deleteDataHandle(self.handle)
 
-class CylindricFilter(ImageFilter):
+class TruncateToCylinderProcessor(ImageDataProcessor):
     '''
     Class for the image filter that zeroes the image outside the cylinder
     of the same xy-diameter and z-size as those of the image.
@@ -815,9 +815,9 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
-class Reconstruction:
+class Reconstructor:
     '''
-    Class for generic PET reconstruction objects.
+    Class for a generic PET reconstructor.
     '''
     def __init__(self):
         self.handle = None
@@ -828,9 +828,9 @@ class Reconstruction:
         _set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
 
-class IterativeReconstruction(Reconstruction):
+class IterativeReconstructor(Reconstructor):
     '''
-    Class for generic iterative PET reconstruction objects.
+    Class for a generic iterative PET reconstructor.
     '''
     def __init__(self):
         self.handle = None
@@ -934,10 +934,10 @@ class IterativeReconstruction(Reconstruction):
         self.update_current_estimate()
         return self.get_current_estimate()
 
-class OSMAPOSLReconstruction(IterativeReconstruction):
+class OSMAPOSLReconstructor(IterativeReconstructor):
     '''
-    Class for Ordered Subsets Maximum A Posteriori One Step Late reconstruction
-    algorithm, see
+    Class for reconstructor objects using Ordered Subsets Maximum A Posteriori 
+    One Step Late reconstruction algorithm, see
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
     '''
     def __init__(self, filename = ''):
@@ -959,10 +959,10 @@ class OSMAPOSLReconstruction(IterativeReconstruction):
         check_status(obj_fun.handle)
         return obj_fun
 
-class OSSPSReconstruction(IterativeReconstruction):
+class OSSPSReconstructor(IterativeReconstructor):
     '''
-    Class for Ordered Subsets Separable Paraboloidal Surrogate reconstruction
-    algorithm, see
+    Class for reconstructor objects using Ordered Subsets Separable 
+    Paraboloidal Surrogate reconstruction algorithm, see
     http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSSPSReconstruction.html
     '''
     def __init__(self, filename = ''):

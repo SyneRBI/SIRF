@@ -48,7 +48,7 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = ImagesReconstructor(['RemoveROOversamplingGadget', \
+    recon = Reconstructor(['RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])

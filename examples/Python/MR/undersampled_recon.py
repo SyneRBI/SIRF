@@ -44,7 +44,7 @@ def main():
     preprocessed_data = preprocess_acquisitions(input_data)
 
     # perform reconstruction
-    recon = GenericCartesianGRAPPAReconstruction()
+    recon = CartesianGRAPPAReconstruction()
     # for undersampled acquisition data GRAPPA will compute Gfactor images
     # in addition to reconstructed ones
     recon.compute_gfactors(True)

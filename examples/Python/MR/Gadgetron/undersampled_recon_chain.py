@@ -42,7 +42,7 @@ def main():
          'AsymmetricEchoAdjustROGadget', 'RemoveROOversamplingGadget'])
 
     # set up reconstruction chain
-    recon = ImagesReconstructor([\
+    recon = Reconstructor([\
          'AcquisitionAccumulateTriggerGadget', 'BucketToBufferGadget' \
          '(N_dimension=contrast,S_dimension=average,split_slices=false)', \
          'GenericReconCartesianReferencePrepGadget', \

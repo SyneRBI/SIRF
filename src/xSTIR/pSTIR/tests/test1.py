@@ -46,7 +46,7 @@ def main():
     #print('acquisitions mean sum of squares: %f, variance: %f' % (s, v))
 
     # create filter
-    filter = CylindricFilter()
+    filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
     image_size = (111, 111, 31)

@@ -75,17 +75,17 @@ def main():
     # from gadgetron.
     # List gadgets to use (not all may be required for this test data).
     prep_gadgets = ['NoiseAdjustGadget', 'AsymmetricEchoAdjustROGadget', \
-                                'RemoveROOversamplingGadget' ];
+                                'RemoveROOversamplingGadget' ]
     
     # Call gadgetron by using the 'process' method. This runs the gadgets
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
-    preprocessed_AcCont = input_Cont.process(prep_gadgets);
+    preprocessed_AcCont = input_Cont.process(prep_gadgets)
     
     # Extract sorted k-space, permute dimensions and display
-    ksp = preprocessed_AcCont.as_array(0);
-    [ns,nc,nro] = preprocessed_AcCont.dimensions() ; # [nx ncoil ny]
-    ksp = numpy.transpose(ksp,(1,2,0));
+    ksp = preprocessed_AcCont.as_array(0)
+    [ns,nc,nro] = preprocessed_AcCont.dimensions() # [nx ncoil ny]
+    ksp = numpy.transpose(ksp,(1,2,0))
     show(abs(ksp[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
             titles = ['Abs(Coil1)'])
             
@@ -95,28 +95,28 @@ def main():
     # 1) Create a recon object for the desired reconstruction.
     
     # In this demo, the recon object is created using the class
-    # ImagesReconstructor(). A simpler class is available in the SIRF code
+    # Reconstructor(). A simpler class is available in the SIRF code
     # for a GRAPPA reconstruction:
-    #   recon = GenericCartesianGRAPPAReconstruction()
+    #   recon = CartesianGRAPPAReconstruction()
     #
     #    To find what this does behind the scenes:
-    #     type edit pGadgetron.GenericCartesianGRAPPAReconstruction
+    #     type edit pGadgetron.CartesianGRAPPAReconstruction
     #     and note the name assigned in the self function, here
     #       'SimpleGRAPPAReconstructionProcessor'.
     #     Then find the gadget chain defined by the class with the same
     #     name in the file xGadgetron/cGadgetron/chain_lib.h
     #
     
-    recon_gadgets =  ['AcquisitionAccumulateTriggerGadget',
+    recon_gadgets = ['AcquisitionAccumulateTriggerGadget',
         'BucketToBufferGadget', 
         'GenericReconCartesianReferencePrepGadget', 
         'GRAPPA:GenericReconCartesianGrappaGadget', 
         'GenericReconFieldOfViewAdjustmentGadget', 
         'GenericReconImageArrayScalingGadget', 
-        'ImageArraySplitGadget',
-        ];
+        'ImageArraySplitGadget'
+        ]
     
-    recon = ImagesReconstructor(recon_gadgets) ;
+    recon = Reconstructor(recon_gadgets)
     
     
     # 2) The GRAPPA gadget can compute G-factors in addition to
@@ -126,17 +126,17 @@ def main():
     recon.set_gadget_property('GRAPPA', 'send_out_gfactor', True)
     
     # If the chain had been set using
-    # recon = GenericCartesianGRAPPAReconstruction(), an alternative method
+    # recon = CartesianGRAPPAReconstruction(), an alternative method
     # would be available:
-    #  recon.compute_gfactors(True);
+    #  recon.compute_gfactors(True)
     
     
     # 3) set the reconstruction input to be the data we just preprocessed.
-    recon.set_input(preprocessed_AcCont);
+    recon.set_input(preprocessed_AcCont)
     
     # 4) Run the reconstruction using 'process' to call gadgetron.
-    print('---\n reconstructing...\n');
-    recon.process();
+    print('---\n reconstructing...\n')
+    recon.process()
     
     # Output
     
@@ -147,12 +147,12 @@ def main():
     # Get images and gfactors as containers with type mGadgetron.ImagesContainer
     # (Note this syntax may change in the future with the addition of a
     #  method '.get_gfactor'.)
-    images_imcont = recon.get_output('image');
-    gfacts_imcont = recon.get_output('gfactor');
+    images_imcont = recon.get_output('image')
+    gfacts_imcont = recon.get_output('gfactor')
     
     # Return as MATLAB matrices the data pointed to by the containers.
     # Note the image data is complex.
-    idata = images_imcont.as_array();
+    idata = images_imcont.as_array()
     maxv = numpy.amax(abs(idata))*0.6
     show(abs(idata[0,None,:,:]), tile_shape = (1,1), scale = (0, maxv),\
             titles = ['Abs(Image)'])

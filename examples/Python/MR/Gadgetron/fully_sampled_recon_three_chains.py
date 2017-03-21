@@ -50,7 +50,7 @@ def main():
     # Pre-process acquisitions
     # Create an object which removes the readout oversampling from the acquired 
     # k-space data
-    acq_proc = AcquisitionsProcessor(['RemoveROOversamplingGadget'])
+    acq_proc = AcquisitionDataProcessor(['RemoveROOversamplingGadget'])
     preprocessed_data = acq_proc.process(input_data)
     
     # Get size of k-space data after removal of oversampling
@@ -60,7 +60,8 @@ def main():
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
-    gauss_weight = gaussian(numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,sigma)
+    gauss_weight = gaussian\
+        (numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,sigma)
     gauss_weight = numpy.tile(gauss_weight, (kdim[0], 1))
     data_array = preprocessed_data.as_array()
     for c in range(kdim[1]):
@@ -69,7 +70,8 @@ def main():
     preprocessed_data.fill(data_array)
 
     # create reconstruction object
-    recon = ImagesReconstructor(['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
+    recon = Reconstructor\
+        (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', 
         'SimpleReconGadget', 'ImageArraySplitGadget'])
     
@@ -85,7 +87,7 @@ def main():
     # post-process reconstructed images
     # Rather than using the function get_output(), a new object based on the 
     # gadget "ExtractGadget" is specified to retrieve the image data
-    img_proc = ImagesProcessor(['ExtractGadget'])
+    img_proc = ImageDataProcessor(['ExtractGadget'])
     images = img_proc.process(complex_images)
 
     # show obtained images

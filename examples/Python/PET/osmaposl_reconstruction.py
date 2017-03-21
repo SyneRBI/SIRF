@@ -36,6 +36,7 @@ def image_data_processor(image_array, im_num):
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
+    print('close Figure %d window to continue' % im_num)
     # image is not modified in this simplistic example - but might have been
     return image_array
 
@@ -67,7 +68,7 @@ def main():
     # select Ordered Subsets Maximum A-Posteriori One Step Late
     # as the reconstruction algorithm (since we are not using a penalty,
     # or prior, in this example, we will actually run OSEM)
-    recon = OSMAPOSLReconstruction()
+    recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
 

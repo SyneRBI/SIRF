@@ -39,7 +39,7 @@ def main():
     # pre-process acquisitions
     processed_data = MR.preprocess_acquisitions(input_data)
     # perform reconstruction
-    recon = MR.SimpleReconstruction()
+    recon = MR.FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
     complex_image = recon.get_output()
@@ -51,12 +51,13 @@ def main():
     image.initialise(image_arr.shape[::-1])   # set image shape
     image.fill(image_arr)                     # fill image with values
     # apply cylindric filter
-    filter = PET.CylindricFilter()
+    filter = PET.TruncateToCylinderProcessor()
     filter.apply(image)
     # display image
     image.show()
 
 try:
     main()
+    print('done')
 except MR.error as err:
     print('exception occured: %s' % err.value)

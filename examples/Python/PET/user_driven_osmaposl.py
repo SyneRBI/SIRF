@@ -42,7 +42,7 @@ def main():
     ad = AcquisitionData(raw_data_file)
 
     # create filter
-    filter = CylindricFilter()
+    filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
     image_size = (111, 111, 31)
@@ -107,6 +107,7 @@ def main():
 # (cf. Error Handling section in the spec)
 try:
     main()
+    print('done')
 except error as err:
     # display error information
     print('STIR exception occured: %s' % err.value)

@@ -59,7 +59,7 @@ def make_positive(image_array):
 
 def make_cylindrical_FOV(image):
     """Truncate a pet image to a cylindrical FOV."""
-    filter = pet.CylindricFilter()
+    filter = pet.TruncateToCylinderProcessor()
     filter.apply(image)
 
 #%% Go to directory with input files

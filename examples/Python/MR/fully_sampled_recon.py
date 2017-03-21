@@ -47,7 +47,7 @@ def main():
     # setup reconstruction
     # Create a reconstruction object (in this case simple 2D Cartesian FFT) and
     # provide pre-processed k-space data as input
-    recon = SimpleReconstruction()
+    recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     
     # perform reconstruction
