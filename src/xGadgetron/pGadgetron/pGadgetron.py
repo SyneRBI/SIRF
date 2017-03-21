@@ -213,9 +213,10 @@ class DataContainer(PyGadgetronObject):
         return z;
     def __mul__(self, other):
         '''
-        Overloads * for data containers multiplication by a scalar.
-        Returns the product self*s where s is a scalar factor.
-        other: a real or complex scalar
+        Overloads * for data containers multiplication by a scalar or another
+        data container. Returns the product self*other if other is a scalar
+        or the dot product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
         '''
         if isinstance(other, DataContainer):
             return self.dot(other)
@@ -232,8 +233,8 @@ class DataContainer(PyGadgetronObject):
             raise error('wrong multiplier')
     def __rmul__(self, other):
         '''
-        Overloads * for data containers multiplication by a scalar.
-        Returns the product s*self where s is a scalar factor.
+        Overloads * for data containers multiplication by a scalar from
+        the left, i.e. computes and returns the product other*self.
         other: a real or complex scalar
         '''
         z = self.same_object()
