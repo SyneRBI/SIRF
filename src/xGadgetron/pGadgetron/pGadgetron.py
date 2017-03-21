@@ -750,21 +750,39 @@ class AcquisitionModel(PyGadgetronObject):
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
         self.csms = 'set'
-    def forward(self, images):
-        acqs = AcquisitionData()
-        acqs.handle = pygadgetron.cGT_AcquisitionModelForward\
-            (self.handle, images.handle)
-        check_status(acqs.handle)
-        return acqs;
-    def backward(self, acqs):
-        images = ImageData()
-        images.handle = pygadgetron.cGT_AcquisitionModelBackward\
-            (self.handle, acqs.handle)
-        check_status(images.handle)
-        return images
+    def forward(self, image):
+        '''
+        Projects an image into (simulated) acquisitions space.
+        The resulting acquisition data simulates the actual data
+        expected to be received from the scanner.
+        image: ImageData
+        '''
+        ad = AcquisitionData()
+        ad.handle = pygadgetron.cGT_AcquisitionModelForward\
+            (self.handle, image.handle)
+        check_status(ad.handle)
+        return ad;
+    def backward(self, ad):
+        '''
+        Back-projects acquisition data into image space using a complex
+        transpose of the forward projection.
+        ad: AcquisitionData
+        '''
+        image = ImageData()
+        image.handle = pygadgetron.cGT_AcquisitionModelBackward\
+            (self.handle, ad.handle)
+        check_status(image.handle)
+        return image
 
 class Gadget(PyGadgetronObject):
+    '''
+    Class for Gadgetron gadgets.
+    '''
     def __init__(self, name):
+        '''
+        Creates a gadget of specified type and properties.
+        name: a string of the form gadget_type(property1=value1, ...)
+        '''
         self.handle = None
         name, prop = name_and_parameters(name)
         self.handle = pygadgetron.cGT_newObject(name)
@@ -775,17 +793,36 @@ class Gadget(PyGadgetronObject):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def set_property(self, prop, value):
+        '''
+        Assigns specified value to specified gadget property.
+        prop : property name (string)
+        value: property value (string)
+        '''
         handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_properties(self, prop):
+        '''
+        Assigns specified values to specified gadget properties.
+        prop: a string with comma-separated list of property value assignments 
+              prop_name=prop_value
+        '''
         handle = pygadgetron.cGT_setGadgetProperties(self.handle, prop)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def value_of(self, prop):
+        '''
+        Returns the string representation of the value of specified property.
+        prop: property name (string)
+        '''
         return _char_par(self.handle, 'gadget', prop)
 
+# low-level functionality object
+# likely to be obsolete- not used for a long time
 class GadgetChain(PyGadgetronObject):
+    '''
+    Class for Gadgetron chains.
+    '''
     def __init__(self):
         self.handle = pygadgetron.cGT_newObject('GadgetChain')
         check_status(self.handle)
@@ -793,18 +830,41 @@ class GadgetChain(PyGadgetronObject):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def add_reader(self, id, reader):
+        '''
+        Adds reader gadget (a gadget that receives data from the client) to the
+        chain.
+        id    : gadget id (string)
+        reader: Gadget of reader type
+        '''
         handle = pygadgetron.cGT_addReader(self.handle, id, reader.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def add_writer(self, id, writer):
+        '''
+        Adds writer gadget (a gadget that sends data to the client) to the
+        chain.
+        id    : gadget id (string)
+        writer: Gadget of writer type
+        '''
         handle = pygadgetron.cGT_addWriter(self.handle, id, writer.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def add_gadget(self, id, gadget):
+        '''
+        Adds a gadget to the chain.
+        id    : gadget id (string)
+        writer: Gadget
+        '''
         handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_gadget_property(self, id, prop, value):
+        '''
+        Assigns specified value to specified gadget property.
+        id   : gadget id
+        prop : property name (string)
+        value: property value (string)
+        '''
         if type(value) == type('abc'):
             v = value
         else:
@@ -815,6 +875,11 @@ class GadgetChain(PyGadgetronObject):
         pyiutil.deleteDataHandle(handle)
         pyiutil.deleteDataHandle(hg)
     def value_of_gadget_property(self, id, prop):
+        '''
+        Returns the string representation of the value of specified property.
+        id  : gadget id
+        prop: property name (string)
+        '''
         hg = _parameterHandle(self.handle, 'gadget_chain', id)
         hv = _parameterHandle(hg, 'gadget', prop)
         value = pyiutil.charDataFromHandle(hv)
@@ -823,6 +888,10 @@ class GadgetChain(PyGadgetronObject):
         return value
 
 class ImagesReconstructor(GadgetChain):
+    '''
+    Class for a chain of gadgets that has AcquisitionData on input and 
+    ImageData on output.
+    '''
     def __init__(self, list = None):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesReconstructor')
@@ -837,8 +906,15 @@ class ImagesReconstructor(GadgetChain):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_input(self, input_data):
+        '''
+        Sets the input.
+        input_data: AcquisitionData
+        '''
         self.input_data = input_data
     def process(self):
+        '''
+        Processes the input with the gadget chain.
+        '''
         if self.input_data is None:
             raise error('no input data')
         handle = pygadgetron.cGT_reconstructImages\
@@ -846,6 +922,11 @@ class ImagesReconstructor(GadgetChain):
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def get_output(self, subset = None):
+        '''
+        Returns specified subset of the output ImageData. If no subset is 
+        specified, returns all output.
+        subset: the name of the subset (e.g. images, gfactors,...)
+        '''
         output = ImageData()
         output.handle = pygadgetron.cGT_reconstructedImages(self.handle)
         check_status(output.handle)
@@ -854,6 +935,10 @@ class ImagesReconstructor(GadgetChain):
         else:
             return output.select('GADGETRON_DataRole', subset)
     def reconstruct(self, input_data):
+        '''
+        Returns the output from the chain for specified input.
+        input_data: AcquisitionData
+        '''
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
         check_status(handle)
@@ -864,7 +949,17 @@ class ImagesReconstructor(GadgetChain):
         return images
 
 class ImagesProcessor(GadgetChain):
+    '''
+    Class for a chain of gadgets that has ImageData on input and output.
+    '''
     def __init__(self, list = None):
+        '''
+        Creates an image processor specified by a list of gadgets.
+        list: Python list of gadget description strings, each gadget 
+              description being a string of the form
+                '[label:]gadget_name[(property1=value1[,...])]'
+              (square brackets embrace optional items, ... stands for etc.)
+        '''
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesProcessor')
         check_status(self.handle)
@@ -872,28 +967,34 @@ class ImagesProcessor(GadgetChain):
         if list is None:
             return
         for i in range(len(list)):
-            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
+            label, name = label_and_name(list[i])
+            self.add_gadget(label, Gadget(name))
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-##    def set_input(self, input_data):
-##        self.input_data = input_data
     def process(self, input_data):
-##        if self.input_data is None:
-##            raise error('no input data')
+        '''
+        Returns the output from the chain for specified input.
+        input_data: ImageData
+        '''
         images = ImageData()
         images.handle = pygadgetron.cGT_processImages\
              (self.handle, input_data.handle)
         check_status(images.handle)
         return images
-##    def get_output(self):
-##        images = ImageData()
-##        images.handle = pygadgetron.cGT_reconstructedImagesList(self.handle)
-##        check_status(images.handle)
-##        return images
 
 class AcquisitionsProcessor(GadgetChain):
+    '''
+    Class for a chain of gadgets that has AcquisitionData on input and output.
+    '''
     def __init__(self, list = None):
+        '''
+        Creates an acquisition processor specified by a list of gadgets.
+        list: Python list of gadget description strings, each gadget 
+              description being a string of the form
+                '[label:]gadget_name[(property1=value1[,...])]'
+              (square brackets embrace optional items, ... stands for etc.)
+        '''
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('AcquisitionsProcessor')
         check_status(self.handle)
@@ -901,11 +1002,16 @@ class AcquisitionsProcessor(GadgetChain):
         if list is None:
             return
         for i in range(len(list)):
-            self.add_gadget('g' + repr(i + 1), Gadget(list[i]))
+            label, name = label_and_name(list[i])
+            self.add_gadget(label, Gadget(name))
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def process(self, input_data):
+        '''
+        Returns the output from the chain for specified input.
+        input_data: AcquisitionData
+        '''
         acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, input_data.handle)
@@ -913,6 +1019,9 @@ class AcquisitionsProcessor(GadgetChain):
         return acquisitions
 
 class SimpleReconstruction(ImagesReconstructor):
+    '''
+    Class for a reconstructor from fully sampled Cartesian raw data.
+    '''
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('SimpleReconstructionProcessor')
@@ -923,6 +1032,9 @@ class SimpleReconstruction(ImagesReconstructor):
             pyiutil.deleteObject(self.handle)
     
 class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
+    '''
+    Class for a reconstructor from undersampled Cartesian raw data.
+    '''
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject\
@@ -935,17 +1047,11 @@ class GenericCartesianGRAPPAReconstruction(ImagesReconstructor):
     def compute_gfactors(self, flag):
         self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
     
-def MR_remove_x_oversampling(input_data):
-    handle = pygadgetron.cGT_newObject('RemoveOversamplingProcessor')
-    check_status(handle)
-    output_data = AcquisitionData()
-    output_data.handle = pygadgetron.cGT_processAcquisitions\
-         (handle, input_data.handle)
-    check_status(output_data.handle)
-    pyiutil.deleteObject(handle)
-    return output_data
-
 def preprocess_acquisitions(input_data):
+    '''
+    Acquisition processor function that adjusts noise and asymmetrich echo and
+    removes readout oversampling.
+    '''
     return input_data.process(\
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
