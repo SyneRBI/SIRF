@@ -20,7 +20,7 @@ try
     image.fill(1.0)
 
     % define a filter
-    filter = CylindricFilter();
+    filter = TruncateToCylinderProcessor();
     filter.apply(image)
 
     % define acquisition data

@@ -1,9 +1,9 @@
-classdef OSMAPOSLReconstruction < mStir.IterativeReconstruction
+classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
     properties
         name
     end
     methods
-        function self = OSMAPOSLReconstruction(filename)
+        function self = OSMAPOSLReconstructor(filename)
             self.name = 'OSMAPOSL';
             if nargin < 1
                 filename = '';

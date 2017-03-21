@@ -32,7 +32,7 @@ try
     num_subiterations = 2;
     
     % create OSMAPOSL reconstructor
-    recon = OSMAPOSLReconstruction();    
+    recon = OSMAPOSLReconstructor();    
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(12)
     

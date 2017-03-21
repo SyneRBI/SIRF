@@ -1,4 +1,4 @@
-classdef Reconstruction < handle
+classdef Reconstructor < handle
 %     Class for generic PET reconstruction objects.
     properties (Constant)
         R = 'Reconstruction';
@@ -7,7 +7,7 @@ classdef Reconstruction < handle
         handle
     end
     methods
-        function self = Reconstruction()
+        function self = Reconstructor()
             self.handle = [];
         end
         function delete(self)

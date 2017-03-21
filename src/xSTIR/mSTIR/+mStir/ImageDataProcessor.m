@@ -1,11 +1,11 @@
-classdef ImageFilter < handle
+classdef ImageDataProcessor < handle
     % Class for image filters.
     properties
         name
         handle
     end
     methods
-        function self = ImageFilter()
+        function self = ImageDataProcessor()
             self.handle = [];
         end
         function delete(self)

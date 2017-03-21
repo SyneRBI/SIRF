@@ -1,8 +1,8 @@
-classdef CylindricFilter < mStir.ImageFilter
+classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
 %     Class for the image filter that zeroes the image outside the cylinder
 %     of the same xy-diameter and z-size as those of the image.
     methods
-        function self = CylindricFilter()
+        function self = TruncateToCylinderProcessor()
             self.name = 'TruncateToCylindricalFOVImageProcessor';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
         end

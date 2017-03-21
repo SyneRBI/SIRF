@@ -1,4 +1,4 @@
-classdef IterativeReconstruction < mStir.Reconstruction
+classdef IterativeReconstructor < mStir.Reconstructor
 %     Class for generic iterative PET reconstruction objects.
     properties (Constant)
         IR = 'IterativeReconstruction';
@@ -9,7 +9,7 @@ classdef IterativeReconstruction < mStir.Reconstruction
         subset
     end
     methods
-        function self = IterativeReconstruction()
+        function self = IterativeReconstructor()
             self.handle = [];
             self.input = [];
             self.image = [];
