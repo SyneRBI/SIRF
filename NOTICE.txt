@@ -1,9 +1,9 @@
-CCP PETMR toolbox
-Copyright 2015-2016 Rutherford Appleton Laboratory STFC
-Copyright 2015-2016 Institute of Nuclear Medicine, University College London.
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+Copyright 2015-2017 Rutherford Appleton Laboratory STFC
+Copyright 2015-2017 Institute of Nuclear Medicine, University College London.
 
-This product includes software developed for the Collaborative Computational 
-Project in Positron Emission Tomograph and Magnetic Resonance imaging
+This software product is developed for the Collaborative Computational 
+Project in Positron Emission Tomography and Magnetic Resonance imaging
 (http://www.ccppetmr.ac.uk/) at RAL STFC (http://www.stfc.ac.uk) and
 the Institute of Nuclear Medicine (http://www.ucl.ac.uk/medicine/nuclear-medicine).
 
