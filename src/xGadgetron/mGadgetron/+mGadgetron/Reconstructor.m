@@ -1,9 +1,9 @@
-classdef ImagesReconstructor < mGadgetron.GadgetChain
-% ImagesReconstructor 
+classdef Reconstructor < mGadgetron.GadgetChain
+% Reconstructor 
 % Class for reconstructing images using Gadgetron 
 % 
-% ImagesReconstructor Methods:
-%    ImagesReconstructor - can accept a list of gadgets for gadgetron chain
+% Reconstructor Methods:
+%    Reconstructor - can accept a list of gadgets for gadgetron chain
 %    set_input(input_data)  - sets the input data for recon
 %    process  - performs the call to gadgetron
 %    get_output  - returns output
@@ -13,7 +13,7 @@ classdef ImagesReconstructor < mGadgetron.GadgetChain
         images_
     end
     methods
-        function self = ImagesReconstructor(list)
+        function self = Reconstructor(list)
         % Accepts a cell array of gadget names as input to form the Gadgetron chain.
         % Each element of list is a string of the form 
         % 'LABEL:gadget_name' with the 'LABEL:' optional. Use of a label

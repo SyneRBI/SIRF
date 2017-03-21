@@ -1,8 +1,8 @@
-classdef GenericCartesianGRAPPAReconstruction < mGadgetron.ImagesReconstructor
+classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
     properties
     end
     methods
-        function self = GenericCartesianGRAPPAReconstruction()
+        function self = CartesianGRAPPAReconstructor()
             self.name_ = 'SimpleGRAPPAReconstructionProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];

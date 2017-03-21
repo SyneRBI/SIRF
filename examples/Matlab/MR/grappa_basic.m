@@ -30,12 +30,16 @@ function grappa_basic
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
 
-ccp_libload  % Load SIRF ('CCP') libraries
-import mGadgetron.*  % Use Gadgetron recon engine
+% ccp_libload  % Load SIRF ('CCP') libraries
+% import mGadgetron.*  % Use Gadgetron recon engine
+if nargin < 1
+    engine = [];
+end
+eval(setup_MR(engine))
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
-[fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file') ;
+[fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file, creating an input Container
@@ -48,7 +52,7 @@ preprocessed_Cont = preprocess_acquisitions(input_Cont);
 
 % Perform reconstruction of the preprocessed data.
 % 1. set the reconstruction to be for Cartesian GRAPPA data.
-recon = GenericCartesianGRAPPAReconstruction();
+recon = CartesianGRAPPAReconstructor();
 
 % 2. set the reconstruction input to be the data we just preprocessed.
 recon.set_input(preprocessed_Cont);

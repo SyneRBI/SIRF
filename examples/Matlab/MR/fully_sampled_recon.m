@@ -1,18 +1,22 @@
-function fully_sampled_recon
+function fully_sampled_recon(engine)
 % FULLY_SAMPLED_RECON  Recon of fully sampled data
 % See FULLY_SAMP_BASIC for information about example data files.
 %
 % See also FULLY_SAMP_BASIC FULLY_SAMPLED_RECON_SINGLE_CHAIN
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 
-ccp_libload  % Load SIRF ('CCP') libraries
-import mGadgetron.*  % Use Gadgetron recon engine
+% ccp_libload  % Load SIRF ('CCP') libraries
+% import mGadgetron.*  % Use Gadgetron recon engine
+if nargin < 1
+    engine = [];
+end
+eval(setup_MR(engine))
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
 % bruker_to_ismrmrd on https://github.com/ismrmrd/.
 % acquisitions will be read from this HDF file
-[filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+[filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
 input_data = AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisition data
@@ -27,7 +31,7 @@ processed_data = preprocess_acquisitions(input_data);
 % perform reconstruction
 % Create a reconstruction object (in this case simple 2D Cartesian FFT) and
 % provide pre-processed k-space data as input
-recon = SimpleReconstruction();
+recon = FullySampledCartesianReconstructor();
 recon.set_input(processed_data)
 
 % perform reconstruction

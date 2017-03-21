@@ -1,4 +1,4 @@
-function fully_samp_basic
+function fully_samp_basic(engine)
 % FULLY_SAMP_BASIC Demo for reconstruction of fully sampled MR data.
 % 
 % Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
@@ -34,25 +34,28 @@ function fully_samp_basic
 %
 % See also GRAPPA_BASIC
 
-ccp_libload  % Load SIRF ('CCP') libraries
-import mGadgetron.*  % Use Gadgetron recon engine
+% ccp_libload  % Load SIRF ('CCP') libraries
+% import mGadgetron.*  % Use Gadgetron recon engine
+if nargin < 1
+    engine = [];
+end
+eval(setup_MR(engine))
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
-[fn,pn] = uigetfile('*','Select ISMRMRD H5 file') ;
+[fn,pn] = uigetfile('*','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file
 input_data = AcquisitionData(filein);
 
 % Pre-process to remove oversampling
-preprocessed = MR_remove_x_oversampling(input_data);
-
+preprocessed = preprocess_acquisitions(input_data);
 
 % Perform reconstruction of the preprocessed data.
 % 1. set the reconstruction to be for Cartesian fully sampled data.
-%    SimpleReconstruction() sets up a default gadget train.
-recon = SimpleReconstruction();
+%    FullySampledCartesianReconstructor() sets up a default gadget train.
+recon = FullySampledCartesianReconstructor();
 
 % 2. set the reconstruction input to be the data we just preprocessed.
 recon.set_input(preprocessed);

@@ -93,7 +93,7 @@ classdef AcquisitionData < mGadgetron.DataContainer %mGadgetron.AcquisitionsCont
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
             end
-            ap = mGadgetron.AcquisitionsProcessor(list);
+            ap = mGadgetron.AcquisitionDataProcessor(list);
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)

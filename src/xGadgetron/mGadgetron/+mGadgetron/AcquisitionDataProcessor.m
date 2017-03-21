@@ -1,10 +1,12 @@
-classdef ImagesProcessor < mGadgetron.GadgetChain
+classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
     properties
+        file_
     end
     methods
-        function self = ImagesProcessor(list)
-            self.name_ = 'ImagesProcessor';
-            self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
+        function self = AcquisitionDataProcessor(list)
+            self.name_ = 'AcquisitionDataProcessor';
+            self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
+                'AcquisitionsProcessor');
             mUtil.checkExecutionStatus(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
@@ -19,12 +21,12 @@ classdef ImagesProcessor < mGadgetron.GadgetChain
             end
             self.handle_ = [];
         end
-        function images = process(self, input_data)
-            images = mGadgetron.ImageData();
-            images.handle_ = calllib...
-                ('mgadgetron', 'mGT_processImages', ...
+        function acqs = process(self, input_data)
+            acqs = mGadgetron.AcquisitionData();
+            acqs.handle_ = calllib...
+                ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, input_data.handle_);
-            mUtil.checkExecutionStatus(self.name_, images.handle_);
+            mUtil.checkExecutionStatus(self.name_, acqs.handle_);
         end
     end
 end

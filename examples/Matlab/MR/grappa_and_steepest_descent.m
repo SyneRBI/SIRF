@@ -21,7 +21,7 @@ preprocessed_data = preprocess_acquisitions(input_data);
 pp_norm = preprocessed_data.norm();
 
 % perform reconstruction
-recon = GenericCartesianGRAPPAReconstruction();
+recon = CartesianGRAPPAReconstructor();
 recon.compute_gfactors(false);
 recon.set_input(preprocessed_data);
 fprintf('---\n reconstructing...\n');

@@ -1,11 +1,10 @@
-classdef SimpleReconstruction < mGadgetron.ImagesReconstructor
-% SimpleReconstruction class to perform recon of fully sampled MR data
+classdef FullySampledCartesianReconstructor < mGadgetron.Reconstructor
+% Class to perform recon of fully sampled MR data
 
     properties
     end
     methods
-        function self = SimpleReconstruction()
-        % Perform SimpleReconstruction
+        function self = FullySampledCartesianReconstructor()
             self.name_ = 'SimpleReconstructionProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];

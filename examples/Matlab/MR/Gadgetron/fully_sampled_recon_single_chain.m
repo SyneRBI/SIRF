@@ -6,18 +6,8 @@ function fully_sampled_recon_single_chain
 % See also FULLY_SAMP_BASIC  FULLY_SAMPLED_RECON
 
 
-% load the SIRF mutilities library
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
-end
-
-% This demo uses gadgetron as the MR reconstruction engine. 
-if ~libisloaded('mgadgetron')
-    fprintf('loading mgadgetron library...\n')
-    [notfound, warnings] = loadlibrary('mgadgetron');
-end
-
+% load mutilities and mgadgetron libraries
+ccp_libload
 import mGadgetron.*
 
 
@@ -44,7 +34,7 @@ gadgets = [...
     ];
 
 % create reconstructor
-recon = ImagesReconstructor(gadgets);
+recon = Reconstructor(gadgets);
 
 % change a property of the gadget labelled 'ex'
 % ExtractGadget defines which type of image should be returned:
@@ -58,7 +48,7 @@ recon = ImagesReconstructor(gadgets);
 recon.set_gadget_property('ex', 'extract_mask', 5);
 
 % define raw data source
-[filename, pathname] = uigetfile('*.h5', 'Select raw data file');
+[filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
 input_data = AcquisitionData(fullfile(pathname, filename));
 recon.set_input(input_data)
 

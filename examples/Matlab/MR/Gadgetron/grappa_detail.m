@@ -38,7 +38,7 @@ import mGadgetron.*
 
 % Get the filename of the input ISMRMRD h5 file
 disp('Select ISMRMRD H5 file')
-[fn,pn] = uigetfile('*','Select ISMRMRD H5 file') ;
+[fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Initially we create a container that points to the h5 file. Data is
@@ -77,12 +77,12 @@ end
 % 1) Create a recon object for the desired reconstruction.
 
 % In this demo, the recon object is created using the class
-% ImagesReconstructor(). A simpler class is available in the SIRF code
+% Reconstructor(). A simpler class is available in the SIRF code
 % for a GRAPPA reconstruction:
-%   recon = GenericCartesianGRAPPAReconstruction()
+%   recon = CartesianGRAPPAReconstructor()
 %
 %    To find what this does behind the scenes:
-%     type edit mGadgetron.GenericCartesianGRAPPAReconstruction
+%     type edit mGadgetron.CartesianGRAPPAReconstructor
 %     and note the name assigned in the self function, here
 %       'SimpleGRAPPAReconstructionProcessor'.
 %     Then find the gadget chain defined by the class with the same
@@ -99,7 +99,7 @@ recon_gadgets =  [...
     {'ImageArraySplitGadget'} ...
     ];
 
-recon = ImagesReconstructor(recon_gadgets) ;
+recon = Reconstructor(recon_gadgets) ;
 
 
 % 2) The GRAPPA gadget can compute G-factors in addition to
@@ -109,7 +109,7 @@ recon = ImagesReconstructor(recon_gadgets) ;
 recon.set_gadget_property('GRAPPA', 'send_out_gfactor', true)
 
 % If the chain had been set using
-% recon = GenericCartesianGRAPPAReconstruction(), an alternative method
+% recon = CartesianGRAPPAReconstructor(), an alternative method
 % would be available:
 %  recon.compute_gfactors(true);
 

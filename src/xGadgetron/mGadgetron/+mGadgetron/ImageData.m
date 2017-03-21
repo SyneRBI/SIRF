@@ -48,7 +48,7 @@ classdef ImageData < mGadgetron.DataContainer
             % brackets can be used to assign values to gadget properties,
             % and an optional label can be used to change the labelled
             % gadget properties after the chain has been defined.
-            ip = mGadgetron.ImagesProcessor(list);
+            ip = mGadgetron.ImageDataProcessor(list);
             images = ip.process(self);
         end
         function ft = is_real(self)
