@@ -1,6 +1,7 @@
 ''' 
 Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 '''
+import abc
 import numpy
 import os
 try:
@@ -14,6 +15,11 @@ import time
 from pUtil import *
 import pyiutil
 import pystir
+
+if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
 
 INFO_CHANNEL = 0
 WARNING_CHANNEL = 1
@@ -193,7 +199,23 @@ class EllipsoidalCylinder(Shape):
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
 
-class ImageData:
+class DataContainer(ABC):
+    '''
+    Class for an abstract data container.
+    '''
+    def __init__(self):
+        self.handle = None
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteObject(self.handle)
+    @abc.abstractmethod
+    def same_object(self):
+        '''
+        Returns an object of the same type as self.
+        '''
+        pass
+
+class ImageData(DataContainer):
     '''Class for PET image data objects.'''
     def __init__(self, arg = None):
         '''
@@ -219,6 +241,8 @@ class ImageData:
         '''Deallocates this ImageData object.'''
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return ImageData()
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
@@ -404,7 +428,7 @@ class RayTracingMatrix:
     def get_num_tangential_LORs(self):
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
-class AcquisitionData:
+class AcquisitionData(DataContainer):
     '''Class for PET acquisition data.'''
     def __init__(self, src = None):
         ''' 
@@ -427,6 +451,8 @@ class AcquisitionData:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return AcquisitionData()
     def create_empty_image(self, value = 0):
         ''' 
         Creates ImageData object containing PET image of dimensions
