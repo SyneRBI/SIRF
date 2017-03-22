@@ -10,6 +10,11 @@ classdef AcquisitionData < mGadgetron.DataContainer
         % array of AcquisitionInfo objects
         info_
     end
+    methods (Static)
+        function obj = same_object()
+            obj = mGadgetron.AcquisitionData();
+        end
+    end
     methods
         function self = AcquisitionData(filename)
             self.name_ = 'AcquisitionData';

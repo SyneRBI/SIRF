@@ -3,6 +3,9 @@ classdef DataContainer < handle
     properties
         handle_
     end
+    methods (Abstract, Static)
+        same_object(self)
+    end
     methods
         function self = DataContainer()
             self.handle_ = [];
@@ -11,15 +14,6 @@ classdef DataContainer < handle
             if ~isempty(self.handle_)
                 calllib('mutilities', 'mDeleteObject', self.handle_)
                 self.handle_ = [];
-            end
-        end
-        function obj = same_object(self)
-            if isa(self, class(mGadgetron.ImageData))
-                obj = mGadgetron.ImageData();
-            elseif isa(self, class(mGadgetron.AcquisitionData))
-                obj = mGadgetron.AcquisitionData();
-            else
-                obj = mGadgetron.DataContainer();
             end
         end
         function num = number(self)

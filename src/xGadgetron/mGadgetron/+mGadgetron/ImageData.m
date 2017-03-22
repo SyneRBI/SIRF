@@ -3,6 +3,11 @@ classdef ImageData < mGadgetron.DataContainer
     properties
         name_
     end
+    methods (Static)
+        function obj = same_object(self)
+            obj = mGadgetron.ImageData();
+        end
+    end
     methods
         function self = ImageData()
             % Creates empty ImageData object.

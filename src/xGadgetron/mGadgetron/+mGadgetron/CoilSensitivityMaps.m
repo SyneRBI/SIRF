@@ -5,6 +5,11 @@ classdef CoilSensitivityMaps < mGadgetron.DataContainer
     properties
         name_
     end
+    methods (Static)
+        function obj = same_object()
+            obj = mGadgetron.CoilSensitivityMaps();
+        end
+    end
     methods
         function self = CoilSensitivityMaps()
             self.name_ = 'CoilSensitivityMaps';
