@@ -5,19 +5,25 @@ function fully_sampled_recon(engine)
 % See also FULLY_SAMP_BASIC FULLY_SAMPLED_RECON_SINGLE_CHAIN
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 
-% ccp_libload  % Load SIRF ('CCP') libraries
-% import mGadgetron.*  % Use Gadgetron recon engine
+% default engine to be used if none given
 if nargin < 1
     engine = [];
 end
-eval(setup_MR(engine))
+% do this if you want to use an explicit alias for the engine
+% as a prefix to object names (<alias>.AcquisitionData etc.)
+% as if you were using Python's import m<engine> as <alias>
+% otherwise simply call eval(setup_MR(engine))
+alias = 'MR'; % just an example, any name can be used as an alias
+eval(setup_MR(engine, alias))
+% note that this will create a copy of the engine module folder
+% named +<alias> (in this case, +MR)
 
 % MR raw data formats from different vendors can be transformed to 
 % HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
 % bruker_to_ismrmrd on https://github.com/ismrmrd/.
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-input_data = AcquisitionData(fullfile(pathname, filename));
+input_data = MR.AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisition data
 % Prior to image reconstruction several pre-processing steps such as 
@@ -26,12 +32,12 @@ input_data = AcquisitionData(fullfile(pathname, filename));
 % direction. So far only the removal of readout oversampling and noise and
 % asymmetric echo adjusting is implemented
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisitions(input_data);
+processed_data = MR.preprocess_acquisitions(input_data);
 
 % perform reconstruction
 % Create a reconstruction object (in this case simple 2D Cartesian FFT) and
 % provide pre-processed k-space data as input
-recon = FullySampledCartesianReconstructor();
+recon = MR.FullySampledCartesianReconstructor();
 recon.set_input(processed_data)
 
 % perform reconstruction

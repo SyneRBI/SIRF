@@ -1,4 +1,4 @@
-function import_str = setup_PET(engine)
+function import_str = setup_PET(engine, alias)
     if isempty(engine)
         engine = 'Stir';
     end
@@ -7,5 +7,14 @@ function import_str = setup_PET(engine)
     catch
         error('package %s not found\n', engine)
     end
-    import_str = ['import m' engine '.*'];
+    if nargin < 2
+        import_str = ['import m' engine '.*'];
+    else
+        filename = mfilename();
+        filepath = mfilename('fullpath');
+        l = length(filepath) - length(filename);
+        path = filepath(1:l);
+        copyfile([path '/+m' engine], [path '/+' alias], 'f')
+        import_str = ' ';
+    end
 end
