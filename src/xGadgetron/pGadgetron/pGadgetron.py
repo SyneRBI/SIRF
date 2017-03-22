@@ -1,6 +1,7 @@
 ''' 
 Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
+import abc
 import numpy
 import os
 try:
@@ -20,6 +21,11 @@ except:
 from pUtil import *
 import pyiutil
 import pygadgetron
+
+if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta('ABC', (), {})
 
 # max number of acquisitions dimensiona
 MAX_ACQ_DIMENSIONS = 16
@@ -83,14 +89,9 @@ def raw_data_path():
     '''
     return petmr_data_path('mr')
 
-# abstract base class for everything, just in case we need some functionality
-# common to everything
-class PyGadgetronObject:
-    pass
-
 # low-level client functionality
 # likely to be obsolete- not used for a long time
-class ClientConnector(PyGadgetronObject):
+class ClientConnector:
     def __init__(self):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('GTConnector')
@@ -139,7 +140,7 @@ class ClientConnector(PyGadgetronObject):
 # base class for data container classes
 # must actually be moved together with the respective C interface
 # from xGadgetron/cGadgetron to common
-class DataContainer(PyGadgetronObject):
+class DataContainer(ABC):
     '''
     Class for an abstract data container.
     '''
@@ -148,17 +149,12 @@ class DataContainer(PyGadgetronObject):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
+    @abc.abstractmethod
     def same_object(self):
         '''
         Returns an object of the same type as self.
         '''
-        # a kludge replacing purely abstract virtual method
-        # necessitated by different syntax for such methods in Python 2 and 3
-        if isinstance(self, ImageData):
-            return ImageData()
-        if isinstance(self, AcquisitionData):
-            return AcquisitionData()
-        return DataContainer()
+        pass
     def number(self):
         '''
         Returns the number of items in the container.
@@ -273,6 +269,8 @@ class CoilImages(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
+    def same_object(self):
+        return CoilImages()
     def calculate(self, acqs):
         '''
         Calculates coil images from a given sorted acquisitions.
@@ -308,6 +306,8 @@ class CoilImages(DataContainer):
             (self.handle, ci_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
 
+DataContainer.register(CoilImages)
+
 class CoilSensitivityMaps(DataContainer):
     '''
     Class for a coil sensitivity maps (csm) container.
@@ -320,6 +320,8 @@ class CoilSensitivityMaps(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def same_object(self):
+        return CoilSensitivityMaps()
     def read(self, file):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -431,6 +433,8 @@ class CoilSensitivityMaps(DataContainer):
             (self.handle, csm_num, array.ctypes.data)
         return array
 
+DataContainer.register(CoilSensitivityMaps)
+
 class ImageData(DataContainer):
     '''
     Class for an MR images container.
@@ -442,6 +446,8 @@ class ImageData(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
+    def same_object(self):
+        return ImageData()
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).
@@ -543,7 +549,9 @@ class ImageData(DataContainer):
                 (self.handle, re.ctypes.data, im.ctypes.data)
             return re + 1j*im
 
-class AcquisitionInfo(PyGadgetronObject):
+DataContainer.register(ImageData)
+
+class AcquisitionInfo:
     '''
     Class for acquisition information parameters.
     '''
@@ -553,7 +561,7 @@ class AcquisitionInfo(PyGadgetronObject):
         self.slice = 0
         self.repetition = 0
 
-class Acquisition(PyGadgetronObject):
+class Acquisition:
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
@@ -599,6 +607,8 @@ class AcquisitionData(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
+    def same_object(self):
+        return AcquisitionData()
     def number_of_acquisitions(self, select = 'all'):
         dim = self.dimensions(select)
         return dim[0]
@@ -729,7 +739,9 @@ class AcquisitionData(DataContainer):
         pyiutil.deleteObject(self.handle)
         self.handle = handle
 
-class AcquisitionModel(PyGadgetronObject):
+DataContainer.register(AcquisitionData)
+
+class AcquisitionModel:
     '''
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
@@ -775,7 +787,7 @@ class AcquisitionModel(PyGadgetronObject):
         check_status(image.handle)
         return image
 
-class Gadget(PyGadgetronObject):
+class Gadget:
     '''
     Class for Gadgetron gadgets.
     '''
@@ -820,7 +832,7 @@ class Gadget(PyGadgetronObject):
 
 # low-level functionality object
 # likely to be obsolete- not used for a long time
-class GadgetChain(PyGadgetronObject):
+class GadgetChain:
     '''
     Class for Gadgetron chains.
     '''
