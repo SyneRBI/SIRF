@@ -472,7 +472,7 @@ class AcquisitionData(DataContainer):
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return AcquisitionData()
-    def create_empty_image(self, value = 0):
+    def create_uniform_image(self, value = 0):
         ''' 
         Creates ImageData object containing PET image of dimensions
         and voxel sizes compatible with the scanner geometry stored

@@ -67,13 +67,14 @@ def main():
     printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
-    am = AcquisitionModelUsingMatrix()
+    acq_model = AcquisitionModelUsingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    ad = AcquisitionData(raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
 
-    # create filter
+    # create filter that zeroes the image outside a cylinder of the same
+    # diameter as the image xy-section size
     filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
@@ -81,22 +82,24 @@ def main():
     ny = 111
     nz = 31
     image_size = (nx, ny, nz)
-    voxel_size = (3, 3, 3.375)
+    voxel_size = (3, 3, 3.375) # sizes are in mm
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
+    # apply the filter to the image
     filter.apply(image)
 
-    # create objective function
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
+    # create objective function of Poisson logarithmic likelihood type
+    # compatible with the acquisition data type
+    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(acq_data)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)
 
-    # plot the initial image
-    idata = image.as_array()
-    show(1, 'initial image', idata[20,:,:])
+    # display the initial image
+    image_as_3D_array = image.as_array()
+    show(1, 'initial image', image_as_3D_array[20,:,:])
 
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
@@ -113,15 +116,15 @@ def main():
         # obtain gradient
         grad = obj_fun.gradient(image, 0)
         filter.apply(grad)
-        gdata = grad.as_array()
+        grad_as_3D_array = grad.as_array()
 
         # find maximal steepest descent step parameter t in image + t*grad 
         # such that the new image remains positive
-        max_image = idata.max()
-        max_grad = abs(gdata).max()
-        gdata[abs(gdata) < eps] = eps
-        r = idata/gdata
-        gdata[idata <= 0] = 0
+        max_image = image_as_3D_array.max()
+        max_grad = abs(grad_as_3D_array).max()
+        grad_as_3D_array[abs(grad_as_3D_array) < eps] = eps
+        r = image_as_3D_array/grad_as_3D_array
+        grad_as_3D_array[image_as_3D_array <= 0] = 0
         d = r[r < 0]
         if d.shape[0] > 0:
             maxstep = -d.max()
@@ -130,7 +133,8 @@ def main():
 
         if tau < 0:
             # find the optimal t
-            fun = lambda t: -obj_fun.value(image.fill(idata + t*gdata))
+            fun = lambda t: -obj_fun.value \
+                  (image.fill(image_as_3D_array + t*grad_as_3D_array))
             t = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
@@ -141,18 +145,18 @@ def main():
 
         # perform steepest descent step
         print('step %d, max change in image %e' % (iter, t*max_grad))
-        idata = idata + t*gdata
+        image_as_3D_array = image_as_3D_array + t*grad_as_3D_array
 
         # filter the new image
-        image.fill(idata)
+        image.fill(image_as_3D_array)
         filter.apply(image)
-        idata = image.as_array()
+        image_as_3D_array = image.as_array()
 
-        # plot the new image
-        show(iter + 1, 'current image', idata[20,:,:])
+        # display the current image estimate
+        show(iter + 1, 'current image', image_as_3D_array[20,:,:])
 
         # quit if the new image has negative values
-        min_image = idata.min()
+        min_image = image_as_3D_array.min()
         if min_image < -eps:
             print('image minimum is negative: %e' % min_image)
             break

@@ -1,4 +1,4 @@
-'''OSSPS reconstruction demo with user-controlled iterations
+'''OSSPS reconstruction demo
 
 Usage:
   ossps_reconstruction [--help | options]
@@ -90,20 +90,20 @@ def main():
     recon.set_up(image)
 
     # in order to see the reconstructed image evolution
-    # take over the control of the iterative process
+    # open up the user's access to  the iterative process
     # rather than allow recon.reconstruct to do all job at once
     for iter in range(num_subiterations):
         print('\n------------- Subiteration %d' % recon.get_subiteration_num())
         # perform an iteration
         recon.update(image)
-        # plot the current image
+        # display the current image at z = 10
         data = image.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(data[10,:,:])
         print('close Figure %d window to continue' % (iter + 1))
         pylab.show()
 
-    # display image
+    # interactively display the reconstructed image
     image.show()
 
 # if anything goes wrong, an exception will be thrown 

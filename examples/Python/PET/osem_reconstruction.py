@@ -1,7 +1,7 @@
-'''OSMAPOSL reconstruction demo with user-controlled iterations
+'''OSEM reconstruction demo
 
 Usage:
-  osmaposl_reconstruction [--help | options]
+  osem_reconstruction [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
@@ -50,7 +50,7 @@ raw_data_file = existing_filepath(data_path, data_file)
 # provides a simplistic example of user's involvement in the reconstruction
 def image_data_processor(image_array, im_num):
     """ Process/display an image"""
-    # plot the current estimate of the image at z = 20
+    # display the current estimate of the image at z = 20
     pylab.figure(im_num)
     pylab.title('image estimate %d' % im_num)
     pylab.imshow(image_array[20,:,:])
@@ -64,7 +64,8 @@ def main():
     printer = Printer('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
-    # forward projection by a ray tracing matrix multiplication
+    # forward projection by a matrix multiplication;
+    # matrix type defaults to ray tracing
     am = AcquisitionModelUsingMatrix()
 
     # PET acquisition data to be read from this file
@@ -75,7 +76,7 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = ad.create_empty_image(1.0)
+    image = ad.create_uniform_image(1.0)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -84,8 +85,9 @@ def main():
     obj_fun.set_acquisition_data(ad)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late
-    # as the reconstruction algorithm (since we are not using a penalty,
-    # or prior, in this example, we will actually run OSEM)
+    # as the reconstruction algorithm;
+    # since we are not using a penalty, or prior, in this example,
+    # we will actually run OSEM
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
@@ -101,7 +103,7 @@ def main():
     recon.set_current_estimate(image)
 
     # in order to see the reconstructed image evolution
-    # take over the control of the iterative process
+    # open up the user's access to the iterative process
     # rather than allow recon.reconstruct to do all job at once
     for iteration in range(num_iterations):
         print('\n------------- iteration %d' % iteration)
