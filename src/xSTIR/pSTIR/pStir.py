@@ -186,9 +186,9 @@ class Shape:
         z = _float_par(self.handle, 'Shape', 'z')
         return (x, y, z)
 
-class EllipsoidalCylinder(Shape):
+class EllipticCylinder(Shape):
     '''
-    Class for ellipsoidal cylinder shape.
+    Class for elliptic cylinder shape.
     '''
     def __init__(self):
         self.handle = None

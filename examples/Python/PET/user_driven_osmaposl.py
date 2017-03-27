@@ -59,12 +59,13 @@ def main():
     print('raw data: %s' % raw_data_file)
     ad = AcquisitionData(raw_data_file)
 
-    # create filter
+    # create filter that zeroes the image outside a cylinder of the same
+    # diameter as the image xy-section size
     filter = TruncateToCylinderProcessor()
 
     # create initial image estimate
     image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)

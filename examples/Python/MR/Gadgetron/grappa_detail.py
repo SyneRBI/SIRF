@@ -170,16 +170,16 @@ def main():
     
     # Return as MATLAB matrices the data pointed to by the containers.
     # Note the image data is complex.
-    idata = images_imcont.as_array()
-    maxv = numpy.amax(abs(idata))*0.6
-    show(abs(idata[0,None,:,:]), tile_shape = (1,1), scale = (0, maxv),\
-            titles = ['Abs(Image)'])
+    image_as_3D_array = images_imcont.as_array()
+    maxv = numpy.amax(abs(image_as_3D_array))*0.6
+    show(abs(image_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
+         scale = (0, maxv), titles = ['Abs(Image)'])
             
             
-    gdata = gfacts_imcont.as_array();
-    maxv = numpy.amax(abs(gdata))
-    show(abs(gdata[0,None,:,:]), tile_shape = (1,1), scale = (0, maxv),\
-            titles = ['G-factor map'])
+    gfactors_as_3D_array = gfacts_imcont.as_array();
+    maxv = numpy.amax(abs(gfactors_as_3D_array))
+    show(abs(gfactors_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
+         scale = (0, maxv), titles = ['G-factor map'])
 
 try:
     main()

@@ -55,12 +55,12 @@ def main():
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
-    # assymetric echo compensation, noise decorelation for multi-coil data or 
+    # asymmetric echo compensation, noise decorelation for multi-coil data or 
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
-    print('---\n pre-processing acquisitions...')
-    processed_data = preprocess_acquisitions(input_data)
+    print('---\n pre-processing acquisition data...')
+    processed_data = preprocess_acquisition_data(input_data)
 
     # setup reconstruction
     # Create a reconstruction object (in this case simple 2D Cartesian FFT) and

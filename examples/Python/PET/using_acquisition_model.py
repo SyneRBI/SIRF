@@ -1,4 +1,4 @@
-'''Forward projection demo: creates an image, forward-projects it to simulate
+'''Forward projection demo: creates an image, projects it to simulate
 acquisition data and displays
 
 Usage:
@@ -62,11 +62,11 @@ def main():
     # create an empty image
     image = ImageData()
     image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375)
+    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
     image.initialise(image_size, voxel_size)
 
     # create a shape
-    shape = EllipsoidalCylinder()
+    shape = EllipticCylinder()
 
     # add a shape to the image
     shape.set_length(400)
@@ -83,35 +83,37 @@ def main():
     shape.set_origin((-60, -30, 10))
     image.add_shape(shape, scale = 0.75)
 
-    # z-pixel coordinate of the xy-crossection to plot
+    # z-pixel coordinate of the xy-crossection to show
     z = int(image_size[2]/2)
 
-    # plot the phantom image
+    # show the phantom image
     data = image.as_array()
     show(1, 'Figure 1: phantom image', data[z,:,:])
 
-    # define the acquisition model
-    am = AcquisitionModelUsingMatrix()
+    # select acquisition model that implements the geometric
+    # forward projection by a matrix multiplication;
+    # matrix type defaults to ray tracing
+    acq_model = AcquisitionModelUsingMatrix()
 
     print('projecting image...')
-    # forward-project the image to obtain simulated acquisition data
+    # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
-    templ = AcquisitionData(raw_data_file)
-    am.set_up(templ, image)
-    ad = am.forward(image)
+    template = AcquisitionData(raw_data_file)
+    acq_model.set_up(template, image)
+    simulated_data = acq_model.forward(image)
     # if the projection data is very large, it can be stored in a file
-    # ad = am.forward(image, 'proj_data.hs')
+    # simulated_data = am.forward(image, 'proj_data.hs')
 
-    # plot simulated acquisition data
-    adata = ad.as_array()
-    show(2, 'Figure 2: forward projection', adata[z,:,:])
+    # show simulated acquisition data
+    simulated_data_as_array = simulated_data.as_array()
+    show(2, 'Figure 2: forward projection', simulated_data_as_array[z,:,:])
 
-    print('back-projecting the forward projection...')
-    # backward-project the computed forward projection
-    update = am.backward(ad)
+    print('backprojecting the forward projection...')
+    # backproject the computed forward projection
+    back_projected_image = acq_model.backward(simulated_data)
 
-    data = update.as_array()
-    show(3, 'Figure 3: back projection', data[z,:,:])
+    back_projected_image_as_array = back_projected_image.as_array()
+    show(3, 'Figure 3: back projection', back_projected_image_as_array[z,:,:])
 
 try:
     main()

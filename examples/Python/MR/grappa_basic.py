@@ -69,16 +69,16 @@ def main():
     # Initially we create a container that points to the h5 file. Data is not read from file
     # until the 'process' method of the reconstructor object is called.
     
-    # Create an Acquisition Container of type AcquisitionData
+    # Create an acquisition container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
-    input_Cont = AcquisitionData(input_file)
+    input_data = AcquisitionData(input_file)
     
     
     # Pre-process this input data. (Currently this is a MATLAB script that just
     # sets up a 3 chain gadget. In the future it will be independent of the MR
     # recon engine.)
-    print('---\n pre-processing acquisitions...')
-    preprocessed_AcCont = preprocess_acquisitions(input_Cont)
+    print('---\n pre-processing acquisition data...')
+    preprocessed_data = preprocess_acquisition_data(input_data)
     
     
     # Perform reconstruction of the preprocessed data.
@@ -86,7 +86,7 @@ def main():
     recon = CartesianGRAPPAReconstruction();
     
     # 2. set the reconstruction input to be the data we just preprocessed.
-    recon.set_input(preprocessed_AcCont);
+    recon.set_input(preprocessed_data);
     
     # 3. run (i.e. 'process') the reconstruction.
     print('---\n reconstructing...\n');

@@ -57,9 +57,9 @@ def main():
         print('this demo needs undersampled raw data')
         return
 
-    # pre-process acquisitions
-    print('---\n pre-processing acquisitions...')
-    preprocessed_data = preprocess_acquisitions(input_data)
+    # pre-process acquisition data
+    print('---\n pre-processing acquisition data...')
+    preprocessed_data = preprocess_acquisition_data(input_data)
 
     # perform reconstruction
     recon = CartesianGRAPPAReconstruction()
@@ -71,11 +71,11 @@ def main():
     recon.process()
     image = recon.get_output('image')
     gfact = recon.get_output('gfactor')
-    idata = abs(image.as_array())
+    image_as_3D_array = abs(image.as_array())
     gdata = abs(gfact.as_array())
 
-    nz = idata.shape[0]
-    # plot image and gfactor slices
+    nz = image_as_3D_array.shape[0]
+    # show image and gfactor slices
     while HAVE_PYLAB:
         print('---\n Enter the slice number to view it.')
         print(' A value outside the range [1 : %d] will stop this loop.'% nz)
@@ -87,7 +87,7 @@ def main():
             break
         pylab.figure(z)
         pylab.title('image')
-        pylab.imshow(idata[z - 1,:,:])
+        pylab.imshow(image_as_3D_array[z - 1,:,:])
         print('Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('G factor')

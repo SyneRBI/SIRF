@@ -275,7 +275,7 @@ class DataContainer(ABC):
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
 
-class CoilImages(DataContainer):
+class CoilImageData(DataContainer):
     '''
     Class for a coil images container.
     Each item in the container is a 4D complex array of coil images values 
@@ -289,7 +289,7 @@ class CoilImages(DataContainer):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     def same_object(self):
-        return CoilImages()
+        return CoilImageData()
     def calculate(self, acqs):
         '''
         Calculates coil images from a given sorted acquisitions.
@@ -325,9 +325,9 @@ class CoilImages(DataContainer):
             (self.handle, ci_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
 
-DataContainer.register(CoilImages)
+DataContainer.register(CoilImageData)
 
-class CoilSensitivityMaps(DataContainer):
+class CoilSensitivityData(DataContainer):
     '''
     Class for a coil sensitivity maps (csm) container.
     Each item in the container is a 4D complex array of csm values on an 
@@ -340,7 +340,7 @@ class CoilSensitivityMaps(DataContainer):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
-        return CoilSensitivityMaps()
+        return CoilSensitivityData()
     def read(self, file):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -372,7 +372,7 @@ class CoilSensitivityMaps(DataContainer):
                 (self.handle, data.handle)
             check_status(handle)
             pyiutil.deleteDataHandle(handle)
-        elif isinstance(data, CoilImages):
+        elif isinstance(data, CoilImageData):
             if method_name == 'Inati':
                 if not HAVE_ISMRMRDTOOLS:
                     raise error('Inati method requires ismrmrd-python-tools')
@@ -452,7 +452,7 @@ class CoilSensitivityMaps(DataContainer):
             (self.handle, csm_num, array.ctypes.data)
         return array
 
-DataContainer.register(CoilSensitivityMaps)
+DataContainer.register(CoilSensitivityData)
 
 class ImageData(DataContainer):
     '''
@@ -592,7 +592,7 @@ class Acquisition:
         flag).
         '''
         return _int_par(self.handle, 'acquisition', 'flags')
-    def number_of_samples(self):
+    def get_number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
@@ -1079,7 +1079,7 @@ class CartesianGRAPPAReconstruction(Reconstructor):
     def compute_gfactors(self, flag):
         self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
     
-def preprocess_acquisitions(input_data):
+def preprocess_acquisition_data(input_data):
     '''
     Acquisition processor function that adjusts noise and asymmetrich echo and
     removes readout oversampling.

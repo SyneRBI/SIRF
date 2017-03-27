@@ -108,12 +108,12 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images_norm)
     failed += test_failed(3, 996.5304, complex_images_norm, 0, eps)
 
-    csms = CoilSensitivityMaps()
+    csms = CoilSensitivityData()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
     print('---\n computing coil images...')
-    cis = CoilImages()
+    cis = CoilImageData()
     cis.calculate(processed_data)
     print('---\n computing sensitivity maps...')
     csms.calculate(cis)

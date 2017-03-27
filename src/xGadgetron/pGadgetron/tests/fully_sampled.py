@@ -99,9 +99,9 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images_norm)
     failed += test_failed(3, 209.021, complex_images_norm, 0, eps)
 
-    cis = CoilImages()
+    cis = CoilImageData()
 
-    csms = CoilSensitivityMaps()
+    csms = CoilSensitivityData()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()

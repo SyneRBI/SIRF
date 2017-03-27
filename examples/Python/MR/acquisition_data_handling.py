@@ -53,17 +53,21 @@ def main():
     # acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
 
-    # Get number of acquisitions:
-    # the raw k-space data is a list of different 1D 
-    # acquisitions (readouts) of different data type (e.g. noise correlation 
-    # data, navigator data, image data,...).
-    # The number of all aquisitions is
+    # get number of acquisitions:
+    # the raw k-space data is a list of different acquisitions (readouts)
+    # of different data type (e.g. noise correlation data, navigator data,
+    # image data,...);
+    # the number of all aquisitions is
     na = input_data.number_of_acquisitions()
-    # The number of image data acquisitions is
+    # the number of image data acquisitions is
     ni = input_data.number_of_acquisitions('image')
     print('acquisitions: total %d, image data %d' % (na, ni))
 
-    # sort data acquisition
+    # sort acquisition data;
+    # currently performed with respect to (in this order):
+    #    - repetition
+    #    - slice
+    #    - kspace encode step 1
     input_data.sort()
 
     # retrieve the range of acquisitions to examine
@@ -109,11 +113,16 @@ def main():
     input_shape = input_array.shape
     print('input data dimensions: %dx%dx%d' % input_shape)
 
-    # pre-process acquisitions
-    print('---\n pre-processing acquisitions...')
-    processed_data = preprocess_acquisitions(input_data)
+    # pre-process acquired k-space data
+    # Prior to image reconstruction several pre-processing steps such as 
+    # asymmetric echo compensation, noise decorelation for multi-coil data or 
+    # removal of oversampling along frequency encoding (i.e. readout or kx)
+    # direction. So far only the removal of readout oversampling and noise and
+    # asymmetric echo adjusting is implemented
+    print('---\n pre-processing acquisition data...')
+    processed_data = preprocess_acquisition_data(input_data)
 
-    # copy processed acquisitions into an array and determine its size
+    # copy processed acquisition data into an array and determine its size
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
     processed_array = processed_data.as_array()

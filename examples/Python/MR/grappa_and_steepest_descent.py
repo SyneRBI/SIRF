@@ -56,8 +56,8 @@ def main():
     input_data = AcquisitionData(input_file)
 
     # pre-process acquisitions
-    print('---\n pre-processing acquisitions...')
-    preprocessed_data = preprocess_acquisitions(input_data)
+    print('---\n pre-processing acquisition data...')
+    preprocessed_data = preprocess_acquisition_data(input_data)
 
     # perform reconstruction
     recon = CartesianGRAPPAReconstruction()
@@ -70,7 +70,7 @@ def main():
     complex_images = recon.get_output()
 
     # compute coil sensitivity maps
-    csms = CoilSensitivityMaps()
+    csms = CoilSensitivityData()
     print('---\n sorting acquisitions...')
     preprocessed_data.sort()
     print('---\n computing sensitivity maps...')
@@ -95,13 +95,13 @@ def main():
     grad = am.backward(res)
     w = am.forward(grad)
     alpha = (grad*grad)/(w*w)
-    r_complex_imgs = complex_images - grad*alpha # refined images
+    refined_cmplx_imgs = complex_images - grad*alpha # refined images
 
-    idata = abs(complex_images.as_array())
-    rdata = abs(r_complex_imgs.as_array())
-    nz = idata.shape[0]
+    image_as_3D_array = abs(complex_images.as_array())
+    refined_image_as_3D_array = abs(refined_cmplx_imgs.as_array())
+    nz = image_as_3D_array.shape[0]
 
-    # plot images
+    # show images
     while HAVE_PYLAB:
         print('---\n Enter the slice number to view it.')
         print(' A value outside the range [1 : %d] will stop this loop.'% nz)
@@ -113,11 +113,11 @@ def main():
             break
         pylab.figure(z)
         pylab.title('image')
-        pylab.imshow(idata[z - 1, :, :])
+        pylab.imshow(image_as_3D_array[z - 1, :, :])
         print(' Close Figure %d window to continue...' % z)
         pylab.figure(z + nz)
         pylab.title('refined image')
-        pylab.imshow(rdata[z - 1, :, :])
+        pylab.imshow(refined_image_as_3D_array[z - 1, :, :])
         print(' Close Figure %d window to continue...' % (z + nz))
         pylab.show()
 

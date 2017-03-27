@@ -1,7 +1,7 @@
 '''
-Upper-level demo that illustrates the computation of coil sensitivity maps,
-applying projection from the image space into acquisition space and back
-defined by the aquisition model, and images and acquisitions algebra.
+Upper-level demo that illustrates the computation of coil sensitivity maps
+and applying projection from the image space into acquisition space and back
+defined by the aquisition model.
 
 Usage:
   simple_simulation.py [--help | options]
@@ -52,13 +52,14 @@ def main():
 
     print('---\n acquisition data norm: %e' % input_data.norm())
 
-    # pre-process acquisitions
-    print('---\n processing acquisitions...')
-    processed_data = preprocess_acquisitions(input_data)
+    # pre-process acquisition data
+    print('---\n pre-processing acquisition data...')
+    processed_data = preprocess_acquisition_data(input_data)
 
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
-    # perform reconstruction
+    # perform reconstruction to obtain a meaningful ImageData object
+    # (cannot be obtained in any other way at present)
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
@@ -66,28 +67,39 @@ def main():
 
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
-    csms = CoilSensitivityMaps()
+    csms = CoilSensitivityData()
 
     print('---\n sorting acquisitions...')
     processed_data.sort()
-    print('---\n computing sensitivity maps...')
+    print('---\n computing coil sensitivity maps...')
     csms.calculate(processed_data)
+    # alternatively, coil sensitivity maps can be computed from
+    # CoilImageData - see coil_sensitivity_maps.py
 
     # create acquisition model based on the acquisition parameters
     # stored in input_data and image parameters stored in complex_images
-    am = AcquisitionModel(processed_data, complex_images)
+    acq_model = AcquisitionModel(processed_data, complex_images)
 
-    am.set_coil_sensitivity_maps(csms)
+    acq_model.set_coil_sensitivity_maps(csms)
 
-    # use the acquisition model (forward projection) to produce 'acquisitions'
-    acqs = am.forward(complex_images)
+    # use the acquisition model (forward projection) to produce simulated
+    # acquisition data
+    simulated_acq_data = acq_model.forward(complex_images)
 
-    print('---\n reconstructed images forward projection norm %e' % acqs.norm())
+    print('---\n reconstructed images forward projection norm %e'\
+          % simulated_acq_data.norm())
 
     # get data as a Python ndarray
-    acqs_data = acqs.as_array();
+    simulated_acq_array = simulated_acq_data.as_array();
 
     # TODO display a slice etc
+
+    # backproject simulated acquisition data
+    backprojected_data = acq_model.backward(simulated_acq_data)
+
+    # show backprojected images
+    backprojected_data.show()
+
 
 try:
     main()

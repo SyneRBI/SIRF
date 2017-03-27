@@ -68,7 +68,8 @@ def main():
     image = PET.ImageData()                   # empty PET ImageData object
     image.initialise(image_arr.shape[::-1])   # set image shape
     image.fill(image_arr)                     # fill image with values
-    # apply cylindric filter
+    # apply filter that zeroes the image outside a cylinder of the same
+    # diameter as the image xy-section size
     filter = PET.TruncateToCylinderProcessor()
     filter.apply(image)
     # display image
