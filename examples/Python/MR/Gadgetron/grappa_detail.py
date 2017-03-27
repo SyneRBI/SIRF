@@ -51,25 +51,26 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import matplotlib.pyplot as plt
-
 # import engine module
 from pGadgetron import *
 
-def show(image_matrix, tile_shape, scale, titles):
-    assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
-            "image tile rows x columns must equal the 3rd dim"\
-            " extent of image_matrix"
-    cols, rows = tile_shape
-    vmin, vmax = scale
-    fig = plt.figure()
-    for z in range(image_matrix.shape[0]):
-        ax = fig.add_subplot(cols, rows, z+1)
-        ax.set_title(titles[z])
-        ax.set_axis_off()
-        imgplot = ax.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax, cmap='gray')
-    print('close figure 1 to continue')
-    plt.show()
+##import matplotlib.pyplot as plt
+##def show(image_matrix, tile_shape, scale, titles):
+##    assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
+##            "image tile rows x columns must equal the 3rd dim"\
+##            " extent of image_matrix"
+##    cols, rows = tile_shape
+##    vmin, vmax = scale
+##    fig = plt.figure()
+##    for z in range(image_matrix.shape[0]):
+##        ax = fig.add_subplot(cols, rows, z+1)
+##        ax.set_title(titles[z])
+##        ax.set_axis_off()
+##        imgplot = ax.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax, cmap='gray')
+##    print('close figure 1 to continue')
+##    plt.show()
+# import a more flexible show_3D_array() alternative to the above
+from pUtil import show_3D_array
 
 
 def main():
@@ -84,9 +85,9 @@ def main():
     # not read from file until the gadgetron is called using
     # the 'process' method.
     
-    # Create an Acquisition Container of type pGadgetron.AcquisitionData
+    # Create an acquisition container of type pGadgetron.AcquisitionData
     print('---\n reading in file %s...' % input_file)
-    input_Cont = AcquisitionData(input_file)
+    input_data = AcquisitionData(input_file)
     
     
     # Pre-process this input data using three preparation gadgets
@@ -98,14 +99,16 @@ def main():
     # Call gadgetron by using the 'process' method. This runs the gadgets
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
-    preprocessed_AcCont = input_Cont.process(prep_gadgets)
+    preprocessed_data = input_data.process(prep_gadgets)
     
     # Extract sorted k-space, permute dimensions and display
-    ksp = preprocessed_AcCont.as_array(0)
-    [ns,nc,nro] = preprocessed_AcCont.dimensions() # [nx ncoil ny]
-    ksp = numpy.transpose(ksp,(1,2,0))
-    show(abs(ksp[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
-            titles = ['Abs(Coil1)'])
+    acq_array = preprocessed_data.as_array(0)
+    [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
+    acq_array = numpy.transpose(acq_array,(1,2,0))
+    title = 'Acquisitions (absolute value)'
+    show_3D_array(abs(acq_array), suptitle = title, label = 'coil')
+##    show(abs(acq_array[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
+##            titles = ['Abs(Coil1)'])
             
     
     # Perform reconstruction of the preprocessed data.
@@ -150,7 +153,7 @@ def main():
     
     
     # 3) set the reconstruction input to be the data we just preprocessed.
-    recon.set_input(preprocessed_AcCont)
+    recon.set_input(preprocessed_data)
     
     # 4) Run the reconstruction using 'process' to call gadgetron.
     print('---\n reconstructing...\n')
@@ -158,28 +161,35 @@ def main():
     
     # Output
     
-    # Reconstructed data sits in memory. We need to first get containers
+    # Reconstructed data sits in memory. We need to first get data
     # for both the reconstructed images and g-factors, before extracting the
-    # data as MATLAB arrays. Containers in effect point to the data.
+    # data as Python arrays.
     
-    # Get images and gfactors as containers with type mGadgetron.ImagesContainer
+    # Get image and gfactor data as objects of type mGadgetron.ImageData
     # (Note this syntax may change in the future with the addition of a
     #  method '.get_gfactor'.)
-    images_imcont = recon.get_output('image')
-    gfacts_imcont = recon.get_output('gfactor')
+    image_data = recon.get_output('image')
+    gfact_data = recon.get_output('gfactor')
     
-    # Return as MATLAB matrices the data pointed to by the containers.
+    # Return as Python matrices the data pointed to by the containers.
     # Note the image data is complex.
-    image_as_3D_array = images_imcont.as_array()
-    maxv = numpy.amax(abs(image_as_3D_array))*0.6
-    show(abs(image_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
-         scale = (0, maxv), titles = ['Abs(Image)'])
+    image_as_3D_array = image_data.as_array()
+    maxv = numpy.amax(abs(image_as_3D_array))
+    title = 'Reconstructed image (absolute value)'
+    show_3D_array(abs(image_as_3D_array), suptitle = title, label = 'slice', \
+                  scale = (0, maxv))
+##    maxv = numpy.amax(abs(image_as_3D_array))*0.6
+##    show(abs(image_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
+##         scale = (0, maxv), titles = ['Abs(Image)'])
             
             
-    gfactors_as_3D_array = gfacts_imcont.as_array();
-    maxv = numpy.amax(abs(gfactors_as_3D_array))
-    show(abs(gfactors_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
-         scale = (0, maxv), titles = ['G-factor map'])
+    gfactor_as_3D_array = gfact_data.as_array();
+    maxv = numpy.amax(abs(gfactor_as_3D_array))
+    title = 'G-factor (absolute value)'
+    show_3D_array(abs(gfactor_as_3D_array), suptitle = title, label = 'slice', \
+                  scale = (0, maxv))
+##    show(abs(gfactor_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
+##         scale = (0, maxv), titles = ['G-factor map'])
 
 try:
     main()
@@ -188,6 +198,3 @@ try:
 except error as err:
     # display error information
     print('??? %s' % err.value)
-
-
-
