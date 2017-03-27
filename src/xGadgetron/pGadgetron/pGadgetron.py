@@ -633,6 +633,9 @@ class AcquisitionData(DataContainer):
     def number_of_acquisitions(self, select = 'all'):
         dim = self.dimensions(select)
         return dim[0]
+    def get_number_of_readouts(self, select = 'all'):
+        dim = self.dimensions(select)
+        return dim[0]
     def sort(self):
         '''
         Sorts acquisitions with respect to (in this order):
@@ -667,11 +670,14 @@ class AcquisitionData(DataContainer):
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
-    def dimensions(self, select = 'all'):
+    def dimensions(self, select = 'image'):
         '''
         Returns acquisitions dimensions as a tuple (na, nc, ns), where na is
         the number of acquisitions, nc the number of coils and ns the number of
         samples.
+        If select is set to 'all', the total number of acquisitions is returned.
+        Otherwise, the number of acquisitions directly related to imaging data
+        is returned.
         '''
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         hv = pygadgetron.cGT_getAcquisitionsDimensions\

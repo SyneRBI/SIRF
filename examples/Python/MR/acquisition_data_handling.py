@@ -50,18 +50,17 @@ def main():
         data_path = mr_data_path()
     input_file = existing_filepath(data_path, args['--file'])
 
-    # acquisitions will be read from an HDF file input_file
+    # acquisition data will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
 
-    # get number of acquisitions:
     # the raw k-space data is a list of different acquisitions (readouts)
     # of different data type (e.g. noise correlation data, navigator data,
     # image data,...);
     # the number of all aquisitions is
-    na = input_data.number_of_acquisitions()
+    na = input_data.get_number_of_readouts('all')
     # the number of image data acquisitions is
-    ni = input_data.number_of_acquisitions('image')
-    print('acquisitions: total %d, image data %d' % (na, ni))
+    ni = input_data.get_number_of_readouts()
+    print('readouts: total %d, image data %d' % (na, ni))
 
     # sort acquisition data;
     # currently performed with respect to (in this order):
@@ -70,21 +69,21 @@ def main():
     #    - kspace encode step 1
     input_data.sort()
 
-    # retrieve the range of acquisitions to examine
+    # retrieve the range of readouts to examine
     t = literal_eval(args['--range'])
     if t[0] >= t[1] or t[1] >= na:
-        raise error('Wrong acquisitions range')
+        raise error('Wrong readouts range')
     where = range(t[0], t[1])
 
-    # retrieve acquisitions flags
+    # retrieve readouts flags
     flags = input_data.get_info('flags')
 
-    # inspect the first acquisition flag
+    # inspect the first readout flag
     if flags[0] & IMAGE_DATA_MASK:
-        print('first acquisition is image data')
+        print('first readout is image data')
     else:
         # should see this if input data file is test_2D_2x.h5
-        print('first acquisition is not image data')
+        print('first readout is not image data')
         
     # display flags
     print('Flags'),
@@ -128,6 +127,10 @@ def main():
     processed_array = processed_data.as_array()
     processed_shape = processed_array.shape
     print('processed data dimensions: %dx%dx%d' % processed_shape)
+
+    processed_array = numpy.transpose(processed_array,(1,2,0))
+    title = 'Acquisitions (absolute value)'
+    show_3D_array(abs(processed_array), suptitle = title, label = 'coil')
 
 try:
     main()

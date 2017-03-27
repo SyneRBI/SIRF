@@ -102,9 +102,15 @@ def show_3D_array\
      suptitle = None, titles = None, label = None):
     import math
     if tile_shape is None:
-        n = array.shape[0]
-        rows = int(round(math.sqrt(n)))
-        cols = (n - 1)//rows + 1
+        nz = array.shape[0]
+        ny = array.shape[1]
+        nx = array.shape[2]
+        rows = int(round(math.sqrt(nz*nx/ny)))
+        if rows < 1:
+            rows = 1
+        if rows > nz:
+            rows = nz
+        cols = (nz - 1)//rows + 1
     else:
         rows, cols = tile_shape
         assert rows*cols >= array.shape[0],\
@@ -123,7 +129,7 @@ def show_3D_array\
             if label is None:
                 ax.set_title('%d' % (z + 1))
             else:
-                ax.set_title(label + (' %d' % (z + 1)))
+                ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
         else:
             ax.set_title(titles[z])
         ax.set_axis_off()
