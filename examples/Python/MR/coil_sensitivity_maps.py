@@ -10,6 +10,7 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  -i <iter>, --iter=<iter>    number of smoothing iterations [default: 10]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -35,7 +36,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import matplotlib.pyplot as plt
+from pUtil import *
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
@@ -46,29 +47,19 @@ except:
     print('This demo requires ismrmrd-python-tools.')
     sys.exit()
 
-def show_3D_array(array, tile_shape, scale, titles):
-    assert numpy.prod(tile_shape) >= array.shape[0],\
-            "tile rows x columns must equal the 3rd dim extent of array"
-    cols, rows = tile_shape
-    vmin, vmax = scale
-    fig = plt.figure()
-    for z in range(array.shape[0]):
-        ax = fig.add_subplot(cols, rows, z+1)
-        ax.set_title(titles[z])
-        ax.set_axis_off()
-        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
-    print('close figure 1 to continue')
-    plt.show()
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+nit = int(args['--iter'])
 
 def main():
 
     # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
 
-    # acquisitions will be read from an HDF file input_file
+    # acquisition data will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
     
     # pre-process acquisition data
@@ -86,30 +77,35 @@ def main():
 
     # calculate coil sensitivity maps by dividing each coil image data by the
     # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
-    # (niter = 10) applies an iterative smoothing algorithm with 10 iterations 
+    # (niter = nit) applies an iterative smoothing algorithm with nit iterations 
     # to the image data prior to the calculation of the coil sensitivity maps
-    CSMs.calculate(CIs, method = 'SRSS(niter = 10)')
+    CSMs.calculate(CIs, method = 'SRSS(niter = %d)' % nit)
 
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
     maxv = numpy.amax(abs(coil_images))
-    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
-    show_3D_array(numpy.angle(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-        titles = ['Angle(Coil1)', 'Angle(Coil3)','Angle(Coil5)','Angle(Coil7)']) 
+    title = 'Coil sensitivity maps (absolute value)'
+    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+    title = 'Coil sensitivity maps (phase)'
+    show_3D_array(numpy.angle(coil_images), suptitle = title, label = 'coil')
+##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
+##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
+##    show_3D_array(numpy.angle(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
+##        titles = ['Angle(Coil1)', 'Angle(Coil3)','Angle(Coil5)','Angle(Coil7)']) 
 
     # calculate coil sensitivity maps directly from the raw k-space data 
-    # so far no additional parameters can be set for this method such as the
-    # number of smoothing iterations which leads to noisier coil sensitivity 
-    # maps    
-    CSMs = CoilSensitivityData()    
+    CSMs = CoilSensitivityData()
+    # set number of smoothing iterations to suppress noise
+    CSMs.smoothness = nit
     CSMs.calculate(processed_data)
     
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    maxv = numpy.amax(abs(coil_images))
-    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
+    title = 'Coil sensitivity maps (absolute value)'
+    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+##    maxv = numpy.amax(abs(coil_images))
+##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
+##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
 
     # calculate coil sensitivity maps using an approach suggested by 
     #   Inati SJ, Hansen MS, Kellman P.
@@ -122,9 +118,11 @@ def main():
         
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    maxv = numpy.amax(abs(coil_images))
-    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
+    title = 'Coil sensitivity maps (absolute value)'
+    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+##    maxv = numpy.amax(abs(coil_images))
+##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
+##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
 
 try:
     main()

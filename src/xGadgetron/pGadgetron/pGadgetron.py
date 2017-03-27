@@ -368,6 +368,8 @@ class CoilSensitivityData(DataContainer):
             method_name = 'SRSS'
             parm = {}
         if isinstance(data, AcquisitionData):
+            _set_int_par\
+                (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
             handle = pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle)
             check_status(handle)

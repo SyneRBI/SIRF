@@ -19,6 +19,7 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+import matplotlib.pyplot as plt
 import os
 import pyiutil
 
@@ -95,4 +96,38 @@ def parse_arglist(arglist):
         else:
             argdict[name] = arglist[0:ic].rstrip()
             arglist = arglist[ic + 1 :]
+
+def show_3D_array\
+    (array, tile_shape = None, scale = None, \
+     suptitle = None, titles = None, label = None):
+    import math
+    if tile_shape is None:
+        n = array.shape[0]
+        rows = int(round(math.sqrt(n)))
+        cols = (n - 1)//rows + 1
+    else:
+        rows, cols = tile_shape
+        assert rows*cols >= array.shape[0],\
+                "tile rows x columns must equal the 3rd dim extent of array"
+    if scale is None:
+        vmin = 0
+        vmax = 1
+    else:
+        vmin, vmax = scale
+    fig = plt.figure()
+    if suptitle is not None:
+        fig.suptitle(suptitle, fontsize = 16)
+    for z in range(array.shape[0]):
+        ax = fig.add_subplot(rows, cols, z+1)
+        if titles is None:
+            if label is None:
+                ax.set_title('%d' % (z + 1))
+            else:
+                ax.set_title(label + (' %d' % (z + 1)))
+        else:
+            ax.set_title(titles[z])
+        ax.set_axis_off()
+        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+    print('close figure 1 to continue')
+    plt.show()
 
