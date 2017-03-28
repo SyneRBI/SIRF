@@ -36,26 +36,26 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from pUtil import show_3D_array
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
-    # locate the input data file
+    # locate the k-space raw data file
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
     input_file = existing_filepath(data_path, args['--file'])
 
-    # acquisitions will be read from an HDF file input_file
+    # acquisition data will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
-
     print('---\n acquisition data norm: %e' % input_data.norm())
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
     processed_data = preprocess_acquisition_data(input_data)
-
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction to obtain a meaningful ImageData object
@@ -64,41 +64,47 @@ def main():
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
-
     print('---\n reconstructed images norm: %e' % complex_images.norm())
-
-    csms = CoilSensitivityData()
-
+    
+    # sort processed acquisition data;
+    # sorting currently performed with respect to (in this order):
+    #    - repetition
+    #    - slice
+    #    - kspace encode step 1
     print('---\n sorting acquisitions...')
     processed_data.sort()
+
+    # compute coil sensitivity maps
     print('---\n computing coil sensitivity maps...')
+    csms = CoilSensitivityData()
     csms.calculate(processed_data)
     # alternatively, coil sensitivity maps can be computed from
     # CoilImageData - see coil_sensitivity_maps.py
 
     # create acquisition model based on the acquisition parameters
-    # stored in input_data and image parameters stored in complex_images
+    # stored in processed_data and image parameters stored in complex_images
     acq_model = AcquisitionModel(processed_data, complex_images)
-
     acq_model.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce simulated
     # acquisition data
     simulated_acq_data = acq_model.forward(complex_images)
-
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
 
-    # get data as a Python ndarray
+    # get simulated acquisition data as a Python ndarray
     simulated_acq_array = simulated_acq_data.as_array();
-
-    # TODO display a slice etc
+    # display simulated acquisition data
+    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
+    title = 'Simulated acquisition data (absolute value)'
+    show_3D_array(abs(simulated_acq_array), suptitle = title, label = 'coil')
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
-
     # show backprojected images
-    backprojected_data.show()
+    backprojected_array = backprojected_data.as_array()
+    title = 'Backprojected image (absolute value)'
+    show_3D_array(abs(backprojected_array), suptitle = title, label = 'slice')
 
 
 try:

@@ -101,6 +101,7 @@ def show_3D_array\
     (array, tile_shape = None, scale = None, \
      suptitle = None, titles = None, label = None):
     import math
+    import numpy
     if tile_shape is None:
         nz = array.shape[0]
         ny = array.shape[1]
@@ -116,8 +117,8 @@ def show_3D_array\
         assert rows*cols >= array.shape[0],\
                 "tile rows x columns must equal the 3rd dim extent of array"
     if scale is None:
-        vmin = 0
-        vmax = 1
+        vmin = numpy.amin(array)
+        vmax = numpy.amax(array)
     else:
         vmin, vmax = scale
     fig = plt.figure()
