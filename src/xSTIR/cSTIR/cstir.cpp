@@ -150,6 +150,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		if (boost::iequals(obj, "ProjectorsUsingMatrix"))
 			return cSTIR_projectorsUsingMatrixParameter(handle, name);
+		else if (boost::iequals(obj, "AcqModUsingMatrix"))
+			return cSTIR_acqModUsingMatrixParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedObjectiveFunction"))

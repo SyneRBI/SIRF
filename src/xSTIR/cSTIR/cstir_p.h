@@ -61,6 +61,9 @@ cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
+cSTIR_acqModUsingMatrixParameter(DataHandle* hp, const char* name);
+
+void*
 cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 

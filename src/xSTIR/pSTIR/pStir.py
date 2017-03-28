@@ -684,6 +684,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
+        self.matrix = matrix
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def set_matrix(self, matrix):
 ##        ''' 
@@ -700,6 +701,14 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
         check_status(matrix.handle)
         return matrix
+    def set_num_tangential_LORs(self, value):
+        '''
+        Set the number of LORs (or rays) for each bin in the sinogram.
+        They are currently (approximately) parallel and spaced in the
+        tangential direction (i.e. orthogonal to the axial direction).
+        '''
+##        return self.matrix.set_num_tangential_LORs(value)
+        return self.get_matrix().set_num_tangential_LORs(value)
 
 class Prior:
     '''
