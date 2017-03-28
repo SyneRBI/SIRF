@@ -49,9 +49,8 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
+    # acquisitions will be read from this HDF file
     input_file = existing_filepath(data_path, args['--file'])
-
-    # acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
 
     # pre-process acquisitions
@@ -76,7 +75,9 @@ def main():
     output = recon.get_output()
 
     # show images
-    output.show()
+    image_array = output.as_array()
+    title = 'Reconstructed images (magnitude)'
+    show_3D_array(abs(image_array), suptitle = title)
 
     if output_file is not None:
         # write images to a new group in args.output

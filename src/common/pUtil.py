@@ -99,7 +99,7 @@ def parse_arglist(arglist):
 
 def show_3D_array\
     (array, tile_shape = None, scale = None, \
-     suptitle = None, titles = None, label = None):
+     suptitle = None, titles = None, label = None, show = True):
     import math
     import numpy
     if tile_shape is None:
@@ -136,5 +136,6 @@ def show_3D_array\
         ax.set_axis_off()
         imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
     print('close figure 1 to continue')
-    plt.show()
+    if show:
+        plt.show()
 

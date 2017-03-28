@@ -1,5 +1,5 @@
 '''
-Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
+Demonstrates GRAPPA reconstruction of undersampled data. 
 See function grappa_basic.py for a simpler example.
 
 Pre-requisites:

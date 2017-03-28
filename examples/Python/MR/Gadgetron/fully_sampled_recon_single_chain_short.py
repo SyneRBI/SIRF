@@ -44,17 +44,19 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
+    # acquisitions will be read from this HDF file
     input_file = existing_filepath(data_path, args['--file'])
-
-    # acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
+
     # create reconstruction object
     recon = Reconstructor(['RemoveROOversamplingGadget', \
         'SimpleReconGadgetSet'])
     # reconstruct images
     images = recon.reconstruct(input_data)
     # show reconstructed images
-    images.show()
+    image_array = images.as_array()
+    title = 'Reconstructed images (magnitude)'
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:
     main()

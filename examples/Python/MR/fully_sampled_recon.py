@@ -72,11 +72,13 @@ def main():
     print('---\n reconstructing...')
     recon.process()
     
-    # retrieve reconstruced images
-    images = recon.get_output()
+    # retrieve reconstruced image
+    image = recon.get_output()
 
     # show reconstructed images
-    images.show()
+    image_array = image.as_array()
+    title = 'Reconstructed image (absolute value)'
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:
     main()

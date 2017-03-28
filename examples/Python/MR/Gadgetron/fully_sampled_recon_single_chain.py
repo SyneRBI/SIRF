@@ -49,9 +49,8 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
+    # acquisition data will be read from this HDF file
     input_file = existing_filepath(data_path, args['--file'])
-
-    # acquisitions will be read from an HDF file
     input_data = AcquisitionData(input_file)
     
     # create reconstruction object
@@ -91,7 +90,12 @@ def main():
     images = recon.get_output()
 
     # show reconstructed images
-    images.show()
+    image_array = images.as_array()
+    title = 'Reconstructed images (magnitude)'
+    show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, label = 'slice', \
+                  show = False)
+    title = 'Reconstructed images (imaginary part)'
+    show_3D_array(abs(image_array[1::2,:,:]), suptitle = title, label = 'slice')
 
     if output_file is not None:
         # write images to a new group in args.output

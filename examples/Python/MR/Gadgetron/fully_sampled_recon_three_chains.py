@@ -45,8 +45,8 @@ sigma = float(args['--sigma'])
 # import engine module
 from pGadgetron import *
 
-def gaussian(x, mu, sig):
-    return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sig, 2.)))
+def gaussian(x, mu, sigma):
+    return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
     
 def main():
 
@@ -54,9 +54,8 @@ def main():
     data_path = args['--path']
     if data_path is None:
         data_path = mr_data_path()
+    # Acquisitions will be read from this HDF file
     input_file = existing_filepath(data_path, args['--file'])
-
-    # Acquisitions will be read from an HDF file input_file
     input_data = AcquisitionData(input_file)
 
     # Get size of current k-space data as tuple
@@ -109,7 +108,9 @@ def main():
     images = img_proc.process(complex_images)
 
     # show obtained images
-    images.show()
+    image_array = images.as_array()
+    title = 'Reconstructed images (magnitude)'
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:
     main()

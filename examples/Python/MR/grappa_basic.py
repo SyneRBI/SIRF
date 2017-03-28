@@ -1,5 +1,5 @@
 '''
-Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
+Demonstrates GRAPPA reconstruction of undersampled data. 
 See function grappa_detail.py for an example showing more of the 
 workings and functionality of the SIRF code.
 
@@ -97,7 +97,9 @@ def main():
     images = recon.get_output()
 
     # show reconstructed images
-    images.show()
+    image_array = images.as_array()
+    title = 'Reconstructed images (absolute value)'
+    show_3D_array(abs(image_array), suptitle = title)
 
 try:
     main()

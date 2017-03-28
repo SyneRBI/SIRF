@@ -106,7 +106,6 @@ def main():
     title = 'Backprojected image (absolute value)'
     show_3D_array(abs(backprojected_array), suptitle = title, label = 'slice')
 
-
 try:
     main()
     print('done')

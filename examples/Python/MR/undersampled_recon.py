@@ -71,29 +71,14 @@ def main():
     recon.process()
     image = recon.get_output('image')
     gfact = recon.get_output('gfactor')
-    image_as_3D_array = abs(image.as_array())
-    gdata = abs(gfact.as_array())
 
-    nz = image_as_3D_array.shape[0]
-    # show image and gfactor slices
-    while HAVE_PYLAB:
-        print('---\n Enter the slice number to view it.')
-        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
-        s = str(input('slice: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 1 or z > nz:
-            break
-        pylab.figure(z)
-        pylab.title('image')
-        pylab.imshow(image_as_3D_array[z - 1,:,:])
-        print('Close Figure %d window to continue...' % z)
-        pylab.figure(z + nz)
-        pylab.title('G factor')
-        pylab.imshow(gdata[z - 1,:,:])
-        print('Close Figure %d window to continue...' % (z + nz))
-        pylab.show()
+    # show reconstructed image and gfactor
+    image_array = image.as_array()
+    gfact_array = gfact.as_array()
+    title = 'Reconstructed image (absolute value)'
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice', show = False)
+    title = 'G-factor (absolute value)'
+    show_3D_array(abs(gfact_array), suptitle = title, label = 'slice')
 
 try:
     main()

@@ -52,10 +52,10 @@ def main():
         data_path = mr_data_path()
     input_file = existing_filepath(data_path, args['--file'])
 
-    # acquisitions will be read from an HDF file input_data
+    # acquisition data will be read from an HDF file input_data
     input_data = AcquisitionData(input_file)
 
-    # pre-process acquisitions
+    # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
     preprocessed_data = preprocess_acquisition_data(input_data)
 
@@ -67,7 +67,7 @@ def main():
     recon.process()
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
-    complex_images = recon.get_output()
+    complex_image = recon.get_output()
 
     # compute coil sensitivity maps
     csms = CoilSensitivityData()
@@ -77,14 +77,14 @@ def main():
     csms.calculate(preprocessed_data)
 
     # create acquisition model based on the acquisition parameters
-    # stored in preprocessed_data and image parameters stored in complex_images
-    am = AcquisitionModel(preprocessed_data, complex_images)
+    # stored in preprocessed_data and image parameters stored in complex_image
+    am = AcquisitionModel(preprocessed_data, complex_image)
     am.set_coil_sensitivity_maps(csms)
 
-    # use the acquisition model (forward projection) to simulate acquisitions
-    fwd_data = am.forward(complex_images)
+    # use the acquisition model (forward projection) to simulate acquisition data
+    fwd_data = am.forward(complex_image)
 
-    # compute the difference between real and simulated acquisitions
+    # compute the difference between real and simulated acquisition data
     pp_norm = preprocessed_data.norm()
     fwd_norm = fwd_data.norm()
     res = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
@@ -95,31 +95,16 @@ def main():
     grad = am.backward(res)
     w = am.forward(grad)
     alpha = (grad*grad)/(w*w)
-    refined_cmplx_imgs = complex_images - grad*alpha # refined images
+    refined_cmplx_img = complex_image - grad*alpha # refined image
 
-    image_as_3D_array = abs(complex_images.as_array())
-    refined_image_as_3D_array = abs(refined_cmplx_imgs.as_array())
-    nz = image_as_3D_array.shape[0]
+    image_array = complex_image.as_array()
+    refined_image_array = refined_cmplx_img.as_array()
 
-    # show images
-    while HAVE_PYLAB:
-        print('---\n Enter the slice number to view it.')
-        print(' A value outside the range [1 : %d] will stop this loop.'% nz)
-        s = str(input('---\n slice: '))
-        if len(s) < 1:
-            break
-        z = int(s)
-        if z < 1 or z > nz:
-            break
-        pylab.figure(z)
-        pylab.title('image')
-        pylab.imshow(image_as_3D_array[z - 1, :, :])
-        print(' Close Figure %d window to continue...' % z)
-        pylab.figure(z + nz)
-        pylab.title('refined image')
-        pylab.imshow(refined_image_as_3D_array[z - 1, :, :])
-        print(' Close Figure %d window to continue...' % (z + nz))
-        pylab.show()
+    # show reconstructed and refined images
+    title = 'Reconstructed image (absolute value)'
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice', show = False)
+    title = 'Refined image (absolute value)'
+    show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice')
 
 try:
     main()
