@@ -1,4 +1,8 @@
-'''OSEM reconstruction demo
+'''OSEM reconstruction demo.
+We actually use the OSMAPOSL reconstructor in this demo. This reconstructor
+implements an Ordered Subsets (OS) version of the One Step Late algorithm (OSL)
+from Green et al for Maximum a Posteriori (MAP) maximisation. Here we use it
+for Maximum Likelihood (ML) in which case it is equivalent to OSEM.
 
 Usage:
   osem_reconstruction [--help | options]
@@ -64,9 +68,8 @@ def main():
     printer = Printer('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
-    # forward projection by a matrix multiplication;
-    # matrix type defaults to ray tracing
-    am = AcquisitionModelUsingMatrix()
+    # forward projection by a ray tracing matrix multiplication
+    am = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
@@ -84,10 +87,11 @@ def main():
     obj_fun.set_acquisition_model(am)
     obj_fun.set_acquisition_data(ad)
 
-    # select Ordered Subsets Maximum A-Posteriori One Step Late
-    # as the reconstruction algorithm;
-    # since we are not using a penalty, or prior, in this example,
-    # we will actually run OSEM
+    # select Ordered Subsets Maximum A-Posteriori One Step Late as the
+    # reconstruction algorithm (since we are not using a penalty, or prior, in
+    # this example, we actually run OSEM);
+    # this algorithm does not converge to the maximum of the objective function
+    # but is used in practice to speed-up calculations
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)

@@ -91,9 +91,8 @@ def main():
     show(1, 'Figure 1: phantom image', data[z,:,:])
 
     # select acquisition model that implements the geometric
-    # forward projection by a matrix multiplication;
-    # matrix type defaults to ray tracing
-    acq_model = AcquisitionModelUsingMatrix()
+    # forward projection by a ray tracing matrix multiplication
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
 
     print('projecting image...')
     # project the image to obtain simulated acquisition data

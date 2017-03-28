@@ -242,7 +242,8 @@ class ImageData(DataContainer):
         str            : the object is read from file specified by <arg>
         AcquisitionData: the object compatible with the scanner data
                          recorded in an AcquisitionData object <arg> is created
-        None           : the empty ImageData object is created
+        None           : the empty ImageData object is created, call initialise()
+                         method before using it
         '''
         self.handle = None
         if isinstance(arg, str):
@@ -442,9 +443,17 @@ class RayTracingMatrix:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def set_num_tangential_LORs(self, value):
+        '''
+        Set the number of LORs (or rays) for each bin in the sinogram.
+        They are currently (approximately) parallel and spaced in the
+        tangential direction (i.e. orthogonal to the axial direction).
+        '''
         _set_int_par(self.handle, self.name, 'num_tangential_LORs', value)
         return self
     def get_num_tangential_LORs(self):
+        '''
+        Returns the number of LORs for each bin in the sinogram.
+        '''
         return _int_par(self.handle, self.name, 'num_tangential_LORs')
 
 class AcquisitionData(DataContainer):
@@ -648,6 +657,40 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         matrix:  a RayTracingMatrix object to represent G in (F).
         '''
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+##    def get_matrix(self):
+##        ''' 
+##        Returns the ray tracing matrix used for projecting;
+##        matrix:  a RayTracingMatrix object representing G in (F).
+##        '''
+##        matrix = RayTracingMatrix()
+##        matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
+##        check_status(matrix.handle)
+##        return matrix
+
+class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
+    ''' 
+    Class for a PET acquisition model that uses (implicitly) a ray tracing
+    matrix for G in (F).
+    '''
+    def __init__(self, matrix = None):
+        ''' 
+        Creates an AcquisitionModelUsingMatrix object, optionally setting
+        the ray tracing matrix to be used for projecting;
+        matrix:  a RayTracingMatrix object to represent G in (F).
+        '''
+        self.handle = None
+        self.name = 'AcqModUsingMatrix'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+        if matrix is None:
+            matrix = RayTracingMatrix()
+        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+##    def set_matrix(self, matrix):
+##        ''' 
+##        Sets the ray tracing matrix to be used for projecting;
+##        matrix:  a RayTracingMatrix object to represent G in (F).
+##        '''
+##        _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def get_matrix(self):
         ''' 
         Returns the ray tracing matrix used for projecting;

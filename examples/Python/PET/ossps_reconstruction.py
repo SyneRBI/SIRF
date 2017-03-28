@@ -59,7 +59,7 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    am = AcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)

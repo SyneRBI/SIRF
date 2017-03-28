@@ -53,7 +53,7 @@ def main():
     printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
-    am = AcquisitionModelUsingMatrix()
+    am = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
