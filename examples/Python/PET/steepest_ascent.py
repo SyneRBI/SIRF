@@ -1,4 +1,6 @@
-'''Steepest ascent demo
+'''Steepest ascent demo.
+Applies few steps of steepest ascent for the minimization of Poisson logarithmic
+likelihood objective function using gradient for subset 0.
 
 Usage:
   steepest_ascent [--help | options]
@@ -109,27 +111,48 @@ def main():
         print('NOTE: below f(x) is the negative of the objective function value')
     else:
         disp = 0
-    eps = 1e-6
+    eps = 1e-6 # single precision round-off error level
 
     for iter in range(steps):
 
-        # obtain gradient
+        # obtain gradient for subset 0
         grad = obj_fun.gradient(image, 0)
+        # zero the gradient outside the cylindric FOV
         filter.apply(grad)
         grad_as_3D_array = grad.as_array()
 
-        # find maximal steepest descent step parameter t in image + t*grad 
-        # such that the new image remains positive
         max_image = image_as_3D_array.max()
         max_grad = abs(grad_as_3D_array).max()
-        grad_as_3D_array[abs(grad_as_3D_array) < eps] = eps
-        r = image_as_3D_array/grad_as_3D_array
-        grad_as_3D_array[image_as_3D_array <= 0] = 0
-        d = r[r < 0]
-        if d.shape[0] > 0:
-            maxstep = -d.max()
+        delta = max_grad*eps
+
+        # find maximal steepest ascent step parameter t in image + t*grad 
+        # such that the new image remains positive;
+        # since image is non-negative, the step size is limited by negative
+        # gradients: it should not exceed -image/grad = abs(image/grad) at
+        # points where grad is negative, thus, maximal t is min(abs(image/grad))
+        # taken over such points
+
+        # avoid division by zero at the next step
+        grad_as_3D_array[abs(grad_as_3D_array) < delta] = delta
+        # take the ratio of image to gradient
+        ratio = abs(image_as_3D_array/grad_as_3D_array)
+        # select points that are (i) inside cylindric FOV and (ii) such that
+        # the gradient at them is negative
+        select = numpy.logical_and(image_as_3D_array > 0, grad_as_3D_array < 0)
+        if select.any():
+            # at least one point is selected
+            maxstep = ratio[select].min()
         else:
+            # no such points - use a plausible value based on tau and
+            # image-to-gradient ratio
             maxstep = abs(tau)*max_image/max_grad
+
+        # at some voxels image values may be close to zero and the gradient may
+        # also be close to zero there; hence, both may become negative because
+        # of round-off errors;
+        # find such voxels and freeze them
+        exclude = numpy.logical_and(image_as_3D_array <= 0, grad_as_3D_array < 0)
+        grad_as_3D_array[exclude] = 0
 
         if tau < 0:
             # find the optimal t
@@ -155,7 +178,7 @@ def main():
         # display the current image estimate
         show(iter + 1, 'current image', image_as_3D_array[20,:,:])
 
-        # quit if the new image has negative values
+        # quit if the new image has substantially negative values
         min_image = image_as_3D_array.min()
         if min_image < -eps:
             print('image minimum is negative: %e' % min_image)
