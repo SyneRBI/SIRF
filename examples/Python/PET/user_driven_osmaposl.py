@@ -53,11 +53,11 @@ def main():
     printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
-    am = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    ad = AcquisitionData(raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
 
     # create filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
@@ -75,9 +75,9 @@ def main():
     prior.set_penalisation_factor(0.5)
 
     # create objective function
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
+    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(acq_data)
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
@@ -88,37 +88,38 @@ def main():
         subset = iter - 1
 
         # get sensitivity as ImageData
-        ss_img = obj_fun.get_subset_sensitivity(subset)
+        sens_image = obj_fun.get_subset_sensitivity(subset)
 
         # get gradient (without penalty) + sensitivity as ImageData
         # (back projection of the ratio of measured to estimated acquisition data)
-        grad_img = obj_fun.get_gradient_plus_sensitivity_no_penalty(image, subset)
+        grad_image = obj_fun.get_gradient_plus_sensitivity_no_penalty\
+                     (image, subset)
 
         # get gradient of prior as ImageData
-        pgrad_img = prior.get_gradient(image)
+        prior_grad_image = prior.get_gradient(image)
 
         # copy to Python arrays
-        image_arr = image.as_array()
-        ss_arr = ss_img.as_array()
-        grad_arr = grad_img.as_array()
-        pgrad_arr = pgrad_img.as_array()
+        image_array = image.as_array()
+        sens_array = sens_image.as_array()
+        grad_array = grad_image.as_array()
+        prior_grad_array = prior_grad_image.as_array()
 
         # update image data
-        ss_arr[ss_arr < 1e-6] = 1e-6 # avoid division by zero
-        update = grad_arr/(ss_arr + pgrad_arr/num_subsets)
-        image_arr = image_arr*update
+        sens_array[sens_array < 1e-6] = 1e-6 # avoid division by zero
+        update = grad_array/(sens_array + prior_grad_array/num_subsets)
+        image_array = image_array*update
 
         # fill current image with new values
-        image.fill(image_arr)
+        image.fill(image_array)
 
         # apply filter
         filter.apply(image)
 
         # show current image at z = 20
-        image_arr = image.as_array()
+        image_array = image.as_array()
         pylab.figure(iter)
         pylab.title('Image at z = 20, iteration %d' % iter)
-        pylab.imshow(image_arr[20,:,:])
+        pylab.imshow(image_array[20,:,:])
         print('close Figure %d window to continue' % iter)
         pylab.show()
 

@@ -69,23 +69,23 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    am = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from this file
     # (TODO: a link to raw data formats document to be given here)
     print('raw data: %s' % raw_data_file)
-    ad = AcquisitionData(raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = ad.create_uniform_image(1.0)
+    image = acq_data.create_uniform_image(1.0)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
+    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(acq_data)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in

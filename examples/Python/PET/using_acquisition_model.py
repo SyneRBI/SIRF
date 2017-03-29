@@ -87,8 +87,8 @@ def main():
     z = int(image_size[2]/2)
 
     # show the phantom image
-    data = image.as_array()
-    show(1, 'Figure 1: phantom image', data[z,:,:])
+    image_array = image.as_array()
+    show(1, 'Figure 1: phantom image', image_array[z,:,:])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -97,11 +97,11 @@ def main():
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
-    template = AcquisitionData(raw_data_file)
-    acq_model.set_up(template, image)
+    acq_template = AcquisitionData(raw_data_file)
+    acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
     # if the projection data is very large, it can be stored in a file
-    # simulated_data = am.forward(image, 'proj_data.hs')
+    # simulated_data = am.forward(image, 'simulated_data.hs')
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()

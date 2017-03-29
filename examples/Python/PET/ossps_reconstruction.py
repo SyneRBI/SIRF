@@ -59,17 +59,17 @@ def main():
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
-    am = AcquisitionModelUsingRayTracingMatrix()
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
 
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
-    ad = AcquisitionData(raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
-    obj_fun = make_Poisson_loglikelihood(ad)
-    obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
+    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(acq_data)
     fact = float(pen_factor)
     obj_fun.set_prior(QuadraticPrior().set_penalisation_factor(fact))
 
@@ -97,9 +97,9 @@ def main():
         # perform an iteration
         recon.update(image)
         # display the current image at z = 10
-        data = image.as_array()
+        image_array = image.as_array()
         pylab.figure(iter + 1)
-        pylab.imshow(data[10,:,:])
+        pylab.imshow(image_array[10,:,:])
         print('close Figure %d window to continue' % (iter + 1))
         pylab.show()
 
