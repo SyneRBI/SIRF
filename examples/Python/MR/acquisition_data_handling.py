@@ -15,9 +15,10 @@ Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -42,24 +43,28 @@ from ast import literal_eval
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+ro_range = literal_eval(args['--range'])
+
 def main():
 
     # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
 
     # the raw k-space data is a list of different acquisitions (readouts)
     # of different data type (e.g. noise correlation data, navigator data,
     # image data,...);
     # the number of all aquisitions is
-    na = input_data.get_number_of_readouts('all')
+    na = acq_data.get_number_of_readouts('all')
     # the number of image data acquisitions is
-    ni = input_data.get_number_of_readouts()
+    ni = acq_data.get_number_of_readouts()
     print('readouts: total %d, image data %d' % (na, ni))
 
     # sort acquisition data;
@@ -67,16 +72,15 @@ def main():
     #    - repetition
     #    - slice
     #    - kspace encode step 1
-    input_data.sort()
+    acq_data.sort()
 
     # retrieve the range of readouts to examine
-    t = literal_eval(args['--range'])
-    if t[0] >= t[1] or t[1] >= na:
+    if ro_range[0] >= ro_range[1] or ro_range[1] >= na:
         raise error('Wrong readouts range')
-    where = range(t[0], t[1])
+    where = range(ro_range[0], ro_range[1])
 
     # retrieve readouts flags
-    flags = input_data.get_info('flags')
+    flags = acq_data.get_info('flags')
 
     # inspect the first readout flag
     if flags[0] & IMAGE_DATA_MASK:
@@ -90,27 +94,27 @@ def main():
     print(flags[where])
     
     # inspect some kspace_encode_step_1 counters
-    es1 = input_data.get_info('encode_step_1')
+    encode_step_1 = acq_data.get_info('encode_step_1')
     print('Ky/PE - encoding'),
-    print(es1[where])
+    print(encode_step_1[where])
     
     # inspect some slice counters
-    slices = input_data.get_info('slice')
+    slice = acq_data.get_info('slice')
     print('Slices'),
-    print(slices[where])
+    print(slice[where])
     
     # inspect some repetition counters
+    repetition = acq_data.get_info('repetition')
     print('Repetitions'),
-    reps = input_data.get_info('repetition')
-    print(reps[where])
+    print(repetition[where])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
     # size is 2x256 phase encoding, 8 receiver coils and points 512 readout 
     # points (frequency encoding dimension)
-    input_array = input_data.as_array()
-    input_shape = input_array.shape
-    print('input data dimensions: %dx%dx%d' % input_shape)
+    acq_array = acq_data.as_array()
+    acq_shape = acq_array.shape
+    print('input data dimensions: %dx%dx%d' % acq_shape)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -119,18 +123,18 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(input_data)
+    processed_acq_data = preprocess_acquisition_data(acq_data)
 
     # copy processed acquisition data into an array and determine its size
     # by removing the oversampling factor of 2 along the readout direction, the
     # number of readout samples was halfed
-    processed_array = processed_data.as_array()
-    processed_shape = processed_array.shape
-    print('processed data dimensions: %dx%dx%d' % processed_shape)
+    processed_acq_array = processed_acq_data.as_array()
+    processed_acq_shape = processed_acq_array.shape
+    print('processed data dimensions: %dx%dx%d' % processed_acq_shape)
 
-    processed_array = numpy.transpose(processed_array,(1,2,0))
+    processed_acq_array = numpy.transpose(processed_acq_array,(1,2,0))
     title = 'Acquisitions (absolute value)'
-    show_3D_array(abs(processed_array), suptitle = title, label = 'coil')
+    show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil')
 
 try:
     main()

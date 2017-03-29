@@ -13,9 +13,10 @@ Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -38,20 +39,23 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 def main():
 
     # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
 
     # MR raw data formats from different vendors can be transformed to 
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
     # Acquisitions will be read from an HDF file input_file
     print('---\n reading in file %s...' % input_file)
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -60,7 +64,7 @@ def main():
     # direction. So far only the removal of readout oversampling and noise and
     # asymmetric echo adjusting is implemented
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(input_data)
+    processed_data = preprocess_acquisition_data(acq_data)
 
     # setup reconstruction
     # Create a reconstruction object (in this case simple 2D Cartesian FFT) and
@@ -72,12 +76,12 @@ def main():
     print('---\n reconstructing...')
     recon.process()
     
-    # retrieve reconstruced image
-    image = recon.get_output()
+    # retrieve reconstruced image data
+    image_data = recon.get_output()
 
-    # show reconstructed images
-    image_array = image.as_array()
-    title = 'Reconstructed image (absolute value)'
+    # show reconstructed image data
+    image_array = image_data.as_array()
+    title = 'Reconstructed image data (absolute value)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:

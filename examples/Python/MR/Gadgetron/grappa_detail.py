@@ -29,9 +29,10 @@ Options:
                               subfolder of SIRF root folder
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -54,6 +55,12 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 from pGadgetron import *
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 ##import matplotlib.pyplot as plt
 ##def show(image_matrix, tile_shape, scale, titles):
 ##    assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
@@ -75,11 +82,8 @@ from pUtil import show_3D_array
 
 def main():
     
-    # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    # Acquisitions will be read from this HDF file
+    input_file = existing_filepath(data_path, data_file)
     
     # Initially we create a container that points to the h5 file. Data is
     # not read from file until the gadgetron is called using
@@ -87,7 +91,7 @@ def main():
     
     # Create an acquisition container of type pGadgetron.AcquisitionData
     print('---\n reading in file %s...' % input_file)
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
     
     
     # Pre-process this input data using three preparation gadgets
@@ -99,13 +103,13 @@ def main():
     # Call gadgetron by using the 'process' method. This runs the gadgets
     # specified in prep_gadgets, returning an instance
     # of an mGadgetron.AcquisitionsContainer
-    preprocessed_data = input_data.process(prep_gadgets)
+    preprocessed_data = acq_data.process(prep_gadgets)
     
     # Extract sorted k-space, permute dimensions and display
     acq_array = preprocessed_data.as_array(0)
     [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
     acq_array = numpy.transpose(acq_array,(1,2,0))
-    title = 'Acquisitions (absolute value)'
+    title = 'Acquisition data (absolute value)'
     show_3D_array(abs(acq_array), suptitle = title, label = 'coil')
 ##    show(abs(acq_array[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
 ##            titles = ['Abs(Coil1)'])
@@ -175,7 +179,7 @@ def main():
     # Note the image data is complex.
     image_as_3D_array = image_data.as_array()
     maxv = numpy.amax(abs(image_as_3D_array))
-    title = 'Reconstructed image (absolute value)'
+    title = 'Reconstructed image data (absolute value)'
     show_3D_array(abs(image_as_3D_array), suptitle = title, label = 'slice', \
                   scale = (0, maxv))
 ##    maxv = numpy.amax(abs(image_as_3D_array))*0.6
@@ -185,7 +189,7 @@ def main():
             
     gfactor_as_3D_array = gfact_data.as_array();
     maxv = numpy.amax(abs(gfactor_as_3D_array))
-    title = 'G-factor (absolute value)'
+    title = 'G-factor data (absolute value)'
     show_3D_array(abs(gfactor_as_3D_array), suptitle = title, label = 'slice', \
                   scale = (0, maxv))
 ##    show(abs(gfactor_as_3D_array[0,None,:,:]), tile_shape = (1,1), \

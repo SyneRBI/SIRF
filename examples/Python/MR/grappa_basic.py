@@ -33,8 +33,9 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -57,28 +58,32 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 
 def main():
     
     # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
     
-    # Initially we create a container that points to the h5 file. Data is not read from file
-    # until the 'process' method of the reconstructor object is called.
+    # Initially we create a container that points to the h5 file.
+    # Data is not read from file until the 'process' method of the
+    # reconstructor object is called.
     
     # Create an acquisition container of type AcquisitionData
     print('---\n reading in file %s...' % input_file)
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
     
     
-    # Pre-process this input data. (Currently this is a MATLAB script that just
-    # sets up a 3 chain gadget. In the future it will be independent of the MR
-    # recon engine.)
+    # Pre-process this input data.
+    # (Currently this is a Python script that just sets up a 3 chain gadget.
+    # In the future it will be independent of the MR recon engine.)
     print('---\n pre-processing acquisition data...')
-    preprocessed_data = preprocess_acquisition_data(input_data)
+    preprocessed_data = preprocess_acquisition_data(acq_data)
     
     
     # Perform reconstruction of the preprocessed data.
@@ -93,13 +98,16 @@ def main():
     recon.process();
     
 
-    # retrieve reconstruced images
-    images = recon.get_output()
+    # retrieve reconstruced image and G-factor data
+    output = recon.get_output()
 
-    # show reconstructed images
-    image_array = images.as_array()
-    title = 'Reconstructed images (absolute value)'
-    show_3D_array(abs(image_array), suptitle = title)
+    # show reconstructed image and G-factor data
+    output_array = output.as_array()
+    title = 'Reconstructed image data (absolute value)'
+    show_3D_array(abs(output_array[0::2,:,:]), suptitle = title, label = 'slice', \
+                  show = False)
+    title = 'Reconstructed G-factor data (absolute value)'
+    show_3D_array(abs(output_array[1::2,:,:]), suptitle = title, label = 'slice')
 
 try:
     main()

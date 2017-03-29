@@ -10,7 +10,6 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -o <file>, --output=<file>  images output file
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -38,23 +37,25 @@ args = docopt(__doc__, version=__version__)
 # import engine module
 from pGadgetron import *
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 def main():
 
-    # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    # acquisitions will be read from this HDF file
-    input_file = existing_filepath(data_path, args['--file'])
-    input_data = AcquisitionData(input_file)
+    # locate the input data
+    input_file = existing_filepath(data_path, data_file)
+    acq_data = AcquisitionData(input_file)
 
     # create reconstruction object
     recon = Reconstructor(['RemoveROOversamplingGadget', \
         'SimpleReconGadgetSet'])
     # reconstruct images
-    images = recon.reconstruct(input_data)
+    image_data = recon.reconstruct(acq_data)
     # show reconstructed images
-    image_array = images.as_array()
+    image_array = image_data.as_array()
     title = 'Reconstructed images (magnitude)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 

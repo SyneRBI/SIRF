@@ -14,9 +14,10 @@ Options:
   -o <file>, --output=<file>  images output file
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -38,20 +39,21 @@ args = docopt(__doc__, version=__version__)
 
 import time
 
-output_file = args['--output']
-
 # import engine module
 from pGadgetron import *
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+output_file = args['--output']
+
 def main():
 
-    # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    # acquisition data will be read from this HDF file
-    input_file = existing_filepath(data_path, args['--file'])
-    input_data = AcquisitionData(input_file)
+    # locate the input data
+    input_file = existing_filepath(data_path, data_file)
+    acq_data = AcquisitionData(input_file)
     
     # create reconstruction object
     # Rather than using a predefined image reconstruction object, here a new 
@@ -81,20 +83,20 @@ def main():
     recon.set_gadget_property('ex', 'extract_mask', 5) 
     
     # provide raw k-space data as input
-    recon.set_input(input_data)
+    recon.set_input(acq_data)
     
     # perform reconstruction
     recon.process()
     
-    # retrieve reconstructed images
-    images = recon.get_output()
+    # retrieve reconstructed image data
+    image_data = recon.get_output()
 
-    # show reconstructed images
-    image_array = images.as_array()
-    title = 'Reconstructed images (magnitude)'
-    show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, label = 'slice', \
-                  show = False)
-    title = 'Reconstructed images (imaginary part)'
+    # show reconstructed image data
+    image_array = image_data.as_array()
+    title = 'Reconstructed image data (magnitude)'
+    show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, \
+                  label = 'slice', show = False)
+    title = 'Reconstructed image data (imaginary part)'
     show_3D_array(abs(image_array[1::2,:,:]), suptitle = title, label = 'slice')
 
     if output_file is not None:

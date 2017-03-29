@@ -18,9 +18,10 @@ Options:
   -s=<sigma>, --sigma=<sigma>  gaussian sigma [default: 20]
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -40,51 +41,53 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-sigma = float(args['--sigma'])
-
 # import engine module
 from pGadgetron import *
+
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+sigma = float(args['--sigma'])
 
 def gaussian(x, mu, sigma):
     return numpy.exp(-numpy.power(x - mu, 2.) / (2 * numpy.power(sigma, 2.)))
     
 def main():
 
-    # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
     # Acquisitions will be read from this HDF file
-    input_file = existing_filepath(data_path, args['--file'])
-    input_data = AcquisitionData(input_file)
+    input_file = existing_filepath(data_path, data_file)
+    acq_data = AcquisitionData(input_file)
 
     # Get size of current k-space data as tuple
     # (number of acquisitions, number of coils, number of samples)
-    kdim = input_data.dimensions()
+    k_space_dimensions = acq_data.dimensions()
     # This way of printing works for both Python 2.* and Python 3.*
-    print('Size of k-space slice reduced from %dx%dx%d' % kdim)
+    print('Size of k-space slice reduced from %dx%dx%d' % k_space_dimensions)
     
-    # Pre-process acquisitions
-    # Create an object which removes the readout oversampling from the acquired 
+    # Pre-process acquisitions:
+    # create an object which removes the readout oversampling from the acquired 
     # k-space data
     acq_proc = AcquisitionDataProcessor(['RemoveROOversamplingGadget'])
-    preprocessed_data = acq_proc.process(input_data)
+    preprocessed_data = acq_proc.process(acq_data)
     
     # Get size of k-space data after removal of oversampling
-    kdim = preprocessed_data.dimensions()
-    print('to %dx%dx%d' % kdim)
+    k_space_dimensions = preprocessed_data.dimensions()
+    print('to %dx%dx%d' % k_space_dimensions)
     
     # Create simple Gaussian weighting function and apply it along the
     # readout direction onto the k-space data
     print('Apply Gaussian weighting function along readout')
+    kdim = k_space_dimensions
     gauss_weight = gaussian\
         (numpy.array([numpy.linspace(-kdim[2]/2, kdim[2]/2, kdim[2])]),0,sigma)
     gauss_weight = numpy.tile(gauss_weight, (kdim[0], 1))
-    data_array = preprocessed_data.as_array()
+    preprocessed_array = preprocessed_data.as_array()
     for c in range(kdim[1]):
-        data_array[:,c,:] = numpy.multiply(data_array[:,c,:], gauss_weight)
-
-    preprocessed_data.fill(data_array)
+        preprocessed_array[:,c,:] = \
+            numpy.multiply(preprocessed_array[:,c,:], gauss_weight)
+    preprocessed_data.fill(preprocessed_array)
 
     # create reconstruction object
     recon = Reconstructor\
@@ -99,17 +102,17 @@ def main():
     recon.process()
     
     # retrieve reconstructed images
-    complex_images = recon.get_output()
+    complex_image_data = recon.get_output()
 
     # post-process reconstructed images
     # Rather than using the function get_output(), a new object based on the 
     # gadget "ExtractGadget" is specified to retrieve the image data
     img_proc = ImageDataProcessor(['ExtractGadget'])
-    images = img_proc.process(complex_images)
+    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
-    image_array = images.as_array()
-    title = 'Reconstructed images (magnitude)'
+    image_array = real_image_data.as_array()
+    title = 'Reconstructed image data (magnitude)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:

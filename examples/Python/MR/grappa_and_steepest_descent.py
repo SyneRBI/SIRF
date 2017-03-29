@@ -14,7 +14,7 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
@@ -44,20 +44,23 @@ except:
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 def main():
 
     # locate the input data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_data
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    preprocessed_data = preprocess_acquisition_data(input_data)
+    preprocessed_data = preprocess_acquisition_data(acq_data)
 
     # perform reconstruction
     recon = CartesianGRAPPAReconstruction()
@@ -67,7 +70,7 @@ def main():
     recon.process()
     # for undersampled acquisition data GRAPPA computes Gfactor images
     # in addition to reconstructed ones
-    complex_image = recon.get_output()
+    image_data = recon.get_output()
 
     # compute coil sensitivity maps
     csms = CoilSensitivityData()
@@ -77,33 +80,35 @@ def main():
     csms.calculate(preprocessed_data)
 
     # create acquisition model based on the acquisition parameters
-    # stored in preprocessed_data and image parameters stored in complex_image
-    am = AcquisitionModel(preprocessed_data, complex_image)
-    am.set_coil_sensitivity_maps(csms)
+    # stored in preprocessed_data and image parameters stored in
+    # image_data
+    acq_model = AcquisitionModel(preprocessed_data, image_data)
+    acq_model.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to simulate acquisition data
-    fwd_data = am.forward(complex_image)
+    simulated_data = acq_model.forward(image_data)
 
     # compute the difference between real and simulated acquisition data
-    pp_norm = preprocessed_data.norm()
-    fwd_norm = fwd_data.norm()
-    res = fwd_data - preprocessed_data * (fwd_norm/pp_norm)
-    rr = res.norm()/fwd_norm
-    print('---\n reconstruction residual norm (rel): %e' % rr)
+    preprocessed_data_norm = preprocessed_data.norm()
+    simulated_data_norm = simulated_data.norm()
+    residual = simulated_data - preprocessed_data * \
+          (simulated_data_norm/preprocessed_data_norm)
+    rel_residual = residual.norm()/simulated_data_norm
+    print('---\n reconstruction residual norm (rel): %e' % rel_residual)
 
     # try to improve the reconstruction by the steepest descent step
-    grad = am.backward(res)
-    w = am.forward(grad)
-    alpha = (grad*grad)/(w*w)
-    refined_cmplx_img = complex_image - grad*alpha # refined image
+    grad = acq_model.backward(residual)
+    w = acq_model.forward(grad)
+    tau = (grad*grad)/(w*w) # locally optimal steepest descent step
+    refined_image_data = image_data - grad * tau # refined image
 
-    image_array = complex_image.as_array()
-    refined_image_array = refined_cmplx_img.as_array()
+    image_array = image_data.as_array()
+    refined_image_array = refined_image_data.as_array()
 
     # show reconstructed and refined images
-    title = 'Reconstructed image (absolute value)'
+    title = 'Reconstructed image data (absolute value)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice', show = False)
-    title = 'Refined image (absolute value)'
+    title = 'Refined image data (absolute value)'
     show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice')
 
 try:

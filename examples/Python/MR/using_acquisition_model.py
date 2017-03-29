@@ -41,21 +41,24 @@ from pUtil import show_3D_array
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+# process command-line options
+data_file = args['--file']
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('mr')
+
 def main():
 
     # locate the k-space raw data file
-    data_path = args['--path']
-    if data_path is None:
-        data_path = mr_data_path()
-    input_file = existing_filepath(data_path, args['--file'])
+    input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    input_data = AcquisitionData(input_file)
-    print('---\n acquisition data norm: %e' % input_data.norm())
+    acq_data = AcquisitionData(input_file)
+    print('---\n acquisition data norm: %e' % acq_data.norm())
 
     # pre-process acquisition data
     print('---\n pre-processing acquisition data...')
-    processed_data = preprocess_acquisition_data(input_data)
+    processed_data = preprocess_acquisition_data(acq_data)
     print('---\n processed acquisition data norm: %e' % processed_data.norm())
 
     # perform reconstruction to obtain a meaningful ImageData object
@@ -101,9 +104,9 @@ def main():
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
-    # show backprojected images
+    # show backprojected data
     backprojected_array = backprojected_data.as_array()
-    title = 'Backprojected image (absolute value)'
+    title = 'Backprojected data (absolute value)'
     show_3D_array(abs(backprojected_array), suptitle = title, label = 'slice')
 
 try:

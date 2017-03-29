@@ -14,9 +14,10 @@ Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
 ## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 Physikalisch-Technische Bundesanstalt.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -60,10 +61,10 @@ def main():
     input_file = existing_filepath(data_path, data_file)
 
     # acquisition data will be read from an HDF file input_file
-    input_data = AcquisitionData(input_file)
+    acq_data = AcquisitionData(input_file)
     
     # pre-process acquisition data
-    processed_data = preprocess_acquisition_data(input_data)
+    processed_data = preprocess_acquisition_data(acq_data)
     
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()
