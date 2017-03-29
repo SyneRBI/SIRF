@@ -20,7 +20,7 @@ classdef AcquisitionModel < handle
         end
         function set_coil_sensitivity_maps(self, csms)
 %         Specifies the coil sensitivity maps to be used by the model.
-%         csm: CoilSensitivityMaps
+%         csm: CoilSensitivityData
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
             mUtil.checkExecutionStatus(self.name_, handle);

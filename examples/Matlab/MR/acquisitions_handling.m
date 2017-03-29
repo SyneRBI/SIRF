@@ -1,11 +1,27 @@
 function acquisitions_handling(engine)
 % ACQUISITIONS_HANDLING Demo illustrating acquisitions pre-processing 
-% and plotting.
+% and displaying.
 %
 % In MATLAB, there are also ISMRMRD tools available for examining 
 % data before processing.
 %
-
+% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2017 University College London.
+% 
+% This is software developed for the Collaborative Computational
+% Project in Positron Emission Tomography and Magnetic Resonance imaging
+% (http://www.ccppetmr.ac.uk/).
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% http://www.apache.org/licenses/LICENSE-2.0
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
@@ -14,79 +30,72 @@ function acquisitions_handling(engine)
 if nargin < 1
     engine = [];
 end
-eval(setup_MR(engine))
+import_str = setup_MR(engine);
+eval(import_str)
 
 % acquisitions will be read from an HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-input_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = AcquisitionData(fullfile(pathname, filename));
 
-na = input_data.number();
+na = acq_data.number();
 fprintf('%d acquisitions (readouts) found\n', na)
 
 fprintf('sorting acquisitions...\n')
-input_data.sort()
+acq_data.sort()
 
 % dimensions of k-space for one slice?
-[ns, ny, nc] = input_data.slice_dimensions();
+[ns, ny, nc] = acq_data.slice_dimensions();
 
 % dimensions method returns size of all (i.e. including noise data) if 
 % argument is passed in or if 'all' is passed in. Passing in anything else
 % means not all !!
-[ns, nc, na] = input_data.dimensions('not all');
+[ns, nc, na] = acq_data.dimensions('not all');
 
 % pre-process acquisition data
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisitions(input_data);
+processed_data = preprocess_acquisitions(acq_data);
 processed_data.sort()
 
 % selected methods for getting information
-flags = input_data.get_info('flags');
-es1 = input_data.get_info('encode_step_1');
-slice = input_data.get_info('slice');
-repetition = input_data.get_info('repetition');
+flags = acq_data.get_info('flags');
+encode_step_1 = acq_data.get_info('encode_step_1');
+slice = acq_data.get_info('slice');
+repetition = acq_data.get_info('repetition');
 
 while true
     num = input('enter acquisition number (0 to stop this loop): ');
     if num < 1 || num > na
         break
     end
-    a = input_data.acquisition(num); % There are methods for getting selected 
-                                     % properties such as flags, but not
-                                     % the complete set (user may be better
-                                     % using MATLAB ISMRMRD tools)
-    fprintf('samples: %d\n', a.number_of_samples())
-    fprintf('flags: %d %d\n', a.flags(), flags(num))
-    fprintf('encode step 1: %d %d\n', a.idx_kspace_encode_step_1(), es1(num))
-    fprintf('slice: %d %d\n', a.idx_slice(), slice(num))
-    fprintf('repetition: %d %d\n', a.idx_repetition(), repetition(num))
+    fprintf('flags: %d\n', flags(num))
+    fprintf('encode step 1: %d\n', encode_step_1(num))
+    fprintf('slice: %d\n', slice(num))
+    fprintf('repetition: %d\n', repetition(num))
 end
 
 % Data returned as complex array
-iarr0 = input_data.as_array();
-parr0 = processed_data.as_array();
+acq_array0 = acq_data.as_array();
 
 is = ns/2;
 ic = nc/2;
 ia = na/2;
-disp(['Value of one array element: '])
-disp(iarr0(is, ic, ia))
+fprintf('Value of one array element: %f\n', acq_array0(is, ic, ia))
 
-iarr0(is, ic, ia) = iarr0(is, ic, ia)*10;
+acq_array0(is, ic, ia) = acq_array0(is, ic, ia)*10;
 
 % Data can be replaced using fill method
-input_data.fill(iarr0);
-processed_data.fill(parr0);
+acq_data.fill(acq_array0);
 
-iarr = input_data.as_array();
-parr = processed_data.as_array();
+acq_array = acq_data.as_array();
+processed_array = processed_data.as_array();
 
-disp(['Value of same array element after replacement with 10x data: '])
-disp(iarr(is, ic, ia))
+fprintf('Value of same array element after replacement with 10x data: %f\n', ...
+    acq_array(is, ic, ia))
 
-iarr = abs(iarr);
-parr = abs(parr);
-iarr = iarr/max(max(max(iarr)));
-parr = parr/max(max(max(parr)));
+acq_array = abs(acq_array);
+processed_array = abs(processed_array);
+acq_array = acq_array/max(max(max(acq_array)));
+processed_array = processed_array/max(max(max(processed_array)));
 
 nz = idivide(na, ny);
 
@@ -110,7 +119,7 @@ while (true)
             break
         end
         figure('Name',['Input Data as array, coil: ',num2str(c)])
-        data = squeeze(iarr(:, c, ny*(z - 1) + 1 : ny*z));
+        data = squeeze(acq_array(:, c, ny*(z - 1) + 1 : ny*z));
         if has_ipt
             imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
         else
@@ -119,7 +128,7 @@ while (true)
         title('Input data')
         cc = double(c + nc);
         figure('Name',['Processed data as array, coil: ',num2str(c)])
-        data = squeeze(parr(:, c, ny*(z - 1) + 1 : ny*z));
+        data = squeeze(processed_array(:, c, ny*(z - 1) + 1 : ny*z));
         if has_ipt
             imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
         else

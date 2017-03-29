@@ -1,9 +1,25 @@
 function fully_sampled_recon_single_chain
 % FULLY_SAMPLED_RECON_SINGLE_CHAIN Complete recon in one Gadgetron chain
 %
-% See fully_samp_basic for example data files.
-%
-% See also FULLY_SAMP_BASIC  FULLY_SAMPLED_RECON
+% See FULLY_SAMPLED_RECON for example data files.
+
+% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2017 University College London.
+% 
+% This is software developed for the Collaborative Computational
+% Project in Positron Emission Tomography and Magnetic Resonance imaging
+% (http://www.ccppetmr.ac.uk/).
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% http://www.apache.org/licenses/LICENSE-2.0
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
 
 
 % load mutilities and mgadgetron libraries
@@ -49,22 +65,22 @@ recon.set_gadget_property('ex', 'extract_mask', 5);
 
 % define raw data source
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-input_data = AcquisitionData(fullfile(pathname, filename));
-recon.set_input(input_data)
+acq_data = AcquisitionData(fullfile(pathname, filename));
+recon.set_input(acq_data)
 
 % perform reconstruction
 recon.process()
 
 % get reconstructed image object
-images = recon.get_output();
+image_data = recon.get_output();
 
 % plot obtained images (note imag are zero)
 if exist('montage','file') && exist('mat2gray','file')
-    figure('Name','images')
-    idisp = mat2gray(abs(images.as_array()));
+    figure('Name','image data')
+    idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    images.show()
+    image_data.show()
 end
 
 

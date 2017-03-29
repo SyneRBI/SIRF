@@ -1,4 +1,4 @@
-function gen_us_data( varargin )
+function generate_undersampled_data( varargin )
 % GEN_US_DATA Genere an ISMRMRD H5 data set to simulate GRAPPA undersampling
 %
 %  gen_us_data (param, val, ...)

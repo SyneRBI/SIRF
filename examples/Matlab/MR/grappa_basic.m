@@ -30,32 +30,48 @@ function grappa_basic
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
 
-% ccp_libload  % Load SIRF ('CCP') libraries
-% import mGadgetron.*  % Use Gadgetron recon engine
+% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2017 University College London.
+% 
+% This is software developed for the Collaborative Computational
+% Project in Positron Emission Tomography and Magnetic Resonance imaging
+% (http://www.ccppetmr.ac.uk/).
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% http://www.apache.org/licenses/LICENSE-2.0
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 if nargin < 1
     engine = [];
 end
-eval(setup_MR(engine))
+import_str = setup_MR(engine);
+eval(import_str)
 
 % Get the filename of the input ISMRMRD h5 file
-disp('Select ISMRMRD H5 file')
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
 % Load this ISMRMRD h5 file, creating an input Container
-input_Cont = AcquisitionData(filein);
+acq_data = AcquisitionData(filein);
 
 % Pre-process this input data. (Currently this is a MATLAB script that just
 % sets up a 3 chain gadget. In the future it will be independent of the MR
 % recon engine.)
-preprocessed_Cont = preprocess_acquisitions(input_Cont);
+preprocessed_data = preprocess_acquisition_data(acq_data);
 
 % Perform reconstruction of the preprocessed data.
 % 1. set the reconstruction to be for Cartesian GRAPPA data.
 recon = CartesianGRAPPAReconstructor();
 
 % 2. set the reconstruction input to be the data we just preprocessed.
-recon.set_input(preprocessed_Cont);
+recon.set_input(preprocessed_data);
 
 % 3. run (i.e. 'process') the reconstruction.
 fprintf('---\n reconstructing...\n');
@@ -63,18 +79,18 @@ recon.process();
 
 % Extract an image Container from the reconstruction and convert this
 % to a MATLAB array.
-image_Cont = recon.get_output('image');
-idata = image_Cont.as_array();  % returns a complex array
+image_data = recon.get_output('image');
+image_array = image_data.as_array();  % returns a complex array
 
 sl = 5 ; % Number of the slice to be displayed.
-if size(idata,3) < sl
+if size(image_array,3) < sl
     sl = 1 ;
 end
 
 % Display the modulus and phase for this reconstructed slice.
 figure('Name',['idata, slice: ',num2str(sl)])
-subplot(1,2,1), imshow(abs(idata(:,:,sl)),[]), title('Abs')
-subplot(1,2,2), imshow(angle(idata(:,:,sl)),[-pi pi]), title('Phase')
+subplot(1,2,1), imshow(abs(image_array(:,:,sl)),[]), title('Abs')
+subplot(1,2,2), imshow(angle(image_array(:,:,sl)),[-pi pi]), title('Phase')
 
 
 

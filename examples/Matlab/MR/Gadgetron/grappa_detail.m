@@ -28,6 +28,24 @@ function grappa_detail
 %
 % See also GRAPPA_BASIC GEN_US_DATA
 
+% CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
+% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2017 University College London.
+% 
+% This is software developed for the Collaborative Computational
+% Project in Positron Emission Tomography and Magnetic Resonance imaging
+% (http://www.ccppetmr.ac.uk/).
+% 
+% Licensed under the Apache License, Version 2.0 (the "License");
+% you may not use this file except in compliance with the License.
+% You may obtain a copy of the License at
+% http://www.apache.org/licenses/LICENSE-2.0
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS,
+% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+% See the License for the specific language governing permissions and
+% limitations under the License.
+
 % load mutilities and mgadgetron libraries
 ccp_libload
 
@@ -37,7 +55,6 @@ import mGadgetron.*
 
 
 % Get the filename of the input ISMRMRD h5 file
-disp('Select ISMRMRD H5 file')
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
 filein = fullfile(pn,fn) ;
 
@@ -47,7 +64,7 @@ filein = fullfile(pn,fn) ;
 
 % Create an Acquisition Container. Here because of the previous
 % 'import mGadgetron.*', this will be of type mGadgetron.AcquisitionData
-input_Cont = AcquisitionData(filein);
+acq_data = AcquisitionData(filein);
 
 % Pre-process this input data using three preparation gadgets
 % from gadgetron.
@@ -59,17 +76,17 @@ prep_gadgets = [{'NoiseAdjustGadget'}, ...
 % Call gadgetron by using the 'process' method. This runs the gadgets
 % specified in prep_gadgets, returning an instance
 % of an mGadgetron.AcquisitionsContainer
-preprocessed_AcCont = input_Cont.process(prep_gadgets);
+preprocessed_data = acq_data.process(prep_gadgets);
 
 % Extract sorted k-space, permute dimensions and display
-ksp = preprocessed_AcCont.as_array ;
-[ns,nc,nro] = preprocessed_AcCont.dimensions ; % [nx ncoil ny]
-ksp = permute(ksp,[3 1 2]) ; %  [ny nx ncoil]
-ksp_coil_as_col = reshape(ksp,[nro nc*ns]) ; 
+preprocessed_array = preprocessed_data.as_array ;
+[ns,nc,nro] = preprocessed_data.dimensions ; % [nx ncoil ny]
+preprocessed_array = permute(preprocessed_array,[3 1 2]) ; %  [ny nx ncoil]
+preprocessed_coil_as_col = reshape(preprocessed_array,[nro nc*ns]) ; 
 if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file')
     figure('Name','Input k-space')
-    disp(['Displaying k-space'])
-    imshow(imadjust(mat2gray(abs(ksp_coil_as_col)),[0 0.7],[],0.2))
+    fprintf('Displaying k-space\n')
+    imshow(imadjust(mat2gray(abs(preprocessed_coil_as_col)),[0 0.7],[],0.2))
 end
 
 % Perform reconstruction of the preprocessed data.
@@ -115,7 +132,7 @@ recon.set_gadget_property('GRAPPA', 'send_out_gfactor', true)
 
 
 % 3) set the reconstruction input to be the data we just preprocessed.
-recon.set_input(preprocessed_AcCont);
+recon.set_input(preprocessed_data);
 
 % 4) Run the reconstruction using 'process' to call gadgetron.
 fprintf('---\n reconstructing...\n');
@@ -130,47 +147,47 @@ recon.process();
 % Get images and gfactors as containers with type mGadgetron.ImagesContainer
 % (Note this syntax may change in the future with the addition of a
 %  method '.get_gfactor'.)
-images_imcont = recon.get_output('image');
-gfacts_imcont = recon.get_output('gfactor');
+image_data = recon.get_output('image');
+gfact_data = recon.get_output('gfactor');
 
 % Return as MATLAB matrices the data pointed to by the containers.
 % Note the image data is complex.
-idata = images_imcont.as_array();
-gdata = gfacts_imcont.as_array();
+image_array = image_data.as_array();
+gfact_array = gfact_data.as_array();
 
 % Display figures of modulus image, phase image and gfactor map
 % Requires ImageProcessing Toolbox
 if exist('mat2gray','file') && exist('montage','file')
     figure('Name',['recon modulus images of file: ',fn])
-    idisp = mat2gray(abs(idata));
+    idisp = mat2gray(abs(image_array));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
     
     figure('Name',['recon phase images of file: ',fn])
-    idisp = mat2gray(angle(idata),[-pi pi]);
+    idisp = mat2gray(angle(image_array),[-pi pi]);
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
     
     figure('Name','Gfactor')
-    idisp = mat2gray(abs(gdata));
+    idisp = mat2gray(abs(gfact_array));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    idata = abs(idata);
-    gdata = abs(gdata);
-    idata = idata/max(max(max(idata)));
-    gdata = gdata/max(max(max(gdata)));
-    n = images_imcont.number();
+    image_array = abs(image_array);
+    gfact_array = abs(gfact_array);
+    image_array = image_array/max(max(max(image_array)));
+    gfact_array = gfact_array/max(max(max(gfact_array)));
+    n = image_data.number();
     fprintf('Enter slice number to view its data\n')
     fprintf('(a value outside the range [1 : %d] will stop this loop).\n', n)
     while (true)
-        i = input('slice: ');
-        if i < 1 || i > n
+        z = input('slice: ');
+        if z < 1 || z > n
             break
         end
-        figure(i)
-        imshow(idata(:,:,i));
-        title(['image ' num2str(i)])
-        figure(i + n)
-        imshow(gdata(:,:,i));
-        title(['G-factor ' num2str(i)])
+        figure(z)
+        imshow(image_array(:,:,z));
+        title(['image ' num2str(z)])
+        figure(z + n)
+        imshow(gfact_array(:,:,z));
+        title(['G-factor ' num2str(z)])
     end
 end
 

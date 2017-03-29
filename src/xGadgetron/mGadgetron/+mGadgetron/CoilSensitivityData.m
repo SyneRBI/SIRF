@@ -1,4 +1,4 @@
-classdef CoilSensitivityMaps < mGadgetron.DataContainer
+classdef CoilSensitivityData < mGadgetron.DataContainer
 %     Class for a coil sensitivity maps (csm) container.
 %     Each item in the container is a 4D complex array of csm values on an 
 %     xyz-slice (z-dimension is normally 1).
@@ -7,12 +7,12 @@ classdef CoilSensitivityMaps < mGadgetron.DataContainer
     end
     methods (Static)
         function obj = same_object()
-            obj = mGadgetron.CoilSensitivityMaps();
+            obj = mGadgetron.CoilSensitivityData();
         end
     end
     methods
-        function self = CoilSensitivityMaps()
-            self.name_ = 'CoilSensitivityMaps';
+        function self = CoilSensitivityData()
+            self.name_ = 'CoilSensitivityData';
             self.handle_ = [];
         end
         function delete(self)
