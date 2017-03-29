@@ -651,6 +651,9 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         if matrix is None:
             matrix = RayTracingMatrix()
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
     def set_matrix(self, matrix):
         ''' 
         Sets the ray tracing matrix to be used for projecting;
@@ -686,6 +689,9 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
             matrix = RayTracingMatrix()
         self.matrix = matrix
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
 ##    def set_matrix(self, matrix):
 ##        ''' 
 ##        Sets the ray tracing matrix to be used for projecting;
