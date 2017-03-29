@@ -57,8 +57,8 @@ def main():
     print('---\n reading in file %s...' % input_file)
     acq_data = AcquisitionData(input_file)
 
-    # pre-process acquired k-space data
-    # Prior to image reconstruction several pre-processing steps such as 
+    # pre-process acquired k-space data:
+    # prior to image reconstruction several pre-processing steps such as 
     # asymmetric echo compensation, noise decorelation for multi-coil data or 
     # removal of oversampling along frequency encoding (i.e. readout or kx)
     # direction. So far only the removal of readout oversampling and noise and
@@ -66,8 +66,8 @@ def main():
     print('---\n pre-processing acquisition data...')
     processed_data = preprocess_acquisition_data(acq_data)
 
-    # setup reconstruction
-    # Create a reconstruction object (in this case simple 2D Cartesian FFT) and
+    # setup reconstruction:
+    # create a reconstruction object using 2D inverse Fourier transform and
     # provide pre-processed k-space data as input
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
