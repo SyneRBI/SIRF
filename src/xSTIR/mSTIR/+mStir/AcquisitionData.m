@@ -40,7 +40,7 @@ classdef AcquisitionData < handle
                 'AcquisitionData', filename);
             mUtil.checkExecutionStatus(self.name, self.handle);
         end
-        function image = create_empty_image(self, value)
+        function image = create_uniform_image(self, value)
 %         Creates ImageData object containing PET image of dimensions
 %         and voxel sizes compatible with the scanner geometry stored
 %         in this AcquisitionData object and assigns a given value

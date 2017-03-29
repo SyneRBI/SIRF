@@ -1,10 +1,10 @@
-classdef EllipsoidalCylinder < mStir.Shape
+classdef EllipticCylinder < mStir.Shape
 % Class for ellipsoidal cylinder shape.
     properties
         name
     end
     methods
-        function self = EllipsoidalCylinder()
+        function self = EllipticCylinder()
             self.name = 'EllipsoidalCylinder';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
         end

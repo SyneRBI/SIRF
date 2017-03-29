@@ -7,8 +7,11 @@ classdef ImageData < handle
     end
     methods
         function self = ImageData(filename)
-            % Creates an ImageData object based on data in an Interfile.
-            % If no filename given, the object remains empty.
+            % Creates an ImageData object. 
+            % The optional argument is the name of an Interfile containing
+            % image data.
+            % If no argument given, the object remains empty, and needs to
+            % be defined by its initialise() method before it can be used.
             self.name = 'ImageData';
             if nargin < 1
                 self.handle = [];
