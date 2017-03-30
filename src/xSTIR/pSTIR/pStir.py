@@ -880,12 +880,17 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
              'recompute_sensitivity', repr(flag))
     def get_subset_sensitivity(self, subset):
+        '''
+        Returns an ImageData object containing sensitivity image for the
+        specified subset.
+        '''
         ss = ImageData()
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         check_status(ss.handle)
         return ss
 ##    def get_gradient_not_divided(self, image, subset):
-    def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
+##    def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
+    def get_backprojection_of_acquisition_ratio(self, image, subset):
         '''
         Computes back-projection of the ratio of measured to estimated 
         acquisition data.
