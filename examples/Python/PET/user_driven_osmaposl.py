@@ -35,6 +35,8 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from pUtil import show_2D_array
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -117,11 +119,8 @@ def main():
 
         # show current image at z = 20
         image_array = image.as_array()
-        pylab.figure(iter)
-        pylab.title('Image at z = 20, iteration %d' % iter)
-        pylab.imshow(image_array[20,:,:])
-        print('close Figure %d window to continue' % iter)
-        pylab.show()
+        show_2D_array\
+            ('Image at z = 20, iteration %d' % iter, image_array[20,:,:])
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

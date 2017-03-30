@@ -42,6 +42,8 @@ args = docopt(__doc__, version=__version__)
 
 import scipy.optimize
 
+from pUtil import show_2D_array
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -54,14 +56,6 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
-
-def show(fig, title, data):
-    pylab.figure(fig)
-    pylab.title(title)
-    pylab.imshow(data)
-    pylab.colorbar()
-    print('close window to continue')
-    pylab.show()
 
 def main():
 
@@ -101,7 +95,7 @@ def main():
 
     # display the initial image
     image_as_3D_array = image.as_array()
-    show(1, 'initial image', image_as_3D_array[20,:,:])
+    show_2D_array('Initial image', image_as_3D_array[20,:,:])
 
     print('computing initial objective function value...')
     print('objective function value: %e' % (obj_fun.value(image)))
@@ -176,7 +170,7 @@ def main():
         image_as_3D_array = image.as_array()
 
         # display the current image estimate
-        show(iter + 1, 'current image', image_as_3D_array[20,:,:])
+        show_2D_array('Current image', image_as_3D_array[20,:,:])
 
         # quit if the new image has substantially negative values
         min_image = image_as_3D_array.min()

@@ -8,9 +8,6 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
-
-There is an interactive demo with much more documentation on this process.
-You probably want to check that instead.
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -35,6 +32,8 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from pUtil import show_2D_array
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -43,15 +42,6 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
-
-def show_2D_array(fig, title, array, colorbar = True):
-    pylab.figure(fig)
-    pylab.title('Figure %d: ' % fig + title)
-    pylab.imshow(array)
-    if colorbar:
-        pylab.colorbar()
-    print('Close Figure %d window to continue' % fig)
-    pylab.show()
 
 def main():
 
@@ -68,20 +58,20 @@ def main():
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
 
-    show_2D_array(1, 'Acquisition data', acq_array[z,:,:])
+    show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
     acq_array = new_acq_data.as_array()
 
-    show_2D_array(2, 'Cloned acquisition data', acq_array[z,:,:])
+    show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
     # fill the cloned data with the acquisition data multiplied by 10
     new_acq_data.fill(10*acq_array)
     acq_array = new_acq_data.as_array()
 
-    show_2D_array(3, 'Scaled acquisition data', acq_array[z,:,:])
+    show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
 try:
     main()

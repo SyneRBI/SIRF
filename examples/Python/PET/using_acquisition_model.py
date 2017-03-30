@@ -36,6 +36,8 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+from pUtil import show_2D_array
+
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
@@ -45,14 +47,6 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
-
-def show(fig, title, data):
-    pylab.figure(fig)
-    pylab.title(title)
-    pylab.imshow(data)
-    pylab.colorbar()
-    print('close window to continue')
-    pylab.show()
 
 def main():
 
@@ -88,7 +82,7 @@ def main():
 
     # show the phantom image
     image_array = image.as_array()
-    show(1, 'Figure 1: phantom image', image_array[z,:,:])
+    show_2D_array('Phantom image', image_array[z,:,:])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -105,14 +99,14 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    show(2, 'Figure 2: forward projection', simulated_data_as_array[z,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[z,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     back_projected_image = acq_model.backward(simulated_data)
 
     back_projected_image_as_array = back_projected_image.as_array()
-    show(3, 'Figure 3: back projection', back_projected_image_as_array[z,:,:])
+    show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
 try:
     main()

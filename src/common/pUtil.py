@@ -97,6 +97,16 @@ def parse_arglist(arglist):
             argdict[name] = arglist[0:ic].rstrip()
             arglist = arglist[ic + 1 :]
 
+def show_2D_array(title, array, colorbar = True):
+    plt.figure()
+    plt.title(title)
+    plt.imshow(array)
+    if colorbar:
+        plt.colorbar()
+    fignums = plt.get_fignums()
+    print('Close Figure %d window to continue' % fignums[-1])
+    plt.show()
+
 def show_3D_array\
     (array, tile_shape = None, scale = None, \
      suptitle = None, titles = None, label = None, show = True):
@@ -135,7 +145,8 @@ def show_3D_array\
             ax.set_title(titles[z])
         ax.set_axis_off()
         imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
-    print('close figure 1 to continue')
+    fignums = plt.get_fignums()
+    print('Close Figure %d window to continue' % fignums[-1])
     if show:
         plt.show()
 
