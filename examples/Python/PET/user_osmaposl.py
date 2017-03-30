@@ -1,7 +1,7 @@
-'''User-driven OSMAPOSL reconstruction
+'''User-implemented OSMAPOSL reconstruction
 
 Usage:
-  user_driven_osmaposl [--help | options]
+  user_osmaposl [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
@@ -49,39 +49,9 @@ if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
 
-def main():
-
-    # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
-
-    # create acquisition model
-    acq_model = AcquisitionModelUsingRayTracingMatrix()
-
-    # PET acquisition data to be read from the file specified by --file option
-    print('raw data: %s' % raw_data_file)
-    acq_data = AcquisitionData(raw_data_file)
-
-    # create filter that zeroes the image outside a cylinder of the same
-    # diameter as the image xy-section size
-    filter = TruncateToCylinderProcessor()
-
-    # create initial image estimate
-    image_size = (111, 111, 31)
-    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
-    image = ImageData()
-    image.initialise(image_size, voxel_size)
-    image.fill(1.0)
-
-    # create prior
-    prior = QuadraticPrior()
-    prior.set_penalisation_factor(0.5)
-
-    # create objective function
-    obj_fun = make_Poisson_loglikelihood(acq_data)
-    obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_acquisition_data(acq_data)
-    obj_fun.set_num_subsets(num_subsets)
-    obj_fun.set_up(image)
+# user implementation of Ordered Subset Maximum A Posteriori One Step Late
+# reconstruction algorithm
+def my_osmaposl(image, obj_fun, prior, filter, num_subiterations):
 
     for iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % iter) 
@@ -117,10 +87,52 @@ def main():
         # apply filter
         filter.apply(image)
 
-        # show current image at z = 20
-        image_array = image.as_array()
-        show_2D_array\
-            ('Image at z = 20, iteration %d' % iter, image_array[20,:,:])
+##        # show current image at z = 20
+##        image_array = image.as_array()
+##        show_2D_array\
+##            ('Image at z = 20, iteration %d' % iter, image_array[20,:,:])
+
+    return image
+
+def main():
+
+    # output goes to files
+    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+
+    # create acquisition model
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
+
+    # PET acquisition data to be read from the file specified by --file option
+    print('raw data: %s' % raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
+
+    # create filter that zeroes the image outside a cylinder of the same
+    # diameter as the image xy-section size
+    filter = TruncateToCylinderProcessor()
+
+    # create initial image estimate
+    image_size = (111, 111, 31)
+    voxel_size = (3, 3, 3.375) # voxel sizes are in mm
+    image = ImageData()
+    image.initialise(image_size, voxel_size)
+    image.fill(1.0)
+
+    # create prior
+    prior = QuadraticPrior()
+    prior.set_penalisation_factor(0.5)
+
+    # create objective function
+    obj_fun = make_Poisson_loglikelihood(acq_data)
+    obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_acquisition_data(acq_data)
+    obj_fun.set_num_subsets(num_subsets)
+    obj_fun.set_up(image)
+
+    image = my_osmaposl(image, obj_fun, prior, filter, num_subiterations)
+
+    # show reconstructed image at z = 20
+    image_array = image.as_array()
+    show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
