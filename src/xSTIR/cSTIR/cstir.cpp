@@ -470,8 +470,19 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
 		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		sptrImage3DF* sptr = new sptrImage3DF(image.get_empty_copy());
-		Image3DF& grad = **sptr; // ->get();
-		fun.compute_sub_gradient(grad, image, subset);
+		Image3DF& grad = **sptr;
+		if (subset >= 0)
+			fun.compute_sub_gradient(grad, image, subset);
+		else {
+			int nsub = fun.get_num_subsets();
+			grad.fill(0.0);
+			sptrImage3DF* sptr_subgrad = new sptrImage3DF(image.get_empty_copy());
+			Image3DF& subgrad = **sptr_subgrad;
+			for (int sub = 0; sub < nsub; sub++) {
+				fun.compute_sub_gradient(subgrad, image, sub);
+				grad += subgrad;
+			}
+		}
 		return newObjectHandle(sptr);
 	}
 	CATCH;

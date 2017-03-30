@@ -742,8 +742,8 @@ class Prior:
             (self.handle, 'GeneralisedPrior', 'penalisation_factor')
     def get_gradient(self, image):
         '''
-        Returns the value of the gradient of the prior for a given value of
-        the image.
+        Returns the value of the gradient of the prior for the specified image.
+        image: ImageData object
         '''
         grad = ImageData()
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
@@ -800,34 +800,62 @@ class ObjectiveFunction:
         for maximizing this objective function.
         If the ray tracing projector G is a matrix, the subsets in question are 
         subsets of its rows.
+        n: number of subsets, Python integer scalar
         '''
         _set_int_par\
             (self.handle, 'GeneralisedObjectiveFunction', 'num_subsets', n)
     def set_up(self, image):
         '''
         Prepares this object for use.
+        image: ImageData object
         '''
         handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def value(self, image):
         '''
-        Returns the value of this objective function on <image>.
+        Returns the value of this objective function on the specified image.
+        image: ImageData object
         '''
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
         return pyiutil.floatDataFromHandle(handle)
-    def gradient(self, image, subset):
+    def get_value(self, image):
+        '''
+        Returns the value of this objective function on the specified image.
+        image: ImageData object
+        '''
+        return self.value(image)
+    def gradient(self, image, subset = -1):
         '''
         Returns the value of the additive component of the gradient of this 
-        objective function on <image> corresponding to a given <subset>
-        (see set_num_subsets() method).
+        objective function on the specified image corresponding to the specified
+        subset (see set_num_subsets() method).
+        If no subset is specified, returns the full gradient, i.e. the sum of
+        the subset components.
+        image: ImageData object
+        subset: Python integer scalar
         '''
         grad = ImageData()
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
         check_status(grad.handle)
         return grad
+    def get_gradient(self, image):
+        '''
+        Returns the gradient of the objective function on specified image.
+        image: ImageData object
+        '''
+        return self.gradient(image)
+    def get_subset_gradient(self, image, subset):
+        '''
+        Returns the value of the additive component of the gradient of this 
+        objective function on <image> corresponding to the specified subset
+        (see set_num_subsets() method).
+        image: ImageData object
+        subset: Python integer scalar
+        '''
+        return self.gradient(image, subset)
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
     '''

@@ -1,6 +1,6 @@
 '''Steepest ascent demo.
 Applies few steps of steepest ascent for the minimization of Poisson logarithmic
-likelihood objective function using gradient for subset 0.
+likelihood objective function using subset gradients.
 
 Usage:
   steepest_ascent [--help | options]
@@ -10,7 +10,7 @@ Options:
                               [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
-  -t <step>, --tau=<step>     steepest ascent step size parameter,
+  -x <step>, --step=<step>     steepest ascent step size parameter,
                               use a negative value to opt for the optimal value
                               [default: -1]
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
@@ -46,7 +46,7 @@ import scipy.optimize
 exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
-tau = float(args['--tau'])
+step = float(args['--step'])
 steps = int(args['--steps'])
 verbose = args['--verbose']
 data_file = args['--file']
@@ -115,8 +115,8 @@ def main():
 
     for iter in range(steps):
 
-        # obtain gradient for subset 0
-        grad = obj_fun.gradient(image, 0)
+        # obtain gradient for subset = iter
+        grad = obj_fun.get_subset_gradient(image, iter)
         # zero the gradient outside the cylindric FOV
         filter.apply(grad)
         grad_as_3D_array = grad.as_array()
@@ -125,11 +125,11 @@ def main():
         max_grad = abs(grad_as_3D_array).max()
         delta = max_grad*eps
 
-        # find maximal steepest ascent step parameter t in image + t*grad 
+        # find maximal steepest ascent step parameter x in image + x*grad 
         # such that the new image remains positive;
         # since image is non-negative, the step size is limited by negative
         # gradients: it should not exceed -image/grad = abs(image/grad) at
-        # points where grad is negative, thus, maximal t is min(abs(image/grad))
+        # points where grad is negative, thus, maximal x is min(abs(image/grad))
         # taken over such points
 
         # avoid division by zero at the next step
@@ -154,21 +154,21 @@ def main():
         exclude = numpy.logical_and(image_as_3D_array <= 0, grad_as_3D_array < 0)
         grad_as_3D_array[exclude] = 0
 
-        if tau < 0:
-            # find the optimal t
-            fun = lambda t: -obj_fun.value \
-                  (image.fill(image_as_3D_array + t*grad_as_3D_array))
-            t = scipy.optimize.fminbound \
+        if step < 0:
+            # find the optimal step size x
+            fun = lambda x: -obj_fun.value \
+                  (image.fill(image_as_3D_array + x*grad_as_3D_array))
+            x = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
-            # t is such that the relative change in image is not greater than tau
-            t = tau*max_image/max_grad
-            if t > maxstep:
-                t = maxstep
+            # x is such that the relative change in image is not greater than tau
+            x = step*max_image/max_grad
+            if x > maxstep:
+                x = maxstep
 
         # perform steepest descent step
-        print('step %d, max change in image %e' % (iter, t*max_grad))
-        image_as_3D_array = image_as_3D_array + t*grad_as_3D_array
+        print('step %d, max change in image %e' % (iter, x*max_grad))
+        image_as_3D_array = image_as_3D_array + x*grad_as_3D_array
 
         # filter the new image
         image.fill(image_as_3D_array)
@@ -184,8 +184,8 @@ def main():
             print('image minimum is negative: %e' % min_image)
             break
 
-    if tau > 0 or disp == 0:
-        print('computing final objective function value...')
+    if step > 0 or disp == 0:
+        print('computing attained objective function value...')
         print('objective function value: %e' % (obj_fun.value(image)))
 
 # if anything goes wrong, an exception will be thrown 
