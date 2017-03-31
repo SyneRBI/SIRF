@@ -1,4 +1,4 @@
-function grappa_basic
+function grappa_basic(engine)
 % GRAPPA_BASIC Demo for reconstruction of GRAPPA acquired data.
 % 
 % Demonstrates use of the EPSRC-funded CCP-PETMR code (SIRF). 
@@ -24,8 +24,13 @@ function grappa_basic
 %    b) An ISMRMRD h5 file can be simulated using the MATLAB function
 %    gen_us_data.m . This will reconstruct faster than the real data in a).
 %
+% The argument:
+% engine: Matlab string with the name of the reconstruction package to be 
+%         used, defaults to Gadgetron
+%
 % Usage:
 %  grappa_basic
+%  grappa_basic(engine)
 %
 %
 % See also GRAPPA_DETAIL GEN_US_DATA
