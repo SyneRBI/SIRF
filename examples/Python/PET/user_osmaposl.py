@@ -51,7 +51,7 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 # user implementation of Ordered Subset Maximum A Posteriori One Step Late
 # reconstruction algorithm
-def my_osmaposl(image, obj_fun, prior, filter, num_subiterations):
+def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 
     for iter in range(1, num_subiterations + 1):
         print('\n------------- Subiteration %d' % iter) 
@@ -77,8 +77,10 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subiterations):
         prior_grad_array = prior_grad_image.as_array()
 
         # update image data
-        sens_array[sens_array < 1e-6] = 1e-6 # avoid division by zero
-        update = grad_array/(sens_array + prior_grad_array/num_subsets)
+        denom = sens_array + prior_grad_array/num_subsets
+        delta = 1e-6*abs(denom).max()
+        denom[denom < delta] = delta # avoid division by zero
+        update = grad_array/denom
         image_array = image_array*update
 
         # fill current image with new values
@@ -128,7 +130,7 @@ def main():
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
-    image = my_osmaposl(image, obj_fun, prior, filter, num_subiterations)
+    image = my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations)
 
     # show reconstructed image at z = 20
     image_array = image.as_array()
