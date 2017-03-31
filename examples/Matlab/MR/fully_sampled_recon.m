@@ -98,7 +98,5 @@ if exist('montage','file') && exist('mat2gray','file')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    image_data.show()
+    mUtil.show_3D_array(image_data.as_array(), 'Image data', 'slice')
 end
-
-
