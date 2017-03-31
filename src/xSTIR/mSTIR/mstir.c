@@ -81,6 +81,9 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient (void* ptr_f, void* ptr
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f, void* ptr_i, int subset) {
 	return cSTIR_objectiveFunctionGradientNotDivided (ptr_f, ptr_i, subset);
 }
+EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
+	return cSTIR_priorGradient(ptr_p, ptr_i);
+}
 EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
 	cSTIR_getImageDimensions(ptr, ptr_data);
 }
