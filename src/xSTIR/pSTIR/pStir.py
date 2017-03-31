@@ -4,7 +4,7 @@ Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2017 University College London
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -235,15 +235,23 @@ class DataContainer(ABC):
         pass
 
 class ImageData(DataContainer):
-    '''Class for PET image data objects.'''
+    '''Class for PET image data objects.
+
+    ImageData objects contains both geometric data and the actual voxel
+    values. You have to use the `as_array` method to get an array with
+    the voxel values, and use the `fill` function to change the voxel values.
+    '''
     def __init__(self, arg = None):
-        '''
-        Creates an ImageData object based on the argument <arg> type.
-        str            : the object is read from file specified by <arg>
-        AcquisitionData: the object compatible with the scanner data
-                         recorded in an AcquisitionData object <arg> is created
-        None           : the empty ImageData object is created, call initialise()
-                         method before using it
+        '''Create an ImageData object
+
+        Arguments:
+        str            : read the object from a file specified by <arg>
+                         (the file format has to be support by STIR).
+        AcquisitionData: create an object compatible with the scanner data
+                         recorded in an AcquisitionData object <arg>.
+                         This sets default voxel sizes.
+        None           : create an empty ImageData object. Call initialise()
+                         method before using it.
         '''
         self.handle = None
         if isinstance(arg, str):
@@ -266,7 +274,8 @@ class ImageData(DataContainer):
     def initialise\
         (self, arg1, arg2 = 0, arg3 = 0, arg4 = 1, arg5 = 1, arg6 = 1, \
          arg7 = 0, arg8 = 0, arg9 = 0):
-        '''
+        '''Change image size and geometric information
+
         Sets this image size in voxels, voxel sizes in mm and the origin.
         All arguments except the first one are optional.
         Present arguments are either all scalars or all tuples.
@@ -304,10 +313,11 @@ class ImageData(DataContainer):
         check_status(self.handle)
         pyiutil.deleteDataHandle(voxels)
     def fill(self, value):
-        '''
-        Sets this image values at voxels.
+        '''Sets the voxel-values.
+
         The argument is either 3D Numpy ndarray of values or a scalar to be
-        assigned at each voxel.
+        assigned at each voxel. When using an ndarray, the array size has to
+        have the same size as an array returned by `as_array`.
         '''
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
@@ -334,6 +344,10 @@ class ImageData(DataContainer):
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def read_from_file(self, filename):
+        '''Read data from file.
+
+        Replaces the current content of the object.
+        '''
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
@@ -346,7 +360,7 @@ class ImageData(DataContainer):
         pyiutil.deleteDataHandle(handle)
         return diff
     def as_array(self):
-        '''Returns 3D Numpy ndarray of this image values at voxels.'''
+        '''Return 3D Numpy ndarray with values at the voxels.'''
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
         nz = dim[0]
@@ -380,7 +394,9 @@ class ImageData(DataContainer):
             pylab.show()
 
 class ImageDataProcessor:
-    '''Class for image processors.'''
+    '''Class for image processors.
+
+     An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
     def __init__(self):
         self.handle = None
     def __del__(self):
