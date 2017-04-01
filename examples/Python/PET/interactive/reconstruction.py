@@ -1,10 +1,36 @@
 # -*- coding: utf-8 -*-
 ###
 # Demonstration of PET reconstruction with CCP PET-MR Software
-# 8th of September 2016
 #
+# This demonstration shows how to use OSEM and implement a
+# (simplistic) gradient-descent algorithm using SIRF.
+#
+# This demo is a 'script', i.e. intended to be run step by step in a
+# Python IDE such as spyder. It is organised in 'cells'. spyder displays these
+# cells nicely and allows you to run each cell on its own.
+#
+# First version: 8th of September 2016
 # Author: Kris Thielemans
 #
+
+## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2017 University College London.
+##
+## This is software developed for the Collaborative Computational
+## Project in Positron Emission Tomography and Magnetic Resonance imaging
+## (http://www.ccppetmr.ac.uk/).
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##       http://www.apache.org/licenses/LICENSE-2.0
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
 #%% Initial imports etc
 import numpy
 from numpy.linalg import norm
@@ -48,6 +74,9 @@ os.chdir(pet.petmr_data_path('pet'))
 shutil.rmtree('working_folder/thorax_single_slice',True)
 shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
 os.chdir('working_folder/thorax_single_slice')
+
+#%% We will first create some simulated data from ground-truth images
+
 #%% Read in images
 image = pet.ImageData('emission.hv');
 image_array=image.as_array()*.05
@@ -65,16 +94,12 @@ imshow(image_array[slice,:,:,], [], 'emission image');
 #%% save max for future displays
 cmax = image_array.max()*.6
 
-#%% create matrix to be used by the acquisition model
-matrix = pet.RayTracingMatrix()
-matrix.set_num_tangential_LORs(5)
-
 #%% create acquisition model
-am = pet.AcquisitionModelUsingMatrix()
-am.set_matrix(matrix)
+am = pet.AcquisitionModelUsingRayTracingMatrix()
+am.set_num_tangential_LORs(5)
 templ = pet.AcquisitionData('template_sinogram.hs')
 am.set_up(templ,image); 
-#%% do forward projection
+#%% simulate some data using forward projection
 acquired_data=am.forward(image)
 acquisition_array = acquired_data.as_array()
 
@@ -87,12 +112,15 @@ plt.close('all')
 
 #%% create objective function
 obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
-obj_fun.set_acquisition_model(am)
+# We could set acquisition model but the default (ray-tracing) is in this case ok
+# obj_fun.set_acquisition_model(am)
 obj_fun.set_acquisition_data(acquired_data)
 #obj_fun.set_prior(prior)
 
 #%% create OSMAPOSL reconstructor
-# This defaults to using EM, but we will modify it to OSEM
+# This implements the Ordered Subsets Maximum A-Posteriori One Step Late
+# Since we are not using a penalty, or prior in this example, it
+# defaults to using MLEM, but we will modify it to OSEM
 recon = pet.OSMAPOSLReconstructor()
 recon.set_objective_function(obj_fun)
 recon.set_num_subsets(4)
@@ -142,12 +170,12 @@ imshow(noisy_array[slice,:,:,], [0,acquisition_array.max()], 'noisy');
 
 #%% reconstruct the noisy data
 obj_fun.set_acquisition_data(noisy_data)
-recon.set_output_filename_prefix('reconstructedImage_noisydata')
+# We could save the data to file if we wanted to, but currently we don't.
+# recon.set_output_filename_prefix('reconstructedImage_noisydata')
 
 noisy_reconstructed_image=init_image.clone()
 recon.reconstruct(noisy_reconstructed_image)
 #%% bitmap display of images
-
 noisy_reconstructed_array=noisy_reconstructed_image.as_array()
 
 plt.figure();
@@ -158,16 +186,16 @@ imshow(noisy_reconstructed_array[slice,:,:,], [0,cmax*1.2], 'with noise');
 
 #%% run same reconstruction but saving images and objective function values every iteration
 num_iters = 64;
-all_em_images = numpy.ndarray(shape=(num_iters+1,) + idata.shape );
+all_osem_images = numpy.ndarray(shape=(num_iters+1,) + idata.shape );
 current_image = init_image.clone()
-em_objective_function_values = [ obj_fun.value(current_image) ]
-all_em_images[0,:,:,:] =  current_image.as_array();
+osem_objective_function_values = [ obj_fun.value(current_image) ]
+all_osem_images[0,:,:,:] =  current_image.as_array();
 for iter in range(1, num_iters+1):
     recon.update(current_image);
     
     obj_fun_value = obj_fun.value(current_image);
-    em_objective_function_values.append(obj_fun_value);
-    all_em_images[iter,:,:,:] =  current_image.as_array();
+    osem_objective_function_values.append(obj_fun_value);
+    all_osem_images[iter,:,:,:] =  current_image.as_array();
   
 #%% define a function for plotting images and the updates
 def plot_progress(all_images, title, iterations = []):
@@ -186,19 +214,19 @@ def plot_progress(all_images, title, iterations = []):
             plt.pause(.05)
         
 #%% now call this function to see how we went along
-iterations = (1,2,4,8,16,32,64);
-plot_progress([all_em_images], ['OSEM'],iterations)
+sub_iterations = (1,2,4,8,16,32,64);
+plot_progress([all_osem_images], ['OSEM'],sub_iterations)
 
 #%% plot objective function values
 plt.figure()
-#plt.plot(iterations, [ em_objective_function_values[i] for i in iterations])
-plt.plot(em_objective_function_values)
+#plt.plot(sub_iterations, [ osem_objective_function_values[i] for i in sub_iterations])
+plt.plot(osem_objective_function_values)
 plt.title('Objective function values')
-plt.xlabel('iterations')
+plt.xlabel('sub-iterations')
 
 #%% ROI
-ROI_lesion = all_em_images[:,(slice,), 65:70, 40:45];
-ROI_lung = all_em_images[:,(slice,), 75:80, 45:50];
+ROI_lesion = all_osem_images[:,(slice,), 65:70, 40:45];
+ROI_lung = all_osem_images[:,(slice,), 75:80, 45:50];
 
 ROI_mean_lesion = ROI_lesion.mean(axis=(1,2,3))
 ROI_std_lesion = ROI_lesion.std(axis=(1,2,3))
@@ -209,15 +237,17 @@ ROI_std_lung = ROI_lung.std(axis=(1,2,3))
 plt.figure()
 plt.hold('on')
 plt.subplot(1,2,1)
-plt.plot(ROI_mean_lesion,'k')
-plt.plot(ROI_mean_lung,'r')
+plt.plot(ROI_mean_lesion,'k',label='lesion')
+plt.plot(ROI_mean_lung,'r',label='lung')
+plt.legend()
 plt.title('ROI mean')
-plt.xlabel('iterations')
+plt.xlabel('sub-iterations')
 plt.subplot(1,2,2)
-plt.plot(ROI_std_lesion, 'k')
-plt.plot(ROI_std_lung, 'r')
+plt.plot(ROI_std_lesion, 'k',label='lesion')
+plt.plot(ROI_std_lung, 'r',label='lung')
+plt.legend()
 plt.title('ROI standard deviation')
-plt.xlabel('iterations');
+plt.xlabel('sub-iterations');
 
 #%%
 plt.close('all')
@@ -233,7 +263,8 @@ plt.close('all')
 #%% Perform gradient descent for 8 iterations
 # Gradient descent (GD) works by updating the image in the direction of the gradient
 #    new_image = current_image + step_size * gradient
-
+# Here we will use a fixed step-size and use "truncattion" to enforce
+# non-negativity of the image
 num_iters = 32
 # relative step-size
 tau = .3
@@ -247,7 +278,9 @@ all_images[0,:,:,:] =  idata;
 
 #%% perform GD iterations
 for iter in range(1, num_iters+1):  
-    # obtain gradient
+    # obtain gradient for subset 0
+    # with current settings, this means we will only use the data of that subset
+    # (gradient descent with subsets is too complicated for this demo)
     grad = obj_fun.gradient(current_image, 0)
     grad_array = grad.as_array()
     
@@ -267,8 +300,8 @@ plt.figure()
 plt.hold('on')
 plt.title('Objective function value vs iterations')
 plt.plot(GD_objective_function_values,'b');
-plt.plot(em_objective_function_values,'r');
+plt.plot(osem_objective_function_values,'r');
 plt.legend(('gradient descent', 'OSEM'),loc='lower right');
 
 #%% compare GD and OSEM images
-plot_progress([all_images, all_em_images], ['GD' ,'OSEM'],[2,4,8,16,32])
+plot_progress([all_images, all_osem_images], ['GD' ,'OSEM'],[2,4,8,16,32])
