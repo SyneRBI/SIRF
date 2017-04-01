@@ -9,6 +9,12 @@
 # Python IDE such as spyder. It is organised in 'cells'. spyder displays these
 # cells nicely and allows you to run each cell on its own.
 #
+# # We'll use the Python Animation package for one display. This might not display 
+# anything depending on your IDE settings (check the 'backend' settings).
+# For instance, in spyder, go to Tools->Preferences->iPython->Graphics and
+# set your backend to "automatic". You will have to do this BEFORE you start the
+# ipython console (or just restart spyder)
+#
 # Author: Kris Thielemans
 # First version: 8th of September 2016
 #
@@ -31,7 +37,7 @@ import pStir as pet
 # To make subsequent code cleaner, we have a few functions here. You can ignore
 # ignore them when you first see this demo.
 # They have (minimal) documentation using Python docstrings such that you 
-# can do for instance "help(imshow)
+# can do for instance "help(imshow)"
 #
 # First a function to display an image
 def imshow(image, limits, title=''):
@@ -64,12 +70,12 @@ def make_cylindrical_FOV(image):
 
 #%% Go to directory with input files
 # Adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(os.getenv('SRC_PATH')+'/SIRF/src/xSTIR/examples/interactive')
+os.chdir(pet.petmr_data_path('pet'))
 #%% Copy files to a working folder and change directory to where these files are.
 # We do this to avoid cluttering your SIRF files. This way, you can delete 
 # working_folder and start from scratch.
 shutil.rmtree('working_folder/brain',True)
-shutil.copytree('EX_brain','working_folder/brain')
+shutil.copytree('brain','working_folder/brain')
 os.chdir('working_folder/brain')
 #%% OK. finally done with initial set-up...
 
@@ -154,8 +160,7 @@ slice_num=acquisition_array.shape[0]/2;
 imshow(acquisition_array[slice_num,:,:,], [], 'Forward projection');
 
 #%% Display some different 'views' in a movie
-# We'll use the Python Animation package for this. This might not display 
-# anything depending on your IDE settings (check the 'backend' settings).
+# See note at start of file about your backend if this doesn't work.
 bitmaps=[]
 fig=plt.figure()
 # views are the second index in the data

@@ -15,7 +15,6 @@ import sys
 import shutil
 #import scipy
 #from scipy import optimize
-sys.path.append(os.environ.get('SRC_PATH') + '/SIRF/src/xSTIR/pSTIR')
 import pStir as pet
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -44,16 +43,16 @@ def make_cylindrical_FOV(image):
 
 #%% go to directory with input files
 # adapt this path to your situation (or start everything in the relevant directory)
-os.chdir(os.getenv('SRC_PATH')+'/SIRF/src/xSTIR/examples/interactive')
+os.chdir(pet.petmr_data_path('pet'))
 #%% copy files to working folder and change directory to where the output files are
-shutil.rmtree('working_folder/single_slice',True)
-shutil.copytree('EX_single_slice','working_folder/single_slice')
-os.chdir('working_folder/single_slice')
+shutil.rmtree('working_folder/thorax_single_slice',True)
+shutil.copytree('thorax_single_slice','working_folder/thorax_single_slice')
+os.chdir('working_folder/thorax_single_slice')
 #%% Read in images
 image = pet.ImageData('emission.hv');
 image_array=image.as_array()*.05
 image.fill(image_array);
-mu_map = pet.ImageData('CTAC.hv');
+mu_map = pet.ImageData('attenuation.hv');
 mu_map_array=mu_map.as_array();
 #%% bitmap display of images
 slice=image_array.shape[0]/2;
@@ -87,7 +86,7 @@ imshow(acquisition_array[0,:,:,], [], 'Forward projection');
 plt.close('all')
 
 #%% create objective function
-obj_fun = pet.PoissonLogLh_LinModMean_AcqMod()
+obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
 obj_fun.set_acquisition_model(am)
 obj_fun.set_acquisition_data(acquired_data)
 #obj_fun.set_prior(prior)
@@ -96,13 +95,12 @@ obj_fun.set_acquisition_data(acquired_data)
 # This defaults to using EM, but we will modify it to OSEM
 recon = pet.OSMAPOSLReconstructor()
 recon.set_objective_function(obj_fun)
-recon.set_num_subsets(2)
+recon.set_num_subsets(4)
 num_iters=10;
 recon.set_num_subiterations(num_iters)
-recon.set_output_filename_prefix('reconstructedImage')
 #%%  create initial image
 # just create a disk
-init_image=image.get_empty_copy()
+init_image=image.clone()
 init_image.fill(cmax/4)
 make_cylindrical_FOV(init_image)
 # display
@@ -132,7 +130,7 @@ imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'reconstructed image');
 noisy_array=numpy.random.poisson(acquisition_array).astype('float64')
 print(' Maximum counts in the data: %d' % noisy_array.max())
 # stuff into a new AcquisitionData object
-noisy_data = acquired_data.get_empty_copy()
+noisy_data = acquired_data.clone()
 noisy_data.fill(noisy_array);
 
 #%% Display bitmaps of the middle sinogram
