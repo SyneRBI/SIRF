@@ -50,7 +50,6 @@ try
     % compatible with the acquisition data type
     obj_fun = make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_acquisition_data(acq_data)
     
     num_subiterations = 2;
     

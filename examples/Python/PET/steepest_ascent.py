@@ -89,7 +89,6 @@ def main():
     # compatible with the acquisition data type
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_acquisition_data(acq_data)
     obj_fun.set_num_subsets(12)
     obj_fun.set_up(image)
 

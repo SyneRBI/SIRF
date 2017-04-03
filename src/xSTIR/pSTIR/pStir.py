@@ -1136,4 +1136,6 @@ def make_Poisson_loglikelihood(acq_data, model = 'LinearModelForMean'):
     model types.
     '''
     # only this objective function is implemented for now
-    return PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
+    obj_fun = PoissonLogLikelihoodWithLinearModelForMeanAndProjData()
+    obj_fun.set_acquisition_data(acq_data)
+    return obj_fun

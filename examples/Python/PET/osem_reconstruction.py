@@ -85,7 +85,6 @@ def main():
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_acquisition_data(acq_data)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in

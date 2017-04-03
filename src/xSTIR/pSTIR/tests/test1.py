@@ -91,7 +91,6 @@ def main():
     # create objective function
     obj_fun = make_Poisson_loglikelihood(ad)
     obj_fun.set_acquisition_model(am)
-    obj_fun.set_acquisition_data(ad)
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
