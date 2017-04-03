@@ -172,23 +172,10 @@ if exist('mat2gray','file') && exist('montage','file')
 else
     image_array = abs(image_array);
     gfact_array = abs(gfact_array);
-    image_array = image_array/max(max(max(image_array)));
-    gfact_array = gfact_array/max(max(max(gfact_array)));
-    n = image_data.number();
-    fprintf('Enter slice number to view its data\n')
-    fprintf('(a value outside the range [1 : %d] will stop this loop).\n', n)
-    while (true)
-        z = input('slice: ');
-        if z < 1 || z > n
-            break
-        end
-        figure(z)
-        imshow(image_array(:,:,z));
-        title(['image ' num2str(z)])
-        figure(z + n)
-        imshow(gfact_array(:,:,z));
-        title(['G-factor ' num2str(z)])
-    end
+    title = 'Reconstructed image data (magnitude)';
+    mUtil.show_3D_array(image_array, title, 'slice');
+    title = 'G-factor data (magnitude)';
+    mUtil.show_3D_array(gfact_array, title, 'slice');
 end
 
 

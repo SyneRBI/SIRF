@@ -22,8 +22,6 @@ function grappa_and_steepest_descent(engine)
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
-% set_up_mr
-% import MR.*
 if nargin < 1
     engine = [];
 end
@@ -73,25 +71,10 @@ w = acq_model.forward(grad);
 tau = (grad*grad)/(w*w); % locally optimal steepest descent step
 refined_image_data = image_data - grad*tau;
 
-image_array = abs(image_data.as_array());
-refined_image_array = abs(refined_image_data.as_array());
-image_array = image_array/max(max(max(image_array)));
-refined_image_array = refined_image_array/max(max(max(refined_image_array)));
-n = image_data.number();
-
-fprintf('---\nEnter slice number to view it\n')
-fprintf('(a value outside the range [1 : %d] will stop this loop)\n', n)
-while (true)
-    z = input('slice: ');
-    if z < 1 || z > n
-        break
-    end
-    figure(z)
-    imshow(image_array(:,:,z));
-    title('GRAPPA image')
-    figure(z + n)
-    imshow(refined_image_array(:,:,z));
-    title('refined image')
-end
-
+image_array = image_data.as_array();
+refined_image_array = refined_image_data.as_array();
+title = 'Reconstructed image data (magnitude)';
+mUtil.show_3D_array(abs(image_array), title, 'slice')
+title = 'Refined image data (magnitude)';
+mUtil.show_3D_array(abs(refined_image_array), title, 'slice')
 

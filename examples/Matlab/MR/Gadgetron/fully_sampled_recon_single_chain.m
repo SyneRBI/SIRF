@@ -74,13 +74,15 @@ recon.process()
 % get reconstructed image object
 image_data = recon.get_output();
 
-% plot obtained images (note imag are zero)
+% show reconstructed image data
 if exist('montage','file') && exist('mat2gray','file')
     figure('Name','image data')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    image_data.show()
+    image_array = image_data.as_array();
+    title = 'Reconstructed image data (magnitude)';
+    mUtil.show_3D_array(abs(image_array(:,:,1:2:end)), title, 'slice');
+    title = 'Reconstructed image data (imaginary part)';
+    mUtil.show_3D_array(abs(image_array(:,:,2:2:end)), title, 'slice');
 end
-
-

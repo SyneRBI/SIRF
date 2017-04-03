@@ -81,8 +81,9 @@ img_proc = ImageDataProcessor({'ExtractGadget'});
 fprintf('processing images...\n')
 real_image_data = img_proc.process(complex_image_data);
 
-% plot obtained images
+% show obtained images
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
-real_image_data.show()
+title = 'Reconstructed image data (magnitude)';
+mUtil.show_3D_array(abs(real_image_data.as_array()), title, 'slice');
 

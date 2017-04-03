@@ -1,5 +1,5 @@
 function using_acquisition_data(engine)
-% ACQUISITIONS_HANDLING Demo illustrating acquisitions pre-processing 
+% USING_ACQUISITION_DATA Demo illustrating acquisitions pre-processing 
 % and displaying.
 %
 % In MATLAB, there are also ISMRMRD tools available for examining 
@@ -25,8 +25,6 @@ function using_acquisition_data(engine)
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
-%set_up_mr
-%import MR.*
 if nargin < 1
     engine = [];
 end
@@ -92,50 +90,13 @@ processed_array = processed_data.as_array();
 fprintf('Value of same array element after replacement with 10x data: %f\n', ...
     acq_array(is, ic, ia))
 
-acq_array = abs(acq_array);
-processed_array = abs(processed_array);
-acq_array = acq_array/max(max(max(acq_array)));
-processed_array = processed_array/max(max(max(processed_array)));
+acq_array = permute(acq_array, [1 3 2]);
+processed_array = permute(processed_array, [1 3 2]);
+title = 'Acquisition data (magnitude)';
+mUtil.show_3D_array(abs(acq_array), title, 'coil');
+title = 'Processed acquisition data (magnitude)';
+mUtil.show_3D_array(abs(processed_array), title, 'coil');
 
-nz = idivide(na, ny);
-
-has_ipt = exist('imadjust','file') && exist('mat2gray','file');
-
-fprintf...
-    ('Enter z-coordinate of the slice to view the acquired data for it\n')
-fprintf...
-    ('(a value outside the range [1 : %d] will stop this loop)\n', nz)
-while (true)
-    z = int32(input('slice: '));
-    if z < 1 || z > nz
-        break
-    end
-    fprintf('Enter coil number to view the acquired data for it\n')
-    fprintf...
-        ('(a value outside the range [1 : %d] will stop this loop)\n', nc)
-    while (true)
-        c = input('coil: ');
-        if c < 1 || c > nc
-            break
-        end
-        figure('Name',['Input Data as array, coil: ',num2str(c)])
-        data = squeeze(acq_array(:, c, ny*(z - 1) + 1 : ny*z));
-        if has_ipt
-            imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
-        else
-            imshow(data)
-        end
-        title('Input data')
-        cc = double(c + nc);
-        figure('Name',['Processed data as array, coil: ',num2str(c)])
-        data = squeeze(processed_array(:, c, ny*(z - 1) + 1 : ny*z));
-        if has_ipt
-            imshow(imadjust(mat2gray(abs(data)),[0 0.7],[],0.2))
-        else
-            imshow(data)
-        end
-        title('Processed data')
-    end
 end
 
 
