@@ -101,9 +101,8 @@ def main():
     # get sensitivity as ImageData
     ss_img = obj_fun.get_subset_sensitivity(subset)
 
-    # get gradient (without penalty) + sensitivity as ImageData
-    # (back projection of the ratio of measured to estimated acquisition data)
-    grad_img = obj_fun.get_gradient_plus_sensitivity_no_penalty(image, subset)
+    # get back projection of the ratio of measured to estimated acquisition data
+    grad_img = obj_fun.get_backprojection_of_acquisition_ratio(image, subset)
 
     # get gradient of prior as ImageData
     pgrad_img = prior.get_gradient(image)
