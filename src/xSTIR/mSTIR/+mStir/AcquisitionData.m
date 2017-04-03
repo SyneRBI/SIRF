@@ -60,7 +60,7 @@ classdef AcquisitionData < handle
             mUtil.checkExecutionStatus(self.name, self.handle);
         end
         function image = create_uniform_image(self, value)
-%         Creates ImageData object containing PET image of dimensions
+%***SIRF*** Creates ImageData object containing PET image of dimensions
 %         and voxel sizes compatible with the scanner geometry stored
 %         in this AcquisitionData object and assigns a given value
 %         to all voxels;
@@ -69,13 +69,13 @@ classdef AcquisitionData < handle
             image.handle = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
             mUtil.checkExecutionStatus...
-                ([self.name ':create_empty_image'], image.handle);
+                ([self.name ':create_uniform_image'], image.handle);
             if nargin > 1
                 image.fill(value)
             end
         end
         function data = as_array(self)
-%         Returns 3D array of the acquisition data values.
+%***SIRF*** Returns 3D array of the acquisition data values.
 %         Dimensions are:
 %         - number of tangential positions
 %         - number of views
@@ -90,7 +90,7 @@ classdef AcquisitionData < handle
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function fill(self, value)
-%         Fills the object with values;
+%***SIRF*** Fills the object with values;
 %         value: double or array of doubles or an AcquisitionData object
             if isempty(self.handle)
                 error([self.name ':fill'], ...
@@ -113,12 +113,12 @@ classdef AcquisitionData < handle
             end
         end
         function ad = clone(self)
-%         Returns a true copy of this object (not Python handle).
+%***SIRF*** Returns a true copy of this object (not Python handle).
             ad = mStir.AcquisitionData(self);
             ad.fill(self)
         end
-        function ad = get_empty_copy(self, value)
-%         Returns a true copy of this object (not Python handle)
+        function ad = get_uniform_copy(self, value)
+%***SIRF*** Returns a true copy of this object (not Python handle)
 %         filled with a given double value.
             if nargin < 2
                 value = 0;

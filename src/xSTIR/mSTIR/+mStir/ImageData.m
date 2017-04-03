@@ -48,7 +48,7 @@ classdef ImageData < handle
         end
         function initialise(self,...
                 arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-%         Sets this image size in voxels, voxel sizes in mm and the origin.
+%***SIRF*** Sets this image size in voxels, voxel sizes in mm and the origin.
 %         All arguments except the first one are optional.
 %         Present arguments are either all scalars or all tuples.
 %         The first tuple argument or three scalar arguments set the image
@@ -89,7 +89,7 @@ classdef ImageData < handle
             calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
-%         Sets this image values at voxels.
+%***SIRF*** Sets this image values at voxels.
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
             if numel(value) == 1
@@ -100,21 +100,21 @@ classdef ImageData < handle
             end
         end
         function image = clone(self)
-%         Creates a copy of this image.
+%***SIRF*** Creates a copy of this image.
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
             mUtil.checkExecutionStatus('ImageData:clone', self.handle)
         end
-        function image = get_empty_copy(self, value)
-%         Creates a copy of this image filled with VALUE.
+        function image = get_uniform_copy(self, value)
+%***SIRF*** Creates a copy of this image filled with VALUE.
             if nargin < 2
                 value = 1.0;
             end
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
-            mUtil.checkExecutionStatus('ImageData:get_empty_copy', self.handle)
+            mUtil.checkExecutionStatus('ImageData:get_uniform_copy', self.handle)
             image.fill(value)
         end
         function read_from_file(self, filename)
@@ -143,7 +143,7 @@ classdef ImageData < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function data = as_array(self)
-%         Returns 3D array of this image values at voxels.
+%***SIRF*** Returns 3D array of this image values at voxels.
 
 %             [ptr, dim] = calllib...
 %                 ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));

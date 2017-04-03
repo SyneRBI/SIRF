@@ -56,12 +56,12 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 'max_segment_num_to_process', n, 'i') 
         end
         function set_acquisition_model(self, am)
-%         Sets the acquisition model to be used by this objective function.
+%***SIRF*** Sets the acquisition model to be used by this objective function.
             mStir.setParameter(self.handle, self.name,...
                 'acquisition_model', am, 'h')
         end
         function am = get_acquisition_model(self)
-%         Returns the acquisition model used by this objective function.
+%***SIRF*** Returns the acquisition model used by this objective function.
             am = mStir.AcquisitionModelUsingMatrix();
             am.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'acquisition_model');
@@ -69,7 +69,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 ([self.name ':get_acquisition_model'], am.handle)
         end
         function set_acquisition_data(self, am)
-%         Sets the acquisition data to be used by this objective function.
+%***SIRF*** Sets the acquisition data to be used by this objective function.
             mStir.setParameter(self.handle, self.name,...
                 'proj_data_sptr', am, 'h')
         end

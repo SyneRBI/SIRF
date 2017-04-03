@@ -32,7 +32,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
             end
         end
         function set_strictly_less_than_radius(self, flag)
-%         Specifies whether the area not affected by filtering is strictly
+%***SIRF*** Specifies whether the area not affected by filtering is strictly
 %         inside the cylinder (flag = True) or not (flag = False).
             if flag
                 str = 'true';
@@ -44,7 +44,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
                 'strictly_less_than_radius', str, 'c')
         end
         function flag = get_strictly_less_than_radius(self)
-%         Returns the answer to the question: Is the area not affected by 
+%***SIRF*** Returns the answer to the question: Is the area not affected by 
 %         filtering strictly inside the cylinder?
             flag = mStir.parameter(self.handle,...
                 'TruncateToCylindricalFOVImageProcessor',...
