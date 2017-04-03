@@ -85,7 +85,7 @@ def main():
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
     maxv = numpy.amax(abs(coil_images))
-    title = 'Coil sensitivity maps (absolute value)'
+    title = 'Coil sensitivity maps (magnitude)'
     show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
     title = 'Coil sensitivity maps (phase)'
     show_3D_array(numpy.angle(coil_images), suptitle = title, label = 'coil')
@@ -102,7 +102,7 @@ def main():
     
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    title = 'Coil sensitivity maps (absolute value)'
+    title = 'Coil sensitivity maps (magnitude)'
     show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
 ##    maxv = numpy.amax(abs(coil_images))
 ##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
@@ -119,7 +119,7 @@ def main():
         
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    title = 'Coil sensitivity maps (absolute value)'
+    title = 'Coil sensitivity maps (magnitude)'
     show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
 ##    maxv = numpy.amax(abs(coil_images))
 ##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\

@@ -53,7 +53,7 @@ def main():
     # MR raw data formats from different vendors can be transformed to 
     # HDF file format using siemens_to_ismrmrd, philips_to_ismrmrd or
     # bruker_to_ismrmrd on https://github.com/ismrmrd/.
-    # Acquisitions will be read from an HDF file input_file
+    # Acquisition data will be read from an HDF file input_file
     print('---\n reading in file %s...' % input_file)
     acq_data = AcquisitionData(input_file)
 
@@ -81,7 +81,7 @@ def main():
 
     # show reconstructed image data
     image_array = image_data.as_array()
-    title = 'Reconstructed image data (absolute value)'
+    title = 'Reconstructed image data (magnitude)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice')
 
 try:

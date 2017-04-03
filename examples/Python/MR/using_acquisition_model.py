@@ -4,7 +4,7 @@ and applying projection from the image space into acquisition space and back
 defined by the aquisition model.
 
 Usage:
-  simple_simulation.py [--help | options]
+  using_acquisition_model.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
@@ -74,7 +74,7 @@ def main():
     #    - repetition
     #    - slice
     #    - kspace encode step 1
-    print('---\n sorting acquisitions...')
+    print('---\n sorting acquisition data...')
     processed_data.sort()
 
     # compute coil sensitivity maps
@@ -99,14 +99,14 @@ def main():
     simulated_acq_array = simulated_acq_data.as_array();
     # display simulated acquisition data
     simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
-    title = 'Simulated acquisition data (absolute value)'
+    title = 'Simulated acquisition data (magnitude)'
     show_3D_array(abs(simulated_acq_array), suptitle = title, label = 'coil')
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
     # show backprojected data
     backprojected_array = backprojected_data.as_array()
-    title = 'Backprojected data (absolute value)'
+    title = 'Backprojected data (magnitude)'
     show_3D_array(abs(backprojected_array), suptitle = title, label = 'slice')
 
 try:

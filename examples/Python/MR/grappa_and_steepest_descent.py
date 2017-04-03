@@ -74,7 +74,7 @@ def main():
 
     # compute coil sensitivity maps
     csms = CoilSensitivityData()
-    print('---\n sorting acquisitions...')
+    print('---\n sorting acquisition data...')
     preprocessed_data.sort()
     print('---\n computing sensitivity maps...')
     csms.calculate(preprocessed_data)
@@ -106,9 +106,9 @@ def main():
     refined_image_array = refined_image_data.as_array()
 
     # show reconstructed and refined images
-    title = 'Reconstructed image data (absolute value)'
+    title = 'Reconstructed image data (magnitude)'
     show_3D_array(abs(image_array), suptitle = title, label = 'slice', show = False)
-    title = 'Refined image data (absolute value)'
+    title = 'Refined image data (magnitude)'
     show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice')
 
 try:

@@ -3,14 +3,14 @@ Upper-level interface demo that illustrates how MR data can be interfaced
 from python.
 
 Usage:
-  acquisitions_handling.py [--help | options]
+  using_acquisition_data.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -r <rnge>, --range=<rnge>   range of acquisitions to examine as string '(a,b)'
+  -r <rnge>, --range=<rnge>   range of readouts to examine as string '(a,b)'
                               [default: (254, 258)]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
@@ -58,12 +58,12 @@ def main():
     # acquisition data will be read from an HDF file input_file
     acq_data = AcquisitionData(input_file)
 
-    # the raw k-space data is a list of different acquisitions (readouts)
+    # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
     # image data,...);
-    # the number of all aquisitions is
+    # the number of all readouts is
     na = acq_data.get_number_of_readouts('all')
-    # the number of image data acquisitions is
+    # the number of image data readouts is
     ni = acq_data.get_number_of_readouts()
     print('readouts: total %d, image data %d' % (na, ni))
 
@@ -133,7 +133,7 @@ def main():
     print('processed data dimensions: %dx%dx%d' % processed_acq_shape)
 
     processed_acq_array = numpy.transpose(processed_acq_array,(1,2,0))
-    title = 'Acquisitions (absolute value)'
+    title = 'Acquisition data (magnitude)'
     show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil')
 
 try:
