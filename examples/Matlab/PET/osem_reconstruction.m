@@ -32,7 +32,7 @@ eval(import_str)
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    printer = Printer('info.txt');
+    msg_red = MessageRedirector('info.txt');
 
     % create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix();
