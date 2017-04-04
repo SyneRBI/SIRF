@@ -1,5 +1,6 @@
 classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         mStir.PoissonLogLikelihoodWithLinearModelForMean
+% ADVANCED USERS ONLY.
 % Class for STIR PoissonLogLikelihoodWithLinearModelForMeanAndProjData object,
 % see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMeanAndProjData.html
@@ -25,6 +26,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
     methods
         function self = ...
                 PoissonLogLikelihoodWithLinearModelForMeanAndProjData(obj_fun)
+%         Creates new object.
             self.name =...
                 'PoissonLogLikelihoodWithLinearModelForMeanAndProjData';
             if nargin < 1
@@ -35,8 +37,10 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
             end
         end
         function delete(self)
-            calllib('mutilities', 'mDeleteDataHandle', self.handle)
-            self.handle = [];
+            if ~isempty(self.handle)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                self.handle = [];
+            end
         end
         function set_input_filename(self, filename)
 %***SIRF*** Specifies the raw data file.

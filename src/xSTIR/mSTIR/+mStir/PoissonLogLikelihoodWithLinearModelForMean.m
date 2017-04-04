@@ -1,4 +1,5 @@
 classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
+% ADVANCED USERS ONLY.
 % Class for STIR PoissonLogLikelihoodWithLinearModelForMean object, see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
 
@@ -22,6 +23,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
 
     methods
         function self = PoissonLogLikelihoodWithLinearModelForMean()
+%         Creates new empty object.
             self.handle = [];
         end
         function delete(self)

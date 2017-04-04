@@ -1,4 +1,5 @@
 classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
+% ADVANCED USERS ONLY.    
 % Class for PET acquisition model with the geometric projection G
 % represented by a sparse matrix
 
