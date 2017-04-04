@@ -53,6 +53,9 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
                 ([self.name ':get_matrix'], matrix.handle)
         end
         function set_num_tangential_LORs(self, value)
+%***SIRF*** Set the number of LORs (or rays) for each bin in the sinogram.
+%         They are currently (approximately) parallel and spaced in the
+%         tangential direction (i.e. orthogonal to the axial direction).
             self.get_matrix().set_num_tangential_LORs(value)
         end
     end
