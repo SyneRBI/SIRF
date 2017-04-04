@@ -44,7 +44,8 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
             end
         end
         function set_matrix(self, matrix)
-%***SIRF*** Sets the ray tracing matrix to be used for projecting;
+%***SIRF*** set_matrix(matrix) sets the ray tracing matrix to be used for 
+%         projecting;
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             mStir.setParameter...
                 (self.handle, self.name, 'matrix', matrix, 'h')

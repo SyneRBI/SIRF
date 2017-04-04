@@ -35,8 +35,8 @@ classdef Reconstructor < handle
             end
         end
         function set_output_filename_prefix(self, prefix)
-%***SIRF*** Specifies the file naming scheme for the ouput files containing
-%         image estimates.
+%***SIRF*** set_output_filename_prefix(prefix) specifies the file naming 
+%         for the ouput files containing image estimates.
 %         Each file will be named [prefix '_' iter_num], where iter_num is
 %         the number of the iteration at which the respective image
 %         estimate was saved to this file.

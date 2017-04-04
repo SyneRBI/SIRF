@@ -45,8 +45,8 @@ classdef Prior < handle
                 (self.handle, 'GeneralisedPrior', 'penalisation_factor', 'f');
         end
         function grad = get_gradient(self, image)
-%***SIRF*** Returns the value of the gradient of the prior for a given value of
-%         the image.
+%***SIRF*** Returns the value of the gradient of the prior for the specified 
+%         image.
             grad = mStir.ImageData();
             grad.handle = calllib('mstir', 'mSTIR_priorGradient', ...
                 self.handle, image.handle);

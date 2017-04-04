@@ -59,28 +59,28 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 'zero_seg0_end_planes', str, 'c') 
         end
         function set_max_segment_num_to_process(self, n)
-%***SIRF*** Restricts the range of the acquisition data segments to be used
-%         to [-n, n].
+%***SIRF*** set_max_segment_num_to_process(n) restricts the range of the 
+%         acquisition data segments to be used to [-n, n].
             mStir.setParameter(self.handle, self.name, ...
                 'max_segment_num_to_process', n, 'i') 
         end
-        function set_acquisition_model(self, am)
+        function set_acquisition_model(self, acq_model)
 %***SIRF*** Sets the acquisition model to be used by this objective function.
             mStir.setParameter(self.handle, self.name,...
-                'acquisition_model', am, 'h')
+                'acquisition_model', acq_model, 'h')
         end
-        function am = get_acquisition_model(self)
+        function acq_model = get_acquisition_model(self)
 %***SIRF*** Returns the acquisition model used by this objective function.
-            am = mStir.AcquisitionModelUsingMatrix();
-            am.handle = calllib('mstir', 'mSTIR_parameter',...
+            acq_model = mStir.AcquisitionModelUsingMatrix();
+            acq_model.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'acquisition_model');
             mUtil.checkExecutionStatus...
-                ([self.name ':get_acquisition_model'], am.handle)
+                ([self.name ':get_acquisition_model'], acq_model.handle)
         end
-        function set_acquisition_data(self, am)
+        function set_acquisition_data(self, acq_data)
 %***SIRF*** Sets the acquisition data to be used by this objective function.
             mStir.setParameter(self.handle, self.name,...
-                'proj_data_sptr', am, 'h')
+                'proj_data_sptr', acq_data, 'h')
         end
     end
 end

@@ -90,16 +90,16 @@ classdef IterativeReconstructor < mStir.Reconstructor
                 self.IR, 'subiteration_num', 'i');
         end
         function set_save_interval(self, n)
-%***SIRF*** Sets the subset iterations' saving interval: n = 1 means the
-%         iterated approximate image must be written to a file every
-%         iteration, n = 2 - every other iteration etc.
+%***SIRF*** Sets the saving interval size: size 1 means the iterated 
+%         approximate image must be saved to a file every iteration, 
+%         size 2 every other iteration etc.
             mStir.setParameter(self.handle,...
                 self.IR, 'save_interval', n, 'i')
         end
         function set_inter_iteration_filter_interval(self, n)
-%***SIRF*** Sets the subset iterations' filtering interval: n = 1 means the
-%         iterated approximate image must be filtered every iteration, 
-%         n = 2 - every other iteration etc.
+%***SIRF*** Sets the filtering interval size: size 1 means the iterated 
+%         approximate image must be filtered every iteration, size 2 every 
+%         other iteration etc.
             mStir.setParameter(self.handle, self.IR,...
                 'inter_iteration_filter_interval', n, 'i')
         end
@@ -124,6 +124,8 @@ classdef IterativeReconstructor < mStir.Reconstructor
         end
         function set_up(self, image)
 %***SIRF*** Prepares the reconstructor for use.
+%         The argumant is an ImageData object used as a template for the
+%         reconstructed image.
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus([self.IR ':set_up'], h)
@@ -165,7 +167,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function update(self, image)
-%***SIRF*** Updates the image estimate specified by the last argument by 
+%***SIRF*** Updates the image estimate specified by the argument by 
 %         performing one iteration on the current subspace.
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, image.handle);
@@ -174,7 +176,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
         end
         function reconstruct(self, image)
 %***SIRF*** Reconstruct the image by applying currently set range of
-%         iterations to the image estimate specified by the last argument.
+%         iterations to the image estimate specified by the argument.
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)

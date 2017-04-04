@@ -107,7 +107,7 @@ classdef ImageData < handle
             mUtil.checkExecutionStatus('ImageData:clone', self.handle)
         end
         function image = get_uniform_copy(self, value)
-%***SIRF*** Creates a copy of this image filled with VALUE.
+%***SIRF*** Creates a copy of this image filled with the specified value.
             if nargin < 2
                 value = 1.0;
             end

@@ -48,27 +48,27 @@ classdef AcquisitionModel < handle
             end
         end
         function set_additive_term(self, at)
-%***SIRF*** Sets the additive term a in (F);
+%***SIRF*** set_additive_term(at) sets the additive term a in (F);
 %         at:  an AcquisitionData object containing a.
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
         function set_background_term(self, bt)
-%***SIRF*** Sets the background term b in (F);
+%***SIRF*** set_background_term(bt) sets the background term b in (F);
 %         bt:  an AcquisitionData object containing b.
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
                 'additive_term', bt, 'h');
         end
         function set_normalisation(self, bin_eff)
-%***SIRF*** Sets the normalisation n in (F);
+%***SIRF*** set_normalisation(bin_eff) sets the normalisation n in (F);
 %         bin_eff:  an AcquisitionData object containing bin efficiencies
 %                   (the inverse of n).
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
                 'additive_term', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
-%***SIRF*** Prepares this object for performing forward and backward
-%         projections;
+%***SIRF*** set_up(acq_templ, img_templ) prepares this object for performing 
+%         forward and backward projections;
 %         acq_templ:  an AcquisitionData object used as a template for
 %                     creating an AcquisitionData object to store forward
 %                     projection;
@@ -81,7 +81,8 @@ classdef AcquisitionModel < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image, filename)
-%***SIRF*** Returns the forward projection of x given by (F);
+%***SIRF*** forward(image, filename) returns the forward projection of x 
+%         given by (F);
 %         image   :  an ImageData object containing x;
 %         filename:  an optional name of the file to store projection data;
 %                    if not present, projection data is stored in memory
@@ -95,7 +96,7 @@ classdef AcquisitionModel < handle
             mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
         end
         function image = backward(self, ad)
-%***SIRF*** Returns the backward projection of y giben by (B);
+%***SIRF*** backward(ad) returns the backward projection of y given by (B);
 %         ad:  an AcquisitionData object containing y.
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...

@@ -66,7 +66,8 @@ classdef ObjectiveFunction < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function v = value(self, image)
-%***SIRF*** Returns the value of this objective function on <image>.
+%***SIRF*** Returns the value of this objective function on the specified
+%         image.
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus...
@@ -76,8 +77,8 @@ classdef ObjectiveFunction < handle
         end
         function g = gradient(self, image, subset)
 %***SIRF*** Returns the value of the additive component of the gradient of this 
-%         objective function on <image> corresponding to a given <subset>
-%         (see set_num_subsets() method).
+%         objective function on the specified image corresponding to the
+%         specified subset (see method set_num_subsets()).
             g = mStir.ImageData();
             g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle, image.handle, subset);

@@ -29,7 +29,7 @@ classdef MessageRedirector < handle
     end
     methods
         function self = MessageRedirector(info, warn, errr)
-%         Creates new MessageRedirector object.
+%         MessageRedirector(info, warn, errr) creates a MessageRedirector object.
 %         All arguments are either 'stdout' (default, messages are printed
 %         in Matlab Command Window) or filenames.
 %         info: destination for messages printed by STIR function info

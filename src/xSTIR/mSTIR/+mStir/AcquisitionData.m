@@ -25,8 +25,8 @@ classdef AcquisitionData < handle
     end
     methods
         function self = AcquisitionData(arg)
-%         Creates new AcquisitionData object from a file or another
-%         AcquisitionData object;
+%         AcquisitionData(arg) creates new AcquisitionData object 
+%         from a file or another AcquisitionData object;
 %         arg:  file name or AcquisitionData object.
             self.handle = [];
             self.name = 'AcquisitionData';
@@ -61,10 +61,9 @@ classdef AcquisitionData < handle
             mUtil.checkExecutionStatus(self.name, self.handle);
         end
         function image = create_uniform_image(self, value)
-%***SIRF*** Creates ImageData object containing PET image of dimensions
-%         and voxel sizes compatible with the scanner geometry stored
-%         in this AcquisitionData object and assigns a given value
-%         to all voxels;
+%***SIRF*** create_uniform_image(value) creates ImageData object containing 
+%         PET image of dimensions and voxel sizes compatible with the scanner 
+%         geometry stored in self and assigns the specified value at all voxels;
 %         value: a double.
             image = mStir.ImageData();
             image.handle = calllib...
@@ -91,7 +90,7 @@ classdef AcquisitionData < handle
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function fill(self, value)
-%***SIRF*** Fills the object with values;
+%***SIRF*** fill(value) fills the object with values;
 %         value: double or array of doubles or an AcquisitionData object
             if isempty(self.handle)
                 error([self.name ':fill'], ...
@@ -119,8 +118,9 @@ classdef AcquisitionData < handle
             ad.fill(self)
         end
         function ad = get_uniform_copy(self, value)
-%***SIRF*** Returns a true copy of this object (not Python handle)
-%         filled with a given double value.
+%***SIRF*** get_uniform_copy(value) returns a true copy of this object 
+%         (not Matlab handle) filled with the specified value;
+%         value: Matlab double
             if nargin < 2
                 value = 0;
             end

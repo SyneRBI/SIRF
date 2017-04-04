@@ -35,12 +35,12 @@ classdef RayTracingMatrix < handle
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)
         end
-        function set_num_tangential_LORs(self, value)
+        function set_num_tangential_LORs(self, num)
 %***SIRF*** Set the number of LORs (or rays) for each bin in the sinogram.
 %         They are currently (approximately) parallel and spaced in the
 %         tangential direction (i.e. orthogonal to the axial direction).
             mStir.setParameter...
-                (self.handle, self.name, 'num_tangential_LORs', value, 'i')
+                (self.handle, self.name, 'num_tangential_LORs', num, 'i')
         end
 %         function value = get_num_tangential_LORs(self)
 %             value = mStir.parameter...

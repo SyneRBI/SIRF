@@ -1,6 +1,10 @@
-function obj_fun = make_Poisson_loglikelihood(ad, model)
-%     Selects the objective function based on the acquisition data and 
-%     acquisition model types.
+function obj_fun = make_Poisson_loglikelihood(acq_data, features)
+% Creates objective function.
+% make_Poisson_loglikelihood(acq_data, features) returns the objective 
+% function that works with acquisition data of the same kind as the first 
+% argument and has features specified by the second argument;
+% acq_data: AcquisitionData object
+% features: Matlab string
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -21,5 +25,5 @@ function obj_fun = make_Poisson_loglikelihood(ad, model)
 % limitations under the License.
 
     obj_fun = mStir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
-    obj_fun.set_acquisition_data(ad);
+    obj_fun.set_acquisition_data(acq_data);
 end
