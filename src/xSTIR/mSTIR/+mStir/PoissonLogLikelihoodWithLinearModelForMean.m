@@ -31,11 +31,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
             end
         end
         function set_sensitivity_filename(self, name)
+%***SIRF*** Specifies the file with the sensitivity data to be used.
             mStir.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'sensitivity_filename', name, 'c')
         end
         function set_use_subset_sensitivities(self, value)
+%***SIRF*** Specifies whether the subset sensitivity data is to be used.
             if value
                 str = 'true';
             else
@@ -46,6 +48,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
                 'use_subset_sensitivities', str, 'c')
         end
         function set_recompute_sensitivity(self, value)
+%***SIRF*** Specifies whether the subset sensitivity data must be re-computed.
             if value
                 str = 'true';
             else
@@ -56,6 +59,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
                 'recompute_sensitivity', str, 'c')
         end
         function sens = get_subset_sensitivity(self, subset)
+%***SIRF*** Returns the specified subset sensitivity data as ImageData.
             sens = mStir.ImageData();
             sens.handle = calllib('mstir', 'mSTIR_subsetSensitivity',...
                 self.handle, subset);
@@ -65,6 +69,8 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
         end
         function bar = get_backprojection_of_acquisition_ratio...
                 (self, image, subset)
+%***SIRF*** Returns the backprojection of the ratio of measured to estimated
+%         acquisition data
             bar = mStir.ImageData();
             bar.handle = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...

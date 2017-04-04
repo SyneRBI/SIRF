@@ -24,6 +24,7 @@ classdef EllipticCylinder < mStir.Shape
     end
     methods
         function self = EllipticCylinder()
+%         Creates an EllipticCylinder object.
             self.name = 'EllipsoidalCylinder';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
         end
@@ -34,12 +35,15 @@ classdef EllipticCylinder < mStir.Shape
             end
         end
         function set_length(self, value)
+%***SIRF*** Sets the length (height) of the cylinder.
             mStir.setParameter(self.handle, self.name, 'length', value, 'f')
         end
         function value = get_length(self)
+%***SIRF*** Returns the length (height) of the cylinder.
             value = mStir.parameter(self.handle, self.name, 'length', 'f');
         end
         function set_radii(self, r)
+%***SIRF*** Sets the radii of the cylinder.
             mStir.setParameter(self.handle, self.name, 'radius_x', r(1), 'f')
             mStir.setParameter(self.handle, self.name, 'radius_y', r(2), 'f')
         end

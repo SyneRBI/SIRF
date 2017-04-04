@@ -118,6 +118,7 @@ classdef ImageData < handle
             image.fill(value)
         end
         function read_from_file(self, filename)
+%***SIRF*** Reads the image data from a file.
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
             end
@@ -126,6 +127,8 @@ classdef ImageData < handle
             mUtil.checkExecutionStatus('ImageData:read_from_file', self.handle);
         end
         function add_shape(self, shape, scale)
+%***SIRF*** Adds a uniform shape to the image: the value of image at voxels 
+%         inside the added shape is increased by the value of the last argument.
             if isempty(self.handle)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
@@ -136,6 +139,10 @@ classdef ImageData < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function diff = diff_from(self, image)
+%***SIRF*** Returns the relative difference between self and the image
+%         specified by the last argument, i.e. the maximal difference at
+%         voxels of common containing box divided by the maximum value
+%         of self.
             h = calllib('mstir', 'mSTIR_imagesDifference',...
                      self.handle, image.handle, self.rimsize);
             mUtil.checkExecutionStatus('ImageData:diff_from', h);

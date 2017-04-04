@@ -39,10 +39,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
             self.handle = [];
         end
         function set_input_filename(self, filename)
+%***SIRF*** Specifies the raw data file.
             mStir.setParameter(self.handle, self.name,...
                 'input_filename', filename, 'c')
         end
         function set_zero_seg0_end_planes(self, flag)
+%***SIRF*** Specifies whether the end planes of segment 0 of the acquisition 
+%         data must be zeroed.
             if flag
                 str = 'true';
             else
@@ -52,6 +55,8 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 'zero_seg0_end_planes', str, 'c') 
         end
         function set_max_segment_num_to_process(self, n)
+%***SIRF*** Restricts the range of the acquisition data segments to be used
+%         to [-n, n].
             mStir.setParameter(self.handle, self.name, ...
                 'max_segment_num_to_process', n, 'i') 
         end

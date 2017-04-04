@@ -52,6 +52,7 @@ classdef AcquisitionData < handle
             end
         end
         function read_from_file(self, filename)
+%***SIRF*** Reads acquisition data from a file
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
             end
