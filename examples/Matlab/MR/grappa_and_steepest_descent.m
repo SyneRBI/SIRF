@@ -74,7 +74,8 @@ refined_image_data = image_data - grad*tau;
 image_array = image_data.as_array();
 refined_image_array = refined_image_data.as_array();
 title = 'Reconstructed image data (magnitude)';
-mUtil.show_3D_array(abs(image_array), title, 'slice')
+mUtil.show_3D_array(abs(image_array), title, 'samples', 'readouts', 'slice')
 title = 'Refined image data (magnitude)';
-mUtil.show_3D_array(abs(refined_image_array), title, 'slice')
+mUtil.show_3D_array...
+    (abs(refined_image_array), title, 'samples', 'readouts', 'slice')
 

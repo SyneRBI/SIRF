@@ -93,9 +93,9 @@ fprintf('Value of same array element after replacement with 10x data: %f\n', ...
 acq_array = permute(acq_array, [1 3 2]);
 processed_array = permute(processed_array, [1 3 2]);
 title = 'Acquisition data (magnitude)';
-mUtil.show_3D_array(abs(acq_array), title, 'coil');
+mUtil.show_3D_array(abs(acq_array), title, 'samples', 'readouts', 'coil');
 title = 'Processed acquisition data (magnitude)';
-mUtil.show_3D_array(abs(processed_array), title, 'coil');
+mUtil.show_3D_array(abs(processed_array), title, 'samples', 'readouts', 'coil');
 
 end
 

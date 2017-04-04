@@ -85,5 +85,6 @@ real_image_data = img_proc.process(complex_image_data);
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-mUtil.show_3D_array(abs(real_image_data.as_array()), title, 'slice');
+mUtil.show_3D_array(abs(real_image_data.as_array()), title, ...
+    'samples', 'readouts', 'slice');
 

@@ -82,7 +82,9 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     image_array = image_data.as_array();
     title = 'Reconstructed image data (magnitude)';
-    mUtil.show_3D_array(abs(image_array(:,:,1:2:end)), title, 'slice');
+    mUtil.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
+        'samples', 'readouts', 'slice');
     title = 'Reconstructed image data (imaginary part)';
-    mUtil.show_3D_array(abs(image_array(:,:,2:2:end)), title, 'slice');
+    mUtil.show_3D_array(abs(image_array(:,:,2:2:end)), title, ...
+        'samples', 'readouts', 'slice');
 end

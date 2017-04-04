@@ -173,9 +173,9 @@ else
     image_array = abs(image_array);
     gfact_array = abs(gfact_array);
     title = 'Reconstructed image data (magnitude)';
-    mUtil.show_3D_array(image_array, title, 'slice');
+    mUtil.show_3D_array(image_array, title, 'samples', 'readouts', 'slice');
     title = 'G-factor data (magnitude)';
-    mUtil.show_3D_array(gfact_array, title, 'slice');
+    mUtil.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
 end
 
 
