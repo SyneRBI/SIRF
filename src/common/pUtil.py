@@ -109,7 +109,8 @@ def show_2D_array(title, array, colorbar = True):
 
 def show_3D_array\
     (array, tile_shape = None, scale = None, \
-     suptitle = None, titles = None, label = None, show = True):
+     suptitle = None, titles = None, label = None, \
+     xlabel = None, ylabel = None, show = True):
     import math
     import numpy
     if tile_shape is None:
@@ -143,7 +144,18 @@ def show_3D_array\
                 ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
         else:
             ax.set_title(titles[z])
-        ax.set_axis_off()
+        row = z//cols
+        col = z - row*cols
+        if xlabel is None and ylabel is None or row < rows - 1 or col > 0:
+            ax.set_axis_off()
+        else:
+            ax.set_axis_on()
+            if xlabel is not None:
+                plt.xlabel(xlabel)
+                plt.xticks([0, nx - 1], [1, nx])
+            if ylabel is not None:
+                plt.ylabel(ylabel)
+                plt.yticks([0, ny - 1], [1, ny])
         imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
     fignums = plt.get_fignums()
     print('Close Figure %d window to continue' % fignums[-1])

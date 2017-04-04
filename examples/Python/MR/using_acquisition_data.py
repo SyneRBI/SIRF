@@ -134,7 +134,8 @@ def main():
 
     processed_acq_array = numpy.transpose(processed_acq_array,(1,2,0))
     title = 'Acquisition data (magnitude)'
-    show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil')
+    show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil', \
+                  ylabel = 'samples', xlabel = 'readouts')
 
 try:
     main()

@@ -107,9 +107,11 @@ def main():
 
     # show reconstructed and refined images
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice', show = False)
+    show_3D_array(abs(image_array), suptitle = title, label = 'slice', \
+                  xlabel = 'samples', ylabel = 'readouts', show = False)
     title = 'Refined image data (magnitude)'
-    show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice')
+    show_3D_array(abs(refined_image_array), suptitle = title, label = 'slice', \
+                  xlabel = 'samples', ylabel = 'readouts')
 
 try:
     main()
