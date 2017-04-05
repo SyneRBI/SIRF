@@ -100,5 +100,5 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     mUtil.show_3D_array...
         (abs(image_data.as_array()), 'Image data (magnitude)', ...
-        'samples', 'readouts', 'slice')
+        'x (FE)', 'y (PE)', 'slice')
 end
