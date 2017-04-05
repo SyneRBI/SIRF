@@ -25,10 +25,13 @@ classdef AcquisitionModel < handle
         name_
     end
     methods
-        function self = AcquisitionModel(acqs, imgs)
+        function self = AcquisitionModel(acq_template, img_template)
+ %        AcquisitionModel(acq_template, img_template) creates an MR
+ %        acquisition model based on specified two templates of types
+ %        AcquisitionData and ImageData respectively.
             self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
-                acqs.handle_, imgs.handle_);
+                acq_template.handle_, img_template.handle_);
             mUtil.checkExecutionStatus(self.name_, self.handle_);
         end
         function delete(self)
@@ -38,28 +41,27 @@ classdef AcquisitionModel < handle
             self.handle_ = [];
         end
         function set_coil_sensitivity_maps(self, csms)
-%         Specifies the coil sensitivity maps to be used by the model.
-%         csm: CoilSensitivityData
+%***SIRF*** The coil sensitivity maps specified by a CoilSensitivityData
+%         argument are to be used by the model.
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
             mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function acqs = forward(self, imgs)
-%         Projects an image into (simulated) acquisitions space.
-%         The resulting acquisition data simulates the actual data
+        function acqs = forward(self, image)
+%***SIRF*** Returns the estimated acquisition data for the image 
+%         specified by an ImageData argument simulating the actual data
 %         expected to be received from the scanner.
-%         image: ImageData
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
-                self.handle_, imgs.handle_);
+                self.handle_, image.handle_);
             mUtil.checkExecutionStatus(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
-%         Back-projects acquisition data into image space using a complex
+%***SIRF*** Back-projects the acquisition data specified by the argument
+%         of AcquisitionData type into image space using a complex
 %         transpose of the forward projection.
-%         ad: AcquisitionData
             imgs = mGadgetron.ImageData();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...

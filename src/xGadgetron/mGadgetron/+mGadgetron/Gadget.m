@@ -1,4 +1,5 @@
 classdef Gadget < handle
+% ADVANCED USERS ONLY. 
 % Class for Gadgetron gadgets.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -25,8 +26,10 @@ classdef Gadget < handle
     end
     methods
         function self = Gadget(fullname)
-%         Creates a gadget of specified type and properties.
-%         name: a string of the form gadget_type(property1=value1, ...)
+%         Creates a gadget of type and properties specified by the argument,
+%         a Matlab string of the form 
+%             'gadget_type[(property1=value1[, ...])]'
+%         (square brackets embrace optional items, ... stands for etc.).
             [name, prop] = mUtil.name_and_parameters(fullname);
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', name);
             mUtil.checkExecutionStatus(name, self.handle_);
@@ -40,21 +43,22 @@ classdef Gadget < handle
                 calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
-        function set_property(self, prop, value)
-%         Assigns specified value to specified gadget property.
-%         prop : property name (string)
-%         value: property value (string)
+        function set_property(self, property, value)
+%***SIRF*** set_property(property, value) assigns specified value to 
+%         specified gadget property.
+%         property: property name (Matlab char string)
+%         value   : property value (Matlab char string)
             handle = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
-                self.handle_, prop, value);
+                self.handle_, property, value);
             mUtil.checkExecutionStatus(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function set_properties(self, prop)
-%         Assigns specified values to specified gadget properties.
-%         prop: a string with comma-separated list of property value assignments 
-%               prop_name=prop_value
+        function set_properties(self, properties)
+%***SIRF*** Assigns specified values to specified gadget properties.
+%         The argument is a Matlab char string with comma-separated list 
+%         of property value assignments 'prop_name=prop_value[, ...]'.
             handle = calllib('mgadgetron', 'mGT_setGadgetProperties', ...
-                self.handle_, prop);
+                self.handle_, properties);
             mUtil.checkExecutionStatus(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end

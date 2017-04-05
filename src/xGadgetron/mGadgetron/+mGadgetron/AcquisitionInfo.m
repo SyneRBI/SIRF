@@ -1,4 +1,5 @@
 classdef AcquisitionInfo < handle
+% INTERNAL USE ONLY.
 % Class for acquisition information parameters.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

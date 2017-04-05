@@ -1,4 +1,5 @@
 classdef Acquisition < handle
+% INTERNAL USE ONLY.
 % Class for the ISMRMRD acquisition object.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

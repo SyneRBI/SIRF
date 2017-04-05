@@ -1,5 +1,4 @@
 classdef Reconstructor < mGadgetron.GadgetChain
-% Reconstructor 
 % Class for reconstructing images using Gadgetron 
 % 
 % Reconstructor Methods:
@@ -32,10 +31,14 @@ classdef Reconstructor < mGadgetron.GadgetChain
     end
     methods
         function self = Reconstructor(list)
-        % Accepts a cell array of gadget names as input to form the Gadgetron chain.
-        % Each element of list is a string of the form 
-        % 'LABEL:gadget_name' with the 'LABEL:' optional. Use of a label
-        % enables subsequent setting of gadget property using set_gadget_property
+%         Creates an image processor chain defined by an optional argument,
+%         a Matlab cell array of gadget descriptions, each description 
+%         being a Matlab string of the form
+%             '[label:]gadget_name[(property1=value1[,...])]'
+%         (square brackets embrace optional items, ... stands for etc.)
+%         If no argument is present, the empty chain is created.
+%         The use of labels enables subsequent setting of gadget properties 
+%         using set_gadget_property(label, property, value).
             self.name_ = 'ImagesReconstructor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
@@ -55,12 +58,12 @@ classdef Reconstructor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function set_input(self, input_data)
-         % set_input - Sets the Acquisition Data used for the recon
-         % See also PROCESS
+%***SIRF*** Sets the specified AcquisitionData argument as the input.
+%         See also PROCESS
             self.input_ = input_data;
         end
         function process(self)
-        % process - Calls the Gadgetron
+%***SIRF*** Calls the Gadgetron.
             if isempty(self.input_)
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
@@ -72,7 +75,9 @@ classdef Reconstructor < mGadgetron.GadgetChain
             mUtil.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
-        % get_output - Returns ImageData?
+%***SIRF*** get_output(subset) returns the reconstructed image data 
+%         as an ImageData object;
+%         subset: either 'image' or 'gfactor'
             images = self.images_;
             if nargin > 1
                 images = images.select('GADGETRON_DataRole', subset);

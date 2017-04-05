@@ -1,4 +1,5 @@
 classdef DataContainer < handle
+% INTERNAL USE ONLY.
 % Class for an abstract data container.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

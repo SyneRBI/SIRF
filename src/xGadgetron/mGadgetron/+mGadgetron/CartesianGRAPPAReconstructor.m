@@ -23,6 +23,7 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
     end
     methods
         function self = CartesianGRAPPAReconstructor()
+%         Creates Cartesian GRAPPA Reconstructor.
             self.name_ = 'SimpleGRAPPAReconstructionProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
@@ -36,6 +37,8 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
             self.handle_ = [];
         end
         function compute_gfactors(self, flag)
+%***SIRF*** Switches the computation of G-factors during the reconstruction
+%         on (flag = true) or off (flag = false).
             self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
         end
     end

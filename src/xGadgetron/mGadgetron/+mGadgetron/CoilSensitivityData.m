@@ -1,7 +1,7 @@
 classdef CoilSensitivityData < mGadgetron.DataContainer
 % Class for a coil sensitivity maps (csm) container.
-% Each item in the container is a 4D complex array of csm values on an 
-% xyz-slice (z-dimension is normally 1).
+% Each item in the container is a 4D (x-y-z-coils) complex array of csm 
+% values for all coils on an xyz-slice (z-dimension is normally 1).
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -31,6 +31,7 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
     end
     methods
         function self = CoilSensitivityData()
+%         Creates an empty object.
             self.name_ = 'CoilSensitivityData';
             self.handle_ = [];
         end
@@ -41,8 +42,8 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
             end
         end
         function calculate(self, acqs)
-%         Calculates coil sensitivity maps from sorted acquisitions.
-%         acqs: AcquisitionData
+%***SIRF*** Calculates coil sensitivity maps from sorted acquisitions
+%         specified by an AcquisitionData argument.
             if ~acqs.is_sorted()
                 fprintf('WARNING: acquisitions may be in a wrong order\n')
             end
@@ -57,8 +58,8 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = csm_as_array(self, csm_num)
-%         Returns specified csm as an array of .
-%         csm_num: csm (slice) number
+%***SIRF*** Returns the coil sensitivity map specified by the argument 
+%         as a 4D (x-y-z-coils) complex array.
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
                 ('mgadgetron', 'mGT_getImageDimensions', ...

@@ -24,11 +24,14 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
     end
     methods
         function self = AcquisitionDataProcessor(list)
-%         Creates an acquisition processor specified by a list of gadgets.
-%         list: Matlab cell array of gadget descriptions, each gadget 
-%               description being a string of the form
-%                 '[label:]gadget_name[(property1=value1[,...])]'
-%               (square brackets embrace optional items, ... stands for etc.)
+%         Creates an acquisition processor chain defined by an optional argument,
+%         a Matlab cell array of gadget descriptions, each description 
+%         being a Matlab string of the form
+%             '[label:]gadget_name[(property1=value1[,...])]'
+%         (square brackets embrace optional items, ... stands for etc.)
+%         If no argument is present, the empty chain is created.
+%         The use of labels enables subsequent setting of gadget properties 
+%         using set_gadget_property(label, property, value).
             self.name_ = 'AcquisitionDataProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
@@ -47,8 +50,8 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function acqs = process(self, input_data)
-%         Returns the output from the chain for specified input.
-%         input_data: AcquisitionData
+%***SIRF*** Returns the output from the chain for the input specified by
+%         the agrument of type AcquisitionData.
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...

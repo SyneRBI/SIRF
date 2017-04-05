@@ -1,4 +1,5 @@
 classdef ClientConnector < handle
+% ADVANCED USERS ONLY. 
 % Class for Gadgetron client connector.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
