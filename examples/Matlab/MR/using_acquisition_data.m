@@ -41,9 +41,6 @@ fprintf('%d acquisitions (readouts) found\n', na)
 fprintf('sorting acquisitions...\n')
 acq_data.sort()
 
-% dimensions of k-space for one slice?
-[ns, ny, nc] = acq_data.slice_dimensions();
-
 % dimensions method returns size of all (i.e. including noise data) if 
 % argument is passed in or if 'all' is passed in. Passing in anything else
 % means not all !!

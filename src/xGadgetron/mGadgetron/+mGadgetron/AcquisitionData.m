@@ -36,6 +36,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
     end
     methods
         function self = AcquisitionData(filename)
+%         Creates an AcquisitionData object optionally filling it with data
+%         from an HDF5 file.
             self.name_ = 'AcquisitionData';
             self.handle_ = [];
             self.sorted_ = false;
@@ -53,7 +55,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             end
         end
         function sort(self)
-%         Sorts acquisitions with respect to (in this order):
+%***SIRF*** Sorts acquisitions with respect to (in this order):
 %             - repetition
 %             - slice
 %             - kspace_encode_step_1
@@ -68,9 +70,13 @@ classdef AcquisitionData < mGadgetron.DataContainer
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
+%***SIRF*** Returns true if acquisitions of this object are sorted
+%         and false otherwise.
             sorted = self.sorted_;
         end
         function set_info(self)
+%***SIRF*** Fills the acquisition info array (a property of this class)
+%         with values.
             na = self.number();
             self.info_(na) = mGadgetron.AcquisitionInfo;
             for ia = 1 : na
@@ -83,41 +89,47 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 self.info_(ia) = info;
             end
         end
-        function info = get_info(self, par)
+        function info = get_info(self, info_type)
+%***SIRF*** Returns an array of acquisitions info of the specified type.
+%         Currently implemented types are: 
+%         - flags
+%         - encode_step_1
+%         - slice
+%         - repetition
             if isempty(self.info_)
                 self.set_info()
             end
             na = self.number();
             info = zeros(na, 1);
-            if strcmp(par, 'flags')
+            if strcmp(info_type, 'flags')
                 for a = 1 : na
                     info(a) = self.info_(a).flags_;
                 end
-            elseif strcmp(par, 'encode_step_1')
+            elseif strcmp(info_type, 'encode_step_1')
                 for a = 1 : na
                     info(a) = self.info_(a).encode_step_1_;
                 end
-            elseif strcmp(par, 'slice')
+            elseif strcmp(info_type, 'slice')
                 for a = 1 : na
                     info(a) = self.info_(a).slice_;
                 end
-            elseif strcmp(par, 'repetition')
+            elseif strcmp(info_type, 'repetition')
                 for a = 1 : na
                     info(a) = self.info_(a).repetition_;
                 end
             end
         end
         function a = process(self, list)
-            % Returns acquisitions processed by a chain of gadgets.
-            % The argument is a cell array of gadget definitions
-            % [{gadget1_definition}, {gadget2_definition}, ...],
-            % where gadget definitions are strings of the form
-            % 'label:name(property1=value1,property2=value2,...)',
-            % where the only mandatory field is name, the Gadgetron 
-            % name of the gadget. An optional expression in round 
-            % brackets can be used to assign values to gadget properties,
-            % and an optional label can be used to change the labelled
-            % gadget properties after the chain has been defined.
+%***SIRF*** Returns acquisitions processed by a chain of gadgets.
+%         The argument is a cell array of gadget definitions
+%         [{gadget1_definition}, {gadget2_definition}, ...],
+%         where gadget definitions are strings of the form
+%         'label:name(property1=value1,property2=value2,...)',
+%         where the only mandatory field is name, the Gadgetron 
+%         name of the gadget. An optional expression in round 
+%         brackets can be used to assign values to gadget properties,
+%         and an optional label can be used to change the labelled
+%         gadget properties after the chain has been defined.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
@@ -126,9 +138,10 @@ classdef AcquisitionData < mGadgetron.DataContainer
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)
-            % Finds number of samples, coils and acquisitions.
-            % If the argument is supplied that is not 'all', then
-            % non-image related acquisitions are ignored.
+%***SIRF*** Returns the numbers of samples, coils and acquisitions in this
+%         AcquisitionData object.
+%         If the argument is supplied that is not 'all', then non-image 
+%         related acquisitions (noise calibration etc.) are ignored.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
@@ -156,8 +169,9 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
         end
         function data = as_array(self, select)
-            % Returns 3D complex array containing acquisition data.
-            % The dimensions are those returned by dimensions().
+%***SIRF*** as_array(select) returns this object's  acquisition data 
+%         as 3D complex.
+%         The dimensions are those returned by dimensions(select).
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
@@ -184,7 +198,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             data = re + 1i*im;
         end
         function fill(self, data)
-            % Changes acquisition data to that provided by 3D array argument.
+%***SIRF*** Changes acquisition data to that in 3D complex array argument.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
                     'cannot handle empty object')
@@ -199,43 +213,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
             mUtil.checkExecutionStatus('AcquisitionData', h);
             calllib('mutilities', 'mDeleteDataHandle', self.handle_)
             self.handle_ = h;
-        end
-        function [ns, ny, nc] = slice_dimensions(self)
-            if isempty(self.handle_)
-                error('AcquisitionData:empty_object', ...
-                    'cannot handle empty object')
-            end
-            ptr_i = libpointer('int32Ptr', ones(16, 1));
-            calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
-                self.handle_, ptr_i);
-            dim = ptr_i.Value;
-            ns = dim(1);
-            nc = dim(2);
-            ny = dim(3);
-        end
-        function data = slice_as_array(self, num)
-            if isempty(self.handle_)
-                error('AcquisitionData:empty_object', ...
-                    'cannot handle empty object')
-            end
-            ptr_i = libpointer('int32Ptr', ones(16, 1));
-            calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsDimensions', ...
-                self.handle_, ptr_i);
-            dim = ptr_i.Value;
-            ns = dim(1);
-            nc = dim(2);
-            ny = dim(3);
-            n = ns*nc*ny;
-            ptr_re = libpointer('doublePtr', zeros(n, 1));
-            ptr_im = libpointer('doublePtr', zeros(n, 1));
-            calllib...
-                ('mgadgetron', 'mGT_getAcquisitionsData', ...
-                self.handle_, num - 1, ptr_re, ptr_im);
-            re = reshape(ptr_re.Value, ns, ny, nc);
-            im = reshape(ptr_im.Value, ns, ny, nc);
-            data = re + 1i*im;
         end
     end
 end

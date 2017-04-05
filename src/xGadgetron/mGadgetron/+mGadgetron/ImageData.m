@@ -39,45 +39,49 @@ classdef ImageData < mGadgetron.DataContainer
                 self.handle_ = [];
             end
         end
-        function write(self, file, group)
-%***SIRF*** write(file, group) writes this image to a file in HDF5 format;
-%         file : file name (Matlab char string)
-%         group: group name (Matlab char string)
+        function write(self, file, dataset)
+%***SIRF*** write(file, dataset) writes this image to a file in HDF5 format;
+%         file   : file name (Matlab char string)
+%         dataset: dataset name (Matlab char string)
             if isempty(self.handle_)
                 error('ImageData:empty_object', ...
                     'cannot handle empty object')
             end
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
-                self.handle_, file, group);
+                self.handle_, file, dataset);
             mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
-        function images = select(self, attr, value)
-            % Returns images with given value of given attribute.
+        function images = select(self, attribute, value)
+%***STIR*** select(attribute, value) returns a subset of this image data 
+%         with the specified value of the specified attribute;
+%         attribute: attribute name (Matlab char string)
+%         value    : attribute value (Matlab char string)
             if isempty(self.handle_)
                 error('ImageData:empty_object', ...
                     'cannot handle empty object')
             end
             images = mGadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
-                self.handle_, attr, value);
+                self.handle_, attribute, value);
             mUtil.checkExecutionStatus(self.name_, images.handle_);
         end
         function images = process(self, list)
-            % Returns images processed by a chain of gadgets.
-            % The argument is a cell array of gadget definitions
-            % [{gadget1_definition}, {gadget2_definition}, ...],
-            % where gadget definitions are strings of the form
-            % 'label:name(property1=value1,property2=value2,...)',
-            % where the only mandatory field is name, the Gadgetron 
-            % name of the gadget. An optional expression in round 
-            % brackets can be used to assign values to gadget properties,
-            % and an optional label can be used to change the labelled
-            % gadget properties after the chain has been defined.
+%***SIRF*** process(list) returns images processed by a chain of gadgets.
+%             The argument is a cell array of gadget definitions
+%             [{gadget1_definition}, {gadget2_definition}, ...],
+%             where gadget definitions are strings of the form
+%             'label:name(property1=value1,property2=value2,...)',
+%             where the only mandatory field is name, the Gadgetron 
+%             name of the gadget. An optional expression in round 
+%             brackets can be used to assign values to gadget properties,
+%             and an optional label can be used to change the labelled
+%             gadget properties after the chain has been defined.
             ip = mGadgetron.ImageDataProcessor(list);
             images = ip.process(self);
         end
         function ft = is_real(self)
+%***SIRF*** Returns true if this image data is real and false otherwise.
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
             mUtil.checkExecutionStatus(self.name_, handle);
@@ -86,7 +90,9 @@ classdef ImageData < mGadgetron.DataContainer
             ft = (v ~= 7 && v ~= 8);
         end
         function data = as_array(self)
-            % Returns 3D complex array representing 3D image.
+%***SIRF*** Returns 3D complex array representing this image data.
+%         First two dimensions are x and y, the third is a product of all
+%         other dimensions (z/slice/repetition etc.).
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             if self.number() > 0
                 calllib('mgadgetron', 'mGT_getImageDimensions', ...
@@ -115,7 +121,7 @@ classdef ImageData < mGadgetron.DataContainer
             end
         end
         function show(self)
-            % Plots 2D images (slices).
+%***SIRF*** Interactively plots this image data as a set of 2D image slices.
             ni = self.number();
             if ni < 1
                 return
@@ -124,8 +130,8 @@ classdef ImageData < mGadgetron.DataContainer
             if ~self.is_real()
                 data = abs(data);
             end
-            data = data/max(max(max(data)));
-            fprintf('Please enter the number of the image to view\n')
+            data = data/max(data(:));
+            fprintf('Please enter the number of the image slice to view\n')
             fprintf('(a value outside the range [1 : %d] will stop this loop)\n', ni)
             while true
                 i = input('image: ');

@@ -36,23 +36,22 @@ classdef DataContainer < handle
             end
         end
         function num = number(self)
-%         Returns the number of items in the container.
+%***SIRF*** Returns the number of items in this container.
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
             mUtil.checkExecutionStatus('DataContainer', handle);
             num = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function r = norm(self)
-%         Returns the 2-norm of the container data viewed as a vector.
+%***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
             mUtil.checkExecutionStatus('DataContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, other)
-%         Returns the dot product of the container data with another container 
-%         data viewed as vectors.
-%         other: DataContainer
+%***SIRF*** Returns the dot product of this data container with another data 
+%         container viewed as vectors.
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
             mUtil.checkExecutionStatus('DataContainer', handle);
@@ -62,19 +61,18 @@ classdef DataContainer < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = minus(self, other)
-%         Overloads - for data containers.
-%         Returns the difference of the container data with another container 
-%         data viewed as vectors.
-%         other: DataContainer
+%***SIRF*** Overloads - for data containers.
+%         Returns the difference of this data container with another data
+%         container viewed as vectors.
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
         end
         function z = mtimes(self, other)
-%         Overloads * for data containers multiplication by a scalar or
-%         another data container. Returns the product self*other if other is 
-%         a scalar or the dot product with other if it is a data container.
-%         other: Datacontainer or a (real or complex) scalar
+%***SIRF*** mtimes(other) overloads * for data containers multiplication by 
+%         a scalar or another data container. 
+%         Returns the product self*other if other is a scalar or the dot 
+%         product with other if it is a data container.
             if isobject(other)
                 z = self.dot(other);
             elseif isreal(other)
@@ -91,7 +89,8 @@ classdef DataContainer < handle
     end
     methods(Static)
         function z = axpby(a, x, b, y)
-%         Returns a linear combination a*x + b*y of two containers x and y.
+%***SIRF*** axpby(a, x, b, y) returns a linear combination a*x + b*y of two 
+%         data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
             z = self.same_object();
