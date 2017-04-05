@@ -23,7 +23,7 @@ classdef ImageData < mGadgetron.DataContainer
         name_
     end
     methods (Static)
-        function obj = same_object(self)
+        function obj = same_object()
             obj = mGadgetron.ImageData();
         end
     end
@@ -40,7 +40,9 @@ classdef ImageData < mGadgetron.DataContainer
             end
         end
         function write(self, file, group)
-            % Writes images to a file in HDF5 format.
+%***SIRF*** write(file, group) writes this image to a file in HDF5 format;
+%         file : file name (Matlab char string)
+%         group: group name (Matlab char string)
             if isempty(self.handle_)
                 error('ImageData:empty_object', ...
                     'cannot handle empty object')
