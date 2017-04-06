@@ -23,7 +23,7 @@ WINDOWS
 
 Start CMake GUI.
 
-Click Confugure.
+Click Configure.
 
 Click Generate.
 
