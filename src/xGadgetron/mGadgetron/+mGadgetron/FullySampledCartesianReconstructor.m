@@ -1,5 +1,5 @@
 classdef FullySampledCartesianReconstructor < mGadgetron.Reconstructor
-% Class for a simple fully sampled MR data reconstructor.
+% Class for a fully sampled Cartesian MR data reconstructor.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
