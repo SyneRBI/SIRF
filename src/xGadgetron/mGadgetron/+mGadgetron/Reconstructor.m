@@ -63,7 +63,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
             self.input_ = input_data;
         end
         function process(self)
-%***SIRF*** Calls the Gadgetron.
+%***SIRF*** Calls Gadgetron.
             if isempty(self.input_)
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
@@ -75,7 +75,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
             mUtil.checkExecutionStatus(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
-%***SIRF*** get_output(subset) returns the reconstructed image data 
+%***SIRF*** get_output(subset) returns the results of the image reconstruction 
 %         as an ImageData object;
 %         subset: either 'image' or 'gfactor'
             images = self.images_;
