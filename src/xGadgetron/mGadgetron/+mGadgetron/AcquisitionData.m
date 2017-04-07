@@ -1,6 +1,6 @@
 classdef AcquisitionData < mGadgetron.DataContainer
 % Class for MR acquisitions data.
-% Each item in the container is a 2D complex array of acquisition 
+% Each item in the container is a complex array of acquisition 
 % samples for each coil.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -70,13 +70,14 @@ classdef AcquisitionData < mGadgetron.DataContainer
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
-%***SIRF*** Returns true if acquisitions of this object are sorted
+%***SIRF*** Returns true if acquisitions if this object is sorted
 %         and false otherwise.
             sorted = self.sorted_;
         end
         function set_info(self)
 %***SIRF*** Fills the acquisition info array (a property of this class)
-%         with values.
+%         with information on the data acquisition (e.g. type of data 
+%         (noise, image,..), k-space location, slice number,...)           
             na = self.number();
             self.info_(na) = mGadgetron.AcquisitionInfo;
             for ia = 1 : na
@@ -169,8 +170,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
         end
         function data = as_array(self, select)
-%***SIRF*** as_array(select) returns this object's  acquisition data 
-%         as 3D complex.
+%***SIRF*** as_array(select) returns this object's acquisition data 
+%         as 3D complex array.
 %         The dimensions are those returned by dimensions(select).
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
