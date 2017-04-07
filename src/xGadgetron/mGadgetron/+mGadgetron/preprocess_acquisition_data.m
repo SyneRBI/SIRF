@@ -1,6 +1,9 @@
 function prep_data = preprocess_acquisition_data(input_data)
-% Applies NoiseAdjust, AsymmetricEchoAdjust and RemoveROOversampling
-% gadgets.
+% The following pre-processing steps are carried out:
+%   - Noise prewhitening (NoiseAdjustGadget)
+%   - Compensate for asymmetric echo acquisition (AsymmetricEchoAdjustROGadget) 
+%   - Remove oversampling along acquisition direction (RemoveROOversamplingGadget)
+
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
