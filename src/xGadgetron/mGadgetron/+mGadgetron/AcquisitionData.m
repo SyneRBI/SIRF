@@ -70,7 +70,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
-%***SIRF*** Returns true if acquisitions of this object is sorted
+%***SIRF*** Returns true if acquisitions of this object are sorted
 %         and false otherwise.
             sorted = self.sorted_;
         end
