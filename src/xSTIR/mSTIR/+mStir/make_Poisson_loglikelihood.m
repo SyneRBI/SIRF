@@ -1,10 +1,10 @@
-function obj_fun = make_Poisson_loglikelihood(acq_data, features)
-% Creates objective function.
-% make_Poisson_loglikelihood(acq_data, features) returns the objective 
-% function that works with acquisition data of the same kind as the first 
-% argument and has features specified by the second argument;
+function obj_fun = make_Poisson_loglikelihood(acq_data)
+% Creates an objective function for data with Poisson noise.
+% Usage: 
+%     obj_func = make_Poisson_loglikelihood(acq_data);
 % acq_data: AcquisitionData object
-% features: Matlab string
+% returns an objective function appropriate for the 
+% specified acquisition data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.

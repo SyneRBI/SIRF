@@ -66,13 +66,13 @@ try
     eps = 1.0e-6; % single precision round-off error level
     tau = 0.3; % steepest ascent step size
     
-    v = obj_fun.value(image);
+    v = obj_fun.get_value(image);
     fprintf('initial objective function value: %e\n', v);
     
     for iter = 1 : 3
 
         % obtain the gradient for subset 0
-        grad = obj_fun.gradient(image, 0);
+        grad = obj_fun.get_subset_gradient(image, 0);
         filter.apply(grad)
         % zero the gradient outside the cylindric FOV
         grad_array = grad.as_array();
@@ -133,7 +133,7 @@ try
 
     end
 
-    v = obj_fun.value(image);
+    v = obj_fun.get_value(image);
     fprintf('attained objective function value: %e\n', v);
     
 catch err

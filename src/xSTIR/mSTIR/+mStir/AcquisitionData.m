@@ -52,7 +52,7 @@ classdef AcquisitionData < handle
             end
         end
         function read_from_file(self, filename)
-%***SIRF*** Reads acquisition data from a file
+%***SIRF*** Reads acquisition data from a file.
             if ~isempty(self.handle)
                 calllib('mutilities', 'mDeleteDataHandle', self.handle)
             end
@@ -61,9 +61,11 @@ classdef AcquisitionData < handle
             mUtil.checkExecutionStatus(self.name, self.handle);
         end
         function image = create_uniform_image(self, value)
-%***SIRF*** create_uniform_image(value) creates ImageData object containing 
-%         PET image of dimensions and voxel sizes compatible with the scanner 
-%         geometry stored in self and assigns the specified value at all voxels;
+%***SIRF*** create_uniform_image(value) creates compatible ImageData object.
+%         The created object contains PET image of dimensions and voxel sizes 
+%         compatible with the scanner or its model used to produce the
+%         acquisition data in self.
+%         The specified value, if present, is assigned at all image voxels.
 %         value: a double.
             image = mStir.ImageData();
             image.handle = calllib...
@@ -91,7 +93,9 @@ classdef AcquisitionData < handle
         end
         function fill(self, value)
 %***SIRF*** fill(value) fills the object with values;
-%         value: double or array of doubles or an AcquisitionData object
+%         value: double or array of doubles (of the same dimensions and data
+%                order as the one returned by as_array() method) or an 
+%                AcquisitionData object.
             if isempty(self.handle)
                 error([self.name ':fill'], ...
                     'AcquisitionData object not initialized')
@@ -113,7 +117,7 @@ classdef AcquisitionData < handle
             end
         end
         function ad = clone(self)
-%***SIRF*** Returns a true copy of this object (not Python handle).
+%***SIRF*** Returns a true copy of this object (not Matlab handle).
             ad = mStir.AcquisitionData(self);
             ad.fill(self)
         end

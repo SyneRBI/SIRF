@@ -1,6 +1,6 @@
 classdef ObjectiveFunction < handle
-% Class for the objective function maximized by the iterative reconstruction
-% algorithms.
+% Class for the objective function 
+% maximized by the iterative reconstruction algorithms.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -49,11 +49,12 @@ classdef ObjectiveFunction < handle
                 ('GeneralisedObjectiveFunction:get_prior', prior.handle)
         end
         function set_num_subsets(self, num)
-%***SIRF*** Sets the number of subsets of ray projections to be used for computing
-%         additive components of the gradient used by Ordered Subset algorithms
-%         for maximizing this objective function.
-%         Assuming for simplicity of illustration that the ray tracing projector G
-%         is a matrix, the subsets in question are subsets of its rows.
+%***SIRF*** Sets the number of subsets of ray projections to be used 
+%         for computing additive components of the gradient used by 
+%         Ordered Subset algorithms for maximizing this objective function.
+%         Assuming for simplicity of illustration that the ray tracing 
+%         projector G is a matrix, the subsets in question correspond to
+%         subsets of its rows.
             mStir.setParameter...
                 (self.handle, 'GeneralisedObjectiveFunction', ...
                 'num_subsets', num, 'i')
@@ -65,9 +66,9 @@ classdef ObjectiveFunction < handle
             mUtil.checkExecutionStatus('GeneralisedObjectiveFunction:set_up', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function v = value(self, image)
-%***SIRF*** Returns the value of this objective function on the specified
-%         image.
+        function v = get_value(self, image)
+%***SIRF*** Returns the value of this objective function 
+%         on the specified image.
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus...
@@ -75,15 +76,24 @@ classdef ObjectiveFunction < handle
             v = calllib('mutilities', 'mFloatDataFromHandle', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function g = gradient(self, image, subset)
-%***SIRF*** Returns the value of the additive component of the gradient of this 
-%         objective function on the specified image corresponding to the
-%         specified subset (see method set_num_subsets()).
+        function g = get_subset_gradient(self, image, subset)
+%***SIRF*** Returns the value of the additive component of the gradient 
+%         of this objective function on the specified image corresponding 
+%         to the specified subset (see method set_num_subsets()).
+            if nargin < 3
+                subset = -1;
+            end
             g = mStir.ImageData();
             g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle, image.handle, subset);
             mUtil.checkExecutionStatus...
                 ('GeneralisedObjectiveFunction:gradient', g.handle)
+        end
+        function g = get_gradient(self, image)
+%***SIRF*** Returns the gradient of the objective function 
+%         on the specified image.
+%         image: ImageData object
+            g = self.get_subset_gradient(image);
         end
     end
 end

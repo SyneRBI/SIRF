@@ -35,11 +35,16 @@ classdef Reconstructor < handle
             end
         end
         function set_output_filename_prefix(self, prefix)
-%***SIRF*** set_output_filename_prefix(prefix) specifies the file naming 
-%         for the ouput files containing image estimates.
-%         Each file will be named [prefix '_' iter_num], where iter_num is
-%         the number of the iteration at which the respective image
-%         estimate was saved to this file.
+%***SIRF*** Specifies the naming for the output files.
+%         This method sets the prefix that is used to determine the
+%         filename for output files with the image estimates at
+%         different sub-iterations.
+%         Usage: 
+%             recon.set_output_filename_prefix(prefix);
+%         prefix: string with prefix of filename.
+%                 Each file will be named [prefix '_' subiter_num], 
+%                 where subiter_num is the number of the sub-iteration 
+%                 at which the respective image estimate was saved.
             mStir.setParameter(self.handle, self.R, 'output_filename_prefix',...
                 prefix, 'c')
         end

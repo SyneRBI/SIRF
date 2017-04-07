@@ -90,38 +90,38 @@ classdef IterativeReconstructor < mStir.Reconstructor
                 self.IR, 'subiteration_num', 'i');
         end
         function set_save_interval(self, n)
-%***SIRF*** Sets the saving interval size: size 1 means the iterated 
-%         approximate image must be saved to a file every iteration, 
-%         size 2 every other iteration etc.
+%***SIRF*** Sets the saving interval size. 
+%         Size 1 means the iterated approximate image must be saved to 
+%         a file every iteration, size 2 every other iteration etc.
             mStir.setParameter(self.handle,...
                 self.IR, 'save_interval', n, 'i')
         end
-        function set_inter_iteration_filter_interval(self, n)
-%***SIRF*** Sets the filtering interval size: size 1 means the iterated 
-%         approximate image must be filtered every iteration, size 2 every 
-%         other iteration etc.
-            mStir.setParameter(self.handle, self.IR,...
-                'inter_iteration_filter_interval', n, 'i')
-        end
+%         function set_inter_iteration_filter_interval(self, n)
+% %***SIRF*** Sets the filtering interval size: size 1 means the iterated 
+% %         approximate image must be filtered every iteration, size 2 every 
+% %         other iteration etc.
+%             mStir.setParameter(self.handle, self.IR,...
+%                 'inter_iteration_filter_interval', n, 'i')
+%         end
         function set_objective_function(self, obj_fun)
 %***SIRF*** Sets the objective function to be maximized.
             mStir.setParameter(self.handle, self.IR,...
                 'objective_function', obj_fun, 'h')
         end
-        function set_inter_iteration_filter(self, filter)
-%***SIRF*** Sets the filter to be applied at intervals specified by current
-%         setting for inter-iteration filter interval.
-            mStir.setParameter(self.handle, self.IR,...
-                'inter_iteration_filter_type', filter, 'h')
-        end
-        function filter = get_inter_iteration_filter(self)
-%***SIRF*** Returns the inter-iteration filter currently in use.
-            filter = mStir.DataProcessor();
-            filter.handle = calllib('mstir', 'mSTIR_parameter',...
-                self.handle, self.IR, 'inter_iteration_filter_type');
-            mUtil.checkExecutionStatus...
-                ([self.IR ':get_inter_iteration_filter'], filter.handle)
-        end
+%         function set_inter_iteration_filter(self, filter)
+% %***SIRF*** Sets the filter to be applied at intervals specified by current
+% %         setting for inter-iteration filter interval.
+%             mStir.setParameter(self.handle, self.IR,...
+%                 'inter_iteration_filter_type', filter, 'h')
+%         end
+%         function filter = get_inter_iteration_filter(self)
+% %***SIRF*** Returns the inter-iteration filter currently in use.
+%             filter = mStir.DataProcessor();
+%             filter.handle = calllib('mstir', 'mSTIR_parameter',...
+%                 self.handle, self.IR, 'inter_iteration_filter_type');
+%             mUtil.checkExecutionStatus...
+%                 ([self.IR ':get_inter_iteration_filter'], filter.handle)
+%         end
         function set_up(self, image)
 %***SIRF*** Prepares the reconstructor for use.
 %         The argumant is an ImageData object used as a template for the
@@ -144,8 +144,9 @@ classdef IterativeReconstructor < mStir.Reconstructor
             image = self.image;
         end
         function update_current_estimate(self)
-%***SIRF*** Updates the current image estimate by performing one iteration
-%         on the current subspace.
+%***SIRF*** Updates the current image estimate.
+%         This uses data from the current subset to update the current 
+%         estimate, i.e. it performs one sub-iteration.
             if isempty(self.image)
                 error([self.IR ':update_current_image'], ...
                     'current estimate not set')
@@ -156,7 +157,8 @@ classdef IterativeReconstructor < mStir.Reconstructor
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function process(self)
-%***SIRF*** Reconstruct the image by applying currently set range of
+%***SIRF*** Reconstruct the image 
+%         by applying currently set range of
 %         iterations to the current image estimate.
             if isempty(self.image)
                 error([self.IR ':process'], 'current estimate not set')
@@ -167,15 +169,16 @@ classdef IterativeReconstructor < mStir.Reconstructor
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function update(self, image)
-%***SIRF*** Updates the image estimate specified by the argument by 
-%         performing one iteration on the current subspace.
+%***SIRF*** Updates the image estimate specified by the argument 
+%         by performing one iteration on the current subspace.
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, image.handle);
             mUtil.checkExecutionStatus([self.IR ':update'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function reconstruct(self, image)
-%***SIRF*** Reconstruct the image by applying currently set range of
+%***SIRF*** Reconstruct the image 
+%         by applying currently set range of
 %         iterations to the image estimate specified by the argument.
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);

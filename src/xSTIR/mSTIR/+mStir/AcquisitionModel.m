@@ -1,12 +1,13 @@
 classdef AcquisitionModel < handle
-%     Class for a PET acquisition model that relates an image x to the
-%     acquisition data y as
+%     Class for PET acquisition model objects.
+%     Relates an image x to the simulated acquisition data y as
 %     (F)    y = [1/n](G x + [a]) + [b]
 %     where:
 %     G is the geometric (ray tracing) projector from the image voxels
 %     to the scanner's pairs of detectors (bins);
-%     a and b are otional additive and background terms representing
-%     the effects of noise and scattering; assumed to be 0 if not present;
+%     a and b are optional additive and background terms representing
+%     the effects of accidental coincidences and scattering; assumed to be 
+%     0 if not present;
 %     n is an optional bin normalization term representing the inverse of
 %     detector (bin) efficiencies; assumed to be 1 if not present.
 %     The computation of y for a given x by the above formula (F) is
@@ -67,8 +68,11 @@ classdef AcquisitionModel < handle
                 'additive_term', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
-%***SIRF*** set_up(acq_templ, img_templ) prepares this object for performing 
-%         forward and backward projections;
+%***SIRF*** sets up the object with appropriate geometric information.
+%         This function needs to be called before performing forward or 
+%         backward projections;
+%         Usage: 
+%             set_up(acq_templ, img_templ);
 %         acq_templ:  an AcquisitionData object used as a template for
 %                     creating an AcquisitionData object to store forward
 %                     projection;
@@ -81,12 +85,17 @@ classdef AcquisitionModel < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image, filename)
-%***SIRF*** forward(image, filename) returns the forward projection of x 
-%         given by (F);
+%***SIRF*** computes the forward projection of ImageData
+%         by the formula (F) given in the main class documentation.
+%         Usage: 
+%             acq_data = forward(image, filename);
 %         image   :  an ImageData object containing x;
-%         filename:  an optional name of the file to store projection data;
+%         filename:  an optional name of the file to store the projection data;
 %                    if not present, projection data is stored in memory
-%                    (not recommended as it can be huge).
+%                    (careful as it can be very large);
+%                    if present, the returned acq_data object will refer to 
+%                    the data in a newly created file (any existing file 
+%                    with the same name will be overwritten without warning).
             if nargin < 3
                 filename = '';
             end
@@ -96,7 +105,8 @@ classdef AcquisitionModel < handle
             mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
         end
         function image = backward(self, ad)
-%***SIRF*** backward(ad) returns the backward projection of y given by (B);
+%***SIRF*** backward(ad) returns the backward projection of ad
+%         (y in (B));
 %         ad:  an AcquisitionData object containing y.
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
