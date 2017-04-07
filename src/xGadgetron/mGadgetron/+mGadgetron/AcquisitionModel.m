@@ -1,6 +1,6 @@
 classdef AcquisitionModel < handle
-% Class for MR acquisition model, an operator that maps images into
-% simulated acquisitions.
+% Class for MR acquisition model, an operator that describes the 
+% transformation (encoding) between image data and MR acquisitions 
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -27,7 +27,7 @@ classdef AcquisitionModel < handle
     methods
         function self = AcquisitionModel(acq_template, img_template)
  %        AcquisitionModel(acq_template, img_template) creates an MR
- %        acquisition model based on specified two templates of types
+ %        acquisition model based on two specified templates of types
  %        AcquisitionData and ImageData respectively.
             self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
