@@ -1,7 +1,7 @@
 classdef CoilSensitivityData < mGadgetron.DataContainer
 % Class for a coil sensitivity maps (csm) container.
-% Each item in the container is a 4D (x-y-z-coils) complex array of csm 
-% values for all coils on an xyz-slice (z-dimension is normally 1).
+% Each item in the container is a 3D (x-y-z) complex array of csm 
+% values for each coil.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
