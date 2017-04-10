@@ -50,12 +50,12 @@ classdef ImageData < handle
                 arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
 %***SIRF*** Sets this image size in voxels, voxel sizes in mm and the origin.
 %         All arguments except the first one are optional.
-%         Present arguments are either all scalars or all tuples.
-%         The first tuple argument or three scalar arguments set the image
+%         Present arguments are either all scalars or all 3-component arrays.
+%         The first array argument or three scalar arguments set the image
 %         sizes in voxels.
-%         The second tuple argument or three scalar arguments set the voxel
+%         The second array argument or three scalar arguments set the voxel
 %         sizes in mm (if absent, sizes default to (1,1,1)).
-%         The third tuple argument or three scalar arguments set the origin
+%         The third array argument or three scalar arguments set the origin
 %         (if absent, defaults to (0,0,0)).
             vsize = [1 1 1];
             origin = [0 0 0];
