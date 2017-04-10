@@ -1,5 +1,6 @@
 classdef RayTracingMatrix < handle
-% Class for objects holding sparse matrix representation of the ray
+% Class for ray tracing matrix objects 
+% holding sparse matrix representation of the ray
 % tracing projector G (see AcquisitionModel class).
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

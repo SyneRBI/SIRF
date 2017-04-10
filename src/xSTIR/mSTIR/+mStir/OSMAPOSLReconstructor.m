@@ -1,6 +1,6 @@
 classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
-% Class for reconstructor objects using Ordered Subsets Maximum A Posteriori 
-% One Step Late reconstruction algorithm, see
+% Class for reconstructor objects using OSMAPOSL algorithm.
+% OSMAPOSL stands for Ordered Subsets Maximum A Posteriori One Step Late, see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -26,8 +26,8 @@ classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
     end
     methods
         function self = OSMAPOSLReconstructor(filename)
-%         Creates OSMAPOSL reconstruction.
-%         An optional parameter provides the name of the Interfile setting
+%         Creates an OSMAPOSL reconstructor object.
+%         The optional parameter provides the name of the Interfile setting
 %         the parameters of reconstruction.
             self.name = 'OSMAPOSL';
             if nargin < 1

@@ -11,10 +11,9 @@ classdef AcquisitionModel < handle
 %     n is an optional bin normalization term representing the inverse of
 %     detector (bin) efficiencies; assumed to be 1 if not present.
 %     The computation of y for a given x by the above formula (F) is
-%     referred to as forward projection, and the computation of
-%     (B)    z = G' m y
-%     where G' is the transpose of G and m = 1/n, is referred to as 
-%     backward projection.
+%     referred to as (forward) projection, and the computation of
+%     (B)    z = G' [1/n] y
+%     where G' is the transpose of G, is referred to as backprojection.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -69,15 +68,15 @@ classdef AcquisitionModel < handle
         end
         function set_up(self, acq_templ, img_templ)
 %***SIRF*** sets up the object with appropriate geometric information.
-%         This function needs to be called before performing forward or 
-%         backward projections;
+%         This function needs to be called before performing forward- or 
+%         backprojections;
 %         Usage: 
 %             set_up(acq_templ, img_templ);
 %         acq_templ:  an AcquisitionData object used as a template for
 %                     creating an AcquisitionData object to store forward
 %                     projection;
 %         img_templ:  an ImageData object used as a template for creating an
-%                     ImageData object to store backward projection.
+%                     ImageData object to store backprojection.
             h = calllib...
                 ('mstir', 'mSTIR_setupAcquisitionModel',...
                 self.handle, acq_templ.handle, img_templ.handle);
@@ -85,8 +84,8 @@ classdef AcquisitionModel < handle
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image, filename)
-%***SIRF*** computes the forward projection of ImageData
-%         by the formula (F) given in the main class documentation.
+%***SIRF*** computes the forward projection of ImageData by the formula (F)
+%         given in the main class documentation.
 %         Usage: 
 %             acq_data = forward(image, filename);
 %         image   :  an ImageData object containing x;
@@ -105,8 +104,7 @@ classdef AcquisitionModel < handle
             mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
         end
         function image = backward(self, ad)
-%***SIRF*** backward(ad) returns the backward projection of ad
-%         (y in (B));
+%***SIRF*** backward(ad) returns the backprojection of ad (y in (B));
 %         ad:  an AcquisitionData object containing y.
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...

@@ -1,6 +1,5 @@
 classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
-% Class for the image filter that zeroes the image outside the cylinder
-% of the same xy-diameter and z-size as those of the image.
+% Class for the image filter that zeroes the image outside a cylinder.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -22,6 +21,11 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
 
     methods
         function self = TruncateToCylinderProcessor()
+%         Creates a TruncateToCylinderProcessor object.
+%         The application of this processor to an image zeroes its values
+%         outside the vertical cylinder inscribed into the image's bounding 
+%         box. The treatment of values on the cylinder boundary is
+%         defined by set_strictly_less_than_radius() method.
             self.name = 'TruncateToCylindricalFOVImageProcessor';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
         end
@@ -32,7 +36,8 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
             end
         end
         function set_strictly_less_than_radius(self, flag)
-%***SIRF*** set_strictly_less_than_radius(flag) specifies whether the area
+%***SIRF*** Defines the filter behaviour on the boundary of the cylinder.
+%         set_strictly_less_than_radius(flag) specifies whether the area
 %         not affected by filtering is strictly inside the cylinder 
 %         (flag = True) or not (flag = False).
             if flag
@@ -45,7 +50,8 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
                 'strictly_less_than_radius', str, 'c')
         end
         function flag = get_strictly_less_than_radius(self)
-%***SIRF*** Returns the answer to the question: Is the area not affected by 
+%***SIRF*** Exposes the filter behaviour on the boundary of the cylinder.
+%         Returns the answer to the question: Is the area not affected by 
 %         filtering strictly inside the cylinder?
             flag = mStir.parameter(self.handle,...
                 'TruncateToCylindricalFOVImageProcessor',...

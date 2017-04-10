@@ -1,7 +1,6 @@
 classdef AcquisitionModelUsingRayTracingMatrix < ...
         mStir.AcquisitionModelUsingMatrix
-% Class for PET acquisition model with the geometric projection G
-% represented by a ray tracing matrix
+% Class for PET acquisition model using the ray tracing projection matrix.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -25,8 +24,8 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
     end
     methods
         function self = AcquisitionModelUsingRayTracingMatrix(matrix)
-%         Creates an AcquisitionModelUsingRayTracingMatrix object, optionally 
-%         setting the ray tracing matrix to be used for projecting;
+%         Creates an AcquisitionModelUsingRayTracingMatrix object.
+%         The optional argument sets the ray tracing matrix to be used;
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);

@@ -25,8 +25,8 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
     end
     methods
         function self = AcquisitionModelUsingMatrix(matrix)
-%         Creates an AcquisitionModelUsingMatrix object, optionally setting
-%         the ray tracing matrix to be used for projecting;
+%         Creates an AcquisitionModelUsingMatrix object.
+%         The optional argument sets the projection matrix to be used.
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
@@ -44,9 +44,8 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
             end
         end
         function set_matrix(self, matrix)
-%***SIRF*** set_matrix(matrix) sets the ray tracing matrix to be used for 
-%         projecting;
-%         matrix:  a RayTracingMatrix object to represent G in (F).
+%***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
+%         matrix:  a projection matrix object to represent G in (F).
             mStir.setParameter...
                 (self.handle, self.name, 'matrix', matrix, 'h')
         end

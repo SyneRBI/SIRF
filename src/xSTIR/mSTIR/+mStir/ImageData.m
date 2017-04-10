@@ -126,15 +126,16 @@ classdef ImageData < handle
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
             mUtil.checkExecutionStatus('ImageData:read_from_file', self.handle);
         end
-        function add_shape(self, shape, scale)
-%***SIRF*** Adds a uniform shape to the image: the value of image at voxels 
-%         inside the added shape is increased by the value of the last argument.
+        function add_shape(self, shape, add)
+%***SIRF*** Adds a uniform shape to the image. 
+%         The image values at voxels inside the added shape are increased 
+%         by the value of the last argument.
             if isempty(self.handle)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle,...
-                shape.handle, scale);
+                shape.handle, add);
             mUtil.checkExecutionStatus('ImageData:add_shape', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end

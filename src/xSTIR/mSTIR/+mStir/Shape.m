@@ -1,6 +1,6 @@
 classdef Shape < handle
-% Class for an abstract geometric shape used as a building block for
-% creating phantom images.
+% Class for an abstract geometric shape.
+% Objects of this class are used as building blocks for creating phantom images.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.

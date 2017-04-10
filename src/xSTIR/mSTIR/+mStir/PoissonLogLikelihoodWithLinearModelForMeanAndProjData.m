@@ -48,8 +48,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 'input_filename', filename, 'c')
         end
         function set_zero_seg0_end_planes(self, flag)
-%***SIRF*** Specifies whether the end planes of segment 0 of the acquisition 
-%         data must be zeroed.
+%***SIRF*** Specifies whether the end planes of raw data segment 0 must be zeroed.
             if flag
                 str = 'true';
             else
@@ -59,7 +58,8 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 'zero_seg0_end_planes', str, 'c') 
         end
         function set_max_segment_num_to_process(self, n)
-%***SIRF*** set_max_segment_num_to_process(n) restricts the range of the 
+%***SIRF*** Limits the range of the acquisition data segments to be used.
+%         set_max_segment_num_to_process(n) restricts the range of the 
 %         acquisition data segments to be used to [-n, n].
             mStir.setParameter(self.handle, self.name, ...
                 'max_segment_num_to_process', n, 'i') 

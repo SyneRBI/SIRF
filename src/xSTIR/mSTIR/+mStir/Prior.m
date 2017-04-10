@@ -1,6 +1,7 @@
 classdef Prior < handle
-% Class for objects handling the prior: a penalty term to be added to the
-% objective function maximized by iterative reconstruction algorithms.
+% Class for objects handling the prior.
+% The prior is a penalty term added to the objective function maximized 
+% by iterative reconstruction algorithms.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.

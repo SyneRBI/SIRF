@@ -1,6 +1,5 @@
 classdef ObjectiveFunction < handle
-% Class for the objective function 
-% maximized by the iterative reconstruction algorithms.
+% Class for the iterative reconstruction algorithms objective function.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
