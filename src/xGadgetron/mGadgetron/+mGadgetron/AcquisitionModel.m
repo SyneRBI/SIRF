@@ -1,6 +1,7 @@
 classdef AcquisitionModel < handle
-% Class for MR acquisition model, an operator that describes the 
-% transformation (encoding) between image data and MR acquisitions 
+% Class for MR acquisition model.
+% The MR acquisition model describes the transformation (encoding) 
+% of image data into MR acquisitions 
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -26,9 +27,9 @@ classdef AcquisitionModel < handle
     end
     methods
         function self = AcquisitionModel(acq_template, img_template)
- %        AcquisitionModel(acq_template, img_template) creates an MR
- %        acquisition model based on two specified templates of types
- %        AcquisitionData and ImageData respectively.
+ %        AcquisitionModel(acq_templ, img_templ) creates an MR acquisition model 
+ %        based on two specified templates of types AcquisitionData and ImageData 
+ %        respectively.
             self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acq_template.handle_, img_template.handle_);
@@ -41,17 +42,16 @@ classdef AcquisitionModel < handle
             self.handle_ = [];
         end
         function set_coil_sensitivity_maps(self, csms)
-%***SIRF*** The coil sensitivity maps specified by a CoilSensitivityData
-%         argument are to be used by the model.
+%***SIRF*** Instructs to use the coil sensitivity maps specified by the argument
+%         (a CoilSensitivityData object).
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
             mUtil.checkExecutionStatus(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, image)
-%***SIRF*** Returns the estimated acquisition data for the image 
-%         specified by an ImageData argument simulating the actual data
-%         expected to be received from the scanner.
+%***SIRF*** Returns the forward projection of the specified ImageData argument
+%         simulating the actual data expected to be received from the scanner.
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
@@ -59,7 +59,7 @@ classdef AcquisitionModel < handle
             mUtil.checkExecutionStatus(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
-%***SIRF*** Back-projects the acquisition data specified by the argument
+%***SIRF*** Backprojects the acquisition data specified by the argument
 %         of AcquisitionData type into image space using a complex
 %         transpose of the forward projection.
             imgs = mGadgetron.ImageData();

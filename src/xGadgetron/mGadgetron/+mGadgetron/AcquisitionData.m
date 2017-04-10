@@ -36,8 +36,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
     end
     methods
         function self = AcquisitionData(filename)
-%         Creates an AcquisitionData object optionally filling it with data
-%         from an HDF5 file.
+%         Creates an AcquisitionData object, optionally from a raw data file
+%         in HDF5 format.
             self.name_ = 'AcquisitionData';
             self.handle_ = [];
             self.sorted_ = false;
@@ -139,8 +139,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
             a = ap.process(self);
         end
         function [ns, nc, na] = dimensions(self, select)
-%***SIRF*** Returns the numbers of samples, coils and acquisitions in this
-%         AcquisitionData object.
+%***SIRF*** Returns the numbers of samples, coils and acquisitions 
+%         in this AcquisitionData object.
 %         If the argument is supplied that is not 'all', then non-image 
 %         related acquisitions (noise calibration etc.) are ignored.
             if isempty(self.handle_)
@@ -170,8 +170,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
         end
         function data = as_array(self, select)
-%***SIRF*** as_array(select) returns this object's acquisition data 
-%         as 3D complex array.
+%***SIRF*** as_array(select) returns an array with this object's data 
+%         (a 3D complex array).
 %         The dimensions are those returned by dimensions(select).
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...

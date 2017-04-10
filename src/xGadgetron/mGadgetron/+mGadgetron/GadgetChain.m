@@ -37,8 +37,8 @@ classdef GadgetChain < handle
             end
         end
         function add_reader(self, id, reader)
-%***SIRF*** add_reader(id, reader) adds reader gadget (a gadget that 
-%         receives data from the client) to the chain.
+%***SIRF*** add_reader(id, reader) appends the chain with a reader gadget 
+%         (a gadget that receives data from the client).
 %         id    : gadget id (Matlab string)
 %         reader: gadget of reader type (Gadget)
             handle = calllib...
@@ -47,8 +47,8 @@ classdef GadgetChain < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_writer(self, id, writer)
-%***SIRF*** add_writer(id, writer) adds writer gadget (a gadget that 
-%         sends data to the client) to the chain.
+%***SIRF*** add_writer(id, writer) appends the chain with a writer gadget 
+%         (a gadget that sends data to the client).
 %         id    : gadget id (Matlab string)
 %         writer: gadget of writer type (Gadget)
             handle = calllib...
@@ -66,11 +66,10 @@ classdef GadgetChain < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_gadget_property(self, id, property, value)
-%***SIRF*** set_gadget_property(id, property, value) assigns specified 
-%         value to specified gadget property.
-%         id      : gadget id
-%         property: property name (Matlab string)
-%         value   : property value
+%***SIRF*** set_gadget_property(id, prop, val) assigns value to gadget property.
+%         id   : gadget id
+%         prop : property name (Matlab string)
+%         value: property value
             if ischar(value)
                 v = value;
             elseif islogical(value)
@@ -92,8 +91,8 @@ classdef GadgetChain < handle
             calllib('mutilities', 'mDeleteDataHandle', hv)
         end
         function v = get_gadget_property(self, id, property)
-%***SIRF*** get_gadget_property(id, property) returns the Matlab string 
-%         representation of the value of specified property.
+%***SIRF*** get_gadget_property(id, prop) returns the value of the property
+%         represented as a Matlab string;
 %         id      : gadget id
 %         property: property name (Matlab string)
             hg = calllib('mgadgetron', 'mGT_parameter', ...

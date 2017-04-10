@@ -44,10 +44,9 @@ classdef Gadget < handle
             end
         end
         function set_property(self, property, value)
-%***SIRF*** set_property(property, value) assigns specified value to 
-%         specified gadget property.
-%         property: property name (Matlab char string)
-%         value   : property value (Matlab char string)
+%***SIRF*** set_property(prop, value) assigns value to specified gadget property.
+%         prop : property name (Matlab char string)
+%         value: property value (Matlab char string)
             handle = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 self.handle_, property, value);
             mUtil.checkExecutionStatus(self.name_, handle)

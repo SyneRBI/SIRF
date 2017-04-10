@@ -1,4 +1,5 @@
 function prep_data = preprocess_acquisition_data(input_data)
+% Pre-process the acquisition data specified by the argument.
 % The following pre-processing steps are carried out:
 %   - Noise prewhitening (NoiseAdjustGadget)
 %   - Compensate for asymmetric echo acquisition (AsymmetricEchoAdjustROGadget) 

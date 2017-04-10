@@ -59,7 +59,7 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
         end
         function data = csm_as_array(self, csm_num)
 %***SIRF*** Returns the coil sensitivity map specified by the argument 
-%         as a 4D (x-y-z-coils) complex array.
+%         as a 4D (x-y-z-coil) complex array.
             ptr_i = libpointer('int32Ptr', zeros(4, 1));
             calllib...
                 ('mgadgetron', 'mGT_getImageDimensions', ...

@@ -50,8 +50,9 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function acqs = process(self, input_data)
-%***SIRF*** Returns the output from the chain for the input specified by
-%         the agrument of type AcquisitionData.
+%***SIRF*** Returns the output from the chain 
+%         for the input specified by the agrument.
+%         both input and output are of type AcquisitionData.
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...

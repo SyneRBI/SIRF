@@ -51,8 +51,8 @@ classdef DataContainer < handle
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, other)
-%***SIRF*** Returns the dot product of this data container with another data 
-%         container viewed as vectors.
+%***SIRF*** Returns the dot product of this data container with another one 
+%         viewed as vectors.
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
             mUtil.checkExecutionStatus('DataContainer', handle);
@@ -63,15 +63,15 @@ classdef DataContainer < handle
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
-%         Returns the difference of this data container with another data
-%         container viewed as vectors.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
         end
         function z = mtimes(self, other)
-%***SIRF*** mtimes(other) overloads * for data containers multiplication by 
-%         a scalar or another data container. 
+%***SIRF*** mtimes(other) overloads * for data containers multiplication 
+%         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
             if isobject(other)
@@ -90,8 +90,8 @@ classdef DataContainer < handle
     end
     methods(Static)
         function z = axpby(a, x, b, y)
-%***SIRF*** axpby(a, x, b, y) returns a linear combination a*x + b*y of two 
-%         data containers x and y;
+%***SIRF*** axpby(a, x, b, y) returns a linear combination a*x + b*y 
+%         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
             z = self.same_object();

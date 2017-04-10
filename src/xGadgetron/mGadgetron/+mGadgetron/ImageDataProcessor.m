@@ -49,8 +49,8 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
             self.handle_ = [];
         end
         function images = process(self, input_data)
-%***SIRF*** Returns the output from the chain for the input specified by
-%         the agrument of type ImageData.
+%***SIRF*** Returns the output from the chain for the specified input.
+%         Both the input and the output are of type ImageData.
             images = mGadgetron.ImageData();
             images.handle_ = calllib...
                 ('mgadgetron', 'mGT_processImages', ...
