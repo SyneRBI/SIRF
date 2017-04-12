@@ -26,13 +26,13 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
 %         outside the vertical cylinder inscribed into the image's bounding 
 %         box. The treatment of values on the cylinder boundary is
 %         defined by set_strictly_less_than_radius() method.
-            self.name = 'TruncateToCylindricalFOVImageProcessor';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+            self.name_ = 'TruncateToCylindricalFOVImageProcessor';
+            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name_);
         end
         function delete(self)
-            if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                self.handle_ = [];
             end
         end
         function set_strictly_less_than_radius(self, flag)
@@ -45,7 +45,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
             else
                 str = 'false';
             end
-            mStir.setParameter(self.handle,...
+            mStir.setParameter(self.handle_,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', str, 'c')
         end
@@ -53,7 +53,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
 %***SIRF*** Exposes the filter behaviour on the boundary of the cylinder.
 %         Returns the answer to the question: Is the area not affected by 
 %         filtering strictly inside the cylinder?
-            flag = mStir.parameter(self.handle,...
+            flag = mStir.parameter(self.handle_,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', 'i');
         end

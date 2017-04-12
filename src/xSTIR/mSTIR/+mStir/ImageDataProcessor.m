@@ -20,24 +20,48 @@ classdef ImageDataProcessor < handle
 % limitations under the License.
 
     properties
-        name
-        handle
+        name_
+        handle_
+        input_
+        output_
     end
     methods
         function self = ImageDataProcessor()
-            self.handle = [];
+            self.handle_ = [];
+            self.input_ = [];
+            self.output_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+            if ~isempty(self.handle_)
+                calllib('mutilities', 'mDeleteDataHandle', self.handle_)
             end
         end
         function apply(self, image)
-%***SIRF*** Applies this filter to the specified image.
+%***SIRF*** Processes the specified image.
             h = calllib('mstir', 'mSTIR_applyDataProcessor',...
-                self.handle, image.handle);
+                self.handle_, image.handle);
             mUtil.checkExecutionStatus('DataProcessor:apply', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function set_input(self, input)
+%***SIRF*** Sets the input data.
+            self.input_ = input;
+        end
+        function output = process(self, input)
+%***SIRF*** Copies the input and processes the copy.
+            if nargin > 1
+                self.set_input(input)
+            end
+            if isempty(self.input_)
+                error('ImageDataProcessor:input', 'input not set')
+            end
+            output = self.input_.clone();
+            self.apply(output)
+            self.output_ = output;
+        end
+        function output = get_output(self)
+%***SIRF*** Returns the processed data.
+            output = self.output_;
         end
     end
 end

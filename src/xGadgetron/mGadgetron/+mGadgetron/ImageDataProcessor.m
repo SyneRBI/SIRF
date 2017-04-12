@@ -20,6 +20,8 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
 % limitations under the License.
 
     properties
+        input_
+        output_
     end
     methods
         function self = ImageDataProcessor(list)
@@ -41,6 +43,8 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
+            self.input_ = [];
+            self.output_ = [];
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -48,14 +52,36 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
             end
             self.handle_ = [];
         end
-        function images = process(self, input_data)
-%***SIRF*** Returns the output from the chain for the specified input.
-%         Both the input and the output are of type ImageData.
-            images = mGadgetron.ImageData();
-            images.handle_ = calllib...
-                ('mgadgetron', 'mGT_processImages', ...
-                self.handle_, input_data.handle_);
-            mUtil.checkExecutionStatus(self.name_, images.handle_);
+        function set_input(self, input)
+%***SIRF*** Sets the input data.
+            self.input_ = input;
         end
+        function image = process(self, input_data)
+%***SIRF*** Returns the output from the chain for the specified input.
+%         Input is specified either by calling set_input or as an argument.
+%         Both the input and the output are of type ImageData.
+            if nargin > 1 % input is supplied as an argument
+                self.set_input(input_data)
+            end
+            if isempty(self.input_)
+                error('ImageDataProcessor:input', 'input not set')
+            end
+            image = mGadgetron.ImageData();
+            image.handle_ = calllib...
+                ('mgadgetron', 'mGT_processImages', ...
+                self.handle_, self.input_.handle_);
+%                 self.handle_, input_data.handle_);
+            mUtil.checkExecutionStatus(self.name_, image.handle_);
+            self.output_ = image;
+        end
+        function output = get_output(self)
+%***SIRF*** Returns the processed data.
+            output = self.output_;
+        end
+%         function apply(self, image) % cannot be done this way
+%             processed_image = self.process(image);
+%             calllib('mutilities', 'mDeleteObject', image.handle_)
+%             image.handle_ = processed_image.handle_;
+%         end
     end
 end

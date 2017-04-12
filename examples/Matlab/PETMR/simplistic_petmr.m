@@ -74,7 +74,13 @@ pet_image.fill(image_array);
 
 % apply PET filter to PET image
 filter = PET.TruncateToCylinderProcessor();
-filter.apply(pet_image);
+% standard data processor usage
+filter.set_input(pet_image)
+filter.process();
+pet_image = filter.get_output();
+% shortcuts for the above 3 lines
+%pet_image = filter.process(pet_image);
+%filter.apply(pet_image);
 
 % display filtered PET image
 mUtil.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice')

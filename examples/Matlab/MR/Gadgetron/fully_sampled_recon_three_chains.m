@@ -79,7 +79,11 @@ complex_image_data = recon.get_output();
 % of as_array() or show() to visulaise.
 img_proc = ImageDataProcessor({'ExtractGadget'});
 fprintf('processing images...\n')
-real_image_data = img_proc.process(complex_image_data);
+img_proc.set_input(complex_image_data)
+img_proc.process();
+real_image_data = img_proc.get_output();
+% a shortcut for the above 3 lines
+% real_image_data = img_proc.process(complex_image_data);
 
 % show obtained images
 % See other demos for use of as_array() to extract a MATLAB array and then
