@@ -1003,7 +1003,9 @@ class ImageDataProcessor(GadgetChain):
         self.handle = None
         self.handle = pygadgetron.cGT_newObject('ImagesProcessor')
         check_status(self.handle)
+        # TODO: handle input and output in cSTIR
         self.input_data = None
+        self.output_data = None
         if list is None:
             return
         for i in range(len(list)):
@@ -1012,16 +1014,34 @@ class ImageDataProcessor(GadgetChain):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-    def process(self, input_data):
+    def set_input(self, input_data):
         '''
-        Returns the output from the chain for specified input.
+        Sets the input data.
+        '''
+        self.input_data = input_data
+    def process(self, input_data = None):
+        '''
+        Returns the output from the chain.
         input_data: ImageData
         '''
-        images = ImageData()
-        images.handle = pygadgetron.cGT_processImages\
+        if input_data is not None:
+            self.input_data = input_data
+        if self.input_data is None:
+            raise error('input image not set')
+        image = ImageData()
+        image.handle = pygadgetron.cGT_processImages\
              (self.handle, input_data.handle)
-        check_status(images.handle)
-        return images
+        check_status(image.handle)
+        self.output_data = image
+        return image
+    def get_output(self):
+        '''
+        Returns the output data.
+        '''
+        return self.output_data
+    def apply(self, image):
+        processed_image = self.process(image)
+        image = processed_image
 
 class AcquisitionDataProcessor(GadgetChain):
     '''

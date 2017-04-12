@@ -55,7 +55,7 @@ def main():
     # specify the MR raw data source
     input_data = MR.AcquisitionData(input_file)
     # pre-process acquisitions
-    processed_data = MR.preprocess_acquisitions(input_data)
+    processed_data = MR.preprocess_acquisition_data(input_data)
     # perform reconstruction
     recon = MR.FullySampledReconstructor()
     recon.set_input(processed_data)
@@ -71,9 +71,19 @@ def main():
     # apply filter that zeroes the image outside a cylinder of the same
     # diameter as the image xy-section size
     filter = PET.TruncateToCylinderProcessor()
-    filter.apply(image)
+    filter.set_input(image)
+    filter.process()
+    processed_image = filter.get_output()
+    # shortcuts for the above 3 lines
+    # image is intact
+##    processed_image = filter.process(image)
+    # image is modified
+##    filter.apply(image)
     # display image
-    image.show()
+    pUtil.show_3D_array(image.as_array(), \
+                        suptitle = 'MR Image', label = 'slice', show = False)
+    pUtil.show_3D_array(processed_image.as_array(), \
+                        suptitle = 'PET Processed Image', label = 'slice')
 
 try:
     main()

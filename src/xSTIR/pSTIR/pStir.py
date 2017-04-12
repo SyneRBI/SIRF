@@ -399,15 +399,36 @@ class ImageDataProcessor:
      An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
     def __init__(self):
         self.handle = None
+        # TODO: handle input and output in cSTIR
+        self.input = None
+        self.output = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     def apply(self, image):
-        '''Applies this filter to <image>.'''
+        '''Applies this filter to the specified image.'''
         handle = pystir.cSTIR_applyDataProcessor\
                  (self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
+    def set_input(self, input):
+        '''
+        Sets the input data.
+        '''
+        self.input = input
+    def process(self, input = None):
+        if input is not None:
+            self.input = input
+        if self.input is None:
+            raise error('input image not set')
+        self.output = self.input.clone()
+        self.apply(self.output)
+        return self.output
+    def get_output(self):
+        '''
+        Returns the output data.
+        '''
+        return self.output
     def __del__(self):
         pyiutil.deleteDataHandle(self.handle)
 
