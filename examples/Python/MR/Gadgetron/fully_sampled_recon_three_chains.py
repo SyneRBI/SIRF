@@ -104,11 +104,18 @@ def main():
     # retrieve reconstructed images
     complex_image_data = recon.get_output()
 
-    # post-process reconstructed images
-    # Rather than using the function get_output(), a new object based on the 
-    # gadget "ExtractGadget" is specified to retrieve the image data
+    # post-process reconstructed images by a one-work-gadget chain
+    # that recieves a complex image on input and sends back its magnitude
+    # (default setting - see fully_sampled_single_chain.py for general case)
     img_proc = ImageDataProcessor(['ExtractGadget'])
-    real_image_data = img_proc.process(complex_image_data)
+    # standard usage of a data processor object
+    img_proc.set_input(complex_image_data)
+    img_proc.process()
+    real_image_data = img_proc.get_output()
+    # shortcuts for the above 3 lines
+##    real_image_data = complex_image_data
+##    img_proc.apply(real_image_data)
+##    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
     image_array = real_image_data.as_array()

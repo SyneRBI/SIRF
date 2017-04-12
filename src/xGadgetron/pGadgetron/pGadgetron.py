@@ -1030,7 +1030,7 @@ class ImageDataProcessor(GadgetChain):
             raise error('input image not set')
         image = ImageData()
         image.handle = pygadgetron.cGT_processImages\
-             (self.handle, input_data.handle)
+             (self.handle, self.input_data.handle)
         check_status(image.handle)
         self.output_data = image
         return image
