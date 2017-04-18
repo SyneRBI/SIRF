@@ -122,15 +122,7 @@ def main():
     # In this demo, the recon object is created using the class
     # Reconstructor(). A simpler class is available in the SIRF code
     # for a GRAPPA reconstruction:
-    #   recon = CartesianGRAPPAReconstruction()
-    #
-    #    To find what this does behind the scenes:
-    #     type edit pGadgetron.CartesianGRAPPAReconstruction
-    #     and note the name assigned in the self function, here
-    #       'SimpleGRAPPAReconstructionProcessor'.
-    #     Then find the gadget chain defined by the class with the same
-    #     name in the file xGadgetron/cGadgetron/chain_lib.h
-    #
+    #   recon = CartesianGRAPPAReconstructor()
     
     recon_gadgets = ['AcquisitionAccumulateTriggerGadget',
         'BucketToBufferGadget', 
@@ -151,7 +143,7 @@ def main():
     recon.set_gadget_property('GRAPPA', 'send_out_gfactor', True)
     
     # If the chain had been set using
-    # recon = CartesianGRAPPAReconstruction(), an alternative method
+    # recon = CartesianGRAPPAReconstructor(), an alternative method
     # would be available:
     #  recon.compute_gfactors(True)
     

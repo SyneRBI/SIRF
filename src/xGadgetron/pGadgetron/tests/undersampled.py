@@ -98,7 +98,7 @@ def main():
     print('---\n processed acquisition data norm: %e' % processed_data_norm)
     failed += test_failed(2, 142.3433, processed_data_norm, 0, eps)
 
-    recon = CartesianGRAPPAReconstruction()
+    recon = CartesianGRAPPAReconstructor()
     recon.compute_gfactors(False)
     recon.set_input(processed_data)
     recon.process()

@@ -1091,7 +1091,7 @@ class FullySampledReconstructor(Reconstructor):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
     
-class CartesianGRAPPAReconstruction(Reconstructor):
+class CartesianGRAPPAReconstructor(Reconstructor):
     '''
     Class for a reconstructor from undersampled Cartesian raw data.
     '''

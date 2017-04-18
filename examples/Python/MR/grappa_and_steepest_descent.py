@@ -63,7 +63,7 @@ def main():
     preprocessed_data = preprocess_acquisition_data(acq_data)
 
     # perform reconstruction
-    recon = CartesianGRAPPAReconstruction()
+    recon = CartesianGRAPPAReconstructor()
     recon.set_input(preprocessed_data)
     recon.compute_gfactors(False)
     print('---\n reconstructing...')
