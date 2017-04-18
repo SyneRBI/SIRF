@@ -1039,9 +1039,9 @@ class ImageDataProcessor(GadgetChain):
         Returns the output data.
         '''
         return self.output_data
-    def apply(self, image):
-        processed_image = self.process(image)
-        image = processed_image
+##    def apply(self, image): # cannot be done this way (Python passes the value)
+##        processed_image = self.process(image)
+##        image = processed_image
 
 class AcquisitionDataProcessor(GadgetChain):
     '''

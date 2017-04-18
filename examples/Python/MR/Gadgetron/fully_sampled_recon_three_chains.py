@@ -112,15 +112,13 @@ def main():
     img_proc.set_input(complex_image_data)
     img_proc.process()
     real_image_data = img_proc.get_output()
-    # shortcuts for the above 3 lines
-##    real_image_data = complex_image_data
-##    img_proc.apply(real_image_data)
+    # shortcut for the above 3 lines
 ##    real_image_data = img_proc.process(complex_image_data)
 
     # show obtained images
     image_array = real_image_data.as_array()
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice')
+    show_3D_array(image_array, suptitle = title, label = 'slice')
 
 try:
     main()
