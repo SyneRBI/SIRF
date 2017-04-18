@@ -40,7 +40,11 @@ acq_data = AcquisitionData(fullfile(pathname, filename));
 % process data using Acquisitions processing chain
 acq_proc = AcquisitionDataProcessor({'RemoveROOversamplingGadget'});
 fprintf('processing acquisitions...\n')
-preprocessed_data = acq_proc.process(acq_data);
+acq_proc.set_input(acq_data)
+acq_proc.process();
+preprocessed_data = acq_proc.get_output();
+% a shortcut for the above 3 lines
+% preprocessed_data = acq_proc.process(acq_data);
 
 % As an example, here we access the preprocessed k-space and apply a
 % Gaussian^4 weighting that will blur the image.

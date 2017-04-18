@@ -20,7 +20,8 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
 % limitations under the License.
 
     properties
-        file_
+        input_
+        output_
     end
     methods
         function self = AcquisitionDataProcessor(list)
@@ -49,15 +50,30 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             end
             self.handle_ = [];
         end
+        function set_input(self, input)
+%***SIRF*** Sets the input data.
+            self.input_ = input;
+        end
         function acqs = process(self, input_data)
 %***SIRF*** Returns the output from the chain 
 %         for the input specified by the agrument.
 %         both input and output are of type AcquisitionData.
+            if nargin > 1 % input is supplied as an argument
+                self.set_input(input_data)
+            end
+            if isempty(self.input_)
+                error('ImageDataProcessor:input', 'input not set')
+            end
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
-                self.handle_, input_data.handle_);
+                self.handle_, self.input_.handle_);
             mUtil.checkExecutionStatus(self.name_, acqs.handle_);
+            self.output_ = acqs;
+        end
+        function output = get_output(self)
+%***SIRF*** Returns the processed data.
+            output = self.output_;
         end
     end
 end
