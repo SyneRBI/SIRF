@@ -173,5 +173,26 @@ classdef ImageData < handle
                 ('mstir', 'mSTIR_getImageData', self.handle, ptr_v)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
+        function show(self)
+%***SIRF*** Interactively plots this image data as a set of 2D image slices.
+            data = self.as_array();
+            shape = size(data);
+            nz = shape(3);
+            if nz < 1
+                return
+            end
+            data = data/max(data(:));
+            fprintf('Please enter the number of the image slice to view\n')
+            fprintf('(a value outside the range [1 : %d] will stop this loop)\n', nz)
+            while true
+                z = input('image: ');
+                if z < 1 || z > nz
+                    break
+                end
+                figure(z)
+                imshow(data(:, :, z))
+                title(['image ' num2str(z)])
+            end
+        end
     end
 end

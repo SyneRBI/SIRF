@@ -68,11 +68,8 @@ try
     num_subiterations = 2;
     image = my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations);
     
-    % display the initial image
-    image_array = image.as_array();
-    figure
-    image_array = image_array/max(max(max(image_array)));
-    imshow(image_array(:,:,20));
+    % display the reconstructed image
+    image.show()
     
     image.write('my_image.hv')
 

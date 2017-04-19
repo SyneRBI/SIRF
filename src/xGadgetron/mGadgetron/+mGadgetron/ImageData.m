@@ -127,8 +127,8 @@ classdef ImageData < mGadgetron.DataContainer
         end
         function show(self)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.
-            ni = self.number();
-            if ni < 1
+            nz = self.number();
+            if nz < 1
                 return
             end
             data = self.as_array();
@@ -137,15 +137,15 @@ classdef ImageData < mGadgetron.DataContainer
             end
             data = data/max(data(:));
             fprintf('Please enter the number of the image slice to view\n')
-            fprintf('(a value outside the range [1 : %d] will stop this loop)\n', ni)
+            fprintf('(a value outside the range [1 : %d] will stop this loop)\n', nz)
             while true
-                i = input('image: ');
-                if i < 1 || i > ni
+                z = input('image: ');
+                if z < 1 || z > nz
                     break
                 end
-                figure(i)
-                imshow(data(:, :, i))
-                title(['image ' num2str(i)])
+                figure(z)
+                imshow(data(:, :, z))
+                title(['image ' num2str(z)])
             end
         end
     end
