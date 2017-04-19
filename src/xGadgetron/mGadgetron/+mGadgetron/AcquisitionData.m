@@ -138,6 +138,11 @@ classdef AcquisitionData < mGadgetron.DataContainer
             ap = mGadgetron.AcquisitionDataProcessor(list);
             a = ap.process(self);
         end
+        function a = clone(self)
+%***SIRF*** Returns a copy of self.
+            ap = mGadgetron.AcquisitionDataProcessor();
+            a = ap.process(self);
+        end
         function [ns, nc, na] = dimensions(self, select)
 %***SIRF*** Returns the numbers of samples, coils and acquisitions 
 %         in this AcquisitionData object.

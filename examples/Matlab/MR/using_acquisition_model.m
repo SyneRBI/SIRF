@@ -38,7 +38,7 @@ acq_data = AcquisitionData(fullfile(pathname, filename));
 
 % pre-process acquisition data
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisitions(acq_data);
+processed_data = preprocess_acquisition_data(acq_data);
 processed_data.sort()
 
 % perform reconstruction to obtain a meaningful ImageData object

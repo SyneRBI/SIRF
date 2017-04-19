@@ -80,6 +80,11 @@ classdef ImageData < mGadgetron.DataContainer
             ip = mGadgetron.ImageDataProcessor(list);
             images = ip.process(self);
         end
+        function image = clone(self)
+%***SIRF*** Returns a copy of self.
+            ip = mGadgetron.ImageDataProcessor();
+            image = ip.process(self);
+        end
         function ft = is_real(self)
 %***SIRF*** Returns true if this image data is real and false otherwise.
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...

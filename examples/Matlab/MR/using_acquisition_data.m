@@ -46,9 +46,12 @@ acq_data.sort()
 % means not all !!
 [ns, nc, na] = acq_data.dimensions('not all');
 
+% clone acquisition data
+cloned_acq_data = acq_data.clone();
+
 % pre-process acquisition data
 fprintf('processing acquisitions...\n')
-processed_data = preprocess_acquisitions(acq_data);
+processed_data = preprocess_acquisition_data(acq_data);
 processed_data.sort()
 
 % selected methods for getting information
@@ -82,15 +85,20 @@ acq_array0(is, ic, ia) = acq_array0(is, ic, ia)*10;
 acq_data.fill(acq_array0);
 
 acq_array = acq_data.as_array();
+cloned_acq_array = cloned_acq_data.as_array();
 processed_array = processed_data.as_array();
 
 fprintf('Value of same array element after replacement with 10x data: %f\n', ...
     acq_array(is, ic, ia))
 
 acq_array = permute(acq_array, [1 3 2]);
+cloned_acq_array = permute(cloned_acq_array, [1 3 2]);
 processed_array = permute(processed_array, [1 3 2]);
 title = 'Acquisition data (magnitude)';
 mUtil.show_3D_array(abs(acq_array), title, 'samples', 'measurements', 'coil');
+title = 'Cloned acquisition data (magnitude)';
+mUtil.show_3D_array(abs(cloned_acq_array), title, ...
+    'samples', 'measurements', 'coil');
 title = 'Processed acquisition data (magnitude)';
 mUtil.show_3D_array(abs(processed_array), title, ...
     'kx', 'sorted measurements', 'coil');
