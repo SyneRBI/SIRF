@@ -85,6 +85,7 @@ extern "C" {
 	void cSTIR_fillImage(void* ptr_i, double v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
+	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);

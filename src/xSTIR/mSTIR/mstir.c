@@ -114,6 +114,9 @@ EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
 	return cSTIR_imagesDifference(first, second, rimsize);
 }
+EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
+	return cSTIR_writeImage(ptr_i, filename);
+}
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);
 }

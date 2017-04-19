@@ -135,6 +135,8 @@ def main():
     image_array = image.as_array()
     show_2D_array('Reconstructed image at z = 20', image_array[20,:,:])
 
+    image.write('my_image.hv')
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:

@@ -73,6 +73,8 @@ try
     figure
     image_array = image_array/max(max(max(image_array)));
     imshow(image_array(:,:,20));
+    
+    image.write('my_image.hv')
 
 catch err
     % display error information

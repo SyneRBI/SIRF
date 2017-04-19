@@ -561,6 +561,19 @@ void* cSTIR_imageFromImage(void* ptr_i)
 }
 
 extern "C"
+void* cSTIR_writeImage(void* ptr_i, const char* filename)
+{
+	try {
+		Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
+		shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
+			OutputFileFormat<Image3DF>::default_sptr();
+		format_sptr->write_to_file(filename, image);
+		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {

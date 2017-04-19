@@ -352,6 +352,10 @@ class ImageData(DataContainer):
             pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
+    def write(self, filename):
+        handle = pystir.cSTIR_writeImage(self.handle, filename)
+        check_status(handle)
+        pyiutil.deleteDataHandle(handle)
     def diff_from(self, image):
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)

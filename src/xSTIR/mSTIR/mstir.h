@@ -47,6 +47,7 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad);
 EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize);
+EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);
