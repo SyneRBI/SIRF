@@ -484,13 +484,20 @@ class ImageData(DataContainer):
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def process(self, list):
         '''
-        Processes self with an image processor specified by a list of gadgets.
+        Returns processed self with an image processor specified by
+        a list of gadgets.
         list: Python list of gadget description strings, each gadget 
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
         ip = ImageDataProcessor(list)
+        return ip.process(self)
+    def clone(self):
+        '''
+        Returns a copy of self.
+        '''
+        ip = ImageDataProcessor()
         return ip.process(self)
     def show(self):
         '''
@@ -653,14 +660,20 @@ class AcquisitionData(DataContainer):
         return _int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         '''
-        Processes self with an acquisition processor specified by a list of 
-        gadgets.
+        Returns processed self with an acquisition processor specified by
+        a list of gadgets.
         list: Python list of gadget description strings, each gadget 
               description being a string of the form
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
         ap = AcquisitionDataProcessor(list)
+        return ap.process(self)
+    def clone(self):
+        '''
+        Returns a copy of self.
+        '''
+        ap = AcquisitionDataProcessor()
         return ap.process(self)
     def acquisition(self, num):
         '''
