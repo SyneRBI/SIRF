@@ -2,6 +2,8 @@
 General remarks
 ===============
 
+Please check the SIRF Wiki for more detailed installation instructions.
+
 Instructions are for CMake that is not older than 3.7.2.
 
 Instructions assume that Boost, SWIG, HDF5_1.8.18, FFTW3 and ismrmrd packages are 
@@ -13,16 +15,16 @@ git clone --recursive https://github.com/CCPPETMR/SIRF
 in a folder referred to below as YOUR_PATH. 
 
 You need to create folder named build in YOUR_PATH with a subfolder install. 
-YOUR_PATH/build/install/bin (will be created by installation) must be in Windows path.
-Folder YOUR_PATH/build/install/python must be in Python path (i.e. listed in PYTHONPATH
-environment variable value) and folder YOUR_PATH/build/install/matlab in Matlab path.
+YOUR_PATH/build/install/bin (will be created by installation) must be in the path of your OS (or shell).
+The folder YOUR_PATH/build/install/python must be in the Python path (i.e. listed in PYTHONPATH
+environment variable value) and folder YOUR_PATH/build/install/matlab in the Matlab path.
 
-To use Matlab doc feature on demo scripts, you also need to add folders YOUR_PATH/SIRF/examples/Matlab/MR and YOUR_PATH/SIRF/examples/Matlab/PET and their sub-folders to Matlab path.
+To run the demos, create an environment variable SIRF_PATH with the value YOUR_PATH/SIRF.
 
-To run Python demo scripts, you are advised either to create an environment variable 
-SRC_PATH with the value YOUR_PATH, or SIRF_PATH with the value YOUR_PATH/SIRF, otherwise 
-you will have to give full path to raw data files via command-line options -p or --path.
-NOTE: even on Windows, you must use / in paths.
+To use Matlab doc feature on demo scripts, you also need to add folders YOUR_PATH/SIRF/examples/Matlab/
+its sub-folders to the Matlab path. You could do that in MATLAB as follows
+
+   addpath(genpath(fullfile(getenv('SIRF_PATH'),'SIRF/examples/Matlab')))  
 
 =====
 LINUX
@@ -107,3 +109,4 @@ Click Build and select Build Solution.
 
 Right-click INSTALL in Solution Explorer and select Build.
 
+NOTE: even on Windows, you might have to use / in paths for environment variables etc
