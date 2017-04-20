@@ -36,7 +36,7 @@ def petmr_data_path(petmr):
         return SIRF_PATH + data_path
     SRC_PATH = os.environ.get('SRC_PATH')
     if SRC_PATH is None:
-        errorMsg = 'Path to raw data files not found'
+        errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
         raise error(errorMsg)
     return SRC_PATH + '/SIRF' + data_path
 
