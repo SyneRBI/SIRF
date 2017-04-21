@@ -908,14 +908,14 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    def set_sensitivity_filename(self, name):
-        _set_char_par\
-            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
-             'sensitivity_filename', name)
-    def set_use_subset_sensitivities(self, flag):
-        _set_char_par\
-            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
-             'use_subset_sensitivities', repr(flag))
+##    def set_sensitivity_filename(self, name):
+##        _set_char_par\
+##            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
+##             'sensitivity_filename', name)
+##    def set_use_subset_sensitivities(self, flag):
+##        _set_char_par\
+##            (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
+##             'use_subset_sensitivities', repr(flag))
     def set_recompute_sensitivity(self, flag):
         _set_char_par\
             (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',\
@@ -963,28 +963,28 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
     def set_input_filename(self, name):
         _set_char_par\
             (self.handle, self.name, 'input_filename', name)
-    def set_zero_seg0_end_planes(self, flag):
-        _set_char_par\
-            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-    def set_max_segment_num_to_process(self, n):
-        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##    def set_zero_seg0_end_planes(self, flag):
+##        _set_char_par\
+##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
+##    def set_max_segment_num_to_process(self, n):
+##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.
         '''
         _setParameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
-    def get_acquisition_model(self):
-        '''
-        Returns the acquisition model used by this objective function.
-        '''
-        am = AcquisitionModelUsingMatrix()
-        if am.handle is not None:
-            pyiutil.deleteDataHandle(am.handle)
-        am.handle = pystir.cSTIR_parameter\
-            (self.handle, self.name, 'acquisition_model')
-        check_status(am.handle)
-        return am
+##    def get_acquisition_model(self):
+##        '''
+##        Returns the acquisition model used by this objective function.
+##        '''
+##        am = AcquisitionModelUsingMatrix()
+##        if am.handle is not None:
+##            pyiutil.deleteDataHandle(am.handle)
+##        am.handle = pystir.cSTIR_parameter\
+##            (self.handle, self.name, 'acquisition_model')
+##        check_status(am.handle)
+##        return am
     def set_acquisition_data(self, ad):
         '''
         Sets the acquisition data to be used by this objective function.
@@ -1023,58 +1023,58 @@ class IterativeReconstructor(Reconstructor):
     def get_num_subsets(self):
         return _int_par\
             (self.handle, 'IterativeReconstruction', 'num_subsets')
-    def set_start_subset_num(self, n):
-        _set_int_par\
-            (self.handle, 'IterativeReconstruction', 'start_subset_num', n)
-    def get_start_subset_num(self):
-        return _int_par\
-            (self.handle, 'IterativeReconstruction', 'start_subset_num')
+##    def set_start_subset_num(self, n):
+##        _set_int_par\
+##            (self.handle, 'IterativeReconstruction', 'start_subset_num', n)
+##    def get_start_subset_num(self):
+##        return _int_par\
+##            (self.handle, 'IterativeReconstruction', 'start_subset_num')
     def set_num_subiterations(self, n):
         _set_int_par\
             (self.handle, 'IterativeReconstruction', 'num_subiterations', n)
     def get_num_subiterations(self):
         return _int_par\
             (self.handle, 'IterativeReconstruction', 'num_subiterations')
-    def set_start_subiteration_num(self, n):
-        _set_int_par\
-            (self.handle, 'IterativeReconstruction', 'start_subiteration_num', n)
-    def get_start_subiteration_num(self):
-        return _int_par\
-            (self.handle, 'IterativeReconstruction', 'start_subiteration_num')
-    def set_subiteration_num(self, iter):
-        _set_int_par\
-            (self.handle, 'IterativeReconstruction', 'subiteration_num', iter)
+##    def set_start_subiteration_num(self, n):
+##        _set_int_par\
+##            (self.handle, 'IterativeReconstruction', 'start_subiteration_num', n)
+##    def get_start_subiteration_num(self):
+##        return _int_par\
+##            (self.handle, 'IterativeReconstruction', 'start_subiteration_num')
+##    def set_subiteration_num(self, iter):
+##        _set_int_par\
+##            (self.handle, 'IterativeReconstruction', 'subiteration_num', iter)
     def get_subiteration_num(self):
         return _int_par\
             (self.handle, 'IterativeReconstruction', 'subiteration_num')
     def set_save_interval(self, n):
         _set_int_par\
             (self.handle, 'IterativeReconstruction', 'save_interval', n)
-    def set_inter_iteration_filter_interval(self, n):
-        _set_int_par\
-            (self.handle, 'IterativeReconstruction',\
-             'inter_iteration_filter_interval', n)
+##    def set_inter_iteration_filter_interval(self, n):
+##        _set_int_par\
+##            (self.handle, 'IterativeReconstruction',\
+##             'inter_iteration_filter_interval', n)
     def set_objective_function(self, obj):
         _setParameter\
             (self.handle, 'IterativeReconstruction',\
              'objective_function', obj.handle)
-    def get_objective_function(self):
-        obj_fun = ObjectiveFunction()
-        obj_fun.handle = pystir.cSTIR_parameter\
-            (self.handle, 'IterativeReconstruction', 'objective_function')
-        check_status(obj_fun.handle)
-        return obj_fun
-    def set_inter_iteration_filter(self, f):
-        pystir.cSTIR_setParameter\
-            (self.handle, 'IterativeReconstruction',\
-             'inter_iteration_filter_type', f.handle)
-    def get_inter_iteration_filter(self):
-        filter = DataProcessor()
-        filter.handle = pystir.cSTIR_parameter\
-            (self.handle, 'IterativeReconstruction',\
-             'inter_iteration_filter_type')
-        check_status(filter.handle)
-        return filter
+##    def get_objective_function(self):
+##        obj_fun = ObjectiveFunction()
+##        obj_fun.handle = pystir.cSTIR_parameter\
+##            (self.handle, 'IterativeReconstruction', 'objective_function')
+##        check_status(obj_fun.handle)
+##        return obj_fun
+##    def set_inter_iteration_filter(self, f):
+##        pystir.cSTIR_setParameter\
+##            (self.handle, 'IterativeReconstruction',\
+##             'inter_iteration_filter_type', f.handle)
+##    def get_inter_iteration_filter(self):
+##        filter = DataProcessor()
+##        filter.handle = pystir.cSTIR_parameter\
+##            (self.handle, 'IterativeReconstruction',\
+##             'inter_iteration_filter_type')
+##        check_status(filter.handle)
+##        return filter
     def set_up(self, image):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         check_status(handle)
@@ -1091,7 +1091,7 @@ class IterativeReconstructor(Reconstructor):
         handle = pystir.cSTIR_updateReconstruction(self.handle, self.image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def set_current_subset(self, subset):
+    def set_current_subset_num(self, subset):
         self.subset = subset
     def get_subset_sensitivity(self):
         obj_fun = self.get_objective_function()
@@ -1126,15 +1126,15 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    def set_MAP_model(self, model):
-        _set_char_par\
-            (self.handle, self.name, 'MAP_model', model)
-    def get_objective_function(self):
-        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
-        obj_fun.handle = pystir.cSTIR_parameter\
-            (self.handle, self.name, 'objective_function')
-        check_status(obj_fun.handle)
-        return obj_fun
+##    def set_MAP_model(self, model):
+##        _set_char_par\
+##            (self.handle, self.name, 'MAP_model', model)
+##    def get_objective_function(self):
+##        obj_fun = PoissonLogLikelihoodWithLinearModelForMean()
+##        obj_fun.handle = pystir.cSTIR_parameter\
+##            (self.handle, self.name, 'objective_function')
+##        check_status(obj_fun.handle)
+##        return obj_fun
 
 class OSSPSReconstructor(IterativeReconstructor):
     '''
