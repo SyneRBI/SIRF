@@ -43,7 +43,7 @@ target_include_directories(cgt PRIVATE "${FFTW3_INCLUDE_DIR}")
 
 target_link_libraries(cgt iutil)
 # Add boost library dependencies
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (APPLE))
+if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
   # spaces in filenames.
   foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
@@ -51,7 +51,7 @@ if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (APPLE))
     target_link_libraries(cgt debug  "${Boost_${C}_LIBRARY_DEBUG}")
   endforeach()
 else()
-  # Nice and simple for recent CMake
+  # Nice and simple for recent CMake (which knows about your Boost version)
   target_link_libraries(cgt Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
