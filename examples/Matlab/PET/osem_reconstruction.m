@@ -60,6 +60,7 @@ try
     % but is used in practice to speed-up calculations
     recon = OSMAPOSLReconstructor();    
     recon.set_objective_function(obj_fun)
+    recon.set_input(acq_data)
     recon.set_num_subsets(12)
     
     % set up the reconstructor based on a sample image

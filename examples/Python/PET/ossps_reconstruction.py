@@ -78,6 +78,7 @@ def main():
     recon.set_num_subsets(num_subsets)
     recon.set_num_subiterations(num_subiterations)
     recon.set_objective_function(obj_fun)
+    recon.set_input(acq_data)
 
     # read an initial estimate for the reconstructed image from the file
     # specified by --init option
@@ -100,7 +101,7 @@ def main():
         pylab.figure(iter + 1)
         pylab.imshow(image_array[10,:,:])
         print('close Figure %d window to continue' % (iter + 1))
-        pylab.show()
+    pylab.show()
 
     # interactively display the reconstructed image
     image.show()

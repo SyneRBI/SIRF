@@ -26,7 +26,6 @@ classdef IterativeReconstructor < mStir.Reconstructor
         IR = 'IterativeReconstruction';
     end
     properties
-        image
         subset
     end
     methods
@@ -156,18 +155,18 @@ classdef IterativeReconstructor < mStir.Reconstructor
             mUtil.checkExecutionStatus([self.IR ':update_current_image'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function process(self)
-%***SIRF*** Reconstruct the image 
-%         by applying currently set range of
-%         iterations to the current image estimate.
-            if isempty(self.image)
-                error([self.IR ':process'], 'current estimate not set')
-            end
-            h = calllib('mstir', 'mSTIR_runReconstruction',...
-                self.handle, self.image.handle);
-            mUtil.checkExecutionStatus([self.IR ':process'], h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
-        end
+%         function process(self)
+% %***SIRF*** Reconstruct the image 
+% %         by applying currently set range of
+% %         iterations to the current image estimate.
+%             if isempty(self.image)
+%                 error([self.IR ':process'], 'current estimate not set')
+%             end
+%             h = calllib('mstir', 'mSTIR_runReconstruction',...
+%                 self.handle, self.image.handle);
+%             mUtil.checkExecutionStatus([self.IR ':process'], h)
+%             calllib('mutilities', 'mDeleteDataHandle', h)
+%         end
         function update(self, image)
 %***SIRF*** Updates the image estimate specified by the argument 
 %         by performing one iteration on the current subspace.
@@ -176,14 +175,14 @@ classdef IterativeReconstructor < mStir.Reconstructor
             mUtil.checkExecutionStatus([self.IR ':update'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function reconstruct(self, image)
-%***SIRF*** Reconstruct the image 
-%         by applying currently set range of
-%         iterations to the image estimate specified by the argument.
-            h = calllib('mstir', 'mSTIR_runReconstruction',...
-                self.handle, image.handle);
-            mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
-        end
+%         function reconstruct(self, image)
+% %***SIRF*** Reconstruct the image 
+% %         by applying currently set range of
+% %         iterations to the image estimate specified by the argument.
+%             h = calllib('mstir', 'mSTIR_runReconstruction',...
+%                 self.handle, image.handle);
+%             mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)
+%             calllib('mutilities', 'mDeleteDataHandle', h)
+%         end
     end
 end

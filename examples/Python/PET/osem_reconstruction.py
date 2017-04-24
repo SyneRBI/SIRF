@@ -94,6 +94,7 @@ def main():
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
+    recon.set_input(acq_data)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function

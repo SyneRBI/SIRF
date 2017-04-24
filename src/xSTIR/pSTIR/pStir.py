@@ -998,9 +998,28 @@ class Reconstructor:
     '''
     def __init__(self):
         self.handle = None
+        self.input = None
+        self.image = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+##    def set_input(self, input_data):
+##        self.input = input_data
+    def set_input(self, input_data):
+        _setParameter(self.handle, 'Reconstruction', \
+                      'input_data', input_data.handle)
+    def process(self):
+        if self.image is None:
+            raise error('current estimate not set')
+        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
+        check_status(handle)
+        pyiutil.deleteDataHandle(handle)
+    def get_output(self):
+        return self.image
+    def reconstruct(self, image):
+        handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
+        check_status(handle)
+        pyiutil.deleteDataHandle(handle)
     def set_output_filename_prefix(self, prefix):
         _set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
@@ -1011,7 +1030,6 @@ class IterativeReconstructor(Reconstructor):
     '''
     def __init__(self):
         self.handle = None
-        self.input = None
         self.image = None
         self.subset = 0
     def __del__(self):
@@ -1079,8 +1097,9 @@ class IterativeReconstructor(Reconstructor):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-    def set_input(self, input_data):
-        self.input = input_data
+##    def set_input(self, input_data):
+##        _setParameter(self.handle, 'IterativeReconstruction', \
+##                      'input_data', input_data.handle)
     def set_current_estimate(self, image):
         self.image = image
     def get_current_estimate(self):
@@ -1096,16 +1115,16 @@ class IterativeReconstructor(Reconstructor):
     def get_subset_sensitivity(self):
         obj_fun = self.get_objective_function()
         return obj_fun.get_subset_sensitivity(self.subset)
-    def reconstruct(self, image):
-        handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def process(self):
-        if self.image is None:
-            raise error('current estimate not set')
-        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+##    def reconstruct(self, image):
+##        handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def process(self):
+##        if self.image is None:
+##            raise error('current estimate not set')
+##        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
     def update(self, image):
         self.set_current_estimate(image)
         self.update_current_estimate()

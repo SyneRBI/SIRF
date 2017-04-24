@@ -24,6 +24,8 @@ classdef Reconstructor < handle
     end
     properties
         handle
+        input
+        image
     end
     methods
         function self = Reconstructor()
@@ -33,6 +35,34 @@ classdef Reconstructor < handle
             if ~isempty(self.handle)
                 calllib('mstir', 'mDeleteDataHandle', self.handle)
             end
+        end
+        function set_input(self, input_data)
+            mStir.setParameter...
+                (self.handle, self.R, 'input_data', input_data, 'h')
+        end
+        function process(self)
+%***SIRF*** Reconstruct the image 
+%         by applying currently set range of
+%         iterations to the current image estimate.
+            if isempty(self.image)
+                error('Reconstructor:process', 'current estimate not set')
+            end
+            h = calllib('mstir', 'mSTIR_runReconstruction',...
+                self.handle, self.image.handle);
+            mUtil.checkExecutionStatus('Reconstructor:process', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function image = get_output(self)
+            image = self.image;
+        end
+        function reconstruct(self, image)
+%***SIRF*** Reconstruct the image 
+%         by applying currently set range of
+%         iterations to the image estimate specified by the argument.
+            h = calllib('mstir', 'mSTIR_runReconstruction',...
+                self.handle, image.handle);
+            mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_output_filename_prefix(self, prefix)
 %***SIRF*** Specifies the naming for the output files.

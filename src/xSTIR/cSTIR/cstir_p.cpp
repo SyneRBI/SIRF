@@ -398,6 +398,9 @@ cSTIR_setReconstructionParameter
 		objectFromHandle< Reconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
+	else if (boost::iequals(name, "input_data")) {
+		recon.set_input_data(sptrDataFromHandle<ExamData>(hv));
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -420,6 +423,9 @@ cSTIR_setIterativeReconstructionParameter
 			(xSTIR_IterativeReconstruction3DF&)(recon);
 		xrecon.set_initial_estimate_file(charDataFromDataHandle(hv));
 	}
+	//else if (boost::iequals(name, "input_data")) {
+	//	recon.set_input_data(sptrDataFromHandle<ExamData>(hv));
+	//}
 	else {
 		//int value = intDataFromHandle((void*)hv);
 		int value = dataFromHandle<int>((void*)hv);
