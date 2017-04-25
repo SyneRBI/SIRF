@@ -23,6 +23,7 @@ limitations under the License.
 #define DATA_HANDLE
 
 #include <stdlib.h>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 
@@ -41,8 +42,14 @@ limitations under the License.
 		handle->set(0, &status);\
 		return (void*)handle;\
 				}\
+	catch (std::string msg) {\
+		ExecutionStatus status(msg.c_str(), __FILE__, __LINE__);\
+		DataHandle* handle = new DataHandle;\
+		handle->set(0, &status);\
+		return (void*)handle;\
+        }\
 	catch (...) {\
-		ExecutionStatus status("unhandled exception", __FILE__, __LINE__);\
+		ExecutionStatus status("unhandled", __FILE__, __LINE__);\
 		DataHandle* handle = new DataHandle;\
 		handle->set(0, &status);\
 		return (void*)handle;\

@@ -151,7 +151,7 @@ def check_status(handle):
         file = pyiutil.executionErrorFile(handle)
         line = pyiutil.executionErrorLine(handle)
         errorMsg = \
-            repr(msg) + ' exception thrown at line ' + \
+            repr(msg) + ' exception caught at line ' + \
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
