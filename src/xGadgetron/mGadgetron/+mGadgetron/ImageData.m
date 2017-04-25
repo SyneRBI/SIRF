@@ -125,6 +125,20 @@ classdef ImageData < mGadgetron.DataContainer
                 data = re + 1j*im;
             end
         end
+        function fill(self, data)
+%***SIRF*** Changes image data to that in 3D complex array argument.
+            if isempty(self.handle_)
+                error('ImageData:empty_object', 'cannot handle empty object')
+            end
+            re = real(data);
+            im = imag(data);
+            ptr_re = libpointer('doublePtr', re);
+            ptr_im = libpointer('doublePtr', im);
+            h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
+                self.handle_, ptr_re, ptr_im);
+            mUtil.checkExecutionStatus('ImageData', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
         function show(self)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.
             nz = self.number();

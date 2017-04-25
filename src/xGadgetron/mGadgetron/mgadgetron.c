@@ -132,6 +132,9 @@ EXPORTED_FUNCTION 	void mGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBL
 EXPORTED_FUNCTION 	void mGT_getImagesDataAsComplexArray (void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
 	cGT_getImagesDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);
 }
+EXPORTED_FUNCTION 	void* mGT_setComplexImagesData(void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im) {
+	cGT_setComplexImagesData(ptr_imgs, ptr_re, ptr_im);
+}
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
 	return cGT_dataItems(ptr_x);
 }

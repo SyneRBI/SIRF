@@ -53,6 +53,7 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_n
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data);
 EXPORTED_FUNCTION 	void mGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBLE ptr_data);
 EXPORTED_FUNCTION 	void mGT_getImagesDataAsComplexArray (void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
+EXPORTED_FUNCTION 	void* mGT_setComplexImagesData(void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y);
