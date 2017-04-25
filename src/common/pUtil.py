@@ -3,7 +3,6 @@
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -23,13 +22,11 @@ import matplotlib.pyplot as plt
 import os
 import pyiutil
 
-class error(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return '??? ' + repr(self.value)
-
 def petmr_data_path(petmr):
+    '''
+    Returns the path to PET or MR data.
+    petmr: either 'pet' or 'mr' (case-insensitive)
+    '''
     data_path = '/data/examples/' + petmr.upper()
     SIRF_PATH = os.environ.get('SIRF_PATH')
     if SIRF_PATH is not None:
@@ -41,10 +38,112 @@ def petmr_data_path(petmr):
     return SRC_PATH + '/SIRF' + data_path
 
 def existing_filepath(data_path, file_name):
+    '''
+    Returns the filepath (path/name) to an existing file.
+    Raises error if the file does not exist.
+    data_path: path to the file
+    file_name: file name
+    '''
     full_name = data_path + '/' + file_name
     if not os.path.isfile(full_name):
         raise error('file %s not found' % full_name)
     return full_name
+
+def show_2D_array(title, array, colorbar = True):
+    '''
+    Displays a 2D array.
+    title   : the figure title
+    array   : 2D array
+    colorbar: flag specifying whether the colorbar is to be displayed
+    '''
+    plt.figure()
+    plt.title(title)
+    plt.imshow(array)
+    if colorbar:
+        plt.colorbar()
+    fignums = plt.get_fignums()
+    print('Close Figure %d window to continue' % fignums[-1])
+    plt.show()
+
+def show_3D_array\
+    (array, tile_shape = None, scale = None, \
+     suptitle = None, titles = None, \
+     xlabel = None, ylabel = None, label = None, \
+     show = True):
+    '''
+    Displays a 3D array as a set of z-slice tiles.
+    array     : 3D array
+    tile_shape: tuple (tile_rows, tile_columns);
+                if not present, the number of tile rows and columns is
+                computed based on the array dimensions
+    scale     : tuple (vmin, vmax) for imshow; defaults to the range of
+                array values
+    suptitle  : figure title; defaults to None
+    titles    : array of tile titles; if not present, each tile title is
+                label + tile_number
+    xlabel    : label for x axis
+    ylabel    : label for y axis
+    label     : tile title prefix
+    show      : flag specifying whether the array must be displayed immediately
+    '''
+    import math
+    import numpy
+    if tile_shape is None:
+        nz = array.shape[0]
+        ny = array.shape[1]
+        nx = array.shape[2]
+        rows = int(round(math.sqrt(nz*nx/ny)))
+        if rows < 1:
+            rows = 1
+        if rows > nz:
+            rows = nz
+        cols = (nz - 1)//rows + 1
+    else:
+        rows, cols = tile_shape
+        assert rows*cols >= array.shape[0],\
+                "tile rows x columns must equal the 3rd dim extent of array"
+    if scale is None:
+        vmin = numpy.amin(array)
+        vmax = numpy.amax(array)
+    else:
+        vmin, vmax = scale
+    fig = plt.figure()
+    if suptitle is not None:
+        fig.suptitle(suptitle, fontsize = 16)
+    for z in range(array.shape[0]):
+        ax = fig.add_subplot(rows, cols, z + 1)
+        if titles is None:
+            if label is None:
+                ax.set_title('%d' % (z + 1))
+            else:
+                ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
+        else:
+            ax.set_title(titles[z])
+        row = z//cols
+        col = z - row*cols
+        if xlabel is None and ylabel is None or row < rows - 1 or col > 0:
+            ax.set_axis_off()
+        else:
+            ax.set_axis_on()
+            if xlabel is not None:
+                plt.xlabel(xlabel)
+                plt.xticks([0, nx - 1], [1, nx])
+            if ylabel is not None:
+                plt.ylabel(ylabel)
+                plt.yticks([0, ny - 1], [1, ny])
+        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+    fignums = plt.get_fignums()
+    print('Close Figure %d window to continue' % fignums[-1])
+    if show:
+        plt.show()
+
+###########################################################
+############ Utilities for internal use only ##############
+class error(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return '??? ' + repr(self.value)
 
 def check_status(handle):
     if pyiutil.executionStatus(handle) != 0:
@@ -96,69 +195,4 @@ def parse_arglist(arglist):
         else:
             argdict[name] = arglist[0:ic].rstrip()
             arglist = arglist[ic + 1 :]
-
-def show_2D_array(title, array, colorbar = True):
-    plt.figure()
-    plt.title(title)
-    plt.imshow(array)
-    if colorbar:
-        plt.colorbar()
-    fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
-    plt.show()
-
-def show_3D_array\
-    (array, tile_shape = None, scale = None, \
-     suptitle = None, titles = None, label = None, \
-     xlabel = None, ylabel = None, show = True):
-    import math
-    import numpy
-    if tile_shape is None:
-        nz = array.shape[0]
-        ny = array.shape[1]
-        nx = array.shape[2]
-        rows = int(round(math.sqrt(nz*nx/ny)))
-        if rows < 1:
-            rows = 1
-        if rows > nz:
-            rows = nz
-        cols = (nz - 1)//rows + 1
-    else:
-        rows, cols = tile_shape
-        assert rows*cols >= array.shape[0],\
-                "tile rows x columns must equal the 3rd dim extent of array"
-    if scale is None:
-        vmin = numpy.amin(array)
-        vmax = numpy.amax(array)
-    else:
-        vmin, vmax = scale
-    fig = plt.figure()
-    if suptitle is not None:
-        fig.suptitle(suptitle, fontsize = 16)
-    for z in range(array.shape[0]):
-        ax = fig.add_subplot(rows, cols, z+1)
-        if titles is None:
-            if label is None:
-                ax.set_title('%d' % (z + 1))
-            else:
-                ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
-        else:
-            ax.set_title(titles[z])
-        row = z//cols
-        col = z - row*cols
-        if xlabel is None and ylabel is None or row < rows - 1 or col > 0:
-            ax.set_axis_off()
-        else:
-            ax.set_axis_on()
-            if xlabel is not None:
-                plt.xlabel(xlabel)
-                plt.xticks([0, nx - 1], [1, nx])
-            if ylabel is not None:
-                plt.ylabel(ylabel)
-                plt.yticks([0, ny - 1], [1, ny])
-        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
-    fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
-    if show:
-        plt.show()
 
