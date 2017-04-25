@@ -576,6 +576,19 @@ class ImageData(DataContainer):
             pygadgetron.cGT_getImagesDataAsComplexArray\
                 (self.handle, re.ctypes.data, im.ctypes.data)
             return re + 1j*im
+    def fill(self, data):
+        '''
+        Fills self's image data with specified values.
+        data: Python Numpy array
+        '''
+        if self.handle is None:
+            raise error('Undefined ImageData object cannot be filled')
+        re = numpy.copy(numpy.real(data))
+        im = numpy.copy(numpy.imag(data))
+        handle = pygadgetron.cGT_setComplexImagesData\
+            (self.handle, re.ctypes.data, im.ctypes.data)
+        check_status(handle)
+        pyiutil.deleteDataHandle(handle)
 
 DataContainer.register(ImageData)
 

@@ -85,6 +85,7 @@ limitations under the License.
 		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
+typedef ISMRMRD::Image<complex_double_t> CDImage;
 
 class xGadgetronUtilities {
 public:
@@ -253,9 +254,14 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH(type_, set_imtype_, ptr_, imtype);
 	}
-	void get_dim(int* dim) const
+	size_t get_dim(int* dim) const
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_dim_, ptr_, dim);
+		size_t n = dim[0];
+		n *= dim[1];
+		n *= dim[2];
+		n *= dim[3];
+		return n;
 	}
 	void get_data(double* data) const
 	{
@@ -302,16 +308,48 @@ public:
 
 	void get_cmplx_data(double* re, double* im) const
 	{
-		const CFImage& img = *(const CFImage*)ptr_;
-		long long int n = img.getMatrixSizeX();
-		n *= img.getMatrixSizeY();
-		n *= img.getMatrixSizeZ();
-		n *= img.getNumberOfChannels();
-		const complex_float_t* ptr = img.getDataPtr();
-		for (long long int i = 0; i < n; i++) {
-			complex_float_t z = ptr[i];
-			re[i] = std::real(z);
-			im[i] = std::imag(z);
+		int dim[4];
+		size_t n = get_dim(dim);
+		if (type_ == ISMRMRD::ISMRMRD_CXFLOAT) {
+			const CFImage& img = *(const CFImage*)ptr_;
+			const complex_float_t* ptr = img.getDataPtr();
+			for (size_t i = 0; i < n; i++) {
+				complex_float_t z = ptr[i];
+				re[i] = std::real(z);
+				im[i] = std::imag(z);
+			}
+		}
+		else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE) {
+			const CDImage& img = *(const CDImage*)ptr_;
+			const complex_double_t* ptr = img.getDataPtr();
+			for (size_t i = 0; i < n; i++) {
+				complex_double_t z = ptr[i];
+				re[i] = std::real(z);
+				im[i] = std::imag(z);
+			}
+		}
+		else {
+			get_data(re);
+			for (size_t i = 0; i < n; i++)
+				im[i] = 0;
+		}
+	}
+
+	void set_cmplx_data(const double* re, const double* im) const
+	{
+		int dim[4];
+		size_t n = get_dim(dim);
+		if (type_ == ISMRMRD::ISMRMRD_CXFLOAT) {
+			CFImage& img = *(CFImage*)ptr_;
+			complex_float_t* ptr = img.getDataPtr();
+			for (size_t i = 0; i < n; i++)
+				ptr[i] = std::complex<float>(re[i], im[i]);
+		}
+		else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE) {
+			CDImage& img = *(CDImage*)ptr_;
+			complex_double_t* ptr = img.getDataPtr();
+			for (size_t i = 0; i < n; i++)
+				ptr[i] = std::complex<double>(re[i], im[i]);
 		}
 	}
 
@@ -321,6 +359,8 @@ private:
 
 	ImageWrap& operator=(const ImageWrap& iw)
 	{
+		type_ = iw.type();
+		IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 		return *this;
 	}
 
@@ -386,13 +426,10 @@ private:
 	void get_data_(const ISMRMRD::Image<T>* ptr_im, double* data) const
 	{
 		const ISMRMRD::Image<T>& im = *ptr_im;
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		n *= im.getNumberOfChannels();
 		const T* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = xGadgetronUtilities::abs(ptr[i]);
+		size_t n = im.getNumberOfDataElements();
+		for (size_t i = 0; i < n; i++)
+			data[i] = std::real(ptr[i]);
 	}
 
 	template<typename T>
@@ -402,11 +439,8 @@ private:
 		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
 		const T* i;
 		T* j;
-		long long ii = 0;
-		long long int n = ptr_x->getMatrixSizeX();
-		n *= ptr_x->getMatrixSizeY();
-		n *= ptr_x->getMatrixSizeZ();
-		n *= ptr_x->getNumberOfChannels();
+		size_t ii = 0;
+		size_t n = ptr_x->getNumberOfDataElements();
 		if (b == complex_double_t(0.0))
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
@@ -429,11 +463,8 @@ private:
 		const T* i;
 		const T* j;
 		*z = 0;
-		long long ii = 0;
-		long long int n = ptr_im->getMatrixSizeX();
-		n *= ptr_im->getMatrixSizeY();
-		n *= ptr_im->getMatrixSizeZ();
-		n *= ptr_im->getNumberOfChannels();
+		size_t ii = 0;
+		size_t n = ptr_im->getNumberOfDataElements();
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
 			complex_double_t u = (complex_double_t)*i;
@@ -447,11 +478,8 @@ private:
 	{
 		const T* i;
 		*r = 0;
-		long long ii = 0;
-		long long int n = ptr->getMatrixSizeX();
-		n *= ptr->getMatrixSizeY();
-		n *= ptr->getMatrixSizeZ();
-		n *= ptr->getNumberOfChannels();
+		size_t ii = 0;
+		size_t n = ptr->getNumberOfDataElements();
 		for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
 			complex_float_t a = (complex_float_t)*i;
 			*r += std::abs(std::conj(a) * a);
@@ -465,13 +493,10 @@ private:
 		const ISMRMRD::Image<T>* ptr = (const ISMRMRD::Image<T>*)ptr_;
 		const T* i;
 		const T* j;
-		long long ii = 0;
-		long long int n = ptr_im->getMatrixSizeX();
-		n *= ptr_im->getMatrixSizeY();
-		n *= ptr_im->getMatrixSizeZ();
-		n *= ptr_im->getNumberOfChannels();
 		*s = 0;
-		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n; 
+		size_t ii = 0;
+		size_t n = ptr_im->getNumberOfDataElements();
+		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
 			complex_float_t a = (complex_float_t)*i;
 			complex_float_t b = (complex_float_t)*j;
@@ -1081,6 +1106,7 @@ public:
 	virtual void get_images_data_as_double_array(double* data) const = 0;
 	virtual void get_images_data_as_complex_array
 		(double* re, double* im) const = 0;
+	virtual void set_complex_images_data(const double* re, const double* im) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer>
@@ -1346,6 +1372,23 @@ public:
 			im += size;
 		}
 	}
+	virtual void set_complex_images_data(const double* re, const double* im)
+	{
+#ifdef _MSC_VER
+		std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#else
+		typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+#endif
+		int dim[4];
+		for (i = images_.begin(); i != images_.end(); i++) {
+			boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+			ImageWrap& iw = *sptr_iw;
+			size_t n = iw.get_dim(dim);
+			iw.set_cmplx_data(re, im);
+			re += n;
+			im += n;
+		}
+	}
 	virtual boost::shared_ptr<aDataContainer> new_data_container()
 	{
 		return boost::shared_ptr<aDataContainer>((aDataContainer*)new ImagesList());
@@ -1409,12 +1452,9 @@ public:
 	}
 	virtual void get_data(double* re, double* im) const
 	{
-		long long int n = img_.getMatrixSizeX();
-		n *= img_.getMatrixSizeY();
-		n *= img_.getMatrixSizeZ();
-		n *= img_.getNumberOfChannels();
+		size_t n = img_.getNumberOfDataElements();
 		const complex_float_t* ptr = img_.getDataPtr();
-		for (long long int i = 0; i < n; i++) {
+		for (size_t i = 0; i < n; i++) {
 			complex_float_t z = ptr[i];
 			re[i] = std::real(z);
 			im[i] = std::imag(z);
@@ -1422,36 +1462,22 @@ public:
 	}
 	virtual void set_data(const double* re, const double* im)
 	{
-		long long int n = img_.getMatrixSizeX();
-		n *= img_.getMatrixSizeY();
-		n *= img_.getMatrixSizeZ();
-		n *= img_.getNumberOfChannels();
+		size_t n = img_.getNumberOfDataElements();
 		complex_float_t* ptr = img_.getDataPtr();
-		for (long long int i = 0; i < n; i++)
+		for (size_t i = 0; i < n; i++)
 			ptr[i] = complex_float_t(re[i], im[i]);
 	}
 	virtual void get_data(complex_float_t* data) const
 	{
-		long long int n = img_.getMatrixSizeX();
-		n *= img_.getMatrixSizeY();
-		n *= img_.getMatrixSizeZ();
-		n *= img_.getNumberOfChannels();
-		memcpy(data, img_.getDataPtr(), n*sizeof(complex_float_t));
+		memcpy(data, img_.getDataPtr(), img_.getDataSize());
 	}
 	virtual void set_data(const complex_float_t* data)
 	{
-		long long int n = img_.getMatrixSizeX();
-		n *= img_.getMatrixSizeY();
-		n *= img_.getMatrixSizeZ();
-		n *= img_.getNumberOfChannels();
-		memcpy(img_.getDataPtr(), data, n*sizeof(complex_float_t));
+		memcpy(img_.getDataPtr(), data, img_.getDataSize());
 	}
 	virtual void get_data_abs(double* v) const
 	{
-		long long int n = img_.getMatrixSizeX();
-		n *= img_.getMatrixSizeY();
-		n *= img_.getMatrixSizeZ();
-		n *= img_.getNumberOfChannels();
+		size_t n = img_.getNumberOfDataElements();
 		const complex_float_t* ptr = img_.getDataPtr();
 		for (long long int i = 0; i < n; i++) {
 			complex_float_t z = ptr[i];

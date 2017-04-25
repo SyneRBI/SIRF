@@ -84,6 +84,7 @@ extern "C" {
 	void cGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBLE ptr_data);
 	void cGT_getImagesDataAsComplexArray
 		(void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
+	void* cGT_setComplexImagesData(void* ptr_imgs, PTR_DOUBLE ptr_re, PTR_DOUBLE ptr_im);
 
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);

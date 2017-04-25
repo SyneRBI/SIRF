@@ -739,6 +739,26 @@ cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	list.get_images_data_as_complex_array(re, im);
 }
 
+int executionStatus(const void* ptr) {
+	const DataHandle* ptr_h = (const DataHandle*)ptr;
+	return (ptr_h->status() ? 1 : 0);
+}
+
+extern "C"
+void*
+cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
+{
+	try {
+		double* re = (double*)ptr_re;
+		double* im = (double*)ptr_im;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+		list.set_complex_images_data(re, im);
+	}
+	CATCH;
+	return (void*)new DataHandle;
+}
+
 extern "C"
 void*
 cGT_imageTypes(const void* ptr_x)
