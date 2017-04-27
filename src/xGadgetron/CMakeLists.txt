@@ -32,7 +32,7 @@ if (ISMRMRD_FOUND)
 
   if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
     set(FFTW3_DLL_DIR ${FFTW3_INCLUDE_DIR})
-    message(STATUS "Install hdf5 libraries from ${FFTW3_DLL_DIR} ")
+    message(STATUS "Install FFTW3 libraries from ${FFTW3_DLL_DIR} ")
 	file(GLOB FFTW_DLLS "${FFTW3_DLL_DIR}/*.dll")
     install( FILES ${FFTW_DLLS} DESTINATION bin )
 endif()
