@@ -108,9 +108,10 @@ def main():
     # Extract sorted k-space, permute dimensions and display
     acq_array = preprocessed_data.as_array(0)
     [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
-    acq_array = numpy.transpose(acq_array,(1,2,0))
+    acq_array = numpy.transpose(acq_array,(1,0,2))
     title = 'Acquisition data (magnitude)'
-    show_3D_array(abs(acq_array), suptitle = title, label = 'coil')
+    show_3D_array(abs(acq_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 ##    show(abs(acq_array[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
 ##            titles = ['Abs(Coil1)'])
             
@@ -172,7 +173,8 @@ def main():
     image_as_3D_array = image_data.as_array()
     maxv = numpy.amax(abs(image_as_3D_array))
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_as_3D_array), suptitle = title, label = 'slice', \
+    show_3D_array(abs(image_as_3D_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
                   scale = (0, maxv))
 ##    maxv = numpy.amax(abs(image_as_3D_array))*0.6
 ##    show(abs(image_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
@@ -182,7 +184,8 @@ def main():
     gfactor_as_3D_array = gfact_data.as_array();
     maxv = numpy.amax(abs(gfactor_as_3D_array))
     title = 'G-factor data (magnitude)'
-    show_3D_array(abs(gfactor_as_3D_array), suptitle = title, label = 'slice', \
+    show_3D_array(abs(gfactor_as_3D_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
                   scale = (0, maxv))
 ##    show(abs(gfactor_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
 ##         scale = (0, maxv), titles = ['G-factor map'])

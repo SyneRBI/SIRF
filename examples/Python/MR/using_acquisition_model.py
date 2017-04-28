@@ -98,16 +98,19 @@ def main():
     # get simulated acquisition data as a Python ndarray
     simulated_acq_array = simulated_acq_data.as_array();
     # display simulated acquisition data
-    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
+#    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
+    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,0,2))
     title = 'Simulated acquisition data (magnitude)'
-    show_3D_array(abs(simulated_acq_array), suptitle = title, label = 'coil')
+    show_3D_array(abs(simulated_acq_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 
     # backproject simulated acquisition data
     backprojected_data = acq_model.backward(simulated_acq_data)
     # show backprojected data
     backprojected_array = backprojected_data.as_array()
     title = 'Backprojected data (magnitude)'
-    show_3D_array(abs(backprojected_array), suptitle = title, label = 'slice')
+    show_3D_array(abs(backprojected_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
 
 try:
     main()

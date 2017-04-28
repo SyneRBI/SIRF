@@ -95,9 +95,11 @@ def main():
     image_array = image_data.as_array()
     title = 'Reconstructed image data (magnitude)'
     show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, \
-                  label = 'slice', show = False)
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
+                  show = False)
     title = 'Reconstructed image data (imaginary part)'
-    show_3D_array(abs(image_array[1::2,:,:]), suptitle = title, label = 'slice')
+    show_3D_array(abs(image_array[1::2,:,:]), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
 
     if output_file is not None:
         # write images to a new group in args.output

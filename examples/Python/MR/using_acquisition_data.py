@@ -116,20 +116,20 @@ def main():
     acq_shape = acq_array.shape
     print('input data dimensions: %dx%dx%d' % acq_shape)
 
-    acq_array = numpy.transpose(acq_array,(1,2,0))
+    acq_array = numpy.transpose(acq_array,(1,0,2))
     title = 'Acquisition data (magnitude)'
     show_3D_array(abs(acq_array), suptitle = title, label = 'coil', \
-                  ylabel = 'samples', xlabel = 'readouts', show = False)
+                  xlabel = 'samples', ylabel = 'readouts', show = False)
 
     cloned_acq_data = acq_data.clone()
     cloned_acq_array = cloned_acq_data.as_array()
     cloned_acq_shape = cloned_acq_array.shape
     print('cloned data dimensions: %dx%dx%d' % cloned_acq_shape)
 
-    cloned_acq_array = numpy.transpose(cloned_acq_array,(1,2,0))
+    cloned_acq_array = numpy.transpose(cloned_acq_array,(1,0,2))
     title = 'Cloned acquisition data (magnitude)'
     show_3D_array(abs(cloned_acq_array), suptitle = title, label = 'coil', \
-                  ylabel = 'samples', xlabel = 'readouts', show = False)
+                  xlabel = 'samples', ylabel = 'readouts', show = False)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -147,10 +147,10 @@ def main():
     processed_acq_shape = processed_acq_array.shape
     print('processed data dimensions: %dx%dx%d' % processed_acq_shape)
 
-    processed_acq_array = numpy.transpose(processed_acq_array,(1,2,0))
+    processed_acq_array = numpy.transpose(processed_acq_array,(1,0,2))
     title = 'Processed acquisition data (magnitude)'
     show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil', \
-                  ylabel = 'samples', xlabel = 'readouts')
+                  xlabel = 'samples', ylabel = 'readouts')
 
 try:
     main()

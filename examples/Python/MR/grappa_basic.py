@@ -104,10 +104,12 @@ def main():
     # show reconstructed image and G-factor data
     output_array = output.as_array()
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(output_array[0::2,:,:]), suptitle = title, label = 'slice', \
+    show_3D_array(abs(output_array[0::2,:,:]), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
                   show = False)
     title = 'Reconstructed G-factor data (magnitude)'
-    show_3D_array(abs(output_array[1::2,:,:]), suptitle = title, label = 'slice')
+    show_3D_array(abs(output_array[1::2,:,:]), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
 
 try:
     main()

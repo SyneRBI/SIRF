@@ -86,9 +86,11 @@ def main():
     coil_images = numpy.squeeze(CSMs.as_array(0))
     maxv = numpy.amax(abs(coil_images))
     title = 'Coil sensitivity maps (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+    show_3D_array(abs(coil_images), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
     title = 'Coil sensitivity maps (phase)'
-    show_3D_array(numpy.angle(coil_images), suptitle = title, label = 'coil')
+    show_3D_array(numpy.angle(coil_images), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 ##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
 ##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
 ##    show_3D_array(numpy.angle(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
@@ -103,7 +105,8 @@ def main():
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
     title = 'Coil sensitivity maps (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+    show_3D_array(abs(coil_images), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 ##    maxv = numpy.amax(abs(coil_images))
 ##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
 ##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
@@ -120,7 +123,8 @@ def main():
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
     title = 'Coil sensitivity maps (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, label = 'coil')
+    show_3D_array(abs(coil_images), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 ##    maxv = numpy.amax(abs(coil_images))
 ##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
 ##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])

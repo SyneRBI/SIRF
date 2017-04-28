@@ -57,7 +57,8 @@ def main():
     # show reconstructed images
     image_array = image_data.as_array()
     title = 'Reconstructed images (magnitude)'
-    show_3D_array(abs(image_array), suptitle = title, label = 'slice')
+    show_3D_array(abs(image_array), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'slice')
 
 try:
     main()
