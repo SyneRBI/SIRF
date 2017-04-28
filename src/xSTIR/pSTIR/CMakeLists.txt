@@ -23,6 +23,7 @@ if(BUILD_PYTHON)
   INCLUDE("${SWIG_USE_FILE}")
 
   SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES CPLUSPLUS ON)
+  SET_SOURCE_FILES_PROPERTIES(pystir.i PROPERTIES SWIG_FLAGS "-I${cSTIR_INCLUDE_DIR}")
   # find libraries and include files
   # TODO would be better to use target_include_directories
 
