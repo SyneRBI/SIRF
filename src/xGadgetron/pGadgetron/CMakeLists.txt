@@ -30,6 +30,7 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
+  set(SWIG_MODULE_pygadgetron_EXTRA_DEPS cgt iutil)
   SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
   SWIG_LINK_LIBRARIES(pygadgetron cgt iutil "${PYTHON_LIBRARIES}")
 
