@@ -47,18 +47,22 @@ make install
 =======
 WINDOWS
 =======
+This is currently still very hard due to the many dependencies in SIRF. These will need to be installed
+separately. See https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions for more details.
 
 General remarks
 ---------------
 
-Instructions are for CMake GUI.
+Instructions are for CMake GUI (use at least CMake 3.7.2).
+
 
 For selecting folder and file paths click on the value field of a CMake variable and
 then click on button marked ... on the right-hand side. If the folder you select does 
 not exist yet, you can create it in CMake Select Path window.
 
-WARNING: during installation you may see various error messages. These are likely to
-be caused by CMake bugs - carry on regardless (as we did).
+WARNING: during CMake configuration you may see various error messages, some times in pop-up windows. 
+These are likely to be caused by CMake not yet finding the relevant packages or CMake bugs - carry on with the steps
+given below regardless (as we did).
 
 ----------------
 
@@ -93,9 +97,10 @@ If STIR_DIR is not foun, set it to YOUR_PATH/build/install/lib/cmake.
 Click Configure.
 
 If HDF5 is not found, set HDF5_C_INCLUDE_DIR to <HDF5_ROOT>/include and 
-the value of HDF5_hdf5_LIBRARY_RELEASE to C:/Packages/HDF5/1.8.18/lib/libhdf5.lib.
+the value of HDF5_hdf5_LIBRARY_RELEASE to C:/Packages/HDF5/1.8.18/lib/libhdf5.lib
+(or where you installed HDF5)
 
-Check the box agains SIRF_INSTALL_DEPENDENCIES.
+Check the box SIRF_INSTALL_DEPENDENCIES.
 
 Click Configure.
 
