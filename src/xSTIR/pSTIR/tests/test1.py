@@ -148,6 +148,7 @@ try:
     failed = main()
     if failed == 0:
         print('all tests passed')
+        sys.exit(0)
     else:
         print('%d tests failed' % failed)
         sys.exit(failed)
