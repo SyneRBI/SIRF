@@ -1,3 +1,7 @@
+Due to the use of some external libraries, currently SIRF is licensed under the GPL v2 (see GPL.txt).
+However, 99% of the SIRF code is licensed under the Apache 2.0 code, see details below.
+
+
 Apache License
 
 Version 2.0, January 2004
