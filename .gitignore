@@ -249,6 +249,7 @@ $RECYCLE.BIN/
 *.mat
 *.am
 *.thresholded
+*.vcxproj
 info.txt
 warn.txt
 errr.txt

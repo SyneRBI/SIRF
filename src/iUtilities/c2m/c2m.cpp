@@ -132,8 +132,10 @@ int c2m(
 	string in;
 	string out;
 	string line;
+	int comment;
 	int hashcount;
 	int ifcount;
+	int head_printed;
 	int status;
 	bool quit;
 
@@ -151,29 +153,60 @@ int c2m(
 	fh.open(mhfile.c_str(), ios::out);
 	fc.open(mcfile.c_str(), ios::out);
 
-	fh << "#ifndef " << library << "_TO_MATLAB_INTERFACE" << endl;
-	fh << "#define " << library << "_TO_MATLAB_INTERFACE" << endl << endl;
-	fh << "#define " << library << "_FOR_MATLAB" << endl;
-	fh << "#include \"shrhelp.h\"" << endl << endl;
-
-	fc << "#include <mex.h>" << endl;
-	fc << "#define EXPORT_FCNS" << endl;
-	fc << "#define " << library << "_FOR_MATLAB" << endl;
-	fc << "#include \"matrix.h\"" << endl;
-	fc << "#include \"shrhelp.h\"" << endl;
-	fc << "#include \"" << chfile << '"' << endl << endl;
-
+	head_printed = 0;
+	comment = 0;
 	hashcount = 0;
 	ifcount = 0;
 
 	for (;;) {
+
 		if (fin.eof())
 			break;
+
 		getline(fin, line);
 		cout << line << endl;
 		i = line.find_first_not_of(" \t\n\v\f\r");
+
 		if (i == string::npos || line[i] == '/' && line[i + 1] == '/')
 			continue;
+
+		if (line[i] == '/' && line[i + 1] == '*')
+			comment = 1;
+		if (comment) {
+			fh << line << endl;
+			fc << line << endl;
+		}
+		if (line[i] == '*' && line[i + 1] == '/') {
+			line.erase(0);
+			comment = 0;
+		}
+		if (comment)
+			continue;
+
+		if (!comment && !head_printed) {
+			fh << "#ifndef " << library << "_TO_MATLAB_INTERFACE" << endl;
+			fh << "#define " << library << "_TO_MATLAB_INTERFACE" << endl << endl;
+			fh << "#define " << library << "_FOR_MATLAB" << endl;
+			fh << "#ifdef _WIN32" << endl;
+			fh << "#define EXPORTED_FUNCTION __declspec(dllexport)" << endl;
+			fh << "#else" << endl;
+			fh << "#define EXPORTED_FUNCTION" << endl;
+			fh << "#endif" << endl << endl;
+			//fh << "#include \"shrhelp.h\"" << endl << endl;
+			//fc << "#define EXPORT_FCNS" << endl;
+			fc << "#define " << library << "_FOR_MATLAB" << endl;
+			fc << "#ifdef _WIN32" << endl;
+			fc << "#define EXPORTED_FUNCTION __declspec(dllexport)" << endl;
+			fc << "#else" << endl;
+			fc << "#define EXPORTED_FUNCTION" << endl;
+			fc << "#endif" << endl << endl;
+			fc << "#include <mex.h>" << endl;
+			fc << "#include \"matrix.h\"" << endl;
+			//fc << "#include \"shrhelp.h\"" << endl;
+			fc << "#include \"" << chfile << '"' << endl << endl;
+			head_printed = 1;
+		}
+
 		if (line[i] == '#') {
 			if (line[i + 1] == 'e' && line[i + 2] == 'n' && line[i + 3] == 'd')
 				ifcount--;
@@ -186,6 +219,7 @@ int c2m(
 				ifcount++;
 			continue;
 		}
+
 		in = line;
 		i = in.find(';');
 		while (i == string::npos) {
