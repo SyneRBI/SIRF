@@ -103,7 +103,7 @@ mUtil.show_3D_array(abs(cloned_acq_array).^0.2, title, ...
 set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
 title = 'Processed acquisition data (magnitude)';
 mUtil.show_3D_array(abs(processed_array).^0.2, title, ...
-    'kx', 'readouts', 'coil');
+    'samples', 'readouts', 'coil');
 set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
 
 end
