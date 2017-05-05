@@ -81,12 +81,17 @@ preprocessed_data = acq_data.process(prep_gadgets);
 % Extract sorted k-space, permute dimensions and display
 preprocessed_array = preprocessed_data.as_array ;
 [ns,nc,nro] = preprocessed_data.dimensions ; % [nx ncoil ny]
-preprocessed_array = permute(preprocessed_array,[3 1 2]) ; %  [ny nx ncoil]
-preprocessed_coil_as_col = reshape(preprocessed_array,[nro nc*ns]) ; 
 if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file')
+    preprocessed_array = permute(preprocessed_array,[3 1 2]) ; %  [ny nx ncoil]
+    preprocessed_coil_as_col = reshape(preprocessed_array,[nro nc*ns]) ; 
     figure('Name','Input k-space')
     fprintf('Displaying k-space\n')
     imshow(imadjust(mat2gray(abs(preprocessed_coil_as_col)),[0 0.7],[],0.2))
+else
+    preprocessed_array = permute(preprocessed_array,[1 3 2]) ; %  [nx ny ncoil]
+    title = 'Acquisition data (magnitude)';
+    mUtil.show_3D_array(abs(preprocessed_array).^0.2, title, 'samples', 'readouts', 'coil');
+    set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
 end
 
 % Perform reconstruction of the preprocessed data.
