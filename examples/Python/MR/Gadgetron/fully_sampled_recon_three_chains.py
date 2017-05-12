@@ -70,7 +70,11 @@ def main():
     # create an object which removes the readout oversampling from the acquired 
     # k-space data
     acq_proc = AcquisitionDataProcessor(['RemoveROOversamplingGadget'])
-    preprocessed_data = acq_proc.process(acq_data)
+    acq_proc.set_input(acq_data)
+    acq_proc.process()
+    preprocessed_data = acq_proc.get_output()
+    # shortcut for the above 3 lines
+##    preprocessed_data = acq_proc.process(acq_data)
     
     # Get size of k-space data after removal of oversampling
     k_space_dimensions = preprocessed_data.dimensions()

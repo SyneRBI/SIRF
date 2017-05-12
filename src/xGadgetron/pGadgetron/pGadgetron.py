@@ -1050,9 +1050,9 @@ class ImageDataProcessor(GadgetChain):
         input_data: ImageData
         '''
         if input_data is not None:
-            self.input_data = input_data
+            self.set_input(input_data)
         if self.input_data is None:
-            raise error('input image not set')
+            raise error('input data not set')
         image = ImageData()
         image.handle = pygadgetron.cGT_processImages\
              (self.handle, self.input_data.handle)
@@ -1084,6 +1084,7 @@ class AcquisitionDataProcessor(GadgetChain):
         self.handle = pygadgetron.cGT_newObject('AcquisitionsProcessor')
         check_status(self.handle)
         self.input_data = None
+        self.output_data = None
         if list is None:
             return
         for i in range(len(list)):
@@ -1092,16 +1093,31 @@ class AcquisitionDataProcessor(GadgetChain):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-    def process(self, input_data):
+    def set_input(self, input_data):
+        '''
+        Sets the input data.
+        '''
+        self.input_data = input_data
+    def process(self, input_data = None):
         '''
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
+        if input_data is not None:
+            self.set_input(input_data)
+        if self.input_data is None:
+            raise error('input data not set')
         acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
-             (self.handle, input_data.handle)
+             (self.handle, self.input_data.handle)
         check_status(acquisitions.handle)
+        self.output_data = acquisitions
         return acquisitions
+    def get_output(self):
+        '''
+        Returns the output data.
+        '''
+        return self.output_data
 
 class FullySampledReconstructor(Reconstructor):
     '''
