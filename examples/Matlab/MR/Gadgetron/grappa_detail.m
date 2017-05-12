@@ -46,13 +46,12 @@ function grappa_detail
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-% load mutilities and mgadgetron libraries
-ccp_libload
-
-% import mGadgetron MATLAB classes so that they can be called in this
-% function without using the prefix 'mGadgetron.'
-import mGadgetron.*
-
+% default engine to be used if none given
+if nargin < 1
+    engine = [];
+end
+import_str = setup_MR(engine);
+eval(import_str)
 
 % Get the filename of the input ISMRMRD h5 file
 [fn,pn] = uigetfile('*.h5','Select ISMRMRD H5 file', mr_data_path) ;
