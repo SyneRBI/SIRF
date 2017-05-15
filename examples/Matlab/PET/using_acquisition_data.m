@@ -34,24 +34,21 @@ try
     % copy the acquisition data into a Matlab array
     acq_array = acq_data.as_array();
 
-    scale = max(max(max(acq_array)))/4;
     acq_dim = size(acq_array);
     x = acq_dim(1)/2;
     y = acq_dim(2)/2;
     z = acq_dim(3)/2;
 
     % display the acquisition data
-    figure
-    imshow(acq_array(:,:,z)/scale);
-    title('acquisition data')
+    mUtil.show_2D_array(acq_array(:,:,z), ...
+        'acquisition data', 'tang. pos.', 'views');
 
     % clone the acquisition data
     new_acq_data = acq_data.clone();
     % display the cloned data
     acq_array = new_acq_data.as_array();
-    figure
-    imshow(acq_array(:,:,z)/scale);
-    title('acquisition data cloned')
+    mUtil.show_2D_array(acq_array(:,:,z), ...
+        'acquisition data cloned', 'tang. pos.', 'views');
 
     % fill the cloned data with the acquisition data multiplied by 10
     % and see the difference at (x, y, z)

@@ -67,13 +67,13 @@ try
     % (checks the validity of parameters, sets up objective function
     % and other objects involved in the reconstruction, which involves
     % computing/reading sensitivity image etc etc.)
+    fprintf('setting up, please wait...\n')
     recon.set_up(image)
 
     % display the initial image
+    z = 20;
     image_array = image.as_array();
-    figure(1000000)
-    image_array = image_array/max(max(max(image_array)));
-    imshow(image_array(:,:,1));
+    mUtil.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
 
     % set the initial image estimate
     recon.set_current_estimate(image)
@@ -87,8 +87,8 @@ try
         recon.update_current_estimate()
         % display the current image
         image_array = recon.get_current_estimate().as_array();
-        figure(iter)
-        imshow(image_array(:,:,20)/max(max(max(image_array))));
+        the_title = sprintf('iteration %d', iter);
+        mUtil.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
     end
 
 catch err
