@@ -118,7 +118,7 @@ def main():
 
     acq_array = numpy.transpose(acq_array,(1,0,2))
     title = 'Acquisition data (magnitude)'
-    show_3D_array(abs(acq_array), suptitle = title, label = 'coil', \
+    show_3D_array(acq_array, power = 0.2, suptitle = title, label = 'coil', \
                   xlabel = 'samples', ylabel = 'readouts', show = False)
 
     cloned_acq_data = acq_data.clone()
@@ -128,7 +128,8 @@ def main():
 
     cloned_acq_array = numpy.transpose(cloned_acq_array,(1,0,2))
     title = 'Cloned acquisition data (magnitude)'
-    show_3D_array(abs(cloned_acq_array), suptitle = title, label = 'coil', \
+    show_3D_array(cloned_acq_array, power = 0.2, \
+                  suptitle = title, label = 'coil', \
                   xlabel = 'samples', ylabel = 'readouts', show = False)
 
     # pre-process acquired k-space data
@@ -149,7 +150,8 @@ def main():
 
     processed_acq_array = numpy.transpose(processed_acq_array,(1,0,2))
     title = 'Processed acquisition data (magnitude)'
-    show_3D_array(abs(processed_acq_array), suptitle = title, label = 'coil', \
+    show_3D_array(processed_acq_array, power = 0.2, \
+                  suptitle = title, label = 'coil', \
                   xlabel = 'samples', ylabel = 'readouts')
 
 try:

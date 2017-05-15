@@ -66,7 +66,7 @@ def show_2D_array(title, array, colorbar = True):
     plt.show()
 
 def show_3D_array\
-    (array, tile_shape = None, scale = None, \
+    (array, tile_shape = None, scale = None, power = None, \
      suptitle = None, titles = None, \
      xlabel = None, ylabel = None, label = None, \
      show = True):
@@ -103,8 +103,12 @@ def show_3D_array\
         assert rows*cols >= array.shape[0],\
                 "tile rows x columns must equal the 3rd dim extent of array"
     if scale is None:
-        vmin = numpy.amin(array)
-        vmax = numpy.amax(array)
+        if power is None:
+            vmin = numpy.amin(array)
+            vmax = numpy.amax(array)
+        else:
+            vmin = numpy.power(numpy.amin(abs(array)), power)
+            vmax = numpy.power(numpy.amax(abs(array)), power)
     else:
         vmin, vmax = scale
     fig = plt.figure()
@@ -131,7 +135,11 @@ def show_3D_array\
             if ylabel is not None:
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [1, ny])
-        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+        if power is None:
+            imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+        else:
+            imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), \
+                                vmin=vmin, vmax=vmax)
     fignums = plt.get_fignums()
     print('Close Figure %d window to continue' % fignums[-1])
     if show:

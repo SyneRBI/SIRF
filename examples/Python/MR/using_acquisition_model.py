@@ -101,7 +101,7 @@ def main():
 #    simulated_acq_array = numpy.transpose(simulated_acq_array,(1,2,0))
     simulated_acq_array = numpy.transpose(simulated_acq_array,(1,0,2))
     title = 'Simulated acquisition data (magnitude)'
-    show_3D_array(abs(simulated_acq_array), suptitle = title, \
+    show_3D_array(simulated_acq_array, power = 0.2, suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 
     # backproject simulated acquisition data
