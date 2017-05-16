@@ -61,22 +61,6 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
 
-##import matplotlib.pyplot as plt
-##def show(image_matrix, tile_shape, scale, titles):
-##    assert numpy.prod(tile_shape) >= image_matrix.shape[0],\
-##            "image tile rows x columns must equal the 3rd dim"\
-##            " extent of image_matrix"
-##    cols, rows = tile_shape
-##    vmin, vmax = scale
-##    fig = plt.figure()
-##    for z in range(image_matrix.shape[0]):
-##        ax = fig.add_subplot(cols, rows, z+1)
-##        ax.set_title(titles[z])
-##        ax.set_axis_off()
-##        imgplot = ax.imshow(image_matrix[z,:,:], vmin=vmin, vmax=vmax, cmap='gray')
-##    print('close figure 1 to continue')
-##    plt.show()
-# import a more flexible show_3D_array() alternative to the above
 from pUtil import show_3D_array
 
 
@@ -110,10 +94,9 @@ def main():
     [ns,nc,nro] = preprocessed_data.dimensions() # [nx ncoil ny]
     acq_array = numpy.transpose(acq_array,(1,0,2))
     title = 'Acquisition data (magnitude)'
-    show_3D_array(abs(acq_array), suptitle = title, \
+    show_3D_array(acq_array, power = 0.2, \
+                  suptitle = title, title_size = 16, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-##    show(abs(acq_array[0,None,:,:]), tile_shape = (1,1), scale = (0, 0.7),\
-##            titles = ['Abs(Coil1)'])
             
     
     # Perform reconstruction of the preprocessed data.
@@ -173,22 +156,19 @@ def main():
     image_as_3D_array = image_data.as_array()
     maxv = numpy.amax(abs(image_as_3D_array))
     title = 'Reconstructed image data (magnitude)'
-    show_3D_array(abs(image_as_3D_array), suptitle = title, \
+    show_3D_array(abs(image_as_3D_array), \
+                  suptitle = title, title_size = 16, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
                   scale = (0, maxv))
-##    maxv = numpy.amax(abs(image_as_3D_array))*0.6
-##    show(abs(image_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
-##         scale = (0, maxv), titles = ['Abs(Image)'])
             
             
     gfactor_as_3D_array = gfact_data.as_array();
     maxv = numpy.amax(abs(gfactor_as_3D_array))
     title = 'G-factor data (magnitude)'
-    show_3D_array(abs(gfactor_as_3D_array), suptitle = title, \
+    show_3D_array(abs(gfactor_as_3D_array),
+                  suptitle = title, title_size = 16, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
                   scale = (0, maxv))
-##    show(abs(gfactor_as_3D_array[0,None,:,:]), tile_shape = (1,1), \
-##         scale = (0, maxv), titles = ['G-factor map'])
 
 try:
     main()

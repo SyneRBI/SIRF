@@ -18,6 +18,7 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
 import pyiutil
@@ -62,13 +63,14 @@ def show_2D_array(title, array, colorbar = True):
     if colorbar:
         plt.colorbar()
     fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
+    print('Close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 def show_3D_array\
     (array, tile_shape = None, scale = None, power = None, \
      suptitle = None, titles = None, \
      xlabel = None, ylabel = None, label = None, \
+     title_size = None, \
      show = True):
     '''
     Displays a 3D array as a set of z-slice tiles.
@@ -88,6 +90,14 @@ def show_3D_array\
     '''
     import math
     import numpy
+    current_title_size = mpl.rcParams['axes.titlesize']
+    current_label_size = mpl.rcParams['axes.labelsize']
+    current_xlabel_size = mpl.rcParams['xtick.labelsize']
+    current_ylabel_size = mpl.rcParams['ytick.labelsize']
+    mpl.rcParams['axes.titlesize'] = 'small'
+    mpl.rcParams['axes.labelsize'] = 'small'
+    mpl.rcParams['xtick.labelsize'] = 'small'
+    mpl.rcParams['ytick.labelsize'] = 'small'
     if tile_shape is None:
         nz = array.shape[0]
         ny = array.shape[1]
@@ -113,14 +123,15 @@ def show_3D_array\
         vmin, vmax = scale
     fig = plt.figure()
     if suptitle is not None:
-        fig.suptitle(suptitle, fontsize = 16)
+        if title_size is None:
+            fig.suptitle(suptitle)
+        else:
+            fig.suptitle(suptitle, fontsize = title_size)
     for z in range(array.shape[0]):
         ax = fig.add_subplot(rows, cols, z + 1)
         if titles is None:
-            if label is None:
-                ax.set_title('%d' % (z + 1))
-            else:
-                ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
+            if label is not None:
+                ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[z])
         row = z//cols
@@ -140,10 +151,18 @@ def show_3D_array\
         else:
             imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), \
                                 vmin=vmin, vmax=vmax)
-    fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
     if show:
+        fignums = plt.get_fignums()
+        last = fignums[-1]
+        if last > 1:
+            print("Close Figures' 1 - %d windows to continue..." % last)
+        else:
+            print('Close Figure 1 window to continue...')
         plt.show()
+    mpl.rcParams['axes.titlesize'] = current_title_size
+    mpl.rcParams['axes.labelsize'] = current_label_size
+    mpl.rcParams['xtick.labelsize'] = current_xlabel_size
+    mpl.rcParams['ytick.labelsize'] = current_ylabel_size
 
 ###########################################################
 ############ Utilities for internal use only ##############
