@@ -90,7 +90,7 @@ else
     preprocessed_array = permute(preprocessed_array,[1 3 2]) ; %  [nx ny ncoil]
     title = 'Acquisition data (magnitude)';
     mUtil.show_3D_array(abs(preprocessed_array).^0.2, title, 'samples', 'readouts', 'coil');
-    set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
+    mUtil.set_window(0.1, 0.1, 0.8, 0.8)
 end
 
 % Perform reconstruction of the preprocessed data.
