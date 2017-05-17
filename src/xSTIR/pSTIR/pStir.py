@@ -382,15 +382,16 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter silce numbers (ex: 1, 3-5) or 0 to stop the loop')
+        print('Please enter slice numbers (e.g.: 1, 3-5)') # or 0 to stop the loop')
 ##        print('Please enter the number of the slice to view')
-##        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
+        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
-            s = str(input('slice: '))
+            s = str(input('slices to display: '))
             if len(s) < 1:
                 break
             err = show_3D_array(data, index = s, label = 'slice')
             if err != 0:
+                print('out-of-range slice numbers selected, quitting the loop')
                 break
 ##            z = int(s)
 ##            if z < 1 or z > nz:

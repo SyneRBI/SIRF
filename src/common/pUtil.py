@@ -146,7 +146,7 @@ def show_3D_array\
         z = index[k] - 1
         ax = fig.add_subplot(rows, cols, k + 1)
         if titles is None:
-            if label is not None:
+            if label is not None and nz > 1:
                 ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[k])
