@@ -1,4 +1,4 @@
-function show_3D_array(array, sup_title, x_label, y_label, label)
+function err = show_3D_array(array, sup_title, x_label, y_label, label, index)
 % Shows 3D array as a set of xy-slices, optionally labelled.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -18,6 +18,8 @@ function show_3D_array(array, sup_title, x_label, y_label, label)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
+err = 0;
+
 shape = size(array);
 nx = shape(1);
 ny = shape(2);
@@ -27,6 +29,24 @@ if ndims(array) < 3
 else
     nz = uint16(shape(3));
 end
+if nargin < 6
+    n = nz;
+    index = 1 : nz;
+else
+    if ischar(index)
+        index = mUtil.str_to_int_list(index);
+    end
+    n = length(index);
+    for i = 1 : n
+        j = index(i);
+        if j < 1 || j > nz
+            err = i;
+            fprintf('z-index %d is out of range, aborting display\n', j)
+            return
+        end
+    end
+end
+nz = n;
 s = double(nz*ny/nx);
 irows = uint16(round(sqrt(s)));
 if irows < 1
@@ -52,12 +72,8 @@ for z = 1 : nz
     col = z - (row - 1)*icols;
     p = double(z);
     subplot(rows, cols, p, 'Parent', panel)
-    if z <= nz
-        image = uint8(array(:,:,z)/scale);
-        imshow(image, 'Colormap', jet(255))
-    else
-        imshow(ones(nx, ny), 'Colormap', jet(255))
-    end
+    image = uint8(array(:,:,index(z))/scale);
+    imshow(image, 'Colormap', jet(255))
     if row == irows && col == 1
         xlabel(y_label)
         ylabel(x_label)
@@ -67,11 +83,9 @@ for z = 1 : nz
     end
     if nz > 1
         if nargin > 4
-            sub_title = sprintf('%s %d', label, z);
-        else
-            sub_title = sprintf('%d', z);
+            sub_title = sprintf('%s %d', label, index(z));
+            title(sub_title);
         end
-        title(sub_title);
     end
 end
 end

@@ -181,16 +181,28 @@ classdef ImageData < handle
                 return
             end
             data = data/max(data(:));
-            fprintf('Please enter the number of the image slice to view\n')
-            fprintf('(a value outside the range [1 : %d] will stop this loop)\n', nz)
+            %fprintf('Please enter the number of the image slice to view\n')
+            %fprintf('(a value outside the range [1 : %d] will stop this loop)\n', nz)
+            fprintf('Please enter z-slice numbers (ex: 1, 3-5) %s\n', ...
+                'or 0 to stop the loop\n')
             while true
-                z = input('image: ');
-                if z < 1 || z > nz
+                s = input('z-slices to display: ', 's');
+                select = mUtil.str_to_int_list(s);
+                if select(1) < 1
                     break
                 end
-                figure(z)
-                imshow(data(:, :, z))
-                title(['image ' num2str(z)])
+                mUtil.show_3D_array...
+                    (data, 'Selected slices', 'x', 'y', 'slice', select);
+%                 if err ~= 0
+%                     break
+%                 end
+%                 z = input('image: ');
+%                 if z < 1 || z > nz
+%                     break
+%                 end
+%                 figure(z)
+%                 imshow(data(:, :, z))
+%                 title(['image ' num2str(z)])
             end
         end
     end
