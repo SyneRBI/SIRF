@@ -382,20 +382,24 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter the number of the slice to view')
-        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
+        print('Please enter silce numbers (ex: 1, 3-5) or 0 to stop the loop')
+##        print('Please enter the number of the slice to view')
+##        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
             s = str(input('slice: '))
             if len(s) < 1:
                 break
-            z = int(s)
-            if z < 1 or z > nz:
+            err = show_3D_array(data, index = s, label = 'slice')
+            if err != 0:
                 break
-            pylab.figure(z)
-            pylab.title('image %d' % z)
-            pylab.imshow(data[z - 1, :, :])
-            print('Close Figure %d window to continue...' % z)
-            pylab.show()
+##            z = int(s)
+##            if z < 1 or z > nz:
+##                break
+##            pylab.figure(z)
+##            pylab.title('image %d' % z)
+##            pylab.imshow(data[z - 1, :, :])
+##            print('Close Figure %d window to continue...' % z)
+##            pylab.show()
 
 class ImageDataProcessor:
     '''Class for image processors.
