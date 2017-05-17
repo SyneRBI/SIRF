@@ -35,6 +35,11 @@ from pUtil import *
 import pyiutil
 import pystir
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
