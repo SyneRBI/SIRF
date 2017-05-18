@@ -86,6 +86,6 @@ backprojected_data = acq_model.backward(simulated_acq_data);
 backprojected_array = backprojected_data.as_array();
 title = 'Backprojected data (magnitude)';
 mUtil.show_3D_array...
-    (abs(backprojected_array), title, 'samples', 'readouts', 'slice')
+    (abs(backprojected_array), title, 'samples', 'readouts', 'slice');
 
 end
