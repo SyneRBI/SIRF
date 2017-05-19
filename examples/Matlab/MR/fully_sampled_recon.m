@@ -92,7 +92,7 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     mUtil.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
-        'samples', 'readouts', 'slice')
+        'samples', 'readouts', 'slice');
 end
 
 % filter image
@@ -101,4 +101,4 @@ image_array(abs(image_array) < 0.2*max(image_array(:))) = 0;
 image_data.fill(image_array);
 mUtil.show_3D_array...
     (abs(image_data.as_array()), 'Filtered image data (magnitude)', ...
-    'samples', 'readouts', 'slice')
+    'samples', 'readouts', 'slice');
