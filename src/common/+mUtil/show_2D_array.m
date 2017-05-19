@@ -1,4 +1,4 @@
-function show_2D_array(array, the_title, x_label, y_label)
+function show_2D_array(array, the_title, x_label, y_label, window)
 % Displays a 2D array.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -31,3 +31,8 @@ set(gca, 'XTick', [1 ny])
 set(gca, 'YTick', [1 nx])
 axis on
 title(the_title);
+if nargin < 5
+    window = [0.3 0.2 0.4 0.5];
+end
+mUtil.set_window(window(1), window(2), window(3), window(4))
+
