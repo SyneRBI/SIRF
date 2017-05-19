@@ -578,12 +578,18 @@ class AcquisitionData(DataContainer):
         if self.handle is None:
             raise error('AcquisitionData object not initialized')
         if isinstance(value, numpy.ndarray):
-            pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+            h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         elif isinstance(value, AcquisitionData):
-            pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+            h = pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value.handle)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         elif isinstance(value, float):
-            pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+            h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         else:
             raise error('wrong fill value')
         return self

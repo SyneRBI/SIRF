@@ -1,6 +1,7 @@
 /*
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+Copyright 2015 - 2017 University College London.
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
 (http://www.ccppetmr.ac.uk/).
@@ -45,9 +46,9 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data);
-EXPORTED_FUNCTION  	void mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
-EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsData(void* ptr_acq, double v);
-EXPORTED_FUNCTION 	void mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from);
+EXPORTED_FUNCTION  	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, double v);
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from);
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
