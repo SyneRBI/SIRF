@@ -84,14 +84,29 @@ def main():
     image_array = image.as_array()
     show_2D_array('Phantom image', image_array[z,:,:])
 
+    # raw data to be used as a template for the acquisition model
+    acq_template = AcquisitionData(raw_data_file)
+
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
 
+    # testing bin efficiencies
+    bin_eff = acq_template.clone()
+    bin_eff.fill(2.0)
+    bin_eff_arr = bin_eff.as_array()
+    # set a portion of bin efficiencies to zero;
+    # this should zero the corresponding portion of forward projection
+    # and 'damage' the backprojection making it look less like the
+    # actual image
+    bin_eff_arr[:,10:50,:] = 0
+    show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
+    bin_eff.fill(bin_eff_arr)
+    acq_model.set_bin_efficiency(bin_eff)
+
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
-    acq_template = AcquisitionData(raw_data_file)
     acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
     # if the projection data is very large, it can be stored in a file

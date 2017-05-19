@@ -59,10 +59,15 @@ public:
 	{
 		return sptr_normalisation_;
 	}
-	void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
+	void set_bin_efficiency(boost::shared_ptr<ProjData> sptr_data)
 	{
 		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
 		inv_(sptr.get(), MIN_BIN_EFFICIENCY);
+		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
+	}
+	void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
+	{
+		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
 		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 	}
 	void cancel_background_term()
@@ -141,6 +146,7 @@ public:
 	boost::shared_ptr<Image> backward(const ProjData& ad)
 	{
 		boost::shared_ptr<Image> sptr_im(sptr_image_template_->clone());
+		sptr_im->fill(0.0);
 
 		if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 			std::cout << "applying normalisation...\n";

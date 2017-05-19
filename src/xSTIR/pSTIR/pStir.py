@@ -658,14 +658,20 @@ class AcquisitionModel:
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-    def set_normalisation(self, bin_eff):
+    def set_normalisation(self, norm):
         ''' 
         Sets the normalization n in (F);
-        bin_eff:  an AcquisitionData object containing bin efficiencies
-                  (the inverse of n).
+        norm:  an AcquisitionData object containing normalisation n
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
+    def set_bin_efficiency(self, bin_eff):
+        ''' 
+        Sets the bin_efficiency 1/n in (F);
+        bin_eff:  an AcquisitionData object containing bin efficiencies
+        '''
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
     def forward(self, image, filename = ''):
         ''' 
         Returns the forward projection of x given by (F);
