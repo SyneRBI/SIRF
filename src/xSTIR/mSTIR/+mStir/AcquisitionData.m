@@ -21,6 +21,7 @@ classdef AcquisitionData < handle
     properties
         name
         handle
+        read_only
     end
     methods
         function self = AcquisitionData(arg)
@@ -29,12 +30,14 @@ classdef AcquisitionData < handle
 %         arg:  file name or AcquisitionData object.
             self.handle = [];
             self.name = 'AcquisitionData';
+            self.read_only = false;
             if nargin < 1
                 return
             elseif ischar(arg)
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', arg);
+                self.read_only = true;
             elseif isa(arg, 'mStir.AcquisitionData')
                 self.handle = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
@@ -58,6 +61,7 @@ classdef AcquisitionData < handle
             self.handle = calllib('mstir', 'mSTIR_objectFromFile', ...
                 'AcquisitionData', filename);
             mUtil.checkExecutionStatus(self.name, self.handle);
+            self.read_only = true;
         end
         function image = create_uniform_image(self, value)
 %***SIRF*** create_uniform_image(value) creates compatible ImageData object.
@@ -98,6 +102,9 @@ classdef AcquisitionData < handle
             if isempty(self.handle)
                 error([self.name ':fill'], ...
                     'AcquisitionData object not initialized')
+            elseif self.read_only
+                error([self.name ':fill'], ...
+                    'Cannot fill read-only object, consider filling a clone')
             elseif isa(value, 'double')
                 if numel(value) > 1
                     ptr_v = libpointer('doublePtr', value);

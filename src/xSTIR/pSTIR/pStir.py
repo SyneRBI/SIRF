@@ -517,10 +517,12 @@ class AcquisitionData(DataContainer):
         '''
         self.handle = None
         self.name = 'AcquisitionData'
+        self.read_only = False
         if src is None:
             return
         if isinstance(src, str):
             self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
+            self.read_only = True
         elif isinstance(src, AcquisitionData):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
@@ -577,6 +579,8 @@ class AcquisitionData(DataContainer):
         '''
         if self.handle is None:
             raise error('AcquisitionData object not initialized')
+        if self.read_only:
+            raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
             h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
             check_status(h)
@@ -600,7 +604,7 @@ class AcquisitionData(DataContainer):
         ad = AcquisitionData(self)
         ad.fill(self)
         return ad
-    def get_empty_copy(self, value = 0):
+    def get_uniform_copy(self, value = 0):
         ''' 
         Returns a true copy of this object filled with a given value;
         value:  a Python float.
