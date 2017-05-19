@@ -92,7 +92,7 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     mUtil.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
-        'x (FE)', 'y (PE)', 'slice')
+        'samples', 'readouts', 'slice')
 end
 
 % filter image

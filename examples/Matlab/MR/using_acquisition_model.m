@@ -78,7 +78,7 @@ simulated_acq_array = permute(simulated_acq_array,[1,3,2]);
 title = 'Simulated acquisition data (magnitude)';
 mUtil.show_3D_array...
     (abs(simulated_acq_array).^0.2, title, 'samples', 'readouts', 'coil');
-set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
+mUtil.set_window(0.1, 0.1, 0.8, 0.8)
 
 % backproject simulated acquisition data
 backprojected_data = acq_model.backward(simulated_acq_data);
@@ -86,6 +86,6 @@ backprojected_data = acq_model.backward(simulated_acq_data);
 backprojected_array = backprojected_data.as_array();
 title = 'Backprojected data (magnitude)';
 mUtil.show_3D_array...
-    (abs(backprojected_array), title, 'samples', 'readouts', 'slice')
+    (abs(backprojected_array), title, 'samples', 'readouts', 'slice');
 
 end

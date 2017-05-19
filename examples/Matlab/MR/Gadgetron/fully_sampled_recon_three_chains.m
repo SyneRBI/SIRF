@@ -1,4 +1,4 @@
-function fully_sampled_recon_three_chains
+function fully_sampled_recon_three_chains(engine)
 % FULLY_SAMPLED_RECON_THREE_CHAINS
 % Runs 3 gadget chains of different type:
 % - acquisition processing chain,
@@ -26,12 +26,12 @@ function fully_sampled_recon_three_chains
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-% load mutilities and mgadgetron libraries
-ccp_libload
-
-% import mGadgetron MATLAB classes so that they can be called in this
-% function without using the prefix 'mGadgetron.'
-import mGadgetron.*
+% default engine to be used if none given
+if nargin < 1
+    engine = [];
+end
+import_str = setup_MR(engine);
+eval(import_str)
 
 % acquisitions will be read from this HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);

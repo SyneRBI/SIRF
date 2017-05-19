@@ -1,4 +1,4 @@
-function fully_sampled_recon_single_chain
+function fully_sampled_recon_single_chain(engine)
 % FULLY_SAMPLED_RECON_SINGLE_CHAIN Complete recon in one Gadgetron chain
 %
 % See FULLY_SAMPLED_RECON for example data files.
@@ -22,9 +22,12 @@ function fully_sampled_recon_single_chain
 % limitations under the License.
 
 
-% load mutilities and mgadgetron libraries
-ccp_libload
-import mGadgetron.*
+% default engine to be used if none given
+if nargin < 1
+    engine = [];
+end
+import_str = setup_MR(engine);
+eval(import_str)
 
 
 % In this demo, rather than using a predefined image reconstruction 

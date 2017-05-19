@@ -114,7 +114,6 @@ plt.close('all')
 obj_fun = pet.make_Poisson_loglikelihood(acquired_data)
 # We could set acquisition model but the default (ray-tracing) is in this case ok
 # obj_fun.set_acquisition_model(am)
-obj_fun.set_acquisition_data(acquired_data)
 #obj_fun.set_prior(prior)
 
 #%% create OSMAPOSL reconstructor

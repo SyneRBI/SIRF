@@ -60,8 +60,7 @@ try
     
     % show the initial image
     image_array = image.as_array();
-    figure(1)
-    imshow(image_array(:,:,z));
+    mUtil.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
     
     eps = 1.0e-6; % single precision round-off error level
     tau = 0.3; % steepest ascent step size
@@ -77,8 +76,8 @@ try
         % zero the gradient outside the cylindric FOV
         grad_array = grad.as_array();
 
-        max_image = max(max(max(image_array)));
-        max_grad = max(max(max(abs(grad_array))));
+        max_image = max(image_array(:));
+        max_grad = max(abs(grad_array(:)));
         delta = max_grad*eps;
 
         % find maximal steepest descent step parameter t in image + t*grad 
@@ -95,9 +94,9 @@ try
 
         % select points inside cylindric FOV at which the gradient is negative
         select = image_array > 0 & grad_array < 0;
-        if any(any(any(select)))
+        if any(select(:))
             % take the minimum of abs(image/grad) over selected points
-            maxstep = min(min(min(ratio(select))));
+            maxstep = min(ratio(select(:)));
         else
             % no such points - use a plausible value based on tau and
             % 'average' image-to-gradient ratio
@@ -121,11 +120,11 @@ try
 
         % show the current image estimate
         image_array = image.as_array();
-        figure(iter + 1)
-        imshow(image_array(:,:,z));
+        the_title = sprintf('iteration %d', iter);
+        mUtil.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
         
         % quit if the image got substantially negative values
-        min_image = min(min(min(image_array)));
+        min_image = min(image_array(:));
         if min_image < -eps
             fprintf('image minimum is negative: %e\n', min_image)
             break

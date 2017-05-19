@@ -18,6 +18,7 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
 import pyiutil
@@ -62,17 +63,22 @@ def show_2D_array(title, array, colorbar = True):
     if colorbar:
         plt.colorbar()
     fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
+    print('Close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 def show_3D_array\
-    (array, tile_shape = None, scale = None, \
+    (array, index = None, tile_shape = None, scale = None, power = None, \
      suptitle = None, titles = None, \
      xlabel = None, ylabel = None, label = None, \
+     title_size = None, \
      show = True):
     '''
     Displays a 3D array as a set of z-slice tiles.
+    On successful completion returns 0.
     array     : 3D array
+    index     : z-slices index (1-based), either Python list or string of the form
+              : 'a, b-c, ...', where 'b-c' is decoded as 'b, b+1, ..., c';
+              : out-of-range index value causes error (non-zero) return
     tile_shape: tuple (tile_rows, tile_columns);
                 if not present, the number of tile rows and columns is
                 computed based on the array dimensions
@@ -88,39 +94,64 @@ def show_3D_array\
     '''
     import math
     import numpy
+    current_title_size = mpl.rcParams['axes.titlesize']
+    current_label_size = mpl.rcParams['axes.labelsize']
+    current_xlabel_size = mpl.rcParams['xtick.labelsize']
+    current_ylabel_size = mpl.rcParams['ytick.labelsize']
+    mpl.rcParams['axes.titlesize'] = 'small'
+    mpl.rcParams['axes.labelsize'] = 'small'
+    mpl.rcParams['xtick.labelsize'] = 'small'
+    mpl.rcParams['ytick.labelsize'] = 'small'
+    nz = array.shape[0]
+    if index is None:
+        n = nz
+        index = range(1, n + 1)
+    else:
+        if type(index) == type(' '):
+            index = str_to_int_list(index)
+        n = len(index)
+        for k in range(n):
+            z = index[k]
+            if z < 1 or z > nz:
+                return k + 1
     if tile_shape is None:
-        nz = array.shape[0]
         ny = array.shape[1]
         nx = array.shape[2]
-        rows = int(round(math.sqrt(nz*nx/ny)))
+        rows = int(round(math.sqrt(n*nx/ny)))
         if rows < 1:
             rows = 1
-        if rows > nz:
-            rows = nz
-        cols = (nz - 1)//rows + 1
+        if rows > n:
+            rows = n
+        cols = (n - 1)//rows + 1
     else:
         rows, cols = tile_shape
         assert rows*cols >= array.shape[0],\
                 "tile rows x columns must equal the 3rd dim extent of array"
     if scale is None:
-        vmin = numpy.amin(array)
-        vmax = numpy.amax(array)
+        if power is None:
+            vmin = numpy.amin(array)
+            vmax = numpy.amax(array)
+        else:
+            vmin = numpy.power(numpy.amin(abs(array)), power)
+            vmax = numpy.power(numpy.amax(abs(array)), power)
     else:
         vmin, vmax = scale
     fig = plt.figure()
     if suptitle is not None:
-        fig.suptitle(suptitle, fontsize = 16)
-    for z in range(array.shape[0]):
-        ax = fig.add_subplot(rows, cols, z + 1)
-        if titles is None:
-            if label is None:
-                ax.set_title('%d' % (z + 1))
-            else:
-                ax.set_title(label + (' %d' % (z + 1)), fontsize = 8)
+        if title_size is None:
+            fig.suptitle(suptitle)
         else:
-            ax.set_title(titles[z])
-        row = z//cols
-        col = z - row*cols
+            fig.suptitle(suptitle, fontsize = title_size)
+    for k in range(n):
+        z = index[k] - 1
+        ax = fig.add_subplot(rows, cols, k + 1)
+        if titles is None:
+            if label is not None and nz > 1:
+                ax.set_title(label + (' %d' % (z + 1)))
+        else:
+            ax.set_title(titles[k])
+        row = k//cols
+        col = k - row*cols
         if xlabel is None and ylabel is None or row < rows - 1 or col > 0:
             ax.set_axis_off()
         else:
@@ -131,11 +162,24 @@ def show_3D_array\
             if ylabel is not None:
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [1, ny])
-        imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
-    fignums = plt.get_fignums()
-    print('Close Figure %d window to continue' % fignums[-1])
+        if power is None:
+            imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+        else:
+            imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), \
+                                vmin=vmin, vmax=vmax)
     if show:
+        fignums = plt.get_fignums()
+        last = fignums[-1]
+        if last > 1:
+            print("Close Figures' 1 - %d windows to continue..." % last)
+        else:
+            print('Close Figure 1 window to continue...')
         plt.show()
+    mpl.rcParams['axes.titlesize'] = current_title_size
+    mpl.rcParams['axes.labelsize'] = current_label_size
+    mpl.rcParams['xtick.labelsize'] = current_xlabel_size
+    mpl.rcParams['ytick.labelsize'] = current_ylabel_size
+    return 0
 
 ###########################################################
 ############ Utilities for internal use only ##############
@@ -196,3 +240,23 @@ def parse_arglist(arglist):
             argdict[name] = arglist[0:ic].rstrip()
             arglist = arglist[ic + 1 :]
 
+def str_to_int_list(str_list):
+    int_list = []
+    last = False
+    while not last:
+        ic = str_list.find(',')
+        if ic < 0:
+            ic = len(str_list)
+            last = True
+        str_item = str_list[0:ic]
+        str_list = str_list[ic + 1 :]
+        ic = str_item.find('-')
+        if ic < 0:
+            int_item = [int(str_item)]
+        else:
+            strt = int(str_item[0:ic])
+            stop = int(str_item[ic + 1 :])
+            int_item = list(range(strt, stop + 1))
+        int_list = int_list + int_item
+    return int_list
+        

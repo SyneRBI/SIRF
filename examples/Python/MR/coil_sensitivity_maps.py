@@ -57,59 +57,67 @@ nit = int(args['--iter'])
 
 def main():
 
+    # 1. Prepare data:
+
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
-
+    #
     # acquisition data will be read from an HDF file input_file
     acq_data = AcquisitionData(input_file)
-    
+    #
     # pre-process acquisition data
     processed_data = preprocess_acquisition_data(acq_data)
-    
+    #
     # sort k-space data into a 2D Cartesian matrix for each coil
     processed_data.sort()
     
-    # create object containing images for each coil
-    CIs = CoilImageData()
-    CIs.calculate(processed_data)
+    # 2. Calculate coil sensitivity maps directly from the raw k-space data:
 
     # create coil sensitivity object
     CSMs = CoilSensitivityData()
-
-    # calculate coil sensitivity maps by dividing each coil image data by the
-    # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
-    # (niter = nit) applies an iterative smoothing algorithm with nit iterations 
-    # to the image data prior to the calculation of the coil sensitivity maps
-    CSMs.calculate(CIs, method = 'SRSS(niter = %d)' % nit)
-
-    # display coil sensitivity maps
-    coil_images = numpy.squeeze(CSMs.as_array(0))
-    maxv = numpy.amax(abs(coil_images))
-    title = 'Coil sensitivity maps (magnitude)'
-    show_3D_array(abs(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-    title = 'Coil sensitivity maps (phase)'
-    show_3D_array(numpy.angle(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
-##    show_3D_array(numpy.angle(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-##        titles = ['Angle(Coil1)', 'Angle(Coil3)','Angle(Coil5)','Angle(Coil7)']) 
-
-    # calculate coil sensitivity maps directly from the raw k-space data 
-    CSMs = CoilSensitivityData()
+    #
     # set number of smoothing iterations to suppress noise
     CSMs.smoothness = nit
+    #
+    # calculate coil sensitivity maps directly from the raw k-space data by the
+    # Square-Root-of-the-Sum-of-Squares over all coils (SRSS)
     CSMs.calculate(processed_data)
-    
+    #
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    title = 'Coil sensitivity maps (magnitude)'
+    title = 'SRSS from raw data (magnitude)'
     show_3D_array(abs(coil_images), suptitle = title, \
-                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-##    maxv = numpy.amax(abs(coil_images))
-##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil',
+                  show = False)
+
+    # 3. Now compute coil sensitivity maps from coil images in order to compare
+    # SSRS and Inati methods:
+
+    # create object containing images for each coil
+    CIs = CoilImageData()
+    #
+    # calculate coil images from raw data
+    CIs.calculate(processed_data)
+    #
+    # create coil sensitivity object
+    CSMs = CoilSensitivityData()
+    #
+    # calculate coil sensitivity maps by dividing each coil image data by the
+    # Square-Root-of-the-Sum-of-Squares over all coils (SRSS);
+    # (niter = nit) sets the number of smoothing iterations applied
+    # to the image data prior to the calculation of the coil sensitivity maps
+    CSMs.calculate(CIs, method = 'SRSS(niter = %d)' % nit)
+    #
+    # display coil sensitivity maps (must be identical to previously computed)
+    coil_images = numpy.squeeze(CSMs.as_array(0))
+    maxv = numpy.amax(abs(coil_images))
+    title = 'SRSS from coil images (magnitude)'
+    show_3D_array(abs(coil_images), suptitle = title, \
+                  xlabel = 'samples', ylabel = 'readouts', label = 'coil',
+                  show = False)
+##    title = 'Coil sensitivity maps (phase)'
+##    show_3D_array(numpy.angle(coil_images), suptitle = title, \
+##                  xlabel = 'samples', ylabel = 'readouts', label = 'coil')
 
     # calculate coil sensitivity maps using an approach suggested by 
     #   Inati SJ, Hansen MS, Kellman P.
@@ -119,15 +127,12 @@ def main():
     # gadgetron/toolboxes/mri_core/mri_core_coil_map_estimation.h  
     CSMs = CoilSensitivityData()
     CSMs.calculate(CIs, method = 'Inati()')
-        
+    #
     # display coil sensitivity maps
     coil_images = numpy.squeeze(CSMs.as_array(0))
-    title = 'Coil sensitivity maps (magnitude)'
+    title = 'Inati (magnitude)'
     show_3D_array(abs(coil_images), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'coil')
-##    maxv = numpy.amax(abs(coil_images))
-##    show_3D_array(abs(coil_images[0::2,:,:]), tile_shape = (1,4), scale = (0, maxv),\
-##        titles = ['Abs(Coil1)', 'Abs(Coil3)','Abs(Coil5)','Abs(Coil7)'])
 
 try:
     main()

@@ -96,15 +96,15 @@ cloned_acq_array = permute(cloned_acq_array, [1 3 2]);
 processed_array = permute(processed_array, [1 3 2]);
 title = 'Acquisition data (magnitude)';
 mUtil.show_3D_array(abs(acq_array).^0.2, title, 'samples', 'readouts', 'coil');
-set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
+mUtil.set_window(0.1, 0.1, 0.8, 0.8)
 title = 'Cloned acquisition data (magnitude)';
 mUtil.show_3D_array(abs(cloned_acq_array).^0.2, title, ...
     'samples', 'readouts', 'coil');
-set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
+mUtil.set_window(0.1, 0.1, 0.8, 0.8)
 title = 'Processed acquisition data (magnitude)';
 mUtil.show_3D_array(abs(processed_array).^0.2, title, ...
     'samples', 'readouts', 'coil');
-set(gcf, 'units', 'normalized', 'outerposition', [0 0 1 1]);
+mUtil.set_window(0.1, 0.1, 0.8, 0.8)
 
 end
 

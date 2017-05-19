@@ -35,6 +35,11 @@ from pUtil import *
 import pyiutil
 import pystir
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
 else:
@@ -382,20 +387,25 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter the number of the slice to view')
+        print('Please enter slice numbers (e.g.: 1, 3-5)') # or 0 to stop the loop')
+##        print('Please enter the number of the slice to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
-            s = str(input('slice: '))
+            s = str(input('slices to display: '))
             if len(s) < 1:
                 break
-            z = int(s)
-            if z < 1 or z > nz:
+            err = show_3D_array(data, index = s, label = 'slice')
+            if err != 0:
+                print('out-of-range slice numbers selected, quitting the loop')
                 break
-            pylab.figure(z)
-            pylab.title('image %d' % z)
-            pylab.imshow(data[z - 1, :, :])
-            print('Close Figure %d window to continue...' % z)
-            pylab.show()
+##            z = int(s)
+##            if z < 1 or z > nz:
+##                break
+##            pylab.figure(z)
+##            pylab.title('image %d' % z)
+##            pylab.imshow(data[z - 1, :, :])
+##            print('Close Figure %d window to continue...' % z)
+##            pylab.show()
 
 class ImageDataProcessor:
     '''Class for image processors.
@@ -507,10 +517,12 @@ class AcquisitionData(DataContainer):
         '''
         self.handle = None
         self.name = 'AcquisitionData'
+        self.read_only = False
         if src is None:
             return
         if isinstance(src, str):
             self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
+            self.read_only = True
         elif isinstance(src, AcquisitionData):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
@@ -567,13 +579,21 @@ class AcquisitionData(DataContainer):
         '''
         if self.handle is None:
             raise error('AcquisitionData object not initialized')
+        if self.read_only:
+            raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
-            pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+            h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         elif isinstance(value, AcquisitionData):
-            pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+            h = pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value.handle)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         elif isinstance(value, float):
-            pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+            h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         else:
             raise error('wrong fill value')
         return self
@@ -584,7 +604,7 @@ class AcquisitionData(DataContainer):
         ad = AcquisitionData(self)
         ad.fill(self)
         return ad
-    def get_empty_copy(self, value = 0):
+    def get_uniform_copy(self, value = 0):
         ''' 
         Returns a true copy of this object filled with a given value;
         value:  a Python float.
@@ -642,14 +662,20 @@ class AcquisitionModel:
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-    def set_normalisation(self, bin_eff):
+    def set_normalisation(self, norm):
         ''' 
         Sets the normalization n in (F);
-        bin_eff:  an AcquisitionData object containing bin efficiencies
-                  (the inverse of n).
+        norm:  an AcquisitionData object containing normalisation n
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
+    def set_bin_efficiency(self, bin_eff):
+        ''' 
+        Sets the bin_efficiency 1/n in (F);
+        bin_eff:  an AcquisitionData object containing bin efficiencies
+        '''
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
     def forward(self, image, filename = ''):
         ''' 
         Returns the forward projection of x given by (F);

@@ -53,9 +53,9 @@ extern "C" {
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data);
- 	void cSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
-	void cSTIR_fillAcquisitionsData(void* ptr_acq, double v);
-	void cSTIR_fillAcquisitionsDataFromAcquisitionsData
+ 	void* cSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
+	void* cSTIR_fillAcquisitionsData(void* ptr_acq, double v);
+	void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 		(void* ptr_acq, const void * ptr_from);
 
 	// Reconstruction methods

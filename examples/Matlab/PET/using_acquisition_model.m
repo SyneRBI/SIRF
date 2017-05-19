@@ -59,10 +59,7 @@ try
 
     % display the created phantom image
     image_array = image.as_array();
-    figure
-    image_array = image_array/max(max(max(image_array)));
-    imshow(image_array(:,:,z));
-    title('phantom')
+    mUtil.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
 
     % select the acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
@@ -81,18 +78,16 @@ try
     % display simulated data
     acq_array = simulated_data.as_array();
     acq_dim = size(acq_array);
-    figure
-    imshow(acq_array(:,:,acq_dim(3)/2)/max(max(max(acq_array))));
-    title('simulated acquisition data')
+    mUtil.show_2D_array(acq_array(:,:,acq_dim(3)/2), ...
+        'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data
     fprintf('backprojecting...\n')
     backprojected_image = acq_model.backward(simulated_data);
     % display backprojected data
     image_array = backprojected_image.as_array();
-    figure
-    imshow(image_array(:,:,z)/max(max(max(image_array))));
-    title('backprojection of simulated data')
+    mUtil.show_2D_array(image_array(:,:,z), ...
+        'backprojection of simulated data', 'x', 'y');
 
 catch err
     % display error information

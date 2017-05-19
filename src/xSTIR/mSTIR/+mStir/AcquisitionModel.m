@@ -56,14 +56,20 @@ classdef AcquisitionModel < handle
 %***SIRF*** set_background_term(bt) sets the background term b in (F);
 %         bt:  an AcquisitionData object containing b.
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
-                'additive_term', bt, 'h');
+                'background_term', bt, 'h');
         end
-        function set_normalisation(self, bin_eff)
-%***SIRF*** set_normalisation(bin_eff) sets the normalisation n in (F);
+        function set_normalisation(self, norm)
+%***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
+%         norm:  an AcquisitionData object containing normalisation n.
+            mStir.setParameter(self.handle, 'AcquisitionModel', ...
+                'normalisation', norm, 'h');
+        end
+        function set_bin_efficiency(self, bin_eff)
+%***SIRF*** set_bin_efficiency(bin_eff) sets the normalisation n in (F);
 %         bin_eff:  an AcquisitionData object containing bin efficiencies
 %                   (the inverse of n).
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
-                'additive_term', bin_eff, 'h');
+                'bin_efficiency', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
 %***SIRF*** sets up the object with appropriate geometric information.

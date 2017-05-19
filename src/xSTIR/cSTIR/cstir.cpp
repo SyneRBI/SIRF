@@ -329,35 +329,50 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
-void cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
+void* cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-	if (sptr_ad.get() == 0)
-		return;
-	sptr_ad->fill((float)v);
+	try {
+		DataHandle* handle = new DataHandle;
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//if (sptr_ad.get() == 0)
+		//	return (void*)handle;
+		sptr_ad->fill((float)v);
+		return (void*)handle;
+	}
+	CATCH;
 }
 
 extern "C"
-void cSTIR_fillAcquisitionsDataFromAcquisitionsData
+void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 (void* ptr_acq, const void * ptr_from)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-	if (sptr_ad.get() == 0)
-		return;
-	sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
-	if (sptr_from.get() == 0)
-		return;
-	sptr_ad->fill(*sptr_from);
+	try {
+		DataHandle* handle = new DataHandle;
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//if (sptr_ad.get() == 0)
+		//	return (void*)handle;
+		sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
+		//if (sptr_from.get() == 0)
+		//	return (void*)handle;
+		sptr_ad->fill(*sptr_from);
+		return (void*)handle;
+	}
+	CATCH;
 }
 
 extern "C"
-void cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
+void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
 {
-	sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-	if (sptr_ad.get() == 0)
-		return;
-  double *data = (double *)ptr_data;
-	sptr_ad->fill_from(data);
+	try {
+		DataHandle* handle = new DataHandle;
+		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//if (sptr_ad.get() == 0)
+		//	return (void*) handle;
+		double *data = (double *)ptr_data;
+		sptr_ad->fill_from(data);
+		return (void*)handle;
+	}
+	CATCH;
 }
 
 extern "C"
