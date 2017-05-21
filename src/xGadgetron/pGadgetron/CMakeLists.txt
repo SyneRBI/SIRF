@@ -30,7 +30,8 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_PATH}")
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES("${NUMPY_INCLUDE_DIRS}")
-  set(SWIG_MODULE_pygadgetron_EXTRA_DEPS cgt iutil)
+  # Tell CMake it needs to re-run SWIG when .h file changes
+  set(SWIG_MODULE_pygadgetron_EXTRA_DEPS "${cGadgetron_INCLUDE_DIR}/cgadgetron.h")
   SWIG_ADD_MODULE(pygadgetron python pygadgetron.i)
   SWIG_LINK_LIBRARIES(pygadgetron cgt iutil "${PYTHON_LIBRARIES}")
 

@@ -31,6 +31,8 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
+  # Tell CMake it needs to re-run SWIG when .h file changes
+  set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/cstir.h")
   SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
   SWIG_LINK_LIBRARIES(pystir cstir iutil ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
 
