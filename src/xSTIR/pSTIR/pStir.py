@@ -668,7 +668,7 @@ class AcquisitionModel:
         norm:  an AcquisitionData object containing normalisation n
         '''
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
+            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);
