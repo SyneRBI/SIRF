@@ -594,8 +594,12 @@ class AcquisitionData(DataContainer):
             h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
             check_status(h)
             pyiutil.deleteDataHandle(h)
+        elif isinstance(value, int):
+            h = pystir.cSTIR_fillAcquisitionsData(self.handle, float(value))
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         else:
-            raise error('wrong fill value')
+            raise error('wrong fill value. Should be numpy.ndarray, AcquisitionData, float or int')
         return self
     def clone(self):
         ''' 
