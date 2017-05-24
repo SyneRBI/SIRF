@@ -594,8 +594,12 @@ class AcquisitionData(DataContainer):
             h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
             check_status(h)
             pyiutil.deleteDataHandle(h)
+        elif isinstance(value, int):
+            h = pystir.cSTIR_fillAcquisitionsData(self.handle, float(value))
+            check_status(h)
+            pyiutil.deleteDataHandle(h)
         else:
-            raise error('wrong fill value')
+            raise error('wrong fill value. Should be numpy.ndarray, AcquisitionData, float or int')
         return self
     def clone(self):
         ''' 
@@ -655,20 +659,20 @@ class AcquisitionModel:
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
-    def set_background_term(self, bt):
-        ''' 
-        Sets the background term b in (F);
-        bt:  an AcquisitionData object containing b.
-        '''
-        _setParameter\
-            (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+##    def set_background_term(self, bt):
+##        ''' 
+##        Sets the background term b in (F);
+##        bt:  an AcquisitionData object containing b.
+##        '''
+##        _setParameter\
+##            (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_normalisation(self, norm):
         ''' 
         Sets the normalization n in (F);
         norm:  an AcquisitionData object containing normalisation n
         '''
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalisation', bin_eff.handle)
+            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);

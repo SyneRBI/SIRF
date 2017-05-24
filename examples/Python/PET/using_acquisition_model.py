@@ -110,7 +110,7 @@ def main():
     acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
     # if the projection data is very large, it can be stored in a file
-    # simulated_data = am.forward(image, 'simulated_data.hs')
+    # simulated_data = acq_model.forward(image, 'simulated_data.hs')
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()

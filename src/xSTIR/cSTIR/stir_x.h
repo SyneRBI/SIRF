@@ -105,7 +105,7 @@ public:
 		if (file && strlen(file) > 0)
 			sptr_fd.reset(
 			new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
-			sptr_acq_template_->get_proj_data_info_sptr(), file));
+			sptr_acq_template_->get_proj_data_info_sptr(), file, std::ios::in | std::ios::out));
 		else
 			sptr_fd.reset(
 			new ProjDataInMemory(sptr_acq_template_->get_exam_info_sptr(),
@@ -113,10 +113,10 @@ public:
 
 		sptr_projectors_->get_forward_projector_sptr()->forward_project
 			(*sptr_fd, image);
-		if (file && strlen(file) > 0) {
-			sptr_fd.reset();
-			sptr_fd = ProjData::read_from_file(file);
-		}
+		//if (file && strlen(file) > 0) {
+		//	sptr_fd.reset();
+		//	sptr_fd = ProjData::read_from_file(file);
+		//}
 
 		if (sptr_add_.get()) {
 			add_(sptr_fd, sptr_add_);

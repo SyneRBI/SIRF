@@ -139,18 +139,13 @@ imshow(image_array[slice_num,:,:,], [], 'emission image');
 # We will create an AcquisitionModel object and then use it to forward project
 # our image etc
 
-#%% We first create the matrix to be used by the acquisition model
-# Currently SIRF only uses STIR's ray tracing method.
-# We need to get a SIRF object first that represents this type of matrix.
-pet_matrix = pet.RayTracingMatrix()
-# Ask STIR to use 5 LORs per sinogram-element
-pet_matrix.set_num_tangential_LORs(5);
-
 #%% Create a SIRF acquisition model
 # We will use the ray-tracing matrix here as our simple PET model.
 # There is more to the accquisition model, but that's for another demo.
-am = pet.AcquisitionModelUsingMatrix()
-am.set_matrix(pet_matrix)
+am = pet.AcquisitionModelUsingRayTracingMatrix()
+# Ask STIR to use 5 LORs per sinogram-element
+am.set_num_tangential_LORs(5);
+
 #%% Specify sinogram dimensions
 # We need to say what scanner to use, what dimensions etc.
 # You do this by using existing PET data as a 'template'. 

@@ -52,12 +52,12 @@ classdef AcquisitionModel < handle
             mStir.setParameter(self.handle, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
-        function set_background_term(self, bt)
-%***SIRF*** set_background_term(bt) sets the background term b in (F);
-%         bt:  an AcquisitionData object containing b.
-            mStir.setParameter(self.handle, 'AcquisitionModel', ...
-                'background_term', bt, 'h');
-        end
+%         function set_background_term(self, bt)
+% %***SIRF*** set_background_term(bt) sets the background term b in (F);
+% %         bt:  an AcquisitionData object containing b.
+%             mStir.setParameter(self.handle, 'AcquisitionModel', ...
+%                 'background_term', bt, 'h');
+%         end
         function set_normalisation(self, norm)
 %***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
 %         norm:  an AcquisitionData object containing normalisation n.
