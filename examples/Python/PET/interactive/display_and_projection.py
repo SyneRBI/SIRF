@@ -157,17 +157,16 @@ am.set_up(templ,image);
 
 #%% Do a forward projection of our image
 # 'forward projection' is the terminology used in PET to simulate the acquisition.
-# Input is an ImageData, output is AcquisitionData
-# Note that we need to use SIRF image object (not image_array)
-# The result is an AcquisitionData object
-acquired=am.forward(image)
-help(acquired)
+# Input is a SIRF ImageData object (not image_array), output is an AcquisitionData object.
+acquired_data=am.forward(image)
+#%% Check what methods an AcquisitionData object has
+help(acquired_data)
 #%% Let's get the Python array
-acquisition_array = acquired.as_array()
+acquisition_array = acquired_data.as_array()
 print acquisition_array.shape
 
 #%% Display bitmap of the middle sinogram
-# AcquisitionData are organised by sinograms, so we need ot use the first index
+# AcquisitionData are organised by sinograms, so we need to use the first index
 # of the accquisition_array.
 plt.figure()
 slice_num=acquisition_array.shape[0]/2;
@@ -191,7 +190,7 @@ ani = animation.ArtistAnimation(fig, bitmaps, interval=100, blit=True, repeat_de
 #%% Let's do a back-projection
 # Backprojection uses the transpose of the forward-projection matrix to
 # go from AcquisitionData to an ImageData
-backprojected = am.backward(acquired);
+backprojected = am.backward(acquired_data);
 # let's display a slice
 plt.figure()
 backprojected_array=backprojected.as_array();
