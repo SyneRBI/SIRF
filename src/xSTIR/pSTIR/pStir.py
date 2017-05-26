@@ -566,20 +566,24 @@ class AcquisitionData(DataContainer):
         - number of tangential positions.
         '''
         dim = numpy.ndarray((3,), dtype = numpy.int32)
-        handle = pystir.cSTIR_getAcquisitionsDimensions\
-            (self.handle, dim.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data))
+##        handle = pystir.cSTIR_getAcquisitionsDimensions\
+##            (self.handle, dim.ctypes.data)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
             raise error('density data not available')
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
-        handle = pystir.cSTIR_getAcquisitionsData\
-            (self.handle, array.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_getAcquisitionsData\
+            (self.handle, array.ctypes.data))
+##        handle = pystir.cSTIR_getAcquisitionsData\
+##            (self.handle, array.ctypes.data)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
         return array
     def fill(self, value):
         ''' 
@@ -592,22 +596,29 @@ class AcquisitionData(DataContainer):
         if self.read_only:
             raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
-            h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
-            check_status(h)
-            pyiutil.deleteDataHandle(h)
+            try_calling(pystir.cSTIR_setAcquisitionsData\
+                        (self.handle, value.ctypes.data))
+##            h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
+##            check_status(h)
+##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, AcquisitionData):
-            h = pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
-                (self.handle, value.handle)
-            check_status(h)
-            pyiutil.deleteDataHandle(h)
+            try_calling(pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+                (self.handle, value.handle))
+##            h = pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
+##                (self.handle, value.handle)
+##            check_status(h)
+##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, float):
-            h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
-            check_status(h)
-            pyiutil.deleteDataHandle(h)
+            try_calling(pystir.cSTIR_fillAcquisitionsData(self.handle, value))
+##            h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
+##            check_status(h)
+##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, int):
-            h = pystir.cSTIR_fillAcquisitionsData(self.handle, float(value))
-            check_status(h)
-            pyiutil.deleteDataHandle(h)
+            try_calling(pystir.cSTIR_fillAcquisitionsData\
+                        (self.handle, float(value)))
+##            h = pystir.cSTIR_fillAcquisitionsData(self.handle, float(value))
+##            check_status(h)
+##            pyiutil.deleteDataHandle(h)
         else:
             raise error('wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')

@@ -199,6 +199,10 @@ def check_status(handle):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
+def try_calling(returned_handle):
+    check_status(returned_handle)
+    pyiutil.deleteDataHandle(returned_handle)
+
 def label_and_name(g):
     name = g.lstrip()
     name = name.rstrip()
