@@ -324,19 +324,30 @@ class ImageData(DataContainer):
         assigned at each voxel. When using an ndarray, the array size has to
         have the same size as an array returned by `as_array`.
         '''
+        if self.handle is None:
+            raise error('cannot fill uninitialized ImageData object')
         if isinstance(value, numpy.ndarray):
             pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
-        else:
+        elif isinstance(value, float):
             pystir.cSTIR_fillImage(self.handle, value)
+        elif isinstance(value, int):
+            pystir.cSTIR_fillImage(self.handle, float(value))
+        else:
+            raise error('wrong fill value.' + \
+                        ' Should be numpy.ndarray, float or int')
         return self
     def clone(self):
         '''Creates a copy of this image.'''
+        if self.handle is None:
+            raise error('cannot clone uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
+        if self.handle is None:
+            raise error('cannot copy uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
@@ -344,7 +355,7 @@ class ImageData(DataContainer):
         return image
     def add_shape(self, shape, scale):
         if self.handle is None:
-            raise error('cannot add shapes to uninitialised image')
+            raise error('cannot add shapes to uninitialized ImageData object')
         handle = pystir.cSTIR_addShape(self.handle, shape.handle, scale)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
@@ -358,10 +369,14 @@ class ImageData(DataContainer):
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def write(self, filename):
+        if self.handle is None:
+            raise error('cannot write uninitialized ImageData object')
         handle = pystir.cSTIR_writeImage(self.handle, filename)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def diff_from(self, image):
+        if self.handle is None or image.handle is None:
+            raise error('cannot compare uninitialized ImageData object')
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)
         check_status(handle)
@@ -370,6 +385,8 @@ class ImageData(DataContainer):
         return diff
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
+        if self.handle is None:
+            raise error('cannot export uninitialized ImageData object')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
         nz = dim[0]
@@ -382,13 +399,14 @@ class ImageData(DataContainer):
         return array
     def show(self):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
+        if self.handle is None:
+            raise error('cannot show uninitialized ImageData object')
         if not HAVE_PYLAB:
             print('pylab not found')
             return
         data = self.as_array()
         nz = data.shape[0]
         print('Please enter slice numbers (e.g.: 1, 3-5)') # or 0 to stop the loop')
-##        print('Please enter the number of the slice to view')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
             s = str(input('slices to display: '))
@@ -398,14 +416,6 @@ class ImageData(DataContainer):
             if err != 0:
                 print('out-of-range slice numbers selected, quitting the loop')
                 break
-##            z = int(s)
-##            if z < 1 or z > nz:
-##                break
-##            pylab.figure(z)
-##            pylab.title('image %d' % z)
-##            pylab.imshow(data[z - 1, :, :])
-##            print('Close Figure %d window to continue...' % z)
-##            pylab.show()
 
 class ImageDataProcessor:
     '''Class for image processors.
@@ -599,7 +609,8 @@ class AcquisitionData(DataContainer):
             check_status(h)
             pyiutil.deleteDataHandle(h)
         else:
-            raise error('wrong fill value. Should be numpy.ndarray, AcquisitionData, float or int')
+            raise error('wrong fill value.' + \
+                ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
     def clone(self):
         ''' 
