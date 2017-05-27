@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ###
 # Demonstration of basic PET capabilities with SIRF: 
-# creating images, projection with a (slightly) more sophisticated acquisition model
-##
+# creating images using shapes and project them
+#
 # This demo is a 'script', i.e. intended to be run step by step in a 
 # Python IDE such as spyder. It is organised in 'cells'. spyder displays these
 # cells nicely and allows you to run each cell on its own.
@@ -57,13 +57,12 @@ image.add_shape(shape, scale = 0.75)
 
 #%% show the phantom image as a sequence of transverse images
 show_3D_array(image.as_array())
-#%% forward project this image and display
+
+#%% forward project this image and display all sinograms
 acquired_data = am.forward(image)
-acquisition_array = acquired_data.as_array()
-plt.figure()
-slice_num=acquisition_array.shape[0]/3;
-imshow(acquisition_array[slice_num,:,:,], [], 'Forward projected sinogram');
-#%% Show every 8th view (in a complicated fashion)
+acquisition_array = acquired_data.as_array();
+show_3D_array(acquisition_array);
+#%% Show every 8th view 
+# Doing this here with a complicated one-liner...
 show_3D_array(acquisition_array[:,range(0,acquisition_array.shape[1],8),:].transpose(1,0,2))
 # You could now of course try the animation of the previous demo...
-

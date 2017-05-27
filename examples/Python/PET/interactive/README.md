@@ -14,6 +14,6 @@ When you run the demos, output will be in a sub-directory called
 
 Recommended order
 1. `display_and_projection.py`
-2. `image_creation_and_acquisition_models.py`
+2. `image_creation_and_projection.py` (optionally)
 3. `basic_reconstruction.py`
 4. `reconstruction.py`
