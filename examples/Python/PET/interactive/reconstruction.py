@@ -126,12 +126,14 @@ recon.set_num_subsets(4)
 num_iters=10;
 recon.set_num_subiterations(num_iters)
 #%%  create initial image
-# just create a disk
+# we could just use a uniform image but here we will create a disk with a different
+# initial value (this will help the display later on)
 init_image=image.clone()
 init_image.fill(cmax/4)
 make_cylindrical_FOV(init_image)
 # display
 idata = init_image.as_array()
+slice=idata.shape[0]/2;
 plt.figure()
 imshow(idata[slice,:,:],[0,cmax], 'initial image');
 
@@ -145,7 +147,6 @@ recon.reconstruct(reconstructed_image)
 #%% bitmap display of images
 reconstructed_array=reconstructed_image.as_array()
 
-slice=image_array.shape[0]/2;
 plt.figure();
 plt.subplot(1,2,1);
 imshow(image_array[slice,:,:,], [0,cmax*1.2],'emission image');
@@ -153,7 +154,7 @@ plt.subplot(1,2,2);
 imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'reconstructed image');
 
 
-#%% Add some noise to the data
+#%% Generate a noisy realisation of the data
 noisy_array=numpy.random.poisson(acquisition_array).astype('float64')
 print(' Maximum counts in the data: %d' % noisy_array.max())
 # stuff into a new AcquisitionData object
