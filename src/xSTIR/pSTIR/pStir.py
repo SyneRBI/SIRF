@@ -105,13 +105,14 @@ class Printer:
         info, warn and err arguments.
         The argument values other than None, stdout, stderr, cout and cerr
         are interpreted as filenames.
+        None and empty string value suppresses printing to the channel.
         '''
         self.info_case = -1
         self.warn_case = -1
         self.errr_case = -1
         if info is None:
-            pass
-        elif type(info) is not type(' '):
+            info = ''
+        if type(info) is not type(' '):
             raise error('wrong info argument for Printer constructor')
         elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.info = pystir.newTextPrinter(info)
@@ -120,8 +121,8 @@ class Printer:
             self.info = pystir.newTextWriter(info)
             self.info_case = 1
         if warn is None:
-            pass
-        elif type(warn) is not type(' '):
+            warn = ''
+        if type(warn) is not type(' '):
             raise error('wrong warn argument for Printer constructor')
         elif warn in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.warn = pystir.newTextPrinter(warn)
@@ -130,8 +131,8 @@ class Printer:
             self.warn = pystir.newTextWriter(warn)
             self.warn_case = 1
         if errr is None:
-            pass
-        elif type(errr) is not type(' '):
+            errr = ''
+        if type(errr) is not type(' '):
             raise error('wrong errr argument for Printer constructor')
         elif errr in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.errr = pystir.newTextPrinter(errr)

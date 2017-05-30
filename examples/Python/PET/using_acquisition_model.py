@@ -50,8 +50,10 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
+    # no info printing, warnings and errors sent to stdout
+    printer = Printer()
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+##    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # create an empty image
     image = ImageData()
