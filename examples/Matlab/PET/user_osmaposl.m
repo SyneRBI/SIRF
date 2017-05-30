@@ -32,7 +32,7 @@ eval(import_str)
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    PrintTo('info.txt');
+    MessageRedirector('info.txt');
 
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);

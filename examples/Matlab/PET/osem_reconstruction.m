@@ -31,7 +31,7 @@ eval(import_str)
 
 try
     % direct all printing to MatlabCommand Window
-    PrintTo('stdout');
+    MessageRedirector('stdout');
 
     % create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix();
@@ -76,6 +76,9 @@ try
 
     % set the initial image estimate
     recon.set_current_estimate(image)
+
+    % suppress further information printing
+    MessageRedirector();
 
     % in order to see the reconstructed image evolution
     % open up the user's access to the iterative process
