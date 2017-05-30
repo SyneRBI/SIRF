@@ -46,7 +46,7 @@ if data_path is None:
 def main():
 
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # PET acquisition data to be read from this file
     raw_data_file = existing_filepath(data_path, data_file)

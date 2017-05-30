@@ -99,7 +99,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 def main():
 
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix()
