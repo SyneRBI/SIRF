@@ -181,10 +181,8 @@ classdef ImageData < handle
                 return
             end
             data = data/max(data(:));
-            %fprintf('Please enter the number of the image slice to view\n')
-            %fprintf('(a value outside the range [1 : %d] will stop this loop)\n', nz)
             fprintf('Please enter z-slice numbers (ex: 1, 3-5) %s\n', ...
-                'or 0 to stop the loop\n')
+                'or 0 to stop the loop')
             while true
                 s = input('z-slices to display: ', 's');
                 select = mUtil.str_to_int_list(s);
