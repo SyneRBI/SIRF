@@ -30,9 +30,8 @@ import_str = setup_PET(engine);
 eval(import_str)
 
 try
-    % direct all information printing to info.txt;
-    % warning and error messages to go to Matlab Command Window
-    msg_red = MessageRedirector('info.txt');
+    % direct all printing to MatlabCommand Window
+    PrintTo('stdout');
 
     % create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix();
