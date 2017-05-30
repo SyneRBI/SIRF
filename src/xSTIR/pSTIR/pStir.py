@@ -107,9 +107,6 @@ class Printer:
         are interpreted as filenames.
         None and empty string value suppresses printing to the channel.
         '''
-        self.info_case = -1
-        self.warn_case = -1
-        self.errr_case = -1
         if info is None:
             info = ''
         if type(info) is not type(' '):
@@ -120,6 +117,8 @@ class Printer:
         else:
             self.info = pystir.newTextWriter(info)
             self.info_case = 1
+        pystir.openChannel(0, self.info)
+
         if warn is None:
             warn = ''
         if type(warn) is not type(' '):
@@ -130,6 +129,8 @@ class Printer:
         else:
             self.warn = pystir.newTextWriter(warn)
             self.warn_case = 1
+        pystir.openChannel(1, self.warn)
+
         if errr is None:
             errr = ''
         if type(errr) is not type(' '):
@@ -140,31 +141,24 @@ class Printer:
         else:
             self.errr = pystir.newTextWriter(errr)
             self.errr_case = 1
-        if self.info_case is not -1:
-            pystir.openChannel(0, self.info)
-        if self.warn_case is not -1:
-            pystir.openChannel(1, self.warn)
-        if self.errr_case is not -1:
-            pystir.openChannel(2, self.errr)
+        pystir.openChannel(2, self.errr)
+
     def __del__(self):
-        if self.info_case is not -1:
-            if self.info_case == 0:
-                pystir.deleteTextPrinter(self.info)
-            else:
-                pystir.deleteTextWriter(self.info)
-            pystir.closeChannel(0, self.info)
-        if self.warn_case is not -1:
-            if self.warn_case == 0:
-                pystir.deleteTextPrinter(self.warn)
-            else:
-                pystir.deleteTextWriter(self.warn)
-            pystir.closeChannel(1, self.warn)
-        if self.errr_case is not -1:
-            if self.errr_case == 0:
-                pystir.deleteTextPrinter(self.errr)
-            else:
-                pystir.deleteTextWriter(self.errr)
-            pystir.closeChannel(2, self.errr)
+        if self.info_case == 0:
+            pystir.deleteTextPrinter(self.info)
+        else:
+            pystir.deleteTextWriter(self.info)
+        pystir.closeChannel(0, self.info)
+        if self.warn_case == 0:
+            pystir.deleteTextPrinter(self.warn)
+        else:
+            pystir.deleteTextWriter(self.warn)
+        pystir.closeChannel(1, self.warn)
+        if self.errr_case == 0:
+            pystir.deleteTextPrinter(self.errr)
+        else:
+            pystir.deleteTextWriter(self.errr)
+        pystir.closeChannel(2, self.errr)
 
 class Shape:
     '''
