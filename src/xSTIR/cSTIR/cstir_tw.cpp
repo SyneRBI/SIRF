@@ -32,8 +32,10 @@ extern "C" {
 	}
 	void* newTextWriter(const char* stream) {
 		TextWriter* w = new TextWriter;
-		w->out = new std::ofstream;
-		((std::ofstream*)w->out)->open(stream, std::ios::out);
+		if (strlen(stream)) {
+			w->out = new std::ofstream;
+			((std::ofstream*)w->out)->open(stream, std::ios::out);
+		}
 		return (void*)w;
 	}
 	void openChannel(int channel, void* ptr_w) {

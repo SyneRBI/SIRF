@@ -54,8 +54,10 @@ init_file = args['--init']
 
 def main():
 
+    # no info printing, warnings and errors sent to stdout
+    printer = Printer()
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+##    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
