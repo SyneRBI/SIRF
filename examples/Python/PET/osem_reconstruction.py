@@ -65,7 +65,7 @@ def image_data_processor(image_array, im_num):
 def main():
  
     # direct all engine's information and warnings printing to files
-    printer = Printer('info.txt', 'warn.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication

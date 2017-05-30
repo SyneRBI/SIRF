@@ -59,8 +59,8 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
-    # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+    # engine output goes to files
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix()

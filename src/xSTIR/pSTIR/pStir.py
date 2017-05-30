@@ -94,23 +94,23 @@ def _tmp_filename():
     return repr(int(1000*time.time()))
 ###########################################################
 
-class Printer:
+class MessageRedirector:
     '''
     Class for STIR printing redirection to files/stdout/stderr.
     '''
     def __init__(self, info = None, warn = 'stdout', errr = 'stdout'):
         '''
-        Creates Printer object that redirects the output of STIR's info,
-        warning and error functions to destinations specified respectively by
-        info, warn and err arguments.
+        Creates MessageRedirector object that redirects STIR's ouput
+        produced by info(), warning() and error(0 functions to destinations
+        specified respectively by info, warn and err arguments.
         The argument values other than None, stdout, stderr, cout and cerr
         are interpreted as filenames.
-        None and empty string value suppresses printing to the channel.
+        None and empty string value suppresses printing.
         '''
         if info is None:
             info = ''
         if type(info) is not type(' '):
-            raise error('wrong info argument for Printer constructor')
+            raise error('wrong info argument for MessageRedirector constructor')
         elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.info = pystir.newTextPrinter(info)
             self.info_case = 0
@@ -122,7 +122,7 @@ class Printer:
         if warn is None:
             warn = ''
         if type(warn) is not type(' '):
-            raise error('wrong warn argument for Printer constructor')
+            raise error('wrong warn argument for MessageRedirector constructor')
         elif warn in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.warn = pystir.newTextPrinter(warn)
             self.warn_case = 0
@@ -134,7 +134,7 @@ class Printer:
         if errr is None:
             errr = ''
         if type(errr) is not type(' '):
-            raise error('wrong errr argument for Printer constructor')
+            raise error('wrong errr argument for MessageRedirector constructor')
         elif errr in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.errr = pystir.newTextPrinter(errr)
             self.errr_case = 0
