@@ -1,4 +1,4 @@
-classdef PrintTo < handle
+classdef MessageRedirector < handle
     properties
         info
         info_case
@@ -8,8 +8,8 @@ classdef PrintTo < handle
         errr_case
     end
     methods
-        function self = PrintTo(info, warn, errr)
-%         PrintTo(info, warn, errr) redirects printing destinations.
+        function self = MessageRedirector(info, warn, errr)
+%         MessageRedirector(info, warn, errr) re-defines printing destinations.
 %         info: specifies destination for information messages;
 %         warn: specifies destination for warning messages;
 %         errr: specifies destination for error messages.
@@ -28,7 +28,8 @@ classdef PrintTo < handle
             end
             if nargin > 0
                 if ~ischar(info)
-                    error('Printer:wrong_arg', '??? Wrong info in Printer');
+                    error('MessageRedirector:wrong_arg', ...
+                        '??? Wrong info in MessageRedirector consttructor');
                 elseif strcmpi(info, 'stdout') ~= 0
                     self.info = calllib('mstir', 'mNewMexPrinter');
                     self.info_case = 0;
@@ -40,7 +41,8 @@ classdef PrintTo < handle
             end
             if nargin > 1
                 if ~ischar(warn)
-                    error('Printer:wrong_arg', '??? Wrong warn in Printer');
+                    error('MessageRedirector:wrong_arg', ...
+                        '??? Wrong warn in MessageRedirector constructor');
                 elseif strcmpi(warn, 'stdout') ~= 0
                     self.warn = calllib('mstir', 'mNewMexPrinter');
                     self.warn_case = 0;
@@ -56,7 +58,8 @@ classdef PrintTo < handle
             end
             if nargin > 2
                 if ~ischar(errr)
-                    error('Printer:wrong_arg', '??? Wrong errr in Printer');
+                    error('MessageRedirector:wrong_arg', ...
+                        '??? Wrong errr in MessageRedirector constructor');
                 elseif strcmpi(errr, 'stdout') ~= 0
                     self.errr = calllib('mstir', 'mNewMexPrinter');
                     self.errr_case = 0;
