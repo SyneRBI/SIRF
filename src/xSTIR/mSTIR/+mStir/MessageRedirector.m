@@ -26,19 +26,17 @@ classdef MessageRedirector < handle
             if nargin < 1 || isempty(info)
                 info = '';
             end
-            if nargin > 0
-                if ~ischar(info)
-                    error('MessageRedirector:wrong_arg', ...
-                        '??? Wrong info in MessageRedirector consttructor');
-                elseif strcmpi(info, 'stdout') ~= 0
-                    self.info = calllib('mstir', 'mNewMexPrinter');
-                    self.info_case = 0;
-                else
-                    self.info = calllib('mstir', 'mNewTextWriter', info);
-                    self.info_case = 1;
-                end
-                calllib('mstir', 'mOpenChannel', 0, self.info)
+            if ~ischar(info)
+                error('MessageRedirector:wrong_arg', ...
+                    '??? Wrong info in MessageRedirector consttructor');
+            elseif strcmpi(info, 'stdout') ~= 0
+                self.info = calllib('mstir', 'mNewMexPrinter');
+                self.info_case = 0;
+            else
+                self.info = calllib('mstir', 'mNewTextWriter', info);
+                self.info_case = 1;
             end
+            calllib('mstir', 'mOpenChannel', 0, self.info)
             if nargin > 1
                 if ~ischar(warn)
                     error('MessageRedirector:wrong_arg', ...
