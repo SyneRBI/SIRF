@@ -53,9 +53,7 @@ ALL_CHANNELS = -1
 ###########################################################
 ############ Utilities for internal use only ##############
 def _setParameter(hs, set, par, hv):
-    h = pystir.cSTIR_setParameter(hs, set, par, hv)
-    check_status(h)
-    pyiutil.deleteDataHandle(h)
+    try_calling(pystir.cSTIR_setParameter(hs, set, par, hv))
 def _set_char_par(handle, set, par, value):
     h = pyiutil.charDataHandle(value)
     _setParameter(handle, set, par, h)
@@ -351,9 +349,7 @@ class ImageData(DataContainer):
     def add_shape(self, shape, scale):
         if self.handle is None:
             raise error('cannot add shapes to uninitialized ImageData object')
-        handle = pystir.cSTIR_addShape(self.handle, shape.handle, scale)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
     def read_from_file(self, filename):
         '''Read data from file.
 
@@ -366,9 +362,7 @@ class ImageData(DataContainer):
     def write(self, filename):
         if self.handle is None:
             raise error('cannot write uninitialized ImageData object')
-        handle = pystir.cSTIR_writeImage(self.handle, filename)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def diff_from(self, image):
         if self.handle is None or image.handle is None:
             raise error('cannot compare uninitialized ImageData object')
@@ -426,10 +420,8 @@ class ImageDataProcessor:
             pyiutil.deleteDataHandle(self.handle)
     def apply(self, image):
         '''Applies this filter to the specified image.'''
-        handle = pystir.cSTIR_applyDataProcessor\
-                 (self.handle, image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_applyDataProcessor\
+                 (self.handle, image.handle))
     def set_input(self, input):
         '''
         Sets the input data.
@@ -563,10 +555,6 @@ class AcquisitionData(DataContainer):
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data))
-##        handle = pystir.cSTIR_getAcquisitionsDimensions\
-##            (self.handle, dim.ctypes.data)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
@@ -575,10 +563,6 @@ class AcquisitionData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
         try_calling(pystir.cSTIR_getAcquisitionsData\
             (self.handle, array.ctypes.data))
-##        handle = pystir.cSTIR_getAcquisitionsData\
-##            (self.handle, array.ctypes.data)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
         return array
     def fill(self, value):
         ''' 
@@ -593,27 +577,14 @@ class AcquisitionData(DataContainer):
         if isinstance(value, numpy.ndarray):
             try_calling(pystir.cSTIR_setAcquisitionsData\
                         (self.handle, value.ctypes.data))
-##            h = pystir.cSTIR_setAcquisitionsData(self.handle, value.ctypes.data)
-##            check_status(h)
-##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, AcquisitionData):
             try_calling(pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value.handle))
-##            h = pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
-##                (self.handle, value.handle)
-##            check_status(h)
-##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, float):
             try_calling(pystir.cSTIR_fillAcquisitionsData(self.handle, value))
-##            h = pystir.cSTIR_fillAcquisitionsData(self.handle, value)
-##            check_status(h)
-##            pyiutil.deleteDataHandle(h)
         elif isinstance(value, int):
             try_calling(pystir.cSTIR_fillAcquisitionsData\
                         (self.handle, float(value)))
-##            h = pystir.cSTIR_fillAcquisitionsData(self.handle, float(value))
-##            check_status(h)
-##            pyiutil.deleteDataHandle(h)
         else:
             raise error('wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
@@ -665,10 +636,8 @@ class AcquisitionModel:
         img_templ:  an ImageData object used as a template for creating an
                     ImageData object to store backward projection.
         '''
-        handle = pystir.cSTIR_setupAcquisitionModel\
-            (self.handle, acq_templ.handle, img_templ.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_setupAcquisitionModel\
+            (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
         ''' 
         Sets the additive term a in (F);
@@ -897,9 +866,8 @@ class ObjectiveFunction:
         Prepares this object for use.
         image: ImageData object
         '''
-        handle = pystir.cSTIR_setupObjectiveFunction(self.handle, image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_setupObjectiveFunction\
+                    (self.handle, image.handle))
     def value(self, image):
         '''
         Returns the value of this objective function on the specified image.
@@ -907,7 +875,9 @@ class ObjectiveFunction:
         '''
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
-        return pyiutil.floatDataFromHandle(handle)
+        v = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return v
     def get_value(self, image):
         '''
         Returns the value of this objective function on the specified image.
@@ -976,8 +946,6 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         ss.handle = pystir.cSTIR_subsetSensitivity(self.handle, subset)
         check_status(ss.handle)
         return ss
-##    def get_gradient_not_divided(self, image, subset):
-##    def get_gradient_plus_sensitivity_no_penalty(self, image, subset):
     def get_backprojection_of_acquisition_ratio(self, image, subset):
         '''
         Computes back-projection of the ratio of measured to estimated 
@@ -1058,15 +1026,12 @@ class Reconstructor:
     def process(self):
         if self.image is None:
             raise error('current estimate not set')
-        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_runReconstruction\
+                    (self.handle, self.image.handle))
     def get_output(self):
         return self.image
     def reconstruct(self, image):
-        handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
     def set_output_filename_prefix(self, prefix):
         _set_char_par\
             (self.handle, 'Reconstruction', 'output_filename_prefix', prefix)
@@ -1144,9 +1109,6 @@ class IterativeReconstructor(Reconstructor):
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
-##    def set_input(self, input_data):
-##        _setParameter(self.handle, 'IterativeReconstruction', \
-##                      'input_data', input_data.handle)
     def set_current_estimate(self, image):
         self.image = image
     def get_current_estimate(self):
@@ -1154,24 +1116,13 @@ class IterativeReconstructor(Reconstructor):
     def update_current_estimate(self):
         if self.image is None:
             raise error('current estimate not set')
-        handle = pystir.cSTIR_updateReconstruction(self.handle, self.image.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pystir.cSTIR_updateReconstruction\
+                    (self.handle, self.image.handle))
     def set_current_subset_num(self, subset):
         self.subset = subset
     def get_subset_sensitivity(self):
         obj_fun = self.get_objective_function()
         return obj_fun.get_subset_sensitivity(self.subset)
-##    def reconstruct(self, image):
-##        handle = pystir.cSTIR_runReconstruction(self.handle, image.handle)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
-##    def process(self):
-##        if self.image is None:
-##            raise error('current estimate not set')
-##        handle = pystir.cSTIR_runReconstruction(self.handle, self.image.handle)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
     def update(self, image):
         self.set_current_estimate(image)
         self.update_current_estimate()
