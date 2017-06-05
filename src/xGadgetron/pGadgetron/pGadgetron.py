@@ -70,9 +70,7 @@ ISMRMRD_CXDOUBLE = 8 ##  /**< corresponds to complex double */
 ###########################################################
 ############ Utilities for internal use only ##############
 def _setParameter(hs, set, par, hv):
-    h = pygadgetron.cGT_setParameter(hs, set, par, hv)
-    check_status(h)
-    pyiutil.deleteDataHandle(h)
+    try_calling(pygadgetron.cGT_setParameter(hs, set, par, hv))
 def _set_int_par(handle, set, par, value):
     h = pyiutil.intDataHandle(value)
     _setParameter(handle, set, par, h)
@@ -296,10 +294,8 @@ class CoilImageData(DataContainer):
         '''
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
-        handle = pygadgetron.cGT_computeCoilImages\
-            (self.handle, acqs.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_computeCoilImages\
+            (self.handle, acqs.handle))
     def image_dimensions(self):
         '''
         Returns each coil images array dimensions as a tuple (nx, ny, nz, nc),
@@ -369,10 +365,8 @@ class CoilSensitivityData(DataContainer):
         if isinstance(data, AcquisitionData):
             _set_int_par\
                 (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
-            handle = pygadgetron.cGT_computeCoilSensitivities\
-                (self.handle, data.handle)
-            check_status(handle)
-            pyiutil.deleteDataHandle(handle)
+            try_calling(pygadgetron.cGT_computeCoilSensitivities\
+                (self.handle, data.handle))
         elif isinstance(data, CoilImageData):
             if method_name == 'Inati':
                 if not HAVE_ISMRMRDTOOLS:
@@ -387,10 +381,8 @@ class CoilSensitivityData(DataContainer):
                     nit = int(parm['niter'])
                     _set_int_par\
                         (self.handle, 'coil_sensitivity', 'smoothness', nit)
-                handle = pygadgetron.cGT_computeCSMsFromCIs\
-                    (self.handle, data.handle)
-                check_status(handle)
-                pyiutil.deleteDataHandle(handle)
+                try_calling(pygadgetron.cGT_computeCSMsFromCIs\
+                    (self.handle, data.handle))
             else:
                 raise error('Unknown method %s' % method_name)
     def append(self, csm):
@@ -535,10 +527,8 @@ class ImageData(DataContainer):
         out_file : the file name (Python string)
         out_group: hdf5 dataset name (Python string)
         '''
-        handle = pygadgetron.cGT_writeImages\
-            (self.handle, out_file, out_group)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_writeImages\
+                    (self.handle, out_file, out_group))
     def select(self, attr, value):
         '''
         Creates an images container with images from self with the specified
@@ -584,10 +574,8 @@ class ImageData(DataContainer):
             raise error('Undefined ImageData object cannot be filled')
         re = numpy.copy(numpy.real(data))
         im = numpy.copy(numpy.imag(data))
-        handle = pygadgetron.cGT_setComplexImagesData\
-            (self.handle, re.ctypes.data, im.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_setComplexImagesData\
+            (self.handle, re.ctypes.data, im.ctypes.data))
 
 DataContainer.register(ImageData)
 
@@ -662,9 +650,7 @@ class AcquisitionData(DataContainer):
             - slice
             - kspace_encode_step_1
         '''
-        handle = pygadgetron.cGT_orderAcquisitions(self.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_orderAcquisitions(self.handle))
         self.sorted = True
     def is_sorted(self):
         return self.sorted
@@ -785,6 +771,7 @@ class AcquisitionData(DataContainer):
         na, nc, ns = data.shape
         re = numpy.copy(numpy.real(data))
         im = numpy.copy(numpy.imag(data))
+        # TODO: synchronize with ImageData.fill()
         handle = pygadgetron.cGT_setAcquisitionsData\
             (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data)
         check_status(handle)
@@ -811,10 +798,7 @@ class AcquisitionModel:
         Specifies the coil sensitivity maps to be used by the model.
         csm: CoilSensitivityMaps
         '''
-        handle = pygadgetron.cGT_setCSMs(self.handle, csm.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-        self.csms = 'set'
+        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
@@ -863,18 +847,14 @@ class Gadget:
         prop : property name (string)
         value: property value (string)
         '''
-        handle = pygadgetron.cGT_setGadgetProperty(self.handle, prop, value)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_setGadgetProperty(self.handle, prop, value))
     def set_properties(self, prop):
         '''
         Assigns specified values to specified gadget properties.
         prop: a string with comma-separated list of property value assignments 
               prop_name=prop_value
         '''
-        handle = pygadgetron.cGT_setGadgetProperties(self.handle, prop)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_setGadgetProperties(self.handle, prop))
     def value_of(self, prop):
         '''
         Returns the string representation of the value of specified property.
@@ -882,8 +862,6 @@ class Gadget:
         '''
         return _char_par(self.handle, 'gadget', prop)
 
-# low-level functionality object
-# likely to be obsolete- not used for a long time
 class GadgetChain:
     '''
     Class for Gadgetron chains.
@@ -901,9 +879,7 @@ class GadgetChain:
         id    : gadget id (string)
         reader: Gadget of reader type
         '''
-        handle = pygadgetron.cGT_addReader(self.handle, id, reader.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_addReader(self.handle, id, reader.handle))
     def add_writer(self, id, writer):
         '''
         Adds writer gadget (a gadget that sends data to the client) to the
@@ -911,18 +887,14 @@ class GadgetChain:
         id    : gadget id (string)
         writer: Gadget of writer type
         '''
-        handle = pygadgetron.cGT_addWriter(self.handle, id, writer.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
     def add_gadget(self, id, gadget):
         '''
         Adds a gadget to the chain.
         id    : gadget id (string)
         writer: Gadget
         '''
-        handle = pygadgetron.cGT_addGadget(self.handle, id, gadget.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_addGadget(self.handle, id, gadget.handle))
     def set_gadget_property(self, id, prop, value):
         '''
         Assigns specified value to specified gadget property.
@@ -935,9 +907,7 @@ class GadgetChain:
         else:
             v = repr(value).lower()
         hg = _parameterHandle(self.handle, 'gadget_chain', id)
-        handle = pygadgetron.cGT_setGadgetProperty(hg, prop, v)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_setGadgetProperty(hg, prop, v))
         pyiutil.deleteDataHandle(hg)
     def value_of_gadget_property(self, id, prop):
         '''
@@ -982,10 +952,8 @@ class Reconstructor(GadgetChain):
         '''
         if self.input_data is None:
             raise error('no input data')
-        handle = pygadgetron.cGT_reconstructImages\
-             (self.handle, self.input_data.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+        try_calling(pygadgetron.cGT_reconstructImages\
+             (self.handle, self.input_data.handle))
     def get_output(self, subset = None):
         '''
         Returns specified subset of the output ImageData. If no subset is 
