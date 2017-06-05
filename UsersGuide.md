@@ -1,24 +1,24 @@
 # Table of Contents
 
 1. [Overview](#Overview)
-    1. [General architecture](#General architecture)
-	2. [Supported scanners and file formats](#Supported scanners and file formats)
+    1. [General architecture](#General_architecture)
+	2. [Supported scanners and file formats](#Supported_scanners_and_file_formats)
 	    1. [MRI](#MRI)
 		2. [PET](#PET)
-2. [Where to find further information](#Where to find further information)
-3. [General notes of usage](#General notes of usage)
-4. [Framework basic functionality](#Framework basic functionality)
-    1. [General conventions](#General conventions)
-	    1. [Object-oriented paradigm](#Object-oriented paradigm)
-	    2. [Error handling](#Error handling)
-	    3. [Naming conventions](#Naming conventions)
-	    4. [Units and index ordering](#Units and index ordering)
+2. [Where to find further information](#Further_information)
+3. [General notes of usage](#General_notes)
+4. [Framework basic functionality](#Basic_functionality)
+    1. [General conventions](#General_conventions)
+	    1. [Object-oriented paradigm](#Object-oriented_paradigm)
+	    2. [Error handling](#Error_handling)
+	    3. [Naming conventions](#Naming_conventions)
+	    4. [Units and index ordering](#Units_and_index_ordering)
 	    5. [Handles](#Handles)
-    2. [Library components](#Library components)
-        1. [Getting help on SIRF library modules](#Getting help on SIRF library modules)
-        2. [General structure of the classes](#General structure of the classes)
-        3. [Basic classes](#Basic classes)
-        4. [Other classes](#Other classes)
+    2. [Library components](#Library_components)
+        1. [Getting help on SIRF library modules](#Getting_help_on_SIRF_library_modules)
+        2. [General structure of the classes](#General_structure_of_the_classes)
+        3. [Basic classes](#Basic_classes)
+        4. [Other classes](#Other_classes)
         5. [Functions](#Functions)
 
 # Overview <a name="Overview"></a>
@@ -27,13 +27,13 @@ The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source
 
 This User’s Guide describes version 0.9 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
-## General architecture <a name="General architecture"></a>
+## General architecture <a name="General_architecture"></a>
 
 The code builds upon existing Open Source software packages for medical image reconstruction. At the outset, these packages are STIR for PET reconstruction, and Gadgetron for MRI. SIRF provides MATLAB and Python interfaces to these underlying reconstruction engines. Underlying SIRF are C interfaces to these reconstruction engines. These interfaces are called from higher level MATLAB or Python interfaces. 
 
 At present, you should only use the MATLAB and Python interfaces. The underlying C library is internal and likely to change over the next few releases. 
 
-## Supported scanners and file formats <a name="Supported scanners and file formats"></a>
+## Supported scanners and file formats <a name="Supported_scanners_and_file_formats"></a>
 
 ### MRI <a name="MRI"></a>
 
@@ -45,7 +45,7 @@ Converters for data from other scanners are available from [https://github.com/i
 
 STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for file format conversion, estimation of randoms and scatter etc. Therefore, in the current SIRF release, we do not yet support measured data from any scanner. This will be fixed for version 1.0. 
 
-# Where to find further information <a name="Where to find further information"></a>
+# Where to find further information <a name="Further_information"></a>
 
 - CCPPETMR website [http://www.ccppetmr.ac.uk](http://www.ccppetmr.ac.uk) for links to project overview, meeting notes, design documents etc 
 
@@ -59,23 +59,23 @@ STIR can handle data from the Siemens mMR Biograph with progress being made for 
 
 - Our plan for future releases and additional features is available from the Software Documents tab [http://www.ccppetmr.ac.uk/softwareframework.html](http://www.ccppetmr.ac.uk/softwareframework.html)  on our website.
 
-# Installation instructions <a name="Installation instructions"></a>
+# Installation instructions <a name="Installation_instructions"></a>
 
 Brief installation instructions can be found on [https://raw.githubusercontent.com/CCPPETMR/SIRF/master/INSTALL.txt](https://raw.githubusercontent.com/CCPPETMR/SIRF/master/INSTALL.txt). More detailed instructions for specific Operating Systems etc are on our Wiki at [https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions). 
 
 Note that on the [Virtual machine](https://github.com/CCPPETMR/CCPPETMR_VM/wiki), this has all be done for you and you can just use SIRF. 
 
-# General notes of usage <a name="General notes of usage"></a>
+# General notes of usage <a name="General_notes"></a>
 
 Please note that with the installation set-up, you will normally have two copies of the Matlab/Python module files: the original ones in the SIRF clone and the installed ones. This only matters if you want to debug or modify the files. The installation instructions point Python and Matlab to the “installed” files. 
 
 The MR module and the demos create temporary files during operation. They are normally created in the same folder as the input data, but are cleaned up afterwards. Therefore,  the data cannot reside in a read-only folder. 
 	
-# Framework basic functionality <a name="Framework basic functionality"></a>
+# Framework basic functionality <a name="Basic_functionality"></a>
 
-## General conventions <a name="General conventions"></a> 
+## General conventions <a name="General_conventions"></a> 
 
-### Object-oriented paradigm <a name="Object-oriented paradigm"></a>
+### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
 SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their methods, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class ImageData that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
