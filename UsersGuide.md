@@ -95,11 +95,11 @@ Parameters of objects are modified/accessed via set/get methods (mutators and ac
 
 The mutators are also responsible for basic error checking. 
 
-### Error handling <a name="Error handling"></a>
+### Error handling <a name="Error_handling"></a>
 
 Error handling is via exceptions, i.e. functions do not return an error status, but throw an error if something did not work. The user can catch these exceptions if required as illustrated in the demos. 
 
-### Naming conventions <a name="Naming conventions"></a>
+### Naming conventions <a name="Naming_conventions"></a>
 
 - Types/classes start with capitals, every word is capitalised, no underscores, e.g. AcquisitionModel. 
 
@@ -111,7 +111,7 @@ Error handling is via exceptions, i.e. functions do not return an error status, 
 
     - the number of an item in a sequence end with num, e.g. gate_num. 
 
-### Units and index ordering <a name="Units and index ordering"></a>
+### Units and index ordering <a name="Units_and_index_ordering"></a>
 
 Distances are expressed in mm. 
 
@@ -129,11 +129,11 @@ In both Matlab and Python, SIRF operates with handles to objects, which affects 
 
 In order to have a true (i.e. independent) copy of a SIRF object, the user must call the object methods that create copies of them (see below). 
 	
-## Library components <a name="Library components"></a>
+## Library components <a name="Library_components"></a>
 
 At present, the SIRF library provides two Python interface modules pStir and pGadgetron for STIR and Gadgetron respectively, and two respective Matlab modules mStir and mGadgetron. 
 
-### Getting help on SIRF library modules <a name="Getting help on SIRF library modules"></a>
+### Getting help on SIRF library modules <a name="Getting_help_on_SIRF_library_modules"></a>
 
 We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,  
 
@@ -158,7 +158,7 @@ will provide information on pGadgetron ImageData class, and
 
 on the mStir.AcquisitionData class. Regrettably, help and doc show all methods, including some common built-in methods such as __weakref__ method in Python or addlistener method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with \*\*\*SIRF\*\*\*. Methods not marked this way should be ignored. 
 
-### General structure of the classes <a name="General structure of the classes"></a>
+### General structure of the classes <a name="General_structure_of_the_classes"></a>
 
 Most classes have a constructor to create an object from a file 
 
@@ -181,7 +181,7 @@ In what follows we use PET instead of pStir/mStir and MR instead of pGadgetron/m
 
 In the rest of the document we give basic information on the SIRF classes, including brief descriptions of the methods that are of interest to the user. Please use the inline help facility discussed above for more information. 
 
-### Basic classes <a name="Basic classes"></a>
+### Basic classes <a name="Basic_classes"></a>
 
 #### Data Containers 
 
@@ -367,7 +367,7 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 
     CartesianGRAPPAReconstructor  Constructor. Creates new reconstructor object. 
 
-### Other classes <a name="Other classes"></a>
+### Other classes <a name="Other_classes"></a>
 
 ##### AcquisitionModel 
 
