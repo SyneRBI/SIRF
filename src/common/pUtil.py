@@ -18,6 +18,7 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+import inspect
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
@@ -189,8 +190,13 @@ class error(Exception):
     def __str__(self):
         return '??? ' + repr(self.value)
 
-def check_status(handle):
+def check_status(handle, stack = None):
     if pyiutil.executionStatus(handle) != 0:
+        if stack is None:
+            stack = inspect.stack()[1]
+        print('\nFile: %s' % stack[1])
+        print('Line: %d' % stack[2])
+        print('check_status found the following message sent from the engine:')
         msg = pyiutil.executionError(handle)
         file = pyiutil.executionErrorFile(handle)
         line = pyiutil.executionErrorLine(handle)
@@ -200,7 +206,7 @@ def check_status(handle):
         raise error(errorMsg)
 
 def try_calling(returned_handle):
-    check_status(returned_handle)
+    check_status(returned_handle, inspect.stack()[1])
     pyiutil.deleteDataHandle(returned_handle)
 
 def label_and_name(g):
