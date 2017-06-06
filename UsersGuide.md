@@ -306,11 +306,11 @@ Class for a generic image reconstructor.
 
 ###### Methods: 
 
-   set_input  (PET/MR) Sets the input (AquisitionData object). 
-   process    (PET/MR) Runs the reconstruction. 
-   get_output (PET/MR) Returns the output (ImageData object). 
-   set_output_filename_prefix  
-              (PET/MR) Specifies the naming for the output files.  
+    set_input  (PET/MR) Sets the input (AquisitionData object). 
+    process    (PET/MR) Runs the reconstruction. 
+    get_output (PET/MR) Returns the output (ImageData object). 
+    set_output_filename_prefix  
+               (PET/MR) Specifies the naming for the output files.  
 
 ##### IterativeReconstructor (PET) 
 
