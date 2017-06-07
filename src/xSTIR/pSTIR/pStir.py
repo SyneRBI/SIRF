@@ -21,6 +21,7 @@ Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 ##   limitations under the License.
 
 import abc
+import inspect
 import numpy
 import os
 try:
@@ -52,41 +53,46 @@ ALL_CHANNELS = -1
 
 ###########################################################
 ############ Utilities for internal use only ##############
-def _setParameter(hs, set, par, hv):
-    try_calling(pystir.cSTIR_setParameter(hs, set, par, hv))
+def _setParameter(hs, set, par, hv, stack = None):
+##    try_calling(pystir.cSTIR_setParameter(hs, set, par, hv))
+    if stack is None:
+        stack = inspect.stack()[1]
+    h = pystir.cSTIR_setParameter(hs, set, par, hv)
+    check_status(h, stack)
+    pyiutil.deleteDataHandle(h)
 def _set_char_par(handle, set, par, value):
     h = pyiutil.charDataHandle(value)
-    _setParameter(handle, set, par, h)
+    _setParameter(handle, set, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 def _set_int_par(handle, set, par, value):
     h = pyiutil.intDataHandle(value)
-    _setParameter(handle, set, par, h)
+    _setParameter(handle, set, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 def _set_float_par(handle, set, par, value):
     h = pyiutil.floatDataHandle(value)
-    _setParameter(handle, set, par, h)
+    _setParameter(handle, set, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 def _char_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h)
+    check_status(h, inspect.stack()[1])
     value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _int_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h)
+    check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _float_par(handle, set, par):
     h = pystir.cSTIR_parameter(handle, set, par)
-    check_status(h)
+    check_status(h, inspect.stack()[1])
     value = pyiutil.floatDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
-    check_status(handle)
+    check_status(handle, inspect.stack()[1])
     return handle
 def _tmp_filename():
     return repr(int(1000*time.time()))
