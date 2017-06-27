@@ -63,11 +63,11 @@ def main():
 
     # create a shape
     shape = EllipticCylinder()
-
-    # add a shape to the image
     shape.set_length(400)
     shape.set_radii((100, 40))
     shape.set_origin((0, 60, 10))
+
+    # add the shape to the image
     image.add_shape(shape, scale = 1)
 
     # add another shape
