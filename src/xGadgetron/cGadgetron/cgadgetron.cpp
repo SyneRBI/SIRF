@@ -950,7 +950,7 @@ cGT_setGadgetProperties(void* ptr_g, const char* props)
 		std::string prop;
 		std::string value;
 		size_t n = in.length();
-		size_t i, j, k;
+		size_t i, j;
 		i = 0;
 		for (;;) {
 			j = in.find_first_not_of(" \t\n\v\f\r", i);
@@ -1146,7 +1146,7 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		ImagesContainer& images = objectFromHandle<ImagesContainer>(h_img);
-		for (int i = 0; i < images.number(); i++) {
+		for (unsigned int i = 0; i < images.number(); i++) {
 			ImageWrap& iw = images.image_wrap(i);
 			con.send_wrapped_image(iw);
 		}
