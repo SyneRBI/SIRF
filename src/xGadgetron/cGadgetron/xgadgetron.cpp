@@ -193,7 +193,7 @@ ImagesProcessor::process(ImagesContainer& images)
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 
-			for (int i = 0; i < images.number(); i++) {
+			for (unsigned int i = 0; i < images.number(); i++) {
 				ImageWrap& iw = images.image_wrap(i);
 				conn().send_wrapped_image(iw);
 			}
@@ -217,7 +217,7 @@ AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 	if (cc.items() < 1)
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (int i = 0; i < ic.number(); i++) {
+	for (unsigned int i = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
 		CoilData& csm = cc(i%cc.items());
 		fwd(iw, csm, ac);
@@ -232,7 +232,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
 	ImageWrap iw(sptr_imgs_->image_wrap(0));
-	for (int i = 0, a = 0; a < ac.number(); i++) {
+	for (unsigned int i = 0, a = 0; a < ac.number(); i++) {
 		CoilData& csm = cc(i%cc.items());
 		bwd(iw, csm, ac, a);
 		ic.append(iw);
@@ -273,8 +273,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		for (unsigned int y = 0; y < ny; y++) {
 			for (unsigned int x = 0; x < nx; x++) {
 				uint16_t xout = x + (readout - nx) / 2;
-				complex_float_t zi = (complex_float_t)img(x, y);
-				complex_float_t zc = csm(x, y, 0, c);
+				complex_double_t zi = (complex_double_t)img(x, y);
+				complex_double_t zc = csm(x, y, 0, c);
 				ci(xout, y, c) = zi * zc;
 			}
 		}
@@ -294,8 +294,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	for (;;) {
 		sptr_acqs_->get_acquisition(y, acq);
 		int yy = acq.idx().kspace_encode_step_1;
-		for (size_t c = 0; c < nc; c++) {
-			for (size_t s = 0; s < readout; s++) {
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < readout; s++) {
 				acq.data(s, c) = ci(s, yy, c);
 			}
 		}
@@ -312,7 +312,7 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 template< typename T>
 void 
 AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
-	AcquisitionsContainer& ac, int& off)
+	AcquisitionsContainer& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;
 
@@ -346,8 +346,8 @@ AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 	for (;;) {
 		ac.get_acquisition(off + y, acq);
 		int yy = acq.idx().kspace_encode_step_1;
-		for (size_t c = 0; c < nc; c++) {
-			for (size_t s = 0; s < readout; s++) {
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < readout; s++) {
 				ci(s, yy, c) = acq.data(s, c);
 			}
 		}

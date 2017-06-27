@@ -302,7 +302,7 @@ public:
 	}
 
 	void bwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
-		int& off)
+		unsigned int& off)
 	{
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
@@ -348,7 +348,7 @@ private:
 		AcquisitionsContainer& ac);
 	template< typename T>
 	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
-		AcquisitionsContainer& ac, int& off);
+		AcquisitionsContainer& ac, unsigned int& off);
 };
 
 #endif
