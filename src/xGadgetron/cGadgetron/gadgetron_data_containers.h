@@ -472,19 +472,32 @@ private:
 	}
 };
 
+//class aDataContainer {
+//public:
+//	virtual ~aDataContainer() {}
+//	virtual boost::shared_ptr<aDataContainer> new_data_container() = 0;
+//	virtual unsigned int items() = 0;
+//	virtual double norm() = 0;
+//	virtual complex_double_t dot(aDataContainer& dc) = 0;
+//	virtual void axpby(
+//		complex_double_t a, const aDataContainer& a_x,
+//		complex_double_t b, const aDataContainer& a_y) = 0;
+//};
+
+template <typename T>
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
-	virtual boost::shared_ptr<aDataContainer> new_data_container() = 0;
+	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
 	virtual double norm() = 0;
-	virtual complex_double_t dot(aDataContainer& dc) = 0;
+	virtual T dot(aDataContainer<T>& dc) = 0;
 	virtual void axpby(
-		complex_double_t a, const aDataContainer& a_x,
-		complex_double_t b, const aDataContainer& a_y) = 0;
+		T a, const aDataContainer<T>& a_x,
+		T b, const aDataContainer<T>& a_y) = 0;
 };
 
-class AcquisitionsContainer : public aDataContainer {
+class AcquisitionsContainer : public aDataContainer<complex_double_t> {
 public:
 	AcquisitionsContainer() : ordered_(false), index_(0) {}
 	virtual ~AcquisitionsContainer()
@@ -768,8 +781,8 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 
 	virtual void axpby(
-		complex_double_t a, const aDataContainer& a_x,
-		complex_double_t b, const aDataContainer& a_y)
+		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
+		complex_double_t b, const aDataContainer<complex_double_t>& a_y)
 	{
 		AcquisitionsContainer& x = (AcquisitionsContainer&)a_x;
 		AcquisitionsContainer& y = (AcquisitionsContainer&)a_y;
@@ -796,7 +809,7 @@ public:
 			j++;
 		}
 	}
-	virtual complex_double_t dot(aDataContainer& dc)
+	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc)
 	{
 		AcquisitionsContainer& other = (AcquisitionsContainer&)dc;
 		int n = number();
@@ -1011,12 +1024,12 @@ public:
 		dataset_->writeHeader(par_);
 		mtx.unlock();
 	}
-	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
 		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
 		ptr_ac->set_parameters(par_);
 		ptr_ac->write_parameters();
-		boost::shared_ptr<aDataContainer> sptr_ac(ptr_ac);
+		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
@@ -1056,7 +1069,7 @@ private:
 	std::list<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
-class ImagesContainer : public aDataContainer {
+class ImagesContainer : public aDataContainer<complex_double_t> {
 public:
 	virtual unsigned int number() = 0;
 	virtual int types() = 0;
@@ -1090,8 +1103,8 @@ public:
 	}
 
 	virtual void axpby(
-		complex_double_t a, const aDataContainer& a_x,
-		complex_double_t b, const aDataContainer& a_y)
+		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
+		complex_double_t b, const aDataContainer<complex_double_t>& a_y)
 	{
 		ImagesContainer& x = (ImagesContainer&)a_x;
 		ImagesContainer& y = (ImagesContainer&)a_y;
@@ -1106,7 +1119,7 @@ public:
 			append(w);
 		}
 	}
-	virtual complex_double_t dot(aDataContainer& dc)
+	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc)
 	{
 		ImagesContainer& ic = (ImagesContainer&)dc;
 		complex_double_t z = 0;
@@ -1359,9 +1372,10 @@ public:
 			im += n;
 		}
 	}
-	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer>((aDataContainer*)new ImagesList());
+		return boost::shared_ptr<aDataContainer<complex_double_t> >
+			((aDataContainer<complex_double_t>*)new ImagesList());
 	}
 	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{
@@ -1458,19 +1472,19 @@ private:
 	ISMRMRD::Image < complex_float_t > img_;
 };
 
-class CoilDataContainer : public aDataContainer {
+class CoilDataContainer : public aDataContainer<complex_double_t> {
 public:
 	virtual double norm()
 	{
 		return 0.0;
 	}
-	virtual complex_double_t dot(aDataContainer& dc)
+	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc)
 	{
 		return complex_double_t(0.0, 0.0);
 	}
 	virtual void axpby(
-		complex_double_t a, const aDataContainer& a_x,
-		complex_double_t b, const aDataContainer& a_y)
+		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
+		complex_double_t b, const aDataContainer<complex_double_t>& a_y)
 	{
 		return;
 	}
@@ -1627,10 +1641,10 @@ protected:
 
 class CoilImagesList : public CoilImagesContainer, public CoilDataList {
 public:
-	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer>
-			((aDataContainer*)new CoilImagesList());
+		return boost::shared_ptr<aDataContainer<complex_double_t> >
+			((aDataContainer<complex_double_t>*)new CoilImagesList());
 	}
 	virtual unsigned int items()
 	{
@@ -1951,10 +1965,10 @@ public:
 		csm_smoothness_ = 0;
 	}
 
-	virtual boost::shared_ptr<aDataContainer> new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer>
-			((aDataContainer*)new CoilSensitivitiesAsImages());
+		return boost::shared_ptr<aDataContainer<complex_double_t> >
+			((aDataContainer<complex_double_t>*)new CoilSensitivitiesAsImages());
 	}
 
 	virtual unsigned int items()

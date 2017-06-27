@@ -796,7 +796,8 @@ cGT_dataItems(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		aDataContainer<complex_double_t>& x = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
 		int* result = (int*)malloc(sizeof(int));
 		*result = x.items();
 		DataHandle* handle = new DataHandle;
@@ -812,7 +813,8 @@ cGT_norm(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		aDataContainer<complex_double_t>& x = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
 		double* result = (double*)malloc(sizeof(double));
 		*result = x.norm();
 		DataHandle* handle = new DataHandle;
@@ -829,8 +831,10 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
-		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
+		aDataContainer<complex_double_t>& x = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
+		aDataContainer<complex_double_t>& y = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_y);
 		complex_double_t* result =
 			(complex_double_t*)malloc(sizeof(complex_double_t));
 		*result = x.dot(y);
@@ -850,13 +854,16 @@ double br, double bi, const void* ptr_y
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
-		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
-		boost::shared_ptr<aDataContainer> sptr_z = x.new_data_container();
+		aDataContainer<complex_double_t>& x = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
+		aDataContainer<complex_double_t>& y = 
+			objectFromHandle<aDataContainer<complex_double_t> >(h_y);
+		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_z = 
+			x.new_data_container();
 		complex_double_t a(ar, ai);
 		complex_double_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
-		return sptrObjectHandle<aDataContainer>(sptr_z);
+		return sptrObjectHandle<aDataContainer<complex_double_t> >(sptr_z);
 	}
 	CATCH;
 }
