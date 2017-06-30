@@ -32,7 +32,7 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 	endforeach()
   endif()
 	
-add_library(cgt cgadgetron.cpp xgadgetron.cpp ismrmrd_fftw.cpp)
+add_library(cgt cgadgetron.cpp xgadgetron.cpp gadgetron_data_containers.cpp ismrmrd_fftw.cpp)
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
