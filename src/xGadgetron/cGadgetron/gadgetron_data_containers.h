@@ -261,18 +261,6 @@ public:
 		return s;
 	}
 
-	void get_cmplx_data(complex_float_t* data) const
-	{
-		const CFImage& im = *(const CFImage*)ptr_;
-		long long int n = im.getMatrixSizeX();
-		n *= im.getMatrixSizeY();
-		n *= im.getMatrixSizeZ();
-		n *= im.getNumberOfChannels();
-		const complex_float_t* ptr = im.getDataPtr();
-		for (long long int i = 0; i < n; i++)
-			data[i] = ptr[i];
-	}
-
 	void get_cmplx_data(double* re, double* im) const
 	{
 		int dim[4];
@@ -1082,10 +1070,6 @@ public:
 	virtual void append(int image_data_type, void* ptr_image) = 0;
 	virtual void append(const ImageWrap& iw) = 0;
 	virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-	virtual void get_image_data_as_double_array
-		(unsigned int im_num, double* data) = 0;
-	virtual void get_image_data_as_complex_array
-		(unsigned int im_num, complex_float_t* data) = 0;
 	virtual void get_images_data_as_double_array(double* data) const = 0;
 	virtual void get_images_data_as_complex_array
 		(double* re, double* im) const = 0;
@@ -1295,17 +1279,6 @@ public:
 		//ISMRMRD::deserialize(attr.c_str(), mc);
 		//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 		//std::cout << attr << '\n';
-	}
-	virtual void get_image_data_as_double_array(unsigned int im_num, double* data)
-	{
-		ImageWrap& iw = image_wrap(im_num);
-		iw.get_data(data);
-	}
-	virtual void get_image_data_as_complex_array
-		(unsigned int im_num, complex_float_t* data)
-	{
-		ImageWrap& iw = image_wrap(im_num);
-		iw.get_cmplx_data(data);
 	}
 	virtual void get_images_data_as_double_array(double* data) const
 	{

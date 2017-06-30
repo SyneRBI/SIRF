@@ -140,12 +140,6 @@ EXPORTED_FUNCTION 	void mGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_DOUB
 EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim) {
 	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsDoubleArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
-	cGT_getImageDataAsDoubleArray (ptr_imgs, img_num, ptr_data);
-}
-EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, int img_num, PTR_DOUBLE ptr_data) {
-	cGT_getImageDataAsComplexArray (ptr_imgs, img_num, ptr_data);
-}
 EXPORTED_FUNCTION 	void mGT_getImagesDataAsDoubleArray(void* ptr_imgs, PTR_DOUBLE ptr_data) {
 	cGT_getImagesDataAsDoubleArray(ptr_imgs, ptr_data);
 }

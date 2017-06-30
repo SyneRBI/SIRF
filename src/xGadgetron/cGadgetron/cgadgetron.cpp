@@ -619,7 +619,6 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 extern "C"
 void*
 cGT_selectImages(void* ptr_input, const char* attr, const char* target)
-//cGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off)
 {
 	try {
 		CAST_PTR(DataHandle, h_input, ptr_input);
@@ -685,36 +684,6 @@ cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.get_image_dimensions(img_num, dim);
-}
-
-extern "C"
-void
-cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data)
-{
-	double* data = (double*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_double_array(img_num, data);
-}
-
-extern "C"
-void
-cGT_getImageDataAsComplexArray(void* ptr_imgs, int img_num, size_t ptr_data)
-{
-	complex_float_t* data = (complex_float_t*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_complex_array(img_num, data);
-}
-
-extern "C"
-void
-cGT_getImageDataAsCmplxArray
-(void* ptr_imgs, int img_num, double* re, double* im)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_cmplx_array(img_num, re, im);
 }
 
 extern "C"
