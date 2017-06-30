@@ -65,7 +65,7 @@ extern "C" {
 	void* cGT_reconstructedImages(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages(void* ptr_input, const char* attr, const char* target);
-	void cGT_setImageToRealConversion(void* ptr_imgs, int type);
+	//void cGT_setImageToRealConversion(void* ptr_imgs, int type);
 	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
