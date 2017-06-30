@@ -667,14 +667,14 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 	return sptrObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
 }
 
-extern "C"
-void
-cGT_setImageToRealConversion(void* ptr_imgs, int type)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
-	images.set_image_to_real_conversion(type);
-}
+//extern "C"
+//void
+//cGT_setImageToRealConversion(void* ptr_imgs, int type)
+//{
+//	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+//	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
+//	images.set_image_to_real_conversion(type);
+//}
 
 extern "C"
 void
