@@ -121,32 +121,32 @@ public:
 		(boost::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 	virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
-	virtual void read(tcp::socket* stream)
-	{
-		ISMRMRD::Acquisition acq;
-		ISMRMRD::AcquisitionHeader h;
-		boost::asio::read
-			(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::AcquisitionHeader)));
-		acq.setHead(h);
-		unsigned long trajectory_elements =
-			acq.getHead().trajectory_dimensions * acq.getHead().number_of_samples;
-		unsigned long data_elements =
-			acq.getHead().active_channels * acq.getHead().number_of_samples;
+	virtual void read(tcp::socket* stream);
+	//{
+	//	ISMRMRD::Acquisition acq;
+	//	ISMRMRD::AcquisitionHeader h;
+	//	boost::asio::read
+	//		(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::AcquisitionHeader)));
+	//	acq.setHead(h);
+	//	unsigned long trajectory_elements =
+	//		acq.getHead().trajectory_dimensions * acq.getHead().number_of_samples;
+	//	unsigned long data_elements =
+	//		acq.getHead().active_channels * acq.getHead().number_of_samples;
 
-		if (trajectory_elements) {
-			boost::asio::read
-				(*stream, boost::asio::buffer
-				(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
-		}
-		if (data_elements) {
-			boost::asio::read
-				(*stream,
-				boost::asio::buffer
-				(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
-		}
+	//	if (trajectory_elements) {
+	//		boost::asio::read
+	//			(*stream, boost::asio::buffer
+	//			(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
+	//	}
+	//	if (data_elements) {
+	//		boost::asio::read
+	//			(*stream,
+	//			boost::asio::buffer
+	//			(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
+	//	}
 
-		ptr_acqs_->append_acquisition(acq);
-	}
+	//	ptr_acqs_->append_acquisition(acq);
+	//}
 
 private:
 	boost::shared_ptr<AcquisitionsContainer> ptr_acqs_;
@@ -186,23 +186,23 @@ public:
 			(*stream, boost::asio::buffer(im.getDataPtr(), im.getDataSize()));
 	}
 
-	virtual void read(tcp::socket* stream)
-	{
-		//Read the image headerfrom the socket
-		ISMRMRD::ImageHeader h;
-		boost::asio::read
-			(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
-		void* ptr = 0;
-		IMAGE_PROCESSING_SWITCH
-			(h.data_type, read_data_attributes, ptr, h, &ptr, stream);
-		if (ptr) {
-			ptr_images_->append(h.data_type, ptr);
-			ptr_images_->count(h.image_index);
-		}
-		else {
-			throw GadgetronClientException("Invalid image data type");
-		}
-	}
+	virtual void read(tcp::socket* stream);
+	//{
+	//	//Read the image headerfrom the socket
+	//	ISMRMRD::ImageHeader h;
+	//	boost::asio::read
+	//		(*stream, boost::asio::buffer(&h, sizeof(ISMRMRD::ImageHeader)));
+	//	void* ptr = 0;
+	//	IMAGE_PROCESSING_SWITCH
+	//		(h.data_type, read_data_attributes, ptr, h, &ptr, stream);
+	//	if (ptr) {
+	//		ptr_images_->append(h.data_type, ptr);
+	//		ptr_images_->count(h.image_index);
+	//	}
+	//	else {
+	//		throw GadgetronClientException("Invalid image data type");
+	//	}
+	//}
 
 private:
 	boost::shared_ptr<ImagesContainer> ptr_images_;
@@ -225,192 +225,192 @@ public:
 		timeout_ms_ = t;
 	}
 
-	void read_task()
-	{
-		if (!socket_) {
-			throw GadgetronClientException("Unable to create socket.");
-		}
+	void read_task();
+	//{
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Unable to create socket.");
+	//	}
 
-		GadgetMessageIdentifier id;
-		while (socket_->is_open()) {
-			try {
-				boost::asio::read
-					(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//	GadgetMessageIdentifier id;
+	//	while (socket_->is_open()) {
+	//		try {
+	//			boost::asio::read
+	//				(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
 
-				if (id.id == GADGET_MESSAGE_CLOSE) {
-					break;
-				}
+	//			if (id.id == GADGET_MESSAGE_CLOSE) {
+	//				break;
+	//			}
 
-				GadgetronClientMessageReader* r = find_reader(id.id);
+	//			GadgetronClientMessageReader* r = find_reader(id.id);
 
-				if (!r) {
-					std::cout << "Message received with ID: " << id.id << std::endl;
-					throw GadgetronClientException("Unknown Message ID");
-				}
-				else {
-					r->read(socket_);
-				}
-			}
-			catch (...) {
-				std::cout << "Input stream has terminated" << std::endl;
-				return;
-			}
-		}
-	}
+	//			if (!r) {
+	//				std::cout << "Message received with ID: " << id.id << std::endl;
+	//				throw GadgetronClientException("Unknown Message ID");
+	//			}
+	//			else {
+	//				r->read(socket_);
+	//			}
+	//		}
+	//		catch (...) {
+	//			std::cout << "Input stream has terminated" << std::endl;
+	//			return;
+	//		}
+	//	}
+	//}
 
 	void wait() 
 	{
 		reader_thread_.join();
 	}
 
-	void connect(std::string hostname, std::string port)
-	{
-		tcp::resolver resolver(io_service);
-		tcp::resolver::query query(tcp::v4(), hostname.c_str(), port.c_str());
-		tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-		tcp::resolver::iterator end;
+	void connect(std::string hostname, std::string port);
+	//{
+	//	tcp::resolver resolver(io_service);
+	//	tcp::resolver::query query(tcp::v4(), hostname.c_str(), port.c_str());
+	//	tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+	//	tcp::resolver::iterator end;
 
-		socket_ = new tcp::socket(io_service);
-		if (!socket_) {
-			throw GadgetronClientException("Unable to create socket.");
-		}
+	//	socket_ = new tcp::socket(io_service);
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Unable to create socket.");
+	//	}
 
-		std::condition_variable cv;
-		std::mutex cv_m;
+	//	std::condition_variable cv;
+	//	std::mutex cv_m;
 
-		boost::system::error_code error = boost::asio::error::host_not_found;
-		std::thread t([&](){
-			//TODO:
-			//For newer versions of Boost, we should use
-			//   boost::asio::connect(*socket_, iterator);
-			while (error && endpoint_iterator != end) {
-				socket_->close();
-				socket_->connect(*endpoint_iterator++, error);
-			}
-			cv.notify_all();
-		});
+	//	boost::system::error_code error = boost::asio::error::host_not_found;
+	//	std::thread t([&](){
+	//		//TODO:
+	//		//For newer versions of Boost, we should use
+	//		//   boost::asio::connect(*socket_, iterator);
+	//		while (error && endpoint_iterator != end) {
+	//			socket_->close();
+	//			socket_->connect(*endpoint_iterator++, error);
+	//		}
+	//		cv.notify_all();
+	//	});
 
-		{
-			std::unique_lock<std::mutex> lk(cv_m);
-			if (std::cv_status::timeout == 
-				cv.wait_until(lk, std::chrono::system_clock::now() + 
-				std::chrono::milliseconds(timeout_ms_))) {
-				socket_->close();
-			}
-		}
+	//	{
+	//		std::unique_lock<std::mutex> lk(cv_m);
+	//		if (std::cv_status::timeout == 
+	//			cv.wait_until(lk, std::chrono::system_clock::now() + 
+	//			std::chrono::milliseconds(timeout_ms_))) {
+	//			socket_->close();
+	//		}
+	//	}
 
-		t.join();
+	//	t.join();
 
-		if (error)
-			throw GadgetronClientException("Error connecting using socket.");
+	//	if (error)
+	//		throw GadgetronClientException("Error connecting using socket.");
 
-		reader_thread_ = 
-			boost::thread(boost::bind(&GadgetronClientConnector::read_task, this));
-	}
+	//	reader_thread_ = 
+	//		boost::thread(boost::bind(&GadgetronClientConnector::read_task, this));
+	//}
 
-	void send_gadgetron_close() 
-	{
-		if (!socket_) {
-			throw GadgetronClientException("Invalid socket.");
-		}
-		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_CLOSE;
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
-	}
+	void send_gadgetron_close();
+	//{
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Invalid socket.");
+	//	}
+	//	GadgetMessageIdentifier id;
+	//	id.id = GADGET_MESSAGE_CLOSE;
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//}
 
-	void send_gadgetron_configuration_file(std::string config_xml_name) 
-	{
-		if (!socket_) {
-			throw GadgetronClientException("Invalid socket.");
-		}
+	void send_gadgetron_configuration_file(std::string config_xml_name);
+	//{
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Invalid socket.");
+	//	}
 
-		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_CONFIG_FILE;
+	//	GadgetMessageIdentifier id;
+	//	id.id = GADGET_MESSAGE_CONFIG_FILE;
 
-		GadgetMessageConfigurationFile ini;
-		memset(&ini, 0, sizeof(GadgetMessageConfigurationFile));
-		strncpy
-			(ini.configuration_file, config_xml_name.c_str(), config_xml_name.size());
+	//	GadgetMessageConfigurationFile ini;
+	//	memset(&ini, 0, sizeof(GadgetMessageConfigurationFile));
+	//	strncpy
+	//		(ini.configuration_file, config_xml_name.c_str(), config_xml_name.size());
 
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
-		boost::asio::write
-			(*socket_, 
-			boost::asio::buffer(&ini, sizeof(GadgetMessageConfigurationFile)));
-	}
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//	boost::asio::write
+	//		(*socket_, 
+	//		boost::asio::buffer(&ini, sizeof(GadgetMessageConfigurationFile)));
+	//}
 
-	void send_gadgetron_configuration_script(std::string xml_string)
-	{
-		if (!socket_) {
-			throw GadgetronClientException("Invalid socket.");
-		}
+	void send_gadgetron_configuration_script(std::string xml_string);
+	//{
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Invalid socket.");
+	//	}
 
-		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_CONFIG_SCRIPT;
+	//	GadgetMessageIdentifier id;
+	//	id.id = GADGET_MESSAGE_CONFIG_SCRIPT;
 
-		GadgetMessageScript conf;
-		conf.script_length = (uint32_t)xml_string.size() + 1;
+	//	GadgetMessageScript conf;
+	//	conf.script_length = (uint32_t)xml_string.size() + 1;
 
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&conf, sizeof(GadgetMessageScript)));
-		boost::asio::write
-			(*socket_, boost::asio::buffer(xml_string.c_str(), conf.script_length));
-	}
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&conf, sizeof(GadgetMessageScript)));
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(xml_string.c_str(), conf.script_length));
+	//}
 
-	void  send_gadgetron_parameters(std::string xml_string)
-	{
-		if (!socket_) {
-			throw GadgetronClientException("Invalid socket.");
-		}
+	void  send_gadgetron_parameters(std::string xml_string);
+	//{
+	//	if (!socket_) {
+	//		throw GadgetronClientException("Invalid socket.");
+	//	}
 
-		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_PARAMETER_SCRIPT;
+	//	GadgetMessageIdentifier id;
+	//	id.id = GADGET_MESSAGE_PARAMETER_SCRIPT;
 
-		GadgetMessageScript conf;
-		conf.script_length = (uint32_t)xml_string.size() + 1;
+	//	GadgetMessageScript conf;
+	//	conf.script_length = (uint32_t)xml_string.size() + 1;
 
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&conf, sizeof(GadgetMessageScript)));
-		boost::asio::write
-			(*socket_, boost::asio::buffer(xml_string.c_str(), conf.script_length));
-	}
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&conf, sizeof(GadgetMessageScript)));
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(xml_string.c_str(), conf.script_length));
+	//}
 
-	void send_ismrmrd_acquisition(ISMRMRD::Acquisition& acq)
-	{
-		if (!socket_)
-			throw GadgetronClientException("Invalid socket.");
+	void send_ismrmrd_acquisition(ISMRMRD::Acquisition& acq);
+	//{
+	//	if (!socket_)
+	//		throw GadgetronClientException("Invalid socket.");
 
-		GadgetMessageIdentifier id;
-		id.id = GADGET_MESSAGE_ISMRMRD_ACQUISITION;
+	//	GadgetMessageIdentifier id;
+	//	id.id = GADGET_MESSAGE_ISMRMRD_ACQUISITION;
 
-		boost::asio::write
-			(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
-		boost::asio::write
-			(*socket_, 
-			boost::asio::buffer(&acq.getHead(), sizeof(ISMRMRD::AcquisitionHeader)));
+	//	boost::asio::write
+	//		(*socket_, boost::asio::buffer(&id, sizeof(GadgetMessageIdentifier)));
+	//	boost::asio::write
+	//		(*socket_, 
+	//		boost::asio::buffer(&acq.getHead(), sizeof(ISMRMRD::AcquisitionHeader)));
 
-		unsigned long trajectory_elements = 
-			acq.getHead().trajectory_dimensions*acq.getHead().number_of_samples;
-		unsigned long data_elements = 
-			acq.getHead().active_channels*acq.getHead().number_of_samples;
+	//	unsigned long trajectory_elements = 
+	//		acq.getHead().trajectory_dimensions*acq.getHead().number_of_samples;
+	//	unsigned long data_elements = 
+	//		acq.getHead().active_channels*acq.getHead().number_of_samples;
 
-		if (trajectory_elements) {
-			boost::asio::write
-				(*socket_, boost::asio::buffer
-				(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
-		}
-		if (data_elements) {
-			boost::asio::write
-				(*socket_, 
-				boost::asio::buffer
-				(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
-		}
-	}
+	//	if (trajectory_elements) {
+	//		boost::asio::write
+	//			(*socket_, boost::asio::buffer
+	//			(&acq.getTrajPtr()[0], sizeof(float)*trajectory_elements));
+	//	}
+	//	if (data_elements) {
+	//		boost::asio::write
+	//			(*socket_, 
+	//			boost::asio::buffer
+	//			(&acq.getDataPtr()[0], 2 * sizeof(float)*data_elements));
+	//	}
+	//}
 
 	template<typename T>
 	void send_ismrmrd_image(ISMRMRD::Image<T>* ptr_im)
@@ -465,15 +465,15 @@ protected:
 		std::map<unsigned short, boost::shared_ptr<GadgetronClientMessageReader> > 
 		maptype;
 
-	GadgetronClientMessageReader* find_reader(unsigned short r)
-	{
-		GadgetronClientMessageReader* ret = 0;
-		maptype::iterator it = readers_.find(r);
-		if (it != readers_.end()) {
-			ret = it->second.get();
-		}
-		return ret;
-	}
+	GadgetronClientMessageReader* find_reader(unsigned short r);
+	//{
+	//	GadgetronClientMessageReader* ret = 0;
+	//	maptype::iterator it = readers_.find(r);
+	//	if (it != readers_.end()) {
+	//		ret = it->second.get();
+	//	}
+	//	return ret;
+	//}
 
 	boost::asio::io_service io_service;
 	tcp::socket* socket_;
