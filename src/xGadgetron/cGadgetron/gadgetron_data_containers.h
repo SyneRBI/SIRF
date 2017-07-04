@@ -271,51 +271,8 @@ public:
 	}
 
 	void get_cmplx_data(double* re, double* im) const;
-	//{
-	//	int dim[4];
-	//	size_t n = get_dim(dim);
-	//	if (type_ == ISMRMRD::ISMRMRD_CXFLOAT) {
-	//		const CFImage& img = *(const CFImage*)ptr_;
-	//		const complex_float_t* ptr = img.getDataPtr();
-	//		for (size_t i = 0; i < n; i++) {
-	//			complex_float_t z = ptr[i];
-	//			re[i] = std::real(z);
-	//			im[i] = std::imag(z);
-	//		}
-	//	}
-	//	else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE) {
-	//		const CDImage& img = *(const CDImage*)ptr_;
-	//		const complex_double_t* ptr = img.getDataPtr();
-	//		for (size_t i = 0; i < n; i++) {
-	//			complex_double_t z = ptr[i];
-	//			re[i] = std::real(z);
-	//			im[i] = std::imag(z);
-	//		}
-	//	}
-	//	else {
-	//		get_data(re);
-	//		for (size_t i = 0; i < n; i++)
-	//			im[i] = 0;
-	//	}
-	//}
 
 	void set_cmplx_data(const double* re, const double* im) const;
-	//{
-	//	int dim[4];
-	//	size_t n = get_dim(dim);
-	//	if (type_ == ISMRMRD::ISMRMRD_CXFLOAT) {
-	//		CFImage& img = *(CFImage*)ptr_;
-	//		complex_float_t* ptr = img.getDataPtr();
-	//		for (size_t i = 0; i < n; i++)
-	//			ptr[i] = std::complex<float>((float)re[i], (float)im[i]);
-	//	}
-	//	else if (type_ == ISMRMRD::ISMRMRD_CXDOUBLE) {
-	//		CDImage& img = *(CDImage*)ptr_;
-	//		complex_double_t* ptr = img.getDataPtr();
-	//		for (size_t i = 0; i < n; i++)
-	//			ptr[i] = std::complex<double>(re[i], im[i]);
-	//	}
-	//}
 
 private:
 	int type_;
@@ -469,18 +426,6 @@ private:
 	}
 };
 
-//class aDataContainer {
-//public:
-//	virtual ~aDataContainer() {}
-//	virtual boost::shared_ptr<aDataContainer> new_data_container() = 0;
-//	virtual unsigned int items() = 0;
-//	virtual double norm() = 0;
-//	virtual complex_double_t dot(aDataContainer& dc) = 0;
-//	virtual void axpby(
-//		complex_double_t a, const aDataContainer& a_x,
-//		complex_double_t b, const aDataContainer& a_y) = 0;
-//};
-
 template <typename T>
 class aDataContainer {
 public:
@@ -532,7 +477,7 @@ public:
 		int err = this->set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
 		if (err)
 			return err;
-		takeover(*sptr_ac);
+		take_over(*sptr_ac);
 		return 0;
 	}
 
@@ -549,7 +494,7 @@ public:
 	static float diff
 	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
 
-	virtual void takeover(AcquisitionsContainer& ac) = 0;
+	virtual void take_over(AcquisitionsContainer& ac) = 0;
 	virtual unsigned int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
@@ -569,7 +514,6 @@ public:
 	bool ordered() const
 	{
 		return ordered_;
-		//return (bool)index_;
 	}
 	int* index()
 	{
@@ -628,7 +572,7 @@ public:
 		mtx.unlock();
 		return na;
 	}
-	virtual void takeover(AcquisitionsContainer& ac)
+	virtual void take_over(AcquisitionsContainer& ac)
 	{
 		AcquisitionsFile& af = (AcquisitionsFile&)ac;
 		par_ = ac.parameters();
