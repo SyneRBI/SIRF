@@ -834,6 +834,52 @@ CoilImagesContainer::compute(AcquisitionsContainer& ac)
 	std::cout << '\n';
 }
 
+void 
+CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
+{
+
+	ISMRMRD::Encoding e = cis.encoding();
+	unsigned int nx = e.reconSpace.matrixSize.x;
+	unsigned int ny = e.reconSpace.matrixSize.y;
+	int dim[4];
+	cis(0).get_dim(dim);
+	unsigned int readout = dim[0];
+	unsigned int nc = dim[3];
+
+	std::vector<size_t> cm_dims;
+	cm_dims.push_back(readout);
+	cm_dims.push_back(ny);
+	cm_dims.push_back(nc);
+	ISMRMRD::NDArray<complex_float_t> cm(cm_dims);
+
+	std::vector<size_t> csm_dims;
+	csm_dims.push_back(nx);
+	csm_dims.push_back(ny);
+	csm_dims.push_back(1);
+	csm_dims.push_back(nc);
+	ISMRMRD::NDArray<complex_float_t> csm(csm_dims);
+
+	std::vector<size_t> img_dims;
+	img_dims.push_back(nx);
+	img_dims.push_back(ny);
+	ISMRMRD::NDArray<float> img(img_dims);
+
+	unsigned int nmap = 0;
+
+	std::cout << "map ";
+	for (nmap = 1; nmap <= cis.items(); nmap++) {
+		std::cout << nmap << ' ' << std::flush;
+		cis(nmap - 1).get_data(cm.getDataPtr());
+		//CoilData* ptr_img = new CoilDataType(nx, ny, 1, nc);
+		CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, 1, nc);
+		boost::shared_ptr<CoilData> sptr_img(ptr_img);
+		compute_csm_(cm, img, csm);
+		ptr_img->set_data(csm.getDataPtr());
+		append(sptr_img);
+	}
+	std::cout << '\n';
+}
+
 float 
 CoilSensitivitiesContainer::max_(int nx, int ny, float* u)
 {
