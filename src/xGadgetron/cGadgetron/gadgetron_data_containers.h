@@ -524,6 +524,17 @@ public:
 	int set_acquisitions_data
 	(boost::shared_ptr<AcquisitionsContainer> sptr_ac,
 		int na, int nc, int ns, const double* re, const double* im);
+	int set_acquisition_data
+		(int na, int nc, int ns, const double* re, const double* im)
+	{
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac =
+			this->new_acquisitions_container();
+		int err = this->set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
+		if (err)
+			return err;
+		takeover(*sptr_ac);
+		return 0;
+	}
 
 	void get_acquisitions_flags(unsigned int n, int* flags);
 
@@ -538,6 +549,7 @@ public:
 	static float diff
 	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
 
+	virtual void takeover(AcquisitionsContainer& ac) = 0;
 	virtual unsigned int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
@@ -558,6 +570,14 @@ public:
 	{
 		return ordered_;
 		//return (bool)index_;
+	}
+	int* index()
+	{
+		return index_;
+	}
+	const int* index() const
+	{
+		return index_;
 	}
 	int index(int i)
 	{
@@ -607,6 +627,32 @@ public:
 		unsigned int na = dataset_->getNumberOfAcquisitions();
 		mtx.unlock();
 		return na;
+	}
+	virtual void takeover(AcquisitionsContainer& ac)
+	{
+		AcquisitionsFile& af = (AcquisitionsFile&)ac;
+		par_ = ac.parameters();
+		if (index_)
+			delete[] index_;
+		int* index = ac.index();
+		ordered_ = ac.ordered();
+		if (ordered_ && index) {
+			unsigned int n = number();
+			index_ = new int[n];
+			memcpy(index_, index, n*sizeof(int));
+		}
+		else
+			index_ = 0;
+		dataset_ = af.dataset_;
+		if (own_file_) {
+			Mutex mtx;
+			mtx.lock();
+			std::remove(filename_.c_str());
+			mtx.unlock();
+		}
+		filename_ = af.filename_;
+		own_file_ = af.own_file_;
+		af.own_file_ = false;
 	}
 	virtual unsigned int number()
 	{
