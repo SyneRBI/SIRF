@@ -216,8 +216,9 @@ classdef AcquisitionData < mGadgetron.DataContainer
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mUtil.checkExecutionStatus('AcquisitionData', h);
-            calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-            self.handle_ = h;
+            calllib('mutilities', 'mDeleteDataHandle', h)
+%             calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+%             self.handle_ = h;
         end
     end
 end

@@ -771,12 +771,14 @@ class AcquisitionData(DataContainer):
         na, nc, ns = data.shape
         re = numpy.copy(numpy.real(data))
         im = numpy.copy(numpy.imag(data))
+        try_calling(pygadgetron.cGT_setAcquisitionsData\
+            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
         # TODO: synchronize with ImageData.fill()
-        handle = pygadgetron.cGT_setAcquisitionsData\
-            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data)
-        check_status(handle)
-        pyiutil.deleteObject(self.handle)
-        self.handle = handle
+##        handle = pygadgetron.cGT_setAcquisitionsData\
+##            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data)
+##        check_status(handle)
+##        pyiutil.deleteObject(self.handle)
+##        self.handle = handle
 
 DataContainer.register(AcquisitionData)
 
