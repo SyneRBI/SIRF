@@ -109,7 +109,11 @@ def show_3D_array\
         index = range(1, n + 1)
     else:
         if type(index) == type(' '):
-            index = str_to_int_list(index)
+            try:
+                index = str_to_int_list(index)
+            except:
+                print('incorrect input')
+                return 0
         n = len(index)
         for k in range(n):
             z = index[k]
