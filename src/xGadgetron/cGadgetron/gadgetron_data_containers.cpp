@@ -161,39 +161,6 @@ AcquisitionsContainer::get_acquisitions_dimensions(size_t ptr_dim)
 	//return not_reg;
 }
 
-int 
-AcquisitionsContainer::set_acquisitions_data
-(boost::shared_ptr<AcquisitionsContainer> sptr_ac,
-	int na, int nc, int ns, const double* re, const double* im)
-{
-	sptr_ac->set_parameters(par_);
-	sptr_ac->write_parameters();
-	sptr_ac->ordered_ = ordered();
-	ISMRMRD::Acquisition acq;
-	int ma = number();
-	for (int a = 0, i = 0; a < ma; a++) {
-		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq) && ma > na) {
-			std::cout << "ignoring acquisition " << a << '\n';
-			continue;
-		}
-		unsigned int mc = acq.active_channels();
-		unsigned int ms = acq.number_of_samples();
-		if (mc != nc || ms != ns)
-			return -1;
-		//for (size_t c = 0; c < nc; c++) {
-		//	for (size_t s = 0; s < ns; s++, i++) {
-		//		acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
-		//	}
-		//}
-		for (int c = 0; c < nc; c++)
-			for (int s = 0; s < ns; s++, i++)
-				acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
-		sptr_ac->append_acquisition(acq);
-	}
-	return 0;
-}
-
 void 
 AcquisitionsContainer::get_acquisitions_flags(unsigned int n, int* flags)
 {
@@ -502,7 +469,37 @@ AcquisitionsContainer::order()
 	ordered_ = true;
 }
 
-void 
+int
+AcquisitionsFile::set_acquisition_data
+(int na, int nc, int ns, const double* re, const double* im)
+{
+	boost::shared_ptr<AcquisitionsContainer> sptr_ac =
+		this->new_acquisitions_container();
+	sptr_ac->set_parameters(par_);
+	sptr_ac->write_parameters();
+	sptr_ac->set_ordered(true);
+	ISMRMRD::Acquisition acq;
+	int ma = number();
+	for (int a = 0, i = 0; a < ma; a++) {
+		get_acquisition(a, acq);
+		if (TO_BE_IGNORED(acq) && ma > na) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int mc = acq.active_channels();
+		unsigned int ms = acq.number_of_samples();
+		if (mc != nc || ms != ns)
+			return -1;
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
+		sptr_ac->append_acquisition(acq);
+	}
+	take_over(*sptr_ac);
+	return 0;
+}
+
+void
 ImagesContainer::axpby(
 	complex_double_t a, const aDataContainer<complex_double_t>& a_x,
 	complex_double_t b, const aDataContainer<complex_double_t>& a_y)

@@ -448,6 +448,32 @@ public:
 			delete[] index_;
 	}
 
+	static void axpby
+	(complex_double_t a, const ISMRMRD::Acquisition& acq_x,
+		complex_double_t b, ISMRMRD::Acquisition& acq_y);
+	static complex_double_t dot
+	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
+	static double norm(const ISMRMRD::Acquisition& acq_a);
+	static float diff
+	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
+
+	virtual unsigned int number() = 0;
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
+	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
+	virtual void write_parameters() = 0;
+	virtual 
+		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+	virtual int set_acquisition_data
+		(int na, int nc, int ns, const double* re, const double* im) = 0;
+
+	virtual void axpby(
+		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
+		complex_double_t b, const aDataContainer<complex_double_t>& a_y);
+	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc);
+	virtual double norm();
+	float diff(AcquisitionsContainer& other);
+
 	std::string parameters() const
 	{
 		return par_;
@@ -455,6 +481,10 @@ public:
 	void set_parameters(std::string par)
 	{
 		par_ = par;
+	}
+	void set_ordered(bool ordered)
+	{
+		ordered_ = ordered;
 	}
 	bool undersampled() const
 	{
@@ -466,63 +496,27 @@ public:
 	}
 	int get_acquisitions_dimensions(size_t ptr_dim);
 
-	int set_acquisitions_data
-	(boost::shared_ptr<AcquisitionsContainer> sptr_ac,
-		int na, int nc, int ns, const double* re, const double* im);
-	int set_acquisition_data
-		(int na, int nc, int ns, const double* re, const double* im)
-	{
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac =
-			this->new_acquisitions_container();
-		int err = this->set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
-		if (err)
-			return err;
-		take_over(*sptr_ac);
-		return 0;
-	}
-
 	void get_acquisitions_flags(unsigned int n, int* flags);
 
 	unsigned int get_acquisitions_data(unsigned int slice, double* re, double* im);
 
-	static void axpby
-	(complex_double_t a, const ISMRMRD::Acquisition& acq_x,
-		complex_double_t b, ISMRMRD::Acquisition& acq_y);
-	static complex_double_t dot
-	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
-	static double norm(const ISMRMRD::Acquisition& acq_a);
-	static float diff
-	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
-
-	virtual void take_over(AcquisitionsContainer& ac) = 0;
-	virtual unsigned int number() = 0;
-	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
-	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
-	virtual void write_parameters() = 0;
-	virtual 
-		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
-
-	virtual void axpby(
-		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-		complex_double_t b, const aDataContainer<complex_double_t>& a_y);
-	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc);
-	virtual double norm();
-	float diff(AcquisitionsContainer& other);
-
 	void order();
+
 	bool ordered() const
 	{
 		return ordered_;
 	}
+
 	int* index()
 	{
 		return index_;
 	}
+
 	const int* index() const
 	{
 		return index_;
 	}
+
 	int index(int i)
 	{
 		if (index_ && i >= 0 && i < (int)number())
@@ -564,15 +558,7 @@ public:
 		}
 
 	}
-	virtual unsigned int items()
-	{
-		Mutex mtx;
-		mtx.lock();
-		unsigned int na = dataset_->getNumberOfAcquisitions();
-		mtx.unlock();
-		return na;
-	}
-	virtual void take_over(AcquisitionsContainer& ac)
+	void take_over(AcquisitionsContainer& ac)
 	{
 		AcquisitionsFile& af = (AcquisitionsFile&)ac;
 		par_ = ac.parameters();
@@ -597,6 +583,16 @@ public:
 		filename_ = af.filename_;
 		own_file_ = af.own_file_;
 		af.own_file_ = false;
+	}
+	virtual int set_acquisition_data
+		(int na, int nc, int ns, const double* re, const double* im);
+	virtual unsigned int items()
+	{
+		Mutex mtx;
+		mtx.lock();
+		unsigned int na = dataset_->getNumberOfAcquisitions();
+		mtx.unlock();
+		return na;
 	}
 	virtual unsigned int number()
 	{
@@ -672,7 +668,30 @@ class AcquisitionsList : public AcquisitionsContainer {
 public:
 	virtual unsigned int number()
 	{
-		return (int)acqs_.size();
+		return (unsigned int)acqs_.size();
+	}
+	virtual unsigned int items()
+	{
+		return (unsigned int)acqs_.size();
+	}
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
+	{
+		acqs_.push_back(boost::shared_ptr<ISMRMRD::Acquisition>
+			(new ISMRMRD::Acquisition(acq)));
+	}
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+	{
+		int ind = index(num);
+#ifdef _MSC_VER
+		std::list<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
+#else
+		typename std::list<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
+#endif
+		unsigned int count = 0;
+		for (i = acqs_.begin();
+			i != acqs_.end() && count < ind && count < acqs_.size() - 1; i++)
+			count++;
+		acq = **i;
 	}
 private:
 	std::list<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
