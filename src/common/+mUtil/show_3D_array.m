@@ -34,14 +34,21 @@ if nargin < 6
     index = 1 : nz;
 else
     if ischar(index)
-        index = mUtil.str_to_int_list(index);
+        try
+            index = mUtil.str_to_int_list(index);
+        catch
+            return
+        end
     end
     n = length(index);
+    if n < 1
+        return
+    end
     for i = 1 : n
         j = index(i);
         if j < 1 || j > nz
             err = i;
-            fprintf('z-index %d is out of range, aborting display\n', j)
+            %fprintf('z-index %d is out of range, aborting display\n', j)
             return
         end
     end

@@ -185,22 +185,13 @@ classdef ImageData < handle
                 'or 0 to stop the loop')
             while true
                 s = input('z-slices to display: ', 's');
-                select = mUtil.str_to_int_list(s);
-                if select(1) < 1
+                err = mUtil.show_3D_array...
+                    (data, 'Selected slices', 'x', 'y', 'slice', s); %elect);
+                if err ~= 0
+                    fprintf('out-of-range slice numbers selected, %s\n', ...
+                        'quitting the loop')
                     break
                 end
-                mUtil.show_3D_array...
-                    (data, 'Selected slices', 'x', 'y', 'slice', select);
-%                 if err ~= 0
-%                     break
-%                 end
-%                 z = input('image: ');
-%                 if z < 1 || z > nz
-%                     break
-%                 end
-%                 figure(z)
-%                 imshow(data(:, :, z))
-%                 title(['image ' num2str(z)])
             end
         end
     end
