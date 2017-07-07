@@ -305,8 +305,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
 			break;
 	}
-	ac.set_parameters(par);
-	ac.write_parameters();
+	//ac.set_parameters(par);
+	//ac.write_parameters();
 
 }
 
