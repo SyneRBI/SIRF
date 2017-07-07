@@ -94,10 +94,10 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GTConnector, GTConnector>();
 		//if (boost::iequals(name, "string"))
 		//	return newObjectHandle<std::string, std::string>();
-		if (boost::iequals(name, "ImagesList"))
-			return newObjectHandle<ImagesContainer, ImagesList>();
-		if (boost::iequals(name, "CoilImagesList"))
-			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
+		//if (boost::iequals(name, "Images"))
+		//	return newObjectHandle<ImagesContainer, ImagesVector>();
+		if (boost::iequals(name, "CoilImages"))
+			return newObjectHandle<CoilImagesContainer, CoilImagesVector>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);

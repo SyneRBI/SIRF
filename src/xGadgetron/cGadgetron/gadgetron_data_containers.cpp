@@ -544,12 +544,12 @@ ImagesContainer::norm()
 	return r;
 }
 
-ImagesList::ImagesList(const ImagesList& list, const char* attr, const char* target)
+ImagesVector::ImagesVector(const ImagesVector& list, const char* attr, const char* target)
 {
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	for (i = list.images_.begin(); i != list.images_.end(); i++) {
 		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
@@ -562,14 +562,14 @@ ImagesList::ImagesList(const ImagesList& list, const char* attr, const char* tar
 	}
 }
 
-ImagesList::ImagesList(const ImagesList& list, unsigned int inc, unsigned int off)
+ImagesVector::ImagesVector(const ImagesVector& list, unsigned int inc, unsigned int off)
 {
 	int n = 0;
 	unsigned int j = 0;
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	for (i = list.images_.begin(); i != list.images_.end() && j < off; i++, j++);
 
@@ -583,37 +583,8 @@ ImagesList::ImagesList(const ImagesList& list, unsigned int inc, unsigned int of
 	nimages_ = n;
 }
 
-boost::shared_ptr<ImageWrap> 
-ImagesList::sptr_image_wrap(unsigned int im_num)
-{
-#ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#else
-	typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
-#endif
-	unsigned int count = 0;
-	for (i = images_.begin();
-		i != images_.end() && count < im_num && count < images_.size() - 1; i++)
-		count++;
-	return *i;
-}
-
-boost::shared_ptr<const ImageWrap> 
-ImagesList::sptr_image_wrap(unsigned int im_num) const
-{
-#ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
-#endif
-	unsigned int count = 0;
-	for (i = images_.begin(); i != images_.end() && count < im_num; i++)
-		count++;
-	return *i;
-}
-
-void 
-ImagesList::write(std::string filename, std::string groupname)
+void
+ImagesVector::write(std::string filename, std::string groupname)
 {
 	if (images_.size() < 1)
 		return;
@@ -622,9 +593,9 @@ ImagesList::write(std::string filename, std::string groupname)
 	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 	mtx.unlock();
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
 #endif
 	for (i = images_.begin(); i != images_.end(); i++) {
 		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
@@ -633,13 +604,13 @@ ImagesList::write(std::string filename, std::string groupname)
 	}
 }
 
-void 
-ImagesList::get_images_data_as_double_array(double* data) const
+void
+ImagesVector::get_images_data_as_double_array(double* data) const
 {
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
@@ -655,13 +626,13 @@ ImagesList::get_images_data_as_double_array(double* data) const
 	}
 }
 
-void 
-ImagesList::get_images_data_as_complex_array(double* re, double* im) const
+void
+ImagesVector::get_images_data_as_complex_array(double* re, double* im) const
 {
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
@@ -685,13 +656,13 @@ ImagesList::get_images_data_as_complex_array(double* re, double* im) const
 	}
 }
 
-void 
-ImagesList::set_complex_images_data(const double* re, const double* im)
+void
+ImagesVector::set_complex_images_data(const double* re, const double* im)
 {
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+	std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
 #else
-	typename std::list<boost::shared_ptr<ImageWrap> >::iterator i;
+	typename std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
@@ -704,7 +675,7 @@ ImagesList::set_complex_images_data(const double* re, const double* im)
 	}
 }
 
-void 
+void
 CoilDataAsCFImage::get_data(double* re, double* im) const
 {
 	size_t n = img_.getNumberOfDataElements();
@@ -734,21 +705,6 @@ CoilDataAsCFImage::get_data_abs(double* v) const
 		complex_float_t z = ptr[i];
 		v[i] = std::abs(z);
 	}
-}
-
-CoilData& 
-CoilDataList::data(int slice)
-{
-#ifdef _MSC_VER
-	std::list<boost::shared_ptr<CoilData> >::const_iterator i;
-#else
-	typename std::list<boost::shared_ptr<CoilData> >::const_iterator i;
-#endif
-	int count = 0;
-	for (i = list_.begin();
-		i != list_.end() && count < slice && count < (int)list_.size() - 1; i++)
-		count++;
-	return **i;
 }
 
 void 
