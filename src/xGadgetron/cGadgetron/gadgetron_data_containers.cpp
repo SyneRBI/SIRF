@@ -475,9 +475,10 @@ AcquisitionsFile::set_acquisition_data
 {
 	boost::shared_ptr<AcquisitionsContainer> sptr_ac =
 		this->new_acquisitions_container();
-	sptr_ac->set_parameters(par_);
-	sptr_ac->write_parameters();
-	sptr_ac->set_ordered(true);
+	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
+	ptr_ac->set_parameters(par_);
+	ptr_ac->write_parameters();
+	ptr_ac->set_ordered(true);
 	ISMRMRD::Acquisition acq;
 	int ma = number();
 	for (int a = 0, i = 0; a < ma; a++) {
@@ -496,6 +497,28 @@ AcquisitionsFile::set_acquisition_data
 		sptr_ac->append_acquisition(acq);
 	}
 	take_over(*sptr_ac);
+	return 0;
+}
+
+int 
+AcquisitionsVector::set_acquisition_data
+(int na, int nc, int ns, const double* re, const double* im)
+{
+	int ma = number();
+	for (int a = 0, i = 0; a < ma; a++) {
+		ISMRMRD::Acquisition& acq = *acqs_[a];
+		if (TO_BE_IGNORED(acq) && ma > na) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int mc = acq.active_channels();
+		unsigned int ms = acq.number_of_samples();
+		if (mc != nc || ms != ns)
+			return -1;
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = complex_float_t((float)re[i], (float)im[i]);
+	}
 	return 0;
 }
 

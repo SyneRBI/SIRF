@@ -461,7 +461,7 @@ public:
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
-	virtual void write_parameters() = 0;
+	//virtual void write_parameters() = 0;
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 	virtual int set_acquisition_data
@@ -639,10 +639,14 @@ public:
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		boost::shared_ptr<AcquisitionsContainer> 
-			sptr_ac(acqs_scratch_file_(filename_));
-		sptr_ac->set_parameters(par_);
-		sptr_ac->write_parameters();
+		//boost::shared_ptr<AcquisitionsContainer> 
+		//	sptr_ac(acqs_scratch_file_(filename_));
+		//sptr_ac->set_parameters(par_);
+		//sptr_ac->write_parameters();
+		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
+		ptr_ac->set_parameters(par_);
+		ptr_ac->write_parameters();
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 
@@ -682,16 +686,27 @@ public:
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 	{
 		int ind = index(num);
-#ifdef _MSC_VER
-		std::vector<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
-#else
-		typename std::vector<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
-#endif
-		unsigned int count = 0;
-		for (i = acqs_.begin();
-			i != acqs_.end() && count < ind && count < acqs_.size() - 1; i++)
-			count++;
-		acq = **i;
+		acq = *acqs_[ind];
+	}
+	virtual void copy_parameters(const AcquisitionsContainer& ac)
+	{
+		par_ = ac.parameters();
+	}
+	virtual int set_acquisition_data
+	(int na, int nc, int ns, const double* re, const double* im);
+	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	{
+		AcquisitionsVector* ptr_ac = new AcquisitionsVector();
+		ptr_ac->set_parameters(par_);
+		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_ac(ptr_ac);
+		return sptr_ac;
+	}
+	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	{
+		AcquisitionsVector* ptr_ac = new AcquisitionsVector();
+		ptr_ac->set_parameters(par_);
+		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
+		return sptr_ac;
 	}
 private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
