@@ -664,7 +664,7 @@ private:
 	}
 };
 
-class AcquisitionsList : public AcquisitionsContainer {
+class AcquisitionsVector : public AcquisitionsContainer {
 public:
 	virtual unsigned int number()
 	{
@@ -683,9 +683,9 @@ public:
 	{
 		int ind = index(num);
 #ifdef _MSC_VER
-		std::list<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
+		std::vector<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
 #else
-		typename std::list<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
+		typename std::vector<boost::shared_ptr<ISMRMRD::Acquisition> >::iterator i;
 #endif
 		unsigned int count = 0;
 		for (i = acqs_.begin();
@@ -694,7 +694,7 @@ public:
 		acq = **i;
 	}
 private:
-	std::list<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
+	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
 class ImagesContainer : public aDataContainer<complex_double_t> {
@@ -741,13 +741,13 @@ public:
 
 };
 
-class ImagesList : public ImagesContainer {
+class ImagesVector : public ImagesContainer {
 public:
-	ImagesList() : images_(), nimages_(0)
+	ImagesVector() : images_(), nimages_(0)
 	{
 	}
-	ImagesList(const ImagesList& list, const char* attr, const char* target);
-	ImagesList(const ImagesList& list, unsigned int inc = 1, unsigned int off = 0);
+	ImagesVector(const ImagesVector& list, const char* attr, const char* target);
+	ImagesVector(const ImagesVector& list, unsigned int inc = 1, unsigned int off = 0);
 	virtual unsigned int items()
 	{
 		return (unsigned int)images_.size();
@@ -777,9 +777,15 @@ public:
 	{
 		images_.push_back(boost::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
-	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num);
+	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
+	{
+		return images_[im_num];
+	}
 	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
-	(unsigned int im_num) const;
+	(unsigned int im_num) const
+	{
+		return images_[im_num];
+	}
 	virtual ImageWrap& image_wrap(unsigned int im_num)
 	{
 		boost::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
@@ -809,25 +815,25 @@ public:
 	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
 		return boost::shared_ptr<aDataContainer<complex_double_t> >
-			((aDataContainer<complex_double_t>*)new ImagesList());
+			((aDataContainer<complex_double_t>*)new ImagesVector());
 	}
 	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesList());
+		return boost::shared_ptr<ImagesContainer>(new ImagesVector());
 	}
 	virtual boost::shared_ptr<ImagesContainer>
 		clone(const char* attr, const char* target)
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this, attr, target));
+		return boost::shared_ptr<ImagesContainer>(new ImagesVector(*this, attr, target));
 	}
 	virtual boost::shared_ptr<ImagesContainer>
 		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesList(*this, inc, off));
+		return boost::shared_ptr<ImagesContainer>(new ImagesVector(*this, inc, off));
 	}
 
 private:
-	std::list<boost::shared_ptr<ImageWrap> > images_;
+	std::vector<boost::shared_ptr<ImageWrap> > images_;
 	int nimages_;
 };
 
@@ -934,19 +940,21 @@ public:
 	//virtual const CoilData& operator()(int slice) const = 0;
 };
 
-class CoilDataList {
+class CoilDataVector {
 public:
 	unsigned int items()
 	{
-		return (unsigned int)list_.size();
+		return (unsigned int)coil_data_.size();
 	}
-	CoilData& data(int slice);
+	CoilData& data(int slice) {
+		return *coil_data_[slice];
+	}
 	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
 	{
-		list_.push_back(sptr_cd);
+		coil_data_.push_back(sptr_cd);
 	}
 private:
-	std::list< boost::shared_ptr<CoilData> > list_;
+	std::vector< boost::shared_ptr<CoilData> > coil_data_;
 };
 
 class CoilImagesContainer : public CoilDataContainer {
@@ -961,16 +969,16 @@ protected:
 	ISMRMRD::Encoding encoding_;
 };
 
-class CoilImagesList : public CoilImagesContainer, public CoilDataList {
+class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 public:
 	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
 	{
 		return boost::shared_ptr<aDataContainer<complex_double_t> >
-			((aDataContainer<complex_double_t>*)new CoilImagesList());
+			((aDataContainer<complex_double_t>*)new CoilImagesVector());
 	}
 	virtual unsigned int items()
 	{
-		return CoilDataList::items();
+		return CoilDataVector::items();
 	}
 	virtual CoilData& operator()(int slice)
 	{
@@ -978,7 +986,7 @@ public:
 	}
 	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
 	{
-		CoilDataList::append(sptr_cd);
+		CoilDataVector::append(sptr_cd);
 	}
 };
 
@@ -996,7 +1004,7 @@ public:
 	{
 		//if (!ac.ordered())
 		//	ac.order();
-		CoilImagesList cis;
+		CoilImagesVector cis;
 		cis.compute(ac);
 		compute(cis);
 	}
@@ -1036,7 +1044,7 @@ private:
 //typedef CoilSensitivitiesContainerTemplate<CoilDataAsCFImage> CoilSensitivitiesContainer;
 
 class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer, 
-	public CoilDataList {
+	public CoilDataVector {
 public:
 	CoilSensitivitiesAsImages()
 	{
@@ -1052,7 +1060,7 @@ public:
 
 	virtual unsigned int items()
 	{
-		return CoilDataList::items();
+		return CoilDataVector::items();
 	}
 	virtual CoilData& operator()(int slice)
 	{
@@ -1060,7 +1068,7 @@ public:
 	}
 	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
 	{
-		CoilDataList::append(sptr_cd);
+		CoilDataVector::append(sptr_cd);
 	}
 
 };

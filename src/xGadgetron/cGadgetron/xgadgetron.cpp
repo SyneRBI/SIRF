@@ -140,7 +140,8 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 
 	GTConnector conn;
 
-	sptr_images_.reset(new ImagesList);
+	//sptr_images_.reset(new ImagesList);
+	sptr_images_.reset(new ImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		boost::shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));

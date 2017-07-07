@@ -280,7 +280,7 @@ class CoilImageData(DataContainer):
     '''
     def __init__(self):
         self.handle = None
-        self.handle = pygadgetron.cGT_newObject('CoilImagesList')
+        self.handle = pygadgetron.cGT_newObject('CoilImages')
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
