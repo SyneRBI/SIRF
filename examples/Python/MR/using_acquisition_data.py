@@ -57,8 +57,8 @@ def main():
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
 
-    # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file)
+    # read acquisition data from an HDF file input_file into memory
+    acq_data = AcquisitionData(input_file).clone()
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
