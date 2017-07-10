@@ -31,9 +31,9 @@ end
 import_str = setup_MR(engine);
 eval(import_str)
 
-% acquisitions will be read from an HDF file
+% read acquisitions from an HDF file
 [filename, pathname] = uigetfile('*.h5', 'Select raw data file', mr_data_path);
-acq_data = AcquisitionData(fullfile(pathname, filename));
+acq_data = AcquisitionData(fullfile(pathname, filename)).clone();
 
 na = acq_data.number();
 fprintf('%d acquisitions (readouts) found\n', na)
