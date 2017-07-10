@@ -30,6 +30,38 @@ limitations under the License.
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
+#include <algorithm> // stable_sort
+#include <array> // array
+#include <numeric> // iota
+#include <vector> // vector
+
+namespace Multisort {
+
+	template<typename T, unsigned int N>
+	bool less(const std::array<T, N>& a, const std::array<T, N>& b, unsigned int level)
+	{
+		bool same = true;
+		for (unsigned int i = 0; i < level; i++) {
+			if (a[i] > b[i])
+				return false;
+			if (a[i] != b[i])
+				same = false;
+		}
+		return !same;
+	}
+
+	template<typename T, unsigned int N>
+	void sort(std::vector<std::array<T, N> > v, int* index)
+	{
+		int n = v.size();
+		std::iota(index, index + n, 0);
+		for (unsigned int l = 1; l <= N; l++)
+			std::stable_sort
+			(index, index + n, [&v, l](int i, int j){return less(v[i], v[j], l); });
+	}
+
+} // namespace Multisort
+
 #include <complex>
 #include <fstream>
 #include <map>

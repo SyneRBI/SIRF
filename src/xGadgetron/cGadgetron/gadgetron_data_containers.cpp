@@ -401,72 +401,25 @@ AcquisitionsContainer::diff(AcquisitionsContainer& other)
 	return save;
 }
 
-void 
+void
 AcquisitionsContainer::order()
 {
-	class triple {
-	public:
-		triple(int i, int f, int s, int t) :
-			ind(i), first(f), second(s), third(t) {}
-		triple(const triple& t) :
-			ind(t.ind), first(t.first), second(t.second), third(t.third) {}
-		int ind;
-		int first;
-		int second;
-		int third;
-	};
-
+	typedef std::array<int, 3> triple;
 	int na = number();
-	std::vector<triple> t;
+	triple t;
+	std::vector<triple> vt;
 	ISMRMRD::Acquisition acq;
 	for (int i = 0; i < na; i++) {
 		get_acquisition(i, acq);
-		int rep = acq.idx().repetition;
-		int slice = acq.idx().slice;
-		int phase = acq.idx().kspace_encode_step_1;
-		t.push_back(triple(i, rep, slice, phase));
+		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().slice;
+		t[2] = acq.idx().kspace_encode_step_1;
+		vt.push_back(t);
 	}
-	std::stable_sort(t.begin(), t.end(),
-		[](triple a, triple b) { return b.first > a.first; });
-
-	int i = 0;
-	int j = i;
-	while (i < na) {
-		std::vector<triple> ts;
-		for (; j < na; j++) {
-			if (t[j].first != t[i].first)
-				break;
-		}
-		for (int k = i; k < j; k++)
-			ts.push_back(triple(t[k]));
-		std::stable_sort(ts.begin(), ts.end(),
-			[](triple a, triple b) { return b.second > a.second; });
-		for (int k = i; k < j; k++)
-			t[k] = ts[k - i];
-		i = j;
-	}
-
 	if (index_)
 		delete[] index_;
 	index_ = new int[na];
-
-	i = 0;
-	j = i;
-	while (i < na) {
-		std::vector<triple> ts;
-		for (; j < na; j++) {
-			if (t[j].first != t[i].first || t[j].second != t[i].second)
-				break;
-		}
-		for (int k = i; k < j; k++)
-			ts.push_back(triple(t[k]));
-		std::sort(ts.begin(), ts.end(),
-			[](triple a, triple b) { return b.third > a.third; });
-		for (int k = i; k < j; k++)
-			index_[k] = ts[k - i].ind;
-		i = j;
-	}
-	ordered_ = true;
+	Multisort::sort(vt, index_);
 }
 
 int
