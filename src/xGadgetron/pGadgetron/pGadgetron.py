@@ -637,10 +637,10 @@ class AcquisitionData(DataContainer):
             pyiutil.deleteObject(self.handle)
     def same_object(self):
         return AcquisitionData()
-    def number_of_acquisitions(self, select = 'all'):
+    def number_of_acquisitions(self, select = 'image'):
         dim = self.dimensions(select)
         return dim[0]
-    def get_number_of_readouts(self, select = 'all'):
+    def get_number_of_readouts(self, select = 'image'):
         dim = self.dimensions(select)
         return dim[0]
     def sort(self):
@@ -745,15 +745,15 @@ class AcquisitionData(DataContainer):
             return r
         else:
             raise error('unknown acquisition parameter ' + par)
-    def as_array(self, select = 'all'):
+    def as_array(self, select = 'image'):
         '''
-        Returns all self's acquisitions as a 3D Numpy ndarray.
+        Returns selected self's acquisitions as a 3D Numpy ndarray.
         '''
         na = self.number()
         ny, nc, ns = self.dimensions(select)
-        if select == 'all':
+        if select == 'all': # return all
             n = na
-        else:
+        else: # return only image-related
             n = na + 1
         re = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
         im = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
