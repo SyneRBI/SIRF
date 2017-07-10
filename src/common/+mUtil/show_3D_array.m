@@ -63,6 +63,7 @@ if irows > nz
     irows = uint16(nz);
 end
 icols = idivide(nz - 1, irows) + 1;
+irows = idivide(nz - 1, icols) + 1;
 rows = double(irows);
 cols = double(icols);
 
