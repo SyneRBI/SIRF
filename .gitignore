@@ -250,6 +250,7 @@ $RECYCLE.BIN/
 *.am
 *.thresholded
 *.vcxproj
+*.backup
 info.txt
 warn.txt
 errr.txt
