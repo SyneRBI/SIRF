@@ -35,7 +35,7 @@ classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'OSMAPOSLReconstruction', filename);
-            mUtil.checkExecutionStatus(self.name, self.handle);
+            mUtil.check_status(self.name, self.handle);
         end
         function delete(self)
             calllib('mutilities', 'mDeleteDataHandle', self.handle)

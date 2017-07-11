@@ -44,7 +44,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
-                mUtil.checkExecutionStatus(self.name_, self.handle_);
+                mUtil.check_status(self.name_, self.handle_);
             end
         end
         function delete(self)
@@ -64,7 +64,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             end
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
-            mUtil.checkExecutionStatus('AcquisitionData', handle);
+            mUtil.check_status('AcquisitionData', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end
@@ -215,7 +215,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             ptr_im = libpointer('doublePtr', im);
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
-            mUtil.checkExecutionStatus('AcquisitionData', h);
+            mUtil.check_status('AcquisitionData', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
 %             calllib('mutilities', 'mDeleteDataHandle', self.handle_)
 %             self.handle_ = h;

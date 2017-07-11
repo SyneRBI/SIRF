@@ -85,7 +85,7 @@ classdef AcquisitionModel < handle
             h = calllib...
                 ('mstir', 'mSTIR_setupAcquisitionModel',...
                 self.handle, acq_templ.handle, img_templ.handle);
-            mUtil.checkExecutionStatus([self.name ':set_up'], h)
+            mUtil.check_status([self.name ':set_up'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image, filename)
@@ -106,7 +106,7 @@ classdef AcquisitionModel < handle
             ad = mStir.AcquisitionData();
             ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
                 self.handle, image.handle, filename);
-            mUtil.checkExecutionStatus([self.name ':forward'], ad.handle)
+            mUtil.check_status([self.name ':forward'], ad.handle)
         end
         function image = backward(self, ad)
 %***SIRF*** backward(ad) returns the backprojection of ad (y in (B));
@@ -114,7 +114,7 @@ classdef AcquisitionModel < handle
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
                 self.handle, ad.handle);
-            mUtil.checkExecutionStatus...
+            mUtil.check_status...
                 ([self.name ':backward'], image.handle)
         end
     end

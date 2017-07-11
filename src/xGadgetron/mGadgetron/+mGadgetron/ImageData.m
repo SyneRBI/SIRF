@@ -48,7 +48,7 @@ classdef ImageData < mGadgetron.DataContainer
             end
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, dataset);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = select(self, attribute, value)
@@ -63,7 +63,7 @@ classdef ImageData < mGadgetron.DataContainer
             images = mGadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attribute, value);
-            mUtil.checkExecutionStatus(self.name_, images.handle_);
+            mUtil.check_status(self.name_, images.handle_);
         end
         function images = process(self, list)
 %***SIRF*** process(list) returns images processed by a chain of gadgets.
@@ -88,7 +88,7 @@ classdef ImageData < mGadgetron.DataContainer
 %***SIRF*** Returns true if this image data is real and false otherwise.
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             v = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
             ft = (v ~= 7 && v ~= 8);
@@ -135,7 +135,7 @@ classdef ImageData < mGadgetron.DataContainer
             ptr_im = libpointer('doublePtr', im);
             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
                 self.handle_, ptr_re, ptr_im);
-            mUtil.checkExecutionStatus('ImageData', h);
+            mUtil.check_status('ImageData', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function show(self)

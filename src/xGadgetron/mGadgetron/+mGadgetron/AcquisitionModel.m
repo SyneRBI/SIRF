@@ -32,7 +32,7 @@ classdef AcquisitionModel < handle
             self.name_ = 'MR_AcquisitionModel';
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acq_template.handle_, img_template.handle_);
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -45,7 +45,7 @@ classdef AcquisitionModel < handle
 %         (a CoilSensitivityData object).
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, image)
@@ -55,7 +55,7 @@ classdef AcquisitionModel < handle
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
                 self.handle_, image.handle_);
-            mUtil.checkExecutionStatus(self.name_, acqs.handle_);
+            mUtil.check_status(self.name_, acqs.handle_);
         end
         function imgs = backward(self, acqs)
 %***SIRF*** Backprojects the acquisition data specified by the argument
@@ -65,7 +65,7 @@ classdef AcquisitionModel < handle
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...
                 self.handle_, acqs.handle_);
-            mUtil.checkExecutionStatus(self.name_, imgs.handle_);
+            mUtil.check_status(self.name_, imgs.handle_);
         end
     end
 end

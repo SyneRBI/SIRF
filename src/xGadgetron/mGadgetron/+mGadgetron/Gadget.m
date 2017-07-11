@@ -31,7 +31,7 @@ classdef Gadget < handle
 %         (square brackets embrace optional items, ... stands for etc.).
             [name, prop] = mUtil.name_and_parameters(fullname);
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', name);
-            mUtil.checkExecutionStatus(name, self.handle_);
+            mUtil.check_status(name, self.handle_);
             if ~isempty(prop)
                 self.set_properties(prop)
             end
@@ -48,7 +48,7 @@ classdef Gadget < handle
 %         value: property value (Matlab char string)
             handle = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 self.handle_, property, value);
-            mUtil.checkExecutionStatus(self.name_, handle)
+            mUtil.check_status(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_properties(self, properties)
@@ -57,7 +57,7 @@ classdef Gadget < handle
 %         of property value assignments 'prop_name=prop_value[, ...]'.
             handle = calllib('mgadgetron', 'mGT_setGadgetProperties', ...
                 self.handle_, properties);
-            mUtil.checkExecutionStatus(self.name_, handle)
+            mUtil.check_status(self.name_, handle)
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
     end

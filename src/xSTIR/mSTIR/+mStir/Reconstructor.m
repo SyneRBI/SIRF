@@ -48,7 +48,7 @@ classdef Reconstructor < handle
             end
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, self.image.handle);
-            mUtil.checkExecutionStatus('Reconstructor:process', h)
+            mUtil.check_status('Reconstructor:process', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = get_output(self)
@@ -60,7 +60,7 @@ classdef Reconstructor < handle
 %         iterations to the image estimate specified by the argument.
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
-            mUtil.checkExecutionStatus([self.IR ':reconstruct'], h)
+            mUtil.check_status([self.IR ':reconstruct'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_output_filename_prefix(self, prefix)

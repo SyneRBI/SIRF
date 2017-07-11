@@ -38,14 +38,14 @@ classdef DataContainer < handle
         function num = number(self)
 %***SIRF*** Returns the number of items in this container.
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
+            mUtil.check_status('DataContainer', handle);
             num = calllib('mutilities', 'mIntDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
+            mUtil.check_status('DataContainer', handle);
             r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
@@ -54,7 +54,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
+            mUtil.check_status('DataContainer', handle);
             re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
             im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
             z = complex(re, im);
