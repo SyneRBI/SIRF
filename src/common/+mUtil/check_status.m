@@ -1,4 +1,4 @@
-function checkExecutionStatus(f, handle)
+function check_status(f, handle)
     lib = 'mutilities';
     status = calllib(lib, 'mExecutionStatus', handle);
     if status ~= 0

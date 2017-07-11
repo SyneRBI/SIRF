@@ -27,7 +27,7 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)

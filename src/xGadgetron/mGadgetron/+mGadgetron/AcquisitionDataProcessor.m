@@ -35,7 +35,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             self.name_ = 'AcquisitionDataProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
                     [label, name] = mUtil.label_and_name(list{i});
@@ -67,7 +67,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, self.input_.handle_);
-            mUtil.checkExecutionStatus(self.name_, acqs.handle_);
+            mUtil.check_status(self.name_, acqs.handle_);
             self.output_ = acqs;
         end
         function output = get_output(self)

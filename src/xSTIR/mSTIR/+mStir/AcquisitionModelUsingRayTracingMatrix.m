@@ -28,7 +28,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtil.checkExecutionStatus([self.name ':ctor'], self.handle)
+            mUtil.check_status([self.name ':ctor'], self.handle)
             if nargin < 1
                 matrix = mStir.RayTracingMatrix();
             end
@@ -47,7 +47,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
             matrix = mStir.RayTracingMatrix();
             matrix.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'matrix');
-            mUtil.checkExecutionStatus...
+            mUtil.check_status...
                 ([self.name ':get_matrix'], matrix.handle)
         end
         function set_num_tangential_LORs(self, value)

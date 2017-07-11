@@ -28,7 +28,7 @@ classdef GadgetChain < handle
 %         Creates an empty Gadgetron chain.
             self.name_ = 'GadgetChain';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtil.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
@@ -42,7 +42,7 @@ classdef GadgetChain < handle
 %         reader: gadget of reader type (Gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_writer(self, id, writer)
@@ -52,7 +52,7 @@ classdef GadgetChain < handle
 %         writer: gadget of writer type (Gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_gadget(self, id, gadget)
@@ -61,7 +61,7 @@ classdef GadgetChain < handle
 %         gadget: gadget (Gadget)
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
+            mUtil.check_status(self.name_, handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_gadget_property(self, id, property, value)
@@ -82,10 +82,10 @@ classdef GadgetChain < handle
             end
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mUtil.checkExecutionStatus(self.name_, hg);
+            mUtil.check_status(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 hg, property, v);
-            mUtil.checkExecutionStatus(self.name_, hv)
+            mUtil.check_status(self.name_, hv)
             calllib('mutilities', 'mDeleteDataHandle', hg)
             calllib('mutilities', 'mDeleteDataHandle', hv)
         end
@@ -96,9 +96,9 @@ classdef GadgetChain < handle
 %         property: property name (Matlab string)
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mUtil.checkExecutionStatus(self.name_, hg);
+            mUtil.check_status(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_parameter', hg, 'gadget', property);
-            mUtil.checkExecutionStatus(self.name_, hv);
+            mUtil.check_status(self.name_, hv);
             v = calllib('mutilities', 'mCharDataFromHandle', hv);
             calllib('mutilities', 'mDeleteDataHandle', hg)
             calllib('mutilities', 'mDeleteDataHandle', hv)
