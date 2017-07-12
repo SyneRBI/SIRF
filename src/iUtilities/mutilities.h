@@ -38,6 +38,8 @@ EXPORTED_FUNCTION 	void* mDoubleDataHandle(double i);
 EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	float mFloatDataFromHandle(const void* ptr);
+EXPORTED_FUNCTION 	float mFloatReDataFromHandle(const void* ptr);
+EXPORTED_FUNCTION 	float mFloatImDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	double mDoubleDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	double mDoubleReDataFromHandle(const void* ptr);
 EXPORTED_FUNCTION 	double mDoubleImDataFromHandle(const void* ptr);

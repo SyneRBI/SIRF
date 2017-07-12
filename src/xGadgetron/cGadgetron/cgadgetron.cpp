@@ -270,8 +270,8 @@ cGT_appendCSM
 {
 	try {
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CoilSensitivitiesContainer& list =
 			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 		list.append_csm(nx, ny, nz, nc, re, im);
@@ -295,8 +295,8 @@ extern "C"
 void
 cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 {
-	double* re = (double*)ptr_re;
-	double* im = (double*)ptr_im;
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
@@ -307,7 +307,7 @@ extern "C"
 void
 cGT_getCoilDataAbs(void* ptr_csms, int csm_num, size_t ptr)
 {
-	double* v = (double*)ptr;
+	float* v = (float*)ptr;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
@@ -490,8 +490,8 @@ cGT_getAcquisitionsData
 (void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
@@ -502,33 +502,6 @@ cGT_getAcquisitionsData
 	CATCH;
 }
 
-//extern "C"
-//void*
-//cGT_setAcquisitionsData
-//(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns, 
-//size_t ptr_re, size_t ptr_im)
-//{
-//	try {
-//		double* re = (double*)ptr_re;
-//		double* im = (double*)ptr_im;
-//		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-//		AcquisitionsContainer& acqs =
-//			objectFromHandle<AcquisitionsContainer>(h_acqs);
-//		boost::shared_ptr<AcquisitionsContainer> sptr_ac =
-//			acqs.new_acquisitions_container();
-//		int err = acqs.set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
-//		if (err) {
-//			DataHandle* handle = new DataHandle;
-//			std::string error = "Mismatching acquisition dimensions";
-//			ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
-//			handle->set(0, &status);
-//			return (void*)handle;
-//		}
-//		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
-//	}
-//	CATCH;
-//}
-
 extern "C"
 void*
 cGT_setAcquisitionsData
@@ -536,8 +509,8 @@ cGT_setAcquisitionsData
 size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
@@ -691,15 +664,6 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 	return sptrObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
 }
 
-//extern "C"
-//void
-//cGT_setImageToRealConversion(void* ptr_imgs, int type)
-//{
-//	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-//	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
-//	images.set_image_to_real_conversion(type);
-//}
-
 extern "C"
 void
 cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
@@ -712,20 +676,20 @@ cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 
 extern "C"
 void
-cGT_getImagesDataAsDoubleArray(void* ptr_imgs, size_t ptr_data)
+cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
-	double* data = (double*)ptr_data;
+	float* data = (float*)ptr_data;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_images_data_as_double_array(data);
+	list.get_images_data_as_float_array(data);
 }
 
 extern "C"
 void
 cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 {
-	double* re = (double*)ptr_re;
-	double* im = (double*)ptr_im;
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.get_images_data_as_complex_array(re, im);
@@ -741,8 +705,8 @@ void*
 cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 		list.set_complex_images_data(re, im);
@@ -789,8 +753,8 @@ cGT_dataItems(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer<complex_double_t>& x = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		int* result = (int*)malloc(sizeof(int));
 		*result = x.items();
 		DataHandle* handle = new DataHandle;
@@ -806,9 +770,9 @@ cGT_norm(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer<complex_double_t>& x = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
-		double* result = (double*)malloc(sizeof(double));
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		float* result = (float*)malloc(sizeof(float));
 		*result = x.norm();
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
@@ -824,12 +788,12 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_double_t>& x = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
-		aDataContainer<complex_double_t>& y = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_y);
-		complex_double_t* result =
-			(complex_double_t*)malloc(sizeof(complex_double_t));
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		complex_float_t* result =
+			(complex_float_t*)malloc(sizeof(complex_float_t));
 		*result = x.dot(y);
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
@@ -841,22 +805,22 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 extern "C"
 void*
 cGT_axpby(
-double ar, double ai, const void* ptr_x,
-double br, double bi, const void* ptr_y
+float ar, float ai, const void* ptr_x,
+float br, float bi, const void* ptr_y
 ){
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_double_t>& x = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_x);
-		aDataContainer<complex_double_t>& y = 
-			objectFromHandle<aDataContainer<complex_double_t> >(h_y);
-		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_z = 
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
 			x.new_data_container();
-		complex_double_t a(ar, ai);
-		complex_double_t b(br, bi);
+		complex_float_t a(ar, ai);
+		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
-		return sptrObjectHandle<aDataContainer<complex_double_t> >(sptr_z);
+		return sptrObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
 	}
 	CATCH;
 }
