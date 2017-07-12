@@ -37,7 +37,7 @@ limitations under the License.
 
 namespace Multisort {
 
-	template<typename T, unsigned int N>
+	template<typename T, size_t N>
 	bool less(const std::array<T, N>& a, const std::array<T, N>& b)
 	{
 		for (unsigned int i = 0; i < N; i++) {
@@ -49,7 +49,7 @@ namespace Multisort {
 		return false; // all equal
 	}
 
-	template<typename T, unsigned int N>
+	template<typename T, size_t N>
 	void sort(std::vector<std::array<T, N> > v, int* index)
 	{
 		int n = v.size();
