@@ -66,13 +66,13 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
 	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);
 }
-EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data) {
 	return cSTIR_getAcquisitionsData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION  	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data) {
 	return cSTIR_setAcquisitionsData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, double v) {
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, float v) {
 	return cSTIR_fillAcquisitionsData(ptr_acq, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from) {
@@ -108,13 +108,13 @@ EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
 	cSTIR_getImageDimensions(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
 	cSTIR_getImageData(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
 	cSTIR_setImageData(ptr_im, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, double sx, double sy, double sz, double x, double y, double z) {
+EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z) {
 	return cSTIR_voxels3DF(nx, ny, nz, sx, sy, sz, x, y, z);
 }
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v) {
@@ -126,7 +126,7 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
-EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v) {
+EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, float v) {
 	cSTIR_fillImage(ptr_i, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {

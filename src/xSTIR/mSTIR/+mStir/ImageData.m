@@ -94,7 +94,7 @@ classdef ImageData < handle
             if numel(value) == 1
                 calllib('mstir', 'mSTIR_fillImage', self.handle, value)
             else
-                ptr_v = libpointer('doublePtr', value);
+                ptr_v = libpointer('singlePtr', value);
                 calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v)
             end
         end
@@ -151,7 +151,7 @@ classdef ImageData < handle
             h = calllib('mstir', 'mSTIR_imagesDifference',...
                      self.handle, image.handle, self.rimsize);
             mUtil.check_status('ImageData:diff_from', h);
-            diff = calllib('mutilities', 'mDoubleDataFromHandle', h);
+            diff = calllib('mutilities', 'mFloatDataFromHandle', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function data = as_array(self)
@@ -167,7 +167,7 @@ classdef ImageData < handle
 %             [ptr, data] = calllib...
 %                 ('mstir', 'mSTIR_getImageData', self.handle, zeros(n, 1));
 %             data = reshape(data, dim(3), dim(2), dim(1));
-            ptr_v = libpointer('doublePtr', zeros(n, 1));
+            ptr_v = libpointer('singlePtr', zeros(n, 1));
             calllib...
                 ('mstir', 'mSTIR_getImageData', self.handle, ptr_v)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));

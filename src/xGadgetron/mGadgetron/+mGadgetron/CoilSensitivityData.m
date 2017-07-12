@@ -65,8 +65,8 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
                 self.handle_, csm_num - 1, ptr_i);
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3)*dim(4);
-            ptr_re = libpointer('doublePtr', zeros(n, 1));
-            ptr_im = libpointer('doublePtr', zeros(n, 1));
+            ptr_re = libpointer('singlePtr', zeros(n, 1));
+            ptr_im = libpointer('singlePtr', zeros(n, 1));
             calllib...
                 ('mgadgetron', 'mGT_getCoilData', ...
                 self.handle_, csm_num - 1, ptr_re, ptr_im)
