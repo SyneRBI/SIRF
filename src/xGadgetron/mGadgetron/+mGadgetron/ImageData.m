@@ -109,13 +109,13 @@ classdef ImageData < mGadgetron.DataContainer
             nz = dim(3)*dim(4)*self.number();
             n = dim(1)*dim(2)*nz;
             if self.is_real()
-                ptr_v = libpointer('doublePtr', zeros(n, 1));
-                calllib('mgadgetron', 'mGT_getImagesDataAsDoubleArray', ...
+                ptr_v = libpointer('singlePtr', zeros(n, 1));
+                calllib('mgadgetron', 'mGT_getImagesDataAsFloatArray', ...
                     self.handle_, ptr_v)
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else
-                ptr_re = libpointer('doublePtr', zeros(n, 1));
-                ptr_im = libpointer('doublePtr', zeros(n, 1));
+                ptr_re = libpointer('singlePtr', zeros(n, 1));
+                ptr_im = libpointer('singlePtr', zeros(n, 1));
                 calllib...
                     ('mgadgetron', 'mGT_getImagesDataAsComplexArray', ...
                     self.handle_, ptr_re, ptr_im)
@@ -131,8 +131,8 @@ classdef ImageData < mGadgetron.DataContainer
             end
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('doublePtr', re);
-            ptr_im = libpointer('doublePtr', im);
+            ptr_re = libpointer('singlePtr', re);
+            ptr_im = libpointer('singlePtr', im);
             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
                 self.handle_, ptr_re, ptr_im);
             mUtil.check_status('ImageData', h);

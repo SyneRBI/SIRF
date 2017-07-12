@@ -69,7 +69,7 @@ classdef AcquisitionData < handle
 %         compatible with the scanner or its model used to produce the
 %         acquisition data in self.
 %         The specified value, if present, is assigned at all image voxels.
-%         value: a double.
+%         value: a float.
             image = mStir.ImageData();
             image.handle = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
@@ -90,13 +90,13 @@ classdef AcquisitionData < handle
                 self.handle, ptr_i);
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
-            ptr_v = libpointer('doublePtr', zeros(n, 1));
+            ptr_v = libpointer('singlePtr', zeros(n, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle, ptr_v);
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function fill(self, value)
 %***SIRF*** fill(value) fills the object with values;
-%         value: double or array of doubles (of the same dimensions and data
+%         value: float or array of floats (of the same dimensions and data
 %                order as the one returned by as_array() method) or an 
 %                AcquisitionData object.
             if isempty(self.handle)
@@ -105,9 +105,9 @@ classdef AcquisitionData < handle
             elseif self.read_only
                 error([self.name ':fill'], ...
                     'Cannot fill read-only object, consider filling a clone')
-            elseif isa(value, 'double')
+            elseif isa(value, 'single')
                 if numel(value) > 1
-                    ptr_v = libpointer('doublePtr', value);
+                    ptr_v = libpointer('singlePtr', value);
                     h = calllib('mstir', 'mSTIR_setAcquisitionsData', ...
                         self.handle, ptr_v);
                 else
@@ -136,7 +136,7 @@ classdef AcquisitionData < handle
         function ad = get_uniform_copy(self, value)
 %***SIRF*** get_uniform_copy(value) returns a true copy of this object 
 %         (not Matlab handle) filled with the specified value;
-%         value: Matlab double
+%         value: Matlab float
             if nargin < 2
                 value = 0;
             end

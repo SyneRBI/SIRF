@@ -320,7 +320,7 @@ extern "C"
 void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
-		double* data = (double*)ptr_data;
+		float* data = (float*)ptr_data;
 		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		sptr_ad->copy_to(data);
 		return (void*)new DataHandle;
@@ -329,7 +329,7 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_fillAcquisitionsData(void* ptr_acq, double v)
+void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
 {
 	try {
 		DataHandle* handle = new DataHandle;
@@ -368,7 +368,7 @@ void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t  ptr_data)
 		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		//if (sptr_ad.get() == 0)
 		//	return (void*) handle;
-		double *data = (double *)ptr_data;
+		float *data = (float *)ptr_data;
 		sptr_ad->fill_from(data);
 		return (void*)handle;
 	}
@@ -538,15 +538,15 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 extern "C"
 void* cSTIR_voxels3DF
 (int nx, int ny, int nz,
-double sx, double sy, double sz,
-double x, double y, double z)
+float sx, float sy, float sz,
+float x, float y, float z)
 {
 	try {
 		sptrVoxels3DF* sptr = new sptrVoxels3DF(
 			new Voxels3DF(IndexRange3D(0, nz - 1,
 			-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-			Coord3DF((float)z, (float)y, (float)x),
-			Coord3DF((float)sz, (float)sy, (float)sx)));
+			Coord3DF(z, y, x),
+			Coord3DF(sz, sy, sx)));
 		(*sptr)->fill(0);
 		return newObjectHandle(sptr);
 	}
@@ -621,13 +621,13 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 }
 
 extern "C"
-void cSTIR_fillImage(void* ptr_i, double v)
+void cSTIR_fillImage(void* ptr_i, float v)
 {
 	Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_i);
 	if (ptr_image == 0)
 		return;
 	Image3DF& image = *ptr_image;
-	image.fill((float)v);
+	image.fill(v);
 }
 
 extern "C"
@@ -658,7 +658,7 @@ void cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 	Image3DF& image = *ptr_image;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	double* data = (double*)ptr_data;
+	float* data = (float*)ptr_data;
 	if (!image.get_regular_range(min_indices, max_indices))
 		return;
 	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
@@ -679,7 +679,7 @@ void cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
 	Image3DF& image = *ptr_image;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
-	double* data = (double*)ptr_data;
+	float* data = (float*)ptr_data;
 	if (!image.get_regular_range(min_indices, max_indices))
 		return;
 	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
@@ -735,7 +735,7 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 		if (max_error > max_abs_error)
 			max_abs_error = max_error;
 
-		double* result = (double*)malloc(sizeof(double));
+		float* result = (float*)malloc(sizeof(float));
 		*result = max_abs_error / amplitude;
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);

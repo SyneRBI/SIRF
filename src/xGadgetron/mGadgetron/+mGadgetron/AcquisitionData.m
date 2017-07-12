@@ -193,8 +193,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 n = na + 1;
             end
             m = ns*nc*ma;
-            ptr_re = libpointer('doublePtr', zeros(m, 1));
-            ptr_im = libpointer('doublePtr', zeros(m, 1));
+            ptr_re = libpointer('singlePtr', zeros(m, 1));
+            ptr_im = libpointer('singlePtr', zeros(m, 1));
             calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsData', ...
                 self.handle_, n, ptr_re, ptr_im);
@@ -211,8 +211,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
             [ns, nc, na] = size(data);
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('doublePtr', re);
-            ptr_im = libpointer('doublePtr', im);
+            ptr_re = libpointer('singlePtr', re);
+            ptr_im = libpointer('singlePtr', im);
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mUtil.check_status('AcquisitionData', h);

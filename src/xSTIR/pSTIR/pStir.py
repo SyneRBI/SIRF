@@ -375,7 +375,7 @@ class ImageData(DataContainer):
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)
         check_status(handle)
-        diff = pyiutil.doubleDataFromHandle(handle)
+        diff = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return diff
     def as_array(self):
@@ -389,7 +389,7 @@ class ImageData(DataContainer):
         nx = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
             raise error('image data not available')
-        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
         return array
     def show(self):
@@ -566,7 +566,7 @@ class AcquisitionData(DataContainer):
         nz = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
             raise error('density data not available')
-        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+        array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getAcquisitionsData\
             (self.handle, array.ctypes.data))
         return array

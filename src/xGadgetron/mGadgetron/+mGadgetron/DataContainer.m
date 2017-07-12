@@ -46,7 +46,7 @@ classdef DataContainer < handle
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
             mUtil.check_status('DataContainer', handle);
-            r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
+            r = calllib('mutilities', 'mFloatDataFromHandle', handle);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function z = dot(self, other)
@@ -55,8 +55,8 @@ classdef DataContainer < handle
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
             mUtil.check_status('DataContainer', handle);
-            re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
-            im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
+            re = calllib('mutilities', 'mFloatReDataFromHandle', handle);
+            im = calllib('mutilities', 'mFloatImDataFromHandle', handle);
             z = complex(re, im);
             calllib('mutilities', 'mDeleteDataHandle', handle)
         end
