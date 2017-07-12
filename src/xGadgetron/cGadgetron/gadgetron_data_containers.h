@@ -37,27 +37,25 @@ limitations under the License.
 
 namespace Multisort {
 
-	template<typename T, size_t N>
-	bool less(const std::array<T, N>& a, const std::array<T, N>& b, unsigned int level)
+	template<typename T, unsigned int N>
+	bool less(const std::array<T, N>& a, const std::array<T, N>& b)
 	{
-		bool same = true;
-		for (unsigned int i = 0; i < level; i++) {
+		for (unsigned int i = 0; i < N; i++) {
+			if (a[i] < b[i])
+				return true;
 			if (a[i] > b[i])
 				return false;
-			if (a[i] != b[i])
-				same = false;
 		}
-		return !same;
+		return false; // all equal
 	}
 
-	template<typename T, size_t N>
+	template<typename T, unsigned int N>
 	void sort(std::vector<std::array<T, N> > v, int* index)
 	{
 		int n = v.size();
 		std::iota(index, index + n, 0);
-		for (unsigned int l = 1; l <= N; l++)
-			std::stable_sort
-			(index, index + n, [&v, l](int i, int j){return less(v[i], v[j], l); });
+		std::stable_sort
+			(index, index + n, [&v](int i, int j){return less(v[i], v[j]); });
 	}
 
 } // namespace Multisort
