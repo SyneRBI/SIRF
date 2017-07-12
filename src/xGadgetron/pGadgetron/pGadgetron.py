@@ -186,7 +186,7 @@ class DataContainer(ABC):
         '''
         handle = pygadgetron.cGT_norm(self.handle)
         check_status(handle)
-        r = pyiutil.doubleDataFromHandle(handle)
+        r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r;
     def dot(self, other):
@@ -197,8 +197,8 @@ class DataContainer(ABC):
         '''
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         check_status(handle)
-        re = pyiutil.doubleReDataFromHandle(handle)
-        im = pyiutil.doubleImDataFromHandle(handle)
+        re = pyiutil.floatReDataFromHandle(handle)
+        im = pyiutil.floatImDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return complex(re, im)
     def __add__(self, other):
@@ -314,8 +314,8 @@ class CoilImageData(DataContainer):
         nx, ny, nz, nc = self.image_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
-        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
+        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
         pygadgetron.cGT_getCoilData\
             (self.handle, ci_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
@@ -374,7 +374,7 @@ class CoilSensitivityData(DataContainer):
                 nz = data.number()
                 for z in range(nz):
                     ci = numpy.squeeze(data.as_array(z))
-                    (csm, rho) = coils.calculate_csm_inati_iter(ci)
+                    (csm, rho) = coils.calculate_csm_inati_iter(ci, verbose=True)
                     self.append(csm)
             elif method_name == 'SRSS':
                 if 'niter' in parm:
@@ -427,8 +427,8 @@ class CoilSensitivityData(DataContainer):
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
-        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
-        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        re = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
+        im = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
         pygadgetron.cGT_getCoilData\
             (self.handle, csm_num, re.ctypes.data, im.ctypes.data)
         return re + 1j * im
@@ -440,7 +440,7 @@ class CoilSensitivityData(DataContainer):
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
-        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float64)
+        array = numpy.ndarray((nc, nz, ny, nx), dtype = numpy.float32)
         pygadgetron.cGT_getCoilDataAbs\
             (self.handle, csm_num, array.ctypes.data)
         return array
@@ -545,7 +545,7 @@ class ImageData(DataContainer):
         Returns all self's images as a 3D Numpy ndarray.
         '''
         if self.number() < 1:
-            return numpy.ndarray((0,0,0), dtype = numpy.float64)
+            return numpy.ndarray((0,0,0), dtype = numpy.float32)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getImageDimensions\
             (self.handle, 0, dim.ctypes.data)
@@ -555,13 +555,13 @@ class ImageData(DataContainer):
         nc = dim[3]
         nz = nz*nc*self.number()
         if self.is_real():
-            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
-            pygadgetron.cGT_getImagesDataAsDoubleArray\
+            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            pygadgetron.cGT_getImagesDataAsFloatArray\
                 (self.handle, array.ctypes.data)
             return array
         else:
-            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
-            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float64)
+            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
             pygadgetron.cGT_getImagesDataAsComplexArray\
                 (self.handle, re.ctypes.data, im.ctypes.data)
             return re + 1j*im
@@ -755,8 +755,8 @@ class AcquisitionData(DataContainer):
             n = na
         else: # return only image-related
             n = na + 1
-        re = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
-        im = numpy.ndarray((ny, nc, ns), dtype = numpy.float64)
+        re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+        im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
         hv = pygadgetron.cGT_getAcquisitionsData\
             (self.handle, n, re.ctypes.data, im.ctypes.data)
         pyiutil.deleteDataHandle(hv)

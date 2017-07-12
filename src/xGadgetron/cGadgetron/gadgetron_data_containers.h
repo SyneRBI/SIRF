@@ -269,7 +269,7 @@ public:
 		n *= dim[3];
 		return n;
 	}
-	void get_data(double* data) const
+	void get_data(float* data) const
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
 	}
@@ -277,19 +277,19 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
 	}
-	void axpby(complex_double_t a, const ImageWrap& x, complex_double_t b)
+	void axpby(complex_float_t a, const ImageWrap& x, complex_float_t b)
 	{
 		IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
 	}
-	complex_double_t dot(const ImageWrap& iw) const
+	complex_float_t dot(const ImageWrap& iw) const
 	{
-		complex_double_t z;
+		complex_float_t z;
 		IMAGE_PROCESSING_SWITCH_CONST(type_, dot_, iw.ptr_image(), &z);
 		return z;
 	}
-	double norm() const
+	float norm() const
 	{
-		double r;
+		float r;
 		IMAGE_PROCESSING_SWITCH_CONST(type_, norm_, ptr_, &r);
 		return r;
 	}
@@ -300,9 +300,9 @@ public:
 		return s;
 	}
 
-	void get_cmplx_data(double* re, double* im) const;
+	void get_cmplx_data(float* re, float* im) const;
 
-	void set_cmplx_data(const double* re, const double* im) const;
+	void set_cmplx_data(const float* re, const float* im) const;
 
 private:
 	int type_;
@@ -374,7 +374,7 @@ private:
 	}
 
 	template<typename T>
-	void get_data_(const ISMRMRD::Image<T>* ptr_im, double* data) const
+	void get_data_(const ISMRMRD::Image<T>* ptr_im, float* data) const
 	{
 		const ISMRMRD::Image<T>& im = *ptr_im;
 		const T* ptr = im.getDataPtr();
@@ -385,30 +385,30 @@ private:
 
 	template<typename T>
 	void axpby_
-		(const ISMRMRD::Image<T>* ptr_x, complex_double_t a, complex_double_t b)
+		(const ISMRMRD::Image<T>* ptr_x, complex_float_t a, complex_float_t b)
 	{
 		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
 		const T* i;
 		T* j;
 		size_t ii = 0;
 		size_t n = ptr_x->getNumberOfDataElements();
-		if (b == complex_double_t(0.0))
+		if (b == complex_float_t(0.0))
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_double_t u = (complex_double_t)*i;
+			complex_float_t u = (complex_float_t)*i;
 			xGadgetronUtilities::convert_complex(a*u, *j);
 		}
 		else
 			for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
 				i++, j++, ii++) {
-			complex_double_t u = (complex_double_t)*i;
-			complex_double_t v = (complex_double_t)*j;
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
 			xGadgetronUtilities::convert_complex(a*u + b*v, *j);
 		}
 	}
 
 	template<typename T>
-	void dot_(const ISMRMRD::Image<T>* ptr_im, complex_double_t *z) const
+	void dot_(const ISMRMRD::Image<T>* ptr_im, complex_float_t *z) const
 	{
 		const ISMRMRD::Image<T>* ptr = (const ISMRMRD::Image<T>*)ptr_;
 		const T* i;
@@ -418,21 +418,21 @@ private:
 		size_t n = ptr_im->getNumberOfDataElements();
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
-			complex_double_t u = (complex_double_t)*i;
-			complex_double_t v = (complex_double_t)*j;
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
 			*z += std::conj(v) * u;
 		}
 	}
 
 	template<typename T>
-	void norm_(const ISMRMRD::Image<T>* ptr, double *r) const
+	void norm_(const ISMRMRD::Image<T>* ptr, float *r) const
 	{
 		const T* i;
 		*r = 0;
 		size_t ii = 0;
 		size_t n = ptr->getNumberOfDataElements();
 		for (i = ptr->getDataPtr(); ii < n; i++, ii++) {
-			complex_double_t a = (complex_double_t)*i;
+			complex_float_t a = (complex_float_t)*i;
 			*r += std::abs(std::conj(a) * a);
 		}
 		*r = std::sqrt(*r);
@@ -449,8 +449,8 @@ private:
 		size_t n = ptr_im->getNumberOfDataElements();
 		for (i = ptr->getDataPtr(), j = ptr_im->getDataPtr(); ii < n;
 			i++, j++, ii++) {
-			complex_double_t a = (complex_double_t)*i;
-			complex_double_t b = (complex_double_t)*j;
+			complex_float_t a = (complex_float_t)*i;
+			complex_float_t b = (complex_float_t)*j;
 			*s += (float)std::abs(b - a);
 		}
 	}
@@ -462,14 +462,14 @@ public:
 	virtual ~aDataContainer() {}
 	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
-	virtual double norm() = 0;
+	virtual float norm() = 0;
 	virtual T dot(aDataContainer<T>& dc) = 0;
 	virtual void axpby(
 		T a, const aDataContainer<T>& a_x,
 		T b, const aDataContainer<T>& a_y) = 0;
 };
 
-class AcquisitionsContainer : public aDataContainer<complex_double_t> {
+class AcquisitionsContainer : public aDataContainer<complex_float_t> {
 public:
 	AcquisitionsContainer() : ordered_(false), index_(0) {}
 	virtual ~AcquisitionsContainer()
@@ -479,11 +479,11 @@ public:
 	}
 
 	static void axpby
-	(complex_double_t a, const ISMRMRD::Acquisition& acq_x,
-		complex_double_t b, ISMRMRD::Acquisition& acq_y);
-	static complex_double_t dot
+	(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
+		complex_float_t b, ISMRMRD::Acquisition& acq_y);
+	static complex_float_t dot
 	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
-	static double norm(const ISMRMRD::Acquisition& acq_a);
+	static float norm(const ISMRMRD::Acquisition& acq_a);
 	static float diff
 	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
 
@@ -495,13 +495,13 @@ public:
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 	virtual int set_acquisition_data
-		(int na, int nc, int ns, const double* re, const double* im) = 0;
+		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
 	virtual void axpby(
-		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-		complex_double_t b, const aDataContainer<complex_double_t>& a_y);
-	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc);
-	virtual double norm();
+		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
+		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc);
+	virtual float norm();
 	float diff(AcquisitionsContainer& other);
 
 	std::string parameters() const
@@ -528,7 +528,7 @@ public:
 
 	void get_acquisitions_flags(unsigned int n, int* flags);
 
-	unsigned int get_acquisitions_data(unsigned int slice, double* re, double* im);
+	unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
 
 	void order();
 
@@ -615,7 +615,7 @@ public:
 		af.own_file_ = false;
 	}
 	virtual int set_acquisition_data
-		(int na, int nc, int ns, const double* re, const double* im);
+		(int na, int nc, int ns, const float* re, const float* im);
 	virtual unsigned int items()
 	{
 		Mutex mtx;
@@ -659,12 +659,12 @@ public:
 		dataset_->writeHeader(par_);
 		mtx.unlock();
 	}
-	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
 		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
 		ptr_ac->set_parameters(par_);
 		ptr_ac->write_parameters();
-		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_ac(ptr_ac);
+		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
@@ -723,12 +723,12 @@ public:
 		par_ = ac.parameters();
 	}
 	virtual int set_acquisition_data
-	(int na, int nc, int ns, const double* re, const double* im);
-	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	(int na, int nc, int ns, const float* re, const float* im);
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
 		AcquisitionsVector* ptr_ac = new AcquisitionsVector();
 		ptr_ac->set_parameters(par_);
-		boost::shared_ptr<aDataContainer<complex_double_t> > sptr_ac(ptr_ac);
+		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
@@ -742,7 +742,7 @@ private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
-class ImagesContainer : public aDataContainer<complex_double_t> {
+class ImagesContainer : public aDataContainer<complex_float_t> {
 public:
 	virtual unsigned int number() = 0;
 	virtual int types() = 0;
@@ -755,10 +755,10 @@ public:
 	virtual void append(int image_data_type, void* ptr_image) = 0;
 	virtual void append(const ImageWrap& iw) = 0;
 	virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-	virtual void get_images_data_as_double_array(double* data) const = 0;
+	virtual void get_images_data_as_float_array(float* data) const = 0;
 	virtual void get_images_data_as_complex_array
-		(double* re, double* im) const = 0;
-	virtual void set_complex_images_data(const double* re, const double* im) = 0;
+		(float* re, float* im) const = 0;
+	virtual void set_complex_images_data(const float* re, const float* im) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual boost::shared_ptr<ImagesContainer>
@@ -772,13 +772,13 @@ public:
 	}
 
 	virtual void axpby(
-		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-		complex_double_t b, const aDataContainer<complex_double_t>& a_y);
-	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc);
-	virtual double norm();
+		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
+		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc);
+	virtual float norm();
 
 	void get_image_data_as_cmplx_array
-		(unsigned int im_num, double* re, double* im)
+		(unsigned int im_num, float* re, float* im)
 	{
 		ImageWrap& iw = image_wrap(im_num);
 		iw.get_cmplx_data(re, im);
@@ -854,13 +854,13 @@ public:
 		//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 		//std::cout << attr << '\n';
 	}
-	virtual void get_images_data_as_double_array(double* data) const;
-	virtual void get_images_data_as_complex_array(double* re, double* im) const;
-	virtual void set_complex_images_data(const double* re, const double* im);
-	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	virtual void get_images_data_as_float_array(float* data) const;
+	virtual void get_images_data_as_complex_array(float* re, float* im) const;
+	virtual void set_complex_images_data(const float* re, const float* im);
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_double_t> >
-			((aDataContainer<complex_double_t>*)new ImagesVector());
+		return boost::shared_ptr<aDataContainer<complex_float_t> >
+			((aDataContainer<complex_float_t>*)new ImagesVector());
 	}
 	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{
@@ -886,11 +886,11 @@ class CoilData {
 public:
 	virtual ~CoilData() {}
 	virtual void get_dim(int* dim) const = 0;
-	virtual void get_data(double* re, double* im) const = 0;
-	virtual void set_data(const double* re, const double* im) = 0;
+	virtual void get_data(float* re, float* im) const = 0;
+	virtual void set_data(const float* re, const float* im) = 0;
 	virtual void get_data(complex_float_t* data) const = 0;
 	virtual void set_data(const complex_float_t* data) = 0;
-	virtual void get_data_abs(double* v) const = 0;
+	virtual void get_data_abs(float* v) const = 0;
 	virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
 };
 
@@ -919,8 +919,8 @@ public:
 		dim[2] = img_.getMatrixSizeZ();
 		dim[3] = img_.getNumberOfChannels();
 	}
-	virtual void get_data(double* re, double* im) const;
-	virtual void set_data(const double* re, const double* im);
+	virtual void get_data(float* re, float* im) const;
+	virtual void set_data(const float* re, const float* im);
 	virtual void get_data(complex_float_t* data) const
 	{
 		memcpy(data, img_.getDataPtr(), img_.getDataSize());
@@ -929,24 +929,24 @@ public:
 	{
 		memcpy(img_.getDataPtr(), data, img_.getDataSize());
 	}
-	virtual void get_data_abs(double* v) const;
+	virtual void get_data_abs(float* v) const;
 private:
 	ISMRMRD::Image < complex_float_t > img_;
 };
 
-class CoilDataContainer : public aDataContainer<complex_double_t> {
+class CoilDataContainer : public aDataContainer<complex_float_t> {
 public:
-	virtual double norm()
+	virtual float norm()
 	{
 		return 0.0;
 	}
-	virtual complex_double_t dot(aDataContainer<complex_double_t>& dc)
+	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc)
 	{
-		return complex_double_t(0.0, 0.0);
+		return complex_float_t(0.0, 0.0);
 	}
 	virtual void axpby(
-		complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-		complex_double_t b, const aDataContainer<complex_double_t>& a_y)
+		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
+		complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 	{
 		return;
 	}
@@ -955,12 +955,12 @@ public:
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_dim(dim);
 	}
-	void get_data(int slice, double* re, double* im) //const
+	void get_data(int slice, float* re, float* im) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data(re, im);
 	}
-	void set_data(int slice, double* re, double* im)
+	void set_data(int slice, float* re, float* im)
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.set_data(re, im);
@@ -975,7 +975,7 @@ public:
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.set_data(data);
 	}
-	void get_data_abs(int slice, double* v) //const
+	void get_data_abs(int slice, float* v) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data_abs(v);
@@ -1016,10 +1016,10 @@ protected:
 
 class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 public:
-	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_double_t> >
-			((aDataContainer<complex_double_t>*)new CoilImagesVector());
+		return boost::shared_ptr<aDataContainer<complex_float_t> >
+			((aDataContainer<complex_float_t>*)new CoilImagesVector());
 	}
 	virtual unsigned int items()
 	{
@@ -1057,7 +1057,7 @@ public:
 	virtual void compute(CoilImagesContainer& cis);
 
 	void append_csm
-		(int nx, int ny, int nz, int nc, const double* re, const double* im)
+		(int nx, int ny, int nz, int nc, const float* re, const float* im)
 	{
 		//CoilData* ptr_img = new CoilDataType(nx, ny, nz, nc);
 		CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, nz, nc);
@@ -1097,10 +1097,10 @@ public:
 	}
 	CoilSensitivitiesAsImages(const char* file);
 
-	virtual boost::shared_ptr<aDataContainer<complex_double_t> > new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_double_t> >
-			((aDataContainer<complex_double_t>*)new CoilSensitivitiesAsImages());
+		return boost::shared_ptr<aDataContainer<complex_float_t> >
+			((aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages());
 	}
 
 	virtual unsigned int items()

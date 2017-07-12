@@ -30,7 +30,7 @@ limitations under the License.
 #include "gadgetron_data_containers.h"
 
 void 
-ImageWrap::get_cmplx_data(double* re, double* im) const
+ImageWrap::get_cmplx_data(float* re, float* im) const
 {
 	int dim[4];
 	size_t n = get_dim(dim);
@@ -60,7 +60,7 @@ ImageWrap::get_cmplx_data(double* re, double* im) const
 }
 
 void 
-ImageWrap::set_cmplx_data(const double* re, const double* im) const
+ImageWrap::set_cmplx_data(const float* re, const float* im) const
 {
 	int dim[4];
 	size_t n = get_dim(dim);
@@ -177,7 +177,7 @@ AcquisitionsContainer::get_acquisitions_flags(unsigned int n, int* flags)
 }
 
 unsigned int 
-AcquisitionsContainer::get_acquisitions_data(unsigned int slice, double* re, double* im)
+AcquisitionsContainer::get_acquisitions_data(unsigned int slice, float* re, float* im)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -235,27 +235,27 @@ AcquisitionsContainer::get_acquisitions_data(unsigned int slice, double* re, dou
 
 void 
 AcquisitionsContainer::axpby
-(complex_double_t a, const ISMRMRD::Acquisition& acq_x,
-	complex_double_t b, ISMRMRD::Acquisition& acq_y)
+(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
+	complex_float_t b, ISMRMRD::Acquisition& acq_y)
 {
 	complex_float_t* px;
 	complex_float_t* py;
 	for (px = acq_x.data_begin(), py = acq_y.data_begin();
 		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
-		if (b == complex_double_t(0.0))
-			*py = a*complex_double_t(*px);
+		if (b == complex_float_t(0.0))
+			*py = a*complex_float_t(*px);
 		else
-			*py = a*complex_double_t(*px) + b*complex_double_t(*py);
+			*py = a*complex_float_t(*px) + b*complex_float_t(*py);
 	}
 }
 
-complex_double_t 
+complex_float_t 
 AcquisitionsContainer::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
 	complex_float_t* pa;
 	complex_float_t* pb;
-	complex_double_t z = 0;
+	complex_float_t z = 0;
 	for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
 		pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
 		z += std::conj(*pb) * (*pa);
@@ -263,11 +263,11 @@ AcquisitionsContainer::dot
 	return z;
 }
 
-double 
+float 
 AcquisitionsContainer::norm(const ISMRMRD::Acquisition& acq_a)
 {
 	complex_float_t* pa;
-	double r = 0;
+	float r = 0;
 	for (pa = acq_a.data_begin(); pa != acq_a.data_end(); pa++) {
 		complex_float_t z = std::conj(*pa) * (*pa);
 		r += z.real();
@@ -308,8 +308,8 @@ AcquisitionsContainer::diff
 
 void 
 AcquisitionsContainer::axpby(
-	complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-	complex_double_t b, const aDataContainer<complex_double_t>& a_y)
+	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
+	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 {
 	AcquisitionsContainer& x = (AcquisitionsContainer&)a_x;
 	AcquisitionsContainer& y = (AcquisitionsContainer&)a_y;
@@ -337,13 +337,13 @@ AcquisitionsContainer::axpby(
 	}
 }
 
-complex_double_t 
-AcquisitionsContainer::dot(aDataContainer<complex_double_t>& dc)
+complex_float_t 
+AcquisitionsContainer::dot(aDataContainer<complex_float_t>& dc)
 {
 	AcquisitionsContainer& other = (AcquisitionsContainer&)dc;
 	int n = number();
 	int m = other.number();
-	complex_double_t z = 0;
+	complex_float_t z = 0;
 	ISMRMRD::Acquisition a;
 	ISMRMRD::Acquisition b;
 	for (int i = 0, j = 0; i < n && j < m;) {
@@ -364,18 +364,18 @@ AcquisitionsContainer::dot(aDataContainer<complex_double_t>& dc)
 	return z;
 }
 
-double 
+float 
 AcquisitionsContainer::norm()
 {
 	int n = number();
-	double r = 0;
+	float r = 0;
 	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
 		get_acquisition(i, a);
 		if (TO_BE_IGNORED(a)) {
 			continue;
 		}
-		double s = AcquisitionsContainer::norm(a);
+		float s = AcquisitionsContainer::norm(a);
 		r += s*s;
 	}
 	return sqrt(r);
@@ -424,7 +424,7 @@ AcquisitionsContainer::order()
 
 int
 AcquisitionsFile::set_acquisition_data
-(int na, int nc, int ns, const double* re, const double* im)
+(int na, int nc, int ns, const float* re, const float* im)
 {
 	boost::shared_ptr<AcquisitionsContainer> sptr_ac =
 		this->new_acquisitions_container();
@@ -455,7 +455,7 @@ AcquisitionsFile::set_acquisition_data
 
 int 
 AcquisitionsVector::set_acquisition_data
-(int na, int nc, int ns, const double* re, const double* im)
+(int na, int nc, int ns, const float* re, const float* im)
 {
 	int ma = number();
 	for (int a = 0, i = 0; a < ma; a++) {
@@ -477,14 +477,14 @@ AcquisitionsVector::set_acquisition_data
 
 void
 ImagesContainer::axpby(
-	complex_double_t a, const aDataContainer<complex_double_t>& a_x,
-	complex_double_t b, const aDataContainer<complex_double_t>& a_y)
+	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
+	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 {
 	ImagesContainer& x = (ImagesContainer&)a_x;
 	ImagesContainer& y = (ImagesContainer&)a_y;
 	ImageWrap w(x.image_wrap(0));
-	complex_double_t zero(0.0, 0.0);
-	complex_double_t one(1.0, 0.0);
+	complex_float_t zero(0.0, 0.0);
+	complex_float_t one(1.0, 0.0);
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		const ImageWrap& u = x.image_wrap(i);
 		const ImageWrap& v = y.image_wrap(i);
@@ -494,11 +494,11 @@ ImagesContainer::axpby(
 	}
 }
 
-complex_double_t 
-ImagesContainer::dot(aDataContainer<complex_double_t>& dc)
+complex_float_t 
+ImagesContainer::dot(aDataContainer<complex_float_t>& dc)
 {
 	ImagesContainer& ic = (ImagesContainer&)dc;
-	complex_double_t z = 0;
+	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
 		const ImageWrap& v = ic.image_wrap(i);
@@ -507,13 +507,13 @@ ImagesContainer::dot(aDataContainer<complex_double_t>& dc)
 	return z;
 }
 
-double 
+float 
 ImagesContainer::norm()
 {
-	double r = 0;
+	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& u = image_wrap(i);
-		double s = u.norm();
+		float s = u.norm();
 		r += s*s;
 	}
 	r = sqrt(r);
@@ -581,7 +581,7 @@ ImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-ImagesVector::get_images_data_as_double_array(double* data) const
+ImagesVector::get_images_data_as_float_array(float* data) const
 {
 #ifdef _MSC_VER
 	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -603,7 +603,7 @@ ImagesVector::get_images_data_as_double_array(double* data) const
 }
 
 void
-ImagesVector::get_images_data_as_complex_array(double* re, double* im) const
+ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
 {
 #ifdef _MSC_VER
 	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
@@ -633,7 +633,7 @@ ImagesVector::get_images_data_as_complex_array(double* re, double* im) const
 }
 
 void
-ImagesVector::set_complex_images_data(const double* re, const double* im)
+ImagesVector::set_complex_images_data(const float* re, const float* im)
 {
 #ifdef _MSC_VER
 	std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
@@ -652,7 +652,7 @@ ImagesVector::set_complex_images_data(const double* re, const double* im)
 }
 
 void
-CoilDataAsCFImage::get_data(double* re, double* im) const
+CoilDataAsCFImage::get_data(float* re, float* im) const
 {
 	size_t n = img_.getNumberOfDataElements();
 	const complex_float_t* ptr = img_.getDataPtr();
@@ -664,7 +664,7 @@ CoilDataAsCFImage::get_data(double* re, double* im) const
 }
 
 void 
-CoilDataAsCFImage::set_data(const double* re, const double* im)
+CoilDataAsCFImage::set_data(const float* re, const float* im)
 {
 	size_t n = img_.getNumberOfDataElements();
 	complex_float_t* ptr = img_.getDataPtr();
@@ -673,7 +673,7 @@ CoilDataAsCFImage::set_data(const double* re, const double* im)
 }
 
 void 
-CoilDataAsCFImage::get_data_abs(double* v) const
+CoilDataAsCFImage::get_data_abs(float* v) const
 {
 	size_t n = img_.getNumberOfDataElements();
 	const complex_float_t* ptr = img_.getDataPtr();
@@ -970,7 +970,7 @@ CoilSensitivitiesContainer::compute_csm_(
 	float* ptr_img = img.getDataPtr();
 	for (unsigned int y = 0; y < ny; y++) {
 		for (unsigned int x = 0; x < nx; x++) {
-			double r = 0.0;
+			float r = 0.0;
 			for (unsigned int c = 0; c < nc; c++) {
 				float s = std::abs(cm0(x, y, c));
 				r += s*s;
@@ -990,7 +990,7 @@ CoilSensitivitiesContainer::compute_csm_(
 
 	for (unsigned int y = 0; y < ny; y++) {
 		for (unsigned int x = 0; x < nx; x++) {
-			double r = 0.0;
+			float r = 0.0;
 			for (unsigned int c = 0; c < nc; c++) {
 				float s = std::abs(cm0(x, y, c));
 				r += s*s;
@@ -1001,7 +1001,7 @@ CoilSensitivitiesContainer::compute_csm_(
 
 	for (unsigned int y = 0, i = 0; y < ny; y++) {
 		for (unsigned int x = 0; x < nx; x++, i++) {
-			double r = img(x, y);
+			float r = img(x, y);
 			float s;
 			if (r != 0.0)
 				s = (float)(1.0 / r);
