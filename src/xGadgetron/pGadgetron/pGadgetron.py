@@ -374,8 +374,8 @@ class CoilSensitivityData(DataContainer):
                 nz = data.number()
                 for z in range(nz):
                     ci = numpy.squeeze(data.as_array(z))
-                    (csm, rho) = coils.calculate_csm_inati_iter(ci, verbose=True)
-                    self.append(csm)
+                    (csm, rho) = coils.calculate_csm_inati_iter(ci)
+                    self.append(csm.astype(numpy.complex64))
             elif method_name == 'SRSS':
                 if 'niter' in parm:
                     nit = int(parm['niter'])
