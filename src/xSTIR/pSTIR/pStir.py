@@ -326,7 +326,13 @@ class ImageData(DataContainer):
         if self.handle is None:
             raise error('cannot fill uninitialized ImageData object')
         if isinstance(value, numpy.ndarray):
-            pystir.cSTIR_setImageData(self.handle, value.ctypes.data)
+            if value.dtype is numpy.dtype('float32'):
+                #print('keeping dtype float32')
+                v = value
+            else:
+                #print('changing dtype to float32')
+                v = value.astype(numpy.float32)
+            pystir.cSTIR_setImageData(self.handle, v.ctypes.data)
         elif isinstance(value, float):
             pystir.cSTIR_fillImage(self.handle, value)
         elif isinstance(value, int):
@@ -581,8 +587,14 @@ class AcquisitionData(DataContainer):
         if self.read_only:
             raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
+            if value.dtype is numpy.dtype('float32'):
+                #print('keeping dtype float32')
+                v = value
+            else:
+                #print('changing dtype to float32')
+                v = value.astype(numpy.float32)
             try_calling(pystir.cSTIR_setAcquisitionsData\
-                        (self.handle, value.ctypes.data))
+                        (self.handle, v.ctypes.data))
         elif isinstance(value, AcquisitionData):
             try_calling(pystir.cSTIR_fillAcquisitionsDataFromAcquisitionsData\
                 (self.handle, value.handle))

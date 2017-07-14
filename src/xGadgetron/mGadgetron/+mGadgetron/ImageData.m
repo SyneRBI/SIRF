@@ -131,8 +131,13 @@ classdef ImageData < mGadgetron.DataContainer
             end
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('singlePtr', re);
-            ptr_im = libpointer('singlePtr', im);
+            if isa(re, 'single')
+                ptr_re = libpointer('singlePtr', re);
+                ptr_im = libpointer('singlePtr', im);
+            else
+                ptr_re = libpointer('singlePtr', single(re));
+                ptr_im = libpointer('singlePtr', single(im));
+            end
             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
                 self.handle_, ptr_re, ptr_im);
             mUtil.check_status('ImageData', h);

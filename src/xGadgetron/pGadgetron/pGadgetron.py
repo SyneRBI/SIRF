@@ -572,8 +572,10 @@ class ImageData(DataContainer):
         '''
         if self.handle is None:
             raise error('Undefined ImageData object cannot be filled')
-        re = numpy.copy(numpy.real(data))
-        im = numpy.copy(numpy.imag(data))
+        re = numpy.real(data).astype(numpy.float32)
+        im = numpy.imag(data).astype(numpy.float32)
+##        re = numpy.copy(numpy.real(data))
+##        im = numpy.copy(numpy.imag(data))
         try_calling(pygadgetron.cGT_setComplexImagesData\
             (self.handle, re.ctypes.data, im.ctypes.data))
 
@@ -769,16 +771,12 @@ class AcquisitionData(DataContainer):
         if self.handle is None:
             raise error('Undefined AcquisitionData object cannot be filled')
         na, nc, ns = data.shape
-        re = numpy.copy(numpy.real(data))
-        im = numpy.copy(numpy.imag(data))
+        re = numpy.real(data).astype(numpy.float32)
+        im = numpy.imag(data).astype(numpy.float32)
+##        re = numpy.copy(numpy.real(data))
+##        im = numpy.copy(numpy.imag(data))
         try_calling(pygadgetron.cGT_setAcquisitionsData\
             (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
-        # TODO: synchronize with ImageData.fill()
-##        handle = pygadgetron.cGT_setAcquisitionsData\
-##            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data)
-##        check_status(handle)
-##        pyiutil.deleteObject(self.handle)
-##        self.handle = handle
 
 DataContainer.register(AcquisitionData)
 
