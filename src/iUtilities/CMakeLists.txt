@@ -36,7 +36,7 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
-  set(SWIG_MODULE_pyiutil_EXTRA_DEPS "data_handle.h")
+  set(SWIG_MODULE_pyiutil_EXTRA_DEPS "data_handle.h" "iutilities.h")
   SWIG_ADD_MODULE(pyiutil python pyiutil.i)
   SWIG_LINK_LIBRARIES(pyiutil iutil ${PYTHON_LIBRARIES})
 
