@@ -92,9 +92,13 @@ classdef ImageData < handle
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
             if numel(value) == 1
-                calllib('mstir', 'mSTIR_fillImage', self.handle, value)
+                calllib('mstir', 'mSTIR_fillImage', self.handle, single(value))
             else
-                ptr_v = libpointer('singlePtr', value);
+                if isa(value, 'single')
+                    ptr_v = libpointer('singlePtr', value);
+                else
+                    ptr_v = libpointer('singlePtr', single(value));
+                end
                 calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v)
             end
         end

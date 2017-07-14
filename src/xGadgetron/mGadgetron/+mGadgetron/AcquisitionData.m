@@ -211,14 +211,17 @@ classdef AcquisitionData < mGadgetron.DataContainer
             [ns, nc, na] = size(data);
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('singlePtr', re);
-            ptr_im = libpointer('singlePtr', im);
+            if isa(re, 'single')
+                ptr_re = libpointer('singlePtr', re);
+                ptr_im = libpointer('singlePtr', im);
+            else
+                ptr_re = libpointer('singlePtr', single(re));
+                ptr_im = libpointer('singlePtr', single(im));
+            end
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mUtil.check_status('AcquisitionData', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
-%             calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-%             self.handle_ = h;
         end
     end
 end
