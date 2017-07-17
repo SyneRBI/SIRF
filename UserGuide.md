@@ -466,3 +466,73 @@ Class for a penalty term to be added to the objective function.
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
 
+# Appendix
+
+## Programming Gadgetron chains of gadgets.
+
+With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
+
+The standard way of using Gadgetron is to run `gadgetron_ismrmrd_client` from a command line (with Gadgetron running in another terminal window), providing the name of the raw data file (in HDF5 format) and the name of the xml file containing the description of the gadget chain via command-line options. SIRF offers an equivalent alternative whereby the data and the gadget chain are defined in a Python or Matlab script. The gadget chain is defined by crerating a Reconstructor object and providing the list of gadgets descriptions as an argument:
+
+    my_recon = Reconstructor(my_gadget_list);
+
+Here `my_gadget_list` is a list of strings in Python or a cell array of strings in Matlab, each string describing a gadget in the following format:
+
+    [label:]gadget_name[(property1=value1[,property2=value2,...])]
+
+where gadget and its properties names are same as in Gadgetron xml files, and an optional label can be used to change the labelled gadget properties at any time by using `set_gadget_property` method:
+
+    my_recon.set_gadget_property(label, property, value);
+
+The following example of a gadget chain definition is taken from demo script `fully_sampled_recon_single_chain.py`:
+
+    recon = Reconstructor(['RemoveROOversamplingGadget', \
+        'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
+        'BucketToBufferGadget(split_slices=true, verbose=false)', \
+        'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
+    # ExtractGadget defines which type of image should be returned:
+    # none      0
+    # magnitude 1
+    # real      2
+    # imag      4
+    # phase     8
+    # max       16
+    # in this example '5' returns both magnitude and imag
+    recon.set_gadget_property('ex', 'extract_mask', 5)
+
+The input data is defined by creating an AcquisitionData object and passing it to the reconstruction object via its method `set_input`:
+
+    acq_data = AcquisitionData(input_file_name);
+    my_recon.set_input(acq_data);
+
+and the reconstruction is performed by calling the method `process`, and the reconstructed images are returned as an ImageData object by the method `get_output`:
+
+    recon.process();
+    image_data = recon.get_output();
+
+While the way to use Gadgetron just described is the most efficient performance-wise, some users may like to get more involved in the reconstruction process. SIRF offers such users an opportunity to split a standard reconstruction chain into sub-chains and process intermediate data. For example, the chain defined above can be split into an acquisition processing chain that removes oversampling, a shortened reconstruction chain and an image processing chain:
+
+    acq_proc = AcquisitionDataProcessor(['RemoveROOversamplingGadget'])
+    acq_proc.set_input(acq_data)
+    acq_proc.process()
+    preprocessed_data = acq_proc.get_output()
+
+    # do something with preprocessed data here
+
+    recon = Reconstructor\
+        (['AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
+        'BucketToBufferGadget(split_slices=true, verbose=false)',
+        'SimpleReconGadget', 'ImageArraySplitGadget'])
+    recon.set_input(preprocessed_data)
+    recon.process()
+    complex_image_data = recon.get_output()
+
+    # do something with the complex image data here
+
+    img_proc = ImageDataProcessor(['ExtractGadget(extract_mask=5)'])
+    img_proc.set_input(complex_image_data)
+    img_proc.process()
+    real_image_data = img_proc.get_output()
+
+
+To be continued...
