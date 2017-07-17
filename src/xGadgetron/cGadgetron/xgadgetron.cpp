@@ -97,6 +97,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 
 	//sptr_acqs_ = acquisitions.new_acquisitions_container();
 	sptr_acqs_.reset(new AcquisitionsVector);
+	sptr_acqs_->copy_parameters(acquisitions);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		boost::shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
@@ -107,7 +108,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			conn().send_gadgetron_configuration_script(config);
 
 			conn().send_gadgetron_parameters(acquisitions.parameters());
-			sptr_acqs_->copy_parameters(acquisitions);
+			//sptr_acqs_->copy_parameters(acquisitions);
 
 			uint32_t nacq = 0;
 			nacq = acquisitions.number();
