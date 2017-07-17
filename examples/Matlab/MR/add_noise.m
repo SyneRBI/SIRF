@@ -9,6 +9,11 @@ function K = add_noise(K, sd)
 % David Atkinson  D.Atkinson@ucl.ac.uk
 %
 
+if nargin < 1 % for run_all.m to ignore this function
+    K = [];
+    return
+end
+
 
 nreal = random('Normal',0, sd, size(K)) ;
 nimag = random('Normal',0, sd, size(K)) ;
