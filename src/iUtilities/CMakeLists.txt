@@ -48,15 +48,13 @@ endif(BUILD_PYTHON)
 
 if(BUILD_MATLAB)
 
-  include_directories(${MATLAB_INCLUDE_DIR})
-  add_definitions(${MATLAB_CXXFLAGS})
+  include_directories(${Matlab_INCLUDE_DIRS})
 
   add_library(mutilities SHARED mutilities.c)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mutilities PROPERTIES
-        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
-        LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mutilities iutil ${MATLAB_LIBRARIES} )
+        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
+  target_link_libraries(mutilities iutil ${Matlab_LIBRARIES} )
 
   INSTALL(TARGETS mutilities DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mutilities.h DESTINATION "${MATLAB_DEST}")

@@ -25,7 +25,8 @@ PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 # require 2.8.3 to get FOLDER properties support
-cmake_minimum_required(VERSION 2.8.3)
+# require 3.3 for descent FindMatlab.cmake
+cmake_minimum_required(VERSION 3.3.0)
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -61,10 +62,11 @@ if (BUILD_PYTHON)
 endif()
 
 
-FIND_PACKAGE(MATLAB)
-set (BUILD_MATLAB ${MATLAB_FOUND})
+FIND_PACKAGE(Matlab)
+set (BUILD_MATLAB ${Matlab_FOUND})
 if (BUILD_MATLAB)
-set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab" CACHE PATH "Destination for matlab module")
+  matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+  set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab" CACHE PATH "Destination for matlab module")
   message(STATUS "MATLAB libraries found")
 endif()
 

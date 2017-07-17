@@ -20,15 +20,13 @@ if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  include_directories(${MATLAB_INCLUDE_DIR})
-  add_definitions(${MATLAB_CXXFLAGS})
+  include_directories(${Matlab_INCLUDE_DIRS})
 
   add_library(mstir SHARED mstir.c printer.cpp  ${STIR_REGISTRIES})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mstir PROPERTIES
-        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
-        LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mstir  cstir iutil ${STIR_LIBRARIES} ${MATLAB_LIBRARIES} )
+        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
+  target_link_libraries(mstir  cstir iutil ${STIR_LIBRARIES} ${Matlab_LIBRARIES} )
 
   INSTALL(TARGETS mstir DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mstir.h DESTINATION "${MATLAB_DEST}")
