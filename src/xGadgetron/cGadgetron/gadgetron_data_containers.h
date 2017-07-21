@@ -1118,4 +1118,35 @@ public:
 
 };
 
+#if 0
+class AcquisitionsContainerTemplate {
+public:
+	AcquisitionsContainerTemplate(const char* storage_type)
+	{
+		init_();
+		delete acqs_;
+		if (storage_type[0] == 'f')
+			acqs_ = new AcquisitionsFile(); // TODO: this must actually do
+											//acqs_ = acqs_scratch_file("tmp.h5");
+		else
+			acqs_ = new AcquisitionsVector();
+	}
+	// TODO: AcquisitionsContainer::new_acquisitions_container to call this:
+	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	{
+		// same_acquisitions_container = current new_acquisitions_container
+		return acqs_->same_acquisitions_container();
+	}
+private:
+	static AcquisitionsContainer* acqs_;
+	static void init_() {
+		static bool initialized = false;
+		if (!initialized) {
+			acqs_ = new AcquisitionsVector();
+			initialized = true;
+		}
+	}
+};
+#endif
+
 #endif
