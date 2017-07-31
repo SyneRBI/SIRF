@@ -834,8 +834,9 @@ protected:
 	static void init() {
 		static bool initialized = false;
 		if (!initialized) {
+			// NEED FIX: setting default to AcquisitionsFile causes HDF5 error "failed to close dataset" on VM
 			acqs_storage_template_ = 
-				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
+				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsVector());
 			initialized = true;
 		}
 	}
