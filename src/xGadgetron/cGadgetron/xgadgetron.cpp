@@ -95,9 +95,10 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 
 	GTConnector conn;
 
-	//sptr_acqs_.reset(new AcquisitionsVector(acquisitions.parameters()));
-	//sptr_acqs_ = acquisitions.new_acquisitions_container();
-	sptr_acqs_.reset(new AcquisitionsVector);
+	sptr_acqs_ = AcquisitionsContainerTemplate::new_acquisitions_container();
+	////sptr_acqs_.reset(new AcquisitionsVector(acquisitions.parameters()));
+	////sptr_acqs_ = acquisitions.new_acquisitions_container();
+	//sptr_acqs_.reset(new AcquisitionsVector);
 	sptr_acqs_->copy_parameters(acquisitions);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		boost::shared_ptr<GadgetronClientMessageReader>

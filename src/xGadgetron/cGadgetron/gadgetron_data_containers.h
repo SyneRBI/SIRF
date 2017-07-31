@@ -529,6 +529,8 @@ public:
 	//virtual void write_parameters() = 0;
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+	virtual
+		AcquisitionsContainer* same_acquisitions_container() = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -731,6 +733,13 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
+	virtual AcquisitionsContainer* same_acquisitions_container()
+	{
+		////AcquisitionsFile* ptr_ac = new_acqs_file_();
+		//AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
+		//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
+		return new AcquisitionsFile(par_);
+	}
 
 private:
 	bool own_file_;
@@ -787,11 +796,49 @@ public:
 	{
 		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
 		//ptr_ac->set_parameters(par_);
+		//AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
+	virtual AcquisitionsContainer* same_acquisitions_container()
+	{
+		//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+		////ptr_ac->set_parameters(par_);
+		//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
+		return new AcquisitionsVector(par_);
+	}
 private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
+};
+
+class AcquisitionsContainerTemplate {
+public:
+	~AcquisitionsContainerTemplate()
+	{
+		init();
+	}
+	static void set_storage_scheme(boost::shared_ptr<AcquisitionsContainer> templ)
+	{
+		init();
+		acqs_storage_template_ = templ;
+	}
+	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	{
+		// same_acquisitions_container = current new_acquisitions_container
+		init();
+		return acqs_storage_template_->new_acquisitions_container();
+		//return acqs_storage_template_->same_acquisitions_container();
+	}
+protected:
+	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
+	static void init() {
+		static bool initialized = false;
+		if (!initialized) {
+			acqs_storage_template_ = 
+				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
+			initialized = true;
+		}
+	}
 };
 
 class ImagesContainer : public aDataContainer<complex_float_t> {
@@ -1169,61 +1216,5 @@ public:
 	}
 
 };
-
-#if 0
-//inline AcquisitionsContainer* 
-//acquisitions_container_storage_template(const char* scheme)
-//{
-//	if (scheme[0] == 'f')
-//		return new AcquisitionsFile();
-//	else
-//		return new AcquisitionsVector();
-//}
-
-class AcquisitionsContainerTemplate {
-public:
-	//AcquisitionsContainerTemplate()
-	//{
-	//	init();
-	//}
-	static void set_storage_scheme(const char* scheme)
-	{
-		init();
-		delete acqs_storage_template_;
-		if (scheme[0] == 'f')
-			acqs_storage_template_ =  new AcquisitionsFile();
-		else
-			acqs_storage_template_ =  new AcquisitionsVector();
-	}
-	//AcquisitionsContainerTemplate(const AcquisitionsContainer& ac)
-	//{
-	//	init();
-	//	acqs_storage_template_->copy_parameters(ac);
-	//}
-	//static void set_storage_scheme(const AcquisitionsContainer& ac, const char* scheme)
-	//{
-	//	init();
-	//	delete acqs_storage_template_;
-	//	acqs_storage_template_ = acquisitions_container_storage_template(scheme);
-	//	acqs_storage_template_->copy_parameters(ac);
-	//}
-	// TODO: AcquisitionsContainer::new_acquisitions_container to call this:
-	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
-	{
-		// same_acquisitions_container = current new_acquisitions_container
-		init();
-		return acqs_storage_template_->same_acquisitions_container();
-	}
-protected:
-	static AcquisitionsContainer* c;
-	static void init() {
-		static bool initialized = false;
-		if (!initialized) {
-			acqs_storage_template_ = acquisitions_container_storage_template("memory");
-			initialized = true;
-		}
-	}
-};
-#endif
 
 #endif
