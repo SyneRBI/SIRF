@@ -478,6 +478,32 @@ public:
 		T b, const aDataContainer<T>& a_y) = 0;
 };
 
+class AcquisitionsInfo {
+public:
+	AcquisitionsInfo(std::string data = "") : data_(data)
+	{
+	}
+	AcquisitionsInfo& operator=(std::string data)
+	{
+		data_ = data;
+		return *this;
+	}
+	const char* c_str() const
+	{
+		return data_.c_str();
+	}
+	operator std::string&()
+	{
+		return data_;
+	}
+	operator const std::string&() const
+	{
+		return data_;
+	}
+private:
+	std::string data_;
+};
+
 class AcquisitionsContainer : public aDataContainer<complex_float_t> {
 public:
 	AcquisitionsContainer() : ordered_(false), index_(0) {}
@@ -567,7 +593,8 @@ public:
 protected:
 	bool ordered_;
 	int* index_;
-	std::string par_;
+	AcquisitionsInfo par_;
+	//std::string par_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
