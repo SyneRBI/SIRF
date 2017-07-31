@@ -27,6 +27,10 @@ function generate_undersampled_data( varargin )
 % and add_noise  
 %
 
+if nargin < 1 % for run_all.m to ignore this function
+    return
+end
+
 % defaults
 nReps = 6 ;  % increased from 4 to 6 to avoid confusion with number of coils.
 noiselevel_sd = 0.05;
