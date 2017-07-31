@@ -600,11 +600,11 @@ protected:
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
 	AcquisitionsFile
-		(std::string filename, bool create_file = false, bool own_file = false)
+		(std::string filename, bool create_file = false, 
+		AcquisitionsInfo info = AcquisitionsInfo())
 	{
-		own_file_ = own_file;
+		own_file_ = create_file;
 		filename_ = filename;
-		int ndim = 0;
 		Mutex mtx;
 		mtx.lock();
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
@@ -612,6 +612,22 @@ public:
 		if (!create_file) {
 			dataset_->readHeader(par_);
 		}
+		else {
+			par_ = info;
+			dataset_->writeHeader(par_);
+		}
+		mtx.unlock();
+	}
+	AcquisitionsFile(AcquisitionsInfo info = AcquisitionsInfo())
+	{
+		own_file_ = true;
+		filename_ = xGadgetronUtilities::scratch_file_name();
+		Mutex mtx;
+		mtx.lock();
+		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+			(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
+		par_ = info;
+		dataset_->writeHeader(par_);
 		mtx.unlock();
 	}
 	~AcquisitionsFile() {
@@ -622,14 +638,13 @@ public:
 			std::remove(filename_.c_str());
 			mtx.unlock();
 		}
-
 	}
-	static AcquisitionsFile* acqs_scratch_file()
-	{
-		std::string name = xGadgetronUtilities::scratch_file_name();
-		//std::cout << "new acquisitions file: " << name << std::endl;
-		return new AcquisitionsFile(name, true, true);
-	}
+	//static AcquisitionsFile* acqs_scratch_file()
+	//{
+	//	std::string name = xGadgetronUtilities::scratch_file_name();
+	//	//std::cout << "new acquisitions file: " << name << std::endl;
+	//	return new AcquisitionsFile(name, true);
+	//}
 
 	void take_over(AcquisitionsContainer& ac)
 	{
@@ -704,13 +719,15 @@ public:
 	}
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		AcquisitionsFile* ptr_ac = new_acqs_file_();
+		//AcquisitionsFile* ptr_ac = new_acqs_file_();
+		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
 		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		AcquisitionsFile* ptr_ac = new_acqs_file_();
+		//AcquisitionsFile* ptr_ac = new_acqs_file_();
+		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
@@ -720,17 +737,21 @@ private:
 	std::string filename_;
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 
-	AcquisitionsFile* new_acqs_file_()
-	{
-		AcquisitionsFile* ptr_ac = acqs_scratch_file();
-		ptr_ac->set_parameters(par_);
-		ptr_ac->write_parameters();
-		return ptr_ac;
-	}
+	//AcquisitionsFile* new_acqs_file_()
+	//{
+	//	AcquisitionsFile* ptr_ac = acqs_scratch_file();
+	//	ptr_ac->set_parameters(par_);
+	//	ptr_ac->write_parameters();
+	//	return ptr_ac;
+	//}
 };
 
 class AcquisitionsVector : public AcquisitionsContainer {
 public:
+	AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
+	{
+		par_ = info;
+	}
 	virtual unsigned int number()
 	{
 		return (unsigned int)acqs_.size();
@@ -757,15 +778,15 @@ public:
 	(int na, int nc, int ns, const float* re, const float* im);
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		AcquisitionsVector* ptr_ac = new AcquisitionsVector();
-		ptr_ac->set_parameters(par_);
+		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+		//ptr_ac->set_parameters(par_);
 		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		AcquisitionsVector* ptr_ac = new AcquisitionsVector();
-		ptr_ac->set_parameters(par_);
+		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+		//ptr_ac->set_parameters(par_);
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
@@ -1150,37 +1171,51 @@ public:
 };
 
 #if 0
-inline AcquisitionsContainer* 
-acquisitions_container_storage_template(const char* scheme)
-{
-	if (scheme[0] == 'f')
-		return AcquisitionsFile::acqs_scratch_file();
-	else
-		return new AcquisitionsVector();
-}
+//inline AcquisitionsContainer* 
+//acquisitions_container_storage_template(const char* scheme)
+//{
+//	if (scheme[0] == 'f')
+//		return new AcquisitionsFile();
+//	else
+//		return new AcquisitionsVector();
+//}
 
 class AcquisitionsContainerTemplate {
 public:
-	AcquisitionsContainerTemplate(const AcquisitionsContainer& ac)
-	{
-		init();
-		acqs_storage_template_->copy_parameters(ac);
-	}
-	static void set_storage_scheme(const AcquisitionsContainer& ac, const char* scheme)
+	//AcquisitionsContainerTemplate()
+	//{
+	//	init();
+	//}
+	static void set_storage_scheme(const char* scheme)
 	{
 		init();
 		delete acqs_storage_template_;
-		acqs_storage_template_ = acquisitions_container_storage_template(scheme);
-		acqs_storage_template_->copy_parameters(ac);
+		if (scheme[0] == 'f')
+			acqs_storage_template_ =  new AcquisitionsFile();
+		else
+			acqs_storage_template_ =  new AcquisitionsVector();
 	}
+	//AcquisitionsContainerTemplate(const AcquisitionsContainer& ac)
+	//{
+	//	init();
+	//	acqs_storage_template_->copy_parameters(ac);
+	//}
+	//static void set_storage_scheme(const AcquisitionsContainer& ac, const char* scheme)
+	//{
+	//	init();
+	//	delete acqs_storage_template_;
+	//	acqs_storage_template_ = acquisitions_container_storage_template(scheme);
+	//	acqs_storage_template_->copy_parameters(ac);
+	//}
 	// TODO: AcquisitionsContainer::new_acquisitions_container to call this:
 	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		// same_acquisitions_container = current new_acquisitions_container
+		init();
 		return acqs_storage_template_->same_acquisitions_container();
 	}
 protected:
-	static AcquisitionsContainer* acqs_storage_template_;
+	static AcquisitionsContainer* c;
 	static void init() {
 		static bool initialized = false;
 		if (!initialized) {

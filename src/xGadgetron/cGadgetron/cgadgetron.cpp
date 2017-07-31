@@ -412,7 +412,7 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
 		boost::shared_ptr<AcquisitionsContainer> 
-			acquisitions(new AcquisitionsFile(file, true, true));
+			acquisitions(new AcquisitionsFile(file, true));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH;
