@@ -133,6 +133,15 @@ public:
 		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
 		return (long long)ms.count();
 	}
+	static std::string scratch_file_name()
+	{
+		static int calls = 0;
+		char buff[32];
+		long long int ms = xGadgetronUtilities::milliseconds();
+		calls++;
+		sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+		return std::string(buff);
+	}
 	template<typename T>
 	static void convert_complex(std::complex<T> z, unsigned short& t)
 	{
@@ -588,6 +597,13 @@ public:
 		}
 
 	}
+	static AcquisitionsFile* acqs_scratch_file()
+	{
+		std::string name = xGadgetronUtilities::scratch_file_name();
+		//std::cout << "new acquisitions file: " << name << std::endl;
+		return new AcquisitionsFile(name, true, true);
+	}
+
 	void take_over(AcquisitionsContainer& ac)
 	{
 		AcquisitionsFile& af = (AcquisitionsFile&)ac;
@@ -661,21 +677,13 @@ public:
 	}
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
-		ptr_ac->set_parameters(par_);
-		ptr_ac->write_parameters();
+		AcquisitionsFile* ptr_ac = new_acqs_file_();
 		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		//boost::shared_ptr<AcquisitionsContainer> 
-		//	sptr_ac(acqs_scratch_file_(filename_));
-		//sptr_ac->set_parameters(par_);
-		//sptr_ac->write_parameters();
-		AcquisitionsFile* ptr_ac = acqs_scratch_file_(filename_);
-		ptr_ac->set_parameters(par_);
-		ptr_ac->write_parameters();
+		AcquisitionsFile* ptr_ac = new_acqs_file_();
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
@@ -685,16 +693,12 @@ private:
 	std::string filename_;
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 
-	AcquisitionsFile* acqs_scratch_file_(std::string name)
+	AcquisitionsFile* new_acqs_file_()
 	{
-		static int calls = 0;
-		char buff[32];
-		long long int ms = xGadgetronUtilities::milliseconds();
-		calls++;
-		sprintf(buff, "_%d_%lld.h5", calls, ms);
-		boost::replace_all(name, ".h5", buff);
-		//std::cout << "new acquisitions file: " << name << std::endl;
-		return new AcquisitionsFile(name, true, true);
+		AcquisitionsFile* ptr_ac = acqs_scratch_file();
+		ptr_ac->set_parameters(par_);
+		ptr_ac->write_parameters();
+		return ptr_ac;
 	}
 };
 
@@ -1119,30 +1123,41 @@ public:
 };
 
 #if 0
+inline AcquisitionsContainer* 
+acquisitions_container_storage_template(const char* scheme)
+{
+	if (scheme[0] == 'f')
+		return AcquisitionsFile::acqs_scratch_file();
+	else
+		return new AcquisitionsVector();
+}
+
 class AcquisitionsContainerTemplate {
 public:
-	AcquisitionsContainerTemplate(const char* storage_type)
+	AcquisitionsContainerTemplate(const AcquisitionsContainer& ac)
 	{
-		init_();
-		delete acqs_;
-		if (storage_type[0] == 'f')
-			acqs_ = new AcquisitionsFile(); // TODO: this must actually do
-											//acqs_ = acqs_scratch_file("tmp.h5");
-		else
-			acqs_ = new AcquisitionsVector();
+		init();
+		acqs_storage_template_->copy_parameters(ac);
+	}
+	static void set_storage_scheme(const AcquisitionsContainer& ac, const char* scheme)
+	{
+		init();
+		delete acqs_storage_template_;
+		acqs_storage_template_ = acquisitions_container_storage_template(scheme);
+		acqs_storage_template_->copy_parameters(ac);
 	}
 	// TODO: AcquisitionsContainer::new_acquisitions_container to call this:
 	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		// same_acquisitions_container = current new_acquisitions_container
-		return acqs_->same_acquisitions_container();
+		return acqs_storage_template_->same_acquisitions_container();
 	}
-private:
-	static AcquisitionsContainer* acqs_;
-	static void init_() {
+protected:
+	static AcquisitionsContainer* acqs_storage_template_;
+	static void init() {
 		static bool initialized = false;
 		if (!initialized) {
-			acqs_ = new AcquisitionsVector();
+			acqs_storage_template_ = acquisitions_container_storage_template("memory");
 			initialized = true;
 		}
 	}
