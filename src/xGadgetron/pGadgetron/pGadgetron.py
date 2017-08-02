@@ -637,6 +637,9 @@ class AcquisitionData(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
+    @staticmethod
+    def set_storage_scheme(scheme):
+        try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
     def number_of_acquisitions(self, select = 'image'):

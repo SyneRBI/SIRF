@@ -380,6 +380,20 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
+cGT_setAcquisitionsStorageScheme(const char* scheme)
+{
+	try{
+		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
+			AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsFile);
+		else
+			AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsVector);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_orderAcquisitions(void* ptr_acqs)
 {
 	try {

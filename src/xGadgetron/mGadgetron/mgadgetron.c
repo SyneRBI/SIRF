@@ -71,6 +71,9 @@ EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* p
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs) {
 	return cGT_AcquisitionModelBackward(ptr_am, ptr_acqs);
 }
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsStorageScheme(const char* scheme) {
+	return cGT_setAcquisitionsStorageScheme(scheme);
+}
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file) {
 	return cGT_ISMRMRDAcquisitionsFromFile(file);
 }

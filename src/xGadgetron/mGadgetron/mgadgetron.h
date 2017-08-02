@@ -46,6 +46,7 @@ EXPORTED_FUNCTION 	void* mGT_AcquisitionModel(const void* ptr_acqs, const void* 
 EXPORTED_FUNCTION 	void* mGT_setCSMs(void* ptr_am, const void* ptr_csms);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
+EXPORTED_FUNCTION 	void* mGT_setAcquisitionsStorageScheme(const char* scheme);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFromFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_ISMRMRDAcquisitionsFile(const char* file);
 EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input);
