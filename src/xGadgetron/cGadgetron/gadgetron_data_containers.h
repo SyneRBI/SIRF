@@ -526,11 +526,8 @@ public:
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
-	//virtual void write_parameters() = 0;
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
-	virtual
-		AcquisitionsContainer* same_acquisitions_container() = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -596,7 +593,6 @@ protected:
 	bool ordered_;
 	int* index_;
 	AcquisitionsInfo par_;
-	//std::string par_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
@@ -645,12 +641,6 @@ public:
 			mtx.unlock();
 		}
 	}
-	//static AcquisitionsFile* acqs_scratch_file()
-	//{
-	//	std::string name = xGadgetronUtilities::scratch_file_name();
-	//	//std::cout << "new acquisitions file: " << name << std::endl;
-	//	return new AcquisitionsFile(name, true);
-	//}
 
 	void take_over(AcquisitionsContainer& ac)
 	{
@@ -725,24 +715,15 @@ public:
 	}
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		//AcquisitionsFile* ptr_ac = new_acqs_file_();
 		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
 		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		//AcquisitionsFile* ptr_ac = new_acqs_file_();
 		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
-	}
-	virtual AcquisitionsContainer* same_acquisitions_container()
-	{
-		////AcquisitionsFile* ptr_ac = new_acqs_file_();
-		//AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
-		//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-		return new AcquisitionsFile(par_);
 	}
 
 private:
@@ -750,13 +731,6 @@ private:
 	std::string filename_;
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
 
-	//AcquisitionsFile* new_acqs_file_()
-	//{
-	//	AcquisitionsFile* ptr_ac = acqs_scratch_file();
-	//	ptr_ac->set_parameters(par_);
-	//	ptr_ac->write_parameters();
-	//	return ptr_ac;
-	//}
 };
 
 class AcquisitionsVector : public AcquisitionsContainer {
@@ -792,58 +766,45 @@ public:
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
 		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
-		//ptr_ac->set_parameters(par_);
 		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
-		//ptr_ac->set_parameters(par_);
+		// cannot be done - circular dependence AcquisitionVector<=>AcquisitionsContainerTemplate
 		//AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
 		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 		return sptr_ac;
 	}
-	virtual AcquisitionsContainer* same_acquisitions_container()
-	{
-		//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
-		////ptr_ac->set_parameters(par_);
-		//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-		return new AcquisitionsVector(par_);
-	}
+
 private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
 class AcquisitionsContainerTemplate {
 public:
-	~AcquisitionsContainerTemplate()
+	static void set_storage_scheme(AcquisitionsContainer* templ)
 	{
-		init();
-	}
-	static void set_storage_scheme(boost::shared_ptr<AcquisitionsContainer> templ)
-	{
-		init();
-		acqs_storage_template_ = templ;
+		acqs_storage_template_.reset(templ);
 	}
 	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		// same_acquisitions_container = current new_acquisitions_container
-		init();
+		//init();
+		if (!acqs_storage_template_.get())
+			acqs_storage_template_.reset(new AcquisitionsFile());
 		return acqs_storage_template_->new_acquisitions_container();
-		//return acqs_storage_template_->same_acquisitions_container();
 	}
 protected:
 	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
-	static void init() {
-		static bool initialized = false;
-		if (!initialized) {
-			// NEED FIX: setting default to AcquisitionsFile causes HDF5 error "failed to close dataset" on VM
-			acqs_storage_template_ = 
-				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
-			initialized = true;
-		}
-	}
+	//static void init() {
+	//	static bool initialized = false;
+	//	if (!initialized) {
+	//		acqs_storage_template_ = 
+	//			boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
+	//		initialized = true;
+	//	}
+	//}
 };
 
 class ImagesContainer : public aDataContainer<complex_float_t> {
