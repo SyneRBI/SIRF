@@ -784,27 +784,18 @@ private:
 
 class AcquisitionsContainerTemplate {
 public:
-	static void set_storage_scheme(AcquisitionsContainer* templ)
+	static void set_storage_template(AcquisitionsContainer* templ)
 	{
 		acqs_storage_template_.reset(templ);
 	}
 	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		//init();
 		if (!acqs_storage_template_.get())
 			acqs_storage_template_.reset(new AcquisitionsFile());
 		return acqs_storage_template_->new_acquisitions_container();
 	}
 protected:
 	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
-	//static void init() {
-	//	static bool initialized = false;
-	//	if (!initialized) {
-	//		acqs_storage_template_ = 
-	//			boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
-	//		initialized = true;
-	//	}
-	//}
 };
 
 class ImagesContainer : public aDataContainer<complex_float_t> {

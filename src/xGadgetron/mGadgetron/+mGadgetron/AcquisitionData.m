@@ -32,6 +32,12 @@ classdef AcquisitionData < mGadgetron.DataContainer
         function obj = same_object()
             obj = mGadgetron.AcquisitionData();
         end
+        function set_storage_scheme(scheme)
+            h = calllib...
+                ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
+            mUtil.check_status('AcquisitionData', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
     end
     methods
         function self = AcquisitionData(filename)

@@ -48,6 +48,7 @@ extern "C" {
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
+	void* cGT_setAcquisitionsStorageScheme(const char* scheme);
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
