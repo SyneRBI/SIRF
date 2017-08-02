@@ -407,10 +407,10 @@ AcquisitionsContainer::diff(AcquisitionsContainer& other)
 void
 AcquisitionsContainer::order()
 {
-	typedef std::array<int, 3> triple;
+	typedef std::array<int, 3> tuple;
 	int na = number();
-	triple t;
-	std::vector<triple> vt;
+	tuple t;
+	std::vector<tuple> vt;
 	ISMRMRD::Acquisition acq;
 	for (int i = 0; i < na; i++) {
 		get_acquisition(i, acq);

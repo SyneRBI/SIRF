@@ -320,8 +320,10 @@ public:
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
-		boost::shared_ptr<AcquisitionsContainer> sptr_acqs =
-			sptr_acqs_->new_acquisitions_container();
+		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = 
+			AcquisitionsContainerTemplate::new_acquisitions_container();
+			//sptr_acqs_->new_acquisitions_container();
+		sptr_acqs->copy_parameters(*sptr_acqs_);
 		fwd(ic, *sptr_csms_, *sptr_acqs);
 		return sptr_acqs;
 	}
