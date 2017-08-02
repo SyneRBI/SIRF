@@ -601,6 +601,10 @@ protected:
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
+	AcquisitionsFile()
+	{
+		own_file_ = false;
+	}
 	AcquisitionsFile
 		(std::string filename, bool create_file = false, 
 		AcquisitionsInfo info = AcquisitionsInfo())
@@ -620,7 +624,7 @@ public:
 		}
 		mtx.unlock();
 	}
-	AcquisitionsFile(AcquisitionsInfo info = AcquisitionsInfo())
+	AcquisitionsFile(AcquisitionsInfo info)
 	{
 		own_file_ = true;
 		filename_ = xGadgetronUtilities::scratch_file_name();
@@ -836,7 +840,7 @@ protected:
 		if (!initialized) {
 			// NEED FIX: setting default to AcquisitionsFile causes HDF5 error "failed to close dataset" on VM
 			acqs_storage_template_ = 
-				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsVector());
+				boost::shared_ptr<AcquisitionsContainer>(new AcquisitionsFile());
 			initialized = true;
 		}
 	}
