@@ -528,6 +528,7 @@ public:
 	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info) = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -593,6 +594,7 @@ protected:
 	bool ordered_;
 	int* index_;
 	AcquisitionsInfo par_;
+	static boost::shared_ptr<AcquisitionsContainer> acqs_templ_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
@@ -640,6 +642,19 @@ public:
 			std::remove(filename_.c_str());
 			mtx.unlock();
 		}
+	}
+
+	static void init() {
+		static bool initialized = false;
+		if (!initialized) {
+			acqs_templ_.reset(new AcquisitionsFile());
+			initialized = true;
+		}
+	}
+	static void set_as_template()
+	{
+		init();
+		acqs_templ_.reset(new AcquisitionsFile);
 	}
 
 	void take_over(AcquisitionsContainer& ac)
@@ -713,18 +728,35 @@ public:
 		dataset_->writeHeader(par_);
 		mtx.unlock();
 	}
+	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info)
+	{
+		return new AcquisitionsFile(info);
+	}
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
-		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
-		return sptr_ac;
+		init();
+		return boost::shared_ptr<aDataContainer<complex_float_t> >
+			(acqs_templ_->same_acquisitions_container(par_));
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-		return sptr_ac;
+		init();
+		return boost::shared_ptr<AcquisitionsContainer>
+			(acqs_templ_->same_acquisitions_container(par_));
 	}
+
+	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
+	//	boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
+	//	return sptr_ac;
+	//}
+	//virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	//{
+	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
+	//	boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
+	//	return sptr_ac;
+	//}
 
 private:
 	bool own_file_;
@@ -738,6 +770,15 @@ public:
 	AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
 	{
 		par_ = info;
+	}
+	static void init()
+	{
+		AcquisitionsFile::init();
+	}
+	static void set_as_template()
+	{
+		init();
+		acqs_templ_.reset(new AcquisitionsVector);
 	}
 	virtual unsigned int number()
 	{
@@ -762,41 +803,62 @@ public:
 		par_ = ac.parameters();
 	}
 	virtual int set_acquisition_data
-	(int na, int nc, int ns, const float* re, const float* im);
+		(int na, int nc, int ns, const float* re, const float* im);
+	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info)
+	{
+		return new AcquisitionsVector(info);
+	}
 	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
-		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
-		return sptr_ac;
+		AcquisitionsFile::init();
+		return boost::shared_ptr<aDataContainer<complex_float_t> >
+			(acqs_templ_->same_acquisitions_container(par_));
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
-		AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
-		// cannot be done - circular dependence AcquisitionVector<=>AcquisitionsContainerTemplate
-		//AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-		return sptr_ac;
+		AcquisitionsFile::init();
+		return boost::shared_ptr<AcquisitionsContainer>
+			(acqs_templ_->same_acquisitions_container(par_));
 	}
+
+	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	return boost::shared_ptr<aDataContainer<complex_float_t> >
+	//		(acqs_templ_->same_acquisitions_container());
+	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+	//	//boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
+	//	//return sptr_ac;
+	//}
+	//virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	//{
+	//	return boost::shared_ptr<AcquisitionsContainer>
+	//		(acqs_templ_->same_acquisitions_container());
+	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+	//	//// cannot be done - circular dependence AcquisitionVector<=>AcquisitionsContainerTemplate
+	//	////AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
+	//	//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
+	//	//return sptr_ac;
+	//}
 
 private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
-class AcquisitionsContainerTemplate {
-public:
-	static void set_storage_template(AcquisitionsContainer* templ)
-	{
-		acqs_storage_template_.reset(templ);
-	}
-	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
-	{
-		if (!acqs_storage_template_.get())
-			acqs_storage_template_.reset(new AcquisitionsFile());
-		return acqs_storage_template_->new_acquisitions_container();
-	}
-protected:
-	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
-};
+//class AcquisitionsContainerTemplate {
+//public:
+//	static void set_storage_template(AcquisitionsContainer* templ)
+//	{
+//		acqs_storage_template_.reset(templ);
+//	}
+//	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+//	{
+//		if (!acqs_storage_template_.get())
+//			acqs_storage_template_.reset(new AcquisitionsFile());
+//		return acqs_storage_template_->new_acquisitions_container();
+//	}
+//protected:
+//	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
+//};
 
 class ImagesContainer : public aDataContainer<complex_float_t> {
 public:
