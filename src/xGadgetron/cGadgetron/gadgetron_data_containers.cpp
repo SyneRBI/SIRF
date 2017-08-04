@@ -30,7 +30,10 @@ limitations under the License.
 #include "gadgetron_data_containers.h"
 
 boost::shared_ptr<AcquisitionsContainer> 
-AcquisitionsContainerTemplate::acqs_storage_template_;
+AcquisitionsContainer::acqs_templ_;
+
+//boost::shared_ptr<AcquisitionsContainer> 
+//AcquisitionsContainerTemplate::acqs_storage_template_;
 
 void 
 ImageWrap::get_cmplx_data(float* re, float* im) const

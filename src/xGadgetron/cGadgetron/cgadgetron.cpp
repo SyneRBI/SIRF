@@ -384,9 +384,11 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 {
 	try{
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
-			AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsFile);
+			AcquisitionsFile::set_as_template();
+			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsFile);
 		else
-			AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsVector);
+			AcquisitionsVector::set_as_template();
+			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsVector);
 		return (void*)new DataHandle;
 	}
 	CATCH;
