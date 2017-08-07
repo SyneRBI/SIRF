@@ -323,7 +323,7 @@ public:
 		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = 
 			//AcquisitionsContainerTemplate::new_acquisitions_container();
 			sptr_acqs_->new_acquisitions_container();
-		sptr_acqs->copy_parameters(*sptr_acqs_);
+		sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 		fwd(ic, *sptr_csms_, *sptr_acqs);
 		return sptr_acqs;
 	}
@@ -340,7 +340,7 @@ public:
 	}
 
 private:
-	std::string par_;
+	std::string acqs_info_;
 	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
 	boost::shared_ptr<ImagesContainer> sptr_imgs_;
 	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
