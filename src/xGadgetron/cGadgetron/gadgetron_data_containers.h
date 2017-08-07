@@ -480,26 +480,16 @@ public:
 
 class AcquisitionsInfo {
 public:
-	AcquisitionsInfo(std::string data = "") : data_(data)
-	{
-	}
+	AcquisitionsInfo(std::string data = "") : data_(data) {}
 	AcquisitionsInfo& operator=(std::string data)
 	{
 		data_ = data;
 		return *this;
 	}
-	const char* c_str() const
-	{
-		return data_.c_str();
-	}
-	operator std::string&()
-	{
-		return data_;
-	}
-	operator const std::string&() const
-	{
-		return data_;
-	}
+	const char* c_str() const { return data_.c_str(); }
+	operator std::string&() { return data_; }
+	operator const std::string&() const { return data_; }
+
 private:
 	std::string data_;
 };
@@ -539,49 +529,17 @@ public:
 	virtual float norm();
 	float diff(AcquisitionsContainer& other);
 
-	std::string acquisitions_info() const
-	{
-		return acqs_info_;
-	}
-	void set_acquisitions_info(std::string info)
-	{
-		acqs_info_ = info;
-	}
-	void set_ordered(bool ordered)
-	{
-		ordered_ = ordered;
-	}
-	bool undersampled() const
-	{
-		ISMRMRD::IsmrmrdHeader header;
-		ISMRMRD::deserialize(acqs_info_.c_str(), header);
-		ISMRMRD::Encoding e = header.encoding[0];
-		return e.parallelImaging.is_present() &&
-			e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
-	}
+	std::string acquisitions_info() const { return acqs_info_; }
+	void set_acquisitions_info(std::string info) { acqs_info_ = info; }
+	void set_ordered(bool ordered) { ordered_ = ordered; }
+	bool undersampled() const;
 	int get_acquisitions_dimensions(size_t ptr_dim);
-
 	void get_acquisitions_flags(unsigned int n, int* flags);
-
 	unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
-
 	void order();
-
-	bool ordered() const
-	{
-		return ordered_;
-	}
-
-	int* index()
-	{
-		return index_;
-	}
-
-	const int* index() const
-	{
-		return index_;
-	}
-
+	bool ordered() const { return ordered_; }
+	int* index() { return index_; }
+	const int* index() const { return index_; }
 	int index(int i)
 	{
 		if (index_ && i >= 0 && i < (int)number())
@@ -599,50 +557,12 @@ protected:
 
 class AcquisitionsFile : public AcquisitionsContainer {
 public:
-	AcquisitionsFile()
-	{
-		own_file_ = false;
-	}
+	AcquisitionsFile() { own_file_ = false; }
 	AcquisitionsFile
-		(std::string filename, bool create_file = false, 
-		AcquisitionsInfo info = AcquisitionsInfo())
-	{
-		own_file_ = create_file;
-		filename_ = filename;
-		Mutex mtx;
-		mtx.lock();
-		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
-			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
-		if (!create_file) {
-			dataset_->readHeader(acqs_info_);
-		}
-		else {
-			acqs_info_ = info;
-			dataset_->writeHeader(acqs_info_);
-		}
-		mtx.unlock();
-	}
-	AcquisitionsFile(AcquisitionsInfo info)
-	{
-		own_file_ = true;
-		filename_ = xGadgetronUtilities::scratch_file_name();
-		Mutex mtx;
-		mtx.lock();
-		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
-			(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
-		acqs_info_ = info;
-		dataset_->writeHeader(acqs_info_);
-		mtx.unlock();
-	}
-	~AcquisitionsFile() {
-		dataset_.reset();
-		if (own_file_) {
-			Mutex mtx;
-			mtx.lock();
-			std::remove(filename_.c_str());
-			mtx.unlock();
-		}
-	}
+		(std::string filename, bool create_file = false,
+		AcquisitionsInfo info = AcquisitionsInfo());
+	AcquisitionsFile(AcquisitionsInfo info);
+	~AcquisitionsFile();
 
 	static void init() {
 		static bool initialized = false;
@@ -657,82 +577,23 @@ public:
 		acqs_templ_.reset(new AcquisitionsFile);
 	}
 
-	void take_over(AcquisitionsContainer& ac)
-	{
-		AcquisitionsFile& af = (AcquisitionsFile&)ac;
-		acqs_info_ = ac.acquisitions_info();
-		if (index_)
-			delete[] index_;
-		int* index = ac.index();
-		ordered_ = ac.ordered();
-		if (ordered_ && index) {
-			unsigned int n = number();
-			index_ = new int[n];
-			memcpy(index_, index, n*sizeof(int));
-		}
-		else
-			index_ = 0;
-		dataset_ = af.dataset_;
-		if (own_file_) {
-			Mutex mtx;
-			mtx.lock();
-			std::remove(filename_.c_str());
-			mtx.unlock();
-		}
-		filename_ = af.filename_;
-		own_file_ = af.own_file_;
-		af.own_file_ = false;
-	}
+	void take_over(AcquisitionsContainer& ac);
+	void write_acquisitions_info();
+
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im);
-	virtual unsigned int items()
+	virtual unsigned int items();
+	virtual unsigned int number() { return items(); }
+	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq);
+	virtual void append_acquisition(ISMRMRD::Acquisition& acq);
+	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac);
+	virtual AcquisitionsContainer* 
+		same_acquisitions_container(AcquisitionsInfo info)
 	{
-		Mutex mtx;
-		mtx.lock();
-		unsigned int na = dataset_->getNumberOfAcquisitions();
-		mtx.unlock();
-		return na;
+		return (AcquisitionsContainer*) new AcquisitionsFile(info);
 	}
-	virtual unsigned int number()
-	{
-		return items();
-	}
-	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
-	{
-		int ind = index(num);
-		Mutex mtx;
-		mtx.lock();
-		dataset_->readAcquisition(ind, acq);
-		//dataset_->readAcquisition(index(num), acq); // ??? does not work!
-		mtx.unlock();
-	}
-	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
-	{
-		Mutex mtx;
-		mtx.lock();
-		dataset_->appendAcquisition(acq);
-		mtx.unlock();
-	}
-	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac) 
-	{
-		acqs_info_ = ac.acquisitions_info();
-		Mutex mtx;
-		mtx.lock();
-		dataset_->writeHeader(acqs_info_);
-		mtx.unlock();
-	}
-	virtual void write_acquisitions_info()
-	{
-		Mutex mtx;
-		mtx.lock();
-		dataset_->writeHeader(acqs_info_);
-		mtx.unlock();
-	}
-	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info)
-	{
-		return new AcquisitionsFile(info);
-	}
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual boost::shared_ptr<aDataContainer<complex_float_t> > 
+		new_data_container()
 	{
 		init();
 		return boost::shared_ptr<aDataContainer<complex_float_t> >
@@ -745,24 +606,10 @@ public:
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
-	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
-	//{
-	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(acqs_info_);
-	//	boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
-	//	return sptr_ac;
-	//}
-	//virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
-	//{
-	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(acqs_info_);
-	//	boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-	//	return sptr_ac;
-	//}
-
 private:
 	bool own_file_;
 	std::string filename_;
 	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
-
 };
 
 class AcquisitionsVector : public AcquisitionsContainer {
@@ -771,23 +618,14 @@ public:
 	{
 		acqs_info_ = info;
 	}
-	static void init()
-	{
-		AcquisitionsFile::init();
-	}
+	static void init() { AcquisitionsFile::init(); }
 	static void set_as_template()
 	{
 		init();
 		acqs_templ_.reset(new AcquisitionsVector);
 	}
-	virtual unsigned int number()
-	{
-		return (unsigned int)acqs_.size();
-	}
-	virtual unsigned int items()
-	{
-		return (unsigned int)acqs_.size();
-	}
+	virtual unsigned int number() { return (unsigned int)acqs_.size(); }
+	virtual unsigned int items() { return (unsigned int)acqs_.size(); }
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{
 		acqs_.push_back(boost::shared_ptr<ISMRMRD::Acquisition>
@@ -821,44 +659,9 @@ public:
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
-	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
-	//{
-	//	return boost::shared_ptr<aDataContainer<complex_float_t> >
-	//		(acqs_templ_->same_acquisitions_container());
-	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(acqs_info_);
-	//	//boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
-	//	//return sptr_ac;
-	//}
-	//virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
-	//{
-	//	return boost::shared_ptr<AcquisitionsContainer>
-	//		(acqs_templ_->same_acquisitions_container());
-	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(acqs_info_);
-	//	//// cannot be done - circular dependence AcquisitionVector<=>AcquisitionsContainerTemplate
-	//	////AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
-	//	//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
-	//	//return sptr_ac;
-	//}
-
 private:
 	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
-
-//class AcquisitionsContainerTemplate {
-//public:
-//	static void set_storage_template(AcquisitionsContainer* templ)
-//	{
-//		acqs_storage_template_.reset(templ);
-//	}
-//	static boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
-//	{
-//		if (!acqs_storage_template_.get())
-//			acqs_storage_template_.reset(new AcquisitionsFile());
-//		return acqs_storage_template_->new_acquisitions_container();
-//	}
-//protected:
-//	static boost::shared_ptr<AcquisitionsContainer> acqs_storage_template_;
-//};
 
 class ImagesContainer : public aDataContainer<complex_float_t> {
 public:
@@ -883,7 +686,6 @@ public:
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
 	virtual boost::shared_ptr<ImagesContainer>
 		clone(const char* attr, const char* target) = 0;
-
 	virtual int image_data_type(unsigned int im_num) const
 	{
 		return image_wrap(im_num).type();
@@ -906,19 +708,12 @@ public:
 
 class ImagesVector : public ImagesContainer {
 public:
-	ImagesVector() : images_(), nimages_(0)
-	{
-	}
+	ImagesVector() : images_(), nimages_(0) {}
 	ImagesVector(const ImagesVector& list, const char* attr, const char* target);
-	ImagesVector(const ImagesVector& list, unsigned int inc = 1, unsigned int off = 0);
-	virtual unsigned int items()
-	{
-		return (unsigned int)images_.size();
-	}
-	virtual unsigned int number()
-	{
-		return (unsigned int)images_.size();
-	}
+	ImagesVector
+		(const ImagesVector& list, unsigned int inc = 1, unsigned int off = 0);
+	virtual unsigned int items() { return (unsigned int)images_.size(); }
+	virtual unsigned int number() { return (unsigned int)images_.size(); }
 	virtual int types()
 	{
 		if (nimages_ > 0)
@@ -982,7 +777,7 @@ public:
 	}
 	virtual boost::shared_ptr<ImagesContainer> new_images_container()
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesVector());
+		return boost::shared_ptr<ImagesContainer>((ImagesContainer*)new ImagesVector());
 	}
 	virtual boost::shared_ptr<ImagesContainer>
 		clone(const char* attr, const char* target)
@@ -1014,7 +809,8 @@ public:
 
 class CoilDataAsCFImage : public CoilData {
 public:
-	CoilDataAsCFImage(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
+	CoilDataAsCFImage
+		(uint16_t nx = 0, uint16_t ny = 1, uint16_t nz = 1, uint16_t nc = 1) :
 		img_(nx, ny, nz, nc)
 	{
 	}
