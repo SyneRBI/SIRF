@@ -84,6 +84,16 @@ ImageWrap::set_cmplx_data(const float* re, const float* im) const
 	}
 }
 
+bool 
+AcquisitionsContainer::undersampled() const
+{
+	ISMRMRD::IsmrmrdHeader header;
+	ISMRMRD::deserialize(acqs_info_.c_str(), header);
+	ISMRMRD::Encoding e = header.encoding[0];
+	return e.parallelImaging.is_present() &&
+		e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
+}
+
 int 
 AcquisitionsContainer::get_acquisitions_dimensions(size_t ptr_dim)
 {
@@ -426,6 +436,126 @@ AcquisitionsContainer::order()
 		delete[] index_;
 	index_ = new int[na];
 	Multisort::sort(vt, index_);
+}
+
+AcquisitionsFile::AcquisitionsFile
+(std::string filename, bool create_file, AcquisitionsInfo info)
+{
+	own_file_ = create_file;
+	filename_ = filename;
+	Mutex mtx;
+	mtx.lock();
+	dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
+	if (!create_file) {
+		dataset_->readHeader(acqs_info_);
+	}
+	else {
+		acqs_info_ = info;
+		dataset_->writeHeader(acqs_info_);
+	}
+	mtx.unlock();
+}
+
+AcquisitionsFile::AcquisitionsFile(AcquisitionsInfo info)
+{
+	own_file_ = true;
+	filename_ = xGadgetronUtilities::scratch_file_name();
+	Mutex mtx;
+	mtx.lock();
+	dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
+	acqs_info_ = info;
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
+}
+
+AcquisitionsFile::~AcquisitionsFile() 
+{
+	dataset_.reset();
+	if (own_file_) {
+		Mutex mtx;
+		mtx.lock();
+		std::remove(filename_.c_str());
+		mtx.unlock();
+	}
+}
+
+void 
+AcquisitionsFile::take_over(AcquisitionsContainer& ac)
+{
+	AcquisitionsFile& af = (AcquisitionsFile&)ac;
+	acqs_info_ = ac.acquisitions_info();
+	if (index_)
+		delete[] index_;
+	int* index = ac.index();
+	ordered_ = ac.ordered();
+	if (ordered_ && index) {
+		unsigned int n = number();
+		index_ = new int[n];
+		memcpy(index_, index, n*sizeof(int));
+	}
+	else
+		index_ = 0;
+	dataset_ = af.dataset_;
+	if (own_file_) {
+		Mutex mtx;
+		mtx.lock();
+		std::remove(filename_.c_str());
+		mtx.unlock();
+	}
+	filename_ = af.filename_;
+	own_file_ = af.own_file_;
+	af.own_file_ = false;
+}
+
+unsigned int 
+AcquisitionsFile::items()
+{
+	Mutex mtx;
+	mtx.lock();
+	unsigned int na = dataset_->getNumberOfAcquisitions();
+	mtx.unlock();
+	return na;
+}
+
+void 
+AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+{
+	int ind = index(num);
+	Mutex mtx;
+	mtx.lock();
+	dataset_->readAcquisition(ind, acq);
+	//dataset_->readAcquisition(index(num), acq); // ??? does not work!
+	mtx.unlock();
+}
+
+void 
+AcquisitionsFile::append_acquisition(ISMRMRD::Acquisition& acq)
+{
+	Mutex mtx;
+	mtx.lock();
+	dataset_->appendAcquisition(acq);
+	mtx.unlock();
+}
+
+void 
+AcquisitionsFile::copy_acquisitions_info(const AcquisitionsContainer& ac)
+{
+	acqs_info_ = ac.acquisitions_info();
+	Mutex mtx;
+	mtx.lock();
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
+}
+
+void 
+AcquisitionsFile::write_acquisitions_info()
+{
+	Mutex mtx;
+	mtx.lock();
+	dataset_->writeHeader(acqs_info_);
+	mtx.unlock();
 }
 
 int
