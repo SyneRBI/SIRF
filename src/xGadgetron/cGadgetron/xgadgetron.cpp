@@ -96,7 +96,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 	GTConnector conn;
 
 	//sptr_acqs_ = AcquisitionsContainerTemplate::new_acquisitions_container();
-	//sptr_acqs_->copy_parameters(acquisitions);
+	//sptr_acqs_->copy_acquisitions_info(acquisitions);
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		boost::shared_ptr<GadgetronClientMessageReader>
@@ -107,8 +107,8 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 
-			conn().send_gadgetron_parameters(acquisitions.parameters());
-			//sptr_acqs_->copy_parameters(acquisitions);
+			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
+			//sptr_acqs_->copy_acquisitions_info(acquisitions);
 
 			uint32_t nacq = 0;
 			nacq = acquisitions.number();
@@ -153,7 +153,7 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
 
-			conn().send_gadgetron_parameters(acquisitions.parameters());
+			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
 
 			uint32_t nacquisitions = 0;
 			nacquisitions = acquisitions.number();
@@ -251,8 +251,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
-	//par = ac.parameters();
-	par = sptr_acqs_->parameters();
+	//par = ac.acquisitions_info();
+	par = sptr_acqs_->acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
@@ -307,8 +307,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
 			break;
 	}
-	//ac.set_parameters(par);
-	//ac.write_parameters();
+	//ac.set_acquisitions_info(par);
+	//ac.write_acquisitions_info();
 
 }
 
@@ -321,7 +321,7 @@ AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
-	par = ac.parameters();
+	par = ac.acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq;

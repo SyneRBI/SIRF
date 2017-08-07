@@ -435,8 +435,8 @@ AcquisitionsFile::set_acquisition_data
 	boost::shared_ptr<AcquisitionsContainer> sptr_ac =
 		this->new_acquisitions_container();
 	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
-	ptr_ac->set_parameters(par_);
-	ptr_ac->write_parameters();
+	ptr_ac->set_acquisitions_info(acqs_info_);
+	ptr_ac->write_acquisitions_info();
 	ptr_ac->set_ordered(true);
 	ISMRMRD::Acquisition acq;
 	int ma = number();
@@ -695,7 +695,7 @@ CoilImagesContainer::compute(AcquisitionsContainer& ac)
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
 	ISMRMRD::Acquisition acq;
-	par = ac.parameters();
+	par = ac.acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
 	ac.get_acquisition(0, acq);
 	encoding_ = header.encoding[0];

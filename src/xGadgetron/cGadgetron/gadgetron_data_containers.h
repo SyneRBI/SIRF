@@ -525,7 +525,7 @@ public:
 	virtual unsigned int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copy_parameters(const AcquisitionsContainer& ac) = 0;
+	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac) = 0;
 	virtual 
 		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info) = 0;
@@ -539,13 +539,13 @@ public:
 	virtual float norm();
 	float diff(AcquisitionsContainer& other);
 
-	std::string parameters() const
+	std::string acquisitions_info() const
 	{
-		return par_;
+		return acqs_info_;
 	}
-	void set_parameters(std::string par)
+	void set_acquisitions_info(std::string info)
 	{
-		par_ = par;
+		acqs_info_ = info;
 	}
 	void set_ordered(bool ordered)
 	{
@@ -554,7 +554,7 @@ public:
 	bool undersampled() const
 	{
 		ISMRMRD::IsmrmrdHeader header;
-		ISMRMRD::deserialize(par_.c_str(), header);
+		ISMRMRD::deserialize(acqs_info_.c_str(), header);
 		ISMRMRD::Encoding e = header.encoding[0];
 		return e.parallelImaging.is_present() &&
 			e.parallelImaging().accelerationFactor.kspace_encoding_step_1 > 1;
@@ -593,7 +593,7 @@ public:
 protected:
 	bool ordered_;
 	int* index_;
-	AcquisitionsInfo par_;
+	AcquisitionsInfo acqs_info_;
 	static boost::shared_ptr<AcquisitionsContainer> acqs_templ_;
 };
 
@@ -614,11 +614,11 @@ public:
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
 			(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
 		if (!create_file) {
-			dataset_->readHeader(par_);
+			dataset_->readHeader(acqs_info_);
 		}
 		else {
-			par_ = info;
-			dataset_->writeHeader(par_);
+			acqs_info_ = info;
+			dataset_->writeHeader(acqs_info_);
 		}
 		mtx.unlock();
 	}
@@ -630,8 +630,8 @@ public:
 		mtx.lock();
 		dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
 			(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
-		par_ = info;
-		dataset_->writeHeader(par_);
+		acqs_info_ = info;
+		dataset_->writeHeader(acqs_info_);
 		mtx.unlock();
 	}
 	~AcquisitionsFile() {
@@ -660,7 +660,7 @@ public:
 	void take_over(AcquisitionsContainer& ac)
 	{
 		AcquisitionsFile& af = (AcquisitionsFile&)ac;
-		par_ = ac.parameters();
+		acqs_info_ = ac.acquisitions_info();
 		if (index_)
 			delete[] index_;
 		int* index = ac.index();
@@ -713,19 +713,19 @@ public:
 		dataset_->appendAcquisition(acq);
 		mtx.unlock();
 	}
-	virtual void copy_parameters(const AcquisitionsContainer& ac) 
+	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac) 
 	{
-		par_ = ac.parameters();
+		acqs_info_ = ac.acquisitions_info();
 		Mutex mtx;
 		mtx.lock();
-		dataset_->writeHeader(par_);
+		dataset_->writeHeader(acqs_info_);
 		mtx.unlock();
 	}
-	virtual void write_parameters()
+	virtual void write_acquisitions_info()
 	{
 		Mutex mtx;
 		mtx.lock();
-		dataset_->writeHeader(par_);
+		dataset_->writeHeader(acqs_info_);
 		mtx.unlock();
 	}
 	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info)
@@ -736,24 +736,24 @@ public:
 	{
 		init();
 		return boost::shared_ptr<aDataContainer<complex_float_t> >
-			(acqs_templ_->same_acquisitions_container(par_));
+			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		init();
 		return boost::shared_ptr<AcquisitionsContainer>
-			(acqs_templ_->same_acquisitions_container(par_));
+			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	//{
-	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
+	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(acqs_info_);
 	//	boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 	//	return sptr_ac;
 	//}
 	//virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	//{
-	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(par_);
+	//	AcquisitionsFile* ptr_ac = new AcquisitionsFile(acqs_info_);
 	//	boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
 	//	return sptr_ac;
 	//}
@@ -769,7 +769,7 @@ class AcquisitionsVector : public AcquisitionsContainer {
 public:
 	AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
 	{
-		par_ = info;
+		acqs_info_ = info;
 	}
 	static void init()
 	{
@@ -798,9 +798,9 @@ public:
 		int ind = index(num);
 		acq = *acqs_[ind];
 	}
-	virtual void copy_parameters(const AcquisitionsContainer& ac)
+	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac)
 	{
-		par_ = ac.parameters();
+		acqs_info_ = ac.acquisitions_info();
 	}
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im);
@@ -812,20 +812,20 @@ public:
 	{
 		AcquisitionsFile::init();
 		return boost::shared_ptr<aDataContainer<complex_float_t> >
-			(acqs_templ_->same_acquisitions_container(par_));
+			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		AcquisitionsFile::init();
 		return boost::shared_ptr<AcquisitionsContainer>
-			(acqs_templ_->same_acquisitions_container(par_));
+			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 	//virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	//{
 	//	return boost::shared_ptr<aDataContainer<complex_float_t> >
 	//		(acqs_templ_->same_acquisitions_container());
-	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(acqs_info_);
 	//	//boost::shared_ptr<aDataContainer<complex_float_t> > sptr_ac(ptr_ac);
 	//	//return sptr_ac;
 	//}
@@ -833,7 +833,7 @@ public:
 	//{
 	//	return boost::shared_ptr<AcquisitionsContainer>
 	//		(acqs_templ_->same_acquisitions_container());
-	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(par_);
+	//	//AcquisitionsVector* ptr_ac = new AcquisitionsVector(acqs_info_);
 	//	//// cannot be done - circular dependence AcquisitionVector<=>AcquisitionsContainerTemplate
 	//	////AcquisitionsContainer* ptr_ac = AcquisitionsContainerTemplate::new_acquisitions_container();
 	//	//boost::shared_ptr<AcquisitionsContainer> sptr_ac(ptr_ac);
