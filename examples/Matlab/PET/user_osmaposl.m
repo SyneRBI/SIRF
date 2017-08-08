@@ -26,7 +26,7 @@ function user_osmaposl(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try

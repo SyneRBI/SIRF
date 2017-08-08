@@ -36,7 +36,7 @@ classdef ImageData < handle
             else
                 self.handle = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-                mUtil.check_status('ImageData', self.handle)
+                mUtilities.check_status('ImageData', self.handle)
             end
             self.rimsize = -1;
         end
@@ -82,9 +82,9 @@ classdef ImageData < handle
                 dim(1), dim(2), dim(3),...
                 vsize(1), vsize(2), vsize(3),...
                 origin(1), origin(2), origin(3));
-            mUtil.check_status('ImageData:initialise', voxels)
+            mUtilities.check_status('ImageData:initialise', voxels)
             self.handle = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
-            mUtil.check_status('ImageData:initialise', self.handle)
+            mUtilities.check_status('ImageData:initialise', self.handle)
             calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
@@ -107,7 +107,7 @@ classdef ImageData < handle
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
-            mUtil.check_status('ImageData:clone', self.handle)
+            mUtilities.check_status('ImageData:clone', self.handle)
         end
         function image = get_uniform_copy(self, value)
 %***SIRF*** Creates a copy of this image filled with the specified value.
@@ -117,7 +117,7 @@ classdef ImageData < handle
             image = mStir.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
-            mUtil.check_status('ImageData:get_uniform_copy', self.handle)
+            mUtilities.check_status('ImageData:get_uniform_copy', self.handle)
             image.fill(value)
         end
         function read_from_file(self, filename)
@@ -127,11 +127,11 @@ classdef ImageData < handle
             end
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-            mUtil.check_status('ImageData:read_from_file', self.handle);
+            mUtilities.check_status('ImageData:read_from_file', self.handle);
         end
         function write(self, filename)
             h = calllib('mstir', 'mSTIR_writeImage', self.handle, filename);
-            mUtil.check_status('ImageData:write', h);
+            mUtilities.check_status('ImageData:write', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function add_shape(self, shape, add)
@@ -144,7 +144,7 @@ classdef ImageData < handle
             h = calllib...
                 ('mstir', 'mSTIR_addShape', self.handle,...
                 shape.handle, add);
-            mUtil.check_status('ImageData:add_shape', h);
+            mUtilities.check_status('ImageData:add_shape', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function diff = diff_from(self, image)
@@ -154,7 +154,7 @@ classdef ImageData < handle
 %         of self.
             h = calllib('mstir', 'mSTIR_imagesDifference',...
                      self.handle, image.handle, self.rimsize);
-            mUtil.check_status('ImageData:diff_from', h);
+            mUtilities.check_status('ImageData:diff_from', h);
             diff = calllib('mutilities', 'mFloatDataFromHandle', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
@@ -189,7 +189,7 @@ classdef ImageData < handle
                 'or 0 to stop the loop')
             while true
                 s = input('z-slices to display: ', 's');
-                err = mUtil.show_3D_array...
+                err = mUtilities.show_3D_array...
                     (data, 'Selected slices', 'x', 'y', 'slice', s); %elect);
                 if err ~= 0
                     fprintf('out-of-range slice numbers selected, %s\n', ...

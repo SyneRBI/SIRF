@@ -26,7 +26,7 @@ function osem_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
@@ -72,7 +72,7 @@ try
     % display the initial image
     z = 20;
     image_array = image.as_array();
-    mUtil.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
+    mUtilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
 
     % set the initial image estimate
     recon.set_current_estimate(image)
@@ -90,7 +90,7 @@ try
         % display the current image
         image_array = recon.get_current_estimate().as_array();
         the_title = sprintf('iteration %d', iter);
-        mUtil.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
     end
 
 catch err

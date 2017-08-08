@@ -46,7 +46,7 @@ classdef AcquisitionData < handle
                 error('AcquisitionData:wrong_ctor_source', ...
                 'wrong source in AcquisitionData constructor')
             end
-            mUtil.check_status(self.name, self.handle);
+            mUtilities.check_status(self.name, self.handle);
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -60,7 +60,7 @@ classdef AcquisitionData < handle
             end
             self.handle = calllib('mstir', 'mSTIR_objectFromFile', ...
                 'AcquisitionData', filename);
-            mUtil.check_status(self.name, self.handle);
+            mUtilities.check_status(self.name, self.handle);
             self.read_only = true;
         end
         function image = create_uniform_image(self, value)
@@ -73,7 +73,7 @@ classdef AcquisitionData < handle
             image = mStir.ImageData();
             image.handle = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
-            mUtil.check_status...
+            mUtilities.check_status...
                 ([self.name ':create_uniform_image'], image.handle);
             if nargin > 1
                 image.fill(value)
@@ -114,7 +114,7 @@ classdef AcquisitionData < handle
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
                         self.handle, value);
                 end
-                mUtil.check_status...
+                mUtilities.check_status...
                     ([self.name ':fill'], h);
                 calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'double')
@@ -126,14 +126,14 @@ classdef AcquisitionData < handle
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
                         self.handle, single(value));
                 end
-                mUtil.check_status...
+                mUtilities.check_status...
                     ([self.name ':fill'], h);
                 calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'mStir.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle, value.handle);
-                mUtil.check_status...
+                mUtilities.check_status...
                     ([self.name ':fill'], h);
                 calllib('mutilities', 'mDeleteDataHandle', h)
             else

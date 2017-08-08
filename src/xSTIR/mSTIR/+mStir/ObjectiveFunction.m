@@ -43,7 +43,7 @@ classdef ObjectiveFunction < handle
             prior = mStir.Prior();
             prior.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, 'GeneralisedObjectiveFunction', 'prior');
-            mUtil.check_status...
+            mUtilities.check_status...
                 ('GeneralisedObjectiveFunction:get_prior', prior.handle)
         end
         function set_num_subsets(self, num)
@@ -61,7 +61,7 @@ classdef ObjectiveFunction < handle
 %***SIRF*** Prepares this object for use.
             h = calllib('mstir', 'mSTIR_setupObjectiveFunction', ...
                 self.handle, image.handle);
-            mUtil.check_status('GeneralisedObjectiveFunction:set_up', h)
+            mUtilities.check_status('GeneralisedObjectiveFunction:set_up', h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function v = get_value(self, image)
@@ -69,7 +69,7 @@ classdef ObjectiveFunction < handle
 %         on the specified image.
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
                 self.handle, image.handle);
-            mUtil.check_status...
+            mUtilities.check_status...
                 ('GeneralisedObjectiveFunction:value', h)
             v = calllib('mutilities', 'mFloatDataFromHandle', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
@@ -84,7 +84,7 @@ classdef ObjectiveFunction < handle
             g = mStir.ImageData();
             g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
                 self.handle, image.handle, subset);
-            mUtil.check_status...
+            mUtilities.check_status...
                 ('GeneralisedObjectiveFunction:gradient', g.handle)
         end
         function g = get_gradient(self, image)

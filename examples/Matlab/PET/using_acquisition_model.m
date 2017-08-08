@@ -26,7 +26,7 @@ function using_acquisition_model(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
@@ -63,7 +63,7 @@ try
 
     % display the created phantom image
     image_array = image.as_array();
-    mUtil.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
+    mUtilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
 
     % select the acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
@@ -82,7 +82,7 @@ try
     % display simulated data
     acq_array = simulated_data.as_array();
     acq_dim = size(acq_array);
-    mUtil.show_2D_array(acq_array(:,:,acq_dim(3)/2), ...
+    mUtilities.show_2D_array(acq_array(:,:,acq_dim(3)/2), ...
         'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data
@@ -90,7 +90,7 @@ try
     backprojected_image = acq_model.backward(simulated_data);
     % display backprojected data
     image_array = backprojected_image.as_array();
-    mUtil.show_2D_array(image_array(:,:,z), ...
+    mUtilities.show_2D_array(image_array(:,:,z), ...
         'backprojection of simulated data', 'x', 'y');
 
 catch err

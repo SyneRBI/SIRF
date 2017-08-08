@@ -29,7 +29,7 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtil.check_status([self.name ':ctor'], self.handle)
+            mUtilities.check_status([self.name ':ctor'], self.handle)
             if nargin < 1
                 matrix = mStir.RayTracingMatrix();
             end

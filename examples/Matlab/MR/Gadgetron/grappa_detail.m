@@ -50,7 +50,7 @@ function grappa_detail
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 % Get the filename of the input ISMRMRD h5 file
@@ -89,9 +89,9 @@ if exist('imshow','file') && exist('imadjust','file') && exist('mat2gray','file'
 else
     preprocessed_array = permute(preprocessed_array,[1 3 2]) ; %  [nx ny ncoil]
     title = 'Acquisition data (magnitude)';
-    mUtil.show_3D_array...
+    mUtilities.show_3D_array...
         (abs(preprocessed_array).^0.2, title, 'samples', 'readouts', 'coil');
-    mUtil.set_window(0.1, 0.1, 0.8, 0.8)
+    mUtilities.set_window(0.1, 0.1, 0.8, 0.8)
 end
 
 % Perform reconstruction of the preprocessed data.
@@ -178,9 +178,9 @@ else
     image_array = abs(image_array);
     gfact_array = abs(gfact_array);
     title = 'Reconstructed image data (magnitude)';
-    mUtil.show_3D_array(image_array, title, 'samples', 'readouts', 'slice');
+    mUtilities.show_3D_array(image_array, title, 'samples', 'readouts', 'slice');
     title = 'G-factor data (magnitude)';
-    mUtil.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
+    mUtilities.show_3D_array(gfact_array, title, 'samples', 'readouts', 'slice');
 end
 
 

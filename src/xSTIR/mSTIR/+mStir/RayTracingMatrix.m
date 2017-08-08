@@ -28,7 +28,7 @@ classdef RayTracingMatrix < handle
         function self = RayTracingMatrix()
             self.name = 'RayTracingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtil.check_status(self.name, self.handle)
+            mUtilities.check_status(self.name, self.handle)
             mStir.setParameter...
                 (self.handle, self.name, 'num_tangential_LORs', 2, 'i')
         end

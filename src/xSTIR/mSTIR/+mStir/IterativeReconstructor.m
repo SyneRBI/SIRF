@@ -117,7 +117,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
 %             filter = mStir.DataProcessor();
 %             filter.handle = calllib('mstir', 'mSTIR_parameter',...
 %                 self.handle, self.IR, 'inter_iteration_filter_type');
-%             mUtil.check_status...
+%             mUtilities.check_status...
 %                 ([self.IR ':get_inter_iteration_filter'], filter.handle)
 %         end
         function set_up(self, image)
@@ -126,7 +126,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
 %         reconstructed image.
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle, image.handle);
-            mUtil.check_status([self.IR ':set_up'], h)
+            mUtilities.check_status([self.IR ':set_up'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_current_subset(self, subset)
@@ -151,7 +151,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
             end
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, self.image.handle);
-            mUtil.check_status([self.IR ':update_current_image'], h)
+            mUtilities.check_status([self.IR ':update_current_image'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
 %         function process(self)
@@ -163,7 +163,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
 %             end
 %             h = calllib('mstir', 'mSTIR_runReconstruction',...
 %                 self.handle, self.image.handle);
-%             mUtil.check_status([self.IR ':process'], h)
+%             mUtilities.check_status([self.IR ':process'], h)
 %             calllib('mutilities', 'mDeleteDataHandle', h)
 %         end
         function update(self, image)
@@ -171,7 +171,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
 %         by performing one iteration on the current subspace.
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle, image.handle);
-            mUtil.check_status([self.IR ':update'], h)
+            mUtilities.check_status([self.IR ':update'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
 %         function reconstruct(self, image)
@@ -180,7 +180,7 @@ classdef IterativeReconstructor < mStir.Reconstructor
 % %         iterations to the image estimate specified by the argument.
 %             h = calllib('mstir', 'mSTIR_runReconstruction',...
 %                 self.handle, image.handle);
-%             mUtil.check_status([self.IR ':reconstruct'], h)
+%             mUtilities.check_status([self.IR ':reconstruct'], h)
 %             calllib('mutilities', 'mDeleteDataHandle', h)
 %         end
     end
