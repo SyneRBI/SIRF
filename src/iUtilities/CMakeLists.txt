@@ -18,8 +18,8 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-add_library(iutil iutilities.cpp)
-target_include_directories(iutil PUBLIC
+add_library(iutilities iutilities.cpp)
+target_include_directories(iutilities PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
 
@@ -28,7 +28,7 @@ if(BUILD_PYTHON)
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 
-  SET_SOURCE_FILES_PROPERTIES(pyiutil.i PROPERTIES CPLUSPLUS ON)
+  SET_SOURCE_FILES_PROPERTIES(pyiutilities.i PROPERTIES CPLUSPLUS ON)
   # find libraries and include files
   # TODO would be better to use target_include_directories
 
@@ -36,13 +36,13 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
-  set(SWIG_MODULE_pyiutil_EXTRA_DEPS "data_handle.h" "iutilities.h")
-  SWIG_ADD_MODULE(pyiutil python pyiutil.i)
-  SWIG_LINK_LIBRARIES(pyiutil iutil ${PYTHON_LIBRARIES})
+  set(SWIG_MODULE_pyiutilities_EXTRA_DEPS "data_handle.h" "iutilities.h")
+  SWIG_ADD_MODULE(pyiutilities python pyiutilities.i)
+  SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
   set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python" CACHE PATH "Destination for python module")
-  INSTALL(TARGETS ${SWIG_MODULE_pyiutil_REAL_NAME} DESTINATION "${PYTHON_DEST}")
-  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyiutil.py"  DESTINATION "${PYTHON_DEST}")
+  INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}")
+  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyiutilities.py"  DESTINATION "${PYTHON_DEST}")
 
 endif(BUILD_PYTHON)
 
@@ -56,7 +56,7 @@ if(BUILD_MATLAB)
   SET_TARGET_PROPERTIES(mutilities PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
         LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mutilities iutil ${MATLAB_LIBRARIES} )
+  target_link_libraries(mutilities iutilities ${MATLAB_LIBRARIES} )
 
   INSTALL(TARGETS mutilities DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mutilities.h DESTINATION "${MATLAB_DEST}")

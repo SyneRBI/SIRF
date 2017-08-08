@@ -32,8 +32,8 @@ except:
 import sys
 import time
 
-from pUtil import *
-import pyiutil
+from pUtilities import *
+import pyiutilities as pyiutil
 import pystir
 
 try:
