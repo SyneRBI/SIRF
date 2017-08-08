@@ -50,7 +50,7 @@ classdef Prior < handle
             grad = mStir.ImageData();
             grad.handle = calllib('mstir', 'mSTIR_priorGradient', ...
                 self.handle, image.handle);
-            mUtil.check_status('Prior:get_gradient', grad.handle)
+            mUtilities.check_status('Prior:get_gradient', grad.handle)
         end
     end
 end

@@ -34,5 +34,5 @@ title(the_title);
 if nargin < 5
     window = [0.3 0.2 0.4 0.5];
 end
-mUtil.set_window(window(1), window(2), window(3), window(4))
+mUtilities.set_window(window(1), window(2), window(3), window(4))
 

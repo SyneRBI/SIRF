@@ -24,7 +24,7 @@ function steepest_ascent(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
@@ -60,7 +60,7 @@ try
     
     % show the initial image
     image_array = image.as_array();
-    mUtil.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
+    mUtilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
     
     eps = 1.0e-6; % single precision round-off error level
     tau = 0.3; % steepest ascent step size
@@ -121,7 +121,7 @@ try
         % show the current image estimate
         image_array = image.as_array();
         the_title = sprintf('iteration %d', iter);
-        mUtil.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
         
         % quit if the image got substantially negative values
         min_image = min(image_array(:));

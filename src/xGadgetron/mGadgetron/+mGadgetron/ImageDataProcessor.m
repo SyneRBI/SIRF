@@ -35,10 +35,10 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
             self.name_ = 'ImageDataProcessor';
             self.handle_ = calllib...
                 ('mgadgetron', 'mGT_newObject', 'ImagesProcessor');
-            mUtil.check_status(self.name_, self.handle_);
+            mUtilities.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mUtil.label_and_name(list{i});
+                    [label, name] = mUtilities.label_and_name(list{i});
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
@@ -70,7 +70,7 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
                 ('mgadgetron', 'mGT_processImages', ...
                 self.handle_, self.input_.handle_);
 %                 self.handle_, input_data.handle_);
-            mUtil.check_status(self.name_, image.handle_);
+            mUtilities.check_status(self.name_, image.handle_);
             self.output_ = image;
         end
         function output = get_output(self)
