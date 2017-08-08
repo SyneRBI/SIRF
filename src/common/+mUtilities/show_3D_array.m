@@ -35,7 +35,7 @@ if nargin < 6
 else
     if ischar(index)
         try
-            index = mUtil.str_to_int_list(index);
+            index = mUtilities.str_to_int_list(index);
         catch
             return
         end
