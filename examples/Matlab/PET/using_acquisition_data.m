@@ -22,7 +22,7 @@ function using_acquisition_data(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
@@ -40,14 +40,14 @@ try
     z = acq_dim(3)/2;
 
     % display the acquisition data
-    mUtil.show_2D_array(acq_array(:,:,z), ...
+    mUtilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
     % clone the acquisition data
     new_acq_data = acq_data.clone();
     % display the cloned data
     acq_array = new_acq_data.as_array();
-    mUtil.show_2D_array(acq_array(:,:,z), ...
+    mUtilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data cloned', 'tang. pos.', 'views');
 
     % fill the cloned data with the acquisition data multiplied by 10

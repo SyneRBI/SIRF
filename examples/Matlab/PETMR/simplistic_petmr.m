@@ -34,9 +34,9 @@ if nargin < 1
     pet_engine = [];
 end
 % emulate Python's import <module> as <alias>
-import_mr_str = setup_MR(mr_engine, 'MR');
+import_mr_str = set_up_MR(mr_engine, 'MR');
 eval(import_mr_str)
-import_pet_str = setup_PET(pet_engine, 'PET');
+import_pet_str = set_up_PET(pet_engine, 'PET');
 eval(import_pet_str)
 % note that this will create copies of the engines module folders
 % named +MR and +PET, so you must have sufficient privileges to write 
@@ -63,7 +63,7 @@ recon.process()
 mr_image = recon.get_output();
 
 % display MR image
-mUtil.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
+mUtilities.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
     'x (FE)', 'y (PE)', 'slice')
 
 % convert MR image to PET image
@@ -83,6 +83,6 @@ pet_image = filter.get_output();
 %filter.apply(pet_image);
 
 % display filtered PET image
-mUtil.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice')
+mUtilities.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice')
 
 end
