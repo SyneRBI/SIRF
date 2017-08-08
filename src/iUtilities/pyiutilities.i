@@ -1,4 +1,4 @@
-%module pyiutil
+%module pyiutilities
 %{
 #include "iutilities.h"
 %}

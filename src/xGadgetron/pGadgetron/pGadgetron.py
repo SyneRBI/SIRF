@@ -36,8 +36,8 @@ except:
     print('ismrmrd-python-tools not installed')
     HAVE_ISMRMRDTOOLS = False
 
-from pUtil import *
-import pyiutil
+from pUtilities import *
+import pyiutilities as pyiutil
 import pygadgetron
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
