@@ -32,32 +32,32 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 	endforeach()
   endif()
 	
-add_library(cgt cgadgetron.cpp xgadgetron.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp)
+add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp)
 
 set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 #set (cGadgetron_INCLUDE_DIR "${cGadgetron_INCLUDE_DIR}" PARENT_SCOPE)
 
-target_include_directories(cgt PUBLIC "${cGadgetron_INCLUDE_DIR}")
-target_include_directories(cgt PRIVATE "${FFTW3_INCLUDE_DIR}")
+target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
+target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 
-target_link_libraries(cgt iutil)
+target_link_libraries(cgadgetron iutilities)
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
   # spaces in filenames.
   foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
-    target_link_libraries(cgt optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(cgt debug  "${Boost_${C}_LIBRARY_DEBUG}")
+    target_link_libraries(cgadgetron optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(cgadgetron debug  "${Boost_${C}_LIBRARY_DEBUG}")
   endforeach()
 else()
   # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(cgt Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+  target_link_libraries(cgadgetron Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
 # a list of filenames with spaces. There doesn't seem to be a way to pass this through (strange).
 # Luckily, we know what libraries it uses
-target_link_libraries(cgt ismrmrd)
-target_link_libraries(cgt "${FFTW3_LIBRARIES}")
-target_link_libraries(cgt "${HDF5_LIBRARIES}")
+target_link_libraries(cgadgetron ismrmrd)
+target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
+target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")

@@ -24,5 +24,5 @@ add_library(cstir cstir_p.cpp cstir_tw.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 
-target_link_libraries(cstir iutil)
+target_link_libraries(cstir iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")

@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "data_handle.h"
-#include "xgadgetron.h"
+#include "gadgetron_x.h"
 
 bool
 connection_failed(int nt)

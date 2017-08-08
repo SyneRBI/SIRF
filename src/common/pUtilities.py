@@ -22,7 +22,7 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
-import pyiutil
+import pyiutilities as pyiutil
 
 def petmr_data_path(petmr):
     '''

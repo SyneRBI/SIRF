@@ -28,7 +28,7 @@ if(BUILD_MATLAB)
   SET_TARGET_PROPERTIES(mstir PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
         LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mstir  cstir iutil ${STIR_LIBRARIES} ${MATLAB_LIBRARIES} )
+  target_link_libraries(mstir  cstir iutilities ${STIR_LIBRARIES} ${MATLAB_LIBRARIES} )
 
   INSTALL(TARGETS mstir DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mstir.h DESTINATION "${MATLAB_DEST}")
