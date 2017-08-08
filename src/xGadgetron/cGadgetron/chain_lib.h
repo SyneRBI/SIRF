@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef PROCESSOR_CHAINS_LIBRARY
 #define PROCESSOR_CHAINS_LIBRARY
 
-#include "xgadgetron.h"
+#include "gadgetron_x.h"
 
 class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
