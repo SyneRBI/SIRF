@@ -28,12 +28,12 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
-#include "data_handle.h"
 //#include "iutilities.h" // causes problems with Matlab (cf. the same message below)
-#include "cgadgetron_par.h"
-#include "xgadgetron.h"
+#include "cgadgetron_p.h"
+#include "gadgetron_x.h"
 #include "gadget_lib.h"
 #include "chain_lib.h"
 
