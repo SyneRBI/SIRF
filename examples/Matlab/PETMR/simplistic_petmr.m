@@ -64,7 +64,7 @@ mr_image = recon.get_output();
 
 % display MR image
 mUtilities.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
-    'x (FE)', 'y (PE)', 'slice')
+    'x (FE)', 'y (PE)', 'slice');
 
 % convert MR image to PET image
 image_array = abs(mr_image.as_array());
@@ -83,6 +83,6 @@ pet_image = filter.get_output();
 %filter.apply(pet_image);
 
 % display filtered PET image
-mUtilities.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice')
+mUtilities.show_3D_array(pet_image.as_array(), 'PET image data', 'x', 'y', 'slice');
 
 end
