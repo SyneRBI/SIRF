@@ -150,12 +150,12 @@ EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w) {
 EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w) {
 	closeChannel(channel, ptr_w);
 }
-EXPORTED_FUNCTION 	void mSetWriter(void* ptr_w, int channel) {
-	setWriter(ptr_w, channel);
-}
-EXPORTED_FUNCTION 	void mResetWriter() {
-	resetWriter();
-}
+//EXPORTED_FUNCTION 	void mSetWriter(void* ptr_w, int channel) {
+//	setWriter(ptr_w, channel);
+//}
+//EXPORTED_FUNCTION 	void mResetWriter() {
+//	resetWriter();
+//}
 EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr) {
 	deleteTextPrinter(ptr);
 }

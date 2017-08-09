@@ -21,7 +21,7 @@ limitations under the License.
 
 #include "data_handle.h"
 #include "cstir_p.h"
-#include "stir.h"
+#include "stir_types.h"
 #include "stir_x.h"
 
 static void*
@@ -66,9 +66,6 @@ void* cSTIR_newObject(const char* name)
 			xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF >();
 		if (boost::iequals(name, "AcqModUsingMatrix"))
 			return newObjectHandle< AcqMod3DF, AcqModUsingMatrix3DF >();
-		if (boost::iequals(name, "ProjectorsUsingMatrix"))
-			return newObjectHandle
-			< ProjectorByBinPair, ProjectorPairUsingMatrix >();
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return newObjectHandle
 			< ProjMatrixByBin, RayTracingMatrix >();
@@ -98,8 +95,6 @@ void* cSTIR_setParameter
 		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 			(hs, name, hv);
-		else if (boost::iequals(obj, "ProjectorsUsingMatrix"))
-			return cSTIR_setProjectorsUsingMatrixParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcquisitionModel"))
 			return cSTIR_setAcquisitionModelParameter(hs, name, hv);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
@@ -148,8 +143,6 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			(handle, name);
 		if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
-		if (boost::iequals(obj, "ProjectorsUsingMatrix"))
-			return cSTIR_projectorsUsingMatrixParameter(handle, name);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedPrior"))

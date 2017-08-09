@@ -38,7 +38,6 @@ extern "C" {
 	void* cSTIR_setParameter
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
-	//void* cSTIR_setupObject(const char* obj, void* ptr_obj);
 
 	// DataProcessor methods
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
@@ -94,8 +93,6 @@ extern "C" {
 	void* newTextWriter(const char* stream);
 	void openChannel(int channel, void* ptr_w);
 	void closeChannel(int channel, void* ptr_w);
-	void setWriter(void* ptr_w, int channel);
-	void resetWriter();
 	void deleteTextPrinter(void* ptr);
 	void deleteTextWriter(void* ptr_w);
 

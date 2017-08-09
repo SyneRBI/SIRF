@@ -22,9 +22,7 @@ limitations under the License.
 #define EXTRA_STIR_TYPES
 
 #include "data_handle.h"
-#include "cstir.h"
-#include "cstir_p.h"
-#include "stir.h"
+#include "stir_types.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 
