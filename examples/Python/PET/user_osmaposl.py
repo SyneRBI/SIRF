@@ -35,7 +35,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtil import show_2D_array
+from pUtilities import show_2D_array
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')

@@ -42,7 +42,7 @@ args = docopt(__doc__, version=__version__)
 
 import scipy.optimize
 
-from pUtil import show_2D_array
+from pUtilities import show_2D_array
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
