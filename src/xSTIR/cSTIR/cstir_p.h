@@ -44,14 +44,6 @@ void*
 cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
 
 void*
-cSTIR_setProjectorsUsingMatrixParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
-
-void*
-cSTIR_projectorsUsingMatrixParameter
-(const DataHandle* handle, const char* name);
-
-void*
 cSTIR_setAcquisitionModelParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 

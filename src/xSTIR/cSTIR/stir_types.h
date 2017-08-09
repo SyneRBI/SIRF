@@ -21,28 +21,13 @@ limitations under the License.
 #ifndef STIR_DATA_TYPES
 #define STIR_DATA_TYPES
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
-#include <fstream>
-#include <iostream>
-#include <numeric>
-#include <string>
-
 #include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include "stir/DiscretisedDensity.h"
-#include "stir/ArrayFunction.h"
 #include "stir/CartesianCoordinate3D.h"
-#include "stir/CPUTimer.h"
 #include "stir/DataProcessor.h"
-#include "stir/HighResWallClockTimer.h"
 #include "stir/IndexRange3D.h"
 #include "stir/is_null_ptr.h"
-#include "stir/KeyParser.h"
 #include "stir/recon_array_functions.h"
 #include "stir/Succeeded.h"
 #include "stir/utilities.h"
@@ -55,7 +40,6 @@ limitations under the License.
 #include "stir/ProjDataInMemory.h"
 #include "stir/ProjDataInterfile.h"
 #include "stir/recon_buildblock/BinNormalisationFromProjData.h"
-#include "stir/recon_buildblock/distributable_main.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
@@ -74,7 +58,6 @@ USING_NAMESPACE_STIR
 typedef DiscretisedDensity<3, float> Image3DF;
 typedef boost::shared_ptr<Image3DF> sptrImage3DF;
 typedef boost::shared_ptr<ProjData> sptrProjData;
-typedef boost::shared_ptr<ProjectorByBinPair> sptrProjPair;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
 typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;

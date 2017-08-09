@@ -80,26 +80,6 @@ extern "C" {
 				h.set_error_channel(0);
 		}
 	}
-	void setWriter(void* ptr_w, int channel) {
-		TextWriterHandle h;
-		switch (channel) {
-		case INFORMATION_CHANNEL:
-			h.set_information_channel((aTextWriter*)ptr_w);
-			break;
-		case WARNING_CHANNEL:
-			h.set_warning_channel((aTextWriter*)ptr_w);
-			break;
-		case ERROR_CHANNEL:
-			h.set_error_channel((aTextWriter*)ptr_w);
-			break;
-		}
-	}
-	void resetWriter() {
-		TextWriterHandle h;
-		h.set_information_channel(0);
-		h.set_warning_channel(0);
-		h.set_error_channel(0);
-	}
 	void deleteTextPrinter(void* ptr) {
 		delete (TextPrinter*)ptr;
 	}
