@@ -323,8 +323,9 @@ class ImageData(DataContainer):
         assigned at each voxel. When using an ndarray, the array size has to
         have the same size as an array returned by `as_array`.
         '''
-        if self.handle is None:
-            raise error('cannot fill uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot fill uninitialized ImageData object')
         if isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
@@ -343,41 +344,47 @@ class ImageData(DataContainer):
         return self
     def clone(self):
         '''Creates a copy of this image.'''
-        if self.handle is None:
-            raise error('cannot clone uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot clone uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         return image
     def get_empty_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
-        if self.handle is None:
-            raise error('cannot copy uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot copy uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         image.fill(value)
         return image
     def add_shape(self, shape, scale):
-        if self.handle is None:
-            raise error('cannot add shapes to uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot add shapes to uninitialized ImageData object')
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
     def read_from_file(self, filename):
         '''Read data from file.
 
         Replaces the current content of the object.
         '''
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
+        assert self.handle is not None
+##        if self.handle is not None:
+##            pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def write(self, filename):
-        if self.handle is None:
-            raise error('cannot write uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot write uninitialized ImageData object')
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def diff_from(self, image):
-        if self.handle is None or image.handle is None:
-            raise error('cannot compare uninitialized ImageData object')
+        assert self.handle is not None and image.handle is not None
+##        if self.handle is None or image.handle is None:
+##            raise error('Cannot compare uninitialized ImageData object')
         handle = pystir.cSTIR_imagesDifference\
                  (self.handle, image.handle, self.rimsize)
         check_status(handle)
@@ -386,8 +393,9 @@ class ImageData(DataContainer):
         return diff
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
-        if self.handle is None:
-            raise error('cannot export uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot export uninitialized ImageData object')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
         nz = dim[0]
@@ -400,14 +408,15 @@ class ImageData(DataContainer):
         return array
     def show(self):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
-        if self.handle is None:
-            raise error('cannot show uninitialized ImageData object')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot show uninitialized ImageData object')
         if not HAVE_PYLAB:
             print('pylab not found')
             return
         data = self.as_array()
         nz = data.shape[0]
-        print('Please enter slice numbers (e.g.: 1, 3-5)') # or 0 to stop the loop')
+        print('Please enter slice numbers (e.g.: 1, 3-5)')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
             s = str(input('slices to display: '))
@@ -421,7 +430,7 @@ class ImageData(DataContainer):
 class ImageDataProcessor:
     '''Class for image processors.
 
-     An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
+    An ImageDataProcessor changes an image in some way, e.g. by filtering.'''
     def __init__(self):
         self.handle = None
         # TODO: handle input and output in cSTIR
@@ -536,7 +545,7 @@ class AcquisitionData(DataContainer):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
         else:
-            raise error('wrong source in AcquisitionData constructor')
+            raise error('Wrong source in AcquisitionData constructor')
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -551,6 +560,9 @@ class AcquisitionData(DataContainer):
         to all voxels;
         value:  a Python float.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty AcquisitionData object cannot create image')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
         check_status(image.handle)
@@ -564,6 +576,9 @@ class AcquisitionData(DataContainer):
         - number of views
         - number of tangential positions.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty AcquisitionData object cannot be cast to array')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data))
@@ -571,7 +586,7 @@ class AcquisitionData(DataContainer):
         ny = dim[1]
         nz = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
-            raise error('density data not available')
+            raise error('Acquisition data not present')
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getAcquisitionsData\
             (self.handle, array.ctypes.data))
@@ -582,8 +597,9 @@ class AcquisitionData(DataContainer):
         value:  either NumPy ndarray or another AcquisitionData object
                 or Python float.
         '''
-        if self.handle is None:
-            raise error('AcquisitionData object not initialized')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty AcquisitionData object cannot be filled')
         if self.read_only:
             raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
@@ -604,13 +620,16 @@ class AcquisitionData(DataContainer):
             try_calling(pystir.cSTIR_fillAcquisitionsData\
                         (self.handle, float(value)))
         else:
-            raise error('wrong fill value.' + \
+            raise error('Wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
     def clone(self):
         ''' 
         Returns a true copy of this object (not Python handle).
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty AcquisitionData object cannot be cloned')
         ad = AcquisitionData(self)
         ad.fill(self)
         return ad
@@ -619,6 +638,9 @@ class AcquisitionData(DataContainer):
         Returns a true copy of this object filled with a given value;
         value:  a Python float.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty AcquisitionData object cannot be copied')
         ad = AcquisitionData(self)
         ad.fill(value)
         return ad

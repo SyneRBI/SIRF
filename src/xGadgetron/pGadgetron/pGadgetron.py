@@ -175,6 +175,7 @@ class DataContainer(ABC):
         '''
         Returns the number of items in the container.
         '''
+        assert self.handle is not None
         handle = pygadgetron.cGT_dataItems(self.handle)
         check_status(handle)
         n = pyiutil.intDataFromHandle(handle)
@@ -184,6 +185,7 @@ class DataContainer(ABC):
         '''
         Returns the 2-norm of the container data viewed as a vector.
         '''
+        assert self.handle is not None
         handle = pygadgetron.cGT_norm(self.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
@@ -195,6 +197,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
+        assert self.handle is not None
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         check_status(handle)
         re = pyiutil.floatReDataFromHandle(handle)
@@ -208,6 +211,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
+        assert self.handle is not None
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
@@ -219,6 +223,7 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
+        assert self.handle is not None
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
@@ -230,6 +235,7 @@ class DataContainer(ABC):
         or the dot product if it is DataContainer.
         other: DataContainer or a (real or complex) scalar
         '''
+        assert self.handle is not None
         if isinstance(other, DataContainer):
             return self.dot(other)
         z = self.same_object()
@@ -249,6 +255,7 @@ class DataContainer(ABC):
         the left, i.e. computes and returns the product other*self.
         other: a real or complex scalar
         '''
+        assert self.handle is not None
         z = self.same_object()
         if type(other) == type(complex(0,0)):
             z.handle = pygadgetron.cGT_axpby\
@@ -415,6 +422,7 @@ class CoilSensitivityData(DataContainer):
         where nc is the number of active coils and nx, ny, nz are slice
         dimensions.
         '''
+        assert self.handle is not None
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         pygadgetron.cGT_getCoilDataDimensions\
             (self.handle, 0, dim.ctypes.data)
@@ -424,6 +432,7 @@ class CoilSensitivityData(DataContainer):
         Returns specified csm as Numpy ndarray.
         csm_num: csm (slice) number
         '''
+        assert self.handle is not None
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
@@ -437,6 +446,7 @@ class CoilSensitivityData(DataContainer):
         Returns the abs of specified csm as Numpy ndarray.
         csm_num: csm (slice) number
         '''
+        assert self.handle is not None
         nx, ny, nz, nc = self.map_dimensions()
         if nx == 0 or ny == 0 or nz == 0 or nc == 0:
             raise error('image data not available')
@@ -465,12 +475,18 @@ class ImageData(DataContainer):
         Returns the data type for a specified image (see 8 data types above).
         im_num: image (slice) 
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Data type not defined for empty ImageData object')
         handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
         check_status(handle)
         n = pyiutil.intDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return n
     def is_real(self):
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Data type not defined for empty ImageData object')
         t = self.data_type(0)
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def process(self, list):
@@ -482,18 +498,27 @@ class ImageData(DataContainer):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot process empty ImageData object')
         ip = ImageDataProcessor(list)
         return ip.process(self)
     def clone(self):
         '''
         Returns a copy of self.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot clone empty ImageData object')
         ip = ImageDataProcessor()
         return ip.process(self)
     def show(self):
         '''
         Interactively displays self's images.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot show empty ImageData object')
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -527,6 +552,9 @@ class ImageData(DataContainer):
         out_file : the file name (Python string)
         out_group: hdf5 dataset name (Python string)
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot write empty ImageData object')
         try_calling(pygadgetron.cGT_writeImages\
                     (self.handle, out_file, out_group))
     def select(self, attr, value):
@@ -536,6 +564,9 @@ class ImageData(DataContainer):
         attr : the name of the attribute (Python string)
         value: the value of the attribute (Python string)
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot select a subset of empty ImageData object')
         images = ImageData()
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
@@ -544,6 +575,9 @@ class ImageData(DataContainer):
         '''
         Returns all self's images as a 3D Numpy ndarray.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot export empty ImageData object as array')
         if self.number() < 1:
             return numpy.ndarray((0,0,0), dtype = numpy.float32)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
@@ -570,8 +604,9 @@ class ImageData(DataContainer):
         Fills self's image data with specified values.
         data: Python Numpy array
         '''
-        if self.handle is None:
-            raise error('Undefined ImageData object cannot be filled')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Empty ImageData object cannot be filled')
         re = numpy.real(data).astype(numpy.float32)
         im = numpy.imag(data).astype(numpy.float32)
 ##        re = numpy.copy(numpy.real(data))
@@ -602,24 +637,31 @@ class Acquisition:
         Returns acquisition flags as an integer (each bit corresponding to a 
         flag).
         '''
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'flags')
     def get_number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'number_of_samples')
     def active_channels(self):
         '''
         Returns the number of active channels (coils).
         '''
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'active_channels')
     def trajectory_dimensions(self):
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
     def idx_kspace_encode_step_1(self):
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
     def idx_repetition(self):
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_repetition')
     def idx_slice(self):
+        assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_slice')
 
 class AcquisitionData(DataContainer):
@@ -643,9 +685,11 @@ class AcquisitionData(DataContainer):
     def same_object(self):
         return AcquisitionData()
     def number_of_acquisitions(self, select = 'image'):
+        assert self.handle is not None
         dim = self.dimensions(select)
         return dim[0]
     def get_number_of_readouts(self, select = 'image'):
+        assert self.handle is not None
         dim = self.dimensions(select)
         return dim[0]
     def sort(self):
@@ -655,11 +699,20 @@ class AcquisitionData(DataContainer):
             - slice
             - kspace_encode_step_1
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            msg = 'Cannot sort empty AcquisitionData object'
+##            raise error(msg)
         try_calling(pygadgetron.cGT_orderAcquisitions(self.handle))
         self.sorted = True
     def is_sorted(self):
         return self.sorted
     def is_undersampled(self):
+        assert self.handle is not None
+##        if self.handle is None:
+##            msg = 'Cannot determine whether empty AcquisitionData object'
+##            msg += 'is undersampled'
+##            raise error(msg)
         return _int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         '''
@@ -670,12 +723,18 @@ class AcquisitionData(DataContainer):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot process empty AcquisitionData object')
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
     def clone(self):
         '''
         Returns a copy of self.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot clone empty AcquisitionData object')
         ap = AcquisitionDataProcessor()
         return ap.process(self)
     def acquisition(self, num):
@@ -683,6 +742,10 @@ class AcquisitionData(DataContainer):
         Returns the specified acquisition.
         num: acquisition number
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            msg = 'Cannot get acquisitions from empty AcquisitionData object'
+##            raise error(msg)
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
@@ -695,6 +758,10 @@ class AcquisitionData(DataContainer):
         Otherwise, the number of acquisitions directly related to imaging data
         is returned.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            msg = 'Cannot determine dimensions of empty AcquisitionData object'
+##            raise error(msg)
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         hv = pygadgetron.cGT_getAcquisitionsDimensions\
              (self.handle, dim.ctypes.data)
@@ -709,6 +776,9 @@ class AcquisitionData(DataContainer):
         '''
         Fills the array self.info with information for each acquisition.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot set info for empty AcquisitionData object')
         na, nc, ns = self.dimensions()
         self.info = numpy.empty((na,), dtype = object)
         for a in range(na):
@@ -725,6 +795,9 @@ class AcquisitionData(DataContainer):
         parameter.
         par: parameter name
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot get info on empty AcquisitionData object')
         na, nc, ns = self.dimensions()
         if self.info is None:
             self.set_info()
@@ -754,6 +827,9 @@ class AcquisitionData(DataContainer):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
         '''
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot export empty AcquisitionData object as array')
         na = self.number()
         ny, nc, ns = self.dimensions(select)
         if select == 'all': # return all
@@ -771,8 +847,9 @@ class AcquisitionData(DataContainer):
         Fills self's acquisitions with specified values.
         data: Python Numpy array
         '''
-        if self.handle is None:
-            raise error('Undefined AcquisitionData object cannot be filled')
+        assert self.handle is not None
+##        if self.handle is None:
+##            raise error('Cannot fill empty AcquisitionData object')
         na, nc, ns = data.shape
         re = numpy.real(data).astype(numpy.float32)
         im = numpy.imag(data).astype(numpy.float32)
