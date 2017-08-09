@@ -26,6 +26,44 @@ limitations under the License.
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 
+template <typename T>
+class aDataContainer {
+public:
+	virtual ~aDataContainer() {}
+	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	virtual unsigned int items() = 0;
+	virtual float norm() = 0;
+	virtual T dot(aDataContainer<T>& dc) = 0;
+	virtual void axpby(
+		T a, const aDataContainer<T>& x,
+		T b, const aDataContainer<T>& y) = 0;
+};
+
+class ImagesContainer : public Image3DF, public aDataContainer<float> {
+public:
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		ImagesContainer* ptr_image = (ImagesContainer*)((Image3DF*)this)->get_empty_copy();
+		return boost::shared_ptr<aDataContainer<float> >((aDataContainer<float>*)ptr_image);
+	}
+	unsigned int items()
+	{
+		return 1;
+	}
+	float norm()
+	{
+		return 0;
+	}
+	float dot(ImagesContainer& other)
+	{
+		return 0;
+	}
+	void axpby(float a, const ImagesContainer& x, float b, const ImagesContainer& y)
+	{
+
+	}
+};
+
 template<class Image>
 class PETAcquisitionModel {
 public:
