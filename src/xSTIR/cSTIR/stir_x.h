@@ -21,10 +21,31 @@ limitations under the License.
 #ifndef EXTRA_STIR_TYPES
 #define EXTRA_STIR_TYPES
 
+#include <chrono>
+
 #include "data_handle.h"
 #include "stir_types.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
+
+class SIRFUtilities {
+public:
+	static long long milliseconds()
+	{
+		auto now = std::chrono::system_clock::now();
+		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+		return (long long)ms.count();
+	}
+	static std::string scratch_file_name()
+	{
+		static int calls = 0;
+		char buff[32];
+		long long int ms = milliseconds();
+		calls++;
+		sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+		return std::string(buff);
+	}
+};
 
 template <typename T>
 class aDataContainer {
@@ -38,13 +59,147 @@ public:
 		T a, const aDataContainer<T>& x,
 		T b, const aDataContainer<T>& y) = 0;
 };
+#if 0
+class PETAcquisitions : public aDataContainer<float> {
+public:
+	virtual PETAcquisitions* same_acquisitions_container() = 0;
+	virtual boost::shared_ptr<PETAcquisitions> new_acquisitions_container() = 0;
+protected:
+	static boost::shared_ptr<PETAcquisitions> acqs_templ_;
+};
 
-class ImagesContainer : public Image3DF, public aDataContainer<float> {
+class BinAcquisitions : public PETAcquisitions {
+public:
+	unsigned int items()
+	{
+		return 1;
+	}
+	float norm()
+	{
+		ProjData* self = (ProjData*)this;
+		SegmentBySinogram<float> segment = self->get_empty_segment_by_sinogram(0);
+		return 0;
+	}
+	float dot(aDataContainer<float>& other)
+	{
+		return 0;
+	}
+	void axpby(float a, const aDataContainer<float>& x, 
+		float b, const aDataContainer<float>& y)
+	{
+
+	}
+};
+
+class BinAcquisitionsInMemory : 
+	public BinAcquisitions, public ProjDataInMemory {
+public:
+	BinAcquisitionsInMemory(shared_ptr<ExamInfo> const& exam_info_sptr,
+		shared_ptr<ProjDataInfo> const& proj_data_info_ptr) :
+		ProjDataInMemory(exam_info_sptr, proj_data_info_ptr)
+	{
+	}
+	void init()
+	{
+		static bool initialized = false;
+		if (!initialized) {
+			ProjDataInMemory* self = (ProjDataInMemory*)this;
+			acqs_templ_.reset(new BinAcquisitionsInMemory
+				(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+			initialized = true;
+		}
+	}
+	void set_as_template()
+	{
+		ProjDataInMemory* self = (ProjDataInMemory*)this;
+		init();
+		acqs_templ_.reset(new BinAcquisitionsInMemory
+			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+	}
+	PETAcquisitions* same_acquisitions_container()
+	{
+		ProjDataInMemory* self = (ProjDataInMemory*)this;
+		PETAcquisitions* ptr_acq = (PETAcquisitions*)
+			new ProjDataInMemory(self->get_exam_info_sptr(),
+				self->get_proj_data_info_sptr());
+		return ptr_acq;
+	}
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		init();
+		return boost::shared_ptr<aDataContainer<float> >
+			(acqs_templ_->same_acquisitions_container());
+	}
+	boost::shared_ptr<PETAcquisitions> new_acquisitions_container()
+	{
+		init();
+		return boost::shared_ptr<PETAcquisitions>
+			(acqs_templ_->same_acquisitions_container());
+	}
+};
+
+class BinAcquisitionsInFile : 
+	public BinAcquisitions, public ProjDataInterfile {
+public:
+	BinAcquisitionsInFile(shared_ptr<ExamInfo> const& exam_info_sptr,
+		shared_ptr<ProjDataInfo> const& proj_data_info_ptr, 
+		const char* filename) :
+		ProjDataInterfile(exam_info_sptr, proj_data_info_ptr, filename, 
+			std::ios::in | std::ios::out)
+	{
+	}
+	void init()
+	{
+		static bool initialized = false;
+		if (!initialized) {
+			ProjDataInMemory* self = (ProjDataInMemory*)this;
+			acqs_templ_.reset(new BinAcquisitionsInMemory
+			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+			initialized = true;
+		}
+	}
+	void set_as_template()
+	{
+		ProjDataInterfile* self = (ProjDataInterfile*)this;
+		std::string filename = SIRFUtilities::scratch_file_name();
+		init();
+		acqs_templ_.reset(new BinAcquisitionsInFile
+			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr(), 
+				filename.c_str()));
+	}
+	PETAcquisitions* same_acquisitions_container()
+	{
+		ProjDataInterfile* self = (ProjDataInterfile*)this;
+		std::string filename = SIRFUtilities::scratch_file_name();
+		PETAcquisitions* ptr_acq = (PETAcquisitions*)
+			new ProjDataInterfile(self->get_exam_info_sptr(),
+				self->get_proj_data_info_sptr(), filename.c_str(),
+				std::ios::in | std::ios::out);
+		return ptr_acq;
+	}
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		init();
+		return boost::shared_ptr<aDataContainer<float> >
+			(acqs_templ_->same_acquisitions_container());
+	}
+	boost::shared_ptr<PETAcquisitions> new_acquisitions_container()
+	{
+		init();
+		return boost::shared_ptr<PETAcquisitions>
+			(acqs_templ_->same_acquisitions_container());
+	}
+};
+#endif
+
+class PETImage : public Image3DF, public aDataContainer<float> {
 public:
 	boost::shared_ptr<aDataContainer<float> > new_data_container()
 	{
-		ImagesContainer* ptr_image = (ImagesContainer*)((Image3DF*)this)->get_empty_copy();
-		return boost::shared_ptr<aDataContainer<float> >((aDataContainer<float>*)ptr_image);
+		Image3DF* self = (Image3DF*)this;
+		PETImage* ptr_image = (PETImage*)self->get_empty_copy();
+		aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
+		return boost::shared_ptr<aDataContainer<float> >(ptr_data);
 	}
 	unsigned int items()
 	{
@@ -54,11 +209,11 @@ public:
 	{
 		return 0;
 	}
-	float dot(ImagesContainer& other)
+	float dot(PETImage& other)
 	{
 		return 0;
 	}
-	void axpby(float a, const ImagesContainer& x, float b, const ImagesContainer& y)
+	void axpby(float a, const PETImage& x, float b, const PETImage& y)
 	{
 
 	}
@@ -137,6 +292,9 @@ public:
 	boost::shared_ptr<ProjData> forward(const Image& image, const char* file = 0)
 	{
 		boost::shared_ptr<ProjData> sptr_fd;
+		//PETAcquisitions* ptr_templ = (PETAcquisitions*)sptr_acq_template_.get();
+		//boost::shared_ptr<PETAcquisitions> sptr_templ = ptr_templ->new_acquisitions_container();
+		//sptr_fd = boost::dynamic_pointer_cast<ProjData, PETAcquisitions>(ptr_templ->new_acquisitions_container());
 
 		if (file && strlen(file) > 0)
 			sptr_fd.reset(
