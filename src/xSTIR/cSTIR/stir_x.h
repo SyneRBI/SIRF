@@ -51,50 +51,29 @@ template <typename T>
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
-	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
-	virtual unsigned int items() = 0;
-	virtual float norm() = 0;
-	virtual T dot(aDataContainer<T>& dc) = 0;
-	virtual void axpby(
-		T a, const aDataContainer<T>& x,
-		T b, const aDataContainer<T>& y) = 0;
+	virtual aDataContainer<T>* new_data_container() = 0;
+	//virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	//virtual unsigned int items() = 0;
+	//virtual float norm() = 0;
+	//virtual T dot(aDataContainer<T>& dc) = 0;
+	//virtual void axpby(
+	//	T a, const aDataContainer<T>& x,
+	//	T b, const aDataContainer<T>& y) = 0;
 };
-#if 0
-class PETAcquisitions : public aDataContainer<float> {
+
+class PETAcquisitionData : public aDataContainer < float > {
 public:
-	virtual PETAcquisitions* same_acquisitions_container() = 0;
-	virtual boost::shared_ptr<PETAcquisitions> new_acquisitions_container() = 0;
+	virtual PETAcquisitionData* same_acquisitions_container() const = 0;
+	virtual PETAcquisitionData* new_acquisitions_container() = 0;
+	virtual PETAcquisitionData* cast(ProjData* ptr) = 0;
 protected:
-	static boost::shared_ptr<PETAcquisitions> acqs_templ_;
+	static boost::shared_ptr<ProjData> acqs_templ_;
 };
 
-class BinAcquisitions : public PETAcquisitions {
+class PETAcquisitionDataInMemory :
+	public PETAcquisitionData, public ProjDataInMemory {
 public:
-	unsigned int items()
-	{
-		return 1;
-	}
-	float norm()
-	{
-		ProjData* self = (ProjData*)this;
-		SegmentBySinogram<float> segment = self->get_empty_segment_by_sinogram(0);
-		return 0;
-	}
-	float dot(aDataContainer<float>& other)
-	{
-		return 0;
-	}
-	void axpby(float a, const aDataContainer<float>& x, 
-		float b, const aDataContainer<float>& y)
-	{
-
-	}
-};
-
-class BinAcquisitionsInMemory : 
-	public BinAcquisitions, public ProjDataInMemory {
-public:
-	BinAcquisitionsInMemory(shared_ptr<ExamInfo> const& exam_info_sptr,
+	PETAcquisitionDataInMemory(shared_ptr<ExamInfo> const& exam_info_sptr,
 		shared_ptr<ProjDataInfo> const& proj_data_info_ptr) :
 		ProjDataInMemory(exam_info_sptr, proj_data_info_ptr)
 	{
@@ -103,103 +82,120 @@ public:
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			ProjDataInMemory* self = (ProjDataInMemory*)this;
-			acqs_templ_.reset(new BinAcquisitionsInMemory
-				(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+			PETAcquisitionData::acqs_templ_.reset(new PETAcquisitionDataInMemory
+				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
 			initialized = true;
 		}
 	}
 	void set_as_template()
 	{
-		ProjDataInMemory* self = (ProjDataInMemory*)this;
 		init();
-		acqs_templ_.reset(new BinAcquisitionsInMemory
-			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+		PETAcquisitionData::acqs_templ_.reset(new PETAcquisitionDataInMemory
+			(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
 	}
-	PETAcquisitions* same_acquisitions_container()
+	PETAcquisitionData* cast(ProjData* ptr)
 	{
-		ProjDataInMemory* self = (ProjDataInMemory*)this;
-		PETAcquisitions* ptr_acq = (PETAcquisitions*)
-			new ProjDataInMemory(self->get_exam_info_sptr(),
-				self->get_proj_data_info_sptr());
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInMemory*)ptr;
+		return ptr_t;
+	}
+	PETAcquisitionData* same_acquisitions_container() const
+	{
+		PETAcquisitionDataInMemory* ptr_acq = (PETAcquisitionDataInMemory*)
+			new ProjDataInMemory(this->get_exam_info_sptr(),
+			this->get_proj_data_info_sptr());
 		return ptr_acq;
 	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	aDataContainer<float>* new_data_container()
 	{
 		init();
-		return boost::shared_ptr<aDataContainer<float> >
-			(acqs_templ_->same_acquisitions_container());
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInMemory*)acqs_templ_.get();
+		return ptr_t->same_acquisitions_container();
 	}
-	boost::shared_ptr<PETAcquisitions> new_acquisitions_container()
+	PETAcquisitionData* new_acquisitions_container()
 	{
 		init();
-		return boost::shared_ptr<PETAcquisitions>
-			(acqs_templ_->same_acquisitions_container());
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInMemory*)acqs_templ_.get();
+		return ptr_t->same_acquisitions_container();
 	}
 };
 
-class BinAcquisitionsInFile : 
-	public BinAcquisitions, public ProjDataInterfile {
+class PETAcquisitionDataInFile :
+	public PETAcquisitionData, public ProjDataInterfile {
 public:
-	BinAcquisitionsInFile(shared_ptr<ExamInfo> const& exam_info_sptr,
-		shared_ptr<ProjDataInfo> const& proj_data_info_ptr, 
+	PETAcquisitionDataInFile(shared_ptr<ExamInfo> const& exam_info_sptr,
+		shared_ptr<ProjDataInfo> const& proj_data_info_ptr,
 		const char* filename) :
-		ProjDataInterfile(exam_info_sptr, proj_data_info_ptr, filename, 
-			std::ios::in | std::ios::out)
+		ProjDataInterfile(exam_info_sptr, proj_data_info_ptr, filename,
+		std::ios::in | std::ios::out)
 	{
 	}
 	void init()
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			ProjDataInMemory* self = (ProjDataInMemory*)this;
-			acqs_templ_.reset(new BinAcquisitionsInMemory
-			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr()));
+			PETAcquisitionData::acqs_templ_.reset(new PETAcquisitionDataInMemory
+				(this->get_exam_info_sptr(), this->get_proj_data_info_sptr()));
 			initialized = true;
 		}
 	}
 	void set_as_template()
 	{
-		ProjDataInterfile* self = (ProjDataInterfile*)this;
 		std::string filename = SIRFUtilities::scratch_file_name();
 		init();
-		acqs_templ_.reset(new BinAcquisitionsInFile
-			(self->get_exam_info_sptr(), self->get_proj_data_info_sptr(), 
-				filename.c_str()));
+		PETAcquisitionData::acqs_templ_.reset(new PETAcquisitionDataInFile
+			(this->get_exam_info_sptr(), this->get_proj_data_info_sptr(),
+			filename.c_str()));
 	}
-	PETAcquisitions* same_acquisitions_container()
+	PETAcquisitionData* cast(ProjData* ptr)
 	{
-		ProjDataInterfile* self = (ProjDataInterfile*)this;
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInFile*)ptr;
+		return ptr_t;
+	}
+	PETAcquisitionData* same_acquisitions_container() const
+	{
 		std::string filename = SIRFUtilities::scratch_file_name();
-		PETAcquisitions* ptr_acq = (PETAcquisitions*)
-			new ProjDataInterfile(self->get_exam_info_sptr(),
-				self->get_proj_data_info_sptr(), filename.c_str(),
-				std::ios::in | std::ios::out);
+		PETAcquisitionData* ptr_acq = (PETAcquisitionData*)
+			new ProjDataInterfile(this->get_exam_info_sptr(),
+			this->get_proj_data_info_sptr(), 
+			filename.c_str(), std::ios::in | std::ios::out);
 		return ptr_acq;
 	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	aDataContainer<float>* new_data_container()
 	{
 		init();
-		return boost::shared_ptr<aDataContainer<float> >
-			(acqs_templ_->same_acquisitions_container());
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInFile*)acqs_templ_.get();
+		return ptr_t->same_acquisitions_container();
 	}
-	boost::shared_ptr<PETAcquisitions> new_acquisitions_container()
+	PETAcquisitionData* new_acquisitions_container()
 	{
 		init();
-		return boost::shared_ptr<PETAcquisitions>
-			(acqs_templ_->same_acquisitions_container());
+		PETAcquisitionData* ptr_t = (PETAcquisitionDataInFile*)acqs_templ_.get();
+		return ptr_t->same_acquisitions_container();
 	}
 };
-#endif
 
-class PETImage : public Image3DF, public aDataContainer<float> {
+inline PETAcquisitionData* cast(ProjData* ptr_in)
+{
+	ProjDataInterfile* tmp = (ProjDataInterfile*)ptr_in;
+	PETAcquisitionData* ptr_out = (PETAcquisitionDataInFile*)tmp;
+	return ptr_out;
+}
+
+inline ProjData* cast(PETAcquisitionData* ptr_in)
+{
+	ProjData* ptr_out = (PETAcquisitionDataInMemory*)ptr_in;
+	return ptr_out;
+}
+
+class PETImageData : public Image3DF, public aDataContainer<float> {
 public:
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	aDataContainer<float>* new_data_container()
 	{
 		Image3DF* self = (Image3DF*)this;
-		PETImage* ptr_image = (PETImage*)self->get_empty_copy();
-		aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
-		return boost::shared_ptr<aDataContainer<float> >(ptr_data);
+		PETImageData* ptr_image = (PETImageData*)self->get_empty_copy();
+		return (aDataContainer<float>*)ptr_image;
+		//aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
+		//return boost::shared_ptr<aDataContainer<float> >(ptr_data);
 	}
 	unsigned int items()
 	{
@@ -209,11 +205,11 @@ public:
 	{
 		return 0;
 	}
-	float dot(PETImage& other)
+	float dot(PETImageData& other)
 	{
 		return 0;
 	}
-	void axpby(float a, const PETImage& x, float b, const PETImage& y)
+	void axpby(float a, const PETImageData& x, float b, const PETImageData& y)
 	{
 
 	}
@@ -292,9 +288,9 @@ public:
 	boost::shared_ptr<ProjData> forward(const Image& image, const char* file = 0)
 	{
 		boost::shared_ptr<ProjData> sptr_fd;
-		//PETAcquisitions* ptr_templ = (PETAcquisitions*)sptr_acq_template_.get();
-		//boost::shared_ptr<PETAcquisitions> sptr_templ = ptr_templ->new_acquisitions_container();
-		//sptr_fd = boost::dynamic_pointer_cast<ProjData, PETAcquisitions>(ptr_templ->new_acquisitions_container());
+		//PETAcquisitionData* ptr_templ = (PETAcquisitionData*)sptr_acq_template_.get();
+		//boost::shared_ptr<PETAcquisitionData> sptr_templ = ptr_templ->new_acquisitions_container();
+		//sptr_fd = boost::dynamic_pointer_cast<ProjData, PETAcquisitionData>(ptr_templ->new_acquisitions_container());
 
 		if (file && strlen(file) > 0)
 			sptr_fd.reset(
