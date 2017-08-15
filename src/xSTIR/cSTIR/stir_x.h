@@ -21,6 +21,8 @@ limitations under the License.
 #ifndef EXTRA_STIR_TYPES
 #define EXTRA_STIR_TYPES
 
+#include <stdlib.h>
+
 #include <chrono>
 
 #include "data_handle.h"
@@ -42,7 +44,7 @@ public:
 		char buff[32];
 		long long int ms = milliseconds();
 		calls++;
-		sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+		sprintf(buff, "tmp_%d_%lld.hs", calls, ms);
 		return std::string(buff);
 	}
 };
@@ -51,9 +53,9 @@ template <typename T>
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
-	virtual aDataContainer<T>* new_data_container() = 0;
-	//virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
-	//virtual unsigned int items() = 0;
+	//virtual aDataContainer<T>* new_data_container() = 0;
+	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	virtual unsigned int items() = 0;
 	//virtual float norm() = 0;
 	//virtual T dot(aDataContainer<T>& dc) = 0;
 	//virtual void axpby(
@@ -61,15 +63,57 @@ public:
 	//	T b, const aDataContainer<T>& y) = 0;
 };
 
-class PETAcquisitionData : public aDataContainer < float > {
+class PETAcquisitionData : //public aDataContainer < float >, 
+	public ProjData {
 public:
-	virtual PETAcquisitionData* same_acquisitions_container() const = 0;
-	virtual PETAcquisitionData* new_acquisitions_container() = 0;
-	virtual PETAcquisitionData* cast(ProjData* ptr) = 0;
+	virtual ~PETAcquisitionData() {}
+	void set_storage_scheme(std::string scheme) { _storage_scheme = scheme; }
+	PETAcquisitionData* new_acquisition_data()
+	{
+		_init();
+		if (_storage_scheme[0] == 'm') {
+			ProjData* ptr_pd = new ProjDataInMemory(this->get_exam_info_sptr(),
+				this->get_proj_data_info_sptr());
+			PETAcquisitionData* ptr_ad = static_cast<PETAcquisitionData*>(ptr_pd);
+			return ptr_ad;
+		}
+		else {
+			std::string filename = SIRFUtilities::scratch_file_name();
+			ProjData* ptr_pd = new ProjDataInterfile(this->get_exam_info_sptr(),
+				this->get_proj_data_info_sptr(), filename, std::ios::in | std::ios::out);
+			PETAcquisitionData* ptr_ad = static_cast<PETAcquisitionData*>(ptr_pd);
+			return ptr_ad;
+		}
+	}
+	boost::shared_ptr<PETAcquisitionData> new_acquisition_data_sptr()
+	{
+		return boost::shared_ptr<PETAcquisitionData>(new_acquisition_data());
+	}
 protected:
-	static boost::shared_ptr<ProjData> acqs_templ_;
+	static std::string _storage_scheme;
+	void _init()
+	{
+		static bool initialized = false;
+		if (!initialized) {
+			_storage_scheme = "memory";
+			initialized = true;
+		}
+	}
+	//	static boost::shared_ptr<ProjData> acqs_templ_;
 };
 
+class PETAcquisitionDataContainer : public aDataContainer < float >,
+	public PETAcquisitionData {
+public:
+	unsigned int items() { return 1; }
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		return boost::shared_ptr<aDataContainer<float> >
+			((aDataContainer<float>*)new_acquisition_data());
+	}
+};
+
+#if 0
 class PETAcquisitionDataInMemory :
 	public PETAcquisitionData, public ProjDataInMemory {
 public:
@@ -186,16 +230,17 @@ inline ProjData* cast(PETAcquisitionData* ptr_in)
 	ProjData* ptr_out = (PETAcquisitionDataInMemory*)ptr_in;
 	return ptr_out;
 }
+#endif
 
 class PETImageData : public Image3DF, public aDataContainer<float> {
 public:
-	aDataContainer<float>* new_data_container()
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
 	{
 		Image3DF* self = (Image3DF*)this;
 		PETImageData* ptr_image = (PETImageData*)self->get_empty_copy();
-		return (aDataContainer<float>*)ptr_image;
-		//aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
-		//return boost::shared_ptr<aDataContainer<float> >(ptr_data);
+		//return (aDataContainer<float>*)ptr_image;
+		aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
+		return boost::shared_ptr<aDataContainer<float> >(ptr_data);
 	}
 	unsigned int items()
 	{
@@ -295,7 +340,7 @@ public:
 		if (file && strlen(file) > 0)
 			sptr_fd.reset(
 			new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
-			sptr_acq_template_->get_proj_data_info_sptr(), file, std::ios::in | std::ios::out));
+			sptr_acq_template_->get_proj_data_info_sptr(), file));// , std::ios::in | std::ios::out));
 		else
 			sptr_fd.reset(
 			new ProjDataInMemory(sptr_acq_template_->get_exam_info_sptr(),
@@ -303,10 +348,13 @@ public:
 
 		sptr_projectors_->get_forward_projector_sptr()->forward_project
 			(*sptr_fd, image);
-		//if (file && strlen(file) > 0) {
-		//	sptr_fd.reset();
-		//	sptr_fd = ProjData::read_from_file(file);
-		//}
+		if (file && strlen(file) > 0) {
+			sptr_fd.reset(
+				new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
+				sptr_acq_template_->get_proj_data_info_sptr(), file, std::ios::in));
+			//sptr_fd.reset();
+			//sptr_fd = ProjData::read_from_file(file);
+		}
 
 		if (sptr_add_.get()) {
 			add_(sptr_fd, sptr_add_);
