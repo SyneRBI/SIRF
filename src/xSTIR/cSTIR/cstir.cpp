@@ -24,7 +24,8 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-boost::shared_ptr<ProjData> PETAcquisitionData::acqs_templ_;
+std::string PETAcquisitionData::_storage_scheme;
+//boost::shared_ptr<ProjData> PETAcquisitionData::acqs_templ_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -187,8 +188,10 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 		if (boost::iequals(name, "AcquisitionData")) {
 			//writeText("\nreading ");
 			//writeText(filename);
-			NEW(boost::shared_ptr<ProjData>, ptr_sptr);
-			*ptr_sptr = ProjData::read_from_file(filename);
+			//NEW(boost::shared_ptr<ProjData>, ptr_sptr);
+			NEW(boost::shared_ptr<PETAcquisitionData>, ptr_sptr);
+			*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
+				(ProjData::read_from_file(filename));
 			//writeText("ok\n");
 			//NEW_SPTR(PETAcquisitionData, ptr_sptr, PETAcquisitionData);
 			////NEW(PETAcquisitionData, ptr);
@@ -296,20 +299,19 @@ extern "C"
 void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 {
 	try {
-		sptrProjData& sptr_t = objectSptrFromHandle<ProjData>(ptr_t);
-		//boost::shared_ptr<PETAcquisitionData>& sptr =
-		//	objectSptrFromHandle<PETAcquisitionData>(ptr_t);
-		//boost::shared_ptr<ProjData> sptr_t = sptr->data();
-		NEW_SPTR(ProjData, ptr_sptr,
-			ProjDataInMemory(sptr_t->get_exam_info_sptr(),
-							 sptr_t->get_proj_data_info_sptr()));
-		//PETAcquisitionData* ptr_ad = cast(sptr_t.get());
-		//std::cout << "ok\n";
-		//PETAcquisitionData* ptr_at = ptr_ad->new_acquisitions_container();
-		//std::cout << "ok\n";
-		//ProjData* ptr_pd = cast(ptr_at);
-		//boost::shared_ptr<ProjData>* ptr_sptr = 
-		//	new boost::shared_ptr < ProjData >(ptr_pd);
+		//sptrProjData& sptr_t = objectSptrFromHandle<ProjData>(ptr_t);
+		//NEW_SPTR(ProjData, ptr_sptr,
+		//	ProjDataInMemory(sptr_t->get_exam_info_sptr(),
+		//					 sptr_t->get_proj_data_info_sptr()));
+		boost::shared_ptr<PETAcquisitionData>& sptr_t =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_t);
+		//ProjData* ptr_pd = new ProjDataInMemory(sptr_t->get_exam_info_sptr(),
+		//	sptr_t->get_proj_data_info_sptr());
+		//PETAcquisitionData* ptr_ad = static_cast<PETAcquisitionData*>(ptr_pd);
+		boost::shared_ptr<PETAcquisitionData>* ptr_sptr =
+			new boost::shared_ptr<PETAcquisitionData>
+			(sptr_t->new_acquisition_data());
+		//(ptr_ad);
 		return newObjectHandle(ptr_sptr);
 	}
 	CATCH;
@@ -320,9 +322,9 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-		//boost::shared_ptr<PETAcquisitionData>& sptr_ad =
-		//	objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
 		dim[2] = sptr_ad->get_num_sinograms();
@@ -336,9 +338,9 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-		//boost::shared_ptr<PETAcquisitionData>& sptr_ad = 
-		//	objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad = 
+			objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
 		sptr_ad->copy_to(data);
 		return (void*)new DataHandle;
 	}
@@ -363,12 +365,12 @@ void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 {
 	try {
 		DataHandle* handle = new DataHandle;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-		sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
-		//boost::shared_ptr<PETAcquisitionData>& sptr_ad =
-		//	objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
-		//boost::shared_ptr<PETAcquisitionData>& sptr_from =
-		//	objectSptrFromHandle<PETAcquisitionData>(ptr_from);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
+		boost::shared_ptr<PETAcquisitionData>& sptr_from =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_from);
 		sptr_ad->fill(*sptr_from);
 		return (void*)handle;
 	}
