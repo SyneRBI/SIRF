@@ -189,14 +189,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			//writeText("\nreading ");
 			//writeText(filename);
 			//NEW(boost::shared_ptr<ProjData>, ptr_sptr);
-			NEW(boost::shared_ptr<PETAcquisitionData>, ptr_sptr);
-			*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
-				(ProjData::read_from_file(filename));
+			//NEW(boost::shared_ptr<PETAcquisitionData>, ptr_sptr);
+			//*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
+			//	(ProjData::read_from_file(filename));
 			//writeText("ok\n");
-			//NEW_SPTR(PETAcquisitionData, ptr_sptr, PETAcquisitionData);
-			////NEW(PETAcquisitionData, ptr);
-			////boost::shared_ptr<PETAcquisitionData> sptr = *ptr_sptr;
-			//(*ptr_sptr)->read_from_file(filename);
+			NEW_SPTR(PETAcquisitionData, ptr_sptr, PETAcquisitionData);
+			(*ptr_sptr)->read_from_file(filename);
 			//if (ptr_sptr->get())
 			//	std::cout << "ok\n";
 			//else
@@ -250,7 +248,9 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 	try {
 		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ptr_dt);
+		//sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ptr_dt);
+		boost::shared_ptr<PETAcquisitionData> sptr_dt = 
+			objectSptrFromHandle<PETAcquisitionData>(ptr_dt);
 		sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		Succeeded s = am.set_up(sptr_dt, sptr_im);
 		//s = Succeeded::no;
@@ -272,11 +272,20 @@ void* cSTIR_acquisitionModelFwd
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		Image3DF& im = objectFromHandle<Image3DF>(ptr_im);
-		DataHandle* handle = new DataHandle;
-		sptrProjData* ptr_sptr = new sptrProjData;
-		*ptr_sptr = am.forward(im, datafile);
-		handle->set((void*)ptr_sptr);
-		return (void*)handle;
+		//DataHandle* handle = new DataHandle;
+		//sptrProjData* ptr_sptr = new sptrProjData;
+		//PETAcquisitionData* ptr_ad = new PETAcquisitionData;
+		//*ptr_sptr = am.forward(im, datafile);
+		sptrProjData sptr = am.forward(im, datafile);
+		//std::cout << "ok\n";
+		boost::shared_ptr<PETAcquisitionData>* ptr_ad =
+			new boost::shared_ptr<PETAcquisitionData>(new PETAcquisitionData);
+		(*ptr_ad)->set_data(sptr);
+		//std::cout << "ok\n";
+		return newObjectHandle(ptr_ad);
+		//return newObjectHandle(ptr_sptr);
+		//handle->set((void*)ptr_sptr);
+		//return (void*)handle;
 	}
 	CATCH;
 }
@@ -286,11 +295,13 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		ProjData& ad = objectFromHandle<ProjData>(ptr_ad);
-		sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(ad));
-		DataHandle* handle = new DataHandle;
-		handle->set((void*)ptr_sptr);
-		return (void*)handle;
+		//ProjData& ad = objectFromHandle<ProjData>(ptr_ad);
+		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(*ad.data()));
+		return newObjectHandle(ptr_sptr);
+		//DataHandle* handle = new DataHandle;
+		//handle->set((void*)ptr_sptr);
+		//return (void*)handle;
 	}
 	CATCH;
 }
@@ -305,13 +316,9 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 		//					 sptr_t->get_proj_data_info_sptr()));
 		boost::shared_ptr<PETAcquisitionData>& sptr_t =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_t);
-		//ProjData* ptr_pd = new ProjDataInMemory(sptr_t->get_exam_info_sptr(),
-		//	sptr_t->get_proj_data_info_sptr());
-		//PETAcquisitionData* ptr_ad = static_cast<PETAcquisitionData*>(ptr_pd);
 		boost::shared_ptr<PETAcquisitionData>* ptr_sptr =
 			new boost::shared_ptr<PETAcquisitionData>
 			(sptr_t->new_acquisition_data());
-		//(ptr_ad);
 		return newObjectHandle(ptr_sptr);
 	}
 	CATCH;
@@ -352,7 +359,9 @@ void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
 {
 	try {
 		DataHandle* handle = new DataHandle;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
 		sptr_ad->fill((float)v);
 		return (void*)handle;
 	}
@@ -382,7 +391,9 @@ void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
 {
 	try {
 		DataHandle* handle = new DataHandle;
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_acq);
 		float *data = (float *)ptr_data;
 		sptr_ad->fill_from(data);
 		return (void*)handle;
