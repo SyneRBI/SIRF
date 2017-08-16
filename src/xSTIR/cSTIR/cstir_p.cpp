@@ -197,7 +197,8 @@ cSTIR_setAcquisitionModelParameter
 	else if (boost::iequals(name, "normalisation"))
 		am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "bin_efficiency"))
-		am.set_bin_efficiency(sptrDataFromHandle<ProjData>(hv));
+		am.set_bin_efficiency(sptrDataFromHandle<PETAcquisitionData>(hv));
+		//am.set_bin_efficiency(sptrDataFromHandle<ProjData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
