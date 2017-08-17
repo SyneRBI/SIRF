@@ -31,7 +31,7 @@ Options:
 ##   limitations under the License.
 
 # import common (engine-independent) utilities
-import pUtil
+import pUtilities as pUtil
 
 # get command-line arguments
 __version__ = '0.1.0'
