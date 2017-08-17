@@ -64,6 +64,19 @@ public:
 	//	T b, const aDataContainer<T>& y) = 0;
 };
 
+class ProjDataFile : public ProjDataInterfile {
+public:
+	ProjDataFile(shared_ptr<ExamInfo> const& exam_info_sptr,
+		shared_ptr<ProjDataInfo> const& proj_data_info_ptr,
+		const std::string& filename, const std::ios::openmode open_mode) :
+		ProjDataInterfile(exam_info_sptr, proj_data_info_ptr, filename, open_mode)
+	{}
+	shared_ptr<std::iostream> sino_stream_sptr()
+	{
+		return sino_stream;
+	}
+};
+
 class ProjDataScratchFile {
 public:
 	ProjDataScratchFile(const ProjData& pd)
@@ -72,7 +85,8 @@ public:
 	}
 	~ProjDataScratchFile()
 	{
-		_data.reset();
+		shared_ptr<std::iostream> sino_stream = _data->sino_stream_sptr();
+		((std::fstream*)sino_stream.get())->close();
 		int err;
 		err = std::remove((_filename + ".hs").c_str());
 		if (err)
@@ -89,16 +103,14 @@ public:
 	}
 private:
 	std::string _filename;
-	boost::shared_ptr<ProjData> _data;
+	boost::shared_ptr<ProjDataFile> _data;
 	void _init(const ProjData& pd)
 	{
 		_filename = SIRFUtilities::scratch_file_name();
-		//std::cout << "creating " << _filename << ".s\n";
 		std::ofstream out;
 		out.open((_filename + ".s").c_str());
 		out.close();
-		//std::cout << "creating " << _filename << ".hs\n";
-		_data.reset(new ProjDataInterfile(pd.get_exam_info_sptr(),
+		_data.reset(new ProjDataFile(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr(),
 			_filename, std::ios::in | std::ios::out));
 	}
@@ -106,39 +118,40 @@ private:
 
 class PETAcquisitionData : public aDataContainer < float > {
 public:
+	virtual ~PETAcquisitionData() {}
+	static void set_storage_scheme(std::string scheme) { _storage_scheme = scheme; }
 	unsigned int items() { return 1; }
 	void read_from_file(const char* filename)
 	{
 		_data = ProjData::read_from_file(filename);
 	}
-	void set_storage_scheme(std::string scheme) { _storage_scheme = scheme; }
-	PETAcquisitionData* new_acquisition_data()
+	//virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
+	//virtual boost::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
+	//void set_as_template()
+	//{
+	//	_init();
+	//	_template.reset(same_acquisition_data(*_data));
+	//}
+	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionData;
 		_init();
-		if (_storage_scheme[0] == 'fm') {
+		if (_storage_scheme[0] == 'm') {
 			ptr_ad->_data = boost::shared_ptr<ProjData>
-				(new ProjDataInMemory(_data->get_exam_info_sptr(),
-				_data->get_proj_data_info_sptr()));
+				(new ProjDataInMemory(pd.get_exam_info_sptr(),
+				pd.get_proj_data_info_sptr()));
 			return ptr_ad;
 		}
 		else {
-			_file.reset(new ProjDataScratchFile(*_data));
+			_file.reset(new ProjDataScratchFile(pd));
 			ptr_ad->_data = _file->data();
-			//std::string filename = SIRFUtilities::scratch_file_name();
-			//std::ofstream out;
-			//out.open((filename + ".s").c_str());
-			//out.close();
-			//ptr_ad->_data = boost::shared_ptr<ProjData>
-			//	(new ProjDataInterfile(_data->get_exam_info_sptr(),
-			//	_data->get_proj_data_info_sptr(), 
-			//	filename, std::ios::in | std::ios::out));
 			return ptr_ad;
 		}
 	}
-	boost::shared_ptr<PETAcquisitionData> new_acquisition_data_sptr()
+	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
-		return boost::shared_ptr<PETAcquisitionData>(new_acquisition_data());
+		return boost::shared_ptr<PETAcquisitionData>
+			(same_acquisition_data(*_data));
 	}
 	boost::shared_ptr<ProjData> data() { return _data; }
 	void set_data(boost::shared_ptr<ProjData> data) 
@@ -148,7 +161,6 @@ public:
 	void fill(float v) { _data->fill(v); }
 	void fill(PETAcquisitionData& data)
 	{
-		//std::cout << data.get_num_sinograms() << std::endl;
 		boost::shared_ptr<ProjData> sptr = data.data();
 		_data->fill(*sptr);
 	}
@@ -178,18 +190,69 @@ public:
 	operator const ProjData&() const { return *_data; }
 	operator ProjData*() { return _data.get(); }
 	operator const ProjData*() const { return _data.get(); }
+	//operator boost::shared_ptr<ProjData>() { return _data; }
+	//operator const boost::shared_ptr<ProjData>() const { return _data; }
 protected:
-	boost::shared_ptr<ProjData> _data;
-	boost::shared_ptr<ProjDataScratchFile> _file;
 	static std::string _storage_scheme;
-	void _init()
+	static boost::shared_ptr<PETAcquisitionData> _template;
+	static void _init()
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			_storage_scheme = "memory";
+			_template.reset();
+			_storage_scheme = "file";
 			initialized = true;
 		}
 	}
+	boost::shared_ptr<ProjData> _data;
+	boost::shared_ptr<ProjDataScratchFile> _file;
+};
+
+class PETAcquisitionDataInFile : public PETAcquisitionData {
+public:
+	PETAcquisitionDataInFile(const char* filename)
+	{
+		_data = ProjData::read_from_file(filename);
+	}
+	PETAcquisitionDataInFile(const ProjData& pd)
+	{
+		boost::shared_ptr<ProjDataScratchFile> _file(new ProjDataScratchFile(pd));
+		_data = _file->data();
+	}
+	//PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	//{
+	//	return (PETAcquisitionData*)new PETAcquisitionDataInFile(pd);
+	//}
+	//boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	//{
+	//	_init();
+	//	if (!_template.get())
+	//		_template.reset(same_acquisition_data(*_data));
+	//	return boost::shared_ptr<PETAcquisitionData>
+	//		(_template->same_acquisition_data(*_data));
+	//}
+};
+
+class PETAcquisitionDataInMemory : public PETAcquisitionData {
+public:
+	PETAcquisitionDataInMemory(const ProjData& pd)
+	{
+		_data = boost::shared_ptr<ProjData>
+			(new ProjDataInMemory(pd.get_exam_info_sptr(),
+			pd.get_proj_data_info_sptr()));
+	}
+	//PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	//{
+	//	return (PETAcquisitionData*)new PETAcquisitionDataInMemory(pd);
+	//}
+	//boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	//{
+	//	_init();
+	//	if (!_template.get())
+	//		_template.reset(new PETAcquisitionDataInFile(*_data));
+	//	return boost::shared_ptr<PETAcquisitionData>
+	//		(_template->same_acquisition_data(*_data));
+	//}
 };
 
 #if 0
@@ -285,17 +348,23 @@ public:
 	{
 		return sptr_projectors_;
 	}
-	void set_additive_term(boost::shared_ptr<ProjData> sptr)
+	//void set_additive_term(boost::shared_ptr<ProjData> sptr)
+	void set_additive_term(boost::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_add_ = sptr;
 	}
-	void set_background_term(boost::shared_ptr<ProjData> sptr)
+	boost::shared_ptr<PETAcquisitionData> additive_term_sptr()
+	{
+		return sptr_add_;
+	}
+	//void set_background_term(boost::shared_ptr<ProjData> sptr)
+	void set_background_term(boost::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_background_ = sptr;
 	}
-	boost::shared_ptr<ProjData> additive_term_sptr()
+	boost::shared_ptr<PETAcquisitionData> background_term_sptr()
 	{
-		return sptr_add_;
+		return sptr_background_;
 	}
 	void set_normalisation(boost::shared_ptr<BinNormalisation> sptr)
 	{
@@ -306,15 +375,14 @@ public:
 		return sptr_normalisation_;
 	}
 	//void set_bin_efficiency(boost::shared_ptr<ProjData> sptr_data)
-	void set_bin_efficiency(boost::shared_ptr<PETAcquisitionData> sptr_ad)
+	void set_bin_efficiency(boost::shared_ptr<PETAcquisitionData> sptr_data)
 	{
-		ProjData& pd = *sptr_ad->data();
-		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(pd));
-		//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
 		inv_(sptr.get(), MIN_BIN_EFFICIENCY);
 		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 	}
-	void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
+	//void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
+	void set_normalisation(boost::shared_ptr<PETAcquisitionData> sptr_data)
 	{
 		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
 		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
@@ -348,39 +416,33 @@ public:
 		return s;
 	}
 
-	boost::shared_ptr<ProjData>
-	//boost::shared_ptr<PETAcquisitionData>
+	//boost::shared_ptr<ProjData>
+	boost::shared_ptr<PETAcquisitionData>
 		forward(const Image& image, const char* file = 0)
 	{
 		boost::shared_ptr<PETAcquisitionData> sptr_ad;
-		boost::shared_ptr<ProjData> sptr_fd;
+		sptr_ad = sptr_acq_template_->new_acquisition_data();
 
-		if (file && strlen(file) > 0) {
-			std::ofstream out;
-			std::string filename(file);
-			out.open(filename + ".s");
-			out.close();
-			sptr_fd.reset(
-				new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
-				sptr_acq_template_->get_proj_data_info_sptr(), filename, std::ios::in | std::ios::out));
-		}
-		else
-			sptr_fd.reset(
-			new ProjDataInMemory(sptr_acq_template_->get_exam_info_sptr(),
-			sptr_acq_template_->get_proj_data_info_sptr()));
+		boost::shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+		//if (file && strlen(file) > 0) {
+		//	std::ofstream out;
+		//	std::string filename(file);
+		//	out.open(filename + ".s");
+		//	out.close();
+		//	sptr_fd.reset(
+		//		new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
+		//		sptr_acq_template_->get_proj_data_info_sptr(), filename, std::ios::in | std::ios::out));
+		//}
+		//else
+		//	sptr_fd.reset(
+		//	new ProjDataInMemory(sptr_acq_template_->get_exam_info_sptr(),
+		//	sptr_acq_template_->get_proj_data_info_sptr()));
 
 		sptr_projectors_->get_forward_projector_sptr()->forward_project
 			(*sptr_fd, image);
-		//if (file && strlen(file) > 0) {
-		//	sptr_fd.reset(
-		//		new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
-		//		sptr_acq_template_->get_proj_data_info_sptr(), file, std::ios::in));
-		//	//sptr_fd.reset();
-		//	//sptr_fd = ProjData::read_from_file(file);
-		//}
 
 		if (sptr_add_.get()) {
-			add_(sptr_fd, sptr_add_);
+			add_(sptr_fd, sptr_add_->data());
 			std::cout << "additive term added\n";
 		}
 		else
@@ -395,7 +457,7 @@ public:
 			std::cout << "no normalisation applied\n";
 
 		if (sptr_background_.get()) {
-			add_(sptr_fd, sptr_background_);
+			add_(sptr_fd, sptr_background_->data());
 			std::cout << "background term added\n";
 		}
 		else
@@ -403,8 +465,8 @@ public:
 
 		//sptr_ad->set_data(sptr_fd);
 		//std::cout << "ok\n";
-		//return sptr_ad;
-		return sptr_fd;
+		return sptr_ad;
+		//return sptr_fd;
 	}
 
 	boost::shared_ptr<Image> backward(const ProjData& ad)
@@ -432,8 +494,10 @@ protected:
 	boost::shared_ptr<PETAcquisitionData> sptr_acq_template_;
 	//boost::shared_ptr<ProjData> sptr_acq_template_;
 	boost::shared_ptr<Image> sptr_image_template_;
-	boost::shared_ptr<ProjData> sptr_add_;
-	boost::shared_ptr<ProjData> sptr_background_;
+	boost::shared_ptr<PETAcquisitionData> sptr_add_;
+	boost::shared_ptr<PETAcquisitionData> sptr_background_;
+	//boost::shared_ptr<ProjData> sptr_add_;
+	//boost::shared_ptr<ProjData> sptr_background_;
 	boost::shared_ptr<BinNormalisation> sptr_normalisation_;
 
 private:
@@ -547,7 +611,7 @@ public:
 		AcqMod3DF& am = *sptr;
 		set_projector_pair_sptr(am.projectors_sptr());
 		if (am.additive_term_sptr().get())
-			set_additive_proj_data_sptr(am.additive_term_sptr());
+			set_additive_proj_data_sptr(am.additive_term_sptr()->data());
 		if (am.normalisation_sptr().get())
 			set_normalisation_sptr(am.normalisation_sptr());
 	}

@@ -25,6 +25,7 @@ limitations under the License.
 #include "stir_x.h"
 
 std::string PETAcquisitionData::_storage_scheme;
+boost::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 //boost::shared_ptr<ProjData> PETAcquisitionData::acqs_templ_;
 
 static void*
@@ -189,12 +190,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			//writeText("\nreading ");
 			//writeText(filename);
 			//NEW(boost::shared_ptr<ProjData>, ptr_sptr);
-			//NEW(boost::shared_ptr<PETAcquisitionData>, ptr_sptr);
 			//*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
 			//	(ProjData::read_from_file(filename));
 			//writeText("ok\n");
-			NEW_SPTR(PETAcquisitionData, ptr_sptr, PETAcquisitionData);
-			(*ptr_sptr)->read_from_file(filename);
+			NEW(boost::shared_ptr<PETAcquisitionData>, ptr_sptr);
+			ptr_sptr->reset(new PETAcquisitionDataInFile(filename));
 			//if (ptr_sptr->get())
 			//	std::cout << "ok\n";
 			//else
@@ -274,18 +274,12 @@ void* cSTIR_acquisitionModelFwd
 		Image3DF& im = objectFromHandle<Image3DF>(ptr_im);
 		//DataHandle* handle = new DataHandle;
 		//sptrProjData* ptr_sptr = new sptrProjData;
-		//PETAcquisitionData* ptr_ad = new PETAcquisitionData;
 		//*ptr_sptr = am.forward(im, datafile);
-		sptrProjData sptr = am.forward(im, datafile);
 		//std::cout << "ok\n";
-		boost::shared_ptr<PETAcquisitionData>* ptr_ad =
-			new boost::shared_ptr<PETAcquisitionData>(new PETAcquisitionData);
-		(*ptr_ad)->set_data(sptr);
-		//std::cout << "ok\n";
-		return newObjectHandle(ptr_ad);
 		//return newObjectHandle(ptr_sptr);
-		//handle->set((void*)ptr_sptr);
-		//return (void*)handle;
+		NEW(boost::shared_ptr<PETAcquisitionData>, ptr_ad);
+		*ptr_ad = am.forward(im, datafile);
+		return newObjectHandle(ptr_ad);
 	}
 	CATCH;
 }
@@ -299,11 +293,16 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
 		sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(*ad.data()));
 		return newObjectHandle(ptr_sptr);
-		//DataHandle* handle = new DataHandle;
-		//handle->set((void*)ptr_sptr);
-		//return (void*)handle;
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_setAcquisitionsStorageScheme(const char* scheme)
+{ 
+	PETAcquisitionData::set_storage_scheme(scheme);
+	return (void*)new DataHandle;
 }
 
 extern "C"
@@ -618,7 +617,9 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_ad);
+		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_ad);
+		boost::shared_ptr<PETAcquisitionData>& sptr_ad =
+			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
 		boost::shared_ptr<ProjDataInfo> sptr_adi =
 			sptr_ad->get_proj_data_info_sptr();
 		Voxels3DF* ptr_voxels = new Voxels3DF(*sptr_adi);
