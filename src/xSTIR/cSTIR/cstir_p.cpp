@@ -191,11 +191,14 @@ cSTIR_setAcquisitionModelParameter
 {
 	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hp);
 	if (boost::iequals(name, "additive_term"))
-		am.set_additive_term(sptrDataFromHandle<ProjData>(hv));
+		am.set_additive_term(sptrDataFromHandle<PETAcquisitionData>(hv));
+		//am.set_additive_term(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "background_term"))
-		am.set_background_term(sptrDataFromHandle<ProjData>(hv));
+		am.set_background_term(sptrDataFromHandle<PETAcquisitionData>(hv));
+	//am.set_background_term(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "normalisation"))
-		am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
+		am.set_normalisation(sptrDataFromHandle<PETAcquisitionData>(hv));
+		//am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "bin_efficiency"))
 		am.set_bin_efficiency(sptrDataFromHandle<PETAcquisitionData>(hv));
 		//am.set_bin_efficiency(sptrDataFromHandle<ProjData>(hv));
@@ -330,7 +333,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		obj_fun.set_projector_pair_sptr
 			(sptrDataFromHandle<ProjectorByBinPair>(hv));
 	else if (boost::iequals(name, "proj_data_sptr"))
-		obj_fun.set_proj_data_sptr(sptrDataFromHandle<ProjData>(hv));
+		obj_fun.set_proj_data_sptr
+		(sptrDataFromHandle<PETAcquisitionData>(hv)->data());
 	else if (boost::iequals(name, "acquisition_model"))
 		obj_fun.set_acquisition_model(sptrDataFromHandle<AcqMod3DF>(hv));
 	else
@@ -363,7 +367,8 @@ cSTIR_setReconstructionParameter
 	if (boost::iequals(name, "output_filename_prefix"))
 		recon.set_output_filename_prefix(charDataFromDataHandle(hv));
 	else if (boost::iequals(name, "input_data")) {
-		recon.set_input_data(sptrDataFromHandle<ExamData>(hv));
+		recon.set_input_data(sptrDataFromHandle<PETAcquisitionData>(hv)->data());
+		//recon.set_input_data(sptrDataFromHandle<ExamData>(hv));
 	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
