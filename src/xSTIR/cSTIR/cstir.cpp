@@ -772,3 +772,56 @@ void* cSTIR_imagesDifference(void* first, void* second, int rimsize)
 	CATCH;
 }
 
+extern "C"
+void*
+cSTIR_norm(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		aDataContainer<float>& x =
+			objectFromHandle<aDataContainer<float> >(h_x);
+		float* result = (float*)malloc(sizeof(float));
+		*result = x.norm();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_axpby(
+	float a, float ai, const void* ptr_x,
+	float b, float bi, const void* ptr_y
+) {
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer<float>& x =
+			objectFromHandle<aDataContainer<float> >(h_x);
+		aDataContainer<float>& y =
+			objectFromHandle<aDataContainer<float> >(h_y);
+		boost::shared_ptr<aDataContainer<float> > sptr_z =
+			x.new_data_container();
+		sptr_z->axpby(a, x, b, y);
+		return sptrObjectHandle<aDataContainer<float> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_mult(float a, float ai, const void* ptr_x) 
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		aDataContainer<float>& x =
+			objectFromHandle<aDataContainer<float> >(h_x);
+		boost::shared_ptr<aDataContainer<float> > sptr_z =
+			x.new_data_container();
+		sptr_z->mult(a, x);
+		return sptrObjectHandle<aDataContainer<float> >(sptr_z);
+	}
+	CATCH;
+}

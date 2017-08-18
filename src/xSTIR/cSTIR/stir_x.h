@@ -55,13 +55,14 @@ class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
 	//virtual aDataContainer<T>* new_data_container() = 0;
-	//virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
-	//virtual float norm() = 0;
+	virtual float norm() = 0;
 	//virtual T dot(aDataContainer<T>& dc) = 0;
-	//virtual void axpby(
-	//	T a, const aDataContainer<T>& x,
-	//	T b, const aDataContainer<T>& y) = 0;
+	virtual void mult(T a, const aDataContainer<T>& x) = 0;
+	virtual void axpby(
+		T a, const aDataContainer<T>& x,
+		T b, const aDataContainer<T>& y) = 0;
 };
 
 class ProjDataFile : public ProjDataInterfile {
@@ -157,6 +158,11 @@ public:
 		return boost::shared_ptr<PETAcquisitionData>
 			(same_acquisition_data(*_data));
 	}
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		return boost::shared_ptr<aDataContainer<float> >
+			(same_acquisition_data(*_data));
+	}
 	boost::shared_ptr<ProjData> data() { return _data; }
 	void set_data(boost::shared_ptr<ProjData> data) 
 	{
@@ -170,6 +176,12 @@ public:
 	}
 	void fill_from(const float* data) { _data->fill_from(data); }
 	void copy_to(float* data) { _data->copy_to(data); }
+
+	float norm();
+	void mult(float a, const aDataContainer<float>& x);
+	void axpby(float a, const aDataContainer<float>& x,
+		float b, const aDataContainer<float>& y);
+
 	int get_num_tangential_poss()
 	{
 		return _data->get_num_tangential_poss();
@@ -182,6 +194,25 @@ public:
 	{
 		return _data->get_num_sinograms();
 	}
+	int get_max_segment_num() const
+	{
+		return _data->get_max_segment_num();
+	}
+	SegmentBySinogram<float> 
+		get_segment_by_sinogram(const int segment_num) const
+	{
+		return _data->get_segment_by_sinogram(segment_num);
+	}
+	SegmentBySinogram<float>
+		get_empty_segment_by_sinogram(const int segment_num) const
+	{
+		return _data->get_empty_segment_by_sinogram(segment_num);
+	}
+	virtual Succeeded set_segment(const SegmentBySinogram<float>& s)
+	{
+		return _data->set_segment(s);
+	}
+
 	boost::shared_ptr<ExamInfo> get_exam_info_sptr() const
 	{
 		return _data->get_exam_info_sptr();
@@ -190,6 +221,7 @@ public:
 	{
 		return _data->get_proj_data_info_sptr();
 	}
+
 	operator ProjData&() { return *_data; }
 	operator const ProjData&() const { return *_data; }
 	operator ProjData*() { return _data.get(); }
@@ -331,11 +363,16 @@ public:
 	{
 		return 0;
 	}
-	float dot(PETImageData& other)
+	float dot(aDataContainer<float>& other)
 	{
 		return 0;
 	}
-	void axpby(float a, const PETImageData& x, float b, const PETImageData& y)
+	void axpby(float a, const aDataContainer<float>& x)
+	{
+
+	}
+	void axpby(float a, const aDataContainer<float>& x, 
+			   float b, const aDataContainer<float>& y)
 	{
 
 	}
