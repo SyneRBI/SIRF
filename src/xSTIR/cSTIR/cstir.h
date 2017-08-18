@@ -49,6 +49,7 @@ extern "C" {
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
 	// Acquisition data methods
+	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data);
