@@ -81,6 +81,8 @@ def main():
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0)
 
+    acq_model.set_up(acq_data, image)
+
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
@@ -121,6 +123,22 @@ def main():
         image.fill(processed_image_array)
         recon.set_current_estimate(image)
     pylab.show()
+
+    # forward projection of the reconstructed image simulates the
+    # acquisition of data by the scanner
+    print('projecting...')
+    simulated_data = acq_model.forward(image)
+    #print(acq_data.norm(), simulated_data.norm())
+    # compute the reconstruction residual
+    acq_data = acq_data * (1/acq_data.norm())
+    simulated_data = simulated_data * (1/simulated_data.norm())
+    diff = simulated_data - acq_data #* (simulated_data.norm()/acq_data.norm())
+    print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+
+##    acq_array = acq_data.as_array()
+##    sim_array = simulated_data.as_array()
+##    diff_array = sim_array - acq_array
+##    print(numpy.linalg.norm(diff_array)/numpy.linalg.norm(acq_array))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

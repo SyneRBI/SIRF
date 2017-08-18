@@ -69,6 +69,8 @@ def main():
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
 
+    #print(acq_data.norm(), numpy.linalg.norm(acq_array))
+
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # clone the acquisition data
@@ -76,13 +78,23 @@ def main():
     # display the cloned data
     acq_array = new_acq_data.as_array()
 
+    #diff = new_acq_data - acq_data
+    #print(diff.norm())
+
     show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
     # fill the cloned data with the acquisition data multiplied by 10
     new_acq_data.fill(10*acq_array)
+    #new_acq_data = acq_data * 10.0
     acq_array = new_acq_data.as_array()
 
     show_2D_array('Scaled acquisition data', acq_array[z,:,:])
+
+    #s = new_acq_data.norm()
+    new_acq_data1 = new_acq_data*0.1 #(1/s) #(1/new_acq_data.norm())
+    new_acq_data = new_acq_data1
+    array = new_acq_data1.as_array()
+    #print(new_acq_data.norm())
 
 try:
     main()

@@ -39,7 +39,7 @@ extern "C" {
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
 
-	// DataProcessor methods
+	// Data processor methods
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
@@ -88,6 +88,12 @@ extern "C" {
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+
+	// Data container methods
+	void* cSTIR_norm(const void* ptr_x);
+	void* cSTIR_mult(float a, float ai, const void* ptr_x);
+	void* cSTIR_axpby(float ar, float ai, const void* ptr_x,
+					  float br, float bi, const void* ptr_y);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);

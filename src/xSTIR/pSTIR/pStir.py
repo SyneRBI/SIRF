@@ -237,6 +237,46 @@ class DataContainer(ABC):
         Returns an object of the same type as self.
         '''
         pass
+    def norm(self):
+        '''
+        Returns the 2-norm of the container data viewed as a vector.
+        '''
+        assert self.handle is not None
+        handle = pystir.cSTIR_norm(self.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
+    def __sub__(self, other):
+        '''
+        Overloads - for data containers.
+        Returns the difference of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        z.handle = pystir.cSTIR_axpby\
+            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
+        return z;
+    def __mul__(self, other):
+        '''
+        Overloads * for data containers multiplication by a scalar or another
+        data container. Returns the product self*other if other is a scalar
+        or the dot product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
+        '''
+        assert self.handle is not None
+##        if isinstance(other, DataContainer):
+##            return self.dot(other)
+        z = self.same_object()
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_mult(other, 0, self.handle)
+##            z.handle = pystir.cSTIR_axpby\
+##                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
 
 class ImageData(DataContainer):
     '''Class for PET image data objects.
@@ -426,6 +466,8 @@ class ImageData(DataContainer):
             if err != 0:
                 print('out-of-range slice numbers selected, quitting the loop')
                 break
+
+DataContainer.register(ImageData)
 
 class ImageDataProcessor:
     '''Class for image processors.
@@ -647,6 +689,8 @@ class AcquisitionData(DataContainer):
         ad = AcquisitionData(self)
         ad.fill(value)
         return ad
+
+DataContainer.register(AcquisitionData)
 
 class AcquisitionModel:
     ''' 
