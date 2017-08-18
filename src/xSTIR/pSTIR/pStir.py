@@ -550,6 +550,9 @@ class AcquisitionData(DataContainer):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    @staticmethod
+    def set_storage_scheme(scheme):
+        try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
     def create_uniform_image(self, value = 0):

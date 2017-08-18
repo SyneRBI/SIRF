@@ -119,7 +119,11 @@ private:
 class PETAcquisitionData : public aDataContainer < float > {
 public:
 	virtual ~PETAcquisitionData() {}
-	static void set_storage_scheme(std::string scheme) { _storage_scheme = scheme; }
+	static void set_storage_scheme(std::string scheme) 
+	{
+		_init();
+		_storage_scheme = scheme; 
+	}
 	unsigned int items() { return 1; }
 	void read_from_file(const char* filename)
 	{
