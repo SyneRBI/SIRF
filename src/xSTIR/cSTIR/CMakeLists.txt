@@ -26,3 +26,15 @@ target_include_directories(cstir PUBLIC
 
 target_link_libraries(cstir iutilities)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
+# Add boost library dependencies
+if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
+  # This is harder than it should be on older CMake versions to be able to cope with
+  # spaces in filenames.
+  foreach(C SYSTEM FILESYSTEM THREAD DATE_TIME CHRONO)
+    target_link_libraries(cgadgetron optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(cgadgetron debug  "${Boost_${C}_LIBRARY_DEBUG}")
+  endforeach()
+else()
+  # Nice and simple for recent CMake (which knows about your Boost version)
+  target_link_libraries(cgadgetron Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+endif()
