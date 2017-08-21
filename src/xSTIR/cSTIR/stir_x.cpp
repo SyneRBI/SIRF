@@ -118,3 +118,85 @@ PETAcquisitionData::axpby(
 		}
 	}
 }
+
+float
+PETImageData::norm()
+{
+#ifdef _MSC_VER
+	//Array<3, float>::const_full_iterator iter;
+	Image3DF::const_full_iterator iter;
+#else
+	typename Array<3, float>::const_full_iterator iter;
+#endif
+	double s = 0.0;
+	int i = 0;
+	for (iter = _data->begin_all(); iter != _data->end_all(); iter++, i++) {
+		double t = *iter;
+		s += t*t;
+	}
+	//std::cout << "voxels count: " << i << std::endl;
+	return (float)sqrt(s);
+}
+
+float 
+PETImageData::dot(const aDataContainer<float>& a_x)
+{
+	PETImageData& x = (PETImageData&)a_x;
+#ifdef _MSC_VER
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	double s = 0.0;
+	for (iter = data().begin_all(), iter_x = x.data().begin_all();
+		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++) {
+		double t = *iter;
+		s += t * (*iter_x);
+	}
+	return (float)s;
+}
+
+void 
+PETImageData::mult(float a, const aDataContainer<float>& a_x)
+{
+	PETImageData& x = (PETImageData&)a_x;
+#ifdef _MSC_VER
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	for (iter = data().begin_all(), iter_x = x.data().begin_all();
+		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++)
+		*iter = a * (*iter_x);
+}
+
+void
+PETImageData::axpby(
+float a, const aDataContainer<float>& a_x,
+float b, const aDataContainer<float>& a_y)
+{
+	PETImageData& x = (PETImageData&)a_x;
+	PETImageData& y = (PETImageData&)a_y;
+#ifdef _MSC_VER
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+	Image3DF::const_full_iterator iter_y;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+	typename Array<3, float>::const_full_iterator iter_y;
+#endif
+
+	for (iter = data().begin_all(), 
+		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+		iter != data().end_all(), 
+		iter_x != x.data().end_all(), iter_y != y.data().end_all(); 
+		iter++, iter_x++, iter_y++)
+		*iter = a * (*iter_x) + b * (*iter_y);
+}

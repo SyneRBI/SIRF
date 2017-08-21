@@ -86,11 +86,12 @@ extern "C" {
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
-	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
+	//void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
 
 	// Data container methods
 	void* cSTIR_norm(const void* ptr_x);
+	void*	cSTIR_dot(const void* ptr_x, const void* ptr_y);
 	void* cSTIR_mult(float a, float ai, const void* ptr_x);
 	void* cSTIR_axpby(float ar, float ai, const void* ptr_x,
 					  float br, float bi, const void* ptr_y);

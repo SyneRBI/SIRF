@@ -90,6 +90,20 @@ def main():
 
     show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
+    image = acq_data.create_uniform_image(1.0)
+    image_array = image.as_array()
+    print(image_array.shape)
+    s = image.norm()
+    print(s, numpy.linalg.norm(image_array))
+    print(s*s, image*image)
+
+    image = image*10
+    image_array = image.as_array()
+    print(image.norm(), numpy.linalg.norm(image_array))
+
+    diff = image - image
+    print(diff.norm())
+
 try:
     main()
     print('done')
