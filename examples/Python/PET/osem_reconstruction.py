@@ -8,7 +8,7 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]

@@ -135,9 +135,9 @@ EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, float v) {
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_s, v);
 }
-EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
-	return cSTIR_imagesDifference(first, second, rimsize);
-}
+//EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
+//	return cSTIR_imagesDifference(first, second, rimsize);
+//}
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
 }

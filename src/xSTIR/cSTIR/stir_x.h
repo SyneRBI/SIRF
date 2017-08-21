@@ -58,7 +58,7 @@ public:
 	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
 	virtual float norm() = 0;
-	//virtual T dot(aDataContainer<T>& dc) = 0;
+	virtual T dot(const aDataContainer<T>& dc) = 0;
 	virtual void mult(T a, const aDataContainer<T>& x) = 0;
 	virtual void axpby(
 		T a, const aDataContainer<T>& x,
@@ -181,6 +181,10 @@ public:
 	void copy_to(float* data) { _data->copy_to(data); }
 
 	float norm();
+	float dot(const aDataContainer<float>& x) 
+	{
+		return 0;
+	}
 	void mult(float a, const aDataContainer<float>& x);
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
@@ -348,37 +352,79 @@ public:
 };
 #endif
 
-class PETImageData : public Image3DF, public aDataContainer<float> {
+class PETImageData : public aDataContainer<float> {
 public:
+	PETImageData(){}
+	PETImageData(const Image3DF& image)
+	{
+		_data.reset(image.clone());
+	}
+	PETImageData(const Voxels3DF& v)
+	{
+		_data.reset(v.clone());
+	}
+	PETImageData(const ProjDataInfo& pdi)
+	{
+		_data.reset(new Voxels3DF(pdi));
+	}
+	PETImageData(std::auto_ptr<Image3DF> ptr)
+	{
+		_data = ptr;
+	}
+	PETImageData(boost::shared_ptr<Image3DF> ptr)
+	{
+		_data = ptr;
+	}
+	PETImageData* same_image_data()
+	{
+		PETImageData* ptr_image = new PETImageData;
+		ptr_image->_data.reset(_data->get_empty_copy());
+		return ptr_image;
+	}
+	boost::shared_ptr<PETImageData> new_image_data()
+	{
+		return boost::shared_ptr<PETImageData>(same_image_data());
+	}
 	boost::shared_ptr<aDataContainer<float> > new_data_container()
 	{
-		Image3DF* self = (Image3DF*)this;
-		PETImageData* ptr_image = (PETImageData*)self->get_empty_copy();
-		//return (aDataContainer<float>*)ptr_image;
-		aDataContainer<float>* ptr_data = (aDataContainer<float>*)ptr_image;
-		return boost::shared_ptr<aDataContainer<float> >(ptr_data);
+		return boost::shared_ptr<aDataContainer<float> >(same_image_data());
 	}
 	unsigned int items()
 	{
 		return 1;
 	}
-	float norm()
+	float norm();
+	float dot(const aDataContainer<float>& other);
+	void mult(float a, const aDataContainer<float>& x);
+	void axpby(float a, const aDataContainer<float>& x,
+		float b, const aDataContainer<float>& y);
+	Image3DF& data()
 	{
-		return 0;
+		return *_data;
 	}
-	float dot(aDataContainer<float>& other)
+	const Image3DF& data() const
 	{
-		return 0;
+		return *_data;
 	}
-	void axpby(float a, const aDataContainer<float>& x)
+	Image3DF* data_ptr()
 	{
+		return _data.get();
+	}
+	const Image3DF* data_ptr() const
+	{
+		return _data.get();
+	}
+	boost::shared_ptr<Image3DF> data_sptr()
+	{
+		return _data;
+	}
+	void fill(float v)
+	{
+		_data->fill(v);
+	}
 
-	}
-	void axpby(float a, const aDataContainer<float>& x, 
-			   float b, const aDataContainer<float>& y)
-	{
-
-	}
+protected:
+	boost::shared_ptr<Image3DF> _data;
 };
 
 template<class Image>

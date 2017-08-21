@@ -247,6 +247,30 @@ class DataContainer(ABC):
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r;
+    def dot(self, other):
+        '''
+        Returns the dot product of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        handle = pystir.cSTIR_dot(self.handle, other.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r
+    def __add__(self, other):
+        '''
+        Overloads + for data containers.
+        Returns the sum of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        z.handle = pystir.cSTIR_axpby\
+            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
+        return z;
     def __sub__(self, other):
         '''
         Overloads - for data containers.
@@ -267,14 +291,32 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
-##        if isinstance(other, DataContainer):
-##            return self.dot(other)
+        if isinstance(other, DataContainer):
+            return self.dot(other)
         z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
         if type(other) == type(0.0):
             z.handle = pystir.cSTIR_mult(other, 0, self.handle)
             z.src = 'mult'
 ##            z.handle = pystir.cSTIR_axpby\
 ##                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+    def __rmul__(self, other):
+        '''
+        Overloads * for data containers multiplication by a scalar from
+        the left, i.e. computes and returns the product other*self.
+        other: a real or complex scalar
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_axpby\
+                (other, 0, self.handle, 0, 0, self.handle)
             return z;
         else:
             raise error('wrong multiplier')
@@ -422,16 +464,16 @@ class ImageData(DataContainer):
 ##        if self.handle is None:
 ##            raise error('Cannot write uninitialized ImageData object')
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
-    def diff_from(self, image):
-        assert self.handle is not None and image.handle is not None
-##        if self.handle is None or image.handle is None:
-##            raise error('Cannot compare uninitialized ImageData object')
-        handle = pystir.cSTIR_imagesDifference\
-                 (self.handle, image.handle, self.rimsize)
-        check_status(handle)
-        diff = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return diff
+##    def diff_from(self, image):
+##        assert self.handle is not None and image.handle is not None
+####        if self.handle is None or image.handle is None:
+####            raise error('Cannot compare uninitialized ImageData object')
+##        handle = pystir.cSTIR_imagesDifference\
+##                 (self.handle, image.handle, self.rimsize)
+##        check_status(handle)
+##        diff = pyiutil.floatDataFromHandle(handle)
+##        pyiutil.deleteDataHandle(handle)
+##        return diff
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
