@@ -148,8 +148,11 @@ public:
 			return ptr_ad;
 		}
 		else {
-			_file.reset(new ProjDataScratchFile(pd));
-			ptr_ad->_data = _file->data();
+			//_file.reset(new ProjDataScratchFile(pd));
+			//ptr_ad->_data = _file->data();
+			ProjDataScratchFile* file = new ProjDataScratchFile(pd);
+			ptr_ad->_data = file->data();
+			ptr_ad->_file.reset(file);
 			return ptr_ad;
 		}
 	}

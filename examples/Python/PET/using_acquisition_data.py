@@ -90,12 +90,6 @@ def main():
 
     show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
-    #s = new_acq_data.norm()
-    new_acq_data1 = new_acq_data*0.1 #(1/s) #(1/new_acq_data.norm())
-    new_acq_data = new_acq_data1
-    array = new_acq_data1.as_array()
-    #print(new_acq_data.norm())
-
 try:
     main()
     print('done')
