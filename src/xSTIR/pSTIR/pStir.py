@@ -272,6 +272,7 @@ class DataContainer(ABC):
         z = self.same_object()
         if type(other) == type(0.0):
             z.handle = pystir.cSTIR_mult(other, 0, self.handle)
+            z.src = 'mult'
 ##            z.handle = pystir.cSTIR_axpby\
 ##                (other, 0, self.handle, 0, 0, self.handle)
             return z;
@@ -578,18 +579,22 @@ class AcquisitionData(DataContainer):
         self.handle = None
         self.name = 'AcquisitionData'
         self.read_only = False
+        self.src = None
         if src is None:
             return
         if isinstance(src, str):
             self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
             self.read_only = True
+            self.src = 'file'
         elif isinstance(src, AcquisitionData):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
+            self.src = 'template'
         else:
             raise error('Wrong source in AcquisitionData constructor')
         check_status(self.handle)
     def __del__(self):
+        #print('deleting AcquisitionData object originated from ', self.src)
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
     @staticmethod
@@ -677,6 +682,7 @@ class AcquisitionData(DataContainer):
 ##            raise error('Empty AcquisitionData object cannot be cloned')
         ad = AcquisitionData(self)
         ad.fill(self)
+        ad.src = 'clone'
         return ad
     def get_uniform_copy(self, value = 0):
         ''' 
@@ -688,6 +694,7 @@ class AcquisitionData(DataContainer):
 ##            raise error('Empty AcquisitionData object cannot be copied')
         ad = AcquisitionData(self)
         ad.fill(value)
+        ad.src = 'copy'
         return ad
 
 DataContainer.register(AcquisitionData)

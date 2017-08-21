@@ -128,17 +128,9 @@ def main():
     # acquisition of data by the scanner
     print('projecting...')
     simulated_data = acq_model.forward(image)
-    #print(acq_data.norm(), simulated_data.norm())
     # compute the reconstruction residual
-    acq_data = acq_data * (1/acq_data.norm())
-    simulated_data = simulated_data * (1/simulated_data.norm())
-    diff = simulated_data - acq_data #* (simulated_data.norm()/acq_data.norm())
+    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
     print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
-
-##    acq_array = acq_data.as_array()
-##    sim_array = simulated_data.as_array()
-##    diff_array = sim_array - acq_array
-##    print(numpy.linalg.norm(diff_array)/numpy.linalg.norm(acq_array))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
