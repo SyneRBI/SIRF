@@ -108,12 +108,12 @@ private:
 	void _init(const ProjData& pd)
 	{
 		_filename = SIRFUtilities::scratch_file_name();
-		std::ofstream out;
-		out.open((_filename + ".s").c_str());
-		out.close();
+		//std::ofstream out;
+		//out.open((_filename + ".s").c_str());
+		//out.close();
 		_data.reset(new ProjDataFile(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr(),
-			_filename, std::ios::in | std::ios::out));
+			_filename, std::ios::in | std::ios::out | std::ios::trunc));
 	}
 };
 
