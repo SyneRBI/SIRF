@@ -28,6 +28,10 @@ import_str = set_up_PET(engine);
 eval(import_str)
 
 try
+    % direct all information printing to info.txt;
+    % warning and error messages to go to Matlab Command Window
+    MessageRedirector('info.txt');
+
     % create uniform image
     image = ImageData();
     image_size = [111, 111, 31];
