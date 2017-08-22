@@ -60,7 +60,7 @@ PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
 		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 			seg_iter != seg.end_all() && sx_iter != sx.end_all();
 			/*empty*/) {
-			*seg_iter++ = a*double(*sx_iter++);
+			*seg_iter++ = float(a*double(*sx_iter++));
 		}
 		set_segment(seg);
 		if (s != 0) {
@@ -68,8 +68,37 @@ PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
 			sx = x.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
+				/*empty*/)
+				*seg_iter++ = float(a*double(*sx_iter++));
+			set_segment(seg);
+		}
+	}
+}
+
+void
+PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
+{
+	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	for (int s = 0; s <= n && s <= nx; ++s)
+	{
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all();
+			/*empty*/)
+			*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
+		set_segment(seg);
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s);
+			sx = x.get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all();
 				/*empty*/) {
-				*seg_iter++ = a*double(*sx_iter++);
+				*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
 			}
 			set_segment(seg);
 		}
@@ -100,7 +129,7 @@ PETAcquisitionData::axpby(
 			seg_iter != seg.end_all() && 
 			sx_iter != sx.end_all() && sy_iter != sy.end_all();
 			/*empty*/) {
-			*seg_iter++ = a*double(*sx_iter++) + b*double(*sy_iter++);
+			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
 		}
 		set_segment(seg);
 		if (s != 0) {
@@ -112,7 +141,7 @@ PETAcquisitionData::axpby(
 				seg_iter != seg.end_all() &&
 				sx_iter != sx.end_all() && sy_iter != sy.end_all();
 				/*empty*/) {
-				*seg_iter++ = a*double(*sx_iter++) + b*double(*sy_iter++);
+				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
 			}
 			set_segment(seg);
 		}
