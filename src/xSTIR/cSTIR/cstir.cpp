@@ -259,7 +259,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 			objectSptrFromHandle<PETAcquisitionData>(ptr_dt);
 		//sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		sptrImage3DF& sptr_im = id.data_sptr();
+		sptrImage3DF sptr_im = id.data_sptr();
 		Succeeded s = am.set_up(sptr_dt, sptr_im);
 		//s = Succeeded::no;
 		DataHandle* handle = new DataHandle;
@@ -420,7 +420,7 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 		DataHandle* handle = new DataHandle;
 		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
-		sptrImage3DF& sptr_image = id.data_sptr();
+		sptrImage3DF sptr_image = id.data_sptr();
 		xSTIR_IterativeReconstruction3DF& recon =
 			objectFromHandle<xSTIR_IterativeReconstruction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
@@ -447,7 +447,7 @@ void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i)
 			objectFromHandle< Reconstruction<Image3DF> >(ptr_r);
 		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
-		sptrImage3DF& sptr_image = id.data_sptr();
+		sptrImage3DF sptr_image = id.data_sptr();
 		if (recon.reconstruct(sptr_image) != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_reconstruct failed",
 				__FILE__, __LINE__);
@@ -480,7 +480,7 @@ void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i)
 		DataHandle* handle = new DataHandle;
 		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
-		sptrImage3DF& sptr_image = id.data_sptr();
+		sptrImage3DF sptr_image = id.data_sptr();
 		xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
 			objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_r);
 		Succeeded s = Succeeded::no;
