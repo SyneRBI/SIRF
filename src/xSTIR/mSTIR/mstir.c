@@ -60,6 +60,9 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd (void* ptr_am, void* ptr_im, 
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
 }
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) {
+	return cSTIR_setAcquisitionsStorageScheme(scheme);
+}
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
 }
@@ -132,9 +135,9 @@ EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, float v) {
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_s, v);
 }
-EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
-	return cSTIR_imagesDifference(first, second, rimsize);
-}
+//EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
+//	return cSTIR_imagesDifference(first, second, rimsize);
+//}
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
 }
@@ -150,12 +153,6 @@ EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w) {
 EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w) {
 	closeChannel(channel, ptr_w);
 }
-//EXPORTED_FUNCTION 	void mSetWriter(void* ptr_w, int channel) {
-//	setWriter(ptr_w, channel);
-//}
-//EXPORTED_FUNCTION 	void mResetWriter() {
-//	resetWriter();
-//}
 EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr) {
 	deleteTextPrinter(ptr);
 }

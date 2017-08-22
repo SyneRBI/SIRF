@@ -8,7 +8,7 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
@@ -81,6 +81,8 @@ def main():
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0)
 
+    acq_model.set_up(acq_data, image)
+
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
@@ -121,6 +123,14 @@ def main():
         image.fill(processed_image_array)
         recon.set_current_estimate(image)
     pylab.show()
+
+    # forward projection of the reconstructed image simulates the
+    # acquisition of data by the scanner
+    print('projecting...')
+    simulated_data = acq_model.forward(image)
+    # compute the reconstruction residual
+    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
+    print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)

@@ -23,6 +23,17 @@ classdef AcquisitionData < handle
         handle
         read_only
     end
+    methods (Static)
+        function obj = same_object()
+            obj = mStir.AcquisitionData();
+        end
+        function set_storage_scheme(scheme)
+            h = calllib...
+                ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
+            mUtilities.check_status('AcquisitionData', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+    end
     methods
         function self = AcquisitionData(arg)
 %         AcquisitionData(arg) creates new AcquisitionData object 

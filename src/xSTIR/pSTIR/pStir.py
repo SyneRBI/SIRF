@@ -237,6 +237,89 @@ class DataContainer(ABC):
         Returns an object of the same type as self.
         '''
         pass
+    def norm(self):
+        '''
+        Returns the 2-norm of the container data viewed as a vector.
+        '''
+        assert self.handle is not None
+        handle = pystir.cSTIR_norm(self.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r;
+    def dot(self, other):
+        '''
+        Returns the dot product of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        handle = pystir.cSTIR_dot(self.handle, other.handle)
+        check_status(handle)
+        r = pyiutil.floatDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return r
+    def __add__(self, other):
+        '''
+        Overloads + for data containers.
+        Returns the sum of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        z.handle = pystir.cSTIR_axpby\
+            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
+        return z;
+    def __sub__(self, other):
+        '''
+        Overloads - for data containers.
+        Returns the difference of the container data with another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        z.handle = pystir.cSTIR_axpby\
+            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
+        return z;
+    def __mul__(self, other):
+        '''
+        Overloads * for data containers multiplication by a scalar or another
+        data container. Returns the product self*other if other is a scalar
+        or the dot product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
+        '''
+        assert self.handle is not None
+        if isinstance(other, DataContainer):
+            return self.dot(other)
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_mult(other, 0, self.handle)
+            z.src = 'mult'
+##            z.handle = pystir.cSTIR_axpby\
+##                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+    def __rmul__(self, other):
+        '''
+        Overloads * for data containers multiplication by a scalar from
+        the left, i.e. computes and returns the product other*self.
+        other: a real or complex scalar
+        '''
+        assert self.handle is not None
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_axpby\
+                (other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
 
 class ImageData(DataContainer):
     '''Class for PET image data objects.
@@ -381,16 +464,16 @@ class ImageData(DataContainer):
 ##        if self.handle is None:
 ##            raise error('Cannot write uninitialized ImageData object')
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
-    def diff_from(self, image):
-        assert self.handle is not None and image.handle is not None
-##        if self.handle is None or image.handle is None:
-##            raise error('Cannot compare uninitialized ImageData object')
-        handle = pystir.cSTIR_imagesDifference\
-                 (self.handle, image.handle, self.rimsize)
-        check_status(handle)
-        diff = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return diff
+##    def diff_from(self, image):
+##        assert self.handle is not None and image.handle is not None
+####        if self.handle is None or image.handle is None:
+####            raise error('Cannot compare uninitialized ImageData object')
+##        handle = pystir.cSTIR_imagesDifference\
+##                 (self.handle, image.handle, self.rimsize)
+##        check_status(handle)
+##        diff = pyiutil.floatDataFromHandle(handle)
+##        pyiutil.deleteDataHandle(handle)
+##        return diff
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
@@ -426,6 +509,8 @@ class ImageData(DataContainer):
             if err != 0:
                 print('out-of-range slice numbers selected, quitting the loop')
                 break
+
+DataContainer.register(ImageData)
 
 class ImageDataProcessor:
     '''Class for image processors.
@@ -536,20 +621,27 @@ class AcquisitionData(DataContainer):
         self.handle = None
         self.name = 'AcquisitionData'
         self.read_only = False
+        self.src = None
         if src is None:
             return
         if isinstance(src, str):
             self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
             self.read_only = True
+            self.src = 'file'
         elif isinstance(src, AcquisitionData):
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
                 (src.handle)
+            self.src = 'template'
         else:
             raise error('Wrong source in AcquisitionData constructor')
         check_status(self.handle)
     def __del__(self):
+        #print('deleting AcquisitionData object originated from ', self.src)
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    @staticmethod
+    def set_storage_scheme(scheme):
+        try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
     def create_uniform_image(self, value = 0):
@@ -632,6 +724,7 @@ class AcquisitionData(DataContainer):
 ##            raise error('Empty AcquisitionData object cannot be cloned')
         ad = AcquisitionData(self)
         ad.fill(self)
+        ad.src = 'clone'
         return ad
     def get_uniform_copy(self, value = 0):
         ''' 
@@ -643,7 +736,10 @@ class AcquisitionData(DataContainer):
 ##            raise error('Empty AcquisitionData object cannot be copied')
         ad = AcquisitionData(self)
         ad.fill(value)
+        ad.src = 'copy'
         return ad
+
+DataContainer.register(AcquisitionData)
 
 class AcquisitionModel:
     ''' 
