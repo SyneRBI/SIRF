@@ -786,13 +786,13 @@ class AcquisitionModel:
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
-##    def set_background_term(self, bt):
-##        ''' 
-##        Sets the background term b in (F);
-##        bt:  an AcquisitionData object containing b.
-##        '''
-##        _setParameter\
-##            (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+    def set_background_term(self, bt):
+        ''' 
+        Sets the background term b in (F);
+        bt:  an AcquisitionData object containing b.
+        '''
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_normalisation(self, norm):
         ''' 
         Sets the normalization n in (F);

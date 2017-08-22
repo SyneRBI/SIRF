@@ -29,7 +29,8 @@ limitations under the License.
 #include "data_handle.h"
 #include "stir_types.h"
 
-#define MIN_BIN_EFFICIENCY 1.0e-20f
+//#define MIN_BIN_EFFICIENCY 1.0e-20f
+#define MIN_BIN_EFFICIENCY 1.0e-6f
 
 class SIRFUtilities {
 public:
@@ -179,6 +180,7 @@ public:
 		return 0;
 	}
 	void mult(float a, const aDataContainer<float>& x);
+	void inv(float a, const aDataContainer<float>& x);
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
 
@@ -384,9 +386,27 @@ public:
 	//void set_bin_efficiency(boost::shared_ptr<ProjData> sptr_data)
 	void set_bin_efficiency(boost::shared_ptr<PETAcquisitionData> sptr_data)
 	{
-		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
-		inv_(sptr.get(), MIN_BIN_EFFICIENCY);
-		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
+		boost::shared_ptr<PETAcquisitionData> sptr_ad(new PETAcquisitionDataInMemory(*sptr_data));
+		//boost::shared_ptr<PETAcquisitionData> sptr_ad(sptr_data->new_acquisition_data());
+		sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
+		//std::cout << sptr_ad->norm() << std::endl;
+
+		//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+		//sptr_ad->set_data(sptr);
+		//std::cout << sptr_ad->norm() << std::endl;
+
+		//inv_(sptr.get(), MIN_BIN_EFFICIENCY);
+		//std::cout << sptr_ad->norm() << std::endl;
+		sptr_normalisation_.reset
+			(new BinNormalisationFromProjData(sptr_ad->data()));
+
+		//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
+		//sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
+		//std::cout << sptr_ad->norm() << std::endl;
+		//sptr_ad->set_data(sptr);
+		//std::cout << sptr_ad->norm() << std::endl;
+		//sptr_normalisation_.reset
+		//	(new BinNormalisationFromProjData(sptr_ad->data()));
 	}
 	//void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
 	void set_normalisation(boost::shared_ptr<PETAcquisitionData> sptr_data)
@@ -449,7 +469,8 @@ public:
 			(*sptr_fd, image);
 
 		if (sptr_add_.get()) {
-			add_(sptr_fd, sptr_add_->data());
+			sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
+			//add_(sptr_fd, sptr_add_->data());
 			std::cout << "additive term added\n";
 		}
 		else
@@ -464,7 +485,8 @@ public:
 			std::cout << "no normalisation applied\n";
 
 		if (sptr_background_.get()) {
-			add_(sptr_fd, sptr_background_->data());
+			sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
+			//add_(sptr_fd, sptr_background_->data());
 			std::cout << "background term added\n";
 		}
 		else

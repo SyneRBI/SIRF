@@ -106,6 +106,16 @@ def main():
     bin_eff.fill(bin_eff_arr)
     acq_model.set_bin_efficiency(bin_eff)
 
+    # testing additive term
+    add = acq_template.clone()
+    add.fill(2.0)
+    acq_model.set_additive_term(add)
+
+    # testing background term
+    bck = acq_template.clone()
+    bck.fill(10.0)
+    acq_model.set_background_term(bck)
+
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
