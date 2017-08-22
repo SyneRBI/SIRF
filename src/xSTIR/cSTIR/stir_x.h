@@ -108,9 +108,6 @@ private:
 	void _init(const ProjData& pd)
 	{
 		_filename = SIRFUtilities::scratch_file_name();
-		//std::ofstream out;
-		//out.open((_filename + ".s").c_str());
-		//out.close();
 		_data.reset(new ProjDataFile(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr(),
 			_filename, std::ios::in | std::ios::out | std::ios::trunc));
@@ -125,18 +122,10 @@ public:
 		_init();
 		_storage_scheme = scheme; 
 	}
-	unsigned int items() { return 1; }
 	void read_from_file(const char* filename)
 	{
 		_data = ProjData::read_from_file(filename);
 	}
-	//virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
-	//virtual boost::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-	//void set_as_template()
-	//{
-	//	_init();
-	//	_template.reset(same_acquisition_data(*_data));
-	//}
 	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionData;
@@ -148,8 +137,6 @@ public:
 			return ptr_ad;
 		}
 		else {
-			//_file.reset(new ProjDataScratchFile(pd));
-			//ptr_ad->_data = _file->data();
 			ProjDataScratchFile* file = new ProjDataScratchFile(pd);
 			ptr_ad->_data = file->data();
 			ptr_ad->_file.reset(file);
@@ -166,11 +153,15 @@ public:
 		return boost::shared_ptr<aDataContainer<float> >
 			(same_acquisition_data(*_data));
 	}
+
+	// ProjData accessor/mutator
 	boost::shared_ptr<ProjData> data() { return _data; }
 	void set_data(boost::shared_ptr<ProjData> data) 
 	{
 		_data = data;
 	}
+
+	// data import/export
 	void fill(float v) { _data->fill(v); }
 	void fill(PETAcquisitionData& data)
 	{
@@ -180,6 +171,8 @@ public:
 	void fill_from(const float* data) { _data->fill_from(data); }
 	void copy_to(float* data) { _data->copy_to(data); }
 
+	// data container methods
+	unsigned int items() { return 1; }
 	float norm();
 	float dot(const aDataContainer<float>& x) 
 	{
@@ -189,6 +182,7 @@ public:
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
 
+	// ProjData methods
 	int get_num_tangential_poss()
 	{
 		return _data->get_num_tangential_poss();
@@ -219,7 +213,6 @@ public:
 	{
 		return _data->set_segment(s);
 	}
-
 	boost::shared_ptr<ExamInfo> get_exam_info_sptr() const
 	{
 		return _data->get_exam_info_sptr();
@@ -229,20 +222,22 @@ public:
 		return _data->get_proj_data_info_sptr();
 	}
 
+	// ProjData casts
 	operator ProjData&() { return *_data; }
 	operator const ProjData&() const { return *_data; }
 	operator ProjData*() { return _data.get(); }
 	operator const ProjData*() const { return _data.get(); }
-	//operator boost::shared_ptr<ProjData>() { return _data; }
-	//operator const boost::shared_ptr<ProjData>() const { return _data; }
+	operator boost::shared_ptr<ProjData>() { return _data; }
+	operator const boost::shared_ptr<ProjData>() const { return _data; }
+
 protected:
 	static std::string _storage_scheme;
-	static boost::shared_ptr<PETAcquisitionData> _template;
+	//static boost::shared_ptr<PETAcquisitionData> _template;
 	static void _init()
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			_template.reset();
+			//_template.reset();
 			_storage_scheme = "file";
 			initialized = true;
 		}
@@ -262,18 +257,6 @@ public:
 		boost::shared_ptr<ProjDataScratchFile> _file(new ProjDataScratchFile(pd));
 		_data = _file->data();
 	}
-	//PETAcquisitionData* same_acquisition_data(const ProjData& pd)
-	//{
-	//	return (PETAcquisitionData*)new PETAcquisitionDataInFile(pd);
-	//}
-	//boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
-	//{
-	//	_init();
-	//	if (!_template.get())
-	//		_template.reset(same_acquisition_data(*_data));
-	//	return boost::shared_ptr<PETAcquisitionData>
-	//		(_template->same_acquisition_data(*_data));
-	//}
 };
 
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
@@ -284,73 +267,7 @@ public:
 			(new ProjDataInMemory(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr()));
 	}
-	//PETAcquisitionData* same_acquisition_data(const ProjData& pd)
-	//{
-	//	return (PETAcquisitionData*)new PETAcquisitionDataInMemory(pd);
-	//}
-	//boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
-	//{
-	//	_init();
-	//	if (!_template.get())
-	//		_template.reset(new PETAcquisitionDataInFile(*_data));
-	//	return boost::shared_ptr<PETAcquisitionData>
-	//		(_template->same_acquisition_data(*_data));
-	//}
 };
-
-#if 0
-class PETAcquisitionData : //public aDataContainer < float >, 
-	public ProjDataFromStream {
-public:
-	~PETAcquisitionData() {}
-	void set_storage_scheme(std::string scheme) { _storage_scheme = scheme; }
-	PETAcquisitionData* new_acquisition_data()
-	{
-		_init();
-		if (_storage_scheme[0] == 'fm') {
-			ProjDataFromStream* ptr_pd = new ProjDataInMemory(this->get_exam_info_sptr(),
-				this->get_proj_data_info_sptr());
-			PETAcquisitionData* ptr_ad = (PETAcquisitionData*)ptr_pd;
-			return ptr_ad;
-		}
-		else {
-			std::string filename = SIRFUtilities::scratch_file_name();
-			std::ofstream out;
-			out.open((filename + ".s").c_str());
-			out.close();
-			ProjDataFromStream* ptr_pd = new ProjDataInterfile(this->get_exam_info_sptr(),
-				this->get_proj_data_info_sptr(), filename, std::ios::in | std::ios::out);
-			PETAcquisitionData* ptr_ad = (PETAcquisitionData*)ptr_pd;
-			return ptr_ad;
-		}
-	}
-	boost::shared_ptr<PETAcquisitionData> new_acquisition_data_sptr()
-	{
-		return boost::shared_ptr<PETAcquisitionData>(new_acquisition_data());
-	}
-protected:
-	static std::string _storage_scheme;
-	void _init()
-	{
-		static bool initialized = false;
-		if (!initialized) {
-			_storage_scheme = "memory";
-			initialized = true;
-		}
-	}
-};
-
-class PETAcquisitionDataContainer : public aDataContainer < float >,
-	public PETAcquisitionData {
-public:
-	unsigned int items() { return 1; }
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
-	{
-		return boost::shared_ptr<aDataContainer<float> >
-			((aDataContainer<float>*)new_acquisition_data());
-	}
-};
-#endif
 
 class PETImageData : public aDataContainer<float> {
 public:
