@@ -20,6 +20,7 @@
 
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
+set(CMAKE_CXX_STANDARD 11)
 
 PROJECT(SIRF)
 
