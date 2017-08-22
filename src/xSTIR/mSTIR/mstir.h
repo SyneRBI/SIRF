@@ -59,14 +59,14 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient (void* ptr_f, void* ptr_i, int subset);
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f, void* ptr_i, int subset);
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i);
-EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
-EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad);
-EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, float v);
+EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 //EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
@@ -74,12 +74,12 @@ EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);
 EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w);
-EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr);
-EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w);
+EXPORTED_FUNCTION 	void* mDeleteTextPrinter(void* ptr);
+EXPORTED_FUNCTION 	void* mDeleteTextWriter(void* ptr_w);
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif
 EXPORTED_FUNCTION void* mNewMexPrinter();
-EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr);
+EXPORTED_FUNCTION void* mDeleteMexPrinter(void* ptr);
 
 #endif

@@ -75,22 +75,28 @@ classdef MessageRedirector < handle
         function delete(self)
             calllib('mstir', 'mCloseChannel', 0, self.info)
             if self.info_case == 0
-                calllib('mstir', 'mDeleteMexPrinter', self.info)
+                h = calllib('mstir', 'mDeleteMexPrinter', self.info);
             else
-                calllib('mstir', 'mDeleteTextWriter', self.info)
+                h = calllib('mstir', 'mDeleteTextWriter', self.info);
             end
+            mUtilities.check_status('MessageRedirector:delete', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
             calllib('mstir', 'mCloseChannel', 1, self.warn)
             if self.warn_case == 0
-                calllib('mstir', 'mDeleteMexPrinter', self.warn)
+                h = calllib('mstir', 'mDeleteMexPrinter', self.warn);
             else
-                calllib('mstir', 'mDeleteTextWriter', self.warn)
+                h = calllib('mstir', 'mDeleteTextWriter', self.warn);
             end
+            mUtilities.check_status('MessageRedirector:delete', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
             calllib('mstir', 'mCloseChannel', 2, self.errr)
             if self.errr_case == 0
-                calllib('mstir', 'mDeleteMexPrinter', self.errr)
+                h = calllib('mstir', 'mDeleteMexPrinter', self.errr);
             else
-                calllib('mstir', 'mDeleteTextWriter', self.errr)
+                h = calllib('mstir', 'mDeleteTextWriter', self.errr);
             end
+            mUtilities.check_status('MessageRedirector:delete', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
 end

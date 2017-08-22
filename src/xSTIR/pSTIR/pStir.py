@@ -149,19 +149,19 @@ class MessageRedirector:
 
     def __del__(self):
         if self.info_case == 0:
-            pystir.deleteTextPrinter(self.info)
+            try_calling(pystir.deleteTextPrinter(self.info))
         else:
-            pystir.deleteTextWriter(self.info)
+            try_calling(pystir.deleteTextWriter(self.info))
         pystir.closeChannel(0, self.info)
         if self.warn_case == 0:
-            pystir.deleteTextPrinter(self.warn)
+            try_calling(pystir.deleteTextPrinter(self.warn))
         else:
-            pystir.deleteTextWriter(self.warn)
+            try_calling(pystir.deleteTextWriter(self.warn))
         pystir.closeChannel(1, self.warn)
         if self.errr_case == 0:
-            pystir.deleteTextPrinter(self.errr)
+            try_calling(pystir.deleteTextPrinter(self.errr))
         else:
-            pystir.deleteTextWriter(self.errr)
+            try_calling(pystir.deleteTextWriter(self.errr))
         pystir.closeChannel(2, self.errr)
 
 class Shape:
@@ -270,6 +270,7 @@ class DataContainer(ABC):
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
+        check_status(z.handle)
         return z;
     def __sub__(self, other):
         '''
@@ -282,6 +283,7 @@ class DataContainer(ABC):
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
+        check_status(z.handle)
         return z;
     def __mul__(self, other):
         '''
@@ -301,6 +303,7 @@ class DataContainer(ABC):
             z.src = 'mult'
 ##            z.handle = pystir.cSTIR_axpby\
 ##                (other, 0, self.handle, 0, 0, self.handle)
+            check_status(z.handle)
             return z;
         else:
             raise error('wrong multiplier')
@@ -317,6 +320,7 @@ class DataContainer(ABC):
         if type(other) == type(0.0):
             z.handle = pystir.cSTIR_axpby\
                 (other, 0, self.handle, 0, 0, self.handle)
+            check_status(z.handle)
             return z;
         else:
             raise error('wrong multiplier')
@@ -416,11 +420,11 @@ class ImageData(DataContainer):
             else:
                 #print('changing dtype to float32')
                 v = value.astype(numpy.float32)
-            pystir.cSTIR_setImageData(self.handle, v.ctypes.data)
+            try_calling(pystir.cSTIR_setImageData(self.handle, v.ctypes.data))
         elif isinstance(value, float):
-            pystir.cSTIR_fillImage(self.handle, value)
+            try_calling(pystir.cSTIR_fillImage(self.handle, value))
         elif isinstance(value, int):
-            pystir.cSTIR_fillImage(self.handle, float(value))
+            try_calling(pystir.cSTIR_fillImage(self.handle, float(value)))
         else:
             raise error('wrong fill value.' + \
                         ' Should be numpy.ndarray, float or int')
@@ -480,14 +484,15 @@ class ImageData(DataContainer):
 ##        if self.handle is None:
 ##            raise error('Cannot export uninitialized ImageData object')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
-        pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data)
+        try_calling \
+            (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
         nz = dim[0]
         ny = dim[1]
         nx = dim[2]
         if nx == 0 or ny == 0 or nz == 0:
             raise error('image data not available')
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-        pystir.cSTIR_getImageData(self.handle, array.ctypes.data)
+        try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
     def show(self):
         '''Displays xy-cross-sections of this image at z selected interactively.'''

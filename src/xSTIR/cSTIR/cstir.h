@@ -76,15 +76,15 @@ extern "C" {
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 
 	// Image methods
-	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
-	void cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
-	void cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
+	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
 		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromImage(void* ptr_v);
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
-	void cSTIR_fillImage(void* ptr_i, float v);
+	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 	//void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
@@ -101,8 +101,8 @@ extern "C" {
 	void* newTextWriter(const char* stream);
 	void openChannel(int channel, void* ptr_w);
 	void closeChannel(int channel, void* ptr_w);
-	void deleteTextPrinter(void* ptr);
-	void deleteTextWriter(void* ptr_w);
+	void* deleteTextPrinter(void* ptr);
+	void* deleteTextWriter(void* ptr_w);
 
 #ifndef CSTIR_FOR_MATLAB
 }

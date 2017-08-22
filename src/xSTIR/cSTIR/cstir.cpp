@@ -687,150 +687,112 @@ void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 }
 
 extern "C"
-void cSTIR_fillImage(void* ptr_i, float v)
+void* cSTIR_fillImage(void* ptr_i, float v)
 {
-	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_i);
-	PETImageData* ptr_id = objectPtrFromHandle<PETImageData>(ptr_i);
-	if (ptr_id == 0)
-		return;
-	//Image3DF& image = *ptr_image;
-	Image3DF& image = ptr_id->data();
-	image.fill(v);
+	try {
+		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_i);
+		//if (ptr_image == 0)
+		//	return;
+		//Image3DF& image = *ptr_image;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
+		Image3DF& image = id.data();
+		image.fill(v);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
-void cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim) 
+void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim) 
 {
-	int* dim = (int*)ptr_dim;
-	dim[0] = 0;
-	dim[1] = 0;
-	dim[2] = 0;
-	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-	PETImageData* ptr_id = objectPtrFromHandle<PETImageData>(ptr_im);
-	if (ptr_id == 0)
-		return;
-	Image3DF* ptr_image = ptr_id->data_ptr();
-	if (ptr_image == 0)
-		return;
-	Image3DF& image = *ptr_image;
-	//Image3DF& image = ptr_id->data();
-	Coordinate3D<int> min_indices;
-	Coordinate3D<int> max_indices;
-	if (!image.get_regular_range(min_indices, max_indices))
-		return;
-	for (int i = 0; i < 3; i++)
-		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
+	try {
+		int* dim = (int*)ptr_dim;
+		dim[0] = 0;
+		dim[1] = 0;
+		dim[2] = 0;
+		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
+		//if (ptr_image == 0)
+		//	return;
+		//Image3DF& image = *ptr_image;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		Image3DF& image = id.data();
+		Coordinate3D<int> min_indices;
+		Coordinate3D<int> max_indices;
+		if (!image.get_regular_range(min_indices, max_indices)) {
+			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
+		}
+		image.get_regular_range(min_indices, max_indices);
+		for (int i = 0; i < 3; i++)
+			dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
-void cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
+void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
 {
-	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-	//if (ptr_image == 0)
-	//	return;
-	//Image3DF& image = *ptr_image;
-	PETImageData* ptr_id = objectPtrFromHandle<PETImageData>(ptr_im);
-	if (ptr_id == 0)
-		return;
-	//Image3DF& image = ptr_id->data();
-	Image3DF* ptr_image = ptr_id->data_ptr();
-	if (ptr_image == 0)
-		return;
-	Image3DF& image = *ptr_image;
-	Coordinate3D<int> min_indices;
-	Coordinate3D<int> max_indices;
-	float* data = (float*)ptr_data;
-	if (!image.get_regular_range(min_indices, max_indices))
-		return;
-	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-				data[i] = image[z][y][x];
+	try {
+		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
+		//if (ptr_image == 0)
+		//	return;
+		//Image3DF& image = *ptr_image;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		Image3DF& image = id.data();
+		Coordinate3D<int> min_indices;
+		Coordinate3D<int> max_indices;
+		float* data = (float*)ptr_data;
+		if (!image.get_regular_range(min_indices, max_indices)) {
+			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
+		}
+		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+					data[i] = image[z][y][x];
+				}
 			}
 		}
+		return new DataHandle;
 	}
+	CATCH;
 }
 
 extern "C"
-void cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
+void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
 {
-	//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-	//if (ptr_image == 0)
-	//	return;
-	PETImageData* ptr_id = objectPtrFromHandle<PETImageData>(ptr_im);
-	if (ptr_id == 0)
-		return;
-	Image3DF* ptr_image = ptr_id->data_ptr();
-	if (ptr_image == 0)
-		return;
-	Image3DF& image = *ptr_image;
-	Coordinate3D<int> min_indices;
-	Coordinate3D<int> max_indices;
-	float* data = (float*)ptr_data;
-	if (!image.get_regular_range(min_indices, max_indices))
-		return;
-	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-				image[z][y][x] = data[i];
+	try {
+		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
+		//if (ptr_image == 0)
+		//	return;
+		//Image3DF& image = *ptr_image;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		Image3DF& image = id.data();
+		Coordinate3D<int> min_indices;
+		Coordinate3D<int> max_indices;
+		float* data = (float*)ptr_data;
+		if (!image.get_regular_range(min_indices, max_indices)) {
+			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
+		}
+		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+					image[z][y][x] = data[i];
+				}
 			}
 		}
+		return new DataHandle;
 	}
+	CATCH;
 }
-
-//extern "C"
-//void* cSTIR_imagesDifference(void* first, void* second, int rimsize) 
-//{
-//	try {
-//
-//		Image3DF& first_image = objectFromHandle<Image3DF>(first);
-//		Image3DF& second_image = objectFromHandle<Image3DF>(second);
-//
-//		std::string explanation;
-//		if (!first_image.has_same_characteristics(second_image, explanation))
-//		{
-//			warning("input images do not have the same characteristics.\n%s",
-//				explanation.c_str());
-//			ExecutionStatus status(
-//				"input images do not have the same characteristics",
-//				__FILE__, __LINE__);
-//			DataHandle* handle = new DataHandle;
-//			handle->set(0, &status);
-//			return (void*)handle;
-//		}
-//
-//		if (rimsize >= 0)
-//		{
-//			truncate_rim(first_image, rimsize);
-//			truncate_rim(second_image, rimsize);
-//		}
-//
-//		float reference_max = first_image.find_max();
-//		float reference_min = first_image.find_min();
-//
-//		float amplitude = fabs(reference_max) > fabs(reference_min) ?
-//			fabs(reference_max) : fabs(reference_min);
-//
-//		sptrImage3DF sptr(first_image.clone());
-//		Image3DF& image = *sptr.get();
-//
-//		image -= second_image;
-//		const float max_error = image.find_max();
-//		const float min_error = image.find_min();
-//
-//		float max_abs_error = fabs(min_error);
-//		if (max_error > max_abs_error)
-//			max_abs_error = max_error;
-//
-//		float* result = (float*)malloc(sizeof(float));
-//		*result = max_abs_error / amplitude;
-//		DataHandle* handle = new DataHandle;
-//		handle->set(result, 0, GRAB);
-//		return (void*)handle;
-//
-//	}
-//	CATCH;
-//}
 
 extern "C"
 void*
