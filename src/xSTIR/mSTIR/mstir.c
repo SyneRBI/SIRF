@@ -108,14 +108,14 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f,
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 	return cSTIR_priorGradient(ptr_p, ptr_i);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
-	cSTIR_getImageDimensions(ptr, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
+	return cSTIR_getImageDimensions(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
-	cSTIR_getImageData(ptr, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
+	return cSTIR_getImageData(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
-	cSTIR_setImageData(ptr_im, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
+	return cSTIR_setImageData(ptr_im, ptr_data);
 }
 EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z) {
 	return cSTIR_voxels3DF(nx, ny, nz, sx, sy, sz, x, y, z);
@@ -129,8 +129,8 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
-EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, float v) {
-	cSTIR_fillImage(ptr_i, v);
+EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v) {
+	return cSTIR_fillImage(ptr_i, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_s, v);
@@ -153,22 +153,22 @@ EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w) {
 EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w) {
 	closeChannel(channel, ptr_w);
 }
-EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr) {
-	deleteTextPrinter(ptr);
+EXPORTED_FUNCTION 	void* mDeleteTextPrinter(void* ptr) {
+	return deleteTextPrinter(ptr);
 }
-EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
-	deleteTextWriter(ptr_w);
+EXPORTED_FUNCTION 	void* mDeleteTextWriter(void* ptr_w) {
+	return deleteTextWriter(ptr_w);
 }
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif
 void* newMexPrinter();
-void deleteMexPrinter(void* ptr);
+void* deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();
 }
-EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr) {
-  deleteMexPrinter(ptr);
+EXPORTED_FUNCTION void* mDeleteMexPrinter(void* ptr) {
+  return deleteMexPrinter(ptr);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}

@@ -92,15 +92,18 @@ classdef ImageData < handle
 %         The argument is either 3D array of values or a scalar to be
 %         assigned at each voxel.
             if numel(value) == 1
-                calllib('mstir', 'mSTIR_fillImage', self.handle, single(value))
+                h = calllib('mstir', 'mSTIR_fillImage', ...
+                    self.handle, single(value));
             else
                 if isa(value, 'single')
                     ptr_v = libpointer('singlePtr', value);
                 else
                     ptr_v = libpointer('singlePtr', single(value));
                 end
-                calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v)
+                h = calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v);
             end
+            mUtilities.check_status('ImageData:fill', h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = clone(self)
 %***SIRF*** Creates a copy of this image.
@@ -147,33 +150,37 @@ classdef ImageData < handle
             mUtilities.check_status('ImageData:add_shape', h);
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function diff = diff_from(self, image)
-%***SIRF*** Returns the relative difference between self and the image
-%         specified by the last argument, i.e. the maximal difference at
-%         voxels of common containing box divided by the maximum value
-%         of self.
-            h = calllib('mstir', 'mSTIR_imagesDifference',...
-                     self.handle, image.handle, self.rimsize);
-            mUtilities.check_status('ImageData:diff_from', h);
-            diff = calllib('mutilities', 'mFloatDataFromHandle', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
-        end
+%         function diff = diff_from(self, image)
+% %***SIRF*** Returns the relative difference between self and the image
+% %         specified by the last argument, i.e. the maximal difference at
+% %         voxels of common containing box divided by the maximum value
+% %         of self.
+%             h = calllib('mstir', 'mSTIR_imagesDifference',...
+%                      self.handle, image.handle, self.rimsize);
+%             mUtilities.check_status('ImageData:diff_from', h);
+%             diff = calllib('mutilities', 'mFloatDataFromHandle', h);
+%             calllib('mutilities', 'mDeleteDataHandle', h)
+%         end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of this image values at voxels.
 
 %             [ptr, dim] = calllib...
 %                 ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
-            calllib...
+            h = calllib...
                 ('mstir', 'mSTIR_getImageDimensions', self.handle, ptr_i);
+            mUtilities.check_status('ImageData:as_array', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
 %             [ptr, data] = calllib...
 %                 ('mstir', 'mSTIR_getImageData', self.handle, zeros(n, 1));
 %             data = reshape(data, dim(3), dim(2), dim(1));
             ptr_v = libpointer('singlePtr', zeros(n, 1));
-            calllib...
-                ('mstir', 'mSTIR_getImageData', self.handle, ptr_v)
+            h = calllib...
+                ('mstir', 'mSTIR_getImageData', self.handle, ptr_v);
+            mUtilities.check_status('ImageData:as_array', h);
+            calllib('mutilities', 'mDeleteDataHandle', h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
         function show(self)

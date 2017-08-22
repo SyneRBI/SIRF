@@ -15,17 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "data_handle.h"
 #include "printer.h"
 
 extern "C" {
 	void* newMexPrinter() {
-//        mexPrintf("creating mexTextPrinter\n");
+    //mexPrintf("creating mexTextPrinter\n");
 		return (void*)new mexTextPrinter;
 	}
-	void deleteMexPrinter(void* ptr) {
-//        mexPrintf("deleting mexTextPrinter...");
+	void* deleteMexPrinter(void* ptr) {
+    //mexPrintf("deleting mexTextPrinter...");
 		delete (mexTextPrinter*)ptr;
-//        mexPrintf("ok\n");
+    //mexPrintf("ok\n");
+		return new DataHandle;
 	}
 }
 
