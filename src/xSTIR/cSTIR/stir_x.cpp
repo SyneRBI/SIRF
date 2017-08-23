@@ -22,212 +22,108 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-float
-PETAcquisitionData::norm()
-{
-	double t = 0.0;
-	for (int s = 0; s <= get_max_segment_num(); ++s)
-	{
-		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-			double r = *seg_iter++;
-			t += r*r;
-		}
-		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(); seg_iter != seg.end_all();) {
-				double r = *seg_iter++;
-				t += r*r;
-			}
-		}
-	}
-	return sqrt((float)t);
-}
-
-void
-PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
-{
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all();
-			/*empty*/) {
-			*seg_iter++ = float(a*double(*sx_iter++));
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all();
-				/*empty*/)
-				*seg_iter++ = float(a*double(*sx_iter++));
-			set_segment(seg);
-		}
-	}
-}
-
-void
-PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
-{
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx; ++s)
-	{
-		//std::cout << "processing segment " << s << std::endl;
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all();
-			/*empty*/)
-			*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
-		set_segment(seg);
-		if (s != 0) {
-			//std::cout << "processing segment " << -s << std::endl;
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all();
-				/*empty*/) {
-				*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
-			}
-			set_segment(seg);
-		}
-	}
-}
-
-void
-PETAcquisitionData::axpby(
-	float a, const aDataContainer<float>& a_x, 
-	float b, const aDataContainer<float>& a_y
-)
-{
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	int ny = y.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
-	{
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		SegmentBySinogram<float>::full_iterator sy_iter;
-		for (seg_iter = seg.begin_all(), 
-			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-			seg_iter != seg.end_all() && 
-			sx_iter != sx.end_all() && sy_iter != sy.end_all();
-			/*empty*/) {
-			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-		}
-		set_segment(seg);
-		if (s != 0) {
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			sy = y.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(),
-				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
-				seg_iter != seg.end_all() &&
-				sx_iter != sx.end_all() && sy_iter != sy.end_all();
-				/*empty*/) {
-				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
-			}
-			set_segment(seg);
-		}
-	}
-}
-
-float
-PETImageData::norm()
-{
-#ifdef _MSC_VER
-	//Array<3, float>::const_full_iterator iter;
-	Image3DF::const_full_iterator iter;
-#else
-	typename Array<3, float>::const_full_iterator iter;
-#endif
-	double s = 0.0;
-	int i = 0;
-	for (iter = _data->begin_all(); iter != _data->end_all(); iter++, i++) {
-		double t = *iter;
-		s += t*t;
-	}
-	//std::cout << "voxels count: " << i << std::endl;
-	return (float)sqrt(s);
-}
-
-float 
-PETImageData::dot(const aDataContainer<float>& a_x)
-{
-	PETImageData& x = (PETImageData&)a_x;
-#ifdef _MSC_VER
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-#endif
-
-	double s = 0.0;
-	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++) {
-		double t = *iter;
-		s += t * (*iter_x);
-	}
-	return (float)s;
-}
-
 void 
-PETImageData::mult(float a, const aDataContainer<float>& a_x)
+PETAcquisitionModel::set_bin_efficiency
+(boost::shared_ptr<PETAcquisitionData> sptr_data)
 {
-	PETImageData& x = (PETImageData&)a_x;
-#ifdef _MSC_VER
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-#endif
+	////boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+	//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data->data()));
+	//inv_(sptr.get(), MIN_BIN_EFFICIENCY);
+	//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 
-	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++)
-		*iter = a * (*iter_x);
+	boost::shared_ptr<PETAcquisitionData>
+		sptr_ad(sptr_data->new_acquisition_data());
+	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
+	sptr_normalisation_.reset
+		(new BinNormalisationFromProjData(sptr_ad->data()));
+	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
+
+	//std::cout << sptr_normalisation_.get() << std::endl;
+	//std::cout << sptr_normalisation_->is_trivial() << std::endl;
+	//std::cout << normalisation_sptr()->is_trivial() << std::endl;
+	//sptr_ad->clear_stream();
+	sptr_norm_ = sptr_ad;
 }
 
-void
-PETImageData::axpby(
-float a, const aDataContainer<float>& a_x,
-float b, const aDataContainer<float>& a_y)
+Succeeded 
+PETAcquisitionModel::set_up(
+	boost::shared_ptr<PETAcquisitionData> sptr_acq,
+	boost::shared_ptr<Image3DF> sptr_image)
 {
-	PETImageData& x = (PETImageData&)a_x;
-	PETImageData& y = (PETImageData&)a_y;
-#ifdef _MSC_VER
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	for (iter = data().begin_all(), 
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all(), 
-		iter_x != x.data().end_all(), iter_y != y.data().end_all(); 
-		iter++, iter_x++, iter_y++)
-		*iter = a * (*iter_x) + b * (*iter_y);
+	Succeeded s = Succeeded::no;
+	if (sptr_projectors_.get()) {
+		s = sptr_projectors_->set_up
+			(sptr_acq->get_proj_data_info_sptr(), sptr_image);
+		sptr_acq_template_ = sptr_acq;
+		sptr_image_template_ = sptr_image;
+	}
+	return s;
 }
+
+boost::shared_ptr<PETAcquisitionData>
+PETAcquisitionModel::forward(const Image3DF& image, const char* file)
+{
+	boost::shared_ptr<PETAcquisitionData> sptr_ad;
+	sptr_ad = sptr_acq_template_->new_acquisition_data();
+
+	boost::shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+
+	sptr_projectors_->get_forward_projector_sptr()->forward_project
+		(*sptr_fd, image);
+
+	if (sptr_add_.get()) {
+		std::cout << "additive term added...";
+		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
+		//add_(sptr_fd, sptr_add_->data());
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no additive term added\n";
+
+	clear_stream();
+	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+		std::cout << "normalisation applied...";
+		sptr_normalisation_->undo(*sptr_fd, 0, 1);
+		//sptr_normalisation_->apply(*sptr_fd, 0, 1);
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no normalisation applied\n";
+
+	if (sptr_background_.get()) {
+		std::cout << "background term added...";
+		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
+		//add_(sptr_fd, sptr_background_->data());
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no background term added\n";
+
+	//sptr_ad->set_data(sptr_fd);
+	//return sptr_fd;
+	return sptr_ad;
+}
+
+boost::shared_ptr<Image3DF> 
+PETAcquisitionModel::backward(const ProjData& ad)
+{
+	boost::shared_ptr<Image3DF> sptr_im(sptr_image_template_->clone());
+	sptr_im->fill(0.0);
+
+	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+		std::cout << "applying normalisation...";
+		ProjDataInMemory adc(ad);
+		std::cout << "ok\n";
+		sptr_normalisation_->undo(adc, 0, 1);
+		std::cout << "backprojecting...";
+		sptr_projectors_->get_back_projector_sptr()->back_project
+			(*sptr_im, adc);
+		std::cout << "ok\n";
+	}
+	else
+		sptr_projectors_->get_back_projector_sptr()->back_project
+		(*sptr_im, ad);
+
+	return sptr_im;
+}
+
