@@ -77,6 +77,14 @@ public:
 	{
 		return sino_stream;
 	}
+	void close_stream()
+	{
+		((std::fstream*)sino_stream.get())->close();
+	}
+	void clear_stream()
+	{
+		((std::fstream*)sino_stream.get())->clear();
+	}
 };
 
 class ProjDataScratchFile {
@@ -87,8 +95,7 @@ public:
 	}
 	~ProjDataScratchFile()
 	{
-		shared_ptr<std::iostream> sino_stream = _data->sino_stream_sptr();
-		((std::fstream*)sino_stream.get())->close();
+		_data->close_stream();
 		int err;
 		err = std::remove((_filename + ".hs").c_str());
 		if (err)
@@ -98,6 +105,10 @@ public:
 		if (err)
 			std::cout << "deleting " << _filename << ".s "
 			<< "failed, please delete manually" << std::endl;
+	}
+	void clear_stream()
+	{
+		_data->clear_stream();
 	}
 	boost::shared_ptr<ProjData> data() 
 	{
@@ -224,6 +235,12 @@ public:
 		return _data->get_proj_data_info_sptr();
 	}
 
+	void clear_stream()
+	{
+		if (_file.get())
+			_file->clear_stream();
+	}
+
 	// ProjData casts
 	operator ProjData&() { return *_data; }
 	operator const ProjData&() const { return *_data; }
@@ -256,7 +273,7 @@ public:
 	}
 	PETAcquisitionDataInFile(const ProjData& pd)
 	{
-		boost::shared_ptr<ProjDataScratchFile> _file(new ProjDataScratchFile(pd));
+		_file.reset(new ProjDataScratchFile(pd));
 		_data = _file->data();
 	}
 };
@@ -386,27 +403,23 @@ public:
 	//void set_bin_efficiency(boost::shared_ptr<ProjData> sptr_data)
 	void set_bin_efficiency(boost::shared_ptr<PETAcquisitionData> sptr_data)
 	{
-		boost::shared_ptr<PETAcquisitionData> sptr_ad(new PETAcquisitionDataInMemory(*sptr_data));
-		//boost::shared_ptr<PETAcquisitionData> sptr_ad(sptr_data->new_acquisition_data());
-		sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
-		//std::cout << sptr_ad->norm() << std::endl;
-
-		//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
-		//sptr_ad->set_data(sptr);
-		//std::cout << sptr_ad->norm() << std::endl;
-
+		////boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+		//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data->data()));
 		//inv_(sptr.get(), MIN_BIN_EFFICIENCY);
-		//std::cout << sptr_ad->norm() << std::endl;
+		//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
+
+		boost::shared_ptr<PETAcquisitionData>
+			sptr_ad(sptr_data->new_acquisition_data());
+		sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
 		sptr_normalisation_.reset
 			(new BinNormalisationFromProjData(sptr_ad->data()));
+		sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
 
-		//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
-		//sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
-		//std::cout << sptr_ad->norm() << std::endl;
-		//sptr_ad->set_data(sptr);
-		//std::cout << sptr_ad->norm() << std::endl;
-		//sptr_normalisation_.reset
-		//	(new BinNormalisationFromProjData(sptr_ad->data()));
+		//std::cout << sptr_normalisation_.get() << std::endl;
+		//std::cout << sptr_normalisation_->is_trivial() << std::endl;
+		//std::cout << normalisation_sptr()->is_trivial() << std::endl;
+		//sptr_ad->clear_stream();
+		sptr_norm_ = sptr_ad;
 	}
 	//void set_normalisation(boost::shared_ptr<ProjData> sptr_data)
 	void set_normalisation(boost::shared_ptr<PETAcquisitionData> sptr_data)
@@ -425,6 +438,11 @@ public:
 	void cancel_normalisation()
 	{
 		sptr_normalisation_.reset();
+	}
+	void clear_stream()
+	{
+		if (sptr_norm_.get())
+			sptr_norm_->clear_stream();
 	}
 
 	virtual Succeeded set_up(
@@ -451,51 +469,41 @@ public:
 		sptr_ad = sptr_acq_template_->new_acquisition_data();
 
 		boost::shared_ptr<ProjData> sptr_fd = sptr_ad->data();
-		//if (file && strlen(file) > 0) {
-		//	std::ofstream out;
-		//	std::string filename(file);
-		//	out.open(filename + ".s");
-		//	out.close();
-		//	sptr_fd.reset(
-		//		new ProjDataInterfile(sptr_acq_template_->get_exam_info_sptr(),
-		//		sptr_acq_template_->get_proj_data_info_sptr(), filename, std::ios::in | std::ios::out));
-		//}
-		//else
-		//	sptr_fd.reset(
-		//	new ProjDataInMemory(sptr_acq_template_->get_exam_info_sptr(),
-		//	sptr_acq_template_->get_proj_data_info_sptr()));
 
 		sptr_projectors_->get_forward_projector_sptr()->forward_project
 			(*sptr_fd, image);
 
 		if (sptr_add_.get()) {
+			std::cout << "additive term added...";
 			sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
 			//add_(sptr_fd, sptr_add_->data());
-			std::cout << "additive term added\n";
+			std::cout << "ok\n";
 		}
 		else
 			std::cout << "no additive term added\n";
 
+		clear_stream();
 		if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+			std::cout << "normalisation applied...";
 			sptr_normalisation_->undo(*sptr_fd, 0, 1);
 			//sptr_normalisation_->apply(*sptr_fd, 0, 1);
-			std::cout << "normalisation applied\n";
+			std::cout << "ok\n";
 		}
 		else
 			std::cout << "no normalisation applied\n";
 
 		if (sptr_background_.get()) {
+			std::cout << "background term added...";
 			sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
 			//add_(sptr_fd, sptr_background_->data());
-			std::cout << "background term added\n";
+			std::cout << "ok\n";
 		}
 		else
 			std::cout << "no background term added\n";
 
 		//sptr_ad->set_data(sptr_fd);
-		//std::cout << "ok\n";
-		return sptr_ad;
 		//return sptr_fd;
+		return sptr_ad;
 	}
 
 	boost::shared_ptr<Image> backward(const ProjData& ad)
@@ -504,12 +512,14 @@ public:
 		sptr_im->fill(0.0);
 
 		if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
-			std::cout << "applying normalisation...\n";
+			std::cout << "applying normalisation...";
 			ProjDataInMemory adc(ad);
+			std::cout << "ok\n";
 			sptr_normalisation_->undo(adc, 0, 1);
-			std::cout << "backprojecting...\n";
+			std::cout << "backprojecting...";
 			sptr_projectors_->get_back_projector_sptr()->back_project
 				(*sptr_im, adc);
+			std::cout << "ok\n";
 		}
 		else
 			sptr_projectors_->get_back_projector_sptr()->back_project
@@ -528,46 +538,7 @@ protected:
 	//boost::shared_ptr<ProjData> sptr_add_;
 	//boost::shared_ptr<ProjData> sptr_background_;
 	boost::shared_ptr<BinNormalisation> sptr_normalisation_;
-
-private:
-	void inv_(ProjData* ptr, float minval)
-	{
-		size_t size = ptr->size_all();
-		float* data = new float[size];
-		ptr->copy_to(data);
-		inv_(size, data, minval);
-		ptr->fill_from(data);
-		delete[] data;
-	}
-	void add_
-		(boost::shared_ptr<ProjData> sptr_a, boost::shared_ptr<ProjData> sptr_b)
-	{
-		size_t size_a = sptr_a->size_all();
-		size_t size_b = sptr_b->size_all();
-		if (size_a != size_b) {
-			std::cout << "ERROR: mismatching sizes " << size_a
-				<< " and " << size_b << ", skipping\n";
-			return;
-		}
-		float* data_a = new float[size_a];
-		float* data_b = new float[size_b];
-		sptr_a->copy_to(data_a);
-		sptr_b->copy_to(data_b);
-		add_(size_a, data_a, data_b);
-		sptr_a->fill_from(data_a);
-		delete[] data_a;
-		delete[] data_b;
-	}
-	void inv_(size_t n, float* u, float minval)
-	{
-		for (size_t i = 0; i < n; i++)
-			u[i] = 1 / std::max(minval, u[i]);
-	}
-	void add_(size_t n, float* u, float* v)
-	{
-		for (size_t i = 0; i < n; i++)
-			u[i] += v[i];
-	}
+	boost::shared_ptr<PETAcquisitionData> sptr_norm_;
 };
 
 template<class Image>

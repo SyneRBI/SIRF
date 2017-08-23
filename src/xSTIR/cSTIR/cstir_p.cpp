@@ -192,16 +192,20 @@ cSTIR_setAcquisitionModelParameter
 	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hp);
 	if (boost::iequals(name, "additive_term"))
 		am.set_additive_term(sptrDataFromHandle<PETAcquisitionData>(hv));
-		//am.set_additive_term(sptrDataFromHandle<ProjData>(hv));
+	//am.set_additive_term(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "background_term"))
 		am.set_background_term(sptrDataFromHandle<PETAcquisitionData>(hv));
 	//am.set_background_term(sptrDataFromHandle<ProjData>(hv));
 	else if (boost::iequals(name, "normalisation"))
 		am.set_normalisation(sptrDataFromHandle<PETAcquisitionData>(hv));
-		//am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
-	else if (boost::iequals(name, "bin_efficiency"))
+	//am.set_normalisation(sptrDataFromHandle<ProjData>(hv));
+	else if (boost::iequals(name, "bin_efficiency")) {
 		am.set_bin_efficiency(sptrDataFromHandle<PETAcquisitionData>(hv));
 		//am.set_bin_efficiency(sptrDataFromHandle<ProjData>(hv));
+		//std::cout << am.normalisation_sptr().get() << std::endl;
+		//am.norm_sptr()->clear_stream();
+		//std::cout << am.normalisation_sptr()->is_trivial() << std::endl;
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
