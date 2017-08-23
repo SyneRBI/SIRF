@@ -274,7 +274,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 
 extern "C"
 void* cSTIR_acquisitionModelFwd
-(void* ptr_am, void* ptr_im, const char* datafile)
+(void* ptr_am, void* ptr_im)
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
@@ -285,7 +285,7 @@ void* cSTIR_acquisitionModelFwd
 		//*ptr_sptr = am.forward(im, datafile);
 		//return newObjectHandle(ptr_sptr);
 		NEW(boost::shared_ptr<PETAcquisitionData>, sptr_ad);
-		*sptr_ad = am.forward(im, datafile);
+		*sptr_ad = am.forward(im);
 		return newObjectHandle(sptr_ad);
 	}
 	CATCH;

@@ -92,7 +92,7 @@ public:
 		boost::shared_ptr<Image3DF> sptr_image);
 
 	boost::shared_ptr<PETAcquisitionData>
-		forward(const Image3DF& image, const char* file = 0);
+		forward(const Image3DF& image);
 
 	boost::shared_ptr<Image3DF> backward(const ProjData& ad);
 

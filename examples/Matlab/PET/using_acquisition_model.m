@@ -76,8 +76,7 @@ try
     fprintf('setting up acquisition model...\n')
     acq_model.set_up(template, image)
     fprintf('projecting...\n')
-    simulated_data = acq_model.forward(image); % simulated_data stored in memory
-%     simulated_data = acq_model.forward(image, 'demo4data.hs'); % simulated_data stored in a file
+    simulated_data = acq_model.forward(image);
 
     % display simulated data
     acq_array = simulated_data.as_array();

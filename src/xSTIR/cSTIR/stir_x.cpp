@@ -61,7 +61,7 @@ PETAcquisitionModel::set_up(
 }
 
 boost::shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const Image3DF& image, const char* file)
+PETAcquisitionModel::forward(const Image3DF& image)
 {
 	boost::shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
