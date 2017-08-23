@@ -259,6 +259,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		//sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		sptrImage3DF sptr_im = id.data_sptr();
+		//std::cout << "setting up acquisition model...\n";
 		Succeeded s = am.set_up(sptr_dt, sptr_im);
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {

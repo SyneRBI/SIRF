@@ -64,7 +64,7 @@ PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
 		}
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s);
 			sx = x.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
@@ -83,6 +83,7 @@ PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
 	int nx = x.get_max_segment_num();
 	for (int s = 0; s <= n && s <= nx; ++s)
 	{
+		//std::cout << "processing segment " << s << std::endl;
 		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
 		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
 		SegmentBySinogram<float>::full_iterator seg_iter;
@@ -93,7 +94,8 @@ PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
 			*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
+			//std::cout << "processing segment " << -s << std::endl;
+			seg = get_empty_segment_by_sinogram(-s);
 			sx = x.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
 				seg_iter != seg.end_all() && sx_iter != sx.end_all();
@@ -133,7 +135,7 @@ PETAcquisitionData::axpby(
 		}
 		set_segment(seg);
 		if (s != 0) {
-			seg = get_segment_by_sinogram(-s);
+			seg = get_empty_segment_by_sinogram(-s);
 			sx = x.get_segment_by_sinogram(-s);
 			sy = y.get_segment_by_sinogram(-s);
 			for (seg_iter = seg.begin_all(),
