@@ -807,7 +807,7 @@ class AcquisitionModel:
         '''
         _setParameter\
             (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
-    def forward(self, image, filename = ''):
+    def forward(self, image):
         ''' 
         Returns the forward projection of x given by (F);
         image   :  an ImageData object containing x;
@@ -816,8 +816,7 @@ class AcquisitionModel:
                    (not recommended as it can be huge).
         '''
         ad = AcquisitionData()
-        ad.handle = pystir.cSTIR_acquisitionModelFwd\
-            (self.handle, image.handle, filename)
+        ad.handle = pystir.cSTIR_acquisitionModelFwd(self.handle, image.handle)
         check_status(ad.handle)
         return ad;
     def backward(self, ad):

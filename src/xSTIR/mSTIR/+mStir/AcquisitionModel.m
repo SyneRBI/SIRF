@@ -88,24 +88,15 @@ classdef AcquisitionModel < handle
             mUtilities.check_status([self.name ':set_up'], h)
             calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function ad = forward(self, image, filename)
+        function ad = forward(self, image)
 %***SIRF*** computes the forward projection of ImageData by the formula (F)
 %         given in the main class documentation.
 %         Usage: 
 %             acq_data = forward(image, filename);
 %         image   :  an ImageData object containing x;
-%         filename:  an optional name of the file to store the projection data;
-%                    if not present, projection data is stored in memory
-%                    (careful as it can be very large);
-%                    if present, the returned acq_data object will refer to 
-%                    the data in a newly created file (any existing file 
-%                    with the same name will be overwritten without warning).
-            if nargin < 3
-                filename = '';
-            end
             ad = mStir.AcquisitionData();
             ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
-                self.handle, image.handle, filename);
+                self.handle, image.handle);
             mUtilities.check_status([self.name ':forward'], ad.handle)
         end
         function image = backward(self, ad)

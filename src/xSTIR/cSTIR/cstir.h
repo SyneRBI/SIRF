@@ -44,8 +44,7 @@ extern "C" {
 
 	// Acquisition model methods
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
-	void* cSTIR_acquisitionModelFwd
-		(void* ptr_am, void* ptr_im, const char* datafile);
+	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
 	// Acquisition data methods
