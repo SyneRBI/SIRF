@@ -73,6 +73,36 @@ PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
 	}
 }
 
+float
+PETAcquisitionData::dot(const aDataContainer<float>& a_x)
+{
+	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	double t = 0;
+	for (int s = 0; s <= n && s <= nx; ++s)
+	{
+		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all();
+			/*empty*/) {
+			t += (*seg_iter++)*double(*sx_iter++);
+		}
+		if (s != 0) {
+			seg = get_segment_by_sinogram(-s);
+			sx = x.get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all();
+				/*empty*/)
+				t += (*seg_iter++)*double(*sx_iter++);
+		}
+	}
+	return (float)t;
+}
+
 void
 PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
 {

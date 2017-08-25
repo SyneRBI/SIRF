@@ -33,6 +33,8 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
+import math
+
 from pUtilities import show_2D_array
 
 # import engine module
@@ -69,40 +71,43 @@ def main():
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
 
-    #print(acq_data.norm(), numpy.linalg.norm(acq_array))
-
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
     acq_array = new_acq_data.as_array()
-
-    #diff = new_acq_data - acq_data
-    #print(diff.norm())
-
     show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
-    # fill the cloned data with the acquisition data multiplied by 10
-    new_acq_data.fill(10*acq_array)
-    #new_acq_data = acq_data * 10.0
-    acq_array = new_acq_data.as_array()
+    print('Checking acquisition data algebra:')
+    print('data dimensions: %d x %d x %d' % acq_array.shape)
+    s = acq_data.norm()
+    t = acq_data * acq_data
+    print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))
+    print('acq_data.norm(): %f' % s)
+    print('sqrt(acq_data * acq_data): %f' % math.sqrt(t))
+    diff = new_acq_data - acq_data
+    print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
+    new_acq_data = acq_data * 10.0
+    print('norm of acq_data*10: %f' % new_acq_data.norm())
 
+    # display the scaled data
+    acq_array = new_acq_data.as_array()
     show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
-    image = acq_data.create_uniform_image(1.0)
+    print('Checking images algebra:')
+    image = acq_data.create_uniform_image(10.0)
     image_array = image.as_array()
-    print(image_array.shape)
+    print('image dimensions: %d x %d x %d' % image_array.shape)
     s = image.norm()
-    print(s, numpy.linalg.norm(image_array))
-    print(s*s, image*image)
-
+    t = image * image
+    print('norm of image.as_array(): %f' % numpy.linalg.norm(image_array))
+    print('image.norm(): %f' % s)
+    print('sqrt(image * image): %f' % math.sqrt(t))
     image = image*10
-    image_array = image.as_array()
-    print(image.norm(), numpy.linalg.norm(image_array))
-
-    diff = image - image
-    print(diff.norm())
+    print('norm of image*10: %f' % image.norm())
+    diff = image.clone() - image
+    print('norm of image.clone() - image: %f' % diff.norm())
 
 try:
     main()

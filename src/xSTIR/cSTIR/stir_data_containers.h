@@ -183,10 +183,7 @@ public:
 	// data container methods
 	unsigned int items() { return 1; }
 	float norm();
-	float dot(const aDataContainer<float>& x)
-	{
-		return 0;
-	}
+	float dot(const aDataContainer<float>& x);
 	void mult(float a, const aDataContainer<float>& x);
 	void inv(float a, const aDataContainer<float>& x);
 	void axpby(float a, const aDataContainer<float>& x,
