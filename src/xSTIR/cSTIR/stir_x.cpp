@@ -80,7 +80,7 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	else
 		std::cout << "no additive term added\n";
 
-	clear_stream();
+	//clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);

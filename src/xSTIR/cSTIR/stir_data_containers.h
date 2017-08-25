@@ -92,7 +92,8 @@ public:
 	}
 	~ProjDataScratchFile()
 	{
-		_data->close_stream();
+		//_data->close_stream();
+		_data.reset();
 		int err;
 		err = std::remove((_filename + ".hs").c_str());
 		if (err)
@@ -147,7 +148,7 @@ public:
 		}
 		else {
 			ProjDataScratchFile* file = new ProjDataScratchFile(pd);
-			ptr_ad->_data = file->data();
+			//ptr_ad->_data = file->data();
 			ptr_ad->_file.reset(file);
 			return ptr_ad;
 		}
@@ -155,30 +156,43 @@ public:
 	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		return boost::shared_ptr<PETAcquisitionData>
-			(same_acquisition_data(*_data));
+			(same_acquisition_data(*data()));
 	}
 	boost::shared_ptr<aDataContainer<float> > new_data_container()
 	{
 		return boost::shared_ptr<aDataContainer<float> >
-			(same_acquisition_data(*_data));
+			(same_acquisition_data(*data()));
 	}
 
 	// ProjData accessor/mutator
-	boost::shared_ptr<ProjData> data() { return _data; }
-	void set_data(boost::shared_ptr<ProjData> data)
+	boost::shared_ptr<ProjData> data() 
 	{
-		_data = data;
+		if (_file.get())
+			return _file->data();
+		else
+			return _data;
 	}
+	const boost::shared_ptr<ProjData> data() const 
+	{ 
+		if (_file.get())
+			return _file->data();
+		else
+			return _data;
+	}
+	//void set_data(boost::shared_ptr<ProjData> data)
+	//{
+	//	_data = data;
+	//}
 
 	// data import/export
-	void fill(float v) { _data->fill(v); }
-	void fill(PETAcquisitionData& data)
+	void fill(float v) { data()->fill(v); }
+	void fill(PETAcquisitionData& ad)
 	{
-		boost::shared_ptr<ProjData> sptr = data.data();
-		_data->fill(*sptr);
+		boost::shared_ptr<ProjData> sptr = ad.data();
+		data()->fill(*sptr);
 	}
-	void fill_from(const float* data) { _data->fill_from(data); }
-	void copy_to(float* data) { _data->copy_to(data); }
+	void fill_from(const float* d) { data()->fill_from(d); }
+	void copy_to(float* d) { data()->copy_to(d); }
 
 	// data container methods
 	unsigned int items() { return 1; }
@@ -192,41 +206,41 @@ public:
 	// ProjData methods
 	int get_num_tangential_poss()
 	{
-		return _data->get_num_tangential_poss();
+		return data()->get_num_tangential_poss();
 	}
 	int get_num_views()
 	{
-		return _data->get_num_views();
+		return data()->get_num_views();
 	}
 	int get_num_sinograms()
 	{
-		return _data->get_num_sinograms();
+		return data()->get_num_sinograms();
 	}
 	int get_max_segment_num() const
 	{
-		return _data->get_max_segment_num();
+		return data()->get_max_segment_num();
 	}
 	SegmentBySinogram<float>
 		get_segment_by_sinogram(const int segment_num) const
 	{
-		return _data->get_segment_by_sinogram(segment_num);
+		return data()->get_segment_by_sinogram(segment_num);
 	}
 	SegmentBySinogram<float>
 		get_empty_segment_by_sinogram(const int segment_num) const
 	{
-		return _data->get_empty_segment_by_sinogram(segment_num);
+		return data()->get_empty_segment_by_sinogram(segment_num);
 	}
 	virtual Succeeded set_segment(const SegmentBySinogram<float>& s)
 	{
-		return _data->set_segment(s);
+		return data()->set_segment(s);
 	}
 	boost::shared_ptr<ExamInfo> get_exam_info_sptr() const
 	{
-		return _data->get_exam_info_sptr();
+		return data()->get_exam_info_sptr();
 	}
 	boost::shared_ptr<ProjDataInfo> get_proj_data_info_sptr() const
 	{
-		return _data->get_proj_data_info_sptr();
+		return data()->get_proj_data_info_sptr();
 	}
 
 	void clear_stream()
@@ -236,12 +250,12 @@ public:
 	}
 
 	// ProjData casts
-	operator ProjData&() { return *_data; }
-	operator const ProjData&() const { return *_data; }
-	operator ProjData*() { return _data.get(); }
-	operator const ProjData*() const { return _data.get(); }
-	operator boost::shared_ptr<ProjData>() { return _data; }
-	operator const boost::shared_ptr<ProjData>() const { return _data; }
+	operator ProjData&() { return *data(); }
+	operator const ProjData&() const { return *data(); }
+	//operator ProjData*() { return _data.get(); }
+	//operator const ProjData*() const { return _data.get(); }
+	//operator boost::shared_ptr<ProjData>() { return _data; }
+	//operator const boost::shared_ptr<ProjData>() const { return _data; }
 
 protected:
 	static std::string _storage_scheme;
@@ -270,6 +284,12 @@ public:
 		_file.reset(new ProjDataScratchFile(pd));
 		_data = _file->data();
 	}
+	~PETAcquisitionDataInFile()
+	{
+		_data.reset();
+		_file.reset();
+	}
+
 };
 
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
