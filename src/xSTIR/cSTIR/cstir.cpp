@@ -834,7 +834,7 @@ cSTIR_dot(const void* ptr_x, const void* ptr_y)
 
 extern "C"
 void*
-cSTIR_mult(float a, float ai, const void* ptr_x)
+cSTIR_mult(float a, const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
@@ -851,8 +851,8 @@ cSTIR_mult(float a, float ai, const void* ptr_x)
 extern "C"
 void*
 cSTIR_axpby(
-	float a, float ai, const void* ptr_x,
-	float b, float bi, const void* ptr_y
+	float a, const void* ptr_x,
+	float b, const void* ptr_y
 ) {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);

@@ -269,7 +269,7 @@ class DataContainer(ABC):
         assert self.handle is not None
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
-            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
+            (1.0, self.handle, 1.0, other.handle)
         check_status(z.handle)
         return z;
     def __sub__(self, other):
@@ -282,7 +282,7 @@ class DataContainer(ABC):
         assert self.handle is not None
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
-            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
+            (1.0, self.handle, -1.0, other.handle)
         check_status(z.handle)
         return z;
     def __mul__(self, other):
@@ -299,7 +299,7 @@ class DataContainer(ABC):
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_mult(other, 0, self.handle)
+            z.handle = pystir.cSTIR_mult(other, self.handle)
             z.src = 'mult'
 ##            z.handle = pystir.cSTIR_axpby\
 ##                (other, 0, self.handle, 0, 0, self.handle)
@@ -318,8 +318,9 @@ class DataContainer(ABC):
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby\
-                (other, 0, self.handle, 0, 0, self.handle)
+            z.handle = pystir.cSTIR_mult(other, self.handle)
+##            z.handle = pystir.cSTIR_axpby\
+##                (other, self.handle, 0, self.handle)
             check_status(z.handle)
             return z;
         else:
