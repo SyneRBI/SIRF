@@ -91,9 +91,8 @@ extern "C" {
 	// Data container methods
 	void* cSTIR_norm(const void* ptr_x);
 	void*	cSTIR_dot(const void* ptr_x, const void* ptr_y);
-	void* cSTIR_mult(float a, float ai, const void* ptr_x);
-	void* cSTIR_axpby(float ar, float ai, const void* ptr_x,
-					  float br, float bi, const void* ptr_y);
+	void* cSTIR_mult(float a, const void* ptr_x);
+	void* cSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
