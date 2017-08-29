@@ -80,7 +80,7 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	else
 		std::cout << "no additive term added\n";
 
-	//clear_stream();
+	clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);
@@ -105,19 +105,20 @@ PETAcquisitionModel::forward(const Image3DF& image)
 }
 
 boost::shared_ptr<Image3DF> 
-PETAcquisitionModel::backward(const ProjData& ad)
+PETAcquisitionModel::backward(ProjData& ad)
 {
 	boost::shared_ptr<Image3DF> sptr_im(sptr_image_template_->clone());
 	sptr_im->fill(0.0);
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "applying normalisation...";
-		ProjDataInMemory adc(ad);
+		//ProjDataInMemory adc(ad);
 		std::cout << "ok\n";
-		sptr_normalisation_->undo(adc, 0, 1);
+		sptr_normalisation_->undo(ad, 0, 1);
+		//sptr_normalisation_->undo(adc, 0, 1);
 		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project
-			(*sptr_im, adc);
+		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
+		//(*sptr_im, adc);
 		std::cout << "ok\n";
 	}
 	else
