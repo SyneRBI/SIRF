@@ -31,6 +31,16 @@ limitations under the License.
 
 class PETAcquisitionModel {
 public:
+	~PETAcquisitionModel()
+	{
+		sptr_projectors_.reset();
+		sptr_acq_template_.reset();
+		sptr_image_template_.reset();
+		sptr_add_.reset();
+		sptr_background_.reset();
+		sptr_normalisation_.reset();
+		sptr_norm_.reset();
+	}
 	void set_projectors(boost::shared_ptr<ProjectorByBinPair> sptr_projectors)
 	{
 		sptr_projectors_ = sptr_projectors;
@@ -86,6 +96,11 @@ public:
 		if (sptr_norm_.get())
 			sptr_norm_->clear_stream();
 	}
+	void close_stream()
+	{
+		if (sptr_norm_.get())
+			sptr_norm_->close_stream();
+	}
 
 	virtual Succeeded set_up(
 		boost::shared_ptr<PETAcquisitionData> sptr_acq,
@@ -94,7 +109,7 @@ public:
 	boost::shared_ptr<PETAcquisitionData>
 		forward(const Image3DF& image);
 
-	boost::shared_ptr<Image3DF> backward(const ProjData& ad);
+	boost::shared_ptr<Image3DF> backward(ProjData& ad);
 
 protected:
 	boost::shared_ptr<ProjectorByBinPair> sptr_projectors_;

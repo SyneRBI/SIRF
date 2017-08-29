@@ -73,6 +73,16 @@ try
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
     template = AcquisitionData(fullfile(pathname, filename));
+    
+    bin_eff = template.clone();
+    bin_eff.fill(2.0);
+    bin_eff_arr = bin_eff.as_array();
+    bin_eff_arr(:, 10:50, :) = 0;
+    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+        'bin sfficiencies', 'tang. pos.', 'views');
+    bin_eff.fill(bin_eff_arr);
+    acq_model.set_bin_efficiency(bin_eff);
+
     fprintf('setting up acquisition model...\n')
     acq_model.set_up(template, image)
     fprintf('projecting...\n')
