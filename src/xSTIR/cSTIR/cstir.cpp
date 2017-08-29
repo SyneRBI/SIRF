@@ -24,10 +24,6 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-std::string PETAcquisitionData::_storage_scheme;
-//boost::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
-//boost::shared_ptr<ProjData> PETAcquisitionData::acqs_templ_;
-
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
@@ -310,8 +306,16 @@ extern "C"
 void*
 cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 { 
-	PETAcquisitionData::set_storage_scheme(scheme);
-	return (void*)new DataHandle;
+	try {
+		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
+			PETAcquisitionDataInFile::set_as_template();
+		else
+			PETAcquisitionDataInMemory::set_as_template();
+		return (void*)new DataHandle;
+	}
+	CATCH;
+	//PETAcquisitionData::set_storage_scheme(scheme);
+	//return (void*)new DataHandle;
 }
 
 extern "C"

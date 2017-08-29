@@ -84,98 +84,106 @@ public:
 	}
 };
 
-class ProjDataScratchFile {
-public:
-	ProjDataScratchFile(const ProjData& pd)
-	{
-		_data.reset(new ProjDataFile
-		(pd, _filename = SIRFUtilities::scratch_file_name()));
-	}
-	~ProjDataScratchFile()
-	{
-		//_data->close_stream();
-		_data.reset();
-		int err;
-		err = std::remove((_filename + ".hs").c_str());
-		if (err)
-			std::cout << "deleting " << _filename << ".hs "
-			<< "failed, please delete manually" << std::endl;
-		err = std::remove((_filename + ".s").c_str());
-		if (err)
-			std::cout << "deleting " << _filename << ".s "
-			<< "failed, please delete manually" << std::endl;
-	}
-	void clear_stream()
-	{
-		_data->clear_stream();
-	}
-	void close_stream()
-	{
-		_data->close_stream();
-	}
-	boost::shared_ptr<ProjData> data()
-	{
-		return _data;
-	}
-private:
-	std::string _filename;
-	boost::shared_ptr<ProjDataFile> _data;
-};
+//class ProjDataScratchFile {
+//public:
+//	ProjDataScratchFile(const ProjData& pd)
+//	{
+//		_data.reset(new ProjDataFile
+//		(pd, _filename = SIRFUtilities::scratch_file_name()));
+//	}
+//	~ProjDataScratchFile()
+//	{
+//		//_data->close_stream();
+//		_data.reset();
+//		int err;
+//		err = std::remove((_filename + ".hs").c_str());
+//		if (err)
+//			std::cout << "deleting " << _filename << ".hs "
+//			<< "failed, please delete manually" << std::endl;
+//		err = std::remove((_filename + ".s").c_str());
+//		if (err)
+//			std::cout << "deleting " << _filename << ".s "
+//			<< "failed, please delete manually" << std::endl;
+//	}
+//	void clear_stream()
+//	{
+//		_data->clear_stream();
+//	}
+//	void close_stream()
+//	{
+//		_data->close_stream();
+//	}
+//	boost::shared_ptr<ProjData> data()
+//	{
+//		return _data;
+//	}
+//private:
+//	std::string _filename;
+//	boost::shared_ptr<ProjDataFile> _data;
+//};
 
 class PETAcquisitionData : public aDataContainer < float > {
 public:
 	virtual ~PETAcquisitionData() {}
-	static void set_storage_scheme(std::string scheme)
-	{
-		_init();
-		_storage_scheme = scheme;
-	}
-	void read_from_file(const char* filename)
-	{
-		_data = ProjData::read_from_file(filename);
-	}
-	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
-	{
-		PETAcquisitionData* ptr_ad = new PETAcquisitionData();
-		_init();
-		if (_storage_scheme[0] == 'm') {
-			ptr_ad->_data = boost::shared_ptr<ProjData>
-				(new ProjDataInMemory(pd.get_exam_info_sptr(),
-				pd.get_proj_data_info_sptr()));
-			return ptr_ad;
-		}
-		else {
-			ProjDataScratchFile* file = new ProjDataScratchFile(pd);
-			//ptr_ad->_data = file->data();
-			ptr_ad->_file.reset(file);
-			return ptr_ad;
-		}
-	}
-	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
-	{
-		return boost::shared_ptr<PETAcquisitionData>
-			(same_acquisition_data(*data()));
-	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
-	{
-		return boost::shared_ptr<aDataContainer<float> >
-			(same_acquisition_data(*data()));
-	}
+	//static void set_storage_scheme(std::string scheme)
+	//{
+	//	_init();
+	//	_storage_scheme = scheme;
+	//}
+	//void read_from_file(const char* filename)
+	//{
+	//	_data = ProjData::read_from_file(filename);
+	//}
+	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
+	//{
+	//	PETAcquisitionData* ptr_ad = new PETAcquisitionData();
+	//	_init();
+	//	if (_storage_scheme[0] == 'm') {
+	//		ptr_ad->_data = boost::shared_ptr<ProjData>
+	//			(new ProjDataInMemory(pd.get_exam_info_sptr(),
+	//			pd.get_proj_data_info_sptr()));
+	//		return ptr_ad;
+	//	}
+	//	else {
+	//		ProjDataScratchFile* file = new ProjDataScratchFile(pd);
+	//		//ptr_ad->_data = file->data();
+	//		ptr_ad->_file.reset(file);
+	//		return ptr_ad;
+	//	}
+	//}
+	virtual boost::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
+	//{
+	//	return boost::shared_ptr<PETAcquisitionData>
+	//		(same_acquisition_data(*data()));
+	//}
+	virtual boost::shared_ptr<aDataContainer<float> > new_data_container() = 0;
+	//{
+	//	return boost::shared_ptr<aDataContainer<float> >
+	//		(same_acquisition_data(*data()));
+	//}
 
 	// ProjData accessor/mutator
-	virtual boost::shared_ptr<ProjData> data()
+	//virtual boost::shared_ptr<ProjData> data() = 0;
+	//{
+	//	if (_file.get())
+	//		return _file->data();
+	//	else
+	//		return _data;
+	//}
+	//virtual const boost::shared_ptr<ProjData> data() const = 0;
+	//{ 
+	//	if (_file.get())
+	//		return _file->data();
+	//	else
+	//		return _data;
+	//}
+	boost::shared_ptr<ProjData> data()
 	{
-		if (_file.get())
-			return _file->data();
-		else
-			return _data;
+		return _data;
 	}
-	virtual const boost::shared_ptr<ProjData> data() const
-	{ 
-		if (_file.get())
-			return _file->data();
-		else
-			return _data;
+	const boost::shared_ptr<ProjData> data() const
+	{
+		return _data;
 	}
 	void set_data(boost::shared_ptr<ProjData> data)
 	{
@@ -241,16 +249,16 @@ public:
 		return data()->get_proj_data_info_sptr();
 	}
 
-	void clear_stream()
-	{
-		if (_file.get())
-			_file->clear_stream();
-	}
-	void close_stream()
-	{
-		if (_file.get())
-			_file->close_stream();
-	}
+	virtual void clear_stream() = 0;
+	//{
+	//	if (_file.get())
+	//		_file->clear_stream();
+	//}
+	virtual void close_stream() = 0;
+	//{
+	//	if (_file.get())
+	//		_file->close_stream();
+	//}
 
 	// ProjData casts
 	operator ProjData&() { return *data(); }
@@ -261,74 +269,155 @@ public:
 	//operator const boost::shared_ptr<ProjData>() const { return _data; }
 
 protected:
-	static std::string _storage_scheme;
-	//static boost::shared_ptr<PETAcquisitionData> _template;
-	static void _init()
-	{
-		static bool initialized = false;
-		if (!initialized) {
-			//_template.reset();
-			_storage_scheme = "file";
-			initialized = true;
-		}
-	}
+	//static std::string _storage_scheme;
+	static boost::shared_ptr<PETAcquisitionData> _template;
+	//static void _init()
+	//{
+	//	static bool initialized = false;
+	//	if (!initialized) {
+	//		//_template.reset();
+	//		_storage_scheme = "file";
+	//		initialized = true;
+	//	}
+	//}
 	boost::shared_ptr<ProjData> _data;
-	boost::shared_ptr<ProjDataScratchFile> _file;
+	//boost::shared_ptr<ProjDataScratchFile> _file;
 };
 
 class PETAcquisitionDataInFile : public PETAcquisitionData {
 public:
-	PETAcquisitionDataInFile(const char* filename)
+	PETAcquisitionDataInFile() : _owns_file(false) {}
+	PETAcquisitionDataInFile(const char* filename) : _owns_file(false)
 	{
 		_data = ProjData::read_from_file(filename);
 	}
-	PETAcquisitionDataInFile(const ProjData& pd)
+	PETAcquisitionDataInFile(const ProjData& pd) : _owns_file(true)
 	{
-		_file.reset(new ProjDataScratchFile(pd));
+		_data.reset(new ProjDataFile
+		(pd, _filename = SIRFUtilities::scratch_file_name()));
+		//_file.reset(new ProjDataScratchFile(pd));
 		//_data = _file->data();
 	}
 	~PETAcquisitionDataInFile()
 	{
 		//_data.reset();
-		_file.reset();
+		//_file.reset();
+		_data.reset();
+		if (!_owns_file)
+			return;
+		int err;
+		err = std::remove((_filename + ".hs").c_str());
+		if (err)
+			std::cout << "deleting " << _filename << ".hs "
+			<< "failed, please delete manually" << std::endl;
+		err = std::remove((_filename + ".s").c_str());
+		if (err)
+			std::cout << "deleting " << _filename << ".s "
+			<< "failed, please delete manually" << std::endl;
 	}
-	//boost::shared_ptr<ProjData> data()
-	//{
-	//	return _file->data();
-	//}
-	//const boost::shared_ptr<ProjData> data() const
-	//{
-	//	return _file->data();
-	//}
 
-private:
-	static void _init()
-	{
+	static void init() {
 		static bool initialized = false;
 		if (!initialized) {
-			//_template.reset();
-			_storage_scheme = "file";
+			_template.reset(new PETAcquisitionDataInFile());
 			initialized = true;
 		}
 	}
+	static void set_as_template()
+	{
+		init();
+		_template.reset(new PETAcquisitionDataInFile);
+	}
+
+	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
+		return ptr_ad;
+	}
+	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	{
+		init();
+		return boost::shared_ptr<PETAcquisitionData>
+			(_template->same_acquisition_data(*data()));
+	}
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		init();
+		return boost::shared_ptr<aDataContainer<float> >
+			(_template->same_acquisition_data(*data()));
+	}
+
+	//boost::shared_ptr<ProjData> data()
+	//{
+	//	return _data;
+	//	//return _file->data();
+	//}
+	//const boost::shared_ptr<ProjData> data() const
+	//{
+	//	return _data;
+	//	//return _file->data();
+	//}
+
+	void clear_stream()
+	{
+		((ProjDataFile*)_data.get())->clear_stream();
+	}
+	void close_stream()
+	{
+		((ProjDataFile*)_data.get())->close_stream();
+	}
+
+private:
+	bool _owns_file;
+	std::string _filename;
+	//static void _init()
+	//{
+	//	static bool initialized = false;
+	//	if (!initialized) {
+	//		//_template.reset();
+	//		_storage_scheme = "file";
+	//		initialized = true;
+	//	}
+	//}
 };
 
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
 public:
+	PETAcquisitionDataInMemory() {}
 	PETAcquisitionDataInMemory(const ProjData& pd)
 	{
 		_data = boost::shared_ptr<ProjData>
 			(new ProjDataInMemory(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr()));
 	}
-	//boost::shared_ptr<ProjData> data()
-	//{
-	//	return _data;
-	//}
-	//const boost::shared_ptr<ProjData> data() const
-	//{
-	//	return _data;
-	//}
+
+	static void init() { PETAcquisitionDataInFile::init(); }
+	static void set_as_template()
+	{
+		init();
+		_template.reset(new PETAcquisitionDataInMemory);
+	}
+
+	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
+		return ptr_ad;
+	}
+	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	{
+		init();
+		return boost::shared_ptr<PETAcquisitionData>
+			(_template->same_acquisition_data(*data()));
+	}
+	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	{
+		init();
+		return boost::shared_ptr<aDataContainer<float> >
+			(_template->same_acquisition_data(*data()));
+	}
+
+	void clear_stream() {}
+	void close_stream()	{}
 };
 
 class PETImageData : public aDataContainer<float> {
