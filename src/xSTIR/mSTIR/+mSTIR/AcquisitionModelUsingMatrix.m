@@ -1,5 +1,7 @@
-classdef EllipticCylinder < mStir.Shape
-% Class for elliptic cylinder shape.
+classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
+% ADVANCED USERS ONLY.    
+% Class for PET acquisition model with the geometric projection G
+% represented by a sparse matrix
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -19,13 +21,20 @@ classdef EllipticCylinder < mStir.Shape
 % limitations under the License.
 
     properties
-        name
     end
     methods
-        function self = EllipticCylinder()
-%         Creates an EllipticCylinder object.
-            self.name = 'EllipsoidalCylinder';
+        function self = AcquisitionModelUsingMatrix(matrix)
+%         Creates an AcquisitionModelUsingMatrix object.
+%         The optional argument sets the projection matrix to be used.
+%         matrix:  a RayTracingMatrix object to represent G in (F).
+            self.name = 'AcqModUsingMatrix';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+            mUtilities.check_status([self.name ':ctor'], self.handle)
+            if nargin < 1
+                matrix = mSTIR.RayTracingMatrix();
+            end
+            mSTIR.setParameter...
+                (self.handle, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -33,18 +42,11 @@ classdef EllipticCylinder < mStir.Shape
                 self.handle = [];
             end
         end
-        function set_length(self, value)
-%***SIRF*** Sets the length (height) of the cylinder.
-            mStir.setParameter(self.handle, self.name, 'length', value, 'f')
-        end
-        function value = get_length(self)
-%***SIRF*** Returns the length (height) of the cylinder.
-            value = mStir.parameter(self.handle, self.name, 'length', 'f');
-        end
-        function set_radii(self, r)
-%***SIRF*** Sets the radii of the cylinder.
-            mStir.setParameter(self.handle, self.name, 'radius_x', r(1), 'f')
-            mStir.setParameter(self.handle, self.name, 'radius_y', r(2), 'f')
+        function set_matrix(self, matrix)
+%***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
+%         matrix:  a projection matrix object to represent G in (F).
+            mSTIR.setParameter...
+                (self.handle, self.name, 'matrix', matrix, 'h')
         end
     end
 end

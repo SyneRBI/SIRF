@@ -1,4 +1,4 @@
-classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
+classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
 % ADVANCED USERS ONLY.
 % Class for STIR PoissonLogLikelihoodWithLinearModelForMean object, see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1PoissonLogLikelihoodWithLinearModelForMean.html
@@ -33,7 +33,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
         end
         function set_sensitivity_filename(self, name)
 %***SIRF*** Specifies the file with the sensitivity data to be used.
-            mStir.setParameter...
+            mSTIR.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'sensitivity_filename', name, 'c')
         end
@@ -44,7 +44,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
             else
                 str = 'false';
             end
-            mStir.setParameter...
+            mSTIR.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'use_subset_sensitivities', str, 'c')
         end
@@ -55,13 +55,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
             else
                 str = 'false';
             end
-            mStir.setParameter...
+            mSTIR.setParameter...
                 (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'recompute_sensitivity', str, 'c')
         end
         function sens = get_subset_sensitivity(self, subset)
 %***SIRF*** Returns the specified subset sensitivity data as ImageData.
-            sens = mStir.ImageData();
+            sens = mSTIR.ImageData();
             sens.handle = calllib('mstir', 'mSTIR_subsetSensitivity',...
                 self.handle, subset);
             mUtilities.check_status...
@@ -72,7 +72,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mStir.ObjectiveFunction
                 (self, image, subset)
 %***SIRF*** Returns the backprojection of the ratio of measured to estimated
 %         acquisition data for the specified image and subset.
-            bar = mStir.ImageData();
+            bar = mSTIR.ImageData();
             bar.handle = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...
                 self.handle, image.handle, subset);

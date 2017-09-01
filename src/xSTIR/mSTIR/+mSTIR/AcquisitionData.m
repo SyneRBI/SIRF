@@ -25,7 +25,7 @@ classdef AcquisitionData < handle
     end
     methods (Static)
         function obj = same_object()
-            obj = mStir.AcquisitionData();
+            obj = mSTIR.AcquisitionData();
         end
         function set_storage_scheme(scheme)
             h = calllib...
@@ -49,7 +49,7 @@ classdef AcquisitionData < handle
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', arg);
                 self.read_only = true;
-            elseif isa(arg, 'mStir.AcquisitionData')
+            elseif isa(arg, 'mSTIR.AcquisitionData')
                 self.handle = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
                     arg.handle);
@@ -81,7 +81,7 @@ classdef AcquisitionData < handle
 %         acquisition data in self.
 %         The specified value, if present, is assigned at all image voxels.
 %         value: a float.
-            image = mStir.ImageData();
+            image = mSTIR.ImageData();
             image.handle = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
             mUtilities.check_status...
@@ -140,7 +140,7 @@ classdef AcquisitionData < handle
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 calllib('mutilities', 'mDeleteDataHandle', h)
-            elseif isa(value, 'mStir.AcquisitionData')
+            elseif isa(value, 'mSTIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle, value.handle);
@@ -153,7 +153,7 @@ classdef AcquisitionData < handle
         end
         function ad = clone(self)
 %***SIRF*** Returns a true copy of this object (not Matlab handle).
-            ad = mStir.AcquisitionData(self);
+            ad = mSTIR.AcquisitionData(self);
             ad.fill(self)
         end
         function ad = get_uniform_copy(self, value)
@@ -163,7 +163,7 @@ classdef AcquisitionData < handle
             if nargin < 2
                 value = 0;
             end
-            ad = mStir.AcquisitionData(self);
+            ad = mSTIR.AcquisitionData(self);
             ad.fill(value)
         end
     end

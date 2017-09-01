@@ -1,5 +1,5 @@
 classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
-        mStir.PoissonLogLikelihoodWithLinearModelForMean
+        mSTIR.PoissonLogLikelihoodWithLinearModelForMean
 % ADVANCED USERS ONLY.
 % Class for STIR PoissonLogLikelihoodWithLinearModelForMeanAndProjData object,
 % see
@@ -43,7 +43,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_input_filename(self, filename)
 %***SIRF*** Specifies the raw data file.
-            mStir.setParameter(self.handle, self.name,...
+            mSTIR.setParameter(self.handle, self.name,...
                 'input_filename', filename, 'c')
         end
         function set_zero_seg0_end_planes(self, flag)
@@ -53,24 +53,24 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
             else
                 str = 'false';
             end
-            mStir.setParameter(self.handle, self.name,...
+            mSTIR.setParameter(self.handle, self.name,...
                 'zero_seg0_end_planes', str, 'c') 
         end
         function set_max_segment_num_to_process(self, n)
 %***SIRF*** Limits the range of the acquisition data segments to be used.
 %         set_max_segment_num_to_process(n) restricts the range of the 
 %         acquisition data segments to be used to [-n, n].
-            mStir.setParameter(self.handle, self.name, ...
+            mSTIR.setParameter(self.handle, self.name, ...
                 'max_segment_num_to_process', n, 'i') 
         end
         function set_acquisition_model(self, acq_model)
 %***SIRF*** Sets the acquisition model to be used by this objective function.
-            mStir.setParameter(self.handle, self.name,...
+            mSTIR.setParameter(self.handle, self.name,...
                 'acquisition_model', acq_model, 'h')
         end
         function acq_model = get_acquisition_model(self)
 %***SIRF*** Returns the acquisition model used by this objective function.
-            acq_model = mStir.AcquisitionModelUsingMatrix();
+            acq_model = mSTIR.AcquisitionModelUsingMatrix();
             acq_model.handle = calllib('mstir', 'mSTIR_parameter',...
                 self.handle, self.name, 'acquisition_model');
             mUtilities.check_status...
@@ -78,7 +78,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_acquisition_data(self, acq_data)
 %***SIRF*** Sets the acquisition data to be used by this objective function.
-            mStir.setParameter(self.handle, self.name,...
+            mSTIR.setParameter(self.handle, self.name,...
                 'proj_data_sptr', acq_data, 'h')
         end
     end

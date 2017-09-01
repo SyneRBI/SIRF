@@ -49,26 +49,26 @@ classdef AcquisitionModel < handle
         function set_additive_term(self, at)
 %***SIRF*** set_additive_term(at) sets the additive term a in (F);
 %         at:  an AcquisitionData object containing a.
-            mStir.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
 %         function set_background_term(self, bt)
 % %***SIRF*** set_background_term(bt) sets the background term b in (F);
 % %         bt:  an AcquisitionData object containing b.
-%             mStir.setParameter(self.handle, 'AcquisitionModel', ...
+%             mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
 %                 'background_term', bt, 'h');
 %         end
         function set_normalisation(self, norm)
 %***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
 %         norm:  an AcquisitionData object containing normalisation n.
-            mStir.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
                 'normalisation', norm, 'h');
         end
         function set_bin_efficiency(self, bin_eff)
 %***SIRF*** set_bin_efficiency(bin_eff) sets the normalisation n in (F);
 %         bin_eff:  an AcquisitionData object containing bin efficiencies
 %                   (the inverse of n).
-            mStir.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
                 'bin_efficiency', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
@@ -94,7 +94,7 @@ classdef AcquisitionModel < handle
 %         Usage: 
 %             acq_data = forward(image, filename);
 %         image   :  an ImageData object containing x;
-            ad = mStir.AcquisitionData();
+            ad = mSTIR.AcquisitionData();
             ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
                 self.handle, image.handle);
             mUtilities.check_status([self.name ':forward'], ad.handle)
@@ -102,7 +102,7 @@ classdef AcquisitionModel < handle
         function image = backward(self, ad)
 %***SIRF*** backward(ad) returns the backprojection of ad (y in (B));
 %         ad:  an AcquisitionData object containing y.
-            image = mStir.ImageData();
+            image = mSTIR.ImageData();
             image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
                 self.handle, ad.handle);
             mUtilities.check_status...

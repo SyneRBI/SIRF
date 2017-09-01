@@ -36,7 +36,7 @@ classdef Reconstructor < handle
             end
         end
         function set_input(self, input_data)
-            mStir.setParameter...
+            mSTIR.setParameter...
                 (self.handle, self.R, 'input_data', input_data, 'h')
         end
         function process(self)
@@ -74,7 +74,7 @@ classdef Reconstructor < handle
 %                 Each file will be named [prefix '_' subiter_num], 
 %                 where subiter_num is the number of the sub-iteration 
 %                 at which the respective image estimate was saved.
-            mStir.setParameter(self.handle, self.R, 'output_filename_prefix',...
+            mSTIR.setParameter(self.handle, self.R, 'output_filename_prefix',...
                 prefix, 'c')
         end
     end
