@@ -9,7 +9,7 @@ Options:
   --mr_path=<path>    path to MR data files, defaults to data/examples/MR
                       subfolder of SIRF root folder
   --mr_engine=<mr>    MR reconstruction engine [default: Gadgetron]
-  --pet_engine=<pet>  PET reconstruction engine [default: Stir]
+  --pet_engine=<pet>  PET reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)

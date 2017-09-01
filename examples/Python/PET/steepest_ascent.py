@@ -15,7 +15,7 @@ Options:
                               [default: -1]
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
   -v, --verbose               verbose
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)

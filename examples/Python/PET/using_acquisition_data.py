@@ -7,7 +7,7 @@ Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -e <engn>, --engine=<engn>   reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
 
