@@ -1,4 +1,4 @@
-''' xSTIR tests
+''' pSTIR tests
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -20,7 +20,7 @@
 
 import math
 
-from pStir import *
+from pSTIR import *
 
 def test_failed(ntest, expected, actual, abstol, reltol):
     if abs(expected - actual) < abstol + reltol*expected:

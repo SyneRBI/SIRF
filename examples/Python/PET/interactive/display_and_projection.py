@@ -50,7 +50,7 @@ plt.ion() # interactive 'on' such that plots appear during loops
 #%% Use the 'pet' prefix for all SIRF functions
 # This is done here to expliccitly differentiate between SIRF pet functions and 
 # anything else.
-import pStir as pet
+import pSTIR as pet
 
 #%% First define some handy function definitions
 # To make subsequent code cleaner, we have a few functions here. You can ignore
