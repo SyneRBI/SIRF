@@ -5,7 +5,8 @@ function p = pet_data_path
 % If it is not set, the path to SIRF subfolder /data/examples/PET
 % will be used.
 
-if exist('SIRF_PET_DATA_PATH', 'var')
+SIRF_PET_DATA_PATH = getenv('SIRF_PET_DATA_PATH');
+if ~isempty(SIRF_PET_DATA_PATH)
     p = SIRF_PET_DATA_PATH;
 else
     SIRF_PATH = getenv('SIRF_PATH');

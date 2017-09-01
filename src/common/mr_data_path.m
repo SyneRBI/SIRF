@@ -5,7 +5,8 @@ function p = mr_data_path
 % If it is not set, the path to SIRF subfolder /data/examples/MR
 % will be used.
 
-if exist('SIRF_MR_DATA_PATH', 'var')
+SIRF_MR_DATA_PATH = getenv('SIRF_MR_DATA_PATH');
+if ~isempty(SIRF_MR_DATA_PATH)
     p = SIRF_MR_DATA_PATH;
 else
     SIRF_PATH = getenv('SIRF_PATH');
