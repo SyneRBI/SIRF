@@ -36,18 +36,18 @@ classdef Prior < handle
         function set_penalisation_factor(self, value)
 %***SIRF*** Sets the factor by which the penalty term (prior) is to be multiplied
 %         before adding to the objective function.
-            mStir.setParameter...
+            mSTIR.setParameter...
                 (self.handle, 'GeneralisedPrior', 'penalisation_factor', value, 'f')
         end
         function value = get_penalisation_factor(self)
 %***SIRF*** Returns the penalty factor in front of the prior.
-            value = mStir.parameter...
+            value = mSTIR.parameter...
                 (self.handle, 'GeneralisedPrior', 'penalisation_factor', 'f');
         end
         function grad = get_gradient(self, image)
 %***SIRF*** Returns the value of the gradient of the prior for the specified 
 %         image.
-            grad = mStir.ImageData();
+            grad = mSTIR.ImageData();
             grad.handle = calllib('mstir', 'mSTIR_priorGradient', ...
                 self.handle, image.handle);
             mUtilities.check_status('Prior:get_gradient', grad.handle)

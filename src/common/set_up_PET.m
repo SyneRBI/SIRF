@@ -1,6 +1,6 @@
 function import_str = setup_PET(engine, alias)
     if isempty(engine)
-        engine = 'Stir';
+        engine = 'STIR';
     end
     try
         eval(['libload_' lower(engine)])

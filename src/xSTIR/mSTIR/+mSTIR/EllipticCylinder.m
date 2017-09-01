@@ -1,7 +1,5 @@
-classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
-% ADVANCED USERS ONLY.    
-% Class for PET acquisition model with the geometric projection G
-% represented by a sparse matrix
+classdef EllipticCylinder < mSTIR.Shape
+% Class for elliptic cylinder shape.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -21,20 +19,13 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
 % limitations under the License.
 
     properties
+        name
     end
     methods
-        function self = AcquisitionModelUsingMatrix(matrix)
-%         Creates an AcquisitionModelUsingMatrix object.
-%         The optional argument sets the projection matrix to be used.
-%         matrix:  a RayTracingMatrix object to represent G in (F).
-            self.name = 'AcqModUsingMatrix';
+        function self = EllipticCylinder()
+%         Creates an EllipticCylinder object.
+            self.name = 'EllipsoidalCylinder';
             self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtilities.check_status([self.name ':ctor'], self.handle)
-            if nargin < 1
-                matrix = mStir.RayTracingMatrix();
-            end
-            mStir.setParameter...
-                (self.handle, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
             if ~isempty(self.handle)
@@ -42,11 +33,18 @@ classdef AcquisitionModelUsingMatrix < mStir.AcquisitionModel
                 self.handle = [];
             end
         end
-        function set_matrix(self, matrix)
-%***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
-%         matrix:  a projection matrix object to represent G in (F).
-            mStir.setParameter...
-                (self.handle, self.name, 'matrix', matrix, 'h')
+        function set_length(self, value)
+%***SIRF*** Sets the length (height) of the cylinder.
+            mSTIR.setParameter(self.handle, self.name, 'length', value, 'f')
+        end
+        function value = get_length(self)
+%***SIRF*** Returns the length (height) of the cylinder.
+            value = mSTIR.parameter(self.handle, self.name, 'length', 'f');
+        end
+        function set_radii(self, r)
+%***SIRF*** Sets the radii of the cylinder.
+            mSTIR.setParameter(self.handle, self.name, 'radius_x', r(1), 'f')
+            mSTIR.setParameter(self.handle, self.name, 'radius_y', r(2), 'f')
         end
     end
 end

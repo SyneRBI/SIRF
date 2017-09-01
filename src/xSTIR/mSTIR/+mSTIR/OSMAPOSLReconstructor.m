@@ -1,4 +1,4 @@
-classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
+classdef OSMAPOSLReconstructor < mSTIR.IterativeReconstructor
 % Class for reconstructor objects using OSMAPOSL algorithm.
 % OSMAPOSL stands for Ordered Subsets Maximum A Posteriori One Step Late, see
 % http://stir.sourceforge.net/documentation/doxy/html/classstir_1_1OSMAPOSLReconstruction.html
@@ -42,7 +42,7 @@ classdef OSMAPOSLReconstructor < mStir.IterativeReconstructor
             self.handle = [];
         end
         function set_MAP_model(self, model)
-            mStir.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
+            mSTIR.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
         end
     end
 end

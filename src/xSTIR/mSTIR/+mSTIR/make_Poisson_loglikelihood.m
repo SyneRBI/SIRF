@@ -23,6 +23,6 @@ function obj_fun = make_Poisson_loglikelihood(acq_data)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-    obj_fun = mStir.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
+    obj_fun = mSTIR.PoissonLogLikelihoodWithLinearModelForMeanAndProjData();
     obj_fun.set_acquisition_data(acq_data);
 end
