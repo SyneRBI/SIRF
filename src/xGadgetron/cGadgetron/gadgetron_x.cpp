@@ -128,7 +128,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 		}
 		catch (...) {
 			if (connection_failed(nt))
-				THROW("Connection to Gadgetron failed");
+				THROW("Server running Gadgetron not accessible");
 		}
 	}
 }
@@ -173,7 +173,7 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 		}
 		catch (...) {
 			if (connection_failed(nt))
-				THROW("Connection to Gadgetron failed");
+				THROW("Server running Gadgetron not accessible");
 		}
 	}
 }
@@ -208,7 +208,7 @@ ImagesProcessor::process(ImagesContainer& images)
 		}
 		catch (...) {
 			if (connection_failed(nt))
-				THROW("Connection to Gadgetron failed");
+				THROW("Server running Gadgetron not accessible");
 		}
 	}
 }

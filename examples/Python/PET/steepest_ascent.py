@@ -188,4 +188,4 @@ try:
     print('done')
 except error as err:
     # display error information
-    print('STIR exception occured: %s' % err.value)
+    print('%s' % err.value)
