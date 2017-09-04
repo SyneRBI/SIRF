@@ -107,7 +107,7 @@ classdef ImageData < handle
         end
         function image = clone(self)
 %***SIRF*** Creates a copy of this image.
-            image = mStir.ImageData();
+            image = mSTIR.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
             mUtilities.check_status('ImageData:clone', self.handle)
@@ -117,7 +117,7 @@ classdef ImageData < handle
             if nargin < 2
                 value = 1.0;
             end
-            image = mStir.ImageData();
+            image = mSTIR.ImageData();
             image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
                 self.handle);
             mUtilities.check_status('ImageData:get_uniform_copy', self.handle)

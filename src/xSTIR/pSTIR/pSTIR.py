@@ -301,8 +301,6 @@ class DataContainer(ABC):
         if type(other) == type(0.0):
             z.handle = pystir.cSTIR_mult(other, self.handle)
             z.src = 'mult'
-##            z.handle = pystir.cSTIR_axpby\
-##                (other, 0, self.handle, 0, 0, self.handle)
             check_status(z.handle)
             return z;
         else:

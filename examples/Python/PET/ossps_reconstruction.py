@@ -13,7 +13,7 @@ Options:
   -f <fact>, --penf=<fact>    penalty factor [default: 0]
   -s <subs>, --subs=<subs>    number of subsets [default: 4]
   -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engn=<engn>    reconstruction engine [default: Stir]
+  -e <engn>, --engn=<engn>    reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)

@@ -1,4 +1,4 @@
-classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
+classdef TruncateToCylinderProcessor < mSTIR.ImageDataProcessor
 % Class for the image filter that zeroes the image outside a cylinder.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -44,7 +44,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
             else
                 str = 'false';
             end
-            mStir.setParameter(self.handle_,...
+            mSTIR.setParameter(self.handle_,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', str, 'c')
         end
@@ -52,7 +52,7 @@ classdef TruncateToCylinderProcessor < mStir.ImageDataProcessor
 %***SIRF*** Exposes the filter behaviour on the boundary of the cylinder.
 %         Returns the answer to the question: Is the area not affected by 
 %         filtering strictly inside the cylinder?
-            flag = mStir.parameter(self.handle_,...
+            flag = mSTIR.parameter(self.handle_,...
                 'TruncateToCylindricalFOVImageProcessor',...
                 'strictly_less_than_radius', 'i');
         end
