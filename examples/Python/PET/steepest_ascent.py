@@ -12,7 +12,7 @@ Options:
                               subfolder of SIRF root folder
   -x <step>, --step=<step>     steepest ascent step size parameter,
                               use a negative value to opt for the optimal value
-                              [default: -1]
+                              [default: 0.5]
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
   -v, --verbose               verbose
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
