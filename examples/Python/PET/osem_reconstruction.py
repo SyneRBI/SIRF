@@ -139,4 +139,4 @@ try:
     print('done')
 except error as err:
     # display error information
-    print('Exception occured: %s' % err.value)
+    print('%s' % err.value)

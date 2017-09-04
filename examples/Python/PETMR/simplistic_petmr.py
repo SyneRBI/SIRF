@@ -89,4 +89,4 @@ try:
     main()
     print('done')
 except MR.error as err:
-    print('exception occured: %s' % err.value)
+    print('%s' % err.value)
