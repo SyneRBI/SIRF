@@ -42,7 +42,8 @@ classdef ImageData < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
         end
         function initialise(self,...
@@ -76,7 +77,8 @@ classdef ImageData < handle
                 end
             end
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
             voxels = calllib('mstir', 'mSTIR_voxels3DF',...
                 dim(1), dim(2), dim(3),...
@@ -85,7 +87,8 @@ classdef ImageData < handle
             mUtilities.check_status('ImageData:initialise', voxels)
             self.handle = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
             mUtilities.check_status('ImageData:initialise', self.handle)
-            calllib('mutilities', 'mDeleteDataHandle', voxels)
+            mUtilities.delete(voxels)
+            %calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
 %***SIRF*** Sets this image values at voxels.
@@ -103,7 +106,8 @@ classdef ImageData < handle
                 h = calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v);
             end
             mUtilities.check_status('ImageData:fill', h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = clone(self)
 %***SIRF*** Creates a copy of this image.
@@ -126,7 +130,8 @@ classdef ImageData < handle
         function read_from_file(self, filename)
 %***SIRF*** Reads the image data from a file.
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
             self.handle = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
@@ -135,7 +140,8 @@ classdef ImageData < handle
         function write(self, filename)
             h = calllib('mstir', 'mSTIR_writeImage', self.handle, filename);
             mUtilities.check_status('ImageData:write', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function add_shape(self, shape, add)
 %***SIRF*** Adds a uniform shape to the image. 
@@ -148,7 +154,8 @@ classdef ImageData < handle
                 ('mstir', 'mSTIR_addShape', self.handle,...
                 shape.handle, add);
             mUtilities.check_status('ImageData:add_shape', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
 %         function diff = diff_from(self, image)
 % %***SIRF*** Returns the relative difference between self and the image
@@ -170,7 +177,8 @@ classdef ImageData < handle
             h = calllib...
                 ('mstir', 'mSTIR_getImageDimensions', self.handle, ptr_i);
             mUtilities.check_status('ImageData:as_array', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
 %             [ptr, data] = calllib...
@@ -180,7 +188,8 @@ classdef ImageData < handle
             h = calllib...
                 ('mstir', 'mSTIR_getImageData', self.handle, ptr_v);
             mUtilities.check_status('ImageData:as_array', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
         function show(self)

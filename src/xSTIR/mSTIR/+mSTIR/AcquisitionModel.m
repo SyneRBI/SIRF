@@ -42,7 +42,8 @@ classdef AcquisitionModel < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
                 self.handle = [];
             end
         end
@@ -86,7 +87,8 @@ classdef AcquisitionModel < handle
                 ('mstir', 'mSTIR_setupAcquisitionModel',...
                 self.handle, acq_templ.handle, img_templ.handle);
             mUtilities.check_status([self.name ':set_up'], h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image)
 %***SIRF*** computes the forward projection of ImageData by the formula (F)

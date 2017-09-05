@@ -36,7 +36,8 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -47,14 +48,16 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
                 fprintf('WARNING: acquisitions may be in a wrong order\n')
             end
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = calllib('mgadgetron', 'mGT_CoilSensitivities', '');
             mUtilities.check_status(self.name_, self.handle_);
             handle = calllib('mgadgetron', 'mGT_computeCoilSensitivities', ...
                 self.handle_, acqs.handle_);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = csm_as_array(self, csm_num)
 %***SIRF*** Returns the coil sensitivity map specified by the argument 

@@ -31,7 +31,8 @@ classdef CartesianGRAPPAReconstructor < mGadgetron.Reconstructor
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];
         end

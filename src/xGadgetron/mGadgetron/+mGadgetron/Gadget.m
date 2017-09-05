@@ -39,7 +39,8 @@ classdef Gadget < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
         function set_property(self, property, value)
@@ -49,7 +50,8 @@ classdef Gadget < handle
             handle = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 self.handle_, property, value);
             mUtilities.check_status(self.name_, handle)
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_properties(self, properties)
 %***SIRF*** Assigns specified values to specified gadget properties.
@@ -58,7 +60,8 @@ classdef Gadget < handle
             handle = calllib('mgadgetron', 'mGT_setGadgetProperties', ...
                 self.handle_, properties);
             mUtilities.check_status(self.name_, handle)
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
     end
 end

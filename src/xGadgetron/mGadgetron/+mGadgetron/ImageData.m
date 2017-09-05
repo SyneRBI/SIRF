@@ -34,7 +34,8 @@ classdef ImageData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -49,7 +50,8 @@ classdef ImageData < mGadgetron.DataContainer
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, dataset);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = select(self, attribute, value)
 %***STIR*** select(attribute, value) returns a subset of this image data 
@@ -89,8 +91,10 @@ classdef ImageData < mGadgetron.DataContainer
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
             mUtilities.check_status(self.name_, handle);
-            v = calllib('mutilities', 'mIntDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            v = calllib('miutilities', 'mIntDataFromHandle', handle);
+            %v = calllib('mutilities', 'mIntDataFromHandle', handle);
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
             ft = (v ~= 7 && v ~= 8);
         end
         function data = as_array(self)
@@ -141,7 +145,8 @@ classdef ImageData < mGadgetron.DataContainer
             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
                 self.handle_, ptr_re, ptr_im);
             mUtilities.check_status('ImageData', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function show(self)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.

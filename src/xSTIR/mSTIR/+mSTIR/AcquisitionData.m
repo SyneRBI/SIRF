@@ -31,7 +31,8 @@ classdef AcquisitionData < handle
             h = calllib...
                 ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
     methods
@@ -61,13 +62,15 @@ classdef AcquisitionData < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads acquisition data from a file.
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
             self.handle = calllib('mstir', 'mSTIR_objectFromFile', ...
                 'AcquisitionData', filename);
@@ -127,7 +130,8 @@ classdef AcquisitionData < handle
                 end
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
-                calllib('mutilities', 'mDeleteDataHandle', h)
+                mUtilities.delete(h)
+                %calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'double')
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', single(value));
@@ -139,14 +143,16 @@ classdef AcquisitionData < handle
                 end
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
-                calllib('mutilities', 'mDeleteDataHandle', h)
+                mUtilities.delete(h)
+                %calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'mSTIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle, value.handle);
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
-                calllib('mutilities', 'mDeleteDataHandle', h)
+                mUtilities.delete(h)
+                %calllib('mutilities', 'mDeleteDataHandle', h)
             else
                 error([self.name ':fill'], 'wrong fill value')
             end

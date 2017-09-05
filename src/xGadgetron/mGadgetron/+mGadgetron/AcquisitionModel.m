@@ -36,7 +36,8 @@ classdef AcquisitionModel < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];
         end
@@ -46,7 +47,8 @@ classdef AcquisitionModel < handle
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function acqs = forward(self, image)
 %***SIRF*** Returns the forward projection of the specified ImageData argument

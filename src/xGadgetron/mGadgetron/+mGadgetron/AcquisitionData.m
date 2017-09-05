@@ -36,7 +36,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
             h = calllib...
                 ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
     methods
@@ -55,7 +56,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -71,7 +73,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
             mUtilities.check_status('AcquisitionData', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
@@ -227,7 +230,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mUtilities.check_status('AcquisitionData', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
 end

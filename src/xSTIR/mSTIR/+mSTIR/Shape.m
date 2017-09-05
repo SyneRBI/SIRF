@@ -28,7 +28,8 @@ classdef Shape < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
             end
         end
         function set_origin(self, origin)

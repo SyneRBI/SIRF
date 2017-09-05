@@ -37,7 +37,8 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
                 self.handle = [];
             end
         end

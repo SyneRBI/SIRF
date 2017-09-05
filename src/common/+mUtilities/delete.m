@@ -1,4 +1,4 @@
-function check_status(f, handle)
+function delete(handle)
 % Checks the execution status recorded in handle.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -17,16 +17,6 @@ function check_status(f, handle)
 % WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 % See the License for the specific language governing permissions and
 % limitations under the License.
-
-    %lib = 'mutilities';
-    lib = 'miutilities';
-    status = calllib(lib, 'mExecutionStatus', handle);
-    if status ~= 0
-        errId = [f ':error'];
-        msg = calllib(lib, 'mExecutionError', handle);
-        file = calllib(lib, 'mExecutionErrorFile', handle);
-        line = calllib(lib', 'mExecutionErrorLine', handle);
-        error(errId, '??? %s exception thrown at line %d of %s', ...
-            msg, line, file)
-    end
+if ~isempty(handle)
+    calllib('miutilities', 'mDeleteDataHandle', handle)
 end

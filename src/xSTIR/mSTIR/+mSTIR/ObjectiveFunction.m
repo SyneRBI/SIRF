@@ -28,7 +28,8 @@ classdef ObjectiveFunction < handle
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
                 self.handle = [];
             end
         end
@@ -62,7 +63,8 @@ classdef ObjectiveFunction < handle
             h = calllib('mstir', 'mSTIR_setupObjectiveFunction', ...
                 self.handle, image.handle);
             mUtilities.check_status('GeneralisedObjectiveFunction:set_up', h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function v = get_value(self, image)
 %***SIRF*** Returns the value of this objective function 
@@ -71,8 +73,9 @@ classdef ObjectiveFunction < handle
                 self.handle, image.handle);
             mUtilities.check_status...
                 ('GeneralisedObjectiveFunction:value', h)
-            v = calllib('mutilities', 'mFloatDataFromHandle', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            v = calllib('miutilities', 'mFloatDataFromHandle', h);
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function g = get_subset_gradient(self, image, subset)
 %***SIRF*** Returns the value of the additive component of the gradient 

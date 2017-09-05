@@ -51,15 +51,22 @@ if(BUILD_MATLAB)
   include_directories(${MATLAB_INCLUDE_DIR})
   add_definitions(${MATLAB_CXXFLAGS})
 
-  add_library(mutilities SHARED mutilities.c)
+  #add_library(mutilities SHARED mutilities.c)
+  add_library(miutilities SHARED miutilities.c)
   # fix output name and link flags
-  SET_TARGET_PROPERTIES(mutilities PROPERTIES
+  #SET_TARGET_PROPERTIES(mutilities PROPERTIES
+  #      SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
+  #      LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
+  #target_link_libraries(mutilities iutilities ${MATLAB_LIBRARIES} )
+  SET_TARGET_PROPERTIES(miutilities PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}"
         LINK_FLAGS "${MATLAB_CXXLINKER_FLAGS}") 
-  target_link_libraries(mutilities iutilities ${MATLAB_LIBRARIES} )
+  target_link_libraries(miutilities iutilities ${MATLAB_LIBRARIES} )
 
-  INSTALL(TARGETS mutilities DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES mutilities.h DESTINATION "${MATLAB_DEST}")
+  #INSTALL(TARGETS mutilities DESTINATION "${MATLAB_DEST}")
+  #INSTALL(FILES mutilities.h DESTINATION "${MATLAB_DEST}")
+  INSTALL(TARGETS miutilities DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES miutilities.h DESTINATION "${MATLAB_DEST}")
   #INSTALL(FILES mutilities.h shrhelp.h DESTINATION "${MATLAB_DEST}")
   #INSTALL(DIRECTORY +mutilities DESTINATION "${MATLAB_DEST}")
   #file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
