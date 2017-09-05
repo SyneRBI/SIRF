@@ -42,6 +42,10 @@ try
 
     % copy the acquisition data into a Matlab array
     acq_array = acq_data.as_array();
+    
+    s = sqrt(acq_data*acq_data);
+    fprintf('norm(acq_data): %e = %e = %e\n', ...
+        acq_data.norm(), norm(acq_array(:)), s)
 
     acq_dim = size(acq_array);
     x = acq_dim(1)/2;
@@ -54,6 +58,10 @@ try
 
     % clone the acquisition data
     new_acq_data = acq_data.clone();
+    
+    diff = new_acq_data - acq_data;
+    fprintf('norm(new_acq_data - acq_data): %e\n', diff.norm())
+
     % display the cloned data
     acq_array = new_acq_data.as_array();
     mUtilities.show_2D_array(acq_array(:,:,z), ...
@@ -65,6 +73,20 @@ try
     new_acq_data.fill(10*acq_array)
     acq_array = new_acq_data.as_array();
     fprintf('new_acq_data at (%d,%d,%d): %f\n', x, y, z, acq_array(x, y, z))
+    
+    new_acq_data = acq_data*10;
+    acq_array = new_acq_data.as_array();
+    fprintf('acq_data*10 at (%d,%d,%d): %f\n', x, y, z, acq_array(x, y, z))
+    
+    image = acq_data.create_uniform_image(1.0);
+    image_array = image.as_array();
+    s = sqrt(image*image);
+    fprintf('norm(image): %e = %e = %e\n', norm(image_array(:)), image.norm(), s)
+    new_image = image.clone();
+    diff = new_image + image*(-1);
+    fprintf('norm(new_image - image): %e\n', diff.norm())
+    new_image = image*10;
+    fprintf('norm(image*10): %e\n', new_image.norm())
     
 catch err
     % display error information

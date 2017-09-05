@@ -1,4 +1,4 @@
-classdef ImageData < handle
+classdef ImageData < mSTIR.DataContainer
 % Class for PET image data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,8 +20,13 @@ classdef ImageData < handle
 
     properties
         name
-        handle
+        %handle
         rimsize
+    end
+    methods(Static)
+        function obj = same_object()
+            obj = mSTIR.ImageData();
+        end
     end
     methods
         function self = ImageData(filename)
@@ -44,6 +49,7 @@ classdef ImageData < handle
             if ~isempty(self.handle)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle)
                 mUtilities.delete(self.handle)
+                self.handle = [];
             end
         end
         function initialise(self,...
