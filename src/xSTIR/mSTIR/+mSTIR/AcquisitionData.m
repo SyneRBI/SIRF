@@ -1,4 +1,4 @@
-classdef AcquisitionData < handle
+classdef AcquisitionData < mSTIR.DataContainer
 % Class for PET acquisition data objects.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,7 +20,7 @@ classdef AcquisitionData < handle
 
     properties
         name
-        handle
+        %handle
         read_only
     end
     methods (Static)
@@ -64,6 +64,7 @@ classdef AcquisitionData < handle
             if ~isempty(self.handle)
                 %calllib('mutilities', 'mDeleteDataHandle', self.handle)
                 mUtilities.delete(self.handle)
+                self.handle = [];
             end
         end
         function read_from_file(self, filename)

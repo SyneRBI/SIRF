@@ -54,8 +54,8 @@ EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd (void* ptr_am, void* ptr_im) {
-	return cSTIR_acquisitionModelFwd (ptr_am, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im) {
+	return cSTIR_acquisitionModelFwd(ptr_am, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
@@ -135,11 +135,20 @@ EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v) {
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_s, v);
 }
-//EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
-//	return cSTIR_imagesDifference(first, second, rimsize);
-//}
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
+}
+EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x) {
+	return cSTIR_norm(ptr_x);
+}
+EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y) {
+	return cSTIR_dot(ptr_x, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mSTIR_mult(float a, const void* ptr_x) {
+	return cSTIR_mult(a, ptr_x);
+}
+EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y) {
+	return cSTIR_axpby(a, ptr_x, b, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);
@@ -163,12 +172,12 @@ EXPORTED_FUNCTION 	void* mDeleteTextWriter(void* ptr_w) {
 }
 #endif
 void* newMexPrinter();
-void* deleteMexPrinter(void* ptr);
+void deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();
 }
 EXPORTED_FUNCTION void* mDeleteMexPrinter(void* ptr) {
-  return deleteMexPrinter(ptr);
+  deleteMexPrinter(ptr);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}
