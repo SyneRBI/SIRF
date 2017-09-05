@@ -32,7 +32,8 @@ classdef ImageDataProcessor < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
         end
         function apply(self, image)
@@ -40,7 +41,8 @@ classdef ImageDataProcessor < handle
             h = calllib('mstir', 'mSTIR_applyDataProcessor',...
                 self.handle_, image.handle);
             mUtilities.check_status('DataProcessor:apply', h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.

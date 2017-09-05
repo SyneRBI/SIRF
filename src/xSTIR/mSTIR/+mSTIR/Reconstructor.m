@@ -49,7 +49,8 @@ classdef Reconstructor < handle
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, self.image.handle);
             mUtilities.check_status('Reconstructor:process', h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = get_output(self)
             image = self.image;
@@ -61,7 +62,8 @@ classdef Reconstructor < handle
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle, image.handle);
             mUtilities.check_status([self.IR ':reconstruct'], h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_output_filename_prefix(self, prefix)
 %***SIRF*** Specifies the naming for the output files.

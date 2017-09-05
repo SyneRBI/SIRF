@@ -32,7 +32,8 @@ classdef GadgetChain < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
         end
         function add_reader(self, id, reader)
@@ -43,7 +44,8 @@ classdef GadgetChain < handle
             handle = calllib...
                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_writer(self, id, writer)
 %***SIRF*** add_writer(id, writer) appends the chain with a writer gadget 
@@ -53,7 +55,8 @@ classdef GadgetChain < handle
             handle = calllib...
                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function add_gadget(self, id, gadget)
 %***SIRF*** add_gadget(id, gadget) adds a gadget to the chain.
@@ -62,7 +65,8 @@ classdef GadgetChain < handle
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
             mUtilities.check_status(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function set_gadget_property(self, id, property, value)
 %***SIRF*** set_gadget_property(id, prop, val) assigns value to gadget property.
@@ -86,8 +90,10 @@ classdef GadgetChain < handle
             hv = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 hg, property, v);
             mUtilities.check_status(self.name_, hv)
-            calllib('mutilities', 'mDeleteDataHandle', hg)
-            calllib('mutilities', 'mDeleteDataHandle', hv)
+            mUtilities.delete(hg)
+            mUtilities.delete(hv)
+%             calllib('mutilities', 'mDeleteDataHandle', hg)
+%             calllib('mutilities', 'mDeleteDataHandle', hv)
         end
         function v = get_gadget_property(self, id, property)
 %***SIRF*** get_gadget_property(id, prop) returns the value of the property
@@ -99,9 +105,12 @@ classdef GadgetChain < handle
             mUtilities.check_status(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_parameter', hg, 'gadget', property);
             mUtilities.check_status(self.name_, hv);
-            v = calllib('mutilities', 'mCharDataFromHandle', hv);
-            calllib('mutilities', 'mDeleteDataHandle', hg)
-            calllib('mutilities', 'mDeleteDataHandle', hv)
+            %v = calllib('mutilities', 'mCharDataFromHandle', hv);
+            v = calllib('miutilities', 'mCharDataFromHandle', hv);
+            mUtilities.delete(hg)
+            mUtilities.delete(hv)
+%             calllib('mutilities', 'mDeleteDataHandle', hg)
+%             calllib('mutilities', 'mDeleteDataHandle', hv)
         end
     end
 end

@@ -32,12 +32,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
                 self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
             else
                 self.handle = calllib...
-                    ('mutilities', 'mCopyOfObjectHandle', obj_fun.handle);
+                    ('miutilities', 'mCopyOfObjectHandle', obj_fun.handle);
             end
         end
         function delete(self)
             if ~isempty(self.handle)
-                calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+                mUtilities.delete(self.handle)
                 self.handle = [];
             end
         end

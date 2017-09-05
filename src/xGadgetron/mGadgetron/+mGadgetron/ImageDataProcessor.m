@@ -47,9 +47,10 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
-            self.handle_ = [];
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.

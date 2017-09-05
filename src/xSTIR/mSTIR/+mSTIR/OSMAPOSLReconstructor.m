@@ -38,7 +38,8 @@ classdef OSMAPOSLReconstructor < mSTIR.IterativeReconstructor
             mUtilities.check_status(self.name, self.handle);
         end
         function delete(self)
-            calllib('mutilities', 'mDeleteDataHandle', self.handle)
+            %calllib('mutilities', 'mDeleteDataHandle', self.handle)
+            mUtilities.delete(self.handle)
             self.handle = [];
         end
         function set_MAP_model(self, model)
