@@ -317,8 +317,6 @@ class DataContainer(ABC):
             other = float(other)
         if type(other) == type(0.0):
             z.handle = pystir.cSTIR_mult(other, self.handle)
-##            z.handle = pystir.cSTIR_axpby\
-##                (other, self.handle, 0, self.handle)
             check_status(z.handle)
             return z;
         else:
@@ -410,8 +408,6 @@ class ImageData(DataContainer):
         have the same size as an array returned by `as_array`.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot fill uninitialized ImageData object')
         if isinstance(value, numpy.ndarray):
             if value.dtype is numpy.dtype('float32'):
                 #print('keeping dtype float32')
@@ -431,8 +427,6 @@ class ImageData(DataContainer):
     def clone(self):
         '''Creates a copy of this image.'''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot clone uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
@@ -440,8 +434,6 @@ class ImageData(DataContainer):
     def get_empty_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot copy uninitialized ImageData object')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
@@ -449,8 +441,6 @@ class ImageData(DataContainer):
         return image
     def add_shape(self, shape, scale):
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot add shapes to uninitialized ImageData object')
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
     def read_from_file(self, filename):
         '''Read data from file.
@@ -458,30 +448,14 @@ class ImageData(DataContainer):
         Replaces the current content of the object.
         '''
         assert self.handle is not None
-##        if self.handle is not None:
-##            pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def write(self, filename):
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot write uninitialized ImageData object')
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
-##    def diff_from(self, image):
-##        assert self.handle is not None and image.handle is not None
-####        if self.handle is None or image.handle is None:
-####            raise error('Cannot compare uninitialized ImageData object')
-##        handle = pystir.cSTIR_imagesDifference\
-##                 (self.handle, image.handle, self.rimsize)
-##        check_status(handle)
-##        diff = pyiutil.floatDataFromHandle(handle)
-##        pyiutil.deleteDataHandle(handle)
-##        return diff
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot export uninitialized ImageData object')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
@@ -496,8 +470,6 @@ class ImageData(DataContainer):
     def show(self):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot show uninitialized ImageData object')
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -536,12 +508,14 @@ class ImageDataProcessor:
         '''
         Sets the input data.
         '''
+        assert isinstance(input, ImageData)
         self.input = input
     def process(self, input = None):
         if input is not None:
             self.input = input
         if self.input is None:
             raise error('input image not set')
+        assert isinstance(self.input, ImageData)
         self.output = self.input.clone()
         self.apply(self.output)
         return self.output
@@ -558,13 +532,10 @@ class TruncateToCylinderProcessor(ImageDataProcessor):
     Class for the image filter that zeroes the image outside the cylinder
     of the same xy-diameter and z-size as those of the image.
     '''
-    def __init__(self, data_processor = None):
+    def __init__(self):
         self.handle = None
         self.name = 'TruncateToCylindricalFOVImageProcessor'
-        if data_processor is None:
-            self.handle = pystir.cSTIR_newObject(self.name)
-        else:
-            self.handle = pystir.copyOfObjectHandle(data_processor.handle)
+        self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
@@ -657,8 +628,6 @@ class AcquisitionData(DataContainer):
         value:  a Python float.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty AcquisitionData object cannot create image')
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
         check_status(image.handle)
@@ -673,8 +642,6 @@ class AcquisitionData(DataContainer):
         - number of tangential positions.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty AcquisitionData object cannot be cast to array')
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling(pystir.cSTIR_getAcquisitionsDimensions\
             (self.handle, dim.ctypes.data))
@@ -694,8 +661,6 @@ class AcquisitionData(DataContainer):
                 or Python float.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty AcquisitionData object cannot be filled')
         if self.read_only:
             raise error('Cannot fill read-only object, consider filling a clone')
         if isinstance(value, numpy.ndarray):
@@ -724,8 +689,6 @@ class AcquisitionData(DataContainer):
         Returns a true copy of this object (not Python handle).
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty AcquisitionData object cannot be cloned')
         ad = AcquisitionData(self)
         ad.fill(self)
         ad.src = 'clone'
@@ -736,8 +699,6 @@ class AcquisitionData(DataContainer):
         value:  a Python float.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty AcquisitionData object cannot be copied')
         ad = AcquisitionData(self)
         ad.fill(value)
         ad.src = 'copy'
@@ -776,6 +737,8 @@ class AcquisitionModel:
         img_templ:  an ImageData object used as a template for creating an
                     ImageData object to store backward projection.
         '''
+        assert isinstance(acq_templ, AcquisitionData)
+        assert isinstance(img_templ, ImageData)
         try_calling(pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
@@ -783,6 +746,7 @@ class AcquisitionModel:
         Sets the additive term a in (F);
         at:  an AcquisitionData object containing a.
         '''
+        assert isinstance(at, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
@@ -790,6 +754,7 @@ class AcquisitionModel:
         Sets the background term b in (F);
         bt:  an AcquisitionData object containing b.
         '''
+        assert isinstance(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_normalisation(self, norm):
@@ -797,6 +762,7 @@ class AcquisitionModel:
         Sets the normalization n in (F);
         norm:  an AcquisitionData object containing normalisation n
         '''
+        assert isinstance(norm, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def set_bin_efficiency(self, bin_eff):
@@ -804,16 +770,15 @@ class AcquisitionModel:
         Sets the bin_efficiency 1/n in (F);
         bin_eff:  an AcquisitionData object containing bin efficiencies
         '''
+        assert isinstance(bin_eff, AcquisitionData), 'wrong argument type'
         _setParameter\
             (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
     def forward(self, image):
         ''' 
         Returns the forward projection of x given by (F);
         image   :  an ImageData object containing x;
-        filename:  an optional name of the file to store projection data;
-                   if not present, projection data is stored in memory
-                   (not recommended as it can be huge).
         '''
+        assert isinstance(image, ImageData)
         ad = AcquisitionData()
         ad.handle = pystir.cSTIR_acquisitionModelFwd(self.handle, image.handle)
         check_status(ad.handle)
@@ -823,6 +788,7 @@ class AcquisitionModel:
         Returns the backward projection of y giben by (B);
         ad:  an AcquisitionData object containing y.
         '''
+        assert isinstance(ad, AcquisitionData)
         image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
             (self.handle, ad.handle)
@@ -846,6 +812,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
+        assert isinstance(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
         if self.handle is not None:
@@ -855,6 +822,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
         Sets the ray tracing matrix to be used for projecting;
         matrix:  a RayTracingMatrix object to represent G in (F).
         '''
+        assert isinstance(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
 ##    def get_matrix(self):
 ##        ''' 
@@ -883,6 +851,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
         check_status(self.handle)
         if matrix is None:
             matrix = RayTracingMatrix()
+        assert isinstance(matrix, RayTracingMatrix)
         self.matrix = matrix
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
     def __del__(self):
@@ -941,6 +910,7 @@ class Prior:
         Returns the value of the gradient of the prior for the specified image.
         image: ImageData object
         '''
+        assert isinstance(image, ImageData)
         grad = ImageData()
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
@@ -977,6 +947,7 @@ class ObjectiveFunction:
         '''
         Sets the prior (penalty term to be added to the objective function).
         '''
+        assert isinstance(prior, Prior)
         _setParameter(self.handle, 'GeneralisedObjectiveFunction',\
             'prior', prior.handle)
         self.prior = prior
@@ -1005,6 +976,7 @@ class ObjectiveFunction:
         Prepares this object for use.
         image: ImageData object
         '''
+        assert isinstance(image, ImageData)
         try_calling(pystir.cSTIR_setupObjectiveFunction\
                     (self.handle, image.handle))
     def value(self, image):
@@ -1012,6 +984,7 @@ class ObjectiveFunction:
         Returns the value of this objective function on the specified image.
         image: ImageData object
         '''
+        assert isinstance(image, ImageData)
         handle = pystir.cSTIR_objectiveFunctionValue(self.handle, image.handle)
         check_status(handle)
         v = pyiutil.floatDataFromHandle(handle)
@@ -1022,6 +995,7 @@ class ObjectiveFunction:
         Returns the value of this objective function on the specified image.
         image: ImageData object
         '''
+        assert isinstance(image, ImageData)
         return self.value(image)
     def gradient(self, image, subset = -1):
         '''
@@ -1033,6 +1007,7 @@ class ObjectiveFunction:
         image: ImageData object
         subset: Python integer scalar
         '''
+        assert isinstance(image, ImageData)
         grad = ImageData()
         grad.handle = pystir.cSTIR_objectiveFunctionGradient\
             (self.handle, image.handle, subset)
@@ -1043,6 +1018,7 @@ class ObjectiveFunction:
         Returns the gradient of the objective function on specified image.
         image: ImageData object
         '''
+        assert isinstance(image, ImageData)
         return self.gradient(image)
     def get_subset_gradient(self, image, subset):
         '''
@@ -1052,6 +1028,7 @@ class ObjectiveFunction:
         image: ImageData object
         subset: Python integer scalar
         '''
+        assert isinstance(image, ImageData)
         return self.gradient(image, subset)
 
 class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
@@ -1090,6 +1067,7 @@ class PoissonLogLikelihoodWithLinearModelForMean(ObjectiveFunction):
         Computes back-projection of the ratio of measured to estimated 
         acquisition data.
         '''
+        assert isinstance(image, ImageData)
         grad = ImageData()
         grad.handle = pystir.cSTIR_objectiveFunctionGradientNotDivided\
             (self.handle, image.handle, subset)
@@ -1126,6 +1104,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         '''
         Sets the acquisition model to be used by this objective function.
         '''
+        assert isinstance(am, AcquisitionModel)
         _setParameter\
             (self.handle, self.name, 'acquisition_model', am.handle)
 ##    def get_acquisition_model(self):
@@ -1143,6 +1122,7 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         '''
         Sets the acquisition data to be used by this objective function.
         '''
+        assert isinstance(ad, AcquisitionData)
         _setParameter\
             (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
@@ -1160,6 +1140,7 @@ class Reconstructor:
 ##    def set_input(self, input_data):
 ##        self.input = input_data
     def set_input(self, input_data):
+        assert isinstance(input_data, AcquisitionData)
         _setParameter(self.handle, 'Reconstruction', \
                       'input_data', input_data.handle)
     def process(self):
@@ -1170,6 +1151,7 @@ class Reconstructor:
     def get_output(self):
         return self.image
     def reconstruct(self, image):
+        assert isinstance(image, ImageData)
         try_calling(pystir.cSTIR_runReconstruction(self.handle, image.handle))
     def set_output_filename_prefix(self, prefix):
         _set_char_par\
@@ -1224,6 +1206,7 @@ class IterativeReconstructor(Reconstructor):
 ##            (self.handle, 'IterativeReconstruction',\
 ##             'inter_iteration_filter_interval', n)
     def set_objective_function(self, obj):
+        assert isinstance(obj, ObjectiveFunction)
         _setParameter\
             (self.handle, 'IterativeReconstruction',\
              'objective_function', obj.handle)
@@ -1245,10 +1228,12 @@ class IterativeReconstructor(Reconstructor):
 ##        check_status(filter.handle)
 ##        return filter
     def set_up(self, image):
+        assert isinstance(image, ImageData)
         handle = pystir.cSTIR_setupReconstruction(self.handle, image.handle)
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
     def set_current_estimate(self, image):
+        assert isinstance(image, ImageData)
         self.image = image
     def get_current_estimate(self):
         return self.image
@@ -1263,6 +1248,7 @@ class IterativeReconstructor(Reconstructor):
         obj_fun = self.get_objective_function()
         return obj_fun.get_subset_sensitivity(self.subset)
     def update(self, image):
+        assert isinstance(image, ImageData)
         self.set_current_estimate(image)
         self.update_current_estimate()
         return self.get_current_estimate()

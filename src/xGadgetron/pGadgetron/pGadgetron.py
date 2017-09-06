@@ -299,6 +299,7 @@ class CoilImageData(DataContainer):
         Calculates coil images from a given sorted acquisitions.
         acqs: AcquisitionData
         '''
+        assert isinstance(acqs, AcquisitionData)
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
         try_calling(pygadgetron.cGT_computeCoilImages\
@@ -476,8 +477,6 @@ class ImageData(DataContainer):
         im_num: image (slice) 
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Data type not defined for empty ImageData object')
         handle = pygadgetron.cGT_imageDataType(self.handle, im_num)
         check_status(handle)
         n = pyiutil.intDataFromHandle(handle)
@@ -485,8 +484,6 @@ class ImageData(DataContainer):
         return n
     def is_real(self):
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Data type not defined for empty ImageData object')
         t = self.data_type(0)
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
     def process(self, list):
@@ -499,8 +496,6 @@ class ImageData(DataContainer):
               (square brackets embrace optional items, ... stands for etc.)
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot process empty ImageData object')
         ip = ImageDataProcessor(list)
         return ip.process(self)
     def clone(self):
@@ -508,8 +503,6 @@ class ImageData(DataContainer):
         Returns a copy of self.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot clone empty ImageData object')
         ip = ImageDataProcessor()
         return ip.process(self)
     def show(self):
@@ -517,8 +510,6 @@ class ImageData(DataContainer):
         Interactively displays self's images.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot show empty ImageData object')
         if not HAVE_PYLAB:
             print('pylab not found')
             return
@@ -553,8 +544,6 @@ class ImageData(DataContainer):
         out_group: hdf5 dataset name (Python string)
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot write empty ImageData object')
         try_calling(pygadgetron.cGT_writeImages\
                     (self.handle, out_file, out_group))
     def select(self, attr, value):
@@ -565,8 +554,6 @@ class ImageData(DataContainer):
         value: the value of the attribute (Python string)
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot select a subset of empty ImageData object')
         images = ImageData()
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
@@ -576,8 +563,6 @@ class ImageData(DataContainer):
         Returns all self's images as a 3D Numpy ndarray.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot export empty ImageData object as array')
         if self.number() < 1:
             return numpy.ndarray((0,0,0), dtype = numpy.float32)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
@@ -605,12 +590,8 @@ class ImageData(DataContainer):
         data: Python Numpy array
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Empty ImageData object cannot be filled')
         re = numpy.real(data).astype(numpy.float32)
         im = numpy.imag(data).astype(numpy.float32)
-##        re = numpy.copy(numpy.real(data))
-##        im = numpy.copy(numpy.imag(data))
         try_calling(pygadgetron.cGT_setComplexImagesData\
             (self.handle, re.ctypes.data, im.ctypes.data))
 
@@ -700,19 +681,12 @@ class AcquisitionData(DataContainer):
             - kspace_encode_step_1
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            msg = 'Cannot sort empty AcquisitionData object'
-##            raise error(msg)
         try_calling(pygadgetron.cGT_orderAcquisitions(self.handle))
         self.sorted = True
     def is_sorted(self):
         return self.sorted
     def is_undersampled(self):
         assert self.handle is not None
-##        if self.handle is None:
-##            msg = 'Cannot determine whether empty AcquisitionData object'
-##            msg += 'is undersampled'
-##            raise error(msg)
         return _int_par(self.handle, 'acquisitions', 'undersampled')
     def process(self, list):
         '''
@@ -724,8 +698,6 @@ class AcquisitionData(DataContainer):
               (square brackets embrace optional items, ... stands for etc.)
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot process empty AcquisitionData object')
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
     def clone(self):
@@ -733,8 +705,6 @@ class AcquisitionData(DataContainer):
         Returns a copy of self.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot clone empty AcquisitionData object')
         ap = AcquisitionDataProcessor()
         return ap.process(self)
     def acquisition(self, num):
@@ -743,9 +713,6 @@ class AcquisitionData(DataContainer):
         num: acquisition number
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            msg = 'Cannot get acquisitions from empty AcquisitionData object'
-##            raise error(msg)
         acq = Acquisition()
         acq.handle = pygadgetron.cGT_acquisitionFromContainer(self.handle, num)
         return acq
@@ -759,9 +726,6 @@ class AcquisitionData(DataContainer):
         is returned.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            msg = 'Cannot determine dimensions of empty AcquisitionData object'
-##            raise error(msg)
         dim = numpy.ones((MAX_ACQ_DIMENSIONS,), dtype = numpy.int32)
         hv = pygadgetron.cGT_getAcquisitionsDimensions\
              (self.handle, dim.ctypes.data)
@@ -777,8 +741,6 @@ class AcquisitionData(DataContainer):
         Fills the array self.info with information for each acquisition.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot set info for empty AcquisitionData object')
         na, nc, ns = self.dimensions()
         self.info = numpy.empty((na,), dtype = object)
         for a in range(na):
@@ -796,8 +758,6 @@ class AcquisitionData(DataContainer):
         par: parameter name
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot get info on empty AcquisitionData object')
         na, nc, ns = self.dimensions()
         if self.info is None:
             self.set_info()
@@ -828,8 +788,6 @@ class AcquisitionData(DataContainer):
         Returns selected self's acquisitions as a 3D Numpy ndarray.
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot export empty AcquisitionData object as array')
         na = self.number()
         ny, nc, ns = self.dimensions(select)
         if select == 'all': # return all
@@ -848,13 +806,9 @@ class AcquisitionData(DataContainer):
         data: Python Numpy array
         '''
         assert self.handle is not None
-##        if self.handle is None:
-##            raise error('Cannot fill empty AcquisitionData object')
         na, nc, ns = data.shape
         re = numpy.real(data).astype(numpy.float32)
         im = numpy.imag(data).astype(numpy.float32)
-##        re = numpy.copy(numpy.real(data))
-##        im = numpy.copy(numpy.imag(data))
         try_calling(pygadgetron.cGT_setAcquisitionsData\
             (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
 
@@ -876,8 +830,9 @@ class AcquisitionModel:
     def set_coil_sensitivity_maps(self, csm):
         '''
         Specifies the coil sensitivity maps to be used by the model.
-        csm: CoilSensitivityMaps
+        csm: CoilSensitivityData
         '''
+        assert isinstance(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
@@ -886,6 +841,7 @@ class AcquisitionModel:
         expected to be received from the scanner.
         image: ImageData
         '''
+        assert isinstance(image, ImageData)
         ad = AcquisitionData()
         ad.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, image.handle)
@@ -897,6 +853,7 @@ class AcquisitionModel:
         transpose of the forward projection.
         ad: AcquisitionData
         '''
+        assert isinstance(ad, AcquisitionData)
         image = ImageData()
         image.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, ad.handle)
@@ -959,6 +916,7 @@ class GadgetChain:
         id    : gadget id (string)
         reader: Gadget of reader type
         '''
+        assert isinstance(reader, Gadget)
         try_calling(pygadgetron.cGT_addReader(self.handle, id, reader.handle))
     def add_writer(self, id, writer):
         '''
@@ -967,6 +925,7 @@ class GadgetChain:
         id    : gadget id (string)
         writer: Gadget of writer type
         '''
+        assert isinstance(writer, Gadget)
         try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
     def add_gadget(self, id, gadget):
         '''
@@ -974,6 +933,7 @@ class GadgetChain:
         id    : gadget id (string)
         writer: Gadget
         '''
+        assert isinstance(gadget, Gadget)
         try_calling(pygadgetron.cGT_addGadget(self.handle, id, gadget.handle))
     def set_gadget_property(self, id, prop, value):
         '''
@@ -1025,6 +985,7 @@ class Reconstructor(GadgetChain):
         Sets the input.
         input_data: AcquisitionData
         '''
+        assert isinstance(input_data, AcquisitionData)
         self.input_data = input_data
     def process(self):
         '''
@@ -1052,6 +1013,7 @@ class Reconstructor(GadgetChain):
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
+        assert isinstance(input_data, AcquisitionData)
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
         check_status(handle)
@@ -1091,6 +1053,7 @@ class ImageDataProcessor(GadgetChain):
         '''
         Sets the input data.
         '''
+        assert isinstance(input_data, ImageData)
         self.input_data = input_data
     def process(self, input_data = None):
         '''
@@ -1101,6 +1064,7 @@ class ImageDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
+        assert isinstance(self.input_data, ImageData)
         image = ImageData()
         image.handle = pygadgetron.cGT_processImages\
              (self.handle, self.input_data.handle)
@@ -1145,6 +1109,7 @@ class AcquisitionDataProcessor(GadgetChain):
         '''
         Sets the input data.
         '''
+        assert isinstance(input_data, AcquisitionData)
         self.input_data = input_data
     def process(self, input_data = None):
         '''
@@ -1155,6 +1120,7 @@ class AcquisitionDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
+        assert isinstance(self.input_data, AcquisitionData)
         acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, self.input_data.handle)
@@ -1201,6 +1167,7 @@ def preprocess_acquisition_data(input_data):
     Acquisition processor function that adjusts noise and asymmetrich echo and
     removes readout oversampling.
     '''
+    assert isinstance(input_data, AcquisitionData)
     return input_data.process(\
         ['NoiseAdjustGadget', \
          'AsymmetricEchoAdjustROGadget', \
