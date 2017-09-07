@@ -198,6 +198,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert isinstance(other, DataContainer)
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         check_status(handle)
         re = pyiutil.floatReDataFromHandle(handle)
@@ -212,6 +213,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert isinstance(other, DataContainer)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
@@ -224,6 +226,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert isinstance(other, DataContainer)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
@@ -274,6 +277,8 @@ class DataContainer(ABC):
         a and b: complex scalars
         x and y: DataContainers
         '''
+        assert isinstance(x, DataContainer)
+        assert isinstance(y, DataContainer)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
