@@ -54,10 +54,9 @@ classdef DataContainer < handle
         function z = dot(self, other)
 %***SIRF*** Returns the dot product of this data container with another one 
 %         viewed as vectors.
-            % does not work because DataContainer is abstract!
-            %assert(isa(other, mGadgetron.DataContainer))
-            assert(lt(metaclass(other), self.meta_))
+            %assert(lt(metaclass(other), self.meta_))
             %assert(isobject(other))
+            assert(strcmp(class(self), class(other)))
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
             mUtilities.check_status('DataContainer', handle);
@@ -70,6 +69,7 @@ classdef DataContainer < handle
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
+            assert(strcmp(class(self), class(other)))
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
@@ -78,6 +78,7 @@ classdef DataContainer < handle
 %***SIRF*** Overloads + for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
+            assert(strcmp(class(self), class(other)))
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, 1.0, 0.0, other.handle_);
@@ -87,17 +88,21 @@ classdef DataContainer < handle
 %         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
-            if isobject(other)
+            %if isobject(other)
+            if strcmp(class(self), class(other))
                 z = self.dot(other);
             elseif isreal(other)
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     other, 0.0, self.handle_, 0.0, 0.0, self.handle_);
-            else
+            elseif iscomplex(other)
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     real(other), imag(other), self.handle_, ...
                     0.0, 0.0, self.handle_);
+            else
+                error('DataContainer:mtimes', ...
+                    'Wrong argument type %s\n', class(other))
             end
         end
     end
@@ -107,7 +112,8 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
-            z = self.same_object();
+            assert(strcmp(class(x), class(y)))
+            z = x.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
         end
