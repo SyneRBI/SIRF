@@ -172,12 +172,12 @@ EXPORTED_FUNCTION 	void* mDeleteTextWriter(void* ptr_w) {
 }
 #endif
 void* newMexPrinter();
-void deleteMexPrinter(void* ptr);
+void* deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();
 }
 EXPORTED_FUNCTION void* mDeleteMexPrinter(void* ptr) {
-  deleteMexPrinter(ptr);
+  return deleteMexPrinter(ptr);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}
