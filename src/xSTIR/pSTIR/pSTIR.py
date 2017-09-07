@@ -254,6 +254,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert type(self) == type(other)
         handle = pystir.cSTIR_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
@@ -267,6 +268,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert type(self) == type(other)
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
             (1.0, self.handle, 1.0, other.handle)
@@ -280,6 +282,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
+        assert type(self) == type(other)
         z = self.same_object()
         z.handle = pystir.cSTIR_axpby\
             (1.0, self.handle, -1.0, other.handle)
@@ -293,7 +296,7 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
-        if isinstance(other, DataContainer):
+        if type(self) == type(other):
             return self.dot(other)
         z = self.same_object()
         if type(other) == type(0):

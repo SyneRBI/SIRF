@@ -153,9 +153,7 @@ class ClientConnector:
         check_status(handle)
         pyiutil.deleteDataHandle(handle)
 
-# base class for data container classes
-# must actually be moved together with the respective C interface
-# from xGadgetron/cGadgetron to common
+# base class for complex data container classes
 class DataContainer(ABC):
     '''
     Class for an abstract data container.
@@ -198,7 +196,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
-        assert isinstance(other, DataContainer)
+        assert type(self) == type(other)
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         check_status(handle)
         re = pyiutil.floatReDataFromHandle(handle)
@@ -213,7 +211,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
-        assert isinstance(other, DataContainer)
+        assert type(self) == type(other)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
@@ -226,7 +224,7 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert self.handle is not None
-        assert isinstance(other, DataContainer)
+        assert type(self) == type(other)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
@@ -239,9 +237,11 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
-        if isinstance(other, DataContainer):
+        if type(self) == type(other):
             return self.dot(other)
         z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
         if type(other) == type(complex(0,0)):
             z.handle = pygadgetron.cGT_axpby\
                 (other.real, other.imag, self.handle, 0, 0, self.handle)
@@ -260,6 +260,8 @@ class DataContainer(ABC):
         '''
         assert self.handle is not None
         z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
         if type(other) == type(complex(0,0)):
             z.handle = pygadgetron.cGT_axpby\
                 (other.real, other.imag, self.handle, 0, 0, self.handle)
@@ -277,9 +279,8 @@ class DataContainer(ABC):
         a and b: complex scalars
         x and y: DataContainers
         '''
-        assert isinstance(x, DataContainer)
-        assert isinstance(y, DataContainer)
-        z = self.same_object()
+        assert type(x) == type(y)
+        z = x.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
         return z;
