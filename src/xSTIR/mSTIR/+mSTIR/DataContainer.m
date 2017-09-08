@@ -20,31 +20,31 @@ classdef DataContainer < handle
 % limitations under the License.
 
     properties
-        handle
+        handle_
     end
     methods (Abstract, Static)
         same_object(self)
     end
     methods
         function self = DataContainer()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
 %         function num = number(self)
 % %***SIRF*** Returns the number of items in this container.
-%             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle);
+%             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
 %             mUtilities.check_status('DataContainer', handle);
 %             num = calllib('miutilities', 'mIntDataFromHandle', handle);
 %             mUtilities.delete(handle)
 %         end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
-            handle = calllib('mstir', 'mSTIR_norm', self.handle);
+            handle = calllib('mstir', 'mSTIR_norm', self.handle_);
             mUtilities.check_status('DataContainer', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
             mUtilities.delete(handle)
@@ -52,8 +52,8 @@ classdef DataContainer < handle
         function r = dot(self, other)
 %***SIRF*** Returns the dot product of this data container with another one 
 %         viewed as vectors.
-            handle = calllib('mstir', 'mSTIR_dot', self.handle, ...
-                other.handle);
+            handle = calllib('mstir', 'mSTIR_dot', self.handle_, ...
+                other.handle_);
             mUtilities.check_status('DataContainer', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
             mUtilities.delete(handle)
@@ -63,16 +63,16 @@ classdef DataContainer < handle
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
             z = self.same_object();
-            z.handle = calllib('mstir', 'mSTIR_axpby', ...
-                1.0, self.handle, 1.0, other.handle);
+            z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
+                1.0, self.handle_, 1.0, other.handle_);
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
             z = self.same_object();
-            z.handle = calllib('mstir', 'mSTIR_axpby', ...
-                1.0, self.handle, -1.0, other.handle);
+            z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
+                1.0, self.handle_, -1.0, other.handle_);
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
@@ -83,7 +83,7 @@ classdef DataContainer < handle
                 z = self.dot(other);
             elseif isreal(other)
                 z = self.same_object();
-                z.handle = calllib('mstir', 'mSTIR_mult', other, self.handle);
+                z.handle_ = calllib('mstir', 'mSTIR_mult', other, self.handle_);
             else
                 error('DataContainer:mtimes', 'Wrong multiplier');
             end
@@ -96,8 +96,8 @@ classdef DataContainer < handle
 %         a and b: real scalars
 %         x and y: DataContainers
             z = self.same_object();
-            z.handle = calllib('mstir', 'mSTIR_axpby', ...
-                a, x.handle, b, y.handle);
+            z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
+                a, x.handle_, b, y.handle_);
         end
     end
 end

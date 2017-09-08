@@ -20,7 +20,7 @@ classdef AcquisitionData < mSTIR.DataContainer
 
     properties
         name
-        %handle
+        %handle_
         read_only
     end
     methods (Static)
@@ -40,42 +40,42 @@ classdef AcquisitionData < mSTIR.DataContainer
 %         AcquisitionData(arg) creates new AcquisitionData object 
 %         from a file or another AcquisitionData object;
 %         arg:  file name or AcquisitionData object.
-            self.handle = [];
+            self.handle_ = [];
             self.name = 'AcquisitionData';
             self.read_only = false;
             if nargin < 1
                 return
             elseif ischar(arg)
-                self.handle = calllib...
+                self.handle_ = calllib...
                     ('mstir', 'mSTIR_objectFromFile',...
                     'AcquisitionData', arg);
                 self.read_only = true;
             elseif isa(arg, 'mSTIR.AcquisitionData')
-                self.handle = calllib...
+                self.handle_ = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
-                    arg.handle);
+                    arg.handle_);
             else
                 error('AcquisitionData:wrong_ctor_source', ...
                 'wrong source in AcquisitionData constructor')
             end
-            mUtilities.check_status(self.name, self.handle);
+            mUtilities.check_status(self.name, self.handle_);
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads acquisition data from a file.
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
-            self.handle = calllib('mstir', 'mSTIR_objectFromFile', ...
+            self.handle_ = calllib('mstir', 'mSTIR_objectFromFile', ...
                 'AcquisitionData', filename);
-            mUtilities.check_status(self.name, self.handle);
+            mUtilities.check_status(self.name, self.handle_);
             self.read_only = true;
         end
         function image = create_uniform_image(self, value)
@@ -86,10 +86,10 @@ classdef AcquisitionData < mSTIR.DataContainer
 %         The specified value, if present, is assigned at all image voxels.
 %         value: a float.
             image = mSTIR.ImageData();
-            image.handle = calllib...
-                ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle);
+            image.handle_ = calllib...
+                ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle_);
             mUtilities.check_status...
-                ([self.name ':create_uniform_image'], image.handle);
+                ([self.name ':create_uniform_image'], image.handle_);
             if nargin > 1
                 image.fill(value)
             end
@@ -102,11 +102,11 @@ classdef AcquisitionData < mSTIR.DataContainer
 %         - number of sinograms
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
-                self.handle, ptr_i);
+                self.handle_, ptr_i);
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
             ptr_v = libpointer('singlePtr', zeros(n, 1));
-            calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle, ptr_v);
+            calllib('mstir', 'mSTIR_getAcquisitionsData', self.handle_, ptr_v);
             data = reshape(ptr_v.Value, dim(1), dim(2), dim(3));
         end
         function fill(self, value)
@@ -114,7 +114,7 @@ classdef AcquisitionData < mSTIR.DataContainer
 %         value: float or array of floats (of the same dimensions and data
 %                order as the one returned by as_array() method) or an 
 %                AcquisitionData object.
-            if isempty(self.handle)
+            if isempty(self.handle_)
                 error([self.name ':fill'], ...
                     'AcquisitionData object not initialized')
             elseif self.read_only
@@ -124,10 +124,10 @@ classdef AcquisitionData < mSTIR.DataContainer
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', value);
                     h = calllib('mstir', 'mSTIR_setAcquisitionsData', ...
-                        self.handle, ptr_v);
+                        self.handle_, ptr_v);
                 else
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
-                        self.handle, value);
+                        self.handle_, value);
                 end
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
@@ -137,10 +137,10 @@ classdef AcquisitionData < mSTIR.DataContainer
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', single(value));
                     h = calllib('mstir', 'mSTIR_setAcquisitionsData', ...
-                        self.handle, ptr_v);
+                        self.handle_, ptr_v);
                 else
                     h = calllib('mstir', 'mSTIR_fillAcquisitionsData', ...
-                        self.handle, single(value));
+                        self.handle_, single(value));
                 end
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
@@ -149,7 +149,7 @@ classdef AcquisitionData < mSTIR.DataContainer
             elseif isa(value, 'mSTIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
-                    self.handle, value.handle);
+                    self.handle_, value.handle_);
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 mUtilities.delete(h)

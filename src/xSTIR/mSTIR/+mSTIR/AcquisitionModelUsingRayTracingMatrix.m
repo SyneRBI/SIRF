@@ -27,29 +27,29 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %         The optional argument sets the ray tracing matrix to be used;
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtilities.check_status([self.name ':ctor'], self.handle)
+            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
+            mUtilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
                 matrix = mSTIR.RayTracingMatrix();
             end
             mSTIR.setParameter...
-                (self.handle, self.name, 'matrix', matrix, 'h')
+                (self.handle_, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function matrix = get_matrix(self)
 %***SIRF*** Returns the ray tracing matrix used for projecting;
 %         matrix:  a RayTracingMatrix object representing G in (F).
             matrix = mSTIR.RayTracingMatrix();
-            matrix.handle = calllib('mstir', 'mSTIR_parameter',...
-                self.handle, self.name, 'matrix');
+            matrix.handle_ = calllib('mstir', 'mSTIR_parameter',...
+                self.handle_, self.name, 'matrix');
             mUtilities.check_status...
-                ([self.name ':get_matrix'], matrix.handle)
+                ([self.name ':get_matrix'], matrix.handle_)
         end
         function set_num_tangential_LORs(self, value)
 %***SIRF*** Set the number of LORs (or rays) for each bin in the sinogram.

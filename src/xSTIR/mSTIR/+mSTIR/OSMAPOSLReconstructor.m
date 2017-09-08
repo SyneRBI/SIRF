@@ -32,18 +32,18 @@ classdef OSMAPOSLReconstructor < mSTIR.IterativeReconstructor
             if nargin < 1
                 filename = '';
             end
-            self.handle = calllib...
+            self.handle_ = calllib...
                 ('mstir', 'mSTIR_objectFromFile',...
                 'OSMAPOSLReconstruction', filename);
-            mUtilities.check_status(self.name, self.handle);
+            mUtilities.check_status(self.name, self.handle_);
         end
         function delete(self)
-            %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-            mUtilities.delete(self.handle)
-            self.handle = [];
+            %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+            mUtilities.delete(self.handle_)
+            self.handle_ = [];
         end
         function set_MAP_model(self, model)
-            mSTIR.setParameter(self.handle, self.name, 'MAP_model', model, 'c')
+            mSTIR.setParameter(self.handle_, self.name, 'MAP_model', model, 'c')
         end
     end
 end

@@ -23,19 +23,19 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
     methods
         function self = PoissonLogLikelihoodWithLinearModelForMean()
 %         Creates new empty object.
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function set_sensitivity_filename(self, name)
 %***SIRF*** Specifies the file with the sensitivity data to be used.
             mSTIR.setParameter...
-                (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
+                (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'sensitivity_filename', name, 'c')
         end
         function set_use_subset_sensitivities(self, value)
@@ -46,7 +46,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
                 str = 'false';
             end
             mSTIR.setParameter...
-                (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
+                (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'use_subset_sensitivities', str, 'c')
         end
         function set_recompute_sensitivity(self, value)
@@ -57,29 +57,29 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
                 str = 'false';
             end
             mSTIR.setParameter...
-                (self.handle, 'PoissonLogLikelihoodWithLinearModelForMean',...
+                (self.handle_, 'PoissonLogLikelihoodWithLinearModelForMean',...
                 'recompute_sensitivity', str, 'c')
         end
         function sens = get_subset_sensitivity(self, subset)
 %***SIRF*** Returns the specified subset sensitivity data as ImageData.
             sens = mSTIR.ImageData();
-            sens.handle = calllib('mstir', 'mSTIR_subsetSensitivity',...
-                self.handle, subset);
+            sens.handle_ = calllib('mstir', 'mSTIR_subsetSensitivity',...
+                self.handle_, subset);
             mUtilities.check_status...
                 ('PoissonLinModMean:get_subset_sensitivity',...
-                sens.handle)
+                sens.handle_)
         end
         function bar = get_backprojection_of_acquisition_ratio...
                 (self, image, subset)
 %***SIRF*** Returns the backprojection of the ratio of measured to estimated
 %         acquisition data for the specified image and subset.
             bar = mSTIR.ImageData();
-            bar.handle = calllib...
+            bar.handle_ = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...
-                self.handle, image.handle, subset);
+                self.handle_, image.handle_, subset);
             mUtilities.check_status...
                 ('PoissonLinModMean:get_backprojection_of_acquisition_ratio',...
-                bar.handle)
+                bar.handle_)
         end
     end
 end

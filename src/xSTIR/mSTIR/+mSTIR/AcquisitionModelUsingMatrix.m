@@ -28,26 +28,26 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
 %         The optional argument sets the projection matrix to be used.
 %         matrix:  a RayTracingMatrix object to represent G in (F).
             self.name = 'AcqModUsingMatrix';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
-            mUtilities.check_status([self.name ':ctor'], self.handle)
+            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
+            mUtilities.check_status([self.name ':ctor'], self.handle_)
             if nargin < 1
                 matrix = mSTIR.RayTracingMatrix();
             end
             mSTIR.setParameter...
-                (self.handle, self.name, 'matrix', matrix, 'h')
+                (self.handle_, self.name, 'matrix', matrix, 'h')
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function set_matrix(self, matrix)
 %***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
 %         matrix:  a projection matrix object to represent G in (F).
             mSTIR.setParameter...
-                (self.handle, self.name, 'matrix', matrix, 'h')
+                (self.handle_, self.name, 'matrix', matrix, 'h')
         end
     end
 end

@@ -20,32 +20,32 @@ classdef ObjectiveFunction < handle
 
     properties
         name
-        handle
+        handle_
     end
     methods
         function self = ObjectiveFunction()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function set_prior(self, prior)
 %***SIRF*** Sets the prior (penalty term to be added to the objective function).
             mSTIR.setParameter...
-                (self.handle, 'GeneralisedObjectiveFunction', 'prior',...
+                (self.handle_, 'GeneralisedObjectiveFunction', 'prior',...
                 prior, 'h')
         end
         function prior = get_prior(self)
 %***SIRF*** Returns the prior currently used by this objective function.
             prior = mSTIR.Prior();
-            prior.handle = calllib('mstir', 'mSTIR_parameter',...
-                self.handle, 'GeneralisedObjectiveFunction', 'prior');
+            prior.handle_ = calllib('mstir', 'mSTIR_parameter',...
+                self.handle_, 'GeneralisedObjectiveFunction', 'prior');
             mUtilities.check_status...
-                ('GeneralisedObjectiveFunction:get_prior', prior.handle)
+                ('GeneralisedObjectiveFunction:get_prior', prior.handle_)
         end
         function set_num_subsets(self, num)
 %***SIRF*** Sets the number of subsets of ray projections to be used 
@@ -55,13 +55,13 @@ classdef ObjectiveFunction < handle
 %         projector G is a matrix, the subsets in question correspond to
 %         subsets of its rows.
             mSTIR.setParameter...
-                (self.handle, 'GeneralisedObjectiveFunction', ...
+                (self.handle_, 'GeneralisedObjectiveFunction', ...
                 'num_subsets', num, 'i')
         end
         function set_up(self, image)
 %***SIRF*** Prepares this object for use.
             h = calllib('mstir', 'mSTIR_setupObjectiveFunction', ...
-                self.handle, image.handle);
+                self.handle_, image.handle_);
             mUtilities.check_status('GeneralisedObjectiveFunction:set_up', h)
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -70,7 +70,7 @@ classdef ObjectiveFunction < handle
 %***SIRF*** Returns the value of this objective function 
 %         on the specified image.
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
-                self.handle, image.handle);
+                self.handle_, image.handle_);
             mUtilities.check_status...
                 ('GeneralisedObjectiveFunction:value', h)
             v = calllib('miutilities', 'mFloatDataFromHandle', h);
@@ -85,10 +85,10 @@ classdef ObjectiveFunction < handle
                 subset = -1;
             end
             g = mSTIR.ImageData();
-            g.handle = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
-                self.handle, image.handle, subset);
+            g.handle_ = calllib('mstir', 'mSTIR_objectiveFunctionGradient',...
+                self.handle_, image.handle_, subset);
             mUtilities.check_status...
-                ('GeneralisedObjectiveFunction:gradient', g.handle)
+                ('GeneralisedObjectiveFunction:gradient', g.handle_)
         end
         function g = get_gradient(self, image)
 %***SIRF*** Returns the gradient of the objective function 

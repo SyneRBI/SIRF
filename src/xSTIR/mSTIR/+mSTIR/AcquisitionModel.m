@@ -34,42 +34,42 @@ classdef AcquisitionModel < handle
 
     properties
         name
-        handle
+        handle_
     end
     methods
         function self = AcquisitionModel()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function set_additive_term(self, at)
 %***SIRF*** set_additive_term(at) sets the additive term a in (F);
 %         at:  an AcquisitionData object containing a.
-            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
 %         function set_background_term(self, bt)
 % %***SIRF*** set_background_term(bt) sets the background term b in (F);
 % %         bt:  an AcquisitionData object containing b.
-%             mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
+%             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
 %                 'background_term', bt, 'h');
 %         end
         function set_normalisation(self, norm)
 %***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
 %         norm:  an AcquisitionData object containing normalisation n.
-            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'normalisation', norm, 'h');
         end
         function set_bin_efficiency(self, bin_eff)
 %***SIRF*** set_bin_efficiency(bin_eff) sets the normalisation n in (F);
 %         bin_eff:  an AcquisitionData object containing bin efficiencies
 %                   (the inverse of n).
-            mSTIR.setParameter(self.handle, 'AcquisitionModel', ...
+            mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'bin_efficiency', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
@@ -85,7 +85,7 @@ classdef AcquisitionModel < handle
 %                     ImageData object to store backprojection.
             h = calllib...
                 ('mstir', 'mSTIR_setupAcquisitionModel',...
-                self.handle, acq_templ.handle, img_templ.handle);
+                self.handle_, acq_templ.handle_, img_templ.handle_);
             mUtilities.check_status([self.name ':set_up'], h)
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -97,18 +97,18 @@ classdef AcquisitionModel < handle
 %             acq_data = forward(image, filename);
 %         image   :  an ImageData object containing x;
             ad = mSTIR.AcquisitionData();
-            ad.handle = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
-                self.handle, image.handle);
-            mUtilities.check_status([self.name ':forward'], ad.handle)
+            ad.handle_ = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
+                self.handle_, image.handle_);
+            mUtilities.check_status([self.name ':forward'], ad.handle_)
         end
         function image = backward(self, ad)
 %***SIRF*** backward(ad) returns the backprojection of ad (y in (B));
 %         ad:  an AcquisitionData object containing y.
             image = mSTIR.ImageData();
-            image.handle = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
-                self.handle, ad.handle);
+            image.handle_ = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
+                self.handle_, ad.handle_);
             mUtilities.check_status...
-                ([self.name ':backward'], image.handle)
+                ([self.name ':backward'], image.handle_)
         end
     end
 end
