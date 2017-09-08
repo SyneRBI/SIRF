@@ -215,6 +215,11 @@ def assert_validity(object, type):
     assert isinstance(object, type)
     assert object.handle is not None
 
+def assert_validities(x, y):
+    assert type(x) == type(y)
+    assert x.handle is not None
+    assert y.handle is not None
+
 def label_and_name(g):
     name = g.lstrip()
     name = name.rstrip()
