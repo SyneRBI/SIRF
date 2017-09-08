@@ -444,6 +444,8 @@ class ImageData(DataContainer):
         return image
     def add_shape(self, shape, scale):
         assert self.handle is not None
+        assert isinstance(shape, Shape)
+        assert shape.handle is not None
         try_calling(pystir.cSTIR_addShape(self.handle, shape.handle, scale))
     def read_from_file(self, filename):
         '''Read data from file.
@@ -505,6 +507,8 @@ class ImageDataProcessor:
             pyiutil.deleteDataHandle(self.handle)
     def apply(self, image):
         '''Applies this filter to the specified image.'''
+        assert isinstance(image, ImageData)
+        assert image.handle is not None
         try_calling(pystir.cSTIR_applyDataProcessor\
                  (self.handle, image.handle))
     def set_input(self, input):
