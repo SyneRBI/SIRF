@@ -399,6 +399,9 @@ class CoilSensitivityData(DataContainer):
                     (self.handle, data.handle))
             else:
                 raise error('Unknown method %s' % method_name)
+        else:
+            raise error('Cannot calculate coil sensitivities from %s' % \
+                        repr(type(data)))
     def append(self, csm):
         '''
         Appends a coil sensitivity map to self.
@@ -671,10 +674,10 @@ class AcquisitionData(DataContainer):
         try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
-    def number_of_acquisitions(self, select = 'image'):
-        assert self.handle is not None
-        dim = self.dimensions(select)
-        return dim[0]
+##    def number_of_acquisitions(self, select = 'image'):
+##        assert self.handle is not None
+##        dim = self.dimensions(select)
+##        return dim[0]
     def get_number_of_readouts(self, select = 'image'):
         assert self.handle is not None
         dim = self.dimensions(select)
@@ -826,6 +829,8 @@ class AcquisitionModel:
     simulated acquisitions.
     '''
     def __init__(self, acqs, imgs):
+        assert isinstance(acqs, AcquisitionData)
+        assert isinstance(imgs, ImageData)
         self.handle = None
         self.handle = \
             pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
