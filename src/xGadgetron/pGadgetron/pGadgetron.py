@@ -195,8 +195,9 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert self.handle is not None
-        assert type(self) == type(other)
+##        assert self.handle is not None
+##        assert type(self) == type(other)
+        assert_validities(self, other)
         handle = pygadgetron.cGT_dot(self.handle, other.handle)
         check_status(handle)
         re = pyiutil.floatReDataFromHandle(handle)
@@ -210,8 +211,9 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert self.handle is not None
-        assert type(self) == type(other)
+##        assert self.handle is not None
+##        assert type(self) == type(other)
+        assert_validities(self, other)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
@@ -223,8 +225,9 @@ class DataContainer(ABC):
         data viewed as vectors.
         other: DataContainer
         '''
-        assert self.handle is not None
-        assert type(self) == type(other)
+##        assert self.handle is not None
+##        assert type(self) == type(other)
+        assert_validities(self, other)
         z = self.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
@@ -279,7 +282,8 @@ class DataContainer(ABC):
         a and b: complex scalars
         x and y: DataContainers
         '''
-        assert type(x) == type(y)
+##        assert type(x) == type(y)
+        assert_validities(x, y)
         z = x.same_object()
         z.handle = pygadgetron.cGT_axpby\
             (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
