@@ -11,7 +11,7 @@ function setParameter(hs, set, par, value, type)
     end
     if has_handle
         handle = calllib...
-            ('mstir', 'mSTIR_setParameter', hs, set, par, value.handle);
+            ('mstir', 'mSTIR_setParameter', hs, set, par, value.handle_);
     else
         handle = calllib('mstir', 'mSTIR_setParameter', hs, set, par, hv);
         mUtilities.delete(hv)

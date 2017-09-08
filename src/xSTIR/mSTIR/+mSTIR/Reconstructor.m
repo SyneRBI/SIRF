@@ -22,22 +22,22 @@ classdef Reconstructor < handle
         R = 'Reconstruction';
     end
     properties
-        handle
+        handle_
         input
         image
     end
     methods
         function self = Reconstructor()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                calllib('mstir', 'mDeleteDataHandle', self.handle)
+            if ~isempty(self.handle_)
+                calllib('mstir', 'mDeleteDataHandle', self.handle_)
             end
         end
         function set_input(self, input_data)
             mSTIR.setParameter...
-                (self.handle, self.R, 'input_data', input_data, 'h')
+                (self.handle_, self.R, 'input_data', input_data, 'h')
         end
         function process(self)
 %***SIRF*** Reconstruct the image 
@@ -47,7 +47,7 @@ classdef Reconstructor < handle
                 error('Reconstructor:process', 'current estimate not set')
             end
             h = calllib('mstir', 'mSTIR_runReconstruction',...
-                self.handle, self.image.handle);
+                self.handle_, self.image.handle_);
             mUtilities.check_status('Reconstructor:process', h)
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -60,7 +60,7 @@ classdef Reconstructor < handle
 %         by applying currently set range of
 %         iterations to the image estimate specified by the argument.
             h = calllib('mstir', 'mSTIR_runReconstruction',...
-                self.handle, image.handle);
+                self.handle_, image.handle_);
             mUtilities.check_status([self.IR ':reconstruct'], h)
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -76,7 +76,7 @@ classdef Reconstructor < handle
 %                 Each file will be named [prefix '_' subiter_num], 
 %                 where subiter_num is the number of the sub-iteration 
 %                 at which the respective image estimate was saved.
-            mSTIR.setParameter(self.handle, self.R, 'output_filename_prefix',...
+            mSTIR.setParameter(self.handle_, self.R, 'output_filename_prefix',...
                 prefix, 'c')
         end
     end

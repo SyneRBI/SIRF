@@ -20,29 +20,29 @@ classdef Shape < handle
 % limitations under the License.
 
     properties
-        handle
+        handle_
     end
     methods
         function self = Shape()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
         end
         function set_origin(self, origin)
 % ***SIRF*** Sets the (discrete) coordinates of the shape centre on a voxel grid.
-            mSTIR.setParameter(self.handle, 'Shape', 'x', origin(1), 'f')
-            mSTIR.setParameter(self.handle, 'Shape', 'y', origin(2), 'f')
-            mSTIR.setParameter(self.handle, 'Shape', 'z', origin(3), 'f')
+            mSTIR.setParameter(self.handle_, 'Shape', 'x', origin(1), 'f')
+            mSTIR.setParameter(self.handle_, 'Shape', 'y', origin(2), 'f')
+            mSTIR.setParameter(self.handle_, 'Shape', 'z', origin(3), 'f')
         end
         function [x, y, z] = get_origin(self)
 % ***SIRF*** Returns the coordinates of the shape centre on a voxel grid.
-            x = mSTIR.parameter(self.handle, 'Shape', 'x', 'f');
-            y = mSTIR.parameter(self.handle, 'Shape', 'y', 'f');
-            z = mSTIR.parameter(self.handle, 'Shape', 'z', 'f');
+            x = mSTIR.parameter(self.handle_, 'Shape', 'x', 'f');
+            y = mSTIR.parameter(self.handle_, 'Shape', 'y', 'f');
+            z = mSTIR.parameter(self.handle_, 'Shape', 'z', 'f');
         end
     end
 end

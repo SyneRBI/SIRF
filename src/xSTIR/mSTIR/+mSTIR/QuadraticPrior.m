@@ -21,12 +21,12 @@ classdef QuadraticPrior < mSTIR.Prior
     methods
         function self = QuadraticPrior()
             self.name = 'QuadraticPrior';
-            self.handle = calllib('mstir', 'mSTIR_newObject', self.name);
+            self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
         end
         function delete(self)
-            %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-            mUtilities.delete(self.handle)
-            self.handle = [];
+            %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+            mUtilities.delete(self.handle_)
+            self.handle_ = [];
         end
     end
 end

@@ -20,7 +20,7 @@ classdef ImageData < mSTIR.DataContainer
 
     properties
         name
-        %handle
+        %handle_
         rimsize
     end
     methods(Static)
@@ -37,19 +37,19 @@ classdef ImageData < mSTIR.DataContainer
             % be defined by its initialise() method before it can be used.
             self.name = 'ImageData';
             if nargin < 1
-                self.handle = [];
+                self.handle_ = [];
             else
-                self.handle = calllib...
+                self.handle_ = calllib...
                     ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-                mUtilities.check_status('ImageData', self.handle)
+                mUtilities.check_status('ImageData', self.handle_)
             end
             self.rimsize = -1;
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
-                self.handle = [];
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
             end
         end
         function initialise(self,...
@@ -82,17 +82,17 @@ classdef ImageData < mSTIR.DataContainer
                     end
                 end
             end
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
             voxels = calllib('mstir', 'mSTIR_voxels3DF',...
                 dim(1), dim(2), dim(3),...
                 vsize(1), vsize(2), vsize(3),...
                 origin(1), origin(2), origin(3));
             mUtilities.check_status('ImageData:initialise', voxels)
-            self.handle = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
-            mUtilities.check_status('ImageData:initialise', self.handle)
+            self.handle_ = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
+            mUtilities.check_status('ImageData:initialise', self.handle_)
             mUtilities.delete(voxels)
             %calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
@@ -102,14 +102,14 @@ classdef ImageData < mSTIR.DataContainer
 %         assigned at each voxel.
             if numel(value) == 1
                 h = calllib('mstir', 'mSTIR_fillImage', ...
-                    self.handle, single(value));
+                    self.handle_, single(value));
             else
                 if isa(value, 'single')
                     ptr_v = libpointer('singlePtr', value);
                 else
                     ptr_v = libpointer('singlePtr', single(value));
                 end
-                h = calllib('mstir', 'mSTIR_setImageData', self.handle, ptr_v);
+                h = calllib('mstir', 'mSTIR_setImageData', self.handle_, ptr_v);
             end
             mUtilities.check_status('ImageData:fill', h)
             mUtilities.delete(h)
@@ -118,9 +118,9 @@ classdef ImageData < mSTIR.DataContainer
         function image = clone(self)
 %***SIRF*** Creates a copy of this image.
             image = mSTIR.ImageData();
-            image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
-                self.handle);
-            mUtilities.check_status('ImageData:clone', self.handle)
+            image.handle_ = calllib('mstir', 'mSTIR_imageFromImage',...
+                self.handle_);
+            mUtilities.check_status('ImageData:clone', self.handle_)
         end
         function image = get_uniform_copy(self, value)
 %***SIRF*** Creates a copy of this image filled with the specified value.
@@ -128,23 +128,23 @@ classdef ImageData < mSTIR.DataContainer
                 value = 1.0;
             end
             image = mSTIR.ImageData();
-            image.handle = calllib('mstir', 'mSTIR_imageFromImage',...
-                self.handle);
-            mUtilities.check_status('ImageData:get_uniform_copy', self.handle)
+            image.handle_ = calllib('mstir', 'mSTIR_imageFromImage',...
+                self.handle_);
+            mUtilities.check_status('ImageData:get_uniform_copy', self.handle_)
             image.fill(value)
         end
         function read_from_file(self, filename)
 %***SIRF*** Reads the image data from a file.
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
-            self.handle = calllib...
+            self.handle_ = calllib...
                 ('mstir', 'mSTIR_objectFromFile', 'Image', filename);
-            mUtilities.check_status('ImageData:read_from_file', self.handle);
+            mUtilities.check_status('ImageData:read_from_file', self.handle_);
         end
         function write(self, filename)
-            h = calllib('mstir', 'mSTIR_writeImage', self.handle, filename);
+            h = calllib('mstir', 'mSTIR_writeImage', self.handle_, filename);
             mUtilities.check_status('ImageData:write', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -153,12 +153,12 @@ classdef ImageData < mSTIR.DataContainer
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
-            if isempty(self.handle)
+            if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
             h = calllib...
-                ('mstir', 'mSTIR_addShape', self.handle,...
-                shape.handle, add);
+                ('mstir', 'mSTIR_addShape', self.handle_,...
+                shape.handle_, add);
             mUtilities.check_status('ImageData:add_shape', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
@@ -169,7 +169,7 @@ classdef ImageData < mSTIR.DataContainer
 % %         voxels of common containing box divided by the maximum value
 % %         of self.
 %             h = calllib('mstir', 'mSTIR_imagesDifference',...
-%                      self.handle, image.handle, self.rimsize);
+%                      self.handle_, image.handle_, self.rimsize);
 %             mUtilities.check_status('ImageData:diff_from', h);
 %             diff = calllib('mutilities', 'mFloatDataFromHandle', h);
 %             calllib('mutilities', 'mDeleteDataHandle', h)
@@ -178,21 +178,21 @@ classdef ImageData < mSTIR.DataContainer
 %***SIRF*** Returns 3D array of this image values at voxels.
 
 %             [ptr, dim] = calllib...
-%                 ('mstir', 'mSTIR_getImageDimensions', self.handle, zeros(3, 1));
+%                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, zeros(3, 1));
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             h = calllib...
-                ('mstir', 'mSTIR_getImageDimensions', self.handle, ptr_i);
+                ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
             mUtilities.check_status('ImageData:as_array', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
 %             [ptr, data] = calllib...
-%                 ('mstir', 'mSTIR_getImageData', self.handle, zeros(n, 1));
+%                 ('mstir', 'mSTIR_getImageData', self.handle_, zeros(n, 1));
 %             data = reshape(data, dim(3), dim(2), dim(1));
             ptr_v = libpointer('singlePtr', zeros(n, 1));
             h = calllib...
-                ('mstir', 'mSTIR_getImageData', self.handle, ptr_v);
+                ('mstir', 'mSTIR_getImageData', self.handle_, ptr_v);
             mUtilities.check_status('ImageData:as_array', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)

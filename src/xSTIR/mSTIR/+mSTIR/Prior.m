@@ -22,36 +22,36 @@ classdef Prior < handle
 
     properties
         name
-        handle
+        handle_
     end
     methods
         function self = Prior()
-            self.handle = [];
+            self.handle_ = [];
         end
         function delete(self)
-            if ~isempty(self.handle)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle)
-                mUtilities.delete(self.handle)
+            if ~isempty(self.handle_)
+                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
+                mUtilities.delete(self.handle_)
             end
         end
         function set_penalisation_factor(self, value)
 %***SIRF*** Sets the factor by which the penalty term (prior) is to be multiplied
 %         before adding to the objective function.
             mSTIR.setParameter...
-                (self.handle, 'GeneralisedPrior', 'penalisation_factor', value, 'f')
+                (self.handle_, 'GeneralisedPrior', 'penalisation_factor', value, 'f')
         end
         function value = get_penalisation_factor(self)
 %***SIRF*** Returns the penalty factor in front of the prior.
             value = mSTIR.parameter...
-                (self.handle, 'GeneralisedPrior', 'penalisation_factor', 'f');
+                (self.handle_, 'GeneralisedPrior', 'penalisation_factor', 'f');
         end
         function grad = get_gradient(self, image)
 %***SIRF*** Returns the value of the gradient of the prior for the specified 
 %         image.
             grad = mSTIR.ImageData();
-            grad.handle = calllib('mstir', 'mSTIR_priorGradient', ...
-                self.handle, image.handle);
-            mUtilities.check_status('Prior:get_gradient', grad.handle)
+            grad.handle_ = calllib('mstir', 'mSTIR_priorGradient', ...
+                self.handle_, image.handle_);
+            mUtilities.check_status('Prior:get_gradient', grad.handle_)
         end
     end
 end
