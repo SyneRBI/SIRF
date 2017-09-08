@@ -305,7 +305,8 @@ class CoilImageData(DataContainer):
         Calculates coil images from a given sorted acquisitions.
         acqs: AcquisitionData
         '''
-        assert isinstance(acqs, AcquisitionData)
+        #assert isinstance(acqs, AcquisitionData)
+        assert_validity(acqs, AcquisitionData)
         if acqs.is_sorted() is False:
             print('WARNING: acquisitions may be in a wrong order')
         try_calling(pygadgetron.cGT_computeCoilImages\
@@ -377,11 +378,13 @@ class CoilSensitivityData(DataContainer):
             method_name = 'SRSS'
             parm = {}
         if isinstance(data, AcquisitionData):
+            assert data.handle is not None
             _set_int_par\
                 (self.handle, 'coil_sensitivity', 'smoothness', self.smoothness)
             try_calling(pygadgetron.cGT_computeCoilSensitivities\
                 (self.handle, data.handle))
         elif isinstance(data, CoilImageData):
+            assert data.handle is not None
             if method_name == 'Inati':
                 if not HAVE_ISMRMRDTOOLS:
                     raise error('Inati method requires ismrmrd-python-tools')
@@ -679,7 +682,6 @@ class AcquisitionData(DataContainer):
 ##        dim = self.dimensions(select)
 ##        return dim[0]
     def get_number_of_readouts(self, select = 'image'):
-        assert self.handle is not None
         dim = self.dimensions(select)
         return dim[0]
     def sort(self):
@@ -706,14 +708,12 @@ class AcquisitionData(DataContainer):
                 '[label:]gadget_name[(property1=value1[,...])]'
               (square brackets embrace optional items, ... stands for etc.)
         '''
-        assert self.handle is not None
         ap = AcquisitionDataProcessor(list)
         return ap.process(self)
     def clone(self):
         '''
         Returns a copy of self.
         '''
-        assert self.handle is not None
         ap = AcquisitionDataProcessor()
         return ap.process(self)
     def acquisition(self, num):
@@ -749,7 +749,6 @@ class AcquisitionData(DataContainer):
         '''
         Fills the array self.info with information for each acquisition.
         '''
-        assert self.handle is not None
         na, nc, ns = self.dimensions()
         self.info = numpy.empty((na,), dtype = object)
         for a in range(na):
@@ -766,7 +765,6 @@ class AcquisitionData(DataContainer):
         parameter.
         par: parameter name
         '''
-        assert self.handle is not None
         na, nc, ns = self.dimensions()
         if self.info is None:
             self.set_info()
@@ -829,8 +827,10 @@ class AcquisitionModel:
     simulated acquisitions.
     '''
     def __init__(self, acqs, imgs):
-        assert isinstance(acqs, AcquisitionData)
-        assert isinstance(imgs, ImageData)
+##        assert isinstance(acqs, AcquisitionData)
+##        assert isinstance(imgs, ImageData)
+        assert_validity(acqs, AcquisitionData)
+        assert_validity(imgs, ImageData)
         self.handle = None
         self.handle = \
             pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
@@ -843,7 +843,8 @@ class AcquisitionModel:
         Specifies the coil sensitivity maps to be used by the model.
         csm: CoilSensitivityData
         '''
-        assert isinstance(csm, CoilSensitivityData)
+##        assert isinstance(csm, CoilSensitivityData)
+        assert_validity(csm, CoilSensitivityData)
         try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
@@ -852,7 +853,8 @@ class AcquisitionModel:
         expected to be received from the scanner.
         image: ImageData
         '''
-        assert isinstance(image, ImageData)
+##        assert isinstance(image, ImageData)
+        assert_validity(image, ImageData)
         ad = AcquisitionData()
         ad.handle = pygadgetron.cGT_AcquisitionModelForward\
             (self.handle, image.handle)
@@ -864,7 +866,8 @@ class AcquisitionModel:
         transpose of the forward projection.
         ad: AcquisitionData
         '''
-        assert isinstance(ad, AcquisitionData)
+##        assert isinstance(ad, AcquisitionData)
+        assert_validity(ad, AcquisitionData)
         image = ImageData()
         image.handle = pygadgetron.cGT_AcquisitionModelBackward\
             (self.handle, ad.handle)
@@ -920,24 +923,24 @@ class GadgetChain:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteObject(self.handle)
-    def add_reader(self, id, reader):
-        '''
-        Adds reader gadget (a gadget that receives data from the client) to the
-        chain.
-        id    : gadget id (string)
-        reader: Gadget of reader type
-        '''
-        assert isinstance(reader, Gadget)
-        try_calling(pygadgetron.cGT_addReader(self.handle, id, reader.handle))
-    def add_writer(self, id, writer):
-        '''
-        Adds writer gadget (a gadget that sends data to the client) to the
-        chain.
-        id    : gadget id (string)
-        writer: Gadget of writer type
-        '''
-        assert isinstance(writer, Gadget)
-        try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
+##    def add_reader(self, id, reader):
+##        '''
+##        Adds reader gadget (a gadget that receives data from the client) to the
+##        chain.
+##        id    : gadget id (string)
+##        reader: Gadget of reader type
+##        '''
+##        assert isinstance(reader, Gadget)
+##        try_calling(pygadgetron.cGT_addReader(self.handle, id, reader.handle))
+##    def add_writer(self, id, writer):
+##        '''
+##        Adds writer gadget (a gadget that sends data to the client) to the
+##        chain.
+##        id    : gadget id (string)
+##        writer: Gadget of writer type
+##        '''
+##        assert isinstance(writer, Gadget)
+##        try_calling(pygadgetron.cGT_addWriter(self.handle, id, writer.handle))
     def add_gadget(self, id, gadget):
         '''
         Adds a gadget to the chain.
@@ -1024,7 +1027,8 @@ class Reconstructor(GadgetChain):
         Returns the output from the chain for specified input.
         input_data: AcquisitionData
         '''
-        assert isinstance(input_data, AcquisitionData)
+##        assert isinstance(input_data, AcquisitionData)
+        assert_validity(input_data, AcquisitionData)
         handle = pygadgetron.cGT_reconstructImages\
              (self.handle, input_data.handle)
         check_status(handle)
@@ -1075,7 +1079,8 @@ class ImageDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
-        assert isinstance(self.input_data, ImageData)
+##        assert isinstance(self.input_data, ImageData)
+        assert_validity(self.input_data, ImageData)
         image = ImageData()
         image.handle = pygadgetron.cGT_processImages\
              (self.handle, self.input_data.handle)
@@ -1131,7 +1136,8 @@ class AcquisitionDataProcessor(GadgetChain):
             self.set_input(input_data)
         if self.input_data is None:
             raise error('input data not set')
-        assert isinstance(self.input_data, AcquisitionData)
+##        assert isinstance(self.input_data, AcquisitionData)
+        assert_validity(self.input_data, AcquisitionData)
         acquisitions = AcquisitionData()
         acquisitions.handle = pygadgetron.cGT_processAcquisitions\
              (self.handle, self.input_data.handle)

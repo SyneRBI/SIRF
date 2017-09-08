@@ -211,6 +211,10 @@ def try_calling(returned_handle):
     check_status(returned_handle, inspect.stack()[1])
     pyiutil.deleteDataHandle(returned_handle)
 
+def assert_validity(object, type):
+    assert isinstance(object, type)
+    assert object.handle is not None
+
 def label_and_name(g):
     name = g.lstrip()
     name = name.rstrip()
