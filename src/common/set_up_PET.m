@@ -1,4 +1,4 @@
-function import_str = setup_PET(engine, alias)
+function import_str = set_up_PET(engine, alias)
     if isempty(engine)
         engine = 'STIR';
     end
