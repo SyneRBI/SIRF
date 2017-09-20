@@ -1,4 +1,4 @@
-function import_str = setup_MR(engine, alias)
+function import_str = set_up_MR(engine, alias)
     if isempty(engine)
         engine = 'Gadgetron';
     end
