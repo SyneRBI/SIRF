@@ -30,7 +30,6 @@ classdef TruncateToCylinderProcessor < mSTIR.ImageDataProcessor
         end
         function delete(self)
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end

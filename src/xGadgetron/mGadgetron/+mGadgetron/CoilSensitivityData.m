@@ -44,6 +44,7 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
         function calculate(self, acqs)
 %***SIRF*** Calculates coil sensitivity maps from sorted acquisitions
 %         specified by an AcquisitionData argument.
+            mUtilities.assert_validity(acqs, 'mGadgetron.AcquisitionData')
             if ~acqs.is_sorted()
                 fprintf('WARNING: acquisitions may be in a wrong order\n')
             end

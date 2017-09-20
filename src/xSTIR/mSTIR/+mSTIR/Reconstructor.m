@@ -36,6 +36,7 @@ classdef Reconstructor < handle
             end
         end
         function set_input(self, input_data)
+            mUtilities.assert_validity(input_data, 'mSTIR.AcquisitionData')
             mSTIR.setParameter...
                 (self.handle_, self.R, 'input_data', input_data, 'h')
         end
@@ -46,11 +47,11 @@ classdef Reconstructor < handle
             if isempty(self.image)
                 error('Reconstructor:process', 'current estimate not set')
             end
+            mUtilities.assert_validity(self.image, 'mSTIR.ImageData')
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, self.image.handle_);
             mUtilities.check_status('Reconstructor:process', h)
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = get_output(self)
             image = self.image;
@@ -59,11 +60,11 @@ classdef Reconstructor < handle
 %***SIRF*** Reconstruct the image 
 %         by applying currently set range of
 %         iterations to the image estimate specified by the argument.
+            mUtilities.assert_validity(image, 'mSTIR.ImageData')
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, image.handle_);
             mUtilities.check_status([self.IR ':reconstruct'], h)
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function set_output_filename_prefix(self, prefix)
 %***SIRF*** Specifies the naming for the output files.

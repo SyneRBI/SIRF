@@ -61,6 +61,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
         function set_input(self, input_data)
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
+            assert(isa(input, mGadgetron.AcquisitionData))
             self.input_ = input_data;
         end
         function process(self)
@@ -69,6 +70,7 @@ classdef Reconstructor < mGadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
+            mUtilities.assert_validity(self.input_, 'mGadgetron.AcquisitionData')
             self.images_ = mGadgetron.ImageData();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...

@@ -33,7 +33,6 @@ classdef RayTracingMatrix < handle
                 (self.handle_, self.name, 'num_tangential_LORs', 2, 'i')
         end
         function delete(self)
-            %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
             mUtilities.delete(self.handle_)
         end
         function set_num_tangential_LORs(self, num)
