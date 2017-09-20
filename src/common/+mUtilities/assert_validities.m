@@ -1,5 +1,5 @@
-function assert_validity(object, type)
-% Ensures the object is of a correct type and is not empty.
+function assert_validities(x, y)
+% Ensures x and y are of the same type and not empty.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -18,9 +18,11 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-if ~isa(object, type)
-    fprintf('??? Argument of a wrong type %s: expected %s.\n', ...
-        class(object), type)
-    error('Object of a wrong type %s\n', class(object))
+assert(~isempty(x.handle_), 'first object is empty')
+assert(~isempty(y.handle_), 'second object is empty')
+if ~strcmp(class(x), class(y))
+    fprintf('??? Objects types are %s and %s: same type expected.\n', ...
+        class(x), class(y))
+    error('Objects must be of the same type')
 end
-assert(~isempty(object.handle_), 'empty object')
+%assert(strcmp(class(x), class(y)), 'objects must be of the same type')
