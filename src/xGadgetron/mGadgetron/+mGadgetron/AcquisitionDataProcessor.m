@@ -52,6 +52,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
+            assert(isa(input, mGadgetron.AcquisitionData))
             self.input_ = input;
         end
         function acqs = process(self, input_data)
@@ -64,6 +65,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
+            mUtilities.assert_validity(self.input_, 'mGadgetron.AcquisitionData')
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...

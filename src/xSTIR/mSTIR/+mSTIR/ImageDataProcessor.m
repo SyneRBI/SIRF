@@ -46,6 +46,7 @@ classdef ImageDataProcessor < handle
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
+            assert(isa(input, 'mSTIR.ImageData'))
             self.input_ = input;
         end
         function output = process(self, input)
@@ -56,6 +57,7 @@ classdef ImageDataProcessor < handle
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
+            mUtilities.assert_validity(self.input_, 'mSTIR.ImageData')
             output = self.input_.clone();
             self.apply(output)
             self.output_ = output;

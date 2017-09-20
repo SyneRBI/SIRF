@@ -20,7 +20,6 @@ classdef ImageData < mSTIR.DataContainer
 
     properties
         name
-        %handle_
         rimsize
     end
     methods(Static)
@@ -47,7 +46,6 @@ classdef ImageData < mSTIR.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
@@ -83,7 +81,6 @@ classdef ImageData < mSTIR.DataContainer
                 end
             end
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
             end
             voxels = calllib('mstir', 'mSTIR_voxels3DF',...
@@ -94,7 +91,6 @@ classdef ImageData < mSTIR.DataContainer
             self.handle_ = calllib('mstir', 'mSTIR_imageFromVoxels', voxels);
             mUtilities.check_status('ImageData:initialise', self.handle_)
             mUtilities.delete(voxels)
-            %calllib('mutilities', 'mDeleteDataHandle', voxels)
         end
         function fill(self, value)
 %***SIRF*** Sets this image values at voxels.
@@ -113,7 +109,6 @@ classdef ImageData < mSTIR.DataContainer
             end
             mUtilities.check_status('ImageData:fill', h)
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function image = clone(self)
 %***SIRF*** Creates a copy of this image.
@@ -147,12 +142,12 @@ classdef ImageData < mSTIR.DataContainer
             h = calllib('mstir', 'mSTIR_writeImage', self.handle_, filename);
             mUtilities.check_status('ImageData:write', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function add_shape(self, shape, add)
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
+            mUtilities.assert_validity(shape, 'mSTIR.Shape')
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end
@@ -161,19 +156,7 @@ classdef ImageData < mSTIR.DataContainer
                 shape.handle_, add);
             mUtilities.check_status('ImageData:add_shape', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
-%         function diff = diff_from(self, image)
-% %***SIRF*** Returns the relative difference between self and the image
-% %         specified by the last argument, i.e. the maximal difference at
-% %         voxels of common containing box divided by the maximum value
-% %         of self.
-%             h = calllib('mstir', 'mSTIR_imagesDifference',...
-%                      self.handle_, image.handle_, self.rimsize);
-%             mUtilities.check_status('ImageData:diff_from', h);
-%             diff = calllib('mutilities', 'mFloatDataFromHandle', h);
-%             calllib('mutilities', 'mDeleteDataHandle', h)
-%         end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of this image values at voxels.
 
@@ -195,7 +178,6 @@ classdef ImageData < mSTIR.DataContainer
                 ('mstir', 'mSTIR_getImageData', self.handle_, ptr_v);
             mUtilities.check_status('ImageData:as_array', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
         function show(self)

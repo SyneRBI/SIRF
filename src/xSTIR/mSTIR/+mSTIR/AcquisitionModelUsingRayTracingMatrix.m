@@ -46,6 +46,7 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %***SIRF*** Returns the ray tracing matrix used for projecting;
 %         matrix:  a RayTracingMatrix object representing G in (F).
             matrix = mSTIR.RayTracingMatrix();
+            mUtilities.delete(matrix.handle_)
             matrix.handle_ = calllib('mstir', 'mSTIR_parameter',...
                 self.handle_, self.name, 'matrix');
             mUtilities.check_status...
@@ -55,7 +56,8 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
 %***SIRF*** Set the number of LORs (or rays) for each bin in the sinogram.
 %         They are currently (approximately) parallel and spaced in the
 %         tangential direction (i.e. orthogonal to the axial direction).
-            self.get_matrix().set_num_tangential_LORs(value)
+            matrix = self.get_matrix();
+            matrix.set_num_tangential_LORs(value)
         end
     end
 end

@@ -30,7 +30,6 @@ classdef Prior < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
             end
         end

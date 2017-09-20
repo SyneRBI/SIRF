@@ -33,6 +33,7 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
             if nargin < 1
                 matrix = mSTIR.RayTracingMatrix();
             end
+            mUtilities.assert_validity(matrix, 'mSTIR.RayTracingMatrix')
             mSTIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end
@@ -46,6 +47,7 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
         function set_matrix(self, matrix)
 %***SIRF*** set_matrix(matrix) sets the projection matrix to be used.
 %         matrix:  a projection matrix object to represent G in (F).
+            mUtilities.assert_validity(matrix, 'mSTIR.RayTracingMatrix')
             mSTIR.setParameter...
                 (self.handle_, self.name, 'matrix', matrix, 'h')
         end

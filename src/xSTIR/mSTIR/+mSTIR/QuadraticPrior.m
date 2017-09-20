@@ -24,7 +24,6 @@ classdef QuadraticPrior < mSTIR.Prior
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
         end
         function delete(self)
-            %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
             mUtilities.delete(self.handle_)
             self.handle_ = [];
         end

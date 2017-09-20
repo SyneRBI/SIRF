@@ -62,6 +62,7 @@ classdef DataContainer < handle
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
+            mUtilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 1.0, self.handle_, 1.0, other.handle_);
@@ -70,6 +71,7 @@ classdef DataContainer < handle
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
+            mUtilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 1.0, self.handle_, -1.0, other.handle_);
@@ -79,7 +81,7 @@ classdef DataContainer < handle
 %         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
-            if isobject(other)
+            if strcmp(class(self), class(other))
                 z = self.dot(other);
             elseif isreal(other)
                 z = self.same_object();
@@ -95,6 +97,7 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: real scalars
 %         x and y: DataContainers
+            mUtilities.assert_validities(x, y)
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 a, x.handle_, b, y.handle_);

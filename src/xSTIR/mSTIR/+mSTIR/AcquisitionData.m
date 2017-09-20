@@ -20,7 +20,6 @@ classdef AcquisitionData < mSTIR.DataContainer
 
     properties
         name
-        %handle_
         read_only
     end
     methods (Static)
@@ -32,7 +31,6 @@ classdef AcquisitionData < mSTIR.DataContainer
                 ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
     methods
@@ -70,7 +68,6 @@ classdef AcquisitionData < mSTIR.DataContainer
         function read_from_file(self, filename)
 %***SIRF*** Reads acquisition data from a file.
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
             end
             self.handle_ = calllib('mstir', 'mSTIR_objectFromFile', ...
@@ -132,7 +129,6 @@ classdef AcquisitionData < mSTIR.DataContainer
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 mUtilities.delete(h)
-                %calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'double')
                 if numel(value) > 1
                     ptr_v = libpointer('singlePtr', single(value));
@@ -145,7 +141,6 @@ classdef AcquisitionData < mSTIR.DataContainer
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 mUtilities.delete(h)
-                %calllib('mutilities', 'mDeleteDataHandle', h)
             elseif isa(value, 'mSTIR.AcquisitionData')
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
@@ -153,7 +148,6 @@ classdef AcquisitionData < mSTIR.DataContainer
                 mUtilities.check_status...
                     ([self.name ':fill'], h);
                 mUtilities.delete(h)
-                %calllib('mutilities', 'mDeleteDataHandle', h)
             else
                 error([self.name ':fill'], 'wrong fill value')
             end
