@@ -56,7 +56,8 @@ classdef DataContainer < handle
 %         viewed as vectors.
             %assert(lt(metaclass(other), self.meta_))
             %assert(isobject(other))
-            assert(strcmp(class(self), class(other)))
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
             mUtilities.check_status('DataContainer', handle);
@@ -69,7 +70,8 @@ classdef DataContainer < handle
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
-            assert(strcmp(class(self), class(other)))
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
@@ -78,7 +80,8 @@ classdef DataContainer < handle
 %***SIRF*** Overloads + for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
-            assert(strcmp(class(self), class(other)))
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, 1.0, 0.0, other.handle_);
@@ -112,7 +115,8 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
-            assert(strcmp(class(x), class(y)))
+            %assert(strcmp(class(x), class(y)))
+            mUtilities.assert_validities(x, y)
             z = x.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
