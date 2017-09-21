@@ -72,18 +72,6 @@ if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
   message(FATAL_ERROR "SIRF needs either MATLAB or Python")
 endif()
 
-#### enable support for ctest
-ENABLE_TESTING()
-#include(FindPythonInterp)
-#add_test(NAME MR_FULLY_SAMPLED
-#         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/fully_sampled.py)
-
-#add_test(NAME MR_UNDER_SAMPLED
-#         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/undersampled.py)
-
-#add_test(NAME PET_TEST1
-#         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/xSTIR/pSTIR/tests/test1.py )
-
 
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
