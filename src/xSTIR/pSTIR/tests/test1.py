@@ -36,6 +36,11 @@ def norm(v):
 #    return vv.sum()/nv
     return math.sqrt(vv.sum()/nv)
 
+# a function to compute the variance after conversion to double to avoid
+# rounding problems with older numpy versions
+def var(v):
+    return v.astype(numpy.float64).var()
+
 def main():
 
     failed = 0
@@ -57,7 +62,7 @@ def main():
     ad = AcquisitionData(raw_data_file)
     adata = ad.as_array()
     s = norm(adata)
-    v = adata.var()
+    v = var(adata)
     failed += test_failed(1, 2.510818, s, 0, eps)
     failed += test_failed(2, 5.444323, v, 0, eps)
     #print('acquisitions mean sum of squares: %f, variance: %f' % (s, v))
@@ -75,7 +80,7 @@ def main():
     filter.apply(image)
     image_arr = image.as_array()
     s = norm(image_arr)
-    v = image_arr.var()
+    v = var(image_arr)
     failed += test_failed(3, 0.876471, s, 0, eps)
     failed += test_failed(4, 0.178068, v, 0, eps)
     #print('image mean sum of squares: %f, variance: %f' % (s, v))
@@ -117,27 +122,27 @@ def main():
     image_arr = image_arr*update
 
     s = norm(image_arr)
-    v = image_arr.var()
+    v = var(image_arr)
     failed += test_failed(5, 0.012314, s, 0, eps)
     failed += test_failed(6, 0.000052, v, eps, eps)
     #print('image mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(update)
-    v = update.var()
+    v = var(update)
     failed += test_failed(7, 3.846513, s, 0, eps)
     failed += test_failed(8, 14.775219, v, 0, eps)
     #print('update mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(ss_arr)
-    v = ss_arr.var()
+    v = var(ss_arr)
     failed += test_failed(9, 27.990159, s, 0, eps)
     failed += test_failed(10, 207.401144, v, 0, eps)
     #print('sensitivity mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(grad_arr)
-    v = grad_arr.var()
+    v = var(grad_arr)
     failed += test_failed(11, 98.049032, s, 0, eps)
     failed += test_failed(12, 9599.796540, v, 0, eps)
     #print('gradient mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(pgrad_arr)
-    v = pgrad_arr.var()
+    v = var(pgrad_arr)
     failed += test_failed(13, 0.710633, s, 0, eps)
     failed += test_failed(14, 0.505000, v, 0, eps)
     #print('prior gradient mean sum of squares: %f, variance: %f' % (s, v))
