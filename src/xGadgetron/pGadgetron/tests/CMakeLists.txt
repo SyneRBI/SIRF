@@ -18,7 +18,6 @@
 # limitations under the License.
 #
 #=========================================================================
-ENABLE_TESTING()
 include(FindPythonInterp)
 add_test(NAME MR_FULLY_SAMPLED
          COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py)

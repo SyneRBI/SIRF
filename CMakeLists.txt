@@ -72,6 +72,7 @@ if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
   message(FATAL_ERROR "SIRF needs either MATLAB or Python")
 endif()
 
+ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
