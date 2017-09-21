@@ -52,7 +52,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
-            assert(isa(input, mGadgetron.AcquisitionData))
+            assert(isa(input, 'mGadgetron.AcquisitionData'))
             self.input_ = input;
         end
         function acqs = process(self, input_data)
