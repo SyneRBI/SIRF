@@ -18,11 +18,10 @@
 # limitations under the License.
 #
 #=========================================================================
-ENABLE_TESTING()
 include(FindPythonInterp)
 add_test(NAME MR_FULLY_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/../../../../../../../SIRF/src/xGadgetron/pGadgetron/tests/fully_sampled.py )
+         COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY ${CMAKE_PREFIX_PATH}/../SIRF/src/xGadgetron/pGadgetron/tests/ )
 
 add_test(NAME MR_UNDER_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/../../../../../../../SIRF/src/xGadgetron/pGadgetron/tests/undersampled.py )
+         COMMAND ${PYTHON_EXECUTABLE} undersampled.py WORKING_DIRECTORY ${CMAKE_PREFIX_PATH}/../SIRF/src/xGadgetron/pGadgetron/tests/ )
 

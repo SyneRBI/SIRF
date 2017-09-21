@@ -18,8 +18,6 @@
 # limitations under the License.
 #
 #=========================================================================
-ENABLE_TESTING()
 include(FindPythonInterp)
-add_test(NAME PET_TEST1
-         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/../../../../../../../SIRF/src/xSTIR/pSTIR/tests/test1.py )
+add_test(NAME PET_TEST1 COMMAND ${PYTHON_EXECUTABLE} test1.py WORKING_DIRECTORY ${CMAKE_PREFIX_PATH}/../SIRF/src/xSTIR/pSTIR/tests/ )
 
