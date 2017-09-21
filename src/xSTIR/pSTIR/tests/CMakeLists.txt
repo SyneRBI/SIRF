@@ -18,6 +18,7 @@
 # limitations under the License.
 #
 #=========================================================================
+ENABLE_TESTING()
 include(FindPythonInterp)
 add_test(NAME PET_TEST1
          COMMAND ${PYTHON_EXECUTABLE} test1.py )
