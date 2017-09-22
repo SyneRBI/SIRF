@@ -20,8 +20,8 @@
 #=========================================================================
 include(FindPythonInterp)
 add_test(NAME MR_FULLY_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY ${CMAKE_PREFIX_PATH}/../SIRF/src/xGadgetron/pGadgetron/tests/ )
+         COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
 
 add_test(NAME MR_UNDER_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} undersampled.py WORKING_DIRECTORY ${CMAKE_PREFIX_PATH}/../SIRF/src/xGadgetron/pGadgetron/tests/ )
+         COMMAND ${PYTHON_EXECUTABLE} undersampled.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
 
