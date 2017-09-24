@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef STIR_DATA_TYPES
 #define STIR_DATA_TYPES
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
@@ -56,12 +56,12 @@ limitations under the License.
 USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;
-typedef boost::shared_ptr<Image3DF> sptrImage3DF;
-typedef boost::shared_ptr<ProjData> sptrProjData;
+typedef std::shared_ptr<Image3DF> sptrImage3DF;
+typedef std::shared_ptr<ProjData> sptrProjData;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
-typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;
-typedef boost::shared_ptr<Shape3D> sptrShape3D;
+typedef std::shared_ptr<Voxels3DF> sptrVoxels3DF;
+typedef std::shared_ptr<Shape3D> sptrShape3D;
 typedef Reconstruction<Image3DF> Reconstruction3DF;
 typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
 typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;

@@ -96,7 +96,7 @@ void test1()
 
 		filename = path + "my_forward_projection.hs";
 		//filename = "tmp.hs";
-		boost::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
+		std::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
 		size = sptr_ad->size_all();
 		segments = sptr_ad->get_num_segments();
 		sinos = sptr_ad->get_num_sinograms();
@@ -108,7 +108,7 @@ void test1()
 		std::cout << "tangential positions: " << tangs << '\n';
 		std::cout << "size: " << size << ' ' << sinos*views*tangs << '\n';
 
-		boost::shared_ptr<ProjDataInfo> sptr_pdi = sptr_ad->get_proj_data_info_sptr();
+		std::shared_ptr<ProjDataInfo> sptr_pdi = sptr_ad->get_proj_data_info_sptr();
 		ProjDataInfoCylindrical* ptr_pdic = (ProjDataInfoCylindrical*)sptr_pdi.get();
 		double rs = ptr_pdic->get_ring_spacing();
 		std::cout << "ring spacing: " << rs << '\n';
@@ -116,21 +116,21 @@ void test1()
 		double* acq_data = new double[size];
 		sptr_ad->copy_to(acq_data);
 
-		boost::shared_ptr<ProjData> sptr_a(
+		std::shared_ptr<ProjData> sptr_a(
 			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()));
 		sptr_a->fill(0.05f);
 
-		boost::shared_ptr<ProjData> sptr_b(
+		std::shared_ptr<ProjData> sptr_b(
 			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()));
 		sptr_b->fill(0.05f);
 
-		boost::shared_ptr<ProjData> sptr_nd(
+		std::shared_ptr<ProjData> sptr_nd(
 			new ProjDataInMemory(sptr_ad->get_exam_info_sptr(),
 			sptr_ad->get_proj_data_info_sptr()));
 		sptr_nd->fill(2.0f);
-		boost::shared_ptr<BinNormalisation> sptr_n(
+		std::shared_ptr<BinNormalisation> sptr_n(
 			new BinNormalisationFromProjData(sptr_nd));
 		sptr_n->set_up(sptr_ad->get_proj_data_info_sptr());
 
@@ -139,9 +139,9 @@ void test1()
 		PETAcquisitionModelUsingMatrix<Image3DF> acq_mod;
 		acq_mod.set_matrix(sptr_matrix);
 		acq_mod.set_up(sptr_ad, sptr_image);
-		boost::shared_ptr<ProjectorByBinPair> sptr_ppm = acq_mod.projectors_sptr();
+		std::shared_ptr<ProjectorByBinPair> sptr_ppm = acq_mod.projectors_sptr();
 
-		boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image, "tmp1.hs");
+		std::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image, "tmp1.hs");
 		size = sptr_fd->size_all();
 		segments = sptr_fd->get_num_segments();
 		sinos = sptr_fd->get_num_sinograms();
