@@ -34,7 +34,8 @@ classdef ImageData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -48,8 +49,9 @@ classdef ImageData < mGadgetron.DataContainer
             end
             handle = calllib('mgadgetron', 'mGT_writeImages', ...
                 self.handle_, file, dataset);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status(self.name_, handle);
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function images = select(self, attribute, value)
 %***STIR*** select(attribute, value) returns a subset of this image data 
@@ -63,7 +65,7 @@ classdef ImageData < mGadgetron.DataContainer
             images = mGadgetron.ImageData();
             images.handle_ = calllib('mgadgetron', 'mGT_selectImages', ...
                 self.handle_, attribute, value);
-            mUtil.checkExecutionStatus(self.name_, images.handle_);
+            mUtilities.check_status(self.name_, images.handle_);
         end
         function images = process(self, list)
 %***SIRF*** process(list) returns images processed by a chain of gadgets.
@@ -88,9 +90,11 @@ classdef ImageData < mGadgetron.DataContainer
 %***SIRF*** Returns true if this image data is real and false otherwise.
             handle = calllib('mgadgetron', 'mGT_imageDataType', ...
                 self.handle_, 0);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            v = calllib('mutilities', 'mIntDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status(self.name_, handle);
+            v = calllib('miutilities', 'mIntDataFromHandle', handle);
+            %v = calllib('mutilities', 'mIntDataFromHandle', handle);
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
             ft = (v ~= 7 && v ~= 8);
         end
         function data = as_array(self)
@@ -109,13 +113,13 @@ classdef ImageData < mGadgetron.DataContainer
             nz = dim(3)*dim(4)*self.number();
             n = dim(1)*dim(2)*nz;
             if self.is_real()
-                ptr_v = libpointer('doublePtr', zeros(n, 1));
-                calllib('mgadgetron', 'mGT_getImagesDataAsDoubleArray', ...
+                ptr_v = libpointer('singlePtr', zeros(n, 1));
+                calllib('mgadgetron', 'mGT_getImagesDataAsFloatArray', ...
                     self.handle_, ptr_v)
                 data = reshape(ptr_v.Value, dim(1), dim(2), nz);
             else
-                ptr_re = libpointer('doublePtr', zeros(n, 1));
-                ptr_im = libpointer('doublePtr', zeros(n, 1));
+                ptr_re = libpointer('singlePtr', zeros(n, 1));
+                ptr_im = libpointer('singlePtr', zeros(n, 1));
                 calllib...
                     ('mgadgetron', 'mGT_getImagesDataAsComplexArray', ...
                     self.handle_, ptr_re, ptr_im)
@@ -131,12 +135,18 @@ classdef ImageData < mGadgetron.DataContainer
             end
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('doublePtr', re);
-            ptr_im = libpointer('doublePtr', im);
+            if isa(re, 'single')
+                ptr_re = libpointer('singlePtr', re);
+                ptr_im = libpointer('singlePtr', im);
+            else
+                ptr_re = libpointer('singlePtr', single(re));
+                ptr_im = libpointer('singlePtr', single(im));
+            end
             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
                 self.handle_, ptr_re, ptr_im);
-            mUtil.checkExecutionStatus('ImageData', h);
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.check_status('ImageData', h);
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function show(self)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.

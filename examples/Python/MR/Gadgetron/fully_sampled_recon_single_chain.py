@@ -106,7 +106,7 @@ def main():
         # named after the current date and time
         time_str = time.asctime()
         print('writing to %s' % output_file)
-        images.write(output_file, time_str)
+        image_data.write(output_file, time_str)
 
 try:
     main()

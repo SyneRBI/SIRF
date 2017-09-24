@@ -26,13 +26,12 @@ function osem_reconstruction(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
-    % direct all information printing to info.txt;
-    % warning and error messages to go to Matlab Command Window
-    msg_red = MessageRedirector('info.txt');
+    % direct all printing to MatlabCommand Window
+    MessageRedirector('stdout');
 
     % create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix();
@@ -73,10 +72,13 @@ try
     % display the initial image
     z = 20;
     image_array = image.as_array();
-    mUtil.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
+    mUtilities.show_2D_array(image_array(:,:,z), 'initial image', 'x', 'y');
 
     % set the initial image estimate
     recon.set_current_estimate(image)
+
+    % suppress further information printing
+    MessageRedirector();
 
     % in order to see the reconstructed image evolution
     % open up the user's access to the iterative process
@@ -88,7 +90,7 @@ try
         % display the current image
         image_array = recon.get_current_estimate().as_array();
         the_title = sprintf('iteration %d', iter);
-        mUtil.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
     end
 
 catch err

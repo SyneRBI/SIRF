@@ -38,23 +38,22 @@ extern "C" {
 	void* cSTIR_setParameter
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
-	//void* cSTIR_setupObject(const char* obj, void* ptr_obj);
 
-	// DataProcessor methods
+	// Data processor methods
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
-	void* cSTIR_acquisitionModelFwd
-		(void* ptr_am, void* ptr_im, const char* datafile);
+	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
 	// Acquisition data methods
+	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
-	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data);
- 	void* cSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data);
-	void* cSTIR_fillAcquisitionsData(void* ptr_acq, double v);
+	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v);
 	void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 		(void* ptr_acq, const void * ptr_from);
 
@@ -76,28 +75,32 @@ extern "C" {
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 
 	// Image methods
-	void cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
-	void cSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data);
-	void cSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data);
+	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
+	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
-		double sx, double sy, double sz, double x, double y, double z);
+		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromImage(void* ptr_v);
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
-	void cSTIR_fillImage(void* ptr_i, double v);
+	void* cSTIR_fillImage(void* ptr_i, float v);
 	void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v);
-	void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
+	//void* cSTIR_imagesDifference(void* first, void* second, int rimsize);
 	void* cSTIR_writeImage(void* ptr_i, const char* filename); 
+
+	// Data container methods
+	void* cSTIR_norm(const void* ptr_x);
+	void*	cSTIR_dot(const void* ptr_x, const void* ptr_y);
+	void* cSTIR_mult(float a, const void* ptr_x);
+	void* cSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
 
 	// TextWriter methods
 	void* newTextPrinter(const char* stream);
 	void* newTextWriter(const char* stream);
 	void openChannel(int channel, void* ptr_w);
 	void closeChannel(int channel, void* ptr_w);
-	void setWriter(void* ptr_w, int channel);
-	void resetWriter();
-	void deleteTextPrinter(void* ptr);
-	void deleteTextWriter(void* ptr_w);
+	void* deleteTextPrinter(void* ptr);
+	void* deleteTextWriter(void* ptr_w);
 
 #ifndef CSTIR_FOR_MATLAB
 }

@@ -28,41 +28,42 @@ classdef GadgetChain < handle
 %         Creates an empty Gadgetron chain.
             self.name_ = 'GadgetChain';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtilities.check_status(self.name_, self.handle_);
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
             end
         end
-        function add_reader(self, id, reader)
-%***SIRF*** add_reader(id, reader) appends the chain with a reader gadget 
-%         (a gadget that receives data from the client).
-%         id    : gadget id (Matlab string)
-%         reader: gadget of reader type (Gadget)
-            handle = calllib...
-                ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
-        end
-        function add_writer(self, id, writer)
-%***SIRF*** add_writer(id, writer) appends the chain with a writer gadget 
-%         (a gadget that sends data to the client).
-%         id    : gadget id (Matlab string)
-%         writer: gadget of writer type (Gadget)
-            handle = calllib...
-                ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
-        end
+%         function add_reader(self, id, reader)
+% %***SIRF*** add_reader(id, reader) appends the chain with a reader gadget 
+% %         (a gadget that receives data from the client).
+% %         id    : gadget id (Matlab string)
+% %         reader: gadget of reader type (Gadget)
+%             handle = calllib...
+%                 ('mgadgetron', 'mGT_addReader', self.handle_, id, reader.handle_);
+%             mUtilities.check_status(self.name_, handle);
+%             mUtilities.delete(handle)
+%         end
+%         function add_writer(self, id, writer)
+% %***SIRF*** add_writer(id, writer) appends the chain with a writer gadget 
+% %         (a gadget that sends data to the client).
+% %         id    : gadget id (Matlab string)
+% %         writer: gadget of writer type (Gadget)
+%             handle = calllib...
+%                 ('mgadgetron', 'mGT_addWriter', self.handle_, id, writer.handle_);
+%             mUtilities.check_status(self.name_, handle);
+%             mUtilities.delete(handle)
+%         end
         function add_gadget(self, id, gadget)
 %***SIRF*** add_gadget(id, gadget) adds a gadget to the chain.
 %         id    : gadget id (Matlab string)
 %         gadget: gadget (Gadget)
+            mUtilities.assert_validity(gadget, 'mGadgetron.Gadget')
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status(self.name_, handle);
+            mUtilities.delete(handle)
         end
         function set_gadget_property(self, id, property, value)
 %***SIRF*** set_gadget_property(id, prop, val) assigns value to gadget property.
@@ -82,12 +83,12 @@ classdef GadgetChain < handle
             end
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mUtil.checkExecutionStatus(self.name_, hg);
+            mUtilities.check_status(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_setGadgetProperty', ...
                 hg, property, v);
-            mUtil.checkExecutionStatus(self.name_, hv)
-            calllib('mutilities', 'mDeleteDataHandle', hg)
-            calllib('mutilities', 'mDeleteDataHandle', hv)
+            mUtilities.check_status(self.name_, hv)
+            mUtilities.delete(hg)
+            mUtilities.delete(hv)
         end
         function v = get_gadget_property(self, id, property)
 %***SIRF*** get_gadget_property(id, prop) returns the value of the property
@@ -96,12 +97,13 @@ classdef GadgetChain < handle
 %         property: property name (Matlab string)
             hg = calllib('mgadgetron', 'mGT_parameter', ...
                 self.handle_, 'gadget_chain', id);
-            mUtil.checkExecutionStatus(self.name_, hg);
+            mUtilities.check_status(self.name_, hg);
             hv = calllib('mgadgetron', 'mGT_parameter', hg, 'gadget', property);
-            mUtil.checkExecutionStatus(self.name_, hv);
-            v = calllib('mutilities', 'mCharDataFromHandle', hv);
-            calllib('mutilities', 'mDeleteDataHandle', hg)
-            calllib('mutilities', 'mDeleteDataHandle', hv)
+            mUtilities.check_status(self.name_, hv);
+            %v = calllib('mutilities', 'mCharDataFromHandle', hv);
+            v = calllib('miutilities', 'mCharDataFromHandle', hv);
+            mUtilities.delete(hg)
+            mUtilities.delete(hv)
         end
     end
 end

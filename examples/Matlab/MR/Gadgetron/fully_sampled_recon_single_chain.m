@@ -26,7 +26,7 @@ function fully_sampled_recon_single_chain(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 
@@ -85,9 +85,9 @@ if exist('montage','file') && exist('mat2gray','file')
 else
     image_array = image_data.as_array();
     title = 'Reconstructed image data (magnitude)';
-    mUtil.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
+    mUtilities.show_3D_array(abs(image_array(:,:,1:2:end)), title, ...
         'samples', 'readouts', 'slice');
     title = 'Reconstructed image data (imaginary part)';
-    mUtil.show_3D_array(abs(image_array(:,:,2:2:end)), title, ...
+    mUtilities.show_3D_array(abs(image_array(:,:,2:2:end)), title, ...
         'samples', 'readouts', 'slice');
 end

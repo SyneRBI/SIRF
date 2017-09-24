@@ -28,7 +28,8 @@ classdef Acquisition < handle
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end

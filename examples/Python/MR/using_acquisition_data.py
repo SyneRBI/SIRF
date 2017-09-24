@@ -12,6 +12,7 @@ Options:
                               subfolder of SIRF root folder
   -r <rnge>, --range=<rnge>   range of readouts to examine as string '(a,b)'
                               [default: (254, 258)]
+  -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -49,14 +50,15 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
 ro_range = literal_eval(args['--range'])
+slcs = int(args['--slices'])
 
 def main():
 
     # locate the input data file
     input_file = existing_filepath(data_path, data_file)
 
-    # acquisition data will be read from an HDF file input_file
-    acq_data = AcquisitionData(input_file)
+    # read acquisition data from an HDF file input_file into memory
+    acq_data = AcquisitionData(input_file).clone()
 
     # the raw k-space data is a list of different readouts
     # of different data type (e.g. noise correlation data, navigator data,
@@ -116,7 +118,19 @@ def main():
     acq_shape = acq_array.shape
     print('input data dimensions: %dx%dx%d' % acq_shape)
 
+    # cap the number of readouts to display
+    ns = (slice[ni - 1] + 1)*(repetition[ni - 1] + 1)
+    print('total number of slices: %d' % ns)
+    nr = ni//ns
+    print('readouts per slice: %d' % nr)
+    if ns > slcs:
+        print('too many slices, showing %d only' % slcs)
+        ny = slcs*nr # display this many only
+    else:
+        ny = ni # display all
+
     acq_array = numpy.transpose(acq_array,(1,0,2))
+    acq_array = acq_array[:,:ny,:]
     title = 'Acquisition data (magnitude)'
     show_3D_array(acq_array, power = 0.2, suptitle = title, label = 'coil', \
                   xlabel = 'samples', ylabel = 'readouts', show = False)
@@ -127,6 +141,7 @@ def main():
     print('cloned data dimensions: %dx%dx%d' % cloned_acq_shape)
 
     cloned_acq_array = numpy.transpose(cloned_acq_array,(1,0,2))
+    cloned_acq_array = cloned_acq_array[:,:ny,:]
     title = 'Cloned acquisition data (magnitude)'
     show_3D_array(cloned_acq_array, power = 0.2, \
                   suptitle = title, label = 'coil', \
@@ -149,6 +164,7 @@ def main():
     print('processed data dimensions: %dx%dx%d' % processed_acq_shape)
 
     processed_acq_array = numpy.transpose(processed_acq_array,(1,0,2))
+    processed_acq_array = processed_acq_array[:,:ny,:]
     title = 'Processed acquisition data (magnitude)'
     show_3D_array(processed_acq_array, power = 0.2, \
                   suptitle = title, label = 'coil', \

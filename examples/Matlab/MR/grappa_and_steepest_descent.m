@@ -25,7 +25,7 @@ function grappa_and_steepest_descent(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 % define raw data source
@@ -74,8 +74,8 @@ refined_image_data = image_data - grad*tau;
 image_array = image_data.as_array();
 refined_image_array = refined_image_data.as_array();
 title = 'Reconstructed image data (magnitude)';
-mUtil.show_3D_array(abs(image_array), title, 'samples', 'readouts', 'slice');
+mUtilities.show_3D_array(abs(image_array), title, 'samples', 'readouts', 'slice');
 title = 'Refined image data (magnitude)';
-mUtil.show_3D_array...
+mUtilities.show_3D_array...
     (abs(refined_image_array), title, 'samples', 'readouts', 'slice');
 

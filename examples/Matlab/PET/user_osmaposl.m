@@ -26,13 +26,13 @@ function user_osmaposl(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_PET(engine);
+import_str = set_up_PET(engine);
 eval(import_str)
 
 try
     % direct all information printing to info.txt;
     % warning and error messages to go to Matlab Command Window
-    msg_red = MessageRedirector('info.txt');
+    MessageRedirector('info.txt');
 
     % PET acquisition data to be read from this file
     [filename, pathname] = uigetfile('*.hs', 'Select raw data file', pet_data_path);

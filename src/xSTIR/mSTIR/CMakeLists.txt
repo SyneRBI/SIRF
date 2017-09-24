@@ -26,11 +26,10 @@ if(BUILD_MATLAB)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mstir PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(mstir  cstir iutil ${STIR_LIBRARIES} ${Matlab_LIBRARIES} )
-
+  target_link_libraries(mstir  cstir iutilities ${STIR_LIBRARIES} ${Matlab_LIBRARIES})
   INSTALL(TARGETS mstir DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mstir.h DESTINATION "${MATLAB_DEST}")
-  INSTALL(DIRECTORY +mStir DESTINATION "${MATLAB_DEST}")
+  INSTALL(DIRECTORY +mSTIR DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 

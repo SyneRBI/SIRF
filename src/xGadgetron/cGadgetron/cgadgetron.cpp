@@ -28,12 +28,12 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
-#include "data_handle.h"
 //#include "iutilities.h" // causes problems with Matlab (cf. the same message below)
-#include "cgadgetron_par.h"
-#include "xgadgetron.h"
+#include "cgadgetron_p.h"
+#include "gadgetron_x.h"
 #include "gadget_lib.h"
 #include "chain_lib.h"
 
@@ -94,10 +94,10 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GTConnector, GTConnector>();
 		//if (boost::iequals(name, "string"))
 		//	return newObjectHandle<std::string, std::string>();
-		if (boost::iequals(name, "ImagesList"))
-			return newObjectHandle<ImagesContainer, ImagesList>();
-		if (boost::iequals(name, "CoilImagesList"))
-			return newObjectHandle<CoilImagesContainer, CoilImagesList>();
+		//if (boost::iequals(name, "Images"))
+		//	return newObjectHandle<ImagesContainer, ImagesVector>();
+		if (boost::iequals(name, "CoilImages"))
+			return newObjectHandle<CoilImagesContainer, CoilImagesVector>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);
@@ -270,8 +270,8 @@ cGT_appendCSM
 {
 	try {
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CoilSensitivitiesContainer& list =
 			objectFromHandle<CoilSensitivitiesContainer>(h_csms);
 		list.append_csm(nx, ny, nz, nc, re, im);
@@ -295,8 +295,8 @@ extern "C"
 void
 cGT_getCoilData(void* ptr_csms, int csm_num, size_t ptr_re, size_t ptr_im)
 {
-	double* re = (double*)ptr_re;
-	double* im = (double*)ptr_im;
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
@@ -307,7 +307,7 @@ extern "C"
 void
 cGT_getCoilDataAbs(void* ptr_csms, int csm_num, size_t ptr)
 {
-	double* v = (double*)ptr;
+	float* v = (float*)ptr;
 	CAST_PTR(DataHandle, h_csms, ptr_csms);
 	CoilDataContainer& list =
 		objectFromHandle<CoilDataContainer>(h_csms);
@@ -380,6 +380,22 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 
 extern "C"
 void*
+cGT_setAcquisitionsStorageScheme(const char* scheme)
+{
+	try{
+		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
+			AcquisitionsFile::set_as_template();
+			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsFile);
+		else
+			AcquisitionsVector::set_as_template();
+			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsVector);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_orderAcquisitions(void* ptr_acqs)
 {
 	try {
@@ -412,7 +428,7 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
 		boost::shared_ptr<AcquisitionsContainer> 
-			acquisitions(new AcquisitionsFile(file, true, true));
+			acquisitions(new AcquisitionsFile(file, true));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH;
@@ -490,8 +506,8 @@ cGT_getAcquisitionsData
 (void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
@@ -505,26 +521,23 @@ cGT_getAcquisitionsData
 extern "C"
 void*
 cGT_setAcquisitionsData
-(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns, 
+(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
 size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac =
-			acqs.new_acquisitions_container();
-		int err = acqs.set_acquisitions_data(sptr_ac, na, nc, ns, re, im);
+		int err = acqs.set_acquisition_data(na, nc, ns, re, im);
+		DataHandle* handle = new DataHandle;
 		if (err) {
-			DataHandle* handle = new DataHandle;
 			std::string error = "Mismatching acquisition dimensions";
 			ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
 			handle->set(0, &status);
-			return (void*)handle;
 		}
-		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+		return (void*)handle;
 	}
 	CATCH;
 }
@@ -619,7 +632,6 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 extern "C"
 void*
 cGT_selectImages(void* ptr_input, const char* attr, const char* target)
-//cGT_selectImages(void* ptr_input, unsigned int inc, unsigned int off)
 {
 	try {
 		CAST_PTR(DataHandle, h_input, ptr_input);
@@ -670,15 +682,6 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 
 extern "C"
 void
-cGT_setImageToRealConversion(void* ptr_imgs, int type)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
-	images.set_image_to_real_conversion(type);
-}
-
-extern "C"
-void
 cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
@@ -689,50 +692,20 @@ cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 
 extern "C"
 void
-cGT_getImageDataAsDoubleArray(void* ptr_imgs, int img_num, size_t ptr_data)
+cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
-	double* data = (double*)ptr_data;
+	float* data = (float*)ptr_data;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_double_array(img_num, data);
-}
-
-extern "C"
-void
-cGT_getImageDataAsComplexArray(void* ptr_imgs, int img_num, size_t ptr_data)
-{
-	complex_float_t* data = (complex_float_t*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_complex_array(img_num, data);
-}
-
-extern "C"
-void
-cGT_getImageDataAsCmplxArray
-(void* ptr_imgs, int img_num, double* re, double* im)
-{
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_data_as_cmplx_array(img_num, re, im);
-}
-
-extern "C"
-void
-cGT_getImagesDataAsDoubleArray(void* ptr_imgs, size_t ptr_data)
-{
-	double* data = (double*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_images_data_as_double_array(data);
+	list.get_images_data_as_float_array(data);
 }
 
 extern "C"
 void
 cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 {
-	double* re = (double*)ptr_re;
-	double* im = (double*)ptr_im;
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 	list.get_images_data_as_complex_array(re, im);
@@ -748,8 +721,8 @@ void*
 cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 {
 	try {
-		double* re = (double*)ptr_re;
-		double* im = (double*)ptr_im;
+		float* re = (float*)ptr_re;
+		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
 		list.set_complex_images_data(re, im);
@@ -796,7 +769,8 @@ cGT_dataItems(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		int* result = (int*)malloc(sizeof(int));
 		*result = x.items();
 		DataHandle* handle = new DataHandle;
@@ -812,8 +786,9 @@ cGT_norm(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
-		double* result = (double*)malloc(sizeof(double));
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		float* result = (float*)malloc(sizeof(float));
 		*result = x.norm();
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
@@ -829,10 +804,12 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
-		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
-		complex_double_t* result =
-			(complex_double_t*)malloc(sizeof(complex_double_t));
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		complex_float_t* result =
+			(complex_float_t*)malloc(sizeof(complex_float_t));
 		*result = x.dot(y);
 		DataHandle* handle = new DataHandle;
 		handle->set(result, 0, GRAB);
@@ -844,19 +821,22 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 extern "C"
 void*
 cGT_axpby(
-double ar, double ai, const void* ptr_x,
-double br, double bi, const void* ptr_y
+float ar, float ai, const void* ptr_x,
+float br, float bi, const void* ptr_y
 ){
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer& x = objectFromHandle<aDataContainer>(h_x);
-		aDataContainer& y = objectFromHandle<aDataContainer>(h_y);
-		boost::shared_ptr<aDataContainer> sptr_z = x.new_data_container();
-		complex_double_t a(ar, ai);
-		complex_double_t b(br, bi);
+		aDataContainer<complex_float_t>& x = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y = 
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		boost::shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
+			x.new_data_container();
+		complex_float_t a(ar, ai);
+		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
-		return sptrObjectHandle<aDataContainer>(sptr_z);
+		return sptrObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
 	}
 	CATCH;
 }
@@ -950,7 +930,7 @@ cGT_setGadgetProperties(void* ptr_g, const char* props)
 		std::string prop;
 		std::string value;
 		size_t n = in.length();
-		size_t i, j, k;
+		size_t i, j;
 		i = 0;
 		for (;;) {
 			j = in.find_first_not_of(" \t\n\v\f\r", i);
@@ -1146,7 +1126,7 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
 		ImagesContainer& images = objectFromHandle<ImagesContainer>(h_img);
-		for (int i = 0; i < images.number(); i++) {
+		for (unsigned int i = 0; i < images.number(); i++) {
 			ImageWrap& iw = images.image_wrap(i);
 			con.send_wrapped_image(iw);
 		}

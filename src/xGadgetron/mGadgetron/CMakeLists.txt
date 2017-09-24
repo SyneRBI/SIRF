@@ -29,7 +29,7 @@ if(BUILD_MATLAB)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mgadgetron PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(mgadgetron  cgt iutil ${FFTW3_LIBRARY} ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${Matlab_LIBRARIES} )
+  target_link_libraries(mgadgetron  cgadgetron iutilities ${FFTW3_LIBRARY} ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${Matlab_LIBRARIES} )
 
   INSTALL(TARGETS mgadgetron DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mgadgetron.h DESTINATION "${MATLAB_DEST}")

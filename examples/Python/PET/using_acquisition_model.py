@@ -8,7 +8,7 @@ Options:
   -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 
 There is an interactive demo with much more documentation on this process.
 You probably want to check that instead.
@@ -36,7 +36,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtil import show_2D_array
+from pUtilities import show_2D_array
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
@@ -50,8 +50,10 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
+    # no info printing from the engine, warnings and errors sent to stdout
+    msg_red = MessageRedirector()
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create an empty image
     image = ImageData()
@@ -104,13 +106,21 @@ def main():
     bin_eff.fill(bin_eff_arr)
     acq_model.set_bin_efficiency(bin_eff)
 
+    # testing additive term
+    add = acq_template.clone()
+    add.fill(2.0)
+    acq_model.set_additive_term(add)
+
+    # testing background term
+    bck = acq_template.clone()
+    bck.fill(10.0)
+    acq_model.set_background_term(bck)
+
     print('projecting image...')
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
-    # if the projection data is very large, it can be stored in a file
-    # simulated_data = acq_model.forward(image, 'simulated_data.hs')
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
@@ -127,4 +137,4 @@ try:
     main()
     print('done')
 except error as err:
-    print('exception occured: %s' % err.value)
+    print('%s' % err.value)

@@ -35,22 +35,24 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             self.name_ = 'AcquisitionDataProcessor';
             self.handle_ = calllib('mgadgetron', 'mGT_newObject',...
                 'AcquisitionsProcessor');
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtilities.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mUtil.label_and_name(list{i});
+                    [label, name] = mUtilities.label_and_name(list{i});
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = [];
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
+            assert(isa(input, 'mGadgetron.AcquisitionData'))
             self.input_ = input;
         end
         function acqs = process(self, input_data)
@@ -63,11 +65,12 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
+            mUtilities.assert_validity(self.input_, 'mGadgetron.AcquisitionData')
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...
                 self.handle_, self.input_.handle_);
-            mUtil.checkExecutionStatus(self.name_, acqs.handle_);
+            mUtilities.check_status(self.name_, acqs.handle_);
             self.output_ = acqs;
         end
         function output = get_output(self)

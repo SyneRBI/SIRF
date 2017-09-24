@@ -21,6 +21,7 @@ classdef DataContainer < handle
 
     properties
         handle_
+        meta_
     end
     methods (Abstract, Static)
         same_object(self)
@@ -28,62 +29,83 @@ classdef DataContainer < handle
     methods
         function self = DataContainer()
             self.handle_ = [];
+            self.meta_ = meta.class.fromName('mGadgetron.DataContainer');
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function num = number(self)
 %***SIRF*** Returns the number of items in this container.
             handle = calllib('mgadgetron', 'mGT_dataItems', self.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
-            num = calllib('mutilities', 'mIntDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status('DataContainer', handle);
+            num = calllib('miutilities', 'mIntDataFromHandle', handle);
+            mUtilities.delete(handle)
         end
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
-            r = calllib('mutilities', 'mDoubleDataFromHandle', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status('DataContainer', handle);
+            r = calllib('miutilities', 'mFloatDataFromHandle', handle);
+            mUtilities.delete(handle)
         end
         function z = dot(self, other)
 %***SIRF*** Returns the dot product of this data container with another one 
 %         viewed as vectors.
+            %assert(lt(metaclass(other), self.meta_))
+            %assert(isobject(other))
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
             handle = calllib('mgadgetron', 'mGT_dot', self.handle_, ...
                 other.handle_);
-            mUtil.checkExecutionStatus('DataContainer', handle);
-            re = calllib('mutilities', 'mDoubleReDataFromHandle', handle);
-            im = calllib('mutilities', 'mDoubleImDataFromHandle', handle);
+            mUtilities.check_status('DataContainer', handle);
+            re = calllib('miutilities', 'mFloatReDataFromHandle', handle);
+            im = calllib('miutilities', 'mFloatImDataFromHandle', handle);
             z = complex(re, im);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.delete(handle)
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
 %         Returns the difference of this data container with another one
 %         viewed as vectors.
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
+        end
+        function z = plus(self, other)
+%***SIRF*** Overloads + for data containers.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
+            %assert(strcmp(class(self), class(other)))
+            mUtilities.assert_validities(self, other)
+            z = self.same_object();
+            z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
+                1.0, 0.0, self.handle_, 1.0, 0.0, other.handle_);
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
 %         by a scalar or another data container. 
 %         Returns the product self*other if other is a scalar or the dot 
 %         product with other if it is a data container.
-            if isobject(other)
+            %if isobject(other)
+            if strcmp(class(self), class(other))
                 z = self.dot(other);
             elseif isreal(other)
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     other, 0.0, self.handle_, 0.0, 0.0, self.handle_);
-            else
+            elseif iscomplex(other)
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                     real(other), imag(other), self.handle_, ...
                     0.0, 0.0, self.handle_);
+            else
+                error('DataContainer:mtimes', ...
+                    'Wrong argument type %s\n', class(other))
             end
         end
     end
@@ -93,7 +115,9 @@ classdef DataContainer < handle
 %         of two data containers x and y;
 %         a and b: complex scalars
 %         x and y: DataContainers
-            z = self.same_object();
+            %assert(strcmp(class(x), class(y)))
+            mUtilities.assert_validities(x, y)
+            z = x.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
         end

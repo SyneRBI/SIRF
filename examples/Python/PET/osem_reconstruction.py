@@ -8,12 +8,12 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
+  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
   -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -65,7 +65,7 @@ def image_data_processor(image_array, im_num):
 def main():
  
     # direct all engine's information and warnings printing to files
-    printer = Printer('info.txt', 'warn.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -80,6 +80,8 @@ def main():
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0)
+
+    acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -122,6 +124,14 @@ def main():
         recon.set_current_estimate(image)
     pylab.show()
 
+    # forward projection of the reconstructed image simulates the
+    # acquisition of data by the scanner
+    print('projecting...')
+    simulated_data = acq_model.forward(image)
+    # compute the reconstruction residual
+    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
+    print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
@@ -129,4 +139,4 @@ try:
     print('done')
 except error as err:
     # display error information
-    print('Exception occured: %s' % err.value)
+    print('%s' % err.value)

@@ -123,7 +123,7 @@ def main():
     acqs_diff = fwd_acqs - processed_data
     rr = acqs_diff.norm()/fwd_acqs_norm
     print('---\n reconstruction residual norm (rel): %e' % rr)
-    failed += test_failed(5, 0, rr, 1e-6, 0)
+    failed += test_failed(5, 0, rr, 1e-5, 0)
 
     bwd_images = am.backward(processed_data)
     imgs_diff = bwd_images - complex_images
@@ -131,15 +131,15 @@ def main():
     print(\
         '---\n difference between reconstructed and back-projected images: %e'\
         % rd)
-    failed += test_failed(6, 0, rd, 1e-6, 0)
+    failed += test_failed(6, 0, rd, 1e-5, 0)
 
     xFy = processed_data * fwd_acqs
     Bxy = bwd_images * complex_images
     print('---\n (x, F y) = (%e, %e)' % (xFy.real, xFy.imag))
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
-    failed += test_failed(7, xFy.real, Bxy.real, 0, 1e-6)
-    failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-6, 0)
-    failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-6, 0)
+    failed += test_failed(7, xFy.real, Bxy.real, 0, 1e-5)
+    failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-5, 0)
+    failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-5, 0)
 
     if failed == 0:
         print('all tests passed')

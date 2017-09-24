@@ -36,25 +36,29 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
         function calculate(self, acqs)
 %***SIRF*** Calculates coil sensitivity maps from sorted acquisitions
 %         specified by an AcquisitionData argument.
+            mUtilities.assert_validity(acqs, 'mGadgetron.AcquisitionData')
             if ~acqs.is_sorted()
                 fprintf('WARNING: acquisitions may be in a wrong order\n')
             end
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
             self.handle_ = calllib('mgadgetron', 'mGT_CoilSensitivities', '');
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtilities.check_status(self.name_, self.handle_);
             handle = calllib('mgadgetron', 'mGT_computeCoilSensitivities', ...
                 self.handle_, acqs.handle_);
-            mUtil.checkExecutionStatus(self.name_, handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status(self.name_, handle);
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
         function data = csm_as_array(self, csm_num)
 %***SIRF*** Returns the coil sensitivity map specified by the argument 
@@ -65,8 +69,8 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
                 self.handle_, csm_num - 1, ptr_i);
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3)*dim(4);
-            ptr_re = libpointer('doublePtr', zeros(n, 1));
-            ptr_im = libpointer('doublePtr', zeros(n, 1));
+            ptr_re = libpointer('singlePtr', zeros(n, 1));
+            ptr_im = libpointer('singlePtr', zeros(n, 1));
             calllib...
                 ('mgadgetron', 'mGT_getCoilData', ...
                 self.handle_, csm_num - 1, ptr_re, ptr_im)

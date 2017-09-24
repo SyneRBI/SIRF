@@ -32,6 +32,13 @@ classdef AcquisitionData < mGadgetron.DataContainer
         function obj = same_object()
             obj = mGadgetron.AcquisitionData();
         end
+        function set_storage_scheme(scheme)
+            h = calllib...
+                ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
+            mUtilities.check_status('AcquisitionData', h);
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
+        end
     end
     methods
         function self = AcquisitionData(filename)
@@ -44,12 +51,13 @@ classdef AcquisitionData < mGadgetron.DataContainer
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
-                mUtil.checkExecutionStatus(self.name_, self.handle_);
+                mUtilities.check_status(self.name_, self.handle_);
             end
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
         end
@@ -64,8 +72,9 @@ classdef AcquisitionData < mGadgetron.DataContainer
             end
             handle = calllib('mgadgetron', 'mGT_orderAcquisitions', ...
                 self.handle_);
-            mUtil.checkExecutionStatus('AcquisitionData', handle);
-            calllib('mutilities', 'mDeleteDataHandle', handle)
+            mUtilities.check_status('AcquisitionData', handle);
+            mUtilities.delete(handle)
+            %calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
@@ -193,8 +202,8 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 n = na + 1;
             end
             m = ns*nc*ma;
-            ptr_re = libpointer('doublePtr', zeros(m, 1));
-            ptr_im = libpointer('doublePtr', zeros(m, 1));
+            ptr_re = libpointer('singlePtr', zeros(m, 1));
+            ptr_im = libpointer('singlePtr', zeros(m, 1));
             calllib...
                 ('mgadgetron', 'mGT_getAcquisitionsData', ...
                 self.handle_, n, ptr_re, ptr_im);
@@ -211,13 +220,18 @@ classdef AcquisitionData < mGadgetron.DataContainer
             [ns, nc, na] = size(data);
             re = real(data);
             im = imag(data);
-            ptr_re = libpointer('doublePtr', re);
-            ptr_im = libpointer('doublePtr', im);
+            if isa(re, 'single')
+                ptr_re = libpointer('singlePtr', re);
+                ptr_im = libpointer('singlePtr', im);
+            else
+                ptr_re = libpointer('singlePtr', single(re));
+                ptr_im = libpointer('singlePtr', single(im));
+            end
             h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
-            mUtil.checkExecutionStatus('AcquisitionData', h);
-            calllib('mutilities', 'mDeleteDataHandle', self.handle_)
-            self.handle_ = h;
+            mUtilities.check_status('AcquisitionData', h);
+            mUtilities.delete(h)
+            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
 end
