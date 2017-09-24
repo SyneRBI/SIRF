@@ -67,7 +67,7 @@ The C function that is called is as follows:
         if (!boost::filesystem::exists(file))
             return fileNotFound(file, __FILE__, __LINE__);
         try {
-            boost::shared_ptr<AcquisitionsContainer> 
+            std::shared_ptr<AcquisitionsContainer> 
                 acquisitions(new AcquisitionsFile(file));
             return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
         }
@@ -76,7 +76,7 @@ The C function that is called is as follows:
 
 As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an AcquisitionsContainer object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an AcquisitionsContainer object (cf. [Data handling](#Data_handling)). We note that AcquisitionsData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line
 
-    dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+    dataset_ = std::shared_ptr<ISMRMRD::Dataset>
         (new ISMRMRD::Dataset(filename.c_str(), "/dataset"));
 
 showing that the acquisition data file is handled by the Dataset object of ISMRMRD library employed by Gadgetron engine.

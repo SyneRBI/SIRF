@@ -22,7 +22,7 @@ limitations under the License.
 #define GADGETRON_CLIENT
 
 #include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -97,20 +97,20 @@ class GadgetronClientAcquisitionMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientAcquisitionMessageCollector
-		(boost::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
+		(std::shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 	virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
 	virtual void read(tcp::socket* stream);
 
 private:
-	boost::shared_ptr<AcquisitionsContainer> ptr_acqs_;
+	std::shared_ptr<AcquisitionsContainer> ptr_acqs_;
 };
 
 class GadgetronClientImageMessageCollector : 
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientImageMessageCollector
-		(boost::shared_ptr<ImagesContainer> ptr_images) : ptr_images_(ptr_images) {}
+		(std::shared_ptr<ImagesContainer> ptr_images) : ptr_images_(ptr_images) {}
 	virtual ~GadgetronClientImageMessageCollector() {}
 
 	template <typename T>
@@ -143,7 +143,7 @@ public:
 	virtual void read(tcp::socket* stream);
 
 private:
-	boost::shared_ptr<ImagesContainer> ptr_images_;
+	std::shared_ptr<ImagesContainer> ptr_images_;
 };
 
 class GadgetronClientConnector {
@@ -225,14 +225,14 @@ public:
 	}
 
 	void register_reader
-		(unsigned short slot, boost::shared_ptr<GadgetronClientMessageReader> r) 
+		(unsigned short slot, std::shared_ptr<GadgetronClientMessageReader> r) 
 	{
 		readers_[slot] = r;
 	}
 
 protected:
 	typedef 
-		std::map<unsigned short, boost::shared_ptr<GadgetronClientMessageReader> > 
+		std::map<unsigned short, std::shared_ptr<GadgetronClientMessageReader> > 
 		maptype;
 
 	GadgetronClientMessageReader* find_reader(unsigned short r);

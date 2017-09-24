@@ -4,7 +4,7 @@
 #define CAST_REF(T, X, Y) T& X = (T&)Y
 
 #define OBJECT(Base, Obj, X, sptr_X) \
-	boost::shared_ptr< Base > sptr_X(new Obj); Obj& X = (Obj&)*sptr_X
+	std::shared_ptr< Base > sptr_X(new Obj); Obj& X = (Obj&)*sptr_X
 
 #define CATCH \
 	catch (LocalisedException& se) {\

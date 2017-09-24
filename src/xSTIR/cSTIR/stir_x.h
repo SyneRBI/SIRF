@@ -41,42 +41,42 @@ public:
 		sptr_normalisation_.reset();
 		sptr_norm_.reset();
 	}
-	void set_projectors(boost::shared_ptr<ProjectorByBinPair> sptr_projectors)
+	void set_projectors(std::shared_ptr<ProjectorByBinPair> sptr_projectors)
 	{
 		sptr_projectors_ = sptr_projectors;
 	}
-	boost::shared_ptr<ProjectorByBinPair> projectors_sptr()
+	std::shared_ptr<ProjectorByBinPair> projectors_sptr()
 	{
 		return sptr_projectors_;
 	}
-	void set_additive_term(boost::shared_ptr<PETAcquisitionData> sptr)
+	void set_additive_term(std::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_add_ = sptr;
 	}
-	boost::shared_ptr<PETAcquisitionData> additive_term_sptr()
+	std::shared_ptr<PETAcquisitionData> additive_term_sptr()
 	{
 		return sptr_add_;
 	}
-	void set_background_term(boost::shared_ptr<PETAcquisitionData> sptr)
+	void set_background_term(std::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_background_ = sptr;
 	}
-	boost::shared_ptr<PETAcquisitionData> background_term_sptr()
+	std::shared_ptr<PETAcquisitionData> background_term_sptr()
 	{
 		return sptr_background_;
 	}
-	void set_normalisation(boost::shared_ptr<BinNormalisation> sptr)
+	void set_normalisation(std::shared_ptr<BinNormalisation> sptr)
 	{
 		sptr_normalisation_ = sptr;
 	}
-	boost::shared_ptr<BinNormalisation> normalisation_sptr()
+	std::shared_ptr<BinNormalisation> normalisation_sptr()
 	{
 		return sptr_normalisation_;
 	}
-	void set_bin_efficiency(boost::shared_ptr<PETAcquisitionData> sptr_data);
-	void set_normalisation(boost::shared_ptr<PETAcquisitionData> sptr_data)
+	void set_bin_efficiency(std::shared_ptr<PETAcquisitionData> sptr_data);
+	void set_normalisation(std::shared_ptr<PETAcquisitionData> sptr_data)
 	{
-		boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+		std::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
 		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 	}
 	void cancel_background_term()
@@ -103,22 +103,22 @@ public:
 	}
 
 	virtual Succeeded set_up(
-		boost::shared_ptr<PETAcquisitionData> sptr_acq,
-		boost::shared_ptr<Image3DF> sptr_image);
+		std::shared_ptr<PETAcquisitionData> sptr_acq,
+		std::shared_ptr<Image3DF> sptr_image);
 
-	boost::shared_ptr<PETAcquisitionData>
+	std::shared_ptr<PETAcquisitionData>
 		forward(const Image3DF& image);
 
-	boost::shared_ptr<Image3DF> backward(ProjData& ad);
+	std::shared_ptr<Image3DF> backward(ProjData& ad);
 
 protected:
-	boost::shared_ptr<ProjectorByBinPair> sptr_projectors_;
-	boost::shared_ptr<PETAcquisitionData> sptr_acq_template_;
-	boost::shared_ptr<Image3DF> sptr_image_template_;
-	boost::shared_ptr<PETAcquisitionData> sptr_add_;
-	boost::shared_ptr<PETAcquisitionData> sptr_background_;
-	boost::shared_ptr<BinNormalisation> sptr_normalisation_;
-	boost::shared_ptr<PETAcquisitionData> sptr_norm_;
+	std::shared_ptr<ProjectorByBinPair> sptr_projectors_;
+	std::shared_ptr<PETAcquisitionData> sptr_acq_template_;
+	std::shared_ptr<Image3DF> sptr_image_template_;
+	std::shared_ptr<PETAcquisitionData> sptr_add_;
+	std::shared_ptr<PETAcquisitionData> sptr_background_;
+	std::shared_ptr<BinNormalisation> sptr_normalisation_;
+	std::shared_ptr<PETAcquisitionData> sptr_norm_;
 };
 
 class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
@@ -127,20 +127,20 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	{
 		this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
 	}
-	void set_matrix(boost::shared_ptr<ProjMatrixByBin> sptr_matrix)
+	void set_matrix(std::shared_ptr<ProjMatrixByBin> sptr_matrix)
 	{
 		sptr_matrix_ = sptr_matrix;
 		((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			set_proj_matrix_sptr(sptr_matrix);
 	}
-	boost::shared_ptr<ProjMatrixByBin> matrix_sptr()
+	std::shared_ptr<ProjMatrixByBin> matrix_sptr()
 	{
 		return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			get_proj_matrix_sptr();
 	}
 	virtual Succeeded set_up(
-		boost::shared_ptr<PETAcquisitionData> sptr_acq,
-		boost::shared_ptr<Image3DF> sptr_image)
+		std::shared_ptr<PETAcquisitionData> sptr_acq,
+		std::shared_ptr<Image3DF> sptr_image)
 	{
 		if (!sptr_matrix_.get())
 			return Succeeded::no;
@@ -148,12 +148,12 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	}
 
 private:
-	boost::shared_ptr<ProjMatrixByBin> sptr_matrix_;
+	std::shared_ptr<ProjMatrixByBin> sptr_matrix_;
 };
 
 typedef PETAcquisitionModel AcqMod3DF;
 typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
-typedef boost::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+typedef std::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
 class xSTIR_GeneralisedPrior3DF : public GeneralisedPrior < Image3DF > {
 public:
@@ -183,7 +183,7 @@ public:
 	void set_input_file(const char* filename) {
 		input_filename = filename;
 	}
-	void set_acquisition_model(boost::shared_ptr<AcqMod3DF> sptr)
+	void set_acquisition_model(std::shared_ptr<AcqMod3DF> sptr)
 	{
 		sptr_am_ = sptr;
 		AcqMod3DF& am = *sptr;
@@ -193,12 +193,12 @@ public:
 		if (am.normalisation_sptr().get())
 			set_normalisation_sptr(am.normalisation_sptr());
 	}
-	boost::shared_ptr<AcqMod3DF> acquisition_model_sptr()
+	std::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 	{
 		return sptr_am_;
 	}
 private:
-	boost::shared_ptr<AcqMod3DF> sptr_am_;
+	std::shared_ptr<AcqMod3DF> sptr_am_;
 };
 
 class xSTIR_IterativeReconstruction3DF :

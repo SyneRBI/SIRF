@@ -18,8 +18,8 @@ void test3()
 
 	filename = path + "my_forward_projection.hs";
 	//filename = "tmp.hs";
-	boost::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
-	boost::shared_ptr<ProjDataInfo> sptr_adi = sptr_ad->get_proj_data_info_sptr();
+	std::shared_ptr<ProjData> sptr_ad = ProjData::read_from_file(filename);
+	std::shared_ptr<ProjDataInfo> sptr_adi = sptr_ad->get_proj_data_info_sptr();
 	size = sptr_ad->size_all();
 	segments = sptr_ad->get_num_segments();
 	sinos = sptr_ad->get_num_sinograms();
@@ -56,7 +56,7 @@ void test3()
 	acq_mod.set_matrix(sptr_matrix);
 	acq_mod.set_up(sptr_ad, sptr_image);
 
-	//boost::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
+	//std::shared_ptr<ProjData> sptr_fd = acq_mod.forward(image);
 
 	//double* acq_data = new double[size];
 	//sptr_ad->copy_to(acq_data);
