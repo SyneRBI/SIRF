@@ -26,17 +26,18 @@ limitations under the License.
 
 #include <boost/algorithm/string.hpp>
 
+#include "shared_ptr.h"
 #include "localised_exception.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define SPTR(Base, X, Object) boost::shared_ptr< Base > X(new Object)
+#define SPTR(Base, X, Object) sirf::shared_ptr< Base > X(new Object)
 #define NEW_SPTR(Base, X, Object) \
-	boost::shared_ptr< Base >* X = new boost::shared_ptr< Base >(new Object)
+	sirf::shared_ptr< Base >* X = new sirf::shared_ptr< Base >(new Object)
 #define NEW_SPTR_FROM_PTR(Object, X, P) \
-	boost::shared_ptr< Object >* X = new boost::shared_ptr< Object >(P)
+	sirf::shared_ptr< Object >* X = new sirf::shared_ptr< Object >(P)
 #define SPTR_FROM_HANDLE(Object, X, H) \
-boost::shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
+	sirf::shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
 
 #define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
@@ -128,27 +129,21 @@ protected:
 	ExecutionStatus* _status;
 };
 
-class anObjectHandle : public DataHandle {
-public:
-	virtual ~anObjectHandle() {}
-	virtual anObjectHandle* copy() = 0;
-};
-
 template<class Base>
-class ObjectHandle : public anObjectHandle {
+class ObjectHandle : public DataHandle {
 public:
 	ObjectHandle(const ObjectHandle& obj) {
-		NEW(boost::shared_ptr<Base>, ptr_sptr);
-		*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
+		NEW(sirf::shared_ptr<Base>, ptr_sptr);
+		*ptr_sptr = *(sirf::shared_ptr<Base>*)obj.data();
 		_data = (void*)ptr_sptr;
 		if (obj._status)
 			_status = new ExecutionStatus(*obj._status);
 		else
 			_status = 0;
 	}
-	ObjectHandle(const boost::shared_ptr<Base>& sptr,
+	ObjectHandle(const sirf::shared_ptr<Base>& sptr,
 		const ExecutionStatus* status = 0) {
-		NEW(boost::shared_ptr<Base>, ptr_sptr);
+		NEW(sirf::shared_ptr<Base>, ptr_sptr);
 		*ptr_sptr = sptr;
 		_data = (void*)ptr_sptr;
 		if (status)
@@ -157,18 +152,10 @@ public:
 			_status = 0;
 	}
 	virtual ~ObjectHandle() {
-		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+		CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, _data);
 		delete _status;
 		_status = 0;
 		delete ptr_sptr;
-	}
-	virtual anObjectHandle* copy() {
-		if (_data == 0)
-			THROW("zero data pointer cannot be dereferenced");
-		CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
-		if (!ptr_sptr->get())
-			THROW("zero object pointer cannot be dereferenced");
-		return new ObjectHandle<Base>(*ptr_sptr, _status);
 	}
 };
 
@@ -184,7 +171,7 @@ newObjectHandle()
 
 template<class Base>
 static void*
-newObjectHandle(boost::shared_ptr<Base>* ptr_sptr)
+newObjectHandle(sirf::shared_ptr<Base>* ptr_sptr)
 {
 	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
 	delete ptr_sptr;
@@ -193,7 +180,7 @@ newObjectHandle(boost::shared_ptr<Base>* ptr_sptr)
 
 template<class T>
 void*
-sptrObjectHandle(boost::shared_ptr<T> sptr) {
+sptrObjectHandle(sirf::shared_ptr<T> sptr) {
 	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
 	return (void*)ptr_handle;
 }
@@ -205,7 +192,7 @@ objectFromHandle(const void* h) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
+	CAST_PTR(sirf::shared_ptr<Object>, ptr_sptr, ptr);
 	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	CAST_PTR(Object, ptr_object, ptr_sptr->get());
@@ -213,29 +200,16 @@ objectFromHandle(const void* h) {
 }
 
 template<class Object>
-boost::shared_ptr<Object>&
+sirf::shared_ptr<Object>&
 objectSptrFromHandle(const void* h) {
 	DataHandle* handle = (DataHandle*)h;
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
+	CAST_PTR(sirf::shared_ptr<Object>, ptr_sptr, ptr);
 	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	return *ptr_sptr;
-}
-
-template<class Object>
-Object*
-objectPtrFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	if (handle == 0)
-		return 0;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		return 0;
-	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
-	return ptr_sptr->get();
 }
 
 template<class Base>
@@ -244,7 +218,7 @@ objectFromHandle(const DataHandle* handle) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
 	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	CAST_PTR(Base, ptr_object, ptr_sptr->get());
@@ -257,7 +231,7 @@ objectFromHandle(const DataHandle* handle) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
 	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	CAST_PTR(Object, ptr_object, ptr_sptr->get());
@@ -265,33 +239,21 @@ objectFromHandle(const DataHandle* handle) {
 }
 
 template<class Base>
-boost::shared_ptr<Base>&
+sirf::shared_ptr<Base>&
 objectSptrFromHandle(const DataHandle* handle) {
 	void* ptr = handle->data();
 	if (ptr == 0)
 		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
+	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
 	if (!ptr_sptr->get())
 		THROW("zero object pointer cannot be dereferenced");
 	return *ptr_sptr;
 }
 
-template<class Base>
-Base*
-objectPtrFromHandle(const DataHandle* handle) {
-	if (handle == 0)
-		return 0;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		return 0;
-	CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, ptr);
-	return ptr_sptr->get();
-}
-
 template<class T>
-boost::shared_ptr<T>
+sirf::shared_ptr<T>
 sptrDataFromHandle(const DataHandle* handle) {
-	return *(boost::shared_ptr<T>*)handle->data();
+	return *(sirf::shared_ptr<T>*)handle->data();
 }
 
 #define GRAB 1

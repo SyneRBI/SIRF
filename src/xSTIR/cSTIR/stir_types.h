@@ -51,17 +51,19 @@ limitations under the License.
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
 
+#include "shared_ptr.h"
+
 #define GRAB 1
 
 USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;
-typedef boost::shared_ptr<Image3DF> sptrImage3DF;
-typedef boost::shared_ptr<ProjData> sptrProjData;
+typedef sirf::shared_ptr<Image3DF> sptrImage3DF;
+typedef sirf::shared_ptr<ProjData> sptrProjData;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
-typedef boost::shared_ptr<Voxels3DF> sptrVoxels3DF;
-typedef boost::shared_ptr<Shape3D> sptrShape3D;
+typedef sirf::shared_ptr<Voxels3DF> sptrVoxels3DF;
+typedef sirf::shared_ptr<Shape3D> sptrShape3D;
 typedef Reconstruction<Image3DF> Reconstruction3DF;
 typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
 typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;

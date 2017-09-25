@@ -41,11 +41,11 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
-//#include "an_object.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
 #include "localised_exception.h"
+#include "shared_ptr.h"
 
 #define N_TRIALS 5
 

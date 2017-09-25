@@ -28,11 +28,12 @@ limitations under the License.
 */
 
 #include "gadgetron_data_containers.h"
+#include "shared_ptr.h"
 
-boost::shared_ptr<AcquisitionsContainer> 
+sirf::shared_ptr<AcquisitionsContainer> 
 AcquisitionsContainer::acqs_templ_;
 
-//boost::shared_ptr<AcquisitionsContainer> 
+//sirf::shared_ptr<AcquisitionsContainer> 
 //AcquisitionsContainerTemplate::acqs_storage_template_;
 
 void 
@@ -445,7 +446,7 @@ AcquisitionsFile::AcquisitionsFile
 	filename_ = filename;
 	Mutex mtx;
 	mtx.lock();
-	dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+	dataset_ = sirf::shared_ptr<ISMRMRD::Dataset>
 		(new ISMRMRD::Dataset(filename.c_str(), "/dataset", create_file));
 	if (!create_file) {
 		dataset_->readHeader(acqs_info_);
@@ -463,7 +464,7 @@ AcquisitionsFile::AcquisitionsFile(AcquisitionsInfo info)
 	filename_ = xGadgetronUtilities::scratch_file_name();
 	Mutex mtx;
 	mtx.lock();
-	dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
+	dataset_ = sirf::shared_ptr<ISMRMRD::Dataset>
 		(new ISMRMRD::Dataset(filename_.c_str(), "/dataset", true));
 	acqs_info_ = info;
 	dataset_->writeHeader(acqs_info_);
@@ -562,7 +563,7 @@ int
 AcquisitionsFile::set_acquisition_data
 (int na, int nc, int ns, const float* re, const float* im)
 {
-	boost::shared_ptr<AcquisitionsContainer> sptr_ac =
+	sirf::shared_ptr<AcquisitionsContainer> sptr_ac =
 		this->new_acquisitions_container();
 	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
 	ptr_ac->set_acquisitions_info(acqs_info_);
@@ -659,12 +660,12 @@ ImagesContainer::norm()
 ImagesVector::ImagesVector(const ImagesVector& list, const char* attr, const char* target)
 {
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	for (i = list.images_.begin(); i != list.images_.end(); i++) {
-		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		const sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		std::string atts = sptr_iw->attributes();
 		ISMRMRD::MetaContainer mc;
 		ISMRMRD::deserialize(atts.c_str(), mc);
@@ -679,16 +680,16 @@ ImagesVector::ImagesVector(const ImagesVector& list, unsigned int inc, unsigned 
 	int n = 0;
 	unsigned int j = 0;
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	for (i = list.images_.begin(); i != list.images_.end() && j < off; i++, j++);
 
 	for (; i != list.images_.end(); i++, j++) {
 		if ((j - off) % inc)
 			continue;
-		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		const sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		append(*sptr_iw);
 		n++;
 	}
@@ -705,12 +706,12 @@ ImagesVector::write(std::string filename, std::string groupname)
 	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 	mtx.unlock();
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::iterator i;
 #endif
 	for (i = images_.begin(); i != images_.end(); i++) {
-		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		ImageWrap& iw = *sptr_iw;
 		iw.write(dataset);
 	}
@@ -720,13 +721,13 @@ void
 ImagesVector::get_images_data_as_float_array(float* data) const
 {
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
-		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		const sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		ImageWrap& iw = *sptr_iw;
 		iw.get_data(data);
 		iw.get_dim(dim);
@@ -742,13 +743,13 @@ void
 ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
 {
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::const_iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::const_iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
-		const boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		const sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		ImageWrap& iw = *sptr_iw;
 		iw.get_dim(dim);
 		size_t size = dim[0];
@@ -772,13 +773,13 @@ void
 ImagesVector::set_complex_images_data(const float* re, const float* im)
 {
 #ifdef _MSC_VER
-	std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
+	std::vector<sirf::shared_ptr<ImageWrap> >::iterator i;
 #else
-	typename std::vector<boost::shared_ptr<ImageWrap> >::iterator i;
+	typename std::vector<sirf::shared_ptr<ImageWrap> >::iterator i;
 #endif
 	int dim[4];
 	for (i = images_.begin(); i != images_.end(); i++) {
-		boost::shared_ptr<ImageWrap>& sptr_iw = *i;
+		sirf::shared_ptr<ImageWrap>& sptr_iw = *i;
 		ImageWrap& iw = *sptr_iw;
 		size_t n = iw.get_dim(dim);
 		iw.set_cmplx_data(re, im);
@@ -890,7 +891,7 @@ CoilImagesContainer::compute(AcquisitionsContainer& ac)
 
 		ifft2c(ci);
 
-		boost::shared_ptr<CoilData>
+		sirf::shared_ptr<CoilData>
 			sptr_ci(new CoilDataAsCFImage(readout, ny, 1, nc));
 		CFImage& coil_im = (*(CoilDataAsCFImage*)sptr_ci.get()).image();
 		memcpy(coil_im.getDataPtr(), ci.getDataPtr(), ci.getDataSize());
@@ -937,7 +938,7 @@ CoilSensitivitiesContainer::compute(CoilImagesContainer& cis)
 		cis(nmap - 1).get_data(cm.getDataPtr());
 		//CoilData* ptr_img = new CoilDataType(nx, ny, 1, nc);
 		CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, 1, nc);
-		boost::shared_ptr<CoilData> sptr_img(ptr_img);
+		sirf::shared_ptr<CoilData> sptr_img(ptr_img);
 		compute_csm_(cm, img, csm);
 		ptr_img->set_data(csm.getDataPtr());
 		append(sptr_img);
@@ -1162,7 +1163,7 @@ CoilSensitivitiesAsImages::CoilSensitivitiesAsImages(const char* file)
 	int nm = csm_file.getNumberOfImages("csm");
 	mtx.unlock();
 	for (int i = 0; i < nm; i++) {
-		boost::shared_ptr<CoilData> sptr_img(new CoilDataAsCFImage);
+		sirf::shared_ptr<CoilData> sptr_img(new CoilDataAsCFImage);
 		mtx.lock();
 		CFImage& csm = (*(CoilDataAsCFImage*)sptr_img.get()).image();
 		csm_file.readImage("csm", i, csm);
