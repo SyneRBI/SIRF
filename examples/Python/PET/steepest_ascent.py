@@ -12,10 +12,10 @@ Options:
                               subfolder of SIRF root folder
   -x <step>, --step=<step>     steepest ascent step size parameter,
                               use a negative value to opt for the optimal value
-                              [default: -1]
+                              [default: 0.5]
   -s <nstp>, --steps=<nstp>   number of steepest descent steps [default: 3]
   -v, --verbose               verbose
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -42,7 +42,7 @@ args = docopt(__doc__, version=__version__)
 
 import scipy.optimize
 
-from pUtil import show_2D_array
+from pUtilities import show_2D_array
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
@@ -59,8 +59,8 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
-    # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+    # engine output goes to files
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix()
@@ -188,4 +188,4 @@ try:
     print('done')
 except error as err:
     # display error information
-    print('STIR exception occured: %s' % err.value)
+    print('%s' % err.value)

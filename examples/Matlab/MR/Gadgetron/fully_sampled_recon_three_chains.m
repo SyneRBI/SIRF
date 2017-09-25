@@ -30,7 +30,7 @@ function fully_sampled_recon_three_chains(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 % acquisitions will be read from this HDF file
@@ -93,6 +93,6 @@ real_image_data = img_proc.get_output();
 % See other demos for use of as_array() to extract a MATLAB array and then
 % plot
 title = 'Reconstructed image data (magnitude)';
-mUtil.show_3D_array(abs(real_image_data.as_array()), title, ...
+mUtilities.show_3D_array(abs(real_image_data.as_array()), title, ...
     'samples', 'readouts', 'slice');
 

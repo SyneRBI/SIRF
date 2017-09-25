@@ -51,7 +51,7 @@ function fully_sampled_recon(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 % MR raw data formats from different vendors can be transformed to 
@@ -90,7 +90,7 @@ if exist('montage','file') && exist('mat2gray','file')
     idisp = mat2gray(abs(image_data.as_array()));
     montage(reshape(idisp,[size(idisp,1) size(idisp,2) 1 size(idisp,3)])) ;
 else
-    mUtil.show_3D_array...
+    mUtilities.show_3D_array...
         (abs(image_data.as_array()), 'Reconstructed image data (magnitude)', ...
         'samples', 'readouts', 'slice');
 end
@@ -99,6 +99,6 @@ end
 image_array = image_data.as_array();
 image_array(abs(image_array) < 0.2*max(image_array(:))) = 0;
 image_data.fill(image_array);
-mUtil.show_3D_array...
+mUtilities.show_3D_array...
     (abs(image_data.as_array()), 'Filtered image data (magnitude)', ...
     'samples', 'readouts', 'slice');

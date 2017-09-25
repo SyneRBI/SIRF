@@ -21,6 +21,10 @@
 # avoid warning about WIN32 no longer defined in CYGWIN
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) 
 
+include(cmake/SetC++Version.cmake)
+UseCXX(11)
+#set(CMAKE_CXX_STANDARD 11)
+
 PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -34,7 +38,7 @@ endif()
 
 ####### Set Version number etc
 set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   1   CACHE STRING "Project minor version number.")
+set(VERSION_MINOR   9   CACHE STRING "Project minor version number.")
 set(VERSION_PATCH   0   CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 

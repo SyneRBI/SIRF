@@ -54,11 +54,14 @@ EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd (void* ptr_am, void* ptr_im, const char* datafile) {
-	return cSTIR_acquisitionModelFwd (ptr_am, ptr_im, datafile);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im) {
+	return cSTIR_acquisitionModelFwd(ptr_am, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) {
+	return cSTIR_setAcquisitionsStorageScheme(scheme);
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
@@ -66,13 +69,13 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
 	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);
 }
-EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data) {
 	return cSTIR_getAcquisitionsData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION  	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_DOUBLE ptr_data) {
+EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data) {
 	return cSTIR_setAcquisitionsData(ptr_acq, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, double v) {
+EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, float v) {
 	return cSTIR_fillAcquisitionsData(ptr_acq, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from) {
@@ -105,16 +108,16 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f,
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 	return cSTIR_priorGradient(ptr_p, ptr_i);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
-	cSTIR_getImageDimensions(ptr, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
+	return cSTIR_getImageDimensions(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_getImageData(const void* ptr, PTR_DOUBLE ptr_data) {
-	cSTIR_getImageData(ptr, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
+	return cSTIR_getImageData(ptr, ptr_data);
 }
-EXPORTED_FUNCTION 	void mSTIR_setImageData(const void* ptr_im, PTR_DOUBLE ptr_data) {
-	cSTIR_setImageData(ptr_im, ptr_data);
+EXPORTED_FUNCTION 	void* mSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data) {
+	return cSTIR_setImageData(ptr_im, ptr_data);
 }
-EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, double sx, double sy, double sz, double x, double y, double z) {
+EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float sy, float sz, float x, float y, float z) {
 	return cSTIR_voxels3DF(nx, ny, nz, sx, sy, sz, x, y, z);
 }
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v) {
@@ -126,17 +129,26 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
-EXPORTED_FUNCTION 	void mSTIR_fillImage(void* ptr_i, double v) {
-	cSTIR_fillImage(ptr_i, v);
+EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v) {
+	return cSTIR_fillImage(ptr_i, v);
 }
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v) {
 	return cSTIR_addShape(ptr_i, ptr_s, v);
 }
-EXPORTED_FUNCTION 	void* mSTIR_imagesDifference(void* first, void* second, int rimsize) {
-	return cSTIR_imagesDifference(first, second, rimsize);
-}
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename) {
 	return cSTIR_writeImage(ptr_i, filename);
+}
+EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x) {
+	return cSTIR_norm(ptr_x);
+}
+EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y) {
+	return cSTIR_dot(ptr_x, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mSTIR_mult(float a, const void* ptr_x) {
+	return cSTIR_mult(a, ptr_x);
+}
+EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y) {
+	return cSTIR_axpby(a, ptr_x, b, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);
@@ -150,28 +162,22 @@ EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w) {
 EXPORTED_FUNCTION 	void mCloseChannel(int channel, void* ptr_w) {
 	closeChannel(channel, ptr_w);
 }
-EXPORTED_FUNCTION 	void mSetWriter(void* ptr_w, int channel) {
-	setWriter(ptr_w, channel);
+EXPORTED_FUNCTION 	void* mDeleteTextPrinter(void* ptr) {
+	return deleteTextPrinter(ptr);
 }
-EXPORTED_FUNCTION 	void mResetWriter() {
-	resetWriter();
-}
-EXPORTED_FUNCTION 	void mDeleteTextPrinter(void* ptr) {
-	deleteTextPrinter(ptr);
-}
-EXPORTED_FUNCTION 	void mDeleteTextWriter(void* ptr_w) {
-	deleteTextWriter(ptr_w);
+EXPORTED_FUNCTION 	void* mDeleteTextWriter(void* ptr_w) {
+	return deleteTextWriter(ptr_w);
 }
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif
 void* newMexPrinter();
-void deleteMexPrinter(void* ptr);
+void* deleteMexPrinter(void* ptr);
 EXPORTED_FUNCTION void* mNewMexPrinter() {
   return newMexPrinter();
 }
-EXPORTED_FUNCTION void mDeleteMexPrinter(void* ptr) {
-  deleteMexPrinter(ptr);
+EXPORTED_FUNCTION void* mDeleteMexPrinter(void* ptr) {
+  return deleteMexPrinter(ptr);
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {}

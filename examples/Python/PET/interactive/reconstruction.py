@@ -41,7 +41,7 @@ import sys
 import shutil
 #import scipy
 #from scipy import optimize
-import pStir as pet
+import pSTIR as pet
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 #%% some handy function definitions

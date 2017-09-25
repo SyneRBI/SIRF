@@ -92,11 +92,20 @@ extern "C" {
 	{
 		return dataFromHandle<float>(ptr);
 	}
+	float floatReDataFromHandle(const void* ptr)
+	{
+		std::complex<float> z = dataFromHandle<std::complex<float> >(ptr);
+		return z.real();
+	}
+	float floatImDataFromHandle(const void* ptr)
+	{
+		std::complex<float> z = dataFromHandle<std::complex<float> >(ptr);
+		return z.imag();
+	}
 	double doubleDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<double>(ptr);
 	}
-
 	double doubleReDataFromHandle(const void* ptr)
 	{
 		std::complex<double> z = dataFromHandle<std::complex<double> >(ptr);

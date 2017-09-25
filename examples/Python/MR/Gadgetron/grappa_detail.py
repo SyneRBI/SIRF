@@ -61,7 +61,7 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
 
-from pUtil import show_3D_array
+from pUtilities import show_3D_array
 
 
 def main():

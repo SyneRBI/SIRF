@@ -37,7 +37,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtil import *
+from pUtilities import *
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')

@@ -56,7 +56,7 @@ function grappa_basic(engine)
 if nargin < 1
     engine = [];
 end
-import_str = setup_MR(engine);
+import_str = set_up_MR(engine);
 eval(import_str)
 
 % Get the filename of the input ISMRMRD h5 file

@@ -6,9 +6,13 @@ l = length(filepath) - length('select_gadgetron');
 path = filepath(1:l);
 copyfile([path '/+mGadgetron'], [path '/+MR'], 'f')
 
-if ~libisloaded('mutilities')
-    fprintf('loading mutilities library...\n')
-    [notfound, warnings] = loadlibrary('mutilities');
+% if ~libisloaded('mutilities')
+%     fprintf('loading mutilities library...\n')
+%     [notfound, warnings] = loadlibrary('mutilities');
+% end
+if ~libisloaded('miutilities')
+    fprintf('loading miutilities library...\n')
+    [notfound, warnings] = loadlibrary('miutilities');
 end
 if ~libisloaded('mgadgetron')
     fprintf('loading mgadgetron library...\n')

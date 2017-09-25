@@ -10,7 +10,7 @@ Options:
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
   -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Stir]
+  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -35,7 +35,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from pUtil import show_2D_array
+from pUtilities import show_2D_array
 
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
@@ -99,7 +99,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 def main():
 
     # output goes to files
-    printer = Printer('info.txt', 'warn.txt', 'errr.txt')
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
     acq_model = AcquisitionModelUsingRayTracingMatrix()
@@ -144,4 +144,4 @@ try:
     print('done')
 except error as err:
     # display error information
-    print('STIR exception occured: %s' % err.value)
+    print('%s' % err.value)

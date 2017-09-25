@@ -9,7 +9,7 @@ Options:
   --mr_path=<path>    path to MR data files, defaults to data/examples/MR
                       subfolder of SIRF root folder
   --mr_engine=<mr>    MR reconstruction engine [default: Gadgetron]
-  --pet_engine=<pet>  PET reconstruction engine [default: Stir]
+  --pet_engine=<pet>  PET reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -31,7 +31,7 @@ Options:
 ##   limitations under the License.
 
 # import common (engine-independent) utilities
-import pUtil
+import pUtilities as pUtil
 
 # get command-line arguments
 __version__ = '0.1.0'
@@ -89,4 +89,4 @@ try:
     main()
     print('done')
 except MR.error as err:
-    print('exception occured: %s' % err.value)
+    print('%s' % err.value)

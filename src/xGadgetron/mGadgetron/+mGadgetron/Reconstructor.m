@@ -43,23 +43,25 @@ classdef Reconstructor < mGadgetron.GadgetChain
             self.handle_ = calllib('mgadgetron', 'mGT_newObject', self.name_);
             self.input_ = [];
             self.images_ = [];
-            mUtil.checkExecutionStatus(self.name_, self.handle_);
+            mUtilities.check_status(self.name_, self.handle_);
             if nargin > 0
                 for i = 1 : size(list, 2)
-                    [label, name] = mUtil.label_and_name(list{i});
+                    [label, name] = mUtilities.label_and_name(list{i});
                     self.add_gadget(label, mGadgetron.Gadget(name));
                 end
             end
         end
         function delete(self)
             if ~isempty(self.handle_)
-                calllib('mutilities', 'mDeleteObject', self.handle_)
+                mUtilities.delete(self.handle_)
+                self.handle_ = [];
+                %calllib('mutilities', 'mDeleteObject', self.handle_)
             end
-            self.handle_ = [];
         end
         function set_input(self, input_data)
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
+            assert(isa(input_data, 'mGadgetron.AcquisitionData'))
             self.input_ = input_data;
         end
         function process(self)
@@ -68,11 +70,12 @@ classdef Reconstructor < mGadgetron.GadgetChain
                 error('MRIReconstruction:no_input', ...
                     'no input data for reconstruction')
             end
+            mUtilities.assert_validity(self.input_, 'mGadgetron.AcquisitionData')
             self.images_ = mGadgetron.ImageData();
             self.images_.handle_ = calllib...
                 ('mgadgetron', 'mGT_reconstructImages', ...
                 self.handle_, self.input_.handle_);
-            mUtil.checkExecutionStatus(self.name_, self.images_.handle_);
+            mUtilities.check_status(self.name_, self.images_.handle_);
         end
         function images = get_output(self, subset)
 %***SIRF*** get_output(subset) returns the results of the image reconstruction 
