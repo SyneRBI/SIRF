@@ -23,8 +23,18 @@ limitations under the License.
 
 #include "boost/shared_ptr.hpp"
 
-namespace sirf {
+//namespace sirf {
+//	using boost::shared_ptr;
+//}
+
+namespace boost_sptr {
 	using boost::shared_ptr;
 }
+
+namespace std_sptr {
+	using std::shared_ptr;
+}
+
+#define SPTR_NAMESPACE boost_sptr
 
 #endif

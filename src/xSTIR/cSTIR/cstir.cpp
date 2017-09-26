@@ -19,10 +19,13 @@ limitations under the License.
 
 */
 
+#include "shared_ptr.h"
 #include "data_handle.h"
 #include "cstir_p.h"
 #include "stir_types.h"
 #include "stir_x.h"
+
+using namespace SPTR_NAMESPACE;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -182,14 +185,14 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			//	(read_from_file<Image3DF>(filename));
 			PETImageData* ptr_id = 
 				new PETImageData(read_from_file<Image3DF>(filename));
-			sirf::shared_ptr<PETImageData>* ptr_sptr =
-				new sirf::shared_ptr<PETImageData>(ptr_id);
+			shared_ptr<PETImageData>* ptr_sptr =
+				new shared_ptr<PETImageData>(ptr_id);
 			return newObjectHandle(ptr_sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
 			//writeText("\nreading ");
 			//writeText(filename);
-			//NEW(sirf::shared_ptr<ProjData>, ptr_sptr);
+			//NEW(shared_ptr<ProjData>, ptr_sptr);
 			//*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
 			//	(ProjData::read_from_file(filename));
 			//writeText("ok\n");
@@ -280,7 +283,7 @@ void* cSTIR_acquisitionModelFwd
 		//sptrProjData* ptr_sptr = new sptrProjData;
 		//*ptr_sptr = am.forward(im, datafile);
 		//return newObjectHandle(ptr_sptr);
-		NEW(sirf::shared_ptr<PETAcquisitionData>, sptr_ad);
+		NEW(shared_ptr<PETAcquisitionData>, sptr_ad);
 		*sptr_ad = am.forward(im);
 		return newObjectHandle(sptr_ad);
 	}
@@ -658,9 +661,9 @@ void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
 		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_ad);
-		sirf::shared_ptr<PETAcquisitionData>& sptr_ad =
+		shared_ptr<PETAcquisitionData>& sptr_ad =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		sirf::shared_ptr<ProjDataInfo> sptr_adi =
+		shared_ptr<ProjDataInfo> sptr_adi =
 			sptr_ad->get_proj_data_info_sptr();
 		//Voxels3DF* ptr_voxels = new Voxels3DF(*sptr_adi);
 		//sptrImage3DF* ptr_sptr = new sptrImage3DF(ptr_voxels);
@@ -845,7 +848,7 @@ cSTIR_mult(float a, const void* ptr_x)
 		//CAST_PTR(DataHandle, h_x, ptr_x);
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
-		sirf::shared_ptr<aDataContainer<float> > sptr_z =
+		shared_ptr<aDataContainer<float> > sptr_z =
 			x.new_data_container();
 		sptr_z->mult(a, x);
 		return sptrObjectHandle<aDataContainer<float> >(sptr_z);
@@ -866,7 +869,7 @@ cSTIR_axpby(
 			objectFromHandle<aDataContainer<float> >(ptr_x);
 		aDataContainer<float>& y =
 			objectFromHandle<aDataContainer<float> >(ptr_y);
-		sirf::shared_ptr<aDataContainer<float> > sptr_z =
+		shared_ptr<aDataContainer<float> > sptr_z =
 			x.new_data_container();
 		sptr_z->axpby(a, x, b, y);
 		return sptrObjectHandle<aDataContainer<float> >(sptr_z);

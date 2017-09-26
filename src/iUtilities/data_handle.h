@@ -26,18 +26,17 @@ limitations under the License.
 
 #include <boost/algorithm/string.hpp>
 
-#include "shared_ptr.h"
 #include "localised_exception.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define SPTR(Base, X, Object) sirf::shared_ptr< Base > X(new Object)
+#define SPTR(Base, X, Object) shared_ptr< Base > X(new Object)
 #define NEW_SPTR(Base, X, Object) \
-	sirf::shared_ptr< Base >* X = new sirf::shared_ptr< Base >(new Object)
+	shared_ptr< Base >* X = new shared_ptr< Base >(new Object)
 #define NEW_SPTR_FROM_PTR(Object, X, P) \
-	sirf::shared_ptr< Object >* X = new sirf::shared_ptr< Object >(P)
+	shared_ptr< Object >* X = new shared_ptr< Object >(P)
 #define SPTR_FROM_HANDLE(Object, X, H) \
-	sirf::shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
+	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
 
 #define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
@@ -103,211 +102,214 @@ private:
 	}
 };
 
-class DataHandle {
-public:
-	DataHandle() : _data(0), _status(0), _owns_data(0) {}
-	virtual ~DataHandle() {
-		if (_data && _owns_data)
-			free(_data);
-		delete _status;
-	}
-	void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
-		if (status) {
+namespace SPTR_NAMESPACE {
+
+	class DataHandle {
+	public:
+		DataHandle() : _data(0), _status(0), _owns_data(0) {}
+		virtual ~DataHandle() {
+			if (_data && _owns_data)
+				free(_data);
 			delete _status;
-			_status = new ExecutionStatus(*status);
 		}
-		if (_data && _owns_data)
-			free(_data);
-		_data = data;
-		_owns_data = grab != 0;
-	}
-	void* data() const { return _data; }
-	const ExecutionStatus* status() const { return _status; }
-protected:
-	bool _owns_data;
-	void* _data;
-	ExecutionStatus* _status;
-};
+		void set(void* data, const ExecutionStatus* status = 0, int grab = 0) {
+			if (status) {
+				delete _status;
+				_status = new ExecutionStatus(*status);
+			}
+			if (_data && _owns_data)
+				free(_data);
+			_data = data;
+			_owns_data = grab != 0;
+		}
+		void* data() const { return _data; }
+		const ExecutionStatus* status() const { return _status; }
+	protected:
+		bool _owns_data;
+		void* _data;
+		ExecutionStatus* _status;
+	};
 
-template<class Base>
-class ObjectHandle : public DataHandle {
-public:
-	ObjectHandle(const ObjectHandle& obj) {
-		NEW(sirf::shared_ptr<Base>, ptr_sptr);
-		*ptr_sptr = *(sirf::shared_ptr<Base>*)obj.data();
-		_data = (void*)ptr_sptr;
-		if (obj._status)
-			_status = new ExecutionStatus(*obj._status);
-		else
+	template<class Base>
+	class ObjectHandle : public DataHandle {
+	public:
+		ObjectHandle(const ObjectHandle& obj) {
+			NEW(shared_ptr<Base>, ptr_sptr);
+			*ptr_sptr = *(shared_ptr<Base>*)obj.data();
+			_data = (void*)ptr_sptr;
+			if (obj._status)
+				_status = new ExecutionStatus(*obj._status);
+			else
+				_status = 0;
+		}
+		ObjectHandle(const shared_ptr<Base>& sptr,
+			const ExecutionStatus* status = 0) {
+			NEW(shared_ptr<Base>, ptr_sptr);
+			*ptr_sptr = sptr;
+			_data = (void*)ptr_sptr;
+			if (status)
+				_status = new ExecutionStatus(*status);
+			else
+				_status = 0;
+		}
+		virtual ~ObjectHandle() {
+			CAST_PTR(shared_ptr<Base>, ptr_sptr, _data);
+			delete _status;
 			_status = 0;
-	}
-	ObjectHandle(const sirf::shared_ptr<Base>& sptr,
-		const ExecutionStatus* status = 0) {
-		NEW(sirf::shared_ptr<Base>, ptr_sptr);
-		*ptr_sptr = sptr;
-		_data = (void*)ptr_sptr;
-		if (status)
-			_status = new ExecutionStatus(*status);
-		else
-			_status = 0;
-	}
-	virtual ~ObjectHandle() {
-		CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, _data);
-		delete _status;
-		_status = 0;
+			delete ptr_sptr;
+		}
+	};
+
+	template<class Base, class Object>
+	static void*
+		newObjectHandle()
+	{
+		NEW_SPTR(Base, ptr_sptr, Object);
+		ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
 		delete ptr_sptr;
+		return (void*)ptr_handle;
 	}
-};
 
-template<class Base, class Object>
-static void*
-newObjectHandle()
-{
-	NEW_SPTR(Base, ptr_sptr, Object);
-	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
-	delete ptr_sptr;
-	return (void*)ptr_handle;
-}
+	template<class Base>
+	static void*
+		newObjectHandle(shared_ptr<Base>* ptr_sptr)
+	{
+		ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
+		delete ptr_sptr;
+		return (void*)ptr_handle;
+	}
 
-template<class Base>
-static void*
-newObjectHandle(sirf::shared_ptr<Base>* ptr_sptr)
-{
-	ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
-	delete ptr_sptr;
-	return (void*)ptr_handle;
-}
+	template<class T>
+	void*
+		sptrObjectHandle(shared_ptr<T> sptr) {
+		ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
+		return (void*)ptr_handle;
+	}
 
-template<class T>
-void*
-sptrObjectHandle(sirf::shared_ptr<T> sptr) {
-	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
-	return (void*)ptr_handle;
-}
+	template<class Object>
+	Object&
+		objectFromHandle(const void* h) {
+		DataHandle* handle = (DataHandle*)h;
+		void* ptr = handle->data();
+		if (ptr == 0)
+			THROW("zero data pointer cannot be dereferenced");
+		CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
+		if (!ptr_sptr->get())
+			THROW("zero object pointer cannot be dereferenced");
+		CAST_PTR(Object, ptr_object, ptr_sptr->get());
+		return *ptr_object;
+	}
 
-template<class Object>
-Object&
-objectFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(sirf::shared_ptr<Object>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	CAST_PTR(Object, ptr_object, ptr_sptr->get());
-	return *ptr_object;
-}
+	template<class Object>
+	shared_ptr<Object>&
+		objectSptrFromHandle(const void* h) {
+		DataHandle* handle = (DataHandle*)h;
+		void* ptr = handle->data();
+		if (ptr == 0)
+			THROW("zero data pointer cannot be dereferenced");
+		CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
+		if (!ptr_sptr->get())
+			THROW("zero object pointer cannot be dereferenced");
+		return *ptr_sptr;
+	}
 
-template<class Object>
-sirf::shared_ptr<Object>&
-objectSptrFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(sirf::shared_ptr<Object>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	return *ptr_sptr;
-}
+	template<class Base>
+	Base&
+		objectFromHandle(const DataHandle* handle) {
+		void* ptr = handle->data();
+		if (ptr == 0)
+			THROW("zero data pointer cannot be dereferenced");
+		CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
+		if (!ptr_sptr->get())
+			THROW("zero object pointer cannot be dereferenced");
+		CAST_PTR(Base, ptr_object, ptr_sptr->get());
+		return *ptr_object;
+	}
 
-template<class Base>
-Base&
-objectFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	CAST_PTR(Base, ptr_object, ptr_sptr->get());
-	return *ptr_object;
-}
+	template<class Base, class Object>
+	Object&
+		objectFromHandle(const DataHandle* handle) {
+		void* ptr = handle->data();
+		if (ptr == 0)
+			THROW("zero data pointer cannot be dereferenced");
+		CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
+		if (!ptr_sptr->get())
+			THROW("zero object pointer cannot be dereferenced");
+		CAST_PTR(Object, ptr_object, ptr_sptr->get());
+		return *ptr_object;
+	}
 
-template<class Base, class Object>
-Object&
-objectFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	CAST_PTR(Object, ptr_object, ptr_sptr->get());
-	return *ptr_object;
-}
+	template<class Base>
+	shared_ptr<Base>&
+		objectSptrFromHandle(const DataHandle* handle) {
+		void* ptr = handle->data();
+		if (ptr == 0)
+			THROW("zero data pointer cannot be dereferenced");
+		CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
+		if (!ptr_sptr->get())
+			THROW("zero object pointer cannot be dereferenced");
+		return *ptr_sptr;
+	}
 
-template<class Base>
-sirf::shared_ptr<Base>&
-objectSptrFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(sirf::shared_ptr<Base>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	return *ptr_sptr;
-}
-
-template<class T>
-sirf::shared_ptr<T>
-sptrDataFromHandle(const DataHandle* handle) {
-	return *(sirf::shared_ptr<T>*)handle->data();
-}
+	template<class T>
+	shared_ptr<T>
+		sptrDataFromHandle(const DataHandle* handle) {
+		return *(shared_ptr<T>*)handle->data();
+	}
 
 #define GRAB 1
 
-template <typename T>
-void
-setDataHandle(DataHandle* h, T x)
-{
-	T* ptr = (T*)malloc(sizeof(T));
-	*ptr = x;
-	h->set((void*)ptr, 0, GRAB);
-}
+	template <typename T>
+	void
+		setDataHandle(DataHandle* h, T x)
+	{
+		T* ptr = (T*)malloc(sizeof(T));
+		*ptr = x;
+		h->set((void*)ptr, 0, GRAB);
+	}
 
-template <typename T>
-void*
-dataHandle(T x)
-{
-	DataHandle* h = new DataHandle;
-	setDataHandle<T>(h, x);
-	return (void*)h;
-}
+	template <typename T>
+	void*
+		dataHandle(T x)
+	{
+		DataHandle* h = new DataHandle;
+		setDataHandle<T>(h, x);
+		return (void*)h;
+	}
 
-template <typename T>
-T
-dataFromHandle(const void* ptr)
-{
-	DataHandle* ptr_h = (DataHandle*)ptr;
-	void* ptr_d = ptr_h->data();
-	if (!ptr_d)
-		return 0;
-	else
-		return *((T*)ptr_d);
-}
+	template <typename T>
+	T
+		dataFromHandle(const void* ptr)
+	{
+		DataHandle* ptr_h = (DataHandle*)ptr;
+		void* ptr_d = ptr_h->data();
+		if (!ptr_d)
+			return 0;
+		else
+			return *((T*)ptr_d);
+	}
 
-// yet another kludge to stop matlab on linux from crashing
+	// yet another kludge to stop matlab on linux from crashing
 
-inline char* charDataFromDataHandle(const DataHandle* ptr_h) 
-{
-	void* ptr_d = ptr_h->data();
-	if (!ptr_d)
-		return 0;
-	else
-		return (char*)ptr_d;
-}
+	inline char* charDataFromDataHandle(const DataHandle* ptr_h)
+	{
+		void* ptr_d = ptr_h->data();
+		if (!ptr_d)
+			return 0;
+		else
+			return (char*)ptr_d;
+	}
 
-inline void* charDataHandleFromCharData(const char* s)
-{
-	DataHandle* h = new DataHandle;
-	size_t len = strlen(s);
-	char* d = (char*)malloc(len + 1);
-	//strcpy_s(d, len + 1, s);
-	strcpy(d, s);
-	h->set((void*)d, 0, GRAB);
-	return (void*)h;
+	inline void* charDataHandleFromCharData(const char* s)
+	{
+		DataHandle* h = new DataHandle;
+		size_t len = strlen(s);
+		char* d = (char*)malloc(len + 1);
+		//strcpy_s(d, len + 1, s);
+		strcpy(d, s);
+		h->set((void*)d, 0, GRAB);
+		return (void*)h;
+	}
 }
 
 #endif

@@ -28,6 +28,7 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "shared_ptr.h"
 #include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
@@ -37,6 +38,8 @@ limitations under the License.
 #include "gadget_lib.h"
 #include "chain_lib.h"
 
+using namespace SPTR_NAMESPACE;
+
 #define GRAB 1
 
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
@@ -44,7 +47,7 @@ return newObjectHandle<aGadget, G>();
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
 return newObjectHandle<GadgetChain, C>();
 
-sirf::shared_ptr<boost::mutex> Mutex::sptr_mutex_;
+shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -143,7 +146,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			return cGT_acquisitionsParameter(ptr, name);
 		if (boost::iequals(obj, "gadget_chain")) {
 			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
-			sirf::shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
+			shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
 			if (sptr.get())
 				return sptrObjectHandle(sptr);
 			else {
@@ -184,12 +187,12 @@ cGT_CoilSensitivities(const char* file)
 {
 	try {
 		if (std::strlen(file) > 0) {
-			sirf::shared_ptr<CoilSensitivitiesContainer>
+			shared_ptr<CoilSensitivitiesContainer>
 				csms(new CoilSensitivitiesAsImages(file));
 			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
 		}
 		else {
-			sirf::shared_ptr<CoilSensitivitiesContainer>
+			shared_ptr<CoilSensitivitiesContainer>
 				csms(new CoilSensitivitiesAsImages());
 			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
 		}
@@ -321,11 +324,11 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		sirf::shared_ptr<AcquisitionsContainer> acqs =
+		shared_ptr<AcquisitionsContainer> acqs =
 			objectSptrFromHandle<AcquisitionsContainer>(h_acqs);
-		sirf::shared_ptr<ImagesContainer> imgs =
+		shared_ptr<ImagesContainer> imgs =
 			objectSptrFromHandle<ImagesContainer>(h_imgs);
-		sirf::shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs, imgs));
+		shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs, imgs));
 		return sptrObjectHandle<AcquisitionModel>(am);
 	}
 	CATCH;
@@ -339,7 +342,7 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
-		sirf::shared_ptr<CoilSensitivitiesContainer> sptr_csms =
+		shared_ptr<CoilSensitivitiesContainer> sptr_csms =
 			objectSptrFromHandle<CoilSensitivitiesContainer>(h_csms);
 		am.setCSMs(sptr_csms);
 		return (void*)new DataHandle;
@@ -356,7 +359,7 @@ cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
 		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
-		sirf::shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
+		shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
 		return sptrObjectHandle<AcquisitionsContainer>(sptr_acqs);
 	}
 	CATCH;
@@ -372,7 +375,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		sirf::shared_ptr<ImagesContainer> sptr_imgs = am.bwd(acqs);
+		shared_ptr<ImagesContainer> sptr_imgs = am.bwd(acqs);
 		return sptrObjectHandle<ImagesContainer>(sptr_imgs);
 	}
 	CATCH;
@@ -415,7 +418,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 	if (!boost::filesystem::exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
-		sirf::shared_ptr<AcquisitionsContainer> 
+		shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
@@ -427,7 +430,7 @@ void*
 cGT_ISMRMRDAcquisitionsFile(const char* file)
 {
 	try {
-		sirf::shared_ptr<AcquisitionsContainer> 
+		shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file, true));
 		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
@@ -446,7 +449,7 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 		AcquisitionsContainer& input =
 			objectFromHandle<AcquisitionsContainer>(h_input);
 		proc.process(input);
-		sirf::shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
+		shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
 		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
 	}
 	CATCH;
@@ -460,7 +463,7 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		sirf::shared_ptr<ISMRMRD::Acquisition>
+		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
 		acqs.get_acquisition(acq_num, *sptr_acq);
 		return sptrObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
@@ -476,7 +479,7 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		sirf::shared_ptr<ISMRMRD::Acquisition>
+		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
 		int num_reg_dim = acqs.get_acquisitions_dimensions(ptr_dim);
 		return dataHandle(num_reg_dim);
@@ -492,7 +495,7 @@ cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
-		sirf::shared_ptr<ISMRMRD::Acquisition>
+		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
 		acqs.get_acquisitions_flags(n, (int*)ptr_f);
 		return new DataHandle;
@@ -591,7 +594,7 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
-		sirf::shared_ptr<ImagesContainer> sptr_img = recon.get_output();
+		shared_ptr<ImagesContainer> sptr_img = recon.get_output();
 		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
@@ -605,7 +608,7 @@ cGT_reconstructedImages(void* ptr_recon)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
-		sirf::shared_ptr<ImagesContainer> sptr_img = recon.get_output();
+		shared_ptr<ImagesContainer> sptr_img = recon.get_output();
 		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
@@ -622,7 +625,7 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
-		sirf::shared_ptr<ImagesContainer> sptr_img = proc.get_output();
+		shared_ptr<ImagesContainer> sptr_img = proc.get_output();
 		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
@@ -636,8 +639,8 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 	try {
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
-		sirf::shared_ptr<ImagesContainer> sptr_img = input.clone(attr, target);
-		//sirf::shared_ptr<ImagesContainer> sptr_img = input.clone(inc, off);
+		shared_ptr<ImagesContainer> sptr_img = input.clone(attr, target);
+		//shared_ptr<ImagesContainer> sptr_img = input.clone(inc, off);
 		return sptrObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
@@ -651,7 +654,7 @@ cGT_imagesCopy(const void* ptr_imgs)
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		ImagesContainer& imgs = 
 			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
-		sirf::shared_ptr<ImagesContainer> clone = imgs.clone();
+		shared_ptr<ImagesContainer> clone = imgs.clone();
 		return sptrObjectHandle<ImagesContainer>(clone);
 	}
 	CATCH;
@@ -831,7 +834,7 @@ float br, float bi, const void* ptr_y
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		aDataContainer<complex_float_t>& y = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		sirf::shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
+		shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
 			x.new_data_container();
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
@@ -864,7 +867,7 @@ cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_r, ptr_r);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		sirf::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
+		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
 		gc.add_reader(id, g);
 	}
 	CATCH;
@@ -880,7 +883,7 @@ cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_w, ptr_w);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		sirf::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
+		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
 		gc.add_writer(id, g);
 	}
 	CATCH;
@@ -896,7 +899,7 @@ cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_g, ptr_g);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		sirf::shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
+		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
 		gc.add_gadget(id, g);
 	}
 	CATCH;
@@ -988,10 +991,10 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 		CAST_PTR(DataHandle, h_img, ptr_img);
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		sirf::shared_ptr<ImagesContainer> sptr_images =
+		shared_ptr<ImagesContainer> sptr_images =
 			objectSptrFromHandle<ImagesContainer>(h_img);
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-			sirf::shared_ptr<GadgetronClientMessageReader>
+			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images)));
 	}
 	CATCH;

@@ -20,7 +20,10 @@ limitations under the License.
 
 #include <complex>
 
+#include "shared_ptr.h"
 #include "data_handle.h"
+
+using namespace SPTR_NAMESPACE;
 
 extern "C" {
 

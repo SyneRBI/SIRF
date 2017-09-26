@@ -23,7 +23,10 @@ limitations under the License.
 
 #include "stir/TextWriter.h"
 
+#include "shared_ptr.h"
 #include "data_handle.h"
+
+using namespace SPTR_NAMESPACE;
 
 USING_NAMESPACE_STIR
 

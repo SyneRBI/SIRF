@@ -24,12 +24,14 @@ limitations under the License.
 #include "gadgetron_x.h"
 #include "shared_ptr.h"
 
+using namespace SPTR_NAMESPACE;
+
 class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
 	RemoveOversamplingProcessor()
 	{
 		//class_ = "RemoveOversamplingProcessor";
-		sirf::shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
+		shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()
@@ -43,7 +45,7 @@ public:
 	SimpleReconstructionProcessor()
 	{
 		//class_ = "SimpleReconstructionProcessor";
-		sirf::shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
+		shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()
@@ -57,15 +59,15 @@ public:
 	SimpleGRAPPAReconstructionProcessor()
 	{
 		//class_ = "SimpleGRAPPAReconstructionProcessor";
-		sirf::shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
-		sirf::shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
-		sirf::shared_ptr<aGadget> sptr_g3
+		shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
+		shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
+		shared_ptr<aGadget> sptr_g3
 			(new GenericReconCartesianReferencePrepGadget);
-		sirf::shared_ptr<aGadget> sptr_g4(new GenericReconCartesianGrappaGadget);
-		sirf::shared_ptr<aGadget> sptr_g5
+		shared_ptr<aGadget> sptr_g4(new GenericReconCartesianGrappaGadget);
+		shared_ptr<aGadget> sptr_g5
 			(new GenericReconFieldOfViewAdjustmentGadget);
-		sirf::shared_ptr<aGadget> sptr_g6(new GenericReconImageArrayScalingGadget);
-		sirf::shared_ptr<aGadget> sptr_g7(new ImageArraySplitGadget);
+		shared_ptr<aGadget> sptr_g6(new GenericReconImageArrayScalingGadget);
+		shared_ptr<aGadget> sptr_g7(new ImageArraySplitGadget);
 		add_gadget("gadget1", sptr_g1);
 		add_gadget("gadget2", sptr_g2);
 		add_gadget("gadget3", sptr_g3);
@@ -85,7 +87,7 @@ public:
 	ExtractRealImagesProcessor()
 	{
 		//class_ = "ExtractRealImagesProcessor";
-		sirf::shared_ptr<aGadget> sptr_g(new ExtractGadget);
+		shared_ptr<aGadget> sptr_g(new ExtractGadget);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()

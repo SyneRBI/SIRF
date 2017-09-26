@@ -21,8 +21,7 @@ limitations under the License.
 #include "stir_data_containers.h"
 
 //std::string PETAcquisitionData::_storage_scheme;
-sirf::shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
-//sirf::shared_ptr<ProjData> PETAcquisitionData::acqs_templ_;
+shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float
 PETAcquisitionData::norm()

@@ -15,8 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "shared_ptr.h"
 #include "data_handle.h"
 #include "printer.h"
+
+using namespace SPTR_NAMESPACE;
 
 extern "C" {
 	void* newMexPrinter() {

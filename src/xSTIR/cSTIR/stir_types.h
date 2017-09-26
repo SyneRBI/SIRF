@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef STIR_DATA_TYPES
 #define STIR_DATA_TYPES
 
-#include <boost/shared_ptr.hpp>
+//#include <boost/shared_ptr.hpp>
 
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
@@ -46,24 +46,25 @@ limitations under the License.
 #include "stir/recon_buildblock/QuadraticPrior.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
+#include "stir/shared_ptr.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 
 #include "stir/StirException.h"
 #include "stir/TextWriter.h"
 
-#include "shared_ptr.h"
+//#include "shared_ptr.h"
 
 #define GRAB 1
 
 USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;
-typedef sirf::shared_ptr<Image3DF> sptrImage3DF;
-typedef sirf::shared_ptr<ProjData> sptrProjData;
+typedef shared_ptr<Image3DF> sptrImage3DF;
+typedef shared_ptr<ProjData> sptrProjData;
 typedef CartesianCoordinate3D<float> Coord3DF;
 typedef VoxelsOnCartesianGrid<float> Voxels3DF;
-typedef sirf::shared_ptr<Voxels3DF> sptrVoxels3DF;
-typedef sirf::shared_ptr<Shape3D> sptrShape3D;
+typedef shared_ptr<Voxels3DF> sptrVoxels3DF;
+typedef shared_ptr<Shape3D> sptrShape3D;
 typedef Reconstruction<Image3DF> Reconstruction3DF;
 typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
 typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;
