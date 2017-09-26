@@ -438,10 +438,10 @@ public:
 	{
 		_data.reset(new Voxels3DF(pdi));
 	}
-	PETImageData(std::auto_ptr<Image3DF> ptr)
-	{
-		_data = ptr;
-	}
+	//PETImageData(std::auto_ptr<Image3DF> ptr)
+	//{
+	//	_data = ptr;
+	//}
 	PETImageData(shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
