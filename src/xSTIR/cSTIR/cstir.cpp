@@ -19,7 +19,7 @@ limitations under the License.
 
 */
 
-#include "shared_ptr.h"
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "cstir_p.h"
 #include "stir_types.h"

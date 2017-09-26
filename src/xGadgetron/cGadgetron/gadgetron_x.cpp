@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "shared_ptr.h"
+#include "cgadgetron_shared_ptr.h"
 #include "data_handle.h"
 #include "gadgetron_x.h"
 

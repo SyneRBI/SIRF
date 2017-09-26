@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "gadgetron_data_containers.h"
-#include "shared_ptr.h"
+#include "cgadgetron_shared_ptr.h"
 using namespace SPTR_NAMESPACE;
 
 shared_ptr<AcquisitionsContainer> 

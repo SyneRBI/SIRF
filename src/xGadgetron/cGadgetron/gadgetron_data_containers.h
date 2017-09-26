@@ -79,7 +79,8 @@ namespace Multisort {
 #include <ismrmrd/xml.h>
 
 #include "ismrmrd_fftw.h"
-#include "shared_ptr.h"
+#include "cgadgetron_shared_ptr.h"
+
 using namespace SPTR_NAMESPACE;
 
 #define TO_BE_IGNORED(acq) \

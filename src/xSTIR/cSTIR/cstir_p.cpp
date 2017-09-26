@@ -21,7 +21,7 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "shared_ptr.h"
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
 #include "stir_x.h"

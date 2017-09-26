@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef STIR_PARAMETERS_HANDLERS
 #define STIR_PARAMETERS_HANDLERS
 
-#include "shared_ptr.h"
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 
 using namespace SPTR_NAMESPACE;

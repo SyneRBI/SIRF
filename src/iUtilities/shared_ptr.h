@@ -35,6 +35,6 @@ namespace std_sptr {
 	using std::shared_ptr;
 }
 
-#define SPTR_NAMESPACE boost_sptr
+//#define SPTR_NAMESPACE boost_sptr
 
 #endif

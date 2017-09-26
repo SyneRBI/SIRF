@@ -26,11 +26,11 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 
-#include "shared_ptr.h"
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
 
 class SIRFUtilities {
 public:
