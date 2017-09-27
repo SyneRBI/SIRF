@@ -24,14 +24,14 @@ limitations under the License.
 
 void 
 PETAcquisitionModel::set_bin_efficiency
-(boost::shared_ptr<PETAcquisitionData> sptr_data)
+(shared_ptr<PETAcquisitionData> sptr_data)
 {
-	////boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
-	//boost::shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data->data()));
+	////shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
+	//shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data->data()));
 	//inv_(sptr.get(), MIN_BIN_EFFICIENCY);
 	//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
 
-	boost::shared_ptr<PETAcquisitionData>
+	shared_ptr<PETAcquisitionData>
 		sptr_ad(sptr_data->new_acquisition_data());
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
 	sptr_normalisation_.reset
@@ -47,8 +47,8 @@ PETAcquisitionModel::set_bin_efficiency
 
 Succeeded 
 PETAcquisitionModel::set_up(
-	boost::shared_ptr<PETAcquisitionData> sptr_acq,
-	boost::shared_ptr<Image3DF> sptr_image)
+	shared_ptr<PETAcquisitionData> sptr_acq,
+	shared_ptr<Image3DF> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
@@ -60,13 +60,13 @@ PETAcquisitionModel::set_up(
 	return s;
 }
 
-boost::shared_ptr<PETAcquisitionData>
+shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const Image3DF& image)
 {
-	boost::shared_ptr<PETAcquisitionData> sptr_ad;
+	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 
-	boost::shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image);
@@ -104,10 +104,10 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	return sptr_ad;
 }
 
-boost::shared_ptr<Image3DF> 
+shared_ptr<Image3DF> 
 PETAcquisitionModel::backward(ProjData& ad)
 {
-	boost::shared_ptr<Image3DF> sptr_im(sptr_image_template_->clone());
+	shared_ptr<Image3DF> sptr_im(sptr_image_template_->clone());
 	sptr_im->fill(0.0);
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {

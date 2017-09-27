@@ -20,7 +20,10 @@ limitations under the License.
 
 #include <complex>
 
+#include "shared_ptr.h"
 #include "data_handle.h"
+
+//using namespace SPTR_NAMESPACE;
 
 extern "C" {
 
@@ -38,22 +41,8 @@ extern "C" {
 	{
 		if (!ptr)
 			return;
-		CAST_PTR(anObjectHandle, ptr_obj, ptr);
+		CAST_PTR(DataHandle, ptr_obj, ptr);
 		delete ptr_obj;
-	}
-
-	void* copyOfObjectHandle(void* ptr)
-	{
-		try {
-			CAST_PTR(anObjectHandle, ptr_obj, ptr);
-			return (void*)ptr_obj->copy();
-		}
-		catch (LocalisedException& le) {
-			ExecutionStatus status(le.what(), le.file(), le.line());
-			DataHandle* handle = new DataHandle;
-			handle->set(0, &status);
-			return (void*)handle;
-		}
 	}
 
 	void* charDataHandle(const char* s) 

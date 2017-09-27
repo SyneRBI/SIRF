@@ -21,7 +21,10 @@ limitations under the License.
 #ifndef STIR_PARAMETERS_HANDLERS
 #define STIR_PARAMETERS_HANDLERS
 
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
+
+using namespace SPTR_NAMESPACE;
 
 void*
 cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);

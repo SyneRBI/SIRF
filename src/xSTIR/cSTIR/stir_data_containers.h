@@ -26,8 +26,11 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
+
+//using namespace SPTR_NAMESPACE;
 
 class SIRFUtilities {
 public:
@@ -53,7 +56,7 @@ class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
 	//virtual aDataContainer<T>* new_data_container() = 0;
-	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	virtual shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
 	virtual float norm() = 0;
 	virtual T dot(const aDataContainer<T>& dc) = 0;
@@ -113,13 +116,13 @@ public:
 //	{
 //		_data->close_stream();
 //	}
-//	boost::shared_ptr<ProjData> data()
+//	shared_ptr<ProjData> data()
 //	{
 //		return _data;
 //	}
 //private:
 //	std::string _filename;
-//	boost::shared_ptr<ProjDataFile> _data;
+//	shared_ptr<ProjDataFile> _data;
 //};
 
 class PETAcquisitionData : public aDataContainer < float > {
@@ -139,7 +142,7 @@ public:
 	//	PETAcquisitionData* ptr_ad = new PETAcquisitionData();
 	//	_init();
 	//	if (_storage_scheme[0] == 'm') {
-	//		ptr_ad->_data = boost::shared_ptr<ProjData>
+	//		ptr_ad->_data = shared_ptr<ProjData>
 	//			(new ProjDataInMemory(pd.get_exam_info_sptr(),
 	//			pd.get_proj_data_info_sptr()));
 	//		return ptr_ad;
@@ -151,41 +154,41 @@ public:
 	//		return ptr_ad;
 	//	}
 	//}
-	virtual boost::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
+	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	//{
-	//	return boost::shared_ptr<PETAcquisitionData>
+	//	return shared_ptr<PETAcquisitionData>
 	//		(same_acquisition_data(*data()));
 	//}
-	virtual boost::shared_ptr<aDataContainer<float> > new_data_container() = 0;
+	virtual shared_ptr<aDataContainer<float> > new_data_container() = 0;
 	//{
-	//	return boost::shared_ptr<aDataContainer<float> >
+	//	return shared_ptr<aDataContainer<float> >
 	//		(same_acquisition_data(*data()));
 	//}
 
 	// ProjData accessor/mutator
-	//virtual boost::shared_ptr<ProjData> data() = 0;
+	//virtual shared_ptr<ProjData> data() = 0;
 	//{
 	//	if (_file.get())
 	//		return _file->data();
 	//	else
 	//		return _data;
 	//}
-	//virtual const boost::shared_ptr<ProjData> data() const = 0;
+	//virtual const shared_ptr<ProjData> data() const = 0;
 	//{ 
 	//	if (_file.get())
 	//		return _file->data();
 	//	else
 	//		return _data;
 	//}
-	boost::shared_ptr<ProjData> data()
+	shared_ptr<ProjData> data()
 	{
 		return _data;
 	}
-	const boost::shared_ptr<ProjData> data() const
+	const shared_ptr<ProjData> data() const
 	{
 		return _data;
 	}
-	void set_data(boost::shared_ptr<ProjData> data)
+	void set_data(shared_ptr<ProjData> data)
 	{
 		_data = data;
 	}
@@ -194,7 +197,7 @@ public:
 	void fill(float v) { data()->fill(v); }
 	void fill(PETAcquisitionData& ad)
 	{
-		boost::shared_ptr<ProjData> sptr = ad.data();
+		shared_ptr<ProjData> sptr = ad.data();
 		data()->fill(*sptr);
 	}
 	void fill_from(const float* d) { data()->fill_from(d); }
@@ -240,11 +243,11 @@ public:
 	{
 		return data()->set_segment(s);
 	}
-	boost::shared_ptr<ExamInfo> get_exam_info_sptr() const
+	shared_ptr<ExamInfo> get_exam_info_sptr() const
 	{
 		return data()->get_exam_info_sptr();
 	}
-	boost::shared_ptr<ProjDataInfo> get_proj_data_info_sptr() const
+	shared_ptr<ProjDataInfo> get_proj_data_info_sptr() const
 	{
 		return data()->get_proj_data_info_sptr();
 	}
@@ -265,12 +268,12 @@ public:
 	operator const ProjData&() const { return *data(); }
 	//operator ProjData*() { return _data.get(); }
 	//operator const ProjData*() const { return _data.get(); }
-	//operator boost::shared_ptr<ProjData>() { return _data; }
-	//operator const boost::shared_ptr<ProjData>() const { return _data; }
+	//operator shared_ptr<ProjData>() { return _data; }
+	//operator const shared_ptr<ProjData>() const { return _data; }
 
 protected:
 	//static std::string _storage_scheme;
-	static boost::shared_ptr<PETAcquisitionData> _template;
+	static shared_ptr<PETAcquisitionData> _template;
 	//static void _init()
 	//{
 	//	static bool initialized = false;
@@ -280,8 +283,8 @@ protected:
 	//		initialized = true;
 	//	}
 	//}
-	boost::shared_ptr<ProjData> _data;
-	//boost::shared_ptr<ProjDataScratchFile> _file;
+	shared_ptr<ProjData> _data;
+	//shared_ptr<ProjDataScratchFile> _file;
 };
 
 class PETAcquisitionDataInFile : public PETAcquisitionData {
@@ -334,25 +337,25 @@ public:
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
 		return ptr_ad;
 	}
-	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
-		return boost::shared_ptr<PETAcquisitionData>
+		return shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	shared_ptr<aDataContainer<float> > new_data_container()
 	{
 		init();
-		return boost::shared_ptr<aDataContainer<float> >
+		return shared_ptr<aDataContainer<float> >
 			(_template->same_acquisition_data(*data()));
 	}
 
-	//boost::shared_ptr<ProjData> data()
+	//shared_ptr<ProjData> data()
 	//{
 	//	return _data;
 	//	//return _file->data();
 	//}
-	//const boost::shared_ptr<ProjData> data() const
+	//const shared_ptr<ProjData> data() const
 	//{
 	//	return _data;
 	//	//return _file->data();
@@ -386,7 +389,7 @@ public:
 	PETAcquisitionDataInMemory() {}
 	PETAcquisitionDataInMemory(const ProjData& pd)
 	{
-		_data = boost::shared_ptr<ProjData>
+		_data = shared_ptr<ProjData>
 			(new ProjDataInMemory(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr()));
 	}
@@ -403,16 +406,16 @@ public:
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
 		return ptr_ad;
 	}
-	boost::shared_ptr<PETAcquisitionData> new_acquisition_data()
+	shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
-		return boost::shared_ptr<PETAcquisitionData>
+		return shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	shared_ptr<aDataContainer<float> > new_data_container()
 	{
 		init();
-		return boost::shared_ptr<aDataContainer<float> >
+		return shared_ptr<aDataContainer<float> >
 			(_template->same_acquisition_data(*data()));
 	}
 
@@ -435,11 +438,11 @@ public:
 	{
 		_data.reset(new Voxels3DF(pdi));
 	}
-	PETImageData(std::auto_ptr<Image3DF> ptr)
-	{
-		_data = ptr;
-	}
-	PETImageData(boost::shared_ptr<Image3DF> ptr)
+	//PETImageData(std::auto_ptr<Image3DF> ptr)
+	//{
+	//	_data = ptr;
+	//}
+	PETImageData(shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
 	}
@@ -449,13 +452,13 @@ public:
 		ptr_image->_data.reset(_data->get_empty_copy());
 		return ptr_image;
 	}
-	boost::shared_ptr<PETImageData> new_image_data()
+	shared_ptr<PETImageData> new_image_data()
 	{
-		return boost::shared_ptr<PETImageData>(same_image_data());
+		return shared_ptr<PETImageData>(same_image_data());
 	}
-	boost::shared_ptr<aDataContainer<float> > new_data_container()
+	shared_ptr<aDataContainer<float> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<float> >(same_image_data());
+		return shared_ptr<aDataContainer<float> >(same_image_data());
 	}
 	unsigned int items()
 	{
@@ -482,7 +485,7 @@ public:
 	{
 		return _data.get();
 	}
-	boost::shared_ptr<Image3DF> data_sptr()
+	shared_ptr<Image3DF> data_sptr()
 	{
 		return _data;
 	}
@@ -492,7 +495,7 @@ public:
 	}
 
 protected:
-	boost::shared_ptr<Image3DF> _data;
+	shared_ptr<Image3DF> _data;
 };
 
 #endif
