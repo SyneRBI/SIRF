@@ -76,7 +76,6 @@ if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
   message(FATAL_ERROR "SIRF needs either MATLAB or Python")
 endif()
 
-#### enable support for ctest
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
