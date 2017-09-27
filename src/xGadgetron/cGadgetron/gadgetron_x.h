@@ -41,11 +41,11 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
-//#include "an_object.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
 #include "localised_exception.h"
+#include "cgadgetron_shared_ptr.h"
 
 #define N_TRIALS 5
 
@@ -55,23 +55,25 @@ limitations under the License.
 
 */
 
+using namespace SPTR_NAMESPACE;
+
 class GTConnector {
 public:
 	GTConnector() 
 	{
-		sptr_con_ = boost::shared_ptr<GadgetronClientConnector>
+		sptr_con_ = shared_ptr<GadgetronClientConnector>
 			(new GadgetronClientConnector);
 	}
 	GadgetronClientConnector& operator()() 
 	{
 		return *sptr_con_.get();
 	}
-	boost::shared_ptr<GadgetronClientConnector> sptr() 
+	shared_ptr<GadgetronClientConnector> sptr() 
 	{
 		return sptr_con_;
 	}
 private:
-	boost::shared_ptr<GadgetronClientConnector> sptr_con_;
+	shared_ptr<GadgetronClientConnector> sptr_con_;
 };
 
 /*!
@@ -82,7 +84,7 @@ private:
 
 class GadgetHandle {
 public:
-	GadgetHandle(std::string id, boost::shared_ptr<aGadget> sptr_g) : 
+	GadgetHandle(std::string id, shared_ptr<aGadget> sptr_g) : 
 		id_(id), sptr_g_(sptr_g) {}
 	std::string id() const 
 	{
@@ -96,13 +98,13 @@ public:
 	{
 		return *sptr_g_.get();
 	}
-	boost::shared_ptr<aGadget> gadget_sptr()
+	shared_ptr<aGadget> gadget_sptr()
 	{
 		return sptr_g_;
 	}
 private:
 	std::string id_;
-	boost::shared_ptr<aGadget> sptr_g_;
+	shared_ptr<aGadget> sptr_g_;
 };
 
 /*!
@@ -145,36 +147,36 @@ public:
 	// apparently caused crash in linux
 	//virtual ~GadgetChain() {}
 	// adds reader gadget
-	void add_reader(std::string id, boost::shared_ptr<aGadget> sptr_g) 
+	void add_reader(std::string id, shared_ptr<aGadget> sptr_g) 
 	{
-			readers_.push_back(boost::shared_ptr<GadgetHandle>
+			readers_.push_back(shared_ptr<GadgetHandle>
 				(new GadgetHandle(id, sptr_g)));
 	}
 	// adds writer gadget
-	void add_writer(std::string id, boost::shared_ptr<aGadget> sptr_g) 
+	void add_writer(std::string id, shared_ptr<aGadget> sptr_g) 
 	{
-		writers_.push_back(boost::shared_ptr<GadgetHandle>
+		writers_.push_back(shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
 	// sdds finishig gadget
-	void set_endgadget(boost::shared_ptr<aGadget> sptr_g) 
+	void set_endgadget(shared_ptr<aGadget> sptr_g) 
 	{
 		endgadget_ = sptr_g;
 	}
 	// adds any other gadget
-	void add_gadget(std::string id, boost::shared_ptr<aGadget> sptr_g)
+	void add_gadget(std::string id, shared_ptr<aGadget> sptr_g)
 	{
-		gadgets_.push_back(boost::shared_ptr<GadgetHandle>
+		gadgets_.push_back(shared_ptr<GadgetHandle>
 			(new GadgetHandle(id, sptr_g)));
 	}
-	boost::shared_ptr<aGadget> gadget_sptr(std::string id);
+	shared_ptr<aGadget> gadget_sptr(std::string id);
 	// returns string containing the definition of the chain in xml format
 	std::string xml() const;
 private:
-	std::list<boost::shared_ptr<GadgetHandle> > readers_;
-	std::list<boost::shared_ptr<GadgetHandle> > writers_;
-	std::list<boost::shared_ptr<GadgetHandle> > gadgets_;
-	boost::shared_ptr<aGadget> endgadget_;
+	std::list<shared_ptr<GadgetHandle> > readers_;
+	std::list<shared_ptr<GadgetHandle> > writers_;
+	std::list<shared_ptr<GadgetHandle> > gadgets_;
+	shared_ptr<aGadget> endgadget_;
 };
 
 class AcquisitionsProcessor : public GadgetChain {
@@ -188,7 +190,7 @@ public:
 		sptr_acqs_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<AcquisitionFinishGadget> 
+		shared_ptr<AcquisitionFinishGadget> 
 			endgadget(new AcquisitionFinishGadget);
 		set_endgadget(endgadget);
 	}
@@ -200,7 +202,7 @@ public:
 	}
 
 	void process(AcquisitionsContainer& acquisitions);
-	boost::shared_ptr<AcquisitionsContainer> get_output() 
+	shared_ptr<AcquisitionsContainer> get_output() 
 	{
 		return sptr_acqs_;
 	}
@@ -208,9 +210,9 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
-	boost::shared_ptr<IsmrmrdAcqMsgWriter> writer_;
-	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	shared_ptr<IsmrmrdAcqMsgReader> reader_;
+	shared_ptr<IsmrmrdAcqMsgWriter> writer_;
+	shared_ptr<AcquisitionsContainer> sptr_acqs_;
 };
 
 class ImagesReconstructor : public GadgetChain {
@@ -225,7 +227,7 @@ public:
 		sptr_images_.reset();
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
+		shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
 	}
 	static const char* class_name()
@@ -234,7 +236,7 @@ public:
 	}
 
 	void process(AcquisitionsContainer& acquisitions);
-	boost::shared_ptr<ImagesContainer> get_output() 
+	shared_ptr<ImagesContainer> get_output() 
 	{
 		return sptr_images_;
 	}
@@ -242,9 +244,9 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	boost::shared_ptr<IsmrmrdAcqMsgReader> reader_;
-	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	boost::shared_ptr<ImagesContainer> sptr_images_;
+	shared_ptr<IsmrmrdAcqMsgReader> reader_;
+	shared_ptr<IsmrmrdImgMsgWriter> writer_;
+	shared_ptr<ImagesContainer> sptr_images_;
 };
 
 class ImagesProcessor : public GadgetChain {
@@ -257,7 +259,7 @@ public:
 		//class_ = "ImagesProcessor";
 		add_reader("reader", reader_);
 		add_writer("writer", writer_);
-		boost::shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
+		shared_ptr<ImageFinishGadget> endgadget(new ImageFinishGadget);
 		set_endgadget(endgadget);
 	}
 	static const char* class_name()
@@ -266,7 +268,7 @@ public:
 	}
 
 	void process(ImagesContainer& images);
-	boost::shared_ptr<ImagesContainer> get_output() 
+	shared_ptr<ImagesContainer> get_output() 
 	{
 		return sptr_images_;
 	}
@@ -274,22 +276,22 @@ public:
 private:
 	std::string host_;
 	std::string port_;
-	boost::shared_ptr<IsmrmrdImgMsgReader> reader_;
-	boost::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	boost::shared_ptr<ImagesContainer> sptr_images_;
+	shared_ptr<IsmrmrdImgMsgReader> reader_;
+	shared_ptr<IsmrmrdImgMsgWriter> writer_;
+	shared_ptr<ImagesContainer> sptr_images_;
 };
 
 class AcquisitionModel {
 public:
 
 	AcquisitionModel(
-		boost::shared_ptr<AcquisitionsContainer> sptr_ac,
-		boost::shared_ptr<ImagesContainer> sptr_ic
+		shared_ptr<AcquisitionsContainer> sptr_ac,
+		shared_ptr<ImagesContainer> sptr_ic
 		) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
 	{
 	}
 
-	void setCSMs(boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
+	void setCSMs(shared_ptr<CoilSensitivitiesContainer> sptr_csms)
 	{
 		sptr_csms_ = sptr_csms;
 	}
@@ -315,12 +317,12 @@ public:
 	void bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		AcquisitionsContainer& ac);
 
-	boost::shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
+	shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
-		boost::shared_ptr<AcquisitionsContainer> sptr_acqs = 
+		shared_ptr<AcquisitionsContainer> sptr_acqs = 
 			//AcquisitionsContainerTemplate::new_acquisitions_container();
 			sptr_acqs_->new_acquisitions_container();
 		sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
@@ -328,12 +330,12 @@ public:
 		return sptr_acqs;
 	}
 
-	boost::shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
+	shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
-		boost::shared_ptr<ImagesContainer> sptr_imgs =
+		shared_ptr<ImagesContainer> sptr_imgs =
 			sptr_imgs_->new_images_container();
 		bwd(*sptr_imgs, *sptr_csms_, ac);
 		return sptr_imgs;
@@ -341,9 +343,9 @@ public:
 
 private:
 	std::string acqs_info_;
-	boost::shared_ptr<AcquisitionsContainer> sptr_acqs_;
-	boost::shared_ptr<ImagesContainer> sptr_imgs_;
-	boost::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
+	shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	shared_ptr<ImagesContainer> sptr_imgs_;
+	shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 	template< typename T>
 	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,

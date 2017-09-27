@@ -79,6 +79,9 @@ namespace Multisort {
 #include <ismrmrd/xml.h>
 
 #include "ismrmrd_fftw.h"
+#include "cgadgetron_shared_ptr.h"
+
+using namespace SPTR_NAMESPACE;
 
 #define TO_BE_IGNORED(acq) \
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
@@ -195,7 +198,7 @@ public:
 	{
 		return *sptr_mutex_.get();
 	}
-	boost::shared_ptr<boost::mutex> sptr() 
+	shared_ptr<boost::mutex> sptr() 
 	{
 		return sptr_mutex_;
 	}
@@ -208,12 +211,12 @@ public:
 		sptr_mutex_->unlock();
 	}
 private:
-	static boost::shared_ptr<boost::mutex> sptr_mutex_;
+	static shared_ptr<boost::mutex> sptr_mutex_;
 	static void init_() 
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			sptr_mutex_ = boost::shared_ptr<boost::mutex>(new boost::mutex);
+			sptr_mutex_ = shared_ptr<boost::mutex>(new boost::mutex);
 			initialized = true;
 		}
 	}
@@ -469,7 +472,7 @@ template <typename T>
 class aDataContainer {
 public:
 	virtual ~aDataContainer() {}
-	virtual boost::shared_ptr<aDataContainer<T> > new_data_container() = 0;
+	virtual shared_ptr<aDataContainer<T> > new_data_container() = 0;
 	virtual unsigned int items() = 0;
 	virtual float norm() = 0;
 	virtual T dot(aDataContainer<T>& dc) = 0;
@@ -517,7 +520,7 @@ public:
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac) = 0;
 	virtual 
-		boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
+		shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
 	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info) = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
@@ -552,7 +555,7 @@ protected:
 	bool ordered_;
 	int* index_;
 	AcquisitionsInfo acqs_info_;
-	static boost::shared_ptr<AcquisitionsContainer> acqs_templ_;
+	static shared_ptr<AcquisitionsContainer> acqs_templ_;
 };
 
 class AcquisitionsFile : public AcquisitionsContainer {
@@ -592,24 +595,24 @@ public:
 	{
 		return (AcquisitionsContainer*) new AcquisitionsFile(info);
 	}
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > 
+	virtual shared_ptr<aDataContainer<complex_float_t> > 
 		new_data_container()
 	{
 		init();
-		return boost::shared_ptr<aDataContainer<complex_float_t> >
+		return shared_ptr<aDataContainer<complex_float_t> >
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
-	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		init();
-		return boost::shared_ptr<AcquisitionsContainer>
+		return shared_ptr<AcquisitionsContainer>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 private:
 	bool own_file_;
 	std::string filename_;
-	boost::shared_ptr<ISMRMRD::Dataset> dataset_;
+	shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
 class AcquisitionsVector : public AcquisitionsContainer {
@@ -628,7 +631,7 @@ public:
 	virtual unsigned int items() { return (unsigned int)acqs_.size(); }
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{
-		acqs_.push_back(boost::shared_ptr<ISMRMRD::Acquisition>
+		acqs_.push_back(shared_ptr<ISMRMRD::Acquisition>
 			(new ISMRMRD::Acquisition(acq)));
 	}
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
@@ -646,21 +649,21 @@ public:
 	{
 		return new AcquisitionsVector(info);
 	}
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
 		AcquisitionsFile::init();
-		return boost::shared_ptr<aDataContainer<complex_float_t> >
+		return shared_ptr<aDataContainer<complex_float_t> >
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
-	virtual boost::shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		AcquisitionsFile::init();
-		return boost::shared_ptr<AcquisitionsContainer>
+		return shared_ptr<AcquisitionsContainer>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 private:
-	std::vector<boost::shared_ptr<ISMRMRD::Acquisition> > acqs_;
+	std::vector<shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
 class ImagesContainer : public aDataContainer<complex_float_t> {
@@ -668,8 +671,8 @@ public:
 	virtual unsigned int number() = 0;
 	virtual int types() = 0;
 	virtual void count(int i) = 0;
-	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
-	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
+	virtual shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
+	virtual shared_ptr<const ImageWrap> sptr_image_wrap
 		(unsigned int im_num) const = 0;
 	virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
@@ -681,10 +684,10 @@ public:
 		(float* re, float* im) const = 0;
 	virtual void set_complex_images_data(const float* re, const float* im) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
-	virtual boost::shared_ptr<ImagesContainer> new_images_container() = 0;
-	virtual boost::shared_ptr<ImagesContainer>
+	virtual shared_ptr<ImagesContainer> new_images_container() = 0;
+	virtual shared_ptr<ImagesContainer>
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
-	virtual boost::shared_ptr<ImagesContainer>
+	virtual shared_ptr<ImagesContainer>
 		clone(const char* attr, const char* target) = 0;
 	virtual int image_data_type(unsigned int im_num) const
 	{
@@ -728,30 +731,30 @@ public:
 	}
 	virtual void append(int image_data_type, void* ptr_image)
 	{
-		images_.push_back(boost::shared_ptr<ImageWrap>
+		images_.push_back(shared_ptr<ImageWrap>
 			(new ImageWrap(image_data_type, ptr_image)));
 	}
 	virtual void append(const ImageWrap& iw)
 	{
-		images_.push_back(boost::shared_ptr<ImageWrap>(new ImageWrap(iw)));
+		images_.push_back(shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
-	virtual boost::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
+	virtual shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
 	{
 		return images_[im_num];
 	}
-	virtual boost::shared_ptr<const ImageWrap> sptr_image_wrap
+	virtual shared_ptr<const ImageWrap> sptr_image_wrap
 	(unsigned int im_num) const
 	{
 		return images_[im_num];
 	}
 	virtual ImageWrap& image_wrap(unsigned int im_num)
 	{
-		boost::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
+		shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const
 	{
-		const boost::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
+		const shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual void write(std::string filename, std::string groupname);
@@ -770,28 +773,28 @@ public:
 	virtual void get_images_data_as_float_array(float* data) const;
 	virtual void get_images_data_as_complex_array(float* re, float* im) const;
 	virtual void set_complex_images_data(const float* re, const float* im);
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_float_t> >
+		return shared_ptr<aDataContainer<complex_float_t> >
 			((aDataContainer<complex_float_t>*)new ImagesVector());
 	}
-	virtual boost::shared_ptr<ImagesContainer> new_images_container()
+	virtual shared_ptr<ImagesContainer> new_images_container()
 	{
-		return boost::shared_ptr<ImagesContainer>((ImagesContainer*)new ImagesVector());
+		return shared_ptr<ImagesContainer>((ImagesContainer*)new ImagesVector());
 	}
-	virtual boost::shared_ptr<ImagesContainer>
+	virtual shared_ptr<ImagesContainer>
 		clone(const char* attr, const char* target)
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesVector(*this, attr, target));
+		return shared_ptr<ImagesContainer>(new ImagesVector(*this, attr, target));
 	}
-	virtual boost::shared_ptr<ImagesContainer>
+	virtual shared_ptr<ImagesContainer>
 		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
-		return boost::shared_ptr<ImagesContainer>(new ImagesVector(*this, inc, off));
+		return shared_ptr<ImagesContainer>(new ImagesVector(*this, inc, off));
 	}
 
 private:
-	std::vector<boost::shared_ptr<ImageWrap> > images_;
+	std::vector<shared_ptr<ImageWrap> > images_;
 	int nimages_;
 };
 
@@ -894,7 +897,7 @@ public:
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data_abs(v);
 	}
-	virtual void append(boost::shared_ptr<CoilData> sptr_csm) = 0;
+	virtual void append(shared_ptr<CoilData> sptr_csm) = 0;
 	virtual CoilData& operator()(int slice) = 0;
 	//virtual const CoilData& operator()(int slice) const = 0;
 };
@@ -908,12 +911,12 @@ public:
 	CoilData& data(int slice) {
 		return *coil_data_[slice];
 	}
-	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
+	virtual void append(shared_ptr<CoilData> sptr_cd)
 	{
 		coil_data_.push_back(sptr_cd);
 	}
 private:
-	std::vector< boost::shared_ptr<CoilData> > coil_data_;
+	std::vector< shared_ptr<CoilData> > coil_data_;
 };
 
 class CoilImagesContainer : public CoilDataContainer {
@@ -930,9 +933,9 @@ protected:
 
 class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 public:
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_float_t> >
+		return shared_ptr<aDataContainer<complex_float_t> >
 			((aDataContainer<complex_float_t>*)new CoilImagesVector());
 	}
 	virtual unsigned int items()
@@ -943,7 +946,7 @@ public:
 	{
 		return data(slice);
 	}
-	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
+	virtual void append(shared_ptr<CoilData> sptr_cd)
 	{
 		CoilDataVector::append(sptr_cd);
 	}
@@ -975,7 +978,7 @@ public:
 	{
 		//CoilData* ptr_img = new CoilDataType(nx, ny, nz, nc);
 		CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, nz, nc);
-		boost::shared_ptr<CoilData> sptr_img(ptr_img);
+		shared_ptr<CoilData> sptr_img(ptr_img);
 		ptr_img->set_data(re, im);
 		append(sptr_img);
 	}
@@ -1011,9 +1014,9 @@ public:
 	}
 	CoilSensitivitiesAsImages(const char* file);
 
-	virtual boost::shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
 	{
-		return boost::shared_ptr<aDataContainer<complex_float_t> >
+		return shared_ptr<aDataContainer<complex_float_t> >
 			((aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages());
 	}
 
@@ -1025,7 +1028,7 @@ public:
 	{
 		return data(slice);
 	}
-	virtual void append(boost::shared_ptr<CoilData> sptr_cd)
+	virtual void append(shared_ptr<CoilData> sptr_cd)
 	{
 		CoilDataVector::append(sptr_cd);
 	}

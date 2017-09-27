@@ -27,8 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include "cgadgetron_shared_ptr.h"
 #include "data_handle.h"
 #include "gadgetron_x.h"
+
+using namespace SPTR_NAMESPACE;
 
 bool
 connection_failed(int nt)
@@ -45,19 +48,19 @@ connection_failed(int nt)
 
 }
 
-boost::shared_ptr<aGadget> 
+shared_ptr<aGadget> 
 GadgetChain::gadget_sptr(std::string id)
 {
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+	std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #else
-	typename std::list<boost::shared_ptr<GadgetHandle> >::iterator gh;
+	typename std::list<shared_ptr<GadgetHandle> >::iterator gh;
 #endif
 	for (gh = gadgets_.begin(); gh != gadgets_.end(); gh++) {
 		if (boost::iequals(gh->get()->id(), id))
 			return gh->get()->gadget_sptr();
 	}
-	return boost::shared_ptr<aGadget>();
+	return shared_ptr<aGadget>();
 }
 
 std::string 
@@ -70,9 +73,9 @@ GadgetChain::xml() const
 	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
 
 #ifdef _MSC_VER
-	std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
+	std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #else
-	typename std::list<boost::shared_ptr<GadgetHandle> >::const_iterator gh;
+	typename std::list<shared_ptr<GadgetHandle> >::const_iterator gh;
 #endif
 	for (gh = readers_.begin(); gh != readers_.end(); gh++)
 		xml_script += gh->get()->gadget().xml() + '\n';
@@ -99,7 +102,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 	//sptr_acqs_->copy_acquisitions_info(acquisitions);
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
-		boost::shared_ptr<GadgetronClientMessageReader>
+		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
 
 	for (int nt = 0; nt < N_TRIALS; nt++) {
@@ -145,7 +148,7 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 	//sptr_images_.reset(new ImagesList);
 	sptr_images_.reset(new ImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-		boost::shared_ptr<GadgetronClientMessageReader>
+		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
 
 	for (int nt = 0; nt < N_TRIALS; nt++) {
@@ -188,7 +191,7 @@ ImagesProcessor::process(ImagesContainer& images)
 
 	sptr_images_ = images.new_images_container();
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
-		boost::shared_ptr<GadgetronClientMessageReader>
+		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
 
 	for (int nt = 0; nt < N_TRIALS; nt++) {

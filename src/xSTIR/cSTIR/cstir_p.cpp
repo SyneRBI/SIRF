@@ -21,9 +21,12 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
 #include "stir_x.h"
+
+using namespace SPTR_NAMESPACE;
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
