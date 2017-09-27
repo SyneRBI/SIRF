@@ -66,6 +66,7 @@ if (BUILD_PYTHON)
 endif()
 
 
+message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
 FIND_PACKAGE(Matlab)
 set (BUILD_MATLAB ${Matlab_FOUND})
 if (BUILD_MATLAB)
