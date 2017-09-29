@@ -55,7 +55,8 @@ limitations under the License.
 
 */
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
+using namespace gadgetron;
 
 class GTConnector {
 public:

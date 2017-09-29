@@ -30,7 +30,12 @@ limitations under the License.
 //#include "object_handle.inl"
 //}
 
-namespace SPTR_NAMESPACE {
+//namespace SPTR_NAMESPACE {
+//	using std::shared_ptr;
+//#include "object_handle.inl"
+//}
+
+namespace gadgetron {
 	using std::shared_ptr;
 #include "object_handle.inl"
 }
