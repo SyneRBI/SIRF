@@ -25,16 +25,16 @@ limitations under the License.
 
 #include "data_handle.h"
 
-namespace boost_sptr {
-	using boost::shared_ptr;
-#include "object_handle.inl"
-}
+//namespace boost_sptr {
+//	using boost::shared_ptr;
+//#include "object_handle.inl"
+//}
 
-namespace std_sptr {
+namespace SPTR_NAMESPACE {
 	using std::shared_ptr;
 #include "object_handle.inl"
 }
 
-#define SPTR_NAMESPACE std_sptr
+//#define SPTR_NAMESPACE std_sptr
 
 #endif
