@@ -45,7 +45,7 @@ for iter = 1 : num_subiterations
     % get gradient of prior as ImageData
     prior_grad_image = prior.get_gradient(image);
 
-    % copy to Python arrays
+    % copy to Matlab arrays
     image_array = image.as_array();
     sens_array = sens_image.as_array();
     grad_array = grad_image.as_array();
