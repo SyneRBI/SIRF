@@ -58,7 +58,9 @@ find_package( Boost 1.36.0 REQUIRED )
 include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
-FIND_PACKAGE(PythonLibs REQUIRED)
+# find Python interpreter. Needed for tests, and best to enforce consistency anyway.
+find_package(PythonInterp)
+find_package(PythonLibs)
 set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
   set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python" CACHE PATH "Destination for python module")

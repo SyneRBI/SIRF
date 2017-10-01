@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 #=========================================================================
-include(FindPythonInterp)
+
 add_test(NAME MR_FULLY_SAMPLED
          COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
 
