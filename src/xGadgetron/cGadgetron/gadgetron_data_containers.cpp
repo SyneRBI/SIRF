@@ -29,14 +29,10 @@ limitations under the License.
 
 #include "gadgetron_data_containers.h"
 #include "cgadgetron_shared_ptr.h"
-//using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
 
 shared_ptr<AcquisitionsContainer> 
 AcquisitionsContainer::acqs_templ_;
-
-//shared_ptr<AcquisitionsContainer> 
-//AcquisitionsContainerTemplate::acqs_storage_template_;
 
 void 
 ImageWrap::get_cmplx_data(float* re, float* im) const
