@@ -38,7 +38,7 @@ pathname = pet_data_path();
 acq_data = AcquisitionData(fullfile(pathname, filename));
 acq_data_norm = acq_data.norm();
 acq_data_var = variance(acq_data);
-fprintf('---\n acquisition data norm: %e, variance: \n', ...
+fprintf('---\n acquisition data norm: %e, variance: %e\n', ...
     acq_data_norm, acq_data_var)
 ntest = ntest + 1;
 failed = failed + test_failed(ntest, 3099.322, acq_data_norm, 0, eps);
