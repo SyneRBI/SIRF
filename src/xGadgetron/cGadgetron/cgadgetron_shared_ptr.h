@@ -25,16 +25,9 @@ limitations under the License.
 
 #include "data_handle.h"
 
-namespace boost_sptr {
-	using boost::shared_ptr;
-#include "object_handle.inl"
-}
-
-namespace std_sptr {
+namespace gadgetron {
 	using std::shared_ptr;
-#include "object_handle.inl"
+#include "SIRF/common/object_handle.inl"
 }
-
-#define SPTR_NAMESPACE std_sptr
 
 #endif

@@ -29,7 +29,8 @@ PROJECT(SIRF)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 # require 2.8.3 to get FOLDER properties support
-cmake_minimum_required(VERSION 2.8.3)
+# require 3.3 for descent FindMatlab.cmake
+cmake_minimum_required(VERSION 3.3.0)
 
 # set default build-type to Release
 if(NOT CMAKE_BUILD_TYPE)
@@ -57,7 +58,9 @@ find_package( Boost 1.36.0 REQUIRED )
 include_directories(${Boost_INCLUDE_DIRS})
 
 #### optional back-ends
-FIND_PACKAGE(PythonLibs REQUIRED)
+# find Python interpreter. Needed for tests, and best to enforce consistency anyway.
+find_package(PythonInterp)
+find_package(PythonLibs)
 set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
   set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python" CACHE PATH "Destination for python module")
@@ -65,10 +68,12 @@ if (BUILD_PYTHON)
 endif()
 
 
-FIND_PACKAGE(MATLAB)
-set (BUILD_MATLAB ${MATLAB_FOUND})
+message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
+FIND_PACKAGE(Matlab)
+set (BUILD_MATLAB ${Matlab_FOUND})
 if (BUILD_MATLAB)
-set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab" CACHE PATH "Destination for matlab module")
+  matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+  set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab" CACHE PATH "Destination for matlab module")
   message(STATUS "MATLAB libraries found")
 endif()
 
@@ -76,7 +81,6 @@ if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)
   message(FATAL_ERROR "SIRF needs either MATLAB or Python")
 endif()
 
-#### enable support for ctest
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)

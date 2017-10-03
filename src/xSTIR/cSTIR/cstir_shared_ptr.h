@@ -25,11 +25,8 @@ limitations under the License.
 
 #include "data_handle.h"
 
-namespace stir_sptr {
-	using stir::shared_ptr;
-#include "object_handle.inl"
+namespace stir {
+#include "SIRF/common/object_handle.inl"
 }
-
-#define SPTR_NAMESPACE stir_sptr
 
 #endif

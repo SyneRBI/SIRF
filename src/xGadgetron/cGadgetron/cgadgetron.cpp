@@ -38,7 +38,8 @@ limitations under the License.
 #include "gadget_lib.h"
 #include "chain_lib.h"
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
+using namespace gadgetron;
 
 #define GRAB 1
 

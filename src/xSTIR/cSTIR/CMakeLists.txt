@@ -20,6 +20,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 find_package(STIR REQUIRED)
 
+include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)
 target_include_directories(cstir PUBLIC

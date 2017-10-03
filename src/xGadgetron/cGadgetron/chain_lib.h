@@ -24,7 +24,8 @@ limitations under the License.
 #include "gadgetron_x.h"
 #include "shared_ptr.h"
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
+using namespace gadgetron;
 
 class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:

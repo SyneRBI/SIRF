@@ -31,7 +31,8 @@ limitations under the License.
 #include "data_handle.h"
 #include "gadgetron_x.h"
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
+using namespace gadgetron;
 
 bool
 connection_failed(int nt)

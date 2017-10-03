@@ -19,7 +19,8 @@ limitations under the License.
 #include "data_handle.h"
 #include "printer.h"
 
-using namespace SPTR_NAMESPACE;
+USING_NAMESPACE_STIR
+//using namespace SPTR_NAMESPACE;
 
 extern "C" {
 	void* newMexPrinter() {

@@ -21,6 +21,8 @@ if(BUILD_PYTHON)
   FIND_PACKAGE(SWIG REQUIRED)
   INCLUDE("${SWIG_USE_FILE}")
 
+  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES CPLUSPLUS ON)  
   SET_SOURCE_FILES_PROPERTIES(pygadgetron.i PROPERTIES SWIG_FLAGS "-I${cGadgetron_INCLUDE_DIR}")
   # find libraries and include files
@@ -38,4 +40,6 @@ if(BUILD_PYTHON)
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py" pGadgetron.py DESTINATION "${PYTHON_DEST}")
 
+ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)
+

@@ -81,7 +81,8 @@ namespace Multisort {
 #include "ismrmrd_fftw.h"
 #include "cgadgetron_shared_ptr.h"
 
-using namespace SPTR_NAMESPACE;
+//using namespace SPTR_NAMESPACE;
+using namespace gadgetron;
 
 #define TO_BE_IGNORED(acq) \
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
