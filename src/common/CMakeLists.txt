@@ -25,6 +25,8 @@ endif (BUILD_PYTHON)
 
 if (BUILD_MATLAB)
 
+  add_library(mig mig.cpp)
+
   INSTALL(DIRECTORY +mUtilities DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
