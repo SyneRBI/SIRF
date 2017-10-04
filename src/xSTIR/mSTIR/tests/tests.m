@@ -36,17 +36,17 @@ ntest = 0;
 filename = 'Utahscat600k_ca_seg4.hs';
 pathname = pet_data_path();
 acq_data = AcquisitionData(fullfile(pathname, filename));
-acq_data_norm = acq_data.norm();
-acq_data_var = variance(acq_data);
-fprintf('---\n acquisition data norm: %e, variance: %e\n', ...
-    acq_data_norm, acq_data_var)
+s = acq_data.norm();
+v = variance(acq_data);
+fprintf('---\n acquisition data norm: %e, variance: %e\n', s, v)
 ntest = ntest + 1;
-failed = failed + test_failed(ntest, 3099.322, acq_data_norm, 0, eps);
+failed = failed + test_failed(ntest, 3099.322, s, 0, eps);
 ntest = ntest + 1;
-failed = failed + test_failed(ntest, 5.444323, acq_data_var, 0, eps);
+failed = failed + test_failed(ntest, 5.444323, v, 0, eps);
 
 image = ImageData();
 image_size = [111, 111, 31];
+n = prod(image_size);
 voxel_size = [3, 3, 3.375];
 image.initialise(image_size, voxel_size)
 image.fill(1.0)
@@ -104,19 +104,21 @@ image_array = image_array.*update;
 
 s = norm(update(:));
 v = var(update(:));
+delta = max(update(:))*eps;
 fprintf('---\n update norm: %e, variance: %e\n', s, v)
 ntest = ntest + 1;
 failed = failed + test_failed(ntest, 2377.229, s, 0, eps);
 ntest = ntest + 1;
-failed = failed + test_failed(ntest, 14.7674, v, eps, eps);
+failed = failed + test_failed(ntest, 14.7674, v, delta, eps);
 
 s = norm(image_array(:));
 v = var(image_array(:));
+delta = max(image_array(:))*eps;
 fprintf('---\n updated image norm: %e, variance: %e\n', s, v)
 ntest = ntest + 1;
 failed = failed + test_failed(ntest, 7.610105, s, 0, eps);
 ntest = ntest + 1;
-failed = failed + test_failed(ntest, 0.000052, v, eps, eps);
+failed = failed + test_failed(ntest, 0.000052, v, delta, eps);
 
 if failed == 0
     fprintf('all tests passed\n')
