@@ -87,99 +87,12 @@ public:
 	}
 };
 
-//class ProjDataScratchFile {
-//public:
-//	ProjDataScratchFile(const ProjData& pd)
-//	{
-//		_data.reset(new ProjDataFile
-//		(pd, _filename = SIRFUtilities::scratch_file_name()));
-//	}
-//	~ProjDataScratchFile()
-//	{
-//		//_data->close_stream();
-//		_data.reset();
-//		int err;
-//		err = std::remove((_filename + ".hs").c_str());
-//		if (err)
-//			std::cout << "deleting " << _filename << ".hs "
-//			<< "failed, please delete manually" << std::endl;
-//		err = std::remove((_filename + ".s").c_str());
-//		if (err)
-//			std::cout << "deleting " << _filename << ".s "
-//			<< "failed, please delete manually" << std::endl;
-//	}
-//	void clear_stream()
-//	{
-//		_data->clear_stream();
-//	}
-//	void close_stream()
-//	{
-//		_data->close_stream();
-//	}
-//	shared_ptr<ProjData> data()
-//	{
-//		return _data;
-//	}
-//private:
-//	std::string _filename;
-//	shared_ptr<ProjDataFile> _data;
-//};
-
 class PETAcquisitionData : public aDataContainer < float > {
 public:
 	virtual ~PETAcquisitionData() {}
-	//static void set_storage_scheme(std::string scheme)
-	//{
-	//	_init();
-	//	_storage_scheme = scheme;
-	//}
-	//void read_from_file(const char* filename)
-	//{
-	//	_data = ProjData::read_from_file(filename);
-	//}
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
-	//{
-	//	PETAcquisitionData* ptr_ad = new PETAcquisitionData();
-	//	_init();
-	//	if (_storage_scheme[0] == 'm') {
-	//		ptr_ad->_data = shared_ptr<ProjData>
-	//			(new ProjDataInMemory(pd.get_exam_info_sptr(),
-	//			pd.get_proj_data_info_sptr()));
-	//		return ptr_ad;
-	//	}
-	//	else {
-	//		ProjDataScratchFile* file = new ProjDataScratchFile(pd);
-	//		//ptr_ad->_data = file->data();
-	//		ptr_ad->_file.reset(file);
-	//		return ptr_ad;
-	//	}
-	//}
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-	//{
-	//	return shared_ptr<PETAcquisitionData>
-	//		(same_acquisition_data(*data()));
-	//}
 	virtual shared_ptr<aDataContainer<float> > new_data_container() = 0;
-	//{
-	//	return shared_ptr<aDataContainer<float> >
-	//		(same_acquisition_data(*data()));
-	//}
-
-	// ProjData accessor/mutator
-	//virtual shared_ptr<ProjData> data() = 0;
-	//{
-	//	if (_file.get())
-	//		return _file->data();
-	//	else
-	//		return _data;
-	//}
-	//virtual const shared_ptr<ProjData> data() const = 0;
-	//{ 
-	//	if (_file.get())
-	//		return _file->data();
-	//	else
-	//		return _data;
-	//}
 	shared_ptr<ProjData> data()
 	{
 		return _data;
@@ -253,38 +166,16 @@ public:
 	}
 
 	virtual void clear_stream() = 0;
-	//{
-	//	if (_file.get())
-	//		_file->clear_stream();
-	//}
 	virtual void close_stream() = 0;
-	//{
-	//	if (_file.get())
-	//		_file->close_stream();
-	//}
 
 	// ProjData casts
 	operator ProjData&() { return *data(); }
 	operator const ProjData&() const { return *data(); }
-	//operator ProjData*() { return _data.get(); }
-	//operator const ProjData*() const { return _data.get(); }
-	//operator shared_ptr<ProjData>() { return _data; }
-	//operator const shared_ptr<ProjData>() const { return _data; }
 
 protected:
 	//static std::string _storage_scheme;
 	static shared_ptr<PETAcquisitionData> _template;
-	//static void _init()
-	//{
-	//	static bool initialized = false;
-	//	if (!initialized) {
-	//		//_template.reset();
-	//		_storage_scheme = "file";
-	//		initialized = true;
-	//	}
-	//}
 	shared_ptr<ProjData> _data;
-	//shared_ptr<ProjDataScratchFile> _file;
 };
 
 class PETAcquisitionDataInFile : public PETAcquisitionData {
@@ -298,13 +189,9 @@ public:
 	{
 		_data.reset(new ProjDataFile
 		(pd, _filename = SIRFUtilities::scratch_file_name()));
-		//_file.reset(new ProjDataScratchFile(pd));
-		//_data = _file->data();
 	}
 	~PETAcquisitionDataInFile()
 	{
-		//_data.reset();
-		//_file.reset();
 		_data.reset();
 		if (!_owns_file)
 			return;
@@ -350,17 +237,6 @@ public:
 			(_template->same_acquisition_data(*data()));
 	}
 
-	//shared_ptr<ProjData> data()
-	//{
-	//	return _data;
-	//	//return _file->data();
-	//}
-	//const shared_ptr<ProjData> data() const
-	//{
-	//	return _data;
-	//	//return _file->data();
-	//}
-
 	void clear_stream()
 	{
 		((ProjDataFile*)_data.get())->clear_stream();
@@ -373,15 +249,6 @@ public:
 private:
 	bool _owns_file;
 	std::string _filename;
-	//static void _init()
-	//{
-	//	static bool initialized = false;
-	//	if (!initialized) {
-	//		//_template.reset();
-	//		_storage_scheme = "file";
-	//		initialized = true;
-	//	}
-	//}
 };
 
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
@@ -438,10 +305,6 @@ public:
 	{
 		_data.reset(new Voxels3DF(pdi));
 	}
-	//PETImageData(std::auto_ptr<Image3DF> ptr)
-	//{
-	//	_data = ptr;
-	//}
 	PETImageData(shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
