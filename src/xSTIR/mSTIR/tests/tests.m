@@ -97,8 +97,8 @@ prior_grad_array = prior_grad_image.as_array();
 
 % update image data
 denom = sens_array + prior_grad_array./num_subsets;
-eps = 1e-6*max(abs(denom(:)));
-denom(denom < eps) = eps; % avoid division by zero
+delta = 1e-6*max(abs(denom(:)));
+denom(denom < delta) = delta; % avoid division by zero
 update = grad_array./denom;
 image_array = image_array.*update;
 
