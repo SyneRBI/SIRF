@@ -353,7 +353,7 @@ AcquisitionsContainer::axpby(
 }
 
 complex_float_t 
-AcquisitionsContainer::dot(aDataContainer<complex_float_t>& dc)
+AcquisitionsContainer::dot(const aDataContainer<complex_float_t>& dc)
 {
 	AcquisitionsContainer& other = (AcquisitionsContainer&)dc;
 	int n = number();
@@ -630,7 +630,7 @@ ImagesContainer::axpby(
 }
 
 complex_float_t 
-ImagesContainer::dot(aDataContainer<complex_float_t>& dc)
+ImagesContainer::dot(const aDataContainer<complex_float_t>& dc)
 {
 	ImagesContainer& ic = (ImagesContainer&)dc;
 	complex_float_t z = 0;

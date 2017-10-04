@@ -80,6 +80,7 @@ namespace Multisort {
 
 #include "ismrmrd_fftw.h"
 #include "cgadgetron_shared_ptr.h"
+#include "SIRF/common/data_container.h"
 
 //using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
@@ -469,18 +470,19 @@ private:
 	}
 };
 
-template <typename T>
-class aDataContainer {
-public:
-	virtual ~aDataContainer() {}
-	virtual shared_ptr<aDataContainer<T> > new_data_container() = 0;
-	virtual unsigned int items() = 0;
-	virtual float norm() = 0;
-	virtual T dot(aDataContainer<T>& dc) = 0;
-	virtual void axpby(
-		T a, const aDataContainer<T>& a_x,
-		T b, const aDataContainer<T>& a_y) = 0;
-};
+//template <typename T>
+//class aDataContainer {
+//public:
+//	virtual ~aDataContainer() {}
+//	virtual aDataContainer<T>* new_data_container() = 0;
+//	//virtual shared_ptr<aDataContainer<T> > new_data_container() = 0;
+//	virtual unsigned int items() = 0;
+//	virtual float norm() = 0;
+//	virtual T dot(aDataContainer<T>& dc) = 0;
+//	virtual void axpby(
+//		T a, const aDataContainer<T>& a_x,
+//		T b, const aDataContainer<T>& a_y) = 0;
+//};
 
 class AcquisitionsInfo {
 public:
@@ -529,7 +531,7 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
-	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc);
+	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 	float diff(AcquisitionsContainer& other);
 
@@ -596,13 +598,19 @@ public:
 	{
 		return (AcquisitionsContainer*) new AcquisitionsFile(info);
 	}
-	virtual shared_ptr<aDataContainer<complex_float_t> > 
+	virtual aDataContainer<complex_float_t>*
 		new_data_container()
 	{
 		init();
-		return shared_ptr<aDataContainer<complex_float_t> >
-			(acqs_templ_->same_acquisitions_container(acqs_info_));
+		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
+	//virtual shared_ptr<aDataContainer<complex_float_t> > 
+	//	new_data_container()
+	//{
+	//	init();
+	//	return shared_ptr<aDataContainer<complex_float_t> >
+	//		(acqs_templ_->same_acquisitions_container(acqs_info_));
+	//}
 	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		init();
@@ -650,12 +658,17 @@ public:
 	{
 		return new AcquisitionsVector(info);
 	}
-	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual aDataContainer<complex_float_t>* new_data_container()
 	{
 		AcquisitionsFile::init();
-		return shared_ptr<aDataContainer<complex_float_t> >
-			(acqs_templ_->same_acquisitions_container(acqs_info_));
+		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
+	//virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	AcquisitionsFile::init();
+	//	return shared_ptr<aDataContainer<complex_float_t> >
+	//		(acqs_templ_->same_acquisitions_container(acqs_info_));
+	//}
 	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
 	{
 		AcquisitionsFile::init();
@@ -698,7 +711,7 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
-	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc);
+	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 
 	void get_image_data_as_cmplx_array
@@ -774,11 +787,15 @@ public:
 	virtual void get_images_data_as_float_array(float* data) const;
 	virtual void get_images_data_as_complex_array(float* re, float* im) const;
 	virtual void set_complex_images_data(const float* re, const float* im);
-	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual aDataContainer<complex_float_t>* new_data_container()
 	{
-		return shared_ptr<aDataContainer<complex_float_t> >
-			((aDataContainer<complex_float_t>*)new ImagesVector());
+		return (aDataContainer<complex_float_t>*)new ImagesVector();
 	}
+	//virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	return shared_ptr<aDataContainer<complex_float_t> >
+	//		((aDataContainer<complex_float_t>*)new ImagesVector());
+	//}
 	virtual shared_ptr<ImagesContainer> new_images_container()
 	{
 		return shared_ptr<ImagesContainer>((ImagesContainer*)new ImagesVector());
@@ -858,7 +875,7 @@ public:
 	{
 		return 0.0;
 	}
-	virtual complex_float_t dot(aDataContainer<complex_float_t>& dc)
+	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc)
 	{
 		return complex_float_t(0.0, 0.0);
 	}
@@ -934,11 +951,15 @@ protected:
 
 class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 public:
-	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual aDataContainer<complex_float_t>* new_data_container()
 	{
-		return shared_ptr<aDataContainer<complex_float_t> >
-			((aDataContainer<complex_float_t>*)new CoilImagesVector());
+		return (aDataContainer<complex_float_t>*)new CoilImagesVector();
 	}
+	//virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	return shared_ptr<aDataContainer<complex_float_t> >
+	//		((aDataContainer<complex_float_t>*)new CoilImagesVector());
+	//}
 	virtual unsigned int items()
 	{
 		return CoilDataVector::items();
@@ -1015,11 +1036,15 @@ public:
 	}
 	CoilSensitivitiesAsImages(const char* file);
 
-	virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	virtual aDataContainer<complex_float_t>* new_data_container()
 	{
-		return shared_ptr<aDataContainer<complex_float_t> >
-			((aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages());
+		return (aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages();
 	}
+	//virtual shared_ptr<aDataContainer<complex_float_t> > new_data_container()
+	//{
+	//	return shared_ptr<aDataContainer<complex_float_t> >
+	//		((aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages());
+	//}
 
 	virtual unsigned int items()
 	{

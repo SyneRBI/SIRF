@@ -835,8 +835,9 @@ float br, float bi, const void* ptr_y
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		aDataContainer<complex_float_t>& y = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
-			x.new_data_container();
+		shared_ptr<aDataContainer<complex_float_t> > sptr_z(x.new_data_container());
+		//shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
+		//	x.new_data_container();
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
