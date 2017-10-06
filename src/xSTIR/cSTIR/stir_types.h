@@ -54,6 +54,8 @@ limitations under the License.
 
 #define GRAB 1
 
+using stir::shared_ptr;
+
 USING_NAMESPACE_STIR
 
 typedef DiscretisedDensity<3, float> Image3DF;

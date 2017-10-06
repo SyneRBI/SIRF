@@ -26,7 +26,7 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-//using namespace SPTR_NAMESPACE;
+using stir::shared_ptr;
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 

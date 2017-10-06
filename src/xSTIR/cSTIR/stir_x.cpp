@@ -22,7 +22,9 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-void 
+using stir::shared_ptr;
+
+void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
 {

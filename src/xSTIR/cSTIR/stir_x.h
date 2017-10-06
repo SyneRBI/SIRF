@@ -26,6 +26,8 @@ limitations under the License.
 #include "stir_data_containers.h"
 #include "stir_types.h"
 
+using stir::shared_ptr;
+
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
 

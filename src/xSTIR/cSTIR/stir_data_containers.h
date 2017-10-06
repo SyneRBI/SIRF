@@ -31,7 +31,7 @@ limitations under the License.
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
 
-//using namespace SPTR_NAMESPACE;
+using stir::shared_ptr;
 
 class SIRFUtilities {
 public:
