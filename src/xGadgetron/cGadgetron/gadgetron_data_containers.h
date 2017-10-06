@@ -43,6 +43,8 @@ limitations under the License.
 //#include <boost/algorithm/string/predicate.hpp>
 //#include <boost/algorithm/string/replace.hpp>
 
+#include <boost/algorithm/string.hpp>
+
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>
