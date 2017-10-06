@@ -1197,7 +1197,7 @@ class IterativeReconstructor(Reconstructor):
         self.subset = 0
     def __del__(self):
         if self.handle is not None:
-            pystir.cSTIR_deleteObject(self.handle)
+            pyiutil.deleteObject(self.handle)
     def set_num_subsets(self, n):
         _set_int_par\
             (self.handle, 'IterativeReconstruction', 'num_subsets', n)

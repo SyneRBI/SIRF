@@ -217,7 +217,4 @@ inline void* charDataHandleFromCharData(const char* s)
 	return (void*)h;
 }
 
-//#define SPTR_NAMESPACE std_sptr
-//#include "object_handle.h"
-
 #endif

@@ -25,7 +25,6 @@ extern "C" {
 #endif
 	void* newDataHandle();
 	void deleteDataHandle(void* ptr);
-	void deleteObject(void* ptr);
 	void* charDataHandle(const char* s);
 	void* intDataHandle(int i);
 	void* floatDataHandle(float i);

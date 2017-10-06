@@ -34,9 +34,6 @@ EXPORTED_FUNCTION  void* mNewDataHandle() {
 EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr) {
 	deleteDataHandle(ptr);
 }
-EXPORTED_FUNCTION 	void mDeleteObject(void* ptr) {
-	deleteObject(ptr);
-}
 EXPORTED_FUNCTION 	void* mCharDataHandle(const char* s) {
 	return charDataHandle(s);
 }
