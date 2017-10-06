@@ -1,3 +1,11 @@
+#define SPTR(Base, X, Object) shared_ptr< Base > X(new Object)
+#define NEW_SPTR(Base, X, Object) \
+	shared_ptr< Base >* X = new shared_ptr< Base >(new Object)
+#define NEW_SPTR_FROM_PTR(Object, X, P) \
+	shared_ptr< Object >* X = new shared_ptr< Object >(P)
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
+
 template<class Base>
 class ObjectHandle : public DataHandle {
 public:
