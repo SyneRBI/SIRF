@@ -55,7 +55,6 @@ limitations under the License.
 
 */
 
-//using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
 
 class GTConnector {
@@ -324,7 +323,6 @@ public:
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
 		shared_ptr<AcquisitionsContainer> sptr_acqs = 
-			//AcquisitionsContainerTemplate::new_acquisitions_container();
 			sptr_acqs_->new_acquisitions_container();
 		sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 		fwd(ic, *sptr_csms_, *sptr_acqs);

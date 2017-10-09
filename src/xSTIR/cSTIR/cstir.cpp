@@ -47,14 +47,10 @@ cSTIR_newReconstructionMethod(const char* par_file)
 {
 	try {
 		if (strlen(par_file) > 0) {
-			//NEW_SPTR(Reconstruction<Image3DF>, ptr_sptr, Method(parFile));
-			//return newObjectHandle(ptr_sptr);
 			shared_ptr<Reconstruction<Image3DF> > sptr(new Method(par_file));
 			return newObjectHandle(sptr);
 		}
 		else {
-			//NEW_SPTR(Reconstruction<Image3DF>, ptr_sptr, Method);
-			//return newObjectHandle(ptr_sptr);
 			shared_ptr<Reconstruction<Image3DF> > sptr(new Method);
 			return newObjectHandle(sptr);
 		}
@@ -182,30 +178,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			<OSSPSReconstruction<Image3DF> >
 			(filename);
 		if (boost::iequals(name, "Image")) {
-			//sptrImage3DF* ptr_sptr = new sptrImage3DF
-			//	(read_from_file<Image3DF>(filename));
 			PETImageData* ptr_id = 
 				new PETImageData(read_from_file<Image3DF>(filename));
-			//shared_ptr<PETImageData>* ptr_sptr =
-			//	new shared_ptr<PETImageData>(ptr_id);
-			//return newObjectHandle(ptr_sptr);
 			shared_ptr<PETImageData> sptr(ptr_id);
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
-			////writeText("\nreading ");
-			////writeText(filename);
-			////NEW(shared_ptr<ProjData>, ptr_sptr);
-			////*ptr_sptr = boost::static_pointer_cast<PETAcquisitionData>
-			////	(ProjData::read_from_file(filename));
-			////writeText("ok\n");
-			//NEW_SPTR(PETAcquisitionData, ptr_sptr, 
-			//	PETAcquisitionDataInFile(filename));
-			////if (ptr_sptr->get())
-			////	std::cout << "ok\n";
-			////else
-			////	std::cout << "read_from_file failed\n";
-			//return newObjectHandle(ptr_sptr);
 			shared_ptr<PETAcquisitionData> 
 				sptr(new PETAcquisitionDataInFile(filename));
 			return newObjectHandle(sptr);
@@ -215,36 +193,12 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 	CATCH;
 }
 
-//extern "C"
-//void* cSTIR_setupObject(const char* obj, void* ptr_obj)
-//{
-//	try {
-//		bool status = 1;
-//		if (boost::iequals(obj, "GeneralisedObjectiveFunction")) {
-//			xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
-//				objectFromHandle<xSTIR_GeneralisedObjectiveFunction3DF>(ptr_obj);
-//			status = obj_fun.post_process();
-//		}
-//		//else if (boost::iequals(obj, "GeneralisedPrior"))
-//		//		status = xSTIR_setupPrior(ho->data());
-//		DataHandle* handle = new DataHandle;
-//		if (status) {
-//			ExecutionStatus status
-//				("cSTIR_setupObject failed", __FILE__, __LINE__);
-//			handle->set(0, &status);
-//		}
-//		return (void*)handle;
-//	}
-//	CATCH;
-//}
-
 extern "C"
 void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
 		DataProcessor<Image3DF>& processor =
 			objectFromHandle<DataProcessor<Image3DF> >(ptr_p);
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		processor.apply(image);
@@ -259,9 +213,7 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 	try {
 		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		//sptrProjData sptr_dt = objectSptrFromHandle<ProjData>(ptr_dt);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
-		//sptrImage3DF sptr_im = objectSptrFromHandle<Image3DF>(ptr_im);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		sptrImage3DF sptr_im = id.data_sptr();
 		//std::cout << "setting up acquisition model...\n";
@@ -283,15 +235,8 @@ void* cSTIR_acquisitionModelFwd
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		//Image3DF& im = objectFromHandle<Image3DF>(ptr_im);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		Image3DF& im = id.data();
-		////sptrProjData* ptr_sptr = new sptrProjData;
-		////*ptr_sptr = am.forward(im, datafile);
-		////return newObjectHandle(ptr_sptr);
-		//NEW(shared_ptr<PETAcquisitionData>, sptr_ad);
-		//*sptr_ad = am.forward(im);
-		//return newObjectHandle(sptr_ad);
 		return newObjectHandle(am.forward(im));
 	}
 	CATCH;
@@ -302,12 +247,8 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
-		//ProjData& ad = objectFromHandle<ProjData>(ptr_ad);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		//sptrImage3DF* ptr_sptr = new sptrImage3DF(am.backward(*ad.data()));
 		PETImageData* ptr_id = new PETImageData(am.backward(*ad.data()));
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETImageData> sptr(ptr_id);
 		return newObjectHandle(sptr);
 	}
@@ -326,22 +267,13 @@ cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 		return (void*)new DataHandle;
 	}
 	CATCH;
-	//PETAcquisitionData::set_storage_scheme(scheme);
-	//return (void*)new DataHandle;
 }
 
 extern "C"
 void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 {
 	try {
-		//sptrProjData& sptr_t = objectSptrFromHandle<ProjData>(ptr_t);
-		//NEW_SPTR(ProjData, ptr_sptr,
-		//	ProjDataInMemory(sptr_t->get_exam_info_sptr(),
-		//					 sptr_t->get_proj_data_info_sptr()));
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
-		//NEW_SPTR_FROM_PTR
-		//	(PETAcquisitionData, ptr_sptr, sptr_t->new_acquisition_data());
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
 	}
@@ -353,7 +285,6 @@ void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		dim[0] = sptr_ad->get_num_tangential_poss();
 		dim[1] = sptr_ad->get_num_views();
@@ -368,7 +299,6 @@ void* cSTIR_getAcquisitionsData(const void* ptr_acq, size_t ptr_data)
 {
 	try {
 		float* data = (float*)ptr_data;
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		sptr_ad->copy_to(data);
 		return (void*)new DataHandle;
@@ -380,7 +310,6 @@ extern "C"
 void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v)
 {
 	try {
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		sptr_ad->fill(v);
 		return (void*)new DataHandle;
@@ -393,8 +322,6 @@ void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 (void* ptr_acq, const void* ptr_from)
 {
 	try {
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
-		//sptrProjData& sptr_from = objectSptrFromHandle<ProjData>(ptr_from);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_from, ptr_from);
 		sptr_ad->fill(*sptr_from);
@@ -407,7 +334,6 @@ extern "C"
 void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
 {
 	try {
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_acq);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		float *data = (float *)ptr_data;
 		sptr_ad->fill_from(data);
@@ -421,7 +347,6 @@ void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
 		DataHandle* handle = new DataHandle;
-		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
 		xSTIR_IterativeReconstruction3DF& recon =
@@ -448,7 +373,6 @@ void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i)
 		DataHandle* handle = new DataHandle;
 		Reconstruction<Image3DF>& recon =
 			objectFromHandle< Reconstruction<Image3DF> >(ptr_r);
-		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
 		if (recon.reconstruct(sptr_image) != Succeeded::yes) {
@@ -465,7 +389,6 @@ extern "C"
 void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		xSTIR_IterativeReconstruction3DF& recon =
@@ -481,7 +404,6 @@ void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i)
 {
 	try {
 		DataHandle* handle = new DataHandle;
-		//sptrImage3DF& sptr_image = objectSptrFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		sptrImage3DF sptr_image = id.data_sptr();
 		xSTIR_GeneralisedObjectiveFunction3DF& obj_fun =
@@ -505,7 +427,6 @@ cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i)
 {
 	try {
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		float v = (float)fun.compute_objective_function(image);
@@ -522,10 +443,7 @@ cSTIR_subsetSensitivity(void* ptr_f, int subset)
 		PoissonLogLhLinModMean3DF& fun =
 			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
 		const Image3DF& s = fun.get_subset_sensitivity(subset);
-		//sptrImage3DF* ptr_sptr = new sptrImage3DF(s.clone());
 		PETImageData* ptr_id = new PETImageData(s);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETImageData> sptr(ptr_id);
 		return newObjectHandle(sptr);
 	}
@@ -538,14 +456,9 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 {
 	try {
 		ObjectiveFunction3DF& fun = objectFromHandle< ObjectiveFunction3DF>(ptr_f);
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
-		//sptrImage3DF* ptr_sptr = new sptrImage3DF(image.get_empty_copy());
 		PETImageData* ptr_id = new PETImageData(image);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		////Image3DF& grad = **ptr_sptr;
-		//Image3DF& grad = (**ptr_sptr).data();
 		shared_ptr<PETImageData> sptr(ptr_id);
 		Image3DF& grad = sptr->data();
 		if (subset >= 0)
@@ -553,11 +466,7 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 		else {
 			int nsub = fun.get_num_subsets();
 			grad.fill(0.0);
-			//sptrImage3DF* sptr_subgrad = new sptrImage3DF(image.get_empty_copy());
-			//Image3DF& subgrad = **sptr_subgrad;
 			PETImageData* ptr_id = new PETImageData(image);
-			//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-			//Image3DF& subgrad = (**ptr_sptr).data();
 			shared_ptr<PETImageData> sptr_sub(ptr_id);
 			Image3DF& subgrad = sptr_sub->data();
 			for (int sub = 0; sub < nsub; sub++) {
@@ -566,7 +475,6 @@ cSTIR_objectiveFunctionGradient(void* ptr_f, void* ptr_i, int subset)
 			}
 		}
 		return newObjectHandle(sptr);
-		//return newObjectHandle(ptr_sptr);
 	}
 	CATCH;
 }
@@ -578,20 +486,13 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 	try {
 		PoissonLogLhLinModMean3DF& fun = 
 			objectFromHandle<PoissonLogLhLinModMean3DF>(ptr_f);
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
-		//sptrImage3DF* ptr_sptr = new sptrImage3DF(image.get_empty_copy());
-		//Image3DF& grad = **ptr_sptr; // ->get();
-		//PETImageData* ptr_id = new PETImageData(image);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//Image3DF& grad = (**ptr_sptr).data();
 		shared_ptr<PETImageData> sptr(new PETImageData(image));
 		Image3DF& grad = sptr->data();
 		fun.compute_sub_gradient_without_penalty_plus_sensitivity
 			(grad, image, subset);
 		return newObjectHandle(sptr);
-		//return newObjectHandle(ptr_sptr);
 	}
 	CATCH;
 }
@@ -602,19 +503,12 @@ cSTIR_priorGradient(void* ptr_p, void* ptr_i)
 {
 	try {
 		Prior3DF& prior = objectFromHandle<Prior3DF>(ptr_p);
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
-		//sptrImage3DF* ptr_sptr = new sptrImage3DF(image.get_empty_copy());
-		//Image3DF& grad = **ptr_sptr; // ->get();
-		//PETImageData* ptr_id = new PETImageData(image);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//Image3DF& grad = (**ptr_sptr).data();
 		shared_ptr<PETImageData> sptr(new PETImageData(image));
 		Image3DF& grad = sptr->data();
 		prior.compute_gradient(grad, image);
 		return newObjectHandle(sptr);
-		//return newObjectHandle(ptr_sptr);
 	}
 	CATCH;
 }
@@ -626,13 +520,6 @@ float sx, float sy, float sz,
 float x, float y, float z)
 {
 	try {
-		//sptrVoxels3DF* sptr = new sptrVoxels3DF(
-		//	new Voxels3DF(IndexRange3D(0, nz - 1,
-		//	-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-		//	Coord3DF(z, y, x),
-		//	Coord3DF(sz, sy, sx)));
-		//(*sptr)->fill(0);
-		//return newObjectHandle(sptr);
 		shared_ptr<Voxels3DF> sptr(new Voxels3DF(IndexRange3D(0, nz - 1,
 			-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
 			Coord3DF(z, y, x),
@@ -648,10 +535,6 @@ void* cSTIR_imageFromVoxels(void* ptr_v)
 {
 	try {
 		Voxels3DF& voxels = objectFromHandle<Voxels3DF>(ptr_v);
-		////sptrImage3DF* ptr_sptr = new sptrImage3DF(voxels.clone());
-		//PETImageData* ptr_id = new PETImageData(voxels);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETImageData> sptr(new PETImageData(voxels));
 		return (void*)newObjectHandle(sptr);
 	}
@@ -662,13 +545,8 @@ extern "C"
 void* cSTIR_imageFromImage(void* ptr_i)
 {
 	try {
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
-		////sptrImage3DF* ptr_sptr = new sptrImage3DF(image.clone());
-		//PETImageData* ptr_id = new PETImageData(image);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETImageData> sptr(new PETImageData(image));
 		return (void*)newObjectHandle(sptr);
 	}
@@ -679,7 +557,6 @@ extern "C"
 void* cSTIR_writeImage(void* ptr_i, const char* filename)
 {
 	try {
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
@@ -694,16 +571,10 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		//sptrProjData& sptr_ad = objectSptrFromHandle<ProjData>(ptr_ad);
 		shared_ptr<PETAcquisitionData>& sptr_ad =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
 		shared_ptr<ProjDataInfo> sptr_adi =
 			sptr_ad->get_proj_data_info_sptr();
-		////Voxels3DF* ptr_voxels = new Voxels3DF(*sptr_adi);
-		////sptrImage3DF* ptr_sptr = new sptrImage3DF(ptr_voxels);
-		//PETImageData* ptr_id = new PETImageData(*sptr_adi);
-		//NEW_SPTR_FROM_PTR(PETImageData, ptr_sptr, ptr_id);
-		//return newObjectHandle(ptr_sptr);
 		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_adi));
 		return newObjectHandle(sptr);
 	}
@@ -714,7 +585,6 @@ extern "C"
 void* cSTIR_addShape(void* ptr_i, void* ptr_s, float v)
 {
 	try {
-		//Image3DF& image = objectFromHandle<Image3DF>(ptr_i);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		sptrVoxels3DF sptr_v((Voxels3DF*)image.clone());
@@ -734,10 +604,6 @@ extern "C"
 void* cSTIR_fillImage(void* ptr_i, float v)
 {
 	try {
-		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_i);
-		//if (ptr_image == 0)
-		//	return;
-		//Image3DF& image = *ptr_image;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_i);
 		Image3DF& image = id.data();
 		image.fill(v);
@@ -754,10 +620,6 @@ void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 		dim[0] = 0;
 		dim[1] = 0;
 		dim[2] = 0;
-		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-		//if (ptr_image == 0)
-		//	return;
-		//Image3DF& image = *ptr_image;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		Image3DF& image = id.data();
 		Coordinate3D<int> min_indices;
@@ -780,10 +642,6 @@ extern "C"
 void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
 {
 	try {
-		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-		//if (ptr_image == 0)
-		//	return;
-		//Image3DF& image = *ptr_image;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		Image3DF& image = id.data();
 		Coordinate3D<int> min_indices;
@@ -811,10 +669,6 @@ extern "C"
 void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
 {
 	try {
-		//Image3DF* ptr_image = objectPtrFromHandle<Image3DF>(ptr_im);
-		//if (ptr_image == 0)
-		//	return;
-		//Image3DF& image = *ptr_image;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
 		Image3DF& image = id.data();
 		Coordinate3D<int> min_indices;
@@ -843,10 +697,8 @@ void*
 cSTIR_norm(const void* ptr_x)
 {
 	try {
-		//CAST_PTR(DataHandle, h_x, ptr_x);
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
-		//objectFromHandle<aDataContainer<float> >(h_x);
 		float* result = (float*)malloc(sizeof(float));
 		*result = x.norm();
 		DataHandle* handle = new DataHandle;
@@ -861,8 +713,6 @@ void*
 cSTIR_dot(const void* ptr_x, const void* ptr_y)
 {
 	try {
-		//CAST_PTR(DataHandle, h_x, ptr_x);
-		//CAST_PTR(DataHandle, h_y, ptr_y);
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
 		aDataContainer<float>& y =
@@ -881,11 +731,8 @@ void*
 cSTIR_mult(float a, const void* ptr_x)
 {
 	try {
-		//CAST_PTR(DataHandle, h_x, ptr_x);
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
-		//shared_ptr<aDataContainer<float> > sptr_z =
-		//	x.new_data_container();
 		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
 		//sptr_z->mult(a, x);
 		sptr_z->axpby(a, x, 0, x);
@@ -901,15 +748,11 @@ cSTIR_axpby(
 	float b, const void* ptr_y
 ) {
 	try {
-		//CAST_PTR(DataHandle, h_x, ptr_x);
-		//CAST_PTR(DataHandle, h_y, ptr_y);
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
 		aDataContainer<float>& y =
 			objectFromHandle<aDataContainer<float> >(ptr_y);
 		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
-		//shared_ptr<aDataContainer<float> > sptr_z =
-		//	x.new_data_container();
 		sptr_z->axpby(a, x, b, y);
 		return newObjectHandle<aDataContainer<float> >(sptr_z);
 	}

@@ -38,17 +38,14 @@ limitations under the License.
 #include "gadget_lib.h"
 #include "chain_lib.h"
 
-//using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
 
 #define GRAB 1
 
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
 return newObjectHandle<G>();
-//return newObjectHandle<aGadget, G>();
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
 return newObjectHandle<C>();
-//return newObjectHandle<GadgetChain, C>();
 
 shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -100,7 +97,6 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GTConnector>();
 		if (boost::iequals(name, "CoilImages"))
 			return newObjectHandle<CoilImagesVector>();
-		//return newObjectHandle<CoilImagesContainer, CoilImagesVector>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);
@@ -388,10 +384,8 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 	try{
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
 			AcquisitionsFile::set_as_template();
-			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsFile);
 		else
 			AcquisitionsVector::set_as_template();
-			//AcquisitionsContainerTemplate::set_storage_template(new AcquisitionsVector);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -516,7 +510,6 @@ cGT_getAcquisitionsData
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
 		int n = acqs.get_acquisitions_data(slice, re, im);
 		return dataHandle(n);
-		//return new DataHandle;
 	}
 	CATCH;
 }
@@ -640,7 +633,6 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		shared_ptr<ImagesContainer> sptr_img = input.clone(attr, target);
-		//shared_ptr<ImagesContainer> sptr_img = input.clone(inc, off);
 		return newObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
@@ -834,9 +826,8 @@ float br, float bi, const void* ptr_y
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		aDataContainer<complex_float_t>& y = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		shared_ptr<aDataContainer<complex_float_t> > sptr_z(x.new_data_container());
-		//shared_ptr<aDataContainer<complex_float_t> > sptr_z = 
-		//	x.new_data_container();
+		shared_ptr<aDataContainer<complex_float_t> > 
+			sptr_z(x.new_data_container());
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);

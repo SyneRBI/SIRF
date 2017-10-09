@@ -52,21 +52,6 @@ public:
 	}
 };
 
-//template <typename T>
-//class aDataContainer {
-//public:
-//	virtual ~aDataContainer() {}
-//	virtual aDataContainer<T>* new_data_container() = 0;
-//	//virtual shared_ptr<aDataContainer<T> > new_data_container() = 0;
-//	virtual unsigned int items() = 0;
-//	virtual float norm() = 0;
-//	virtual T dot(const aDataContainer<T>& dc) = 0;
-//	virtual void mult(T a, const aDataContainer<T>& x) = 0;
-//	virtual void axpby(
-//		T a, const aDataContainer<T>& x,
-//		T b, const aDataContainer<T>& y) = 0;
-//};
-
 class ProjDataFile : public ProjDataInterfile {
 public:
 	ProjDataFile(const ProjData& pd, const std::string& filename) :
@@ -94,7 +79,6 @@ public:
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	virtual aDataContainer<float>* new_data_container() = 0;
-	//virtual shared_ptr<aDataContainer<float> > new_data_container() = 0;
 	shared_ptr<ProjData> data()
 	{
 		return _data;
@@ -232,13 +216,10 @@ public:
 		return shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
-	//shared_ptr<aDataContainer<float> > new_data_container()
 	aDataContainer<float>* new_data_container()
 	{
 		init();
 		return (aDataContainer<float>*)_template->same_acquisition_data(*data());
-		//return shared_ptr<aDataContainer<float> >
-		//	(_template->same_acquisition_data(*data()));
 	}
 
 	void clear_stream()
@@ -288,12 +269,6 @@ public:
 		init();
 		return _template->same_acquisition_data(*data());
 	}
-	//shared_ptr<aDataContainer<float> > new_data_container()
-	//{
-	//	init();
-	//	return shared_ptr<aDataContainer<float> >
-	//		(_template->same_acquisition_data(*data()));
-	//}
 
 	void clear_stream() {}
 	void close_stream()	{}
@@ -332,10 +307,6 @@ public:
 	{
 		return same_image_data();
 	}
-	//shared_ptr<aDataContainer<float> > new_data_container()
-	//{
-	//	return shared_ptr<aDataContainer<float> >(same_image_data());
-	//}
 	unsigned int items()
 	{
 		return 1;
