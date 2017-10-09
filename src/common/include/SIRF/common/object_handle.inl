@@ -178,18 +178,18 @@ objectSptrFromHandle(const void* h) {
 	return *ptr_sptr;
 }
 
-template<class Base>
-Base&
-objectFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	CAST_PTR(Base, ptr_object, ptr_sptr->get());
-	return *ptr_object;
-}
+//template<class Base>
+//Base&
+//objectFromHandle(const DataHandle* handle) {
+//	void* ptr = handle->data();
+//	if (ptr == 0)
+//		THROW("zero data pointer cannot be dereferenced");
+//	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
+//	if (!ptr_sptr->get())
+//		THROW("zero object pointer cannot be dereferenced");
+//	CAST_PTR(Base, ptr_object, ptr_sptr->get());
+//	return *ptr_object;
+//}
 
 //template<class Base, class Object>
 //Object&
@@ -204,17 +204,17 @@ objectFromHandle(const DataHandle* handle) {
 //	return *ptr_object;
 //}
 
-template<class Base>
-shared_ptr<Base>&
-objectSptrFromHandle(const DataHandle* handle) {
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	return *ptr_sptr;
-}
+//template<class Base>
+//shared_ptr<Base>&
+//objectSptrFromHandle(const DataHandle* handle) {
+//	void* ptr = handle->data();
+//	if (ptr == 0)
+//		THROW("zero data pointer cannot be dereferenced");
+//	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
+//	if (!ptr_sptr->get())
+//		THROW("zero object pointer cannot be dereferenced");
+//	return *ptr_sptr;
+//}
 
 template<class T>
 shared_ptr<T>
