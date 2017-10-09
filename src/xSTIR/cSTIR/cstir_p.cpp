@@ -248,7 +248,7 @@ cSTIR_acqModUsingMatrixParameter
 		//< AcqMod3DF, 
 		<AcqModUsingMatrix3DF>(hm);
 	if (boost::iequals(name, "matrix"))
-		return sptrObjectHandle(am.matrix_sptr());
+		return newObjectHandle(am.matrix_sptr());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -313,7 +313,7 @@ cSTIR_generalisedObjectiveFunctionParameter
 	ObjectiveFunction3DF& obj_fun =
 		objectFromHandle< ObjectiveFunction3DF >(handle);
 	if (boost::iequals(name, "prior"))
-		return sptrObjectHandle(obj_fun.get_prior_sptr());
+		return newObjectHandle(obj_fun.get_prior_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -376,9 +376,9 @@ cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(handle);
 	if (boost::iequals(name, "projector_pair_type"))
-		return sptrObjectHandle(obj_fun.get_projector_pair_sptr());
+		return newObjectHandle(obj_fun.get_projector_pair_sptr());
 	else if (boost::iequals(name, "acquisition_model"))
-		return sptrObjectHandle(obj_fun.acquisition_model_sptr());
+		return newObjectHandle(obj_fun.acquisition_model_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -467,9 +467,9 @@ cSTIR_iterativeReconstructionParameter
 		return dataHandle<int>(xrecon.subiteration());
 	}
 	if (boost::iequals(name, "objective_function"))
-		return sptrObjectHandle(recon.get_objective_function_sptr());
+		return newObjectHandle(recon.get_objective_function_sptr());
 	if (boost::iequals(name, "inter_iteration_filter_type"))
-		return sptrObjectHandle(recon.get_inter_iteration_filter_sptr());
+		return newObjectHandle(recon.get_inter_iteration_filter_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -494,7 +494,7 @@ cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 		objectFromHandle//< Reconstruction<Image3DF>,
 		<OSMAPOSLReconstruction<Image3DF> >(handle);
 	if (boost::iequals(name, "objective_function"))
-		return sptrObjectHandle(recon.get_objective_function_sptr());
+		return newObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

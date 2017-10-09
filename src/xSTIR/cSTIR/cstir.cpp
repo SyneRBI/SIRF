@@ -889,7 +889,7 @@ cSTIR_mult(float a, const void* ptr_x)
 		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
 		//sptr_z->mult(a, x);
 		sptr_z->axpby(a, x, 0, x);
-		return sptrObjectHandle<aDataContainer<float> >(sptr_z);
+		return newObjectHandle<aDataContainer<float> >(sptr_z);
 	}
 	CATCH;
 }
@@ -911,7 +911,7 @@ cSTIR_axpby(
 		//shared_ptr<aDataContainer<float> > sptr_z =
 		//	x.new_data_container();
 		sptr_z->axpby(a, x, b, y);
-		return sptrObjectHandle<aDataContainer<float> >(sptr_z);
+		return newObjectHandle<aDataContainer<float> >(sptr_z);
 	}
 	CATCH;
 }

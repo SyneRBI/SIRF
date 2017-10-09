@@ -148,7 +148,7 @@ cGT_parameter(void* ptr, const char* obj, const char* name)
 			GadgetChain& gc = objectFromHandle<GadgetChain>(ptr);
 			shared_ptr<aGadget> sptr = gc.gadget_sptr(name);
 			if (sptr.get())
-				return sptrObjectHandle(sptr);
+				return newObjectHandle(sptr);
 			else {
 				DataHandle* handle = new DataHandle;
 				std::string error = "Gadget ";
@@ -189,12 +189,12 @@ cGT_CoilSensitivities(const char* file)
 		if (std::strlen(file) > 0) {
 			shared_ptr<CoilSensitivitiesContainer>
 				csms(new CoilSensitivitiesAsImages(file));
-			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+			return newObjectHandle<CoilSensitivitiesContainer>(csms);
 		}
 		else {
 			shared_ptr<CoilSensitivitiesContainer>
 				csms(new CoilSensitivitiesAsImages());
-			return sptrObjectHandle<CoilSensitivitiesContainer>(csms);
+			return newObjectHandle<CoilSensitivitiesContainer>(csms);
 		}
 	}
 	CATCH;
@@ -329,7 +329,7 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 		shared_ptr<ImagesContainer> imgs =
 			objectSptrFromHandle<ImagesContainer>(h_imgs);
 		shared_ptr<AcquisitionModel> am(new AcquisitionModel(acqs, imgs));
-		return sptrObjectHandle<AcquisitionModel>(am);
+		return newObjectHandle<AcquisitionModel>(am);
 	}
 	CATCH;
 }
@@ -360,7 +360,7 @@ cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 		AcquisitionModel& am = objectFromHandle<AcquisitionModel>(h_am);
 		ImagesContainer& imgs = objectFromHandle<ImagesContainer>(h_imgs);
 		shared_ptr<AcquisitionsContainer> sptr_acqs = am.fwd(imgs);
-		return sptrObjectHandle<AcquisitionsContainer>(sptr_acqs);
+		return newObjectHandle<AcquisitionsContainer>(sptr_acqs);
 	}
 	CATCH;
 }
@@ -376,7 +376,7 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 		AcquisitionsContainer& acqs =
 			objectFromHandle<AcquisitionsContainer>(h_acqs);
 		shared_ptr<ImagesContainer> sptr_imgs = am.bwd(acqs);
-		return sptrObjectHandle<ImagesContainer>(sptr_imgs);
+		return newObjectHandle<ImagesContainer>(sptr_imgs);
 	}
 	CATCH;
 }
@@ -420,7 +420,7 @@ cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 	try {
 		shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file));
-		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+		return newObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH;
 }
@@ -432,7 +432,7 @@ cGT_ISMRMRDAcquisitionsFile(const char* file)
 	try {
 		shared_ptr<AcquisitionsContainer> 
 			acquisitions(new AcquisitionsFile(file, true));
-		return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+		return newObjectHandle<AcquisitionsContainer>(acquisitions);
 	}
 	CATCH;
 }
@@ -450,7 +450,7 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 			objectFromHandle<AcquisitionsContainer>(h_input);
 		proc.process(input);
 		shared_ptr<AcquisitionsContainer> sptr_ac = proc.get_output();
-		return sptrObjectHandle<AcquisitionsContainer>(sptr_ac);
+		return newObjectHandle<AcquisitionsContainer>(sptr_ac);
 	}
 	CATCH;
 }
@@ -466,7 +466,7 @@ cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 		shared_ptr<ISMRMRD::Acquisition>
 			sptr_acq(new ISMRMRD::Acquisition);
 		acqs.get_acquisition(acq_num, *sptr_acq);
-		return sptrObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
+		return newObjectHandle<ISMRMRD::Acquisition>(sptr_acq);
 	}
 	CATCH;
 }
@@ -595,7 +595,7 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		AcquisitionsContainer& input = objectFromHandle<AcquisitionsContainer>(h_input);
 		recon.process(input);
 		shared_ptr<ImagesContainer> sptr_img = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_img);
+		return newObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -609,7 +609,7 @@ cGT_reconstructedImages(void* ptr_recon)
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		shared_ptr<ImagesContainer> sptr_img = recon.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_img);
+		return newObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -626,7 +626,7 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		proc.process(input);
 		shared_ptr<ImagesContainer> sptr_img = proc.get_output();
-		return sptrObjectHandle<ImagesContainer>(sptr_img);
+		return newObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 
@@ -641,7 +641,7 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 		ImagesContainer& input = objectFromHandle<ImagesContainer>(h_input);
 		shared_ptr<ImagesContainer> sptr_img = input.clone(attr, target);
 		//shared_ptr<ImagesContainer> sptr_img = input.clone(inc, off);
-		return sptrObjectHandle<ImagesContainer>(sptr_img);
+		return newObjectHandle<ImagesContainer>(sptr_img);
 	}
 	CATCH;
 }
@@ -655,7 +655,7 @@ cGT_imagesCopy(const void* ptr_imgs)
 		ImagesContainer& imgs = 
 			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
 		shared_ptr<ImagesContainer> clone = imgs.clone();
-		return sptrObjectHandle<ImagesContainer>(clone);
+		return newObjectHandle<ImagesContainer>(clone);
 	}
 	CATCH;
 }
@@ -680,7 +680,7 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 {
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 	ImagesContainer& images = objectFromHandle<ImagesContainer>(h_imgs);
-	return sptrObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
+	return newObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
 }
 
 extern "C"
@@ -840,7 +840,7 @@ float br, float bi, const void* ptr_y
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
-		return sptrObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
 	}
 	CATCH;
 }

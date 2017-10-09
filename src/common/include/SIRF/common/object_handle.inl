@@ -27,11 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#define SPTR(Base, X, Object) shared_ptr< Base > X(new Object)
-#define NEW_SPTR(Base, X, Object) \
-	shared_ptr< Base >* X = new shared_ptr< Base >(new Object)
-#define NEW_SPTR_FROM_PTR(Object, X, P) \
-	shared_ptr< Object >* X = new shared_ptr< Object >(P)
+#include "data_handle.h"
+
 #define SPTR_FROM_HANDLE(Object, X, H) \
 	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
 
@@ -80,15 +77,10 @@ Creates an object of the class Object derived from the class Base and
 an ObjectHandle storing a shared pointer to it.
 Returns a void pointer to the ObjectHandle object.
 */
-//template<class Base, class Object>
 template<class Object>
 static void*
 newObjectHandle()
 {
-	//NEW_SPTR(Base, ptr_sptr, Object);
-	//ObjectHandle<Base>* ptr_handle = new ObjectHandle<Base>(*ptr_sptr);
-	//delete ptr_sptr;
-	//return (void*)ptr_handle;
 	shared_ptr<Object> sptr(new Object);
 	return (void*)new ObjectHandle<Object>(sptr);
 }
@@ -97,7 +89,7 @@ newObjectHandle()
 \ingroup C Interface to C++ Objects
 \brief A new wrapper for an existing shared pointer.
 
-Creates an ObjectHandle that stores the shared pointer passed by the argument.
+Creates an ObjectHandle that stores the shared pointer passed as the argument.
 Returns a void pointer to the ObjectHandle object.
 */
 template<class Object>
@@ -111,31 +103,15 @@ newObjectHandle(shared_ptr<Object> sptr)
 \ingroup C Interface to C++ Objects
 \brief A new wrapper for an existing shared pointer.
 
-Creates an ObjectHandle that stores a shared pointer pointed to by the argument.
+Creates an ObjectHandle that stores a shared pointer passed as the argument.
 Returns a void pointer to the ObjectHandle object.
 */
-//template<class Object>
-//static void*
-//newObjectHandle(shared_ptr<Object>* ptr_sptr)
-//{
-//	ObjectHandle<Object>* ptr_handle = new ObjectHandle<Object>(*ptr_sptr);
-//	delete ptr_sptr;
+//template<class T>
+//void*
+//sptrObjectHandle(shared_ptr<T> sptr) {
+//	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
 //	return (void*)ptr_handle;
 //}
-
-/*!
-\ingroup C Interface to C++ Objects
-\brief A new wrapper for an existing shared pointer.
-
-Creates an ObjectHandle that stores a shared pointer supplied as the argument.
-Returns a void pointer to the ObjectHandle object.
-*/
-template<class T>
-void*
-sptrObjectHandle(shared_ptr<T> sptr) {
-	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
-	return (void*)ptr_handle;
-}
 
 /*!
 \ingroup C Interface to C++ Objects
@@ -160,7 +136,7 @@ objectFromHandle(const void* h) {
 
 /*!
 \ingroup C Interface to C++ Objects
-\brief An object accessor.
+\brief An object's shared pointer accessor.
 
 Returns a reference to the shared pointer to the object wrapped up by 
 the ObjectHandle pointed to by the argument.
@@ -177,44 +153,6 @@ objectSptrFromHandle(const void* h) {
 		THROW("zero object pointer cannot be dereferenced");
 	return *ptr_sptr;
 }
-
-//template<class Base>
-//Base&
-//objectFromHandle(const DataHandle* handle) {
-//	void* ptr = handle->data();
-//	if (ptr == 0)
-//		THROW("zero data pointer cannot be dereferenced");
-//	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
-//	if (!ptr_sptr->get())
-//		THROW("zero object pointer cannot be dereferenced");
-//	CAST_PTR(Base, ptr_object, ptr_sptr->get());
-//	return *ptr_object;
-//}
-
-//template<class Base, class Object>
-//Object&
-//objectFromHandle(const DataHandle* handle) {
-//	void* ptr = handle->data();
-//	if (ptr == 0)
-//		THROW("zero data pointer cannot be dereferenced");
-//	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
-//	if (!ptr_sptr->get())
-//		THROW("zero object pointer cannot be dereferenced");
-//	CAST_PTR(Object, ptr_object, ptr_sptr->get());
-//	return *ptr_object;
-//}
-
-//template<class Base>
-//shared_ptr<Base>&
-//objectSptrFromHandle(const DataHandle* handle) {
-//	void* ptr = handle->data();
-//	if (ptr == 0)
-//		THROW("zero data pointer cannot be dereferenced");
-//	CAST_PTR(shared_ptr<Base>, ptr_sptr, ptr);
-//	if (!ptr_sptr->get())
-//		THROW("zero object pointer cannot be dereferenced");
-//	return *ptr_sptr;
-//}
 
 template<class T>
 shared_ptr<T>
