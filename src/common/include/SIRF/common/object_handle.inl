@@ -90,7 +90,21 @@ newObjectHandle()
 	//delete ptr_sptr;
 	//return (void*)ptr_handle;
 	shared_ptr<Object> sptr(new Object);
-	return new ObjectHandle<Object>(sptr);
+	return (void*)new ObjectHandle<Object>(sptr);
+}
+
+/*!
+\ingroup C Interface to C++ Objects
+\brief A new wrapper for an existing shared pointer.
+
+Creates an ObjectHandle that stores the shared pointer passed by the argument.
+Returns a void pointer to the ObjectHandle object.
+*/
+template<class Object>
+static void*
+newObjectHandle(shared_ptr<Object> sptr)
+{
+	return (void*)new ObjectHandle<Object>(sptr);
 }
 
 /*!
@@ -100,14 +114,14 @@ newObjectHandle()
 Creates an ObjectHandle that stores a shared pointer pointed to by the argument.
 Returns a void pointer to the ObjectHandle object.
 */
-template<class Object>
-static void*
-newObjectHandle(shared_ptr<Object>* ptr_sptr)
-{
-	ObjectHandle<Object>* ptr_handle = new ObjectHandle<Object>(*ptr_sptr);
-	delete ptr_sptr;
-	return (void*)ptr_handle;
-}
+//template<class Object>
+//static void*
+//newObjectHandle(shared_ptr<Object>* ptr_sptr)
+//{
+//	ObjectHandle<Object>* ptr_handle = new ObjectHandle<Object>(*ptr_sptr);
+//	delete ptr_sptr;
+//	return (void*)ptr_handle;
+//}
 
 /*!
 \ingroup C Interface to C++ Objects
