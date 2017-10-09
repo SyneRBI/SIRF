@@ -111,7 +111,9 @@ cSTIR_setEllipsoidalCylinderParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	EllipsoidalCylinder& c =
-		objectFromHandle<Shape3D, EllipsoidalCylinder>(hp);
+		objectFromHandle
+		//<Shape3D, 
+		<EllipsoidalCylinder>(hp);
 	float value = dataFromHandle<float>(hv);
 	if (boost::iequals(name, "length"))
 		c.set_length(value);
@@ -128,7 +130,9 @@ void*
 cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
 {
 	EllipsoidalCylinder& c =
-		objectFromHandle<Shape3D, EllipsoidalCylinder>(handle);
+		objectFromHandle
+		//<Shape3D, 
+		<EllipsoidalCylinder>(handle);
 	if (boost::iequals(name, "length"))
 		return dataHandle<float>(c.get_length());
 	if (boost::iequals(name, "radius_x"))
@@ -143,7 +147,9 @@ cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	CylindricFilter3DF& filter =
-		objectFromHandle< DataProcessor3DF, CylindricFilter3DF >(hp);
+		objectFromHandle
+		//< DataProcessor3DF, 
+		<CylindricFilter3DF>(hp);
 	if (boost::iequals(name, "strictly_less_than_radius"))
 		filter.set_strictly_less_than_radius
 			(boost::iequals(charDataFromDataHandle(hv), "true"));
@@ -157,7 +163,9 @@ cSTIR_truncateToCylindricalFOVImageProcessorParameter
 (const DataHandle* handle, const char* name)
 {
 	CylindricFilter3DF& filter =
-		objectFromHandle< DataProcessor3DF, CylindricFilter3DF >(handle);
+		objectFromHandle
+		//< DataProcessor3DF, 
+		<CylindricFilter3DF>(handle);
 	if (boost::iequals(name, "strictly_less_than_radius"))
 		return dataHandle<int>(filter.get_strictly_less_than_radius());
 	else
@@ -169,7 +177,9 @@ cSTIR_setRayTracingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	RayTracingMatrix& matrix = 
-		objectFromHandle< ProjMatrixByBin, RayTracingMatrix >(hp);
+		objectFromHandle
+		//< ProjMatrixByBin, 
+		<RayTracingMatrix>(hp);
 	int value = dataFromHandle<int>(hv);
 	if (boost::iequals(name, "num_tangential_LORs"))
 		matrix.set_num_tangential_LORs(value);
@@ -182,7 +192,9 @@ void*
 cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
 {
 	RayTracingMatrix& matrix = 
-		objectFromHandle< ProjMatrixByBin, RayTracingMatrix >(handle);
+		objectFromHandle
+		//< ProjMatrixByBin, 
+		<RayTracingMatrix>(handle);
 	if (boost::iequals(name, "num_tangential_LORs"))
 		return dataHandle<int>(matrix.get_num_tangential_LORs());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -219,7 +231,8 @@ cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hm, const char* name, const DataHandle* hv)
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle
-		< AcqMod3DF, AcqModUsingMatrix3DF >(hm);
+		//< AcqMod3DF, 
+		<AcqModUsingMatrix3DF>(hm);
 	if (boost::iequals(name, "matrix"))
 		am.set_matrix(sptrDataFromHandle<ProjMatrixByBin>(hv));
 	else
@@ -232,7 +245,8 @@ cSTIR_acqModUsingMatrixParameter
 (DataHandle* hm, const char* name)
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle
-		< AcqMod3DF, AcqModUsingMatrix3DF >(hm);
+		//< AcqMod3DF, 
+		<AcqModUsingMatrix3DF>(hm);
 	if (boost::iequals(name, "matrix"))
 		return sptrObjectHandle(am.matrix_sptr());
 	else
@@ -266,7 +280,9 @@ cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_QuadraticPrior3DF& prior =
-		objectFromHandle< Prior3DF, xSTIR_QuadraticPrior3DF >(hp);
+		objectFromHandle
+		//< Prior3DF, 
+		<xSTIR_QuadraticPrior3DF>(hp);
 	if (boost::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
 	else
@@ -306,7 +322,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	PoissonLogLhLinModMean3DF& obj_fun = objectFromHandle
-		< ObjectiveFunction3DF, PoissonLogLhLinModMean3DF >(hp);
+		//< ObjectiveFunction3DF, 
+		<PoissonLogLhLinModMean3DF>(hp);
 	if (boost::iequals(name, "sensitivity_filename"))
 		obj_fun.set_sensitivity_filename(charDataFromDataHandle(hv));
 	else if (boost::iequals(name, "use_subset_sensitivities"))
@@ -326,8 +343,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 {
 	xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF&
 		obj_fun =
-		objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
-		xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
+		objectFromHandle//<GeneralisedObjectiveFunction<Image3DF>,
+		<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(hp);
 	if (boost::iequals(name, "input_filename"))
 		obj_fun.set_input_file(charDataFromDataHandle(hv));
@@ -355,8 +372,8 @@ cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 {
 	xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF&
 		obj_fun =
-		objectFromHandle<GeneralisedObjectiveFunction<Image3DF>,
-		xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
+		objectFromHandle//<GeneralisedObjectiveFunction<Image3DF>,
+		<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(handle);
 	if (boost::iequals(name, "projector_pair_type"))
 		return sptrObjectHandle(obj_fun.get_projector_pair_sptr());
@@ -387,7 +404,9 @@ cSTIR_setIterativeReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	IterativeReconstruction3DF& recon =
-		objectFromHandle< Reconstruction3DF, IterativeReconstruction3DF >(hp);
+		objectFromHandle
+		//< Reconstruction3DF, 
+		<IterativeReconstruction3DF>(hp);
 	if (boost::iequals(name, "inter_iteration_filter_type"))
 		recon.set_inter_iteration_filter_ptr
 			(sptrDataFromHandle< DataProcessor3DF >(hv));
@@ -432,7 +451,8 @@ cSTIR_iterativeReconstructionParameter
 (const DataHandle* handle, const char* name)
 {
 	IterativeReconstruction3DF& recon = objectFromHandle
-		< Reconstruction3DF, IterativeReconstruction3DF >(handle);
+		//< Reconstruction3DF, 
+		<IterativeReconstruction3DF>(handle);
 	if (boost::iequals(name, "num_subsets"))
 		return dataHandle<int>(recon.get_num_subsets());
 	if (boost::iequals(name, "start_subset_num"))
@@ -458,8 +478,8 @@ cSTIR_setOSMAPOSLParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		OSMAPOSLReconstruction<Image3DF> >(hp);
+		objectFromHandle//< Reconstruction<Image3DF>,
+		<OSMAPOSLReconstruction<Image3DF> >(hp);
 	if (boost::iequals(name, "MAP_model"))
 		recon.set_MAP_model(charDataFromDataHandle(hv));
 	else
@@ -471,8 +491,8 @@ void*
 cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		OSMAPOSLReconstruction<Image3DF> >(handle);
+		objectFromHandle//< Reconstruction<Image3DF>,
+		<OSMAPOSLReconstruction<Image3DF> >(handle);
 	if (boost::iequals(name, "objective_function"))
 		return sptrObjectHandle(recon.get_objective_function_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
@@ -482,8 +502,8 @@ void*
 cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		xSTIR_OSSPSReconstruction3DF >(hp);
+		objectFromHandle//< Reconstruction<Image3DF>,
+		<xSTIR_OSSPSReconstruction3DF >(hp);
 	if (boost::iequals(name, "relaxation_parameter"))
 		recon.relaxation_parameter_value() = dataFromHandle<float>(hv);
 	else
@@ -495,8 +515,8 @@ void*
 cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
-		objectFromHandle< Reconstruction<Image3DF>,
-		xSTIR_OSSPSReconstruction3DF >(handle);
+		objectFromHandle//< Reconstruction<Image3DF>,
+		<xSTIR_OSSPSReconstruction3DF>(handle);
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

@@ -44,9 +44,11 @@ using namespace gadgetron;
 #define GRAB 1
 
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
-return newObjectHandle<aGadget, G>();
+return newObjectHandle<G>();
+//return newObjectHandle<aGadget, G>();
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
-return newObjectHandle<GadgetChain, C>();
+return newObjectHandle<C>();
+//return newObjectHandle<GadgetChain, C>();
 
 shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -93,15 +95,12 @@ void* cGT_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "Mutex"))
-			return newObjectHandle<Mutex, Mutex>();
+			return newObjectHandle<Mutex>();
 		if (boost::iequals(name, "GTConnector"))
-			return newObjectHandle<GTConnector, GTConnector>();
-		//if (boost::iequals(name, "string"))
-		//	return newObjectHandle<std::string, std::string>();
-		//if (boost::iequals(name, "Images"))
-		//	return newObjectHandle<ImagesContainer, ImagesVector>();
+			return newObjectHandle<GTConnector>();
 		if (boost::iequals(name, "CoilImages"))
-			return newObjectHandle<CoilImagesContainer, CoilImagesVector>();
+			return newObjectHandle<CoilImagesVector>();
+		//return newObjectHandle<CoilImagesContainer, CoilImagesVector>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);

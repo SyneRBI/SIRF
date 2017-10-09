@@ -65,20 +65,28 @@ void* cSTIR_newObject(const char* name)
 		if (boost::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return newObjectHandle
-			< ObjectiveFunction3DF, 
-			xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF >();
+			//< ObjectiveFunction3DF, 
+			<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>();
 		if (boost::iequals(name, "AcqModUsingMatrix"))
-			return newObjectHandle< AcqMod3DF, AcqModUsingMatrix3DF >();
+			return newObjectHandle
+			//< AcqMod3DF, 
+			<AcqModUsingMatrix3DF>();
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return newObjectHandle
-			< ProjMatrixByBin, RayTracingMatrix >();
+			//< ProjMatrixByBin, 
+			<RayTracingMatrix>();
 		if (boost::iequals(name, "QuadraticPrior"))
-			return newObjectHandle< Prior3DF, QuadPrior3DF >();
+			return newObjectHandle
+			//< Prior3DF, 
+			<QuadPrior3DF>();
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return newObjectHandle
-			< DataProcessor3DF, CylindricFilter3DF >();
+			//< DataProcessor3DF, 
+			<CylindricFilter3DF>();
 		if (boost::iequals(name, "EllipsoidalCylinder"))
-			return newObjectHandle< Shape3D, EllipsoidalCylinder >();
+			return newObjectHandle
+			//< Shape3D, 
+			<EllipsoidalCylinder>();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
