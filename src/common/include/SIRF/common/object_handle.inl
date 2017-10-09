@@ -101,17 +101,21 @@ newObjectHandle(shared_ptr<Object> sptr)
 
 /*!
 \ingroup C Interface to C++ Objects
-\brief A new wrapper for an existing shared pointer.
+\brief An object's shared pointer accessor.
 
-Creates an ObjectHandle that stores a shared pointer passed as the argument.
-Returns a void pointer to the ObjectHandle object.
+Returns a reference to the shared pointer to the object wrapped up by
+the ObjectHandle pointed to by the argument.
 */
-//template<class T>
-//void*
-//sptrObjectHandle(shared_ptr<T> sptr) {
-//	ObjectHandle<T>* ptr_handle = new ObjectHandle<T>(sptr);
-//	return (void*)ptr_handle;
-//}
+template<class Object>
+shared_ptr<Object>&
+objectSptrFromHandle(const void* h) {
+	DataHandle* handle = (DataHandle*)h;
+	void* ptr = handle->data();
+	if (ptr == 0)
+		THROW("zero data pointer cannot be dereferenced");
+	CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
+	return *ptr_sptr;
+}
 
 /*!
 \ingroup C Interface to C++ Objects
@@ -123,39 +127,10 @@ by the argument.
 template<class Object>
 Object&
 objectFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
+	shared_ptr<Object> sptr = objectSptrFromHandle<Object>(h);
+	Object* ptr = sptr.get();
+	if (!ptr)
 		THROW("zero object pointer cannot be dereferenced");
-	CAST_PTR(Object, ptr_object, ptr_sptr->get());
-	return *ptr_object;
+	return *ptr;
 }
 
-/*!
-\ingroup C Interface to C++ Objects
-\brief An object's shared pointer accessor.
-
-Returns a reference to the shared pointer to the object wrapped up by 
-the ObjectHandle pointed to by the argument.
-*/
-template<class Object>
-shared_ptr<Object>&
-objectSptrFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
-	if (!ptr_sptr->get())
-		THROW("zero object pointer cannot be dereferenced");
-	return *ptr_sptr;
-}
-
-template<class T>
-shared_ptr<T>
-sptrDataFromHandle(const DataHandle* handle) {
-	return *(shared_ptr<T>*)handle->data();
-}
