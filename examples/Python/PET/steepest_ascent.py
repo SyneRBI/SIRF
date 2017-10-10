@@ -101,7 +101,8 @@ def main():
 
     if verbose:
         disp = 3
-        print('NOTE: below f(x) is the negative of the objective function value')
+        if step < 0:
+            print('NOTE: below f(x) is the negative of the objective function value')
     else:
         disp = 0
     eps = 1e-6 # single precision round-off error level
@@ -146,11 +147,11 @@ def main():
         # find such voxels and freeze them
         exclude = numpy.logical_and(image_as_3D_array <= 0, grad_as_3D_array < 0)
         grad_as_3D_array[exclude] = 0
+        grad.fill(grad_as_3D_array)
 
         if step < 0:
             # find the optimal step size x
-            fun = lambda x: -obj_fun.value \
-                  (image.fill(image_as_3D_array + x*grad_as_3D_array))
+            fun = lambda x: -obj_fun.value(image + x*grad)
             x = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
@@ -161,14 +162,12 @@ def main():
 
         # perform steepest descent step
         print('step %d, max change in image %e' % (iter, x*max_grad))
-        image_as_3D_array = image_as_3D_array + x*grad_as_3D_array
-
+        image = image + x*grad
         # filter the new image
-        image.fill(image_as_3D_array)
         filter.apply(image)
-        image_as_3D_array = image.as_array()
 
         # display the current image estimate
+        image_as_3D_array = image.as_array()
         show_2D_array('Current image', image_as_3D_array[20,:,:])
 
         # quit if the new image has substantially negative values
