@@ -22,7 +22,7 @@
         5. [Functions](#Functions)
 5. [Appendix](#Appendix)
     1. [Acquisition data storage scheme management](#storage_management)
-    2. [Programming Gadgetron chains of gadgets](#programming_Gadgetron_chains)
+    2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
         2. [SIRF gadget library](#SIRF_gadget_library)
 
@@ -483,7 +483,7 @@ where `scheme` is either `"memory"` or `"file"`.
 
 A particular setting of storage scheme by a Matlab script or a Python script run from Spyder is persistent: any script run afterwards will use the same storage scheme unless a different storage scheme is explicitly set by `set_storage_scheme` or Matlab/Spyder is re-started.
 
-## Programming Gadgetron chains of gadgets <a name="programming_Gadgetron_chains"></a>
+## Programming chains of Gadgetron gadgets <a name="programming_Gadgetron_chains"></a>
 
 With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
 
@@ -497,7 +497,7 @@ Here `my_gadget_list` is a list of strings in Python or a cell array of strings 
 
     [label:]gadget_name[(property1=value1[,property2=value2,...])]
 
-where gadget and its properties names are same as in Gadgetron xml files, and an optional label can be used to change the labelled gadget properties at any time by using `set_gadget_property` method:
+where the names of the gadget and its properties are same as in Gadgetron xml files, and an optional label can be used to change the labelled gadget properties at any time by using `set_gadget_property` method:
 
     my_recon.set_gadget_property(label, property, value);
 
@@ -524,8 +524,8 @@ The input data is defined by creating an AcquisitionData object and passing it t
 
 and the reconstruction is performed by calling the method `process`, and the reconstructed images are returned as an ImageData object by the method `get_output`:
 
-    recon.process();
-    image_data = recon.get_output();
+    my_recon.process();
+    image_data = my_recon.get_output();
 
 While the way to use Gadgetron just described is the most efficient performance-wise, some users may like to get more involved in the reconstruction process. SIRF offers such users an opportunity to split a standard reconstruction chain into sub-chains and process intermediate data. For example, the chain defined above can be split into an acquisition processing chain that removes oversampling, a shortened reconstruction chain and an image processing chain:
 
@@ -546,7 +546,7 @@ While the way to use Gadgetron just described is the most efficient performance-
 
     # do something with the complex image data here
 
-    img_proc = ImageDataProcessor(['ExtractGadget(extract_mask=5)'])
+    img_proc = ImageDataProcessor(['ExtractGadget(extract_mask=1)'])
     img_proc.set_input(complex_image_data)
     img_proc.process()
     real_image_data = img_proc.get_output()
@@ -554,50 +554,130 @@ While the way to use Gadgetron just described is the most efficient performance-
 
 ### SIRF gadget library <a name="SIRF_gadget_library"></a>
 
-SIRF Release 0.9.0 provides access to the following Gadgetron gadgets (below `internal` refers to Gadgetron data objects to which SIRF does not provide access; consult Gadgetron documentation for details).
+This section provides a concise description of Gadgetron gadgets that can be used by current SIRF release scripts in a way described in the previous section. For further information consult Gadgetron documentation.
+
+Below `internal<N>` refers to Gadgetron data objects to which SIRF does not provide interface at present. We emphasize that splitting Gadgetron chains into sub-chains in a way described in the previous section only makes sense if the input of the first gadget and the output of the last gadget of each sub-chain are either AcquisitionData or ImageData.
 
 #### RemoveROOversamplingGadget
 
-    input: AcquisitionData
-    output: AcquisitionData
-    parameters: none
+input | output | parameters |
+-|
+AcquisitionData | AcquisitionData | none
+
+#### NoiseAdjustGadget
+
+input | output | parameters |
+-|
+AcquisitionData | AcquisitionData | none
+
+#### AsymmetricEchoAdjustGadget
+
+input | output | parameters |
+-|
+AcquisitionData | AcquisitionData | none
 
 #### AcquisitionAccumulateTriggerGadget
 
-    input: AcquisitionData
-    output: internal 1
-    parameters:
-        trigger_dimension (default: "repetition")
-        sorting_dimension (default: "slice")
+input | output | parameters | default values |
+-|
+AcquisitionData | internal1 | trigger_dimension | "repetition"
+| | sorting_dimension | "slice"
 
 #### BucketToBufferGadget
 
-    input: internal 1
-    output: internal 2
-    parameters:
-        N_dimension (default: "")
-        S_dimension (default: "")
-        split_slices (default: "true")
-        ignore_segment (default: "true")
-        verbose (default: "true")
-        
+input | output | parameters | default values |
+-|
+internal1 | internal2 | N_dimension | ""
+| | S_dimension | ""
+| | split_slices | "true"
+| | ignore_segment | "true"
+| | verbose | "true"
+
 #### SimpleReconGadget
 
-    input: internal 2
-    output: internal 3
-    parameters: none
-    
+input | output | parameters |
+-|
+internal2 | internal3 | none
+
+#### GenericReconCartesianReferencePrepGadget
+
+input | output | parameters | default values |
+-|
+internal2 | internal4 | debug_folder | ""
+| | perform_timing | "true"
+| | verbose | "true"
+| | average_all_ref_N | "true"
+| | average_all_ref_S | "true"
+| | prepare_ref_always | "true"
+
+#### GenericReconCartesianGrappaGadget
+
+input | output | parameters | default values |
+-|
+internal4 | internal5 | debug_folder | ""
+| | perform_timing | "true"
+| | verbose | "true"
+| | image_series | "0"
+| | coil_map_algorithm | "Inati"
+| | send_out_gfactor | "true"
+| | downstream_coil_compression | "true"
+| | downstream_coil_compression_thres | "0.01"
+| | downstream_coil_compression_num_modesKept | "0"
+
+#### GenericReconFieldOfViewAdjustmentGadget
+
+input | output | parameters | default values |
+-|
+internal5 | internal6 | debug_folder | ""
+| | perform_timing | "false"
+| | verbose | "false"
+
+#### GenericReconImageArrayScalingGadget
+
+input | output | parameters | default values |
+-|
+internal6 | internal3 | perform_timing | "false"
+| | verbose | "false"
+| | min_intensity_value | "64"
+| | max_intensity_value | "4095"
+| | scalingFactor | "10.0"
+| | scalingFactor_dedicated | "100.0"
+| | use_constant_scalingFactor | "true"
+| | auto_scaling_only_once | "true"
+
 #### ImageArraySplitGadget
 
-    input: internal 3
-    output: ImageData
-    parameters: none
+input | output | parameters |
+-|
+internal3 | ImageData | none
 
 #### ExtractGadget
 
-    input: ImageData
-    output: ImageData
-    parameters:
-        extract_mask (default "1")
+input | output | parameters | default values |
+-|
+ImageData | ImageData | extract_mask | "1"
 
-To be continued...
+#### ComplexToFloatGadget
+
+input | output | parameters |
+-|
+ImageData | ImageData | none
+
+#### FloatToShortGadget
+
+input | output | parameters | default values |
+-|
+ImageData | ImageData | min_intensity | "0"
+| | max_intensity | "32767"
+| | intensity_offset | "0"
+
+#### SimpleReconGadgetSet
+
+input | output | parameters | default values |
+-|
+AcquisitionData | ImageData | N_dimension | ""
+| | S_dimension | ""
+| | sorting_dimension | "slice"
+| | trigger_dimension | "repetition"
+| | split_slices | "true"
+
