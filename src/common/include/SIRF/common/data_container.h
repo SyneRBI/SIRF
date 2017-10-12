@@ -18,23 +18,30 @@ limitations under the License.
 
 */
 
-#ifndef SIRF_SHARED_PTR
-#define SIRF_SHARED_PTR
+#ifndef SIRF_DATA_CONTAINER_TYPE
+#define SIRF_DATA_CONTAINER_TYPE
 
-#include "boost/shared_ptr.hpp"
+/*
+\ingroup Data Container
+\brief Abstract data container.
 
-//namespace sirf {
-//	using boost::shared_ptr;
-//}
+A class for a set of generally heterogeneous items of data.
 
-namespace boost_sptr {
-	using boost::shared_ptr;
-}
-
-namespace std_sptr {
-	using std::shared_ptr;
-}
-
-//#define SPTR_NAMESPACE boost_sptr
+Has vector features: norm, dot product, linear combination,
+which rely on the same features of the items.
+*/
+template <typename T>
+class aDataContainer {
+public:
+	virtual ~aDataContainer() {}
+	virtual aDataContainer<T>* new_data_container() = 0;
+	virtual unsigned int items() = 0;
+	virtual float norm() = 0;
+	virtual T dot(const aDataContainer<T>& dc) = 0;
+	//virtual void mult(T a, const aDataContainer<T>& x) = 0;
+	virtual void axpby(
+		T a, const aDataContainer<T>& x,
+		T b, const aDataContainer<T>& y) = 0;
+};
 
 #endif

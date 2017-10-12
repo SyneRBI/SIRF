@@ -55,7 +55,6 @@ limitations under the License.
 
 */
 
-//using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
 
 class GTConnector {
@@ -180,6 +179,13 @@ private:
 	shared_ptr<aGadget> endgadget_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief A particular type of Gadget chain that has AcquisitionData 
+on input and output.
+
+*/
+
 class AcquisitionsProcessor : public GadgetChain {
 public:
 	AcquisitionsProcessor() :
@@ -216,6 +222,13 @@ private:
 	shared_ptr<AcquisitionsContainer> sptr_acqs_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief A particular type of Gadget chain that has AcquisitionData on input 
+and ImageData on output.
+
+*/
+
 class ImagesReconstructor : public GadgetChain {
 public:
 
@@ -250,6 +263,13 @@ private:
 	shared_ptr<ImagesContainer> sptr_images_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief A particular type of Gadget chain that has ImageData 
+on input and output.
+
+*/
+
 class ImagesProcessor : public GadgetChain {
 public:
 	ImagesProcessor() :
@@ -282,9 +302,43 @@ private:
 	shared_ptr<ImagesContainer> sptr_images_;
 };
 
+/*!
+\ingroup Gadgetron Extensions
+\brief A class for MR acquisition modelling.
+
+MR Acquisition model is a mathematical model that represents 
+MR scanner by an operator (generally non-linear) that maps 
+a mathematical representation of the scanned object \e x into 
+a mathematical representation of the predicted acquisition 
+data \e y to be produced by the scanner after scanning this
+object:
+
+\f[
+  y = A(x).
+\f]
+
+The application of A is referred to as <em> (forward) projection </em>, 
+and the application of the complex transpose of the Frechet 
+derivative of A as \e backprojection.
+
+In SIRF, \e x is represented by an \e ImageContainer object and 
+\e y by an \e AcquisitionContainer object.
+The application of A (projection) involves multiplication by
+<em>coil sensitivity maps</em>, 2D Fourier transform applied
+<em>xy</em>-slice-wise and gathering readouts based on the index
+stored by property \e kspace_encode_step_1 of the method idx() of
+the object of class ISMRMRD::Acquisition recorded by AcquisitionModel
+constructor as a template.
+*/
+
 class AcquisitionModel {
 public:
 
+	/*
+	The constructor records, by copying shared pointers, the two supplied
+	arguments as templates, to be used for obtaining scanner and image
+	discretisation data.
+	*/
 	AcquisitionModel(
 		shared_ptr<AcquisitionsContainer> sptr_ac,
 		shared_ptr<ImagesContainer> sptr_ic
@@ -292,11 +346,15 @@ public:
 	{
 	}
 
+	// Records the coil sensitivities maps to be used. 
 	void setCSMs(shared_ptr<CoilSensitivitiesContainer> sptr_csms)
 	{
 		sptr_csms_ = sptr_csms;
 	}
 
+	// Forward projects one image item (typically xy-slice) into
+	// respective readouts, and appends them to the AcquisitionContainer
+	// passed as the last argument.
 	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac)
 	{
 		int type = iw.type();
@@ -304,6 +362,8 @@ public:
 		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac);
 	}
 
+	// Backprojects a set of readouts corresponding to one image item
+	// (typically xy-slice).
 	void bwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
 		unsigned int& off)
 	{
@@ -312,25 +372,32 @@ public:
 		IMAGE_PROCESSING_SWITCH(type, bwd_, ptr, csm, ac, off);
 	}
 
+	// Forward projects the whole ImageContainer using
+	// coil sensitivity maps in the second argument.
 	void fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		AcquisitionsContainer& ac);
 
+	// Backprojects the whole AcquisitionContainer using
+	// coil sensitivity maps in the second argument.
 	void bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 		AcquisitionsContainer& ac);
 
+	// Forward projects the whole ImageContainer using
+	// coil sensitivity maps referred to by sptr_csms_.
 	shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
 		shared_ptr<AcquisitionsContainer> sptr_acqs = 
-			//AcquisitionsContainerTemplate::new_acquisitions_container();
 			sptr_acqs_->new_acquisitions_container();
 		sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 		fwd(ic, *sptr_csms_, *sptr_acqs);
 		return sptr_acqs;
 	}
 
+	// Backprojects the whole AcquisitionContainer using
+	// coil sensitivity maps referred to by sptr_csms_.
 	shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)

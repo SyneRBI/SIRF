@@ -18,26 +18,25 @@ limitations under the License.
 
 */
 
-#ifndef DATA_HANDLE
-#define DATA_HANDLE
+/*!
+\file
+\ingroup C Interface to C++ Objects
+\brief Execution status type and basic wrapper for C++ objects.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
+#ifndef DATA_HANDLE_TYPES
+#define DATA_HANDLE_TYPES
 
 #include <stdlib.h>
 #include <string>
-
-#include <boost/algorithm/string.hpp>
 
 #include "localised_exception.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
-#define SPTR(Base, X, Object) shared_ptr< Base > X(new Object)
-#define NEW_SPTR(Base, X, Object) \
-	shared_ptr< Base >* X = new shared_ptr< Base >(new Object)
-#define NEW_SPTR_FROM_PTR(Object, X, P) \
-	shared_ptr< Object >* X = new shared_ptr< Object >(P)
-#define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
-
 #define THROW(msg) throw LocalisedException(msg, __FILE__, __LINE__)
 #define CATCH \
 	catch (LocalisedException& se) {\
@@ -59,6 +58,13 @@ limitations under the License.
 		return (void*)handle;\
 				}\
 
+/*!
+\ingroup C Interface to C++ Objects
+\brief Execution status type.
+
+An ExecutionStatus object is created when an exception is caught (see above).
+It stores the exeption's error message and position (file name and line number). 
+*/
 class ExecutionStatus {
 public:
 	ExecutionStatus() : _error(0), _file(0), _line(0) {}
@@ -102,6 +108,15 @@ private:
 	}
 };
 
+/*!
+\ingroup C Interface to C++ Objects
+\brief Basic wrapper for C++ objects.
+
+A DataHandle object stores data address (void* _data) and the current
+execution status (ExecutionStatus _status).
+SIRF C interface functions work with pointers to DataHandle objects
+cast to void*.
+*/
 class DataHandle {
 public:
 	DataHandle() : _data(0), _status(0), _owns_data(0) {}
@@ -123,13 +138,21 @@ public:
 	void* data() const { return _data; }
 	const ExecutionStatus* status() const { return _status; }
 protected:
-	bool _owns_data;
-	void* _data;
-	ExecutionStatus* _status;
+	bool _owns_data; // can free _data
+	void* _data; // data address
+	ExecutionStatus* _status; // execution status
 };
 
 #define GRAB 1
 
+/*!
+\ingroup C Interface to C++ Objects
+\brief Data wrapper.
+
+Wraps an object of type T into DataHandle.
+The data is owned by the DataHandle object and hence will be deleted by its 
+destructor.
+*/
 template <typename T>
 void
 setDataHandle(DataHandle* h, T x)
@@ -139,6 +162,12 @@ setDataHandle(DataHandle* h, T x)
 	h->set((void*)ptr, 0, GRAB);
 }
 
+/*!
+\ingroup C Interface to C++ Objects
+\brief Data wrapper constructor.
+
+Creates a new DataHandle to wrap an object of type T. 
+*/
 template <typename T>
 void*
 dataHandle(T x)
@@ -148,8 +177,14 @@ dataHandle(T x)
 	return (void*)h;
 }
 
+/*!
+\ingroup C Interface to C++ Objects
+\brief Data extractor.
+
+Returns a copy of the data stored in a DataHandle object.
+*/
 template <typename T>
-T
+T // must have a proper copy constructor
 dataFromHandle(const void* ptr)
 {
 	DataHandle* ptr_h = (DataHandle*)ptr;
@@ -181,8 +216,5 @@ inline void* charDataHandleFromCharData(const char* s)
 	h->set((void*)d, 0, GRAB);
 	return (void*)h;
 }
-
-//#define SPTR_NAMESPACE std_sptr
-//#include "object_handle.h"
 
 #endif

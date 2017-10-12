@@ -1,3 +1,23 @@
+/*
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+
+This is software developed for the Collaborative Computational
+Project in Positron Emission Tomography and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+*/
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -116,12 +136,13 @@ int print_hash(int ifcount, int hashcount)
 	return 1;
 }
 
-int c2m(
+int generate_matlab_interface(
 	const char* library,
 	const char* prefix,
-	const string& path, 
+	const string& path_in, 
 	const string& chfile, 
-	const string& mhfile, 
+	const string& path_out,
+	const string& mhfile,
 	const string& mcfile,
 	int with_print = 0)
 {
@@ -141,17 +162,17 @@ int c2m(
 
 	quit = false;
 
-	fin.open((path + chfile).c_str(), ios::in);
+	fin.open((path_in + chfile).c_str(), ios::in);
 	if (!fin) {
-		cout << "file " << path + chfile << " not found" << endl;
+		cout << "file " << path_in + chfile << " not found" << endl;
 		return -1;
 	}
 
 	size_t i = string::npos;
 	size_t m;
 
-	fh.open(mhfile.c_str(), ios::out);
-	fc.open(mcfile.c_str(), ios::out);
+	fh.open((path_out + mhfile).c_str(), ios::out);
+	fc.open((path_out + mcfile).c_str(), ios::out);
 
 	head_printed = 0;
 	comment = 0;

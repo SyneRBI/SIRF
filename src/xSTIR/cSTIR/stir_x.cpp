@@ -22,15 +22,12 @@ limitations under the License.
 #include "stir_types.h"
 #include "stir_x.h"
 
-void 
+using stir::shared_ptr;
+
+void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
 {
-	////shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
-	//shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data->data()));
-	//inv_(sptr.get(), MIN_BIN_EFFICIENCY);
-	//sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
-
 	shared_ptr<PETAcquisitionData>
 		sptr_ad(sptr_data->new_acquisition_data());
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
@@ -38,10 +35,6 @@ PETAcquisitionModel::set_bin_efficiency
 		(new BinNormalisationFromProjData(sptr_ad->data()));
 	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
 
-	//std::cout << sptr_normalisation_.get() << std::endl;
-	//std::cout << sptr_normalisation_->is_trivial() << std::endl;
-	//std::cout << normalisation_sptr()->is_trivial() << std::endl;
-	//sptr_ad->clear_stream();
 	sptr_norm_ = sptr_ad;
 }
 
@@ -74,7 +67,6 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
 		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
-		//add_(sptr_fd, sptr_add_->data());
 		std::cout << "ok\n";
 	}
 	else
@@ -93,14 +85,11 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	if (sptr_background_.get()) {
 		std::cout << "background term added...";
 		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
-		//add_(sptr_fd, sptr_background_->data());
 		std::cout << "ok\n";
 	}
 	else
 		std::cout << "no background term added\n";
 
-	//sptr_ad->set_data(sptr_fd);
-	//return sptr_fd;
 	return sptr_ad;
 }
 
@@ -112,13 +101,10 @@ PETAcquisitionModel::backward(ProjData& ad)
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "applying normalisation...";
-		//ProjDataInMemory adc(ad);
 		std::cout << "ok\n";
 		sptr_normalisation_->undo(ad, 0, 1);
-		//sptr_normalisation_->undo(adc, 0, 1);
 		std::cout << "backprojecting...";
 		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
-		//(*sptr_im, adc);
 		std::cout << "ok\n";
 	}
 	else

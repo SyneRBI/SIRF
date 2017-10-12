@@ -29,7 +29,6 @@ limitations under the License.
 #endif
 EXPORTED_FUNCTION  void* mNewDataHandle();
 EXPORTED_FUNCTION 	void mDeleteDataHandle(void* ptr);
-EXPORTED_FUNCTION 	void mDeleteObject(void* ptr);
 EXPORTED_FUNCTION 	void* mCharDataHandle(const char* s);
 EXPORTED_FUNCTION 	void* mIntDataHandle(int i);
 EXPORTED_FUNCTION 	void* mFloatDataHandle(float i);

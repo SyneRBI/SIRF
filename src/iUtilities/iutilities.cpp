@@ -18,31 +18,30 @@ limitations under the License.
 
 */
 
+/*!
+\file
+\ingroup C Interface to C++ Objects
+\brief C interface to DataHandle.
+
+Defines C functions handling DataHandle objects.
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #include <complex>
 
-#include "shared_ptr.h"
 #include "data_handle.h"
-
-//using namespace SPTR_NAMESPACE;
 
 extern "C" {
 
-	void* newDataHandle() 
+	void* newDataHandle() // C constructor
 	{
 		return (void*)new DataHandle;
 	}
-	void deleteDataHandle(void* ptr) 
+	void deleteDataHandle(void* ptr) // C destructor
 	{
 		if (ptr)
 			delete (DataHandle*)ptr;
-	}
-
-	void deleteObject(void* ptr)
-	{
-		if (!ptr)
-			return;
-		CAST_PTR(DataHandle, ptr_obj, ptr);
-		delete ptr_obj;
 	}
 
 	void* charDataHandle(const char* s) 

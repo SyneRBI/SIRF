@@ -20,7 +20,8 @@ limitations under the License.
 
 #include "stir_data_containers.h"
 
-//std::string PETAcquisitionData::_storage_scheme;
+using stir::shared_ptr;
+
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float

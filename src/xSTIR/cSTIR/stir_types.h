@@ -21,6 +21,8 @@ limitations under the License.
 #ifndef STIR_DATA_TYPES
 #define STIR_DATA_TYPES
 
+#include <boost/algorithm/string.hpp>
+
 #include "stir/DiscretisedDensity.h"
 #include "stir/CartesianCoordinate3D.h"
 #include "stir/DataProcessor.h"
@@ -51,6 +53,8 @@ limitations under the License.
 #include "stir/TextWriter.h"
 
 #define GRAB 1
+
+using stir::shared_ptr;
 
 USING_NAMESPACE_STIR
 

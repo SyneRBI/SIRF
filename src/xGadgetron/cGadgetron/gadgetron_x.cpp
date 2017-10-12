@@ -31,7 +31,6 @@ limitations under the License.
 #include "data_handle.h"
 #include "gadgetron_x.h"
 
-//using namespace SPTR_NAMESPACE;
 using namespace gadgetron;
 
 bool
@@ -99,8 +98,6 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 
 	GTConnector conn;
 
-	//sptr_acqs_ = AcquisitionsContainerTemplate::new_acquisitions_container();
-	//sptr_acqs_->copy_acquisitions_info(acquisitions);
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		shared_ptr<GadgetronClientMessageReader>
@@ -112,7 +109,6 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 			conn().send_gadgetron_configuration_script(config);
 
 			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-			//sptr_acqs_->copy_acquisitions_info(acquisitions);
 
 			uint32_t nacq = 0;
 			nacq = acquisitions.number();
@@ -146,7 +142,6 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 
 	GTConnector conn;
 
-	//sptr_images_.reset(new ImagesList);
 	sptr_images_.reset(new ImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
