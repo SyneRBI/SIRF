@@ -1,4 +1,9 @@
-## New in Release 0.9.1
+# ChangeLog
+
+## v0.9.2
+- fixed version number and avoid confusing with wrong tag v0.9.1
+
+## v0.9.1
 
 - PET data algebra implemented
 - Storage scheme (file/memory) management for acquisition data implemented
@@ -9,3 +14,6 @@
 - User Guide Appendix on advanced features added
 	- Storage scheme management
 	- Programming Gadgetron chains
+
+## v0.9.0
+- first release
