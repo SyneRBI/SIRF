@@ -230,7 +230,7 @@ class DataContainer(ABC):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     @abc.abstractmethod
     def same_object(self):
         '''
@@ -1197,7 +1197,7 @@ class IterativeReconstructor(Reconstructor):
         self.subset = 0
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_num_subsets(self, n):
         _set_int_par\
             (self.handle, 'IterativeReconstruction', 'num_subsets', n)

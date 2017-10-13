@@ -114,7 +114,7 @@ class ClientConnector:
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_timeout(self, timeout):
         handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
         check_status(handle)
@@ -162,7 +162,7 @@ class DataContainer(ABC):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     @abc.abstractmethod
     def same_object(self):
         '''
@@ -301,7 +301,7 @@ class CoilImageData(DataContainer):
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return CoilImageData()
     def calculate(self, acqs):
@@ -484,7 +484,7 @@ class ImageData(DataContainer):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return ImageData()
     def data_type(self, im_num):
@@ -628,7 +628,7 @@ class Acquisition:
         self.handle = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def flags(self):
         '''
         Returns acquisition flags as an integer (each bit corresponding to a 
@@ -675,7 +675,7 @@ class AcquisitionData(DataContainer):
             check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     @staticmethod
     def set_storage_scheme(scheme):
         try_calling(pygadgetron.cGT_setAcquisitionsStorageScheme(scheme))
@@ -841,7 +841,7 @@ class AcquisitionModel:
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_coil_sensitivity_maps(self, csm):
         '''
         Specifies the coil sensitivity maps to be used by the model.
@@ -895,7 +895,7 @@ class Gadget:
             self.set_properties(prop)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_property(self, prop, value):
         '''
         Assigns specified value to specified gadget property.
@@ -926,7 +926,7 @@ class GadgetChain:
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
 ##    def add_reader(self, id, reader):
 ##        '''
 ##        Adds reader gadget (a gadget that receives data from the client) to the
@@ -1067,7 +1067,7 @@ class ImageDataProcessor(GadgetChain):
             self.add_gadget(label, Gadget(name))
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_input(self, input_data):
         '''
         Sets the input data.
@@ -1124,7 +1124,7 @@ class AcquisitionDataProcessor(GadgetChain):
             self.add_gadget(label, Gadget(name))
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def set_input(self, input_data):
         '''
         Sets the input data.
@@ -1165,7 +1165,7 @@ class FullySampledReconstructor(Reconstructor):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     
 class CartesianGRAPPAReconstructor(Reconstructor):
     '''
@@ -1179,7 +1179,7 @@ class CartesianGRAPPAReconstructor(Reconstructor):
         self.input_data = None
     def __del__(self):
         if self.handle is not None:
-            pyiutil.deleteObject(self.handle)
+            pyiutil.deleteDataHandle(self.handle)
     def compute_gfactors(self, flag):
         self.set_gadget_property('gadget4', 'send_out_gfactor', flag)
     
