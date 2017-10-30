@@ -64,9 +64,9 @@ def main():
     # of different data type (e.g. noise correlation data, navigator data,
     # image data,...);
     # the number of all readouts is
-    na = acq_data.get_number_of_readouts('all')
+    na = acq_data.number_of_readouts('all')
     # the number of image data readouts is
-    ni = acq_data.get_number_of_readouts()
+    ni = acq_data.number_of_readouts()
     print('readouts: total %d, image data %d' % (na, ni))
 
     # sort acquisition data;
@@ -96,7 +96,7 @@ def main():
     print(flags[where])
     
     # inspect some kspace_encode_step_1 counters
-    encode_step_1 = acq_data.get_info('encode_step_1')
+    encode_step_1 = acq_data.get_info('kspace_encode_step_1')
     print('Ky/PE - encoding'),
     print(encode_step_1[where])
     
@@ -109,6 +109,11 @@ def main():
     repetition = acq_data.get_info('repetition')
     print('Repetitions'),
     print(repetition[where])
+
+    # inspect some physiology time stamps
+    pts = acq_data.get_info('physiology_time_stamp')
+    print('Physiology time stamps'),
+    print(pts[where])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 

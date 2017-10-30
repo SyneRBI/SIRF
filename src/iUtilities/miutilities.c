@@ -52,8 +52,14 @@ EXPORTED_FUNCTION 	char* mCharDataFromHandle(const void* ptr) {
 EXPORTED_FUNCTION 	int mIntDataFromHandle(const void* ptr) {
 	return intDataFromHandle(ptr);
 }
+EXPORTED_FUNCTION 	int mIntDataItemFromHandle(const void* ptr, int i) {
+	return intDataItemFromHandle(ptr, i);
+}
 EXPORTED_FUNCTION 	float mFloatDataFromHandle(const void* ptr) {
 	return floatDataFromHandle(ptr);
+}
+EXPORTED_FUNCTION 	float mFloatDataItemFromHandle(const void* ptr, int i) {
+	return floatDataItemFromHandle(ptr, i);
 }
 EXPORTED_FUNCTION 	float mFloatReDataFromHandle(const void* ptr) {
 	return floatReDataFromHandle(ptr);

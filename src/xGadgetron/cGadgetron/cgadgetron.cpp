@@ -545,20 +545,68 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
-	if (boost::iequals(name, "number_of_samples"))
-		return dataHandle((int)acq.number_of_samples());
-	if (boost::iequals(name, "active_channels"))
-		return dataHandle((int)acq.active_channels());
-	if (boost::iequals(name, "trajectory_dimensions"))
-		return dataHandle((int)acq.trajectory_dimensions());
+	if (boost::iequals(name, "version"))
+		return dataHandle((int)acq.version());
 	if (boost::iequals(name, "flags"))
 		return dataHandle((int)acq.flags());
+	if (boost::iequals(name, "measurement_uid"))
+		return dataHandle((int)acq.measurement_uid());
+	if (boost::iequals(name, "scan_counter"))
+		return dataHandle((int)acq.scan_counter());
+	if (boost::iequals(name, "acquisition_time_stamp"))
+		return dataHandle((int)acq.acquisition_time_stamp());
+	if (boost::iequals(name, "number_of_samples"))
+		return dataHandle((int)acq.number_of_samples());
+	if (boost::iequals(name, "available_channels"))
+		return dataHandle((int)acq.available_channels());
+	if (boost::iequals(name, "active_channels"))
+		return dataHandle((int)acq.active_channels());
+	if (boost::iequals(name, "discard_pre"))
+		return dataHandle((int)acq.discard_pre());
+	if (boost::iequals(name, "discard_post"))
+		return dataHandle((int)acq.discard_post());
+	if (boost::iequals(name, "center_sample"))
+		return dataHandle((int)acq.center_sample());
+	if (boost::iequals(name, "encoding_space_ref"))
+		return dataHandle((int)acq.encoding_space_ref());
+	if (boost::iequals(name, "trajectory_dimensions"))
+		return dataHandle((int)acq.trajectory_dimensions());
 	if (boost::iequals(name, "idx_kspace_encode_step_1"))
 		return dataHandle((int)acq.idx().kspace_encode_step_1);
-	if (boost::iequals(name, "idx_repetition"))
-		return dataHandle((int)acq.idx().repetition);
+	if (boost::iequals(name, "idx_kspace_encode_step_2"))
+		return dataHandle((int)acq.idx().kspace_encode_step_2);
+	if (boost::iequals(name, "idx_average"))
+		return dataHandle((int)acq.idx().average);
 	if (boost::iequals(name, "idx_slice"))
 		return dataHandle((int)acq.idx().slice);
+	if (boost::iequals(name, "idx_contrast"))
+		return dataHandle((int)acq.idx().contrast);
+	if (boost::iequals(name, "idx_phase"))
+		return dataHandle((int)acq.idx().phase);
+	if (boost::iequals(name, "idx_repetition"))
+		return dataHandle((int)acq.idx().repetition);
+	if (boost::iequals(name, "idx_set"))
+		return dataHandle((int)acq.idx().set);
+	if (boost::iequals(name, "idx_segment"))
+		return dataHandle((int)acq.idx().segment);
+	if (boost::iequals(name, "physiology_time_stamp"))
+		return dataHandle((int*)acq.physiology_time_stamp());
+	if (boost::iequals(name, "channel_mask"))
+		return dataHandle((int*)acq.channel_mask());
+	if (boost::iequals(name, "sample_time_us"))
+		return dataHandle((float)acq.sample_time_us());
+	if (boost::iequals(name, "position"))
+		return dataHandle((float*)acq.position());
+	if (boost::iequals(name, "position"))
+		return dataHandle((float*)acq.position());
+	if (boost::iequals(name, "read_dir"))
+		return dataHandle((float*)acq.read_dir());
+	if (boost::iequals(name, "phase_dir"))
+		return dataHandle((float*)acq.phase_dir());
+	if (boost::iequals(name, "slice_dir"))
+		return dataHandle((float*)acq.slice_dir());
+	if (boost::iequals(name, "patient_table_position"))
+		return dataHandle((float*)acq.patient_table_position());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

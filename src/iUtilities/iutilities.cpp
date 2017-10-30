@@ -76,9 +76,19 @@ extern "C" {
 	{
 		return dataFromHandle<int>(ptr);
 	}
-	float floatDataFromHandle(const void* ptr) 
+	int intDataItemFromHandle(const void* ptr, int i)
+	{
+		int* arr = dataFromHandle<int*>(ptr);
+		return arr[i];
+	}
+	float floatDataFromHandle(const void* ptr)
 	{
 		return dataFromHandle<float>(ptr);
+	}
+	float floatDataItemFromHandle(const void* ptr, int i)
+	{
+		float* arr = dataFromHandle<float*>(ptr);
+		return arr[i];
 	}
 	float floatReDataFromHandle(const void* ptr)
 	{

@@ -81,10 +81,32 @@ def _int_par(handle, set, par):
     value = pyiutil.intDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
+def _int_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = (pyiutil.intDataItemFromHandle(h, 0),)
+    for i in range(1, n):
+        value += (pyiutil.intDataItemFromHandle(h, i),)
+    pyiutil.deleteDataHandle(h)
+    return value
 def _char_par(handle, set, par):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
     value = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _float_par(handle, set, par):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    v = pyiutil.floatDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return v
+def _float_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = (pyiutil.floatDataItemFromHandle(h, 0),)
+    for i in range(1, n):
+        value += (pyiutil.floatDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -613,22 +635,15 @@ class ImageData(DataContainer):
 
 DataContainer.register(ImageData)
 
-class AcquisitionInfo:
-    '''
-    Class for acquisition information parameters.
-    '''
-    def __init__(self):
-        self.flags = 0
-        self.encode_step_1 = 0
-        self.slice = 0
-        self.repetition = 0
-
 class Acquisition:
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def version(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'version')
     def flags(self):
         '''
         Returns acquisition flags as an integer (each bit corresponding to a 
@@ -636,30 +651,99 @@ class Acquisition:
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'flags')
-    def get_number_of_samples(self):
+    def measurement_uid(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'measurement_uid')
+    def scan_counter(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'scan_counter')
+    def acquisition_time_stamp(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
+    def number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'number_of_samples')
+    def available_channels(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'available_channels')
     def active_channels(self):
         '''
         Returns the number of active channels (coils).
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'active_channels')
+    def discard_pre(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'discard_pre')
+    def discard_post(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'discard_post')
+    def center_sample(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'center_sample')
+    def encoding_space_ref(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'encoding_space_ref')
     def trajectory_dimensions(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
-    def idx_kspace_encode_step_1(self):
+    def kspace_encode_step_1(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
-    def idx_repetition(self):
+    def kspace_encode_step_2(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_repetition')
-    def idx_slice(self):
+        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
+    def average(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'average')
+    def slice(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_slice')
+    def contrast(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'contrast')
+    def phase(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'phase')
+    def repetition(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+    def set(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'set')
+    def segment(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'segment')
+    def physiology_time_stamp(self):
+        assert self.handle is not None
+        return _int_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
+    def channel_mask(self):
+        assert self.handle is not None
+        return _int_pars(self.handle, 'acquisition', 'channel_mask', 16)
+    def sample_time_us(self):
+        assert self.handle is not None
+        return _float_par(self.handle, 'acquisition', 'sample_time_us')
+    def position(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'position', 3)
+    def read_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'read_dir', 3)
+    def phase_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'phase_dir', 3)
+    def slice_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'slice_dir', 3)
+    def patient_table_position(self):
+        assert self.handle is not None
+        return _float_pars \
+               (self.handle, 'acquisition', 'patient_table_position', 3)
+    def data(self, method):
+        return eval('self.' + method + '()')
 
 class AcquisitionData(DataContainer):
     '''
@@ -685,7 +769,7 @@ class AcquisitionData(DataContainer):
 ##        assert self.handle is not None
 ##        dim = self.dimensions(select)
 ##        return dim[0]
-    def get_number_of_readouts(self, select = 'image'):
+    def number_of_readouts(self, select = 'image'):
         dim = self.dimensions(select)
         return dim[0]
     def sort(self):
@@ -749,20 +833,6 @@ class AcquisitionData(DataContainer):
         else:
             dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def set_info(self):
-        '''
-        Fills the array self.info with information for each acquisition.
-        '''
-        na, nc, ns = self.dimensions()
-        self.info = numpy.empty((na,), dtype = object)
-        for a in range(na):
-            acq = self.acquisition(a)
-            info = AcquisitionInfo()
-            info.flags = acq.flags()
-            info.encode_step_1 = acq.idx_kspace_encode_step_1()
-            info.slice = acq.idx_slice()
-            info.repetition = acq.idx_repetition()
-            self.info[a] = info
     def get_info(self, par):
         '''
         Returns the array of values of the specified acquisition information 
@@ -770,30 +840,11 @@ class AcquisitionData(DataContainer):
         par: parameter name
         '''
         na, nc, ns = self.dimensions()
-        if self.info is None:
-            self.set_info()
-        if par == 'flags':
-            flags = numpy.empty((na,), dtype = numpy.int64)
-            for a in range(na):
-                flags[a] = self.info[a].flags
-            return flags
-        elif par == 'encode_step_1':
-            es1 = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                es1[a] = self.info[a].encode_step_1
-            return es1
-        elif par == 'slice':
-            s = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                s[a] = self.info[a].slice
-            return s
-        elif par == 'repetition':
-            r = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                r[a] = self.info[a].repetition
-            return r
-        else:
-            raise error('unknown acquisition parameter ' + par)
+        data = numpy.empty((na,), dtype = object)
+        for a in range(na):
+            acq = self.acquisition(a)
+            data[a] = acq.data(par)
+        return data
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
