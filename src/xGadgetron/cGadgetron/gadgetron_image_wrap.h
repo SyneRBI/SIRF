@@ -97,7 +97,7 @@ public:
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 		return s;
 	}
-	ISMRMRD::ImageHeader head()
+	ISMRMRD::ImageHeader& head()
 	{
 		IMAGE_PROCESSING_SWITCH(type_, return get_head_ref_, ptr_);
 	}

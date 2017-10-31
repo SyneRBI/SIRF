@@ -634,10 +634,54 @@ cGT_imageParameter(void* ptr_im, const char* name)
 	try {
 		ImageWrap& im = objectFromHandle<ImageWrap>(ptr_im);
 		ISMRMRD::ImageHeader& head = im.head();
+		if (boost::iequals(name, "version"))
+			return dataHandle((int)head.version);
+		if (boost::iequals(name, "flags"))
+			return dataHandle((int)head.flags);
+		if (boost::iequals(name, "data_type"))
+			return dataHandle((int)head.data_type);
+		if (boost::iequals(name, "measurement_uid"))
+			return dataHandle((int)head.measurement_uid);
+		if (boost::iequals(name, "channels"))
+			return dataHandle((int)head.channels);
+		if (boost::iequals(name, "average"))
+			return dataHandle((int)head.average);
 		if (boost::iequals(name, "slice"))
 			return dataHandle((int)head.slice);
+		if (boost::iequals(name, "contrast"))
+			return dataHandle((int)head.contrast);
+		if (boost::iequals(name, "phase"))
+			return dataHandle((int)head.phase);
 		if (boost::iequals(name, "repetition"))
 			return dataHandle((int)head.repetition);
+		if (boost::iequals(name, "set"))
+			return dataHandle((int)head.set);
+		if (boost::iequals(name, "acquisition_time_stamp"))
+			return dataHandle((int)head.acquisition_time_stamp);
+		if (boost::iequals(name, "image_type"))
+			return dataHandle((int)head.image_type);
+		if (boost::iequals(name, "image_index"))
+			return dataHandle((int)head.image_index);
+		if (boost::iequals(name, "image_series_index"))
+			return dataHandle((int)head.image_series_index);
+		if (boost::iequals(name, "attribute_string_len"))
+			return dataHandle((int)head.attribute_string_len);
+		if (boost::iequals(name, "matrix_size"))
+			return dataHandle((int*)head.matrix_size);
+		if (boost::iequals(name, "physiology_time_stamp"))
+			return dataHandle((int*)head.physiology_time_stamp);
+		if (boost::iequals(name, "field_of_view"))
+			return dataHandle((float*)head.field_of_view);
+		if (boost::iequals(name, "position"))
+			return dataHandle((float*)head.position);
+		if (boost::iequals(name, "read_dir"))
+			return dataHandle((float*)head.read_dir);
+		if (boost::iequals(name, "phase_dir"))
+			return dataHandle((float*)head.phase_dir);
+		if (boost::iequals(name, "slice_dir"))
+			return dataHandle((float*)head.slice_dir);
+		if (boost::iequals(name, "patient_table_position"))
+			return dataHandle((float*)head.patient_table_position);
 	}
 	CATCH;
 }

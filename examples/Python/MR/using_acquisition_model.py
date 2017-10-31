@@ -69,6 +69,13 @@ def main():
     complex_images = recon.get_output()
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
+    for i in range(complex_images.number()):
+        complex_image = Image(complex_images, i)
+        s = complex_image.slice()
+        print('slice %d' % s)
+        r = complex_image.repetition()
+        print('repetition %d' % r)
+    
     # sort processed acquisition data;
     # sorting currently performed with respect to (in this order):
     #    - repetition
