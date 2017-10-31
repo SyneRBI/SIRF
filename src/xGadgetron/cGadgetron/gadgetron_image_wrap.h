@@ -97,11 +97,9 @@ public:
 		IMAGE_PROCESSING_SWITCH_CONST(type_, get_size_, ptr_, s);
 		return s;
 	}
-	ISMRMRD::ImageHeader* ptr_head()
+	ISMRMRD::ImageHeader head()
 	{
-		ISMRMRD::ImageHeader** h;
-		IMAGE_PROCESSING_SWITCH(type_, get_head_ptr_, ptr_, h);
-		return *h;
+		IMAGE_PROCESSING_SWITCH(type_, return get_head_ref_, ptr_);
 	}
 	std::string attributes() const
 	{
@@ -176,9 +174,9 @@ private:
 	}
 
 	template<typename T>
-	void get_head_ptr_(ISMRMRD::Image<T>* ptr_im, ISMRMRD::ImageHeader** h)
+	ISMRMRD::ImageHeader& get_head_ref_(ISMRMRD::Image<T>* ptr_im)
 	{
-		*h = &(ptr_im->getHead());
+		return ptr_im->getHead();
 	}
 
 	template<typename T>

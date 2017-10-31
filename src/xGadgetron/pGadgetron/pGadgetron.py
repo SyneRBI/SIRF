@@ -496,6 +496,26 @@ class CoilSensitivityData(DataContainer):
 
 DataContainer.register(CoilSensitivityData)
 
+class Image:
+    '''
+    Class for an MR image.
+    '''
+    def __init__(self, image_data = None, image_num = 0):
+        self.handle = None
+        if image_data is not None:
+            self.handle = pygadgetron.cGT_imageWrapFromContainer \
+                          (image_data.handle, image_num)
+            check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def slice(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'slice')
+    def repetition(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'repetition')
+
 class ImageData(DataContainer):
     '''
     Class for an MR images container.

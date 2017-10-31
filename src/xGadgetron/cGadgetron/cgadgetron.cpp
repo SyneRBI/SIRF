@@ -136,6 +136,8 @@ void*
 cGT_parameter(void* ptr, const char* obj, const char* name)
 {
 	try {
+		if (boost::iequals(obj, "image"))
+			return cGT_imageParameter(ptr, name);
 		if (boost::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
 		if (boost::iequals(obj, "acquisitions"))
@@ -627,6 +629,21 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 
 extern "C"
 void*
+cGT_imageParameter(void* ptr_im, const char* name)
+{
+	try {
+		ImageWrap& im = objectFromHandle<ImageWrap>(ptr_im);
+		ISMRMRD::ImageHeader& head = im.head();
+		if (boost::iequals(name, "slice"))
+			return dataHandle((int)head.slice);
+		if (boost::iequals(name, "repetition"))
+			return dataHandle((int)head.repetition);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 {
 	try {
@@ -685,20 +702,6 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 	}
 	CATCH;
 }
-
-//extern "C"
-//void*
-//cGT_imagesCopy(const void* ptr_imgs)
-//{
-//	try {
-//		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-//		ImagesContainer& imgs = 
-//			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
-//		shared_ptr<ImagesContainer> clone = imgs.clone();
-//		return newObjectHandle<ImagesContainer>(clone);
-//	}
-//	CATCH;
-//}
 
 extern "C"
 void*

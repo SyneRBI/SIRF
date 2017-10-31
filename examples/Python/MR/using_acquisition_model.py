@@ -68,7 +68,7 @@ def main():
     recon.process()
     complex_images = recon.get_output()
     print('---\n reconstructed images norm: %e' % complex_images.norm())
-    
+
     # sort processed acquisition data;
     # sorting currently performed with respect to (in this order):
     #    - repetition
