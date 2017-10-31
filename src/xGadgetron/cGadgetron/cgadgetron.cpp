@@ -686,19 +686,19 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 	CATCH;
 }
 
-extern "C"
-void*
-cGT_imagesCopy(const void* ptr_imgs)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesContainer& imgs = 
-			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
-		shared_ptr<ImagesContainer> clone = imgs.clone();
-		return newObjectHandle<ImagesContainer>(clone);
-	}
-	CATCH;
-}
+//extern "C"
+//void*
+//cGT_imagesCopy(const void* ptr_imgs)
+//{
+//	try {
+//		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+//		ImagesContainer& imgs = 
+//			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
+//		shared_ptr<ImagesContainer> clone = imgs.clone();
+//		return newObjectHandle<ImagesContainer>(clone);
+//	}
+//	CATCH;
+//}
 
 extern "C"
 void*
@@ -754,11 +754,6 @@ cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	list.get_images_data_as_complex_array(re, im);
 }
 
-int executionStatus(const void* ptr) {
-	const DataHandle* ptr_h = (const DataHandle*)ptr;
-	return (ptr_h->status() ? 1 : 0);
-}
-
 extern "C"
 void*
 cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
@@ -772,22 +767,6 @@ cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	}
 	CATCH;
 	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_imageTypes(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		int* result = (int*)malloc(sizeof(int));
-		*result = x.types();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH;
 }
 
 extern "C"

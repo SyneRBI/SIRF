@@ -66,11 +66,9 @@ extern "C" {
 	void* cGT_reconstructedImages(void* ptr_recon);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
 	void* cGT_selectImages(void* ptr_input, const char* attr, const char* target);
-	void* cGT_imagesCopy(const void* ptr_imgs);
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
-	void* cGT_imageTypes(const void* ptr_x);
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
 
 	void cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);

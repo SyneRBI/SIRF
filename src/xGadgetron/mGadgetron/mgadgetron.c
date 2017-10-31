@@ -113,17 +113,11 @@ EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input) {
 EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, const char* attr, const char* target) {
 	return cGT_selectImages(ptr_input, attr, target);
 }
-EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs) {
-	return cGT_imagesCopy(ptr_imgs);
-}
 EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, const char* out_group) {
 	return cGT_writeImages (ptr_imgs, out_file, out_group);
 }
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num) {
 	return cGT_imageWrapFromContainer(ptr_imgs, img_num);
-}
-EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x) {
-	return cGT_imageTypes(ptr_x);
 }
 EXPORTED_FUNCTION 	void* mGT_imageDataType(const void* ptr_x, int im_num) {
 	return cGT_imageDataType(ptr_x, im_num);

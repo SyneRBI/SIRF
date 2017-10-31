@@ -64,7 +64,7 @@ def acquisitions_tests_failed(acqs):
             
         if acq.flags() != flags:
             flags_failed += 1
-        if acq.idx_kspace_encode_step_1() != encode_step:
+        if acq.kspace_encode_step_1() != encode_step:
             encode_steps_failed += 1
 
     if flags_failed > 0:

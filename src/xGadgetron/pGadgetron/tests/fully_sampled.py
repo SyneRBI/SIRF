@@ -53,9 +53,9 @@ def acquisitions_tests_failed(acqs):
             flags = 128
         if acq.flags() != flags:
             flags_failed += 1
-        if acq.idx_kspace_encode_step_1() != i%256:
+        if acq.kspace_encode_step_1() != i%256:
             encode_steps_failed += 1
-        if acq.idx_repetition() != i//256:
+        if acq.repetition() != i//256:
             repetitions_failed += 1
 
     if flags_failed > 0:
