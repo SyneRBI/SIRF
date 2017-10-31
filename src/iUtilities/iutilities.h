@@ -32,6 +32,9 @@ extern "C" {
 	char* charDataFromHandle(const void* ptr);
 	int intDataFromHandle(const void* ptr);
 	int intDataItemFromHandle(const void* ptr, int i);
+	int uint16DataItemFromHandle(const void* ptr, int i);
+	int uint32DataItemFromHandle(const void* ptr, int i);
+	int uint64DataItemFromHandle(const void* ptr, int i);
 	float floatDataFromHandle(const void* ptr);
 	float floatDataItemFromHandle(const void* ptr, int i);
 	float floatReDataFromHandle(const void* ptr);

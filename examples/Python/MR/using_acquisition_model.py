@@ -70,11 +70,26 @@ def main():
     print('---\n reconstructed images norm: %e' % complex_images.norm())
 
     for i in range(complex_images.number()):
-        complex_image = Image(complex_images, i)
-        s = complex_image.slice()
-        print('slice %d' % s)
-        r = complex_image.repetition()
-        print('repetition %d' % r)
+        complex_image = complex_images.image(i)
+        print('--- image %d' % i)
+        for p in [ \
+            'version', 'flags', 'data_type', 'channels', \
+            'slice', 'repetition', \
+            'image_type', 'image_index', 'image_series_index' \
+            ]:
+            form = p + ' %d'
+            print(form % complex_image.info(p))
+        print('matrix size:'),
+        print(complex_image.matrix_size())
+        print('patient_table_position:'),
+        print(complex_image.patient_table_position())
+
+    ind = complex_images.get_info('image_index')
+    print('image indices:')
+    print(ind)
+    ptp = complex_images.get_info('patient_table_position')
+    print('patient table positions:')
+    print(ptp)
     
     # sort processed acquisition data;
     # sorting currently performed with respect to (in this order):

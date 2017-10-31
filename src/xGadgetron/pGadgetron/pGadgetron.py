@@ -89,6 +89,30 @@ def _int_pars(handle, set, par, n):
         value += (pyiutil.intDataItemFromHandle(h, i),)
     pyiutil.deleteDataHandle(h)
     return value
+def _uint16_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = (pyiutil.uint16DataItemFromHandle(h, 0),)
+    for i in range(1, n):
+        value += (pyiutil.uint16DataItemFromHandle(h, i),)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _uint32_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = (pyiutil.uint32DataItemFromHandle(h, 0),)
+    for i in range(1, n):
+        value += (pyiutil.uint32DataItemFromHandle(h, i),)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _uint64_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = (pyiutil.uint64DataItemFromHandle(h, 0),)
+    for i in range(1, n):
+        value += (pyiutil.uint64DataItemFromHandle(h, i),)
+    pyiutil.deleteDataHandle(h)
+    return value
 def _char_par(handle, set, par):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
@@ -509,12 +533,81 @@ class Image:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def version(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'version')
+    def flags(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'flags')
+    def data_type(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'data_type')
+    def measurement_uid(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'measurement_uid')
+    def channels(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'channels')
+    def average(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'average')
     def slice(self):
         assert self.handle is not None
         return _int_par(self.handle, 'image', 'slice')
+    def contrast(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'contrast')
+    def phase(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'phase')
     def repetition(self):
         assert self.handle is not None
         return _int_par(self.handle, 'image', 'repetition')
+    def set(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'set')
+    def acquisition_time_stamp(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'acquisition_time_stamp')
+    def image_type(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_type')
+    def image_index(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_index')
+    def image_series_index(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_series_index')
+    def attribute_string_len(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'attribute_string_len')
+    def matrix_size(self):
+        assert self.handle is not None
+        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)
+    def physiology_time_stamp(self):
+        assert self.handle is not None
+        return _uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
+    def field_of_view(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'field_of_view', 3)
+    def position(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'position', 3)
+    def read_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'read_dir', 3)
+    def phase_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'phase_dir', 3)
+    def slice_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'slice_dir', 3)
+    def patient_table_position(self):
+        assert self.handle is not None
+        return _float_pars \
+               (self.handle, 'image', 'patient_table_position', 3)
+    def info(self, method):
+        return eval('self.' + method + '()')
 
 class ImageData(DataContainer):
     '''
@@ -563,6 +656,8 @@ class ImageData(DataContainer):
         assert self.handle is not None
         ip = ImageDataProcessor()
         return ip.process(self)
+    def image(self, im_num):
+        return Image(self, im_num)
     def show(self):
         '''
         Interactively displays self's images.
@@ -616,6 +711,18 @@ class ImageData(DataContainer):
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
         return images
+    def get_info(self, par):
+        '''
+        Returns the array of values of the specified image information 
+        parameter.
+        par: parameter name
+        '''
+        ni = self.number()
+        info = numpy.empty((ni,), dtype = object)
+        for i in range(ni):
+            image = self.image(i)
+            info[i] = image.info(par)
+        return info
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -739,10 +846,10 @@ class Acquisition:
         return _int_par(self.handle, 'acquisition', 'segment')
     def physiology_time_stamp(self):
         assert self.handle is not None
-        return _int_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
+        return _uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
     def channel_mask(self):
         assert self.handle is not None
-        return _int_pars(self.handle, 'acquisition', 'channel_mask', 16)
+        return _uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
     def sample_time_us(self):
         assert self.handle is not None
         return _float_par(self.handle, 'acquisition', 'sample_time_us')

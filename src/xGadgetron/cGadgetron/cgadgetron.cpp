@@ -592,9 +592,9 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 	if (boost::iequals(name, "idx_segment"))
 		return dataHandle((int)acq.idx().segment);
 	if (boost::iequals(name, "physiology_time_stamp"))
-		return dataHandle((int*)acq.physiology_time_stamp());
+		return dataHandle(acq.physiology_time_stamp());
 	if (boost::iequals(name, "channel_mask"))
-		return dataHandle((int*)acq.channel_mask());
+		return dataHandle(acq.channel_mask());
 	if (boost::iequals(name, "sample_time_us"))
 		return dataHandle((float)acq.sample_time_us());
 	if (boost::iequals(name, "position"))
@@ -667,9 +667,9 @@ cGT_imageParameter(void* ptr_im, const char* name)
 		if (boost::iequals(name, "attribute_string_len"))
 			return dataHandle((int)head.attribute_string_len);
 		if (boost::iequals(name, "matrix_size"))
-			return dataHandle((int*)head.matrix_size);
+			return dataHandle(head.matrix_size);
 		if (boost::iequals(name, "physiology_time_stamp"))
-			return dataHandle((int*)head.physiology_time_stamp);
+			return dataHandle(head.physiology_time_stamp);
 		if (boost::iequals(name, "field_of_view"))
 			return dataHandle((float*)head.field_of_view);
 		if (boost::iequals(name, "position"))

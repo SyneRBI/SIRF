@@ -28,6 +28,7 @@ Defines C functions handling DataHandle objects.
 \author CCP PETMR
 */
 
+#include <stdint.h>
 #include <complex>
 
 #include "data_handle.h"
@@ -79,6 +80,21 @@ extern "C" {
 	int intDataItemFromHandle(const void* ptr, int i)
 	{
 		int* arr = dataFromHandle<int*>(ptr);
+		return arr[i];
+	}
+	int uint16DataItemFromHandle(const void* ptr, int i)
+	{
+		uint16_t* arr = dataFromHandle<uint16_t*>(ptr);
+		return arr[i];
+	}
+	int uint32DataItemFromHandle(const void* ptr, int i)
+	{
+		uint32_t* arr = dataFromHandle<uint32_t*>(ptr);
+		return arr[i];
+	}
+	int uint64DataItemFromHandle(const void* ptr, int i)
+	{
+		uint64_t* arr = dataFromHandle<uint64_t*>(ptr);
 		return arr[i];
 	}
 	float floatDataFromHandle(const void* ptr)
