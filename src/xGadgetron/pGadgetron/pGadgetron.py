@@ -742,7 +742,7 @@ class Acquisition:
         assert self.handle is not None
         return _float_pars \
                (self.handle, 'acquisition', 'patient_table_position', 3)
-    def data(self, method):
+    def info(self, method):
         return eval('self.' + method + '()')
 
 class AcquisitionData(DataContainer):
@@ -840,11 +840,11 @@ class AcquisitionData(DataContainer):
         par: parameter name
         '''
         na, nc, ns = self.dimensions()
-        data = numpy.empty((na,), dtype = object)
+        info = numpy.empty((na,), dtype = object)
         for a in range(na):
             acq = self.acquisition(a)
-            data[a] = acq.data(par)
-        return data
+            info[a] = acq.info(par)
+        return info
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
