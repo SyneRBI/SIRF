@@ -617,48 +617,12 @@ void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		dim[0] = 0;
-		dim[1] = 0;
-		dim[2] = 0;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
-		if (!image.get_regular_range(min_indices, max_indices)) {
-			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-			DataHandle* handle = new DataHandle;
-			handle->set(0, &status);
-			return (void*)handle;
-		}
-		image.get_regular_range(min_indices, max_indices);
-		for (int i = 0; i < 3; i++)
-			dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
-{
-	try {
-		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
-		float* data = (float*)ptr_data;
-		if (!image.get_regular_range(min_indices, max_indices)) {
-			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-			DataHandle* handle = new DataHandle;
-			handle->set(0, &status);
-			return (void*)handle;
-		}
-		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					data[i] = image[z][y][x];
-				}
-			}
+		if (id.get_dimensions(dim)) {
+				ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+				DataHandle* handle = new DataHandle;
+				handle->set(0, &status);
+				return (void*)handle;
 		}
 		return new DataHandle;
 	}
@@ -666,26 +630,33 @@ void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
+void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
 		float* data = (float*)ptr_data;
-		if (!image.get_regular_range(min_indices, max_indices)) {
+		if (id.get_data(data)) {
 			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
 			DataHandle* handle = new DataHandle;
 			handle->set(0, &status);
 			return (void*)handle;
 		}
-		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					image[z][y][x] = data[i];
-				}
-			}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
+{
+	try {
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		float* data = (float*)ptr_data;
+		if (id.set_data(data)) {
+			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
 		}
 		return new DataHandle;
 	}

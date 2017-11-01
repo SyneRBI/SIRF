@@ -293,6 +293,10 @@ public:
 	{
 		_data = ptr;
 	}
+	PETImageData(std::string filename)
+	{
+		_data = read_from_file<Image3DF>(filename);
+	}
 	PETImageData* same_image_data()
 	{
 		PETImageData* ptr_image = new PETImageData;
@@ -340,6 +344,9 @@ public:
 	{
 		_data->fill(v);
 	}
+	int get_dimensions(int* dim) const;
+	int get_data(float* data) const;
+	int set_data(const float* data);
 
 protected:
 	shared_ptr<Image3DF> _data;
