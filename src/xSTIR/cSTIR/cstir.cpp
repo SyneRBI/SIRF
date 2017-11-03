@@ -214,10 +214,9 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
-		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		sptrImage3DF sptr_im = id.data_sptr();
+		SPTR_FROM_HANDLE(PETImageData, sptr_id, ptr_im);
 		//std::cout << "setting up acquisition model...\n";
-		Succeeded s = am.set_up(sptr_dt, sptr_im);
+		Succeeded s = am.set_up(sptr_dt, sptr_id);
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
@@ -236,8 +235,7 @@ void* cSTIR_acquisitionModelFwd
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& im = id.data();
-		return newObjectHandle(am.forward(im));
+		return newObjectHandle(am.forward(id));
 	}
 	CATCH;
 }
@@ -248,7 +246,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		PETImageData* ptr_id = new PETImageData(am.backward(*ad.data()));
+		PETImageData* ptr_id = new PETImageData(am.backward(ad));
 		shared_ptr<PETImageData> sptr(ptr_id);
 		return newObjectHandle(sptr);
 	}

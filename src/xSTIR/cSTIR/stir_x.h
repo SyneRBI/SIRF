@@ -106,17 +106,17 @@ public:
 
 	virtual Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<Image3DF> sptr_image);
+		shared_ptr<PETImageData> sptr_image);
 
 	shared_ptr<PETAcquisitionData>
-		forward(const Image3DF& image);
+		forward(const PETImageData& image);
 
-	shared_ptr<Image3DF> backward(ProjData& ad);
+	shared_ptr<Image3DF> backward(PETAcquisitionData& ad);
 
 protected:
 	shared_ptr<ProjectorByBinPair> sptr_projectors_;
 	shared_ptr<PETAcquisitionData> sptr_acq_template_;
-	shared_ptr<Image3DF> sptr_image_template_;
+	shared_ptr<PETImageData> sptr_image_template_;
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
 	shared_ptr<BinNormalisation> sptr_normalisation_;
@@ -142,7 +142,7 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	}
 	virtual Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<Image3DF> sptr_image)
+		shared_ptr<PETImageData> sptr_image)
 	{
 		if (!sptr_matrix_.get())
 			return Succeeded::no;

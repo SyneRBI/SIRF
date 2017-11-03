@@ -41,12 +41,12 @@ PETAcquisitionModel::set_bin_efficiency
 Succeeded 
 PETAcquisitionModel::set_up(
 	shared_ptr<PETAcquisitionData> sptr_acq,
-	shared_ptr<Image3DF> sptr_image)
+	shared_ptr<PETImageData> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
 		s = sptr_projectors_->set_up
-			(sptr_acq->get_proj_data_info_sptr(), sptr_image);
+			(sptr_acq->get_proj_data_info_sptr(), sptr_image->data_sptr());
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
@@ -54,7 +54,7 @@ PETAcquisitionModel::set_up(
 }
 
 shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const Image3DF& image)
+PETAcquisitionModel::forward(const PETImageData& image)
 {
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
@@ -62,7 +62,7 @@ PETAcquisitionModel::forward(const Image3DF& image)
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
-		(*sptr_fd, image);
+		(*sptr_fd, image.data());
 
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
@@ -94,15 +94,15 @@ PETAcquisitionModel::forward(const Image3DF& image)
 }
 
 shared_ptr<Image3DF> 
-PETAcquisitionModel::backward(ProjData& ad)
+PETAcquisitionModel::backward(PETAcquisitionData& ad)
 {
-	shared_ptr<Image3DF> sptr_im(sptr_image_template_->clone());
+	shared_ptr<Image3DF> sptr_im(sptr_image_template_->data_sptr()->clone());
 	sptr_im->fill(0.0);
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "applying normalisation...";
 		std::cout << "ok\n";
-		sptr_normalisation_->undo(ad, 0, 1);
+		sptr_normalisation_->undo(*ad.data(), 0, 1);
 		std::cout << "backprojecting...";
 		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
 		std::cout << "ok\n";
