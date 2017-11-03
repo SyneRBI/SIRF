@@ -101,12 +101,19 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad)
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "applying normalisation...";
-		sptr_normalisation_->undo(*ad.data(), 0, 1);
+		shared_ptr<PETAcquisitionData> sptr_ad(ad.new_acquisition_data());
+		sptr_ad->fill(ad);
+		sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
+		std::cout << "ok\n";
+		std::cout << "backprojecting...";
+		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
 		std::cout << "ok\n";
 	}
-	std::cout << "backprojecting...";
-	sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
-	std::cout << "ok\n";
+	else {
+		std::cout << "backprojecting...";
+		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
+		std::cout << "ok\n";
+	}
 
 	return sptr_id;
 }
