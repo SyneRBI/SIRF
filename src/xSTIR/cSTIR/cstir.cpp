@@ -246,9 +246,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		PETImageData* ptr_id = new PETImageData(am.backward(ad));
-		shared_ptr<PETImageData> sptr(ptr_id);
-		return newObjectHandle(sptr);
+		return newObjectHandle(am.backward(ad));
 	}
 	CATCH;
 }

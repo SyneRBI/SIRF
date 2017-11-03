@@ -58,7 +58,6 @@ PETAcquisitionModel::forward(const PETImageData& image)
 {
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
-
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
@@ -93,24 +92,21 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	return sptr_ad;
 }
 
-shared_ptr<Image3DF> 
+shared_ptr<PETImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad)
 {
-	shared_ptr<Image3DF> sptr_im(sptr_image_template_->data_sptr()->clone());
-	sptr_im->fill(0.0);
+	shared_ptr<PETImageData> sptr_id;
+	sptr_id = sptr_image_template_->new_image_data();
+	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
 
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "applying normalisation...";
-		std::cout << "ok\n";
 		sptr_normalisation_->undo(*ad.data(), 0, 1);
-		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
 		std::cout << "ok\n";
 	}
-	else
-		sptr_projectors_->get_back_projector_sptr()->back_project
-		(*sptr_im, ad);
+	std::cout << "backprojecting...";
+	sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
+	std::cout << "ok\n";
 
-	return sptr_im;
+	return sptr_id;
 }
-

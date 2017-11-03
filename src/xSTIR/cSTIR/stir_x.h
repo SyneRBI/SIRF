@@ -111,7 +111,7 @@ public:
 	shared_ptr<PETAcquisitionData>
 		forward(const PETImageData& image);
 
-	shared_ptr<Image3DF> backward(PETAcquisitionData& ad);
+	shared_ptr<PETImageData> backward(PETAcquisitionData& ad);
 
 protected:
 	shared_ptr<ProjectorByBinPair> sptr_projectors_;
