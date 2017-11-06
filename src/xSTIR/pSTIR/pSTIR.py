@@ -1149,10 +1149,11 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         '''
         Sets the acquisition data to be used by this objective function.
         '''
-##        assert isinstance(ad, AcquisitionData)
         assert_validity(ad, AcquisitionData)
         _setParameter\
-            (self.handle, self.name, 'proj_data_sptr', ad.handle)
+            (self.handle, self.name, 'acquisition_data', ad.handle)
+##        _setParameter\
+##            (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
 class Reconstructor:
     '''

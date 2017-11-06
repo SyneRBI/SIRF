@@ -325,12 +325,14 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(boost::iequals(charDataFromDataHandle(hv), "true"));
 	else if (boost::iequals(name, "max_segment_num_to_process"))
 		obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
-	else if (boost::iequals(name, "projector_pair_type"))
-		obj_fun.set_projector_pair_sptr
-			(objectSptrFromHandle<ProjectorByBinPair>(hv));
-	else if (boost::iequals(name, "proj_data_sptr"))
-		obj_fun.set_proj_data_sptr
-		(objectSptrFromHandle<PETAcquisitionData>(hv)->data());
+	//else if (boost::iequals(name, "projector_pair_type"))
+	//	obj_fun.set_projector_pair_sptr
+	//		(objectSptrFromHandle<ProjectorByBinPair>(hv));
+	//else if (boost::iequals(name, "proj_data_sptr"))
+	//	obj_fun.set_proj_data_sptr
+	//	(objectSptrFromHandle<PETAcquisitionData>(hv)->data());
+	else if (boost::iequals(name, "acquisition_data"))
+		obj_fun.set_acquisition_data(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "acquisition_model"))
 		obj_fun.set_acquisition_model(objectSptrFromHandle<AcqMod3DF>(hv));
 	else
@@ -346,9 +348,9 @@ cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 		obj_fun = objectFromHandle
 		<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>
 		(handle);
-	if (boost::iequals(name, "projector_pair_type"))
-		return newObjectHandle(obj_fun.get_projector_pair_sptr());
-	else if (boost::iequals(name, "acquisition_model"))
+	//if (boost::iequals(name, "projector_pair_type"))
+	//	return newObjectHandle(obj_fun.get_projector_pair_sptr());
+	if (boost::iequals(name, "acquisition_model"))
 		return newObjectHandle(obj_fun.acquisition_model_sptr());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
