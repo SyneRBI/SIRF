@@ -599,8 +599,6 @@ cGT_acquisitionParameter(void* ptr_acq, const char* name)
 		return dataHandle((float)acq.sample_time_us());
 	if (boost::iequals(name, "position"))
 		return dataHandle((float*)acq.position());
-	if (boost::iequals(name, "position"))
-		return dataHandle((float*)acq.position());
 	if (boost::iequals(name, "read_dir"))
 		return dataHandle((float*)acq.read_dir());
 	if (boost::iequals(name, "phase_dir"))

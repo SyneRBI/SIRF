@@ -825,25 +825,25 @@ class Acquisition:
         return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
     def average(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'average')
+        return _int_par(self.handle, 'acquisition', 'idx_average')
     def slice(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_slice')
     def contrast(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'contrast')
+        return _int_par(self.handle, 'acquisition', 'idx_contrast')
     def phase(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'phase')
+        return _int_par(self.handle, 'acquisition', 'idx_phase')
     def repetition(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_repetition')
     def set(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'set')
+        return _int_par(self.handle, 'acquisition', 'idx_set')
     def segment(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'segment')
+        return _int_par(self.handle, 'acquisition', 'idx_segment')
     def physiology_time_stamp(self):
         assert self.handle is not None
         return _uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
