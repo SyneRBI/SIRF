@@ -179,6 +179,8 @@ public:
 	}
 };
 
+//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
+
 class xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF :
 	public PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> {
 public:
@@ -206,6 +208,9 @@ public:
 private:
 	shared_ptr<AcqMod3DF> sptr_am_;
 };
+
+typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
+PoissonLogLhLinModMeanProjData3DF;
 
 class xSTIR_IterativeReconstruction3DF :
 	public IterativeReconstruction<Image3DF> {

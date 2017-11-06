@@ -68,10 +68,9 @@ typedef shared_ptr<Shape3D> sptrShape3D;
 typedef Reconstruction<Image3DF> Reconstruction3DF;
 typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
 typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;
-typedef PoissonLogLikelihoodWithLinearModelForMean<Image3DF> 
+typedef PoissonLogLikelihoodWithLinearModelForMean<Image3DF>
 PoissonLogLhLinModMean3DF;
-typedef PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
-PoissonLogLhLinModMeanProjData3DF;
+//PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
 typedef ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
 typedef ProjMatrixByBinUsingRayTracing RayTracingMatrix;
 typedef GeneralisedPrior<Image3DF> Prior3DF;

@@ -104,28 +104,23 @@ int test1()
 
 		CREATE_OBJECT(ObjectiveFunction3DF, PoissonLogLhLinModMeanProjData3DF, obj_fun,
 			sptr_fun,);
+		obj_fun.set_acquisition_data(sptr_ad);
+		obj_fun.set_acquisition_model(sptr_am);
 		obj_fun.set_zero_seg0_end_planes(true);
-		////obj_fun.set_max_segment_num_to_process(4);
-		////obj_fun.set_max_segment_num_to_process(3);
-		//obj_fun.set_projector_pair_sptr(sptr_ppm);
-		//obj_fun.set_proj_data_sptr(sptr_fd);
-		//obj_fun.set_prior_sptr(sptr_prior);
-		//obj_fun.set_additive_proj_data_sptr(sptr_a);
-		//obj_fun.set_normalisation_sptr(sptr_n);
+		obj_fun.set_max_segment_num_to_process(3);
+		obj_fun.set_prior_sptr(sptr_prior);
 
-		//int num_subiterations = 2;
-		//OBJECT(Reconstruction<Image3DF>, OSMAPOSLReconstruction<Image3DF>, recon,
-		////OBJECT(xSTIR_IterativeReconstruction3DF, 
-		////	OSMAPOSLReconstruction<Image3DF>, recon,
-		//	sptr_recon);
-		//recon.set_MAP_model("multiplicative");
-		//recon.set_num_subsets(12);
-		//recon.set_num_subiterations(num_subiterations);
-		//recon.set_save_interval(num_subiterations);
-		//recon.set_inter_iteration_filter_interval(1);
-		//recon.set_output_filename_prefix("reconstructedImage");
-		//recon.set_objective_function_sptr(sptr_fun);
-		//recon.set_inter_iteration_filter_ptr(sptr_filter);
+		int num_subiterations = 2;
+		CREATE_OBJECT(Reconstruction<Image3DF>, OSMAPOSLReconstruction<Image3DF>, recon,
+			sptr_recon,);
+		recon.set_MAP_model("multiplicative");
+		recon.set_num_subsets(12);
+		recon.set_num_subiterations(num_subiterations);
+		recon.set_save_interval(num_subiterations);
+		recon.set_inter_iteration_filter_interval(1);
+		recon.set_output_filename_prefix("reconstructedImage");
+		recon.set_objective_function_sptr(sptr_fun);
+		recon.set_inter_iteration_filter_ptr(sptr_filter);
 
 		////Succeeded s = 
 		////	//recon.set_up(sptr_image);
@@ -133,20 +128,21 @@ int test1()
 		////if (s != Succeeded::yes) {
 		////	std::cout << "xSTIR_setupReconstruction failed\n";
 		////}
-		//xSTIR_IterativeReconstruction3DF& xrecon =
-		//	(xSTIR_IterativeReconstruction3DF&)(recon);
+		xSTIR_IterativeReconstruction3DF& xrecon =
+			(xSTIR_IterativeReconstruction3DF&)(recon);
 		////(xSTIR_IterativeReconstruction3DF&)(*sptr_recon);
-		//Succeeded s = Succeeded::no;
-		//if (!xrecon.post_process()) {
-		//	s = xrecon.setup(sptr_image);
-		//	xrecon.subiteration() = xrecon.get_start_subiteration_num();
-		//}
+		Succeeded s = Succeeded::no;
+		if (!xrecon.post_process()) {
+			s = xrecon.setup(sptr_id->data_sptr());
+			xrecon.subiteration() = xrecon.get_start_subiteration_num();
+		}
 
-		//for (int iter = 0; iter < num_subiterations; iter++) {
-		//	std::cout << "iteration " << iter << '\n';
-		//	xrecon.update(image);
-		//	//xSTIR_updateReconstruction((void*)&sptr_recon, image);
-		//}
+		for (int iter = 0; iter < num_subiterations; iter++) {
+			std::cout << "iteration " << iter << '\n';
+			xrecon.update(sptr_id->data());
+			//xrecon.update(image);
+			//xSTIR_updateReconstruction((void*)&sptr_recon, image);
+		}
 
 		//std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 		//double* rec_image_data = new double[image_size];
