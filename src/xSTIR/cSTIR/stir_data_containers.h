@@ -157,6 +157,7 @@ public:
 	// ProjData casts
 	operator ProjData&() { return *data(); }
 	operator const ProjData&() const { return *data(); }
+	operator shared_ptr<ProjData>() { return data(); }
 
 protected:
 	//static std::string _storage_scheme;
@@ -277,6 +278,14 @@ public:
 class PETImageData : public aDataContainer<float> {
 public:
 	PETImageData(){}
+	PETImageData(const PETImageData& image)
+	{
+		_data.reset(image.data().clone());
+	}
+	PETImageData(const PETAcquisitionData& ad)
+	{
+		_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+	}
 	PETImageData(const Image3DF& image)
 	{
 		_data.reset(image.clone());

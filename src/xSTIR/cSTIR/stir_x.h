@@ -239,6 +239,32 @@ public:
 	}
 };
 
+class xSTIR_OSMAPOSLReconstruction3DF : 
+	public OSMAPOSLReconstruction < Image3DF > {
+public:
+	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	{
+		Succeeded s = Succeeded::no;
+		xSTIR_IterativeReconstruction3DF* ptr_r =
+			(xSTIR_IterativeReconstruction3DF*)this;
+		if (!ptr_r->post_process()) {
+			s = ptr_r->setup(sptr_id->data_sptr());
+			ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
+		}
+		return s;
+	}
+	void update(PETImageData& id)
+	{
+		((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
+	}
+	void update(shared_ptr<PETImageData> sptr_id)
+	{
+		update(*sptr_id);
+	}
+};
+
+typedef xSTIR_OSMAPOSLReconstruction3DF OSMAPOSLReconstruction3DF;
+
 class xSTIR_OSSPSReconstruction3DF : public OSSPSReconstruction < Image3DF > {
 public:
 	float& relaxation_parameter_value() {

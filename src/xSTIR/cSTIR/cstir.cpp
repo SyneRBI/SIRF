@@ -569,9 +569,9 @@ void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 	try {
 		shared_ptr<PETAcquisitionData>& sptr_ad =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		shared_ptr<ProjDataInfo> sptr_adi =
-			sptr_ad->get_proj_data_info_sptr();
-		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_adi));
+		//shared_ptr<ProjDataInfo> sptr_adi =
+		//	sptr_ad->get_proj_data_info_sptr();
+		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_ad));
 		return newObjectHandle(sptr);
 	}
 	CATCH;
