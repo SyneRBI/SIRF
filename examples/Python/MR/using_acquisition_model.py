@@ -116,6 +116,7 @@ def main():
     simulated_acq_data = acq_model.forward(complex_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
+    simulated_acq_data.write('simulated_data.h5')
 
     # get simulated acquisition data as a Python ndarray
     simulated_acq_array = simulated_acq_data.as_array();

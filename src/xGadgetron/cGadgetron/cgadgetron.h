@@ -61,6 +61,7 @@ extern "C" {
 	void* cGT_setAcquisitionsData
 		(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);

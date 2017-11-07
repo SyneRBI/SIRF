@@ -1000,6 +1000,14 @@ class AcquisitionData(DataContainer):
         im = numpy.imag(data).astype(numpy.float32)
         try_calling(pygadgetron.cGT_setAcquisitionsData\
             (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+    def write(self, out_file):
+        '''
+        Writes self's acquisitions to an hdf5 file.
+        out_file : the file name (Python string)
+        '''
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_writeAcquisitions\
+                    (self.handle, out_file))
 
 DataContainer.register(AcquisitionData)
 

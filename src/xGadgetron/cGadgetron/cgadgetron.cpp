@@ -542,6 +542,19 @@ size_t ptr_re, size_t ptr_im)
 
 extern "C"
 void*
+cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
+{
+	try {
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(ptr_acqs);
+		acqs.write(filename);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_acquisitionParameter(void* ptr_acq, const char* name)
 {
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
