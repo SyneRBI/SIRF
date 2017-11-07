@@ -1,7 +1,7 @@
-'''OSEM reconstruction test.
+'''OSSPS reconstruction test.
 
 Usage:
-  test2 [--help | options]
+  test3 [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
@@ -38,46 +38,38 @@ verbose = args['--verbose']
 
 def main():
 
-    test = pTest('test2.txt', record)
+    test = pTest('test3.txt', record)
     test.verbose = verbose
 
     msg_red = MessageRedirector()
 
     data_path = petmr_data_path('pet')
-    raw_data_file = existing_filepath(data_path, 'my_forward_projection.hs')
+    raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
     acq_data = AcquisitionData(raw_data_file)
     test.check(acq_data.norm())
 
-    image = acq_data.create_uniform_image(1.0)
-    test.check(image.norm())
+    init_image_file = existing_filepath(data_path, 'test_image_PM_QP_6.hv')
+    image_data = ImageData(init_image_file)
+    test.check(image_data.norm())
 
     acq_model = AcquisitionModelUsingRayTracingMatrix()
-    acq_model.set_up(acq_data, image)
 
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_prior(QuadraticPrior().set_penalisation_factor(0.5))
 
-    num_subsets = 12
-    recon = OSMAPOSLReconstructor()
+    recon = OSSPSReconstructor()
+    recon.set_num_subsets(4)
+    recon.set_num_subiterations(2)
     recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)
     print('setting up, please wait...')
-    recon.set_up(image)
-
-    recon.set_current_estimate(image)
-
-    num_iterations = 2
-    for iteration in range(num_iterations):
-        print('\n------------- iteration %d' % iteration)
-        recon.update_current_estimate()
-    test.check(image.norm())
-
-    print('projecting...')
-    simulated_data = acq_model.forward(image)
-    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
-    print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
-    test.check(diff.norm())
+    recon.set_up(image_data)
+    recon.set_current_estimate(image_data)
+    print('reconstructing, please wait...')
+    recon.process()
+    image_data = recon.get_output()
+    test.check(image_data.norm())
 
     return test.failed, test.ntest
 

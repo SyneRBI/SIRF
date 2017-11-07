@@ -224,7 +224,7 @@ class pTest:
                     self.failed += 1
                     if self.verbose:
                         print('+++ test %d failed' % self.ntest)
-            self.ntest += 1
+        self.ntest += 1
 
 ###########################################################
 ############ Utilities for internal use only ##############

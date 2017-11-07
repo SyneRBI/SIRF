@@ -1300,6 +1300,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
     '''
     def __init__(self, filename = ''):
         self.handle = None
+        self.image = None
         self.name = 'OSMAPOSL'
         self.handle = pystir.cSTIR_objectFromFile\
             ('OSMAPOSLReconstruction', filename)
@@ -1325,6 +1326,7 @@ class OSSPSReconstructor(IterativeReconstructor):
     '''
     def __init__(self, filename = ''):
         self.handle = None
+        self.image = None
         self.name = 'OSSPS'
         self.handle = pystir.cSTIR_objectFromFile\
                       ('OSSPSReconstruction', filename)
