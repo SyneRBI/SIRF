@@ -108,26 +108,7 @@ public:
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
-	void write(const char* filename)
-	{
-		Mutex mtx;
-		mtx.lock();
-		shared_ptr<ISMRMRD::Dataset> dataset
-			(new ISMRMRD::Dataset(filename, "/dataset", true));
-		dataset->writeHeader(acqs_info_);
-		mtx.unlock();
-		int n = number();
-		ISMRMRD::Acquisition a;
-		for (int i = 0; i < n; i++) {
-			get_acquisition(i, a);
-			if (TO_BE_IGNORED(a)) {
-				continue;
-			}
-			mtx.lock();
-			dataset->appendAcquisition(a);
-			mtx.unlock();
-		}
-	}
+	void write(const char* filename);
 
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,

@@ -355,11 +355,12 @@ public:
 	// Forward projects one image item (typically xy-slice) into
 	// respective readouts, and appends them to the AcquisitionContainer
 	// passed as the last argument.
-	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac)
+	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
+		unsigned int& off)
 	{
 		int type = iw.type();
 		void* ptr = iw.ptr_image();
-		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac);
+		IMAGE_PROCESSING_SWITCH(type, fwd_, ptr, csm, ac, off);
 	}
 
 	// Backprojects a set of readouts corresponding to one image item
@@ -417,7 +418,7 @@ private:
 
 	template< typename T>
 	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
-		AcquisitionsContainer& ac);
+		AcquisitionsContainer& ac, unsigned int& off);
 	template< typename T>
 	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
 		AcquisitionsContainer& ac, unsigned int& off);

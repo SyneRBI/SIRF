@@ -11,6 +11,7 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -46,6 +47,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
+output_file = args['--output']
 
 def main():
 
@@ -116,7 +118,8 @@ def main():
     simulated_acq_data = acq_model.forward(complex_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
-    simulated_acq_data.write('simulated_data.h5')
+    if output_file is not None:
+        simulated_acq_data.write(output_file)
 
     # get simulated acquisition data as a Python ndarray
     simulated_acq_array = simulated_acq_data.as_array();

@@ -219,10 +219,10 @@ AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 	if (cc.items() < 1)
 		throw LocalisedException
 		("coil sensitivity maps not found", __FILE__, __LINE__);
-	for (unsigned int i = 0; i < ic.number(); i++) {
+	for (unsigned int i = 0, a = 0; i < ic.number(); i++) {
 		ImageWrap& iw = ic.image_wrap(i);
 		CoilData& csm = cc(i%cc.items());
-		fwd(iw, csm, ac);
+		fwd(iw, csm, ac, a);
 	}
 }
 
@@ -244,7 +244,7 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 template< typename T>
 void 
 AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
-	AcquisitionsContainer& ac)
+	AcquisitionsContainer& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
 
@@ -288,13 +288,13 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	int y = 0;
 	for (;;){
-		sptr_acqs_->get_acquisition(y, acq);
+		sptr_acqs_->get_acquisition(off + y, acq);
 		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
 			break;
 		y++;
 	}
 	for (;;) {
-		sptr_acqs_->get_acquisition(y, acq);
+		sptr_acqs_->get_acquisition(off + y, acq);
 		int yy = acq.idx().kspace_encode_step_1;
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < readout; s++) {
@@ -306,8 +306,7 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
 			break;
 	}
-	//ac.set_acquisitions_info(par);
-	//ac.write_acquisitions_info();
+	off += y;
 
 }
 
