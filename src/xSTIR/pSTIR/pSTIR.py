@@ -697,6 +697,9 @@ class AcquisitionData(DataContainer):
             raise error('Wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
+    def write(self, filename):
+        assert self.handle is not None
+        try_calling(pystir.cSTIR_writeAcquisitionData(self.handle, filename))
     def clone(self):
         ''' 
         Returns a true copy of this object (not Python handle).

@@ -8,6 +8,10 @@ Options:
   -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
+  -a <addv>, --addv=<addv>    additive term value [default: 0]
+  -b <back>, --back=<back>    background term value [default: 0]
+  -n <norm>, --norm=<norm>    normalization value [default: 1]
+  -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 
 There is an interactive demo with much more documentation on this process.
@@ -47,6 +51,10 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
+addv = float(args['--addv'])
+back = float(args['--back'])
+beff = 1/float(args['--norm'])
+output_file = args['--output']
 
 def main():
 
@@ -95,25 +103,29 @@ def main():
 
     # testing bin efficiencies
     bin_eff = acq_template.clone()
-    bin_eff.fill(2.0)
+    #bin_eff.fill(2.0)
+    bin_eff.fill(beff)
     bin_eff_arr = bin_eff.as_array()
     # set a portion of bin efficiencies to zero;
     # this should zero the corresponding portion of forward projection
     # and 'damage' the backprojection making it look less like the
     # actual image
-    bin_eff_arr[:,10:50,:] = 0
+    if beff != 1:
+        bin_eff_arr[:,10:50,:] = 0
     show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
     bin_eff.fill(bin_eff_arr)
     acq_model.set_bin_efficiency(bin_eff)
 
     # testing additive term
     add = acq_template.clone()
-    add.fill(2.0)
+    #add.fill(2.0)
+    add.fill(addv)
     acq_model.set_additive_term(add)
 
     # testing background term
     bck = acq_template.clone()
-    bck.fill(10.0)
+    #bck.fill(10.0)
+    bck.fill(back)
     acq_model.set_background_term(bck)
 
     print('projecting image...')
@@ -121,6 +133,8 @@ def main():
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
+    if output_file is not None:
+        simulated_data.write('simulated_data')
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()

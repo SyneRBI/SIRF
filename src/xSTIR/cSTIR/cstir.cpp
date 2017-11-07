@@ -339,6 +339,17 @@ void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
 }
 
 extern "C"
+void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		sptr_ad->write(filename);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {

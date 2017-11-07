@@ -101,6 +101,11 @@ public:
 	}
 	void fill_from(const float* d) { data()->fill_from(d); }
 	void copy_to(float* d) { data()->copy_to(d); }
+	void write(const char* filename)
+	{
+		ProjDataFile pd(*data(), filename);
+		pd.fill(*data());
+	}
 
 	// data container methods
 	unsigned int items() { return 1; }
