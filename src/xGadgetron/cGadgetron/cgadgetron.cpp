@@ -728,6 +728,18 @@ cGT_reconstructedImages(void* ptr_recon)
 
 }
 
+//extern "C"
+//void*
+//cGT_readImages(const char* file)
+//{
+//	try {
+//		shared_ptr<ImagesContainer> sptr_img(new ImagesVector);
+//		sptr_img->read(file);
+//		return newObjectHandle<ImagesContainer>(sptr_img);
+//	}
+//	CATCH;
+//}
+
 extern "C"
 void*
 cGT_processImages(void* ptr_proc, void* ptr_input)

@@ -615,8 +615,12 @@ class ImageData(DataContainer):
     Each item in the container is a 3D complex or float array of the image 
     values on an xyz-slice (z-dimension is normally 1).
     '''
-    def __init__(self):
+    def __init__(self, file = None):
         self.handle = None
+##        if file is None:
+##            return
+##        self.handle = pygadgetron.cGT_readImages(file)
+##        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

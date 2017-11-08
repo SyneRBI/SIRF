@@ -266,6 +266,7 @@ public:
 	virtual void get_images_data_as_complex_array
 		(float* re, float* im) const = 0;
 	virtual void set_complex_images_data(const float* re, const float* im) = 0;
+	//virtual int read(std::string filename) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual shared_ptr<ImagesContainer>
@@ -340,6 +341,7 @@ public:
 		const shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
+	//virtual int read(std::string filename);
 	virtual void write(std::string filename, std::string groupname);
 	virtual void get_image_dimensions(unsigned int im_num, int* dim)
 	{
@@ -378,6 +380,17 @@ public:
 private:
 	std::vector<shared_ptr<ImageWrap> > images_;
 	int nimages_;
+
+	//template<typename T>
+	//void read_(ISMRMRD::Image<T>* ptr_im,
+	//	ISMRMRD::Dataset& dataset, std::string var, int i, void** ptr_ptr)
+	//{
+	//	ISMRMRD::Image < T >* ptr_im = new ISMRMRD::Image < T >;
+	//	*ptr_ptr = (void*)ptr_im;
+	//	ISMRMRD::Image<T>& im = *ptr_im;
+	//	dataset.readImage(var, i, im);
+	//}
+
 };
 
 class CoilData {
