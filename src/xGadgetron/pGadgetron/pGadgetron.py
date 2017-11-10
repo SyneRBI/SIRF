@@ -84,33 +84,34 @@ def _int_par(handle, set, par):
 def _int_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    value = (pyiutil.intDataItemFromHandle(h, 0),)
-    for i in range(1, n):
-        value += (pyiutil.intDataItemFromHandle(h, i),)
+    for i in range(n):
+        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint16_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    value = (pyiutil.uint16DataItemFromHandle(h, 0),)
-    for i in range(1, n):
-        value += (pyiutil.uint16DataItemFromHandle(h, i),)
+    #value = (pyiutil.uint16DataItemFromHandle(h, 0),)
+    #for i in range(1, n):
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint32_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    value = (pyiutil.uint32DataItemFromHandle(h, 0),)
-    for i in range(1, n):
-        value += (pyiutil.uint32DataItemFromHandle(h, i),)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint64_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    value = (pyiutil.uint64DataItemFromHandle(h, 0),)
-    for i in range(1, n):
-        value += (pyiutil.uint64DataItemFromHandle(h, i),)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _char_par(handle, set, par):
@@ -128,9 +129,9 @@ def _float_par(handle, set, par):
 def _float_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    value = (pyiutil.floatDataItemFromHandle(h, 0),)
-    for i in range(1, n):
-        value += (pyiutil.floatDataItemFromHandle(h, i),)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -533,6 +534,33 @@ class Image:
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def is_real(self):
+        assert self.handle is not None
+        t = self.data_type()
+        return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
+    def as_array(self):
+        '''
+        Returns image data as a 3D Numpy ndarray.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getImageDim(self.handle, dim.ctypes.data)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        nc = dim[3]
+        nz = nz*nc
+        if self.is_real():
+            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            pygadgetron.cGT_getImageDataAsFloatArray\
+                (self.handle, array.ctypes.data)
+            return array
+        else:
+            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            pygadgetron.cGT_getImageDataAsComplexArray\
+                (self.handle, re.ctypes.data, im.ctypes.data)
+            return re + 1j*im
     def version(self):
         assert self.handle is not None
         return _int_par(self.handle, 'image', 'version')
@@ -689,9 +717,14 @@ class ImageData(DataContainer):
             i = int(s)
             if i < 1 or i > ni:
                 break
+            image = self.image(i - 1)
             pylab.figure(i)
             pylab.title('image %d' % i)
-            pylab.imshow(data[i - 1, :, :])
+            arr = image.as_array()
+            if not image.is_real():
+                arr = abs(arr)
+            pylab.imshow(arr[0,:,:])
+            #pylab.imshow(data[i - 1, :, :])
             print('Close Figure %d window to continue...' % i)
             pylab.show()
     def write(self, out_file, out_group):
@@ -735,8 +768,10 @@ class ImageData(DataContainer):
         if self.number() < 1:
             return numpy.ndarray((0,0,0), dtype = numpy.float32)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getImageDimensions\
-            (self.handle, 0, dim.ctypes.data)
+        image = Image(self)
+        pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
+##        pygadgetron.cGT_getImageDimensions\
+##            (self.handle, 0, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]

@@ -795,12 +795,57 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 
 extern "C"
 void
+cGT_getImageDim(void* ptr_img, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_dim(dim);
+}
+
+extern "C"
+void*
+cGT_imageType(const void* ptr_img)
+{
+	try {
+		ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+		int* result = (int*)malloc(sizeof(int));
+		*result = image.type();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void
+cGT_getImageDataAsFloatArray(void* ptr_img, size_t ptr_data)
+{
+	float* data = (float*)ptr_data;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_data(data);
+}
+
+extern "C"
+void
+cGT_getImageDataAsComplexArray(void* ptr_img, size_t ptr_re, size_t ptr_im)
+{
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_cmplx_data(re, im);
+}
+
+extern "C"
+void
 cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_dimensions(img_num, dim);
+	ImagesContainer& images = objectFromHandle<ImagesContainer>(ptr_imgs);
+	images.sptr_image_wrap(img_num)->get_dim(dim);
+	//CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	//ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	//list.get_image_dimensions(img_num, dim);
 }
 
 extern "C"
