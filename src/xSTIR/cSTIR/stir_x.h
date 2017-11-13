@@ -187,9 +187,10 @@ public:
 	void set_input_file(const char* filename) {
 		input_filename = filename;
 	}
-	void set_acquisition_data(shared_ptr<PETAcquisitionData> sptr_ad)
+	void set_acquisition_data(shared_ptr<PETAcquisitionData> sptr)
 	{
-		set_proj_data_sptr(sptr_ad->data());
+		sptr_ad_ = sptr;
+		set_proj_data_sptr(sptr->data());
 	}
 	void set_acquisition_model(shared_ptr<AcqMod3DF> sptr)
 	{
@@ -206,6 +207,7 @@ public:
 		return sptr_am_;
 	}
 private:
+	shared_ptr<PETAcquisitionData> sptr_ad_;
 	shared_ptr<AcqMod3DF> sptr_am_;
 };
 
