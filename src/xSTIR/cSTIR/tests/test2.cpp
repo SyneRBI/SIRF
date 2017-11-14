@@ -214,12 +214,11 @@ int test2()
 	deleteDataHandle(recon);
 	deleteDataHandle(filter);
 
-	deleteDataHandle(obj_fun);
 	deleteDataHandle(prior);
 
-	// must be deleted after obj_fun
 	deleteDataHandle(fd);
 	deleteDataHandle(at);
+	deleteDataHandle(obj_fun);
 
 	//std::cout << "ok\n";
 
