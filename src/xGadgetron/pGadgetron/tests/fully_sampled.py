@@ -141,20 +141,21 @@ def main():
     failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-5, 0)
     failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-5, 0)
 
-    if failed == 0:
-        print('all tests passed')
-    else:
-        print('%d tests failed' % failed)
     return failed
 
-try:
-    failed = main()
-    print('done')
-    if failed != 0:
-        sys.exit(failed)
+if __name__ == '__main__':
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(-1)
+    try:
+        failed = main()
+        if failed == 0:
+            print('all tests passed')
+        else:
+            print('%d tests failed' % failed)
+        if failed != 0:
+            sys.exit(failed)
+
+    except error as err:
+        # display error information
+        print('??? %s' % err.value)
+        sys.exit(-1)
 
