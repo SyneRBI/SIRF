@@ -36,10 +36,10 @@ from pSTIR import *
 record = args['--record']
 verbose = args['--verbose']
 
-def main():
+def main(verb = False):
 
     test = pTest('test2.txt', record)
-    test.verbose = verbose
+    test.verbose = verb
 
     msg_red = MessageRedirector()
 
@@ -81,19 +81,21 @@ def main():
 
     return test.failed, test.ntest
 
-try:
-    failed, ntest = main()
-    if failed == 0:
-        if not record:
-            print('all tests passed')
-        else:
-            print('%d measurements recorded' % ntest)
-        sys.exit(0)
-    else:
-        print('%d of the tests failed' % failed)
-        sys.exit(failed)
+if __name__ == '__main__':
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(-1)
+    try:
+        failed, ntest = main(verbose)
+        if failed == 0:
+            if not record:
+                print('all tests passed')
+            else:
+                print('%d measurements recorded' % ntest)
+            sys.exit(0)
+        else:
+            print('%d of the tests failed' % failed)
+            sys.exit(failed)
+
+    except error as err:
+        # display error information
+        print('??? %s' % err.value)
+        sys.exit(-1)
