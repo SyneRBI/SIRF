@@ -128,6 +128,10 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
 	}
+	void read(ISMRMRD::Dataset& dataset, const char* var, int ind)
+	{
+		IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, ind, &ptr_);
+	}
 	void axpby(complex_float_t a, const ImageWrap& x, complex_float_t b)
 	{
 		IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
@@ -212,6 +216,19 @@ private:
 			dataset.appendImage(image_varname, im);
 			mtx.unlock();
 		}
+	}
+
+	template<typename T>
+	void read_
+		(const ISMRMRD::Image<T>* ptr, 
+		ISMRMRD::Dataset& dataset, const char* var, int index,
+		void** ptr_ptr)
+	{
+		ISMRMRD::Image < T >* ptr_im = new ISMRMRD::Image < T >;
+		*ptr_ptr = (void*)ptr_im;
+		ISMRMRD::Image<T>& im = *ptr_im;
+		dataset.readImage(var, index, im);
+		//int status = ismrmrd_read_image(&dataset, var, (uint32_t)index, &(im.im));
 	}
 
 	template<typename T>
