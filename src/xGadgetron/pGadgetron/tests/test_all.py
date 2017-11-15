@@ -27,6 +27,11 @@ print('\n\n--- undersampled reconstruction test set:')
 import undersampled
 failed += fully_sampled.main()
 
+print('\n\n--- test set 3:')
+import test3
+failed3, ntests3 = test3.main()
+failed += failed3
+
 if failed == 0:
     print('all tests passed')
     sys.exit(0)

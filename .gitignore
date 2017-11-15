@@ -253,6 +253,8 @@ $RECYCLE.BIN/
 *.backup
 *.db
 *.opendb
+.coverage
+htmlcov/
 info.txt
 warn.txt
 errr.txt

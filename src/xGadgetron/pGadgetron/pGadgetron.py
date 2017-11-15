@@ -152,53 +152,53 @@ def raw_data_path():
     '''
     return petmr_data_path('mr')
 
-# low-level client functionality
-# likely to be obsolete- not used for a long time
-class ClientConnector:
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('GTConnector')
-        check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    def set_timeout(self, timeout):
-        handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def connect(self, host, port):
-        handle = pygadgetron.cGT_connect(self.handle, host, port)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def disconnect(self):
-        handle = pygadgetron.cGT_disconnect(self.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def register_images_receiver(self, imgs):
-        handle = pygadgetron.cGT_registerImagesReceiver\
-            (self.handle, imgs.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def config_gadget_chain(self, gc):
-        handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_config_file(self, file):
-        handle = pygadgetron.cGT_sendConfigFile(self.handle, file)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_parameters(self, par):
-        handle = pygadgetron.cGT_sendParameters(self.handle, par)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_acquisitions(self, acq):
-        handle = pygadgetron.cGT_sendAcquisitions(self.handle, acq.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_images(self, img):
-        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+### low-level client functionality
+### likely to be obsolete- not used for a long time
+##class ClientConnector:
+##    def __init__(self):
+##        self.handle = None
+##        self.handle = pygadgetron.cGT_newObject('GTConnector')
+##        check_status(self.handle)
+##    def __del__(self):
+##        if self.handle is not None:
+##            pyiutil.deleteDataHandle(self.handle)
+##    def set_timeout(self, timeout):
+##        handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def connect(self, host, port):
+##        handle = pygadgetron.cGT_connect(self.handle, host, port)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def disconnect(self):
+##        handle = pygadgetron.cGT_disconnect(self.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def register_images_receiver(self, imgs):
+##        handle = pygadgetron.cGT_registerImagesReceiver\
+##            (self.handle, imgs.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def config_gadget_chain(self, gc):
+##        handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_config_file(self, file):
+##        handle = pygadgetron.cGT_sendConfigFile(self.handle, file)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_parameters(self, par):
+##        handle = pygadgetron.cGT_sendParameters(self.handle, par)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_acquisitions(self, acq):
+##        handle = pygadgetron.cGT_sendAcquisitions(self.handle, acq.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_images(self, img):
+##        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
 
 # base class for complex data container classes
 class DataContainer(ABC):
@@ -690,43 +690,43 @@ class ImageData(DataContainer):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def show(self):
-        '''
-        Interactively displays self's images.
-        '''
-        assert self.handle is not None
-        if not HAVE_PYLAB:
-            print('pylab not found')
-            return
-        ni = self.number()
-        if ni == 1:
-            print('%d image' % ni)
-        else:
-            print('%d images' % ni)
-        if ni < 1:
-            return
-        data = self.as_array()
-        if not self.is_real():
-            data = abs(data)
-        print('Please enter the number of the image to view')
-        print('(a value outside the range [1 : %d] will stop this loop)' % ni)
-        while True:
-            s = str(input('image: '))
-            if len(s) < 1:
-                break
-            i = int(s)
-            if i < 1 or i > ni:
-                break
-            image = self.image(i - 1)
-            pylab.figure(i)
-            pylab.title('image %d' % i)
-            arr = image.as_array()
-            if not image.is_real():
-                arr = abs(arr)
-            pylab.imshow(arr[0,:,:])
-            #pylab.imshow(data[i - 1, :, :])
-            print('Close Figure %d window to continue...' % i)
-            pylab.show()
+##    def show(self):
+##        '''
+##        Interactively displays self's images.
+##        '''
+##        assert self.handle is not None
+##        if not HAVE_PYLAB:
+##            print('pylab not found')
+##            return
+##        ni = self.number()
+##        if ni == 1:
+##            print('%d image' % ni)
+##        else:
+##            print('%d images' % ni)
+##        if ni < 1:
+##            return
+##        data = self.as_array()
+##        if not self.is_real():
+##            data = abs(data)
+##        print('Please enter the number of the image to view')
+##        print('(a value outside the range [1 : %d] will stop this loop)' % ni)
+##        while True:
+##            s = str(input('image: '))
+##            if len(s) < 1:
+##                break
+##            i = int(s)
+##            if i < 1 or i > ni:
+##                break
+##            image = self.image(i - 1)
+##            pylab.figure(i)
+##            pylab.title('image %d' % i)
+##            arr = image.as_array()
+##            if not image.is_real():
+##                arr = abs(arr)
+##            pylab.imshow(arr[0,:,:])
+##            #pylab.imshow(data[i - 1, :, :])
+##            print('Close Figure %d window to continue...' % i)
+##            pylab.show()
     def write(self, out_file, out_group):
         '''
         Writes self's images to an hdf5 file.
