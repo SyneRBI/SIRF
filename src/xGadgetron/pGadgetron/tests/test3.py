@@ -54,6 +54,16 @@ def main(verb = False):
     processed_norm = processed_data.norm()
     test.check(processed_norm)
 
+    for i in range(2):
+        acq = processed_data.acquisition(i)
+        print('--- acquisition %d' % i)
+        for p in [ \
+            'flags', 'kspace_encode_step_1', \
+            'slice', 'repetition']:
+            form = p + ' %d'
+            test.check(acq.info(p))
+            #print(form % acq.info(p))
+
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
@@ -72,18 +82,19 @@ def main(verb = False):
             'image_type', 'image_index', 'image_series_index' \
             ]:
             form = p + ' %d'
-            print(form % complex_image.info(p))
-        print('matrix size:'),
-        print(complex_image.matrix_size())
-        print('patient_table_position:'),
-        print(complex_image.patient_table_position())
+            test.check(complex_image.info(p))
+            #print(form % complex_image.info(p))
+##        print('matrix size:'),
+##        print(complex_image.matrix_size())
+##        print('patient_table_position:'),
+##        print(complex_image.patient_table_position())
 
-    ind = complex_images.get_info('image_index')
-    print('image indices:')
-    print(ind)
-    ptp = complex_images.get_info('patient_table_position')
-    print('patient table positions:')
-    print(ptp)
+##    ind = complex_images.get_info('image_index')
+##    print('image indices:')
+##    print(ind)
+##    ptp = complex_images.get_info('patient_table_position')
+##    print('patient table positions:')
+##    print(ptp)
     
     return test.failed, test.ntest
 
