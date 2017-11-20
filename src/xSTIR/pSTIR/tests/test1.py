@@ -146,12 +146,12 @@ def main():
     failed += test_failed(13, 0.710633, s, 0, eps)
     failed += test_failed(14, 0.505000, v, 0, eps)
     #print('prior gradient mean sum of squares: %f, variance: %f' % (s, v))
-    return failed
+    return failed, 14
 
 if __name__ == '__main__':
 
     try:
-        failed = main()
+        failed, ntest = main()
         if failed == 0:
             print('all tests passed')
             sys.exit(0)
