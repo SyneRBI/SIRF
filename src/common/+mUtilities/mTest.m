@@ -75,7 +75,7 @@ classdef mTest < handle
                         if self.verbose
                             fprintf...
                                 ('+++ test %d failed: expected %e, got %e\n', ...
-                                expected, value);
+                                self.ntest, expected, value);
                         end
                     end
                 end

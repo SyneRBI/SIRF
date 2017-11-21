@@ -1,5 +1,5 @@
 function [failed, ntests] = test2(record, engine)
-% MR test set 1.
+% MR test set 2.
 
 % GRAPPA reconstruction and the illustration of the use of 
 % Acquisition Model projections.
