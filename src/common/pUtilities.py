@@ -188,8 +188,8 @@ class pTest:
     def __init__(self, filename, record):
         self.record = record
         self.data = []
-        self.abs = 0.0
-        self.rel = 1.0e-3
+#        self.abs = 0.0
+#        self.rel = 1.0e-3
         self.ntest = 0
         self.failed = 0
         self.verbose = True
@@ -208,7 +208,7 @@ class pTest:
                 raise
     def __del__(self):
         self.file.close()
-    def check(self, value):
+    def check(self, value, abs_tol = 0.0, rel_tol = 1.0e-3):
         if self.record:
             self.file.write('%e\n' % value)
         else:
@@ -216,7 +216,8 @@ class pTest:
                 print('??? no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.ntest]
-                eps = self.abs + self.rel*abs(expected)
+                eps = abs_tol + rel_tol*abs(expected)
+                #eps = self.abs + self.rel*abs(expected)
                 if abs(value - expected) <= eps:
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
