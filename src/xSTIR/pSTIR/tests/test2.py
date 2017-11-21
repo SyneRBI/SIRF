@@ -1,4 +1,6 @@
-'''OSEM reconstruction test.
+'''pSTIR test set 2.
+
+OSEM rreconstruction tests.
 
 Usage:
   test2 [--help | options]
@@ -29,16 +31,14 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-import math
-
 from pSTIR import *
 
 record = args['--record']
 verbose = args['--verbose']
 
-def main(verb = False):
+def main(rec = record, verb = verbose):
 
-    test = pTest('test2.txt', record)
+    test = pTest('test2.txt', rec)
     test.verbose = verb
 
     msg_red = MessageRedirector()
@@ -84,7 +84,7 @@ def main(verb = False):
 if __name__ == '__main__':
 
     try:
-        failed, ntest = main(verbose)
+        failed, ntest = main()
         if failed == 0:
             if not record:
                 print('all tests passed')

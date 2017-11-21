@@ -4,7 +4,7 @@
 Undersampled data tests
 
 Usage:
-  test1 [--help | options]
+  test2 [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them

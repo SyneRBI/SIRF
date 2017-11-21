@@ -1,3 +1,13 @@
+'''pSTIR test sets.
+
+Usage:
+  test_all [--help | options]
+
+Options:
+  -r, --record   record the measurements rather than check them
+  -v, --verbose  report each test status
+'''
+
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
 ##
@@ -15,30 +25,34 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+__version__ = '0.1.0'
+from docopt import docopt
+args = docopt(__doc__, version=__version__)
+
+record = args['--record']
+verbose = args['--verbose']
+
+import glob
+import os
 import sys
 
-print('\n\n--- test set 1:')
-import test1
-failed1, ntest1 = test1.main()
+failed = 0
+ntests = 0
 
-print('\n\n--- test set 2:')
-import test2
-failed2, ntest2 = test2.main(verb = True)
-
-print('\n\n--- test set 3:')
-import test3
-failed3, ntest3 = test3.main(verb = True)
-
-print('\n\n--- test set 4:')
-import test4
-failed4, ntest4 = test4.main(verb = True)
-
-failed = failed1 + failed2 + failed3 + failed4
-ntest = ntest1 + ntest2 + ntest3 + ntest4
+for script in glob.glob('*.py'):
+    if os.path.abspath(__file__) == os.path.abspath(script):
+        continue
+    print('\n\n--- running %s' % script)
+    test = script.replace('.py', '')
+    main = script.replace('.py', '.main()')
+    exec('import ' + test)
+    f, n = eval(main)
+    failed += f
+    ntests += n
 
 if failed == 0:
-    print('all %d tests passed' % ntest)
+    print('all %d tests passed' % ntests)
     sys.exit(0)
 else:
-    print('%d of %d tests failed' % (failed, ntest))
+    print('%d of %d tests failed' % (failed, ntests))
     sys.exit(failed)

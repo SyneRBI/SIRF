@@ -1,4 +1,6 @@
-'''Acquisitions and images algebra test.
+'''pSTIR test set 4.
+
+Acquisitions and images algebra tests.
 
 Usage:
   test4 [--help | options]
@@ -36,9 +38,9 @@ from pSTIR import *
 record = args['--record']
 verbose = args['--verbose']
 
-def main(verb = False):
+def main(rec = record, verb = verbose):
 
-    test = pTest('test4.txt', record)
+    test = pTest('test4.txt', rec)
     test.verbose = verb
 
     msg_red = MessageRedirector()
@@ -68,7 +70,7 @@ def main(verb = False):
 if __name__ == '__main__':
 
     try:
-        failed, ntest = main(verbose)
+        failed, ntest = main()
         if failed == 0:
             if not record:
                 print('all tests passed')
