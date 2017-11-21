@@ -1,7 +1,10 @@
-'''Test set 3.
+# -*- coding: utf-8 -*-
+'''Test set 1.
+
+Fully sampled data tests
 
 Usage:
-  test3 [--help | options]
+  test1 [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
@@ -25,12 +28,15 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
+"""
+Created on Tue Nov 21 10:17:28 2017
+
+@author: Evgueni Ovtchinnikov
+"""
+
 __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
-
-import math
-import sys
 
 from pGadgetron import *
 
@@ -39,51 +45,51 @@ verbose = args['--verbose']
 
 def main(rec = record, verb = verbose):
 
-    test = pTest('test3.txt', rec)
+    test = pTest('test1.txt', rec)
     test.verbose = verb
 
     data_path = mr_data_path()
     input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
-    input_norm = input_data.norm()
-    test.check(input_norm)
-    alt_norm = math.sqrt(abs(input_data*input_data))
-    test.check(abs(alt_norm/input_norm - 1), abs_tol = 1e-4)
+    test.check(input_data.norm())
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
-    processed_norm = processed_data.norm()
-    test.check(processed_norm)
-
-    for i in range(2):
-        acq = processed_data.acquisition(i)
-        print('--- acquisition %d' % i)
-        for p in [ \
-            'flags', 'kspace_encode_step_1', \
-            'slice', 'repetition']:
-            form = p + ' %d'
-            test.check(acq.info(p))
-            #print(form % acq.info(p))
+    test.check(processed_data.norm())
 
     recon = FullySampledReconstructor()
     recon.set_input(processed_data)
     recon.process()
     complex_images = recon.get_output()
-    images_norm = complex_images.norm()
-    test.check(images_norm)
-    alt_norm = math.sqrt(abs(complex_images*complex_images))
-    test.check(abs(alt_norm/images_norm - 1), abs_tol = 1e-4)
+    test.check(complex_images.norm())
 
-    for i in range(complex_images.number()):
-        complex_image = complex_images.image(i)
-        print('--- image %d' % i)
-        for p in [ \
-            'version', 'flags', 'data_type', 'channels', \
-            'slice', 'repetition', \
-            'image_type', 'image_index', 'image_series_index' \
-            ]:
-            form = p + ' %d'
-            test.check(complex_image.info(p))
-            #print(form % complex_image.info(p))
+    cis = CoilImageData()
+
+    csms = CoilSensitivityData()
+
+    processed_data.sort()
+    cis.calculate(processed_data)
+    csms.calculate(cis)
+
+    am = AcquisitionModel(processed_data, complex_images)
+    am.set_coil_sensitivity_maps(csms)
+    fwd_acqs = am.forward(complex_images)
+    fwd_acqs_norm = fwd_acqs.norm()
+    test.check(fwd_acqs_norm)
+
+    acqs_diff = fwd_acqs - processed_data
+    rr = acqs_diff.norm()/fwd_acqs_norm
+    test.check(rr)
+
+    bwd_images = am.backward(processed_data)
+    imgs_diff = bwd_images - complex_images
+    rd = imgs_diff.norm()/complex_images.norm()
+    test.check(rd)
+
+    xFy = processed_data * fwd_acqs
+    Bxy = bwd_images * complex_images
+    test.check(abs(xFy.real/Bxy.real - 1), abs_tol = 1e-4)
+    test.check(abs(xFy.imag/xFy.real), abs_tol = 1e-4)
+    test.check(abs(Bxy.imag/Bxy.real), abs_tol = 1e-4)
 
     return test.failed, test.ntest
 
