@@ -1,6 +1,5 @@
-function tests(engine)
-% GRAPPA reconstruction with the steepest descent step
-% to illustrate the use of Acquisition Model projections.
+function [failed, ntests] = test1(record, engine)
+% PET test set 1.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -22,15 +21,16 @@ function tests(engine)
 
 % Select and import SIRF MATLAB MR package so that SIRF MR objects can be 
 % created in this function without using the prefix 'MR.'
-if nargin < 1
+if nargin < 2
     engine = [];
+end
+if nargin < 1
+    record = false;
 end
 import_str = set_up_PET(engine);
 eval(import_str)
 
-failed = 0;
-eps = 1e-4;
-ntest = 0;
+test = mUtilities.mTest('test1.txt', record);
 
 % define raw data source
 filename = 'Utahscat600k_ca_seg4.hs';
@@ -38,15 +38,11 @@ pathname = pet_data_path();
 acq_data = AcquisitionData(fullfile(pathname, filename));
 s = acq_data.norm();
 v = variance(acq_data);
-fprintf('---\n acquisition data norm: %e, variance: %e\n', s, v)
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 3099.322, s, 0, eps);
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 5.444323, v, 0, eps);
+test.check(s)
+test.check(v)
 
 image = ImageData();
 image_size = [111, 111, 31];
-n = prod(image_size);
 voxel_size = [3, 3, 3.375];
 image.initialise(image_size, voxel_size)
 image.fill(1.0)
@@ -54,11 +50,8 @@ filter = TruncateToCylinderProcessor();
 filter.apply(image)
 s = image.norm();
 v = variance(image);
-fprintf('---\n filtered image norm: %e, variance: %e\n', s, v)
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 541.678, s, 0, eps);
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 0.178068, v, 0, eps);
+test.check(s)
+test.check(v)
 
 prior = QuadraticPrior();
 prior.set_penalisation_factor(0.5)
@@ -78,24 +71,18 @@ obj_fun.set_up(image)
 
 subset = 0;
 
-% get sensitivity as ImageData
 sens_image = obj_fun.get_subset_sensitivity(subset);
 
-% get backprojection of the ratio of measured to estimated
-% acquisition data
 grad_image = obj_fun.get_backprojection_of_acquisition_ratio...
              (image, subset);
 
-% get gradient of prior as ImageData
 prior_grad_image = prior.get_gradient(image);
 
-% copy to Matlab arrays
 image_array = image.as_array();
 sens_array = sens_image.as_array();
 grad_array = grad_image.as_array();
 prior_grad_array = prior_grad_image.as_array();
 
-% update image data
 denom = sens_array + prior_grad_array./num_subsets;
 delta = 1e-6*max(abs(denom(:)));
 denom(denom < delta) = delta; % avoid division by zero
@@ -105,38 +92,28 @@ image_array = image_array.*update;
 s = norm(update(:));
 v = var(update(:));
 delta = max(update(:))*eps;
-fprintf('---\n update norm: %e, variance: %e\n', s, v)
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 2377.229, s, 0, eps);
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 14.7674, v, delta, eps);
+test.check(s)
+test.check(v, delta)
 
 s = norm(image_array(:));
 v = var(image_array(:));
 delta = max(image_array(:))*eps;
-fprintf('---\n updated image norm: %e, variance: %e\n', s, v)
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 7.610105, s, 0, eps);
-ntest = ntest + 1;
-failed = failed + test_failed(ntest, 0.000052, v, delta, eps);
+test.check(s)
+test.check(v, delta)
 
-if failed == 0
-    fprintf('all tests passed\n')
+failed = test.failed;
+ntests = test.ntest;
+
+if record
+    fprintf('%d measurements recorded\n', ntests)
+elseif failed == 0
+    fprintf('all %d tests passed\n', ntests)
 else
-    fprintf('%d tests failed\n', failed)
+    fprintf('%d out of %d tests failed\n', failed, ntests)
 end
 end
 
 function v = variance(x)
 a = double(x.as_array());
 v = var(a(:));
-end
-
-function failed = test_failed(ntest, expected, actual, abstol, reltol)
-failed = abs(expected - actual) > abstol + reltol*expected;
-    if failed
-        fprintf('+++ test %d failed\n', ntest)
-    else
-        fprintf('+++ test %d passed\n', ntest)
-    end
 end

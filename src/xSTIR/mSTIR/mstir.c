@@ -81,6 +81,9 @@ EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, float v) {
 EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from) {
 	return cSTIR_fillAcquisitionsDataFromAcquisitionsData (ptr_acq, ptr_from);
 }
+EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
+	return cSTIR_writeAcquisitionData(ptr_acq, filename);
+}
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);
 }
