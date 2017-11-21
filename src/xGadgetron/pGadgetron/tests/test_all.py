@@ -32,36 +32,23 @@ args = docopt(__doc__, version=__version__)
 record = args['--record']
 verbose = args['--verbose']
 
+import glob
+import os
 import sys
 
 failed = 0
 ntests = 0
 
-#print('\n\n--- fully sampled reconstruction test set:')
-#import fully_sampled
-#failed += fully_sampled.main()
-
-#print('\n\n--- undersampled reconstruction test set:')
-#import undersampled
-#failed += undersampled.main()
-
-print('\n\n--- test set 1:')
-import test1
-failed1, ntests1 = test1.main()
-failed += failed1
-ntests += ntests1
-
-print('\n\n--- test set 2:')
-import test2
-failed2, ntests2 = test2.main()
-failed += failed2
-ntests += ntests2
-
-print('\n\n--- test set 3:')
-import test3
-failed3, ntests3 = test3.main()
-failed += failed3
-ntests += ntests3
+for script in glob.glob('*.py'):
+    if os.path.abspath(__file__) == os.path.abspath(script):
+        continue
+    print('\n\n--- running %s' % script)
+    test = script.replace('.py', '')
+    main = script.replace('.py', '.main()')
+    exec('import ' + test)
+    f, n = eval(main)
+    failed += f
+    ntests += n
 
 if record:
     print('%d measurements recorded' % ntests)

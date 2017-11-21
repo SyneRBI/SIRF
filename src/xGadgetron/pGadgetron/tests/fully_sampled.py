@@ -141,12 +141,12 @@ def main():
     failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-5, 0)
     failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-5, 0)
 
-    return failed
+    return failed, 9
 
 if __name__ == '__main__':
 
     try:
-        failed = main()
+        failed, ntests = main()
         if failed == 0:
             print('all tests passed')
         else:

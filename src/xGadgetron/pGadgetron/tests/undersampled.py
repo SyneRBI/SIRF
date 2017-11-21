@@ -147,12 +147,12 @@ def main():
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
     failed += test_failed(7, xFy.real, Bxy.real, 0, eps)
 
-    return failed
+    return failed, 7
 
 if __name__ == '__main__':
 
     try:
-        failed = main()
+        failed, ntests = main()
         if failed == 0:
             print('all tests passed')
         else:
