@@ -19,9 +19,18 @@
 #
 #=========================================================================
 
-add_test(NAME MR_FULLY_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
+add_test(NAME MR_TEST1
+         COMMAND ${PYTHON_EXECUTABLE} test1.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
 
-add_test(NAME MR_UNDER_SAMPLED
-         COMMAND ${PYTHON_EXECUTABLE} undersampled.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
+add_test(NAME MR_TEST2
+         COMMAND ${PYTHON_EXECUTABLE} test2.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
+
+add_test(NAME MR_TEST3
+         COMMAND ${PYTHON_EXECUTABLE} test3.py WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
+
+#add_test(NAME MR_FULLY_SAMPLED
+#         COMMAND ${PYTHON_EXECUTABLE} fully_sampled.py WORKING_DIRECTORY#${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
+
+#add_test(NAME MR_UNDER_SAMPLED
+#         COMMAND ${PYTHON_EXECUTABLE} undersampled.py WORKING_DIRECTORY#${CMAKE_SOURCE_DIR}/src/xGadgetron/pGadgetron/tests/ )
 
