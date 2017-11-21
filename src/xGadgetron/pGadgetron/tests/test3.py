@@ -46,8 +46,10 @@ def main(verb = False):
     input_data = AcquisitionData(data_path + '/simulated_MR_2D_cartesian.h5')
     input_norm = input_data.norm()
     test.check(input_norm)
-    arr = input_data.as_array()
-    test.check(abs(nla.norm(arr)/input_norm - 1), abs_tol = 1e-4)
+    alt_norm = math.sqrt(abs(input_data*input_data))
+    test.check(abs(alt_norm/input_norm - 1), abs_tol = 1e-4)
+#    arr = input_data.as_array()
+#    test.check(abs(nla.norm(arr)/input_norm - 1), abs_tol = 1e-4)
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
@@ -70,8 +72,10 @@ def main(verb = False):
     complex_images = recon.get_output()
     images_norm = complex_images.norm()
     test.check(images_norm)
-    arr = complex_images.as_array()
-    test.check(abs(nla.norm(arr)/images_norm - 1), abs_tol = 1e-4)
+    alt_norm = math.sqrt(abs(complex_images*complex_images))
+    test.check(abs(alt_norm/images_norm - 1), abs_tol = 1e-4)
+#    arr = complex_images.as_array()
+#    test.check(abs(nla.norm(arr)/images_norm - 1), abs_tol = 1e-4)
 
     for i in range(complex_images.number()):
         complex_image = complex_images.image(i)
