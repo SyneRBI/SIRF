@@ -89,6 +89,7 @@ denom(denom < delta) = delta; % avoid division by zero
 update = grad_array./denom;
 image_array = image_array.*update;
 
+eps = 1e-4;
 s = norm(update(:));
 v = var(update(:));
 delta = max(update(:))*eps;
