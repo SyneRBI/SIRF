@@ -188,8 +188,8 @@ class pTest:
     def __init__(self, filename, record):
         self.record = record
         self.data = []
-        self.abs = 1.0e-4
-        self.rel = 1.0e-4
+        self.abs = 0.0
+        self.rel = 1.0e-3
         self.ntest = 0
         self.failed = 0
         self.verbose = True
