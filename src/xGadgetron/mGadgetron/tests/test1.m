@@ -62,12 +62,12 @@ test.check(fwd_acqs_norm)
 
 acqs_diff = fwd_acqs - processed_data;
 rr = acqs_diff.norm()/fwd_acqs_norm;
-test.check(rr)
+test.check(rr, 1e-4)
 
 bwd_images = am.backward(processed_data);
 imgs_diff = bwd_images - complex_images;
 rd = imgs_diff.norm()/complex_images.norm();
-test.check(rd)
+test.check(rd, 1e-4)
 
 xFy = processed_data * fwd_acqs;
 Bxy = bwd_images * complex_images;
