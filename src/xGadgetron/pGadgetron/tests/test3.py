@@ -47,7 +47,7 @@ def main(verb = False):
     input_norm = input_data.norm()
     test.check(input_norm)
     arr = input_data.as_array()
-    test.check(abs(nla.norm(arr) - input_norm))
+    test.check(abs(nla.norm(arr)/input_norm - 1))
 
     prep_gadgets = ['RemoveROOversamplingGadget']
     processed_data = input_data.process(prep_gadgets)
@@ -71,7 +71,7 @@ def main(verb = False):
     images_norm = complex_images.norm()
     test.check(images_norm)
     arr = complex_images.as_array()
-    test.check(abs(nla.norm(arr) - images_norm))
+    test.check(abs(nla.norm(arr)/images_norm - 1))
 
     for i in range(complex_images.number()):
         complex_image = complex_images.image(i)
