@@ -188,8 +188,6 @@ class pTest:
     def __init__(self, filename, record):
         self.record = record
         self.data = []
-#        self.abs = 0.0
-#        self.rel = 1.0e-3
         self.ntest = 0
         self.failed = 0
         self.verbose = True
@@ -217,14 +215,14 @@ class pTest:
             else:
                 expected = self.data[self.ntest]
                 eps = abs_tol + rel_tol*abs(expected)
-                #eps = self.abs + self.rel*abs(expected)
                 if abs(value - expected) <= eps:
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
                 else:
                     self.failed += 1
                     if self.verbose:
-                        print('+++ test %d failed' % self.ntest)
+                        print('+++ test %d failed: expected %e, got %e' \
+                        % (self.ntest, expected, value))
         self.ntest += 1
 
 ###########################################################
