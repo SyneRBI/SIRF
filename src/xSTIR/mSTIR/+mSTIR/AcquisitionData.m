@@ -23,6 +23,9 @@ classdef AcquisitionData < mSTIR.DataContainer
         read_only
     end
     methods (Static)
+        function name = class_name()
+            name = 'AcquisitionData';
+        end
         function obj = same_object()
             obj = mSTIR.AcquisitionData();
         end
