@@ -22,6 +22,11 @@ classdef Shape < handle
     properties
         handle_
     end
+    methods (Static)
+        function name = class_name()
+            name = 'Shape';
+        end
+    end
     methods
         function self = Shape()
             self.handle_ = [];

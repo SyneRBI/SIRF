@@ -81,7 +81,9 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
 %***SIRF*** Sets the acquisition data to be used by this objective function.
             mUtilities.assert_validity(acq_data, 'mSTIR.AcquisitionData')
             mSTIR.setParameter(self.handle_, self.name,...
-                'proj_data_sptr', acq_data, 'h')
+                'acquisition_data', acq_data, 'h')
+%             mSTIR.setParameter(self.handle_, self.name,...
+%                 'proj_data_sptr', acq_data, 'h')
         end
     end
 end

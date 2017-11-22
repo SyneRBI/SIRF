@@ -697,6 +697,9 @@ class AcquisitionData(DataContainer):
             raise error('Wrong fill value.' + \
                 ' Should be numpy.ndarray, AcquisitionData, float or int')
         return self
+    def write(self, filename):
+        assert self.handle is not None
+        try_calling(pystir.cSTIR_writeAcquisitionData(self.handle, filename))
     def clone(self):
         ''' 
         Returns a true copy of this object (not Python handle).
@@ -1149,10 +1152,11 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
         '''
         Sets the acquisition data to be used by this objective function.
         '''
-##        assert isinstance(ad, AcquisitionData)
         assert_validity(ad, AcquisitionData)
         _setParameter\
-            (self.handle, self.name, 'proj_data_sptr', ad.handle)
+            (self.handle, self.name, 'acquisition_data', ad.handle)
+##        _setParameter\
+##            (self.handle, self.name, 'proj_data_sptr', ad.handle)
 
 class Reconstructor:
     '''
@@ -1296,6 +1300,7 @@ class OSMAPOSLReconstructor(IterativeReconstructor):
     '''
     def __init__(self, filename = ''):
         self.handle = None
+        self.image = None
         self.name = 'OSMAPOSL'
         self.handle = pystir.cSTIR_objectFromFile\
             ('OSMAPOSLReconstruction', filename)
@@ -1321,6 +1326,7 @@ class OSSPSReconstructor(IterativeReconstructor):
     '''
     def __init__(self, filename = ''):
         self.handle = None
+        self.image = None
         self.name = 'OSSPS'
         self.handle = pystir.cSTIR_objectFromFile\
                       ('OSSPSReconstruction', filename)

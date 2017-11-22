@@ -184,6 +184,47 @@ def show_3D_array\
     mpl.rcParams['ytick.labelsize'] = current_ylabel_size
     return 0
 
+class pTest:
+    def __init__(self, filename, record):
+        self.record = record
+        self.data = []
+        self.ntest = 0
+        self.failed = 0
+        self.verbose = True
+        if record:
+            self.file = open(filename, 'w')
+        else:
+            try:
+                with open(filename, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        self.data.append(float(line))
+                self.size = len(self.data)
+                self.file = f
+            except:
+                print('??? Error reading file %s\n' % filename)
+                raise
+    def __del__(self):
+        self.file.close()
+    def check(self, value, abs_tol = 0.0, rel_tol = 1.0e-3):
+        if self.record:
+            self.file.write('%e\n' % value)
+        else:
+            if self.ntest >= self.size:
+                print('??? no data available for test %d' % self.ntest)
+            else:
+                expected = self.data[self.ntest]
+                eps = abs_tol + rel_tol*abs(expected)
+                if abs(value - expected) <= eps:
+                    if self.verbose:
+                        print('+++ test %d passed' % self.ntest)
+                else:
+                    self.failed += 1
+                    if self.verbose:
+                        print('+++ test %d failed: expected %e, got %e' \
+                        % (self.ntest, expected, value))
+        self.ntest += 1
+
 ###########################################################
 ############ Utilities for internal use only ##############
 class error(Exception):

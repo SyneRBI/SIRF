@@ -56,6 +56,7 @@ extern "C" {
 	void* cSTIR_fillAcquisitionsData(void* ptr_acq, float v);
 	void* cSTIR_fillAcquisitionsDataFromAcquisitionsData
 		(void* ptr_acq, const void * ptr_from);
+	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 
 	// Reconstruction methods
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);

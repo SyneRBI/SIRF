@@ -23,6 +23,9 @@ classdef ImageData < mSTIR.DataContainer
         rimsize
     end
     methods(Static)
+        function name = class_name()
+            name = 'ImageData';
+        end
         function obj = same_object()
             obj = mSTIR.ImageData();
         end

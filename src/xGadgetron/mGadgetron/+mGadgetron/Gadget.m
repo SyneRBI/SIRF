@@ -23,6 +23,11 @@ classdef Gadget < handle
         handle_
         name_
     end
+    methods (Static)
+        function name = class_name()
+            name = 'Gadget';
+        end
+    end
     methods
         function self = Gadget(fullname)
 %         Creates a gadget of type and properties specified by the argument,

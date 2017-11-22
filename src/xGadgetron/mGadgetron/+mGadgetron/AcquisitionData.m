@@ -29,6 +29,9 @@ classdef AcquisitionData < mGadgetron.DataContainer
         info_
     end
     methods (Static)
+        function name = class_name()
+            name = 'AcquisitionData';
+        end
         function obj = same_object()
             obj = mGadgetron.AcquisitionData();
         end

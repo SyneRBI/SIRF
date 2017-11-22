@@ -61,7 +61,8 @@ classdef Reconstructor < mGadgetron.GadgetChain
         function set_input(self, input_data)
 %***SIRF*** Sets the specified AcquisitionData argument as the input.
 %         See also PROCESS
-            assert(isa(input_data, 'mGadgetron.AcquisitionData'))
+            %assert(isa(input_data, 'mGadgetron.AcquisitionData'))
+            assert(strcmp(input_data.class_name(), 'AcquisitionData'))
             self.input_ = input_data;
         end
         function process(self)

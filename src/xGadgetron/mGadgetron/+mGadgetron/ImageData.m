@@ -22,6 +22,9 @@ classdef ImageData < mGadgetron.DataContainer
         name_
     end
     methods (Static)
+        function name = class_name()
+            name = 'ImageData';
+        end
         function obj = same_object()
             obj = mGadgetron.ImageData();
         end

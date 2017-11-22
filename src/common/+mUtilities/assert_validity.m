@@ -18,7 +18,12 @@ function assert_validity(object, type)
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-if ~isa(object, type)
+%if ~isa(object, type)
+i = strfind(type, '.');
+if isempty(i)
+    i = 0;
+end
+if ~strcmp(object.class_name(), type(i + 1 :end))
     fprintf('??? Argument of a wrong type %s: expected %s.\n', ...
         class(object), type)
     error('Object of a wrong type %s\n', class(object))

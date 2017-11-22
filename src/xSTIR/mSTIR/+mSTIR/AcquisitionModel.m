@@ -36,6 +36,11 @@ classdef AcquisitionModel < handle
         name
         handle_
     end
+    methods (Static)
+        function name = class_name()
+            name = 'AcquisitionModel';
+        end
+    end
     methods
         function self = AcquisitionModel()
             self.handle_ = [];

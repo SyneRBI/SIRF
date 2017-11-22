@@ -55,33 +55,42 @@ extern "C" {
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
 	void* cGT_orderAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
-	void* cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, PTR_INT ptr_f);
+	void* cGT_getAcquisitionsFlags
+		(void* ptr_acqs, unsigned int n, PTR_INT ptr_f);
 	void* cGT_getAcquisitionsData
-		(void* ptr_acqs, unsigned int slice, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+		(void* ptr_acqs, unsigned int slice, PTR_FLOAT ptr_r, PTR_FLOAT ptr_i);
 	void* cGT_setAcquisitionsData
 		(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
+	void*	cGT_readImages(const char* file);
 	void* cGT_processImages(void* ptr_proc, void* ptr_input);
-	void* cGT_selectImages(void* ptr_input, const char* attr, const char* target);
-	void* cGT_imagesCopy(const void* ptr_imgs);
+	void* cGT_selectImages
+		(void* ptr_input, const char* attr, const char* target);
 	void* cGT_writeImages
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
-	void* cGT_imageTypes(const void* ptr_x);
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
 
-	void cGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
+	void cGT_getCoilDataDimensions
+		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 	void cGT_getCoilData
 		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
+	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
+	void* cGT_imageType(const void* ptr_img);
+	void cGT_getImageDataAsFloatArray(void* ptr_img, size_t ptr_data);
+	void cGT_getImageDataAsComplexArray
+		(void* ptr_imgs, size_t ptr_re, size_t ptr_im);
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 	void cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void cGT_getImagesDataAsComplexArray
 		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void* cGT_setComplexImagesData(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void* cGT_setComplexImagesData
+		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);
@@ -93,7 +102,7 @@ extern "C" {
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
-	void* cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* value);
+	void* cGT_setGadgetProperty(void* ptr_g, const char* prop, const char* val);
 	void* cGT_setGadgetProperties(void* ptr_g, const char* props);
 	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);

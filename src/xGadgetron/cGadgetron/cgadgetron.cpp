@@ -136,6 +136,8 @@ void*
 cGT_parameter(void* ptr, const char* obj, const char* name)
 {
 	try {
+		if (boost::iequals(obj, "image"))
+			return cGT_imageParameter(ptr, name);
 		if (boost::iequals(obj, "acquisition"))
 			return cGT_acquisitionParameter(ptr, name);
 		if (boost::iequals(obj, "acquisitions"))
@@ -540,25 +542,84 @@ size_t ptr_re, size_t ptr_im)
 
 extern "C"
 void*
+cGT_writeAcquisitions(void* ptr_acqs, const char* filename)
+{
+	try {
+		AcquisitionsContainer& acqs =
+			objectFromHandle<AcquisitionsContainer>(ptr_acqs);
+		acqs.write(filename);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_acquisitionParameter(void* ptr_acq, const char* name)
 {
 	CAST_PTR(DataHandle, h_acq, ptr_acq);
 	ISMRMRD::Acquisition& acq =
 		objectFromHandle<ISMRMRD::Acquisition>(h_acq);
-	if (boost::iequals(name, "number_of_samples"))
-		return dataHandle((int)acq.number_of_samples());
-	if (boost::iequals(name, "active_channels"))
-		return dataHandle((int)acq.active_channels());
-	if (boost::iequals(name, "trajectory_dimensions"))
-		return dataHandle((int)acq.trajectory_dimensions());
+	if (boost::iequals(name, "version"))
+		return dataHandle((int)acq.version());
 	if (boost::iequals(name, "flags"))
 		return dataHandle((int)acq.flags());
+	if (boost::iequals(name, "measurement_uid"))
+		return dataHandle((int)acq.measurement_uid());
+	if (boost::iequals(name, "scan_counter"))
+		return dataHandle((int)acq.scan_counter());
+	if (boost::iequals(name, "acquisition_time_stamp"))
+		return dataHandle((int)acq.acquisition_time_stamp());
+	if (boost::iequals(name, "number_of_samples"))
+		return dataHandle((int)acq.number_of_samples());
+	if (boost::iequals(name, "available_channels"))
+		return dataHandle((int)acq.available_channels());
+	if (boost::iequals(name, "active_channels"))
+		return dataHandle((int)acq.active_channels());
+	if (boost::iequals(name, "discard_pre"))
+		return dataHandle((int)acq.discard_pre());
+	if (boost::iequals(name, "discard_post"))
+		return dataHandle((int)acq.discard_post());
+	if (boost::iequals(name, "center_sample"))
+		return dataHandle((int)acq.center_sample());
+	if (boost::iequals(name, "encoding_space_ref"))
+		return dataHandle((int)acq.encoding_space_ref());
+	if (boost::iequals(name, "trajectory_dimensions"))
+		return dataHandle((int)acq.trajectory_dimensions());
 	if (boost::iequals(name, "idx_kspace_encode_step_1"))
 		return dataHandle((int)acq.idx().kspace_encode_step_1);
-	if (boost::iequals(name, "idx_repetition"))
-		return dataHandle((int)acq.idx().repetition);
+	if (boost::iequals(name, "idx_kspace_encode_step_2"))
+		return dataHandle((int)acq.idx().kspace_encode_step_2);
+	if (boost::iequals(name, "idx_average"))
+		return dataHandle((int)acq.idx().average);
 	if (boost::iequals(name, "idx_slice"))
 		return dataHandle((int)acq.idx().slice);
+	if (boost::iequals(name, "idx_contrast"))
+		return dataHandle((int)acq.idx().contrast);
+	if (boost::iequals(name, "idx_phase"))
+		return dataHandle((int)acq.idx().phase);
+	if (boost::iequals(name, "idx_repetition"))
+		return dataHandle((int)acq.idx().repetition);
+	if (boost::iequals(name, "idx_set"))
+		return dataHandle((int)acq.idx().set);
+	if (boost::iequals(name, "idx_segment"))
+		return dataHandle((int)acq.idx().segment);
+	if (boost::iequals(name, "physiology_time_stamp"))
+		return dataHandle(acq.physiology_time_stamp());
+	if (boost::iequals(name, "channel_mask"))
+		return dataHandle(acq.channel_mask());
+	if (boost::iequals(name, "sample_time_us"))
+		return dataHandle((float)acq.sample_time_us());
+	if (boost::iequals(name, "position"))
+		return dataHandle((float*)acq.position());
+	if (boost::iequals(name, "read_dir"))
+		return dataHandle((float*)acq.read_dir());
+	if (boost::iequals(name, "phase_dir"))
+		return dataHandle((float*)acq.phase_dir());
+	if (boost::iequals(name, "slice_dir"))
+		return dataHandle((float*)acq.slice_dir());
+	if (boost::iequals(name, "patient_table_position"))
+		return dataHandle((float*)acq.patient_table_position());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
@@ -573,6 +634,65 @@ cGT_acquisitionsParameter(void* ptr_acqs, const char* name)
 		if (boost::iequals(name, "undersampled"))
 			return dataHandle((int)acqs.undersampled());
 		return parameterNotFound(name, __FILE__, __LINE__);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_imageParameter(void* ptr_im, const char* name)
+{
+	try {
+		ImageWrap& im = objectFromHandle<ImageWrap>(ptr_im);
+		ISMRMRD::ImageHeader& head = im.head();
+		if (boost::iequals(name, "version"))
+			return dataHandle((int)head.version);
+		if (boost::iequals(name, "flags"))
+			return dataHandle((int)head.flags);
+		if (boost::iequals(name, "data_type"))
+			return dataHandle((int)head.data_type);
+		if (boost::iequals(name, "measurement_uid"))
+			return dataHandle((int)head.measurement_uid);
+		if (boost::iequals(name, "channels"))
+			return dataHandle((int)head.channels);
+		if (boost::iequals(name, "average"))
+			return dataHandle((int)head.average);
+		if (boost::iequals(name, "slice"))
+			return dataHandle((int)head.slice);
+		if (boost::iequals(name, "contrast"))
+			return dataHandle((int)head.contrast);
+		if (boost::iequals(name, "phase"))
+			return dataHandle((int)head.phase);
+		if (boost::iequals(name, "repetition"))
+			return dataHandle((int)head.repetition);
+		if (boost::iequals(name, "set"))
+			return dataHandle((int)head.set);
+		if (boost::iequals(name, "acquisition_time_stamp"))
+			return dataHandle((int)head.acquisition_time_stamp);
+		if (boost::iequals(name, "image_type"))
+			return dataHandle((int)head.image_type);
+		if (boost::iequals(name, "image_index"))
+			return dataHandle((int)head.image_index);
+		if (boost::iequals(name, "image_series_index"))
+			return dataHandle((int)head.image_series_index);
+		if (boost::iequals(name, "attribute_string_len"))
+			return dataHandle((int)head.attribute_string_len);
+		if (boost::iequals(name, "matrix_size"))
+			return dataHandle(head.matrix_size);
+		if (boost::iequals(name, "physiology_time_stamp"))
+			return dataHandle(head.physiology_time_stamp);
+		if (boost::iequals(name, "field_of_view"))
+			return dataHandle((float*)head.field_of_view);
+		if (boost::iequals(name, "position"))
+			return dataHandle((float*)head.position);
+		if (boost::iequals(name, "read_dir"))
+			return dataHandle((float*)head.read_dir);
+		if (boost::iequals(name, "phase_dir"))
+			return dataHandle((float*)head.phase_dir);
+		if (boost::iequals(name, "slice_dir"))
+			return dataHandle((float*)head.slice_dir);
+		if (boost::iequals(name, "patient_table_position"))
+			return dataHandle((float*)head.patient_table_position);
 	}
 	CATCH;
 }
@@ -610,6 +730,18 @@ cGT_reconstructedImages(void* ptr_recon)
 
 extern "C"
 void*
+cGT_readImages(const char* file)
+{
+	try {
+		shared_ptr<ImagesContainer> sptr_img(new ImagesVector);
+		sptr_img->read(file);
+		return newObjectHandle<ImagesContainer>(sptr_img);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_processImages(void* ptr_proc, void* ptr_input)
 {
 	try {
@@ -640,20 +772,6 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 
 extern "C"
 void*
-cGT_imagesCopy(const void* ptr_imgs)
-{
-	try {
-		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		ImagesContainer& imgs = 
-			(ImagesContainer&)objectFromHandle<ImagesContainer>(h_imgs);
-		shared_ptr<ImagesContainer> clone = imgs.clone();
-		return newObjectHandle<ImagesContainer>(clone);
-	}
-	CATCH;
-}
-
-extern "C"
-void*
 cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
@@ -677,12 +795,57 @@ cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 
 extern "C"
 void
+cGT_getImageDim(void* ptr_img, size_t ptr_dim)
+{
+	int* dim = (int*)ptr_dim;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_dim(dim);
+}
+
+extern "C"
+void*
+cGT_imageType(const void* ptr_img)
+{
+	try {
+		ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+		int* result = (int*)malloc(sizeof(int));
+		*result = image.type();
+		DataHandle* handle = new DataHandle;
+		handle->set(result, 0, GRAB);
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void
+cGT_getImageDataAsFloatArray(void* ptr_img, size_t ptr_data)
+{
+	float* data = (float*)ptr_data;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_data(data);
+}
+
+extern "C"
+void
+cGT_getImageDataAsComplexArray(void* ptr_img, size_t ptr_re, size_t ptr_im)
+{
+	float* re = (float*)ptr_re;
+	float* im = (float*)ptr_im;
+	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
+	image.get_cmplx_data(re, im);
+}
+
+extern "C"
+void
 cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
-	list.get_image_dimensions(img_num, dim);
+	ImagesContainer& images = objectFromHandle<ImagesContainer>(ptr_imgs);
+	images.sptr_image_wrap(img_num)->get_dim(dim);
+	//CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+	//ImagesContainer& list = objectFromHandle<ImagesContainer>(h_imgs);
+	//list.get_image_dimensions(img_num, dim);
 }
 
 extern "C"
@@ -706,11 +869,6 @@ cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	list.get_images_data_as_complex_array(re, im);
 }
 
-int executionStatus(const void* ptr) {
-	const DataHandle* ptr_h = (const DataHandle*)ptr;
-	return (ptr_h->status() ? 1 : 0);
-}
-
 extern "C"
 void*
 cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
@@ -724,22 +882,6 @@ cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	}
 	CATCH;
 	return (void*)new DataHandle;
-}
-
-extern "C"
-void*
-cGT_imageTypes(const void* ptr_x)
-{
-	try {
-		CAST_PTR(DataHandle, h_x, ptr_x);
-		ImagesContainer& x = objectFromHandle<ImagesContainer>(h_x);
-		int* result = (int*)malloc(sizeof(int));
-		*result = x.types();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
-	}
-	CATCH;
 }
 
 extern "C"

@@ -46,7 +46,8 @@ classdef ImageDataProcessor < handle
         end
         function set_input(self, input)
 %***SIRF*** Sets the input data.
-            assert(isa(input, 'mSTIR.ImageData'))
+            %assert(isa(input, 'mSTIR.ImageData'))
+            assert(strcmp(input.class_name(), 'ImageData'))
             self.input_ = input;
         end
         function output = process(self, input)

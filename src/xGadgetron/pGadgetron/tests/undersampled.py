@@ -64,7 +64,7 @@ def acquisitions_tests_failed(acqs):
             
         if acq.flags() != flags:
             flags_failed += 1
-        if acq.idx_kspace_encode_step_1() != encode_step:
+        if acq.kspace_encode_step_1() != encode_step:
             encode_steps_failed += 1
 
     if flags_failed > 0:
@@ -147,20 +147,21 @@ def main():
     print('= (B x, y) = (%e, %e)' % (Bxy.real, Bxy.imag))
     failed += test_failed(7, xFy.real, Bxy.real, 0, eps)
 
-    if failed == 0:
-        print('all tests passed')
-    else:
-        print('%d tests failed' % failed)
-    return failed
+    return failed, 7
 
-try:
-    failed = main()
-    print('done')
-    if failed != 0:
-        sys.exit(failed)
+if __name__ == '__main__':
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(-1)
+    try:
+        failed, ntests = main()
+        if failed == 0:
+            print('all tests passed')
+        else:
+            print('%d tests failed' % failed)
+        if failed != 0:
+            sys.exit(failed)
+
+    except error as err:
+        # display error information
+        print('??? %s' % err.value)
+        sys.exit(-1)
 

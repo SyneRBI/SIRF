@@ -214,10 +214,9 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 		//writeText("setting up acquisition model\n");
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_dt, ptr_dt);
-		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		sptrImage3DF sptr_im = id.data_sptr();
+		SPTR_FROM_HANDLE(PETImageData, sptr_id, ptr_im);
 		//std::cout << "setting up acquisition model...\n";
-		Succeeded s = am.set_up(sptr_dt, sptr_im);
+		Succeeded s = am.set_up(sptr_dt, sptr_id);
 		DataHandle* handle = new DataHandle;
 		if (s != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
@@ -236,8 +235,7 @@ void* cSTIR_acquisitionModelFwd
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& im = id.data();
-		return newObjectHandle(am.forward(im));
+		return newObjectHandle(am.forward(id));
 	}
 	CATCH;
 }
@@ -248,9 +246,7 @@ void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		PETImageData* ptr_id = new PETImageData(am.backward(*ad.data()));
-		shared_ptr<PETImageData> sptr(ptr_id);
-		return newObjectHandle(sptr);
+		return newObjectHandle(am.backward(ad));
 	}
 	CATCH;
 }
@@ -337,6 +333,17 @@ void* cSTIR_setAcquisitionsData(void* ptr_acq, size_t ptr_data)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		float *data = (float *)ptr_data;
 		sptr_ad->fill_from(data);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
+{
+	try {
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
+		sptr_ad->write(filename);
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -573,9 +580,9 @@ void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 	try {
 		shared_ptr<PETAcquisitionData>& sptr_ad =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		shared_ptr<ProjDataInfo> sptr_adi =
-			sptr_ad->get_proj_data_info_sptr();
-		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_adi));
+		//shared_ptr<ProjDataInfo> sptr_adi =
+		//	sptr_ad->get_proj_data_info_sptr();
+		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_ad));
 		return newObjectHandle(sptr);
 	}
 	CATCH;
@@ -617,48 +624,12 @@ void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 {
 	try {
 		int* dim = (int*)ptr_dim;
-		dim[0] = 0;
-		dim[1] = 0;
-		dim[2] = 0;
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
-		if (!image.get_regular_range(min_indices, max_indices)) {
-			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-			DataHandle* handle = new DataHandle;
-			handle->set(0, &status);
-			return (void*)handle;
-		}
-		image.get_regular_range(min_indices, max_indices);
-		for (int i = 0; i < 3; i++)
-			dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
-		return new DataHandle;
-	}
-	CATCH;
-}
-
-extern "C"
-void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data) 
-{
-	try {
-		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
-		float* data = (float*)ptr_data;
-		if (!image.get_regular_range(min_indices, max_indices)) {
-			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
-			DataHandle* handle = new DataHandle;
-			handle->set(0, &status);
-			return (void*)handle;
-		}
-		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					data[i] = image[z][y][x];
-				}
-			}
+		if (id.get_dimensions(dim)) {
+				ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+				DataHandle* handle = new DataHandle;
+				handle->set(0, &status);
+				return (void*)handle;
 		}
 		return new DataHandle;
 	}
@@ -666,26 +637,33 @@ void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 }
 
 extern "C"
-void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data) 
+void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		Image3DF& image = id.data();
-		Coordinate3D<int> min_indices;
-		Coordinate3D<int> max_indices;
 		float* data = (float*)ptr_data;
-		if (!image.get_regular_range(min_indices, max_indices)) {
+		if (id.get_data(data)) {
 			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
 			DataHandle* handle = new DataHandle;
 			handle->set(0, &status);
 			return (void*)handle;
 		}
-		for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-			for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-				for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-					image[z][y][x] = data[i];
-				}
-			}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setImageData(const void* ptr_im, size_t ptr_data)
+{
+	try {
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		float* data = (float*)ptr_data;
+		if (id.set_data(data)) {
+			ExecutionStatus status("not a regular image", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return (void*)handle;
 		}
 		return new DataHandle;
 	}

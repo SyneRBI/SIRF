@@ -1,16 +1,20 @@
 #include <string>
 
-//#include "stir/TextWriter.h"
-
 #include "cstir.h"
 #include "data_handle.h"
 #include "iutilities.h"
-#include "stir.h"
-#include "tests.h"
+#include "stir_types.h"
+#include "envar.h"
 
 void* TMP_HANDLE;
 
-#define RUN(F) TMP_HANDLE = F; if (execution_status(TMP_HANDLE, 1)) break
+#define HANDLE(H, F) H = F; if (execution_status(H)) break
+#define CALL(F) TMP_HANDLE = F; if (execution_status(TMP_HANDLE, 1)) break
+#define GET_FLOAT(V, F) \
+	TMP_HANDLE = F; \
+	if (execution_status(TMP_HANDLE)) break; \
+	V = floatDataFromHandle(TMP_HANDLE); \
+	deleteDataHandle(TMP_HANDLE)
 
 int execution_status(void* handle, int clear = 0)
 {
@@ -22,13 +26,13 @@ int execution_status(void* handle, int clear = 0)
 	return s;
 }
 
-void test2()
+int test2()
 {
-	std::string path("../../examples/");
 	std::string filename;
-	int status;
 	int dim[3];
-	void* h = 0;
+	float at_value = 0.05f*0;
+	float bt_value = 0.1f*0;
+	float s, t;
 	void* handle = 0;
 	void* matrix = 0;
 	void* image = 0;
@@ -44,162 +48,145 @@ void test2()
 	void* obj_fun = 0;
 	void* filter = 0;
 	void* recon = 0;
+	void* diff = 0;
+
+	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	if (SIRF_path.length() < 1) {
+		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		return 1;
+	}
+	std::string path = SIRF_path + "/data/examples/PET/";
 
 	TextWriter w;
 	openChannel(0, &w);
 
 	for (;;) {
-		image = cSTIR_objectFromFile("Image", (path + "my_image.hv").c_str());
+		filename = SIRF_path + "/examples/Python/PET/my_image.hv";
+		HANDLE(image, cSTIR_objectFromFile("Image", filename.c_str()));
 		cSTIR_getImageDimensions(image, (size_t)&dim[0]);
-		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		size_t image_size = dim[0] * dim[1] * dim[2];
-		double* image_data = new double[image_size];
-		cSTIR_getImageData(image, (size_t)image_data);
+		std::cout << "image dimensions: " 
+			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		matrix = cSTIR_newObject("RayTracingMatrix");
-		handle = cSTIR_setParameter
-			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2));
-		//status = execution_status(handle);
-		//if (status)
-		//	break;
-		ad = cSTIR_objectFromFile
-			("AcquisitionData", (path + "my_forward_projection.hs").c_str());
-		status = execution_status(ad);
-		if (status)
-			break;
+		HANDLE(matrix, cSTIR_newObject("RayTracingMatrix"));
+		CALL(cSTIR_setParameter
+			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
+		filename = path + "my_forward_projection.hs";
+		HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
 		cSTIR_getAcquisitionsDimensions(ad, (size_t)&dim[0]);
-		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		size_t size = dim[0] * dim[1] * dim[2];
+		std::cout << "acquisition data dimensions: "
+			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		at = cSTIR_acquisitionsDataFromTemplate(ad);
+		HANDLE(at, cSTIR_acquisitionsDataFromTemplate(ad));
 		cSTIR_getAcquisitionsDimensions(at, (size_t)&dim[0]);
-		//std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		cSTIR_fillAcquisitionsData(at, 0.05);
-		bt = cSTIR_acquisitionsDataFromTemplate(ad);
+		cSTIR_fillAcquisitionsData(at, at_value);
+		HANDLE(bt, cSTIR_acquisitionsDataFromTemplate(ad));
 		cSTIR_getAcquisitionsDimensions(bt, (size_t)&dim[0]);
-		//std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		cSTIR_fillAcquisitionsData(bt, 0.05);
-		nd = cSTIR_acquisitionsDataFromTemplate(ad);
+		cSTIR_fillAcquisitionsData(bt, bt_value);
+		HANDLE(nd, cSTIR_acquisitionsDataFromTemplate(ad));
 		cSTIR_getAcquisitionsDimensions(nd, (size_t)&dim[0]);
-		//std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 		cSTIR_fillAcquisitionsData(nd, 2.0);
 
-		am = cSTIR_newObject("AcqModUsingMatrix");
-		RUN(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
-		RUN(cSTIR_setupAcquisitionModel(am, ad, image));
-		fd = cSTIR_acquisitionModelFwd(am, image, "");
+		HANDLE(am, cSTIR_newObject("AcqModUsingMatrix"));
+		CALL(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
+		CALL(cSTIR_setParameter(am, "AcquisitionModel", "normalisation", nd));
+		CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
+		CALL(cSTIR_setupAcquisitionModel(am, ad, image));
+		std::cout << "projecting...\n";
+		HANDLE(fd, cSTIR_acquisitionModelFwd(am, image));
 		cSTIR_getAcquisitionsDimensions(fd, (size_t)&dim[0]);
-		std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		std::cout << "simulated acquisition data dimensions: "
+			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		GET_FLOAT(s, cSTIR_norm(ad));
+		GET_FLOAT(t, cSTIR_norm(fd));
+		diff = cSTIR_axpby(1/s, ad, -1/t, fd);
+		GET_FLOAT(s, cSTIR_norm(diff));
+		deleteDataHandle(diff);
+		std::cout << "acq diff: " << s << '\n';
 
-		//double* adv = new double[size];
-		//double* fdv = new double[size];
+		HANDLE(img, cSTIR_acquisitionModelBwd(am, fd));
+		cSTIR_getImageDimensions(img, (size_t)&dim[0]);
+		std::cout << "backprojected image dimensions: " 
+			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		if (at_value == 0 && bt_value == 0) {
+			GET_FLOAT(s, cSTIR_dot(img, image));
+			std::cout << s << " = " << t*t << '\n';
+		}
+		deleteDataHandle(img);
 
-		//cSTIR_getAcquisitionsData(ad, (size_t)adv);
-		//cSTIR_getAcquisitionsData(fd, (size_t)fdv);
-		//std::cout << "acq diff: " << diff(size, adv, fdv) << '\n';
-
-		//img = cSTIR_acquisitionModelBwd(am, fd);
-		//cSTIR_getImageDimensions(img, (size_t)&dim[0]);
-		//std::cout << dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		//size_t im_size = dim[0] * dim[1] * dim[2];
-		//double* img_data = new double[im_size];
-		//cSTIR_getImageData(img, (size_t)img_data);
-
-		//std::cout << dot(size, adv, fdv) << '\n';
-		//std::cout << dot(im_size, image_data, img_data) << '\n';
-
-		//delete[] adv;
-		//delete[] fdv;
-		//delete[] img_data;
-
-		//RUN(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
-		//RUN(cSTIR_setParameter(am, "AcquisitionModel", "normalisation", nd));
-		//deleteDataHandle(fd);
-		//fd = cSTIR_acquisitionModelFwd(am, image, "");
-
-		prior = cSTIR_newObject("QuadraticPrior");
+		HANDLE(prior, cSTIR_newObject("QuadraticPrior"));
 
 		std::string obj_fun_name
 			("PoissonLogLikelihoodWithLinearModelForMeanAndProjData");
-		obj_fun = cSTIR_newObject(obj_fun_name.c_str());
-		RUN(cSTIR_setParameter
+		HANDLE(obj_fun, cSTIR_newObject(obj_fun_name.c_str()));
+		CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "acquisition_model", am));
-		RUN(cSTIR_setParameter
-			(obj_fun, obj_fun_name.c_str(), "proj_data_sptr", fd));
+		CALL(cSTIR_setParameter
+			(obj_fun, obj_fun_name.c_str(), "acquisition_data", fd));
 		handle = charDataHandle("true");
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "zero_seg0_end_planes", handle));
 		deleteDataHandle(handle);
-		// causes crush
-		//handle = intDataHandle(3);
-		//RUN(cSTIR_setParameter
-		//	(obj_fun, obj_fun_name.c_str(), "max_segment_num_to_process", handle));
-		//deleteDataHandle(handle);
-		RUN(cSTIR_setParameter
+		int max_seg_num = 4; // causes crash if < 4
+		handle = intDataHandle(max_seg_num);
+		CALL(cSTIR_setParameter
+			(obj_fun, obj_fun_name.c_str(), "max_segment_num_to_process", handle));
+		deleteDataHandle(handle);
+		CALL(cSTIR_setParameter
 			(obj_fun, "GeneralisedObjectiveFunction", "prior", prior));
 
-		filter = cSTIR_newObject("TruncateToCylindricalFOVImageProcessor");
+		HANDLE(filter, cSTIR_newObject("TruncateToCylindricalFOVImageProcessor"));
 
 		int num_subiterations = 2;
-		recon = cSTIR_objectFromFile("OSMAPOSLReconstruction", "");
+		HANDLE(recon, cSTIR_objectFromFile("OSMAPOSLReconstruction", ""));
 		handle = charDataHandle("reconstructedImage");
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "Reconstruction", "output_filename_prefix", handle));
 		deleteDataHandle(handle);
 		handle = intDataHandle(12);
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "num_subsets", handle));
 		deleteDataHandle(handle);
 		handle = intDataHandle(num_subiterations);
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "num_subiterations", handle));
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "save_interval", handle));
 		deleteDataHandle(handle);
 		handle = intDataHandle(1);
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "inter_iteration_filter_interval", 
 			handle));
 		deleteDataHandle(handle);
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "objective_function", obj_fun));
-		RUN(cSTIR_setParameter
+		CALL(cSTIR_setParameter
 			(recon, "IterativeReconstruction", "inter_iteration_filter_type", filter));
 		handle = charDataHandle("multiplicative");
-		RUN(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
+		CALL(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
 		deleteDataHandle(handle);
-		RUN(cSTIR_setupReconstruction(recon, image));
+		CALL(cSTIR_setupReconstruction(recon, image));
 
-		void* new_fd = cSTIR_acquisitionModelFwd(am, image, "");
-		deleteDataHandle(new_fd);
-
-		//for (int iter = 0; iter < num_subiterations; iter++) {
-		//	std::cout << "iteration " << iter << '\n';
-		//	cSTIR_updateReconstruction(recon, image);
-		//}
-
-		//double* rec_image_data = new double[image_size];
-		//cSTIR_getImageData(image, (size_t)rec_image_data);
-		//std::cout << "images diff: " << diff(image_size, image_data, rec_image_data)
-		//	<< '\n';
-
-		//delete[] rec_image_data;
-		delete[] image_data;
+		for (int iter = 0; iter < num_subiterations; iter++) {
+			std::cout << "iteration " << iter << '\n';
+			cSTIR_updateReconstruction(recon, image);
+		}
 
 		break;
 	}
 
 	deleteDataHandle(image);
-	deleteDataHandle(matrix);
-	deleteDataHandle(am);
 	deleteDataHandle(ad);
-	deleteDataHandle(fd);
+	deleteDataHandle(am);
+	deleteDataHandle(matrix);
 	deleteDataHandle(at);
 	deleteDataHandle(bt);
 	deleteDataHandle(nd);
+	deleteDataHandle(fd);
+	deleteDataHandle(recon);
+	deleteDataHandle(filter);
 	deleteDataHandle(prior);
 	deleteDataHandle(obj_fun);
-	deleteDataHandle(filter);
-	deleteDataHandle(recon);
+
+	return 0;
 }
 

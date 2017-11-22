@@ -22,6 +22,11 @@ classdef ObjectiveFunction < handle
         name
         handle_
     end
+    methods (Static)
+        function name = class_name()
+            name = 'ObjectiveFunction';
+        end
+    end
     methods
         function self = ObjectiveFunction()
             self.handle_ = [];

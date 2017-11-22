@@ -34,7 +34,30 @@ using namespace gadgetron;
 shared_ptr<AcquisitionsContainer> 
 AcquisitionsContainer::acqs_templ_;
 
-bool 
+void 
+AcquisitionsContainer::write(const char* filename)
+{
+	Mutex mtx;
+	mtx.lock();
+	shared_ptr<ISMRMRD::Dataset> dataset
+		(new ISMRMRD::Dataset(filename, "/dataset", true));
+	dataset->writeHeader(acqs_info_);
+	mtx.unlock();
+	int n = number();
+	ISMRMRD::Acquisition a;
+	for (int i = 0; i < n; i++) {
+		get_acquisition(i, a);
+		//std::cout << i << ' ' << a.idx().repetition << '\n';
+		if (TO_BE_IGNORED(a)) {
+			continue;
+		}
+		mtx.lock();
+		dataset->appendAcquisition(a);
+		mtx.unlock();
+	}
+}
+
+bool
 AcquisitionsContainer::undersampled() const
 {
 	ISMRMRD::IsmrmrdHeader header;
@@ -393,6 +416,7 @@ AcquisitionsFile::AcquisitionsFile
 {
 	own_file_ = create_file;
 	filename_ = filename;
+
 	Mutex mtx;
 	mtx.lock();
 	dataset_ = shared_ptr<ISMRMRD::Dataset>
@@ -643,6 +667,90 @@ ImagesVector::ImagesVector(const ImagesVector& list, unsigned int inc, unsigned 
 		n++;
 	}
 	nimages_ = n;
+}
+
+std::shared_ptr<std::vector<std::string> >
+group_names_sptr(const char* filename)
+{
+	hid_t    file;
+	hid_t    root;
+	hid_t    group;
+	herr_t   err;
+	herr_t   status;
+	hsize_t  nobj;
+	const int MAX_NAME = 1024;
+	char group_name[MAX_NAME];
+	char var_name[MAX_NAME];
+	std::shared_ptr<std::vector<std::string> >
+		sptr_names(new std::vector<std::string>);
+	std::vector<std::string>& names = *sptr_names;
+
+	file = H5Fopen(filename, H5F_ACC_RDWR, H5P_DEFAULT);
+	if (file < 0)
+		return sptr_names;
+	root = H5Gopen(file, "/", H5P_DEFAULT);
+	if (root < 0) {
+		status = H5Fclose(file);
+		return sptr_names;
+	}
+	H5Gget_objname_by_idx(root, 0, group_name, (size_t)MAX_NAME);
+	names.push_back(std::string(group_name));
+	group = H5Gopen(root, group_name, H5P_DEFAULT);
+	err = H5Gget_num_objs(group, &nobj);
+	//printf("%d objects\n", nobj);
+	for (int i = 0; i < nobj; i++) {
+		H5Gget_objname_by_idx(group, (hsize_t)i,
+			var_name, (size_t)MAX_NAME);
+		names.push_back(std::string(var_name));
+	}
+
+	H5Gclose(group);
+	H5Gclose(root);
+	status = H5Fclose(file);
+
+	return sptr_names;
+}
+
+int
+ImagesVector::read(std::string filename) 
+{
+	std::shared_ptr<std::vector<std::string> > sptr_names;
+	sptr_names = group_names_sptr(filename.c_str());
+	std::vector<std::string>& names = *sptr_names;
+	int ng = names.size();
+	const char* group = names[0].c_str();
+	printf("group %s\n", group);
+	for (int i = 0; i < ng; i++) {
+		const char* var = names[i].c_str();
+		if (!i)
+			continue;
+
+		printf("variable %s\n", var);
+		ISMRMRD::ISMRMRD_Dataset dataset;
+		ISMRMRD::ISMRMRD_Image im;
+		ismrmrd_init_dataset(&dataset, filename.c_str(), group);
+		ismrmrd_open_dataset(&dataset, false);
+		int num_im = ismrmrd_get_number_of_images(&dataset, var);
+		std::cout << "number of images: " << num_im << '\n';
+		ismrmrd_init_image(&im);
+		ismrmrd_read_image(&dataset, var, 1, &im);
+		printf("image data type: %d\n", im.head.data_type);
+		ismrmrd_cleanup_image(&im);
+		ismrmrd_close_dataset(&dataset);
+
+		shared_ptr<ISMRMRD::Dataset> sptr_dataset
+			(new ISMRMRD::Dataset(filename.c_str(), group, false));
+
+		for (int i = 0; i < num_im; i++) {
+			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type));
+			sptr_iw->read(*sptr_dataset, var, i);
+			images_.push_back(sptr_iw);
+		}
+		//int dim[3];
+		//sptr_iw->get_dim(dim);
+		//std::cout << "image dimensions: "
+		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+	}
 }
 
 void

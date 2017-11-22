@@ -11,6 +11,7 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  -o <file>, --output=<file>  output file for simulated data
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
@@ -46,6 +47,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
+output_file = args['--output']
 
 def main():
 
@@ -68,6 +70,28 @@ def main():
     recon.process()
     complex_images = recon.get_output()
     print('---\n reconstructed images norm: %e' % complex_images.norm())
+
+    for i in range(complex_images.number()):
+        complex_image = complex_images.image(i)
+        print('--- image %d' % i)
+        for p in [ \
+            'version', 'flags', 'data_type', 'channels', \
+            'slice', 'repetition', \
+            'image_type', 'image_index', 'image_series_index' \
+            ]:
+            form = p + ' %d'
+            print(form % complex_image.info(p))
+        print('matrix size:'),
+        print(complex_image.matrix_size())
+        print('patient_table_position:'),
+        print(complex_image.patient_table_position())
+
+    ind = complex_images.get_info('image_index')
+    print('image indices:')
+    print(ind)
+    ptp = complex_images.get_info('patient_table_position')
+    print('patient table positions:')
+    print(ptp)
     
     # sort processed acquisition data;
     # sorting currently performed with respect to (in this order):
@@ -94,6 +118,8 @@ def main():
     simulated_acq_data = acq_model.forward(complex_images)
     print('---\n reconstructed images forward projection norm %e'\
           % simulated_acq_data.norm())
+    if output_file is not None:
+        simulated_acq_data.write(output_file)
 
     # get simulated acquisition data as a Python ndarray
     simulated_acq_array = simulated_acq_data.as_array();

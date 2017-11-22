@@ -30,19 +30,6 @@ limitations under the License.
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
-//#include <complex>
-//#include <fstream>
-//#include <map>
-//#include <thread>
-//#include <chrono>
-//#include <condition_variable>
-//
-//#include <boost/thread/thread.hpp>
-//#include <boost/thread/mutex.hpp>
-//#include <boost/shared_ptr.hpp>
-//#include <boost/algorithm/string/predicate.hpp>
-//#include <boost/algorithm/string/replace.hpp>
-
 #include <boost/algorithm/string.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -107,6 +94,8 @@ public:
 	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info) = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
+
+	void write(const char* filename);
 
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
@@ -264,6 +253,7 @@ public:
 	virtual void get_images_data_as_complex_array
 		(float* re, float* im) const = 0;
 	virtual void set_complex_images_data(const float* re, const float* im) = 0;
+	virtual int read(std::string filename) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
 	virtual shared_ptr<ImagesContainer> new_images_container() = 0;
 	virtual shared_ptr<ImagesContainer>
@@ -338,6 +328,7 @@ public:
 		const shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
+	virtual int read(std::string filename);
 	virtual void write(std::string filename, std::string groupname);
 	virtual void get_image_dimensions(unsigned int im_num, int* dim)
 	{
@@ -376,6 +367,7 @@ public:
 private:
 	std::vector<shared_ptr<ImageWrap> > images_;
 	int nimages_;
+
 };
 
 class CoilData {

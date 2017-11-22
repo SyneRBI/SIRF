@@ -10,6 +10,7 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
+  -o <file>, --output=<file>  images output file
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -42,6 +43,7 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
+output_file = args['--output']
 
 def main():
 
@@ -59,6 +61,11 @@ def main():
     title = 'Reconstructed images (magnitude)'
     show_3D_array(abs(image_array), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'slice')
+
+    if output_file is not None:
+        # write images to a new group /dataset in args.output
+        print('writing to %s' % output_file)
+        image_data.write(output_file, 'dataset')
 
 try:
     main()

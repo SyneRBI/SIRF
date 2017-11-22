@@ -24,6 +24,11 @@ classdef Prior < handle
         name
         handle_
     end
+    methods (Static)
+        function name = class_name()
+            name = 'Prior';
+        end
+    end
     methods
         function self = Prior()
             self.handle_ = [];

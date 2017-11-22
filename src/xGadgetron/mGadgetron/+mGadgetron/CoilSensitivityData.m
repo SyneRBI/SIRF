@@ -24,6 +24,9 @@ classdef CoilSensitivityData < mGadgetron.DataContainer
         name_
     end
     methods (Static)
+        function name = class_name()
+            name = 'CoilSensitivityData';
+        end
         function obj = same_object()
             obj = mGadgetron.CoilSensitivityData();
         end

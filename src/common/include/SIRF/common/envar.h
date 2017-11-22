@@ -21,6 +21,9 @@ limitations under the License.
 #ifndef GET_ENVIRONMENT_VARIABLES
 #define GET_ENVIRONMENT_VARIABLES
 
+#include <string>
+using std::string;
+
 #ifdef _MSC_VER
 #if _MSC_VER >= 1900
 using namespace System;

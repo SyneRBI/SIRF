@@ -24,6 +24,11 @@ classdef RayTracingMatrix < handle
         name
         handle_
     end
+    methods(Static)
+        function name = class_name()
+            name = 'RayTracingMatrix';
+        end
+    end
     methods
         function self = RayTracingMatrix()
             self.name = 'RayTracingMatrix';

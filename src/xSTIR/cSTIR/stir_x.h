@@ -106,17 +106,17 @@ public:
 
 	virtual Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<Image3DF> sptr_image);
+		shared_ptr<PETImageData> sptr_image);
 
 	shared_ptr<PETAcquisitionData>
-		forward(const Image3DF& image);
+		forward(const PETImageData& image);
 
-	shared_ptr<Image3DF> backward(ProjData& ad);
+	shared_ptr<PETImageData> backward(PETAcquisitionData& ad);
 
 protected:
 	shared_ptr<ProjectorByBinPair> sptr_projectors_;
 	shared_ptr<PETAcquisitionData> sptr_acq_template_;
-	shared_ptr<Image3DF> sptr_image_template_;
+	shared_ptr<PETImageData> sptr_image_template_;
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
 	shared_ptr<BinNormalisation> sptr_normalisation_;
@@ -142,7 +142,7 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	}
 	virtual Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<Image3DF> sptr_image)
+		shared_ptr<PETImageData> sptr_image)
 	{
 		if (!sptr_matrix_.get())
 			return Succeeded::no;
@@ -179,11 +179,18 @@ public:
 	}
 };
 
+//typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
+
 class xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF :
 	public PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> {
 public:
 	void set_input_file(const char* filename) {
 		input_filename = filename;
+	}
+	void set_acquisition_data(shared_ptr<PETAcquisitionData> sptr)
+	{
+		sptr_ad_ = sptr;
+		set_proj_data_sptr(sptr->data());
 	}
 	void set_acquisition_model(shared_ptr<AcqMod3DF> sptr)
 	{
@@ -200,8 +207,12 @@ public:
 		return sptr_am_;
 	}
 private:
+	shared_ptr<PETAcquisitionData> sptr_ad_;
 	shared_ptr<AcqMod3DF> sptr_am_;
 };
+
+typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
+PoissonLogLhLinModMeanProjData3DF;
 
 class xSTIR_IterativeReconstruction3DF :
 	public IterativeReconstruction<Image3DF> {
@@ -229,6 +240,32 @@ public:
 		initial_data_filename = filename;
 	}
 };
+
+class xSTIR_OSMAPOSLReconstruction3DF : 
+	public OSMAPOSLReconstruction < Image3DF > {
+public:
+	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	{
+		Succeeded s = Succeeded::no;
+		xSTIR_IterativeReconstruction3DF* ptr_r =
+			(xSTIR_IterativeReconstruction3DF*)this;
+		if (!ptr_r->post_process()) {
+			s = ptr_r->setup(sptr_id->data_sptr());
+			ptr_r->subiteration() = ptr_r->get_start_subiteration_num();
+		}
+		return s;
+	}
+	void update(PETImageData& id)
+	{
+		((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
+	}
+	void update(shared_ptr<PETImageData> sptr_id)
+	{
+		update(*sptr_id);
+	}
+};
+
+typedef xSTIR_OSMAPOSLReconstruction3DF OSMAPOSLReconstruction3DF;
 
 class xSTIR_OSSPSReconstruction3DF : public OSSPSReconstruction < Image3DF > {
 public:

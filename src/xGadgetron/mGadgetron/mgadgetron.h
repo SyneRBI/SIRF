@@ -60,10 +60,8 @@ EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input)
 EXPORTED_FUNCTION 	void* mGT_reconstructedImages(void* ptr_recon);
 EXPORTED_FUNCTION 	void* mGT_processImages(void* ptr_proc, void* ptr_input);
 EXPORTED_FUNCTION 	void* mGT_selectImages(void* ptr_input, const char* attr, const char* target);
-EXPORTED_FUNCTION 	void* mGT_imagesCopy(const void* ptr_imgs);
 EXPORTED_FUNCTION 	void* mGT_writeImages (void* ptr_imgs, const char* out_file, const char* out_group);
 EXPORTED_FUNCTION 	void* mGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
-EXPORTED_FUNCTION 	void* mGT_imageTypes(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_imageDataType(const void* ptr_x, int im_num);
 EXPORTED_FUNCTION 	void mGT_getCoilDataDimensions(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void mGT_getCoilData (void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);

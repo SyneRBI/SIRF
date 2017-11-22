@@ -263,3 +263,55 @@ float b, const aDataContainer<float>& a_y)
 	iter++, iter_x++, iter_y++)
 		*iter = a * (*iter_x) + b * (*iter_y);
 }
+
+int 
+PETImageData::get_dimensions(int* dim) const
+{
+	const Image3DF& image = *_data;
+	dim[0] = 0;
+	dim[1] = 0;
+	dim[2] = 0;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	for (int i = 0; i < 3; i++)
+		dim[i] = max_indices[i + 1] - min_indices[i + 1] + 1;
+	return 0;
+}
+
+int 
+PETImageData::get_data(float* data) const
+{
+	Image3DF& image = *_data;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+				data[i] = image[z][y][x];
+			}
+		}
+	}
+	return 0;
+}
+
+int
+PETImageData::set_data(const float* data)
+{
+	Image3DF& image = *_data;
+	Coordinate3D<int> min_indices;
+	Coordinate3D<int> max_indices;
+	if (!image.get_regular_range(min_indices, max_indices))
+		return -1;
+	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+				image[z][y][x] = data[i];
+			}
+		}
+	}
+	return 0;
+}

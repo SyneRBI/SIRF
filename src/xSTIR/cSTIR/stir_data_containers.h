@@ -54,11 +54,29 @@ public:
 
 class ProjDataFile : public ProjDataInterfile {
 public:
-	ProjDataFile(const ProjData& pd, const std::string& filename) :
+	ProjDataFile(const ProjData& pd, const std::string& filename, bool owns_file = true) :
 		ProjDataInterfile(pd.get_exam_info_sptr(),
 		pd.get_proj_data_info_sptr(),
-		filename, std::ios::in | std::ios::out | std::ios::trunc)
+		filename, std::ios::in | std::ios::out | std::ios::trunc),
+		_filename(filename),
+		_owns_file(owns_file)
 	{}
+	~ProjDataFile()
+	{
+		close_stream();
+		clear_stream();
+		if (!_owns_file)
+			return;
+		int err;
+		err = std::remove((_filename + ".hs").c_str());
+		if (err)
+			std::cout << "deleting " << _filename << ".hs "
+			<< "failed, please delete manually" << std::endl;
+		err = std::remove((_filename + ".s").c_str());
+		if (err)
+			std::cout << "deleting " << _filename << ".s "
+			<< "failed, please delete manually" << std::endl;
+	}
 	shared_ptr<std::iostream> sino_stream_sptr()
 	{
 		return sino_stream;
@@ -71,6 +89,9 @@ public:
 	{
 		((std::fstream*)sino_stream.get())->clear();
 	}
+private:
+	bool _owns_file;
+	std::string _filename;
 };
 
 class PETAcquisitionData : public aDataContainer < float > {
@@ -101,6 +122,11 @@ public:
 	}
 	void fill_from(const float* d) { data()->fill_from(d); }
 	void copy_to(float* d) { data()->copy_to(d); }
+	void write(const char* filename)
+	{
+		ProjDataFile pd(*data(), filename, false);
+		pd.fill(*data());
+	}
 
 	// data container methods
 	unsigned int items() { return 1; }
@@ -157,6 +183,7 @@ public:
 	// ProjData casts
 	operator ProjData&() { return *data(); }
 	operator const ProjData&() const { return *data(); }
+	operator shared_ptr<ProjData>() { return data(); }
 
 protected:
 	//static std::string _storage_scheme;
@@ -176,21 +203,21 @@ public:
 		_data.reset(new ProjDataFile
 		(pd, _filename = SIRFUtilities::scratch_file_name()));
 	}
-	~PETAcquisitionDataInFile()
-	{
-		_data.reset();
-		if (!_owns_file)
-			return;
-		int err;
-		err = std::remove((_filename + ".hs").c_str());
-		if (err)
-			std::cout << "deleting " << _filename << ".hs "
-			<< "failed, please delete manually" << std::endl;
-		err = std::remove((_filename + ".s").c_str());
-		if (err)
-			std::cout << "deleting " << _filename << ".s "
-			<< "failed, please delete manually" << std::endl;
-	}
+	//~PETAcquisitionDataInFile()
+	//{
+	//	_data.reset();
+	//	if (!_owns_file)
+	//		return;
+	//	int err;
+	//	err = std::remove((_filename + ".hs").c_str());
+	//	if (err)
+	//		std::cout << "deleting " << _filename << ".hs "
+	//		<< "failed, please delete manually" << std::endl;
+	//	err = std::remove((_filename + ".s").c_str());
+	//	if (err)
+	//		std::cout << "deleting " << _filename << ".s "
+	//		<< "failed, please delete manually" << std::endl;
+	//}
 
 	static void init() {
 		static bool initialized = false;
@@ -277,6 +304,14 @@ public:
 class PETImageData : public aDataContainer<float> {
 public:
 	PETImageData(){}
+	PETImageData(const PETImageData& image)
+	{
+		_data.reset(image.data().clone());
+	}
+	PETImageData(const PETAcquisitionData& ad)
+	{
+		_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+	}
 	PETImageData(const Image3DF& image)
 	{
 		_data.reset(image.clone());
@@ -292,6 +327,10 @@ public:
 	PETImageData(shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
+	}
+	PETImageData(std::string filename)
+	{
+		_data = read_from_file<Image3DF>(filename);
 	}
 	PETImageData* same_image_data()
 	{
@@ -340,6 +379,9 @@ public:
 	{
 		_data->fill(v);
 	}
+	int get_dimensions(int* dim) const;
+	int get_data(float* data) const;
+	int set_data(const float* data);
 
 protected:
 	shared_ptr<Image3DF> _data;

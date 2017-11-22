@@ -81,10 +81,57 @@ def _int_par(handle, set, par):
     value = pyiutil.intDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
+def _int_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    for i in range(n):
+        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _uint16_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    #value = (pyiutil.uint16DataItemFromHandle(h, 0),)
+    #for i in range(1, n):
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _uint32_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _uint64_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
+    pyiutil.deleteDataHandle(h)
+    return value
 def _char_par(handle, set, par):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
     value = pyiutil.charDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return value
+def _float_par(handle, set, par):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    v = pyiutil.floatDataFromHandle(h)
+    pyiutil.deleteDataHandle(h)
+    return v
+def _float_pars(handle, set, par, n):
+    h = pygadgetron.cGT_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -105,53 +152,53 @@ def raw_data_path():
     '''
     return petmr_data_path('mr')
 
-# low-level client functionality
-# likely to be obsolete- not used for a long time
-class ClientConnector:
-    def __init__(self):
-        self.handle = None
-        self.handle = pygadgetron.cGT_newObject('GTConnector')
-        check_status(self.handle)
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    def set_timeout(self, timeout):
-        handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def connect(self, host, port):
-        handle = pygadgetron.cGT_connect(self.handle, host, port)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def disconnect(self):
-        handle = pygadgetron.cGT_disconnect(self.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def register_images_receiver(self, imgs):
-        handle = pygadgetron.cGT_registerImagesReceiver\
-            (self.handle, imgs.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def config_gadget_chain(self, gc):
-        handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_config_file(self, file):
-        handle = pygadgetron.cGT_sendConfigFile(self.handle, file)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_parameters(self, par):
-        handle = pygadgetron.cGT_sendParameters(self.handle, par)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_acquisitions(self, acq):
-        handle = pygadgetron.cGT_sendAcquisitions(self.handle, acq.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
-    def send_images(self, img):
-        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
-        check_status(handle)
-        pyiutil.deleteDataHandle(handle)
+### low-level client functionality
+### likely to be obsolete- not used for a long time
+##class ClientConnector:
+##    def __init__(self):
+##        self.handle = None
+##        self.handle = pygadgetron.cGT_newObject('GTConnector')
+##        check_status(self.handle)
+##    def __del__(self):
+##        if self.handle is not None:
+##            pyiutil.deleteDataHandle(self.handle)
+##    def set_timeout(self, timeout):
+##        handle = pygadgetron.cGT_setConnectionTimeout(self.handle, timeout)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def connect(self, host, port):
+##        handle = pygadgetron.cGT_connect(self.handle, host, port)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def disconnect(self):
+##        handle = pygadgetron.cGT_disconnect(self.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def register_images_receiver(self, imgs):
+##        handle = pygadgetron.cGT_registerImagesReceiver\
+##            (self.handle, imgs.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def config_gadget_chain(self, gc):
+##        handle = pygadgetron.cGT_configGadgetChain(self.handle, gc.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_config_file(self, file):
+##        handle = pygadgetron.cGT_sendConfigFile(self.handle, file)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_parameters(self, par):
+##        handle = pygadgetron.cGT_sendParameters(self.handle, par)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_acquisitions(self, acq):
+##        handle = pygadgetron.cGT_sendAcquisitions(self.handle, acq.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
+##    def send_images(self, img):
+##        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
+##        check_status(handle)
+##        pyiutil.deleteDataHandle(handle)
 
 # base class for complex data container classes
 class DataContainer(ABC):
@@ -474,14 +521,134 @@ class CoilSensitivityData(DataContainer):
 
 DataContainer.register(CoilSensitivityData)
 
+class Image:
+    '''
+    Class for an MR image.
+    '''
+    def __init__(self, image_data = None, image_num = 0):
+        self.handle = None
+        if image_data is not None:
+            self.handle = pygadgetron.cGT_imageWrapFromContainer \
+                          (image_data.handle, image_num)
+            check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def is_real(self):
+        assert self.handle is not None
+        t = self.data_type()
+        return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
+    def as_array(self):
+        '''
+        Returns image data as a 3D Numpy ndarray.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((4,), dtype = numpy.int32)
+        pygadgetron.cGT_getImageDim(self.handle, dim.ctypes.data)
+        nx = dim[0]
+        ny = dim[1]
+        nz = dim[2]
+        nc = dim[3]
+        nz = nz*nc
+        if self.is_real():
+            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            pygadgetron.cGT_getImageDataAsFloatArray\
+                (self.handle, array.ctypes.data)
+            return array
+        else:
+            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+            pygadgetron.cGT_getImageDataAsComplexArray\
+                (self.handle, re.ctypes.data, im.ctypes.data)
+            return re + 1j*im
+    def version(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'version')
+    def flags(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'flags')
+    def data_type(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'data_type')
+    def measurement_uid(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'measurement_uid')
+    def channels(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'channels')
+    def average(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'average')
+    def slice(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'slice')
+    def contrast(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'contrast')
+    def phase(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'phase')
+    def repetition(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'repetition')
+    def set(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'set')
+    def acquisition_time_stamp(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'acquisition_time_stamp')
+    def image_type(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_type')
+    def image_index(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_index')
+    def image_series_index(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'image_series_index')
+    def attribute_string_len(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'image', 'attribute_string_len')
+    def matrix_size(self):
+        assert self.handle is not None
+        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)
+    def physiology_time_stamp(self):
+        assert self.handle is not None
+        return _uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)
+    def field_of_view(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'field_of_view', 3)
+    def position(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'position', 3)
+    def read_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'read_dir', 3)
+    def phase_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'phase_dir', 3)
+    def slice_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'image', 'slice_dir', 3)
+    def patient_table_position(self):
+        assert self.handle is not None
+        return _float_pars \
+               (self.handle, 'image', 'patient_table_position', 3)
+    def info(self, method):
+        return eval('self.' + method + '()')
+
 class ImageData(DataContainer):
     '''
     Class for an MR images container.
     Each item in the container is a 3D complex or float array of the image 
     values on an xyz-slice (z-dimension is normally 1).
     '''
-    def __init__(self):
+    def __init__(self, file = None):
         self.handle = None
+        if file is None:
+            return
+        self.handle = pygadgetron.cGT_readImages(file)
+        check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -521,38 +688,45 @@ class ImageData(DataContainer):
         assert self.handle is not None
         ip = ImageDataProcessor()
         return ip.process(self)
-    def show(self):
-        '''
-        Interactively displays self's images.
-        '''
-        assert self.handle is not None
-        if not HAVE_PYLAB:
-            print('pylab not found')
-            return
-        ni = self.number()
-        if ni == 1:
-            print('%d image' % ni)
-        else:
-            print('%d images' % ni)
-        if ni < 1:
-            return
-        data = self.as_array()
-        if not self.is_real():
-            data = abs(data)
-        print('Please enter the number of the image to view')
-        print('(a value outside the range [1 : %d] will stop this loop)' % ni)
-        while True:
-            s = str(input('image: '))
-            if len(s) < 1:
-                break
-            i = int(s)
-            if i < 1 or i > ni:
-                break
-            pylab.figure(i)
-            pylab.title('image %d' % i)
-            pylab.imshow(data[i - 1, :, :])
-            print('Close Figure %d window to continue...' % i)
-            pylab.show()
+    def image(self, im_num):
+        return Image(self, im_num)
+##    def show(self):
+##        '''
+##        Interactively displays self's images.
+##        '''
+##        assert self.handle is not None
+##        if not HAVE_PYLAB:
+##            print('pylab not found')
+##            return
+##        ni = self.number()
+##        if ni == 1:
+##            print('%d image' % ni)
+##        else:
+##            print('%d images' % ni)
+##        if ni < 1:
+##            return
+##        data = self.as_array()
+##        if not self.is_real():
+##            data = abs(data)
+##        print('Please enter the number of the image to view')
+##        print('(a value outside the range [1 : %d] will stop this loop)' % ni)
+##        while True:
+##            s = str(input('image: '))
+##            if len(s) < 1:
+##                break
+##            i = int(s)
+##            if i < 1 or i > ni:
+##                break
+##            image = self.image(i - 1)
+##            pylab.figure(i)
+##            pylab.title('image %d' % i)
+##            arr = image.as_array()
+##            if not image.is_real():
+##                arr = abs(arr)
+##            pylab.imshow(arr[0,:,:])
+##            #pylab.imshow(data[i - 1, :, :])
+##            print('Close Figure %d window to continue...' % i)
+##            pylab.show()
     def write(self, out_file, out_group):
         '''
         Writes self's images to an hdf5 file.
@@ -574,6 +748,18 @@ class ImageData(DataContainer):
         images.handle = pygadgetron.cGT_selectImages(self.handle, attr, value)
         check_status(images.handle)
         return images
+    def get_info(self, par):
+        '''
+        Returns the array of values of the specified image information 
+        parameter.
+        par: parameter name
+        '''
+        ni = self.number()
+        info = numpy.empty((ni,), dtype = object)
+        for i in range(ni):
+            image = self.image(i)
+            info[i] = image.info(par)
+        return info
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -582,8 +768,10 @@ class ImageData(DataContainer):
         if self.number() < 1:
             return numpy.ndarray((0,0,0), dtype = numpy.float32)
         dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getImageDimensions\
-            (self.handle, 0, dim.ctypes.data)
+        image = Image(self)
+        pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
+##        pygadgetron.cGT_getImageDimensions\
+##            (self.handle, 0, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
@@ -613,22 +801,15 @@ class ImageData(DataContainer):
 
 DataContainer.register(ImageData)
 
-class AcquisitionInfo:
-    '''
-    Class for acquisition information parameters.
-    '''
-    def __init__(self):
-        self.flags = 0
-        self.encode_step_1 = 0
-        self.slice = 0
-        self.repetition = 0
-
 class Acquisition:
     def __init__(self, file = None):
         self.handle = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def version(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'version')
     def flags(self):
         '''
         Returns acquisition flags as an integer (each bit corresponding to a 
@@ -636,30 +817,99 @@ class Acquisition:
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'flags')
-    def get_number_of_samples(self):
+    def measurement_uid(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'measurement_uid')
+    def scan_counter(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'scan_counter')
+    def acquisition_time_stamp(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'acquisition_time_stamp')
+    def number_of_samples(self):
         '''
         returns the number of samples in the readout direction.
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'number_of_samples')
+    def available_channels(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'available_channels')
     def active_channels(self):
         '''
         Returns the number of active channels (coils).
         '''
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'active_channels')
+    def discard_pre(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'discard_pre')
+    def discard_post(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'discard_post')
+    def center_sample(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'center_sample')
+    def encoding_space_ref(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'encoding_space_ref')
     def trajectory_dimensions(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'trajectory_dimensions')
-    def idx_kspace_encode_step_1(self):
+    def kspace_encode_step_1(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_1')
-    def idx_repetition(self):
+    def kspace_encode_step_2(self):
         assert self.handle is not None
-        return _int_par(self.handle, 'acquisition', 'idx_repetition')
-    def idx_slice(self):
+        return _int_par(self.handle, 'acquisition', 'idx_kspace_encode_step_2')
+    def average(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_average')
+    def slice(self):
         assert self.handle is not None
         return _int_par(self.handle, 'acquisition', 'idx_slice')
+    def contrast(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_contrast')
+    def phase(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_phase')
+    def repetition(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_repetition')
+    def set(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_set')
+    def segment(self):
+        assert self.handle is not None
+        return _int_par(self.handle, 'acquisition', 'idx_segment')
+    def physiology_time_stamp(self):
+        assert self.handle is not None
+        return _uint32_pars(self.handle, 'acquisition', 'physiology_time_stamp', 3)
+    def channel_mask(self):
+        assert self.handle is not None
+        return _uint64_pars(self.handle, 'acquisition', 'channel_mask', 16)
+    def sample_time_us(self):
+        assert self.handle is not None
+        return _float_par(self.handle, 'acquisition', 'sample_time_us')
+    def position(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'position', 3)
+    def read_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'read_dir', 3)
+    def phase_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'phase_dir', 3)
+    def slice_dir(self):
+        assert self.handle is not None
+        return _float_pars(self.handle, 'acquisition', 'slice_dir', 3)
+    def patient_table_position(self):
+        assert self.handle is not None
+        return _float_pars \
+               (self.handle, 'acquisition', 'patient_table_position', 3)
+    def info(self, method):
+        return eval('self.' + method + '()')
 
 class AcquisitionData(DataContainer):
     '''
@@ -685,7 +935,7 @@ class AcquisitionData(DataContainer):
 ##        assert self.handle is not None
 ##        dim = self.dimensions(select)
 ##        return dim[0]
-    def get_number_of_readouts(self, select = 'image'):
+    def number_of_readouts(self, select = 'image'):
         dim = self.dimensions(select)
         return dim[0]
     def sort(self):
@@ -749,20 +999,6 @@ class AcquisitionData(DataContainer):
         else:
             dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def set_info(self):
-        '''
-        Fills the array self.info with information for each acquisition.
-        '''
-        na, nc, ns = self.dimensions()
-        self.info = numpy.empty((na,), dtype = object)
-        for a in range(na):
-            acq = self.acquisition(a)
-            info = AcquisitionInfo()
-            info.flags = acq.flags()
-            info.encode_step_1 = acq.idx_kspace_encode_step_1()
-            info.slice = acq.idx_slice()
-            info.repetition = acq.idx_repetition()
-            self.info[a] = info
     def get_info(self, par):
         '''
         Returns the array of values of the specified acquisition information 
@@ -770,30 +1006,11 @@ class AcquisitionData(DataContainer):
         par: parameter name
         '''
         na, nc, ns = self.dimensions()
-        if self.info is None:
-            self.set_info()
-        if par == 'flags':
-            flags = numpy.empty((na,), dtype = numpy.int64)
-            for a in range(na):
-                flags[a] = self.info[a].flags
-            return flags
-        elif par == 'encode_step_1':
-            es1 = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                es1[a] = self.info[a].encode_step_1
-            return es1
-        elif par == 'slice':
-            s = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                s[a] = self.info[a].slice
-            return s
-        elif par == 'repetition':
-            r = numpy.empty((na,), dtype = numpy.int32)
-            for a in range(na):
-                r[a] = self.info[a].repetition
-            return r
-        else:
-            raise error('unknown acquisition parameter ' + par)
+        info = numpy.empty((na,), dtype = object)
+        for a in range(na):
+            acq = self.acquisition(a)
+            info[a] = acq.info(par)
+        return info
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
@@ -822,6 +1039,14 @@ class AcquisitionData(DataContainer):
         im = numpy.imag(data).astype(numpy.float32)
         try_calling(pygadgetron.cGT_setAcquisitionsData\
             (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+    def write(self, out_file):
+        '''
+        Writes self's acquisitions to an hdf5 file.
+        out_file : the file name (Python string)
+        '''
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_writeAcquisitions\
+                    (self.handle, out_file))
 
 DataContainer.register(AcquisitionData)
 

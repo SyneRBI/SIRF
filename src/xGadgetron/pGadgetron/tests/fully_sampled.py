@@ -53,9 +53,9 @@ def acquisitions_tests_failed(acqs):
             flags = 128
         if acq.flags() != flags:
             flags_failed += 1
-        if acq.idx_kspace_encode_step_1() != i%256:
+        if acq.kspace_encode_step_1() != i%256:
             encode_steps_failed += 1
-        if acq.idx_repetition() != i//256:
+        if acq.repetition() != i//256:
             repetitions_failed += 1
 
     if flags_failed > 0:
@@ -141,20 +141,21 @@ def main():
     failed += test_failed(8, 0, xFy.imag/xFy.real, 1e-5, 0)
     failed += test_failed(9, 0, Bxy.imag/Bxy.real, 1e-5, 0)
 
-    if failed == 0:
-        print('all tests passed')
-    else:
-        print('%d tests failed' % failed)
-    return failed
+    return failed, 9
 
-try:
-    failed = main()
-    print('done')
-    if failed != 0:
-        sys.exit(failed)
+if __name__ == '__main__':
 
-except error as err:
-    # display error information
-    print('??? %s' % err.value)
-    sys.exit(-1)
+    try:
+        failed, ntests = main()
+        if failed == 0:
+            print('all tests passed')
+        else:
+            print('%d tests failed' % failed)
+        if failed != 0:
+            sys.exit(failed)
+
+    except error as err:
+        # display error information
+        print('??? %s' % err.value)
+        sys.exit(-1)
 
