@@ -40,7 +40,7 @@ classdef ObjectiveFunction < handle
         end
         function set_prior(self, prior)
 %***SIRF*** Sets the prior (penalty term to be added to the objective function).
-            mUtilities.assert_validity(prior, 'mSTIR.Prior')
+            mUtilities.assert_validity(prior, 'Prior')
             mSTIR.setParameter...
                 (self.handle_, 'GeneralisedObjectiveFunction', 'prior',...
                 prior, 'h')
@@ -66,7 +66,7 @@ classdef ObjectiveFunction < handle
         end
         function set_up(self, image)
 %***SIRF*** Prepares this object for use.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_setupObjectiveFunction', ...
                 self.handle_, image.handle_);
             mUtilities.check_status('GeneralisedObjectiveFunction:set_up', h)
@@ -76,7 +76,7 @@ classdef ObjectiveFunction < handle
         function v = get_value(self, image)
 %***SIRF*** Returns the value of this objective function 
 %         on the specified image.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_objectiveFunctionValue',...
                 self.handle_, image.handle_);
             mUtilities.check_status...
@@ -89,7 +89,7 @@ classdef ObjectiveFunction < handle
 %***SIRF*** Returns the value of the additive component of the gradient 
 %         of this objective function on the specified image corresponding 
 %         to the specified subset (see method set_num_subsets()).
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             if nargin < 3
                 subset = -1;
             end
@@ -103,7 +103,7 @@ classdef ObjectiveFunction < handle
 %***SIRF*** Returns the gradient of the objective function 
 %         on the specified image.
 %         image: ImageData object
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             g = self.get_subset_gradient(image);
         end
     end

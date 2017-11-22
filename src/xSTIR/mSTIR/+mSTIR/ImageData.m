@@ -150,7 +150,7 @@ classdef ImageData < mSTIR.DataContainer
 %***SIRF*** Adds a uniform shape to the image. 
 %         The image values at voxels inside the added shape are increased 
 %         by the value of the last argument.
-            mUtilities.assert_validity(shape, 'mSTIR.Shape')
+            mUtilities.assert_validity(shape, 'Shape')
             if isempty(self.handle_)
                 error('ImageData:error', 'cannot add shapes to uninitialised image');
             end

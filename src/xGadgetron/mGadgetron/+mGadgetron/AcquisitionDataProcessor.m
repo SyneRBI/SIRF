@@ -66,7 +66,7 @@ classdef AcquisitionDataProcessor < mGadgetron.GadgetChain
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
-            mUtilities.assert_validity(self.input_, 'mGadgetron.AcquisitionData')
+            mUtilities.assert_validity(self.input_, 'AcquisitionData')
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_processAcquisitions', ...

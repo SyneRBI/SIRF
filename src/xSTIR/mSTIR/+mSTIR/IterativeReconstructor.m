@@ -104,7 +104,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
 %         end
         function set_objective_function(self, obj_fun)
 %***SIRF*** Sets the objective function to be maximized.
-            mUtilities.assert_validity(obj_fun, 'mSTIR.ObjectiveFunction')
+            mUtilities.assert_validity(obj_fun, 'ObjectiveFunction')
             mSTIR.setParameter(self.handle_, self.IR,...
                 'objective_function', obj_fun, 'h')
         end
@@ -126,7 +126,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
 %***SIRF*** Prepares the reconstructor for use.
 %         The argumant is an ImageData object used as a template for the
 %         reconstructed image.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_setupReconstruction',...
                 self.handle_, image.handle_);
             mUtilities.check_status([self.IR ':set_up'], h)
@@ -139,7 +139,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
         end
         function set_current_estimate(self, image)
 %***SIRF*** Sets the current image estimate.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             self.image = image;
         end
         function image = get_current_estimate(self)
@@ -175,7 +175,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
         function update(self, image)
 %***SIRF*** Updates the image estimate specified by the argument 
 %         by performing one iteration on the current subspace.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             h = calllib('mstir', 'mSTIR_updateReconstruction',...
                 self.handle_, image.handle_);
             mUtilities.check_status([self.IR ':update'], h)
@@ -186,7 +186,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
 % %***SIRF*** Reconstruct the image 
 % %         by applying currently set range of
 % %         iterations to the image estimate specified by the argument.
-%             mUtilities.assert_validity(image, 'mSTIR.ImageData')
+%             mUtilities.assert_validity(image, 'ImageData')
 %             h = calllib('mstir', 'mSTIR_runReconstruction',...
 %                 self.handle_, image.handle_);
 %             mUtilities.check_status([self.IR ':reconstruct'], h)

@@ -73,7 +73,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMean < mSTIR.ObjectiveFunction
                 (self, image, subset)
 %***SIRF*** Returns the backprojection of the ratio of measured to estimated
 %         acquisition data for the specified image and subset.
-            mUtilities.assert_validity(image, 'mSTIR.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             bar = mSTIR.ImageData();
             bar.handle_ = calllib...
                 ('mstir', 'mSTIR_objectiveFunctionGradientNotDivided',...
