@@ -4,6 +4,8 @@
 2. [SIRF structure](#SIRF_structure)
     1. [Rationale](#Rationale)
     2. [Software layers](#Software_layers)
+    	1. [Reconstruction engines](#Reconstruction_engines)
+    	2. [Extended engine functionality](#Extended_engine_functionality)
     3. [Data handling](#Data_handling)
     4. [Illustration](#Illustration)
         1. [Python](#Illustration_Python)
@@ -39,6 +41,42 @@ Matlab/Python interfaces to C |
 C interface to C\+\+ code |
 Extended engine functionality |
 Reconstruction engines |
+
+### Reconstruction engines <a name="Reconstruction_engines"></a>
+
+At present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
+
+### Extended engine functionality <a name="Extended_engine_functionality"></a>
+
+The following data types extend the functionality of STIR and Gadgetron.
+
+#### Extended STIR functionality <a name="Extended STIR functionality"></a>
+
+##### PETAcquisitionData <a name="PETAcquisitionData"></a>
+
+A class for handling PET acquisition data. Based on STIR `ProjData` class and retains most of its functionality. Has additional algebraic operations functionality.
+
+##### PETImageData <a name="PETImageData"></a>
+
+A class for handling PET image data. Based on STIR `DiscretisedDensity` class and retains most of its functionality. Has additional algebraic operations functionality.
+
+##### PETAcquisitionModel <a name="PETAcquisitionModel"></a>
+
+A class for PET acquisition process simulation. Has method `forward` for simulating acquisition process in a PET scanner and method `backward` for the adjoint (transposed) operation.
+
+#### Extended Gadgetron functionality <a name="Extended Gadgetron functionality"></a>
+
+##### MRAcquisitionData <a name="MRAcquisitionData"></a>
+
+A container class for storing and handling ISMRMRD acquisitions.
+
+##### MRImageData <a name="MRImageData"></a>
+
+A container class for storing and handling ISMRMRD images.
+
+##### MRAcquisitionModel <a name="MRAcquisitionModel"></a>
+
+A class for MR acquisition process simulation. Has method `forward` for simulating acquisition process in an MR scanner and method `backward` for the adjoint (transposed) operation.
 
 ## Data handling <a name="Data_handling"></a>
 
