@@ -67,10 +67,10 @@ private:
 	std::string data_;
 };
 
-class AcquisitionsContainer : public aDataContainer<complex_float_t> {
+class MRAcquisitionData : public aDataContainer<complex_float_t> {
 public:
-	AcquisitionsContainer() : ordered_(false), index_(0) {}
-	virtual ~AcquisitionsContainer()
+	MRAcquisitionData() : ordered_(false), index_(0) {}
+	virtual ~MRAcquisitionData()
 	{
 		if (index_)
 			delete[] index_;
@@ -88,10 +88,10 @@ public:
 	virtual unsigned int number() = 0;
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
-	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac) = 0;
+	virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
 	virtual 
-		shared_ptr<AcquisitionsContainer> new_acquisitions_container() = 0;
-	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info) = 0;
+		shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
+	virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info) = 0;
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -102,7 +102,7 @@ public:
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
-	float diff(AcquisitionsContainer& other);
+	float diff(MRAcquisitionData& other);
 
 	std::string acquisitions_info() const { return acqs_info_; }
 	void set_acquisitions_info(std::string info) { acqs_info_ = info; }
@@ -127,10 +127,10 @@ protected:
 	bool ordered_;
 	int* index_;
 	AcquisitionsInfo acqs_info_;
-	static shared_ptr<AcquisitionsContainer> acqs_templ_;
+	static shared_ptr<MRAcquisitionData> acqs_templ_;
 };
 
-class AcquisitionsFile : public AcquisitionsContainer {
+class AcquisitionsFile : public MRAcquisitionData {
 public:
 	AcquisitionsFile() { own_file_ = false; }
 	AcquisitionsFile
@@ -152,7 +152,7 @@ public:
 		acqs_templ_.reset(new AcquisitionsFile);
 	}
 
-	void take_over(AcquisitionsContainer& ac);
+	void take_over(MRAcquisitionData& ac);
 	void write_acquisitions_info();
 
 	virtual int set_acquisition_data
@@ -161,11 +161,11 @@ public:
 	virtual unsigned int number() { return items(); }
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq);
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq);
-	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac);
-	virtual AcquisitionsContainer* 
+	virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
+	virtual MRAcquisitionData* 
 		same_acquisitions_container(AcquisitionsInfo info)
 	{
-		return (AcquisitionsContainer*) new AcquisitionsFile(info);
+		return (MRAcquisitionData*) new AcquisitionsFile(info);
 	}
 	virtual aDataContainer<complex_float_t>*
 		new_data_container()
@@ -173,10 +173,10 @@ public:
 		init();
 		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
-	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container()
 	{
 		init();
-		return shared_ptr<AcquisitionsContainer>
+		return shared_ptr<MRAcquisitionData>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
@@ -186,7 +186,7 @@ private:
 	shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
-class AcquisitionsVector : public AcquisitionsContainer {
+class AcquisitionsVector : public MRAcquisitionData {
 public:
 	AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
 	{
@@ -210,13 +210,13 @@ public:
 		int ind = index(num);
 		acq = *acqs_[ind];
 	}
-	virtual void copy_acquisitions_info(const AcquisitionsContainer& ac)
+	virtual void copy_acquisitions_info(const MRAcquisitionData& ac)
 	{
 		acqs_info_ = ac.acquisitions_info();
 	}
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im);
-	virtual AcquisitionsContainer* same_acquisitions_container(AcquisitionsInfo info)
+	virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info)
 	{
 		return new AcquisitionsVector(info);
 	}
@@ -225,10 +225,10 @@ public:
 		AcquisitionsFile::init();
 		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
-	virtual shared_ptr<AcquisitionsContainer> new_acquisitions_container()
+	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container()
 	{
 		AcquisitionsFile::init();
-		return shared_ptr<AcquisitionsContainer>
+		return shared_ptr<MRAcquisitionData>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
@@ -236,7 +236,7 @@ private:
 	std::vector<shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
-class ImagesContainer : public aDataContainer<complex_float_t> {
+class MRImageData : public aDataContainer<complex_float_t> {
 public:
 	virtual unsigned int number() = 0;
 	virtual int types() = 0;
@@ -255,10 +255,10 @@ public:
 	virtual void set_complex_images_data(const float* re, const float* im) = 0;
 	virtual int read(std::string filename) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
-	virtual shared_ptr<ImagesContainer> new_images_container() = 0;
-	virtual shared_ptr<ImagesContainer>
+	virtual shared_ptr<MRImageData> new_images_container() = 0;
+	virtual shared_ptr<MRImageData>
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
-	virtual shared_ptr<ImagesContainer>
+	virtual shared_ptr<MRImageData>
 		clone(const char* attr, const char* target) = 0;
 	virtual int image_data_type(unsigned int im_num) const
 	{
@@ -280,7 +280,7 @@ public:
 
 };
 
-class ImagesVector : public ImagesContainer {
+class ImagesVector : public MRImageData {
 public:
 	ImagesVector() : images_(), nimages_(0) {}
 	ImagesVector(const ImagesVector& list, const char* attr, const char* target);
@@ -349,19 +349,19 @@ public:
 	{
 		return (aDataContainer<complex_float_t>*)new ImagesVector();
 	}
-	virtual shared_ptr<ImagesContainer> new_images_container()
+	virtual shared_ptr<MRImageData> new_images_container()
 	{
-		return shared_ptr<ImagesContainer>((ImagesContainer*)new ImagesVector());
+		return shared_ptr<MRImageData>((MRImageData*)new ImagesVector());
 	}
-	virtual shared_ptr<ImagesContainer>
+	virtual shared_ptr<MRImageData>
 		clone(const char* attr, const char* target)
 	{
-		return shared_ptr<ImagesContainer>(new ImagesVector(*this, attr, target));
+		return shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
 	}
-	virtual shared_ptr<ImagesContainer>
+	virtual shared_ptr<MRImageData>
 		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
-		return shared_ptr<ImagesContainer>(new ImagesVector(*this, inc, off));
+		return shared_ptr<MRImageData>(new ImagesVector(*this, inc, off));
 	}
 
 private:
@@ -494,7 +494,7 @@ private:
 class CoilImagesContainer : public CoilDataContainer {
 public:
 	virtual CoilData& operator()(int slice) = 0;
-	virtual void compute(AcquisitionsContainer& ac);
+	virtual void compute(MRAcquisitionData& ac);
 	ISMRMRD::Encoding encoding() const
 	{
 		return encoding_;
@@ -533,7 +533,7 @@ public:
 	}
 	virtual CoilData& operator()(int slice) = 0;
 
-	virtual void compute(AcquisitionsContainer& ac)
+	virtual void compute(MRAcquisitionData& ac)
 	{
 		//if (!ac.ordered())
 		//	ac.order();

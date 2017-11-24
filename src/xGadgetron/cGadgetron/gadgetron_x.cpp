@@ -90,7 +90,7 @@ GadgetChain::xml() const
 }
 
 void 
-AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions) 
+AcquisitionsProcessor::process(MRAcquisitionData& acquisitions) 
 {
 
 	std::string config = xml();
@@ -134,7 +134,7 @@ AcquisitionsProcessor::process(AcquisitionsContainer& acquisitions)
 }
 
 void 
-ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
+ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
 
 	std::string config = xml();
@@ -178,7 +178,7 @@ ImagesReconstructor::process(AcquisitionsContainer& acquisitions)
 }
 
 void 
-ImagesProcessor::process(ImagesContainer& images)
+ImagesProcessor::process(MRImageData& images)
 {
 	std::string config = xml();
 	//std::cout << config << std::endl;
@@ -213,8 +213,8 @@ ImagesProcessor::process(ImagesContainer& images)
 }
 
 void 
-AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc, 
-	AcquisitionsContainer& ac)
+MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
 		throw LocalisedException
@@ -227,8 +227,8 @@ AcquisitionModel::fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 }
 
 void 
-AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc, 
-	AcquisitionsContainer& ac)
+MRAcquisitionModel::bwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
 		throw LocalisedException
@@ -243,8 +243,8 @@ AcquisitionModel::bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
 
 template< typename T>
 void 
-AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
-	AcquisitionsContainer& ac, unsigned int& off)
+MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
 
@@ -312,8 +312,8 @@ AcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 template< typename T>
 void 
-AcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
-	AcquisitionsContainer& ac, unsigned int& off)
+MRAcquisitionModel::bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
+	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& im = *ptr_im;
 

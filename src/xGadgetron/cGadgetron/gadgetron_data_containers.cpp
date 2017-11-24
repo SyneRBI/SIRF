@@ -31,11 +31,11 @@ limitations under the License.
 #include "cgadgetron_shared_ptr.h"
 using namespace gadgetron;
 
-shared_ptr<AcquisitionsContainer> 
-AcquisitionsContainer::acqs_templ_;
+shared_ptr<MRAcquisitionData> 
+MRAcquisitionData::acqs_templ_;
 
 void 
-AcquisitionsContainer::write(const char* filename)
+MRAcquisitionData::write(const char* filename)
 {
 	Mutex mtx;
 	mtx.lock();
@@ -58,7 +58,7 @@ AcquisitionsContainer::write(const char* filename)
 }
 
 bool
-AcquisitionsContainer::undersampled() const
+MRAcquisitionData::undersampled() const
 {
 	ISMRMRD::IsmrmrdHeader header;
 	ISMRMRD::deserialize(acqs_info_.c_str(), header);
@@ -68,7 +68,7 @@ AcquisitionsContainer::undersampled() const
 }
 
 int 
-AcquisitionsContainer::get_acquisitions_dimensions(size_t ptr_dim)
+MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
 {
 	ISMRMRD::Acquisition acq;
 	int* dim = (int*)ptr_dim;
@@ -151,7 +151,7 @@ AcquisitionsContainer::get_acquisitions_dimensions(size_t ptr_dim)
 }
 
 void 
-AcquisitionsContainer::get_acquisitions_flags(unsigned int n, int* flags)
+MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -166,7 +166,7 @@ AcquisitionsContainer::get_acquisitions_flags(unsigned int n, int* flags)
 }
 
 unsigned int 
-AcquisitionsContainer::get_acquisitions_data(unsigned int slice, float* re, float* im)
+MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -223,7 +223,7 @@ AcquisitionsContainer::get_acquisitions_data(unsigned int slice, float* re, floa
 }
 
 void 
-AcquisitionsContainer::axpby
+MRAcquisitionData::axpby
 (complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 	complex_float_t b, ISMRMRD::Acquisition& acq_y)
 {
@@ -239,7 +239,7 @@ AcquisitionsContainer::axpby
 }
 
 complex_float_t 
-AcquisitionsContainer::dot
+MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
 	complex_float_t* pa;
@@ -253,7 +253,7 @@ AcquisitionsContainer::dot
 }
 
 float 
-AcquisitionsContainer::norm(const ISMRMRD::Acquisition& acq_a)
+MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 {
 	complex_float_t* pa;
 	float r = 0;
@@ -266,7 +266,7 @@ AcquisitionsContainer::norm(const ISMRMRD::Acquisition& acq_a)
 }
 
 float 
-AcquisitionsContainer::diff
+MRAcquisitionData::diff
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
 	complex_float_t* pa;
@@ -296,12 +296,12 @@ AcquisitionsContainer::diff
 }
 
 void 
-AcquisitionsContainer::axpby(
+MRAcquisitionData::axpby(
 	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 {
-	AcquisitionsContainer& x = (AcquisitionsContainer&)a_x;
-	AcquisitionsContainer& y = (AcquisitionsContainer&)a_y;
+	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
 	int n = y.number();
 	ISMRMRD::Acquisition ax;
@@ -319,7 +319,7 @@ AcquisitionsContainer::axpby(
 			j++;
 			continue;
 		}
-		AcquisitionsContainer::axpby(a, ax, b, ay);
+		MRAcquisitionData::axpby(a, ax, b, ay);
 		append_acquisition(ay);
 		i++;
 		j++;
@@ -327,9 +327,9 @@ AcquisitionsContainer::axpby(
 }
 
 complex_float_t 
-AcquisitionsContainer::dot(const aDataContainer<complex_float_t>& dc)
+MRAcquisitionData::dot(const aDataContainer<complex_float_t>& dc)
 {
-	AcquisitionsContainer& other = (AcquisitionsContainer&)dc;
+	MRAcquisitionData& other = (MRAcquisitionData&)dc;
 	int n = number();
 	int m = other.number();
 	complex_float_t z = 0;
@@ -346,7 +346,7 @@ AcquisitionsContainer::dot(const aDataContainer<complex_float_t>& dc)
 			j++;
 			continue;
 		}
-		z += AcquisitionsContainer::dot(a, b);
+		z += MRAcquisitionData::dot(a, b);
 		i++;
 		j++;
 	}
@@ -354,7 +354,7 @@ AcquisitionsContainer::dot(const aDataContainer<complex_float_t>& dc)
 }
 
 float 
-AcquisitionsContainer::norm()
+MRAcquisitionData::norm()
 {
 	int n = number();
 	float r = 0;
@@ -364,14 +364,14 @@ AcquisitionsContainer::norm()
 		if (TO_BE_IGNORED(a)) {
 			continue;
 		}
-		float s = AcquisitionsContainer::norm(a);
+		float s = MRAcquisitionData::norm(a);
 		r += s*s;
 	}
 	return sqrt(r);
 }
 
 float 
-AcquisitionsContainer::diff(AcquisitionsContainer& other)
+MRAcquisitionData::diff(MRAcquisitionData& other)
 {
 	int n = number();
 	int m = other.number();
@@ -382,7 +382,7 @@ AcquisitionsContainer::diff(AcquisitionsContainer& other)
 	for (int i = 0; i < n && i < m; i++) {
 		get_acquisition(i, a);
 		other.get_acquisition(i, b);
-		float s = AcquisitionsContainer::diff(a, b);
+		float s = MRAcquisitionData::diff(a, b);
 		smax = std::max(smax, s);
 		save += s*s;
 	}
@@ -391,7 +391,7 @@ AcquisitionsContainer::diff(AcquisitionsContainer& other)
 }
 
 void
-AcquisitionsContainer::order()
+MRAcquisitionData::order()
 {
 	typedef std::array<int, 3> tuple;
 	int na = number();
@@ -456,7 +456,7 @@ AcquisitionsFile::~AcquisitionsFile()
 }
 
 void 
-AcquisitionsFile::take_over(AcquisitionsContainer& ac)
+AcquisitionsFile::take_over(MRAcquisitionData& ac)
 {
 	AcquisitionsFile& af = (AcquisitionsFile&)ac;
 	acqs_info_ = ac.acquisitions_info();
@@ -514,7 +514,7 @@ AcquisitionsFile::append_acquisition(ISMRMRD::Acquisition& acq)
 }
 
 void 
-AcquisitionsFile::copy_acquisitions_info(const AcquisitionsContainer& ac)
+AcquisitionsFile::copy_acquisitions_info(const MRAcquisitionData& ac)
 {
 	acqs_info_ = ac.acquisitions_info();
 	Mutex mtx;
@@ -536,7 +536,7 @@ int
 AcquisitionsFile::set_acquisition_data
 (int na, int nc, int ns, const float* re, const float* im)
 {
-	shared_ptr<AcquisitionsContainer> sptr_ac =
+	shared_ptr<MRAcquisitionData> sptr_ac =
 		this->new_acquisitions_container();
 	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
 	ptr_ac->set_acquisitions_info(acqs_info_);
@@ -586,12 +586,12 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-ImagesContainer::axpby(
+MRImageData::axpby(
 	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 {
-	ImagesContainer& x = (ImagesContainer&)a_x;
-	ImagesContainer& y = (ImagesContainer&)a_y;
+	MRImageData& x = (MRImageData&)a_x;
+	MRImageData& y = (MRImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
 	complex_float_t zero(0.0, 0.0);
 	complex_float_t one(1.0, 0.0);
@@ -605,9 +605,9 @@ ImagesContainer::axpby(
 }
 
 complex_float_t 
-ImagesContainer::dot(const aDataContainer<complex_float_t>& dc)
+MRImageData::dot(const aDataContainer<complex_float_t>& dc)
 {
-	ImagesContainer& ic = (ImagesContainer&)dc;
+	MRImageData& ic = (MRImageData&)dc;
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -618,7 +618,7 @@ ImagesContainer::dot(const aDataContainer<complex_float_t>& dc)
 }
 
 float 
-ImagesContainer::norm()
+MRImageData::norm()
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
@@ -878,7 +878,7 @@ CoilDataAsCFImage::get_data_abs(float* v) const
 }
 
 void 
-CoilImagesContainer::compute(AcquisitionsContainer& ac)
+CoilImagesContainer::compute(MRAcquisitionData& ac)
 {
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
