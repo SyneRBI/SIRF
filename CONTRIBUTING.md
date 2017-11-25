@@ -1,6 +1,35 @@
 Contributing
 ============
 
+Please help us by finding problems, discussing on the mailing lists, contributing documentation,
+bug fixes or even features. Below are some brief guidelines.
+
+## Reporting a problem
+Please use our [issue-tracker]: https://github.com/CCPPETMR/SIRF/issues
+
+## Submitting a patch
+
+For anything non-trivial, we require a Contributor License Agreement, stating clearly that your
+conributed are licensed appropriately. This will normally need yo be signed by your
+employer/university. You will have to do this only once. Please contact us for more information.
+
+Please keep a patch focused on a single issue/feature. This is important to keep our history clean,
+but will also help reviewing things and therefore speed-up acceptance.
+
+### Process
+1. create a new issue (see above). State that you will contribute a fix if you intend to do so. 
+2. create a [fork](https://help.github.com/articles/fork-a-repo) on github and work from there.
+3. Create a branch in your fork with a descriptive name and put your fixes there. If your fix is 
+simple you could do it on github by editing a file, otherwise clone your project (or add a remote
+to your current git clone) and work as usual.
+4. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
+for each change (in particular with a single "subject" line 
+followed by an empty line and then more details).
+5. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request).
+(Enable changes by project admins.) Be prepared to add further commits to your branch after discussion.
+6. After acceptance of your PR, go home with a nice warm feeling.
+
+## Project rules
 - Only one official, stable, up-to-date branch: **master**
     + Essentially "latest stable beta version with no known bugs
       since the last official release version"
