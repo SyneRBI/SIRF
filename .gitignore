@@ -259,3 +259,6 @@ info.txt
 warn.txt
 errr.txt
 output.txt
+
+.coverage
+coverage.xml

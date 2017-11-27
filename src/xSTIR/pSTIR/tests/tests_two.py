@@ -21,12 +21,13 @@ Licensed under the Apache License, Version 2.0 (the "License");
   limitations under the License.
 '''
 from pSTIR import *
+from os import path
 
 __version__ = '0.2.0'
 
 
 def test_main(rec=False, verb=False):
-    test = pTest('test2.txt', rec)
+    test = pTest(path.join(path.dirname(__file__), 'test2.txt'), rec)
     test.verbose = verb
 
     msg_red = MessageRedirector()
