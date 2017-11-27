@@ -1,28 +1,28 @@
 '''Utilities used by all engines
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+2017 Casper da Costa-Luis
+
+This is software developed for the Collaborative Computational
+Project in Positron Emission Tomography and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 '''
-
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-
 import inspect
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
 import pyiutilities as pyiutil
+
 
 def petmr_data_path(petmr):
     '''
@@ -37,6 +37,7 @@ def petmr_data_path(petmr):
         errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
         raise error(errorMsg)
 
+
 def existing_filepath(data_path, file_name):
     '''
     Returns the filepath (path/name) to an existing file.
@@ -48,6 +49,7 @@ def existing_filepath(data_path, file_name):
     if not os.path.isfile(full_name):
         raise error('file %s not found' % full_name)
     return full_name
+
 
 def show_2D_array(title, array, colorbar = True):
     '''
@@ -64,6 +66,7 @@ def show_2D_array(title, array, colorbar = True):
     fignums = plt.get_fignums()
     print('Close Figure %d window to continue...' % fignums[-1])
     plt.show()
+
 
 def show_3D_array\
     (array, index = None, tile_shape = None, scale = None, power = None, \
@@ -184,7 +187,14 @@ def show_3D_array\
     mpl.rcParams['ytick.labelsize'] = current_ylabel_size
     return 0
 
-class pTest:
+
+def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
+    if abs(expected - actual) >= abstol + reltol*abs(expected):
+        raise ValueError("%.3g - %.3g >= %3g" %
+                         (expected, actual, abstol + reltol*expected))
+
+
+class pTest(object):
     def __init__(self, filename, record):
         self.record = record
         self.data = []
@@ -194,36 +204,46 @@ class pTest:
         if record:
             self.file = open(filename, 'w')
         else:
-            try:
-                with open(filename, 'r') as f:
-                    for line in f:
-                        line = line.strip()
-                        self.data.append(float(line))
-                self.size = len(self.data)
-                self.file = f
-            except:
-                print('??? Error reading file %s\n' % filename)
-                raise
+            with open(filename, 'r') as f:
+                self.data = [float(line.strip()) for line in f]
+            self.size = len(self.data)
+            self.file = None
+
     def __del__(self):
-        self.file.close()
-    def check(self, value, abs_tol = 0.0, rel_tol = 1.0e-3):
+        if self.record:
+            self.file.close()
+        if self.failed:
+            raise ValueError("%d failures" % self.failed)
+
+    def check(self, value, abs_tol=0, rel_tol=1e-3):
         if self.record:
             self.file.write('%e\n' % value)
         else:
             if self.ntest >= self.size:
-                print('??? no data available for test %d' % self.ntest)
+                raise IndexError('no data available for test %d' % self.ntest)
             else:
                 expected = self.data[self.ntest]
-                eps = abs_tol + rel_tol*abs(expected)
-                if abs(value - expected) <= eps:
-                    if self.verbose:
-                        print('+++ test %d passed' % self.ntest)
-                else:
+                try:
+                    check_tolerance(expected, value, abs_tol, rel_tol)
+                except ValueError:
                     self.failed += 1
                     if self.verbose:
-                        print('+++ test %d failed: expected %e, got %e' \
-                        % (self.ntest, expected, value))
+                        print('+++ test %d failed: expected %e, got %e'
+                              % (self.ntest, expected, value))
+                else:
+                    if self.verbose:
+                        print('+++ test %d passed' % self.ntest)
         self.ntest += 1
+
+
+class CheckRaise(pTest):
+    def check(self, *a, **k):
+        f = self.failed
+        super(CheckRaise, self).check(*a, **k)
+        if self.failed > f:
+            raise ValueError("check failed")
+
+
 
 ###########################################################
 ############ Utilities for internal use only ##############
@@ -232,6 +252,7 @@ class error(Exception):
         self.value = value
     def __str__(self):
         return '??? ' + repr(self.value)
+
 
 def check_status(handle, stack = None):
     if pyiutil.executionStatus(handle) != 0:
@@ -248,18 +269,22 @@ def check_status(handle, stack = None):
             repr(line) + ' of ' + file
         raise error(errorMsg)
 
+
 def try_calling(returned_handle):
     check_status(returned_handle, inspect.stack()[1])
     pyiutil.deleteDataHandle(returned_handle)
+
 
 def assert_validity(object, type):
     assert isinstance(object, type)
     assert object.handle is not None
 
+
 def assert_validities(x, y):
     assert type(x) == type(y)
     assert x.handle is not None
     assert y.handle is not None
+
 
 def label_and_name(g):
     name = g.lstrip()
@@ -271,6 +296,7 @@ def label_and_name(g):
     else:
         label = ''
     return label, name
+
 
 def name_and_parameters(obj):
     name = obj.lstrip()
@@ -284,6 +310,7 @@ def name_and_parameters(obj):
     else:
         prop = None
     return name, prop
+
 
 def parse_arglist(arglist):
     argdict = {}
@@ -301,6 +328,7 @@ def parse_arglist(arglist):
         else:
             argdict[name] = arglist[0:ic].rstrip()
             arglist = arglist[ic + 1 :]
+
 
 def str_to_int_list(str_list):
     int_list = []
@@ -321,4 +349,3 @@ def str_to_int_list(str_list):
             int_item = list(range(strt, stop + 1))
         int_list = int_list + int_item
     return int_list
-        
