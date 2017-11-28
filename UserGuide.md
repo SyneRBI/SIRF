@@ -485,7 +485,7 @@ A particular setting of storage scheme by a Matlab script or a Python script run
 
 ## Programming chains of Gadgetron gadgets <a name="programming_Gadgetron_chains"></a>
 
-With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
+Gadgetron is a MR reconstruction framework which was designed to process a datastream, i.e. rather than waiting for a complete 3D k-space to be acquired, each readout (frequency encoding line) is processed immidiately (if possible, e.g. Fourier transform along phase encoding can only be applied once all phase encoding lines have been acquired) (https://github.com/gadgetron/gadgetron/wiki/What-Is-The-Gadgetron). The reconstruction is performed by a chain of gadgets, i.e. pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
 
 ### Creating and running gadget chains by SIRF script  <a name="creating_and_running_gadget_chains"></a>
 
@@ -564,11 +564,15 @@ input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
 
+Removes the oversampling along the readout direction.
+
 #### NoiseAdjustGadget
 
 input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
+
+Ensures that the noise between different receiver coils is not correlated and that each receiver coils has a similar noise level.
 
 #### AsymmetricEchoAdjustGadget
 
@@ -576,12 +580,16 @@ input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
 
+Pads each readout with zeros to compensate for partial echo acquisitions.
+
 #### AcquisitionAccumulateTriggerGadget
 
 input | output | parameters | default values |
 -|
 AcquisitionData | internal1 | trigger_dimension | "repetition"
 | | sorting_dimension | "slice"
+
+Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image.
 
 #### BucketToBufferGadget
 
@@ -593,11 +601,15 @@ internal1 | internal2 | N_dimension | ""
 | | ignore_segment | "true"
 | | verbose | "true"
 
+Inserts the collected data into a buffer more suitable for recon processing.
+
 #### SimpleReconGadget
 
 input | output | parameters |
 -|
 internal2 | internal3 | none
+
+Performs a simple 2D fast Fouriertransform along readout and phase encoding direction to transform acquired data from k-space to images space.
 
 #### GenericReconCartesianReferencePrepGadget
 
@@ -656,6 +668,8 @@ internal3 | ImageData | none
 input | output | parameters | default values |
 -|
 ImageData | ImageData | extract_mask | "1"
+
+Extracts a certain type of image data from the reconstructed image stream, i.e. extract_mask=1 yields magnitude images, extract_mask=2 yields readl images.
 
 #### ComplexToFloatGadget
 
