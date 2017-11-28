@@ -59,7 +59,7 @@ classdef GadgetChain < handle
 %***SIRF*** add_gadget(id, gadget) adds a gadget to the chain.
 %         id    : gadget id (Matlab string)
 %         gadget: gadget (Gadget)
-            mUtilities.assert_validity(gadget, 'mGadgetron.Gadget')
+            mUtilities.assert_validity(gadget, 'Gadget')
             handle = calllib...
                 ('mgadgetron', 'mGT_addGadget', self.handle_, id, gadget.handle_);
             mUtilities.check_status(self.name_, handle);

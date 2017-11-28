@@ -58,7 +58,7 @@ classdef ImageDataProcessor < handle
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
-            mUtilities.assert_validity(self.input_, 'mSTIR.ImageData')
+            mUtilities.assert_validity(self.input_, 'ImageData')
             output = self.input_.clone();
             self.apply(output)
             self.output_ = output;

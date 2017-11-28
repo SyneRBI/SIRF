@@ -97,20 +97,20 @@ class GadgetronClientAcquisitionMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientAcquisitionMessageCollector
-		(shared_ptr<AcquisitionsContainer> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
+		(shared_ptr<MRAcquisitionData> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 	virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
 	virtual void read(tcp::socket* stream);
 
 private:
-	shared_ptr<AcquisitionsContainer> ptr_acqs_;
+	shared_ptr<MRAcquisitionData> ptr_acqs_;
 };
 
 class GadgetronClientImageMessageCollector : 
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientImageMessageCollector
-		(shared_ptr<ImagesContainer> ptr_images) : ptr_images_(ptr_images) {}
+		(shared_ptr<MRImageData> ptr_images) : ptr_images_(ptr_images) {}
 	virtual ~GadgetronClientImageMessageCollector() {}
 
 	template <typename T>
@@ -143,7 +143,7 @@ public:
 	virtual void read(tcp::socket* stream);
 
 private:
-	shared_ptr<ImagesContainer> ptr_images_;
+	shared_ptr<MRImageData> ptr_images_;
 };
 
 class GadgetronClientConnector {

@@ -4,6 +4,11 @@
 2. [SIRF structure](#SIRF_structure)
     1. [Rationale](#Rationale)
     2. [Software layers](#Software_layers)
+    	1. [Reconstruction engines](#Reconstruction_engines)
+    	2. [Extended engine functionality](#Extended_engine_functionality)
+    	3. [C interface](#C_interface)
+    	4. [Matlab and Pyton interfaces to C](#Matlab_Python_interfaces)
+    	5. [Matlab and Pyton OO interfaces](#Matlab_Python_OO_interfaces)
     3. [Data handling](#Data_handling)
     4. [Illustration](#Illustration)
         1. [Python](#Illustration_Python)
@@ -34,19 +39,123 @@ To summarise, SIRF software is structured as the following set of layers (from t
 
 SIRF software layers |
 -------------------------|
-Matlab/Python modules |
-Matlab/Python interfaces to C |
-C interface to C\+\+ code |
-Extended engine functionality |
-Reconstruction engines |
+Matlab/Python OO interface modules | +mSTIR pSTIR.py | +mGadgetron pGadgetron.py
+Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.*
+C interface to C\++ code | cstir.* | cgadgetron.*
+Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/*
+Reconstruction engines | STIR | Gadgetron
 
-## Data handling <a name="Data_handling"></a>
+### Reconstruction engines <a name="Reconstruction_engines"></a>
 
-Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data. In order to be passed around by scripts, an engine data item is encapsulated in a special interface object ObjectHandle, and scripts can only pass a void pointer to it between engine-calling methods. In addition to encapsulating the engine data, ObjectHandle also stores information on the current execution status, which can be inspected (but not changed) by scripts.
+At present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
+
+STIR implements a library of C++ classes for performing PET reconstruction and related tasks such as data input/output. Parameters of a STIR reconstructor object normally are defined by the user in an Interfile rather than set by calling directly its mutator (set) methods. A set of executables is provided that would read the parameter Interfile and raw data file specified in the command line and perform the required tasks, so that the user do not have to know C\+\+ or any other programming language at all.
+
+With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client. Just like with STIR, the user is not required to have any knowledge of C\++. Instead, the reconstruction tasks are essentially programmed in xml language, very much like for STIR, reconstruction tasks are programmed in Interfile language.
+
+### Extended engine functionality <a name="Extended_engine_functionality"></a>
+
+The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and data objects they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for it and required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
+
+[//]: <> (extend the functionality of STIR and Gadgetron.)
+
+[//]: <> (The following data types extend the functionality of STIR and Gadgetron.)
+
+#### Extended STIR functionality <a name="Extended STIR functionality"></a>
+
+Extended STIR functionality types are essentially wrappers around relevant STIR classes that hide STIR implementation specifics, so that a different PET reconstruction engine may be used instead without changing anything in the interface layers further above.
+
+###### PETAcquisitionData <a name="PETAcquisitionData"></a>
+
+A class for handling PET acquisition data. Based on STIR `ProjData` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
+
+###### PETImageData <a name="PETImageData"></a>
+
+A class for handling PET image data. Based on STIR `DiscretisedDensity` class and retains most of its functionality. Has additional algebraic operations functionality. *Files:* `SIRF/src/xSTIR/cSTIR/stir_data_containers.*`.
+
+###### PETAcquisitionModel <a name="PETAcquisitionModel"></a>
+
+A class for PET acquisition process simulation. Has method `forward` for simulating acquisition process in a PET scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
+
+###### PETAcquisitionModelUsingMatrix <a name="PETAcquisitionModelUsingMatrix"></a>
+
+A class derived from `PETAcquisitionModel`. Employs STIR object `ProjMatrixByBin` in forward- and backprojection. *Files:* `SIRF/src/xSTIR/cSTIR/stir_x.*`.
+
+#### Extended Gadgetron functionality <a name="Extended Gadgetron functionality"></a>
+
+Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron client `gadgetron_ismrmrd_client.cpp`: SIRF essentially provides an alternative client. The server-side parts of the Gadgetron code are not used at present. This, for example, allows the use of Gadgetron without its installation under Windows - instead, Gadgetron can be run on a Linux Virtual Machine.
+
+###### MRAcquisitionData <a name="MRAcquisitionData"></a>
+
+A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
+
+###### MRImageData <a name="MRImageData"></a>
+
+A container class for storing and handling ISMRMRD images. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
+
+###### MRAcquisitionModel <a name="MRAcquisitionModel"></a>
+
+A class for MR acquisition process simulation. Has method `forward` for simulating acquisition process in an MR scanner and method `backward` for the adjoint (transposed) operation. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_x.*`.
+
+###### Gadget <a name="Gadget"></a>
+
+A class for storing properties and generating xml description of a Gadgetron gadget. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadget_lib.h`.
+
+###### SIRF gadgets library <a name="Gadgets_library"></a>
+
+A set of classes derived from Gadget representing a subset of Gadgetron gadgets, at present contains
+
+	NoiseAdjustGadget
+    AsymmetricEchoAdjustROGadget
+    RemoveROOversamplingGadget
+    AcquisitionAccumulateTriggerGadget
+    BucketToBufferGadget
+    GenericReconCartesianReferencePrepGadget
+    SimpleReconGadget
+    GenericReconCartesianGrappaGadget
+    GenericReconFieldOfViewAdjustmentGadget
+    GenericReconImageArrayScalingGadget
+    ImageArraySplitGadget
+    ExtractGadget
+    ComplexToFloatGadget
+    FloatToShortGadget
+
+and some other (reader/writer/finish) gadgets not accessible from SIRF scripts. The library also has a gadget `SimpleReconGadgetSet` that actually represents a small gadget chain performing fully sampled reconstruction. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadget_lib.h`.
+
+### C interface <a name="C_interface"></a>
+
+C interface layer is a set of C functions that wrap SIRF C++ code.
+
+Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have either arguments of types `int*` and `float*` (for interfacing to Matlab) or of type `size_t` (for interfacing to Python). The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTI/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
+
+SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class DataHandle, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this DataHandle object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template ObjectHandle is derived from DataHandle. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
+
+### Matlab and Python interfaces to C <a name="Matlab_Python_interfaces"></a>
+
+Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is meeded under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe` and `gmi_xgadgetron.exe`.
+
+For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar 5 lines for Gadgetron):
+
+	%module pystir
+	%{
+	#include "cstir.h"
+	%}
+	%include "cstir.h"
+
+
+### Matlab and Python OO interfaces <a name="Matlab_Python_OO_interfaces"></a>
+
+Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules +mSTIR and +mGadgetron in Matlab and pSTIR.py and pGadgetron.py in Python. These modules are described in User Guide.
+
+## Data handling principles <a name="Data_handling"></a>
+
+Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data.
+
+[//]: <> (In order to be passed around by scripts, an engine data item is encapsulated in a special interface object ObjectHandle, and scripts can only pass a void pointer to it between engine-calling methods. In addition to encapsulating the engine data, ObjectHandle also stores information on the current execution status, which can be inspected, but not changed, by scripts.)
 
 The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via as_array() methods of SIRF data container classes and pass an array to the engine via their fill() methods.
 
-## Illustration <a name="Illustration"></a>
+# Illustration <a name="Illustration"></a>
 
 ### Python <a name="Illustration_Python"></a>
 
@@ -67,14 +176,14 @@ The C function that is called is as follows:
         if (!boost::filesystem::exists(file))
             return fileNotFound(file, __FILE__, __LINE__);
         try {
-            boost::shared_ptr<AcquisitionsContainer> 
+            boost::shared_ptr<MRAcquisitionData> 
                 acquisitions(new AcquisitionsFile(file));
-            return sptrObjectHandle<AcquisitionsContainer>(acquisitions);
+            return sptrObjectHandle<MRAcquisitionData>(acquisitions);
         }
         CATCH;
     }
 
-As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an AcquisitionsContainer object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an AcquisitionsContainer object (cf. [Data handling](#Data_handling)). We note that AcquisitionsData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line
+As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an MRAcquisitionData object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an MRAcquisitionData object (cf. [C interface](#C_interface)). We note that MRAcquisitionData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line
 
     dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
         (new ISMRMRD::Dataset(filename.c_str(), "/dataset"));

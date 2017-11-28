@@ -30,8 +30,8 @@ classdef AcquisitionModel < handle
  %        based on two specified templates of types AcquisitionData and ImageData 
  %        respectively.
             self.name_ = 'MR_AcquisitionModel';
-            mUtilities.assert_validity(acq_template, 'mGadgetron.AcquisitionData')
-            mUtilities.assert_validity(img_template, 'mGadgetron.ImageData')
+            mUtilities.assert_validity(acq_template, 'AcquisitionData')
+            mUtilities.assert_validity(img_template, 'ImageData')
             self.handle_ = calllib('mgadgetron', 'mGT_AcquisitionModel',...
                 acq_template.handle_, img_template.handle_);
             mUtilities.check_status(self.name_, self.handle_);
@@ -46,7 +46,7 @@ classdef AcquisitionModel < handle
         function set_coil_sensitivity_maps(self, csms)
 %***SIRF*** Instructs to use the coil sensitivity maps specified by the argument
 %         (a CoilSensitivityData object).
-            mUtilities.assert_validity(csms, 'mGadgetron.CoilSensitivityData')
+            mUtilities.assert_validity(csms, 'CoilSensitivityData')
             handle = calllib('mgadgetron', 'mGT_setCSMs', ...
                 self.handle_, csms.handle_);
             mUtilities.check_status(self.name_, handle);
@@ -56,7 +56,7 @@ classdef AcquisitionModel < handle
         function acqs = forward(self, image)
 %***SIRF*** Returns the forward projection of the specified ImageData argument
 %         simulating the actual data expected to be received from the scanner.
-            mUtilities.assert_validity(image, 'mGadgetron.ImageData')
+            mUtilities.assert_validity(image, 'ImageData')
             acqs = mGadgetron.AcquisitionData();
             acqs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelForward', ...
@@ -67,7 +67,7 @@ classdef AcquisitionModel < handle
 %***SIRF*** Backprojects the acquisition data specified by the argument
 %         of AcquisitionData type into image space using a complex
 %         transpose of the forward projection.
-            mUtilities.assert_validity(acqs, 'mGadgetron.AcquisitionData')
+            mUtilities.assert_validity(acqs, 'AcquisitionData')
             imgs = mGadgetron.ImageData();
             imgs.handle_ = calllib...
                 ('mgadgetron', 'mGT_AcquisitionModelBackward', ...

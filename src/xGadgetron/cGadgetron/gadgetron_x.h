@@ -208,8 +208,8 @@ public:
 		return "AcquisitionsProcessor";
 	}
 
-	void process(AcquisitionsContainer& acquisitions);
-	shared_ptr<AcquisitionsContainer> get_output() 
+	void process(MRAcquisitionData& acquisitions);
+	shared_ptr<MRAcquisitionData> get_output() 
 	{
 		return sptr_acqs_;
 	}
@@ -219,7 +219,7 @@ private:
 	std::string port_;
 	shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	shared_ptr<IsmrmrdAcqMsgWriter> writer_;
-	shared_ptr<AcquisitionsContainer> sptr_acqs_;
+	shared_ptr<MRAcquisitionData> sptr_acqs_;
 };
 
 /*!
@@ -249,8 +249,8 @@ public:
 		return "ImagesReconstructor";
 	}
 
-	void process(AcquisitionsContainer& acquisitions);
-	shared_ptr<ImagesContainer> get_output() 
+	void process(MRAcquisitionData& acquisitions);
+	shared_ptr<MRImageData> get_output() 
 	{
 		return sptr_images_;
 	}
@@ -260,7 +260,7 @@ private:
 	std::string port_;
 	shared_ptr<IsmrmrdAcqMsgReader> reader_;
 	shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	shared_ptr<ImagesContainer> sptr_images_;
+	shared_ptr<MRImageData> sptr_images_;
 };
 
 /*!
@@ -288,8 +288,8 @@ public:
 		return "ImagesProcessor";
 	}
 
-	void process(ImagesContainer& images);
-	shared_ptr<ImagesContainer> get_output() 
+	void process(MRImageData& images);
+	shared_ptr<MRImageData> get_output() 
 	{
 		return sptr_images_;
 	}
@@ -299,7 +299,7 @@ private:
 	std::string port_;
 	shared_ptr<IsmrmrdImgMsgReader> reader_;
 	shared_ptr<IsmrmrdImgMsgWriter> writer_;
-	shared_ptr<ImagesContainer> sptr_images_;
+	shared_ptr<MRImageData> sptr_images_;
 };
 
 /*!
@@ -327,11 +327,11 @@ The application of A (projection) involves multiplication by
 <em>coil sensitivity maps</em>, 2D Fourier transform applied
 <em>xy</em>-slice-wise and gathering readouts based on the index
 stored by property \e kspace_encode_step_1 of the method idx() of
-the object of class ISMRMRD::Acquisition recorded by AcquisitionModel
+the object of class ISMRMRD::Acquisition recorded by MRAcquisitionModel
 constructor as a template.
 */
 
-class AcquisitionModel {
+class MRAcquisitionModel {
 public:
 
 	/*
@@ -339,9 +339,9 @@ public:
 	arguments as templates, to be used for obtaining scanner and image
 	discretisation data.
 	*/
-	AcquisitionModel(
-		shared_ptr<AcquisitionsContainer> sptr_ac,
-		shared_ptr<ImagesContainer> sptr_ic
+	MRAcquisitionModel(
+		shared_ptr<MRAcquisitionData> sptr_ac,
+		shared_ptr<MRImageData> sptr_ic
 		) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
 	{
 	}
@@ -355,7 +355,7 @@ public:
 	// Forward projects one image item (typically xy-slice) into
 	// respective readouts, and appends them to the AcquisitionContainer
 	// passed as the last argument.
-	void fwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
+	void fwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac, 
 		unsigned int& off)
 	{
 		int type = iw.type();
@@ -365,7 +365,7 @@ public:
 
 	// Backprojects a set of readouts corresponding to one image item
 	// (typically xy-slice).
-	void bwd(ImageWrap& iw, CoilData& csm, AcquisitionsContainer& ac, 
+	void bwd(ImageWrap& iw, CoilData& csm, MRAcquisitionData& ac, 
 		unsigned int& off)
 	{
 		int type = iw.type();
@@ -375,22 +375,22 @@ public:
 
 	// Forward projects the whole ImageContainer using
 	// coil sensitivity maps in the second argument.
-	void fwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
-		AcquisitionsContainer& ac);
+	void fwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
+		MRAcquisitionData& ac);
 
 	// Backprojects the whole AcquisitionContainer using
 	// coil sensitivity maps in the second argument.
-	void bwd(ImagesContainer& ic, CoilSensitivitiesContainer& cc,
-		AcquisitionsContainer& ac);
+	void bwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
+		MRAcquisitionData& ac);
 
 	// Forward projects the whole ImageContainer using
 	// coil sensitivity maps referred to by sptr_csms_.
-	shared_ptr<AcquisitionsContainer> fwd(ImagesContainer& ic)
+	shared_ptr<MRAcquisitionData> fwd(MRImageData& ic)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
-		shared_ptr<AcquisitionsContainer> sptr_acqs = 
+		shared_ptr<MRAcquisitionData> sptr_acqs = 
 			sptr_acqs_->new_acquisitions_container();
 		sptr_acqs->copy_acquisitions_info(*sptr_acqs_);
 		fwd(ic, *sptr_csms_, *sptr_acqs);
@@ -399,12 +399,12 @@ public:
 
 	// Backprojects the whole AcquisitionContainer using
 	// coil sensitivity maps referred to by sptr_csms_.
-	shared_ptr<ImagesContainer> bwd(AcquisitionsContainer& ac)
+	shared_ptr<MRImageData> bwd(MRAcquisitionData& ac)
 	{
 		if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 			throw LocalisedException
 			("coil sensitivity maps not found", __FILE__, __LINE__);
-		shared_ptr<ImagesContainer> sptr_imgs =
+		shared_ptr<MRImageData> sptr_imgs =
 			sptr_imgs_->new_images_container();
 		bwd(*sptr_imgs, *sptr_csms_, ac);
 		return sptr_imgs;
@@ -412,16 +412,16 @@ public:
 
 private:
 	std::string acqs_info_;
-	shared_ptr<AcquisitionsContainer> sptr_acqs_;
-	shared_ptr<ImagesContainer> sptr_imgs_;
+	shared_ptr<MRAcquisitionData> sptr_acqs_;
+	shared_ptr<MRImageData> sptr_imgs_;
 	shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 	template< typename T>
 	void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
-		AcquisitionsContainer& ac, unsigned int& off);
+		MRAcquisitionData& ac, unsigned int& off);
 	template< typename T>
 	void bwd_(ISMRMRD::Image<T>* ptr_im, CoilData& csm,
-		AcquisitionsContainer& ac, unsigned int& off);
+		MRAcquisitionData& ac, unsigned int& off);
 };
 
 #endif

@@ -68,7 +68,7 @@ classdef ImageDataProcessor < mGadgetron.GadgetChain
             if isempty(self.input_)
                 error('ImageDataProcessor:input', 'input not set')
             end
-            mUtilities.assert_validity(self.input_, 'mGadgetron.ImageData')
+            mUtilities.assert_validity(self.input_, 'ImageData')
             image = mGadgetron.ImageData();
             image.handle_ = calllib...
                 ('mgadgetron', 'mGT_processImages', ...

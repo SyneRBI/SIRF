@@ -20,9 +20,8 @@ function assert_validities(x, y)
 
 assert(~isempty(x.handle_), 'first object is empty')
 assert(~isempty(y.handle_), 'second object is empty')
-if ~strcmp(class(x), class(y))
+if ~strcmp(x.class_name(), y.class_name())
     fprintf('??? Objects types are %s and %s: same type expected.\n', ...
-        class(x), class(y))
+        x.class_name(), y.class_name())
     error('Objects must be of the same type')
 end
-%assert(strcmp(class(x), class(y)), 'objects must be of the same type')

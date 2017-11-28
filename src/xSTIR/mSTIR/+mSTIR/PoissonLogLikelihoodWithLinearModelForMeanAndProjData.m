@@ -65,7 +65,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_acquisition_model(self, acq_model)
 %***SIRF*** Sets the acquisition model to be used by this objective function.
-            mUtilities.assert_validity(acq_model, 'mSTIR.AcquisitionModel')
+            mUtilities.assert_validity(acq_model, 'AcquisitionModel')
             mSTIR.setParameter(self.handle_, self.name,...
                 'acquisition_model', acq_model, 'h')
         end
@@ -79,7 +79,7 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
         end
         function set_acquisition_data(self, acq_data)
 %***SIRF*** Sets the acquisition data to be used by this objective function.
-            mUtilities.assert_validity(acq_data, 'mSTIR.AcquisitionData')
+            mUtilities.assert_validity(acq_data, 'AcquisitionData')
             mSTIR.setParameter(self.handle_, self.name,...
                 'acquisition_data', acq_data, 'h')
 %             mSTIR.setParameter(self.handle_, self.name,...
