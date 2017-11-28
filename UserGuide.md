@@ -609,7 +609,7 @@ input | output | parameters |
 -|
 internal2 | internal3 | none
 
-Performs a simple 2D fast Fouriertransform along readout and phase encoding direction to transform acquired data from k-space to images space.
+Performs simple fast Fouriertransforms to transform acquired k-space data to image space.
 
 #### GenericReconCartesianReferencePrepGadget
 
