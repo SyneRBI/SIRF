@@ -87,6 +87,7 @@ Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron cl
 
 ###### MRAcquisitionData <a name="MRAcquisitionData"></a>
 
+
 A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
 ###### MRImageData <a name="MRImageData"></a>
@@ -170,15 +171,14 @@ A reconstruction script normally would contain the following line indicating the
 The C function that is called is as follows:
 
     extern "C"
-    void*
-    cGT_ISMRMRDAcquisitionsFromFile(const char* file)
+    void* cGT_ISMRMRDAcquisitionsFromFile(const char* file)
     {
         if (!boost::filesystem::exists(file))
             return fileNotFound(file, __FILE__, __LINE__);
         try {
-            boost::shared_ptr<MRAcquisitionData> 
+            shared_ptr<MRAcquisitionData> 
                 acquisitions(new AcquisitionsFile(file));
-            return sptrObjectHandle<MRAcquisitionData>(acquisitions);
+            return newObjectHandle<MRAcquisitionData>(acquisitions);
         }
         CATCH;
     }
@@ -212,4 +212,108 @@ to the following C function
         return cGT_ISMRMRDAcquisitionsFile(file);
     }
 
+# Adding new functionality to SIRF
 
+The preferred way for adding new functionality to STIR is by implementing it in C++. Once implemented and tested your C++ addition, follow these steps (to reduce duplication, instructions are for Gadgetron-related additions; those for STIR-related are symmetric).
+
+First, go to folder `SIRF/src/xGadgetron/cGadgetron` and add your class definitions to `gadgetron_x.h` and your implementation code to `gadgetron_x.cpp`. Alternatively, add new `*.h` and `*.cpp` files, in which case you will need to list them in `add_library` statement in `CMakeLists.txt` too.
+
+The rest of the instructions is for classes that will be exposed to the user only. We note that currently, only a tiny fraction of STIR classes and no Gadgetron classes are exposed.
+
+If a new class has default constructor, you may like to add the following two lines to the function `cGT_newObject()` in `cgadgetron.cpp` before the last `return` statement there:
+
+	if (boost::iequals(name, "YourClassName"))
+		return newObjectHandle<YourClassName>();
+
+For all other constructors and other methods of your class you will need to write a C wrapper, the prototype of which **must** be placed in `cgadgetron.h`. The definition of the wrapper may be added to `cgadgetron.cpp` or a new file in `SIRF/src/xGadgetron/cGadgetron`, which will need to be mentioned in `add_library` statement in `CMakeLists.txt`. 
+
+It is advised to use existing C wrappers as templates. An example of a C wrapper for a constructor of an object of class MRAcquisitionData was given above in Section Illustration. It exposes some general principles in creating C wrappers:
+
+- wrapper should return a pointer to `DataHandle` object cast into `void*`;
+- wrapper should use `try{} CATCH;` bracket for passing C++ exceptions to Python and Matlab;
+- a pointer to newly constructed object should be stored in a shared pointer (file `cgadgetron_shared_ptr.h` specifies which shared pointer to use, `std::shared_ptr` or `boost::shared_ptr`);
+- a `DataHandle` wrapper for a shared pointer can be created by the function template `newObjectHandle`, which returns a pointer to the `DataHandle` object it creates.
+
+Some further principles are illustrated by the following example of a wrapper:
+
+	extern "C"
+	void* cGT_norm(const void* ptr_x)
+	{
+		try {
+			aDataContainer<complex_float_t>& x = 
+				objectFromHandle<aDataContainer<complex_float_t> >(ptr_x);
+			return dataHandle(x.norm());
+		}
+		CATCH;
+	}
+	
+This wrapper returns the return value of the method `norm()` of an object of the class template `aDataContainer<complex_float_t>`. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to an `aDataContainer<complex_float_t>` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into `DataHandle` object, and returns the pointer to this object as `void*`.
+
+The next two wrappers demonstrate how data is exchanged between C++ and Matlab/Python arrays.
+
+	extern "C"
+	void* cGT_getAcquisitionsData
+	(void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
+	{
+		try {
+			float* re = (float*)ptr_re;
+			float* im = (float*)ptr_im;
+			MRAcquisitionData& acqs =
+				objectFromHandle<MRAcquisitionData>(ptr_acqs);
+			acqs.get_acquisitions_data(slice, re, im);
+			return (void*)new DataHandle;
+		}
+		CATCH;
+	}
+	
+	extern "C"
+	void* cGT_setAcquisitionsData
+	(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
+	size_t ptr_re, size_t ptr_im)
+	{
+		try {
+			float* re = (float*)ptr_re;
+			float* im = (float*)ptr_im;
+			MRAcquisitionData& acqs =
+				objectFromHandle<MRAcquisitionData>(ptr_acqs);
+			int err = acqs.set_acquisition_data(na, nc, ns, re, im);
+			DataHandle* handle = new DataHandle;
+			if (err) {
+				std::string error = "Mismatching acquisition dimensions";
+				ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
+				handle->set(0, &status);
+			}
+			return (void*)handle;
+		}
+		CATCH;
+	}
+
+Both wrappers obtain a pointer to `DataHandle` containing the reference `acqs` to an `MRAcquisitionData` object and pointers to the data of two Matlab/Python arrays storing real and imaginary part of MR acquisitions. The reference `acqs` is used to call methods `get_acquisitions_data` and `set_acquisitions_data` which perform the data exchange.
+
+The second wrapper also shows how to deal with errors. If `set_acquisitions_data` returns non-zero error flag, an object of class `ExecutionStatus` (defined in `data_handle.h`) is created to store the information about the error, and a copy of this object is stored in the `DataHandle` object, the pointer to which is returned by the wrapper.
+
+Subsequent illustrations are for Python; the Matlab case is similar.
+
+The SIRF build creates a Python module `pygadgetron.py` with SWIG-generated interface to Python for C wrappers declared in `cgadgetron.h` and a Python module ``pyutilities.py` with various interface utilities. The SIRF module `pGadgetron.py` contains class `AcquisitionData`, whose constructor calls C wrapper for the constructor of `MRAcquisitionData`:
+
+    self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(filename)
+
+and destructor calls the destructor of created by the above line `DataHandle` object via
+
+    pyiutilities.deleteDataHandle(self.handle)
+
+Class `AcquisitionData` has method `as_array()` that creates and returns a Python array containing acquisition data copied from `MRAcquisitionData` as follows
+
+    re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+    im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+    try_calling(pygadgetron.cGT_getAcquisitionsData\
+        (self.handle, n, re.ctypes.data, im.ctypes.data))
+    return re + 1j*im
+
+where `try_calling` is a function that check the execution status stored by `DataHandle` object, the pointer to which is returned by `cGT_getAcquisitionsData`. In a similar way, the data stored in a complex Python array `data` is copied to `MRAcquisitionData` as follows
+
+    na, nc, ns = data.shape
+    re = numpy.real(data).astype(numpy.float32)
+    im = numpy.imag(data).astype(numpy.float32)
+    try_calling(pygadgetron.cGT_setAcquisitionsData\
+        (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
