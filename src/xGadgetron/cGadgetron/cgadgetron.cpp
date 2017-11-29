@@ -808,11 +808,7 @@ cGT_imageType(const void* ptr_img)
 {
 	try {
 		ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
-		int* result = (int*)malloc(sizeof(int));
-		*result = image.type();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(image.type());
 	}
 	CATCH;
 }
@@ -891,11 +887,7 @@ cGT_imageDataType(const void* ptr_x, int im_num)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		MRImageData& x = objectFromHandle<MRImageData>(h_x);
-		int* result = (int*)malloc(sizeof(int));
-		*result = x.image_data_type(im_num);
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.image_data_type(im_num));
 	}
 	CATCH;
 }
@@ -908,11 +900,7 @@ cGT_dataItems(const void* ptr_x)
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		aDataContainer<complex_float_t>& x = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		int* result = (int*)malloc(sizeof(int));
-		*result = x.items();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.items());
 	}
 	CATCH;
 }
@@ -925,11 +913,7 @@ cGT_norm(const void* ptr_x)
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		aDataContainer<complex_float_t>& x = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		float* result = (float*)malloc(sizeof(float));
-		*result = x.norm();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.norm());
 	}
 	CATCH;
 }
@@ -945,12 +929,7 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
 		aDataContainer<complex_float_t>& y = 
 			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		complex_float_t* result =
-			(complex_float_t*)malloc(sizeof(complex_float_t));
-		*result = x.dot(y);
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.dot(y));
 	}
 	CATCH;
 }
