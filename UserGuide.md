@@ -622,6 +622,8 @@ internal2 | internal4 | debug_folder | ""
 | | average_all_ref_S | "true"
 | | prepare_ref_always | "true"
 
+Selects the reference data used to calculate the GRAPPA kernel
+
 #### GenericReconCartesianGrappaGadget
 
 input | output | parameters | default values |
@@ -636,6 +638,8 @@ internal4 | internal5 | debug_folder | ""
 | | downstream_coil_compression_thres | "0.01"
 | | downstream_coil_compression_num_modesKept | "0"
 
+Performs GRAPPA kernel calibration, calculate coil sensitivity maps and carry out unfolding.
+
 #### GenericReconFieldOfViewAdjustmentGadget
 
 input | output | parameters | default values |
@@ -643,6 +647,8 @@ input | output | parameters | default values |
 internal5 | internal6 | debug_folder | ""
 | | perform_timing | "false"
 | | verbose | "false"
+
+Adjusts FOV and image resolution according to the parameters given for the reconstructed image in the file header.
 
 #### GenericReconImageArrayScalingGadget
 
@@ -657,11 +663,15 @@ internal6 | internal3 | perform_timing | "false"
 | | use_constant_scalingFactor | "true"
 | | auto_scaling_only_once | "true"
 
+Applie scaling to image, g-factor map, SNR map and/or SNR standard deviation map.
+
 #### ImageArraySplitGadget
 
 input | output | parameters |
 -|
 internal3 | ImageData | none
+
+Splits array of images (7D [X, Y, Z, CHA, N, S, LOC]) into individual images (4D [X, Y, Z, CHA])
 
 #### ExtractGadget
 
@@ -677,6 +687,8 @@ input | output | parameters |
 -|
 ImageData | ImageData | none
 
+Depending on the image type, the magnitude, real, imaginary or phase of the complex image is returned.
+
 #### FloatToShortGadget
 
 input | output | parameters | default values |
@@ -685,13 +697,5 @@ ImageData | ImageData | min_intensity | "0"
 | | max_intensity | "32767"
 | | intensity_offset | "0"
 
-#### SimpleReconGadgetSet
-
-input | output | parameters | default values |
--|
-AcquisitionData | ImageData | N_dimension | ""
-| | S_dimension | ""
-| | sorting_dimension | "slice"
-| | trigger_dimension | "repetition"
-| | split_slices | "true"
+Scales and transforms images from float to short.
 
