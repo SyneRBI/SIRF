@@ -135,6 +135,12 @@ public:
 		_data = data;
 		_owns_data = grab != 0;
 	}
+	void set_status(const char* error, const char* file, int line)
+	{
+		if (_status)
+			delete _status;
+		_status = new ExecutionStatus(error, file, line);
+	}
 	void* data() const { return _data; }
 	const ExecutionStatus* status() const { return _status; }
 protected:

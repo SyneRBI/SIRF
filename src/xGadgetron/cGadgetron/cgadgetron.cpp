@@ -530,11 +530,9 @@ size_t ptr_re, size_t ptr_im)
 			objectFromHandle<MRAcquisitionData>(h_acqs);
 		int err = acqs.set_acquisition_data(na, nc, ns, re, im);
 		DataHandle* handle = new DataHandle;
-		if (err) {
-			std::string error = "Mismatching acquisition dimensions";
-			ExecutionStatus status(error.c_str(), __FILE__, __LINE__);
-			handle->set(0, &status);
-		}
+		if (err)
+			handle->set_status("Mismatching acquisition dimensions", 
+				__FILE__, __LINE__);
 		return (void*)handle;
 	}
 	CATCH;
