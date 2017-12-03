@@ -89,7 +89,7 @@ install:
   - pip install --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
   - pip install nose nose-timer codecov coveralls
   - cd ..
-  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b system-build
+  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b v0.9.2
   - cd SIRF-SuperBuild
   - ../SIRF/cmake-*/bin/cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS -DSIRF_URL="$PWD/../SIRF" .
   - make -j2
