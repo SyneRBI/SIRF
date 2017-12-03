@@ -1,0 +1,111 @@
+# Language selection
+language: python
+
+# Currently commented out as set with environment flags
+# Both clang and gcc can be tested. The more is the better.
+#compiler:
+#  - clang
+#  - gcc
+
+
+# Environment variables
+# Note: On trusty we need to build Armadillo ourselves (the system version is too old)
+# Note: on OSX we don't seem to be able to use the system boost 1.65.1 due to a Mac-specific bug.
+matrix:
+  include:
+  - os: linux
+    python: 3.5
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+  - os: linux
+    python: 2.7
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+  - os: linux
+    python: 3.5
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+  - os: linux
+    python: 2.7
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+  - os: osx
+    language: generic
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_SWIG=Off -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+  - os: osx
+    language: generic
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=On -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 "
+  - os: osx
+    language: generic
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=On -DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+env:
+  global:
+    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSIRF_TAG=$TRAVIS_COMMIT"
+
+
+# Ubuntu 14.04 LTS
+dist: trusty
+
+# No need for sudo
+sudo: false
+
+# Compilation dependencies
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - git-core
+      - build-essential
+      - g++-5
+      - libboost-all-dev
+      - libhdf5-serial-dev
+      - libfftw3-dev
+      - python-dev
+      - python3-dev
+      - liblapack-dev
+      - libxml2-dev
+      - libxslt-dev
+      - libarmadillo-dev
+      - libace-dev
+      - libgtest-dev
+      - libplplot-dev
+      - root-system-bin
+      - swig
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; fi
+  - # Note: boost is already installed on osx on travis so should not be included. However, we currently need boost-python
+  - # if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ace; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install swig; fi
+  - #if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install scipy matplotlib; fi
+  - # need curl to get more recent cmake
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install curl; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz; fi
+  - tar xzf cmake.tar.gz
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mv cmake-*/CMake.app/Contents/* cmake-*; fi
+
+install:
+  - #pip install --upgrade pip setuptools wheel
+  - pip install --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
+  - pip install nose nose-timer codecov coveralls
+  - cd ..
+  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b system-build
+  - cd SIRF-SuperBuild
+  - ../SIRF/cmake-*/bin/cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS -DSIRF_URL="$PWD/../SIRF" .
+  - make -j2
+  - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
+  - source $PWD/INSTALL/bin/env_ccppetmr.sh
+  - #env
+
+script:
+  - ./INSTALL/bin/gadgetron >& gadgetron.log&
+  - ctest --verbose
+  - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
+  - # print for debugging
+  - cat gadgetron.log
+  - cd SIRF
+  - nosetests --with-coverage --with-timer --cover-package=pSTIR src/xSTIR/pSTIR/
+
+after_success:
+  - codecov
+  - coveralls
