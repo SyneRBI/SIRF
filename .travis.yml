@@ -36,8 +36,7 @@ matrix:
     env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=On -DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
 env:
   global:
-    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSIRF_TAG=$TRAVIS_COMMIT"
-
+    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSIRF_TAG=$TRAVIS_COMMIT -DGADGETRON_TAG=e7eb430"
 
 # Ubuntu 14.04 LTS
 dist: trusty
