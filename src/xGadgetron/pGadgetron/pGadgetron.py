@@ -29,12 +29,12 @@ except:
     HAVE_PYLAB = False
 import sys
 import time
-try:
-    from ismrmrdtools import coils
-    HAVE_ISMRMRDTOOLS = True
-except:
-    print('ismrmrd-python-tools not installed')
-    HAVE_ISMRMRDTOOLS = False
+##try:
+##    from ismrmrdtools import coils
+##    HAVE_ISMRMRDTOOLS = True
+##except:
+##    print('ismrmrd-python-tools not installed')
+##    HAVE_ISMRMRDTOOLS = False
 
 from pUtilities import *
 import pyiutilities as pyiutil
@@ -437,7 +437,10 @@ class CoilSensitivityData(DataContainer):
         elif isinstance(data, CoilImageData):
             assert data.handle is not None
             if method_name == 'Inati':
-                if not HAVE_ISMRMRDTOOLS:
+#                if not HAVE_ISMRMRDTOOLS:
+                try:
+                    from ismrmrdtools import coils
+                except:
                     raise error('Inati method requires ismrmrd-python-tools')
                 nz = data.number()
                 for z in range(nz):
