@@ -41,13 +41,13 @@ Our topmost interface layer are Object-Oriented Matlab and Python modules that c
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
-SIRF software layers |
--------------------------|
-Matlab/Python OO interface modules | +mSTIR pSTIR.py | +mGadgetron pGadgetron.py
+SIRF software layers | Files (PET) | Files (MR)
+-------------------------|---|---
+Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py
 Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.*
 C interface to C\++ code | cstir.* | cgadgetron.*
 Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/*
-Reconstruction engines | STIR | Gadgetron
+Reconstruction engines | STIR/* | Gadgetron/*
 
 ### Reconstruction engines <a name="Reconstruction_engines"></a>
 
@@ -60,10 +60,6 @@ With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of cod
 ### Extended engine functionality <a name="Extended_engine_functionality"></a>
 
 The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and data objects they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for it and required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
-
-[//]: <> (extend the functionality of STIR and Gadgetron.)
-
-[//]: <> (The following data types extend the functionality of STIR and Gadgetron.)
 
 #### Extended STIR functionality <a name="Extended STIR functionality"></a>
 
@@ -169,8 +165,6 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
 ## Data handling principles <a name="Data_handling"></a>
 
 Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data.
-
-[//]: <> (In order to be passed around by scripts, an engine data item is encapsulated in a special interface object ObjectHandle, and scripts can only pass a void pointer to it between engine-calling methods. In addition to encapsulating the engine data, ObjectHandle also stores information on the current execution status, which can be inspected, but not changed, by scripts.)
 
 The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via as_array() methods of SIRF data container classes and pass an array to the engine via their fill() methods.
 
@@ -398,29 +392,31 @@ The Matlab counterparts of the code pieces of the previous section are:
 
 To add a Gadgetron gadget to SIRF gadgets library, follow the steps below.
 
-1. Locate the subfolder of `Gadgetron/gadgets` contaning the gadget definition (below referred to as `GADGET_FOLDER`).
+* Locate the subfolder of `Gadgetron/gadgets` contaning the gadget definition (below referred to as `GADGET_FOLDER`).
 
-2. Add a new class to `gadget_lib.h` in folder `Gadgetron` using the following template (see also other gadgetrs declarations in `gadget_lib.h` for guidance):
+* Add a new class to `gadget_lib.h` in folder `Gadgetron` using the following template (see also other gadgetrs declarations in `gadget_lib.h` for guidance):
 
-    class NEW_GADGET_CLASS: public Gadget {
-    public:
-        NEW_GADGET_CLASS() :
-            Gadget(GADGET_NAME, GADGET_FOLDER, GADGET_CLASS)
-        {
-            add_property(PROPERTY1, VALUE1);
-            add_property(PROPERTY2, VALUE2);
-            ...
-        }
-        static const char* class_name()
-        {
-            return NEW_GADGET_CLASS_STRING;
-        }
-    };
-Here `GADGET_CLASS` is the name of the gadget class, `GADGET_NAME` and `NEW_GADGET_CLASS` are arbitrary names for the class and gadget (it is recommended that `NEW_GADGET_CLASS = GADGET_CLASS`), `PROPERTY1` and `VALUE1` are C strings containing the first property name and value etc. (these lines are not needed if the gadget does not have properties), and `NEW_GADGET_CLASS_STRING` is a C string containing the name `NEW_GADGET_CLASS`.
+~~~
+	class NEW_GADGET_CLASS: public Gadget {
+	public:
+	    NEW_GADGET_CLASS() :
+	        Gadget(GADGET_NAME, GADGET_FOLDER, GADGET_CLASS)
+	    {
+	        add_property(PROPERTY1, VALUE1);
+	        add_property(PROPERTY2, VALUE2);
+	        ...
+	    }
+	    static const char* class_name()
+	    {
+	        return NEW_GADGET_CLASS_STRING;
+	    }
+	};
+~~~ 
+Here `GADGET_CLASS` is the name of the gadget class, `GADGET_NAME` and `NEW_GADGET_CLASS` are arbitrary names for the gadget and new class and (it is recommended that `NEW_GADGET_CLASS = GADGET_CLASS`), `PROPERTY1` and `VALUE1` are C strings containing the first property name and value etc. (these lines are not needed if the gadget does not have properties), and `NEW_GADGET_CLASS_STRING` is a C string containing the name `NEW_GADGET_CLASS`.
 
-3. Add a line
+* Add a line
 
 		NEW_GADGET(NEW_GADGET_CLASS);
 to the function `cGT_newObject()` in the file `cgadgetron.cpp`.
 
-4. Build SIRF.
+* Build SIRF.
