@@ -13,6 +13,10 @@
     4. [Illustration](#Illustration)
         1. [Python](#Illustration_Python)
         2. [Matlab](#Illustration_Matlab)
+3. [Adding new functionality to SIRF](#Adding_functionality)
+	1. [Step 1: create C wrappers](#Create_wrappers)
+	2. [Step 2: create Matlab and Python Object-Oriented interface for your additions](#Create_OO_interface)
+4. [Adding a gadget to SIRF gadget library](#Adding_gadget)
 
 # Overview <a name="Overview"></a>
 
@@ -37,13 +41,13 @@ Our topmost interface layer are Object-Oriented Matlab and Python modules that c
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
-SIRF software layers |
--------------------------|
-Matlab/Python OO interface modules | +mSTIR pSTIR.py | +mGadgetron pGadgetron.py
+SIRF software layers | Files (PET) | Files (MR)
+-------------------------|---|---
+Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py
 Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.*
 C interface to C\++ code | cstir.* | cgadgetron.*
 Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/*
-Reconstruction engines | STIR | Gadgetron
+Reconstruction engines | STIR/* | Gadgetron/*
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 
@@ -58,10 +62,6 @@ With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of cod
 ### Extended engine functionality <a name="Extended_engine_functionality"></a>
 
 The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and the data objects that they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for this kind of interaction and therefore required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
-
-[//]: <> (extend the functionality of STIR and Gadgetron.)
-
-[//]: <> (The following data types extend the functionality of STIR and Gadgetron.)
 
 #### Extended STIR functionality <a name="Extended STIR functionality"></a>
 
@@ -88,6 +88,7 @@ A class derived from `PETAcquisitionModel`. Employs STIR object `ProjMatrixByBin
 Extended Gadgetron functionality in SIRF is built entirely upon the Gadgetron client `gadgetron_ismrmrd_client.cpp`: SIRF essentially provides an alternative client. The server-side parts of the Gadgetron code are not used at present. This, for example, allows the use of Gadgetron without its installation under Windows - instead, Gadgetron can be run on a Linux Virtual Machine.
 
 ###### MRAcquisitionData <a name="MRAcquisitionData"></a>
+
 
 A container class for storing and handling ISMRMRD acquisitions. *Files:* `SIRF/src/xGadgetron/cGadgetron/gadgetron_data_containers.*`.
 
@@ -149,15 +150,29 @@ For Python, we use SWIG, which requires just these 5 lines to generate the inter
 
 Matlab and Python interfaces of the previous section are not user-friendly and not Object-Oriented, which is why on top of them we have Object-Oriented modules +mSTIR and +mGadgetron in Matlab and pSTIR.py and pGadgetron.py in Python. These modules are described in User Guide.
 
+## Source files folder structure
+
+    SIRF/src
+        common         : code common to all engines
+        iUtilities     : interface utilities
+        xGadgetron     : Gadgetron extesions and interfaces
+        	cGadgetron : Gadgetron extensions and C wrappers
+            mGadgetron : Object-Oriented Matlab interface
+            pGadgetron : Object-Oriented Python interface
+        xSTIR          : STIR extensions and interfaces
+        	cSTIR      : STIR extensions and C wrappers
+            mSTIR      : Object-Oriented Matlab interface
+            pSTIR      : Object-Oriented Python interface
+
 ## Data handling principles <a name="Data_handling"></a>
 
 Data processed by reconstruction engines are often of complicated structure and generally cannot be efficiently handled by script languages. For this reason, in SIRF all data processing is performed by the engines and their extensions, and scripts do not have direct access to data.
 
-[//]: <> (In order to be passed around by scripts, an engine data item is encapsulated in a special interface object ObjectHandle, and scripts can only pass a void pointer to it between engine-calling methods. In addition to encapsulating the engine data, ObjectHandle also stores information on the current execution status, which can be inspected, but not changed, by scripts.)
-
-The only way for users' scripts to work with the engine data is to get a copy of it in a script array format via as_array() methods of SIRF data container classes and pass an array to the engine via their fill() methods.
+The only way for user's scripts to work with the engine data is to get a copy of it in a script array format via as_array() methods of SIRF data container classes and pass an array to the engine via their fill() methods.
 
 # Illustration <a name="Illustration"></a>
+
+In this section we illustrate how the SIRF software layers interact. To avoid duplication, we focus on the case of MR reconstruction by Gadgetron. The PET case is totally parallel.
 
 ### Python <a name="Illustration_Python"></a>
 
@@ -165,22 +180,21 @@ A reconstruction script would normally contain the following line indicating the
 
     acq_data = AcquisitionData(filename)
 
-(mind that the actual data reading from the indicated file happens later on). The above line creates a Python object of AcquisitionData class. Focusing, for the sake of illustration, on MR reconstruction by Gadgetron, the definition of this class is provided in the Python module pGadgetron.py, and the constructor method that is called to create this object calls, in turn, a C function via the SWIG-generated C-to-Python interface module pygadgetron.py:
+(mind that the actual data reading from the indicated file happens later on). The above line creates a Python object of AcquisitionData class. The definition of this class is provided in the Python module pGadgetron.py, and the constructor method that is called to create this object calls, in turn, a C function via SWIG-generated C-to-Python interface module pygadgetron.py:
 
     self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(filename)
 
 The C function that is called is as follows:
 
     extern "C"
-    void*
-    cGT_ISMRMRDAcquisitionsFromFile(const char* file)
+    void* cGT_ISMRMRDAcquisitionsFromFile(const char* file)
     {
         if (!boost::filesystem::exists(file))
             return fileNotFound(file, __FILE__, __LINE__);
         try {
-            boost::shared_ptr<MRAcquisitionData> 
+            shared_ptr<MRAcquisitionData> 
                 acquisitions(new AcquisitionsFile(file));
-            return sptrObjectHandle<MRAcquisitionData>(acquisitions);
+            return newObjectHandle<MRAcquisitionData>(acquisitions);
         }
         CATCH;
     }
@@ -214,4 +228,197 @@ to the following C function
         return cGT_ISMRMRDAcquisitionsFile(file);
     }
 
+# Adding new functionality to SIRF <a name="Adding_new_functionality"></a>
 
+The preferred way for adding new functionality to STIR is by implementing it in C\++. Having implemented and tested your C++ addition, put your class definitions to `gadgetron_x.h` and your implementation code to `gadgetron_x.cpp` in folder `SIRF/src/xGadgetron/cGadgetron`. Alternatively, add new `*.h` and `*.cpp` files, in which case you will need to list them in `add_library` statement in `CMakeLists.txt` too. Then follow the two steps described below. Again, to reduce duplication, instructions are for Gadgetron-related additions; those for STIR-related are symmetric.
+
+We stress that the instructions below are for classes that will be exposed to the user only. We note that currently, only a tiny fraction of STIR classes and no Gadgetron classes are exposed.
+
+### Step 1: create C wrappers. <a name="Create_wrappers"></a>
+
+If a new class has default constructor, you may like to add the following two lines to the function `cGT_newObject()` in `cgadgetron.cpp` before the last `return` statement there:
+
+	if (boost::iequals(name, "YourClassName"))
+		return newObjectHandle<YourClassName>();
+
+For all other constructors and other methods of your class you will need to write a C wrapper, the prototype of which **must** be placed in `cgadgetron.h`. The definition of the wrapper may be added to `cgadgetron.cpp` or a new file in `SIRF/src/xGadgetron/cGadgetron`, which will need to be mentioned in `add_library` statement in `CMakeLists.txt`.
+
+It is advised to use existing C wrappers as templates. An example of a C wrapper for a constructor of an object of class MRAcquisitionData was given above in section Illustration. It exposes some general principles in creating C wrappers:
+
+- wrapper should return a pointer to `DataHandle` object cast into `void*`;
+- wrapper should use `try{} CATCH;` bracket for passing C++ exceptions to Python and Matlab;
+- a pointer to newly constructed object should be stored in a shared pointer (file `cgadgetron_shared_ptr.h` specifies which shared pointer to use, `std::shared_ptr` or `boost::shared_ptr`);
+- a `DataHandle` wrapper for a shared pointer can be created by the function template `newObjectHandle`, which returns a pointer to the `DataHandle` object it creates.
+
+Some further principles are illustrated by the following example of a wrapper:
+
+	extern "C"
+	void* cGT_norm(const void* ptr_x)
+	{
+		try {
+			aDataContainer<complex_float_t>& x =
+				objectFromHandle<aDataContainer<complex_float_t> >(ptr_x);
+			return dataHandle(x.norm());
+		}
+		CATCH;
+	}
+
+This wrapper returns the return value of the method `norm()` of an object of the class template `aDataContainer<complex_float_t>`. The argument of the wrapper is actually a pointer to a `DataHandle` object that stores a shared pointer to an `aDataContainer<complex_float_t>` object. The function template `objectFromHandle` obtains a reference to this object, thus enabling the call to its method `norm()`. The function template `dataHandle`, which has one argument of arbitrary scalar type, wraps the return value of `norm()` into `DataHandle` object, and returns the pointer to this object as `void*`.
+
+The next two wrappers demonstrate how data is exchanged between C++ and Matlab/Python arrays.
+
+	extern "C"
+	void* cGT_getAcquisitionsData
+	(void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
+	{
+		try {
+			float* re = (float*)ptr_re;
+			float* im = (float*)ptr_im;
+			MRAcquisitionData& acqs =
+				objectFromHandle<MRAcquisitionData>(ptr_acqs);
+			acqs.get_acquisitions_data(slice, re, im);
+			return (void*)new DataHandle;
+		}
+		CATCH;
+	}
+
+	extern "C"
+	void* cGT_setAcquisitionsData
+	(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
+	size_t ptr_re, size_t ptr_im)
+	{
+		try {
+			float* re = (float*)ptr_re;
+			float* im = (float*)ptr_im;
+			MRAcquisitionData& acqs =
+				objectFromHandle<MRAcquisitionData>(ptr_acqs);
+			int err = acqs.set_acquisition_data(na, nc, ns, re, im);
+			DataHandle* handle = new DataHandle;
+            if (err)
+                handle->set_status("Mismatching acquisition dimensions",
+                    __FILE__, __LINE__);
+			return (void*)handle;
+		}
+		CATCH;
+	}
+
+Both wrappers obtain a pointer to `DataHandle` containing the reference `acqs` to an `MRAcquisitionData` object and pointers to the data of two Matlab/Python arrays storing real and imaginary part of MR acquisitions. The reference `acqs` is used to call methods `get_acquisitions_data` and `set_acquisitions_data` which perform the data exchange.
+
+The second wrapper also shows how to deal with errors. If `set_acquisitions_data` returns non-zero error flag, method `set_status` of a `DataHandle` object is called that records the error message and location. This error message and location are used by SIRF Python and Matlab OO interfaces to throw an exception.
+
+### Step 2: create Matlab and Python Object-Oriented interface for your additions <a name="Create_OO_interface"></a>
+
+This section demonstrates how C wrappers of the previous section are used by the objects of SIRF Object-Oriented interface modules.
+
+#### Python
+
+The SIRF build creates a Python module `pygadgetron.py` with SWIG-generated interface to Python for C wrappers declared in `cgadgetron.h` and a Python module `pyutilities.py` with various interface utilities. An example of a Python interface function from `pygadgetron.py` is the function `pygadgetron.cGT_ISMRMRDAcquisitionsFromFile` featuring in Illustration section. This function is called by the constructor of the Python class `AcquisitionData` defined in SIRF Object-Oriented interface module `pGadgetron.py`:
+
+    self.handle = pygadgetron.cGT_ISMRMRDAcquisitionsFromFile(filename)
+
+and the destructor of this class calls a Python interface function `deleteDataHandle` from `pyutilities.py` to destruct the `DataHandle` object created by the above line:
+
+    pyiutilities.deleteDataHandle(self.handle)
+
+Class `AcquisitionData` has method `as_array()` that creates and returns a Python array containing acquisition data copied from `MRAcquisitionData` as follows
+
+    re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+    im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+    try_calling(pygadgetron.cGT_getAcquisitionsData\
+        (self.handle, n, re.ctypes.data, im.ctypes.data))
+    return re + 1j*im
+
+where `try_calling` is a function that checks the execution status stored by `DataHandle` object, the pointer to which is returned by `cGT_getAcquisitionsData`, and throws Python exception if the execution status is abnormal. In a similar way, the data stored in a complex Python array `data` is copied to `MRAcquisitionData` as follows
+
+    na, nc, ns = data.shape
+    re = numpy.real(data).astype(numpy.float32)
+    im = numpy.imag(data).astype(numpy.float32)
+    try_calling(pygadgetron.cGT_setAcquisitionsData\
+        (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+
+The hierarchy of SIRF interface classes mirrors that of its C\++ classes: the C++ class `MRAcquisitionData` inherits from `aDataContainer`, and, accordingly, `AcquisitionData` inherits from `DataContainer` class of the interface module `pGadgetron.py`. The latter class has method `norm()`, which has the following implementation:
+
+    handle = pygadgetron.cGT_norm(self.handle)
+    check_status(handle)
+    r = pyiutility.floatDataFromHandle(handle)
+    pyiutility.deleteDataHandle(handle)
+    return r
+
+where `check_status` is the status-checking function called by `try_calling`, and the function `floatDataFromHandle` retrieves a single precision `float` value stored in `DataHandle` object of `handle`.
+
+#### Matlab
+
+SIRF build at present does not generate Matlab interface. to generate them, the user must execute `gmi_xstir` and `gmi_xgadgetron` in subfolder `bin` of the installation folder. This will create files `mstir.c` and `mgadgetron.c` containing Matlab callable C wrappers for SIRF C interface functions (cf. `mGT_ISMRMRDAcquisitionsFile` in section Illustration), and corresponding specification files `mstir.h` and `mgadgetron.h`.
+
+The Matlab counterparts of the code pieces of the previous section are:
+
+    self.handle_ = calllib('mgadgetron', ...
+        'mGT_ISMRMRDAcquisitionsFromFile', filename);
+
+    if ~isempty(self.handle_)
+        mUtilities.delete(self.handle_)
+        self.handle_ = [];
+    end
+
+(note that `self.handle_` needs to be set to empty to avoid its deletion by the base class)
+
+    ptr_re = libpointer('singlePtr', zeros(na*nc*ns, 1));
+    ptr_im = libpointer('singlePtr', zeros(na*nc*ns, 1));
+    calllib('mgadgetron', 'mGT_getAcquisitionsData', ...
+        self.handle_, n, ptr_re, ptr_im);
+    re = reshape(ptr_re.Value, ns, nc, na);
+    im = reshape(ptr_im.Value, ns, nc, na);
+    data = re + 1i*im;
+
+    [ns, nc, na] = size(data);
+    re = real(data);
+    im = imag(data);
+    if isa(re, 'single')
+        ptr_re = libpointer('singlePtr', re);
+        ptr_im = libpointer('singlePtr', im);
+    else
+        ptr_re = libpointer('singlePtr', single(re));
+        ptr_im = libpointer('singlePtr', single(im));
+    end
+    h = calllib('mgadgetron', 'mGT_setAcquisitionsData', ...
+        self.handle_, na, nc, ns, ptr_re, ptr_im);
+    mUtilities.check_status('AcquisitionData', h);
+    mUtilities.delete(h)
+
+    handle = calllib('mgadgetron', 'mGT_norm', self.handle_);
+    mUtilities.check_status('DataContainer', handle);
+    r = calllib('miutilities', 'mFloatDataFromHandle', handle);
+    mUtilities.delete(handle)
+
+# Adding a gadget to SIRF gadget library <a name="Adding_gadget"></a>
+
+To add a Gadgetron gadget to SIRF gadgets library, follow the steps below.
+
+* Locate the subfolder of `Gadgetron/gadgets` contaning the gadget definition (below referred to as `GADGET_FOLDER`).
+
+* Add a new class to `gadget_lib.h` in folder `Gadgetron` using the following template (see also other gadgetrs declarations in `gadget_lib.h` for guidance):
+
+~~~
+	class NEW_GADGET_CLASS: public Gadget {
+	public:
+	    NEW_GADGET_CLASS() :
+	        Gadget(GADGET_NAME, GADGET_FOLDER, GADGET_CLASS)
+	    {
+	        add_property(PROPERTY1, VALUE1);
+	        add_property(PROPERTY2, VALUE2);
+	        ...
+	    }
+	    static const char* class_name()
+	    {
+	        return NEW_GADGET_CLASS_STRING;
+	    }
+	};
+~~~ 
+Here `GADGET_CLASS` is the name of the gadget class, `GADGET_NAME` and `NEW_GADGET_CLASS` are arbitrary names for the gadget and new class and (it is recommended that `NEW_GADGET_CLASS = GADGET_CLASS`), `PROPERTY1` and `VALUE1` are C strings containing the first property name and value etc. (these lines are not needed if the gadget does not have properties), and `NEW_GADGET_CLASS_STRING` is a C string containing the name `NEW_GADGET_CLASS`.
+
+* Add a line
+
+		NEW_GADGET(NEW_GADGET_CLASS);
+to the function `cGT_newObject()` in the file `cgadgetron.cpp`.
+
+* Build SIRF.
