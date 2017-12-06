@@ -49,17 +49,19 @@ C interface to C\++ code | cstir.* | cgadgetron.*
 Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/*
 Reconstruction engines | STIR/* | Gadgetron/*
 
+As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
+
 ### Reconstruction engines <a name="Reconstruction_engines"></a>
 
-At present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
+AAt present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
 
-STIR implements a library of C++ classes for performing PET reconstruction and related tasks such as data input/output. Parameters of a STIR reconstructor object normally are defined by the user in an Interfile rather than set by calling directly its mutator (set) methods. A set of executables is provided that would read the parameter Interfile and raw data file specified in the command line and perform the required tasks, so that the user do not have to know C\+\+ or any other programming language at all.
+STIR implements a library of C++ classes for performing PET reconstruction and related tasks such as data input/output. Parameters of a STIR reconstructor object are normally defined by the user in an Interfile rather than set by directly calling its mutator (set) methods. A set of executables is provided that read the parameter Interfile and raw data file specified in the command line and perform the required tasks, so that the user does not need to know C\+\+ or any other programming languages at all.
 
-With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client. Just like with STIR, the user is not required to have any knowledge of C\++. Instead, the reconstruction tasks are essentially programmed in xml language, very much like for STIR, reconstruction tasks are programmed in Interfile language.
+With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of a certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client. As with STIR, the user is not required to have any knowledge of C\++. Instead, the reconstruction tasks are essentially programmed in xml language, which is very similar to STIR, where the reconstruction tasks are programmed in Interfile language.
 
 ### Extended engine functionality <a name="Extended_engine_functionality"></a>
 
-The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and data objects they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for it and required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
+The intended usage of STIR and Gadgetron requires minimal participation from the user - normally, the composition of an xml or Interfile document at most. SIRF allows the users to actually code the reconstruction tasks by working with reconstruction objects and the data objects that they operate on. Since neither STIR nor Gadgetron developers were concerned with this kind of usage, their code was not well-suited for this kind of interaction and therefore required some extensions. The extended engine functionality layer of SIRF is a C++ implementation of various data types that provide the necessary extensions.
 
 #### Extended STIR functionality <a name="Extended STIR functionality"></a>
 
@@ -104,7 +106,7 @@ A class for storing properties and generating xml description of a Gadgetron gad
 
 ###### SIRF gadgets library <a name="Gadgets_library"></a>
 
-A set of classes derived from Gadget representing a subset of Gadgetron gadgets, at present contains
+At present, the set of classes that have been derived from Gadgets (representing a subset of Gadgetron gadgets) contains:
 
 	NoiseAdjustGadget
     AsymmetricEchoAdjustROGadget
@@ -125,15 +127,15 @@ and some other (reader/writer/finish) gadgets not accessible from SIRF scripts. 
 
 ### C interface <a name="C_interface"></a>
 
-C interface layer is a set of C functions that wrap SIRF C++ code.
+The C interface layer is a set of C functions that wrap SIRF C++ code.
 
-Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have either arguments of types `int*` and `float*` (for interfacing to Matlab) or of type `size_t` (for interfacing to Python). The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTI/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
+Each interface function has arguments of basic C types: `void*`, `int`, `float` and `char*`, and some functions have either arguments of types `int*` and `float*` (for interfacing to Matlab) or of type `size_t` (for interfacing to Python). The return value of each interface function is either `void` (to be deprecated) or `void*`. *Files:* `SIRF/src/xSTIR/cSTIR/cstir.*`, `SIRF/src/xGadgetron/cGadgetron/cgadgetron.*`.
 
 SIRF Python and Matlab objects do not have direct access to C\++ objects and their data. Their role is to obtain a reference to a C\++ object or its data by calling a C interface function and pass it to another C\++ object by calling another C interface function. A C\++ object or data reference is wrapped into an object of the class DataHandle, which additionally has a property that records any exceptions thrown by the C++ code, and the pointer to this DataHandle object is passed as a `void*` argument or return value. To simplify/shorten the coding of wrapping/unwrapping, a class template ObjectHandle is derived from DataHandle. *Files:* `SIRF/src/iUtilities/data_handle.h`, `SIRF/scr/common/include/SIRF/common/object_handle.inl`.
 
 ### Matlab and Python interfaces to C <a name="Matlab_Python_interfaces"></a>
 
-Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is meeded under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe` and `gmi_xgadgetron.exe`.
+Wrapping C\++ into C dramatically simplifies the interfacing into any programming language. In the case of Matlab, no interfacing is required under Linux, where Matlab can call C library functions directly via `calllib()`, whereas under Windows one just need to add  `__declspec(dllexport)` in front of every C function, which is done by executables `gmi_xstir.exe` and `gmi_xgadgetron.exe`.
 
 For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar 5 lines for Gadgetron):
 
@@ -174,7 +176,7 @@ In this section we illustrate how the SIRF software layers interact. To avoid du
 
 ### Python <a name="Illustration_Python"></a>
 
-A reconstruction script normally would contain the following line indicating the source of raw acquisition data:
+A reconstruction script would normally contain the following line indicating the source of raw acquisition data:
 
     acq_data = AcquisitionData(filename)
 
