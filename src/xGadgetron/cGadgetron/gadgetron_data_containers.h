@@ -45,12 +45,26 @@ limitations under the License.
 
 using namespace gadgetron;
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Acquisitions filter.
+
+Some acquisitions do not participate directly in the reconstruction process
+(e.g. noise calibration acquisitions).
+*/
 #define TO_BE_IGNORED(acq) \
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
+
+*/
 class AcquisitionsInfo {
 public:
 	AcquisitionsInfo(std::string data = "") : data_(data) {}
@@ -67,6 +81,12 @@ private:
 	std::string data_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract MR acquisition data container class.
+
+*/
 class MRAcquisitionData : public aDataContainer<complex_float_t> {
 public:
 	MRAcquisitionData() : ordered_(false), index_(0) {}
@@ -76,43 +96,62 @@ public:
 			delete[] index_;
 	}
 
+	// static methods
+
+	// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
+	// acquisition data
+	// y := a x + b y
 	static void axpby
 	(complex_float_t a, const ISMRMRD::Acquisition& acq_x,
 		complex_float_t b, ISMRMRD::Acquisition& acq_y);
+	// the inner (l2) product of x and y
 	static complex_float_t dot
-	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
-	static float norm(const ISMRMRD::Acquisition& acq_a);
-	static float diff
-	(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
+	(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
+	// l2 norm of x
+	static float norm(const ISMRMRD::Acquisition& acq_x);
+	// obsolete
+	//static float diff
+	//(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b);
 
+	// abstract methods
+
+	// the number of acquisitions in the container
 	virtual unsigned int number() = 0;
+
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
+
 	virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
-	virtual 
-		shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
-	virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info) = 0;
+
+	// 'export' constructors: workaround for creating 'ABC' objects
+	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
+	virtual MRAcquisitionData* 
+		same_acquisitions_container(AcquisitionsInfo info) = 0;
+
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im) = 0;
 
-	void write(const char* filename);
-
+	// acquisition data algebra
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
-	float diff(MRAcquisitionData& other);
+	//float diff(MRAcquisitionData& other);
+
+	// regular methods
 
 	std::string acquisitions_info() const { return acqs_info_; }
 	void set_acquisitions_info(std::string info) { acqs_info_ = info; }
-	void set_ordered(bool ordered) { ordered_ = ordered; }
+
 	bool undersampled() const;
 	int get_acquisitions_dimensions(size_t ptr_dim);
 	void get_acquisitions_flags(unsigned int n, int* flags);
 	unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
+
 	void order();
 	bool ordered() const { return ordered_; }
+	void set_ordered(bool ordered) { ordered_ = ordered; }
 	int* index() { return index_; }
 	const int* index() const { return index_; }
 	int index(int i)
@@ -123,13 +162,25 @@ public:
 			return i;
 	}
 
+	void write(const char* filename);
+
 protected:
 	bool ordered_;
 	int* index_;
 	AcquisitionsInfo acqs_info_;
+
+	// new MRAcquisitionData objects will be created from this template
+	// using same_acquisitions_container()
 	static shared_ptr<MRAcquisitionData> acqs_templ_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief File implementation of Abstract MR acquisition data container class.
+
+Acquisitions are stored in HDF5 file.
+*/
 class AcquisitionsFile : public MRAcquisitionData {
 public:
 	AcquisitionsFile() { own_file_ = false; }
@@ -139,6 +190,7 @@ public:
 	AcquisitionsFile(AcquisitionsInfo info);
 	~AcquisitionsFile();
 
+	// initializes MRAcquisitionData template as AcquisitionsFile
 	static void init() {
 		static bool initialized = false;
 		if (!initialized) {
@@ -146,14 +198,20 @@ public:
 			initialized = true;
 		}
 	}
+	// sets MRAcquisitionData template as AcquisitionsFile
 	static void set_as_template()
 	{
 		init();
 		acqs_templ_.reset(new AcquisitionsFile);
 	}
 
+	// implements 'overwriting' of an acquisition file data with new values:
+	// in reality, creates new file with new data and deletes the old one
 	void take_over(MRAcquisitionData& ac);
+
 	void write_acquisitions_info();
+
+	// implementations of abstract methods
 
 	virtual int set_acquisition_data
 		(int na, int nc, int ns, const float* re, const float* im);
@@ -186,6 +244,15 @@ private:
 	shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief A vector implementation of the abstract MR acquisition data container 
+       class.
+
+Acquisitions are stored in an std::vector<shared_ptr<ISMRMRD::Acquisition> >
+object.
+*/
 class AcquisitionsVector : public MRAcquisitionData {
 public:
 	AcquisitionsVector(AcquisitionsInfo info = AcquisitionsInfo())
@@ -236,6 +303,12 @@ private:
 	std::vector<shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract MR image data container class.
+
+*/
 class MRImageData : public aDataContainer<complex_float_t> {
 public:
 	virtual unsigned int number() = 0;
@@ -280,6 +353,13 @@ public:
 
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief A vector implementation of the abstract MR image data container class.
+
+Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
+*/
 class ImagesVector : public MRImageData {
 public:
 	ImagesVector() : images_(), nimages_(0) {}
@@ -370,6 +450,13 @@ private:
 
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract coil data class.
+
+Abstract 4-dimensional (x, y, z, coil) single precision complex array.
+*/
 class CoilData {
 public:
 	virtual ~CoilData() {}
@@ -382,6 +469,13 @@ public:
 	virtual complex_float_t& operator()(int x, int y, int z, int c) = 0;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief The ISMRMRD::Image< complex_float_t > implementation 
+       of the abstract coil data container class.
+
+*/
 class CoilDataAsCFImage : public CoilData {
 public:
 	CoilDataAsCFImage
@@ -423,6 +517,12 @@ private:
 	ISMRMRD::Image < complex_float_t > img_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract coil data container class.
+
+*/
 class CoilDataContainer : public aDataContainer<complex_float_t> {
 public:
 	virtual float norm()
@@ -474,6 +574,13 @@ public:
 	//virtual const CoilData& operator()(int slice) const = 0;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief A vector implementation of the abstract coil data container class.
+
+CoilData stored in an std::vector<shared_ptr<CoilData> > object.
+*/
 class CoilDataVector {
 public:
 	unsigned int items()
@@ -491,6 +598,12 @@ private:
 	std::vector< shared_ptr<CoilData> > coil_data_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract coil images container class.
+
+*/
 class CoilImagesContainer : public CoilDataContainer {
 public:
 	virtual CoilData& operator()(int slice) = 0;
@@ -503,6 +616,13 @@ protected:
 	ISMRMRD::Encoding encoding_;
 };
 
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief A vector implementation of the abstract coil images container class.
+
+Coil images stored in an std::vector<shared_ptr<CoilData> > object.
+*/
 class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 public:
 	virtual aDataContainer<complex_float_t>* new_data_container()
@@ -523,8 +643,12 @@ public:
 	}
 };
 
-//template<class CoilDataType>
-//class CoilSensitivitiesContainerTemplate : public CoilDataContainer {
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief Abstract coil sensitivities container class.
+
+*/
 class CoilSensitivitiesContainer : public CoilDataContainer {
 public:
 	void set_csm_smoothness(int s)
@@ -574,9 +698,15 @@ private:
 		int* obj_mask);
 };
 
-//typedef CoilSensitivitiesContainerTemplate<CoilDataAsCFImage> CoilSensitivitiesContainer;
+/*!
+\file
+\ingroup Gadgetron Data Containers
+\brief A vector implementation of the abstract coil sensitivities container 
+       class.
 
-class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer, 
+Coil sensitivities stored in an std::vector<shared_ptr<CoilData> > object.
+*/
+class CoilSensitivitiesAsImages : public CoilSensitivitiesContainer,
 	public CoilDataVector {
 public:
 	CoilSensitivitiesAsImages()
