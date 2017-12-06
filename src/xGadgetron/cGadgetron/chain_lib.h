@@ -18,17 +18,29 @@ limitations under the License.
 
 */
 
+/*!
+\file
+\ingroup Gadgets Chains Library
+\brief Specification file for the library of SIRF generators of xml-definitions
+			 of Gadgetron gadget chains.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #ifndef PROCESSOR_CHAINS_LIBRARY
 #define PROCESSOR_CHAINS_LIBRARY
 
 #include "gadgetron_x.h"
 using namespace gadgetron;
 
+/**
+\brief Class for an xml-definition generator for oversampling removing chain.
+*/
 class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
 	RemoveOversamplingProcessor()
 	{
-		//class_ = "RemoveOversamplingProcessor";
 		shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
 		add_gadget("gadget", sptr_g);
 	}
@@ -38,6 +50,10 @@ public:
 	}
 };
 
+/**
+\brief Class for an xml-definition generator for simple fully sampled 
+			 reconstruction chain.
+*/
 class SimpleReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleReconstructionProcessor()
@@ -52,6 +68,10 @@ public:
 	}
 };
 
+/**
+\brief Class for an xml-definition generator for simple undersampled
+GRAPPA reconstruction chain.
+*/
 class SimpleGRAPPAReconstructionProcessor : public ImagesReconstructor {
 public:
 	SimpleGRAPPAReconstructionProcessor()
@@ -80,6 +100,9 @@ public:
 	}
 };
 
+/**
+\brief Class for an xml-definition generator for real image extracting chain.
+*/
 class ExtractRealImagesProcessor : public ImagesProcessor {
 public:
 	ExtractRealImagesProcessor()

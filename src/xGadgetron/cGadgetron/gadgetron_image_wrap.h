@@ -41,44 +41,54 @@ limitations under the License.
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
 		Operation ((ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_SHORT)\
+	else if (Type == ISMRMRD::ISMRMRD_SHORT)\
 		Operation ((ISMRMRD::Image<short>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_UINT)\
+	else if (Type == ISMRMRD::ISMRMRD_UINT)\
 		Operation ((ISMRMRD::Image<unsigned int>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_INT)\
+	else if (Type == ISMRMRD::ISMRMRD_INT)\
 		Operation ((ISMRMRD::Image<int>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
+	else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
 		Operation ((ISMRMRD::Image<float>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
+	else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
 		Operation ((ISMRMRD::Image<double>*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
-		Operation ((ISMRMRD::Image< std::complex<float> >*) Arguments, ##__VA_ARGS__);\
-		else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
-		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
+	else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
+		Operation ((ISMRMRD::Image< std::complex<float> >*) Arguments, \
+			##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
+		Operation ((ISMRMRD::Image< std::complex<double> >*) Arguments, \
+			##__VA_ARGS__);
 
 #define IMAGE_PROCESSING_SWITCH_CONST(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
-		Operation ((const ISMRMRD::Image<unsigned short>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_SHORT)\
+		Operation ((const ISMRMRD::Image<unsigned short>*) Arguments, \
+			##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_SHORT)\
 		Operation ((const ISMRMRD::Image<short>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_UINT)\
+	else if (Type == ISMRMRD::ISMRMRD_UINT)\
 		Operation ((const ISMRMRD::Image<unsigned int>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_INT)\
+	else if (Type == ISMRMRD::ISMRMRD_INT)\
 		Operation ((const ISMRMRD::Image<int>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
+	else if (Type == ISMRMRD::ISMRMRD_FLOAT)\
 		Operation ((const ISMRMRD::Image<float>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
+	else if (Type == ISMRMRD::ISMRMRD_DOUBLE)\
 		Operation ((const ISMRMRD::Image<double>*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
-		Operation ((const ISMRMRD::Image< std::complex<float> >*) Arguments, ##__VA_ARGS__);\
-				else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
-		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, ##__VA_ARGS__);
+	else if (Type == ISMRMRD::ISMRMRD_CXFLOAT)\
+		Operation ((const ISMRMRD::Image< std::complex<float> >*) Arguments, \
+			##__VA_ARGS__);\
+	else if (Type == ISMRMRD::ISMRMRD_CXDOUBLE)\
+		Operation ((const ISMRMRD::Image< std::complex<double> >*) Arguments, \
+			##__VA_ARGS__);
 
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
 
 using namespace gadgetron;
 
+/**
+\brief Wrapper for ISMRMRD::Image.
+
+Eliminates the need for the image processing switch in the rest of the code.
+*/
 class ImageWrap {
 public:
 	ImageWrap(uint16_t type = 0, void* ptr_im = 0)

@@ -20,8 +20,8 @@ limitations under the License.
 
 /*!
 \file
-\ingroup Gadgetron Utilities
-\brief Gadgetron utilities.
+\ingroup xGadgetron Utilities
+\brief Various utilities used by SIRF Gadgetron extensions.
 
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
