@@ -113,6 +113,7 @@ private:
 
 Gadgetron gadget chains have the following form:
 
+-
 reader gadget 
 (receives data from the client and passes it down the chain)
 -
@@ -312,11 +313,9 @@ a mathematical representation of the scanned object \e x into
 a mathematical representation of the predicted acquisition 
 data \e y to be produced by the scanner after scanning this
 object:
-
 \f[
   y = A(x).
 \f]
-
 The application of A is referred to as <em> (forward) projection </em>, 
 and the application of the complex transpose of the Frechet 
 derivative of A as \e backprojection.

@@ -46,7 +46,6 @@ limitations under the License.
 using namespace gadgetron;
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.
 
@@ -60,7 +59,6 @@ Some acquisitions do not participate directly in the reconstruction process
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Serialized ISMRMRD acquisition header (cf. ismrmrd.h).
 
@@ -82,7 +80,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract MR acquisition data container class.
 
@@ -175,7 +172,6 @@ protected:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief File implementation of Abstract MR acquisition data container class.
 
@@ -245,7 +241,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief A vector implementation of the abstract MR acquisition data container 
        class.
@@ -304,7 +299,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract MR image data container class.
 
@@ -354,7 +348,6 @@ public:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief A vector implementation of the abstract MR image data container class.
 
@@ -451,7 +444,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract coil data class.
 
@@ -470,7 +462,6 @@ public:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief The ISMRMRD::Image< complex_float_t > implementation 
        of the abstract coil data container class.
@@ -518,7 +509,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract coil data container class.
 
@@ -575,7 +565,6 @@ public:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief A vector implementation of the abstract coil data container class.
 
@@ -599,7 +588,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract coil images container class.
 
@@ -617,7 +605,6 @@ protected:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief A vector implementation of the abstract coil images container class.
 
@@ -644,7 +631,6 @@ public:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief Abstract coil sensitivities container class.
 
@@ -699,7 +685,6 @@ private:
 };
 
 /*!
-\file
 \ingroup Gadgetron Data Containers
 \brief A vector implementation of the abstract coil sensitivities container 
        class.
