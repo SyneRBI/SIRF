@@ -699,3 +699,22 @@ ImageData | ImageData | min_intensity | "0"
 
 Scales and transforms images from float to short.
 
+#### SimpleReconGadgetSet
+
+A chain of Gadgetron gadgets
+~~~
+AcquisitionAccumulateTriggerGadget
+BucketToBufferGadget
+SimpleReconGadget
+ImageArraySplitGadget
+~~~
+for fully sampled reconstruction.
+
+input | output | parameters | default values |
+-|
+AcquisitionData | ImageData | N_dimension | ""
+| | S_dimension | ""
+| | sorting_dimension | "slice"
+| | trigger_dimension | "repetition"
+| | split_slices | "true"
+
