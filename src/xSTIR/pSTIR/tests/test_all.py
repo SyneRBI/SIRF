@@ -44,7 +44,7 @@ for script in glob.glob('*.py'):
         continue
     print('\n\n--- running %s' % script)
     test = script.replace('.py', '')
-    main = script.replace('.py', '.main()')
+    main = script.replace('.py', '.test_main(throw = False)')
     exec('import ' + test)
     f, n = eval(main)
     failed += f

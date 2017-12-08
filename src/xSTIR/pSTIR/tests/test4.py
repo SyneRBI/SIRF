@@ -27,20 +27,13 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
 import math
 
 from pSTIR import *
 
-record = args['--record']
-verbose = args['--verbose']
+def test_main(rec = False, verb = False, throw = True):
 
-def main(rec = record, verb = verbose):
-
-    test = pTest('test4.txt', rec)
+    test = pTest('test4.txt', rec, throw)
     test.verbose = verb
 
     msg_red = MessageRedirector()
@@ -69,8 +62,14 @@ def main(rec = record, verb = verbose):
 
 if __name__ == '__main__':
 
+    __version__ = '0.1.0'
+    from docopt import docopt
+    args = docopt(__doc__, version = __version__)
+    record = args['--record']
+    verbose = args['--verbose']
+
     try:
-        failed, ntest = main()
+        failed, ntest = test_main(record, verbose, throw = False)
         if failed == 0:
             if not record:
                 print('all tests passed')
