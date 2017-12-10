@@ -189,8 +189,8 @@ def show_3D_array\
 
 
 def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
-    if abs(expected - actual) >= abstol + reltol*abs(expected):
-        raise ValueError("|%.3g - %.3g| >= %.3g" %
+    if abs(expected - actual) > abstol + reltol*abs(expected):
+        raise ValueError("|%.3g - %.3g| > %.3g" %
                          (expected, actual, abstol + reltol*abs(expected)))
 
 
