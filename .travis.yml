@@ -102,9 +102,8 @@ script:
   - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
   - # print for debugging
   - cat gadgetron.log
-  - cd SIRF
-  - nosetests --with-coverage --with-timer --cover-package=pSTIR src/xSTIR/pSTIR/
 
 after_success:
+  - cd SIRF
   - codecov
   - coveralls
