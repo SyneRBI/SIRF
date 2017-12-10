@@ -26,10 +26,10 @@ matrix:
     env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
   - os: osx
     language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_SWIG=Off -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
   - os: osx
     language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=On -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 "
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
   - os: osx
     language: generic
     env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=On -DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
@@ -66,6 +66,9 @@ addons:
       - libplplot-dev
       - root-system-bin
       - swig
+      - ccache
+
+cache: ccache
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -74,6 +77,7 @@ before_install:
   - # if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ace; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install swig; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ccache; fi
   - #if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install scipy matplotlib; fi
   - # need curl to get more recent cmake
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install curl; fi
@@ -81,6 +85,14 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz; fi
   - tar xzf cmake.tar.gz
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mv cmake-*/CMake.app/Contents/* cmake-*; fi
+  - mkdir -p .local/bin
+  - cd .local/bin
+  - ln -s $(which ccache) g++
+  - ln -s $(which ccache) g++-5
+  - ln -s $(which ccache) gcc
+  - ln -s $(which ccache) gcc-5
+  - cd ../..
+  - export PATH="$PWD/.local/bin:$PATH"
 
 install:
   - #pip install --upgrade pip setuptools wheel
