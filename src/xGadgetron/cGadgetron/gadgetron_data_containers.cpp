@@ -265,36 +265,6 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 	return r;
 }
 
-float 
-MRAcquisitionData::diff
-(const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
-{
-	complex_float_t* pa;
-	complex_float_t* pb;
-	complex_float_t z = 0;
-	float s = 0.0;
-	float sa = 0.0;
-	float sb = 0.0;
-	for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
-		pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
-		float ta = std::abs(*pa);
-		float tb = std::abs(*pb);
-		sa += pow(std::abs(*pa), 2);
-		sb += pow(std::abs(*pb), 2);
-		z += std::conj(*pb) * (*pa);
-	}
-	z /= sb;
-	sa = std::sqrt(sa);
-	sb = std::sqrt(sb);
-	for (pa = acq_a.data_begin(), pb = acq_b.data_begin();
-		pa != acq_a.data_end() && pb != acq_b.data_end(); pa++, pb++) {
-		s += pow(std::abs(*pa - *pb * z), 2);
-	}
-	s = std::sqrt(s);
-	s /= sa;
-	return s;
-}
-
 void 
 MRAcquisitionData::axpby(
 	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
@@ -368,26 +338,6 @@ MRAcquisitionData::norm()
 		r += s*s;
 	}
 	return sqrt(r);
-}
-
-float 
-MRAcquisitionData::diff(MRAcquisitionData& other)
-{
-	int n = number();
-	int m = other.number();
-	float smax = 0.0;
-	float save = 0.0;
-	ISMRMRD::Acquisition a;
-	ISMRMRD::Acquisition b;
-	for (int i = 0; i < n && i < m; i++) {
-		get_acquisition(i, a);
-		other.get_acquisition(i, b);
-		float s = MRAcquisitionData::diff(a, b);
-		smax = std::max(smax, s);
-		save += s*s;
-	}
-	save = sqrt(save / std::min(n, m));
-	return save;
 }
 
 void

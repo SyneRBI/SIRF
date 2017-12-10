@@ -1,6 +1,11 @@
-'''pSTIR test set 4.
+'''pSTIR Acquisitions and images algebra tests
 
-Acquisitions and images algebra tests.
+Usage:
+  tests [--help | options]
+
+Options:
+  -r, --record   record the measurements rather than check them
+  -v, --verbose  report each test status
 
 CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
@@ -27,8 +32,8 @@ from os import path
 __version__ = '0.2.0'
 
 
-def test_main(rec=False, verb=False):
-    test = pTest(path.join(path.dirname(__file__), 'test4.txt'), rec)
+def test_main(rec=False, verb=False, throw=True):
+    test = pTest(path.join(path.dirname(__file__), 'test4.txt'), rec, throw=throw)
     test.verbose = verb
 
     msg_red = MessageRedirector()
@@ -52,3 +57,21 @@ def test_main(rec=False, verb=False):
     test.check(1 - math.sqrt(image_data*image_data)/image_data.norm())
     new_image_data = image_data*10
     test.check(1 - 10*image_data.norm()/new_image_data.norm())
+
+    return test.failed, test.ntest
+
+
+if __name__ == '__main__':
+    from docopt import docopt
+    args = docopt(__doc__, version=__version__)
+    record = args['--record']
+    verbose = args['--verbose']
+
+    failed, ntest = test_main(record, verbose, throw=False)
+    if failed:
+        print('%d/%d tests failed' % (failed, ntest))
+        sys.exit(failed)
+    if record:
+        print('%d measurements recorded' % ntest)
+    else:
+        print('all tests passed')

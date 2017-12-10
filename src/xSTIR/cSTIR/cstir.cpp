@@ -677,11 +677,7 @@ cSTIR_norm(const void* ptr_x)
 	try {
 		aDataContainer<float>& x =
 			objectFromHandle<aDataContainer<float> >(ptr_x);
-		float* result = (float*)malloc(sizeof(float));
-		*result = x.norm();
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.norm());
 	}
 	CATCH;
 }
@@ -695,11 +691,7 @@ cSTIR_dot(const void* ptr_x, const void* ptr_y)
 			objectFromHandle<aDataContainer<float> >(ptr_x);
 		aDataContainer<float>& y =
 			objectFromHandle<aDataContainer<float> >(ptr_y);
-		float* result = (float*)malloc(sizeof(float));
-		*result = x.dot(y);
-		DataHandle* handle = new DataHandle;
-		handle->set(result, 0, GRAB);
-		return (void*)handle;
+		return dataHandle(x.dot(y));
 	}
 	CATCH;
 }

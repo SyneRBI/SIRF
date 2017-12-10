@@ -18,6 +18,15 @@ limitations under the License.
 
 */
 
+/*!
+\file
+\ingroup xGadgetron Client
+\brief Utilities for data exchange between SIRF and Gadgetron server.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #ifndef GADGETRON_CLIENT
 #define GADGETRON_CLIENT
 
@@ -84,6 +93,9 @@ protected:
 	std::string msg_;
 };
 
+/**
+\brief Abstract base class for receiving messages from Gadgetron server.
+*/
 class GadgetronClientMessageReader {
 public:
 	virtual ~GadgetronClientMessageReader() {}
@@ -93,7 +105,10 @@ public:
 	virtual void read(tcp::socket* s) = 0;
 };
 
-class GadgetronClientAcquisitionMessageCollector : 
+/**
+\brief Class for accumulating acquisitions sent by Gadgetron server.
+*/
+class GadgetronClientAcquisitionMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientAcquisitionMessageCollector
@@ -106,7 +121,10 @@ private:
 	shared_ptr<MRAcquisitionData> ptr_acqs_;
 };
 
-class GadgetronClientImageMessageCollector : 
+/**
+\brief Class for accumulating images sent by Gadgetron server.
+*/
+class GadgetronClientImageMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientImageMessageCollector
@@ -146,6 +164,9 @@ private:
 	shared_ptr<MRImageData> ptr_images_;
 };
 
+/**
+\brief Class for communicating with Gadgetron server.
+*/
 class GadgetronClientConnector {
 public:
 	GadgetronClientConnector() : socket_(0), timeout_ms_(2000)

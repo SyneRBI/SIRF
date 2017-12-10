@@ -18,21 +18,35 @@ limitations under the License.
 
 */
 
+/*!
+\file
+\ingroup Gadgets Library
+\brief Specification file for the library of SIRF generators of xml-definitions
+       of Gadgetron gadgets.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #ifndef GADGETS_LIBRARY
 #define GADGETS_LIBRARY
 
 #include <map>
 #include <boost/algorithm/string.hpp>
 
-//#include "an_object.h"
-
-class aGadget { // : public anObject {
+/**
+\brief Abstract base class for a gadget xml-definition generator.
+*/
+class aGadget {
 public:
 	virtual void set_property(const char* prop, const char* value) = 0;
 	virtual std::string value_of(const char* prop) = 0;
 	virtual std::string xml() const = 0;
 };
 
+/**
+\brief Class for a gadget xml-definition generator.
+*/
 class Gadget : public aGadget {
 public:
 	Gadget(std::string name, std::string dll, std::string cl) :
@@ -79,12 +93,12 @@ protected:
 	std::map<std::string, std::string> par_;
 };
 
+/**
+\brief Class for GadgetIsmrmrdAcquisitionMessageReader gadget xml-definition 
+			 generator.
+*/
 class IsmrmrdAcqMsgReader : public aGadget {
 public:
-	//IsmrmrdAcqMsgReader()
-	//{
-	//	class_ = "GadgetIsmrmrdAcquisitionMessageReader";
-	//}
 	static const char* class_name()
 	{
 		return "GadgetIsmrmrdAcquisitionMessageReader";
@@ -105,12 +119,12 @@ public:
 	}
 };
 
+/**
+\brief Class for GadgetIsmrmrdAcquisitionMessageWriter gadget xml-definition 
+			 generator.
+*/
 class IsmrmrdAcqMsgWriter : public aGadget {
 public:
-	//IsmrmrdAcqMsgWriter()
-	//{
-	//	class_ = "GadgetIsmrmrdAcquisitionMessageWriter";
-	//}
 	static const char* class_name()
 	{
 		return "GadgetIsmrmrdAcquisitionMessageWriter";
@@ -131,12 +145,11 @@ public:
 	}
 };
 
+/**
+\brief Class for MRIImageReader gadget xml-definition generator.
+*/
 class IsmrmrdImgMsgReader : public aGadget {
 public:
-	//IsmrmrdImgMsgReader()
-	//{
-	//	class_ = "MRIImageReader";
-	//}
 	static const char* class_name()
 	{
 		return "MRIImageReader";
@@ -157,12 +170,11 @@ public:
 	}
 };
 
+/**
+\brief Class for MRIImageWriter gadget xml-definition generator.
+*/
 class IsmrmrdImgMsgWriter : public aGadget {
 public:
-	//IsmrmrdImgMsgWriter() 
-	//{
-	//	class_ = "MRIImageWriter";
-	//}
 	static const char* class_name()
 	{
 		return "MRIImageWriter";
@@ -410,12 +422,12 @@ public:
 	}
 };
 
+/**
+\brief Class for xml-definition generator for a simple fully sumpled 
+			 reconstruction gadget set.
+*/
 class SimpleReconGadgetSet : public aGadget {
 public:
-	//SimpleReconGadgetSet()
-	//{
-	//	class_ = "SimpleReconGadgetSet";
-	//}
 	static const char* class_name()
 	{
 		return "SimpleReconGadgetSet";

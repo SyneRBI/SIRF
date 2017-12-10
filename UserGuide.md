@@ -485,7 +485,7 @@ A particular setting of storage scheme by a Matlab script or a Python script run
 
 ## Programming chains of Gadgetron gadgets <a name="programming_Gadgetron_chains"></a>
 
-With Gadgetron, reconstruction is performed by a chain of gadgets, pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
+Gadgetron is a MR reconstruction framework which was designed to process a datastream, i.e. rather than waiting for a complete 3D k-space to be acquired, each readout (frequency encoding line) is processed immidiately (if possible, e.g. Fourier transform along phase encoding can only be applied once all phase encoding lines have been acquired) (https://github.com/gadgetron/gadgetron/wiki/What-Is-The-Gadgetron). The reconstruction is performed by a chain of gadgets, i.e. pieces of code implementing specific tasks. The chain of gadgets runs on the server, which can be just a command line window, or it can be another computer or a VM. In order to set up the chain, the server needs to receive an xml text describing it from the client, which again can be another command line window on the same or another computer. The first gadget in the chain then starts waiting for acquisition data to arrive from the client in chunks of certain size. Having processed a chunk of data, the first gadget passes the result to the second and starts processing the next chunk and so on. The last gadget sends the reconstructed images back to the client.
 
 ### Creating and running gadget chains by SIRF script  <a name="creating_and_running_gadget_chains"></a>
 
@@ -564,11 +564,15 @@ input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
 
+Removes the oversampling along the readout direction.
+
 #### NoiseAdjustGadget
 
 input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
+
+Ensures that the noise between different receiver coils is not correlated and that each receiver coils has a similar noise level.
 
 #### AsymmetricEchoAdjustGadget
 
@@ -576,12 +580,16 @@ input | output | parameters |
 -|
 AcquisitionData | AcquisitionData | none
 
+Pads each readout with zeros to compensate for partial echo acquisitions.
+
 #### AcquisitionAccumulateTriggerGadget
 
 input | output | parameters | default values |
 -|
 AcquisitionData | internal1 | trigger_dimension | "repetition"
 | | sorting_dimension | "slice"
+
+Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image.
 
 #### BucketToBufferGadget
 
@@ -593,11 +601,15 @@ internal1 | internal2 | N_dimension | ""
 | | ignore_segment | "true"
 | | verbose | "true"
 
+Inserts the collected data into a buffer more suitable for recon processing.
+
 #### SimpleReconGadget
 
 input | output | parameters |
 -|
 internal2 | internal3 | none
+
+Performs simple fast Fouriertransforms to transform acquired k-space data to image space.
 
 #### GenericReconCartesianReferencePrepGadget
 
@@ -609,6 +621,8 @@ internal2 | internal4 | debug_folder | ""
 | | average_all_ref_N | "true"
 | | average_all_ref_S | "true"
 | | prepare_ref_always | "true"
+
+Selects the reference data used to calculate the GRAPPA kernel
 
 #### GenericReconCartesianGrappaGadget
 
@@ -624,6 +638,8 @@ internal4 | internal5 | debug_folder | ""
 | | downstream_coil_compression_thres | "0.01"
 | | downstream_coil_compression_num_modesKept | "0"
 
+Performs GRAPPA kernel calibration, calculate coil sensitivity maps and carry out unfolding.
+
 #### GenericReconFieldOfViewAdjustmentGadget
 
 input | output | parameters | default values |
@@ -631,6 +647,8 @@ input | output | parameters | default values |
 internal5 | internal6 | debug_folder | ""
 | | perform_timing | "false"
 | | verbose | "false"
+
+Adjusts FOV and image resolution according to the parameters given for the reconstructed image in the file header.
 
 #### GenericReconImageArrayScalingGadget
 
@@ -645,11 +663,15 @@ internal6 | internal3 | perform_timing | "false"
 | | use_constant_scalingFactor | "true"
 | | auto_scaling_only_once | "true"
 
+Applie scaling to image, g-factor map, SNR map and/or SNR standard deviation map.
+
 #### ImageArraySplitGadget
 
 input | output | parameters |
 -|
 internal3 | ImageData | none
+
+Splits array of images (7D [X, Y, Z, CHA, N, S, LOC]) into individual images (4D [X, Y, Z, CHA])
 
 #### ExtractGadget
 
@@ -657,11 +679,15 @@ input | output | parameters | default values |
 -|
 ImageData | ImageData | extract_mask | "1"
 
+Extracts a certain type of image data from the reconstructed image stream, i.e. extract_mask=1 yields magnitude images, extract_mask=2 yields readl images.
+
 #### ComplexToFloatGadget
 
 input | output | parameters |
 -|
 ImageData | ImageData | none
+
+Depending on the image type, the magnitude, real, imaginary or phase of the complex image is returned.
 
 #### FloatToShortGadget
 
@@ -671,7 +697,18 @@ ImageData | ImageData | min_intensity | "0"
 | | max_intensity | "32767"
 | | intensity_offset | "0"
 
+Scales and transforms images from float to short.
+
 #### SimpleReconGadgetSet
+
+A chain of Gadgetron gadgets
+~~~
+AcquisitionAccumulateTriggerGadget
+BucketToBufferGadget
+SimpleReconGadget
+ImageArraySplitGadget
+~~~
+for fully sampled reconstruction.
 
 input | output | parameters | default values |
 -|

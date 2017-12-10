@@ -190,17 +190,18 @@ def show_3D_array\
 
 def check_tolerance(expected, actual, abstol=0, reltol=1e-4):
     if abs(expected - actual) >= abstol + reltol*abs(expected):
-        raise ValueError("%.3g - %.3g >= %3g" %
-                         (expected, actual, abstol + reltol*expected))
+        raise ValueError("|%.3g - %.3g| >= %.3g" %
+                         (expected, actual, abstol + reltol*abs(expected)))
 
 
 class pTest(object):
-    def __init__(self, filename, record):
+    def __init__(self, filename, record, throw=False):
         self.record = record
         self.data = []
         self.ntest = 0
         self.failed = 0
         self.verbose = True
+        self.throw = throw
         if record:
             self.file = open(filename, 'w')
         else:
@@ -210,10 +211,15 @@ class pTest(object):
             self.file = None
 
     def __del__(self):
+        msg = "%d failures" % self.failed
+        if self.failed:
+            if self.record:
+                self.file.write(msg + '\n')
+            if self.throw:
+                raise ValueError(msg)
+            print(msg)
         if self.record:
             self.file.close()
-        if self.failed:
-            raise ValueError("%d failures" % self.failed)
 
     def check(self, value, abs_tol=0, rel_tol=1e-3):
         if self.record:
@@ -225,11 +231,13 @@ class pTest(object):
                 expected = self.data[self.ntest]
                 try:
                     check_tolerance(expected, value, abs_tol, rel_tol)
-                except ValueError:
+                except ValueError as e:
                     self.failed += 1
+                    msg = ('+++ test %d failed:' % self.ntest) + str(e)
+                    if self.throw:
+                        raise ValueError(msg)
                     if self.verbose:
-                        print('+++ test %d failed: expected %e, got %e'
-                              % (self.ntest, expected, value))
+                        print(msg)
                 else:
                     if self.verbose:
                         print('+++ test %d passed' % self.ntest)
@@ -237,12 +245,9 @@ class pTest(object):
 
 
 class CheckRaise(pTest):
-    def check(self, *a, **k):
-        f = self.failed
-        super(CheckRaise, self).check(*a, **k)
-        if self.failed > f:
-            raise ValueError("check failed")
-
+    def __init__(self, *a, **k):
+        k["throw"] = True
+        super(CheckRaise, self).__init__(*a, **k)
 
 
 ###########################################################
