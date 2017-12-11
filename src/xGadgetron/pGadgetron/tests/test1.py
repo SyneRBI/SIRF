@@ -34,18 +34,13 @@ Created on Tue Nov 21 10:17:28 2017
 @author: Evgueni Ovtchinnikov
 """
 
-__version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
-
 from pGadgetron import *
+from os import path
 
-record = args['--record']
-verbose = args['--verbose']
+def test_main(rec = False, verb = False, throw = True):
 
-def main(rec = record, verb = verbose):
-
-    test = pTest('test1.txt', rec)
+    datafile = path.join(path.dirname(__file__), 'test1.txt')
+    test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
     data_path = mr_data_path()
@@ -95,16 +90,23 @@ def main(rec = record, verb = verbose):
 
 if __name__ == '__main__':
 
+    __version__ = '0.1.0'
+    from docopt import docopt
+    args = docopt(__doc__, version=__version__)
+
+    record = args['--record']
+    verbose = args['--verbose']
+
     try:
-        failed, ntest = main()
+        failed, ntest = test_main(record, verbose, throw = False)
         if failed == 0:
             if not record:
-                print('all tests passed')
+                print('all %d tests passed' % ntest)
             else:
                 print('%d measurements recorded' % ntest)
             sys.exit(0)
         else:
-            print('%d of the tests failed' % failed)
+            print('%d of %d tests failed' % (failed, ntest))
             sys.exit(failed)
 
     except error as err:

@@ -1,7 +1,7 @@
 '''pSTIR OSEM reconstruction tests
 
 Usage:
-  tests [--help | options]
+  tests_two [--help | options]
 
 Options:
   -r, --record   record the measurements rather than check them
@@ -28,11 +28,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 from pSTIR import *
 from os import path
 
-__version__ = '0.2.0'
-
-
 def test_main(rec=False, verb=False, throw=True):
-    test = pTest(path.join(path.dirname(__file__), 'test2.txt'), rec, throw=throw)
+
+    datafile = path.join(path.dirname(__file__), 'test2.txt')
+    test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
     msg_red = MessageRedirector()
@@ -56,27 +55,32 @@ def test_main(rec=False, verb=False, throw=True):
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)
-    print('setting up, please wait...')
+    if verb:
+        print('setting up, please wait...')
     recon.set_up(image)
 
     recon.set_current_estimate(image)
 
     num_iterations = 2
     for iteration in range(num_iterations):
-        print('\n------------- iteration %d' % iteration)
+        if verb:
+            print('\n------------- iteration %d' % iteration)
         recon.update_current_estimate()
     test.check(image.norm())
 
-    print('projecting...')
+    if verb:
+        print('projecting...')
     simulated_data = acq_model.forward(image)
     diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
-    print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+    if verb:
+        print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
     test.check(diff.norm())
 
     return test.failed, test.ntest
 
-
 if __name__ == '__main__':
+
+    __version__ = '0.2.0'
     from docopt import docopt
     args = docopt(__doc__, version=__version__)
     record = args['--record']
@@ -89,4 +93,4 @@ if __name__ == '__main__':
     if record:
         print('%d measurements recorded' % ntest)
     else:
-        print('all tests passed')
+        print('all %d tests passed' % ntest)
