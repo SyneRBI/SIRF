@@ -35,7 +35,7 @@ matrix:
     env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=On -DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
 env:
   global:
-    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DSIRF_TAG=$TRAVIS_COMMIT"
+    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
 
 # Ubuntu 14.04 LTS
 dist: trusty
@@ -68,25 +68,41 @@ addons:
       - swig
       - ccache
 
+# cache C/C++/pip
 cache:
   - ccache
   - pip
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew tap homebrew/science; fi
-  - # Note: boost is already installed on osx on travis so should not be included. However, we currently need boost-python
-  - # if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ace; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install swig; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ccache; fi
-  - #if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install scipy matplotlib; fi
-  - # need curl to get more recent cmake
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install curl; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz; fi
-  - tar xzf cmake.tar.gz
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mv cmake-*/CMake.app/Contents/* cmake-*; fi
+  - |
+     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+       brew update
+       brew tap homebrew/science
+       # Note: boost is already installed on osx on travis
+       # so should not be included. However, we currently need boost-python
+       # brew install boost-python
+       brew install ace
+       brew install swig
+       brew install ccache
+       # brew install scipy matplotlib
+       # need curl to get more recent cmake
+       brew install curl
+       curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
+       tar xzf cmake.tar.gz
+       mv cmake-*/CMake.app/Contents/* cmake-*
+       # get pip
+       curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+       python get-pip.py --user
+       alias pip="python -m pip"
+     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+       curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
+       tar xzf cmake.tar.gz
+     fi
+  # cmake override
+  - pushd cmake-*/bin
+  - export PATH="$PWD:PATH"
+  - popd
+  # ccache compiler override
   - mkdir -p ../.local/bin
   - pushd ../.local/bin
   - ln -s $(which ccache) g++
@@ -95,19 +111,26 @@ before_install:
   - ln -s $(which ccache) gcc-5
   - export PATH="$PWD:$PATH"
   - popd
+  # Use Travis' currently checked-out SIRF commit ID to build.
+  # Also no point re-downloading SIRF - just use local URL.
+  # N.B.: don't put into build matrix to allow caching.
+  - export BUILD_FLAGS="-DSIRF_URL=$PWD $BUILD_FLAGS -DSIRF_TAG=$TRAVIS_COMMIT"
+  # get SuperBuild
+  - cd ..
+  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
+  - cd SIRF-SuperBuild
 
 install:
   - #pip install --upgrade pip setuptools wheel
   - pip install --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
   - pip install nose nose-timer codecov coveralls
-  - cd ..
-  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
-  - cd SIRF-SuperBuild
-  - ../SIRF/cmake-*/bin/cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS -DSIRF_URL="$PWD/../SIRF" .
+  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
+  # don't use too many threads - may crash
   - make -j2
-  - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
+  - >
+    mv INSTALL/share/gadgetron/config/gadgetron.xml.example
+       INSTALL/share/gadgetron/config/gadgetron.xml
   - source $PWD/INSTALL/bin/env_ccppetmr.sh
-  - #env
 
 script:
   - ./INSTALL/bin/gadgetron >& gadgetron.log&
