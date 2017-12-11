@@ -68,7 +68,9 @@ addons:
       - swig
       - ccache
 
-cache: ccache
+cache:
+  - ccache
+  - pip
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -85,14 +87,14 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz; fi
   - tar xzf cmake.tar.gz
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then mv cmake-*/CMake.app/Contents/* cmake-*; fi
-  - mkdir -p .local/bin
-  - cd .local/bin
+  - mkdir -p ../.local/bin
+  - pushd ../.local/bin
   - ln -s $(which ccache) g++
   - ln -s $(which ccache) g++-5
   - ln -s $(which ccache) gcc
   - ln -s $(which ccache) gcc-5
-  - cd ../..
-  - export PATH="$PWD/.local/bin:$PATH"
+  - export PATH="$PWD:$PATH"
+  - popd
 
 install:
   - #pip install --upgrade pip setuptools wheel
