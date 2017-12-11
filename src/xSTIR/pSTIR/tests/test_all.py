@@ -46,7 +46,7 @@ if __name__ == "__main__":
             continue
         print('\n\n--- running %s' % script)
         test = script.replace('.py', '')
-        main = script.replace('.py', '.test_main(throw = False)')
+        main = script.replace('.py', '.test_main(record, verbose, throw = False)')
         exec('import ' + test)
         f, n = eval(main)
         failed += f
