@@ -1,52 +1,53 @@
-''' pSTIR tests
+'''pSTIR tests
+
+CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+2017 Casper da Costa-Luis
+
+This is software developed for the Collaborative Computational
+Project in Positron Emission Tomography and Magnetic Resonance imaging
+(http://www.ccppetmr.ac.uk/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 '''
-
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-
 import math
-
 from pSTIR import *
 
 def check(ntest, expected, actual, abstol, reltol, throw):
-    if abs(expected - actual) < abstol + reltol*expected:
-        print('+++ test %d passed' % ntest)
-        return 0
-    else:
+    try:
+        check_tolerance(expected, actual, abstol, reltol)
+    except ValueError as e:
+        msg = ('+++ test %d failed:' % ntest) + str(e)
         if throw:
-            raise ValueError('+++ test %d failed' % ntest)
-        print('+++ test %d failed' % ntest)
+            raise ValueError(msg)
+        print(msg)
         return 1
+    print('+++ test %d passed' % ntest)
+    return 0
+
 
 def norm(v):
     vv = v*v
     nv = v.size
-#    return vv.sum()/nv
+    # return vv.sum()/nv
     return math.sqrt(vv.sum()/nv)
 
-# a function to compute the variance after conversion to double to avoid
-# rounding problems with older numpy versions
 def var(v):
+    """function to compute the variance after conversion to double to avoid
+    rounding problems with older numpy versions
+    """
     return v.astype(numpy.float64).var()
 
-def test_main(throw = True):
-
+def test_main(throw=True, eps=1e-4):
     failed = 0
-    eps = 1e-4
 
     # create matrix to be used by the acquisition model
     matrix = RayTracingMatrix()
@@ -150,21 +151,10 @@ def test_main(throw = True):
     #print('prior gradient mean sum of squares: %f, variance: %f' % (s, v))
     return failed, 14
 
+
 if __name__ == '__main__':
-
-    try:
-        failed, ntest = test_main(throw = False)
-        if failed == 0:
-            print('all tests passed')
-            sys.exit(0)
-        else:
-            print('%d tests failed' % failed)
-            sys.exit(failed)
-
-    except error as err:
-        # display error information
-        print('??? %s' % err.value)
-        sys.exit(-1)
-
-
-
+    failed, ntest = test_main(throw=False)
+    if failed:
+        print('%d/%d tests failed' % (failed, ntest))
+        sys.exit(failed)
+    print('all tests passed')

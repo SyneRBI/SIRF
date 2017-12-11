@@ -24,35 +24,37 @@ Options:
 ##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
-
 __version__ = '0.1.0'
-from docopt import docopt
-args = docopt(__doc__, version=__version__)
 
-record = args['--record']
-verbose = args['--verbose']
 
-import glob
-import os
-import sys
+if __name__ == "__main__":
+    from docopt import docopt
+    args = docopt(__doc__, version=__version__)
 
-failed = 0
-ntests = 0
+    record = args['--record']
+    verbose = args['--verbose']
 
-for script in glob.glob('*.py'):
-    if os.path.abspath(__file__) == os.path.abspath(script):
-        continue
-    print('\n\n--- running %s' % script)
-    test = script.replace('.py', '')
-    main = script.replace('.py', '.test_main(throw = False)')
-    exec('import ' + test)
-    f, n = eval(main)
-    failed += f
-    ntests += n
+    import glob
+    import os
+    import sys
 
-if failed == 0:
-    print('all %d tests passed' % ntests)
-    sys.exit(0)
-else:
-    print('%d of %d tests failed' % (failed, ntests))
-    sys.exit(failed)
+    failed = 0
+    ntests = 0
+
+    for script in glob.glob('*.py'):
+        if os.path.abspath(__file__) == os.path.abspath(script):
+            continue
+        print('\n\n--- running %s' % script)
+        test = script.replace('.py', '')
+        main = script.replace('.py', '.test_main(throw = False)')
+        exec('import ' + test)
+        f, n = eval(main)
+        failed += f
+        ntests += n
+
+    if failed == 0:
+        print('all %d tests passed' % ntests)
+        sys.exit(0)
+    else:
+        print('%d of %d tests failed' % (failed, ntests))
+        sys.exit(failed)
