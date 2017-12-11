@@ -21,5 +21,5 @@
 #
 #=========================================================================
 add_test(NAME PET_TESTS
-  COMMAND nosetests --with-timer --with-coverage --cover-package=pSTIR src/xSTIR/pSTIR/
+  COMMAND nosetests --with-coverage --cover-package=pSTIR src/xSTIR/pSTIR/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
