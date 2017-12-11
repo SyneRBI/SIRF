@@ -26,15 +26,15 @@ Licensed under the Apache License, Version 2.0 (the "License");
   limitations under the License.
 '''
 from pSTIR import *
-from os import path
+__version__ = "0.2.1"
+
 
 def test_main(rec=False, verb=False, throw=True):
-
-    datafile = path.join(path.dirname(__file__), 'test3.txt')
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
-    msg_red = MessageRedirector(warn = None)
+    msg_red = MessageRedirector(warn=None)
 
     data_path = petmr_data_path('pet')
     raw_data_file = existing_filepath(data_path, 'Utahscat600k_ca_seg4.hs')
@@ -68,16 +68,16 @@ def test_main(rec=False, verb=False, throw=True):
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.2.0'
+if __name__ == "__main__":
     from docopt import docopt
-    args = docopt(__doc__, version = __version__)
+    args = docopt(__doc__, version=__version__)
     record = args['--record']
     verbose = args['--verbose']
 
     failed, ntest = test_main(record, verbose, throw=False)
     if failed:
+        import sys
         print('%d/%d tests failed' % (failed, ntest))
         sys.exit(failed)
     if record:

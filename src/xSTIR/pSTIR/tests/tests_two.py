@@ -26,11 +26,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
   limitations under the License.
 '''
 from pSTIR import *
-from os import path
+__version__ = "0.2.1"
+
 
 def test_main(rec=False, verb=False, throw=True):
-
-    datafile = path.join(path.dirname(__file__), 'test2.txt')
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -71,16 +71,15 @@ def test_main(rec=False, verb=False, throw=True):
     if verb:
         print('projecting...')
     simulated_data = acq_model.forward(image)
-    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
+    diff = simulated_data * (acq_data.norm() / simulated_data.norm()) - acq_data
     if verb:
-        print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+        print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
     test.check(diff.norm())
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.2.0'
+if __name__ == '__main__':
     from docopt import docopt
     args = docopt(__doc__, version=__version__)
     record = args['--record']
@@ -88,6 +87,7 @@ if __name__ == '__main__':
 
     failed, ntest = test_main(record, verbose, throw=False)
     if failed:
+        import sys
         print('%d/%d tests failed' % (failed, ntest))
         sys.exit(failed)
     if record:

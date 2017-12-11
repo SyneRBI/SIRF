@@ -27,11 +27,11 @@ Licensed under the Apache License, Version 2.0 (the "License");
 '''
 import math
 from pSTIR import *
-from os import path
+__version__ = "0.2.1"
+
 
 def test_main(rec=False, verb=False, throw=True):
-
-    datafile = path.join(path.dirname(__file__), 'test4.txt')
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -46,24 +46,23 @@ def test_main(rec=False, verb=False, throw=True):
     new_acq_data = acq_data.clone()
     diff = new_acq_data - acq_data
     test.check(diff.norm())
-    test.check(1 - math.sqrt(acq_data*acq_data)/acq_data.norm())
+    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
     new_acq_data = acq_data * 10.0
-    test.check(1 - 10*acq_data.norm()/new_acq_data.norm())
+    test.check(1 - 10 * acq_data.norm() / new_acq_data.norm())
 
     if verb:
         print('Checking images algebra:')
     image_data = acq_data.create_uniform_image(10.0)
     diff = image_data.clone() - image_data
     test.check(diff.norm())
-    test.check(1 - math.sqrt(image_data*image_data)/image_data.norm())
-    new_image_data = image_data*10
-    test.check(1 - 10*image_data.norm()/new_image_data.norm())
+    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
+    new_image_data = image_data * 10
+    test.check(1 - 10 * image_data.norm() / new_image_data.norm())
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.2.0'
+if __name__ == "__main__":
     from docopt import docopt
     args = docopt(__doc__, version=__version__)
     record = args['--record']
@@ -71,6 +70,7 @@ if __name__ == '__main__':
 
     failed, ntest = test_main(record, verbose, throw=False)
     if failed:
+        import sys
         print('%d/%d tests failed' % (failed, ntest))
         sys.exit(failed)
     if record:
