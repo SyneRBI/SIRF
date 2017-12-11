@@ -185,12 +185,13 @@ def show_3D_array\
     return 0
 
 class pTest:
-    def __init__(self, filename, record):
+    def __init__(self, filename, record, throw):
         self.record = record
         self.data = []
         self.ntest = 0
         self.failed = 0
         self.verbose = True
+        self.throw = throw
         if record:
             self.file = open(filename, 'w')
         else:
@@ -220,10 +221,20 @@ class pTest:
                         print('+++ test %d passed' % self.ntest)
                 else:
                     self.failed += 1
-                    if self.verbose:
+                    if self.throw:
+                        raise ValueError('+++ test %d failed: expected %e, got %e' \
+                        % (self.ntest, expected, value))
+                    elif self.verbose:
                         print('+++ test %d failed: expected %e, got %e' \
                         % (self.ntest, expected, value))
         self.ntest += 1
+
+class CheckRaise(pTest):
+    def check(self, *a, **k):
+        f = self.failed
+        super(CheckRaise, self).check(*a, **k)
+        if self.failed > f:
+            raise ValueError("check failed")
 
 ###########################################################
 ############ Utilities for internal use only ##############

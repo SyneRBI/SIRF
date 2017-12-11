@@ -22,11 +22,13 @@ import math
 
 from pSTIR import *
 
-def test_failed(ntest, expected, actual, abstol, reltol):
+def check(ntest, expected, actual, abstol, reltol, throw):
     if abs(expected - actual) < abstol + reltol*expected:
         print('+++ test %d passed' % ntest)
         return 0
     else:
+        if throw:
+            raise ValueError('+++ test %d failed' % ntest)
         print('+++ test %d failed' % ntest)
         return 1
 
@@ -41,7 +43,7 @@ def norm(v):
 def var(v):
     return v.astype(numpy.float64).var()
 
-def main():
+def test_main(throw = True):
 
     failed = 0
     eps = 1e-4
@@ -63,8 +65,8 @@ def main():
     adata = ad.as_array()
     s = norm(adata)
     v = var(adata)
-    failed += test_failed(1, 2.510818, s, 0, eps)
-    failed += test_failed(2, 5.444323, v, 0, eps)
+    failed += check(1, 2.510818, s, 0, eps, throw)
+    failed += check(2, 5.444323, v, 0, eps, throw)
     #print('acquisitions mean sum of squares: %f, variance: %f' % (s, v))
 
     # create filter
@@ -81,8 +83,8 @@ def main():
     image_arr = image.as_array()
     s = norm(image_arr)
     v = var(image_arr)
-    failed += test_failed(3, 0.876471, s, 0, eps)
-    failed += test_failed(4, 0.178068, v, 0, eps)
+    failed += check(3, 0.876471, s, 0, eps, throw)
+    failed += check(4, 0.178068, v, 0, eps, throw)
     #print('image mean sum of squares: %f, variance: %f' % (s, v))
 
     # create prior
@@ -123,35 +125,35 @@ def main():
 
     s = norm(image_arr)
     v = var(image_arr)
-    failed += test_failed(5, 0.012314, s, 0, eps)
-    failed += test_failed(6, 0.000052, v, eps, eps)
+    failed += check(5, 0.012314, s, 0, eps, throw)
+    failed += check(6, 0.000052, v, eps, eps, throw)
     #print('image mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(update)
     v = var(update)
-    failed += test_failed(7, 3.846513, s, 0, eps)
-    failed += test_failed(8, 14.775219, v, 0, eps)
+    failed += check(7, 3.846513, s, 0, eps, throw)
+    failed += check(8, 14.775219, v, 0, eps, throw)
     #print('update mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(ss_arr)
     v = var(ss_arr)
-    failed += test_failed(9, 27.990159, s, 0, eps)
-    failed += test_failed(10, 207.401144, v, 0, eps)
+    failed += check(9, 27.990159, s, 0, eps, throw)
+    failed += check(10, 207.401144, v, 0, eps, throw)
     #print('sensitivity mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(grad_arr)
     v = var(grad_arr)
-    failed += test_failed(11, 98.049032, s, 0, eps)
-    failed += test_failed(12, 9599.796540, v, 0, eps)
+    failed += check(11, 98.049032, s, 0, eps, throw)
+    failed += check(12, 9599.796540, v, 0, eps, throw)
     #print('gradient mean sum of squares: %f, variance: %f' % (s, v))
     s = norm(pgrad_arr)
     v = var(pgrad_arr)
-    failed += test_failed(13, 0.710633, s, 0, eps)
-    failed += test_failed(14, 0.505000, v, 0, eps)
+    failed += check(13, 0.710633, s, 0, eps, throw)
+    failed += check(14, 0.505000, v, 0, eps, throw)
     #print('prior gradient mean sum of squares: %f, variance: %f' % (s, v))
     return failed, 14
 
 if __name__ == '__main__':
 
     try:
-        failed, ntest = main()
+        failed, ntest = test_main(throw = False)
         if failed == 0:
             print('all tests passed')
             sys.exit(0)
