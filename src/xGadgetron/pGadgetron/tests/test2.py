@@ -35,10 +35,12 @@ Created on Tue Nov 21 11:23:39 2017
 """
 
 from pGadgetron import *
+from os import path
 
 def test_main(rec = False, verb = False, throw = True):
 
-    test = pTest('test2.txt', rec, throw = throw)
+    datafile = path.join(path.dirname(__file__), 'test2.txt')
+    test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
     data_path = mr_data_path()

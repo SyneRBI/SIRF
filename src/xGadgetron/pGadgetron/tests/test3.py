@@ -29,10 +29,12 @@ import math
 import sys
 
 from pGadgetron import *
+from os import path
 
 def test_main(rec = False, verb = False, throw = True):
 
-    test = pTest('test3.txt', rec, throw = throw)
+    datafile = path.join(path.dirname(__file__), 'test3.txt')
+    test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
     data_path = mr_data_path()
