@@ -32,7 +32,7 @@ matrix:
     env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
   - os: osx
     language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=On -DUSE_SYSTEM_HDF5=Off -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
 env:
   global:
     - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
@@ -100,7 +100,7 @@ before_install:
      fi
   # cmake override
   - pushd cmake-*/bin
-  - export PATH="$PWD:PATH"
+  - export PATH="$PWD:$PATH"
   - popd
   # ccache compiler override
   - mkdir -p ../.local/bin
@@ -127,14 +127,12 @@ install:
   - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
   # don't use too many threads - may crash
   - make -j2
-  - >
-    mv INSTALL/share/gadgetron/config/gadgetron.xml.example
-       INSTALL/share/gadgetron/config/gadgetron.xml
+  - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
   - source $PWD/INSTALL/bin/env_ccppetmr.sh
 
 script:
   - ./INSTALL/bin/gadgetron >& gadgetron.log&
-  - ctest --verbose
+  - ctest -VV
   - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
   - # print for debugging
   - cat gadgetron.log
