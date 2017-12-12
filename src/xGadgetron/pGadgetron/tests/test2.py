@@ -71,4 +71,4 @@ def test_main(rec=False, verb=False, throw=True):
 
 
 if __name__ == "__main__":
-    test_runner(test_main, __doc__, __version__, __author__)
+    runner(test_main, __doc__, __version__, __author__)

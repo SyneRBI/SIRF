@@ -252,9 +252,9 @@ class CheckRaise(pTest):
         super(CheckRaise, self).__init__(*a, **k)
 
 
-def test_runner(main, doc, version, author="", licence=None):
+def runner(maini_test, doc, version, author="", licence=None):
     """
-    :param main: function(record : bool, verbose : bool, throw : bool)
+    :param main_test: function(record : bool, verbose : bool, throw : bool)
     """
     from docopt import docopt
     args = docopt(doc.format(version=version,
@@ -266,7 +266,7 @@ def test_runner(main, doc, version, author="", licence=None):
     record = args['--record']
     verbose = args['--verbose']
 
-    failed, ntest = main(record, verbose, throw=False)
+    failed, ntest = main_test(record, verbose, throw=False)
     if failed:
         import sys
         print('%d of %d tests failed' % (failed, ntest))
