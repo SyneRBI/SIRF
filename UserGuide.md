@@ -568,134 +568,134 @@ Removes the oversampling along the readout direction.
 
 #### NoiseAdjustGadget
 
-input | output | parameters |
--|
-AcquisitionData | AcquisitionData | none
+| input | output | parameters |
+| - | - | - |
+| AcquisitionData | AcquisitionData | none |
 
 Ensures that the noise between different receiver coils is not correlated and that each receiver coils has a similar noise level.
 
 #### AsymmetricEchoAdjustGadget
 
-input | output | parameters |
--|
-AcquisitionData | AcquisitionData | none
+| input | output | parameters |
+| - | - | - |
+| AcquisitionData | AcquisitionData | none |
 
 Pads each readout with zeros to compensate for partial echo acquisitions.
 
 #### AcquisitionAccumulateTriggerGadget
 
-input | output | parameters | default values |
--|
-AcquisitionData | internal1 | trigger_dimension | "repetition"
-| | sorting_dimension | "slice"
+| input | output | parameters | default values |
+| - | - | - | - |
+| AcquisitionData | internal1 | trigger_dimension | "repetition" |
+| | | sorting_dimension | "slice" |
 
 Collects lines of k-space until a certain trigger condition is encountered, i.e., when there is enough data to reconstruct an image.
 
 #### BucketToBufferGadget
 
-input | output | parameters | default values |
--|
-internal1 | internal2 | N_dimension | ""
-| | S_dimension | ""
-| | split_slices | "true"
-| | ignore_segment | "true"
-| | verbose | "true"
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal1 | internal2 | N_dimension | "" |
+| | | S_dimension | "" |
+| | | split_slices | "true" |
+| | | ignore_segment | "true" |
+| | | verbose | "true" |
 
 Inserts the collected data into a buffer more suitable for recon processing.
 
 #### SimpleReconGadget
 
-input | output | parameters |
--|
-internal2 | internal3 | none
+| input | output | parameters |
+| - | - | - |
+| internal2 | internal3 | none |
 
 Performs simple fast Fouriertransforms to transform acquired k-space data to image space.
 
 #### GenericReconCartesianReferencePrepGadget
 
-input | output | parameters | default values |
--|
-internal2 | internal4 | debug_folder | ""
-| | perform_timing | "true"
-| | verbose | "true"
-| | average_all_ref_N | "true"
-| | average_all_ref_S | "true"
-| | prepare_ref_always | "true"
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal2 | internal4 | debug_folder | "" |
+| | | perform_timing | "true" |
+| | | verbose | "true" |
+| | | average_all_ref_N | "true" |
+| | | average_all_ref_S | "true" |
+| | | prepare_ref_always | "true" |
 
 Selects the reference data used to calculate the GRAPPA kernel
 
 #### GenericReconCartesianGrappaGadget
 
-input | output | parameters | default values |
--|
-internal4 | internal5 | debug_folder | ""
-| | perform_timing | "true"
-| | verbose | "true"
-| | image_series | "0"
-| | coil_map_algorithm | "Inati"
-| | send_out_gfactor | "true"
-| | downstream_coil_compression | "true"
-| | downstream_coil_compression_thres | "0.01"
-| | downstream_coil_compression_num_modesKept | "0"
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal4 | internal5 | debug_folder | ""
+| | | perform_timing | "true" |
+| | | verbose | "true" |
+| | | image_series | "0" |
+| | | coil_map_algorithm | "Inati" |
+| | | send_out_gfactor | "true" |
+| | | downstream_coil_compression | "true" |
+| | | downstream_coil_compression_thres | "0.01" |
+| | | downstream_coil_compression_num_modesKept | "0" |
 
 Performs GRAPPA kernel calibration, calculate coil sensitivity maps and carry out unfolding.
 
 #### GenericReconFieldOfViewAdjustmentGadget
 
-input | output | parameters | default values |
--|
-internal5 | internal6 | debug_folder | ""
-| | perform_timing | "false"
-| | verbose | "false"
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal5 | internal6 | debug_folder | "" |
+| | | perform_timing | "false" |
+| | | verbose | "false" |
 
 Adjusts FOV and image resolution according to the parameters given for the reconstructed image in the file header.
 
 #### GenericReconImageArrayScalingGadget
 
-input | output | parameters | default values |
--|
-internal6 | internal3 | perform_timing | "false"
-| | verbose | "false"
-| | min_intensity_value | "64"
-| | max_intensity_value | "4095"
-| | scalingFactor | "10.0"
-| | scalingFactor_dedicated | "100.0"
-| | use_constant_scalingFactor | "true"
-| | auto_scaling_only_once | "true"
+| input | output | parameters | default values |
+| - | - | - | - |
+| internal6 | internal3 | perform_timing | "false" |
+| | | verbose | "false" |
+| | | min_intensity_value | "64" |
+| | | max_intensity_value | "4095" |
+| | | scalingFactor | "10.0" |
+| | | scalingFactor_dedicated | "100.0" |
+| | | use_constant_scalingFactor | "true" |
+| | | auto_scaling_only_once | "true" |
 
 Applie scaling to image, g-factor map, SNR map and/or SNR standard deviation map.
 
 #### ImageArraySplitGadget
 
-input | output | parameters |
--|
-internal3 | ImageData | none
+| input | output | parameters |
+| - | - | - |
+| internal3 | ImageData | none |
 
 Splits array of images (7D [X, Y, Z, CHA, N, S, LOC]) into individual images (4D [X, Y, Z, CHA])
 
 #### ExtractGadget
 
-input | output | parameters | default values |
--|
-ImageData | ImageData | extract_mask | "1"
+| input | output | parameters | default values |
+| - | - | - | - |
+| ImageData | ImageData | extract_mask | "1" |
 
 Extracts a certain type of image data from the reconstructed image stream, i.e. extract_mask=1 yields magnitude images, extract_mask=2 yields readl images.
 
 #### ComplexToFloatGadget
 
-input | output | parameters |
--|
-ImageData | ImageData | none
+| input | output | parameters |
+| - | - | - |
+| ImageData | ImageData | none |
 
 Depending on the image type, the magnitude, real, imaginary or phase of the complex image is returned.
 
 #### FloatToShortGadget
 
-input | output | parameters | default values |
--|
-ImageData | ImageData | min_intensity | "0"
-| | max_intensity | "32767"
-| | intensity_offset | "0"
+| input | output | parameters | default values |
+| - | - | - | - |
+| ImageData | ImageData | min_intensity | "0" |
+| | | max_intensity | "32767" |
+| | | intensity_offset | "0" |
 
 Scales and transforms images from float to short.
 
@@ -710,11 +710,11 @@ ImageArraySplitGadget
 ~~~
 for fully sampled reconstruction.
 
-input | output | parameters | default values |
--|
-AcquisitionData | ImageData | N_dimension | ""
-| | S_dimension | ""
-| | sorting_dimension | "slice"
-| | trigger_dimension | "repetition"
-| | split_slices | "true"
+| input | output | parameters | default values |
+| - | - | - | - |
+| AcquisitionData | ImageData | N_dimension | "" |
+| | | S_dimension | "" |
+| | | sorting_dimension | "slice" |
+| | | trigger_dimension | "repetition" |
+| | | split_slices | "true" |
 
