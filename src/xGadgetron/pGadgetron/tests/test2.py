@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-'''Test set 2.
+"""Test set 2.
+v{version}
 
 Undersampled data tests
 
@@ -9,37 +10,19 @@ Usage:
 Options:
   -r, --record   record the measurements rather than check them
   -v, --verbose  report each test status
-'''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+{author}
 
+{licence}
 """
-Created on Tue Nov 21 11:23:39 2017
-
-@author: Evgueni Ovtchinnikov
-"""
-
 from pGadgetron import *
-from os import path
+# Created on Tue Nov 21 11:23:39 2017
+__version__ = "0.2.0"
+__author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
-def test_main(rec = False, verb = False, throw = True):
 
-    datafile = path.join(path.dirname(__file__), 'test2.txt')
+def test_main(rec=False, verb=False, throw=True):
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -86,28 +69,6 @@ def test_main(rec = False, verb = False, throw = True):
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.1.0'
-    from docopt import docopt
-    args = docopt(__doc__, version=__version__)
-
-    record = args['--record']
-    verbose = args['--verbose']
-
-    try:
-        failed, ntest = test_main(record, verbose, throw = False)
-        if failed == 0:
-            if not record:
-                print('all %d tests passed' % ntest)
-            else:
-                print('%d measurements recorded' % ntest)
-            sys.exit(0)
-        else:
-            print('%d of %d tests failed' % (failed, ntest))
-            sys.exit(failed)
-
-    except error as err:
-        # display error information
-        print('??? %s' % err.value)
-        sys.exit(-1)
+if __name__ == "__main__":
+    test_runner(test_main, __doc__, __version__, __author__)

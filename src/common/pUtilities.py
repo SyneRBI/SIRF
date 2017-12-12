@@ -1,7 +1,13 @@
 '''Utilities used by all engines
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+'''
+import inspect
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import os
+import pyiutilities as pyiutil
+
+__licence__ = """CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-2017 Casper da Costa-Luis
 
 This is software developed for the Collaborative Computational
 Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -16,12 +22,8 @@ Licensed under the Apache License, Version 2.0 (the "License");
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-'''
-import inspect
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import os
-import pyiutilities as pyiutil
+"""
+__license__ = __licence__
 
 
 def petmr_data_path(petmr):
@@ -248,6 +250,31 @@ class CheckRaise(pTest):
     def __init__(self, *a, **k):
         k["throw"] = True
         super(CheckRaise, self).__init__(*a, **k)
+
+
+def test_runner(main, doc, version, author="", licence=None):
+    """
+    :param main: function(record : bool, verbose : bool, throw : bool)
+    """
+    from docopt import docopt
+    args = docopt(doc.format(version=version,
+                             author=author,
+                             licence=licence or __licence__,
+                             license=licence or __licence__),
+                  version=version)
+
+    record = args['--record']
+    verbose = args['--verbose']
+
+    failed, ntest = main(record, verbose, throw=False)
+    if failed:
+        import sys
+        print('%d of %d tests failed' % (failed, ntest))
+        sys.exit(failed)
+    if record:
+        print('%d measurements recorded' % ntest)
+    else:
+        print('all %d tests passed' % ntest)
 
 
 ###########################################################
