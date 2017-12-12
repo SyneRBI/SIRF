@@ -560,9 +560,9 @@ Below `internal<N>` refers to Gadgetron data objects to which SIRF does not prov
 
 #### RemoveROOversamplingGadget
 
-input | output | parameters |
--|
-AcquisitionData | AcquisitionData | none
+| input | output | parameters |
+| - |
+| AcquisitionData | AcquisitionData | none
 
 Removes the oversampling along the readout direction.
 
