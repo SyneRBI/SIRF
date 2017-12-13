@@ -1,41 +1,38 @@
 # Language selection
-language: python
+language: cpp
 
 # Currently commented out as set with environment flags
-# Both clang and gcc can be tested. The more is the better.
+# Both clang and gcc can be tested. More is the better.
 #compiler:
-#  - clang
-#  - gcc
+# - clang
+# - gcc
 
 # Environment variables
 # Note: On trusty we need to build Armadillo ourselves (the system version is too old)
 # Note: on OSX we don't seem to be able to use the system boost 1.65.1 due to a Mac-specific bug.
 matrix:
-  include:
-  - os: linux
-    python: 3.5
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
-  - os: linux
-    python: 2.7
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
-  - os: linux
-    python: 3.5
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
-  - os: linux
-    python: 2.7
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
-  - os: osx
-    language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
-  - os: osx
-    language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
-  - os: osx
-    language: generic
-    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+ include:
+ - os: linux
+   python: 3.5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+ - os: linux
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+ - os: linux
+   python: 3.5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+ - os: linux
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+ - os: osx
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+ - os: osx
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+ - os: osx
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
 env:
-  global:
-    - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
+ global:
+  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
 
 # Ubuntu 14.04 LTS
 dist: trusty
@@ -45,28 +42,30 @@ sudo: false
 
 # Compilation dependencies
 addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - git-core
-      - build-essential
-      - g++-5
-      - libboost-all-dev
-      - libhdf5-serial-dev
-      - libfftw3-dev
-      - python-dev
-      - python3-dev
-      - liblapack-dev
-      - libxml2-dev
-      - libxslt-dev
-      - libarmadillo-dev
-      - libace-dev
-      - libgtest-dev
-      - libplplot-dev
-      - root-system-bin
-      - swig
-      - ccache
+ apt:
+  sources:
+   - ubuntu-toolchain-r-test
+  packages:
+   - git-core
+   - build-essential
+   - g++-5
+   - libboost-all-dev
+   - libhdf5-serial-dev
+   - libfftw3-dev
+   - python-dev
+   - python3-dev
+   - python-tk
+   - python3-tk
+   - liblapack-dev
+   - libxml2-dev
+   - libxslt-dev
+   - libarmadillo-dev
+   - libace-dev
+   - libgtest-dev
+   - libplplot-dev
+   - root-system-bin
+   - swig
+   - ccache
 
 # cache C/C++/pip
 cache:
@@ -74,79 +73,87 @@ cache:
   - pip
 
 before_install:
-  - mkdir -p ../.local/bin
-  - |
-     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-       brew update
-       brew tap homebrew/science
-       # Note: boost is already installed on osx on travis
-       # so should not be included. However, we currently need boost-python
-       # brew install boost-python
-       brew install ace
-       brew install swig
-       brew install ccache
-       # brew install scipy matplotlib
-       # need curl to get more recent cmake
-       brew install curl
-       curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
-       tar xzf cmake.tar.gz
-       mv cmake-*/CMake.app/Contents/* cmake-*
-       # get pip
-       curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-       python get-pip.py --user
-       pushd ../.local/bin
-       echo "#!/usr/bin/env python" > ./pip
-       echo "from pip import main" >> ./pip
-       echo "import sys" >> ./pip
-       echo "if 'install' in sys.argv:"
-       echo "  if '--user' not in sys.argv:" >> ./pip
-       echo "    sys.argv.append('--user')" >> ./pip
-       echo "sys.exit(main())" >> ./pip
-       chmod +x ./pip
-       popd
-     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-       curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
-       tar xzf cmake.tar.gz
-     fi
-  # cmake override
-  - pushd cmake-*/bin
-  - export PATH="$PWD:$PATH"
-  - popd
-  # ccache compiler override
-  - pushd ../.local/bin
-  - ln -s $(which ccache) g++
-  - ln -s $(which ccache) g++-5
-  - ln -s $(which ccache) gcc
-  - ln -s $(which ccache) gcc-5
-  - export PATH="$PWD:$PATH"
-  - popd
-  # Use Travis' currently checked-out SIRF commit ID to build.
-  # Also no point re-downloading SIRF - just use local URL.
-  # N.B.: don't put into build matrix to allow caching.
-  - export BUILD_FLAGS="-DSIRF_URL=$PWD $BUILD_FLAGS -DSIRF_TAG=$TRAVIS_COMMIT"
-  # get SuperBuild
-  - cd ..
-  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
-  - cd SIRF-SuperBuild
+ - mkdir -p ~/.local/bin
+ - pushd ~/.local/bin
+ - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew tap homebrew/science
+      # Note: boost is already installed on osx on travis
+      # so should not be included. However, we currently need boost-python
+      # brew install boost-python
+      brew install ace
+      brew install swig
+      brew install ccache
+      # brew install scipy matplotlib
+      # need curl to get more recent cmake
+      brew install curl
+      curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
+      tar xzf cmake.tar.gz
+      mv cmake-*/CMake.app/Contents/* cmake-*
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
+      tar xzf cmake.tar.gz
+    fi
+ # cmake override
+ - pushd cmake-*/bin
+ - export PATH="$PWD:$PATH"
+ - popd
+ # get pip
+ - curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+ - python get-pip.py --user
+ # pip path fix
+ - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      pushd $HOME/Library/Python/*/bin
+      export PATH="$PWD:$PATH"
+      popd
+    fi
+ # pip install forces `--user`
+ # - |
+ #    rm $(which pip)
+ #    echo "#!/usr/bin/env python
+ #    from pip import main
+ #    import sys
+ #    if 'install' in sys.argv:
+ #        if '--user' not in sys.argv:
+ #            sys.argv.append('--user')
+ #    sys.exit(main())
+ #    " > ./pip
+ # - chmod +x ./pip
+ # ccache compiler override
+ - ln -s $(which ccache) g++
+ - ln -s $(which ccache) g++-5
+ - ln -s $(which ccache) gcc
+ - ln -s $(which ccache) gcc-5
+ - export PATH="$PWD:$PATH"
+ - popd
+ # Use Travis' currently checked-out SIRF commit ID to build.
+ # Also no point re-downloading SIRF - just use local URL.
+ # N.B.: don't put into build matrix to allow caching.
+ - export BUILD_FLAGS="-DSIRF_URL=$PWD $BUILD_FLAGS -DSIRF_TAG=$TRAVIS_COMMIT"
+ # get SuperBuild
+ - cd ..
+ - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
+ - cd SIRF-SuperBuild
 
 install:
-  - #pip install --upgrade pip setuptools wheel
-  - pip install --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
-  - pip install nose nose-timer codecov coveralls
-  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
-  # don't use too many threads - may crash
-  - make -j2
-  - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
-  - source $PWD/INSTALL/bin/env_ccppetmr.sh
+ - pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
+ - pip install --user nose codecov coveralls
+ - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
+ # don't use too many threads - may crash
+ - make -j2
+ - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
+ - source $PWD/INSTALL/bin/env_ccppetmr.sh
 
 script:
-  - ./INSTALL/bin/gadgetron >& gadgetron.log&
-  - ctest -VV
-  - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
-  - # print for debugging
-  - cat gadgetron.log
+ - ./INSTALL/bin/gadgetron >& gadgetron.log&
+ - ctest -VV
+ - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
+ - # print for debugging
+ - cat gadgetron.log
 
 after_success:
-  - cd SIRF
-  - codecov
-  - coveralls
+ - cd SIRF
+ - codecov
+ - coveralls
