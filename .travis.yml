@@ -74,6 +74,7 @@ cache:
   - pip
 
 before_install:
+  - mkdir -p ../.local/bin
   - |
      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
        brew update
@@ -93,7 +94,16 @@ before_install:
        # get pip
        curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
        python get-pip.py --user
-       alias pip="python -m pip"
+       pushd ../.local/bin
+       echo "#!/usr/bin/env python" > ./pip
+       echo "from pip import main" >> ./pip
+       echo "import sys" >> ./pip
+       echo "if 'install' in sys.argv:"
+       echo "  if '--user' not in sys.argv:" >> ./pip
+       echo "    sys.argv.append('--user')" >> ./pip
+       echo "sys.exit(main())" >> ./pip
+       chmod +x ./pip
+       popd
      elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
        curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
        tar xzf cmake.tar.gz
@@ -103,7 +113,6 @@ before_install:
   - export PATH="$PWD:$PATH"
   - popd
   # ccache compiler override
-  - mkdir -p ../.local/bin
   - pushd ../.local/bin
   - ln -s $(which ccache) g++
   - ln -s $(which ccache) g++-5
