@@ -41,13 +41,13 @@ Our topmost interface layer are Object-Oriented Matlab and Python modules that c
 
 To summarise, SIRF software is structured as the following set of layers (from top to bottom):
 
-SIRF software layers | Files (PET) | Files (MR)
--------------------------|---|---
-Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py
-Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.*
-C interface to C\++ code | cstir.* | cgadgetron.*
-Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/*
-Reconstruction engines | STIR/* | Gadgetron/*
+| SIRF software layers | Files (PET) | Files (MR) |
+| --- | --- | --- |
+| Matlab/Python OO interface modules | +mSTIR/*.m pSTIR.py | +mGadgetron/*.m pGadgetron.py |
+| Matlab/Python interfaces to C | mstir.\* pystir.* | mgadgetron.\* pygadgetron.* |
+| C interface to C\++ code | cstir.* | cgadgetron.* |
+| Extended engine functionality | xSTIR/cSTIR/* | xGadgetron/cGadgetron/* |
+| Reconstruction engines | STIR/* | Gadgetron/* |
 
 As you start to explore SIRF code, you may notice files and folders preceded by the characters "x", "c", "p" and "m". These correspond to the various layers of SIRF: eXtended engine functionality, C-interface, Python and Matlab.
 
@@ -230,7 +230,7 @@ to the following C function
 
 # Adding new functionality to SIRF <a name="Adding_new_functionality"></a>
 
-The preferred way for adding new functionality to STIR is by implementing it in C\++. Having implemented and tested your C++ addition, put your class definitions to `gadgetron_x.h` and your implementation code to `gadgetron_x.cpp` in folder `SIRF/src/xGadgetron/cGadgetron`. Alternatively, add new `*.h` and `*.cpp` files, in which case you will need to list them in `add_library` statement in `CMakeLists.txt` too. Then follow the two steps described below. Again, to reduce duplication, instructions are for Gadgetron-related additions; those for STIR-related are symmetric.
+The preferred way for adding new functionality to SIRF is by implementing it in C\++. Having implemented and tested your C++ addition, put your class definitions to `gadgetron_x.h` and your implementation code to `gadgetron_x.cpp` in folder `SIRF/src/xGadgetron/cGadgetron`. Alternatively, add new `*.h` and `*.cpp` files, in which case you will need to list them in `add_library` statement in `CMakeLists.txt` too. Then follow the two steps described below. Again, to reduce duplication, instructions are for Gadgetron-related additions; those for STIR-related are symmetric.
 
 We stress that the instructions below are for classes that will be exposed to the user only. We note that currently, only a tiny fraction of STIR classes and no Gadgetron classes are exposed.
 
