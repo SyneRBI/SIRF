@@ -21,5 +21,5 @@
 #
 #=========================================================================
 add_test(NAME MR_TESTS_PYTHON
-  COMMAND nosetests --with-coverage --cover-package=pGadgetron src/xGadgetron/pGadgetron/
+  COMMAND ${PYTHON_EXECUTABLE} -m nose --with-coverage --cover-package=pGadgetron src/xGadgetron/pGadgetron/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

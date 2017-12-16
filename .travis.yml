@@ -1,4 +1,6 @@
 # Language selection
+# Note: with `language: cpp`, `cache: ccache` works
+# but `cache: pip` and `python:` is ignored
 language: cpp
 
 # Currently commented out as set with environment flags
@@ -10,29 +12,35 @@ language: cpp
 # Environment variables
 # Note: On trusty we need to build Armadillo ourselves (the system version is too old)
 # Note: on OSX we don't seem to be able to use the system boost 1.65.1 due to a Mac-specific bug.
+# Note: altering these will cause re-building of caches
 matrix:
  include:
  - os: linux
-   python: 3.5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+   python: 3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
  - os: linux
    python: 2.7
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
  - os: linux
-   python: 3.5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+   python: 3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
  - os: linux
    python: 2.7
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
  - os: osx
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++ PYMVER=2
  - os: osx
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++ PYMVER=2
  - os: osx
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7" CC=gcc CXX=g++ PYMVER=2
 env:
  global:
   - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
+  # don't use too many threads - may crash
+  - MAKEFLAGS="-j 2"
 
 # Ubuntu 14.04 LTS
 dist: trusty
@@ -58,14 +66,15 @@ addons:
    - python3-tk
    - liblapack-dev
    - libxml2-dev
-   - libxslt-dev
    - libarmadillo-dev
-   - libace-dev
    - libgtest-dev
    - libplplot-dev
-   - root-system-bin
    - swig
    - ccache
+   # not in whitelist
+   - libxslt-dev
+   - libace-dev
+   - root-system-bin
 
 # cache C/C++/pip
 cache:
@@ -101,56 +110,56 @@ before_install:
  - popd
  # get pip
  - curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
- - python get-pip.py --user
+ - python$PYMVER get-pip.py --user
+ # setuptools may be out of date on osx
+ - python$PYMVER -m pip install --user -U pip setuptools wheel
+ # ensure python bin dir exists (and coverage dependencies installed)
+ - python$PYMVER -m pip install --user -U nose codecov coveralls
  # pip path fix
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      pushd $HOME/Library/Python/*/bin
+      # show lib/site-packages path
+      python$PYMVER -m pydoc pip | grep -i -A 1 file
+      python$PYMVER -m pydoc codecov | grep -i -A 1 file
+      # append python bin dir to path (consult output from previous lines)
+      pushd $HOME/Library/Python/$PYMVER*/bin
       export PATH="$PWD:$PATH"
       popd
     fi
- # pip install forces `--user`
- # - |
- #    rm $(which pip)
- #    echo "#!/usr/bin/env python
- #    from pip import main
- #    import sys
- #    if 'install' in sys.argv:
- #        if '--user' not in sys.argv:
- #            sys.argv.append('--user')
- #    sys.exit(main())
- #    " > ./pip
- # - chmod +x ./pip
+ - python$PYMVER --version
+ - python$PYMVER -m pip --version
+ - python$PYMVER -m pip freeze
  # ccache compiler override
- - ln -s $(which ccache) g++
- - ln -s $(which ccache) g++-5
- - ln -s $(which ccache) gcc
- - ln -s $(which ccache) gcc-5
+ - ln -s "$(which ccache)" g++
+ - ln -s "$(which ccache)" g++-5
+ - ln -s "$(which ccache)" gcc
+ - ln -s "$(which ccache)" gcc-5
  - export PATH="$PWD:$PATH"
  - popd
  # Use Travis' currently checked-out SIRF commit ID to build.
  # Also no point re-downloading SIRF - just use local URL.
  # N.B.: don't put into build matrix to allow caching.
- - export BUILD_FLAGS="-DSIRF_URL=$PWD $BUILD_FLAGS -DSIRF_TAG=$TRAVIS_COMMIT"
+ - export BUILD_FLAGS="$BUILD_FLAGS -DPYVER=$PYMVER -DSIRF_URL=$PWD -DSIRF_TAG=$TRAVIS_COMMIT"
  # get SuperBuild
  - cd ..
- - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
+ - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b system-build
  - cd SIRF-SuperBuild
 
 install:
- - pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
- - pip install --user nose codecov coveralls
+ - python$PYMVER -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
+ # python$PYMVER -m pip install --user nose codecov coveralls
  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
- # don't use too many threads - may crash
- - make -j2
+ # Job may timeout (>50min) if no ccache, otherwise should be <1min:
+ - make
  - mv INSTALL/share/gadgetron/config/gadgetron.xml.example INSTALL/share/gadgetron/config/gadgetron.xml
  - source $PWD/INSTALL/bin/env_ccppetmr.sh
 
 script:
  - ./INSTALL/bin/gadgetron >& gadgetron.log&
  - ctest -VV
+ # print for debugging
  - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
- - # print for debugging
+ # may exceed 4MB travis log limit
  - cat gadgetron.log
 
 after_success:
