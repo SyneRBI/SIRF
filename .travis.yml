@@ -128,8 +128,8 @@ before_install:
       export PATH="$PWD:$PATH"
       popd
       # fix CMake variables
-      export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib"
-      export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7"
+      #export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib"
+      #export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7"
       export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$(which python$PYMVER)"
     fi
  - python$PYMVER --version
