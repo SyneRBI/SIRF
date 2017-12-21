@@ -34,6 +34,7 @@ limitations under the License.
 #include "stir/VoxelsOnCartesianGrid.h"
 #include "stir/IO/OutputFileFormat.h"
 #include "stir/IO/read_from_file.h"
+#include "stir/listmode/LmToProjData.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInfoCylindrical.h"
