@@ -1,9 +1,7 @@
 #========================================================================
-# Author: Edoardo Pasca
+# Author: Evgueni Ovtchinnikov
 # Copyright 2017 University College London
 # Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
 #
 # This file is part of the CCP PETMR Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
@@ -20,6 +18,7 @@
 # limitations under the License.
 #
 #=========================================================================
-add_test(NAME MR_TESTS_PYTHON
-  COMMAND nosetests --with-coverage --cover-package=pGadgetron src/xGadgetron/pGadgetron/
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_test(NAME PET_TESTS_MATLAB
+         COMMAND matlab -sd ${CMAKE_SOURCE_DIR}/src/xSTIR/mSTIR/tests -nodesktop -r test_all )
+

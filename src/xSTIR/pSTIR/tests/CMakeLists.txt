@@ -20,6 +20,6 @@
 # limitations under the License.
 #
 #=========================================================================
-add_test(NAME PET_TESTS
+add_test(NAME PET_TESTS_PYTHON
   COMMAND nosetests --with-coverage --cover-package=pSTIR src/xSTIR/pSTIR/
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
