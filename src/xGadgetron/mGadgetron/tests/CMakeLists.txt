@@ -19,6 +19,18 @@
 #
 #=========================================================================
 
+#add_test(NAME MR_TESTS_MATLAB
+#         COMMAND matlab -sd ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests -#nodesktop -r test_all )
+
+#message("matlab: ${Matlab_MAIN_PROGRAM}")
+#message("matlab: ${Matlab_EXECUTABLE}")
+
+#add_test(NAME MR_TESTS_MATLAB
+#	COMMAND matlab -nosplash -nodesktop -nojvm -r "ver; try; test_all; catch err, fprintf(2,['ERROR: ' err.message '\n']), exit(1), end, exit(0)" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests)
+
+#add_test(NAME MR_TESTS_MATLAB
+#	COMMAND matlab -nosplash -nodesktop -nojvm -r "ver; try; test_all; catch err, fprintf(2,err.message), exit(1), end, exit(0)" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests)
+
 add_test(NAME MR_TESTS_MATLAB
-         COMMAND matlab -sd ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests -nodesktop -r test_all )
+	COMMAND matlab -nosplash -nodesktop -nojvm -r test_all WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests)
 
