@@ -39,6 +39,12 @@ extern "C" {
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSTIR_parameter(const void* ptr, const char* obj, const char* name);
 
+	// ListmodeToSinogram methods
+	void* cSTIR_setListmodeToSinogramsInterval
+		(void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
+	void* cSTIR_convertListmodeToSinograms(void* ptr);
+
 	// Data processor methods
 	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
 

@@ -25,6 +25,10 @@ limitations under the License.
 #include "data_handle.h"
 #include "stir_types.h"
 #include "stir_x.h"
+#include "stir_data_containers.h"
+
+extern "C"
+char* charDataFromHandle(const void* ptr);
 
 using stir::shared_ptr;
 
@@ -74,7 +78,23 @@ wrongFloatParameterValue
 }
 
 void*
-cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
+{
+	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
+	if (boost::iequals(name, "input"))
+		lm2s.set_input(charDataFromHandle(hv));
+	else if (boost::iequals(name, "output"))
+		lm2s.set_output(charDataFromHandle(hv));
+	else if (boost::iequals(name, "template"))
+		lm2s.set_template(charDataFromHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
+//cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	Shape3D& s = objectFromHandle<Shape3D>(hp);
 	Coord3DF origin = s.get_origin();
