@@ -70,7 +70,7 @@ endif()
 
 
 message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
-FIND_PACKAGE(Matlab)
+FIND_PACKAGE(Matlab COMPONENTS MAIN_PROGRAM)
 set (BUILD_MATLAB ${Matlab_FOUND})
 if (BUILD_MATLAB)
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
