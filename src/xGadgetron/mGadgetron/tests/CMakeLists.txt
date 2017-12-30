@@ -31,6 +31,7 @@
 #add_test(NAME MR_TESTS_MATLAB
 #	COMMAND matlab -nosplash -nodesktop -nojvm -r "ver; try; test_all; catch err, fprintf(2,err.message), exit(1), end, exit(0)" WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests)
 
-add_test(NAME MR_TESTS_MATLAB
-	COMMAND matlab -nosplash -nodesktop -nojvm -r test_all WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/xGadgetron/mGadgetron/tests)
-
+matlab_add_unit_test(NAME MR_TESTS_MATLAB
+    UNITTEST_FILE test_all.m
+    WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}
+    NO_UNITTEST_FRAMEWORK)
