@@ -54,7 +54,8 @@ public:
 
 class ListmodeToSinograms : public LmToProjData {
 public:
-	ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
+	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
+	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
 	ListmodeToSinograms() : LmToProjData()
 	{
 		//num_events_to_store = -1;

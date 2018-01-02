@@ -35,6 +35,7 @@ int test3a()
 	float interval[] = { 0, 10 };
 
 	for (;;) {
+		//HANDLE(lm2s, cSTIR_objectFromFile("ListmodeToSinograms", "lm_to_projdata.par"));
 		HANDLE(lm2s, cSTIR_newObject("ListmodeToSinograms"));
 		handle = charDataHandle("list.l.hdr.STIR");
 		CALL(cSTIR_setParameter

@@ -193,6 +193,11 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				sptr(new PETAcquisitionDataInFile(filename));
 			return newObjectHandle(sptr);
 		}
+		if (boost::iequals(name, "ListmodeToSinograms")) {
+			shared_ptr<ListmodeToSinograms>
+				sptr(new ListmodeToSinograms(filename));
+			return newObjectHandle(sptr);
+		}
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;

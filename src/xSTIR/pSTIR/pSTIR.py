@@ -720,6 +720,34 @@ class AcquisitionData(DataContainer):
 
 DataContainer.register(AcquisitionData)
 
+class ListmodeToSinograms:
+    '''
+    Class for listmode-to-sinogram converter.
+    '''
+    def __init__(self, file = None):
+        self.handle = None
+        self.name = 'ListmodeToSinograms'
+        if file is None:
+            self.handle = pystir.cSTIR_newObject(self.name)
+        else:
+            self.handle = pystir.cSTIR_objectFromFile(self.name, file)
+    def set_input(self, lm_file):
+        _set_char_par(self.handle, self.name, 'input', lm_file)
+    def set_output(self, sino_file):
+        _set_char_par(self.handle, self.name, 'output', sino_file)
+    def set_template(self, templ):
+        _set_char_par(self.handle, self.name, 'template', templ)
+    def set_interval(self, start, stop):
+        interval = numpy.ndarray((2,), dtype = numpy.float32)
+        interval[0] = start
+        interval[1] = stop
+        try_calling(pystir.cSTIR_setListmodeToSinogramsInterval\
+            (self.handle, interval.ctypes.data))
+    def set_up(self):
+        try_calling(pystir.cSTIR_setupListmodeToSinogramsConverter(self.handle))
+    def process(self):
+        try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
+
 class AcquisitionModel:
     ''' 
     Class for a PET acquisition model that relates an image x to the
