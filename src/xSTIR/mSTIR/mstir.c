@@ -48,6 +48,15 @@ EXPORTED_FUNCTION 	void* mSTIR_setParameter (void* ptr, const char* obj, const c
 EXPORTED_FUNCTION 	void* mSTIR_parameter(const void* ptr, const char* obj, const char* name) {
 	return cSTIR_parameter(ptr, obj, name);
 }
+EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsInterval (void* ptr_acq, PTR_FLOAT ptr_data) {
+	return cSTIR_setListmodeToSinogramsInterval (ptr_acq, ptr_data);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr) {
+	return cSTIR_setupListmodeToSinogramsConverter(ptr);
+}
+EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
+	return cSTIR_convertListmodeToSinograms(ptr);
+}
 EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
 }
