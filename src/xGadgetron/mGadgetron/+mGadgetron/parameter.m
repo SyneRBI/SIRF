@@ -5,6 +5,12 @@ function value = parameter(handle, set, name, type, n)
         value = calllib('miutilities', 'mIntDataFromHandle', hv);
     elseif strcmp(type, 'f')
         value = calllib('miutilities', 'mFloatDataFromHandle', hv);
+    elseif strcmp(type, 'u16s')
+        value = zeros(n, 1);
+        for i = 1 : n
+            value(i) = calllib('miutilities', 'mUint16DataItemFromHandle', ...
+                hv, i - 1);
+        end
     elseif strcmp(type, 'u32s')
         value = zeros(n, 1);
         for i = 1 : n

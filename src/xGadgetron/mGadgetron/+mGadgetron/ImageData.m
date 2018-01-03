@@ -56,6 +56,12 @@ classdef ImageData < mGadgetron.DataContainer
             mUtilities.delete(handle)
             %calllib('mutilities', 'mDeleteDataHandle', handle)
         end
+        function img = image(self, num)
+            img = mGadgetron.Image();
+            img.handle_ = calllib('mgadgetron', 'mGT_imageWrapFromContainer', ...
+                self.handle_, num - 1);
+            mUtilities.check_status(self.name_, img.handle_);
+        end
         function images = select(self, attribute, value)
 %***STIR*** select(attribute, value) returns a subset of this image data 
 %         with the specified value of the specified attribute;
