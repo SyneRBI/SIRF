@@ -24,6 +24,7 @@ limitations under the License.
 #include "cstir_p.h"
 #include "stir_types.h"
 #include "stir_x.h"
+#include "stir_data_containers.h"
 
 using stir::shared_ptr;
 
@@ -62,6 +63,8 @@ extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
+		if (boost::iequals(name, "ListmodeToSinograms"))
+			return newObjectHandle<ListmodeToSinograms>();
 		if (boost::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return newObjectHandle
@@ -88,8 +91,10 @@ void* cSTIR_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-		if (boost::iequals(obj, "Shape"))
-			return cSTIR_setShapeParameter(hs, name, hv);
+		if (boost::iequals(obj, "ListmodeToSinograms"))
+			return cSTIR_setListmodeToSinogramsParameter(ptr_s, name, ptr_v);
+		else if (boost::iequals(obj, "Shape"))
+			return cSTIR_setShapeParameter(ptr_s, name, ptr_v);
 		else if (boost::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_setEllipsoidalCylinderParameter(hs, name, hv);
 		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
@@ -188,7 +193,53 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 				sptr(new PETAcquisitionDataInFile(filename));
 			return newObjectHandle(sptr);
 		}
+		if (boost::iequals(name, "ListmodeToSinograms")) {
+			shared_ptr<ListmodeToSinograms>
+				sptr(new ListmodeToSinograms(filename));
+			return newObjectHandle(sptr);
+		}
 		return unknownObject("object", name, __FILE__, __LINE__);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
+{
+	try {
+		ListmodeToSinograms& lm2s = 
+			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		float *data = (float *)ptr_data;
+		lm2s.set_time_interval((double)data[0], (double)data[1]);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+		DataHandle* handle = new DataHandle;
+		if (lm2s.set_up()) {
+			ExecutionStatus status
+				("cSTIR_setupListmodeToSinogramConverter failed", 
+					__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_convertListmodeToSinograms(void* ptr)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+		lm2s.process_data();
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }

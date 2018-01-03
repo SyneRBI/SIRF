@@ -24,7 +24,10 @@ limitations under the License.
 #include "data_handle.h"
 
 void*
-cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
+
+void*
+cSTIR_setShapeParameter(void* hp, const char* name, const void* hv);
 
 void*
 cSTIR_shapeParameter(const DataHandle* handle, const char* name);

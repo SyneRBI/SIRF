@@ -52,6 +52,39 @@ public:
 	}
 };
 
+class ListmodeToSinograms : public LmToProjData {
+public:
+	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
+	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
+	ListmodeToSinograms() : LmToProjData()
+	{
+		//num_events_to_store = -1;
+	}
+	void set_input(std::string lm_file)
+	{
+		input_filename = lm_file;
+	}
+	void set_output(std::string proj_data_file)
+	{
+		output_filename_prefix = proj_data_file;
+	}
+	void set_template(std::string proj_data_file)
+	{
+		template_proj_data_name = proj_data_file;
+	}
+	void set_time_interval(double start, double stop)
+	{
+		std::pair<double, double> interval(start, stop);
+		std::vector < std::pair<double, double> > intervals;
+		intervals.push_back(interval);
+		frame_defs = TimeFrameDefinitions(intervals);
+	}
+	bool set_up()
+	{
+		return post_processing();
+	}
+};
+
 class ProjDataFile : public ProjDataInterfile {
 public:
 	ProjDataFile(const ProjData& pd, const std::string& filename, bool owns_file = true) :

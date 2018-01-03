@@ -1,9 +1,6 @@
 #========================================================================
-# Author: Edoardo Pasca
+# Author: Kris Thielemans
 # Copyright 2017 University College London
-# Copyright 2017 Science Technology Facilities Council
-# Author: Casper da Costa-Luis
-# Copyright 2017
 #
 # This file is part of the CCP PETMR Synergistic Image Reconstruction Framework (SIRF) SuperBuild.
 #
@@ -20,6 +17,17 @@
 # limitations under the License.
 #
 #=========================================================================
-add_test(NAME MR_TESTS_PYTHON
-  COMMAND nosetests --with-coverage --cover-package=pGadgetron src/xGadgetron/pGadgetron/
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# next commands work (on Windows) but would need further work to get the log file handled properly
+# Luckily CMake's FindMatlab provides a function for this. We'll use that below.
+
+#set(test_cmd "pwd;ver;try; test_all; catch err, fprintf(2,\'ERROR: %s\\\\n\', err.message),exit(1), end, exit(0)")
+#message(STATUS "test_cmd ${test_cmd}")
+#add_test(NAME PET_TESTS_MATLAB
+#         COMMAND matlab -nodesktop -wait -logfile "${CMAKE_CURRENT_BINARY_DIR}/test_all.log" -r "${test_cmd}"
+#         WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR})
+
+matlab_add_unit_test(NAME PET_TESTS_MATLAB
+    UNITTEST_FILE test_all.m
+    ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+    NO_UNITTEST_FRAMEWORK)

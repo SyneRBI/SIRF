@@ -1,30 +1,17 @@
 #include <string>
 
 #include "cstir.h"
-#include "data_handle.h"
-#include "iutilities.h"
+#include "handle.h"
 #include "stir_types.h"
 #include "envar.h"
 
 void* TMP_HANDLE;
 
-#define HANDLE(H, F) H = F; if (execution_status(H)) break
-#define CALL(F) TMP_HANDLE = F; if (execution_status(TMP_HANDLE, 1)) break
 #define GET_FLOAT(V, F) \
 	TMP_HANDLE = F; \
 	if (execution_status(TMP_HANDLE)) break; \
 	V = floatDataFromHandle(TMP_HANDLE); \
 	deleteDataHandle(TMP_HANDLE)
-
-int execution_status(void* handle, int clear = 0)
-{
-	int s = executionStatus(handle);
-	if (s)
-		std::cout << executionError(handle) << '\n';
-	if (clear)
-		deleteDataHandle(handle);
-	return s;
-}
 
 int test2()
 {

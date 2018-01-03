@@ -1,8 +1,8 @@
 #pragma once
 
-//double diff(size_t n, double* u, double*v);
-//double dot(size_t n, double* u, double*v);
+//void* TMP_HANDLE;
 
 int test1();
 int test2();
-//int test3();
+int test3();
+int test3a();
