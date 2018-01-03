@@ -18,6 +18,15 @@ limitations under the License.
 
 */
 
+/*!
+\file
+\ingroup STIR Extensions
+\brief Specification file for data handling types not present in STIR.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #ifndef STIR_DATA_CONTAINER_TYPES
 #define STIR_DATA_CONTAINER_TYPES
 
@@ -52,6 +61,12 @@ public:
 	}
 };
 
+/*!
+\ingroup STIR Extensions
+\brief Listmode-to-sinograms converter.
+
+*/
+
 class ListmodeToSinograms : public LmToProjData {
 public:
 	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
@@ -84,6 +99,14 @@ public:
 		return post_processing();
 	}
 };
+
+/*!
+\ingroup STIR Extensions
+\brief STIR ProjDataInterfile wrapper with additional file managing features.
+
+This derived class has additional capability of deleting the file it handles
+when an object of this class goes out of existence.
+*/
 
 class ProjDataFile : public ProjDataInterfile {
 public:
@@ -126,6 +149,16 @@ private:
 	bool _owns_file;
 	std::string _filename;
 };
+
+/*!
+\ingroup STIR Extensions
+\brief STIR ProjData wrapper with added functionality.
+
+This class enjoys some features of STIR ProjData and, additioanally,
+implements the linear algebra functionality specified by the
+abstract base class aDatacontainer, and provides means for the data
+storage mode (file/memory) selection.
+*/
 
 class PETAcquisitionData : public aDataContainer < float > {
 public:
@@ -224,6 +257,12 @@ protected:
 	shared_ptr<ProjData> _data;
 };
 
+/*!
+\ingroup STIR Extensions
+\brief In-file implementation of PETAcquisitionData.
+
+*/
+
 class PETAcquisitionDataInFile : public PETAcquisitionData {
 public:
 	PETAcquisitionDataInFile() : _owns_file(false) {}
@@ -296,6 +335,12 @@ private:
 	std::string _filename;
 };
 
+/*!
+\ingroup STIR Extensions
+\brief In-memory implementation of PETAcquisitionData.
+
+*/
+
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
 public:
 	PETAcquisitionDataInMemory() {}
@@ -333,6 +378,15 @@ public:
 	void clear_stream() {}
 	void close_stream()	{}
 };
+
+/*!
+\ingroup STIR Extensions
+\brief STIR DiscretisedDensity<3, float> wrapper with added functionality.
+
+This class enjoys some features of STIR DiscretisedDensity<3, float> and, 
+additioanally, implements the linear algebra functionality specified by the
+abstract base class aDatacontainer.
+*/
 
 class PETImageData : public aDataContainer<float> {
 public:

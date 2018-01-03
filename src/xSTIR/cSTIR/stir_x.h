@@ -21,6 +21,15 @@ limitations under the License.
 #ifndef EXTRA_STIR_TYPES
 #define EXTRA_STIR_TYPES
 
+/*!
+\file
+\ingroup STIR Extensions
+\brief Specification file for extended STIR functionality classes.
+
+\author Evgueni Ovtchinnikov
+\author CCP PETMR
+*/
+
 #include <stdlib.h>
 
 #include "stir_data_containers.h"
@@ -30,6 +39,40 @@ using stir::shared_ptr;
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
+
+/*!
+\ingroup STIR Extensions
+\brief Class for a PET acquisition model.
+
+PET acquisition model relates an image representation \e x to the
+acquisition data representation \e y as
+\f[
+(F)    y = [1/n](G x + [a]) + [b]
+\f]
+where:
+<list>
+<item>
+\e G is the geometric (ray tracing) projector from the image voxels
+to the scanner's pairs of detectors (bins);
+</item>
+<item>
+\e a and \e b are otional additive and background terms representing
+the effects of noise and scattering; assumed to be 0 if not present;
+</item>
+<item>
+\e n is an optional bin normalization term representing the inverse of
+detector (bin) efficiencies; assumed to be 1 if not present.
+</item>
+</list>
+
+The computation of \e y for a given \e x by the above formula (F) is
+referred to as forward projection, and the computation of
+\f[
+(B)    z = G' m y
+\f]
+where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
+backward projection.
+*/
 
 class PETAcquisitionModel {
 public:
@@ -123,6 +166,20 @@ protected:
 	shared_ptr<PETAcquisitionData> sptr_norm_;
 };
 
+/*!
+\ingroup STIR Extensions
+\brief Ray tracing matrix implementation of the PET acquisition model.
+
+In this implementation \e x and \e y are essentially vectors and \e G
+a matrix. Each row of \e G corresponds to a line-of-response (LOR)
+between two detectors (there may be more than one line for each pair).
+The only non-zero elements of each row are those corresponding to
+voxels through which LOR passes, so the matrix is very sparse.
+Furthermore, owing to symmetries, many rows have the same values only
+in different order, and thus only one set of values needs to be computed
+and stored (see STIR documentation for details).
+*/
+
 class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	public:
 	PETAcquisitionModelUsingMatrix()
@@ -156,6 +213,15 @@ private:
 typedef PETAcquisitionModel AcqMod3DF;
 typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 typedef shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+
+/*!
+\ingroup STIR Extensions
+\brief Accessor classes.
+
+Some methods of the STIR classes exposed to the user by SIRF are protected 
+and hence cannot be called directly. The 'accessor' classes below bypass the 
+protection by inheritance.
+*/
 
 class xSTIR_GeneralisedPrior3DF : public GeneralisedPrior < Image3DF > {
 public:
