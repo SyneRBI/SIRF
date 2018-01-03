@@ -25,8 +25,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
         name_
         % Are acquisitions sorted?
         sorted_
-        % array of AcquisitionInfo objects
-        info_
     end
     methods (Static)
         function name = class_name()
@@ -40,7 +38,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
         end
     end
     methods
@@ -50,7 +47,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             self.name_ = 'AcquisitionData';
             self.handle_ = [];
             self.sorted_ = false;
-            self.info_ = mGadgetron.AcquisitionInfo.empty(0);
+            %self.info_ = mGadgetron.AcquisitionInfo.empty(0);
             if nargin > 0
                 self.handle_ = calllib('mgadgetron', ...
                     'mGT_ISMRMRDAcquisitionsFromFile', filename);
@@ -77,59 +74,12 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 self.handle_);
             mUtilities.check_status('AcquisitionData', handle);
             mUtilities.delete(handle)
-            %calllib('mutilities', 'mDeleteDataHandle', handle)
             self.sorted_ = true;
         end
         function sorted = is_sorted(self)
 %***SIRF*** Returns true if acquisitions of this object are sorted
 %         and false otherwise.
             sorted = self.sorted_;
-        end
-        function set_info(self)
-%***SIRF*** Fills the acquisition info array (a property of this class)
-%         with information on the data acquisition (e.g. type of data 
-%         (noise, image,..), k-space location, slice number,...)           
-            na = self.number();
-            self.info_(na) = mGadgetron.AcquisitionInfo;
-            for ia = 1 : na
-                acq = self.acquisition(ia);
-                info = mGadgetron.AcquisitionInfo();
-                info.flags_ = acq.flags();
-                info.encode_step_1_ = acq.idx_kspace_encode_step_1();
-                info.slice_ = acq.idx_slice();
-                info.repetition_ = acq.idx_repetition();
-                self.info_(ia) = info;
-            end
-        end
-        function info = get_info(self, info_type)
-%***SIRF*** Returns an array of acquisitions info of the specified type.
-%         Currently implemented types are: 
-%         - flags
-%         - encode_step_1
-%         - slice
-%         - repetition
-            if isempty(self.info_)
-                self.set_info()
-            end
-            na = self.number();
-            info = zeros(na, 1);
-            if strcmp(info_type, 'flags')
-                for a = 1 : na
-                    info(a) = self.info_(a).flags_;
-                end
-            elseif strcmp(info_type, 'encode_step_1')
-                for a = 1 : na
-                    info(a) = self.info_(a).encode_step_1_;
-                end
-            elseif strcmp(info_type, 'slice')
-                for a = 1 : na
-                    info(a) = self.info_(a).slice_;
-                end
-            elseif strcmp(info_type, 'repetition')
-                for a = 1 : na
-                    info(a) = self.info_(a).repetition_;
-                end
-            end
         end
         function a = process(self, list)
 %***SIRF*** Returns acquisitions processed by a chain of gadgets.

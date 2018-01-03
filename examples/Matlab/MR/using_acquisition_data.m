@@ -59,21 +59,24 @@ fprintf('processing acquisitions...\n')
 processed_data = preprocess_acquisition_data(acq_data);
 processed_data.sort()
 
-% selected methods for getting information
-flags = acq_data.get_info('flags');
-encode_step_1 = acq_data.get_info('encode_step_1');
-slice = acq_data.get_info('slice');
-repetition = acq_data.get_info('repetition');
-
+% display acquistion parameters
 while true
     num = input('enter acquisition number (0 to stop this loop): ');
     if num < 1 || num > na
         break
     end
-    fprintf('flags: %d\n', flags(num))
-    fprintf('encode step 1: %d\n', encode_step_1(num))
-    fprintf('slice: %d\n', slice(num))
-    fprintf('repetition: %d\n', repetition(num))
+    a = acq_data.acquisition(num);
+    fprintf('flags: %d\n', a.flags())
+    fprintf('encode step 1: %d\n', a.kspace_encode_step_1())
+    fprintf('slice: %d\n', a.slice())
+    fprintf('repetition: %d\n', a.repetition())
+    fprintf('sample_time_us: %f\n', a.sample_time_us())
+    fprintf('sample_time_us: %f\n', a.info('sample_time_us'))
+    fprintf('physiology time stamp: %d %d %d\n', a.physiology_time_stamp())
+    fprintf('channel_mask: ')
+    fprintf('%d ', a.channel_mask())
+    fprintf('\n')
+    fprintf('read dir: %f %f %f\n', a.read_dir())
 end
 
 % Data returned as complex array
