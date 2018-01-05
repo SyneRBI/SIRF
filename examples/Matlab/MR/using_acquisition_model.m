@@ -62,8 +62,23 @@ recon.set_input(processed_data)
 fprintf('reconstructing...\n')
 recon.process()
 
-% retrieve reconstruction as ImageDataobject
+% retrieve reconstruction as ImageData object
 image_data = recon.get_output('image');
+
+par = {'flags', 'channels', 'slice', 'repetition'};
+for i = 1 : image_data.number()
+    fprintf('--- image %d\n', i)
+    image = image_data.image(i);
+    for p = 1 : length(par)
+        name = char(par(p));
+        fprintf('%s %d\n', name, image.info(name))
+    end
+%     fprintf('flags %d\n', image.flags())
+%     fprintf('channels %d\n', image.channels())
+%     fprintf('slice %d\n', image.slice())
+%     fprintf('repetition %d\n', image.info('repetition'))
+    fprintf('matrix size %dx%dx%d\n', image.matrix_size())
+end
 
 % compute coil sensitivity maps
 csms = CoilSensitivityData();
