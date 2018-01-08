@@ -49,6 +49,8 @@ extern "C" {
 	void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
+	void* cSTIR_createPETAcquisitionSensitivityModel
+		(const void* ptr_src, const char* src);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
 	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);

@@ -32,15 +32,40 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
 	shared_ptr<BinNormalisation> 
 		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
-	norm_vector_.push_back(sptr_n);
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(PETImageData& id)
+{
+	shared_ptr<BinNormalisationFromAttenuationImage>
+		sptr_n(new BinNormalisationFromAttenuationImage(id.data_sptr()));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(std::string filename)
+{
+	shared_ptr<BinNormalisationFromECAT8> 
+		sptr_n(new BinNormalisationFromECAT8(filename));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
 }
 
 void
-PETAcquisitionSensitivityModel::
-undo(PETAcquisitionData& ad)
+PETAcquisitionSensitivityModel::apply(PETAcquisitionData& ad)
 {
-	for (int i = 0; i < norm_vector_.size(); i++)
-		norm_vector_[i].get()->undo(*ad.data(), 0, 1);
+	BinNormalisation* norm = norm_.get();
+	norm->undo(*ad.data(), 0, 1);
+}
+
+void
+PETAcquisitionSensitivityModel::undo(PETAcquisitionData& ad)
+{
+	BinNormalisation* norm = norm_.get();
+	norm->apply(*ad.data(), 0, 1);
 }
 
 void
@@ -90,7 +115,7 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	else
 		std::cout << "no additive term added\n";
 
-	clear_stream();
+	//clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);

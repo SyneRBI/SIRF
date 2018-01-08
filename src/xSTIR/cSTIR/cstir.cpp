@@ -259,6 +259,29 @@ void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 }
 
 extern "C"
+void* cSTIR_createPETAcquisitionSensitivityModel
+	(const void* ptr_src, const char* src)
+{
+	try {
+		shared_ptr<PETAcquisitionSensitivityModel> sptr;
+		if (boost::iequals(src, "s")) {
+			PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(ad));
+		}
+		else if (boost::iequals(src, "i")) {
+			PETImageData& id = objectFromHandle<PETImageData>(ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(id));
+		}
+		else if (boost::iequals(src, "n")) {
+			CAST_PTR(DataHandle, h, ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(charDataFromDataHandle(h)));
+		}
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 {
 	try {

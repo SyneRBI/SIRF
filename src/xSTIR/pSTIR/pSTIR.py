@@ -748,6 +748,34 @@ class ListmodeToSinograms:
     def process(self):
         try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
 
+class AcquisitionSensitivityModel:
+    '''
+    Class for PET scanner detector efficiencies model.
+    '''
+    def __init__(self, src):
+        self.handle = None
+        self.name = 'AcquisitionSensitivityModel'
+        if src is None:
+            return
+        if isinstance(src, str):
+            h = pyiutil.charDataHandle(str)
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (src.handle, 'n')
+        elif isinstance(src, ImageData):
+            assert src.handle is not None
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (src.handle, 'i')
+        elif isinstance(src, AcquisitionData):
+            assert src.handle is not None
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (src.handle, 's')
+        else:
+            raise error('Wrong source in AcquisitionData constructor')
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
 class AcquisitionModel:
     ''' 
     Class for a PET acquisition model that relates an image x to the
@@ -812,6 +840,14 @@ class AcquisitionModel:
         assert_validity(norm, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+    def set_normalization(self, norm):
+        ''' 
+        Sets the normalization n in (F);
+        norm:  an AcquisitionSensitivityModel object containing normalisation n
+        '''
+        assert_validity(norm, AcquisitionSensitivityModel)
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'normalization', norm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);
