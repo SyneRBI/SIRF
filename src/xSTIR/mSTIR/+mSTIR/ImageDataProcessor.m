@@ -38,7 +38,7 @@ classdef ImageDataProcessor < handle
         end
         function apply(self, image)
 %***SIRF*** Processes the specified image.
-            h = calllib('mstir', 'mSTIR_applyDataProcessor',...
+            h = calllib('mstir', 'mSTIR_applyImageDataProcessor',...
                 self.handle_, image.handle_);
             mUtilities.check_status('DataProcessor:apply', h)
             mUtilities.delete(h)

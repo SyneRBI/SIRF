@@ -245,7 +245,7 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
-void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
+void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
 		DataProcessor<Image3DF>& processor =

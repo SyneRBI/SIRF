@@ -513,7 +513,7 @@ class ImageDataProcessor:
         assert_validity(image, ImageData)
 ##        assert isinstance(image, ImageData)
 ##        assert image.handle is not None
-        try_calling(pystir.cSTIR_applyDataProcessor\
+        try_calling(pystir.cSTIR_applyImageDataProcessor\
                  (self.handle, image.handle))
     def set_input(self, input):
         '''

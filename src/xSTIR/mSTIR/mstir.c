@@ -57,8 +57,8 @@ EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 	return cSTIR_convertListmodeToSinograms(ptr);
 }
-EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
-	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
+EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d) {
+	return cSTIR_applyImageDataProcessor(ptr_p, ptr_d);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
