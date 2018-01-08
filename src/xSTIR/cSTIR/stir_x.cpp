@@ -24,6 +24,25 @@ limitations under the License.
 
 using stir::shared_ptr;
 
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
+{
+	shared_ptr<PETAcquisitionData>
+		sptr_ad(ad.new_acquisition_data());
+	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
+	shared_ptr<BinNormalisation> 
+		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
+	norm_vector_.push_back(sptr_n);
+}
+
+void
+PETAcquisitionSensitivityModel::
+undo(PETAcquisitionData& ad)
+{
+	for (int i = 0; i < norm_vector_.size(); i++)
+		norm_vector_[i].get()->undo(*ad.data(), 0, 1);
+}
+
 void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
@@ -35,7 +54,7 @@ PETAcquisitionModel::set_bin_efficiency
 		(new BinNormalisationFromProjData(sptr_ad->data()));
 	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
 
-	sptr_norm_ = sptr_ad;
+	//sptr_norm_ = sptr_ad;
 }
 
 Succeeded 

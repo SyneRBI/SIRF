@@ -40,6 +40,14 @@ using stir::shared_ptr;
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
 
+class PETAcquisitionSensitivityModel {
+public:
+	PETAcquisitionSensitivityModel(PETAcquisitionData& ad);
+	void undo(PETAcquisitionData& ad);
+protected:
+	std::vector<shared_ptr<BinNormalisation> > norm_vector_;
+};
+
 /*!
 \ingroup STIR Extensions
 \brief Class for a PET acquisition model.
