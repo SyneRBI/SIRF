@@ -766,9 +766,9 @@ class AcquisitionSensitivityModel:
         if src is None:
             return
         if isinstance(src, str):
-            h = pyiutil.charDataHandle(str)
+            handle = pyiutil.charDataHandle(str)
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
-                (src.handle, 'n')
+                (handle, 'n')
         elif isinstance(src, ImageData):
             assert src.handle is not None
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
