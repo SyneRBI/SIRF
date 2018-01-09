@@ -329,14 +329,25 @@ extern "C"
 void*
 cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 { 
+	//std::cout << scheme << '\n';
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
 			PETAcquisitionDataInFile::set_as_template();
 		else
 			PETAcquisitionDataInMemory::set_as_template();
+		//std::string storage = PETAcquisitionData::storage_scheme();
+		//std::cout << storage.c_str() << '\n';
 		return (void*)new DataHandle;
 	}
 	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_getAcquisitionsStorageScheme()
+{
+	return charDataHandleFromCharData
+		(PETAcquisitionData::storage_scheme().c_str());
 }
 
 extern "C"
@@ -346,6 +357,30 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
 		shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_acquisitionsDataFromScannerInfo
+(const char* scanner, int span, int max_ring_diff, int view_mash_factor)
+{
+	std::string storage = PETAcquisitionData::storage_scheme();
+	//std::cout << storage.c_str() << '\n';
+	try{
+		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+		if (storage[0] == 'f' || strcmp(storage.c_str(), "default") == 0) {
+			shared_ptr<PETAcquisitionDataInFile> 
+				sptr(new PETAcquisitionDataInFile
+				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			return newObjectHandle(sptr);
+		}
+		else {
+			shared_ptr<PETAcquisitionDataInMemory>
+				sptr(new PETAcquisitionDataInMemory
+				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			return newObjectHandle(sptr);
+		}
 	}
 	CATCH;
 }

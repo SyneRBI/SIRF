@@ -117,6 +117,14 @@ public:
 		_filename(filename),
 		_owns_file(owns_file)
 	{}
+	ProjDataFile(shared_ptr<ExamInfo> sptr_exam_info, 
+		shared_ptr<ProjDataInfo> sptr_proj_data_info, 
+		const std::string& filename, bool owns_file = true) :
+		ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
+		filename, std::ios::in | std::ios::out | std::ios::trunc),
+		_filename(filename),
+		_owns_file(owns_file)
+	{}
 	~ProjDataFile()
 	{
 		close_stream();
@@ -154,7 +162,7 @@ private:
 \ingroup STIR Extensions
 \brief STIR ProjData wrapper with added functionality.
 
-This class enjoys some features of STIR ProjData and, additioanally,
+This class enjoys some features of STIR ProjData and, additionally,
 implements the linear algebra functionality specified by the
 abstract base class aDatacontainer, and provides means for the data
 storage mode (file/memory) selection.
@@ -166,6 +174,17 @@ public:
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	virtual aDataContainer<float>* new_data_container() = 0;
+
+	static std::string storage_scheme()
+	{
+		static bool initialized = false;
+		if (!initialized) {
+			_storage_scheme = "file";
+			initialized = true;
+		}
+		return _storage_scheme;
+	}
+
 	shared_ptr<ProjData> data()
 	{
 		return _data;
@@ -243,18 +262,28 @@ public:
 		return data()->get_proj_data_info_sptr();
 	}
 
-	virtual void clear_stream() = 0;
-	virtual void close_stream() = 0;
-
 	// ProjData casts
 	operator ProjData&() { return *data(); }
 	operator const ProjData&() const { return *data(); }
 	operator shared_ptr<ProjData>() { return data(); }
 
 protected:
-	//static std::string _storage_scheme;
+	static std::string _storage_scheme;
 	static shared_ptr<PETAcquisitionData> _template;
 	shared_ptr<ProjData> _data;
+
+	static shared_ptr<ProjDataInfo> 
+		proj_data_info_from_scanner(std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		shared_ptr<Scanner> sptr_s(Scanner::get_scanner_from_name(scanner_name));
+		int num_views = sptr_s->get_num_detectors_per_ring() / 2 / view_mash_factor;
+		int num_tang_pos = sptr_s->get_max_num_non_arccorrected_bins();
+		if (max_ring_diff < 0)
+			max_ring_diff = sptr_s->get_num_rings() - 1;
+		return std::move(ProjDataInfo::construct_proj_data_info
+			(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
+	}
 };
 
 /*!
@@ -275,59 +304,51 @@ public:
 		_data.reset(new ProjDataFile
 		(pd, _filename = SIRFUtilities::scratch_file_name()));
 	}
-	//~PETAcquisitionDataInFile()
-	//{
-	//	_data.reset();
-	//	if (!_owns_file)
-	//		return;
-	//	int err;
-	//	err = std::remove((_filename + ".hs").c_str());
-	//	if (err)
-	//		std::cout << "deleting " << _filename << ".hs "
-	//		<< "failed, please delete manually" << std::endl;
-	//	err = std::remove((_filename + ".s").c_str());
-	//	if (err)
-	//		std::cout << "deleting " << _filename << ".s "
-	//		<< "failed, please delete manually" << std::endl;
-	//}
+	PETAcquisitionDataInFile
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		shared_ptr<ProjDataInfo> sptr_pdi =
+			PETAcquisitionData::proj_data_info_from_scanner
+			(scanner_name, span, max_ring_diff, view_mash_factor);
+		ProjDataFile* ptr = new ProjDataFile(sptr_ei, sptr_pdi,
+			_filename = SIRFUtilities::scratch_file_name());
+		ptr->fill(0.0f);
+		_data.reset(ptr);
+	}
 
 	static void init() {
 		static bool initialized = false;
 		if (!initialized) {
+			_storage_scheme = "file";
 			_template.reset(new PETAcquisitionDataInFile());
 			initialized = true;
+			PETAcquisitionData::storage_scheme();
 		}
 	}
 	static void set_as_template()
 	{
+		//std::cout << "in PETAcquisitionDataInFile\n";
 		init();
+		_storage_scheme = "file";
 		_template.reset(new PETAcquisitionDataInFile);
 	}
 
-	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
 		return ptr_ad;
 	}
-	shared_ptr<PETAcquisitionData> new_acquisition_data()
+	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
 		return shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
-	aDataContainer<float>* new_data_container()
+	virtual aDataContainer<float>* new_data_container()
 	{
 		init();
 		return (aDataContainer<float>*)_template->same_acquisition_data(*data());
-	}
-
-	void clear_stream()
-	{
-		((ProjDataFile*)_data.get())->clear_stream();
-	}
-	void close_stream()
-	{
-		((ProjDataFile*)_data.get())->close_stream();
 	}
 
 private:
@@ -350,33 +371,45 @@ public:
 			(new ProjDataInMemory(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr()));
 	}
+	PETAcquisitionDataInMemory
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		shared_ptr<ProjDataInfo> sptr_pdi =
+			PETAcquisitionData::proj_data_info_from_scanner
+			(scanner_name, span, max_ring_diff, view_mash_factor);
+		ProjDataInMemory* ptr = new ProjDataInMemory(sptr_ei, sptr_pdi);
+		ptr->fill(0.0f);
+		_data.reset(ptr);
+	}
 
 	static void init() { PETAcquisitionDataInFile::init(); }
 	static void set_as_template()
 	{
+		//std::cout << "in PETAcquisitionDataInMemory\n";
 		init();
+		_storage_scheme = "memory";
+		//std::cout << _storage_scheme.c_str() << '\n';
 		_template.reset(new PETAcquisitionDataInMemory);
 	}
 
-	PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
 		return ptr_ad;
 	}
-	shared_ptr<PETAcquisitionData> new_acquisition_data()
+	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
 		return shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
-	aDataContainer<float>* new_data_container()
+	virtual aDataContainer<float>* new_data_container()
 	{
 		init();
 		return _template->same_acquisition_data(*data());
 	}
 
-	void clear_stream() {}
-	void close_stream()	{}
 };
 
 /*!

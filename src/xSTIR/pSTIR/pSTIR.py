@@ -598,7 +598,8 @@ class RayTracingMatrix:
 
 class AcquisitionData(DataContainer):
     '''Class for PET acquisition data.'''
-    def __init__(self, src = None):
+    def __init__\
+        (self, src = None, span = 1, max_ring_diff = -1, view_mash_factor = 1):
         ''' 
         Creates new AcquisitionData object from a file or another
         AcquisitionData object;
@@ -611,9 +612,16 @@ class AcquisitionData(DataContainer):
         if src is None:
             return
         if isinstance(src, str):
-            self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
-            self.read_only = True
-            self.src = 'file'
+            i = src.find('.')
+            if i > -1:
+                self.handle = pystir.cSTIR_objectFromFile\
+                              ('AcquisitionData', src)
+                self.read_only = True
+                self.src = 'file'
+            else:
+                self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
+                    (src, span, max_ring_diff, view_mash_factor)
+                self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             assert src.handle is not None
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\

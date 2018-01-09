@@ -22,6 +22,7 @@ limitations under the License.
 
 using stir::shared_ptr;
 
+std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float

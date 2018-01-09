@@ -78,6 +78,9 @@ EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) 
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
 }
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor) {
+	return cSTIR_acquisitionsDataFromScannerInfo (scanner, span, max_ring_diff, view_mash_factor);
+}
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
 	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);
 }
