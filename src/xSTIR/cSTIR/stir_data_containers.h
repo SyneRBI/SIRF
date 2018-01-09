@@ -328,7 +328,6 @@ public:
 	}
 	static void set_as_template()
 	{
-		//std::cout << "in PETAcquisitionDataInFile\n";
 		init();
 		_storage_scheme = "file";
 		_template.reset(new PETAcquisitionDataInFile);
@@ -386,10 +385,8 @@ public:
 	static void init() { PETAcquisitionDataInFile::init(); }
 	static void set_as_template()
 	{
-		//std::cout << "in PETAcquisitionDataInMemory\n";
 		init();
 		_storage_scheme = "memory";
-		//std::cout << _storage_scheme.c_str() << '\n';
 		_template.reset(new PETAcquisitionDataInMemory);
 	}
 

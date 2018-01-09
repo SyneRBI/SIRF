@@ -183,9 +183,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			<OSSPSReconstruction<Image3DF> >
 			(filename);
 		if (boost::iequals(name, "Image")) {
-			PETImageData* ptr_id = 
-				new PETImageData(read_from_file<Image3DF>(filename));
-			shared_ptr<PETImageData> sptr(ptr_id);
+			shared_ptr<PETImageData> sptr(new PETImageData(filename));
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
@@ -329,14 +327,11 @@ extern "C"
 void*
 cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 { 
-	//std::cout << scheme << '\n';
 	try {
 		if (scheme[0] == 'f' || strcmp(scheme, "default") == 0)
 			PETAcquisitionDataInFile::set_as_template();
 		else
 			PETAcquisitionDataInMemory::set_as_template();
-		//std::string storage = PETAcquisitionData::storage_scheme();
-		//std::cout << storage.c_str() << '\n';
 		return (void*)new DataHandle;
 	}
 	CATCH;
@@ -366,7 +361,6 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 (const char* scanner, int span, int max_ring_diff, int view_mash_factor)
 {
 	std::string storage = PETAcquisitionData::storage_scheme();
-	//std::cout << storage.c_str() << '\n';
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
 		if (storage[0] == 'f' || strcmp(storage.c_str(), "default") == 0) {

@@ -86,6 +86,9 @@ def main():
     # specified by --init option
     init_image_file = existing_filepath(data_path, init_file)
     image = ImageData(init_image_file)
+    image_array = image.as_array()
+    pylab.figure(0)
+    pylab.imshow(image_array[10,:,:])
 
     # set up the reconstructor
     print('setting up, please wait...')
