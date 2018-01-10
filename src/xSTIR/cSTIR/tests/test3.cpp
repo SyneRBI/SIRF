@@ -72,3 +72,19 @@ int test3a()
 
 	return 0;
 }
+
+int test3b()
+{
+	try {
+		std::string input_filename =
+			"C:/Users/wps46139/Documents/GitHub/SIRF/data/examples/PET/norm.n.hdr.STIR";
+		//"C:/Users/wps46139/Documents/GitHub/SIRF/data/examples/PET/list.l.hdr.STIR";
+		shared_ptr<BinNormalisationFromECAT8>
+			sptr_n(new BinNormalisationFromECAT8(input_filename));
+		//shared_ptr<CListModeData> lm_data_ptr;
+		//lm_data_ptr = stir::read_from_file<CListModeData>(input_filename);
+	}
+	catch (...)
+	{
+	}
+}
