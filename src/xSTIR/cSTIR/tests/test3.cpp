@@ -7,7 +7,7 @@
 #include "stir_types.h"
 #include "stir_data_containers.h"
 #include "stir_x.h"
-#include "envar.h"
+#include "SIRF/common/envar.h"
 
 int test3()
 {

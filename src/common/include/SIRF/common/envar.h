@@ -18,16 +18,13 @@ limitations under the License.
 
 */
 
-#ifndef GET_ENVIRONMENT_VARIABLES
-#define GET_ENVIRONMENT_VARIABLES
-
 #include <string>
 using std::string;
 
 #ifdef _MSC_VER
 #if _MSC_VER >= 1900
 using namespace System;
-static string toStandardString(System::String^ var)
+inline string toStandardString(System::String^ var)
 {
 	using System::Runtime::InteropServices::Marshal;
 	System::IntPtr pointer = Marshal::StringToHGlobalAnsi(var);
@@ -36,7 +33,7 @@ static string toStandardString(System::String^ var)
 	Marshal::FreeHGlobal(pointer);
 	return returnString;
 }
-string EnvironmentVariable(const char* name)
+inline string EnvironmentVariable(const char* name)
 {
 	try {
 		System::String^ var = gcnew String(name);
@@ -50,7 +47,7 @@ string EnvironmentVariable(const char* name)
 #include <tchar.h>
 #include <Windows.h>
 #define BUFSIZE 4096
-string EnvironmentVariable(const char* name)
+inline string EnvironmentVariable(const char* name)
 {
 	DWORD dwRet;
 	LPTSTR ptr_value;
@@ -67,7 +64,7 @@ string EnvironmentVariable(const char* name)
 #endif
 #else
 #include <cstdlib>
-string EnvironmentVariable(const char* name)
+inline string EnvironmentVariable(const char* name)
 {
 	const char* val = ::getenv(name);
 	if (val)
@@ -75,6 +72,4 @@ string EnvironmentVariable(const char* name)
 	else
 		return "";
 }
-#endif
-
 #endif
