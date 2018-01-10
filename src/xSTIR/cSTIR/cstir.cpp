@@ -280,6 +280,25 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 }
 
 extern "C"
+void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
+{
+	try {
+		PETAcquisitionSensitivityModel& sm = 
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr());
+		DataHandle* handle = new DataHandle;
+		if (s != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 {
 	try {

@@ -53,6 +53,8 @@ public:
 	PETAcquisitionSensitivityModel(PETImageData& id);
 	PETAcquisitionSensitivityModel(std::string filename);
 
+	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
+
 	// multiply by bin efficiencies
 	void apply(PETAcquisitionData& ad);
 	// divide by bin efficiencies

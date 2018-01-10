@@ -41,6 +41,7 @@ PETAcquisitionSensitivityModel(PETImageData& id)
 {
 	shared_ptr<BinNormalisationFromAttenuationImage>
 		sptr_n(new BinNormalisationFromAttenuationImage(id.data_sptr()));
+	//sptr_n->post_processing();
 	shared_ptr<BinNormalisation> sptr_0;
 	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
 }
@@ -52,6 +53,12 @@ PETAcquisitionSensitivityModel(std::string filename)
 		sptr_n(new BinNormalisationFromECAT8(filename));
 	shared_ptr<BinNormalisation> sptr_0;
 	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+Succeeded 
+PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
+{
+	return norm_->set_up(sptr_pdi);
 }
 
 void
