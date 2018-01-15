@@ -57,8 +57,11 @@ EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr) {
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 	return cSTIR_convertListmodeToSinograms(ptr);
 }
-EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d) {
-	return cSTIR_applyDataProcessor(ptr_p, ptr_d);
+EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d) {
+	return cSTIR_applyImageDataProcessor(ptr_p, ptr_d);
+}
+EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src) {
+	return cSTIR_createPETAcquisitionSensitivityModel (ptr_src, src);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
@@ -74,6 +77,9 @@ EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) 
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
+}
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor) {
+	return cSTIR_acquisitionsDataFromScannerInfo (scanner, span, max_ring_diff, view_mash_factor);
 }
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim) {
 	return cSTIR_getAcquisitionsDimensions(ptr_acq, ptr_dim);

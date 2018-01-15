@@ -219,6 +219,9 @@ cSTIR_setAcquisitionModelParameter
 		am.set_background_term(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "normalisation"))
 		am.set_normalisation(objectSptrFromHandle<PETAcquisitionData>(hv));
+	else if (boost::iequals(name, "normalization"))
+		am.set_normalisation
+			(objectSptrFromHandle<PETAcquisitionSensitivityModel>(hv));
 	else if (boost::iequals(name, "bin_efficiency"))
 		am.set_bin_efficiency(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else

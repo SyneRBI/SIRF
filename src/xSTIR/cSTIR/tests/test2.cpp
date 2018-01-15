@@ -3,7 +3,7 @@
 #include "cstir.h"
 #include "handle.h"
 #include "stir_types.h"
-#include "envar.h"
+#include "SIRF/common/envar.h"
 
 void* TMP_HANDLE;
 

@@ -42,12 +42,14 @@ EXPORTED_FUNCTION 	void* mSTIR_parameter(const void* ptr, const char* obj, const
 EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsInterval (void* ptr_acq, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr);
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr);
-EXPORTED_FUNCTION 	void* mSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
+EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
+EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src);
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data);

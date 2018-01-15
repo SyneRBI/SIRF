@@ -24,6 +24,57 @@ limitations under the License.
 
 using stir::shared_ptr;
 
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
+{
+	shared_ptr<PETAcquisitionData>
+		sptr_ad(ad.new_acquisition_data());
+	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
+	shared_ptr<BinNormalisation> 
+		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(PETImageData& id)
+{
+	shared_ptr<BinNormalisationFromAttenuationImage>
+		sptr_n(new BinNormalisationFromAttenuationImage(id.data_sptr()));
+	//sptr_n->post_processing();
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+PETAcquisitionSensitivityModel::
+PETAcquisitionSensitivityModel(std::string filename)
+{
+	shared_ptr<BinNormalisationFromECAT8> 
+		sptr_n(new BinNormalisationFromECAT8(filename));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+}
+
+Succeeded 
+PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
+{
+	return norm_->set_up(sptr_pdi);
+}
+
+void
+PETAcquisitionSensitivityModel::apply(PETAcquisitionData& ad)
+{
+	BinNormalisation* norm = norm_.get();
+	norm->undo(*ad.data(), 0, 1);
+}
+
+void
+PETAcquisitionSensitivityModel::undo(PETAcquisitionData& ad)
+{
+	BinNormalisation* norm = norm_.get();
+	norm->apply(*ad.data(), 0, 1);
+}
+
 void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
@@ -35,7 +86,7 @@ PETAcquisitionModel::set_bin_efficiency
 		(new BinNormalisationFromProjData(sptr_ad->data()));
 	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
 
-	sptr_norm_ = sptr_ad;
+	//sptr_norm_ = sptr_ad;
 }
 
 Succeeded 
@@ -71,7 +122,7 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	else
 		std::cout << "no additive term added\n";
 
-	clear_stream();
+	//clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);

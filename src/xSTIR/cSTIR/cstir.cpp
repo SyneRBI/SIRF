@@ -183,9 +183,7 @@ void* cSTIR_objectFromFile(const char* name, const char* filename)
 			<OSSPSReconstruction<Image3DF> >
 			(filename);
 		if (boost::iequals(name, "Image")) {
-			PETImageData* ptr_id = 
-				new PETImageData(read_from_file<Image3DF>(filename));
-			shared_ptr<PETImageData> sptr(ptr_id);
+			shared_ptr<PETImageData> sptr(new PETImageData(filename));
 			return newObjectHandle(sptr);
 		}
 		if (boost::iequals(name, "AcquisitionData")) {
@@ -245,7 +243,7 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
-void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
+void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
 		DataProcessor<Image3DF>& processor =
@@ -254,6 +252,48 @@ void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_i)
 		Image3DF& image = id.data();
 		processor.apply(image);
 		return (void*) new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_createPETAcquisitionSensitivityModel
+	(const void* ptr_src, const char* src)
+{
+	try {
+		shared_ptr<PETAcquisitionSensitivityModel> sptr;
+		if (boost::iequals(src, "s")) {
+			PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(ad));
+		}
+		else if (boost::iequals(src, "i")) {
+			PETImageData& id = objectFromHandle<PETImageData>(ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(id));
+		}
+		else if (boost::iequals(src, "n")) {
+			CAST_PTR(DataHandle, h, ptr_src);
+			sptr.reset(new PETAcquisitionSensitivityModel(charDataFromDataHandle(h)));
+		}
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
+{
+	try {
+		PETAcquisitionSensitivityModel& sm = 
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		Succeeded s = sm.set_up(sptr_ad->data()->get_proj_data_info_sptr());
+		DataHandle* handle = new DataHandle;
+		if (s != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_acquisitionModelSetup failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
 	}
 	CATCH;
 }
@@ -317,12 +357,43 @@ cSTIR_setAcquisitionsStorageScheme(const char* scheme)
 }
 
 extern "C"
+void*
+cSTIR_getAcquisitionsStorageScheme()
+{
+	return charDataHandleFromCharData
+		(PETAcquisitionData::storage_scheme().c_str());
+}
+
+extern "C"
 void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 {
 	try {
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
 		shared_ptr<PETAcquisitionData> sptr(sptr_t->new_acquisition_data());
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_acquisitionsDataFromScannerInfo
+(const char* scanner, int span, int max_ring_diff, int view_mash_factor)
+{
+	std::string storage = PETAcquisitionData::storage_scheme();
+	try{
+		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
+		if (storage[0] == 'f' || strcmp(storage.c_str(), "default") == 0) {
+			shared_ptr<PETAcquisitionDataInFile> 
+				sptr(new PETAcquisitionDataInFile
+				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			return newObjectHandle(sptr);
+		}
+		else {
+			shared_ptr<PETAcquisitionDataInMemory>
+				sptr(new PETAcquisitionDataInMemory
+				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+			return newObjectHandle(sptr);
+		}
 	}
 	CATCH;
 }

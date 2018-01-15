@@ -114,7 +114,10 @@ def main():
         bin_eff_arr[:,10:50,:] = 0
     show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
     bin_eff.fill(bin_eff_arr)
-    acq_model.set_bin_efficiency(bin_eff)
+    #acq_model.set_bin_efficiency(bin_eff)
+
+    asm = AcquisitionSensitivityModel(bin_eff)
+    acq_model.set_normalization(asm)
 
     # testing additive term
     add = acq_template.clone()

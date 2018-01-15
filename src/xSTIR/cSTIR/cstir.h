@@ -46,9 +46,12 @@ extern "C" {
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 
 	// Data processor methods
-	void* cSTIR_applyDataProcessor(const void* ptr_p, void* ptr_d);
+	void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);
 
 	// Acquisition model methods
+	void* cSTIR_createPETAcquisitionSensitivityModel
+		(const void* ptr_src, const char* src);
+	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
 	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
@@ -56,6 +59,8 @@ extern "C" {
 	// Acquisition data methods
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+	void* cSTIR_acquisitionsDataFromScannerInfo
+		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
 	void* cSTIR_getAcquisitionsData(const void* ptr_acq, PTR_FLOAT ptr_data);
 	void* cSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_data);

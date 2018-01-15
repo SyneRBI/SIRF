@@ -513,7 +513,7 @@ class ImageDataProcessor:
         assert_validity(image, ImageData)
 ##        assert isinstance(image, ImageData)
 ##        assert image.handle is not None
-        try_calling(pystir.cSTIR_applyDataProcessor\
+        try_calling(pystir.cSTIR_applyImageDataProcessor\
                  (self.handle, image.handle))
     def set_input(self, input):
         '''
@@ -598,7 +598,8 @@ class RayTracingMatrix:
 
 class AcquisitionData(DataContainer):
     '''Class for PET acquisition data.'''
-    def __init__(self, src = None):
+    def __init__\
+        (self, src = None, span = 1, max_ring_diff = -1, view_mash_factor = 1):
         ''' 
         Creates new AcquisitionData object from a file or another
         AcquisitionData object;
@@ -611,9 +612,16 @@ class AcquisitionData(DataContainer):
         if src is None:
             return
         if isinstance(src, str):
-            self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', src)
-            self.read_only = True
-            self.src = 'file'
+            i = src.find('.')
+            if i > -1:
+                self.handle = pystir.cSTIR_objectFromFile\
+                              ('AcquisitionData', src)
+                self.read_only = True
+                self.src = 'file'
+            else:
+                self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
+                    (src, span, max_ring_diff, view_mash_factor)
+                self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             assert src.handle is not None
             self.handle = pystir.cSTIR_acquisitionsDataFromTemplate\
@@ -748,6 +756,34 @@ class ListmodeToSinograms:
     def process(self):
         try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
 
+class AcquisitionSensitivityModel:
+    '''
+    Class for PET scanner detector efficiencies model.
+    '''
+    def __init__(self, src):
+        self.handle = None
+        self.name = 'AcquisitionSensitivityModel'
+        if src is None:
+            return
+        if isinstance(src, str):
+            handle = pyiutil.charDataHandle(str)
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (handle, 'n')
+        elif isinstance(src, ImageData):
+            assert src.handle is not None
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (src.handle, 'i')
+        elif isinstance(src, AcquisitionData):
+            assert src.handle is not None
+            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
+                (src.handle, 's')
+        else:
+            raise error('Wrong source in AcquisitionData constructor')
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
 class AcquisitionModel:
     ''' 
     Class for a PET acquisition model that relates an image x to the
@@ -812,6 +848,14 @@ class AcquisitionModel:
         assert_validity(norm, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+    def set_normalization(self, norm):
+        ''' 
+        Sets the normalization n in (F);
+        norm:  an AcquisitionSensitivityModel object containing normalisation n
+        '''
+        assert_validity(norm, AcquisitionSensitivityModel)
+        _setParameter\
+            (self.handle, 'AcquisitionModel', 'normalization', norm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);

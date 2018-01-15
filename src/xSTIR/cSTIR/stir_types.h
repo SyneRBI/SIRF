@@ -40,7 +40,10 @@ limitations under the License.
 #include "stir/ProjDataInfoCylindrical.h"
 #include "stir/ProjDataInMemory.h"
 #include "stir/ProjDataInterfile.h"
+#include "stir/recon_buildblock/BinNormalisationFromAttenuationImage.h"
+#include "stir/recon_buildblock/BinNormalisationFromECAT8.h"
 #include "stir/recon_buildblock/BinNormalisationFromProjData.h"
+#include "stir/recon_buildblock/ChainedBinNormalisation.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
@@ -58,6 +61,7 @@ limitations under the License.
 using stir::shared_ptr;
 
 USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
 
 typedef DiscretisedDensity<3, float> Image3DF;
 typedef shared_ptr<Image3DF> sptrImage3DF;

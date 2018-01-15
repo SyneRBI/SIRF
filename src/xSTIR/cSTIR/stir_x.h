@@ -42,6 +42,39 @@ using stir::shared_ptr;
 
 /*!
 \ingroup STIR Extensions
+\brief Class for PET scanner detector efficiencies model.
+
+*/
+
+class PETAcquisitionSensitivityModel {
+public:
+	// create from bin (detector pair) efficiencies sinograms
+	PETAcquisitionSensitivityModel(PETAcquisitionData& ad);
+	PETAcquisitionSensitivityModel(PETImageData& id);
+	PETAcquisitionSensitivityModel(std::string filename);
+
+	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
+
+	// multiply by bin efficiencies
+	void apply(PETAcquisitionData& ad);
+	// divide by bin efficiencies
+	void undo(PETAcquisitionData& ad);
+
+	shared_ptr<BinNormalisation> data()
+	{
+		return std::dynamic_pointer_cast<BinNormalisation>(norm_);
+	}
+	const shared_ptr<BinNormalisation> data() const
+	{
+		return std::dynamic_pointer_cast<BinNormalisation>(norm_);
+	}
+
+private:
+	shared_ptr<ChainedBinNormalisation> norm_;
+};
+
+/*!
+\ingroup STIR Extensions
 \brief Class for a PET acquisition model.
 
 PET acquisition model relates an image representation \e x to the
@@ -76,16 +109,6 @@ backward projection.
 
 class PETAcquisitionModel {
 public:
-	~PETAcquisitionModel()
-	{
-		sptr_projectors_.reset();
-		sptr_acq_template_.reset();
-		sptr_image_template_.reset();
-		sptr_add_.reset();
-		sptr_background_.reset();
-		sptr_normalisation_.reset();
-		sptr_norm_.reset();
-	}
 	void set_projectors(shared_ptr<ProjectorByBinPair> sptr_projectors)
 	{
 		sptr_projectors_ = sptr_projectors;
@@ -121,9 +144,13 @@ public:
 	void set_bin_efficiency(shared_ptr<PETAcquisitionData> sptr_data);
 	void set_normalisation(shared_ptr<PETAcquisitionData> sptr_data)
 	{
-		shared_ptr<ProjData> sptr(new ProjDataInMemory(*sptr_data));
-		sptr_normalisation_.reset(new BinNormalisationFromProjData(sptr));
+		sptr_normalisation_.reset(new BinNormalisationFromProjData(*sptr_data));
 	}
+	void set_normalisation(shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
+	{
+		sptr_normalisation_ = sptr_asm->data();
+	}
+
 	void cancel_background_term()
 	{
 		sptr_background_.reset();
@@ -135,16 +162,6 @@ public:
 	void cancel_normalisation()
 	{
 		sptr_normalisation_.reset();
-	}
-	void clear_stream()
-	{
-		if (sptr_norm_.get())
-			sptr_norm_->clear_stream();
-	}
-	void close_stream()
-	{
-		if (sptr_norm_.get())
-			sptr_norm_->close_stream();
 	}
 
 	virtual Succeeded set_up(
@@ -163,7 +180,7 @@ protected:
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
 	shared_ptr<BinNormalisation> sptr_normalisation_;
-	shared_ptr<PETAcquisitionData> sptr_norm_;
+	//shared_ptr<PETAcquisitionData> sptr_norm_;
 };
 
 /*!
