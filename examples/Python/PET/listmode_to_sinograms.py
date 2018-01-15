@@ -54,10 +54,10 @@ s_file = args['<s_file>']
 t_file = args['<t_file>']
 storage = args['--storage']
 
-# quick fix for data path problem in the listmode header
-i = h_file.find('.')
-l_file = h_file[0:i] + '.l'
-copyfile(prefix + l_file, l_file)
+### quick fix for data path problem in the listmode header
+##i = h_file.find('.')
+##l_file = h_file[0:i] + '.l'
+##copyfile(prefix + l_file, l_file)
 
 def main():
 
