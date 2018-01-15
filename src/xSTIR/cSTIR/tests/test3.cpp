@@ -87,4 +87,5 @@ int test3b()
 	catch (...)
 	{
 	}
+	return 0;
 }
