@@ -280,6 +280,22 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 }
 
 extern "C"
+void* cSTIR_chainPETAcquisitionSensitivityModels
+(const void* ptr_first, const void* ptr_second)
+{
+	try {
+		PETAcquisitionSensitivityModel& first =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_first);
+		PETAcquisitionSensitivityModel& second =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_second);
+		shared_ptr<PETAcquisitionSensitivityModel> 
+			sptr(new PETAcquisitionSensitivityModel(first, second));
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 {
 	try {

@@ -52,6 +52,12 @@ public:
 	PETAcquisitionSensitivityModel(PETAcquisitionData& ad);
 	PETAcquisitionSensitivityModel(PETImageData& id);
 	PETAcquisitionSensitivityModel(std::string filename);
+	PETAcquisitionSensitivityModel
+		(const PETAcquisitionSensitivityModel& mod1,
+		const PETAcquisitionSensitivityModel& mod2)
+	{
+		norm_.reset(new ChainedBinNormalisation(mod1.data(), mod2.data()));
+	}
 
 	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
 

@@ -760,7 +760,7 @@ class AcquisitionSensitivityModel:
     '''
     Class for PET scanner detector efficiencies model.
     '''
-    def __init__(self, src):
+    def __init__(self, src, other_src = None):
         self.handle = None
         self.name = 'AcquisitionSensitivityModel'
         if src is None:
@@ -777,6 +777,12 @@ class AcquisitionSensitivityModel:
             assert src.handle is not None
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
                 (src.handle, 's')
+        elif isinstance(src, AcquisitionSensitivityModel) and \
+             isinstance(other_src, AcquisitionSensitivityModel):
+            assert src.handle is not None
+            assert other_src.handle is not None
+            self.handle = pystir.cSTIR_chainPETAcquisitionSensitivityModels\
+                (src.handle, other_src.handle)
         else:
             raise error\
                   ('Wrong source in AcquisitionSensitivityModel constructor')

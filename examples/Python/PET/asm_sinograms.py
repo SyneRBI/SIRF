@@ -60,13 +60,13 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
 
-    # copy the acquisition data into a Python array
+    # copy the acquisition data into a Python array and display it
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
-
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # create bin efficiencies sinograms
     bin_eff = acq_data.clone()
     bin_eff.fill(2.0)
     bin_eff_arr = bin_eff.as_array()
@@ -74,11 +74,33 @@ def main():
     show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
     bin_eff.fill(bin_eff_arr)
 
+    # create acquisition sensitivity model from bin efficiencies
     asm = AcquisitionSensitivityModel(bin_eff)
+
+    # apply normalization to acquisition data
     ad = acq_data.clone()
     asm.apply(ad)
     ad_array = ad.as_array()
-    show_2D_array('Acquisition data', ad_array[z,:,:])
+    show_2D_array('Normalized acquisition data', ad_array[z,:,:])
+
+    # create another bin efficiencies sinograms
+    bin_eff_arr[:,10:50,:] = 2.0
+    bin_eff_arr[:,60:80,:] = 0
+    show_2D_array('Another bin efficiencies', bin_eff_arr[z,:,:])
+    bin_eff2 = acq_data.clone()
+    bin_eff2.fill(bin_eff_arr)
+
+    # create another acquisition sensitivity model from bin efficiencies
+    asm2 = AcquisitionSensitivityModel(bin_eff2)
+
+    # chain the two models
+    asm12 = AcquisitionSensitivityModel(asm, asm2)
+
+    # apply the chain of models to acquisition data
+    ad = acq_data.clone()
+    asm12.apply(ad)
+    ad_array = ad.as_array()
+    show_2D_array('Chain-normalized acquisition data', ad_array[z,:,:])
 
 try:
     main()
