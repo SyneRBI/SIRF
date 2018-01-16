@@ -778,8 +778,14 @@ class AcquisitionSensitivityModel:
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
                 (src.handle, 's')
         else:
-            raise error('Wrong source in AcquisitionData constructor')
+            raise error\
+                  ('Wrong source in AcquisitionSensitivityModel constructor')
         check_status(self.handle)
+    def apply(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle))
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

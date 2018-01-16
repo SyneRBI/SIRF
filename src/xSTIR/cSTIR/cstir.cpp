@@ -299,6 +299,19 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 }
 
 extern "C"
+void* cSTIR_applyAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
+{
+	try {
+		PETAcquisitionSensitivityModel& sm =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		sm.apply(*sptr_ad);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 {
 	try {
