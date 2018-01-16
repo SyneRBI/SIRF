@@ -4,8 +4,9 @@ function import_str = set_up_MR(engine, alias)
     end
     try
         eval(['libload_' lower(engine)])
-    catch
-        error('package %s not found\n', engine)
+    catch me
+        fprintf(me.message)
+        error('package %s failed to load\n', engine)
     end
     if nargin < 2
         import_str = ['import m' engine '.*'];
