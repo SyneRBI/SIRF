@@ -1,7 +1,7 @@
-'''ListmodeToSinogram demo.
+'''Listmode-to-sinograms conversion demo.
 
 Usage:
-  lm2sino [--help | options] <h_file> <s_file> <t_file>
+  listmode_to_sinograms [--help | options] <h_file> <s_file> <t_file>
 
 Arguments:
   h_file  listmode header data file (input)
@@ -11,6 +11,8 @@ Arguments:
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
+  -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
+                               [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
@@ -37,7 +39,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from shutil import copyfile
+from ast import literal_eval
 
 from pUtilities import show_2D_array
 
@@ -52,23 +54,39 @@ prefix = data_path + '/'
 h_file = args['<h_file>']
 s_file = args['<s_file>']
 t_file = args['<t_file>']
+interval = literal_eval(args['--interval'])
 storage = args['--storage']
-
-### quick fix for data path problem in the listmode header
-##i = h_file.find('.')
-##l_file = h_file[0:i] + '.l'
-##copyfile(prefix + l_file, l_file)
 
 def main():
 
+    # select acquisition data storage scheme
+    AcquisitionData.set_storage_scheme(storage)
+
+    # create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms()
+
+    # set input, output and template files
     lm2sino.set_input(prefix + h_file)
     lm2sino.set_output(s_file)
     lm2sino.set_template(prefix + t_file)
-    lm2sino.set_interval(0, 10)
+
+    # set interval
+    lm2sino.set_interval(interval[0], interval[1])
+
+    # set up the converter
     lm2sino.set_up()
 
+    # convert
     lm2sino.process()
+
+    # get access to the sinograms
+    acq_data = AcquisitionData(s_file + '_f1g1d0b0.hs')
+    # copy the acquisition data into a Python array
+    acq_array = acq_data.as_array()
+    acq_dim = acq_array.shape
+    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    z = acq_dim[0]//2
+    show_2D_array('Acquisition data', acq_array[z,:,:])
 
 try:
     main()
