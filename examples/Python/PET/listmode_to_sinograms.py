@@ -73,6 +73,14 @@ def main():
     # set interval
     lm2sino.set_interval(interval[0], interval[1])
 
+    # set flags
+    lm2sino.flag_on('store_prompts')
+    lm2sino.flag_off('interactive')
+    try:
+        lm2sino.flag_on('make cofee')
+    except error as err:
+        print('%s' % err.value)
+
     # set up the converter
     lm2sino.set_up()
 

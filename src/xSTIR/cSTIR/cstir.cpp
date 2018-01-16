@@ -215,6 +215,26 @@ void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 }
 
 extern "C"
+void* cSTIR_setListmodeToSinogramsFlag(void* ptr_lm2s, const char* flag, int v)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		ListmodeToSinograms& lm2s =
+			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		int err = lm2s.set_flag(flag, (bool)v);
+		if (err) {
+			std::string err_msg;
+			err_msg = "ListmodeToSinogram does not have this flag: ";
+			err_msg += flag;
+			ExecutionStatus status(err_msg.c_str(), __FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
 {
 	try {

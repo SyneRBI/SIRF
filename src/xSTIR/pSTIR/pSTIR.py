@@ -751,6 +751,12 @@ class ListmodeToSinograms:
         interval[1] = stop
         try_calling(pystir.cSTIR_setListmodeToSinogramsInterval\
             (self.handle, interval.ctypes.data))
+    def flag_on(self, flag):
+        try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
+            (self.handle, flag, 1))
+    def flag_off(self, flag):
+        try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
+            (self.handle, flag, 0))
     def set_up(self):
         try_calling(pystir.cSTIR_setupListmodeToSinogramsConverter(self.handle))
     def process(self):

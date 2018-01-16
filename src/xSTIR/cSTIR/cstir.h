@@ -42,6 +42,8 @@ extern "C" {
 	// ListmodeToSinogram methods
 	void* cSTIR_setListmodeToSinogramsInterval
 		(void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_setListmodeToSinogramsFlag
+		(void* ptr_lm2s, const char* flag, int v);
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 
