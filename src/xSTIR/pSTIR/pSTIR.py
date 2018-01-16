@@ -766,7 +766,7 @@ class AcquisitionSensitivityModel:
         if src is None:
             return
         if isinstance(src, str):
-            handle = pyiutil.charDataHandle(str)
+            handle = pyiutil.charDataHandle(src)
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
                 (handle, 'n')
         elif isinstance(src, ImageData):
@@ -781,6 +781,11 @@ class AcquisitionSensitivityModel:
             raise error\
                   ('Wrong source in AcquisitionSensitivityModel constructor')
         check_status(self.handle)
+    def set_up(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel\
+            (self.handle, ad.handle))
     def apply(self, ad):
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
