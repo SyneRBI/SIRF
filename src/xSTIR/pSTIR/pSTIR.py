@@ -455,7 +455,8 @@ class ImageData(DataContainer):
 
         Replaces the current content of the object.
         '''
-        assert self.handle is not None
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def write(self, filename):
@@ -639,6 +640,16 @@ class AcquisitionData(DataContainer):
         try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
+    def read_from_file(self, filename): # 'read_from_file' is misleading
+        '''Read data from file.
+
+        Replaces the current content of the object.
+        '''
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
+        check_status(self.handle)
+        self.read_only = True
     def create_uniform_image(self, value = 0):
         ''' 
         Creates ImageData object containing PET image of dimensions

@@ -106,13 +106,13 @@ def main():
     #bin_eff.fill(2.0)
     bin_eff.fill(beff)
     bin_eff_arr = bin_eff.as_array()
-    # set a portion of bin efficiencies to zero;
+    # if bin efficiencies are non-trivial, set a portion of them to zero;
     # this should zero the corresponding portion of forward projection
     # and 'damage' the backprojection making it look less like the
     # actual image
     if beff != 1:
         bin_eff_arr[:,10:50,:] = 0
-    show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
+    show_2D_array('Bin efficiencies', bin_eff_arr[0,:,:])
     bin_eff.fill(bin_eff_arr)
     #acq_model.set_bin_efficiency(bin_eff)
 
@@ -141,7 +141,7 @@ def main():
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
-    show_2D_array('Forward projection', simulated_data_as_array[z,:,:])
+    show_2D_array('Forward projection', simulated_data_as_array[0,:,:])
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
