@@ -72,10 +72,10 @@ def main():
 
     # apply normalization to the uniform acquisition data to obtain
     # bin efficiencies
-    asm.apply(acq_data)
+    fwd_data = asm.forward(acq_data)
 
     # show bin efficiencies
-    acq_array = acq_data.as_array()
+    acq_array = fwd_data.as_array()
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
     show_2D_array('Bin efficiencies', acq_array[z,:,:])

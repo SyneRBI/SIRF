@@ -802,7 +802,15 @@ class AcquisitionSensitivityModel:
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
-            (self.handle, ad.handle))
+            (self.handle, ad.handle, 'apply'))
+    def forward(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        fd = AcquisitionData()
+        fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle, 'fwd')
+        check_status(fd.handle)
+        return fd
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
