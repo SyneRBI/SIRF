@@ -1,4 +1,6 @@
-'''pSTIR OSEM reconstruction tests
+# -*- coding: utf-8 -*-
+"""pSTIR OSEM reconstruction tests
+v{version}
 
 Usage:
   tests_two [--help | options]
@@ -7,30 +9,18 @@ Options:
   -r, --record   record the measurements rather than check them
   -v, --verbose  report each test status
 
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-2017 Casper da Costa-Luis
+{author}
 
-This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
-
-Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-      http://www.apache.org/licenses/LICENSE-2.0
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-'''
+{licence}
+"""
+import math
 from pSTIR import *
-from os import path
+__version__ = "0.2.2"
+__author__ = "Casper da Costa-Luis"
+
 
 def test_main(rec=False, verb=False, throw=True):
-
-    datafile = path.join(path.dirname(__file__), 'test2.txt')
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -71,26 +61,13 @@ def test_main(rec=False, verb=False, throw=True):
     if verb:
         print('projecting...')
     simulated_data = acq_model.forward(image)
-    diff = simulated_data * (acq_data.norm()/simulated_data.norm()) - acq_data
+    diff = simulated_data * (acq_data.norm() / simulated_data.norm()) - acq_data
     if verb:
-        print('relative residual norm: %e' % (diff.norm()/acq_data.norm()))
+        print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
     test.check(diff.norm())
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.2.0'
-    from docopt import docopt
-    args = docopt(__doc__, version=__version__)
-    record = args['--record']
-    verbose = args['--verbose']
-
-    failed, ntest = test_main(record, verbose, throw=False)
-    if failed:
-        print('%d/%d tests failed' % (failed, ntest))
-        sys.exit(failed)
-    if record:
-        print('%d measurements recorded' % ntest)
-    else:
-        print('all %d tests passed' % ntest)
+if __name__ == "__main__":
+    runner(test_main, __doc__, __version__, __author__)
