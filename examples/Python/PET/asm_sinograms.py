@@ -1,18 +1,12 @@
-'''Listmode-to-sinograms conversion demo.
+'''Acquisition sensitivity model using bin efficiencies sinograms demo.
 
 Usage:
-  listmode_to_sinograms [--help | options] <h_file> <s_file> <t_file>
-
-Arguments:
-  h_file  listmode header data file (input)
-  s_file  sinogram data file (output)
-  t_file  sinogram template data file (input)
+  acquisition_sensitivity_model [--help | options]
 
 Options:
+  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
-                               [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
@@ -39,7 +33,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from ast import literal_eval
+import math
 
 from pUtilities import show_2D_array
 
@@ -47,54 +41,66 @@ from pUtilities import show_2D_array
 exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
+data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
-prefix = data_path + '/'
-h_file = args['<h_file>']
-s_file = args['<s_file>']
-t_file = args['<t_file>']
-interval = literal_eval(args['--interval'])
 storage = args['--storage']
 
 def main():
 
+    # output goes to files
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+
     # select acquisition data storage scheme
     AcquisitionData.set_storage_scheme(storage)
 
-    # create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms()
+    # PET acquisition data to be read from this file
+    raw_data_file = existing_filepath(data_path, data_file)
+    print('raw data: %s' % raw_data_file)
+    acq_data = AcquisitionData(raw_data_file)
 
-    # set input, output and template files
-    lm2sino.set_input(prefix + h_file)
-    lm2sino.set_output(s_file)
-    lm2sino.set_template(prefix + t_file)
-
-    # set interval
-    lm2sino.set_interval(interval[0], interval[1])
-
-    # set flags
-    lm2sino.flag_on('store_prompts')
-    lm2sino.flag_off('interactive')
-    try:
-        lm2sino.flag_on('make cofee')
-    except error as err:
-        print('%s' % err.value)
-
-    # set up the converter
-    lm2sino.set_up()
-
-    # convert
-    lm2sino.process()
-
-    # get access to the sinograms
-    acq_data = AcquisitionData(s_file + '_f1g1d0b0.hs')
-    # copy the acquisition data into a Python array
+    # copy the acquisition data into a Python array and display it
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
+
+    # create bin efficiencies sinograms
+    bin_eff = acq_data.clone()
+    bin_eff.fill(2.0)
+    bin_eff_arr = bin_eff.as_array()
+    bin_eff_arr[:,10:50,:] = 0
+    show_2D_array('Bin efficiencies', bin_eff_arr[z,:,:])
+    bin_eff.fill(bin_eff_arr)
+
+    # create acquisition sensitivity model from bin efficiencies
+    asm = AcquisitionSensitivityModel(bin_eff)
+
+    # apply normalization to acquisition data
+    ad = acq_data.clone()
+    asm.apply(ad)
+    ad_array = ad.as_array()
+    show_2D_array('Normalized acquisition data', ad_array[z,:,:])
+
+    # create another bin efficiencies sinograms
+    bin_eff_arr[:,10:50,:] = 2.0
+    bin_eff_arr[:,60:80,:] = 0
+    show_2D_array('Another bin efficiencies', bin_eff_arr[z,:,:])
+    bin_eff2 = acq_data.clone()
+    bin_eff2.fill(bin_eff_arr)
+
+    # create another acquisition sensitivity model from bin efficiencies
+    asm2 = AcquisitionSensitivityModel(bin_eff2)
+
+    # chain the two models
+    asm12 = AcquisitionSensitivityModel(asm, asm2)
+
+    # apply the chain of models to acquisition data
+    ad = acq_data.clone()
+    asm12.apply(ad)
+    ad_array = ad.as_array()
+    show_2D_array('Chain-normalized acquisition data', ad_array[z,:,:])
 
 try:
     main()

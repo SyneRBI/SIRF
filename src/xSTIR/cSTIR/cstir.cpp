@@ -215,6 +215,26 @@ void* cSTIR_setListmodeToSinogramsInterval(void* ptr_lm2s, size_t ptr_data)
 }
 
 extern "C"
+void* cSTIR_setListmodeToSinogramsFlag(void* ptr_lm2s, const char* flag, int v)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		ListmodeToSinograms& lm2s =
+			objectFromHandle<ListmodeToSinograms>(ptr_lm2s);
+		int err = lm2s.set_flag(flag, (bool)v);
+		if (err) {
+			std::string err_msg;
+			err_msg = "ListmodeToSinogram does not have this flag: ";
+			err_msg += flag;
+			ExecutionStatus status(err_msg.c_str(), __FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupListmodeToSinogramsConverter(void* ptr)
 {
 	try {
@@ -280,6 +300,22 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 }
 
 extern "C"
+void* cSTIR_chainPETAcquisitionSensitivityModels
+(const void* ptr_first, const void* ptr_second)
+{
+	try {
+		PETAcquisitionSensitivityModel& first =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_first);
+		PETAcquisitionSensitivityModel& second =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_second);
+		shared_ptr<PETAcquisitionSensitivityModel> 
+			sptr(new PETAcquisitionSensitivityModel(first, second));
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 {
 	try {
@@ -294,6 +330,28 @@ void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad)
 			handle->set(0, &status);
 		}
 		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_applyAcquisitionSensitivityModel
+(void* ptr_sm, void* ptr_ad, const char* job)
+{
+	try {
+		void* handle = new DataHandle;
+		PETAcquisitionSensitivityModel& sm =
+			objectFromHandle<PETAcquisitionSensitivityModel>(ptr_sm);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
+		if (boost::iequals(job, "apply"))
+			sm.apply(*sptr_ad);
+		else if (boost::iequals(job, "undo"))
+			sm.undo(*sptr_ad);
+		else if (boost::iequals(job, "fwd"))
+			handle = newObjectHandle(sm.forward(*sptr_ad));
+		else if (boost::iequals(job, "inv"))
+			handle = newObjectHandle(sm.invert(*sptr_ad));
+		return handle;
 	}
 	CATCH;
 }

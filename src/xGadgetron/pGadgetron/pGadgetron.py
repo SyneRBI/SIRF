@@ -657,6 +657,11 @@ class ImageData(DataContainer):
             pyiutil.deleteDataHandle(self.handle)
     def same_object(self):
         return ImageData()
+    def read_from_file(self, file):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pygadgetron.cGT_readImages(file)
+        check_status(self.handle)
     def data_type(self, im_num):
         '''
         Returns the data type for a specified image (see 8 data types above).

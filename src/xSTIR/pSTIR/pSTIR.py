@@ -455,7 +455,8 @@ class ImageData(DataContainer):
 
         Replaces the current content of the object.
         '''
-        assert self.handle is not None
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
         self.handle = pystir.cSTIR_objectFromFile('Image', filename)
         check_status(self.handle)
     def write(self, filename):
@@ -639,6 +640,16 @@ class AcquisitionData(DataContainer):
         try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
     def same_object(self):
         return AcquisitionData()
+    def read_from_file(self, filename): # 'read_from_file' is misleading
+        '''Read data from file.
+
+        Replaces the current content of the object.
+        '''
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+        self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
+        check_status(self.handle)
+        self.read_only = True
     def create_uniform_image(self, value = 0):
         ''' 
         Creates ImageData object containing PET image of dimensions
@@ -751,6 +762,12 @@ class ListmodeToSinograms:
         interval[1] = stop
         try_calling(pystir.cSTIR_setListmodeToSinogramsInterval\
             (self.handle, interval.ctypes.data))
+    def flag_on(self, flag):
+        try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
+            (self.handle, flag, 1))
+    def flag_off(self, flag):
+        try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
+            (self.handle, flag, 0))
     def set_up(self):
         try_calling(pystir.cSTIR_setupListmodeToSinogramsConverter(self.handle))
     def process(self):
@@ -760,13 +777,13 @@ class AcquisitionSensitivityModel:
     '''
     Class for PET scanner detector efficiencies model.
     '''
-    def __init__(self, src):
+    def __init__(self, src, other_src = None):
         self.handle = None
         self.name = 'AcquisitionSensitivityModel'
         if src is None:
             return
         if isinstance(src, str):
-            handle = pyiutil.charDataHandle(str)
+            handle = pyiutil.charDataHandle(src)
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
                 (handle, 'n')
         elif isinstance(src, ImageData):
@@ -777,9 +794,34 @@ class AcquisitionSensitivityModel:
             assert src.handle is not None
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
                 (src.handle, 's')
+        elif isinstance(src, AcquisitionSensitivityModel) and \
+             isinstance(other_src, AcquisitionSensitivityModel):
+            assert src.handle is not None
+            assert other_src.handle is not None
+            self.handle = pystir.cSTIR_chainPETAcquisitionSensitivityModels\
+                (src.handle, other_src.handle)
         else:
-            raise error('Wrong source in AcquisitionData constructor')
+            raise error\
+                  ('Wrong source in AcquisitionSensitivityModel constructor')
         check_status(self.handle)
+    def set_up(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel\
+            (self.handle, ad.handle))
+    def apply(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle, 'apply'))
+    def forward(self, ad):
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        fd = AcquisitionData()
+        fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle, 'fwd')
+        check_status(fd.handle)
+        return fd
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)

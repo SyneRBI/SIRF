@@ -42,6 +42,8 @@ extern "C" {
 	// ListmodeToSinogram methods
 	void* cSTIR_setListmodeToSinogramsInterval
 		(void* ptr_acq, PTR_FLOAT ptr_data);
+	void* cSTIR_setListmodeToSinogramsFlag
+		(void* ptr_lm2s, const char* flag, int v);
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
 
@@ -51,7 +53,11 @@ extern "C" {
 	// Acquisition model methods
 	void* cSTIR_createPETAcquisitionSensitivityModel
 		(const void* ptr_src, const char* src);
+	void* cSTIR_chainPETAcquisitionSensitivityModels
+		(const void* ptr_first, const void* ptr_second);
 	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
+	void* cSTIR_applyAcquisitionSensitivityModel
+		(void* ptr_sm, void* ptr_ad, const char* job);
 	void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
 	void* cSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);

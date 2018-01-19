@@ -94,6 +94,22 @@ public:
 		intervals.push_back(interval);
 		frame_defs = TimeFrameDefinitions(intervals);
 	}
+	int set_flag(const char* flag, bool value)
+	{
+		if (boost::iequals(flag, "store_prompts"))
+			store_prompts = value;
+		else if (boost::iequals(flag, "store_delayeds"))
+			store_delayeds = value;
+		else if (boost::iequals(flag, "do_pre_normalisation"))
+			do_pre_normalisation = value;
+		else if (boost::iequals(flag, "do_time_frame"))
+			do_time_frame = value;
+		else if (boost::iequals(flag, "interactive"))
+			interactive = value;
+		else
+			return -1;
+		return 0;
+	}
 	bool set_up()
 	{
 		return post_processing();

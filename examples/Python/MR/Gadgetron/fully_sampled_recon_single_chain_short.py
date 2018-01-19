@@ -66,6 +66,13 @@ def main():
         # write images to a new group /dataset in args.output
         print('writing to %s' % output_file)
         image_data.write(output_file, 'dataset')
+        # demonstrate reading from file
+        test_image = ImageData()
+        test_image.read_from_file(output_file)
+        image_array = test_image.as_array()
+        title = 'Reconstructed images in file (magnitude)'
+        show_3D_array(abs(image_array), suptitle = title, \
+                      xlabel = 'samples', ylabel = 'readouts', label = 'slice')
 
 try:
     main()

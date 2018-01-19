@@ -1,18 +1,13 @@
-'''Listmode-to-sinograms conversion demo.
+'''Acquisition sensitivity model using ECAT8 bin normalization.
 
 Usage:
-  listmode_to_sinograms [--help | options] <h_file> <s_file> <t_file>
-
-Arguments:
-  h_file  listmode header data file (input)
-  s_file  sinogram data file (output)
-  t_file  sinogram template data file (input)
+  acquisition_sensitivity_model [--help | options]
 
 Options:
+  -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
+  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
-                               [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
@@ -39,7 +34,7 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-from ast import literal_eval
+import math
 
 from pUtilities import show_2D_array
 
@@ -47,54 +42,43 @@ from pUtilities import show_2D_array
 exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
+temp_file = args['--temp']
+norm_file = args['--norm']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
-prefix = data_path + '/'
-h_file = args['<h_file>']
-s_file = args['<s_file>']
-t_file = args['<t_file>']
-interval = literal_eval(args['--interval'])
+temp_file = existing_filepath(data_path, temp_file)
+norm_file = existing_filepath(data_path, norm_file)
 storage = args['--storage']
 
 def main():
 
+    # output goes to files
+    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
+
     # select acquisition data storage scheme
     AcquisitionData.set_storage_scheme(storage)
 
-    # create listmode-to-sinograms converter object
-    lm2sino = ListmodeToSinograms()
+    # obtain an acquisition data template
+    template = AcquisitionData(temp_file)
 
-    # set input, output and template files
-    lm2sino.set_input(prefix + h_file)
-    lm2sino.set_output(s_file)
-    lm2sino.set_template(prefix + t_file)
+    # create a uniform acquisition data from template
+    acq_data = AcquisitionData(template)
+    acq_data.fill(1.0)
 
-    # set interval
-    lm2sino.set_interval(interval[0], interval[1])
+    # create acquisition sensitivity model from ECAT8 normalization data
+    asm = AcquisitionSensitivityModel(norm_file)
+    asm.set_up(template)
 
-    # set flags
-    lm2sino.flag_on('store_prompts')
-    lm2sino.flag_off('interactive')
-    try:
-        lm2sino.flag_on('make cofee')
-    except error as err:
-        print('%s' % err.value)
+    # apply normalization to the uniform acquisition data to obtain
+    # bin efficiencies
+    fwd_data = asm.forward(acq_data)
 
-    # set up the converter
-    lm2sino.set_up()
-
-    # convert
-    lm2sino.process()
-
-    # get access to the sinograms
-    acq_data = AcquisitionData(s_file + '_f1g1d0b0.hs')
-    # copy the acquisition data into a Python array
-    acq_array = acq_data.as_array()
+    # show bin efficiencies
+    acq_array = fwd_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    show_2D_array('Bin efficiencies', acq_array[z,:,:])
 
 try:
     main()
