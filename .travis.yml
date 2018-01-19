@@ -28,10 +28,22 @@ matrix:
  - os: linux
    python: 2.7
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
+ - os: osx
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+ - os: osx
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
+ - os: osx
+   python: 2.7
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
  # itk
  - os: linux
    python: 3
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_ITK=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+ - os: osx
+   language: generic
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DUSE_ITK=ON" CC=gcc CXX=g++ PYMVER=2
 
 env:
  global:
