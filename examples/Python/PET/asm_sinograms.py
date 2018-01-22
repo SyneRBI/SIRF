@@ -79,7 +79,7 @@ def main():
 
     # apply normalization to acquisition data
     ad = acq_data.clone()
-    asm.apply(ad)
+    asm.unnormalise(ad)
     ad_array = ad.as_array()
     show_2D_array('Normalized acquisition data', ad_array[z,:,:])
 
@@ -98,7 +98,7 @@ def main():
 
     # apply the chain of models to acquisition data
     ad = acq_data.clone()
-    asm12.apply(ad)
+    asm12.unnormalise(ad)
     ad_array = ad.as_array()
     show_2D_array('Chain-normalized acquisition data', ad_array[z,:,:])
 

@@ -809,11 +809,11 @@ class AcquisitionSensitivityModel:
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel\
             (self.handle, ad.handle))
-    def apply(self, ad):
+    def unnormalise(self, ad):
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
-            (self.handle, ad.handle, 'apply'))
+            (self.handle, ad.handle, 'unnormalise'))
     def forward(self, ad):
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)

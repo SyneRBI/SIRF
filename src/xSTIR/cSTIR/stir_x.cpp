@@ -62,14 +62,14 @@ PETAcquisitionSensitivityModel::set_up(const shared_ptr<ProjDataInfo>& sptr_pdi)
 }
 
 void
-PETAcquisitionSensitivityModel::apply(PETAcquisitionData& ad) const
+PETAcquisitionSensitivityModel::unnormalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
 	norm->undo(*ad.data(), 0, 1);
 }
 
 void
-PETAcquisitionSensitivityModel::undo(PETAcquisitionData& ad) const
+PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
 	norm->apply(*ad.data(), 0, 1);
