@@ -62,15 +62,15 @@ public:
 	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
 
 	// multiply by bin efficiencies
-	void apply(PETAcquisitionData& ad) const;
+	void unnormalise(PETAcquisitionData& ad) const;
 	// divide by bin efficiencies
-	void undo(PETAcquisitionData& ad) const;
+	void normalise(PETAcquisitionData& ad) const;
 	// same as apply, but returns new data rather than changes old one
 	shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
 	{
 		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
-		apply(*sptr_ad);
+		unnormalise(*sptr_ad);
 		return sptr_ad;
 	}
 	// same as undo, but returns new data rather than changes old one
@@ -78,7 +78,7 @@ public:
 	{
 		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
-		undo(*sptr_ad);
+		normalise(*sptr_ad);
 		return sptr_ad;
 	}
 

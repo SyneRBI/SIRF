@@ -263,5 +263,4 @@ output.txt
 .coverage
 coverage.xml
 
-*.l
-*.l.*
+*_out.txt
