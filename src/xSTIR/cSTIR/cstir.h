@@ -46,6 +46,7 @@ extern "C" {
 		(void* ptr_lm2s, const char* flag, int v);
 	void* cSTIR_setupListmodeToSinogramsConverter(void* ptr);
 	void* cSTIR_convertListmodeToSinograms(void* ptr);
+	void* cSTIR_computeRandoms(void* ptr);
 
 	// Data processor methods
 	void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d);

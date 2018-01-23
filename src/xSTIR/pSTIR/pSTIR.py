@@ -750,6 +750,9 @@ class ListmodeToSinograms:
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
             self.handle = pystir.cSTIR_objectFromFile(self.name, file)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
     def set_input(self, lm_file):
         _set_char_par(self.handle, self.name, 'input', lm_file)
     def set_output(self, sino_file):
@@ -772,6 +775,11 @@ class ListmodeToSinograms:
         try_calling(pystir.cSTIR_setupListmodeToSinogramsConverter(self.handle))
     def process(self):
         try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
+    def compute_randoms(self):
+        randoms = AcquisitionData()
+        randoms.handle = pystir.cSTIR_computeRandoms(self.handle)
+        check_status(randoms.handle)
+        return randoms
 
 class AcquisitionSensitivityModel:
     '''

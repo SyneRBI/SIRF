@@ -63,61 +63,6 @@ public:
 
 /*!
 \ingroup STIR Extensions
-\brief Listmode-to-sinograms converter.
-
-*/
-
-class ListmodeToSinograms : public LmToProjData {
-public:
-	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
-	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
-	ListmodeToSinograms() : LmToProjData()
-	{
-		//num_events_to_store = -1;
-	}
-	void set_input(std::string lm_file)
-	{
-		input_filename = lm_file;
-	}
-	void set_output(std::string proj_data_file)
-	{
-		output_filename_prefix = proj_data_file;
-	}
-	void set_template(std::string proj_data_file)
-	{
-		template_proj_data_name = proj_data_file;
-	}
-	void set_time_interval(double start, double stop)
-	{
-		std::pair<double, double> interval(start, stop);
-		std::vector < std::pair<double, double> > intervals;
-		intervals.push_back(interval);
-		frame_defs = TimeFrameDefinitions(intervals);
-	}
-	int set_flag(const char* flag, bool value)
-	{
-		if (boost::iequals(flag, "store_prompts"))
-			store_prompts = value;
-		else if (boost::iequals(flag, "store_delayeds"))
-			store_delayeds = value;
-		else if (boost::iequals(flag, "do_pre_normalisation"))
-			do_pre_normalisation = value;
-		else if (boost::iequals(flag, "do_time_frame"))
-			do_time_frame = value;
-		else if (boost::iequals(flag, "interactive"))
-			interactive = value;
-		else
-			return -1;
-		return 0;
-	}
-	bool set_up()
-	{
-		return post_processing();
-	}
-};
-
-/*!
-\ingroup STIR Extensions
 \brief STIR ProjDataInterfile wrapper with additional file managing features.
 
 This derived class has additional capability of deleting the file it handles

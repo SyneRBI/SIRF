@@ -77,7 +77,7 @@ def main():
     lm2sino.flag_on('store_prompts')
     lm2sino.flag_off('interactive')
     try:
-        lm2sino.flag_on('make cofee')
+        lm2sino.flag_on('make coffee')
     except error as err:
         print('%s' % err.value)
 
@@ -95,6 +95,11 @@ def main():
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
+
+    print('computing randoms, please wait...')
+    randoms = lm2sino.compute_randoms()
+    rnd_array = randoms.as_array()
+    show_2D_array('Randoms', rnd_array[z,:,:])
 
 try:
     main()

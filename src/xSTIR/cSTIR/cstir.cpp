@@ -263,6 +263,19 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 }
 
 extern "C"
+void* cSTIR_computeRandoms(void* ptr)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+		lm2s.compute_fan_sums();
+		lm2s.compute_singles();
+		lm2s.compute_randoms();
+		return newObjectHandle(lm2s.get_randoms_sptr());
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_i)
 {
 	try {
