@@ -1,4 +1,6 @@
-'''pSTIR tests
+# -*- coding: utf-8 -*-
+"""pSTIR tests
+v{version}
 
 Usage:
   tests_one [--help | options]
@@ -7,44 +9,34 @@ Options:
   -r, --record   record the measurements rather than check them
   -v, --verbose  report each test status
 
-CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-2017 Casper da Costa-Luis
+{author}
 
-This is software developed for the Collaborative Computational
-Project in Positron Emission Tomography and Magnetic Resonance imaging
-(http://www.ccppetmr.ac.uk/).
-
-Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-      http://www.apache.org/licenses/LICENSE-2.0
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-'''
+{licence}
+"""
 import math
 from pSTIR import *
-from os import path
+__version__ = "0.2.2"
+__author__ = "Casper da Costa-Luis"
+
 
 def norm(v):
-    vv = v*v
+    vv = v * v
     nv = v.size
-    return math.sqrt(vv.sum()/nv)
+    return math.sqrt(vv.sum() / nv)
+
 
 def var(v):
     """function to compute the variance after conversion to double to avoid
     rounding problems with older numpy versions
     """
-    return v.astype(numpy.float64).var()
+    from numpy import float64
+    return v.astype(float64).var()
 
-def test_main(rec=False, verb=False, throw=True, eps=1e-4):
 
+def test_main(rec=False, verb=False, throw=True):
     msg_red = MessageRedirector()
 
-    datafile = path.join(path.dirname(__file__), 'test1.txt')
+    datafile = __file__.replace(".py", ".txt")
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -71,7 +63,7 @@ def test_main(rec=False, verb=False, throw=True, eps=1e-4):
     image = ImageData()
     image.initialise(image_size, voxel_size)
     image.fill(1.0)
-    
+
     filter.apply(image)
     image_arr = image.as_array()
     s = norm(image_arr)
@@ -105,8 +97,8 @@ def test_main(rec=False, verb=False, throw=True, eps=1e-4):
     pgrad_arr = pgrad_img.as_array()
 
     ss_arr[ss_arr < 1e-6] = 1e-6
-    update = grad_arr/(ss_arr + pgrad_arr/num_subsets)
-    image_arr = image_arr*update
+    update = grad_arr / (ss_arr + pgrad_arr / num_subsets)
+    image_arr = image_arr * update
 
     s = norm(image_arr)
     v = var(image_arr)
@@ -131,16 +123,6 @@ def test_main(rec=False, verb=False, throw=True, eps=1e-4):
 
     return test.failed, test.ntest
 
-if __name__ == '__main__':
 
-    __version__ = '0.2.0'
-    from docopt import docopt
-    args = docopt(__doc__, version=__version__)
-    record = args['--record']
-    verbose = args['--verbose']
-
-    failed, ntest = test_main(record, verbose, throw=False)
-    if failed:
-        print('%d/%d tests failed' % (failed, ntest))
-        sys.exit(failed)
-    print('all %d tests passed' % ntest)
+if __name__ == "__main__":
+    runner(test_main, __doc__, __version__, __author__)

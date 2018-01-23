@@ -1,4 +1,6 @@
-'''pSTIR test sets.
+# -*- coding: utf-8 -*-
+"""test sets
+v{version}
 
 Usage:
   test_all [--help | options]
@@ -6,55 +8,45 @@ Usage:
 Options:
   -r, --record   record the measurements rather than check them
   -v, --verbose  report each test status
-'''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-__version__ = '0.1.0'
+{author}
+
+{licence}
+"""
+from pUtilities import __licence__
+from glob import glob
+from os import path
+__version__ = "0.2.0"
+__author__ = "Casper da Costa-Luis"
 
 
 if __name__ == "__main__":
     from docopt import docopt
-    args = docopt(__doc__, version=__version__)
+    args = docopt(__doc__.format(
+        version=__version__, author=__author__, licence=__licence__),
+                  version=__version__)
 
     record = args['--record']
     verbose = args['--verbose']
 
-    import glob
-    import os
-    import sys
-
     failed = 0
     ntests = 0
 
-    for script in glob.glob('*.py'):
-        if os.path.abspath(__file__) == os.path.abspath(script):
+    for script in glob('*.py'):
+        if path.abspath(__file__) == path.abspath(script):
             continue
         print('\n\n--- running %s' % script)
         test = script.replace('.py', '')
-        main = script.replace('.py', '.test_main(record, verbose, throw = False)')
+        main = script.replace('.py', '.test_main(record, verbose, throw=False)')
         exec('import ' + test)
         f, n = eval(main)
+        if f:
+            print('    %d of %d tests failed' % (f, n))
         failed += f
         ntests += n
 
-    if failed == 0:
-        print('all %d tests passed' % ntests)
-        sys.exit(0)
-    else:
+    if failed:
+        import sys
         print('%d of %d tests failed' % (failed, ntests))
         sys.exit(failed)
+    print('all %d tests passed' % ntests)
