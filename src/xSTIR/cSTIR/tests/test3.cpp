@@ -78,7 +78,9 @@ int test3a()
 		deleteDataHandle(handle);
 		CALL(cSTIR_setListmodeToSinogramsInterval(lm2s, (size_t)interval));
 		CALL(cSTIR_setupListmodeToSinogramsConverter(lm2s));
-		CALL(cSTIR_convertListmodeToSinograms(lm2s));
+		handle = cSTIR_convertListmodeToSinograms(lm2s);
+		deleteDataHandle(handle);
+		//CALL(cSTIR_convertListmodeToSinograms(lm2s));
 
 		break;
 	}

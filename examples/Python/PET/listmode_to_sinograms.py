@@ -88,7 +88,7 @@ def main():
     lm2sino.process()
 
     # get access to the sinograms
-    acq_data = AcquisitionData(s_file + '_f1g1d0b0.hs')
+    acq_data = lm2sino.get_output()
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
@@ -96,6 +96,7 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # compute randoms
     print('computing randoms, please wait...')
     randoms = lm2sino.compute_randoms()
     rnd_array = randoms.as_array()

@@ -257,7 +257,8 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 	try {
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		lm2s.process_data();
-		return (void*)new DataHandle;
+		return newObjectHandle(lm2s.get_output());
+		//return (void*)new DataHandle;
 	}
 	CATCH;
 }

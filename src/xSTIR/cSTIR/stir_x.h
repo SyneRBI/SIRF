@@ -116,6 +116,13 @@ public:
 			std::min(fan_size, max_fan_size);
 		return false;
 	}
+	shared_ptr<PETAcquisitionData> get_output()
+	{
+		std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
+		return shared_ptr<PETAcquisitionData>
+			(new PETAcquisitionDataInFile(filename.c_str()));
+	}
+
 	void compute_fan_sums();
 	int compute_singles();
 	void compute_randoms();

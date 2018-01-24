@@ -750,6 +750,7 @@ class ListmodeToSinograms:
             self.handle = pystir.cSTIR_newObject(self.name)
         else:
             self.handle = pystir.cSTIR_objectFromFile(self.name, file)
+        self.output = None
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
@@ -774,7 +775,15 @@ class ListmodeToSinograms:
     def set_up(self):
         try_calling(pystir.cSTIR_setupListmodeToSinogramsConverter(self.handle))
     def process(self):
-        try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
+        self.output = AcquisitionData()
+        self.output.handle = \
+                           pystir.cSTIR_convertListmodeToSinograms(self.handle)
+        check_status(self.output.handle)
+        #try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
+    def get_output(self):
+        if self.output is None:
+            raise error('Conversion to sinograms not done')
+        return self.output
     def compute_randoms(self):
         randoms = AcquisitionData()
         randoms.handle = pystir.cSTIR_computeRandoms(self.handle)

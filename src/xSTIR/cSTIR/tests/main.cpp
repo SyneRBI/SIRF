@@ -8,7 +8,7 @@ int main()
 {
 	std::cout << "Hello World!" << '\n';
 
-	test3();
+	test3a();
 
 	std::cout << "Press any key to continue";
 	_getch();
