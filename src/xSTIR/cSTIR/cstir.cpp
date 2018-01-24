@@ -831,6 +831,18 @@ void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 }
 
 extern "C"
+void* cSTIR_getImageVoxelSizes(const void* ptr_im, size_t ptr_vs)
+{
+	try {
+		float* vs = (float*)ptr_vs;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		id.get_voxel_sizes(vs);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_getImageData(const void* ptr_im, size_t ptr_data)
 {
 	try {

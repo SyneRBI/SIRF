@@ -387,7 +387,7 @@ class ImageData(DataContainer):
             else:
                 vsize = arg2
                 if arg3 == 0:
-                    origin = (0, 0, 0)
+                    origin = (0.0, 0.0, 0.0)
                 else:
                     origin = arg3
         else:
@@ -462,10 +462,24 @@ class ImageData(DataContainer):
     def write(self, filename):
         assert self.handle is not None
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
+    def dimensions(self):
+        '''Return image dimensions.'''
+        assert self.handle is not None
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling \
+            (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
+        return tuple(dim)
+    def voxel_sizes(self):
+        '''Return image dimensions.'''
+        assert self.handle is not None
+        vs = numpy.ndarray((3,), dtype = numpy.float32)
+        try_calling \
+            (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
+        return tuple(vs)
     def as_array(self):
         '''Return 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
-        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        dim = numpy.ndarray((9,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
         nz = dim[0]
@@ -650,7 +664,7 @@ class AcquisitionData(DataContainer):
         self.handle = pystir.cSTIR_objectFromFile('AcquisitionData', filename)
         check_status(self.handle)
         self.read_only = True
-    def create_uniform_image(self, value = 0):
+    def create_uniform_image(self, value = 0, xy = None):
         ''' 
         Creates ImageData object containing PET image of dimensions
         and voxel sizes compatible with the scanner geometry stored
@@ -662,6 +676,16 @@ class AcquisitionData(DataContainer):
         image = ImageData()
         image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
         check_status(image.handle)
+        if xy is not None:
+            dim = image.dimensions()
+            vsz = image.voxel_sizes()
+            isz = tuple(numpy.asarray(dim)*numpy.asarray(vsz))
+            nx = xy[1]
+            ny = xy[0]
+            image_size = (nx, ny, int(dim[0]))
+            voxel_size = (float(isz[2]/nx), float(isz[1]/ny), float(vsz[0]))
+            image = ImageData()
+            image.initialise(image_size, voxel_size)
         image.fill(value)
         return image
     def as_array(self):
@@ -1258,8 +1282,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 ##    def set_zero_seg0_end_planes(self, flag):
 ##        _set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-##    def set_max_segment_num_to_process(self, n):
-##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+    def set_max_segment_num_to_process(self, n):
+        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.

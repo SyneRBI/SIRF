@@ -458,6 +458,7 @@ public:
 		_data->fill(v);
 	}
 	int get_dimensions(int* dim) const;
+	void get_voxel_sizes(float* vsizes) const;
 	int get_data(float* data) const;
 	int set_data(const float* data);
 

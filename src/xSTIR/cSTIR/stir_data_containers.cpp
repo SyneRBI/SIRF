@@ -281,7 +281,16 @@ PETImageData::get_dimensions(int* dim) const
 	return 0;
 }
 
-int 
+void
+PETImageData::get_voxel_sizes(float* vsize) const
+{
+	const Voxels3DF& voxels = (const Voxels3DF&)*_data;
+	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
+	for (int i = 0; i < 3; i++)
+		vsize[i] = vs[i + 1];
+}
+
+int
 PETImageData::get_data(float* data) const
 {
 	Image3DF& image = *_data;

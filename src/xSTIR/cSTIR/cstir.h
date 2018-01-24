@@ -81,7 +81,7 @@ extern "C" {
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
 
-	// Ojective function methods
+	// Objective function methods
 	void* cSTIR_setupObjectiveFunction(void* ptr_r, void* ptr_i);
 	void*	cSTIR_subsetSensitivity(void* ptr_f, int subset);
 	void* cSTIR_objectiveFunctionValue(void* ptr_f, void* ptr_i);
@@ -95,6 +95,7 @@ extern "C" {
 
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
+	void* cSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
 	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
 	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,
