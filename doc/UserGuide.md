@@ -64,11 +64,7 @@ STIR can handle data from the Siemens mMR Biograph with progress being made for 
 
 - Our plan for future releases and additional features is available from the Software Documents tab [http://www.ccppetmr.ac.uk/softwareframework.html](http://www.ccppetmr.ac.uk/softwareframework.html)  on our website.
 
-# Installation instructions <a name="Installation_instructions"></a>
-
-Brief installation instructions can be found on [https://raw.githubusercontent.com/CCPPETMR/SIRF/master/INSTALL.txt](https://raw.githubusercontent.com/CCPPETMR/SIRF/master/INSTALL.txt). More detailed instructions for specific Operating Systems etc are on our Wiki at [https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions). 
-
-Note that on the [Virtual machine](https://github.com/CCPPETMR/CCPPETMR_VM/wiki), this has all be done for you and you can just use SIRF. 
+- Installation instructions can be found on our Wiki at [https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions](https://github.com/CCPPETMR/SIRF/wiki/Installation-instructions). Note that on the [Virtual machine](https://github.com/CCPPETMR/CCPPETMR_VM/wiki), this has all has been done for you and you can just use SIRF. 
 
 # General notes of usage <a name="General_notes"></a>
 

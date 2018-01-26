@@ -42,6 +42,111 @@ using stir::shared_ptr;
 
 /*!
 \ingroup STIR Extensions
+\brief Listmode-to-sinograms converter.
+
+*/
+
+class ListmodeToSinograms : public LmToProjData {
+public:
+	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
+	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
+	ListmodeToSinograms() : LmToProjData()
+	{
+		fan_size = -1;
+		delayed_increment = -1;
+		num_iterations = 10;
+		display_interval = 1;
+		KL_interval = 1;
+		save_interval = -1;
+		//num_events_to_store = -1;
+	}
+	void set_input(std::string lm_file)
+	{
+		input_filename = lm_file;
+	}
+	void set_output(std::string proj_data_file)
+	{
+		output_filename_prefix = proj_data_file;
+	}
+	void set_template(std::string proj_data_file)
+	{
+		template_proj_data_name = proj_data_file;
+	}
+	void set_time_interval(double start, double stop)
+	{
+		std::pair<double, double> interval(start, stop);
+		std::vector < std::pair<double, double> > intervals;
+		intervals.push_back(interval);
+		frame_defs = TimeFrameDefinitions(intervals);
+	}
+	int set_flag(const char* flag, bool value)
+	{
+		if (boost::iequals(flag, "store_prompts"))
+			store_prompts = value;
+		else if (boost::iequals(flag, "store_delayeds"))
+			store_delayeds = value;
+		else if (boost::iequals(flag, "do_pre_normalisation"))
+			do_pre_normalisation = value;
+		else if (boost::iequals(flag, "do_time_frame"))
+			do_time_frame = value;
+		else if (boost::iequals(flag, "interactive"))
+			interactive = value;
+		else
+			return -1;
+		return 0;
+	}
+	bool set_up()
+	{
+		bool failed = post_processing();
+		if (failed)
+			return true;
+		const int num_rings =
+			lm_data_ptr->get_scanner_ptr()->get_num_rings();
+		if (max_segment_num_to_process == -1)
+			max_segment_num_to_process = num_rings - 1;
+		else
+			max_segment_num_to_process =
+			std::min(max_segment_num_to_process, num_rings - 1);
+		const int max_fan_size =
+			lm_data_ptr->get_scanner_ptr()->get_max_num_non_arccorrected_bins();
+		if (fan_size == -1)
+			fan_size = max_fan_size;
+		else
+			fan_size =
+			std::min(fan_size, max_fan_size);
+		return false;
+	}
+	shared_ptr<PETAcquisitionData> get_output()
+	{
+		std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
+		return shared_ptr<PETAcquisitionData>
+			(new PETAcquisitionDataInFile(filename.c_str()));
+	}
+
+	void compute_fan_sums();
+	int compute_singles();
+	void estimate_randoms();
+	shared_ptr<PETAcquisitionData> get_randoms_sptr()
+	{
+		return randoms_sptr;
+	}
+
+protected:
+	int fan_size;
+	int num_iterations;
+	int display_interval;
+	int KL_interval;
+	int save_interval;
+	shared_ptr<std::vector<Array<2, float> > > fan_sums_sptr;
+	shared_ptr<DetectorEfficiencies> det_eff_sptr;
+	shared_ptr<PETAcquisitionData> randoms_sptr;
+	static unsigned long compute_num_bins(const int num_rings,
+		const int num_detectors_per_ring,
+		const int max_ring_diff, const int half_fan_size);
+};
+
+/*!
+\ingroup STIR Extensions
 \brief Class for PET scanner detector efficiencies model.
 
 */

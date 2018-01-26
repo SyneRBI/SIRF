@@ -6,7 +6,7 @@ installation instructions).
 To run the demo scripts, please create an environment variable 
 `SIRF_PATH` with as value the location of your SIRF source, e.g. 
 `/home/sirfuser/devel/SIRF`.
-If you do not do this, you ican still run the non-interactive demos but
+If you do not do this, you can still run the non-interactive demos but
 you will have to give full path to raw data files via 
 command-line options `-p` or `--path`.
 

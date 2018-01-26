@@ -1,7 +1,7 @@
-'''IO demo
+'''PET I/O demo
 
 Usage:
-  io [--help | options]
+  input_output [--help | options]
 
 Options:
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
@@ -49,6 +49,9 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # create image of dimensions and voxel sizes compatible with the scanner
+    # geometry (stored in the AcquisitionData object ad)
+    # and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(2.0)
     # show the image
     image_array = image.as_array()
@@ -56,11 +59,13 @@ def main():
     z = int(image_array.shape[0]/2)
     show_2D_array('Image', image_array[z,:,:])
 
+    # write acquisition data and image to files
     print('writing acquisition data...')
     acq_data.write('ones')
     print('writing image...')
     image.write('twos')
 
+    # read acquisition data and image from files
     acq = AcquisitionData('ones.hs')
     acq_array = acq.as_array()
     acq_dim = acq_array.shape
@@ -68,6 +73,7 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # show the image again
     img = ImageData()
     img.read_from_file('twos.hv')
     image_array = img.as_array()

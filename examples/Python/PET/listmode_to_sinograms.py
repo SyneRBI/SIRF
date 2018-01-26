@@ -67,17 +67,17 @@ def main():
 
     # set input, output and template files
     lm2sino.set_input(prefix + h_file)
-    lm2sino.set_output(s_file)
+    lm2sino.set_output_prefix(s_file)
     lm2sino.set_template(prefix + t_file)
 
     # set interval
-    lm2sino.set_interval(interval[0], interval[1])
+    lm2sino.set_time_interval(interval[0], interval[1])
 
     # set flags
     lm2sino.flag_on('store_prompts')
     lm2sino.flag_off('interactive')
     try:
-        lm2sino.flag_on('make cofee')
+        lm2sino.flag_on('make coffee')
     except error as err:
         print('%s' % err.value)
 
@@ -88,13 +88,19 @@ def main():
     lm2sino.process()
 
     # get access to the sinograms
-    acq_data = AcquisitionData(s_file + '_f1g1d0b0.hs')
+    acq_data = lm2sino.get_output()
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
+
+    # compute randoms
+    print('computing randoms, please wait...')
+    randoms = lm2sino.estimate_randoms()
+    rnd_array = randoms.as_array()
+    show_2D_array('Randoms', rnd_array[z,:,:])
 
 try:
     main()

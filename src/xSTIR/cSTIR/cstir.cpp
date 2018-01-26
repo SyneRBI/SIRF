@@ -257,7 +257,21 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 	try {
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		lm2s.process_data();
-		return (void*)new DataHandle;
+		return newObjectHandle(lm2s.get_output());
+		//return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_computeRandoms(void* ptr)
+{
+	try {
+		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
+		lm2s.compute_fan_sums();
+		lm2s.compute_singles();
+		lm2s.estimate_randoms();
+		return newObjectHandle(lm2s.get_randoms_sptr());
 	}
 	CATCH;
 }
@@ -811,6 +825,18 @@ void* cSTIR_getImageDimensions(const void* ptr_im, size_t ptr_dim)
 				handle->set(0, &status);
 				return (void*)handle;
 		}
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_getImageVoxelSizes(const void* ptr_im, size_t ptr_vs)
+{
+	try {
+		float* vs = (float*)ptr_vs;
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		id.get_voxel_sizes(vs);
 		return new DataHandle;
 	}
 	CATCH;

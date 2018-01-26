@@ -12,15 +12,29 @@
 
 int test3()
 {
+	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	if (SIRF_path.length() < 1) {
+		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
+		return 1;
+	}
+	std::string path = SIRF_path + "/data/examples/PET/";
+	std::string filename = path + "list.l.hdr.STIR";
+
 	//LmToProjData lm_data("lm_to_projdata.par");
 	//lm_data.process_data();
 	ListmodeToSinograms converter; // ("lm_to_projdata.par");
-	converter.set_input("list.l.hdr.STIR");
+	//converter.set_input("list.l.hdr.STIR");
+	converter.set_input(filename);
 	converter.set_output("proj_data");
-	converter.set_template("template_span11.hs");
+	filename = path + "template_span11.hs";
+	converter.set_template(filename);
+	//converter.set_template("template_span11.hs");
 	converter.set_time_interval(0, 10);
 	converter.set_up();
-	converter.process_data();
+	//converter.process_data();
+	converter.compute_fan_sums();
+	converter.compute_singles();
+	converter.estimate_randoms();
 
 	return 0;
 }
@@ -64,7 +78,9 @@ int test3a()
 		deleteDataHandle(handle);
 		CALL(cSTIR_setListmodeToSinogramsInterval(lm2s, (size_t)interval));
 		CALL(cSTIR_setupListmodeToSinogramsConverter(lm2s));
-		CALL(cSTIR_convertListmodeToSinograms(lm2s));
+		handle = cSTIR_convertListmodeToSinograms(lm2s);
+		deleteDataHandle(handle);
+		//CALL(cSTIR_convertListmodeToSinograms(lm2s));
 
 		break;
 	}
