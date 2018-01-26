@@ -34,7 +34,7 @@ int test3()
 	//converter.process_data();
 	converter.compute_fan_sums();
 	converter.compute_singles();
-	converter.compute_randoms();
+	converter.estimate_randoms();
 
 	return 0;
 }
