@@ -277,6 +277,12 @@ public:
 		ptr->fill(0.0f);
 		_data.reset(ptr);
 	}
+	shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
+	{
+		shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
+		sptr_ad->_data.reset(new ProjDataFile(*data(), filename, false));
+		return sptr_ad;
+	}
 
 	static void init() {
 		static bool initialized = false;

@@ -125,7 +125,7 @@ public:
 
 	void compute_fan_sums();
 	int compute_singles();
-	void compute_randoms();
+	void estimate_randoms();
 	shared_ptr<PETAcquisitionData> get_randoms_sptr()
 	{
 		return randoms_sptr;

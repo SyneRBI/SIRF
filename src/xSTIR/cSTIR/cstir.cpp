@@ -270,7 +270,7 @@ void* cSTIR_computeRandoms(void* ptr)
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		lm2s.compute_fan_sums();
 		lm2s.compute_singles();
-		lm2s.compute_randoms();
+		lm2s.estimate_randoms();
 		return newObjectHandle(lm2s.get_randoms_sptr());
 	}
 	CATCH;

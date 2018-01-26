@@ -780,11 +780,11 @@ class ListmodeToSinograms:
             pyiutil.deleteDataHandle(self.handle)
     def set_input(self, lm_file):
         _set_char_par(self.handle, self.name, 'input', lm_file)
-    def set_output(self, sino_file):
+    def set_output_prefix(self, sino_file):
         _set_char_par(self.handle, self.name, 'output', sino_file)
     def set_template(self, templ):
         _set_char_par(self.handle, self.name, 'template', templ)
-    def set_interval(self, start, stop):
+    def set_time_interval(self, start, stop):
         interval = numpy.ndarray((2,), dtype = numpy.float32)
         interval[0] = start
         interval[1] = stop
@@ -808,7 +808,7 @@ class ListmodeToSinograms:
         if self.output is None:
             raise error('Conversion to sinograms not done')
         return self.output
-    def compute_randoms(self):
+    def estimate_randoms(self):
         randoms = AcquisitionData()
         randoms.handle = pystir.cSTIR_computeRandoms(self.handle)
         check_status(randoms.handle)

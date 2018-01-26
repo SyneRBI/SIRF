@@ -67,11 +67,11 @@ def main():
 
     # set input, output and template files
     lm2sino.set_input(prefix + h_file)
-    lm2sino.set_output(s_file)
+    lm2sino.set_output_prefix(s_file)
     lm2sino.set_template(prefix + t_file)
 
     # set interval
-    lm2sino.set_interval(interval[0], interval[1])
+    lm2sino.set_time_interval(interval[0], interval[1])
 
     # set flags
     lm2sino.flag_on('store_prompts')
@@ -98,7 +98,7 @@ def main():
 
     # compute randoms
     print('computing randoms, please wait...')
-    randoms = lm2sino.compute_randoms()
+    randoms = lm2sino.estimate_randoms()
     rnd_array = randoms.as_array()
     show_2D_array('Randoms', rnd_array[z,:,:])
 

@@ -245,12 +245,13 @@ ListmodeToSinograms::compute_singles()
 }
 
 void
-ListmodeToSinograms::compute_randoms()
+ListmodeToSinograms::estimate_randoms()
 {
 	std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
 	PETAcquisitionDataInFile acq_temp(filename.c_str());
 	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
-	randoms_sptr = acq_temp.new_acquisition_data();
+	filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
+	randoms_sptr = acq_temp.new_acquisition_data(filename);
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
