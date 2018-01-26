@@ -17,6 +17,10 @@
 	1. [Step 1: create C wrappers](#Create_wrappers)
 	2. [Step 2: create Matlab and Python Object-Oriented interface for your additions](#Create_OO_interface)
 4. [Adding a gadget to SIRF gadget library](#Adding_gadget)
+5. [SIRF programming conventions](#SIRF_programming_conventions)
+	1. [Naming](#conventions_naming)
+	2. [File conventions](#conventions_file)
+	3. [Others](#conventions_others)
 
 # Overview <a name="Overview"></a>
 
@@ -422,3 +426,22 @@ Here `GADGET_CLASS` is the name of the gadget class, `GADGET_NAME` and `NEW_GADG
 to the function `cGT_newObject()` in the file `cgadgetron.cpp`.
 
 * Build SIRF.
+
+# SIRF programming conventions <a name="SIRF_programming_conventions"></a>
+The programming style used in SIRF resembles closely that used in STIR. When implementing new code in C++, try to follow the following conventions.
+
+## Naming <a name="conventions_naming"></a>
+* Classes/types: Use camel caps (also known as medial capitals), for example `ProjMatrixByBin`.
+* Variables, methods and members: lower case, with underscores between each word, for example `set_bin_efficiency`.
+	* Variable for a number of something: `num_var` 
+	* Number of an item in a sequence: `var_num`
+	* Pointers, shared pointers and auto pointers should have the respective suffixes: `ptr`, `sptr` and `aptr`.
+
+## File conventions <a name="conventions_file"></a>
+* `.inl` files should contain all inline code for functions. This keeps the `h` files clean and short.
+* For "supporting" classes in `.h` files, forward declarations should be preferred over `#include`, as this reduces build times when `.h` files are modified.
+
+## Others <a name="conventions_others"></a>
+* Access to all class data should be achieved via `get` and `set` methods.
+* If outputs are passed as an argument (via reference or pointer), put them first in the list of arguments.
+* Error handling should be performed via try/catch statements.
