@@ -5,6 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
 import pyiutilities as pyiutil
+import re
 
 __licence__ = """CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
@@ -24,6 +25,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
   limitations under the License.
 """
 __license__ = __licence__
+RE_PYEXT = re.compile(r"\.(py[co]?)$")
 
 
 def petmr_data_path(petmr):

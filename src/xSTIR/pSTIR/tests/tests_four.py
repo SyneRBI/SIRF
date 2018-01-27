@@ -20,7 +20,7 @@ __author__ = "Casper da Costa-Luis"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    datafile = __file__.replace(".py", ".txt")
+    datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
