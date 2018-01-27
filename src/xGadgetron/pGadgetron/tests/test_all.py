@@ -13,7 +13,7 @@ Options:
 
 {licence}
 """
-from pUtilities import __licence__
+from pUtilities import __licence__, RE_PYEXT
 from glob import glob
 from os import path
 __version__ = "0.2.0"
@@ -36,8 +36,8 @@ if __name__ == "__main__":
         if path.abspath(__file__) == path.abspath(script):
             continue
         print('\n\n--- running %s' % script)
-        test = script.replace('.py', '')
-        main = script.replace('.py', '.test_main(record, verbose, throw=False)')
+        test = RE_PYEXT.sub("", script)
+        main = RE_PYEXT.sub(".test_main(record, verbose, throw=False)", script)
         exec('import ' + test)
         f, n = eval(main)
         if f:
