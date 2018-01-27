@@ -254,7 +254,7 @@ class CheckRaise(pTest):
         super(CheckRaise, self).__init__(*a, **k)
 
 
-def runner(maini_test, doc, version, author="", licence=None):
+def runner(main_test, doc, version, author="", licence=None):
     """
     :param main_test: function(record : bool, verbose : bool, throw : bool)
     """
