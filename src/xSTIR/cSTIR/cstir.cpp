@@ -258,7 +258,6 @@ void* cSTIR_convertListmodeToSinograms(void* ptr)
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
 		lm2s.process_data();
 		return newObjectHandle(lm2s.get_output());
-		//return (void*)new DataHandle;
 	}
 	CATCH;
 }
@@ -300,14 +299,23 @@ void* cSTIR_createPETAcquisitionSensitivityModel
 			PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_src);
 			sptr.reset(new PETAcquisitionSensitivityModel(ad));
 		}
-		else if (boost::iequals(src, "i")) {
-			PETImageData& id = objectFromHandle<PETImageData>(ptr_src);
-			sptr.reset(new PETAcquisitionSensitivityModel(id));
-		}
 		else if (boost::iequals(src, "n")) {
 			CAST_PTR(DataHandle, h, ptr_src);
 			sptr.reset(new PETAcquisitionSensitivityModel(charDataFromDataHandle(h)));
 		}
+		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_createPETAttenuationModel(const void* ptr_img, const void* ptr_am)
+{
+	try {
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_img);
+		PETAcquisitionModel& am = objectFromHandle<PETAcquisitionModel>(ptr_am);
+		shared_ptr<PETAcquisitionSensitivityModel> 
+			sptr(new PETAttenuationModel(id, am));
 		return newObjectHandle(sptr);
 	}
 	CATCH;
