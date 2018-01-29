@@ -3,11 +3,6 @@
 Usage:
   reconstruct_from_listmode [--help | options]
 
-Arguments:
-  h_file  listmode header data file (input)
-  s_file  sinogram data file (output)
-  t_file  sinogram template data file (input)
-
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
