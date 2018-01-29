@@ -1,7 +1,7 @@
 '''Acquisition sensitivity model using ECAT8 bin normalization.
 
 Usage:
-  acquisition_sensitivity_model [--help | options]
+  asm_ecat8 [--help | options]
 
 Options:
   -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
