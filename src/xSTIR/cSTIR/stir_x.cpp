@@ -251,7 +251,7 @@ ListmodeToSinograms::estimate_randoms()
 	PETAcquisitionDataInFile acq_temp(filename.c_str());
 	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
 	filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
-	randoms_sptr = acq_temp.new_acquisition_data(filename);
+	randoms_sptr = acq_temp.new_acquisition_data(); // filename);
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
@@ -368,6 +368,7 @@ ListmodeToSinograms::estimate_randoms()
 			}
 		}
 	}
+	randoms_sptr->write(filename.c_str());
 }
 
 PETAcquisitionSensitivityModel::

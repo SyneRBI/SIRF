@@ -7,12 +7,12 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
-  -s <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
-  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
