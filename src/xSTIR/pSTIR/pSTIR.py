@@ -803,7 +803,6 @@ class ListmodeToSinograms:
         self.output.handle = \
                            pystir.cSTIR_convertListmodeToSinograms(self.handle)
         check_status(self.output.handle)
-        #try_calling(pystir.cSTIR_convertListmodeToSinograms(self.handle))
     def get_output(self):
         if self.output is None:
             raise error('Conversion to sinograms not done')
@@ -829,8 +828,9 @@ class AcquisitionSensitivityModel:
                 (handle, 'n')
         elif isinstance(src, ImageData):
             assert src.handle is not None
-            self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\
-                (src.handle, 'i')
+            assert isinstance(other_src, AcquisitionModel)
+            self.handle = pystir.cSTIR_createPETAttenuationModel\
+                          (src.handle, other_src.handle)
         elif isinstance(src, AcquisitionData):
             assert src.handle is not None
             self.handle = pystir.cSTIR_createPETAcquisitionSensitivityModel\

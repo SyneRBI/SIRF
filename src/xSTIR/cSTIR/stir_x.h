@@ -153,13 +153,14 @@ protected:
 
 class PETAcquisitionSensitivityModel {
 public:
+	PETAcquisitionSensitivityModel() {}
 	// create from bin (detector pair) efficiencies sinograms
 	PETAcquisitionSensitivityModel(PETAcquisitionData& ad);
-	PETAcquisitionSensitivityModel(PETImageData& id);
+	// create from ECAT8
 	PETAcquisitionSensitivityModel(std::string filename);
+	// chain two normalizations
 	PETAcquisitionSensitivityModel
-		(const PETAcquisitionSensitivityModel& mod1,
-		const PETAcquisitionSensitivityModel& mod2)
+		(PETAcquisitionSensitivityModel& mod1, PETAcquisitionSensitivityModel& mod2)
 	{
 		norm_.reset(new ChainedBinNormalisation(mod1.data(), mod2.data()));
 	}
@@ -167,15 +168,15 @@ public:
 	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
 
 	// multiply by bin efficiencies
-	void unnormalise(PETAcquisitionData& ad) const;
+	virtual void unnormalise(PETAcquisitionData& ad) const;
 	// divide by bin efficiencies
-	void normalise(PETAcquisitionData& ad) const;
+	virtual void normalise(PETAcquisitionData& ad) const;
 	// same as apply, but returns new data rather than changes old one
 	shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
 	{
 		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
-		unnormalise(*sptr_ad);
+		this->unnormalise(*sptr_ad);
 		return sptr_ad;
 	}
 	// same as undo, but returns new data rather than changes old one
@@ -183,7 +184,7 @@ public:
 	{
 		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
-		normalise(*sptr_ad);
+		this->normalise(*sptr_ad);
 		return sptr_ad;
 	}
 
@@ -191,12 +192,8 @@ public:
 	{
 		return std::dynamic_pointer_cast<BinNormalisation>(norm_);
 	}
-	const shared_ptr<BinNormalisation> data() const
-	{
-		return std::dynamic_pointer_cast<BinNormalisation>(norm_);
-	}
 
-private:
+protected:
 	shared_ptr<ChainedBinNormalisation> norm_;
 };
 
@@ -307,7 +304,6 @@ protected:
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
 	shared_ptr<BinNormalisation> sptr_normalisation_;
-	//shared_ptr<PETAcquisitionData> sptr_norm_;
 };
 
 /*!
@@ -357,6 +353,23 @@ private:
 typedef PETAcquisitionModel AcqMod3DF;
 typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
 typedef shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+
+/*!
+\ingroup STIR Extensions
+\brief Attenuation model.
+
+*/
+
+class PETAttenuationModel : public PETAcquisitionSensitivityModel {
+public:
+	PETAttenuationModel(PETImageData& id, PETAcquisitionModel& am);
+	// multiply by bin efficiencies
+	virtual void unnormalise(PETAcquisitionData& ad) const;
+	// divide by bin efficiencies
+	virtual void normalise(PETAcquisitionData& ad) const;
+protected:
+	shared_ptr<ProjectorByBinPair> sptr_projectors_;
+};
 
 /*!
 \ingroup STIR Extensions
