@@ -78,6 +78,8 @@ def main():
     am.set_up(template, attn_image)
 
     # create acquisition sensitivity model from attenuation image
+    print('creating acquisition sensitivity model, ' + \
+          'please wait, may take a while...')
     asm = AcquisitionSensitivityModel(attn_image, am)
     asm.set_up(template)
 
