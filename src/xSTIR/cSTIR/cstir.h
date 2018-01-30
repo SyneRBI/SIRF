@@ -54,6 +54,8 @@ extern "C" {
 	// Acquisition model methods
 	void* cSTIR_createPETAcquisitionSensitivityModel
 		(const void* ptr_src, const char* src);
+	void* cSTIR_createPETAttenuationModel
+		(const void* ptr_img, const void* ptr_am);
 	void* cSTIR_chainPETAcquisitionSensitivityModels
 		(const void* ptr_first, const void* ptr_second);
 	void* cSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
@@ -64,6 +66,7 @@ extern "C" {
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
 	// Acquisition data methods
+	void* cSTIR_getAcquisitionsStorageScheme();
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_acquisitionsDataFromScannerInfo

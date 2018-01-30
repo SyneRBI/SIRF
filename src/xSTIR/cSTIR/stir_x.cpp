@@ -251,7 +251,7 @@ ListmodeToSinograms::estimate_randoms()
 	PETAcquisitionDataInFile acq_temp(filename.c_str());
 	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
 	filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
-	randoms_sptr = acq_temp.new_acquisition_data(filename);
+	randoms_sptr = acq_temp.new_acquisition_data(); // filename);
 	ProjData& proj_data = *randoms_sptr->data();
 
 	const int num_rings =
@@ -368,6 +368,7 @@ ListmodeToSinograms::estimate_randoms()
 			}
 		}
 	}
+	randoms_sptr->write(filename.c_str());
 }
 
 PETAcquisitionSensitivityModel::
@@ -378,16 +379,6 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
 	shared_ptr<BinNormalisation> 
 		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
-	shared_ptr<BinNormalisation> sptr_0;
-	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
-}
-
-PETAcquisitionSensitivityModel::
-PETAcquisitionSensitivityModel(PETImageData& id)
-{
-	shared_ptr<BinNormalisationFromAttenuationImage>
-		sptr_n(new BinNormalisationFromAttenuationImage(id.data_sptr()));
-	//sptr_n->post_processing();
 	shared_ptr<BinNormalisation> sptr_0;
 	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
 }
@@ -421,6 +412,35 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 	norm->apply(*ad.data(), 0, 1);
 }
 
+PETAttenuationModel::PETAttenuationModel
+(PETImageData& id, PETAcquisitionModel& am)
+{
+	shared_ptr<BinNormalisationFromAttenuationImage>
+		sptr_n(new BinNormalisationFromAttenuationImage
+		(id.data_sptr(), am.projectors_sptr()->get_forward_projector_sptr()));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	sptr_projectors_ = am.projectors_sptr();
+}
+
+void
+PETAttenuationModel::unnormalise(PETAcquisitionData& ad) const
+{
+	BinNormalisation* norm = norm_.get();
+	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
+}
+
+void
+PETAttenuationModel::normalise(PETAcquisitionData& ad) const
+{
+	BinNormalisation* norm = norm_.get();
+	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
+}
+
 void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
@@ -431,8 +451,6 @@ PETAcquisitionModel::set_bin_efficiency
 	sptr_normalisation_.reset
 		(new BinNormalisationFromProjData(sptr_ad->data()));
 	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
-
-	//sptr_norm_ = sptr_ad;
 }
 
 Succeeded 
@@ -468,11 +486,9 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	else
 		std::cout << "no additive term added\n";
 
-	//clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);
-		//sptr_normalisation_->apply(*sptr_fd, 0, 1);
 		std::cout << "ok\n";
 	}
 	else

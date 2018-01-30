@@ -1,20 +1,18 @@
 '''Listmode-to-sinograms conversion demo.
 
 Usage:
-  listmode_to_sinograms [--help | options] <h_file> <s_file> <t_file>
-
-Arguments:
-  h_file  listmode header data file (input)
-  s_file  sinogram data file (output)
-  t_file  sinogram template data file (input)
+  listmode_to_sinograms [--help | options]
 
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
+  -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
+  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
-  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: memory]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -51,9 +49,11 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 prefix = data_path + '/'
-h_file = args['<h_file>']
-s_file = args['<s_file>']
-t_file = args['<t_file>']
+list_file = args['--list']
+sino_file = args['--sino']
+tmpl_file = args['--tmpl']
+list_file = existing_filepath(data_path, list_file)
+tmpl_file = existing_filepath(data_path, tmpl_file)
 interval = literal_eval(args['--interval'])
 storage = args['--storage']
 
@@ -66,9 +66,9 @@ def main():
     lm2sino = ListmodeToSinograms()
 
     # set input, output and template files
-    lm2sino.set_input(prefix + h_file)
-    lm2sino.set_output_prefix(s_file)
-    lm2sino.set_template(prefix + t_file)
+    lm2sino.set_input(list_file)
+    lm2sino.set_output_prefix(sino_file)
+    lm2sino.set_template(tmpl_file)
 
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
@@ -97,7 +97,7 @@ def main():
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # compute randoms
-    print('computing randoms, please wait...')
+    print('estimating randoms, please wait...')
     randoms = lm2sino.estimate_randoms()
     rnd_array = randoms.as_array()
     show_2D_array('Randoms', rnd_array[z,:,:])

@@ -1,11 +1,11 @@
-'''Acquisition sensitivity model using ECAT8 bin normalization.
+'''Acquisition sensitivity model using attenuation image.
 
 Usage:
-  asm_ecat8 [--help | options]
+  asm_attenuation [--help | options]
 
 Options:
   -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
+  -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
@@ -43,17 +43,17 @@ exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
 temp_file = args['--temp']
-norm_file = args['--norm']
+attn_file = args['--attn']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 temp_file = existing_filepath(data_path, temp_file)
-norm_file = existing_filepath(data_path, norm_file)
+attn_file = existing_filepath(data_path, attn_file)
 storage = args['--storage']
 
 def main():
 
-    # output goes to files
+    # messages go to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
@@ -62,20 +62,33 @@ def main():
     # obtain an acquisition data template
     template = AcquisitionData(temp_file)
 
-    # create a uniform acquisition data from template
+    # create uniform acquisition data from template
+    print('creating uniform acquisition data...')
     acq_data = AcquisitionData(template)
     acq_data.fill(1.0)
 
-    # create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file)
+    # read attenuation image
+    attn_image = ImageData(attn_file)
+    attn_image_as_array = attn_image.as_array()
+    z = attn_image_as_array.shape[0]//2
+    show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+
+    # create acquisition model
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_up(template, attn_image)
+
+    # create acquisition sensitivity model from attenuation image
+    print('creating acquisition sensitivity model, ' + \
+          'please wait, may take a while...')
+    asm = AcquisitionSensitivityModel(attn_image, am)
     asm.set_up(template)
 
     # apply normalization to the uniform acquisition data to obtain
-    # bin efficiencies
-    fwd_data = asm.forward(acq_data)
+    # 'bin efficiencies'
+    asm.unnormalise(acq_data)
 
-    # show bin efficiencies
-    acq_array = fwd_data.as_array()
+    # show 'bin efficiencies'
+    acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
     show_2D_array('Bin efficiencies', acq_array[z,:,:])
@@ -85,3 +98,4 @@ try:
     print('done')
 except error as err:
     print('%s' % err.value)
+
