@@ -652,6 +652,13 @@ class AcquisitionData(DataContainer):
     @staticmethod
     def set_storage_scheme(scheme):
         try_calling(pystir.cSTIR_setAcquisitionsStorageScheme(scheme))
+    @staticmethod
+    def get_storage_scheme():
+        handle = pystir.cSTIR_getAcquisitionsStorageScheme()
+        check_status(handle)
+        scheme = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return scheme
     def same_object(self):
         return AcquisitionData()
     def read_from_file(self, filename): # 'read_from_file' is misleading

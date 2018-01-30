@@ -66,6 +66,7 @@ extern "C" {
 	void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
 
 	// Acquisition data methods
+	void* cSTIR_getAcquisitionsStorageScheme();
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
 	void* cSTIR_acquisitionsDataFromScannerInfo
