@@ -20,7 +20,7 @@ __author__ = "Casper da Costa-Luis"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    datafile = __file__.replace(".py", ".txt")
+    datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
@@ -61,7 +61,8 @@ def test_main(rec=False, verb=False, throw=True):
     if verb:
         print('projecting...')
     simulated_data = acq_model.forward(image)
-    diff = simulated_data * (acq_data.norm() / simulated_data.norm()) - acq_data
+    diff = simulated_data * (
+            acq_data.norm() / simulated_data.norm()) - acq_data
     if verb:
         print('relative residual norm: %e' % (diff.norm() / acq_data.norm()))
     test.check(diff.norm())

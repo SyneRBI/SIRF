@@ -22,13 +22,13 @@ __author__ = "Evgueni Ovtchinnikov, Casper da Costa-Luis"
 
 
 def test_main(rec=False, verb=False, throw=True):
-    datafile = __file__.replace(".py", ".txt")
+    datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
     data_path = mr_data_path()
-    input_data = AcquisitionData\
-        (data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
+    input_data = AcquisitionData(
+            data_path + '/simulated_MR_2D_cartesian_Grappa2.h5')
     test.check(input_data.norm())
 
     prep_gadgets = ['RemoveROOversamplingGadget']
