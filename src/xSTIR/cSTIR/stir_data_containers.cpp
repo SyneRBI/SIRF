@@ -216,7 +216,7 @@ PETImageData::dot(const aDataContainer<float>& a_x)
 
 	double s = 0.0;
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++) {
+		iter != data().end_all() && iter_x != x.data().end_all(); iter++, iter_x++) {
 		double t = *iter;
 		s += t * (*iter_x);
 	}
@@ -236,7 +236,7 @@ PETImageData::mult(float a, const aDataContainer<float>& a_x)
 #endif
 
 	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all(), iter_x != x.data().end_all(); iter++, iter_x++)
+		iter != data().end_all() && iter_x != x.data().end_all(); iter++, iter_x++)
 		*iter = a * (*iter_x);
 }
 
@@ -259,8 +259,8 @@ float b, const aDataContainer<float>& a_y)
 
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all(),
-		iter_x != x.data().end_all(), iter_y != y.data().end_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all() && iter_y != y.data().end_all();
 	iter++, iter_x++, iter_y++)
 		*iter = a * (*iter_x) + b * (*iter_y);
 }
