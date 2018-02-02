@@ -34,34 +34,30 @@ matrix:
    env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc-5 CXX=g++-5 PYMVER=2
  # osx g{cc,++} py{27,36}
  - os: osx
-   language: generic
+   python: 2.7
    # -hdf5 -swig
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
  - os: osx
    # -hdf5 -swig
-   language: generic
+   python: 3
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=3
- # - os: osx
- #   python: 2.7
- #   # -hdf5 -swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
- # - os: osx
- #   python: 2.7
- #   # +DEVEL -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
- # - os: osx
- #   python: 2.7
- #   # +DEVEL -fftw3 -hdf5 +swig
- #   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+ - os: osx
+   python: 2.7
+   # +DEVEL -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+ - os: osx
+   python: 2.7
+   # +DEVEL -fftw3 -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
  #  itk
  - os: linux
    python: 3
    # +itk +fftw3 +hdf5
    env: EXTRA_BUILD_FLAGS="-DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
- # - os: osx
- #   language: generic
- #   # +DEVEL +itk -hdf5 -swig
- #   env: EXTRA_BUILD_FLAGS="-DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+ - os: osx
+   python: 2.7
+   # +itk -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
 
 env:
  global:
@@ -116,18 +112,17 @@ before_install:
       export BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
       if [ $PYMVER == 2 ]; then
         export PYINST=/System/Library/Frameworks/Python.framework/Versions
-        export PYmVER=7
+        export PY_EXE=$PYINST/$PYMVER.7/bin/python2.7
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/2.7/lib/libpython2.7.dylib"
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/2.7/include/python2.7"
       else
         brew install python3
         export PYINST=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions
-        export PYmVER=6
+        export PY_EXE=$PYINST/$PYMVER.6/bin/python3.6
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/3.6/Python"
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/3.6/include/python3.6m"
       fi
-      export PYTHON_EXECUTABLE=$PYINST/$PYMVER.$PYmVER/bin/python$PYMVER.$PYmVER
-      export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PYTHON_EXECUTABLE"
+      export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
       brew update
       brew tap homebrew/science
       # boost is already installed but 1.65 doesn't work so update
@@ -144,7 +139,7 @@ before_install:
       tar xzf cmake.tar.gz
       mv cmake-*/CMake.app/Contents/* cmake-*
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      export PYTHON_EXECUTABLE=python$PYMVER
+      export PY_EXE=python$PYMVER
       curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
       tar xzf cmake.tar.gz
     fi
@@ -154,25 +149,25 @@ before_install:
  - popd
  # get pip
  - curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
- - $PYTHON_EXECUTABLE get-pip.py --user
+ - $PY_EXE get-pip.py --user
  # setuptools may be out of date on osx
- - $PYTHON_EXECUTABLE -m pip install --user -U pip setuptools wheel
+ - $PY_EXE -m pip install --user -U pip setuptools wheel
  # ensure python bin dir exists (and coverage dependencies installed)
- - $PYTHON_EXECUTABLE -m pip install --user -U nose codecov coveralls
+ - $PY_EXE -m pip install --user -U nose codecov coveralls
  # pip path fix
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       # show lib/site-packages path
-      $PYTHON_EXECUTABLE -m pydoc pip | grep -i -A 1 file
-      $PYTHON_EXECUTABLE -m pydoc codecov | grep -i -A 1 file
+      $PY_EXE -m pydoc pip | grep -i -A 1 file
+      $PY_EXE -m pydoc codecov | grep -i -A 1 file
       # append python bin dir to path (consult output from previous lines)
       pushd $HOME/Library/Python/$PYMVER*/bin
       export PATH="$PWD:$PATH"
       popd
     fi
- - $PYTHON_EXECUTABLE --version
- - $PYTHON_EXECUTABLE -m pip --version
- - $PYTHON_EXECUTABLE -m pip freeze
+ - $PY_EXE --version
+ - $PY_EXE -m pip --version
+ - $PY_EXE -m pip freeze
  # ccache compiler override
  - ln -s "$(which ccache)" g++
  - ln -s "$(which ccache)" g++-5
@@ -190,8 +185,7 @@ before_install:
  - cd SIRF-SuperBuild
 
 install:
- - $PYTHON_EXECUTABLE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
- # $PYTHON_EXECUTABLE -m pip install --user nose codecov coveralls
+ - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
  - cmake $BUILD_FLAGS $EXTRA_BUILD_FLAGS .
  # Job may timeout (>50min) if no ccache, otherwise should be <1min:
  - make
