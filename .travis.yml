@@ -29,21 +29,27 @@ matrix:
    python: 2.7
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_SWIG=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
  - os: osx
-   python: 2.7
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+   language: generic
+   env: EXTRA_BUILD_FLAGS="-DSHARED_LIBS_ABS_PATH=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
  - os: osx
-   python: 2.7
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
- - os: osx
-   python: 2.7
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
- # itk
+   language: generic
+   env: EXTRA_BUILD_FLAGS="-DSHARED_LIBS_ABS_PATH=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=3
+ # - os: osx
+ #   python: 2.7
+ #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+ # - os: osx
+ #   python: 2.7
+ #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
+ # - os: osx
+ #   python: 2.7
+ #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_SWIG=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DDEVEL_BUILD=ON" CC=gcc CXX=g++ PYMVER=2
+ #  itk
  - os: linux
    python: 3
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_ITK=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
- - os: osx
-   language: generic
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DUSE_ITK=ON" CC=gcc CXX=g++ PYMVER=2
+ # - os: osx
+ #   language: generic
+ #   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DUSE_ITK=ON" CC=gcc CXX=g++ PYMVER=2
 
 env:
  global:
@@ -95,11 +101,25 @@ before_install:
  - pushd ~/.local/bin
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [ $PYMVER == 2 ]; then
+        alias python$PYMVER=/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python2.7
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python2.7"
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=/System/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib"
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=/System/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7"
+      else
+        brew install python3
+        alias python$PYMVER=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/bin/python3.6
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/bin/python3.6"
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/Python"
+        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions/3.6/include/python3.6m"
+      fi
       brew update
       brew tap homebrew/science
       # Note: boost is already installed on osx on travis
       # so should not be included. However, we currently need boost-python
       # brew install boost-python
+      # for osx, 1.66 works, but 1.65 doesn't so update.
+      brew upgrade boost
       brew install ace
       brew install swig
       brew install ccache
@@ -134,10 +154,6 @@ before_install:
       pushd $HOME/Library/Python/$PYMVER*/bin
       export PATH="$PWD:$PATH"
       popd
-      # fix CMake variables
-      #export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib"
-      #export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7"
-      export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$(which python$PYMVER)"
     fi
  - python$PYMVER --version
  - python$PYMVER -m pip --version
