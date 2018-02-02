@@ -1,22 +1,20 @@
 '''Listmode-to-sinograms conversion and reconstruction demo.
 
 Usage:
-  reconstruct_from_listmode [--help | options] <h_file> <s_file> <t_file>
-
-Arguments:
-  h_file  listmode header data file (input)
-  s_file  sinogram data file (output)
-  t_file  sinogram template data file (input)
+  reconstruct_from_listmode [--help | options]
 
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
+  -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
+  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
+  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
-                               (no space after comma) [default: (127, 127)]
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
-  -S <subs>, --subs=<subs>     number of subsets [default: 12]
+                               (no space after comma) [default: (127,127)]
+  -S <subs>, --subs=<subs>     number of subsets [default: 2]
   -I <iter>, --iter=<iter>     number of iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
@@ -55,13 +53,12 @@ exec('from p' + args['--engine'] + ' import *')
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
-#prefix = data_path + '/'
-h_file = args['<h_file>']
-s_file = args['<s_file>']
-t_file = args['<t_file>']
+list_file = args['--list']
+sino_file = args['--sino']
+tmpl_file = args['--tmpl']
 norm_file = args['--norm']
-h_file = existing_filepath(data_path, h_file)
-t_file = existing_filepath(data_path, t_file)
+list_file = existing_filepath(data_path, list_file)
+tmpl_file = existing_filepath(data_path, tmpl_file)
 norm_file = existing_filepath(data_path, norm_file)
 nxny = literal_eval(args['--nxny'])
 interval = literal_eval(args['--interval'])
@@ -93,12 +90,12 @@ def main():
     lm2sino = ListmodeToSinograms()
 
     # set input, output and template files
-    lm2sino.set_input(h_file)
-    lm2sino.set_output(s_file)
-    lm2sino.set_template(t_file)
+    lm2sino.set_input(list_file)
+    lm2sino.set_output_prefix(sino_file)
+    lm2sino.set_template(tmpl_file)
 
     # set interval
-    lm2sino.set_interval(interval[0], interval[1])
+    lm2sino.set_time_interval(interval[0], interval[1])
 
     # set flags
     lm2sino.flag_on('store_prompts')

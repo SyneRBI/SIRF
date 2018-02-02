@@ -384,16 +384,6 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 }
 
 PETAcquisitionSensitivityModel::
-PETAcquisitionSensitivityModel(PETImageData& id)
-{
-	shared_ptr<BinNormalisationFromAttenuationImage>
-		sptr_n(new BinNormalisationFromAttenuationImage(id.data_sptr()));
-	//sptr_n->post_processing();
-	shared_ptr<BinNormalisation> sptr_0;
-	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
-}
-
-PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
 	shared_ptr<BinNormalisationFromECAT8> 
@@ -422,6 +412,35 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 	norm->apply(*ad.data(), 0, 1);
 }
 
+PETAttenuationModel::PETAttenuationModel
+(PETImageData& id, PETAcquisitionModel& am)
+{
+	shared_ptr<BinNormalisationFromAttenuationImage>
+		sptr_n(new BinNormalisationFromAttenuationImage
+		(id.data_sptr(), am.projectors_sptr()->get_forward_projector_sptr()));
+	shared_ptr<BinNormalisation> sptr_0;
+	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	sptr_projectors_ = am.projectors_sptr();
+}
+
+void
+PETAttenuationModel::unnormalise(PETAcquisitionData& ad) const
+{
+	BinNormalisation* norm = norm_.get();
+	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
+}
+
+void
+PETAttenuationModel::normalise(PETAcquisitionData& ad) const
+{
+	BinNormalisation* norm = norm_.get();
+	shared_ptr<DataSymmetriesForViewSegmentNumbers>
+		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
+}
+
 void
 PETAcquisitionModel::set_bin_efficiency
 (shared_ptr<PETAcquisitionData> sptr_data)
@@ -432,8 +451,6 @@ PETAcquisitionModel::set_bin_efficiency
 	sptr_normalisation_.reset
 		(new BinNormalisationFromProjData(sptr_ad->data()));
 	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
-
-	//sptr_norm_ = sptr_ad;
 }
 
 Succeeded 
@@ -469,11 +486,9 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	else
 		std::cout << "no additive term added\n";
 
-	//clear_stream();
 	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 		std::cout << "normalisation applied...";
 		sptr_normalisation_->undo(*sptr_fd, 0, 1);
-		//sptr_normalisation_->apply(*sptr_fd, 0, 1);
 		std::cout << "ok\n";
 	}
 	else

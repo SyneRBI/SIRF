@@ -36,7 +36,7 @@ def var(v):
 def test_main(rec=False, verb=False, throw=True):
     msg_red = MessageRedirector()
 
-    datafile = __file__.replace(".py", ".txt")
+    datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
     test.verbose = verb
 
