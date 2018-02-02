@@ -51,17 +51,35 @@ EXPORTED_FUNCTION 	void* mSTIR_parameter(const void* ptr, const char* obj, const
 EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsInterval (void* ptr_acq, PTR_FLOAT ptr_data) {
 	return cSTIR_setListmodeToSinogramsInterval (ptr_acq, ptr_data);
 }
+EXPORTED_FUNCTION 	void* mSTIR_setListmodeToSinogramsFlag (void* ptr_lm2s, const char* flag, int v) {
+	return cSTIR_setListmodeToSinogramsFlag (ptr_lm2s, flag, v);
+}
 EXPORTED_FUNCTION 	void* mSTIR_setupListmodeToSinogramsConverter(void* ptr) {
 	return cSTIR_setupListmodeToSinogramsConverter(ptr);
 }
 EXPORTED_FUNCTION 	void* mSTIR_convertListmodeToSinograms(void* ptr) {
 	return cSTIR_convertListmodeToSinograms(ptr);
 }
+EXPORTED_FUNCTION 	void* mSTIR_computeRandoms(void* ptr) {
+	return cSTIR_computeRandoms(ptr);
+}
 EXPORTED_FUNCTION 	void* mSTIR_applyImageDataProcessor(const void* ptr_p, void* ptr_d) {
 	return cSTIR_applyImageDataProcessor(ptr_p, ptr_d);
 }
 EXPORTED_FUNCTION 	void* mSTIR_createPETAcquisitionSensitivityModel (const void* ptr_src, const char* src) {
 	return cSTIR_createPETAcquisitionSensitivityModel (ptr_src, src);
+}
+EXPORTED_FUNCTION 	void* mSTIR_createPETAttenuationModel (const void* ptr_img, const void* ptr_am) {
+	return cSTIR_createPETAttenuationModel (ptr_img, ptr_am);
+}
+EXPORTED_FUNCTION 	void* mSTIR_chainPETAcquisitionSensitivityModels (const void* ptr_first, const void* ptr_second) {
+	return cSTIR_chainPETAcquisitionSensitivityModels (ptr_first, ptr_second);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad) {
+	return cSTIR_setupAcquisitionSensitivityModel(ptr_sm, ptr_ad);
+}
+EXPORTED_FUNCTION 	void* mSTIR_applyAcquisitionSensitivityModel (void* ptr_sm, void* ptr_ad, const char* job) {
+	return cSTIR_applyAcquisitionSensitivityModel (ptr_sm, ptr_ad, job);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
@@ -71,6 +89,9 @@ EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
+}
+EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme() {
+	return cSTIR_getAcquisitionsStorageScheme();
 }
 EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) {
 	return cSTIR_setAcquisitionsStorageScheme(scheme);
@@ -128,6 +149,9 @@ EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 }
 EXPORTED_FUNCTION 	void* mSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data) {
 	return cSTIR_getImageDimensions(ptr, ptr_data);
+}
+EXPORTED_FUNCTION 	void* mSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs) {
+	return cSTIR_getImageVoxelSizes(ptr_im, ptr_vs);
 }
 EXPORTED_FUNCTION 	void* mSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data) {
 	return cSTIR_getImageData(ptr, ptr_data);

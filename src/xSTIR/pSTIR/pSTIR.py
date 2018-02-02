@@ -623,7 +623,7 @@ class AcquisitionData(DataContainer):
         (self, src = None, span = 1, max_ring_diff = -1, view_mash_factor = 1):
         ''' 
         Creates new AcquisitionData object from a file or another
-        AcquisitionData object;
+        AcquisitionData object or scanner
         src:  file name (Python str) or AcquisitionData object or scanner name
         '''
         self.handle = None
