@@ -51,6 +51,16 @@ option(SIRF_INSTALL_DEPENDENCIES "Install dlls etc" WIN32)
 ####### CMake path
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
+# If OSX give the advanced option to use absolute paths for shared libraries
+if (APPLE)
+  option(SHARED_LIBS_ABS_PATH "Force shared libraries to be installed with absolute paths (as opposed to rpaths)" ON)
+  mark_as_advanced( SHARED_LIBS_ABS_PATH )  
+  if (SHARED_LIBS_ABS_PATH)
+    # Set install_name_dir as the absolute path to install_prefix/lib
+    GET_FILENAME_COMPONENT(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib REALPATH)
+  endif(SHARED_LIBS_ABS_PATH)
+endif(APPLE)
+
 ####### External packages
 
 #### we need the boost library from boost.org
