@@ -56,7 +56,6 @@ classdef AcquisitionData < mGadgetron.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteObject', self.handle_)
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
@@ -184,7 +183,18 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 self.handle_, na, nc, ns, ptr_re, ptr_im);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
+        end
+        function write(self, file)
+%         Writes self's acquisitions to an hdf5 file.
+%         file : the file name (Matlab string)
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            h = calllib('mgadgetron', 'mGT_writeAcquisitions',...
+                self.handle_, file);
+            mUtilities.check_status('AcquisitionData:write', h);
+            mUtilities.delete(h)
         end
     end
 end
