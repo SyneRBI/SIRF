@@ -441,7 +441,7 @@ class ImageData(DataContainer):
         image.handle = pystir.cSTIR_imageFromImage(self.handle)
         check_status(image.handle)
         return image
-    def get_empty_copy(self, value = 1.0):
+    def get_uniform_copy(self, value = 1.0):
         '''Creates a copy of this image filled with <value>.'''
         assert self.handle is not None
         image = ImageData()
@@ -623,7 +623,7 @@ class AcquisitionData(DataContainer):
         (self, src = None, span = 1, max_ring_diff = -1, view_mash_factor = 1):
         ''' 
         Creates new AcquisitionData object from a file or another
-        AcquisitionData object or scanner
+        AcquisitionData object;
         src:  file name (Python str) or AcquisitionData object or scanner name
         '''
         self.handle = None
