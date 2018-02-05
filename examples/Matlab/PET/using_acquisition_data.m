@@ -48,7 +48,7 @@ try
     acq_dim = size(acq_array);
     x = acq_dim(1)/2;
     y = acq_dim(2)/2;
-    z = acq_dim(3)/2;
+    z = uint16(acq_dim(3)/2);
 
     % display the acquisition data
     mUtilities.show_2D_array(acq_array(:,:,z), ...

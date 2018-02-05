@@ -59,7 +59,7 @@ try
     image.add_shape(shape, 0.75)
 
     % z-coordinate of the xy-section to display
-    z = int32(image_size(3)/2);
+    z = uint16(image_size(3)/2);
 
     % display the created phantom image
     image_array = image.as_array();
@@ -91,7 +91,7 @@ try
     % display simulated data
     acq_array = simulated_data.as_array();
     acq_dim = size(acq_array);
-    mUtilities.show_2D_array(acq_array(:,:,acq_dim(3)/2), ...
+    mUtilities.show_2D_array(acq_array(:,:,uint16(acq_dim(3)/2)), ...
         'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data

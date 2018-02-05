@@ -44,7 +44,7 @@ try
     fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
 
     % display the acquisition data
-    z = acq_dim(3)/2;
+    z = uint16(acq_dim(3)/2);
     mUtilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
     
