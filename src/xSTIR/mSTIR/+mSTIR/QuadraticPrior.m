@@ -22,6 +22,7 @@ classdef QuadraticPrior < mSTIR.Prior
         function self = QuadraticPrior()
             self.name = 'QuadraticPrior';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
+            mUtilities.check_status('QuadraticPrior:ctor', self.handle_)
         end
         function delete(self)
             mUtilities.delete(self.handle_)

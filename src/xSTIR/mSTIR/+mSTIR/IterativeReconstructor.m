@@ -160,18 +160,18 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
-%         function process(self)
-% %***SIRF*** Reconstruct the image 
-% %         by applying currently set range of
-% %         iterations to the current image estimate.
-%             if isempty(self.image)
-%                 error([self.IR ':process'], 'current estimate not set')
-%             end
-%             h = calllib('mstir', 'mSTIR_runReconstruction',...
-%                 self.handle_, self.image.handle_);
-%             mUtilities.check_status([self.IR ':process'], h)
-%             calllib('mutilities', 'mDeleteDataHandle', h)
-%         end
+        function process(self)
+%***SIRF*** Reconstruct the image 
+%         by applying currently set range of
+%         iterations to the current image estimate.
+            if isempty(self.image)
+                error([self.IR ':process'], 'current estimate not set')
+            end
+            h = calllib('mstir', 'mSTIR_runReconstruction',...
+                self.handle_, self.image.handle_);
+            mUtilities.check_status([self.IR ':process'], h)
+            calllib('mutilities', 'mDeleteDataHandle', h)
+        end
         function update(self, image)
 %***SIRF*** Updates the image estimate specified by the argument 
 %         by performing one iteration on the current subspace.
