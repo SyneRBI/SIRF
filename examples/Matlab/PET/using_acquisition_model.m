@@ -74,6 +74,7 @@ try
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
     template = AcquisitionData(fullfile(pathname, filename));
     
+    % create bin efficiencies
     bin_eff = template.clone();
     bin_eff.fill(2.0);
     bin_eff_arr = bin_eff.as_array();
@@ -81,7 +82,32 @@ try
     mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
-    acq_model.set_bin_efficiency(bin_eff);
+%    acq_model.set_bin_efficiency(bin_eff);
+    
+    % create acquisition sensitivity model based on bin efficiencies
+    as_mod1 = AcquisitionSensitivityModel(bin_eff);
+
+    % create acquisition sensitivity model based on other bin efficiencies
+    bin_eff_arr(:, 10:50, :) = 2.0;
+    bin_eff_arr(:, 60:80, :) = 0;
+    mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
+        'other bin efficiencies', 'tang. pos.', 'views');
+    bin_eff.fill(bin_eff_arr);
+    as_mod2 = AcquisitionSensitivityModel(bin_eff);
+
+    % chain the two sensitivity models
+    as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
+    as_model.set_up(template)
+    ones = template.get_uniform_copy(1.0);
+    % apply the chained model to view combined bin efficiencies
+    as_model.unnormalise(ones)
+    ones_arr = ones.as_array();
+    mUtilities.show_2D_array(ones_arr(:,:,z), ...
+        'combined bin efficiencies', 'tang. pos.', 'views');
+
+    %as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
+    % set acquisition model normalisation
+    acq_model.set_normalization(as_model);
 
     fprintf('setting up acquisition model...\n')
     acq_model.set_up(template, image)

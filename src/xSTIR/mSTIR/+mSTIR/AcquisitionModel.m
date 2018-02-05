@@ -72,6 +72,13 @@ classdef AcquisitionModel < handle
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'normalisation', norm, 'h');
         end
+        function set_normalization(self, norm)
+%***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
+%         norm: an AcquisitionSensitivityModel object.
+            mUtilities.assert_validity(norm, 'AcquisitionSensitivityModel')
+            mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
+                'normalization', norm, 'h');
+        end
         function set_bin_efficiency(self, bin_eff)
 %***SIRF*** set_bin_efficiency(bin_eff) sets the normalisation n in (F);
 %         bin_eff:  an AcquisitionData object containing bin efficiencies
