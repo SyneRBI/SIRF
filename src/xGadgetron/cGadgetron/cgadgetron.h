@@ -49,6 +49,7 @@ extern "C" {
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
 	void* cGT_setAcquisitionsStorageScheme(const char* scheme);
+	void* cGT_getAcquisitionsStorageScheme();
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
@@ -82,9 +83,9 @@ extern "C" {
 	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
 	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
-	void cGT_getImageDataAsFloatArray(void* ptr_img, size_t ptr_data);
+	void cGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT ptr_data);
 	void cGT_getImageDataAsComplexArray
-		(void* ptr_imgs, size_t ptr_re, size_t ptr_im);
+		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
 	void cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
 	void cGT_getImagesDataAsComplexArray

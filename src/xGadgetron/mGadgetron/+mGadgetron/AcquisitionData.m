@@ -34,9 +34,24 @@ classdef AcquisitionData < mGadgetron.DataContainer
             obj = mGadgetron.AcquisitionData();
         end
         function set_storage_scheme(scheme)
+%***SIRF*** Sets acquisition data storage scheme.
+%           scheme = 'file' (default):
+%               all acquisition data generated from now on will be kept in
+%               scratch files deleted after the user's script terminates
+%           scheme = 'memory':
+%               all acquisition data generated from now on will be kept in
+%               RAM (avoid if data is very large)
             h = calllib...
                 ('mgadgetron', 'mGT_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
+            mUtilities.delete(h)
+        end
+        function scheme = get_storage_scheme()
+%***SIRF*** Returns current acquisition storage scheme name
+            h = calllib...
+                ('mgadgetron', 'mGT_getAcquisitionsStorageScheme');
+            mUtilities.check_status('AcquisitionData', h);
+            scheme = calllib('miutilities', 'mCharDataFromHandle', h);
             mUtilities.delete(h)
         end
     end

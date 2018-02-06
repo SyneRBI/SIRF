@@ -395,6 +395,14 @@ cGT_setAcquisitionsStorageScheme(const char* scheme)
 
 extern "C"
 void*
+cGT_getAcquisitionsStorageScheme()
+{
+	return charDataHandleFromCharData
+		(MRAcquisitionData::storage_scheme().c_str());
+}
+
+extern "C"
+void*
 cGT_orderAcquisitions(void* ptr_acqs)
 {
 	try {

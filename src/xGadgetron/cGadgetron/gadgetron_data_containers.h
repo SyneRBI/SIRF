@@ -95,6 +95,16 @@ public:
 
 	// static methods
 
+	static std::string storage_scheme()
+	{
+		static bool initialized = false;
+		if (!initialized) {
+			_storage_scheme = "file";
+			initialized = true;
+		}
+		return _storage_scheme;
+	}
+
 	// ISMRMRD acquisitions algebra: acquisitions viewed as vectors of 
 	// acquisition data
 	// y := a x + b y
@@ -166,6 +176,7 @@ protected:
 	int* index_;
 	AcquisitionsInfo acqs_info_;
 
+	static std::string _storage_scheme;
 	// new MRAcquisitionData objects will be created from this template
 	// using same_acquisitions_container()
 	static shared_ptr<MRAcquisitionData> acqs_templ_;
