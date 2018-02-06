@@ -31,8 +31,8 @@ limitations under the License.
 #include "cgadgetron_shared_ptr.h"
 using namespace gadgetron;
 
-shared_ptr<MRAcquisitionData> 
-MRAcquisitionData::acqs_templ_;
+std::string MRAcquisitionData::_storage_scheme;
+shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
 void 
 MRAcquisitionData::write(const char* filename)
