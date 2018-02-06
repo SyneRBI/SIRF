@@ -36,7 +36,7 @@ try
     lm2sino = ListmodeToSinograms();
 
     [filename, pathname] = uigetfile...
-        ('*.l.hdr*', 'Select raw data file to be used as a template', pet_data_path);
+        ('*.l.hdr*', 'Select listmode data file', pet_data_path);
     list_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
