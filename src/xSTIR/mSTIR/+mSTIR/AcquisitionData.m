@@ -30,27 +30,58 @@ classdef AcquisitionData < mSTIR.DataContainer
             obj = mSTIR.AcquisitionData();
         end
         function set_storage_scheme(scheme)
+%***SIRF*** Sets acquisition data storage scheme.
+%           scheme = 'file' (default):
+%               all acquisition data generated from now on will be kept in
+%               scratch files deleted after the user's script terminates
+%           scheme = 'memory':
+%               all acquisition data generated from now on will be kept in
+%               RAM (avoid if data is very large)
             h = calllib...
                 ('mstir', 'mSTIR_setAcquisitionsStorageScheme', scheme);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end
+        function scheme = get_storage_scheme()
+%***SIRF*** Returns current acquisition storage scheme name
+            h = calllib...
+                ('mstir', 'mSTIR_getAcquisitionsStorageScheme');
+            mUtilities.check_status('AcquisitionData', h);
+            scheme = calllib('miutilities', 'mCharDataFromHandle', h);
+            mUtilities.delete(h)
+        end
     end
     methods
-        function self = AcquisitionData(arg)
-%         AcquisitionData(arg) creates new AcquisitionData object 
-%         from a file or another AcquisitionData object;
-%         arg:  file name or AcquisitionData object.
+        function self = AcquisitionData...
+                (arg, span, max_ring_diff, view_mash_factor)
+%***SIRF*** AcquisitionData(arg) creates new AcquisitionData object 
+%           from a file or scanner or another AcquisitionData object;
+%           arg:  file or scanner name or AcquisitionData object.
             self.handle_ = [];
             self.name = 'AcquisitionData';
             self.read_only = false;
             if nargin < 1
                 return
             elseif ischar(arg)
-                self.handle_ = calllib...
-                    ('mstir', 'mSTIR_objectFromFile',...
-                    'AcquisitionData', arg);
-                self.read_only = true;
+                i = strfind(arg, '.');
+                if isempty(i)
+                    if nargin < 4
+                        view_mash_factor = 1;
+                    end
+                    if nargin < 3
+                        max_ring_diff = -1;
+                    end
+                    if nargin < 2
+                        span = 1;
+                    end
+                    self.handle_ = calllib...
+                        ('mstir', 'mSTIR_acquisitionsDataFromScannerInfo',...
+                        arg, span, max_ring_diff, view_mash_factor);
+                else
+                    self.handle_ = calllib('mstir', 'mSTIR_objectFromFile',...
+                        'AcquisitionData', arg);
+                    self.read_only = true;
+                end
             elseif isa(arg, 'mSTIR.AcquisitionData')
                 self.handle_ = calllib...
                     ('mstir', 'mSTIR_acquisitionsDataFromTemplate',...
@@ -63,7 +94,6 @@ classdef AcquisitionData < mSTIR.DataContainer
         end
         function delete(self)
             if ~isempty(self.handle_)
-                %calllib('mutilities', 'mDeleteDataHandle', self.handle_)
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
@@ -80,11 +110,11 @@ classdef AcquisitionData < mSTIR.DataContainer
         end
         function image = create_uniform_image(self, value)
 %***SIRF*** create_uniform_image(value) creates compatible ImageData object.
-%         The created object contains PET image of dimensions and voxel sizes 
-%         compatible with the scanner or its model used to produce the
-%         acquisition data in self.
-%         The specified value, if present, is assigned at all image voxels.
-%         value: a float.
+%           The created object contains PET image of dimensions and voxel
+%           sizes compatible with the scanner or its model used to produce
+%           the acquisition data in self.
+%           The specified value, if present, is assigned at all image voxels.
+%           value: a float.
             image = mSTIR.ImageData();
             image.handle_ = calllib...
                 ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle_);
@@ -96,10 +126,10 @@ classdef AcquisitionData < mSTIR.DataContainer
         end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of the acquisition data values.
-%         Dimensions are:
-%         - number of tangential positions
-%         - number of views
-%         - number of sinograms
+%           Dimensions are:
+%           - number of tangential positions
+%           - number of views
+%           - number of sinograms
             ptr_i = libpointer('int32Ptr', zeros(3, 1));
             calllib('mstir', 'mSTIR_getAcquisitionsDimensions', ...
                 self.handle_, ptr_i);
@@ -111,8 +141,8 @@ classdef AcquisitionData < mSTIR.DataContainer
         end
         function fill(self, value)
 %***SIRF*** fill(value) fills the object with values;
-%         value: float or array of floats (of the same dimensions and data
-%                order as the one returned by as_array() method) or an 
+%           value: float or array of floats (of the same dimensions and 
+%                data order as the one returned by as_array() method) or an 
 %                AcquisitionData object.
             if isempty(self.handle_)
                 error([self.name ':fill'], ...
@@ -148,12 +178,19 @@ classdef AcquisitionData < mSTIR.DataContainer
                 h = calllib('mstir', ...
                     'mSTIR_fillAcquisitionsDataFromAcquisitionsData', ...
                     self.handle_, value.handle_);
-                mUtilities.check_status...
-                    ([self.name ':fill'], h);
+                mUtilities.check_status([self.name ':fill'], h);
                 mUtilities.delete(h)
             else
                 error([self.name ':fill'], 'wrong fill value')
             end
+        end
+        function write(self, filename)
+%***SIRF*** Writes self to an Interfile - see STIR documentation for details.
+            assert(~isempty(self.handle_), 'Empty AcquisitionData object')
+            h = calllib('mstir', 'mSTIR_writeAcquisitionData',...
+                self.handle_, filename);
+            mUtilities.check_status([self.name ':write'], h);
+            mUtilities.delete(h)
         end
         function ad = clone(self)
 %***SIRF*** Returns a true copy of this object (not Matlab handle).
@@ -162,8 +199,8 @@ classdef AcquisitionData < mSTIR.DataContainer
         end
         function ad = get_uniform_copy(self, value)
 %***SIRF*** get_uniform_copy(value) returns a true copy of this object 
-%         (not Matlab handle) filled with the specified value;
-%         value: Matlab float
+%           (not Matlab handle) filled with the specified value;
+%           value: Matlab float
             if nargin < 2
                 value = 0;
             end

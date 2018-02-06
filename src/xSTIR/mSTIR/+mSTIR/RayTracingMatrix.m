@@ -47,9 +47,9 @@ classdef RayTracingMatrix < handle
             mSTIR.setParameter...
                 (self.handle_, self.name, 'num_tangential_LORs', num, 'i')
         end
-%         function value = get_num_tangential_LORs(self)
-%             value = mSTIR.parameter...
-%                 (self.handle_, self.name, 'num_tangential_LORs', 'i');
-%         end
+        function value = get_num_tangential_LORs(self)
+            value = mSTIR.parameter...
+                (self.handle_, self.name, 'num_tangential_LORs', 'i');
+        end
     end
 end

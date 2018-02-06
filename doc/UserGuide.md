@@ -197,7 +197,14 @@ Class for acquisition data.
 ###### Methods:
 
     AcquisitionData  
-               (PET/MR) Constructor. Reads data from a file or creates empty object. 
+               (PET/MR) Constructor. If no arguments are present, creates an
+                        empty object, otherwise:
+                        PET: Specifies the file containing raw data or
+                        creates new AcquisitionData based on scanner information 
+                        that comes either from a template AcquisitionData object
+                        or discerned from the scanner name and parameters given
+                        in the arguments; 
+                        MR: Specifies the file containing raw data. 
     create_uniform_image  
                   (PET) Returns new compatible ImageData object. 
     as_array   (PET/MR) Returns the object data as an array. 
@@ -370,21 +377,85 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 
 ### Other classes <a name="Other_classes"></a>
 
+##### ListmodeToSinograms (PET)
+
+Class for converting raw data from listmode format into sinograms and estimating randoms.
+
+###### Methods:
+
+    ListmodeToSinograms  Constructor. Takes an optional text string argument with
+                         the name of an Interfile defining the conversion options.
+                         If no argument is given, default settings apply except
+                         for the names of input raw data file, template file and
+                         output file prefix, which must be set by the user by
+                         calling respective methods.
+    set_input            Specifies the input raw data file.
+    set_output_prefix    Specifies the prefix for the output file(s), which will
+                         be appended by _g1f1d0b0 in SIRF 1.0.
+    set_template         Specifies the file containing acquisition data to be
+                         used as a source of information about the scanner.
+    set_time_interval    Specifies the scanning time sub-interval to be converted
+                         (zero interval indicates that all raw data must be converted)
+    flag_on              Turns on (i.e. assigns value true to) a conversion flag.
+    flag_off             Turns off (i.e. assigns value false to) a conversion flag.
+    set_up               Sets up the converter.
+    process              Performs the conversion.
+    get_output           Returns AcquisitionData object containing converted data.
+    estimate_randoms     Estimates randoms.
+
+###### Examples: 
+
+    lm2sino = ListmodeToSinograms()
+    lm2sino.set_input(list_file)
+    lm2sino.set_output_prefix(sino_file)
+    lm2sino.set_template(tmpl_file)
+    lm2sino.set_time_interval(0, 10)
+    lm2sino.flag_on('store_prompts')
+    lm2sino.set_up()
+    lm2sino.process()
+    acq_data = lm2sino.get_output()
+
 ##### AcquisitionModel 
 
-Class for the acquisition process modelling. Main component is the forward projection operation F that for a given image data x estimates the data y = F(x) to be acquired by the scanner (simulated acquisition data). The transpose B of the Frechet derivative of F is referred to as backprojection (if F is linear, e.g. a matrix, then B is the transpose of F). 
+Class for the acquisition process modelling. Main component is the forward projection operation F that for a given image data x estimates the data y = F(x) to be acquired by the scanner (simulated acquisition data). The transpose B of the Frechet derivative of F is referred to as backprojection (if F is linear, e.g. a matrix, then B is the transpose of F).
+
+For PET, F(x) is the right-hand side of the following equation:
+
+    (F)    y = (1/n)(G x + a) + b 
+
+where  
+
+G, ray tracing matrix, is a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins; 
+
+a and b, additive and background terms, represent the effects of accidental coincidences and scattering; 
+
+n, bin normalization, is the inverse of bin efficiencies. 
+
+Accordingly, the backprojection B is given by
+
+    (B)    x = G' (1/n) y 
+
+where G' is the transpose of G. 
 
 ###### Methods: 
 
-    AcquisitionModel  
-             (PET/MR) Constructor. Creates an acquisition model (PET: empty, MR: based 
-                      on the image and acquisition data templates specified by the 
-                      arguments). 
-    forward  (PET/MR) Returns F(x) for the image data x specified by the argument. 
-    backward (PET/MR) Returns B(y) for the acquisition data y specified by the  
-                      argument. 
+    AcquisitionModel (PET/MR) Constructor. Creates an acquisition model 
+                              (PET: empty, MR: based on the image and 
+                              acquisition data templates specified by the 
+                              arguments). 
+    forward          (PET/MR) Returns F(x) for the image data x specified 
+                              by the argument. 
+    backward         (PET/MR) Returns B(y) for the acquisition data y specified 
+                              by the argument. 
+    set_up              (PET) Sets up the model based on acquisition and image data  
+                              templates provided by the arguments. 
+    set_additive_term   (PET) Sets term a in (F). 
+    set_normalization   (PET) Defines n in (F) via AcquisitionSensitivityModel
+                              (see below). 
+    set_bin_efficiency  (PET) Sets 1/n in (F). This is useful if some bin efficiencies 
+                              are zero. 
     set_coil_sensitivity_maps  
-                 (MR) Sets coil sensitivity maps to be used.  
+                         (MR) Sets coil sensitivity maps to be used.  
 
 ###### Examples: 
 
@@ -394,40 +465,53 @@ Class for the acquisition process modelling. Main component is the forward proje
 
 ##### AcquisitionModelUsingRayTracingMatrix (PET) 
 
-Class for the PET acquisition process model whereby the image data x is related to the acquisition data y as 
-
-    (F)    y = (1/n)(G x + a) + b 
-
-where  
-
-G, ray tracing matrix, is a matrix whose columns correspond to the image voxels and rows to pairs of scanner's detectors (bins), each column simulating the impact of this voxel's radiation on the data acquired by the bins; 
-
-a and b, additive and background terms, represent the effects of accidental coincidences and scattering (b is not implemented yet); 
-
-n, bin normalization, is the inverse of bin efficiencies. 
-
-This class inherits the methods of PET AcquisitionModel class, with forward projection defined by (F) and backprojection by 
-
-    (B)    x = G' (1/n) y 
-
-where G' is the transpose of G. 
+Class for the PET acquisition process model that uses (implicitly) a sparse matrix for G in (F). This class inherits the methods of PET AcquisitionModel class, with forward projection defined by (F) and backprojection by (B).
 
 ###### Methods (in addition to those of AcquisitionModel): 
 
     AcquisitionModelUsingRayTracingMatrix  
                           Constructor. Creates an acquisition model. 
-    set_up                Sets up the model based on acquisition and image data  
-                          templates provided by the arguments. 
-    set_additive_term     Sets term a in (F). 
-    set_normalisation     Sets n in (F).  
-    set_bin_efficiency    Sets 1/n in (F). This is useful if some bin efficiencies 
-                          are zero. 
 
 ###### Examples: 
 
     acq_model = AcquisitionModelUsingRayTracingMatrix(); 
     acq_model.set_up(acq_template, image_template) 
     sim_data = acq_model.forward(image); 
+
+##### AcquisitionSensitivityModel (PET)
+
+Class for a part of AcquisitionModel that accounts for bin efficiencies and attenuation.
+Provides methods for for applying (1/n) factor in (F) and (B) or its inverse. 
+
+###### Methods: 
+
+    AcquisitionSensitivityModel 
+                     Constructor. Creates a new object of this class
+                     - from an ECAT8 file or
+                     - from an attenuation image (ImageData object) or
+                     - from bin efficiencies (AcquisitionData object) or
+                     - by chaining two objects of this class
+
+    set_up           Sets up the object.
+    unnormalise      Multiplies the argument (AcquisitionData) by (1/n).
+    forward          Returns the argument multiplied by (1/n).
+
+###### Examples: 
+
+    # obtain an acquisition data template
+    template = AcquisitionData(temp_file)
+
+    # create acquisition sensitivity model from ECAT8 normalization data
+    asm = AcquisitionSensitivityModel(norm_file)
+
+    # create acquisition sensitivity model from attenuation image
+    attn_image = ImageData(attn_file)
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_up(template, attn_image)
+    asm = AcquisitionSensitivityModel(attn_image, am)
+
+    # create acquisition sensitivity model from bin efficiencies
+    asm = AcquisitionSensitivityModel(bin_eff)
 
 ##### ObjectiveFunction (PET) 
 
