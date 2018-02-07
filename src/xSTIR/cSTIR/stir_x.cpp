@@ -25,7 +25,7 @@ limitations under the License.
 using stir::shared_ptr;
 
 void
-ListmodeToSinograms::compute_fan_sums()
+ListmodeToSinograms::compute_fan_sums_()
 {
 	//*********** get Scanner details
 	const int num_rings =
@@ -154,7 +154,7 @@ ListmodeToSinograms::compute_fan_sums()
 }
 
 unsigned long
-ListmodeToSinograms::compute_num_bins(const int num_rings,
+ListmodeToSinograms::compute_num_bins_(const int num_rings,
 const int num_detectors_per_ring,
 const int max_ring_diff, const int half_fan_size)
 {
@@ -172,7 +172,7 @@ const int max_ring_diff, const int half_fan_size)
 }
 
 int
-ListmodeToSinograms::compute_singles()
+ListmodeToSinograms::compute_singles_()
 {
 	const int do_display_interval = display_interval;
 	const int do_KL_interval = KL_interval;
@@ -214,7 +214,7 @@ ListmodeToSinograms::compute_singles()
 			if (iter_num == 1)
 			{
 				efficiencies.fill(sqrt(data_fan_sums.sum() /
-					compute_num_bins(num_rings, num_detectors_per_ring, max_ring_diff,
+					compute_num_bins_(num_rings, num_detectors_per_ring, max_ring_diff,
 					half_fan_size)));
 			}
 			// efficiencies
@@ -245,7 +245,7 @@ ListmodeToSinograms::compute_singles()
 }
 
 void
-ListmodeToSinograms::estimate_randoms()
+ListmodeToSinograms::estimate_randoms_()
 {
 	std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
 	PETAcquisitionDataInFile acq_temp(filename.c_str());
