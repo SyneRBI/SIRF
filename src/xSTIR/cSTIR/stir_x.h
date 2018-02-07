@@ -217,9 +217,9 @@ protected:
 
 PET acquisition model relates an image representation \e x to the
 acquisition data representation \e y as
-\f[
-(F)    y = [1/n](G x + [a]) + [b]
-\f]
+
+\f[ y = 1/n(G x + a) + b \f]
+
 where:
 <list>
 <item>
@@ -236,11 +236,11 @@ detector (bin) efficiencies; assumed to be 1 if not present.
 </item>
 </list>
 
-The computation of \e y for a given \e x by the above formula (F) is
+The computation of \e y for a given \e x by the above formula is
 referred to as forward projection, and the computation of
-\f[
-(B)    z = G' m y
-\f]
+
+\f[ z = G' m y \f]
+
 where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
 backward projection.
 */
