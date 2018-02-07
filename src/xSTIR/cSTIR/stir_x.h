@@ -53,7 +53,9 @@ public:
 	ListmodeToSinograms() : LmToProjData()
 	{
 		fan_size = -1;
-		delayed_increment = -1;
+		store_prompts = true;
+        store_delayeds = false;
+        delayed_increment = 0;
 		num_iterations = 10;
 		display_interval = 1;
 		KL_interval = 1;
@@ -78,6 +80,7 @@ public:
 		std::vector < std::pair<double, double> > intervals;
 		intervals.push_back(interval);
 		frame_defs = TimeFrameDefinitions(intervals);
+		do_time_frame = true;
 	}
 	int set_flag(const char* flag, bool value)
 	{
@@ -85,10 +88,12 @@ public:
 			store_prompts = value;
 		else if (boost::iequals(flag, "store_delayeds"))
 			store_delayeds = value;
+ #if 0
 		else if (boost::iequals(flag, "do_pre_normalisation"))
 			do_pre_normalisation = value;
 		else if (boost::iequals(flag, "do_time_frame"))
 			do_time_frame = value;
+#endif
 		else if (boost::iequals(flag, "interactive"))
 			interactive = value;
 		else
@@ -146,7 +151,7 @@ protected:
 	shared_ptr<std::vector<Array<2, float> > > fan_sums_sptr;
 	shared_ptr<DetectorEfficiencies> det_eff_sptr;
 	shared_ptr<PETAcquisitionData> randoms_sptr;
-	void compute_fan_sums_();
+	void compute_fan_sums_(bool prompt_fansum = false);
 	int compute_singles_();
 	void estimate_randoms_();
 	static unsigned long compute_num_bins_(const int num_rings,

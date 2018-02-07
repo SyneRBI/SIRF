@@ -25,7 +25,7 @@ limitations under the License.
 using stir::shared_ptr;
 
 void
-ListmodeToSinograms::compute_fan_sums_()
+ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 {
 	//*********** get Scanner details
 	const int num_rings =
@@ -98,9 +98,9 @@ ListmodeToSinograms::compute_fan_sums_()
 
 				// see if we increment or decrement the value in the sinogram
 				const int event_increment =
-					record.event().is_prompt()
-					? (store_prompts ? 1 : 0) // it's a prompt
-					: delayed_increment;//it is a delayed-coincidence event
+                    (record.event().is_prompt() == prompt_fansum)
+                    ? 1
+                    : 0;
 
 				if (event_increment == 0)
 					continue;
@@ -247,10 +247,9 @@ ListmodeToSinograms::compute_singles_()
 void
 ListmodeToSinograms::estimate_randoms_()
 {
-	std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-	PETAcquisitionDataInFile acq_temp(filename.c_str());
+	PETAcquisitionDataInFile acq_temp(template_proj_data_name.c_str());
 	shared_ptr<ProjData> template_projdata_ptr = acq_temp.data();
-	filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
+	std::string filename = output_filename_prefix + "_randoms" + "_f1g1d0b0.hs";
 	randoms_sptr = acq_temp.new_acquisition_data(); // filename);
 	ProjData& proj_data = *randoms_sptr->data();
 
