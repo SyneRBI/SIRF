@@ -1,10 +1,16 @@
 ## Release Checklist
 
-### SIRF
+1. SIRF
+ - [ ] update `CHANGES.md`
+ - [ ] update version numbers in `SIRF/CMakeLists.txt`
+ - [ ] run doxygen and upload files
+ 
+2. SuperBuild
+ - [ ] update `CHANGES.md`
+ - [ ] update `SIRF-Superbuild/version_config.cmake`
+ - [ ] run tests (and check Travis)
 
-### SuperBuild
-
-### Virtual Machine
+3. Virtual Machine
 
  - [ ] run `vagrant up`
  - [ ] run the zerofill trick
