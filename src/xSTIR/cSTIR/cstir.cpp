@@ -267,9 +267,13 @@ void* cSTIR_computeRandoms(void* ptr)
 {
 	try {
 		ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(ptr);
-		lm2s.compute_fan_sums();
-		lm2s.compute_singles();
-		lm2s.estimate_randoms();
+		if (lm2s.estimate_randoms()) {
+			ExecutionStatus status
+				("cSTIR_computeRandoms failed", __FILE__, __LINE__);
+			DataHandle* handle = new DataHandle;
+			handle->set(0, &status);
+			return handle;
+		}
 		return newObjectHandle(lm2s.get_randoms_sptr());
 	}
 	CATCH;

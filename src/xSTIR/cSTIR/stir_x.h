@@ -123,9 +123,15 @@ public:
 			(new PETAcquisitionDataInFile(filename.c_str()));
 	}
 
-	void compute_fan_sums();
-	int compute_singles();
-	void estimate_randoms();
+	int estimate_randoms()
+	{
+		compute_fan_sums_();
+		int err = compute_singles_();
+		if (err)
+			return err;
+		estimate_randoms_();
+		return 0;
+	}
 	shared_ptr<PETAcquisitionData> get_randoms_sptr()
 	{
 		return randoms_sptr;
@@ -140,7 +146,10 @@ protected:
 	shared_ptr<std::vector<Array<2, float> > > fan_sums_sptr;
 	shared_ptr<DetectorEfficiencies> det_eff_sptr;
 	shared_ptr<PETAcquisitionData> randoms_sptr;
-	static unsigned long compute_num_bins(const int num_rings,
+	void compute_fan_sums_();
+	int compute_singles_();
+	void estimate_randoms_();
+	static unsigned long compute_num_bins_(const int num_rings,
 		const int num_detectors_per_ring,
 		const int max_ring_diff, const int half_fan_size);
 };
