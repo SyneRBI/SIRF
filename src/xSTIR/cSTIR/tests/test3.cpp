@@ -18,7 +18,8 @@ int test3()
 		return 1;
 	}
 	std::string path = SIRF_path + "/data/examples/PET/";
-	std::string filename = path + "list.l.hdr.STIR";
+	std::string filename = path + "list.l.hdr";
+	//std::string filename = path + "list.l.hdr.STIR";
 
 	//LmToProjData lm_data("lm_to_projdata.par");
 	//lm_data.process_data();
@@ -32,8 +33,8 @@ int test3()
 	converter.set_time_interval(0, 10);
 	converter.set_up();
 	//converter.process_data();
-	converter.compute_fan_sums();
-	converter.compute_singles();
+	//converter.compute_fan_sums();
+	//converter.compute_singles();
 	converter.estimate_randoms();
 
 	return 0;
