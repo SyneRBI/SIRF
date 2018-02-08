@@ -877,7 +877,7 @@ class AcquisitionSensitivityModel:
         ''' 
         Creates new AcquisitionSensitivityModel object
         - from an ECAT8 file or
-        - from ImageData object containing attenuation image or
+        - from ImageData object containing attenuation image (units: 1/cm) or
         - from AcquisitionData object containing bin efficiencies or
         - by chaining two existing AcquisitionSensitivityModel objects
         src: file name or ImageData object or AcquisitionData object
