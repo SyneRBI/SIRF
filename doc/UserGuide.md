@@ -236,6 +236,8 @@ Class for data representing 3D objects.
     add_shape   (PET)  Adds a uniform shape to the image. 
     show     (PET/MR)  Interactively displays the image. 
     write    (PET/MR)  Writes the object data to a file. 
+    dimensions  (PET)  Returns the object data dimensions
+    voxel_sizes (PET)  Returns the voxel sizes
 	
 ##### CoilSensitivityData (MR)
 
