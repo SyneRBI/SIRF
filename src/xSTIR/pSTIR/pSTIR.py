@@ -922,7 +922,7 @@ class AcquisitionSensitivityModel:
         try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel\
             (self.handle, ad.handle))
     def normalise(self, ad):
-        '''Multiplies the argument by 1/n (cf. AcquisitionModel).
+        '''Multiplies the argument by n (cf. AcquisitionModel).
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -936,7 +936,8 @@ class AcquisitionSensitivityModel:
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
             (self.handle, ad.handle, 'unnormalise'))
     def forward(self, ad):
-        '''Returns the argument multiplied by 1/n (cf. AcquisitionModel).
+        '''Returns a new AcquisitionData equal to the argument multiplied
+           by 1/n (cf. AcquisitionModel).
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -946,7 +947,8 @@ class AcquisitionSensitivityModel:
         check_status(fd.handle)
         return fd
     def invert(self, ad):
-        '''Returns the argument multiplied by 1/n (cf. AcquisitionModel).
+        '''Returns a new AcquisitionData equal to the argument multiplied
+           by n (cf. AcquisitionModel).
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
