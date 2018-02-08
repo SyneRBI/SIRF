@@ -33,7 +33,7 @@ classdef AcquisitionSensitivityModel < handle
 %         - from an ECAT8 file or
 %         - from ImageData object containing attenuation image or
 %         - from AcquisitionData object containing bin efficiencies or
-%         - by chaining two AcquisitionSensitivityModel objects
+%         - by chaining two existing AcquisitionSensitivityModel objects
 %         src: file name or ImageData object or AcquisitionData object
 %         other_src: AcquisitionSensitivityModel object (optional)
             self.handle_ = [];
