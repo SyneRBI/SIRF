@@ -132,7 +132,7 @@ def main():
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
-    acq_model.set_normalization(asm)
+    acq_model.set_acquisition_sensitivity(asm)
     acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as

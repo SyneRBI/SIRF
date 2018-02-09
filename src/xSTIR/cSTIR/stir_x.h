@@ -204,11 +204,13 @@ public:
 
 	shared_ptr<BinNormalisation> data()
 	{
-		return std::dynamic_pointer_cast<BinNormalisation>(norm_);
+		return norm_;
+		//return std::dynamic_pointer_cast<BinNormalisation>(norm_);
 	}
 
 protected:
-	shared_ptr<ChainedBinNormalisation> norm_;
+	shared_ptr<BinNormalisation> norm_;
+	//shared_ptr<ChainedBinNormalisation> norm_;
 };
 
 /*!
@@ -271,22 +273,27 @@ public:
 	{
 		return sptr_background_;
 	}
-	void set_normalisation(shared_ptr<BinNormalisation> sptr)
-	{
-		sptr_normalisation_ = sptr;
-	}
+	//void set_normalisation(shared_ptr<BinNormalisation> sptr)
+	//{
+	//	sptr_normalisation_ = sptr;
+	//}
 	shared_ptr<BinNormalisation> normalisation_sptr()
 	{
-		return sptr_normalisation_;
+		if (sptr_asm_.get())
+			return sptr_asm_->data();
+		shared_ptr<BinNormalisation> sptr;
+		return sptr;
+		//return sptr_normalisation_;
 	}
-	void set_bin_efficiency(shared_ptr<PETAcquisitionData> sptr_data);
-	void set_normalisation(shared_ptr<PETAcquisitionData> sptr_data)
+	//void set_bin_efficiency(shared_ptr<PETAcquisitionData> sptr_data);
+	//void set_normalisation(shared_ptr<PETAcquisitionData> sptr_data)
+	//{
+	//	sptr_normalisation_.reset(new BinNormalisationFromProjData(*sptr_data));
+	//}
+	void set_asm(shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
 	{
-		sptr_normalisation_.reset(new BinNormalisationFromProjData(*sptr_data));
-	}
-	void set_normalisation(shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
-	{
-		sptr_normalisation_ = sptr_asm->data();
+		//sptr_normalisation_ = sptr_asm->data();
+		sptr_asm_ = sptr_asm;
 	}
 
 	void cancel_background_term()
@@ -299,7 +306,8 @@ public:
 	}
 	void cancel_normalisation()
 	{
-		sptr_normalisation_.reset();
+		sptr_asm_.reset();
+		//sptr_normalisation_.reset();
 	}
 
 	virtual Succeeded set_up(
@@ -317,7 +325,8 @@ protected:
 	shared_ptr<PETImageData> sptr_image_template_;
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
-	shared_ptr<BinNormalisation> sptr_normalisation_;
+	shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
+	//shared_ptr<BinNormalisation> sptr_normalisation_;
 };
 
 /*!

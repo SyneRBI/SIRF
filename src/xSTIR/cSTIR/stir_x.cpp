@@ -378,17 +378,21 @@ PETAcquisitionSensitivityModel(PETAcquisitionData& ad)
 	sptr_ad->inv(MIN_BIN_EFFICIENCY, ad);
 	shared_ptr<BinNormalisation> 
 		sptr_n(new BinNormalisationFromProjData(sptr_ad->data()));
-	shared_ptr<BinNormalisation> sptr_0;
-	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	//shared_ptr<BinNormalisation> sptr_0;
+	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	norm_ = sptr_n;
+	//norm_ = shared_ptr<BinNormalisation>
+	//	(new BinNormalisationFromProjData(sptr_ad->data()));
 }
 
 PETAcquisitionSensitivityModel::
 PETAcquisitionSensitivityModel(std::string filename)
 {
-	shared_ptr<BinNormalisationFromECAT8> 
+	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromECAT8(filename));
-	shared_ptr<BinNormalisation> sptr_0;
-	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	//shared_ptr<BinNormalisation> sptr_0;
+	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	norm_ = sptr_n;
 }
 
 Succeeded 
@@ -414,17 +418,19 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 PETAttenuationModel::PETAttenuationModel
 (PETImageData& id, PETAcquisitionModel& am)
 {
-	shared_ptr<BinNormalisationFromAttenuationImage>
+	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromAttenuationImage
 		(id.data_sptr(), am.projectors_sptr()->get_forward_projector_sptr()));
-	shared_ptr<BinNormalisation> sptr_0;
-	norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	//shared_ptr<BinNormalisation> sptr_0;
+	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+	norm_ = sptr_n;
 	sptr_projectors_ = am.projectors_sptr();
 }
 
 void
 PETAttenuationModel::unnormalise(PETAcquisitionData& ad) const
 {
+	//std::cout << "in PETAttenuationModel::unnormalise\n";
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
 		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
@@ -440,17 +446,17 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
 }
 
-void
-PETAcquisitionModel::set_bin_efficiency
-(shared_ptr<PETAcquisitionData> sptr_data)
-{
-	shared_ptr<PETAcquisitionData>
-		sptr_ad(sptr_data->new_acquisition_data());
-	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
-	sptr_normalisation_.reset
-		(new BinNormalisationFromProjData(sptr_ad->data()));
-	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
-}
+//void
+//PETAcquisitionModel::set_bin_efficiency
+//(shared_ptr<PETAcquisitionData> sptr_data)
+//{
+//	shared_ptr<PETAcquisitionData>
+//		sptr_ad(sptr_data->new_acquisition_data());
+//	sptr_ad->inv(MIN_BIN_EFFICIENCY, *sptr_data);
+//	sptr_normalisation_.reset
+//		(new BinNormalisationFromProjData(sptr_ad->data()));
+//	sptr_normalisation_->set_up(sptr_ad->get_proj_data_info_sptr());
+//}
 
 Succeeded 
 PETAcquisitionModel::set_up(
@@ -476,6 +482,7 @@ PETAcquisitionModel::forward(const PETImageData& image)
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image.data());
+	//sptr_fd->fill(1.0f);
 
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
@@ -485,13 +492,16 @@ PETAcquisitionModel::forward(const PETImageData& image)
 	else
 		std::cout << "no additive term added\n";
 
-	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
-		std::cout << "normalisation applied...";
-		sptr_normalisation_->undo(*sptr_fd, 0, 1);
+	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
+	if (sm && sm->data() && !sm->data()->is_trivial()) {
+		std::cout << "applying unnormalisation...";
+		sptr_asm_->unnormalise(*sptr_ad);
+		//sptr_normalisation_->undo(*sptr_fd, 0, 1);
 		std::cout << "ok\n";
 	}
 	else
-		std::cout << "no normalisation applied\n";
+		std::cout << "no unnormalisation applied\n";
 
 	if (sptr_background_.get()) {
 		std::cout << "background term added...";
@@ -511,11 +521,14 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad)
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
 
-	if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
-		std::cout << "applying normalisation...";
+	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
+	if (sm && sm->data() && !sm->data()->is_trivial()) {
+		std::cout << "applying unnormalisation...";
 		shared_ptr<PETAcquisitionData> sptr_ad(ad.new_acquisition_data());
 		sptr_ad->fill(ad);
-		sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
+		sptr_asm_->unnormalise(*sptr_ad);
+		//sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
 		std::cout << "ok\n";
 		std::cout << "backprojecting...";
 		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);

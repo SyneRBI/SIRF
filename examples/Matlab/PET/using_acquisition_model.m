@@ -107,7 +107,7 @@ try
 
     %as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
     % set acquisition model normalisation
-    acq_model.set_normalization(as_model);
+    acq_model.set_acquisition_sensitivity(as_model);
 
     fprintf('setting up acquisition model...\n')
     acq_model.set_up(template, image)

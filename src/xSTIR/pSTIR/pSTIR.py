@@ -1012,22 +1012,22 @@ class AcquisitionModel:
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-    def set_normalisation(self, norm):
-        ''' 
-        Sets the normalization n in (F);
-        norm:  an AcquisitionData object containing normalisation n
-        '''
-        assert_validity(norm, AcquisitionData)
-        _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
-    def set_normalization(self, norm):
+##    def set_normalisation(self, norm):
+##        ''' 
+##        Sets the normalization n in (F);
+##        norm:  an AcquisitionData object containing normalisation n
+##        '''
+##        assert_validity(norm, AcquisitionData)
+##        _setParameter\
+##            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+    def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in (F);
         norm:  an AcquisitionSensitivityModel object containing normalisation n
         '''
-        assert_validity(norm, AcquisitionSensitivityModel)
+        assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalization', norm.handle)
+            (self.handle, 'AcquisitionModel', 'asm', asm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);
