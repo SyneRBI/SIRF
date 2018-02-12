@@ -96,7 +96,7 @@ int test1()
 		am.set_matrix(sptr_matrix);
 		am.set_additive_term(sptr_a);
 		am.set_background_term(sptr_b);
-		am.set_bin_efficiency(sptr_e);
+		//am.set_bin_efficiency(sptr_e);
 		am.set_up(sptr_ad, sptr_id);
 
 		// create quadratic prior

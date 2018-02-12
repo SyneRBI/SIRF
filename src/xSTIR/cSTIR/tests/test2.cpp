@@ -36,6 +36,8 @@ int test2()
 	void* filter = 0;
 	void* recon = 0;
 	void* diff = 0;
+	void* sm = 0;
+	void* ai = 0;
 
 	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
@@ -48,57 +50,72 @@ int test2()
 	openChannel(0, &w);
 
 	for (;;) {
-		filename = SIRF_path + "/examples/Python/PET/my_image.hv";
-		HANDLE(image, cSTIR_objectFromFile("Image", filename.c_str()));
-		cSTIR_getImageDimensions(image, (size_t)&dim[0]);
-		std::cout << "image dimensions: " 
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		//filename = SIRF_path + "/examples/Python/PET/my_image.hv";
+		//HANDLE(image, cSTIR_objectFromFile("Image", filename.c_str()));
+		//cSTIR_getImageDimensions(image, (size_t)&dim[0]);
+		//std::cout << "image dimensions: " 
+		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
 		HANDLE(matrix, cSTIR_newObject("RayTracingMatrix"));
 		CALL(cSTIR_setParameter
 			(matrix, "RayTracingMatrix", "num_tangential_LORs", intDataHandle(2)));
-		filename = path + "my_forward_projection.hs";
+
+		//filename = path + "my_forward_projection.hs";
+		filename = "sinograms_f1g1d0b0.hs";
 		HANDLE(ad, cSTIR_objectFromFile("AcquisitionData", filename.c_str()));
 		cSTIR_getAcquisitionsDimensions(ad, (size_t)&dim[0]);
 		std::cout << "acquisition data dimensions: "
 			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 
-		HANDLE(at, cSTIR_acquisitionsDataFromTemplate(ad));
-		cSTIR_getAcquisitionsDimensions(at, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionsData(at, at_value);
-		HANDLE(bt, cSTIR_acquisitionsDataFromTemplate(ad));
-		cSTIR_getAcquisitionsDimensions(bt, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionsData(bt, bt_value);
-		HANDLE(nd, cSTIR_acquisitionsDataFromTemplate(ad));
-		cSTIR_getAcquisitionsDimensions(nd, (size_t)&dim[0]);
-		cSTIR_fillAcquisitionsData(nd, 2.0);
+		HANDLE(image, cSTIR_imageFromAcquisitionData(ad));
+		cSTIR_getImageDimensions(image, (size_t)&dim[0]);
+		std::cout << "image dimensions: " 
+			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+
+		//HANDLE(at, cSTIR_acquisitionsDataFromTemplate(ad));
+		//cSTIR_getAcquisitionsDimensions(at, (size_t)&dim[0]);
+		//cSTIR_fillAcquisitionsData(at, at_value);
+		//HANDLE(bt, cSTIR_acquisitionsDataFromTemplate(ad));
+		//cSTIR_getAcquisitionsDimensions(bt, (size_t)&dim[0]);
+		//cSTIR_fillAcquisitionsData(bt, bt_value);
+		//HANDLE(nd, cSTIR_acquisitionsDataFromTemplate(ad));
+		//cSTIR_getAcquisitionsDimensions(nd, (size_t)&dim[0]);
+		//cSTIR_fillAcquisitionsData(nd, 2.0);
 
 		HANDLE(am, cSTIR_newObject("AcqModUsingMatrix"));
-		CALL(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
-		CALL(cSTIR_setParameter(am, "AcquisitionModel", "normalisation", nd));
+		//CALL(cSTIR_setParameter(am, "AcquisitionModel", "additive_term", at));
+		//CALL(cSTIR_setParameter(am, "AcquisitionModel", "normalisation", nd));
 		CALL(cSTIR_setParameter(am, "AcqModUsingMatrix", "matrix", matrix));
 		CALL(cSTIR_setupAcquisitionModel(am, ad, image));
-		std::cout << "projecting...\n";
-		HANDLE(fd, cSTIR_acquisitionModelFwd(am, image));
-		cSTIR_getAcquisitionsDimensions(fd, (size_t)&dim[0]);
-		std::cout << "simulated acquisition data dimensions: "
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		GET_FLOAT(s, cSTIR_norm(ad));
-		GET_FLOAT(t, cSTIR_norm(fd));
-		diff = cSTIR_axpby(1/s, ad, -1/t, fd);
-		GET_FLOAT(s, cSTIR_norm(diff));
-		deleteDataHandle(diff);
-		std::cout << "acq diff: " << s << '\n';
 
-		HANDLE(img, cSTIR_acquisitionModelBwd(am, fd));
-		cSTIR_getImageDimensions(img, (size_t)&dim[0]);
-		std::cout << "backprojected image dimensions: " 
-			<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
-		if (at_value == 0 && bt_value == 0) {
-			GET_FLOAT(s, cSTIR_dot(img, image));
-			std::cout << s << " = " << t*t << '\n';
-		}
-		deleteDataHandle(img);
+		filename = path + "mu_map.hv";
+		HANDLE(ai, cSTIR_objectFromFile("Image", filename.c_str()));
+		HANDLE(sm, cSTIR_createPETAttenuationModel(ai, am));
+		CALL(cSTIR_setParameter(am, "AcquisitionModel", "asm", sm));
+		CALL(cSTIR_setupAcquisitionSensitivityModel(sm, ad));
+		std::cout << "ok\n";
+
+		//std::cout << "projecting...\n";
+		//HANDLE(fd, cSTIR_acquisitionModelFwd(am, image));
+		//cSTIR_getAcquisitionsDimensions(fd, (size_t)&dim[0]);
+		//std::cout << "simulated acquisition data dimensions: "
+		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		//GET_FLOAT(s, cSTIR_norm(ad));
+		//GET_FLOAT(t, cSTIR_norm(fd));
+		//diff = cSTIR_axpby(1/s, ad, -1/t, fd);
+		//GET_FLOAT(s, cSTIR_norm(diff));
+		//deleteDataHandle(diff);
+		//std::cout << "acq diff: " << s << '\n';
+
+		//HANDLE(img, cSTIR_acquisitionModelBwd(am, fd));
+		//cSTIR_getImageDimensions(img, (size_t)&dim[0]);
+		//std::cout << "backprojected image dimensions: " 
+		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
+		//if (at_value == 0 && bt_value == 0) {
+		//	GET_FLOAT(s, cSTIR_dot(img, image));
+		//	std::cout << s << " = " << t*t << '\n';
+		//}
+		//deleteDataHandle(img);
 
 		HANDLE(prior, cSTIR_newObject("QuadraticPrior"));
 
@@ -107,8 +124,10 @@ int test2()
 		HANDLE(obj_fun, cSTIR_newObject(obj_fun_name.c_str()));
 		CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "acquisition_model", am));
+		//CALL(cSTIR_setParameter
+		//	(obj_fun, obj_fun_name.c_str(), "acquisition_data", fd));
 		CALL(cSTIR_setParameter
-			(obj_fun, obj_fun_name.c_str(), "acquisition_data", fd));
+			(obj_fun, obj_fun_name.c_str(), "acquisition_data", ad));
 		handle = charDataHandle("true");
 		CALL(cSTIR_setParameter
 			(obj_fun, obj_fun_name.c_str(), "zero_seg0_end_planes", handle));
@@ -120,6 +139,9 @@ int test2()
 		deleteDataHandle(handle);
 		CALL(cSTIR_setParameter
 			(obj_fun, "GeneralisedObjectiveFunction", "prior", prior));
+		//CALL(cSTIR_setupObjectiveFunction(obj_fun, image));
+
+		std::cout << "ok\n";
 
 		HANDLE(filter, cSTIR_newObject("TruncateToCylindricalFOVImageProcessor"));
 
@@ -151,6 +173,7 @@ int test2()
 		handle = charDataHandle("multiplicative");
 		CALL(cSTIR_setParameter(recon, "OSMAPOSL", "MAP_model", handle));
 		deleteDataHandle(handle);
+		std::cout << "ok\n";
 		CALL(cSTIR_setupReconstruction(recon, image));
 
 		for (int iter = 0; iter < num_subiterations; iter++) {
@@ -162,6 +185,7 @@ int test2()
 	}
 
 	deleteDataHandle(image);
+	deleteDataHandle(img);
 	deleteDataHandle(ad);
 	deleteDataHandle(am);
 	deleteDataHandle(matrix);
