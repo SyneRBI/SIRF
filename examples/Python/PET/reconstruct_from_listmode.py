@@ -66,18 +66,6 @@ num_subsets = int(args['--subs'])
 num_iterations = int(args['--iter'])
 storage = args['--storage']
 
-# Define a function that does something with an image. This function
-# provides a simplistic example of user's involvement in the reconstruction
-def image_data_processor(image_array, im_num):
-    """ Process/display an image"""
-    # display the current estimate of the image at z = 20
-    pylab.figure(im_num)
-    pylab.title('image estimate %d' % im_num)
-    pylab.imshow(image_array[20,:,:])
-    print('close Figure %d window to continue' % im_num)
-    # image is not modified in this simplistic example - but might have been
-    return image_array
-
 def main():
 
     # output goes to files
@@ -99,11 +87,6 @@ def main():
 
     # set flags
     lm2sino.flag_on('store_prompts')
-    lm2sino.flag_off('interactive')
-    try:
-        lm2sino.flag_on('make coffee')
-    except error as err:
-        print('%s' % err.value)
 
     # set up the converter
     lm2sino.set_up()
@@ -127,13 +110,11 @@ def main():
 
     # create acquisition sensitivity model from ECAT8 normalization data
     asm = AcquisitionSensitivityModel(norm_file)
-    asm.set_up(acq_data)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
     acq_model.set_acquisition_sensitivity(asm)
-    acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -149,7 +130,7 @@ def main():
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
-    recon.set_input(acq_data)
+    recon.set_num_subiterations(num_iterations)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
@@ -161,20 +142,13 @@ def main():
     # set the initial image estimate
     recon.set_current_estimate(image)
 
-    # in order to see the reconstructed image evolution
-    # open up the user's access to the iterative process
-    # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(num_iterations):
-        print('\n------------- iteration %d' % iteration)
-        # perform one OSMAPOSL iteration
-        recon.update_current_estimate()
-        # copy current image estimate into python array to inspect/process
-        image_array = recon.get_current_estimate().as_array()
-        # apply user defined image data processor/visualizer
-        processed_image_array = image_data_processor(image_array, iteration + 1)
-        # fill the current image estimate with new data
-        image.fill(processed_image_array)
-        recon.set_current_estimate(image)
+    # reconstruct
+    print('reconstructing, please wait...')
+    recon.process()
+
+    # show reconstructed image
+    image_array = recon.get_current_estimate().as_array()
+    show_2D_array('Reconstructed image', image_array[20,:,:])
     pylab.show()
 
 try:
