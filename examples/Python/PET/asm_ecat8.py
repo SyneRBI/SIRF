@@ -5,7 +5,7 @@ Usage:
 
 Options:
   -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
+  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
