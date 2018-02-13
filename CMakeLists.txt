@@ -39,9 +39,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ####### Set Version number etc
-set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
-set(VERSION_MINOR   9   CACHE STRING "Project minor version number.")
-set(VERSION_PATCH   2   CACHE STRING "Project patch version number.")
+set(VERSION_MAJOR   1 )
+set(VERSION_MINOR   0 )
+set(VERSION_PATCH   0 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION
