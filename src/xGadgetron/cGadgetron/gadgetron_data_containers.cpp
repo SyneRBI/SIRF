@@ -701,6 +701,7 @@ ImagesVector::read(std::string filename)
 		//std::cout << "image dimensions: "
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 	}
+	return 0;
 }
 
 void

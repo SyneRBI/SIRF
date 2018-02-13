@@ -95,6 +95,7 @@ def main():
 
     # chain the two models
     asm12 = AcquisitionSensitivityModel(asm, asm2)
+    asm12.set_up(acq_data)
 
     # apply the chain of models to acquisition data
     ad = acq_data.clone()

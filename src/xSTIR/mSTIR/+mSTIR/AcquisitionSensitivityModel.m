@@ -31,9 +31,9 @@ classdef AcquisitionSensitivityModel < handle
         function self = AcquisitionSensitivityModel(src, other_src)
 %         Creates new AcquisitionSensitivityModel object
 %         - from an ECAT8 file or
-%         - from ImageData object containing attenuation image or
+%         - from ImageData object containing attenuation image (units: 1/cm) or
 %         - from AcquisitionData object containing bin efficiencies or
-%         - by chaining two AcquisitionSensitivityModel objects
+%         - by chaining two existing AcquisitionSensitivityModel objects
 %         src: file name or ImageData object or AcquisitionData object
 %         other_src: AcquisitionSensitivityModel object (optional)
             self.handle_ = [];
@@ -89,6 +89,16 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.check_status([self.name_ ':set_up'], h)
             mUtilities.delete(h)
         end
+        function normalise(self, acq_data)
+            assert(~isempty(self.handle_),...
+                'empty acquisition sensitivity object')
+            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            h = calllib('mstir',...
+                'mSTIR_applyAcquisitionSensitivityModel',...
+                self.handle_, acq_data.handle_, 'normalise');
+            mUtilities.check_status([self.name_ ':set_up'], h)
+            mUtilities.delete(h)
+        end
         function unnormalise(self, acq_data)
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
@@ -108,6 +118,16 @@ classdef AcquisitionSensitivityModel < handle
                 'mSTIR_applyAcquisitionSensitivityModel',...
                 self.handle_, acq_data.handle_, 'fwd');
             mUtilities.check_status([self.name_ ':set_up'], fwd_data.handle_)
+        end
+        function inv_data = invert(self, acq_data)
+            assert(~isempty(self.handle_),...
+                'empty acquisition sensitivity object')
+            mUtilities.assert_validity(acq_data, 'AcquisitionData')
+            inv_data = mSTIR.AcquisitionData();
+            inv_data.handle_ = calllib('mstir',...
+                'mSTIR_applyAcquisitionSensitivityModel',...
+                self.handle_, acq_data.handle_, 'inv');
+            mUtilities.check_status([self.name_ ':set_up'], inv_data.handle_)
         end
         function delete(self)
             if ~isempty(self.handle_)

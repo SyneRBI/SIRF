@@ -236,6 +236,8 @@ Class for data representing 3D objects.
     add_shape   (PET)  Adds a uniform shape to the image. 
     show     (PET/MR)  Interactively displays the image. 
     write    (PET/MR)  Writes the object data to a file. 
+    dimensions  (PET)  Returns the object data dimensions
+    voxel_sizes (PET)  Returns the voxel sizes
 	
 ##### CoilSensitivityData (MR)
 
@@ -456,10 +458,9 @@ where G' is the transpose of G.
     set_up              (PET) Sets up the model based on acquisition and image data  
                               templates provided by the arguments. 
     set_additive_term   (PET) Sets term a in (F). 
-    set_normalization   (PET) Defines n in (F) via AcquisitionSensitivityModel
+    set_acquisition_sensitivity   
+                        (PET) Defines n in (F) via AcquisitionSensitivityModel
                               (see below). 
-    set_bin_efficiency  (PET) Sets 1/n in (F). This is useful if some bin efficiencies 
-                              are zero. 
     set_coil_sensitivity_maps  
                          (MR) Sets coil sensitivity maps to be used.  
 

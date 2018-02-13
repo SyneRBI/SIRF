@@ -117,7 +117,7 @@ def main():
     #acq_model.set_bin_efficiency(bin_eff)
 
     asm = AcquisitionSensitivityModel(bin_eff)
-    acq_model.set_normalization(asm)
+    acq_model.set_acquisition_sensitivity(asm)
 
     # testing additive term
     add = acq_template.clone()

@@ -78,13 +78,16 @@ def main():
     am.set_up(template, attn_image)
 
     # create acquisition sensitivity model from attenuation image
-    print('creating acquisition sensitivity model, ' + \
-          'please wait, may take a while...')
+    print('creating acquisition sensitivity model...')
     asm = AcquisitionSensitivityModel(attn_image, am)
     asm.set_up(template)
+    am.set_acquisition_sensitivity(asm)
+##    print('projecting (please wait, may take a while)...')
+##    simulated_data = am.forward(attn_image)
 
-    # apply normalization to the uniform acquisition data to obtain
+    # apply attenuation to the uniform acquisition data to obtain
     # 'bin efficiencies'
+    print('applying attenuation (please wait, may take a while)...')
     asm.unnormalise(acq_data)
 
     # show 'bin efficiencies'

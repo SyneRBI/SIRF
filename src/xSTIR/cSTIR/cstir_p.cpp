@@ -217,13 +217,13 @@ cSTIR_setAcquisitionModelParameter
 		am.set_additive_term(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "background_term"))
 		am.set_background_term(objectSptrFromHandle<PETAcquisitionData>(hv));
-	else if (boost::iequals(name, "normalisation"))
-		am.set_normalisation(objectSptrFromHandle<PETAcquisitionData>(hv));
-	else if (boost::iequals(name, "normalization"))
-		am.set_normalisation
+	//else if (boost::iequals(name, "normalisation"))
+	//	am.set_normalisation(objectSptrFromHandle<PETAcquisitionData>(hv));
+	else if (boost::iequals(name, "asm"))
+		am.set_asm
 			(objectSptrFromHandle<PETAcquisitionSensitivityModel>(hv));
-	else if (boost::iequals(name, "bin_efficiency"))
-		am.set_bin_efficiency(objectSptrFromHandle<PETAcquisitionData>(hv));
+	//else if (boost::iequals(name, "bin_efficiency"))
+	//	am.set_bin_efficiency(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

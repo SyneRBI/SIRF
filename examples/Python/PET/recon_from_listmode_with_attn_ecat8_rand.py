@@ -6,8 +6,9 @@ Usage:
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -l <list>, --list=<list>     listmode file [default: list.l.hdr]
+  -A <sino>, --sino=<sino>     acqusition output file prefix [default: sinograms]
+  -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
@@ -18,6 +19,7 @@ Options:
   -I <iter>, --iter=<iter>     number of iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
+  -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -57,9 +59,12 @@ list_file = args['--list']
 sino_file = args['--sino']
 tmpl_file = args['--tmpl']
 norm_file = args['--norm']
+attn_file = args['--attn']
+outp_file = args['--outp']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 norm_file = existing_filepath(data_path, norm_file)
+attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
 interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
@@ -111,6 +116,9 @@ def main():
     # convert
     lm2sino.process()
 
+    # Get the randoms
+    randoms = lm2sino.estimate_randoms()
+
     # get access to the sinograms
     acq_data = lm2sino.get_output()
     # copy the acquisition data into a Python array
@@ -120,19 +128,36 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # read attenuation image
+    attn_image = ImageData(attn_file)
+    attn_image_as_array = attn_image.as_array()
+    z = attn_image_as_array.shape[0]//2
+    show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
+    # obtain an acquisition data template
+    template = AcquisitionData(tmpl_file)
+
+    # create acquisition model
+    am = AcquisitionModelUsingRayTracingMatrix()
+    am.set_up(template, attn_image)
+
     # create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file)
+    asm_norm = AcquisitionSensitivityModel(norm_file)
+    asm_attn = AcquisitionSensitivityModel(attn_image,am)
+    asm      = AcquisitionSensitivityModel(asm_norm, asm_attn)
+    #asm      = AcquisitionSensitivityModel(norm_file)
     asm.set_up(acq_data)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
     acq_model.set_acquisition_sensitivity(asm)
+    acq_model.set_background_term(randoms)
     acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
@@ -150,6 +175,7 @@ def main():
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
     recon.set_input(acq_data)
+    recon.set_output_filename_prefix(outp_file)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function

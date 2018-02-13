@@ -41,3 +41,5 @@ else()
   # Nice and simple for recent CMake (which knows about your Boost version)
   target_link_libraries(cstir Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
+
+ADD_SUBDIRECTORY(tests)

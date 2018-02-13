@@ -877,9 +877,9 @@ class AcquisitionSensitivityModel:
         ''' 
         Creates new AcquisitionSensitivityModel object
         - from an ECAT8 file or
-        - from ImageData object containing attenuation image or
+        - from ImageData object containing attenuation image (units: 1/cm) or
         - from AcquisitionData object containing bin efficiencies or
-        - by chaining two AcquisitionSensitivityModel objects
+        - by chaining two existing AcquisitionSensitivityModel objects
         src: file name or ImageData object or AcquisitionData object
         pther_src: AcquisitionSensitivityModel object (optional)
         '''
@@ -921,6 +921,13 @@ class AcquisitionSensitivityModel:
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_setupAcquisitionSensitivityModel\
             (self.handle, ad.handle))
+    def normalise(self, ad):
+        '''Multiplies the argument by n (cf. AcquisitionModel).
+        '''
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle, 'normalise'))
     def unnormalise(self, ad):
         '''Multiplies the argument by 1/n (cf. AcquisitionModel).
         '''
@@ -929,13 +936,25 @@ class AcquisitionSensitivityModel:
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
             (self.handle, ad.handle, 'unnormalise'))
     def forward(self, ad):
-        '''Returns the argument multiplied by 1/n (cf. AcquisitionModel).
+        '''Returns a new AcquisitionData equal to the argument multiplied
+           by 1/n (cf. AcquisitionModel).
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
         fd = AcquisitionData()
         fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel\
             (self.handle, ad.handle, 'fwd')
+        check_status(fd.handle)
+        return fd
+    def invert(self, ad):
+        '''Returns a new AcquisitionData equal to the argument multiplied
+           by n (cf. AcquisitionModel).
+        '''
+        assert self.handle is not None
+        assert_validity(ad, AcquisitionData)
+        fd = AcquisitionData()
+        fd.handle = pystir.cSTIR_applyAcquisitionSensitivityModel\
+            (self.handle, ad.handle, 'inv')
         check_status(fd.handle)
         return fd
     def __del__(self):
@@ -993,22 +1012,22 @@ class AcquisitionModel:
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-    def set_normalisation(self, norm):
-        ''' 
-        Sets the normalization n in (F);
-        norm:  an AcquisitionData object containing normalisation n
-        '''
-        assert_validity(norm, AcquisitionData)
-        _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
-    def set_normalization(self, norm):
+##    def set_normalisation(self, norm):
+##        ''' 
+##        Sets the normalization n in (F);
+##        norm:  an AcquisitionData object containing normalisation n
+##        '''
+##        assert_validity(norm, AcquisitionData)
+##        _setParameter\
+##            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
+    def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in (F);
         norm:  an AcquisitionSensitivityModel object containing normalisation n
         '''
-        assert_validity(norm, AcquisitionSensitivityModel)
+        assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
-            (self.handle, 'AcquisitionModel', 'normalization', norm.handle)
+            (self.handle, 'AcquisitionModel', 'asm', asm.handle)
     def set_bin_efficiency(self, bin_eff):
         ''' 
         Sets the bin_efficiency 1/n in (F);
