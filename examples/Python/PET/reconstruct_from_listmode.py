@@ -125,10 +125,12 @@ def main():
     acq_model = AcquisitionModelUsingRayTracingMatrix()
     acq_model.set_up(acq_data, attn_image)
 
-    # create acquisition sensitivity model from ECAT8 normalization data
+    # create acquisition sensitivity model from ECAT8 normalisation data
     asm_norm = AcquisitionSensitivityModel(norm_file)
 
     asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
+    # temporary fix pending attenuation offset fix in STIR:
+    # converting attenuation into 'bin efficiency'
     asm_attn.set_up(acq_data)
     bin_eff = AcquisitionData(acq_data)
     bin_eff.fill(1.0)
@@ -136,6 +138,7 @@ def main():
     asm_attn.unnormalise(bin_eff)
     asm_beff = AcquisitionSensitivityModel(bin_eff)
 
+    # chain attenuation and ECAT8 normalisation
     asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
     acq_model.set_acquisition_sensitivity(asm)
 
