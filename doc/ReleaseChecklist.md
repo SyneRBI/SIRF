@@ -25,13 +25,14 @@
 
 3. Virtual Machine
 
- - [ ] update `SIRF_VM_VERSION=` in [scripts/UPDATE.sh](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/scripts/UPDATE.sh)
+ - [ ] update version number in [VM_version.txt](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/VM_version.txt)
  - [ ] update `vb.name` in [vagrant/vagrantfile](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/vagrant/Vagrantfile)
  - [ ] update `CHANGES.md`
  - [ ] update `NOTICE.txt`
  - [ ] `git push`
  - [ ] `vagrant up`
  - [ ] run the zerofill trick
+ - [ ] Virtualbox Guest Additions
  - [ ] export the VM and upload to website
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
