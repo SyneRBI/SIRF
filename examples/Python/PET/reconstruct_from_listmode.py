@@ -7,8 +7,9 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -g <sino>, --sino=<sino>     output file prefix [default: sinograms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
+  -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
@@ -16,13 +17,14 @@ Options:
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 2]
   -I <iter>, --iter=<iter>     number of iterations [default: 2]
+  -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -57,9 +59,12 @@ list_file = args['--list']
 sino_file = args['--sino']
 tmpl_file = args['--tmpl']
 norm_file = args['--norm']
+attn_file = args['--attn']
+outp_file = args['--outp']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 norm_file = existing_filepath(data_path, norm_file)
+attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
 interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
@@ -85,8 +90,9 @@ def main():
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
 
-    # set flags
+    # switch flags on/off
     lm2sino.flag_on('store_prompts')
+    lm2sino.flag_off('interactive')
 
     # set up the converter
     lm2sino.set_up()
@@ -103,17 +109,34 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # read attenuation image
+    attn_image = ImageData(attn_file)
+    attn_image_as_array = attn_image.as_array()
+    z = attn_image_as_array.shape[0]//2
+    show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
-    # create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file)
-
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_up(acq_data, attn_image)
+
+    # create acquisition sensitivity model from ECAT8 normalization data
+    asm_norm = AcquisitionSensitivityModel(norm_file)
+
+    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
+    asm_attn.set_up(acq_data)
+    bin_eff = AcquisitionData(acq_data)
+    bin_eff.fill(1.0)
+    print('applying attenuation (please wait, may take a while)...')
+    asm_attn.unnormalise(bin_eff)
+    asm_beff = AcquisitionSensitivityModel(bin_eff)
+
+    asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
     acq_model.set_acquisition_sensitivity(asm)
 
     # define objective function to be maximized as
