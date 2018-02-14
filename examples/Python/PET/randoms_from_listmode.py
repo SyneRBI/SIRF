@@ -82,8 +82,9 @@ def main():
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
 
-    # set flags
+    # set flags such that we only get the delayed coincidences
     lm2sino.flag_on('store_delayeds')
+    lm2sino.flag_off('store_prompts')
     
     # set up the converter
     lm2sino.set_up()
@@ -95,7 +96,7 @@ def main():
     delayeds_acq_data = lm2sino.get_output()
     
     # estimate the randoms from the delayeds via Maximum Likelihood estimation
-    # This will take at least few seconds
+    # This will take at least a few seconds
     randoms_estimate_acq_data = lm2sino.estimate_randoms();
     
     # copy the acquisition data into Python arrays
@@ -103,6 +104,13 @@ def main():
     randoms_estimate_acq_array = randoms_estimate_acq_data.as_array()
     acq_dim = delayeds_acq_array.shape
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    print('The total number of delayed coincidences and estimated randoms have to be very similar.')
+    print('Let us check this:')
+    print('total delayeds: %.1f, total estimated randoms: %.1f' % (delayeds_acq_array.sum(), randoms_estimate_acq_array.sum()))
+    print('Max values should be somewhat similar, but this depends on statistics of course.')
+    print('max delayeds: %f, max estimated randoms: %f' % (delayeds_acq_array.max(), randoms_estimate_acq_array.max()))
+
+    print('A single sinogram (this will look very different for noisy data)')
     z = acq_dim[0]//2
     show_3D_array(np.stack((delayeds_acq_array[z,:,:], randoms_estimate_acq_array[z,:,:])), titles=('raw delayeds', ' estimated randoms'))
 
