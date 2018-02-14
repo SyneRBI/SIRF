@@ -100,13 +100,26 @@ public:
 			return -1;
 		return 0;
 	}
+	bool get_store_prompts() const
+	{
+		return store_prompts;
+	}
+	bool get_store_delayeds() const
+	{
+		return store_delayeds;
+	}
 	bool set_up()
 	{
+		// always reset here, in case somebody set a new listmode or template file
+		max_segment_num_to_process = -1;
+		fan_size = -1;
+
 		bool failed = post_processing();
 		if (failed)
 			return true;
 		const int num_rings =
 			lm_data_ptr->get_scanner_ptr()->get_num_rings();
+		// code below is a copy of STIR for more generic cases
 		if (max_segment_num_to_process == -1)
 			max_segment_num_to_process = num_rings - 1;
 		else
@@ -119,6 +132,9 @@ public:
 		else
 			fan_size =
 			std::min(fan_size, max_fan_size);
+        half_fan_size = fan_size / 2;
+        fan_size = 2 * half_fan_size + 1;
+
 		return false;
 	}
 	shared_ptr<PETAcquisitionData> get_output()
@@ -143,7 +159,10 @@ public:
 	}
 
 protected:
+	// variables for ML estimation of singles/randoms
 	int fan_size;
+	int half_fan_size;
+	int max_ring_diff_for_fansums;
 	int num_iterations;
 	int display_interval;
 	int KL_interval;
