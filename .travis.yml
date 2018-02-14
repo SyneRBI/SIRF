@@ -49,7 +49,7 @@ matrix:
    python: 2.7
    # +DEVEL -fftw3 -hdf5 +swig
    env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
- #  itk
+ # itk
  - os: linux
    python: 3
    # +itk +fftw3 +hdf5
@@ -107,6 +107,8 @@ cache:
 before_install:
  - mkdir -p ~/.local/bin
  - pushd ~/.local/bin
+ # Note: use ( set -ev; ... ) to echo commands and exit immediately on failure
+ # in compounds statements (note that export/cd etc won't persist).
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       export BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
@@ -116,28 +118,29 @@ before_install:
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/2.7/lib/libpython2.7.dylib"
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/2.7/include/python2.7"
       else
-        brew install python3
+        brew install python3 || travis_terminate 1
         export PYINST=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions
         export PY_EXE=$PYINST/$PYMVER.6/bin/python3.6
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/3.6/Python"
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/3.6/include/python3.6m"
       fi
       export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
-      brew update
-      brew tap homebrew/science
-      # boost is already installed but 1.65 doesn't work so update
-      brew upgrade boost
-      # we currently need boost-python
-      # brew install boost-python
-      brew install ace
-      brew install swig
-      brew install ccache
-      # brew install scipy matplotlib
-      # need curl to get more recent cmake
-      brew install curl
-      curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
-      tar xzf cmake.tar.gz
-      mv cmake-*/CMake.app/Contents/* cmake-*
+      ( set -ev
+        brew update
+        # boost is already installed but 1.65 doesn't work so update
+        brew upgrade boost
+        # we currently need boost-python
+        # brew install boost-python
+        brew install ace
+        brew install swig
+        brew install ccache
+        # brew install scipy matplotlib
+        # need curl to get more recent cmake
+        brew install curl
+        curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
+        tar xzf cmake.tar.gz
+        mv cmake-*/CMake.app/Contents/* cmake-*
+      )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       export PY_EXE=python$PYMVER
       curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
@@ -154,9 +157,9 @@ before_install:
  - $PY_EXE -m pip install --user -U pip setuptools wheel
  # ensure python bin dir exists (and coverage dependencies installed)
  - $PY_EXE -m pip install --user -U nose codecov coveralls
- # pip path fix
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      # pip path fix
       # show lib/site-packages path
       $PY_EXE -m pydoc pip | grep -i -A 1 file
       $PY_EXE -m pydoc codecov | grep -i -A 1 file
@@ -194,9 +197,11 @@ install:
 
 script:
  - ./INSTALL/bin/gadgetron >& gadgetron.log&
+ # print for debugging
+ - cat builds/SIRF/build/CMakeCache.txt
  - ctest -VV
  # print for debugging
- - cat SIRF-prefix/src/SIRF-build/Testing/Temporary/LastTest.log
+ - cat builds/SIRF/build/Testing/Temporary/LastTest.log
  # may exceed 4MB travis log limit
  - cat gadgetron.log
 
