@@ -10,7 +10,7 @@ Options:
   -A <sino>, --sino=<sino>     acqusition output file prefix [default: sinograms]
   -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
+  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'

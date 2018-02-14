@@ -6,23 +6,25 @@ Usage:
 Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
-  -l <list>, --list=<list>     listmode file [default: list.l.hdr.STIR]
-  -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
+  -l <list>, --list=<list>     listmode file [default: list.l.hdr]
+  -g <sino>, --sino=<sino>     output file prefix [default: sinograms]
   -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
-  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr.STIR]
+  -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
+  -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 2]
   -I <iter>, --iter=<iter>     number of iterations [default: 2]
+  -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -57,26 +59,17 @@ list_file = args['--list']
 sino_file = args['--sino']
 tmpl_file = args['--tmpl']
 norm_file = args['--norm']
+attn_file = args['--attn']
+outp_file = args['--outp']
 list_file = existing_filepath(data_path, list_file)
 tmpl_file = existing_filepath(data_path, tmpl_file)
 norm_file = existing_filepath(data_path, norm_file)
+attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
 interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
 num_iterations = int(args['--iter'])
 storage = args['--storage']
-
-# Define a function that does something with an image. This function
-# provides a simplistic example of user's involvement in the reconstruction
-def image_data_processor(image_array, im_num):
-    """ Process/display an image"""
-    # display the current estimate of the image at z = 20
-    pylab.figure(im_num)
-    pylab.title('image estimate %d' % im_num)
-    pylab.imshow(image_array[20,:,:])
-    print('close Figure %d window to continue' % im_num)
-    # image is not modified in this simplistic example - but might have been
-    return image_array
 
 def main():
 
@@ -97,13 +90,9 @@ def main():
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
 
-    # set flags
+    # switch flags on/off
     lm2sino.flag_on('store_prompts')
     lm2sino.flag_off('interactive')
-    try:
-        lm2sino.flag_on('make coffee')
-    except error as err:
-        print('%s' % err.value)
 
     # set up the converter
     lm2sino.set_up()
@@ -120,20 +109,38 @@ def main():
     z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
+    # read attenuation image
+    attn_image = ImageData(attn_file)
+    attn_image_as_array = attn_image.as_array()
+    z = attn_image_as_array.shape[0]//2
+    show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
+
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
-    # create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file)
-    asm.set_up(acq_data)
-
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_up(acq_data, attn_image)
+
+    # create acquisition sensitivity model from ECAT8 normalisation data
+    asm_norm = AcquisitionSensitivityModel(norm_file)
+
+    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model)
+    # temporary fix pending attenuation offset fix in STIR:
+    # converting attenuation into 'bin efficiency'
+    asm_attn.set_up(acq_data)
+    bin_eff = AcquisitionData(acq_data)
+    bin_eff.fill(1.0)
+    print('applying attenuation (please wait, may take a while)...')
+    asm_attn.unnormalise(bin_eff)
+    asm_beff = AcquisitionSensitivityModel(bin_eff)
+
+    # chain attenuation and ECAT8 normalisation
+    asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
     acq_model.set_acquisition_sensitivity(asm)
-    acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -149,7 +156,7 @@ def main():
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
-    recon.set_input(acq_data)
+    recon.set_num_subiterations(num_iterations)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function
@@ -161,20 +168,13 @@ def main():
     # set the initial image estimate
     recon.set_current_estimate(image)
 
-    # in order to see the reconstructed image evolution
-    # open up the user's access to the iterative process
-    # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(num_iterations):
-        print('\n------------- iteration %d' % iteration)
-        # perform one OSMAPOSL iteration
-        recon.update_current_estimate()
-        # copy current image estimate into python array to inspect/process
-        image_array = recon.get_current_estimate().as_array()
-        # apply user defined image data processor/visualizer
-        processed_image_array = image_data_processor(image_array, iteration + 1)
-        # fill the current image estimate with new data
-        image.fill(processed_image_array)
-        recon.set_current_estimate(image)
+    # reconstruct
+    print('reconstructing, please wait...')
+    recon.process()
+
+    # show reconstructed image
+    image_array = recon.get_current_estimate().as_array()
+    show_2D_array('Reconstructed image', image_array[20,:,:])
     pylab.show()
 
 try:

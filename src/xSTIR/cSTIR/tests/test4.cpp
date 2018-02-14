@@ -21,7 +21,7 @@ int main()
 
         std::string path = SIRF_path + "/data/examples/PET/";
 
-        string f_listmode   = path + "list.l.hdr.STIR";
+        string f_listmode   = path + "list.l.hdr";
         string f_template   = path + "template_span11.hs";
 
         // Listmode to sinograms
