@@ -47,6 +47,13 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 	// go to the beginning of the binary data
 	lm_data_ptr->reset();
 
+	// TODO have to use lm_data_ptr->get_proj_data_info_sptr() once STIR PR 108 is merged
+	max_ring_diff_for_fansums = 60;
+	if (*lm_data_ptr->get_scanner_ptr() != Scanner(Scanner::Siemens_mMR))
+	{
+		warning("This is not mMR data. Assuming all possible ring differences are in the listmode file");
+		max_ring_diff_for_fansums = lm_data_ptr->get_scanner_ptr()->get_num_rings() - 1;
+	}
 	unsigned int current_frame_num = 1;
 	{
 		// loop over all events in the listmode file
@@ -114,7 +121,7 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 				const int rb = det_pos.pos2().axial_coord();
 				const int a = det_pos.pos1().tangential_coord();
 				const int b = det_pos.pos2().tangential_coord();
-				if (abs(ra - rb) <= max_segment_num_to_process)
+				if (abs(ra - rb) <= max_ring_diff_for_fansums)
 				{
 					const int det_num_diff =
 						(a - b + 3 * num_detectors_per_ring / 2) % num_detectors_per_ring;
@@ -181,8 +188,7 @@ ListmodeToSinograms::compute_singles_()
 
 	int num_rings;
 	int num_detectors_per_ring;
-	int fan_size = 343;
-	int max_ring_diff = 60;
+	int max_ring_diff = max_ring_diff_for_fansums;
 	Array<2, float> data_fan_sums = (*fan_sums_sptr)[0];
 
 	num_rings = data_fan_sums.get_length();
@@ -199,7 +205,6 @@ ListmodeToSinograms::compute_singles_()
 		return EXIT_FAILURE;
 	}
 
-	const int half_fan_size = fan_size / 2;
 	CPUTimer timer;
 	timer.start();
 
@@ -269,28 +274,21 @@ ListmodeToSinograms::estimate_randoms_()
 		{
 			error("Can only process not arc-corrected data\n");
 		}
-		const int half_fan_size =
-			std::min(proj_data_info_ptr->get_max_tangential_pos_num(),
-			-proj_data_info_ptr->get_min_tangential_pos_num());
-		const int fan_size = 2 * half_fan_size + 1;
-		const int max_ring_diff =
-			proj_data_info_ptr->get_max_ring_difference
-			(proj_data_info_ptr->get_max_segment_num());
 
 		const int mashing_factor =
 			proj_data_info_ptr->get_view_mashing_factor();
 
 		shared_ptr<Scanner>
 			scanner_sptr(new Scanner(*proj_data_info_ptr->get_scanner_ptr()));
-		const ProjDataInfoCylindricalNoArcCorr * const
-			uncompressed_proj_data_info_ptr =
+		unique_ptr<ProjDataInfo> uncompressed_proj_data_info_uptr
+			(ProjDataInfo::construct_proj_data_info(scanner_sptr,
+				/*span=*/1, max_ring_diff_for_fansums,
+				/*num_views=*/num_detectors_per_ring / 2,
+				scanner_sptr->get_max_num_non_arccorrected_bins(),
+				/*arccorrection=*/false));
+		const ProjDataInfoCylindricalNoArcCorr * const uncompressed_proj_data_info_ptr =
 			dynamic_cast<const ProjDataInfoCylindricalNoArcCorr * const>
-			(ProjDataInfo::ProjDataInfoCTI(scanner_sptr,
-			/*span=*/1, max_ring_diff,
-			/*num_views=*/num_detectors_per_ring / 2,
-			fan_size,
-			/*arccorrection=*/false));
-
+			(uncompressed_proj_data_info_uptr.get());
 		Bin bin;
 		Bin uncompressed_bin;
 
@@ -339,8 +337,8 @@ ListmodeToSinograms::estimate_randoms_()
 								++bin.view_num())
 							{
 
-								for (bin.tangential_pos_num() = -half_fan_size;
-									bin.tangential_pos_num() <= half_fan_size;
+								for (bin.tangential_pos_num() = proj_data_info_ptr->get_min_tangential_pos_num();
+									bin.tangential_pos_num() <= proj_data_info_ptr->get_max_tangential_pos_num();
 									++bin.tangential_pos_num())
 								{
 									uncompressed_bin.tangential_pos_num() =
