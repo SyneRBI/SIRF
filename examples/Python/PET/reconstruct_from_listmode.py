@@ -100,6 +100,9 @@ def main():
     # convert
     lm2sino.process()
 
+    # Get the randoms
+    randoms = lm2sino.estimate_randoms()
+
     # get access to the sinograms
     acq_data = lm2sino.get_output()
     # copy the acquisition data into a Python array
@@ -118,7 +121,7 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0, nxny)
+    image = acq_data.create_uniform_image(1.0, nxny[::-1])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
@@ -140,7 +143,9 @@ def main():
 
     # chain attenuation and ECAT8 normalisation
     asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
+
     acq_model.set_acquisition_sensitivity(asm)
+    acq_model.set_background_term(randoms)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)

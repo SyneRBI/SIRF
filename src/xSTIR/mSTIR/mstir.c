@@ -171,6 +171,9 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
+EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny) {
+	return cSTIR_imageFromAcquisitionDataAndNxNy(ptr_ad, nx, ny);
+}
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v) {
 	return cSTIR_fillImage(ptr_i, v);
 }

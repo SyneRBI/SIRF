@@ -108,7 +108,7 @@ classdef AcquisitionData < mSTIR.DataContainer
             mUtilities.check_status(self.name, self.handle_);
             self.read_only = true;
         end
-        function image = create_uniform_image(self, value)
+        function image = create_uniform_image(self, value, nx, ny)
 %***SIRF*** create_uniform_image(value) creates compatible ImageData object.
 %           The created object contains PET image of dimensions and voxel
 %           sizes compatible with the scanner or its model used to produce
@@ -116,8 +116,14 @@ classdef AcquisitionData < mSTIR.DataContainer
 %           The specified value, if present, is assigned at all image voxels.
 %           value: a float.
             image = mSTIR.ImageData();
-            image.handle_ = calllib...
-                ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle_);
+            if nargin < 3
+                image.handle_ = calllib...
+                    ('mstir', 'mSTIR_imageFromAcquisitionData', self.handle_);
+            else
+                image.handle_ = calllib...
+                    ('mstir', 'mSTIR_imageFromAcquisitionDataAndNxNy',...
+                    self.handle_, nx, ny);
+            end
             mUtilities.check_status...
                 ([self.name ':create_uniform_image'], image.handle_);
             if nargin > 1

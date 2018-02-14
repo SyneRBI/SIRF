@@ -36,14 +36,17 @@ try
     lm2sino = ListmodeToSinograms();
 
     [filename, pathname] = uigetfile...
-        ('*.l.hdr*', 'Select listmode data file', pet_data_path);
+        ('*.l.hdr', 'Select listmode data file', pet_data_path);
     list_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
     tmpl_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.n.hdr*', 'Select ECAT8 normalization file', pet_data_path);
+        ('*.n.hdr', 'Select ECAT8 normalization file', pet_data_path);
     norm_file = fullfile(pathname, filename);
+    [filename, pathname] = uigetfile...
+        ('*.*hv', 'Select attenuation file', pet_data_path);
+    attn_file = fullfile(pathname, filename);
     
     % set input, output and template files
     lm2sino.set_input(list_file)
@@ -61,7 +64,12 @@ try
     lm2sino.set_up()
 
     % convert
+    fprintf('converting raw data to sinograms...\n')
     lm2sino.process()
+
+    % estimate randoms
+    fprintf('estimating randoms...\n')
+    randoms = lm2sino.estimate_randoms();
 
     % get access to the sinograms
     acq_data = lm2sino.get_output();
@@ -73,22 +81,41 @@ try
     mUtilities.show_2D_array(acq_array(:,:,z), ...
         'acquisition data', 'tang. pos.', 'views');
 
+    % read attenuation image
+    attn_image = ImageData(attn_file);
+    attn_image_as_array = attn_image.as_array();
+    z = idivide(uint16(size(attn_image_as_array, 3)), 2);
+    mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
+        'attenuation image', 'tang. pos.', 'views');
+
     % create initial image estimate of dimensions and voxel sizes
     % compatible with the scanner geometry (included in the AcquisitionData
     % object acq_data) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0);
+    image = acq_data.create_uniform_image(1.0, 127, 127);
     image_array = image.as_array();
     fprintf('image dimensions: %d x %d x %d\n', size(image_array))
-
-    % create acquisition sensitivity model from ECAT8 normalization data
-    asm = AcquisitionSensitivityModel(norm_file);
-    asm.set_up(acq_data);
 
     % select acquisition model that implements the geometric
     % forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix();
-    acq_model.set_acquisition_sensitivity(asm)
     acq_model.set_up(acq_data, image)
+
+    % create acquisition sensitivity model from ECAT8 normalization data
+    asm_norm = AcquisitionSensitivityModel(norm_file);
+    asm_attn = AcquisitionSensitivityModel(attn_image, acq_model);
+    asm_attn.set_up(acq_data);
+    asm_attn.set_up(acq_data);
+    bin_eff = AcquisitionData(acq_data);
+    bin_eff.fill(1.0);
+    fprintf('applying attenuation (please wait, may take a while)...\n')
+    asm_attn.unnormalise(bin_eff);
+    asm_beff = AcquisitionSensitivityModel(bin_eff);
+
+    % chain attenuation and ECAT8 normalisation
+    asm = AcquisitionSensitivityModel(asm_norm, asm_beff);
+
+    acq_model.set_acquisition_sensitivity(asm);
+    acq_model.set_background_term(randoms);
 
     % define objective function to be maximized as
     % Poisson logarithmic likelihood (with linear model for mean)
@@ -102,35 +129,46 @@ try
     % this algorithm does not converge to the maximum of the objective function
     % but is used in practice to speed-up calculations
     num_subsets = 2;
+    num_subiterations = 2;
     recon = OSMAPOSLReconstructor();
-    recon.set_objective_function(obj_fun)
-    recon.set_num_subsets(num_subsets)
-    recon.set_input(acq_data)
+    recon.set_objective_function(obj_fun);
+    recon.set_num_subsets(num_subsets);
+    recon.set_num_subiterations(num_subiterations);
+    %recon.set_input(acq_data)
 
     % set up the reconstructor based on a sample image
     % (checks the validity of parameters, sets up objective function
     % and other objects involved in the reconstruction, which involves
     % computing/reading sensitivity image etc etc.)
-    fprintf('setting up, please wait, may take a while...\n')
-    recon.set_up(image)
+    fprintf('setting up reconstructor, please wait, may take a while...\n');
+    recon.set_up(image);
 
     % set the initial image estimate
-    recon.set_current_estimate(image)
+    recon.set_current_estimate(image);
 
-    % in order to see the reconstructed image evolution
-    % open up the user's access to the iterative process
-    % rather than allow recon.reconstruct to do all job at once
-    z = 20;
-    num_subiterations = 1;
-    for iter = 1 : num_subiterations
-        fprintf('\n--------------------- Subiteration %d\n', iter)
-        % perform an iteration
-        recon.update_current_estimate()
-        % display the current image
-        image_array = recon.get_current_estimate().as_array();
-        the_title = sprintf('iteration %d', iter);
-        mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
-    end
+    % reconstruct
+    fprintf('reconstructing, please wait...\n')
+    recon.process();
+
+    % display the reconstructed image
+    image_array = recon.get_current_estimate().as_array();
+    the_title = sprintf('Reconstructed image');
+    mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+
+%     % in order to see the reconstructed image evolution
+%     % open up the user's access to the iterative process
+%     % rather than allow recon.reconstruct to do all job at once
+%     z = 20;
+%     num_subiterations = 2;
+%     for iter = 1 : num_subiterations
+%         fprintf('\n--------------------- Subiteration %d\n', iter)
+%         % perform an iteration
+%         recon.update_current_estimate()
+%         % display the current image
+%         image_array = recon.get_current_estimate().as_array();
+%         the_title = sprintf('iteration %d', iter);
+%         mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
+%     end
 
 catch err
     % display error information

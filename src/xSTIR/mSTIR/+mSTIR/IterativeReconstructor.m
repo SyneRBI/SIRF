@@ -170,7 +170,7 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
             h = calllib('mstir', 'mSTIR_runReconstruction',...
                 self.handle_, self.image.handle_);
             mUtilities.check_status([self.IR ':process'], h)
-            calllib('mutilities', 'mDeleteDataHandle', h)
+            mUtilities.delete(h)
         end
         function update(self, image)
 %***SIRF*** Updates the image estimate specified by the argument 
@@ -190,7 +190,8 @@ classdef IterativeReconstructor < mSTIR.Reconstructor
 %             h = calllib('mstir', 'mSTIR_runReconstruction',...
 %                 self.handle_, image.handle_);
 %             mUtilities.check_status([self.IR ':reconstruct'], h)
-%             calllib('mutilities', 'mDeleteDataHandle', h)
+%             mUtilities.delete(h)
+%             %calllib('mutilities', 'mDeleteDataHandle', h)
 %         end
     end
 end
