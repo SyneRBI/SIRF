@@ -80,6 +80,7 @@ EXPORTED_FUNCTION 	void* mSTIR_voxels3DF(int nx, int ny, int nz, float sx, float
 EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v);
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad);
+EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 

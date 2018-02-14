@@ -704,18 +704,12 @@ class AcquisitionData(DataContainer):
         '''
         assert self.handle is not None
         image = ImageData()
-        image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
+        if xy is None:
+            image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
+        else:
+            image.handle = pystir.cSTIR_imageFromAcquisitionDataAndNxNy\
+                           (self.handle, xy[1], xy[0])
         check_status(image.handle)
-        if xy is not None:
-            dim = image.dimensions()
-            vsz = image.voxel_sizes()
-            isz = tuple(numpy.asarray(dim)*numpy.asarray(vsz))
-            nx = xy[1]
-            ny = xy[0]
-            image_size = (nx, ny, int(dim[0]))
-            voxel_size = (float(isz[2]/nx), float(isz[1]/ny), float(vsz[0]))
-            image = ImageData()
-            image.initialise(image_size, voxel_size)
         image.fill(value)
         return image
     def as_array(self):

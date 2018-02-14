@@ -121,7 +121,7 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0, nxny)
+    image = acq_data.create_uniform_image(1.0, nxny[::-1])
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
