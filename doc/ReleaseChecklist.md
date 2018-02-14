@@ -1,6 +1,8 @@
 ## Release Checklist
-
-`VER=1.0.0`
+Set version variable of using the format
+````
+VER=1.0.0-rc.1
+```
 
 1. SIRF
  - [ ] update `CHANGES.md`
@@ -37,6 +39,13 @@
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
  
+ 4. Website
+ - [ ] update Software page (version info, VM etc)
+ - [ ] add news flash
+
+5. Announce
+ - [ ] Send email
+
  #### zerofill trick
  
  ```
