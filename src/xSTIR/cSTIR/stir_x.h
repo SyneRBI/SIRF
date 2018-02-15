@@ -44,10 +44,47 @@ using stir::shared_ptr;
 \ingroup STIR Extensions
 \brief Listmode-to-sinograms converter.
 
+This class reads list mode data and produces corresponding *sinograms*,
+i.e. histogrammed data in the format of PETAcquisitionData.
+
+It has 2 main functions:
+  - process() can be used to read prompts and/or delayed coincidences to produce a single
+    PETAcquisitionData. 2 variables decide what done with 3 possible cases:
+       - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
+       - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
+       - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
+    Clearly, enabling the `store_delayeds` option only makes sense if the data was 
+    acquired accordingly.
+  - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+    random coincidences.
+
+Currently, the randoms are estimated from the delayed coincidences using the following
+strategy:
+   1. singles (one per detector) are estimated using a Maximum Likelihood estimator
+   2. randoms-from-singles are computed per detector-pair via the usual product formula.
+      These are then added together for all detector pairs in a certain histogram-bin in the
+      data (accommodating for view mashing and axial compression).
+
+The actual algorithm is described in
+
+> D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+> "A study of bias for various iterative reconstruction methods in PET,"
+> in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE, Nov. 2002, pp. 1519-1523. 
+> [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
 */
 
 class ListmodeToSinograms : public LmToProjData {
 public:
+	//! Constructor. 
+    /*! Takes an optional text string argument with
+	    the name of a STIR parameter file defining the conversion options.
+	    If no argument is given, default settings apply except
+	    for the names of input raw data file, template file and
+	    output filename prefix, which must be set by the user by
+	    calling respective methods.
+        
+        By default, `store_prompts` is `true` and `store_delayeds` is `false`.
+	*/
 	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
 	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
 	ListmodeToSinograms() : LmToProjData()
@@ -66,6 +103,9 @@ public:
 	{
 		input_filename = lm_file;
 	}
+    //! Specifies the prefix for the output file(s), 
+    /*! This will be appended by `_g1f1d0b0.hs`.
+    */
 	void set_output(std::string proj_data_file)
 	{
 		output_filename_prefix = proj_data_file;

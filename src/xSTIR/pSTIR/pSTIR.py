@@ -848,13 +848,13 @@ class ListmodeToSinograms:
                            pystir.cSTIR_convertListmodeToSinograms(self.handle)
         check_status(self.output.handle)
     def get_output(self):
-        '''Returns the sinograms.
+        '''Returns the sinograms as an AcquisitionData object.
         '''
         if self.output is None:
             raise error('Conversion to sinograms not done')
         return self.output
     def estimate_randoms(self):
-        '''Estimates randoms.
+        '''Returns an estimate of the randoms as an AcquisitionData object.
         '''
         randoms = AcquisitionData()
         randoms.handle = pystir.cSTIR_computeRandoms(self.handle)
@@ -863,7 +863,7 @@ class ListmodeToSinograms:
 
 class AcquisitionSensitivityModel:
     '''
-    Class than handles PET scanner detector efficiencies and attenuation.
+    Class that handles PET scanner detector efficiencies and attenuation.
 
     Is used by AcquisitionModel (see below) for multiplication by 1/n.
     '''
