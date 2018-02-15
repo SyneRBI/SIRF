@@ -2,7 +2,7 @@
 Set version variable of using the format
 ````
 VER=1.0.0-rc.1
-```
+
 
 1. SIRF
  - [ ] update `CHANGES.md`
