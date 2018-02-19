@@ -1,4 +1,4 @@
-function using_acquisition_model(engine)
+function acquisition_model(engine)
 % Acquisition model demo: creates an image, forward projects it to simulate
 % acquisition data and then backprojects the result.
 

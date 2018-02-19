@@ -1,4 +1,4 @@
-function using_acquisition_data(engine)
+function acquisition_data(engine)
 % A demo showing basics of PET acquisition data handling.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

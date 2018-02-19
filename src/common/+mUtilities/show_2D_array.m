@@ -21,10 +21,11 @@ function show_2D_array(array, the_title, x_label, y_label, window)
 shape = size(array);
 nx = shape(1);
 ny = shape(2);
-scale = max(abs(array(:)))/255;
-image = uint8(array(:,:)/scale);
 figure;
-imshow(image, 'Colormap', jet(255))
+vmin = min(array(:));
+vmax = max(array(:));
+imshow(array, [vmin vmax], 'Colormap', jet(255))
+colorbar
 xlabel(y_label)
 ylabel(x_label)
 set(gca, 'XTick', [1 ny])
