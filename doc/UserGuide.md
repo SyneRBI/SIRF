@@ -511,11 +511,17 @@ Provides methods for for applying (1/n) factor in (F) and (B) or its inverse.
                      - from an ECAT8 file or
                      - from an attenuation image (ImageData object) or
                      - from bin efficiencies (AcquisitionData object) or
-                     - by chaining two objects of this class
+                     - by chaining two objects of this class.
+                     In the last case, the normalisation n is the product 
+                     of the two objects' normalisations.
 
     set_up           Sets up the object.
+    normalise        Multiplies the argument (AcquisitionData) by n.
     unnormalise      Multiplies the argument (AcquisitionData) by (1/n).
-    forward          Returns the argument multiplied by (1/n).
+    forward          Returns the argument multiplied by (1/n). The argument
+                     is not changed.
+    invert           Returns the argument multiplied by n. The argument
+                     is not changed.
 
 ###### Examples: 
 
