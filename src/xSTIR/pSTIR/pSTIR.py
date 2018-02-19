@@ -792,6 +792,37 @@ DataContainer.register(AcquisitionData)
 class ListmodeToSinograms:
     '''
     Class for listmode-to-sinogram converter.
+
+    This class reads list mode data and produces corresponding *sinograms*,
+    i.e. histogrammed data in the format of PETAcquisitionData.
+
+    It has two main functions:
+      - process() can be used to read prompts and/or delayed coincidences to
+        produce a single PETAcquisitionData.
+        Two conversion flags decide what is to be done with 3 possible cases:
+        - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts stored
+        - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds stored
+        - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds stored
+        Clearly, enabling the `store_delayeds` option only makes sense if the
+        data was acquired accordingly.
+      - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+        random coincidences.
+
+    Currently, the randoms are estimated from the delayed coincidences using the
+    following strategy:
+       1. singles (one per detector) are estimated using a Maximum Likelihood
+          estimator
+       2. randoms-from-singles are computed per detector-pair via the usual
+          product formula. These are then added together for all detector pairs
+          in a certain histogram-bin in the data (accommodating for view mashing
+          and axial compression).
+
+    The actual algorithm is described in
+
+    D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+    "A study of bias for various iterative reconstruction methods in PET,"
+    in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE,
+    Nov. 2002, pp. 1519-1523 (http://dx.doi.org/10.1109/nssmic.2002.1239610).
     '''
     def __init__(self, file = None):
         self.handle = None
@@ -827,12 +858,14 @@ class ListmodeToSinograms:
         try_calling(pystir.cSTIR_setListmodeToSinogramsInterval\
             (self.handle, interval.ctypes.data))
     def flag_on(self, flag):
-        '''Switches on a conversion flag.
+        '''Switches on (sets to 'true') a conversion flag (see conversion flags
+           description above).
         '''
         try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
             (self.handle, flag, 1))
     def flag_off(self, flag):
-        '''Switches off a conversion flag.
+        '''Switches off (sets to 'false') a conversion flag (see conversion flags
+           description above).
         '''
         try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
             (self.handle, flag, 0))
@@ -917,6 +950,8 @@ class AcquisitionSensitivityModel:
             (self.handle, ad.handle))
     def normalise(self, ad):
         '''Multiplies the argument by n (cf. AcquisitionModel).
+           If self is a chain of two AcquisitionSensitivityModels, then n is
+           a product of two normalisations.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -924,14 +959,17 @@ class AcquisitionSensitivityModel:
             (self.handle, ad.handle, 'normalise'))
     def unnormalise(self, ad):
         '''Multiplies the argument by 1/n (cf. AcquisitionModel).
+           If self is a chain of two AcquisitionSensitivityModels, then n is
+           a product of two normalisations.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
             (self.handle, ad.handle, 'unnormalise'))
     def forward(self, ad):
-        '''Returns a new AcquisitionData equal to the argument multiplied
-           by 1/n (cf. AcquisitionModel).
+        '''Same as unnormalise except that the argument remains unchanged
+           and  a new AcquisitionData equal to the argument multiplied
+           by 1/n is returned.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -941,8 +979,9 @@ class AcquisitionSensitivityModel:
         check_status(fd.handle)
         return fd
     def invert(self, ad):
-        '''Returns a new AcquisitionData equal to the argument multiplied
-           by n (cf. AcquisitionModel).
+        '''Same as normalise except that the argument remains unchanged
+           and  a new AcquisitionData equal to the argument multiplied
+           by n is returned.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -1006,14 +1045,6 @@ class AcquisitionModel:
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-##    def set_normalisation(self, norm):
-##        ''' 
-##        Sets the normalization n in (F);
-##        norm:  an AcquisitionData object containing normalisation n
-##        '''
-##        assert_validity(norm, AcquisitionData)
-##        _setParameter\
-##            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in (F);
@@ -1022,14 +1053,6 @@ class AcquisitionModel:
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
-    def set_bin_efficiency(self, bin_eff):
-        ''' 
-        Sets the bin_efficiency 1/n in (F);
-        bin_eff:  an AcquisitionData object containing bin efficiencies
-        '''
-        assert_validity(bin_eff, AcquisitionData)
-        _setParameter\
-            (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
     def forward(self, image):
         ''' 
         Returns the forward projection of x given by (F);

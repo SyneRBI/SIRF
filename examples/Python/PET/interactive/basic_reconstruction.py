@@ -103,7 +103,9 @@ am2 = pet.AcquisitionModelUsingRayTracingMatrix()
 am2.set_num_tangential_LORs(5);
 am2.set_up(templ,image); 
 # now include the bin efficiencies in our acquisition model
-am2.set_bin_efficiency(bin_efficiencies)
+#am2.set_bin_efficiency(bin_efficiencies)
+asm = AcquisitionSensitivityModel(bin_efficiencies)
+am2.set_acquisition_sensitivity(asm)
 #%% forward project the image again with this acquisition model and display
 acquired_data = am2.forward(image)
 acquisition_array = acquired_data.as_array()

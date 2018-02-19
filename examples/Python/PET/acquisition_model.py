@@ -2,7 +2,7 @@
 acquisition data and displays
 
 Usage:
-  using_acquisition_model [--help | options]
+  acquisition_model [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file [default: Utahscat600k_ca_seg4.hs]
