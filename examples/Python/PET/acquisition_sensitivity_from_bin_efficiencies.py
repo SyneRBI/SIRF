@@ -1,7 +1,7 @@
 '''Acquisition sensitivity model using bin efficiencies sinograms demo.
 
 Usage:
-  acquisition_sensitivity_model [--help | options]
+  acquisition_sensitivity_from_bin_efficiencies [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
