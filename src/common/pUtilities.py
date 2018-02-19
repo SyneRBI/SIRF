@@ -90,6 +90,8 @@ def show_3D_array\
                 computed based on the array dimensions
     scale     : tuple (vmin, vmax) for imshow; defaults to the range of
                 array values
+    power     : if present, numpy.power(abs(array), power) is displayed
+                (power < 1 improves visibility of relatively small array values)
     suptitle  : figure title; defaults to None
     titles    : array of tile titles; if not present, each tile title is
                 label + tile_number
