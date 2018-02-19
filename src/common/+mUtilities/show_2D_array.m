@@ -1,4 +1,4 @@
-function show_2D_array(array, the_title, x_label, y_label, window)
+function show_2D_array(array, the_title, x_label, y_label, scale, window)
 % Displays a 2D array.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -22,8 +22,13 @@ shape = size(array);
 nx = shape(1);
 ny = shape(2);
 figure;
-vmin = min(array(:));
-vmax = max(array(:));
+if nargin < 5
+    vmin = min(array(:));
+    vmax = max(array(:));
+else
+    vmin = scale(1);
+    vmax = scale(2);
+end
 imshow(array, [vmin vmax], 'Colormap', jet(255))
 colorbar
 xlabel(y_label)
@@ -32,7 +37,7 @@ set(gca, 'XTick', [1 ny])
 set(gca, 'YTick', [1 nx])
 axis on
 title(the_title);
-if nargin < 5
+if nargin < 6
     window = [0.3 0.2 0.4 0.5];
 end
 mUtilities.set_window(window(1), window(2), window(3), window(4))
