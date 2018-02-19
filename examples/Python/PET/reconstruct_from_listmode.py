@@ -121,11 +121,12 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0, nxny[::-1])
+    image = acq_data.create_uniform_image(1.0, nxny)
 
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_num_tangential_LORs(10)
     acq_model.set_up(acq_data, attn_image)
 
     # create acquisition sensitivity model from ECAT8 normalisation data
@@ -179,7 +180,7 @@ def main():
 
     # show reconstructed image
     image_array = recon.get_current_estimate().as_array()
-    show_2D_array('Reconstructed image', image_array[20,:,:])
+    show_2D_array('Reconstructed image', image_array[71,:,:])
     pylab.show()
 
 try:

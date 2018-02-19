@@ -30,7 +30,7 @@
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. The interface style permits a reconstruction to be performed in stages, allowing the user to inspect or modify data, or insert their own code. 
 
-This User’s Guide describes version 0.9 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This User’s Guide describes version 1.0.0-rc.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
 ## General architecture <a name="General_architecture"></a>
 
@@ -387,29 +387,42 @@ Class for a reconstructor from undersampled Cartesian raw data. Inherits the met
 
 ##### ListmodeToSinograms (PET)
 
-Class for converting raw data from listmode format into sinograms and estimating randoms.
+Class for converting raw data from listmode format into *sinograms*,
+i.e. histogrammed data in the format of PETAcquisitionData.
+
+It has 2 main functions:
+  - `process()` can be used to read prompts and/or delayed coincidences to produce a single
+    PETAcquisitionData. 2 variables decide what done with 3 possible cases:
+       - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
+       - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
+       - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
+    Clearly, enabling the `store_delayeds` option only makes sense if the data was 
+    acquired accordingly.
+  - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+    random coincidences.
 
 ###### Methods:
 
     ListmodeToSinograms  Constructor. Takes an optional text string argument with
-                         the name of an Interfile defining the conversion options.
+                         the name of a STIR parameter file defining the conversion options.
                          If no argument is given, default settings apply except
                          for the names of input raw data file, template file and
-                         output file prefix, which must be set by the user by
+                         output filename prefix, which must be set by the user by
                          calling respective methods.
     set_input            Specifies the input raw data file.
     set_output_prefix    Specifies the prefix for the output file(s), which will
-                         be appended by _g1f1d0b0 in SIRF 1.0.
+                         be appended by `_g1f1d0b0.hs`.
     set_template         Specifies the file containing acquisition data to be
                          used as a source of information about the scanner.
     set_time_interval    Specifies the scanning time sub-interval to be converted
-                         (zero interval indicates that all raw data must be converted)
+                         (an empty interval indicates that all raw data must be converted)
     flag_on              Turns on (i.e. assigns value true to) a conversion flag.
     flag_off             Turns off (i.e. assigns value false to) a conversion flag.
     set_up               Sets up the converter.
     process              Performs the conversion.
     get_output           Returns AcquisitionData object containing converted data.
-    estimate_randoms     Estimates randoms.
+    estimate_randoms     Estimates randoms. (Currently via a Maximum Likelihood estimate
+                         of the singles, based on the delayed coincidences).
 
 ###### Examples: 
 
@@ -422,6 +435,7 @@ Class for converting raw data from listmode format into sinograms and estimating
     lm2sino.set_up()
     lm2sino.process()
     acq_data = lm2sino.get_output()
+    randoms_acq_data = lm2sino.estimate_randoms()
 
 ##### AcquisitionModel 
 
