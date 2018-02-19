@@ -644,6 +644,12 @@ class AcquisitionData(DataContainer):
                 # src is a scanner name
                 self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
                     (src, span, max_ring_diff, view_mash_factor)
+                if pyiutil.executionStatus(self.handle) != 0:
+                    msg = pyiutil.executionError(self.handle)
+                    if msg == 'Unknown scanner':
+                        raise error\
+                            ('Unknown scanner ' + src + \
+                             ' or missing raw data file extension')
                 self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
