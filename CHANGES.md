@@ -8,6 +8,7 @@
   * PETAcquisitionData object creation from scanner name and parameters
   * ListmodeToSinograms converter class, also estimating randoms (from delayed coincidences)
   * Normalization from ECAT8 (Siemens mMR) and attenuation image
+  * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
   * Doxygen inline documentation (available on CCP PETMR website)
