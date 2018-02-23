@@ -1,4 +1,4 @@
-function using_acquisition_model(engine)
+function acquisition_model(engine)
 % USING_ACQUISITION_MODEL Demo illustrating creating simulated acquisitions 
 % by the MR acquisition model's forward projection and their backprojecting
 % to the image space

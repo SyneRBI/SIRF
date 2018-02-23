@@ -238,6 +238,10 @@ protected:
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
 		shared_ptr<Scanner> sptr_s(Scanner::get_scanner_from_name(scanner_name));
+		//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
+		if (boost::iequals(sptr_s->get_name(), "unknown")) {
+			throw LocalisedException("Unknown scanner", __FILE__, __LINE__);
+		}
 		int num_views = sptr_s->get_num_detectors_per_ring() / 2 / view_mash_factor;
 		int num_tang_pos = sptr_s->get_max_num_non_arccorrected_bins();
 		if (max_ring_diff < 0)

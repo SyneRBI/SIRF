@@ -216,6 +216,7 @@ Class for acquisition data.
     as_array   (PET/MR) Returns the object data as an array. 
     fill       (PET/MR) Replaces the object data with user-supplied data. 
     clone      (PET/MR) Returns a copy of this object. 
+    write      (PET/MR) Writes the object data to a file. 
     sort           (MR) Sort the object data. 
     is_sorted      (MR) Returns true if and only if the object data is sorted. 
     get_info       (MR) Returns information on the object data. 
@@ -233,6 +234,10 @@ Class for data representing 3D objects.
     fill     (PET/MR)  Replaces the object data with user-supplied data. 
     as_array (PET/MR)  Returns the object data as an array. 
     clone    (PET/MR)  Returns a copy of this object. 
+    read_from_file
+             (PET/MR)  Reads the image data from file.
+    get_uniform_copy   
+                (PET)  Returns a copy of this image filled with a constant value. 
     add_shape   (PET)  Adds a uniform shape to the image. 
     show     (PET/MR)  Interactively displays the image. 
     write    (PET/MR)  Writes the object data to a file. 
@@ -511,11 +516,17 @@ Provides methods for for applying (1/n) factor in (F) and (B) or its inverse.
                      - from an ECAT8 file or
                      - from an attenuation image (ImageData object) or
                      - from bin efficiencies (AcquisitionData object) or
-                     - by chaining two objects of this class
+                     - by chaining two objects of this class.
+                     In the last case, the normalisation n is the product 
+                     of the two objects' normalisations.
 
     set_up           Sets up the object.
+    normalise        Multiplies the argument (AcquisitionData) by n.
     unnormalise      Multiplies the argument (AcquisitionData) by (1/n).
-    forward          Returns the argument multiplied by (1/n).
+    forward          Returns the argument multiplied by (1/n). The argument
+                     is not changed.
+    invert           Returns the argument multiplied by n. The argument
+                     is not changed.
 
 ###### Examples: 
 

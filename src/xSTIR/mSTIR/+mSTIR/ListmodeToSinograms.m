@@ -1,5 +1,32 @@
 classdef ListmodeToSinograms < handle
 % Class for a listmode-to-sinograms converter
+% This class reads list mode data and produces corresponding *sinograms*,
+% i.e. histogrammed data in the format of PETAcquisitionData.
+% It has two main functions:
+%   - process() can be used to read prompts and/or delayed coincidences to
+%     produce a single PETAcquisitionData.
+%     Two conversion flags decide what is to be done with 3 possible cases:
+%     - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts stored
+%     - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds stored
+%     - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds stored
+%     Clearly, enabling the `store_delayeds` option only makes sense if the
+%     data was acquired accordingly.
+%   - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+%     random coincidences. 
+% Currently, the randoms are estimated from the delayed coincidences using the
+% following strategy:
+%    1. singles (one per detector) are estimated using a Maximum Likelihood
+%       estimator
+%    2. randoms-from-singles are computed per detector-pair via the usual
+%       product formula. These are then added together for all detector pairs
+%       in a certain histogram-bin in the data (accommodating for view mashing
+%       and axial compression).
+% 
+% The actual algorithm is described in
+% D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+% "A study of bias for various iterative reconstruction methods in PET,"
+% in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE,
+% Nov. 2002, pp. 1519-1523 (http://dx.doi.org/10.1109/nssmic.2002.1239610).
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -40,19 +67,19 @@ classdef ListmodeToSinograms < handle
             end
         end
         function set_input(self, file)
-            % Sets the listmode file name.
+            %***SIRF*** Sets the listmode file name.
             mSTIR.setParameter(self.handle_, self.name_, 'input', file, 'c')
         end
         function set_output_prefix(self, file)
-            % Sets the sinograms file names prefix.
+            %***SIRF*** Sets the sinograms file names prefix.
             mSTIR.setParameter(self.handle_, self.name_, 'output', file, 'c')
         end
         function set_template(self, file)
-            % Sets the sinograms template.
+            %***SIRF*** Sets the sinograms template.
             mSTIR.setParameter(self.handle_, self.name_, 'template', file, 'c')
         end
         function set_time_interval(self, start, stop)
-            % Sets time interval.
+            %***SIRF*** Sets time interval.
             % Only data scanned during this time interval will be converted.
             ptr = libpointer('singlePtr', [start stop]);
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsInterval', ...
@@ -61,28 +88,30 @@ classdef ListmodeToSinograms < handle
             mUtilities.delete(h)
         end
         function flag_on(self, flag)
-            % Switches on a conversion flag.
+            %***SIRF*** Switches on (sets to 'true') a conversion flag 
+            % (see conversion flags description above).
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsFlag', ...
                 self.handle_, flag, 1);
             mUtilities.check_status([self.name_ ':flag_on'], h);
             mUtilities.delete(h)
         end
         function flag_off(self, flag)
-            % Switches off a conversion flag.
+            %***SIRF*** Switches off (sets to 'false') a conversion flag 
+            % (see conversion flags description above).
             h = calllib('mstir', 'mSTIR_setListmodeToSinogramsFlag', ...
                 self.handle_, flag, 0);
             mUtilities.check_status([self.name_ ':flag_on'], h);
             mUtilities.delete(h)
         end
         function set_up(self)
-            % Sets up the conversion.
+            %***SIRF*** Sets up the conversion.
             h = calllib('mstir', 'mSTIR_setupListmodeToSinogramsConverter', ...
                 self.handle_);
             mUtilities.check_status([self.name_ ':set_up'], h);
             mUtilities.delete(h)
         end
         function process(self)
-            % Performs the conversion.
+            %***SIRF*** Performs the conversion.
             self.output_ = mSTIR.AcquisitionData();
             self.output_.handle_ = calllib...
                 ('mstir', 'mSTIR_convertListmodeToSinograms', ...
@@ -91,12 +120,12 @@ classdef ListmodeToSinograms < handle
                 ([self.name_ ':process'], self.output_.handle_);
         end
         function output = get_output(self)
-            % Returns the sinograms.
+            %***SIRF*** Returns the sinograms.
             assert(~isempty(self.output_), 'Conversion to sinograms not done')
             output = self.output_;
         end
         function randoms = estimate_randoms(self)
-            % Estimates randoms.
+            %***SIRF*** Estimates randoms.
             randoms = mSTIR.AcquisitionData();
             randoms.handle_ = calllib('mstir', 'mSTIR_computeRandoms', ...
                 self.handle_);

@@ -1,7 +1,7 @@
 '''Acquisition data handling demo.
 
 Usage:
-  using_acquisition_data [--help | options]
+  acquisition_data [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]

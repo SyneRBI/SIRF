@@ -1,4 +1,4 @@
-function using_acquisition_data(engine)
+function acquisition_data(engine)
 % USING_ACQUISITION_DATA Demo illustrating acquisitions pre-processing 
 % and displaying.
 %

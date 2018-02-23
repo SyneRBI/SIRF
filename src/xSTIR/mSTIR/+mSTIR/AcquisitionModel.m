@@ -52,40 +52,25 @@ classdef AcquisitionModel < handle
             end
         end
         function set_additive_term(self, at)
-%***SIRF*** set_additive_term(at) sets the additive term a in (F);
+%***SIRF*** sets the additive term a in (F);
 %         at:  an AcquisitionData object containing a.
             mUtilities.assert_validity(at, 'AcquisitionData')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
         function set_background_term(self, bt)
-%***SIRF*** set_background_term(bt) sets the background term b in (F);
+%***SIRF*** sets the background term b in (F);
 %         bt:  an AcquisitionData object containing b.
             mUtilities.assert_validity(bt, 'AcquisitionData')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'background_term', bt, 'h');
         end
-%         function set_normalisation(self, norm)
-% %***SIRF*** set_normalisation(norm) sets the normalisation n in (F);
-% %         norm:  an AcquisitionData object containing normalisation n.
-%             mUtilities.assert_validity(norm, 'AcquisitionData')
-%             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
-%                 'normalisation', norm, 'h');
-%         end
         function set_acquisition_sensitivity(self, asm)
-%***SIRF*** set_asm(norm) sets the the acquisition sensitivity s in (F);
-%         norm: an AcquisitionSensitivityModel object.
+%***SIRF*** sets the acquisition sensitivity model responsible for n in (F);
+%         asm: an AcquisitionSensitivityModel object.
             mUtilities.assert_validity(asm, 'AcquisitionSensitivityModel')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'asm', asm, 'h');
-        end
-        function set_bin_efficiency(self, bin_eff)
-%***SIRF*** set_bin_efficiency(bin_eff) sets the normalisation n in (F);
-%         bin_eff:  an AcquisitionData object containing bin efficiencies
-%                   (the inverse of n).
-            mUtilities.assert_validity(bin_eff, 'AcquisitionData')
-            mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
-                'bin_efficiency', bin_eff, 'h');
         end
         function set_up(self, acq_templ, img_templ)
 %***SIRF*** sets up the object with appropriate geometric information.
@@ -108,11 +93,11 @@ classdef AcquisitionModel < handle
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
         function ad = forward(self, image)
-%***SIRF*** computes the forward projection of ImageData by the formula (F)
-%         given in the main class documentation.
+%***SIRF*** computes the forward projection of ImageData x = image given by 
+%         (F) above in the main class documentation.
 %         Usage: 
-%             acq_data = forward(image, filename);
-%         image   :  an ImageData object containing x;
+%             acq_data = forward(image);
+%         image:  an ImageData object containing x;
             mUtilities.assert_validity(image, 'ImageData')
             ad = mSTIR.AcquisitionData();
             ad.handle_ = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
@@ -120,7 +105,7 @@ classdef AcquisitionModel < handle
             mUtilities.check_status([self.name ':forward'], ad.handle_)
         end
         function image = backward(self, ad)
-%***SIRF*** backward(ad) returns the backprojection of ad (y in (B));
+%***SIRF*** returns the backprojection z for y = ad given by (B) above;
 %         ad:  an AcquisitionData object containing y.
             mUtilities.assert_validity(ad, 'AcquisitionData')
             image = mSTIR.ImageData();

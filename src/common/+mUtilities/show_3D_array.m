@@ -74,14 +74,14 @@ panel.TitlePosition = 'centertop';
 panel.FontSize = 12;
 panel.FontWeight = 'bold';
 
-scale = max(abs(array(:)))/255;
+vmin = min(array(:));
+vmax = max(array(:));
 for z = 1 : nz
     row = idivide(z - 1, icols) + 1;
     col = z - (row - 1)*icols;
     p = double(z);
     subplot(rows, cols, p, 'Parent', panel)
-    image = uint8(array(:,:,index(z))/scale);
-    imshow(image, 'Colormap', jet(255))
+    imshow(array(:,:,index(z)), [vmin vmax], 'Colormap', jet(255))
     if row == irows && col == 1
         xlabel(y_label)
         ylabel(x_label)
@@ -96,4 +96,5 @@ for z = 1 : nz
         end
     end
 end
+%colorbar
 end

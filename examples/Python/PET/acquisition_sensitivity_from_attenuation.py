@@ -1,7 +1,7 @@
 '''Acquisition sensitivity model using attenuation image.
 
 Usage:
-  asm_attenuation [--help | options]
+  acquisition_sensitivity_from_attenuation [--help | options]
 
 Options:
   -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
