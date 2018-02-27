@@ -32,10 +32,8 @@ VER=1.0.0-rc.1
  - [ ] update `NOTICE.txt`
  - [ ] `git push`
  - [ ] `vagrant up`
- - [ ] remove screen lock
- - [ ] add English UK keyboard
- - [ ] run the zerofill trick
  - [ ] Virtualbox Guest Additions
+ - [ ] run `first_run.sh` script (gnome settings and zero-fill trick)
  - [ ] export the VM and upload to website
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
