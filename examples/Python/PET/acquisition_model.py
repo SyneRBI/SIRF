@@ -145,6 +145,7 @@ def main():
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
+    # note that the backprojection takes the acquisition sensitivy model asm into account as well
     back_projected_image = acq_model.backward(simulated_data)
 
     back_projected_image_as_array = back_projected_image.as_array()
