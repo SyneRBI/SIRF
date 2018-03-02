@@ -18,50 +18,50 @@ matrix:
  # linux g{cc,++}-5 py{27,3}
  - os: linux
    python: 3
-   # +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+   # +boost +fftw3 +hdf5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
  - os: linux
    python: 2.7
-   # +fftw3 +hdf5 +siemens_to_ismrmrd +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
+   # +boost +fftw3 +hdf5 +siemens_to_ismrmrd +swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" CC=gcc-5 CXX=g++-5 PYMVER=2
  - os: linux
    python: 3
-   # +DEVEL -hdf5 -fftw3 +siemens_to_ismrmrd
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DBUILD_siemens_to_ismrmrd=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+   # +DEVEL +boost -hdf5 -fftw3 +siemens_to_ismrmrd
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DBUILD_siemens_to_ismrmrd=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
  - os: linux
    python: 2.7
-   # +DEVEL -fftw3 -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc-5 CXX=g++-5 PYMVER=2
+   # +DEVEL -boost -fftw3 -hdf5 -swig
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc-5 CXX=g++-5 PYMVER=2
  # osx g{cc,++} py{27,36}
  - os: osx
    python: 2.7
-   # -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
+   # +boost -hdf5 -swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=2
  - os: osx
-   # -hdf5 -swig
+   # -boost -hdf5 -swig
    python: 3
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" CC=gcc CXX=g++ PYMVER=3
  - os: osx
    python: 2.7
-   # +DEVEL -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   # +DEVEL +boost -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
  - os: osx
    python: 2.7
-   # +DEVEL -fftw3 -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   # +DEVEL +boost -fftw3 -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
  # itk
  - os: linux
    python: 3
-   # +itk +fftw3 +hdf5
-   env: EXTRA_BUILD_FLAGS="-DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
+   # +boost +itk +fftw3 +hdf5
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON" CC=gcc-5 CXX=g++-5 PYMVER=3
  - os: osx
    python: 2.7
-   # +itk -hdf5 +swig
-   env: EXTRA_BUILD_FLAGS="-DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
+   # +boost +itk -hdf5 +swig
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_ITK=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=ON" CC=gcc CXX=g++ PYMVER=2
 
 env:
  global:
-  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release -DUSE_SYSTEM_Boost=ON"
+  - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
   # don't use too many threads - may crash
   - MAKEFLAGS="-j 2"
 
@@ -157,6 +157,12 @@ before_install:
  - $PY_EXE -m pip install --user -U pip setuptools wheel
  # ensure python bin dir exists (and coverage dependencies installed)
  - $PY_EXE -m pip install --user -U nose codecov coveralls
+ # for counting clones, excluding ours
+ - git clone https://$GITHUB_API_TOKEN@github.com/CCPPETMR/github-stats --branch CCPPETMR/SIRF-SuperBuild
+ # update with last fortnight's clones from GitHub API
+ - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
+ # decrement to skip counting travis' clone, and print total number of clones
+ - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild clone_count_decrement
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       # pip path fix
