@@ -34,6 +34,7 @@ VER=1.0.0-rc.1
  - [ ] `vagrant up`
  - [ ] Virtualbox Guest Additions
  - [ ] run `first_run.sh` script (gnome settings and zero-fill trick)
+ - [ ] [deselect](https://github.com/CCPPETMR/CCPPETMR_VM/blob/master/vagrant/README.md#notes-about-ubuntu-box-for-version-100) the serial port.
  - [ ] export the VM and upload to website
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
