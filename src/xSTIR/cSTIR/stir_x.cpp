@@ -470,6 +470,10 @@ PETAcquisitionModel::set_up(
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
+	if ( s == Succeeded(Succeeded::yes)) {
+                if (sptr_asm_ && sptr_asm_->data())
+                         s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+        }
 	return s;
 }
 
