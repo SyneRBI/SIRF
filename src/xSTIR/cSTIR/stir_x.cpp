@@ -21,6 +21,8 @@ limitations under the License.
 
 #include "stir_types.h"
 #include "stir_x.h"
+#include "stir/is_null_ptr.h"
+#include "stir/error.h"
 
 using stir::shared_ptr;
 
@@ -416,13 +418,13 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 PETAttenuationModel::PETAttenuationModel
 (PETImageData& id, PETAcquisitionModel& am)
 {
+	sptr_forw_projector_ = am.projectors_sptr()->get_forward_projector_sptr();
+        if (is_null_ptr(sptr_forw_projector_))
+          error("PETAttenuationModel: Forward projector not set correctly. Something wrong.");
 	shared_ptr<BinNormalisation>
 		sptr_n(new BinNormalisationFromAttenuationImage
-		(id.data_sptr(), am.projectors_sptr()->get_forward_projector_sptr()));
-	//shared_ptr<BinNormalisation> sptr_0;
-	//norm_.reset(new ChainedBinNormalisation(sptr_n, sptr_0));
+		(id.data_sptr(), sptr_forw_projector_));
 	norm_ = sptr_n;
-	sptr_projectors_ = am.projectors_sptr();
 }
 
 void
@@ -431,7 +433,7 @@ PETAttenuationModel::unnormalise(PETAcquisitionData& ad) const
 	//std::cout << "in PETAttenuationModel::unnormalise\n";
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
-		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
 	norm->undo(*ad.data(), 0, 1, symmetries_sptr);
 }
 
@@ -440,7 +442,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 {
 	BinNormalisation* norm = norm_.get();
 	shared_ptr<DataSymmetriesForViewSegmentNumbers>
-		symmetries_sptr(sptr_projectors_->get_symmetries_used()->clone());
+		symmetries_sptr(sptr_forw_projector_->get_symmetries_used()->clone());
 	norm->apply(*ad.data(), 0, 1, symmetries_sptr);
 }
 
