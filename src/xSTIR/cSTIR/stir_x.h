@@ -450,7 +450,7 @@ public:
 	// divide by bin efficiencies
 	virtual void normalise(PETAcquisitionData& ad) const;
 protected:
-	shared_ptr<ProjectorByBinPair> sptr_projectors_;
+	shared_ptr<ForwardProjectorByBin> sptr_forw_projector_;
 };
 
 /*!
