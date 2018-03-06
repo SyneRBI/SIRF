@@ -9,8 +9,8 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -44,17 +44,22 @@ def main():
 
     # create acquisition data from scanner parameters
     acq_data = AcquisitionData('Siemens_mMR')
-    # set all values to 1.0
-    acq_data.fill(1.0)
-
     # copy the acquisition data into a Python array
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    print('acquisition data dimensions (maximum resolution): %dx%dx%d' % acq_dim)
 
-    z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    # create acquisition data from scanner parameters but with axial compression etc
+    acq_data = AcquisitionData('Siemens_mMR',span=11, view_mash_factor=2)
+    # set all values to 1.0
+    acq_data.fill(1.0)
+    # copy the acquisition data into a Python array
+    acq_array = acq_data.as_array()
+    acq_dim = acq_array.shape
+    print('acquisition data dimensions (span 11, view mashing 2): %dx%dx%d' % acq_dim)
 
+    # write the acquisition data to a file (commented out for this demo)
+    # acq_data.write('example_mMR_ones.hs')
 try:
     main()
     print('done')

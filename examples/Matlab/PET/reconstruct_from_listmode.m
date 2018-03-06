@@ -2,8 +2,8 @@ function reconstruct_from_listmode(engine)
 % A demo showing reconstruction from raw data in listmode format.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2018 University College London.
+% Copyright 2018 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -28,9 +28,14 @@ eval(import_str)
 AcquisitionData.set_storage_scheme('memory');
 
 try
-    % direct all information printing to info.txt;
-    % warning and error messages to go to Matlab Command Window
+    % direct all information printing to info.txt; warnings to warn.txt
+    % error messages to go to Matlab Command Window
     MessageRedirector('info.txt', 'warn.txt');
+
+    % First step is to create AcquisitionData ("sinograms") from the
+    % listmode file.
+    % See the listmode_to_sinograms demo for some more information on this
+    % step.
 
     % create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms();
@@ -54,11 +59,7 @@ try
     lm2sino.set_template(tmpl_file)
 
     % set interval
-    lm2sino.set_time_interval(0, 100)
-
-    % set flags
-    lm2sino.flag_on('store_prompts')
-    lm2sino.flag_off('interactive')
+    lm2sino.set_time_interval(0, 50)
 
     % set up the converter
     lm2sino.set_up()
@@ -84,7 +85,9 @@ try
     % read attenuation image
     attn_image = ImageData(attn_file);
     attn_image_as_array = attn_image.as_array();
-    z = round(size(attn_image_as_array, 3)/2);
+    % select a slice appropriate for the NEMA acquistion data
+    z = 72;
+    % z = round(size(attn_image_as_array, 3)/2);
     mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
         'attenuation image', 'tang. pos.', 'views');
 
@@ -132,13 +135,13 @@ try
     % this example, we actually run OSEM);
     % this algorithm does not converge to the maximum of the objective function
     % but is used in practice to speed-up calculations
+    % See the reconstruction demos for more complicated examples     
     num_subsets = 7;
     num_subiterations = 2;
     recon = OSMAPOSLReconstructor();
     recon.set_objective_function(obj_fun);
     recon.set_num_subsets(num_subsets);
     recon.set_num_subiterations(num_subiterations);
-    %recon.set_input(acq_data)
 
     % set up the reconstructor based on a sample image
     % (checks the validity of parameters, sets up objective function
@@ -158,21 +161,6 @@ try
     image_array = recon.get_current_estimate().as_array();
     the_title = sprintf('Reconstructed image');
     mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
-
-%     % in order to see the reconstructed image evolution
-%     % open up the user's access to the iterative process
-%     % rather than allow recon.reconstruct to do all job at once
-%     z = 20;
-%     num_subiterations = 2;
-%     for iter = 1 : num_subiterations
-%         fprintf('\n--------------------- Subiteration %d\n', iter)
-%         % perform an iteration
-%         recon.update_current_estimate()
-%         % display the current image
-%         image_array = recon.get_current_estimate().as_array();
-%         the_title = sprintf('iteration %d', iter);
-%         mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
-%     end
 
 catch err
     % display error information

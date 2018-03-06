@@ -16,8 +16,8 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -68,12 +68,15 @@ def main():
     # set input, output and template files
     lm2sino.set_input(list_file)
     lm2sino.set_output_prefix(sino_file)
+    # the template is used to specify the sizes of the output sinogram.
+    # see the acquisition_data_from_scanner_info demo for an example how to 
+    # make your own template file
     lm2sino.set_template(tmpl_file)
 
     # set interval
     lm2sino.set_time_interval(interval[0], interval[1])
 
-    # set flags
+    # set some flags as examples (the following values are the defaults)
     lm2sino.flag_on('store_prompts')
     lm2sino.flag_off('interactive')
 
