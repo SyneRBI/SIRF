@@ -48,5 +48,11 @@ VER=1.0.0-rc.1
 5. Announce
  - [ ] Send email
 
-
+6. Tag wikis
+ - [ ] `git clone https://github.com/CCPPETMR/SIRF.wiki.git; cd SIRF.wiki` (or pull)
+ - [ ] `git tag -a v$VER -m "version $VER"`
+ - [ ] `git push origin v$VER`
+ - [ ] `git clone https://github.com/CCPPETMR/CCPPETMR_VM.wiki.git; cd \CCPPETMR_VM.wiki` (or pull)
+ - [ ] `git tag -a v$VER -m "version $VER"`
+ - [ ] `git push origin v$VER`
 
