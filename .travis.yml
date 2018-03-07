@@ -161,8 +161,8 @@ before_install:
  - git clone https://$GITHUB_API_TOKEN@github.com/CCPPETMR/github-stats --branch CCPPETMR/SIRF-SuperBuild
  # update with last fortnight's clones from GitHub API
  - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
- # decrement to skip counting travis' clone, and print total number of clones
- - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild clone_count_decrement
+ # count unique clones, excluding travis, and print total
+ - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       # pip path fix
