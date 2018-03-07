@@ -4,11 +4,11 @@ Usage:
   listmode_to_sinograms [--help | options]
 
 Options:
-  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
   -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
-  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
+  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                [default: (0,10)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
@@ -33,7 +33,7 @@ Options:
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-__version__ = '0.1.0'
+__version__ = '1.0.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
@@ -47,7 +47,10 @@ exec('from p' + args['--engine'] + ' import *')
 # process command-line options
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    # default to data/examples/PET/mMR
+    # Note: seem to need / even on Windows
+    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
+    data_path = petmr_data_path('pet') + '/mMR'
 prefix = data_path + '/'
 list_file = args['--list']
 sino_file = args['--sino']

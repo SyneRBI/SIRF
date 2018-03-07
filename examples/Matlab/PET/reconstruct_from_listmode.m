@@ -1,5 +1,8 @@
 function reconstruct_from_listmode(engine)
 % A demo showing reconstruction from raw data in listmode format.
+% Notes:
+%   output will be in the current working directory.
+%   input defaults to the mMR subfolder of pet_data_path
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2018 Rutherford Appleton Laboratory STFC.
@@ -40,17 +43,19 @@ try
     % create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms();
 
+    default_path=fullfile(pet_data_path, 'mMR');
+
     [filename, pathname] = uigetfile...
-        ('*.l.hdr', 'Select listmode data file', pet_data_path);
+        ('*.l.hdr', 'Select listmode data file', default_path);
     list_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
+        ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.n.hdr', 'Select ECAT8 normalization file', pet_data_path);
+        ('*.n.hdr', 'Select ECAT8 normalization file', default_path);
     norm_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.*hv', 'Select attenuation file', pet_data_path);
+        ('*.*hv', 'Select attenuation file', default_path);
     attn_file = fullfile(pathname, filename);
     
     % set input, output and template files

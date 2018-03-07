@@ -4,11 +4,11 @@ Usage:
   reconstruct_from_listmode [--help | options]
 
 Options:
-  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
   -g <sino>, --sino=<sino>     output file prefix [default: sinograms]
-  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
+  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
   -n <norm>, --norm=<norm>     ECAT8 bin normalization file [default: norm.n.hdr]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
@@ -54,7 +54,12 @@ exec('from p' + args['--engine'] + ' import *')
 # process command-line options
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    # default to data/examples/PET/mMR
+    # Note: seem to need / even on Windows
+    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
+    data_path = petmr_data_path('pet') + '/mMR'
+print('Finding files in %s' % data_path)
+
 list_file = args['--list']
 sino_file = args['--sino']
 tmpl_file = args['--tmpl']
