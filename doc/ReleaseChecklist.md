@@ -1,8 +1,8 @@
 ## Release Checklist
-Set version variable of using the format
-````
+Set version variable of the release for further steps, e.g using the format
+```
 VER=1.0.0-rc.1
-
+```
 
 1. SIRF
  - [ ] update `CHANGES.md`
@@ -48,12 +48,5 @@ VER=1.0.0-rc.1
 5. Announce
  - [ ] Send email
 
-
- #### zerofill trick
- 
- ```
-sudo dd if=/dev/zero of=/EMPTY bs=1M
-sudo rm -f /EMPTY
-```
 
 
