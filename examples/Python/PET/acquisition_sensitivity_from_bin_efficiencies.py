@@ -79,6 +79,7 @@ def main():
 
     # apply normalization to acquisition data
     ad = acq_data.clone()
+    asm.set_up(ad)
     asm.unnormalise(ad)
     ad_array = ad.as_array()
     show_2D_array('Normalized acquisition data', ad_array[z,:,:])

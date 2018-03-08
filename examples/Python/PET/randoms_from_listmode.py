@@ -9,11 +9,11 @@ It compares the result with the original delayed coincidences.
 This demo will therefore only work with list mode data where the delayeds are stored.
 
 Options:
-  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -l <list>, --list=<list>     listmode file [default: list.l.hdr]
   -o <sino>, --sino=<sino>     output file prefix [default: sinograms]
-  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: template_span11.hs]
+  -t <tmpl>, --tmpl=<tmpl>     raw data template [default: mMR_template_span11_small.hs]
   -i <int>, --interval=<int>   scanning time interval to convert as string '(a,b)'
                                (no space after comma) [default: (0,100)]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
@@ -54,7 +54,10 @@ exec('from p' + args['--engine'] + ' import *')
 # process command-line options
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    # default to data/examples/PET/mMR
+    # Note: seem to need / even on Windows
+    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
+    data_path = petmr_data_path('pet') + '/mMR'
 list_file = args['--list']
 sino_file = args['--sino']
 tmpl_file = args['--tmpl']
