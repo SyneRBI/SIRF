@@ -13,7 +13,7 @@ VER=1.0.0-rc.1
  - [ ] run ctest
  - [ ] `git push` 
  - [ ] check Travis
- - [ ] run doxygen, check and send files for uploading
+ - [ ] run doxygen, check, send files for uploading and update the doxygen link on Wiki
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
  
@@ -46,7 +46,7 @@ VER=1.0.0-rc.1
 4. Website
  - [ ] update Software page (version info, VM etc)
  - [ ] upload doxygen
- - [ ] update link in [Wiki](https://github.com/CCPPETMR/SIRF/wiki/Documentation)
+ - [ ] update link for doxygen in [Wiki](https://github.com/CCPPETMR/SIRF/wiki/Software-Documentation)
  - [ ] add news flash
 
 5. Announce
