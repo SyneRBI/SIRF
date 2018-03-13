@@ -1,9 +1,11 @@
-/* File: pSIRFReg.i */
-%module pSIRFReg
+/* File: ${p_or_m}SIRFReg.i */
+%module ${p_or_m}SIRFReg
 %include <std_string.i>
 %include <exception.i>
+${SWIG_SIRFREG_DOCUMENTATION_PATH}
 
 %{
+#define SWIG_DOC_DOXYGEN_STYLE
 #define SWIG_FILE_WITH_INIT
 #include <cmath>
 #include "SIRFRegNiftyAladin.h"
