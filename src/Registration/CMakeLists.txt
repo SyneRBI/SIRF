@@ -35,7 +35,6 @@ INCLUDE_DIRECTORIES(${NiftyReg_Source_DIR}/reg-io/nrrd/NrrdIO) # ugly, but requi
 INCLUDE_DIRECTORIES(${NiftyReg_Binary_DIR})                    # ugly, but required for NrrdConfigure.h
 INCLUDE_DIRECTORIES(${NiftyReg_Install_DIR}/include)
 
-<<<<<<< HEAD
 # Get the NiftyReg versions from its CMakeLists.txt
 FILE(READ ${NiftyReg_Source_DIR}/CMakeLists.txt NiftyReg_CMakeLists)
 STRING(REGEX MATCH "NiftyReg_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
