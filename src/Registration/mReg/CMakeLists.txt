@@ -16,9 +16,12 @@
 #
 #=========================================================================
 
+<<<<<<< HEAD
 # Set p_or_m to MATLAB for the configure file
 SET(p_or_m m)
 
+=======
+>>>>>>> ed941c275db9c90a8093c65c9490027d67adab0c
 # Find matlab
 FIND_PACKAGE 		 (Matlab COMPONENTS MAIN_PROGRAM)
 INCLUDE_DIRECTORIES  (${Matlab_INCLUDE_DIRS})
@@ -28,15 +31,25 @@ INCLUDE_DIRECTORIES  (${Matlab_INCLUDE_DIRS})
 # so make sure you link to the matlab version (they are not the same!)
 FIND_LIBRARY		 (libmx mx HINTS ${Matlab_BINARIES_DIR})
 
+<<<<<<< HEAD
 CONFIGURE_FILE( ../swigDoxy/SWIG_SIRFReg.in ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i )
 
 # Swig to convert c++ to matlab
 SET_PROPERTY	     (SOURCE ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i PROPERTY CPLUSPLUS ON)
 SWIG_ADD_LIBRARY     (m${PROJECT_NAME} LANGUAGE matlab SOURCES ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i)
+=======
+# Swig to convert c++ to matlab
+SET_PROPERTY	     (SOURCE m${PROJECT_NAME}.i PROPERTY CPLUSPLUS ON)
+SWIG_ADD_LIBRARY     (m${PROJECT_NAME} LANGUAGE matlab SOURCES m${PROJECT_NAME}.i)
+>>>>>>> ed941c275db9c90a8093c65c9490027d67adab0c
 SWIG_LINK_LIBRARIES  (m${PROJECT_NAME} ${PROJECT_NAME} ${Matlab_LIBRARIES} ${libmx})
 SET_TARGET_PROPERTIES(m${PROJECT_NAME} PROPERTIES SUFFIX "MEX.${Matlab_MEX_EXTENSION}" )
 
 # Install
+<<<<<<< HEAD
+=======
+SET(MATLAB_DEST ${CMAKE_INSTALL_PREFIX}/matlab)
+>>>>>>> ed941c275db9c90a8093c65c9490027d67adab0c
 INSTALL(TARGETS m${PROJECT_NAME} DESTINATION ${MATLAB_DEST})
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/+m${PROJECT_NAME} DESTINATION ${MATLAB_DEST})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/SwigGet.m DESTINATION ${MATLAB_DEST})
