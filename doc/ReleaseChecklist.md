@@ -13,7 +13,7 @@ VER=1.0.0-rc.1
  - [ ] run ctest
  - [ ] `git push` 
  - [ ] check Travis
- - [ ] run doxygen, check and send files for uploading
+ - [ ] run doxygen, check, send files for uploading and update the doxygen link on Wiki
  - [ ] `git tag -a v$VER -m "version $VER"`
  - [ ] `git push origin v$VER`
  
