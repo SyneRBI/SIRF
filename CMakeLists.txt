@@ -1,7 +1,8 @@
 
 #========================================================================
 # Author: Kris Thielemans
-# Copyright 2016 University College London
+# Copyright 2016 - 2018 University College London
+# Copyright 2016 - 2018 Science Technology Facilities Council
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -41,7 +42,7 @@ endif()
 ####### Set Version number etc
 set(VERSION_MAJOR   1 )
 set(VERSION_MINOR   0 )
-set(VERSION_PATCH   0-rc.1 )
+set(VERSION_PATCH   0-rc.3 )
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 set(SIRF_VERSION

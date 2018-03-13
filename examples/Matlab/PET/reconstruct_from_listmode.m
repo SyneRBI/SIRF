@@ -1,9 +1,12 @@
 function reconstruct_from_listmode(engine)
 % A demo showing reconstruction from raw data in listmode format.
+% Notes:
+%   output will be in the current working directory.
+%   input defaults to the mMR subfolder of pet_data_path
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2018 University College London.
+% Copyright 2018 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -28,24 +31,31 @@ eval(import_str)
 AcquisitionData.set_storage_scheme('memory');
 
 try
-    % direct all information printing to info.txt;
-    % warning and error messages to go to Matlab Command Window
+    % direct all information printing to info.txt; warnings to warn.txt
+    % error messages to go to Matlab Command Window
     MessageRedirector('info.txt', 'warn.txt');
+
+    % First step is to create AcquisitionData ("sinograms") from the
+    % listmode file.
+    % See the listmode_to_sinograms demo for some more information on this
+    % step.
 
     % create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms();
 
+    default_path=fullfile(pet_data_path, 'mMR');
+
     [filename, pathname] = uigetfile...
-        ('*.l.hdr', 'Select listmode data file', pet_data_path);
+        ('*.l.hdr', 'Select listmode data file', default_path);
     list_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
+        ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.n.hdr', 'Select ECAT8 normalization file', pet_data_path);
+        ('*.n.hdr', 'Select ECAT8 normalization file', default_path);
     norm_file = fullfile(pathname, filename);
     [filename, pathname] = uigetfile...
-        ('*.*hv', 'Select attenuation file', pet_data_path);
+        ('*.*hv', 'Select attenuation file', default_path);
     attn_file = fullfile(pathname, filename);
     
     % set input, output and template files
@@ -54,11 +64,7 @@ try
     lm2sino.set_template(tmpl_file)
 
     % set interval
-    lm2sino.set_time_interval(0, 100)
-
-    % set flags
-    lm2sino.flag_on('store_prompts')
-    lm2sino.flag_off('interactive')
+    lm2sino.set_time_interval(0, 50)
 
     % set up the converter
     lm2sino.set_up()
@@ -84,7 +90,9 @@ try
     % read attenuation image
     attn_image = ImageData(attn_file);
     attn_image_as_array = attn_image.as_array();
-    z = round(size(attn_image_as_array, 3)/2);
+    % select a slice appropriate for the NEMA acquistion data
+    z = 72;
+    % z = round(size(attn_image_as_array, 3)/2);
     mUtilities.show_2D_array(attn_image_as_array(:,:,z), ...
         'attenuation image', 'tang. pos.', 'views');
 
@@ -123,22 +131,19 @@ try
     % log of the Poisson likelihood
     obj_fun = make_Poisson_loglikelihood(acq_data);
     obj_fun.set_acquisition_model(acq_model)
-    % reduce number of segments that we will handle to save some time in
-    % the demo
-    obj_fun.set_max_segment_num_to_process(1)
 
     % select Ordered Subsets Maximum A-Posteriori One Step Late as the
     % reconstruction algorithm (since we are not using a penalty, or prior, in
     % this example, we actually run OSEM);
     % this algorithm does not converge to the maximum of the objective function
     % but is used in practice to speed-up calculations
+    % See the reconstruction demos for more complicated examples     
     num_subsets = 7;
     num_subiterations = 2;
     recon = OSMAPOSLReconstructor();
     recon.set_objective_function(obj_fun);
     recon.set_num_subsets(num_subsets);
     recon.set_num_subiterations(num_subiterations);
-    %recon.set_input(acq_data)
 
     % set up the reconstructor based on a sample image
     % (checks the validity of parameters, sets up objective function
@@ -158,21 +163,6 @@ try
     image_array = recon.get_current_estimate().as_array();
     the_title = sprintf('Reconstructed image');
     mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
-
-%     % in order to see the reconstructed image evolution
-%     % open up the user's access to the iterative process
-%     % rather than allow recon.reconstruct to do all job at once
-%     z = 20;
-%     num_subiterations = 2;
-%     for iter = 1 : num_subiterations
-%         fprintf('\n--------------------- Subiteration %d\n', iter)
-%         % perform an iteration
-%         recon.update_current_estimate()
-%         % display the current image
-%         image_array = recon.get_current_estimate().as_array();
-%         the_title = sprintf('iteration %d', iter);
-%         mUtilities.show_2D_array(image_array(:,:,z), the_title, 'x', 'y');
-%     end
 
 catch err
     % display error information
