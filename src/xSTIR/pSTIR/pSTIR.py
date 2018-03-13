@@ -1219,6 +1219,37 @@ class QuadraticPrior(Prior):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+class PLSPrior(Prior):
+    '''
+    Class for PLS prior
+    '''
+    def __init__(self):
+        self.handle = None
+        self.name = 'PLSPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_alpha(self, n):
+        '''Set alpha.'''
+        _set_float_par(self.handle, self.name, 'alpha', n)
+    def set_eta(self, n):
+        '''Set eta.'''
+        _set_float_par(self.handle, self.name, 'eta', n)
+    def set_only_2D(self, n):
+        '''Set only 2D.'''
+        _set_float_par(self.handle, self.name, 'only_2D', n)
+    def set_kappa_filename(self, name):
+        '''Sets the kappa filename.'''
+        _set_char_par(self.handle, self.name, 'kappa_filename', name)
+    def set_anatomical_filename(self, name):
+        '''Sets the anatomical filename.'''
+        _set_char_par(self.handle, self.name, 'anatomical_filename', name)
+    #def set_up(self):
+    #    '''Sets up the PLS prior.'''
+    #    try_calling(pystir.cSTIR_setupPLSPrior(self.handle))
+
 class ObjectiveFunction:
     '''
     Class for the objective function maximized by the iterative reconstruction

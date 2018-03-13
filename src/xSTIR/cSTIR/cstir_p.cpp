@@ -288,6 +288,40 @@ cSTIR_setQuadraticPriorParameter
 }
 
 void*
+cSTIR_setPLSPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_PLSPrior3DF& prior =
+		objectFromHandle<xSTIR_PLSPrior3DF>(hp);
+	if (boost::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "alpha"))
+		prior.set_alpha(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "eta"))
+		prior.set_eta(dataFromHandle<float>((void*)hv));
+	else if (boost::iequals(name, "kappa_filename"))
+		prior.set_kappa_filename(charDataFromDataHandle(hv));
+	else if (boost::iequals(name, "anatomical_filename"))
+		prior.set_anatomical_filename(charDataFromDataHandle(hv));
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_PLSPriorParameter(const DataHandle* handle, const char* name)
+{
+	xSTIR_PLSPrior3DF& prior = objectFromHandle< xSTIR_PLSPrior3DF >(handle);
+	if (boost::iequals(name, "only_2D"))
+		return dataHandle<float>(prior.get_only_2D());
+	else if (boost::iequals(name, "alpha"))
+		return dataHandle<float>(prior.get_alpha());
+	else if (boost::iequals(name, "eta"))
+		return dataHandle<float>(prior.get_eta());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
 cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

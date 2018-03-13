@@ -126,6 +126,9 @@ extern "C" {
 	void* deleteTextPrinter(void* ptr);
 	void* deleteTextWriter(void* ptr_w);
 
+	// PLSPrior methods
+	//void* cSTIR_setupPLSPrior(void* ptr_r);
+
 #ifndef CSTIR_FOR_MATLAB
 }
 #endif
