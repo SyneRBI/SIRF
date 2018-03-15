@@ -1,2 +1,0 @@
-/usr/bin/ar qc libdynamicsimulation.a  CMakeFiles/dynamicsimulation.dir/dynamicsimulation_x.cpp.o
-/usr/bin/ranlib libdynamicsimulation.a
