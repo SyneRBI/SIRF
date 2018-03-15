@@ -6,10 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.cpp
-dynamicsimulation_x.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
-
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
 gadgetron_x.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/gadgetron_x.h
@@ -17,6 +13,14 @@ stdio.h
 -
 iostream
 -
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/main.cpp
+stdio.h
+-
+iostream
+-
+dynamicsimulation_x.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
 
 /home/sirfuser/devel/install/include/ismrmrd/dataset.h
 ismrmrd/ismrmrd.h

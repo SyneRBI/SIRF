@@ -100,6 +100,17 @@ list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
 
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
+
 # Special rule for the target test
 test:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
@@ -121,17 +132,6 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
-
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -166,19 +166,34 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/rule:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f CMakeFiles/Makefile2 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/rule
-.PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/rule
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/rule:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f CMakeFiles/Makefile2 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/rule
+.PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/rule
 
 # Convenience name for target.
-cdynamicSimulation: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/rule
+cdynamicsimulation: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/rule
 
-.PHONY : cdynamicSimulation
+.PHONY : cdynamicsimulation
 
 # fast build rule for target.
-cdynamicSimulation/fast:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build
-.PHONY : cdynamicSimulation/fast
+cdynamicsimulation/fast:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build
+.PHONY : cdynamicsimulation/fast
+
+# Convenience name for target.
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/rule:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f CMakeFiles/Makefile2 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/rule
+.PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/rule
+
+# Convenience name for target.
+TestJobs: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/rule
+
+.PHONY : TestJobs
+
+# fast build rule for target.
+TestJobs/fast:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build
+.PHONY : TestJobs/fast
 
 dynamicsimulation_x.o: dynamicsimulation_x.cpp.o
 
@@ -186,7 +201,7 @@ dynamicsimulation_x.o: dynamicsimulation_x.cpp.o
 
 # target to build an object file
 dynamicsimulation_x.cpp.o:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o
 .PHONY : dynamicsimulation_x.cpp.o
 
 dynamicsimulation_x.i: dynamicsimulation_x.cpp.i
@@ -195,7 +210,7 @@ dynamicsimulation_x.i: dynamicsimulation_x.cpp.i
 
 # target to preprocess a source file
 dynamicsimulation_x.cpp.i:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.i
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.i
 .PHONY : dynamicsimulation_x.cpp.i
 
 dynamicsimulation_x.s: dynamicsimulation_x.cpp.s
@@ -204,8 +219,35 @@ dynamicsimulation_x.s: dynamicsimulation_x.cpp.s
 
 # target to generate assembly for a file
 dynamicsimulation_x.cpp.s:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.s
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.s
 .PHONY : dynamicsimulation_x.cpp.s
+
+main.o: main.cpp.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -217,13 +259,17 @@ help:
 	@echo "... install/local"
 	@echo "... install"
 	@echo "... list_install_components"
-	@echo "... cdynamicSimulation"
-	@echo "... test"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... cdynamicsimulation"
+	@echo "... test"
+	@echo "... TestJobs"
+	@echo "... edit_cache"
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 
