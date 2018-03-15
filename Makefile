@@ -218,17 +218,30 @@ _pygadgetron/fast:
 .PHONY : _pygadgetron/fast
 
 #=============================================================================
-# Target rules for targets named cdynamicSimulation
+# Target rules for targets named cdynamicsimulation
 
 # Build rule for target.
-cdynamicSimulation: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cdynamicSimulation
-.PHONY : cdynamicSimulation
+cdynamicsimulation: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cdynamicsimulation
+.PHONY : cdynamicsimulation
 
 # fast build rule for target.
-cdynamicSimulation/fast:
-	$(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/build
-.PHONY : cdynamicSimulation/fast
+cdynamicsimulation/fast:
+	$(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build
+.PHONY : cdynamicsimulation/fast
+
+#=============================================================================
+# Target rules for targets named TestJobs
+
+# Build rule for target.
+TestJobs: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TestJobs
+.PHONY : TestJobs
+
+# fast build rule for target.
+TestJobs/fast:
+	$(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build
+.PHONY : TestJobs/fast
 
 # Help Target
 help:
@@ -247,7 +260,8 @@ help:
 	@echo "... _pyiutilities"
 	@echo "... cgadgetron"
 	@echo "... _pygadgetron"
-	@echo "... cdynamicSimulation"
+	@echo "... cdynamicsimulation"
+	@echo "... TestJobs"
 .PHONY : help
 
 

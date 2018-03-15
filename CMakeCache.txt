@@ -309,7 +309,13 @@ _pyiutilities_LIB_DEPENDS:STATIC=general;iutilities;general;/usr/lib/x86_64-linu
 cdynamicSimulation_LIB_DEPENDS:STATIC=
 
 //Dependencies for the target
+cdynamicsimulation_LIB_DEPENDS:STATIC=general;iutilities;optimized;/usr/lib/x86_64-linux-gnu/libboost_system.so;debug;/usr/lib/x86_64-linux-gnu/libboost_system.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;debug;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_thread.so;debug;/usr/lib/x86_64-linux-gnu/libboost_thread.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;debug;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;debug;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;ismrmrd;general;/usr/lib/x86_64-linux-gnu/libfftw3f.so;general;/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libsz.so;/usr/lib/x86_64-linux-gnu/libz.so;/usr/lib/x86_64-linux-gnu/libdl.so;/usr/lib/x86_64-linux-gnu/libm.so;
+
+//Dependencies for the target
 cgadgetron_LIB_DEPENDS:STATIC=general;iutilities;general;Boost::system;general;Boost::filesystem;general;Boost::thread;general;Boost::date_time;general;Boost::chrono;general;ismrmrd;general;/usr/lib/x86_64-linux-gnu/libfftw3f.so;general;/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libsz.so;/usr/lib/x86_64-linux-gnu/libz.so;/usr/lib/x86_64-linux-gnu/libdl.so;/usr/lib/x86_64-linux-gnu/libm.so;
+
+//Dependencies for the target
+dynamicsimulation_LIB_DEPENDS:STATIC=general;iutilities;optimized;/usr/lib/x86_64-linux-gnu/libboost_system.so;debug;/usr/lib/x86_64-linux-gnu/libboost_system.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;debug;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_thread.so;debug;/usr/lib/x86_64-linux-gnu/libboost_thread.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;debug;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;optimized;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;debug;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;ismrmrd;general;/usr/lib/x86_64-linux-gnu/libfftw3f.so;general;/usr/lib/x86_64-linux-gnu/hdf5/serial/libhdf5.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/usr/lib/x86_64-linux-gnu/libsz.so;/usr/lib/x86_64-linux-gnu/libz.so;/usr/lib/x86_64-linux-gnu/libdl.so;/usr/lib/x86_64-linux-gnu/libm.so;
 
 //Dependencies for target
 iutilities_LIB_DEPENDS:STATIC=

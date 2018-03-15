@@ -92,5 +92,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "src/iUtilities/CMakeFiles/_pyiutilities.dir/DependInfo.cmake"
   "src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/DependInfo.cmake"
   "src/xGadgetron/pGadgetron/CMakeFiles/_pygadgetron.dir/DependInfo.cmake"
-  "src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/DependInfo.cmake"
+  "src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/DependInfo.cmake"
+  "src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/DependInfo.cmake"
   )
