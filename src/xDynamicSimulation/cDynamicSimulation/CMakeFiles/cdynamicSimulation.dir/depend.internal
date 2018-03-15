@@ -45,6 +45,8 @@ src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dyna
  src/common/include/SIRF/common/data_container.h
  src/common/include/SIRF/common/multisort.h
  src/common/include/SIRF/common/object_handle.inl
+ src/iUtilities/data_handle.h
+ src/iUtilities/localised_exception.h
  src/xGadgetron/cGadgetron/cgadgetron_shared_ptr.h
  src/xGadgetron/cGadgetron/gadget_lib.h
  src/xGadgetron/cGadgetron/gadgetron_client.h

@@ -14,6 +14,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/hdf5/serial"
   "src/common/include"
   "src/xGadgetron/cGadgetron"
+  "src/iUtilities"
   )
 
 # Targets to which this target links.

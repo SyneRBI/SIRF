@@ -5,6 +5,7 @@
 
 
 include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
+include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
 get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})

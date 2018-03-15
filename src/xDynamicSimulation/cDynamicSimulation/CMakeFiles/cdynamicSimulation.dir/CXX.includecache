@@ -356,6 +356,22 @@ src/common/include/SIRF/common/object_handle.inl
 data_handle.h
 src/common/include/SIRF/common/data_handle.h
 
+src/iUtilities/data_handle.h
+stdlib.h
+-
+string
+-
+localised_exception.h
+src/iUtilities/localised_exception.h
+
+src/iUtilities/localised_exception.h
+string.h
+-
+exception
+-
+iostream
+-
+
 src/xGadgetron/cGadgetron/cgadgetron_shared_ptr.h
 boost/shared_ptr.hpp
 src/xGadgetron/cGadgetron/boost/shared_ptr.hpp

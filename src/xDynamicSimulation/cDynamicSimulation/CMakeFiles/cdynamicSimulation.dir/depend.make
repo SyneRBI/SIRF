@@ -44,6 +44,8 @@ src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dyna
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/common/include/SIRF/common/data_container.h
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/common/include/SIRF/common/multisort.h
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/common/include/SIRF/common/object_handle.inl
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/iUtilities/data_handle.h
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/iUtilities/localised_exception.h
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/xGadgetron/cGadgetron/cgadgetron_shared_ptr.h
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/xGadgetron/cGadgetron/gadget_lib.h
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicSimulation.dir/dynamicsimulation_x.cpp.o: src/xGadgetron/cGadgetron/gadgetron_client.h

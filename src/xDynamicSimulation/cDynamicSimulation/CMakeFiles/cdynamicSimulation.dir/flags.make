@@ -6,5 +6,5 @@ CXX_FLAGS = -O3 -DNDEBUG -fPIC   -std=gnu++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/sirfuser/devel/install/include -I/usr/include/hdf5/serial -I/home/sirfuser/devel/buildVM/sources/SIRF/src/common/include -I/home/sirfuser/devel/buildVM/sources/SIRF/src/xGadgetron/cGadgetron 
+CXX_INCLUDES = -I/home/sirfuser/devel/install/include -I/usr/include/hdf5/serial -I/home/sirfuser/devel/buildVM/sources/SIRF/src/common/include -I/home/sirfuser/devel/buildVM/sources/SIRF/src/xGadgetron/cGadgetron -I/home/sirfuser/devel/buildVM/sources/SIRF/src/iUtilities 
 
