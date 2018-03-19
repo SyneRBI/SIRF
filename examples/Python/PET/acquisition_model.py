@@ -1,5 +1,5 @@
 '''Forward projection demo: creates an image, projects it to simulate
-acquisition data and displays
+acquisition data and backprojects
 
 Usage:
   acquisition_model [--help | options]
@@ -20,7 +20,7 @@ You probably want to check that instead.
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
 ## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -103,10 +103,9 @@ def main():
 
     # testing bin efficiencies
     bin_eff = acq_template.clone()
-    #bin_eff.fill(2.0)
     bin_eff.fill(beff)
     bin_eff_arr = bin_eff.as_array()
-    # if bin efficiencies are non-trivial, set a portion of them to zero;
+    # As an example, if bin efficiencies are non-trivial, set a portion of them to zero;
     # this should zero the corresponding portion of forward projection
     # and 'damage' the backprojection making it look less like the
     # actual image
@@ -114,20 +113,17 @@ def main():
         bin_eff_arr[:,10:50,:] = 0
     show_2D_array('Bin efficiencies', bin_eff_arr[0,:,:])
     bin_eff.fill(bin_eff_arr)
-    #acq_model.set_bin_efficiency(bin_eff)
 
     asm = AcquisitionSensitivityModel(bin_eff)
     acq_model.set_acquisition_sensitivity(asm)
 
-    # testing additive term
+    # As an example, add both an additive term and background term
+    # (you normally wouldn't do this for real data)
     add = acq_template.clone()
-    #add.fill(2.0)
     add.fill(addv)
     acq_model.set_additive_term(add)
 
-    # testing background term
     bck = acq_template.clone()
-    #bck.fill(10.0)
     bck.fill(back)
     acq_model.set_background_term(bck)
 
@@ -145,6 +141,7 @@ def main():
 
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
+    # note that the backprojection takes the acquisition sensitivy model asm into account as well
     back_projected_image = acq_model.backward(simulated_data)
 
     back_projected_image_as_array = back_projected_image.as_array()

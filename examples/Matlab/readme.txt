@@ -7,4 +7,4 @@ To use Matlab doc feature on demo scripts, you also need to add folders
 YOUR_PATH/SIRF/examples/Matlab/MR and YOUR_PATH/SIRF/examples/Matlab/PET and their 
 sub-folders to Matlab path.
 
-Please also see the Wiki page on Demos (MR).
+Please also see the Wiki page on Examples (MR).

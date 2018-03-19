@@ -2,8 +2,8 @@ function acquisition_data_from_scanner_info(engine)
 % A demo showing basics of PET acquisition data handling.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% Copyright 2018 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -41,15 +41,20 @@ try
     % copy the acquisition data into a Python array
     acq_array = acq_data.as_array();
     acq_dim = size(acq_array);
-    fprintf('acquisition data dimensions: %d x %d x %d\n', acq_dim)
+    fprintf('acquisition data dimensions (maximum resolution): %d x %d x %d\n', acq_dim)
 
-    % display the acquisition data
-    z = uint16(acq_dim(3)/2);
-    mUtilities.show_2D_array(acq_array(:,:,z), ...
-        'acquisition data', 'tang. pos.', 'views');
-    
-    % write the acquisition data to a file
-    acq_data.write('units')
+    % create acquisition data from scanner parameters but with axial compression etc
+    span=11;
+    max_ring_diff=-1;
+    view_mash_factor=2;
+    acq_data=AcquisitionData('Siemens_mMR',span,max_ring_diff,view_mash_factor);
+    % copy the acquisition data into a Python array
+    acq_array = acq_data.as_array();
+    acq_dim = size(acq_array);
+    fprintf('acquisition data dimensions (span 11, view mashing 2): %d x %d x %d\n', acq_dim)
+
+    % write the acquisition data to a file (commented out for this demo)
+    % acq_data.write('example_mMR_ones.hs')
 
 catch err
     % display error information

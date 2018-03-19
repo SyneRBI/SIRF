@@ -40,7 +40,6 @@ if(BUILD_PYTHON)
   SWIG_ADD_MODULE(pyiutilities python pyiutilities.i)
   SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
-  set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python" CACHE PATH "Destination for python module")
   INSTALL(TARGETS ${SWIG_MODULE_pyiutilities_REAL_NAME} DESTINATION "${PYTHON_DEST}")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyiutilities.py"  DESTINATION "${PYTHON_DEST}")
 

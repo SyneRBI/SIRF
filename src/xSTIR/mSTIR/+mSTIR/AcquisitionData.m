@@ -54,9 +54,14 @@ classdef AcquisitionData < mSTIR.DataContainer
     methods
         function self = AcquisitionData...
                 (arg, span, max_ring_diff, view_mash_factor)
-%***SIRF*** AcquisitionData(arg) creates new AcquisitionData object 
+%***SIRF*** AcquisitionData(arg) creates a new AcquisitionData object 
 %           from a file or scanner or another AcquisitionData object;
 %           arg:  file or scanner name or AcquisitionData object.
+%           if a scanner name is used, additional arguments can be
+%           given to specify the data size, e.g.:
+%                acq=AcquisitionData('Siemens_mMR',span,max_ring_diff,view_mash_factor);
+%           Defaults are: 
+%                span=1, max_ring_diff=-1 (i.e. all), view_mash_factor=1
             self.handle_ = [];
             self.name = 'AcquisitionData';
             self.read_only = false;

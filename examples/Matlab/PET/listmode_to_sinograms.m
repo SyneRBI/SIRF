@@ -1,9 +1,12 @@
 function listmode_to_sinograms(engine)
 % Listmode-to-sinograms conversion demo.
+% Notes:
+%   output will be in the current working directory.
+%   input defaults to the mMR subfolder of pet_data_path
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% Copyright 2018 Rutherford Appleton Laboratory STFC.
+% Copyright 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -35,11 +38,17 @@ try
     % create listmode-to-sinograms converter object
     lm2sino = ListmodeToSinograms();
 
+    default_path=fullfile(pet_data_path, 'mMR');
+
     [filename, pathname] = uigetfile...
-        ('*.l.hdr*', 'Select listmode data file', pet_data_path);
+        ('*.l.hdr', 'Select listmode data file', default_path);
     list_file = fullfile(pathname, filename);
+    % get the filename of a template AcquisitionData
+    % the template is used to specify the sizes of the output sinogram.
+    % see the acquisition_data_from_scanner_info demo for an example how to 
+    % make your own template file
     [filename, pathname] = uigetfile...
-        ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
+        ('*.hs', 'Select raw data file to be used as a template', default_path);
     tmpl_file = fullfile(pathname, filename);
     
     % set input, output and template files
@@ -50,7 +59,7 @@ try
     % set interval
     lm2sino.set_time_interval(0, 10)
 
-    % set flags
+    % set some flags as examples (the following values are the defaults)
     lm2sino.flag_on('store_prompts')
     lm2sino.flag_off('interactive')
 
