@@ -107,7 +107,6 @@ try
     % forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix();
     acq_model.set_num_tangential_LORs(10)
-    acq_model.set_up(acq_data, attn_image)
 
     % create acquisition sensitivity model from ECAT8 normalization data
     asm_norm = AcquisitionSensitivityModel(norm_file);
