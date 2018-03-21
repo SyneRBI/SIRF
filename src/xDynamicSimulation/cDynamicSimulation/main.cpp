@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <iostream>
 
 
-#include "dynamicsimulation_x.h"
+#include "dynamicsimulation_tests.h"
 
 int main( int argc, char *argv[] )
 {
@@ -25,11 +25,20 @@ int main( int argc, char *argv[] )
 		{
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
+		
+		run_tests_tissueparameters();
 
 		return 0;
 	}
+
+	catch(const std::exception& e)
+	{
+		std::cout<< e.what() << '\n';			
+	}
 	catch(...)
-		{
-		std::cout<< "An exception of unknown type was caught" <<std::endl;	
-		}
+	{
+		std::cout<< "An exception of unknown type was caught. The tests failed." <<std::endl;	
+	}
+
+
 }
