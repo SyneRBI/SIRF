@@ -7,9 +7,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
+#include <string>
 
 #include "tissueparameters.h"
 #include "tests_tissueparameters.h"
+
+
 
 
 bool test_allocate_MRTissueParameter_successful(void)
@@ -37,5 +40,29 @@ bool test_allocate_TissueParameter_successful(void)
 	tissue_pars.label_ = 1;
 	tissue_pars.name_ = "Liver";
 
+	MRTissueParameter mr_tiss;
+	PETTissueParameter pet_tiss;
+
+	tissue_pars.mr_tissue_ = mr_tiss;
+	tissue_pars.pet_tissue_ = pet_tiss;
+
 	return true;
+}
+
+
+bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
+{
+
+	TissueParameterList tissueList = read_TissueParameters_from_xml(xml_filepath);
+
+	TissueParameter firstParam = tissueList[1];
+
+	std::string const input_name = "Liver";
+	int const input_label = 1;
+
+
+	if ( input_name.compare(firstParam.name_)  || (firstParam.label_ != input_label) )
+		return false;
+	else
+		return true;
 }

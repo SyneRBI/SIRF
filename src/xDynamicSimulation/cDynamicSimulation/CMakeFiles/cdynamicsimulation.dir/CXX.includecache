@@ -21,6 +21,8 @@ tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
+string
+-
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 tests_tissueparameters.h
@@ -45,6 +47,18 @@ tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+vector
+-
+string
+-
+fstream
+-
+boost/foreach.hpp
+-
+boost/property_tree/xml_parser.hpp
+-
+boost/property_tree/ptree.hpp
+-
 
 /home/sirfuser/devel/install/include/ismrmrd/dataset.h
 ismrmrd/ismrmrd.h
@@ -405,6 +419,18 @@ iostream
 -
 
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+vector
+-
+string
+-
+fstream
+-
+boost/foreach.hpp
+-
+boost/property_tree/xml_parser.hpp
+-
+boost/property_tree/ptree.hpp
+-
 
 src/xGadgetron/cGadgetron/cgadgetron_shared_ptr.h
 boost/shared_ptr.hpp

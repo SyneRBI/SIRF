@@ -8,6 +8,16 @@ institute	PTB Berlin
 */
 
 
+#include <vector>
+#include <string>
+#include <fstream>
+
+#include <boost/foreach.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+
+
 struct MRTissueParameter {
 
 	float t1_miliseconds_;
@@ -27,7 +37,7 @@ struct PETTissueParameter {
 struct TissueParameter {
 
 	int label_;
-	char* name_;
+	std::string name_;
 
 	MRTissueParameter mr_tissue_;
 	PETTissueParameter pet_tissue_;
@@ -35,8 +45,9 @@ struct TissueParameter {
 
 
 
+typedef std::vector< TissueParameter > TissueParameterList;
 
 
-
+TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepath);
 
 

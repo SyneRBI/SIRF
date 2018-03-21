@@ -10,7 +10,9 @@ parameter structs and the xml parser filling them.
 ================================================ */
 
 
+#define XML_TEST_PATH "TestData/test_TissueParameters_XML.xml" 
 
 bool test_allocate_MRTissueParameter_successful(void);
 bool test_allocate_PETTissueParameter_successful(void);
 bool test_allocate_TissueParameter_successful(void);
+bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath);

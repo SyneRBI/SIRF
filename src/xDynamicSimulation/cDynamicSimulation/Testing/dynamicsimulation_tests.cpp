@@ -29,6 +29,7 @@ void run_tests_tissueparameters(void)
 	tests_successful = test_allocate_MRTissueParameter_successful();
 	tests_successful = test_allocate_PETTissueParameter_successful();
 	tests_successful = test_allocate_TissueParameter_successful();
+	tests_successful = test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
 
 
 	if ( !tests_successful )
