@@ -43,6 +43,10 @@ iostream
 -
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.cpp
+stdio.h
+-
+iostream
+-
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 

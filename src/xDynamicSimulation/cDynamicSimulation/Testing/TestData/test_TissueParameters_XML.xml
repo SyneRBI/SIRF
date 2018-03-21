@@ -1,15 +1,18 @@
 <?xml version ="1.0"?>
 
-<TissueParameter>
+<TissueParameterList>
 
-	<label> 0 </label>
-	<name> Liver </name>
+	<TissueParameter>
 
-	<MRTissueParameter>
-		<t1_miliseconds> 	1000	</t1_miliseconds>
-		<t2_miliseconds> 	1000 	</t2_miliseconds>
-		<cs_ppm> 		280	</cs_ppm>
-	</MRTissueParameter>
+		<label> 0 </label>
+		<name> Liver </name>
 
-</TissueParameter>
+		<MRTissueParameter>
+			<t1_miliseconds> 	1000	</t1_miliseconds>
+			<t2_miliseconds> 	1000 	</t2_miliseconds>
+			<cs_ppm> 		280	</cs_ppm>
+		</MRTissueParameter>
 
+	</TissueParameter>
+
+</TissueParameterList>
