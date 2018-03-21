@@ -19,10 +19,10 @@ int main()
             return 1;
         }
 
-        std::string path = SIRF_path + "/data/examples/PET/";
+        std::string path = SIRF_path + "/data/examples/PET/mMR/";
 
         string f_listmode   = path + "list.l.hdr";
-        string f_template   = path + "template_span11.hs";
+        string f_template   = path + "mMR_template_span11_small.hs";
 
         // Listmode to sinograms
         ListmodeToSinograms converter;
