@@ -7,14 +7,26 @@
 #IncludeRegexTransform: 
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.cpp
+stdio.h
+-
+iostream
+-
 stdexcept
 -
 dynamicsimulation_tests.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
-tissueparameters_tests.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters_tests.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
+tests_tissueparameters.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
+tissueparameters.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
+tests_tissueparameters.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.cpp
 dynamicsimulation_x.h
@@ -391,6 +403,8 @@ exception
 -
 iostream
 -
+
+src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 
 src/xGadgetron/cGadgetron/cgadgetron_shared_ptr.h
 boost/shared_ptr.hpp

@@ -222,6 +222,33 @@ Testing/dynamicsimulation_tests.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.s
 .PHONY : Testing/dynamicsimulation_tests.cpp.s
 
+Testing/tests_tissueparameters.o: Testing/tests_tissueparameters.cpp.o
+
+.PHONY : Testing/tests_tissueparameters.o
+
+# target to build an object file
+Testing/tests_tissueparameters.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o
+.PHONY : Testing/tests_tissueparameters.cpp.o
+
+Testing/tests_tissueparameters.i: Testing/tests_tissueparameters.cpp.i
+
+.PHONY : Testing/tests_tissueparameters.i
+
+# target to preprocess a source file
+Testing/tests_tissueparameters.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.i
+.PHONY : Testing/tests_tissueparameters.cpp.i
+
+Testing/tests_tissueparameters.s: Testing/tests_tissueparameters.cpp.s
+
+.PHONY : Testing/tests_tissueparameters.s
+
+# target to generate assembly for a file
+Testing/tests_tissueparameters.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s
+.PHONY : Testing/tests_tissueparameters.cpp.s
+
 dynamicsimulation_x.o: dynamicsimulation_x.cpp.o
 
 .PHONY : dynamicsimulation_x.o
@@ -321,6 +348,9 @@ help:
 	@echo "... Testing/dynamicsimulation_tests.o"
 	@echo "... Testing/dynamicsimulation_tests.i"
 	@echo "... Testing/dynamicsimulation_tests.s"
+	@echo "... Testing/tests_tissueparameters.o"
+	@echo "... Testing/tests_tissueparameters.i"
+	@echo "... Testing/tests_tissueparameters.s"
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"

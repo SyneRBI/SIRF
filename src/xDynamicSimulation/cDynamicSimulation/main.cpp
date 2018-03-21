@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <iostream>
 
 
-#include "dynamicsimulation_tests.h"
+#include "Testing/dynamicsimulation_tests.h"
 
 int main( int argc, char *argv[] )
 {

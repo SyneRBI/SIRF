@@ -129,11 +129,36 @@ src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Test
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o.provides.build: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o
 
 
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/flags.make
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/sirfuser/devel/buildVM/sources/SIRF/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o"
+	cd /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation && /usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o -c /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.i"
+	cd /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp > CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.i
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s"
+	cd /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp -o CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.requires:
+
+.PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.requires
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.provides: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.requires
+	$(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.provides.build
+.PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.provides
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.provides.build: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o
+
+
 # Object files for target cdynamicsimulation
 cdynamicsimulation_OBJECTS = \
 "CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o" \
 "CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o" \
-"CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o"
+"CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o" \
+"CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o"
 
 # External object files for target cdynamicsimulation
 cdynamicsimulation_EXTERNAL_OBJECTS =
@@ -141,9 +166,10 @@ cdynamicsimulation_EXTERNAL_OBJECTS =
 src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o
 src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o
 src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o
+src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o
 src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make
 src/xDynamicSimulation/cDynamicSimulation/libcdynamicsimulation.a: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sirfuser/devel/buildVM/sources/SIRF/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libcdynamicsimulation.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sirfuser/devel/buildVM/sources/SIRF/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libcdynamicsimulation.a"
 	cd /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation && $(CMAKE_COMMAND) -P CMakeFiles/cdynamicsimulation.dir/cmake_clean_target.cmake
 	cd /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/cdynamicsimulation.dir/link.txt --verbose=$(VERBOSE)
 
@@ -155,6 +181,7 @@ src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/buil
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/requires: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o.requires
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/requires: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o.requires
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/requires: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o.requires
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/requires: src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o.requires
 
 .PHONY : src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/requires
 

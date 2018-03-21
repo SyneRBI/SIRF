@@ -3,6 +3,11 @@
 
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.cpp
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o: src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o: src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o: src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.cpp
 src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o: src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
