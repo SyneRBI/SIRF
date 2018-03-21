@@ -195,32 +195,32 @@ TestJobs/fast:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build
 .PHONY : TestJobs/fast
 
-dynamicsimulation_tests.o: dynamicsimulation_tests.cpp.o
+Testing/dynamicsimulation_tests.o: Testing/dynamicsimulation_tests.cpp.o
 
-.PHONY : dynamicsimulation_tests.o
+.PHONY : Testing/dynamicsimulation_tests.o
 
 # target to build an object file
-dynamicsimulation_tests.cpp.o:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_tests.cpp.o
-.PHONY : dynamicsimulation_tests.cpp.o
+Testing/dynamicsimulation_tests.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o
+.PHONY : Testing/dynamicsimulation_tests.cpp.o
 
-dynamicsimulation_tests.i: dynamicsimulation_tests.cpp.i
+Testing/dynamicsimulation_tests.i: Testing/dynamicsimulation_tests.cpp.i
 
-.PHONY : dynamicsimulation_tests.i
+.PHONY : Testing/dynamicsimulation_tests.i
 
 # target to preprocess a source file
-dynamicsimulation_tests.cpp.i:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_tests.cpp.i
-.PHONY : dynamicsimulation_tests.cpp.i
+Testing/dynamicsimulation_tests.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.i
+.PHONY : Testing/dynamicsimulation_tests.cpp.i
 
-dynamicsimulation_tests.s: dynamicsimulation_tests.cpp.s
+Testing/dynamicsimulation_tests.s: Testing/dynamicsimulation_tests.cpp.s
 
-.PHONY : dynamicsimulation_tests.s
+.PHONY : Testing/dynamicsimulation_tests.s
 
 # target to generate assembly for a file
-dynamicsimulation_tests.cpp.s:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_tests.cpp.s
-.PHONY : dynamicsimulation_tests.cpp.s
+Testing/dynamicsimulation_tests.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.s
+.PHONY : Testing/dynamicsimulation_tests.cpp.s
 
 dynamicsimulation_x.o: dynamicsimulation_x.cpp.o
 
@@ -318,9 +318,9 @@ help:
 	@echo "... test"
 	@echo "... TestJobs"
 	@echo "... edit_cache"
-	@echo "... dynamicsimulation_tests.o"
-	@echo "... dynamicsimulation_tests.i"
-	@echo "... dynamicsimulation_tests.s"
+	@echo "... Testing/dynamicsimulation_tests.o"
+	@echo "... Testing/dynamicsimulation_tests.i"
+	@echo "... Testing/dynamicsimulation_tests.s"
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"

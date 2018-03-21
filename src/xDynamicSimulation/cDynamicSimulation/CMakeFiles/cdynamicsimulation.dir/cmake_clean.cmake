@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o"
   "CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o"
-  "CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_tests.cpp.o"
+  "CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o"
   "libcdynamicsimulation.pdb"
   "libcdynamicsimulation.a"
 )

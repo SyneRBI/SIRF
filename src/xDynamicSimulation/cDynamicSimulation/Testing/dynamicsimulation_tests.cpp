@@ -14,6 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "dynamicsimulation_tests.h"
+#include "tissueparameters_tests.h"
+
 
 void run_tests_tissueparameters(void)
 {

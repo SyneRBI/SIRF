@@ -20,7 +20,8 @@ include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
-add_library( cdynamicsimulation  dynamicsimulation_x.cpp dynamicsimulation_x.h tissueparameters.cpp tissueparameters.h dynamicsimulation_tests.cpp dynamicsimulation_tests.h)
+
+add_library( cdynamicsimulation dynamicsimulation_x.cpp dynamicsimulation_x.h tissueparameters.cpp tissueparameters.h Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
 
 set (dynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
