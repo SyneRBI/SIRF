@@ -55,3 +55,6 @@ src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dyna
  src/xGadgetron/cGadgetron/gadgetron_x.h
  src/xGadgetron/cGadgetron/ismrmrd_fftw.h
  src/xGadgetron/cGadgetron/xgadgetron_utilities.h
+src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o
+ /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.cpp
+ /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h

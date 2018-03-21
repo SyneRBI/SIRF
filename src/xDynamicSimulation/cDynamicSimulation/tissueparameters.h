@@ -7,28 +7,23 @@ institute	PTB Berlin
 
 */
 
-struct TissueParameter 
-{
+struct TissueParameter {
 
 	int label_;
 	char* name_;
-
 };
 
 
-struct MRTissueParameter
-{
+struct MRTissueParameter {
 
 	float t1_miliseconds_;
 	float t2_miliseconds_;
 	float cs_ppm_;
-
 };
 
 
 
-struct PETTissueParameter
-{
+struct PETTissueParameter {
 
 	float attenuation_1_by_mm_;
 	float suv_;

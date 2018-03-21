@@ -19,13 +19,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 int main( int argc, char *argv[] )
 {
 
-	if(argc > 1)
+	try
 	{
-		fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
+		if(argc > 1)
+		{
+			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
+		}
+
+		return 0;
 	}
-
-	foo();
-
-	return 0;
-
+	catch(...)
+		{
+		std::cout<< "An exception of unknown type was caught" <<std::endl;	
+		}
 }

@@ -249,6 +249,33 @@ main.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+tissueparameters.o: tissueparameters.cpp.o
+
+.PHONY : tissueparameters.o
+
+# target to build an object file
+tissueparameters.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o
+.PHONY : tissueparameters.cpp.o
+
+tissueparameters.i: tissueparameters.cpp.i
+
+.PHONY : tissueparameters.i
+
+# target to preprocess a source file
+tissueparameters.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.i
+.PHONY : tissueparameters.cpp.i
+
+tissueparameters.s: tissueparameters.cpp.s
+
+.PHONY : tissueparameters.s
+
+# target to generate assembly for a file
+tissueparameters.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.s
+.PHONY : tissueparameters.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -270,6 +297,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... tissueparameters.o"
+	@echo "... tissueparameters.i"
+	@echo "... tissueparameters.s"
 .PHONY : help
 
 
