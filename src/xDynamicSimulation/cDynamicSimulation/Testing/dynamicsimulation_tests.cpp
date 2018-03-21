@@ -22,7 +22,14 @@ void run_tests_tissueparameters(void)
 {
 	bool tests_successful = false;
 
+
+
+
+	// call every test here
 	tests_successful = test_allocate_MRTissueParameter_successful();
+	tests_successful = test_allocate_PETTissueParameter_successful();
+	tests_successful = test_allocate_TissueParameter_successful();
+
 
 	if ( !tests_successful )
 	{

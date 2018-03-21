@@ -12,3 +12,5 @@ parameter structs and the xml parser filling them.
 
 
 bool test_allocate_MRTissueParameter_successful(void);
+bool test_allocate_PETTissueParameter_successful(void);
+bool test_allocate_TissueParameter_successful(void);

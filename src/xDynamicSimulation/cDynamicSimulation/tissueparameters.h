@@ -7,12 +7,6 @@ institute	PTB Berlin
 
 */
 
-struct TissueParameter {
-
-	int label_;
-	char* name_;
-};
-
 
 struct MRTissueParameter {
 
@@ -30,6 +24,14 @@ struct PETTissueParameter {
 };
 
 
+struct TissueParameter {
+
+	int label_;
+	char* name_;
+
+	MRTissueParameter mr_tissue_;
+	PETTissueParameter pet_tissue_;
+};
 
 
 

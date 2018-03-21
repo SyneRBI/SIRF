@@ -22,3 +22,20 @@ bool test_allocate_MRTissueParameter_successful(void)
 	return true;
 }
 
+bool test_allocate_PETTissueParameter_successful(void)
+{
+	PETTissueParameter pet_tissue_pars;
+	pet_tissue_pars.attenuation_1_by_mm_ = 0.01;
+	pet_tissue_pars.suv_ = 15;
+
+	return true;
+}
+
+bool test_allocate_TissueParameter_successful(void)
+{
+	TissueParameter tissue_pars;
+	tissue_pars.label_ = 1;
+	tissue_pars.name_ = "Liver";
+
+	return true;
+}
