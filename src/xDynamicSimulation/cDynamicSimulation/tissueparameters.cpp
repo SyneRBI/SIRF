@@ -41,6 +41,7 @@ TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepat
 
 				
 				tiss_par.mr_tissue_ = get_mrtissueparameter_from_ptree( v.second );
+				tiss_par.pet_tissue_ = get_pettissueparameter_from_ptree( v.second );
 				tiss_list.push_back(tiss_par);
 			}
 		}

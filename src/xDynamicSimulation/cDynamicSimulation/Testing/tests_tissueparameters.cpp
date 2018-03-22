@@ -126,14 +126,23 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	float const input_cs = 4.3;
 
 
+	float const input_attenuation = 0.1;
+	float const input_SUV = 5;
+
+
+
 	// omit the check for a correctly set label as the white spaces interfere here
 	// does not matter anyway, it is just for the user to be able to distinguish.
 
 	bool parameter_set_correct = true; 
 	parameter_set_correct *= (firstParam.label_ == input_label);
+	
 	parameter_set_correct *= (input_t1 == firstParam.mr_tissue_.t1_miliseconds_);
 	parameter_set_correct *= (input_t2 == firstParam.mr_tissue_.t2_miliseconds_);
 	parameter_set_correct *= (input_cs == firstParam.mr_tissue_.cs_ppm_);
+
+	parameter_set_correct *= (input_attenuation == firstParam.pet_tissue_.attenuation_1_by_mm_);
+	parameter_set_correct *= (input_SUV == firstParam.pet_tissue_.suv_);	
 
 	return parameter_set_correct;
 }

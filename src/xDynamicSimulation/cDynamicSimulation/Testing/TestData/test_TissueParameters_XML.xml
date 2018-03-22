@@ -14,8 +14,8 @@
 		</MRTissueParameter>
 
 		<PETTissueParameter>
-			<attenuation_1_my_mm> 	0.15 	</attenuation_1_my_mm>
-			<SUV> 					3 		</SUV>
+			<attenuation_1_by_mm> 	0.1 	</attenuation_1_by_mm>
+			<SUV> 					5 		</SUV>
 		</PETTissueParameter>
 
 	</TissueParameter>
