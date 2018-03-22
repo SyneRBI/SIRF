@@ -9,6 +9,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_tissueparameters.h"
 
+using boost::property_tree::ptree;
+
 
 bool test_allocate_MRTissueParameter_successful(void)
 {
@@ -49,7 +51,6 @@ bool test_allocate_TissueParameter_successful(void)
 bool test_get_MRTissueParameter_from_ptree()
 {
 
-	using boost::property_tree::ptree;
 	ptree pt;
 
 	float const input_t1 = 1000;
@@ -83,7 +84,6 @@ bool test_get_MRTissueParameter_from_ptree()
 bool test_get_PETTissueParameter_from_ptree()
 {
 
-	using boost::property_tree::ptree;
 	ptree pt;
 
 	float const input_attenuation = 0.5;
@@ -109,6 +109,30 @@ bool test_get_PETTissueParameter_from_ptree()
 
 }
 
+
+
+bool test_exception_throw_if_node_not_exists(void)
+{
+
+	ptree pt;
+
+	float non_existent_value = 1;
+
+	pt.put("TissueParameterList.TissueParameter.NonexistentModalityType.NonexistentNode", non_existent_value);
+
+	PETTissueParameter pet_tiss;
+
+	BOOST_FOREACH( ptree::value_type const& v, pt.get_child("TissueParameterList") )
+	{
+		if( v.first == "TissueParameter")		
+		{
+			pet_tiss = get_pettissueparameter_from_ptree(v.second);
+		}
+	}
+
+	return true;
+
+}
 
 
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
@@ -146,3 +170,4 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 
 	return parameter_set_correct;
 }
+

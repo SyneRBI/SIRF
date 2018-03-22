@@ -33,6 +33,8 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_get_MRTissueParameter_from_ptree();
 	tests_successful *= test_get_PETTissueParameter_from_ptree();
 
+	tests_successful *= test_exception_throw_if_node_not_exists();
+
 	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
 
 	
