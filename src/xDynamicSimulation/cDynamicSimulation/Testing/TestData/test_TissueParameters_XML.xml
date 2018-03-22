@@ -5,7 +5,7 @@
 	<TissueParameter>
 
 		<label> 1 </label>
-		<name>Liver</name>
+		<name>Myocardium</name>
 
 		<MRTissueParameter>
 			<t1_miliseconds> 	1000	</t1_miliseconds>
