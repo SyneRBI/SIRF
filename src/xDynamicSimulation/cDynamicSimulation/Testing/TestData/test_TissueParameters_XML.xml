@@ -9,7 +9,7 @@
 
 		<MRTissueParameter>
 			<t1_miliseconds> 	1000	</t1_miliseconds>
-			<t2_miliseconds> 	1000 	</t2_miliseconds>
+			<t2_miliseconds> 	2000 	</t2_miliseconds>
 			<cs_ppm> 			4.3		</cs_ppm>
 		</MRTissueParameter>
 
