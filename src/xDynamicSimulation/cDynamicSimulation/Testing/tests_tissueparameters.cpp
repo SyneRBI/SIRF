@@ -80,6 +80,36 @@ bool test_get_MRTissueParameter_from_ptree()
 }
 
 
+bool test_get_PETTissueParameter_from_ptree()
+{
+
+	using boost::property_tree::ptree;
+	ptree pt;
+
+	float const input_attenuation = 0.5;
+	float const input_SUV = 5;
+	
+	pt.put("TissueParameterList.TissueParameter.PETTissueParameter.attenuation_1_by_mm", input_attenuation);
+	pt.put("TissueParameterList.TissueParameter.PETTissueParameter.SUV", input_SUV);
+
+	PETTissueParameter pet_tiss;
+
+	BOOST_FOREACH( ptree::value_type const& v, pt.get_child("TissueParameterList") )
+	{
+		if( v.first == "TissueParameter")		
+		{
+			pet_tiss = get_pettissueparameter_from_ptree(v.second);
+		}
+	}
+
+	bool parameter_set_correct = (pet_tiss.attenuation_1_by_mm_ == input_attenuation);
+	parameter_set_correct *= (pet_tiss.suv_ == input_SUV);
+	
+	return (parameter_set_correct);
+
+}
+
+
 
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 {
@@ -104,7 +134,6 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	parameter_set_correct *= (input_t1 == firstParam.mr_tissue_.t1_miliseconds_);
 	parameter_set_correct *= (input_t2 == firstParam.mr_tissue_.t2_miliseconds_);
 	parameter_set_correct *= (input_cs == firstParam.mr_tissue_.cs_ppm_);
-
 
 	return parameter_set_correct;
 }

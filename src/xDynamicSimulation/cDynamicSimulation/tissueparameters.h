@@ -23,7 +23,7 @@ struct MRTissueParameter {
 	float t1_miliseconds_;
 	float t2_miliseconds_;
 	float cs_ppm_;
-	
+
 };
 
 
@@ -52,3 +52,4 @@ typedef std::vector< TissueParameter > TissueParameterList;
 TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepath);
 
 MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree const pt);
+PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree const pt);

@@ -75,3 +75,16 @@ MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree p
 	return mr_tiss;
 
 }
+
+PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree const pt)
+{
+
+	PETTissueParameter pet_tiss;
+
+	ptree pet_tissue_tree = pt.get_child("PETTissueParameter");
+
+	pet_tiss.attenuation_1_by_mm_ = pet_tissue_tree.get <float> ("attenuation_1_by_mm");
+	pet_tiss.suv_ = pet_tissue_tree.get <float> ("SUV");
+
+	return pet_tiss;	
+}
