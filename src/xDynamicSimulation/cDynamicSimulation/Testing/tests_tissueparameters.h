@@ -10,7 +10,7 @@ parameter structs and the xml parser filling them.
 ================================================ */
 
 
-#define XML_TEST_PATH "./TestData/test_TissueParameters_XML.xml" 
+#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 
 bool test_allocate_MRTissueParameter_successful(void);
 bool test_allocate_PETTissueParameter_successful(void);
