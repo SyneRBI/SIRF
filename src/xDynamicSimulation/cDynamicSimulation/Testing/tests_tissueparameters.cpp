@@ -7,12 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
-#include <string>
-
-#include "tissueparameters.h"
 #include "tests_tissueparameters.h"
-
-
 
 
 bool test_allocate_MRTissueParameter_successful(void)
@@ -55,11 +50,13 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 
 	TissueParameterList tissueList = read_TissueParameters_from_xml(xml_filepath);
 
-	TissueParameter firstParam = tissueList[1];
+	TissueParameter firstParam = tissueList[0];
 
 	std::string const input_name = "Liver";
 	int const input_label = 1;
 
+	std::cout << firstParam.name_ <<std::endl;
+	std::cout << firstParam.label_ <<std::endl;
 
 	if ( input_name.compare(firstParam.name_)  || (firstParam.label_ != input_label) )
 		return false;

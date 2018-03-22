@@ -28,7 +28,7 @@ TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepat
 
 		TissueParameterList tiss_list;
 
-		BOOST_FOREACH( ptree::value_type const& v, pt.get_child("TissueParameter") )
+		BOOST_FOREACH( ptree::value_type const& v, pt.get_child("TissueParameterList") )
 		{
 			if( v.first == "TissueParameter")		
 			{
@@ -48,6 +48,7 @@ TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepat
 					<< "Caught an ios_base::failure" << "\n"
 					<< "Explanatory string: " << e.what() << "\n"
 					<< "Error code: " << e.code() << std::endl;
+		throw;					
 		
 	}
 

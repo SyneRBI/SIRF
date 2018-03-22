@@ -10,7 +10,18 @@ parameter structs and the xml parser filling them.
 ================================================ */
 
 
+
+#include <string>
+#include "tissueparameters.h"
+#include <stdio.h>
+#include <iostream>
+
+
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
+
+
+
+
 
 bool test_allocate_MRTissueParameter_successful(void);
 bool test_allocate_PETTissueParameter_successful(void);
