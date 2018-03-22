@@ -45,6 +45,44 @@ bool test_allocate_TissueParameter_successful(void)
 }
 
 
+
+bool test_get_MRTissueParameter_from_ptree()
+{
+
+	using boost::property_tree::ptree;
+	ptree pt;
+
+	float const input_t1 = 1000;
+	float const input_t2 = 2000;
+	float const input_cs = 4.3;
+
+
+	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.t1_miliseconds", input_t1);
+	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.t2_miliseconds", input_t2);
+	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.cs_ppm", input_cs);
+
+
+	MRTissueParameter mr_tiss;
+
+	BOOST_FOREACH( ptree::value_type const& v, pt.get_child("TissueParameterList") )
+	{
+		if( v.first == "TissueParameter")		
+		{
+			mr_tiss = get_mrtissueparameter_from_ptree(v.second);
+		}
+	}
+
+
+	bool parameter_set_correct = (mr_tiss.t1_miliseconds_ == input_t1);
+	parameter_set_correct *= (mr_tiss.t2_miliseconds_ == input_t2);
+	parameter_set_correct *= (mr_tiss.cs_ppm_ == input_cs);
+	
+	return (parameter_set_correct);
+
+}
+
+
+
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 {
 
@@ -54,9 +92,6 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 
 	std::string const input_name = "Liver";
 	int const input_label = 1;
-
-	std::cout << firstParam.name_ <<std::endl;
-	std::cout << firstParam.label_ <<std::endl;
 
 	if ( input_name.compare(firstParam.name_)  || (firstParam.label_ != input_label) )
 		return false;

@@ -20,16 +20,22 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 void run_tests_tissueparameters(void)
 {
-	bool tests_successful = false;
+	bool tests_successful = true;
 
 
 
 
 	// call every test here
-	tests_successful = test_allocate_MRTissueParameter_successful();
-	tests_successful = test_allocate_PETTissueParameter_successful();
-	tests_successful = test_allocate_TissueParameter_successful();
-	tests_successful = test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
+	tests_successful *= test_allocate_MRTissueParameter_successful();
+	tests_successful *= test_allocate_PETTissueParameter_successful();
+	tests_successful *= test_allocate_TissueParameter_successful();
+	
+	tests_successful *= test_get_MRTissueParameter_from_ptree();
+
+	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
+
+	
+
 
 
 	if ( !tests_successful )

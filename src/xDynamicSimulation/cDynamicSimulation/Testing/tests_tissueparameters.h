@@ -26,4 +26,7 @@ parameter structs and the xml parser filling them.
 bool test_allocate_MRTissueParameter_successful(void);
 bool test_allocate_PETTissueParameter_successful(void);
 bool test_allocate_TissueParameter_successful(void);
-bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath);
+
+bool test_get_MRTissueParameter_from_ptree(void);
+
+bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
