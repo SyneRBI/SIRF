@@ -74,6 +74,11 @@ def test_main(rec=False, verb=False, throw=True):
     prior = QuadraticPrior()
     prior.set_penalisation_factor(0.5)
 
+    prior2 = PLSPrior()
+    prior2.set_penalisation_factor(0.5)
+    prior2.set_alpha(2.3)
+    prior2.set_eta(12.3)
+
     num_subsets = 12
 
     obj_fun = make_Poisson_loglikelihood(ad)

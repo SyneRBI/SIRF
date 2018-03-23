@@ -51,6 +51,7 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/recon_buildblock/PLSPrior.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
@@ -83,6 +84,7 @@ typedef ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
 typedef ProjMatrixByBinUsingRayTracing RayTracingMatrix;
 typedef GeneralisedPrior<Image3DF> Prior3DF;
 typedef QuadraticPrior<float> QuadPrior3DF;
+typedef PLSPrior<float> PLSPrior3DF;
 typedef DataProcessor<Image3DF> DataProcessor3DF;
 typedef TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 
