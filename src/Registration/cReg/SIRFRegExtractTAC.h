@@ -54,6 +54,7 @@ More examples can be found in // Need to give path
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+/// Extract the TAC from a set of images
 class SIRFRegExtractTAC
 {
 public:
@@ -91,8 +92,11 @@ protected:
     /// Check parameters
     virtual void check_parameters();
 
+    /// Vector of filenames
     std::vector<boost::filesystem::path>     _filenames;
+    /// Segmentation filename
     boost::filesystem::path                  _segmentation_filename;
+    /// Vector of VOIs
     std::vector<std::pair<int,std::string> > _VOIs;
 };
 

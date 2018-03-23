@@ -34,6 +34,7 @@ limitations under the License.
 #include "SIRFReg.h"
 template<class T> class reg_aladin;
 
+/// Wrapper around NiftyReg's aladin class for rigid and affine transformations
 template<class T> class SIRFRegNiftyAladin : public SIRFReg
 {
 public:
@@ -58,8 +59,12 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
+    /// Register object
     std::shared_ptr<reg_aladin<T> > _registration_sptr;
+
+    /// Transformation matrix
     std::shared_ptr<mat44>          _transformation_matrix_sptr;
+    /// Inverse transformation matrix
     std::shared_ptr<mat44>          _transformation_matrix_inverse_sptr;
 };
 

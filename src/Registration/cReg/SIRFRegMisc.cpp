@@ -36,6 +36,7 @@ using namespace std;
 
 namespace SIRFRegMisc {
 
+/// Open nifti image
 void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::path filename)
 {
     // If no filename has been set, return
@@ -60,6 +61,7 @@ void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::p
     reg_checkAndCorrectDimension(image.get());
 }
 
+/// Save nifti image
 void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
 {
     if (!image) {
@@ -81,6 +83,7 @@ void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
     cout << "done.\n\n";
 }
 
+/// Copy nifti image
 void copy_nifti_image(const string input_filename, const string output_filename)
 {
     shared_ptr<nifti_image> image;
@@ -88,12 +91,14 @@ void copy_nifti_image(const string input_filename, const string output_filename)
     save_nifti_image(image, output_filename);
 }
 
+/// Copy nifti image
 void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_ptr<nifti_image> &image_to_copy_sptr)
 {
     const char *fname = image_to_copy_sptr->fname;
     open_nifti_image(output_image_sptr, fname);
 }
 
+/// Do nifti images match?
 bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_ptr<nifti_image> &im2_sptr)
 {
     bool images_match = true;
@@ -168,6 +173,7 @@ bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_p
     return images_match;
 }
 
+/// Dump info of nifti image
 void dump_nifti_info(const std::string &im_filename)
 {
     shared_ptr<nifti_image> image;
@@ -175,6 +181,7 @@ void dump_nifti_info(const std::string &im_filename)
     SIRFRegMisc::dump_nifti_info(image);
 }
 
+/// Dump info of nifti image
 void dump_nifti_info(const shared_ptr<nifti_image> &im1_sptr)
 {
     vector<shared_ptr<nifti_image> > image;
@@ -182,6 +189,7 @@ void dump_nifti_info(const shared_ptr<nifti_image> &im1_sptr)
     dump_nifti_info(image);
 }
 
+/// Dump info of multiple nifti images
 void dump_nifti_info(const vector<shared_ptr<nifti_image> > &images)
 {
     cout << "\nPrinting info for " << images.size() <<" nifti image:\n";
@@ -246,6 +254,7 @@ void dump_nifti_info(const vector<shared_ptr<nifti_image> > &images)
     cout << "\n";
 }
 
+/// Print info of element of nifti image
 void print_nifti_info(const string &im_filename, const string keyword)
 {
     shared_ptr<nifti_image> image;
@@ -253,6 +262,7 @@ void print_nifti_info(const string &im_filename, const string keyword)
     SIRFRegMisc::print_nifti_info(image,keyword);
 }
 
+/// Print info of element of nifti image
 void print_nifti_info(const shared_ptr<nifti_image> &im1_sptr, const string keyword)
 {
     if (keyword == "analyze75_orient") cout << "analyze75_orient: " << im1_sptr->analyze75_orient << "\n";
@@ -316,6 +326,7 @@ void print_nifti_info(const shared_ptr<nifti_image> &im1_sptr, const string keyw
     if (keyword == "pixdim")  for (int i=0;i<8;i++) cout << "pixdim[" << i << "]: " << im1_sptr->pixdim[i] << "\n";
 }
 
+/// Save transformation matrix to file
 void save_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, const string filename)
 {
     // Check that the matrix exists
@@ -331,6 +342,7 @@ void save_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, c
     reg_tool_WriteAffineFile(transformation_matrix_sptr.get(), filename.c_str());
 }
 
+/// Read transformation matrix from file
 void open_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, const string filename)
 {
     // Check that the file exists
@@ -356,6 +368,7 @@ void open_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, c
     }
 }
 
+/// Print mat44
 void print_mat44(const mat44 *mat_ptr)
 {
     for (int i=0; i<4; i++) {
@@ -367,6 +380,7 @@ void print_mat44(const mat44 *mat_ptr)
     }
 }
 
+/// Mat44 multiplier
 mat44 multiply_mat44(const mat44 &x, const mat44 &y)
 {
     // Print info

@@ -36,6 +36,7 @@ limitations under the License.
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+/// Activity correct an image
 class SIRFRegActivityCorrect
 {
 public:
@@ -86,14 +87,21 @@ protected:
     /// Check parameters
     virtual void check_parameters();
 
+    /// Input image filename
     boost::filesystem::path      _input_image_filename;
+    /// Input image
     std::shared_ptr<nifti_image> _input_image_sptr;
 
+    /// Initial activitiy (s)
     float _initial_activity;
+    /// Half-life (s)
     float _half_life;
+    /// Start time (s)
     float _start;
+    /// Stop time (s)
     float _stop;
 
+    /// Output image
     std::shared_ptr<nifti_image> _output_image_sptr;
 };
 

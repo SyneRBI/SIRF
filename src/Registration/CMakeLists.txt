@@ -27,6 +27,15 @@ SET(NiftyReg_Install_DIR CACHE PATH "NiftyReg install directory")
 # to suppress errors from converting float to double
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
 
+# Include STIR
+FIND_PACKAGE(STIR 3.1.0)
+IF(STIR_FOUND)
+    INCLUDE_DIRECTORIES("${STIR_INCLUDE_DIRS}")
+    INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/xSTIR/cSTIR)
+    INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/iUtilities)
+    INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include)
+ENDIF(STIR_FOUND)
+
 IF ((NOT IS_DIRECTORY ${NiftyReg_Source_DIR}) AND (NOT IS_DIRECTORY ${NiftyReg_Binary_DIR}) AND (NOT IS_DIRECTORY ${NiftyReg_Install_DIR}))
 	MESSAGE(FATAL_ERROR "Enter the source, binary and install directories of NiftyReg.")
 ENDIF()
@@ -46,15 +55,6 @@ SET(NiftyReg_VERSION_PATCH ${CMAKE_MATCH_1})
 MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.3.9, and cannot be guaranteed for other version numbers.")
 MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}.")
 MESSAGE(STATUS "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-
-IF(BUILD_TESTING)
-	ENABLE_TESTING()
-	SET(TEST_IN_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/test/inFiles)
-	SET(TEST_OUT_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/test/outFiles)
-	SET(TEST_DATA_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/test/data)
-	SET(TEST_PARAM_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/test/paramFiles)
-	SET(TEST_RESULT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test/results)
-ENDIF()
 
 # Compile the C++
 ADD_SUBDIRECTORY(cReg)
@@ -77,6 +77,7 @@ IF(BUILD_PYTHON OR BUILD_MATLAB)
 		ADD_SUBDIRECTORY(swigDoxy)
 		SET(SWIG_SIRFREG_DOCUMENTATION_PATH "%include ${CMAKE_CURRENT_BINARY_DIR}/swigDoxy/SWIG_SIRFREG_DOCUMENTATION.i")
 	ENDIF(SIRFREG_SWIG_DOXY)
+ENDIF(BUILD_PYTHON OR BUILD_MATLAB)
 
 # Python
 IF(BUILD_PYTHON)

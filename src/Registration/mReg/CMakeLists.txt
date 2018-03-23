@@ -28,7 +28,7 @@ INCLUDE_DIRECTORIES  (${Matlab_INCLUDE_DIRS})
 # so make sure you link to the matlab version (they are not the same!)
 FIND_LIBRARY		 (libmx mx HINTS ${Matlab_BINARIES_DIR})
 
-CONFIGURE_FILE( ../swigDoxy/SWIG_SIRFReg.in ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i )
+CONFIGURE_FILE( ../SWIG_SIRFReg.in ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i )
 
 # Swig to convert c++ to matlab
 SET_PROPERTY	     (SOURCE ${CMAKE_CURRENT_BINARY_DIR}/m${PROJECT_NAME}.i PROPERTY CPLUSPLUS ON)

@@ -14,6 +14,7 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 #include "SIRFRegImageWeightedMean.h"
 #include "SIRFRegActivityCorrect.h"
 #include "SIRFRegMisc.h"
+#include "SIRFImageData.h"
 %}
 
 %exception {
@@ -53,3 +54,7 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 // Activity correction
 %rename(ActivityCorrect) SIRFRegActivityCorrect;
 %include "../cReg/SIRFRegActivityCorrect.h"
+
+// Image data
+%rename(ImageData) SIRFImageData;
+%include "../cReg/SIRFImageData.h"

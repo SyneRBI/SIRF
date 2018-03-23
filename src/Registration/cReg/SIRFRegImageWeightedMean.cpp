@@ -39,7 +39,7 @@ SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
     need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const string filename, const float weight)
+void SIRFRegImageWeightedMean::add_image(const std::string filename, const float weight)
 {
     // Open image
     std::shared_ptr<nifti_image> input_image_sptr;

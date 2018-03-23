@@ -46,6 +46,7 @@ std::string get_typeid(A)
     else                                         return "unknown";
 }
 
+/// Abstract base class for a parser key
 template<class Z>
 class SIRFRegParserKeyBase
 {
@@ -138,9 +139,11 @@ protected:
     /// Get argument - double
     void get_argument(std::string line, int arg_num, double &arg)       { arg = std::stod(get_arg_as_string(line, arg_num));  }
 
+    /// Object to call the function on
     std::shared_ptr<Z> _object;
 };
 
+/// Abstract base class for a parser key with 0 arguments
 template<class Z>
 class SIRFRegParserKey0Arg : public SIRFRegParserKeyBase<Z>
 {
@@ -169,9 +172,11 @@ public:
 
 protected:
 
+    /// Function
     void (Z::*_function)();
 };
 
+/// Abstract base class for a parser key with 1 argument
 template<class Z, class A>
 class SIRFRegParserKey1Arg : public SIRFRegParserKeyBase<Z>
 {
@@ -205,10 +210,13 @@ public:
 
 protected:
 
+    /// Function
     void (Z::*_function)(A);
+    /// Argument
     A _arg1;
 };
 
+/// Abstract base class for a parser key with 2 arguments
 template<class Z, class A, class B>
 class SIRFRegParserKey2Arg : public SIRFRegParserKeyBase<Z>
 {
@@ -248,8 +256,11 @@ public:
 
 protected:
 
+    /// Function
     void (Z::*_function)(A,B);
+    /// First argument
     A _arg1;
+    /// Second argument
     B _arg2;
 };
 

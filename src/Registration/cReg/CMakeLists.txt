@@ -17,11 +17,16 @@
 SET(${proj}_DEPENDENCIES "nifti;Boost")
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladin.cpp" "SIRFRegNiftyF3d.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegActivityCorrect.cpp" "SIRFRegExtractTAC.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladin.h"   "SIRFRegNiftyF3d.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFRegActivityCorrect.h"   "SIRFRegExtractTAC.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladin.cpp" "SIRFRegNiftyF3d.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegActivityCorrect.cpp" "SIRFRegExtractTAC.cpp" "SIRFImageData.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladin.h"   "SIRFRegNiftyF3d.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFRegActivityCorrect.h"   "SIRFRegExtractTAC.h"   "SIRFImageData.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Create library
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCES})
+
+# Compile against STIR
+IF(STIR_FOUND)
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME} cstir)
+ENDIF(STIR_FOUND)
 
 # Boost
 FIND_PACKAGE(Boost 1.63.0 COMPONENTS filesystem)

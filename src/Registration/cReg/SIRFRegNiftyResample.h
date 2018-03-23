@@ -40,10 +40,12 @@ i.e., if A was set first, followed by B, then they will be multiplied AB.
 #include <boost/filesystem.hpp>
 #include "SIRFRegMisc.h"
 
+/// Wrapper around NiftyReg's resample class
 class SIRFRegNiftyResample
 {
 public:
 
+	/// Interpolation type
     enum InterpolationType {
         NOTSET           = -1,
         NEARESTNEIGHBOUR =  0,
@@ -138,16 +140,23 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
+    /// Reference image filename
     boost::filesystem::path              _reference_image_filename;
+    /// Reference image
     std::shared_ptr<nifti_image>         _reference_image_sptr;
 
+    /// Floating image filename
     boost::filesystem::path              _floating_image_filename;
+    /// Floating image
     std::shared_ptr<nifti_image>         _floating_image_sptr;
 
+    /// Transformation matrices
     std::vector<std::shared_ptr<mat44> > _transformation_matrices;
 
+    /// Interpolation type
     InterpolationType                    _interpolation_type;
 
+    /// Output image
     std::shared_ptr<nifti_image>         _output_image_sptr;
 };
 

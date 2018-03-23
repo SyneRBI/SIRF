@@ -36,6 +36,7 @@ limitations under the License.
 #include <fstream>
 #include <boost/filesystem.hpp>
 
+/// SIRFReg parser
 template<class Z>
 class SIRFRegParser
 {
@@ -136,6 +137,7 @@ public:
         file.close();
     }
 
+    /// Open file
     void open_file(std::ifstream &file)
     {
         // Open file
@@ -150,6 +152,7 @@ public:
         std::cout << "\nSuccessfully opened the parameter file: " << _filename << "\n";
     }
 
+    /// Get line
     void get_line(std::ifstream &file, std::string &line)
     {
         // If end of file was reached (this shouldn't happen, as the end statement in the
@@ -168,6 +171,7 @@ public:
 
     }
 
+    /// Is the end of the file?
     bool is_end(std::string line)
     {
         // Convert to lower case
@@ -183,6 +187,7 @@ public:
         return false;
     }
 
+    /// Does the line contain a parameter?
     bool contains_parameter(std::string &line)
     {
         // If no ":=" is found, return false
@@ -191,6 +196,7 @@ public:
         return true;
     }
 
+    /// Get the keyword from a line
     std::string get_keyword(std::string &line)
     {
         // get index of the ":="
@@ -204,6 +210,7 @@ public:
         return line.substr(0, index_end);
     }
 
+    /// Get a key from its keyword
     std::shared_ptr<SIRFRegParserKeyBase<Z> > get_key(std::string &keyword)
     {
         // Compare the keyword to the list of keys
@@ -223,8 +230,11 @@ public:
     }
 
 protected:
+    /// Object
     std::shared_ptr<Z>                                             _object;
+    /// Filename
     boost::filesystem::path                                        _filename;
+    /// Map of keys
     std::map<std::string, std::shared_ptr<SIRFRegParserKeyBase<Z> > > _keys;
 };
 

@@ -54,6 +54,7 @@ More examples can be found in // Need to give path
 #include <iostream>
 #include <boost/filesystem.hpp>
 
+/// Base class for registration algorithms wrapped by SIRFReg
 class SIRFReg
 {
 public:
@@ -112,11 +113,17 @@ protected:
     /// Check parameters
     virtual void check_parameters();
 
+    /// Parameter filename
     boost::filesystem::path      _parameter_filename;
+    /// Floating image filename
     boost::filesystem::path      _floating_image_filename;
+    /// Reference image filename
     boost::filesystem::path      _reference_image_filename;
+    /// Floating image
     std::shared_ptr<nifti_image> _floating_image_sptr;
+    /// Reference image
     std::shared_ptr<nifti_image> _reference_image_sptr;
+    /// Warped image
     std::shared_ptr<nifti_image> _warped_image_sptr;
 };
 

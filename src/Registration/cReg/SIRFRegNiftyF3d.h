@@ -34,6 +34,7 @@ limitations under the License.
 
 template<class T> class reg_f3d;
 
+/// Wrapper around NiftyReg's f3d class for non-rigid transformations
 template<class T> class SIRFRegNiftyF3d : public SIRFReg
 {
 public:
@@ -62,9 +63,12 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
+    /// Registration object
     std::shared_ptr<reg_f3d<T> > _registration_sptr;
 
+    /// Floating time point
     int _floating_time_point;
+    /// Reference time point
     int _reference_time_point;
 };
 

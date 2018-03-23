@@ -34,6 +34,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 
+/// Calculate the weighted mean of a set of images
 class SIRFRegImageWeightedMean
 {
 public:
@@ -61,11 +62,16 @@ public:
 
 protected:
 
+    /// Check if its possible to calculate the mean
     void check_can_do_mean();
 
+    /// Bool to check if update is necessary
     bool                                        need_to_update;
+    /// Vector of input images
     std::vector<std::shared_ptr<nifti_image> >  input_images;
+    /// Vector of weights
     std::vector<float>                          weights;
+    /// Output image
     std::shared_ptr<nifti_image>                output_image_sptr;
 
 };
