@@ -57,7 +57,6 @@ void run_tests_phantom_input( void )
 	bool tests_successful = true;
 
 	// insert tests
-
 	tests_successful *= test_read_h5_segmentation_correct_dims(H5_TEST_PATH);
 	tests_successful *= test_read_h5_segmentation_correct_content(H5_TEST_PATH);
 	

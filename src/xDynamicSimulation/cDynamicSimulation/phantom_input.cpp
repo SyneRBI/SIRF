@@ -11,7 +11,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
-
 using namespace H5;
 
 ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5_filename_with_suffix)
@@ -30,9 +29,12 @@ ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5
 
 		hsize_t dimensions_input[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM];
         hsize_t ndims = dataspace.getSimpleExtentDims( dimensions_input, NULL);
-        
-        std::vector < size_t > const input_dimensions (dimensions_input, dimensions_input + ndims);
 
+        for( int i = ndims; i < ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
+        	dimensions_input[i] = 1;
+
+        std::vector < size_t > const input_dimensions (dimensions_input, dimensions_input + ISMRMRD::ISMRMRD_NDARRAY_MAXDIM);
+	
 		ISMRMRD::NDArray< unsigned int > segmentation( input_dimensions );
 
 		dataset.read( segmentation.begin(), PredType::NATIVE_INT, dataspace, dataspace);
