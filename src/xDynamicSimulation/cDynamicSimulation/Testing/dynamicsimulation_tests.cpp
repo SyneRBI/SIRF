@@ -33,7 +33,7 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_get_MRTissueParameter_from_ptree();
 	tests_successful *= test_get_PETTissueParameter_from_ptree();
 
-	tests_successful *= test_exception_throw_if_node_not_exists();
+	//tests_successful *= test_exception_throw_if_node_not_exists();
 
 	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
 
@@ -52,3 +52,23 @@ void run_tests_tissueparameters(void)
 }
 
 
+void run_tests_phantom_input( void )
+{
+	bool tests_successful = true;
+
+	// insert tests
+
+	tests_successful *= test_read_segmentation_correct_dims(H5_TEST_PATH);
+	
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The h5 file reader tests failed." );
+	}
+	else
+	{
+		std::cout<< "The h5 file reader tests succeeded" << std::endl;
+	}
+
+
+}

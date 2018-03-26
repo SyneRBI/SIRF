@@ -7,6 +7,8 @@ institute	PTB Berlin
 
 */
 
+#pragma once
+
 
 #include <vector>
 #include <string>

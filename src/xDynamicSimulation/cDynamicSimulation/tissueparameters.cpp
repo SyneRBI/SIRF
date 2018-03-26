@@ -103,7 +103,6 @@ MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree p
 	}
 
 	return mr_tiss;
-
 }
 
 PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree const pt)

@@ -19,6 +19,18 @@ dynamicsimulation_tests.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
 tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+tests_h5_reader.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_h5_reader.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_h5_reader.h
+string
+-
+stdio.h
+-
+iostream
+-
+ismrmrd/ismrmrd.h
+-
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
 tests_tissueparameters.h

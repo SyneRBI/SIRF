@@ -9,6 +9,7 @@ parameter structs and the xml parser filling them.
 
 ================================================ */
 
+#pragma once
 
 
 #include <string>
@@ -17,7 +18,7 @@ parameter structs and the xml parser filling them.
 #include <iostream>
 
 
-#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
+//#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 
 
 
