@@ -16,10 +16,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "tests_tissueparameters.h"
-#include "tests_h5_reader.h"
+#include "tests_phantom_input.h"
 
 // Function declarations in order to collect tests for module dynamicssimulation
 
 void run_tests_tissueparameters( void );
 
-void run_tests_h5_reader( void );
+void run_tests_phantom_input( void );
+
