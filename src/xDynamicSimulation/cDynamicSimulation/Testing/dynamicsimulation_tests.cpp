@@ -59,8 +59,9 @@ void run_tests_phantom_input( void )
 	// insert tests
 
 	tests_successful *= test_read_h5_segmentation_correct_dims(H5_TEST_PATH);
+	tests_successful *= test_read_h5_segmentation_correct_content(H5_TEST_PATH);
 	
-
+	
 	if ( !tests_successful )
 	{
 		throw std::runtime_error( "The h5 file reader tests failed." );

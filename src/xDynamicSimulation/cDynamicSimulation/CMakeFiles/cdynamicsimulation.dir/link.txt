@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcdynamicsimulation.a  CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.o CMakeFiles/cdynamicsimulation.dir/tissueparameters.cpp.o CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.o
-/usr/bin/ranlib libcdynamicsimulation.a

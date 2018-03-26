@@ -222,6 +222,33 @@ Testing/dynamicsimulation_tests.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.s
 .PHONY : Testing/dynamicsimulation_tests.cpp.s
 
+Testing/tests_phantom_input.o: Testing/tests_phantom_input.cpp.o
+
+.PHONY : Testing/tests_phantom_input.o
+
+# target to build an object file
+Testing/tests_phantom_input.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_phantom_input.cpp.o
+.PHONY : Testing/tests_phantom_input.cpp.o
+
+Testing/tests_phantom_input.i: Testing/tests_phantom_input.cpp.i
+
+.PHONY : Testing/tests_phantom_input.i
+
+# target to preprocess a source file
+Testing/tests_phantom_input.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_phantom_input.cpp.i
+.PHONY : Testing/tests_phantom_input.cpp.i
+
+Testing/tests_phantom_input.s: Testing/tests_phantom_input.cpp.s
+
+.PHONY : Testing/tests_phantom_input.s
+
+# target to generate assembly for a file
+Testing/tests_phantom_input.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_phantom_input.cpp.s
+.PHONY : Testing/tests_phantom_input.cpp.s
+
 Testing/tests_tissueparameters.o: Testing/tests_tissueparameters.cpp.o
 
 .PHONY : Testing/tests_tissueparameters.o
@@ -303,6 +330,33 @@ main.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+phantom_input.o: phantom_input.cpp.o
+
+.PHONY : phantom_input.o
+
+# target to build an object file
+phantom_input.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/phantom_input.cpp.o
+.PHONY : phantom_input.cpp.o
+
+phantom_input.i: phantom_input.cpp.i
+
+.PHONY : phantom_input.i
+
+# target to preprocess a source file
+phantom_input.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/phantom_input.cpp.i
+.PHONY : phantom_input.cpp.i
+
+phantom_input.s: phantom_input.cpp.s
+
+.PHONY : phantom_input.s
+
+# target to generate assembly for a file
+phantom_input.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/phantom_input.cpp.s
+.PHONY : phantom_input.cpp.s
+
 tissueparameters.o: tissueparameters.cpp.o
 
 .PHONY : tissueparameters.o
@@ -348,6 +402,9 @@ help:
 	@echo "... Testing/dynamicsimulation_tests.o"
 	@echo "... Testing/dynamicsimulation_tests.i"
 	@echo "... Testing/dynamicsimulation_tests.s"
+	@echo "... Testing/tests_phantom_input.o"
+	@echo "... Testing/tests_phantom_input.i"
+	@echo "... Testing/tests_phantom_input.s"
 	@echo "... Testing/tests_tissueparameters.o"
 	@echo "... Testing/tests_tissueparameters.i"
 	@echo "... Testing/tests_tissueparameters.s"
@@ -357,6 +414,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... phantom_input.o"
+	@echo "... phantom_input.i"
+	@echo "... phantom_input.s"
 	@echo "... tissueparameters.o"
 	@echo "... tissueparameters.i"
 	@echo "... tissueparameters.s"

@@ -15,6 +15,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "src/common/CMakeLists.txt"
   "src/iUtilities/CMakeLists.txt"
   "src/xDynamicSimulation/CMakeFiles/hdf5/cmake_hdf5_test.c"
+  "src/xDynamicSimulation/CMakeFiles/hdf5/cmake_hdf5_test.cxx"
   "src/xDynamicSimulation/CMakeLists.txt"
   "src/xDynamicSimulation/cDynamicSimulation/CMakeLists.txt"
   "src/xGadgetron/CMakeFiles/hdf5/cmake_hdf5_test.c"

@@ -25,7 +25,7 @@ if (ISMRMRD_FOUND)
 endif()
 	
     
-  find_package(HDF5 1.8 COMPONENTS C REQUIRED)
+  find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
   include_directories("${ISMRMRD_INCLUDE_DIR}")
   # need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library

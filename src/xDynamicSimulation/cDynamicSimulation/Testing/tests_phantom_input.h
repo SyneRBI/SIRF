@@ -17,4 +17,4 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "phantom_input.h"
 
 bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix);
-
+bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suffix);
