@@ -21,13 +21,21 @@ include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
 
-add_library( cdynamicsimulation dynamicsimulation_x.cpp dynamicsimulation_x.h tissueparameters.cpp tissueparameters.h Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h )
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp dynamicsimulation_x.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissueparameters.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp phantom_input.h Testing/tests_phantom_input.cpp Testing/tests_phantom_input.h)
+
+
+
+add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 
 set (dynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 
 target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PRIVATE "${FFTW3_INCLUDE_DIR}")
+target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
 
 target_link_libraries(cdynamicsimulation iutilities)
 # Add boost library dependencies
@@ -49,12 +57,12 @@ endif()
 target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
+target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
 
-get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
-message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
+#get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
+#message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
 
 
 add_executable( TestJobs main.cpp)
 target_link_libraries( TestJobs cdynamicsimulation)
-
