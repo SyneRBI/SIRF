@@ -13,6 +13,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 
+#include "tissueparamters.h"
+
 
 class TissueLabelMapper{
 
@@ -26,7 +28,7 @@ private:
 
 	std::string filepath_tissue_parameter_xml_;
 
-	std::vector < TissueParameter > tissue_parameter_list_;
+	TissueParameterList tissue_parameter_list_;
 	
 	ISMRMRD::NDArray< unsigned int > segmentation_labels_;
 	ISMRMRD::NDArray< TissueParameter* > segmentation_tissues_;

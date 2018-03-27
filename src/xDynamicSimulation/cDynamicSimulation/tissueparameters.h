@@ -9,10 +9,13 @@ institute	PTB Berlin
 
 #pragma once
 
-
+#include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
+#include <iterator>
+
 
 #include <boost/foreach.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -56,3 +59,5 @@ TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepat
 
 MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree const pt);
 PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree const pt);
+
+bool check_label_uniqueness( TissueParameterList const tiss_list);

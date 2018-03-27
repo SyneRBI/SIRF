@@ -475,11 +475,17 @@ H5Cpp.h
 src/xDynamicSimulation/cDynamicSimulation/H5Cpp.h
 
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+iostream
+-
 vector
 -
 string
 -
 fstream
+-
+algorithm
+-
+iterator
 -
 boost/foreach.hpp
 -

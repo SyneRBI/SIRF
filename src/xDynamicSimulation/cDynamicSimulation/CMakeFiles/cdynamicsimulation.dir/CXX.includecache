@@ -97,11 +97,17 @@ tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+iostream
+-
 vector
 -
 string
 -
 fstream
+-
+algorithm
+-
+iterator
 -
 boost/foreach.hpp
 -
@@ -617,11 +623,17 @@ H5Cpp.h
 src/xDynamicSimulation/cDynamicSimulation/H5Cpp.h
 
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+iostream
+-
 vector
 -
 string
 -
 fstream
+-
+algorithm
+-
+iterator
 -
 boost/foreach.hpp
 -

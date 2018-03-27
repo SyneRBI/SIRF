@@ -37,7 +37,8 @@ void run_tests_tissueparameters(void)
 
 	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
 
-	
+	tests_successful *= test_check_label_uniqueness_fails();
+	tests_successful *= test_check_label_uniqueness_true();
 
 
 

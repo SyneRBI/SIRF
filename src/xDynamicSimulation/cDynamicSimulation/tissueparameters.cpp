@@ -50,7 +50,12 @@ TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepat
 		{
 			throw std::range_error( "The TissueParameterList of your xml file does not contain a single TissueParameter node." );
 		}
-	
+		if( !check_label_uniqueness(tiss_list) )
+		{
+			throw std::runtime_error( "The TissueParameterList of your xml file contains multiple parameters with the same label. Please only assign unique labels." );	
+		}
+
+
 		std::cout <<"Reading of: " << xml_filepath << " finished without exception." << std::endl;
 
 		return tiss_list;
@@ -125,4 +130,32 @@ PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree
 		std::cout << "You probably forgot to list an essential key for PET contrast in your xml." << std::endl;
 	}
 	return pet_tiss;	
+}
+
+bool check_label_uniqueness( TissueParameterList const tiss_list)
+{
+
+	size_t const num_tissue_params = tiss_list.size();
+
+	std::vector <int> all_labels;
+	all_labels.resize(num_tissue_params);
+	
+	for (int i=0; i<num_tissue_params; i++)
+		all_labels[i] = tiss_list[i].label_;
+
+	std::vector<int>::iterator it;
+
+	for (int i=0; i<num_tissue_params-1; i++)
+	{
+		int val_to_find = all_labels[i];
+		auto start_iterator = std::next(all_labels.begin(), i+1);
+
+		it = find(start_iterator, all_labels.end(), val_to_find);		
+
+		if( it != all_labels.end() ) 		
+			return false;
+		
+	}
+
+	return true;		
 }
