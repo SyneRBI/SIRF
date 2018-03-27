@@ -139,6 +139,7 @@ bool test_exception_throw_if_node_not_exists(void)
 }
 
 
+
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 {
 
@@ -173,6 +174,31 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	parameter_set_correct *= (input_SUV == firstParam.pet_tissue_.suv_);	
 
 	return parameter_set_correct;
+}
+
+TissueParameterList get_mock_tissue_param_list( void )
+{
+	TissueParameter par1, par2, par3, par4;
+	par1.name_ = "fake_one";
+	par1.label_ = 0;
+
+
+	par2.name_ = "fake_two";
+	par2.label_ = 1;
+
+	par3.name_ = "fake_three";
+	par3.label_ = 2;
+
+	par4.name_ = "fake_four";
+	par4.label_ = 0;
+
+	TissueParameterList tiss_list;
+	
+	tiss_list.push_back(par1);
+	tiss_list.push_back(par2);
+	tiss_list.push_back(par3);
+	tiss_list.push_back(par4);
+	
 }
 
 

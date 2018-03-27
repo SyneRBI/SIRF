@@ -13,7 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 
-#include "tissueparamters.h"
+#include "tissueparameters.h"
 
 
 class TissueLabelMapper{

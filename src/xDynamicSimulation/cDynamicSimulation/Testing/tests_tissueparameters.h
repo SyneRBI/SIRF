@@ -13,15 +13,12 @@ parameter structs and the xml parser filling them.
 
 
 #include <string>
-#include "tissueparameters.h"
 #include <stdio.h>
 #include <iostream>
 
 
-//#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
-
-
-
+#include "tissueparameters.h"
+//#include "tissuelabelmapper.h"
 
 
 bool test_allocate_MRTissueParameter_successful(void);
@@ -35,5 +32,12 @@ bool test_exception_throw_if_node_not_exists(void);
 
 bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
 
+//TissueParameterList get_test_tissue_parameter_list( void );
+
+TissueParameterList get_mock_tissue_param_list( void );
+
 bool test_check_label_uniqueness_fails();
 bool test_check_label_uniqueness_true();
+
+
+//bool test_tissue_label_mapping_
