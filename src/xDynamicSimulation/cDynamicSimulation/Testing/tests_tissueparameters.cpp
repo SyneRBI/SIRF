@@ -190,7 +190,7 @@ TissueParameterList get_mock_tissue_param_list( void )
 	par3.label_ = 2;
 
 	par4.name_ = "fake_four";
-	par4.label_ = 0;
+	par4.label_ = 3;
 
 	TissueParameterList tiss_list;
 	
@@ -198,35 +198,18 @@ TissueParameterList get_mock_tissue_param_list( void )
 	tiss_list.push_back(par2);
 	tiss_list.push_back(par3);
 	tiss_list.push_back(par4);
-	
+
+	return tiss_list;	
 }
 
 
 
 bool test_check_label_uniqueness_fails( void )
 {
-
-
-	TissueParameter par1, par2, par3, par4;
-	par1.name_ = "fake_one";
-	par1.label_ = 0;
-
-
-	par2.name_ = "fake_two";
-	par2.label_ = 1;
-
-	par3.name_ = "fake_three";
-	par3.label_ = 2;
-
-	par4.name_ = "fake_four";
-	par4.label_ = 0;
-
-	TissueParameterList tiss_list;
 	
-	tiss_list.push_back(par1);
-	tiss_list.push_back(par2);
-	tiss_list.push_back(par3);
-	tiss_list.push_back(par4);
+	TissueParameterList tiss_list = get_mock_tissue_param_list();
+
+	tiss_list[3].label_ = tiss_list[0].label_;
 
 	bool const labels_are_unique = check_label_uniqueness(tiss_list);
 
@@ -240,27 +223,7 @@ bool test_check_label_uniqueness_fails( void )
 
 bool test_check_label_uniqueness_true()
 {
-
-	TissueParameter par1, par2, par3, par4;
-	par1.name_ = "fake_one";
-	par1.label_ = 0;
-
-
-	par2.name_ = "fake_two";
-	par2.label_ = 1;
-
-	par3.name_ = "fake_three";
-	par3.label_ = 2;
-
-	par4.name_ = "fake_four";
-	par4.label_ = 3;
-
-	TissueParameterList tiss_list;
-	
-	tiss_list.push_back(par1);
-	tiss_list.push_back(par2);
-	tiss_list.push_back(par3);
-	tiss_list.push_back(par4);
+	TissueParameterList tiss_list = get_mock_tissue_param_list();
 
 	bool const labels_are_unique = check_label_uniqueness(tiss_list);
 
