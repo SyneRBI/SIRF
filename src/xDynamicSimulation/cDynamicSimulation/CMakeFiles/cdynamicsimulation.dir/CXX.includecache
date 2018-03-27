@@ -43,6 +43,8 @@ phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
 tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+typeinfo
+-
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
 string

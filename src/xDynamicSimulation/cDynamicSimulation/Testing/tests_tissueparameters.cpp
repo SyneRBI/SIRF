@@ -248,16 +248,78 @@ bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
 }
 
 
-/*
-bool test_assign_tissue_parameters_to_labels( void )
+#include <typeinfo>
+bool test_tlm::test_assign_tissue_parameters_to_labels( void )
 {
 
 	TissueLabelMapper tlm;
 
-	tlm.set
-
-
 	TissueParameterList tiss_list = get_mock_tissue_param_list();
 
+	std::vector< size_t > labels_dims = {2,2,2};
+	ISMRMRD::NDArray< unsigned int> labels_list(labels_dims);
+
+	for( int i=0; i< labels_list.getNumberOfElements(); i++)
+	{
+		if( i< labels_list.getNumberOfElements()/2 )
+			labels_list(i) = 0;
+		else
+			labels_list(i) = 1;
+	}
+
+
+	TissueArray tissue_segmentation = assign_tissue_parameters_to_labels( tiss_list, labels_list);
+
+	size_t num_elements_tissue_pointers = tissue_segmentation.num_elements();
+
+	bool all_labels_correct = true;
+
+	for( int i=0; i<num_elements_tissue_pointers; i++)
+	{
+
+		std::string name_of_type = typeid(tissue_segmentation[i]).name();
+		std::cout << "nag " << name_of_type << std::endl;
+		
+		TissueParameter* current_tissue_param = tissue_segmentation[0];
+	
+		unsigned int associated_label = current_tissue_param->label_;
+		std::cout << associated_label << std::endl;
+
+
+		all_labels_correct *= (labels_list(i) == associated_label);
+		
+	}
+
+	return all_labels_correct;
 }
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -42,7 +42,7 @@ void run_tests_tissueparameters(void)
 
 	tests_successful *= test_tlm::test_set_get_filepath_tissue_parameter_xml();
 
-
+	tests_successful *=	test_tlm::test_assign_tissue_parameters_to_labels();
 
 
 	if ( !tests_successful )

@@ -20,6 +20,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 
 
+typedef boost::multi_array< TissueParameter*, ISMRMRD::ISMRMRD_NDARRAY_MAXDIM> TissueArray;
+typedef ISMRMRD::NDArray<unsigned int> LabelArray;
+
 class TissueLabelMapper{
 
 public:
@@ -27,7 +30,8 @@ public:
 
 	std::string get_filepath_tissue_parameter_xml( void );
 	void set_filepath_tissue_parameter_xml(std::string const filepath_tissue_parameter_xml);
-	void assign_tissue_parameters_to_labels( void );
+	
+
 
 private:
 
@@ -35,7 +39,11 @@ private:
 
 	TissueParameterList tissue_parameter_list_;
 	
-	ISMRMRD::NDArray< unsigned int > segmentation_labels_;
-	boost::multi_array< TissueParameter*, ISMRMRD::ISMRMRD_NDARRAY_MAXDIM > segmentation_tissues_;
-				
+	LabelArray segmentation_labels_;
+	TissueArray segmentation_tissues_;
+	
 };
+
+
+// public methods for the class
+TissueArray assign_tissue_parameters_to_labels( TissueParameterList &tiss_list, LabelArray label_list );				

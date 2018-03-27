@@ -25,21 +25,26 @@ std::string TissueLabelMapper::get_filepath_tissue_parameter_xml()
 
 
 
-void TissueLabelMapper::assign_tissue_parameters_to_labels( void )
-{/*
-	tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
-			
-	typedef std::map <int, TissueParameter* > LabelTissueMap;
+TissueArray assign_tissue_parameters_to_labels( TissueParameterList &tiss_list, LabelArray label_list )
+{
 
-	size_t num_tissue_params = tissue_parameter_list_.size();
+	size_t num_tissue_params = tiss_list.size();
 
-	LabelTissueMap lut;
+	std::map <int, TissueParameter* >  lut;
 
 	for(int i =0; i<num_tissue_params; i++)
 	{
-		lut.insert(std::make_pair( tissue_parameter_list_[i].label_, &tissue_parameter_list_[i]);	)	
+		lut.insert(std::make_pair( tiss_list[i].label_, &tiss_list[i]));	//map label to pointer
 	}
-*/
+
+	TissueArray tiss_segm(boost::extents[1][1][1][1][1][1][1]);
+	
+	TissueParameter tiss_param;
+	tiss_param.label_ = 0;
+
+
+	return tiss_segm;
+
 }
 
 
