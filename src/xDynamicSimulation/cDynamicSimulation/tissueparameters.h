@@ -22,6 +22,7 @@ institute	PTB Berlin
 
 struct MRTissueParameter {
 
+	float spin_density_percentH2O_;
 	float t1_miliseconds_;
 	float t2_miliseconds_;
 	float cs_ppm_;

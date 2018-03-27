@@ -91,6 +91,8 @@ MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree p
 	{
 		ptree mr_tissue_tree = pt.get_child("MRTissueParameter");
 
+
+		mr_tiss.spin_density_percentH2O_ = mr_tissue_tree.get <float> ("spin_density_percentH2O");
 		mr_tiss.t1_miliseconds_ = mr_tissue_tree.get <float> ("t1_miliseconds");
 		mr_tiss.t2_miliseconds_ = mr_tissue_tree.get <float> ("t2_miliseconds");
 		mr_tiss.cs_ppm_ = mr_tissue_tree.get <float> ("cs_ppm");

@@ -26,9 +26,8 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 		
-		//run_tests_tissueparameters();
-
-		run_tests_phantom_input();
+		run_tests_tissueparameters();
+		//run_tests_phantom_input();
 
 		
 

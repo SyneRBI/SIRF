@@ -53,11 +53,13 @@ bool test_get_MRTissueParameter_from_ptree()
 
 	ptree pt;
 
+	float const input_rho = 89; // percent of water
 	float const input_t1 = 1000;
 	float const input_t2 = 2000;
 	float const input_cs = 4.3;
 
 
+	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.spin_density_percentH2O", input_rho);
 	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.t1_miliseconds", input_t1);
 	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.t2_miliseconds", input_t2);
 	pt.put("TissueParameterList.TissueParameter.MRTissueParameter.cs_ppm", input_cs);
@@ -72,7 +74,9 @@ bool test_get_MRTissueParameter_from_ptree()
 		}
 	}
 
-	bool parameter_set_correct = (mr_tiss.t1_miliseconds_ == input_t1);
+
+	bool parameter_set_correct = (mr_tiss.spin_density_percentH2O_ == input_rho);
+	parameter_set_correct *= (mr_tiss.t1_miliseconds_ == input_t1);
 	parameter_set_correct *= (mr_tiss.t2_miliseconds_ == input_t2);
 	parameter_set_correct *= (mr_tiss.cs_ppm_ == input_cs);
 	
