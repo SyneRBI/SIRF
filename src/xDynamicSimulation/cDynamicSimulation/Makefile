@@ -357,6 +357,33 @@ phantom_input.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/phantom_input.cpp.s
 .PHONY : phantom_input.cpp.s
 
+tissuelabelmapper.o: tissuelabelmapper.cpp.o
+
+.PHONY : tissuelabelmapper.o
+
+# target to build an object file
+tissuelabelmapper.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissuelabelmapper.cpp.o
+.PHONY : tissuelabelmapper.cpp.o
+
+tissuelabelmapper.i: tissuelabelmapper.cpp.i
+
+.PHONY : tissuelabelmapper.i
+
+# target to preprocess a source file
+tissuelabelmapper.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissuelabelmapper.cpp.i
+.PHONY : tissuelabelmapper.cpp.i
+
+tissuelabelmapper.s: tissuelabelmapper.cpp.s
+
+.PHONY : tissuelabelmapper.s
+
+# target to generate assembly for a file
+tissuelabelmapper.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/tissuelabelmapper.cpp.s
+.PHONY : tissuelabelmapper.cpp.s
+
 tissueparameters.o: tissueparameters.cpp.o
 
 .PHONY : tissueparameters.o
@@ -417,6 +444,9 @@ help:
 	@echo "... phantom_input.o"
 	@echo "... phantom_input.i"
 	@echo "... phantom_input.s"
+	@echo "... tissuelabelmapper.o"
+	@echo "... tissuelabelmapper.i"
+	@echo "... tissuelabelmapper.s"
 	@echo "... tissueparameters.o"
 	@echo "... tissueparameters.i"
 	@echo "... tissueparameters.s"

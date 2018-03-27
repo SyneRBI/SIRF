@@ -218,8 +218,8 @@ bool test_check_label_uniqueness_fails( void )
 	else
 		return false;
 
-}
 
+}
 
 bool test_check_label_uniqueness_true()
 {
@@ -233,3 +233,31 @@ bool test_check_label_uniqueness_true()
 		return false;
 
 }
+
+
+
+bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
+{
+	TissueLabelMapper tlm;
+	tlm.set_filepath_tissue_parameter_xml(XML_TEST_PATH);
+
+	std::string xml_path = tlm.get_filepath_tissue_parameter_xml();
+
+	if (xml_path.compare(XML_TEST_PATH) == 0)
+		return true;
+}
+
+
+/*
+bool test_assign_tissue_parameters_to_labels( void )
+{
+
+	TissueLabelMapper tlm;
+
+	tlm.set
+
+
+	TissueParameterList tiss_list = get_mock_tissue_param_list();
+
+}
+*/

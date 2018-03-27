@@ -40,6 +40,9 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_check_label_uniqueness_fails();
 	tests_successful *= test_check_label_uniqueness_true();
 
+	tests_successful *= test_tlm::test_set_get_filepath_tissue_parameter_xml();
+
+
 
 
 	if ( !tests_successful )

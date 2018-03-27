@@ -35,6 +35,8 @@ iostream
 -
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
+tissuelabelmapper.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/main.cpp
 stdio.h
@@ -473,6 +475,22 @@ typeinfo
 -
 H5Cpp.h
 src/xDynamicSimulation/cDynamicSimulation/H5Cpp.h
+
+src/xDynamicSimulation/cDynamicSimulation/tissuelabelmapper.h
+string
+-
+vector
+-
+ismrmrd/ismrmrd.h
+-
+boost/multi_array.hpp
+-
+map
+-
+utility
+-
+tissueparameters.h
+src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 iostream

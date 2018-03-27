@@ -8,9 +8,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-
-
-#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 #define H5_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
 
 
