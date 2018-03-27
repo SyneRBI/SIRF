@@ -6,26 +6,29 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-
-
 #pragma once
 
+#include <string>
+#include <vector>
+#include <ismrmrd/ismrmrd.h>
 
 
-class ContrastGenerator{
+
+class TissueLabelMapper{
 
 public:
-	ContrastGenerator();
+	TissueLabelMapper();
 
-	void set_filepath_tissue_parameter_xml_(std::string filepath_tissue_parameter_xml);
+	void set_filepath_tissue_parameter_xml(std::string const filepath_tissue_parameter_xml);
+	void assign_tissue_parameters_to_labels( void );
 
 private:
 
 	std::string filepath_tissue_parameter_xml_;
 
 	std::vector < TissueParameter > tissue_parameter_list_;
+	
 	ISMRMRD::NDArray< unsigned int > segmentation_labels_;
-	ISMRMRD::NDArray< TissueParameter* > ;
-
-
+	ISMRMRD::NDArray< TissueParameter* > segmentation_tissues_;
+		
 };
