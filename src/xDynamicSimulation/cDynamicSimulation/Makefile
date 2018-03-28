@@ -330,6 +330,33 @@ Testing/tests_tissueparameters.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s
 .PHONY : Testing/tests_tissueparameters.cpp.s
 
+contrastgenerator.o: contrastgenerator.cpp.o
+
+.PHONY : contrastgenerator.o
+
+# target to build an object file
+contrastgenerator.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/contrastgenerator.cpp.o
+.PHONY : contrastgenerator.cpp.o
+
+contrastgenerator.i: contrastgenerator.cpp.i
+
+.PHONY : contrastgenerator.i
+
+# target to preprocess a source file
+contrastgenerator.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/contrastgenerator.cpp.i
+.PHONY : contrastgenerator.cpp.i
+
+contrastgenerator.s: contrastgenerator.cpp.s
+
+.PHONY : contrastgenerator.s
+
+# target to generate assembly for a file
+contrastgenerator.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/contrastgenerator.cpp.s
+.PHONY : contrastgenerator.cpp.s
+
 dynamicsimulation_x.o: dynamicsimulation_x.cpp.o
 
 .PHONY : dynamicsimulation_x.o
@@ -495,6 +522,9 @@ help:
 	@echo "... Testing/tests_tissueparameters.o"
 	@echo "... Testing/tests_tissueparameters.i"
 	@echo "... Testing/tests_tissueparameters.s"
+	@echo "... contrastgenerator.o"
+	@echo "... contrastgenerator.i"
+	@echo "... contrastgenerator.s"
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"

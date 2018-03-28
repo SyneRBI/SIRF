@@ -7,3 +7,4 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "contrastgenerator.h"
+
