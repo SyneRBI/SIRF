@@ -47,9 +47,6 @@ bool test_check_label_uniqueness_true();
 namespace test_tlm
 {
 
-//bool test_map_labels_to_tissue( void );
-
-
 
 bool test_get_filepath_tissue_parameter_xml( void );
 bool test_get_labels_array(void);
@@ -57,5 +54,6 @@ bool test_get_labels_array(void);
 bool test_assign_tissue_parameters_label_found( void );
 bool test_assign_tissue_parameters_label_not_found( void );
 
+bool test_map_labels_to_tissue_from_xml( void );
 
 }// namespace tlm

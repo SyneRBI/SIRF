@@ -253,9 +253,7 @@ bool test_check_label_uniqueness_true()
 		return true;
 	else
 		return false;
-
 }
-
 
 
 bool test_tlm::test_get_filepath_tissue_parameter_xml()
@@ -283,8 +281,6 @@ bool test_tlm::test_get_labels_array()
 		set_and_get_are_the_same *= (labels_list(i) == reference_list(i));
 	}
 	return set_and_get_are_the_same;
-
-
 }
 
 
@@ -330,10 +326,29 @@ bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
 		std::cout << "Test output: " << e.what() << std::endl;
 		return true;
 	}
-
-	
 }
 
+bool test_tlm::test_map_labels_to_tissue_from_xml( void )
+{
+	LabelArray lab_arr = get_mock_label_array();
+
+	TissueLabelMapper tlm(lab_arr, XML_TEST_PATH);
+
+	tlm.map_labels_to_tissue_from_xml();
+
+	TissueVector tiss_vec = tlm.get_segmentation_tissues();
+
+	bool all_labels_correct = true;
+	for (int i = 0; i<tiss_vec.size(); i++)
+	{
+		unsigned int const tissue_label = tiss_vec[i]->label_;
+		
+		all_labels_correct *= (tissue_label == lab_arr(i));
+	}
+
+	return all_labels_correct;
+
+}
 
 
 

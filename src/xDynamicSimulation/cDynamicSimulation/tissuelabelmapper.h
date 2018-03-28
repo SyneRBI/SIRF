@@ -41,7 +41,7 @@ public:
 	LabelArray get_segmentation_labels( void );
 	
 
-	//void map_
+	void map_labels_to_tissue_from_xml( void );
 
 
 private:

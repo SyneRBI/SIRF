@@ -46,7 +46,7 @@ void run_tests_tissueparameters(void)
 	tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
 	tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
 
-	
+	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
 
 
 	if ( !tests_successful )
