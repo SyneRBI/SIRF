@@ -13,6 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "tests_tissueparameters.h"
+#include "tests_contrastgenerator.h"
 #include "tests_phantom_input.h"
 
 // Function declarations in order to collect tests for module dynamicssimulation
@@ -21,3 +22,4 @@ void run_tests_tissueparameters( void );
 
 void run_tests_phantom_input( void );
 
+void run_tests_contrastgenerator( void );

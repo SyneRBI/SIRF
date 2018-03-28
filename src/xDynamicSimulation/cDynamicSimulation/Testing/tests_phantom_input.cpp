@@ -10,9 +10,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_phantom_input.h"
 
-#define display(x) #x << " = "  << x << "\n"
-
-
 
 bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix)
 {

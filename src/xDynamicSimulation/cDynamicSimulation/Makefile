@@ -249,6 +249,33 @@ Testing/dynamicsimulation_tests.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.s
 .PHONY : Testing/dynamicsimulation_tests.cpp.s
 
+Testing/tests_contrastgenerator.o: Testing/tests_contrastgenerator.cpp.o
+
+.PHONY : Testing/tests_contrastgenerator.o
+
+# target to build an object file
+Testing/tests_contrastgenerator.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_contrastgenerator.cpp.o
+.PHONY : Testing/tests_contrastgenerator.cpp.o
+
+Testing/tests_contrastgenerator.i: Testing/tests_contrastgenerator.cpp.i
+
+.PHONY : Testing/tests_contrastgenerator.i
+
+# target to preprocess a source file
+Testing/tests_contrastgenerator.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_contrastgenerator.cpp.i
+.PHONY : Testing/tests_contrastgenerator.cpp.i
+
+Testing/tests_contrastgenerator.s: Testing/tests_contrastgenerator.cpp.s
+
+.PHONY : Testing/tests_contrastgenerator.s
+
+# target to generate assembly for a file
+Testing/tests_contrastgenerator.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_contrastgenerator.cpp.s
+.PHONY : Testing/tests_contrastgenerator.cpp.s
+
 Testing/tests_phantom_input.o: Testing/tests_phantom_input.cpp.o
 
 .PHONY : Testing/tests_phantom_input.o
@@ -459,6 +486,9 @@ help:
 	@echo "... Testing/dynamicsimulation_tests.o"
 	@echo "... Testing/dynamicsimulation_tests.i"
 	@echo "... Testing/dynamicsimulation_tests.s"
+	@echo "... Testing/tests_contrastgenerator.o"
+	@echo "... Testing/tests_contrastgenerator.i"
+	@echo "... Testing/tests_contrastgenerator.s"
 	@echo "... Testing/tests_phantom_input.o"
 	@echo "... Testing/tests_phantom_input.i"
 	@echo "... Testing/tests_phantom_input.s"

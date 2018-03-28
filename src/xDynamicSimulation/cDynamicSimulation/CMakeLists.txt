@@ -26,6 +26,7 @@ set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_func
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissueparameters.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp tissuelabelmapper.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_contrastgenerator.cpp Testing/tests_contrastgenerator.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp phantom_input.h Testing/tests_phantom_input.cpp Testing/tests_phantom_input.h)
 
 

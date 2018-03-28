@@ -18,6 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "phantom_input.h"
 
+#include "auxiliary_testing_functions.h"
+
 
 // checking for 
 template <class T>
@@ -32,7 +34,7 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array, T central_value)
 
 	for( int idim = 0; idim < NDims; idim++)
 	{
-		std::cout << "dimensions" <<"[" << idim << "] = "<<  dimensions[idim] <<std::endl;
+		std::cout << epiph(dimensions[idim]) <<std::endl;
 
 		if( dimensions[idim] % 2 == 0)
 		{	
@@ -50,8 +52,7 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array, T central_value)
 	for (int ny = 0; ny < dimensions[1]; ny++)
 	for (int nx = 0; nx < dimensions[0]; nx++)
 			{	
-				std::cout<<input_array(nx, ny, nz, nn, nm, nl, nk)<<std::endl;
-				//content_is_correct *= (input_array(nx, ny, nz, nn, nm, nl, nk) == 0);
+				std::cout<< epiph(input_array(nx, ny, nz, nn, nm, nl, nk))<<std::endl;
 			}
 	
 	content_is_correct *= (input_array(dimensions[0]/2, dimensions[1]/2, dimensions[2]/2, 

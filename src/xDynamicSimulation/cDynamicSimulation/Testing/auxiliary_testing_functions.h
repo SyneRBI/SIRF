@@ -21,6 +21,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define epiph(x) #x << " = " << x
 
 
+// strings
+#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
+
+
 namespace aux_test
 {
 

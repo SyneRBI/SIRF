@@ -19,9 +19,7 @@ parameter structs and the xml parser filling them.
 #include "auxiliary_testing_functions.h"
 
 #include "tissueparameters.h"
-#include "tissuelabelmapper.h"
 
-#define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 
 
 bool test_allocate_MRTissueParameter_successful(void);
@@ -41,18 +39,3 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
 bool test_check_label_uniqueness_fails();
 bool test_check_label_uniqueness_true();
 
-
-
-namespace test_tlm
-{
-
-
-bool test_get_filepath_tissue_parameter_xml( void );
-bool test_get_labels_array(void);
-
-bool test_assign_tissue_parameters_label_found( void );
-bool test_assign_tissue_parameters_label_not_found( void );
-
-bool test_map_labels_to_tissue_from_xml( void );
-
-}// namespace tlm

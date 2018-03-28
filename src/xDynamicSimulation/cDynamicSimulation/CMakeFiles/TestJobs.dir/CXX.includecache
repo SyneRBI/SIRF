@@ -17,8 +17,24 @@ tissuelabelmapper.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
 tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
+tests_contrastgenerator.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
 tests_phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
+string
+-
+stdio.h
+-
+iostream
+-
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+tissuelabelmapper.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
+tissueparameters.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
 string
@@ -33,6 +49,8 @@ ismrmrd/ismrmrd.h
 -
 phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
 string
@@ -45,8 +63,6 @@ auxiliary_testing_functions.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
-tissuelabelmapper.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/main.cpp
 stdio.h

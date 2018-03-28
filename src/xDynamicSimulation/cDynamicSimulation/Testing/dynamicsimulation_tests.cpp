@@ -37,6 +37,21 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_check_label_uniqueness_fails();
 	tests_successful *= test_check_label_uniqueness_true();
 
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The tissueparameters tests failed.");
+	}
+	else
+	{
+		std::cout<< "The tissueparameters tests succeeded." <<std::endl;
+	}
+}
+
+void run_tests_contrastgenerator(void)
+{
+	bool tests_successful = true;
+
 	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
 	tests_successful *= test_tlm::test_get_labels_array();
 
@@ -48,11 +63,11 @@ void run_tests_tissueparameters(void)
 
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The tissueparameters tests failed.");
+		throw std::runtime_error( "The contrastgenerator tests failed.");
 	}
 	else
 	{
-		std::cout<< "The tissueparameters tests succeeded." <<std::endl;
+		std::cout<< "The contrastgenerator tests succeeded." <<std::endl;
 	}
 }
 
