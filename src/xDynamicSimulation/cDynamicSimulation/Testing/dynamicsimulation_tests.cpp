@@ -41,8 +41,14 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_check_label_uniqueness_true();
 
 	tests_successful *= test_tlm::test_set_get_filepath_tissue_parameter_xml();
+	tests_successful *= test_tlm::test_set_get_labels_array();
 
-	tests_successful *=	test_tlm::test_assign_tissue_parameters_to_labels_labels_found();
+	tests_successful *= test_tlm::test_tlm_constructor();
+
+	tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
+	tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
+
+	
 
 
 	if ( !tests_successful )

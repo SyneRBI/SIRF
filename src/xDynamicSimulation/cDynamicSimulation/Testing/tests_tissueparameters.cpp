@@ -204,7 +204,7 @@ TissueParameterList get_mock_tissue_param_list( void )
 
 
 
- LabelArray get_mock_label_array( void )
+LabelArray get_mock_label_array( void )
 {
 	
 	std::vector< size_t > labels_dims = {2,2,2};
@@ -269,8 +269,40 @@ bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
 		return true;
 }
 
+bool test_tlm::test_set_get_labels_array()
+{
+	LabelArray labels_list = get_mock_label_array();
 
-bool test_tlm::test_assign_tissue_parameters_to_labels_labels_found( void )
+	TissueLabelMapper tlm;
+	tlm.set_segmentation_labels(labels_list);
+
+	LabelArray reference_list = tlm.get_segmentation_labels();
+
+	bool set_and_get_are_the_same = true;
+	for (int i=0; i<labels_list.getNumberOfElements(); i++)
+	{
+		set_and_get_are_the_same *= (labels_list(i) == reference_list(i));
+	}
+	return set_and_get_are_the_same;
+
+
+}
+
+bool test_tlm::test_tlm_constructor( void )
+{
+	LabelArray label_arr = get_mock_label_array();
+
+	TissueLabelMapper tlm(label_arr, XML_TEST_PATH);
+
+	LabelArray la = tlm.get_segmentation_labels();
+	std::string xml_name = tlm.get_filepath_tissue_parameter_xml();
+	
+	if( xml_name.compare(XML_TEST_PATH) == 0)
+		return true;		
+}	
+
+
+bool test_tlm::test_assign_tissue_parameters_label_found( void )
 {
 
 	TissueParameterList tiss_list = get_mock_tissue_param_list();
@@ -296,6 +328,25 @@ bool test_tlm::test_assign_tissue_parameters_to_labels_labels_found( void )
 	return all_labels_correct;
 }
 
+bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
+{
+
+	TissueParameterList tiss_list = get_mock_tissue_param_list();
+	LabelArray labels_list = get_mock_label_array();
+	labels_list(0) = 23;
+	try
+	{
+		TissueVector tissue_volume = assign_tissue_parameters_to_labels( tiss_list, labels_list);
+	}
+	catch( std::runtime_error const &e)
+	{	
+
+		std::cout << "Test output: " << e.what() << std::endl;
+		return true;
+	}
+
+	
+}
 
 
 

@@ -13,10 +13,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdio.h>
 #include <iostream>
 
-
-#include "tissueparameters.h"
-#include <ismrmrd/ismrmrd.h>
-
 #include "Testing/dynamicsimulation_tests.h"
 
 int main( int argc, char *argv[] )
@@ -29,10 +25,7 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 		
-
-		ISMRMRD::NDArray < TissueParameter > arr;
-
-		//run_tests_tissueparameters();
+		run_tests_tissueparameters();
 		//run_tests_phantom_input();
 
 		return 0;

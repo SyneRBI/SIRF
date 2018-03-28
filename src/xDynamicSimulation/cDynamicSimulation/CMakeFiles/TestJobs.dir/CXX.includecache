@@ -43,32 +43,8 @@ stdio.h
 -
 iostream
 -
-tissueparameters.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
-ismrmrd/ismrmrd.h
--
 Testing/dynamicsimulation_tests.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
-
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
-iostream
--
-vector
--
-string
--
-fstream
--
-algorithm
--
-iterator
--
-boost/foreach.hpp
--
-boost/property_tree/xml_parser.hpp
--
-boost/property_tree/ptree.hpp
--
 
 /home/sirfuser/devel/install/include/ismrmrd/export.h
 
@@ -519,4 +495,24 @@ memory
 -
 tissueparameters.h
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+
+src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+iostream
+-
+vector
+-
+string
+-
+fstream
+-
+algorithm
+-
+iterator
+-
+boost/foreach.hpp
+-
+boost/property_tree/xml_parser.hpp
+-
+boost/property_tree/ptree.hpp
+-
 
