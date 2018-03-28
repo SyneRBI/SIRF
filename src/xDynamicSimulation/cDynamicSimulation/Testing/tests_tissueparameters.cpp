@@ -294,11 +294,15 @@ bool test_tlm::test_tlm_constructor( void )
 
 	TissueLabelMapper tlm(label_arr, XML_TEST_PATH);
 
-	LabelArray la = tlm.get_segmentation_labels();
+	LabelArray get_return_array = tlm.get_segmentation_labels();
 	std::string xml_name = tlm.get_filepath_tissue_parameter_xml();
 	
-	if( xml_name.compare(XML_TEST_PATH) == 0)
-		return true;		
+	bool construction_worked = ( xml_name.compare(XML_TEST_PATH) == 0);
+	for( int i = 0; i<label_arr.getNumberOfElements(); i++)
+		construction_worked *= (label_arr(i) == get_return_array(i));
+
+	return construction_worked;
+
 }	
 
 
