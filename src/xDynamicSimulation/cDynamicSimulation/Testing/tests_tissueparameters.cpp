@@ -204,6 +204,28 @@ TissueParameterList get_mock_tissue_param_list( void )
 
 
 
+ LabelArray get_mock_label_array( void )
+{
+	
+	std::vector< size_t > labels_dims = {2,2,2};
+	LabelArray labels_list(labels_dims);
+
+	for( int i=0; i< labels_list.getNumberOfElements(); i++)
+	{
+		if( i< labels_list.getNumberOfElements()/2 )
+			labels_list(i) = 0;
+		else
+			labels_list(i) = 1;
+	}
+
+	return labels_list;	
+}
+
+
+
+
+
+
 bool test_check_label_uniqueness_fails( void )
 {
 	
@@ -248,44 +270,25 @@ bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
 }
 
 
-#include <typeinfo>
-bool test_tlm::test_assign_tissue_parameters_to_labels( void )
+bool test_tlm::test_assign_tissue_parameters_to_labels_labels_found( void )
 {
 
-	TissueLabelMapper tlm;
-
 	TissueParameterList tiss_list = get_mock_tissue_param_list();
+	LabelArray labels_list = get_mock_label_array();
 
-	std::vector< size_t > labels_dims = {2,2,2};
-	ISMRMRD::NDArray< unsigned int> labels_list(labels_dims);
+	TissueVector tissue_volume = assign_tissue_parameters_to_labels( tiss_list, labels_list);
 
-	for( int i=0; i< labels_list.getNumberOfElements(); i++)
-	{
-		if( i< labels_list.getNumberOfElements()/2 )
-			labels_list(i) = 0;
-		else
-			labels_list(i) = 1;
-	}
-
-
-	TissueArray tissue_segmentation = assign_tissue_parameters_to_labels( tiss_list, labels_list);
-
-	size_t num_elements_tissue_pointers = tissue_segmentation.num_elements();
+	size_t num_elements_tissue_pointers = tissue_volume.size();
+	std::cout << "num_elements_tissue_pointers " << num_elements_tissue_pointers << std::endl;
 
 	bool all_labels_correct = true;
 
 	for( int i=0; i<num_elements_tissue_pointers; i++)
 	{
-
-		std::string name_of_type = typeid(tissue_segmentation[i]).name();
-		std::cout << "nag " << name_of_type << std::endl;
 		
-		TissueParameter* current_tissue_param = tissue_segmentation[0];
-	
+		TissueParameter* current_tissue_param = tissue_volume[i];
 		unsigned int associated_label = current_tissue_param->label_;
-		std::cout << associated_label << std::endl;
-
-
+		
 		all_labels_correct *= (labels_list(i) == associated_label);
 		
 	}

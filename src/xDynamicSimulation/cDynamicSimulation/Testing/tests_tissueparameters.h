@@ -37,6 +37,7 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
 //TissueParameterList get_test_tissue_parameter_list( void );
 
 TissueParameterList get_mock_tissue_param_list( void );
+LabelArray get_mock_label_array( void );
 
 bool test_check_label_uniqueness_fails();
 bool test_check_label_uniqueness_true();
@@ -48,6 +49,6 @@ namespace test_tlm
 
 bool test_set_get_filepath_tissue_parameter_xml( void );
 
-bool test_assign_tissue_parameters_to_labels( void );
+bool test_assign_tissue_parameters_to_labels_labels_found( void );
 
 }// namespace tlm
