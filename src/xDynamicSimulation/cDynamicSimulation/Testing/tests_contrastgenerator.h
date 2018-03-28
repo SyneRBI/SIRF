@@ -19,13 +19,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tissuelabelmapper.h"
 #include "tissueparameters.h"
-
+#include "contrastgenerator.h"
 
 
 namespace test_contgen
 {
 
-
+bool test_constructor( void );
 
 
 }// namespace test_tlm

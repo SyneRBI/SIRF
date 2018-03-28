@@ -35,6 +35,8 @@ tissuelabelmapper.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
+contrastgenerator.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/contrastgenerator.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
 string
@@ -89,6 +91,26 @@ vector
 -
 ismrmrd/export.h
 /home/sirfuser/devel/install/include/ismrmrd/ismrmrd/export.h
+
+/home/sirfuser/devel/install/include/ismrmrd/xml.h
+ismrmrd/export.h
+/home/sirfuser/devel/install/include/ismrmrd/ismrmrd/export.h
+cstddef
+-
+new
+-
+stdexcept
+-
+stdio.h
+-
+string.h
+-
+iostream
+-
+string
+-
+vector
+-
 
 /usr/include/hdf5/serial/H5ACpublic.h
 H5public.h
@@ -483,6 +505,16 @@ H5FDwindows.h
 /usr/include/hdf5/serial/H5FDwindows.h
 H5FDdirect.h
 /usr/include/hdf5/serial/H5FDdirect.h
+
+src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
+ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
+-
+tissueparameters.h
+src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+tissuelabelmapper.h
+src/xDynamicSimulation/cDynamicSimulation/tissuelabelmapper.h
 
 src/xDynamicSimulation/cDynamicSimulation/phantom_input.h
 iostream

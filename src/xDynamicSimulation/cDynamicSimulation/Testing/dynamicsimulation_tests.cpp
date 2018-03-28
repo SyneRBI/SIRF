@@ -52,6 +52,7 @@ void run_tests_contrastgenerator(void)
 {
 	bool tests_successful = true;
 
+	// tlm tests
 	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
 	tests_successful *= test_tlm::test_get_labels_array();
 
@@ -59,6 +60,11 @@ void run_tests_contrastgenerator(void)
 	tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
 
 	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
+
+	// contgen tests
+	tests_successful *= test_contgen::test_constructor();
+
+
 
 
 	if ( !tests_successful )

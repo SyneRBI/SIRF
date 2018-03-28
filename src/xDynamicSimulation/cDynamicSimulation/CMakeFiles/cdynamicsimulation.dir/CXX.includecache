@@ -53,6 +53,8 @@ tissuelabelmapper.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
+contrastgenerator.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/contrastgenerator.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.cpp
 tests_phantom_input.h
@@ -96,6 +98,8 @@ contrastgenerator.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
 -
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
@@ -675,6 +679,16 @@ exception
 -
 iostream
 -
+
+src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
+ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
+-
+tissueparameters.h
+src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
+tissuelabelmapper.h
+src/xDynamicSimulation/cDynamicSimulation/tissuelabelmapper.h
 
 src/xDynamicSimulation/cDynamicSimulation/phantom_input.h
 iostream
