@@ -37,11 +37,7 @@ public:
 		return segmentation_tissues_;
 	};
 
-	void set_filepath_tissue_parameter_xml(std::string const filepath_tissue_parameter_xml);
 	std::string get_filepath_tissue_parameter_xml( void );
-		
-
-	void set_segmentation_labels( LabelArray segmentation_labels);
 	LabelArray get_segmentation_labels( void );
 	
 
@@ -49,9 +45,6 @@ public:
 
 
 private:
-
-	bool flag_xml_path_is_set_ = false;
-	bool flag_segmentation_labels_set_ =  false;
 
 	std::string filepath_tissue_parameter_xml_;
 

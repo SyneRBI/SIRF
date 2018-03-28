@@ -258,10 +258,11 @@ bool test_check_label_uniqueness_true()
 
 
 
-bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
+bool test_tlm::test_get_filepath_tissue_parameter_xml()
 {
-	TissueLabelMapper tlm;
-	tlm.set_filepath_tissue_parameter_xml(XML_TEST_PATH);
+
+	LabelArray labels_list = get_mock_label_array();
+	TissueLabelMapper tlm(labels_list, XML_TEST_PATH);
 
 	std::string xml_path = tlm.get_filepath_tissue_parameter_xml();
 
@@ -269,13 +270,11 @@ bool test_tlm::test_set_get_filepath_tissue_parameter_xml()
 		return true;
 }
 
-bool test_tlm::test_set_get_labels_array()
+bool test_tlm::test_get_labels_array()
 {
 	LabelArray labels_list = get_mock_label_array();
-
-	TissueLabelMapper tlm;
-	tlm.set_segmentation_labels(labels_list);
-
+	TissueLabelMapper tlm(labels_list, XML_TEST_PATH);
+	
 	LabelArray reference_list = tlm.get_segmentation_labels();
 
 	bool set_and_get_are_the_same = true;
@@ -287,23 +286,6 @@ bool test_tlm::test_set_get_labels_array()
 
 
 }
-
-bool test_tlm::test_tlm_constructor( void )
-{
-	LabelArray label_arr = get_mock_label_array();
-
-	TissueLabelMapper tlm(label_arr, XML_TEST_PATH);
-
-	LabelArray get_return_array = tlm.get_segmentation_labels();
-	std::string xml_name = tlm.get_filepath_tissue_parameter_xml();
-	
-	bool construction_worked = ( xml_name.compare(XML_TEST_PATH) == 0);
-	for( int i = 0; i<label_arr.getNumberOfElements(); i++)
-		construction_worked *= (label_arr(i) == get_return_array(i));
-
-	return construction_worked;
-
-}	
 
 
 bool test_tlm::test_assign_tissue_parameters_label_found( void )

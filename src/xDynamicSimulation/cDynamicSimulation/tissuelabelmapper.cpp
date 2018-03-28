@@ -13,48 +13,24 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 TissueLabelMapper::TissueLabelMapper() {}
 
-TissueLabelMapper::TissueLabelMapper(LabelArray const label_array, std::string const xml_path)
-{
-	set_filepath_tissue_parameter_xml(xml_path);
-	set_segmentation_labels(label_array);
-}
-
-
-
-void TissueLabelMapper::set_filepath_tissue_parameter_xml(std::string const filepath_tissue_parameter_xml)
+TissueLabelMapper::TissueLabelMapper(LabelArray const segmentation_labels, std::string const filepath_tissue_parameter_xml)
 {
 	filepath_tissue_parameter_xml_ = filepath_tissue_parameter_xml;
-	flag_xml_path_is_set_ = true;
+	segmentation_labels_ = segmentation_labels;
 
 }
+
 
 std::string TissueLabelMapper::get_filepath_tissue_parameter_xml()
 {
-	if( flag_xml_path_is_set_ )
-		return filepath_tissue_parameter_xml_;
-	else
-		throw std::runtime_error("Please first set the xml path before calling getter.");
+	return filepath_tissue_parameter_xml_;
 }
 
-
-
-
-void TissueLabelMapper::set_segmentation_labels( LabelArray segmentation_labels)
-{
-	segmentation_labels_ = segmentation_labels;
-	flag_segmentation_labels_set_ =  true;
-}
 
 LabelArray TissueLabelMapper::get_segmentation_labels( void )
 {
-	if( flag_segmentation_labels_set_ )
-		return segmentation_labels_;
-	else
-		throw std::runtime_error("Please first set the segmentation_labels_ before calling getter.");
-
+	return segmentation_labels_;
 }
-
-
 
 
 

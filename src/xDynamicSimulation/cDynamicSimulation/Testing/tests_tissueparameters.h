@@ -51,10 +51,8 @@ namespace test_tlm
 
 
 
-bool test_set_get_filepath_tissue_parameter_xml( void );
-bool test_set_get_labels_array(void);
-
-bool test_tlm_constructor( void );	
+bool test_get_filepath_tissue_parameter_xml( void );
+bool test_get_labels_array(void);
 
 bool test_assign_tissue_parameters_label_found( void );
 bool test_assign_tissue_parameters_label_not_found( void );
