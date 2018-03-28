@@ -176,52 +176,6 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	return parameter_set_correct;
 }
 
-TissueParameterList get_mock_tissue_param_list( void )
-{
-	TissueParameter par1, par2, par3, par4;
-	par1.name_ = "fake_one";
-	par1.label_ = 0;
-
-
-	par2.name_ = "fake_two";
-	par2.label_ = 1;
-
-	par3.name_ = "fake_three";
-	par3.label_ = 2;
-
-	par4.name_ = "fake_four";
-	par4.label_ = 3;
-
-	TissueParameterList tiss_list;
-	
-	tiss_list.push_back(par1);
-	tiss_list.push_back(par2);
-	tiss_list.push_back(par3);
-	tiss_list.push_back(par4);
-
-	return tiss_list;	
-}
-
-
-
-LabelArray get_mock_label_array( void )
-{
-	
-	std::vector< size_t > labels_dims = {2,2,2};
-	LabelArray labels_list(labels_dims);
-
-	for( int i=0; i< labels_list.getNumberOfElements(); i++)
-	{
-		if( i< labels_list.getNumberOfElements()/2 )
-			labels_list(i) = 0;
-		else
-			labels_list(i) = 1;
-	}
-
-	return labels_list;	
-}
-
-
 
 
 
@@ -229,7 +183,7 @@ LabelArray get_mock_label_array( void )
 bool test_check_label_uniqueness_fails( void )
 {
 	
-	TissueParameterList tiss_list = get_mock_tissue_param_list();
+	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 
 	tiss_list[3].label_ = tiss_list[0].label_;
 
@@ -245,7 +199,7 @@ bool test_check_label_uniqueness_fails( void )
 
 bool test_check_label_uniqueness_true()
 {
-	TissueParameterList tiss_list = get_mock_tissue_param_list();
+	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
 
 	bool const labels_are_unique = check_label_uniqueness(tiss_list);
 
@@ -256,10 +210,22 @@ bool test_check_label_uniqueness_true()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 bool test_tlm::test_get_filepath_tissue_parameter_xml()
 {
 
-	LabelArray labels_list = get_mock_label_array();
+	LabelArray labels_list = aux_test::get_mock_label_array();
 	TissueLabelMapper tlm(labels_list, XML_TEST_PATH);
 
 	std::string xml_path = tlm.get_filepath_tissue_parameter_xml();
@@ -270,16 +236,13 @@ bool test_tlm::test_get_filepath_tissue_parameter_xml()
 
 bool test_tlm::test_get_labels_array()
 {
-	LabelArray labels_list = get_mock_label_array();
+	LabelArray labels_list = aux_test::get_mock_label_array();
 	TissueLabelMapper tlm(labels_list, XML_TEST_PATH);
 	
 	LabelArray reference_list = tlm.get_segmentation_labels();
 
-	bool set_and_get_are_the_same = true;
-	for (int i=0; i<labels_list.getNumberOfElements(); i++)
-	{
-		set_and_get_are_the_same *= (labels_list(i) == reference_list(i));
-	}
+	bool set_and_get_are_the_same = aux_test::equal_array_content<unsigned int> (labels_list, reference_list);
+
 	return set_and_get_are_the_same;
 }
 
@@ -287,13 +250,12 @@ bool test_tlm::test_get_labels_array()
 bool test_tlm::test_assign_tissue_parameters_label_found( void )
 {
 
-	TissueParameterList tiss_list = get_mock_tissue_param_list();
-	LabelArray labels_list = get_mock_label_array();
+	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
+	LabelArray labels_list = aux_test::get_mock_label_array();
 
 	TissueVector tissue_volume = assign_tissue_parameters_to_labels( tiss_list, labels_list);
 
 	size_t num_elements_tissue_pointers = tissue_volume.size();
-	std::cout << "num_elements_tissue_pointers " << num_elements_tissue_pointers << std::endl;
 
 	bool all_labels_correct = true;
 
@@ -313,8 +275,8 @@ bool test_tlm::test_assign_tissue_parameters_label_found( void )
 bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
 {
 
-	TissueParameterList tiss_list = get_mock_tissue_param_list();
-	LabelArray labels_list = get_mock_label_array();
+	TissueParameterList tiss_list = aux_test::get_mock_tissue_param_list();
+	LabelArray labels_list = aux_test::get_mock_label_array();
 	labels_list(0) = 23;
 	try
 	{
@@ -330,7 +292,7 @@ bool test_tlm::test_assign_tissue_parameters_label_not_found( void )
 
 bool test_tlm::test_map_labels_to_tissue_from_xml( void )
 {
-	LabelArray lab_arr = get_mock_label_array();
+	LabelArray lab_arr = aux_test::get_mock_label_array();
 
 	TissueLabelMapper tlm(lab_arr, XML_TEST_PATH);
 

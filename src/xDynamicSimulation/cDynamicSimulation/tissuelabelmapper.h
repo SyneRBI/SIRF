@@ -44,7 +44,7 @@ public:
 	void map_labels_to_tissue_from_xml( void );
 
 
-private:
+//private:
 
 	std::string filepath_tissue_parameter_xml_;
 

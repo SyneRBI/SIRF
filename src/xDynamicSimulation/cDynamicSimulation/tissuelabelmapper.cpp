@@ -34,8 +34,8 @@ LabelArray TissueLabelMapper::get_segmentation_labels( void )
 
 void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 {
-	TissueParameterList tissue_par_list = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
-	segmentation_tissues_ = assign_tissue_parameters_to_labels( tissue_par_list, segmentation_labels_);
+	tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
+	segmentation_tissues_ = assign_tissue_parameters_to_labels( tissue_parameter_list_, segmentation_labels_);
 }
 
 

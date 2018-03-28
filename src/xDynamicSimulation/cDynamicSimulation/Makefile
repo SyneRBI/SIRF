@@ -195,6 +195,33 @@ TestJobs/fast:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build
 .PHONY : TestJobs/fast
 
+Testing/auxiliary_testing_functions.o: Testing/auxiliary_testing_functions.cpp.o
+
+.PHONY : Testing/auxiliary_testing_functions.o
+
+# target to build an object file
+Testing/auxiliary_testing_functions.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/auxiliary_testing_functions.cpp.o
+.PHONY : Testing/auxiliary_testing_functions.cpp.o
+
+Testing/auxiliary_testing_functions.i: Testing/auxiliary_testing_functions.cpp.i
+
+.PHONY : Testing/auxiliary_testing_functions.i
+
+# target to preprocess a source file
+Testing/auxiliary_testing_functions.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/auxiliary_testing_functions.cpp.i
+.PHONY : Testing/auxiliary_testing_functions.cpp.i
+
+Testing/auxiliary_testing_functions.s: Testing/auxiliary_testing_functions.cpp.s
+
+.PHONY : Testing/auxiliary_testing_functions.s
+
+# target to generate assembly for a file
+Testing/auxiliary_testing_functions.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/auxiliary_testing_functions.cpp.s
+.PHONY : Testing/auxiliary_testing_functions.cpp.s
+
 Testing/dynamicsimulation_tests.o: Testing/dynamicsimulation_tests.cpp.o
 
 .PHONY : Testing/dynamicsimulation_tests.o
@@ -426,6 +453,9 @@ help:
 	@echo "... test"
 	@echo "... TestJobs"
 	@echo "... edit_cache"
+	@echo "... Testing/auxiliary_testing_functions.o"
+	@echo "... Testing/auxiliary_testing_functions.i"
+	@echo "... Testing/auxiliary_testing_functions.s"
 	@echo "... Testing/dynamicsimulation_tests.o"
 	@echo "... Testing/dynamicsimulation_tests.i"
 	@echo "... Testing/dynamicsimulation_tests.s"

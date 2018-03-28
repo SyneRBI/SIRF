@@ -22,6 +22,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
 
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp dynamicsimulation_x.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp Testing/auxiliary_testing_functions.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissueparameters.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp tissuelabelmapper.h)

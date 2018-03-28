@@ -6,6 +6,14 @@
 
 #IncludeRegexTransform: 
 
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+ismrmrd/ismrmrd.h
+-
+tissueparameters.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
+tissuelabelmapper.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissuelabelmapper.h
+
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
 tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
@@ -33,6 +41,8 @@ stdio.h
 -
 iostream
 -
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 tissuelabelmapper.h

@@ -22,9 +22,6 @@ void run_tests_tissueparameters(void)
 {
 	bool tests_successful = true;
 
-
-
-
 	// call every test here
 	tests_successful *= test_allocate_MRTissueParameter_successful();
 	tests_successful *= test_allocate_PETTissueParameter_successful();
@@ -80,3 +77,4 @@ void run_tests_phantom_input( void )
 
 
 }
+

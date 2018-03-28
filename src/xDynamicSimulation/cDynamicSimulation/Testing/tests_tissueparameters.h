@@ -16,6 +16,7 @@ parameter structs and the xml parser filling them.
 #include <stdio.h>
 #include <iostream>
 
+#include "auxiliary_testing_functions.h"
 
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
@@ -36,8 +37,6 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath );
 
 //TissueParameterList get_test_tissue_parameter_list( void );
 
-TissueParameterList get_mock_tissue_param_list( void );
-LabelArray get_mock_label_array( void );
 
 bool test_check_label_uniqueness_fails();
 bool test_check_label_uniqueness_true();
