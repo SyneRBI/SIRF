@@ -9,6 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <string>
+#include <stdexcept>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
@@ -42,6 +43,8 @@ public:
 	virtual void set_rawdata_file_path(std::string filepath_rawdata);
 
 protected:
+
+	std::string rawdata_file_path;
 
 	ISMRMRD::NDArray<float> contrast_filled_volume_;
 	TissueLabelMapper tlm_;

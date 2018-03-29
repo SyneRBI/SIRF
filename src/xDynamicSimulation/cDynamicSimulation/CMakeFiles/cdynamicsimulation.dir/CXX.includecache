@@ -99,6 +99,8 @@ contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
 -
+stdexcept
+-
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
@@ -684,6 +686,8 @@ iostream
 
 src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
+-
+stdexcept
 -
 ismrmrd/ismrmrd.h
 -

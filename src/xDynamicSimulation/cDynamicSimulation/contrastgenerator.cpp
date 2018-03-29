@@ -16,14 +16,17 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 }
 
-void AbstractContrastGenerator::set_rawdata_file_path(std::string filepath_rawdata)
+void AbstractContrastGenerator::set_rawdata_file_path(std::string const filepath_rawdata)
 {
-
+	this->rawdata_file_path = filepath_rawdata;
 }
 
 std::string AbstractContrastGenerator::get_rawdata_file_path( void )
-{
-	
+{	
+	if (this->rawdata_file_path.empty())
+		throw std::runtime_error("Rawdata filepath is not set yet. Please do so first.");
+	else
+		return this -> rawdata_file_path;
 }
 
 
