@@ -20,15 +20,19 @@ bool test_contgen::test_constructor( void )
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
 
-
-
-	return false;
+	return true;
 }
 
 
+bool test_contgen::test_read_rawdata_header( void )
+{
+	
 
+	
 
+	return false;
 
+}
 
 
 // tissue label mapper 

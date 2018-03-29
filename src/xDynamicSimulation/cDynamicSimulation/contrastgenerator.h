@@ -29,12 +29,15 @@ class AbstractContrastGenerator {
 
 public:
 
+
 	AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
-	virtual void read_rawdata_header(std::string filename_ismrmrd_h5_file_with_ext ) = 0;
+	
 
-	virtual void map_contrast() = 0;
+	// pure virtual since formats are very diff for pet and mri and ct
+	virtual void read_rawdata_header(std::string filename_ismrmrd_h5_file_with_ext ) = 0; 
+	virtual void map_contrast();
 
-//private:
+//protected:
 
 	ISMRMRD::NDArray<float> contrast_filled_volume_;
 	TissueLabelMapper tlm_;

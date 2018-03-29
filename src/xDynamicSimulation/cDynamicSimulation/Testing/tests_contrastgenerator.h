@@ -26,7 +26,7 @@ namespace test_contgen
 {
 
 bool test_constructor( void );
-
+bool test_read_rawdata_header( void );
 
 }// namespace test_tlm
 

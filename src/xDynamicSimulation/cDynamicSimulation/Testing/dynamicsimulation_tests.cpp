@@ -63,6 +63,7 @@ void run_tests_contrastgenerator(void)
 
 	// contgen tests
 	tests_successful *= test_contgen::test_constructor();
+	tests_successful *= test_contgen::test_read_rawdata_header();
 
 
 
