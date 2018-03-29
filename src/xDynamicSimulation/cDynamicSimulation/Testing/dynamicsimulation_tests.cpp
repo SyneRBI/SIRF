@@ -62,8 +62,8 @@ void run_tests_contrastgenerator(void)
 	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
 
 	// contgen tests
-	tests_successful *= test_contgen::test_constructor();
-	tests_successful *= test_contgen::test_read_rawdata_header();
+	tests_successful *= test_contgen::test_mr_constructor();
+	tests_successful *= test_contgen::test_mr_set_get_rawdata_header_path();
 
 
 

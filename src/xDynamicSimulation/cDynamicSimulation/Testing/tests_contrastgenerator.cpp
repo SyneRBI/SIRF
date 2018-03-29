@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 // contrast generator
 
-bool test_contgen::test_constructor( void )
+bool test_contgen::test_mr_constructor( void )
 {
 
 	LabelArray label_arr = aux_test::get_mock_label_array();
@@ -24,14 +24,18 @@ bool test_contgen::test_constructor( void )
 }
 
 
-bool test_contgen::test_read_rawdata_header( void )
+bool test_contgen::test_mr_set_get_rawdata_header_path( void )
 {
 	
+	LabelArray label_arr = aux_test::get_mock_label_array();
+	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
 
-	
+	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
 
-	return false;
 
+	std::string raw_data_file_path = mr_contgen.get_rawdata_file_path();
+
+	return  !raw_data_file_path.compare(ISMRMRD_H5_TEST_PATH);
 }
 
 

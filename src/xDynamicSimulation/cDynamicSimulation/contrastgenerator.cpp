@@ -14,17 +14,17 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 	this->tlm_ = TissueLabelMapper( tissue_labels, filename_tissue_parameter_xml );
 	tlm_.map_labels_to_tissue_from_xml();
 
-	
-	
 }
 
-void AbstractContrastGenerator::map_contrast()
+void AbstractContrastGenerator::set_rawdata_file_path(std::string filepath_rawdata)
 {
 
 }
 
-
-
+std::string AbstractContrastGenerator::get_rawdata_file_path( void )
+{
+	
+}
 
 
 MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :

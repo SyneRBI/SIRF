@@ -507,6 +507,8 @@ H5FDdirect.h
 /usr/include/hdf5/serial/H5FDdirect.h
 
 src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
+string
+-
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h

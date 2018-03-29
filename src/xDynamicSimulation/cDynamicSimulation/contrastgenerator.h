@@ -8,6 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+#include <string>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
@@ -35,9 +36,12 @@ public:
 
 	// pure virtual since formats are very diff for pet and mri and ct
 	virtual void read_rawdata_header(std::string filename_ismrmrd_h5_file_with_ext ) = 0; 
-	virtual void map_contrast();
+	virtual void map_contrast() = 0;
 
-//protected:
+	virtual std::string get_rawdata_file_path();
+	virtual void set_rawdata_file_path(std::string filepath_rawdata);
+
+protected:
 
 	ISMRMRD::NDArray<float> contrast_filled_volume_;
 	TissueLabelMapper tlm_;

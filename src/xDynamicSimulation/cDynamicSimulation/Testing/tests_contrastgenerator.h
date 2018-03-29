@@ -25,8 +25,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 namespace test_contgen
 {
 
-bool test_constructor( void );
-bool test_read_rawdata_header( void );
+bool test_mr_constructor( void );
+bool test_mr_set_get_rawdata_header_path( void );
 
 }// namespace test_tlm
 
