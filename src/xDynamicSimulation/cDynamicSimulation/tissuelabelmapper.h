@@ -34,7 +34,7 @@ public:
 
 	inline TissueVector get_segmentation_tissues (void)
 	{
-		return segmentation_tissues_;
+		return this->segmentation_tissues_;
 	};
 
 	std::string get_filepath_tissue_parameter_xml( void );

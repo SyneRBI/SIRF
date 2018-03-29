@@ -15,27 +15,27 @@ TissueLabelMapper::TissueLabelMapper() {}
 
 TissueLabelMapper::TissueLabelMapper(LabelArray const segmentation_labels, std::string const filepath_tissue_parameter_xml)
 {
-	filepath_tissue_parameter_xml_ = filepath_tissue_parameter_xml;
-	segmentation_labels_ = segmentation_labels;
+	this->filepath_tissue_parameter_xml_ = filepath_tissue_parameter_xml;
+	this->segmentation_labels_ = segmentation_labels;
 
 }
 
 
 std::string TissueLabelMapper::get_filepath_tissue_parameter_xml()
 {
-	return filepath_tissue_parameter_xml_;
+	return this->filepath_tissue_parameter_xml_;
 }
 
 
 LabelArray TissueLabelMapper::get_segmentation_labels( void )
 {
-	return segmentation_labels_;
+	return this->segmentation_labels_;
 }
 
 void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 {
-	tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
-	segmentation_tissues_ = assign_tissue_parameters_to_labels( tissue_parameter_list_, segmentation_labels_);
+	this->tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
+	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( tissue_parameter_list_, segmentation_labels_);
 }
 
 

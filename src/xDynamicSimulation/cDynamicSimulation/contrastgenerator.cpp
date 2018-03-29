@@ -37,6 +37,21 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 }
 
 
-void MRContrastGenerator::read_rawdata_header( std::string filename_ismrmrd_h5_file_with_ext ){}
+void MRContrastGenerator::read_rawdata_header()
+{
+	//Let's open the existing dataset
+    ISMRMRD::Dataset d(rawdata_file_path.c_str(),"dataset", false);
+
+    std::string xml;
+    d.readHeader(xml);
+    ISMRMRD::deserialize(xml.c_str(),this->hdr_);
+	
+    ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get();
+
+	std::vector<float> TE = sequ_par.TE;
+	
+    
+
+}
 
 void MRContrastGenerator::map_contrast(){}

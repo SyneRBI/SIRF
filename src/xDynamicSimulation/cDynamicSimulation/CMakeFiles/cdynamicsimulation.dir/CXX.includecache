@@ -105,6 +105,8 @@ ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
 -
+ismrmrd/dataset.h
+-
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 tissuelabelmapper.h
@@ -692,6 +694,8 @@ stdexcept
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
+-
+ismrmrd/dataset.h
 -
 tissueparameters.h
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h

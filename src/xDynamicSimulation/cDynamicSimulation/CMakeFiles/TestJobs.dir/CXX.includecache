@@ -74,6 +74,14 @@ iostream
 Testing/dynamicsimulation_tests.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
 
+/home/sirfuser/devel/install/include/ismrmrd/dataset.h
+ismrmrd/ismrmrd.h
+/home/sirfuser/devel/install/include/ismrmrd/ismrmrd/ismrmrd.h
+hdf5.h
+-
+string
+-
+
 /home/sirfuser/devel/install/include/ismrmrd/export.h
 
 /home/sirfuser/devel/install/include/ismrmrd/ismrmrd.h
@@ -514,6 +522,8 @@ stdexcept
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
+-
+ismrmrd/dataset.h
 -
 tissueparameters.h
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
