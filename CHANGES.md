@@ -1,6 +1,6 @@
 # ChangeLog
 
-## v1.0
+## v1.0.0
 
 * Access to all MR images and acquisition parameters
 * All 8 file IO available (PET: Interfile, MR: HDF5)
