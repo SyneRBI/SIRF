@@ -48,8 +48,11 @@ void MRContrastGenerator::read_rawdata_header()
 	
     ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get();
 
-	std::vector<float> TE = sequ_par.TE;
-	
+	std::vector<float> TE = sequ_par.TE.get();
+
+	std::cout << "nag" << std::endl;
+	size_t num_echoes = TE.size();
+	std::cout << num_echoes << std::endl;
     
 
 }

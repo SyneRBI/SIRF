@@ -39,6 +39,27 @@ bool test_contgen::test_mr_set_get_rawdata_header_path( void )
 }
 
 
+bool test_contgen::test_mr_read_rawdata_header( void )
+{
+	LabelArray label_arr = aux_test::get_mock_label_array();
+	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
+
+	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
+
+	mr_contgen.read_rawdata_header();
+
+	return false;
+}
+
+
+
+
+
+
+
+
+
+
 // tissue label mapper 
 
 bool test_tlm::test_get_filepath_tissue_parameter_xml()
