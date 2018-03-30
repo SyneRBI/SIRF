@@ -39,7 +39,7 @@ bool test_contgen::test_mr_set_get_rawdata_header_path( void )
 }
 
 
-bool test_contgen::test_mr_read_rawdata_header( void )
+bool test_contgen::test_mr_read_rawdata_header_file_exists( void )
 {
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
@@ -48,7 +48,9 @@ bool test_contgen::test_mr_read_rawdata_header( void )
 
 	mr_contgen.read_rawdata_header();
 
-	return false;
+
+	return true;
+	
 }
 
 

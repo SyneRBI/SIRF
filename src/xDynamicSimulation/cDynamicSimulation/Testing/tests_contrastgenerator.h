@@ -27,7 +27,7 @@ namespace test_contgen
 
 bool test_mr_constructor( void );
 bool test_mr_set_get_rawdata_header_path( void );
-bool test_mr_read_rawdata_header( void );
+bool test_mr_read_rawdata_header_file_exists( void );
 
 }// namespace test_tlm
 
