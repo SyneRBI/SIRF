@@ -40,7 +40,10 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 void MRContrastGenerator::read_rawdata_header()
 {
 	//Let's open the existing dataset
-    ISMRMRD::Dataset d(rawdata_file_path.c_str(),"dataset", false);
+
+	std::cout << this->rawdata_file_path.c_str() << std::endl;
+
+    ISMRMRD::Dataset d(this->rawdata_file_path.c_str(),"dataset", false);
 
     std::string xml;
     d.readHeader(xml);

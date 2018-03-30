@@ -23,7 +23,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 // strings
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
-#define ISMRMRD_H5_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
+#define ISMRMRD_H5_TEST_PATH "Testing/TestData/test_data_ismrmrd.h5"
+#define H5_PHANTOM_TEST_PATH "Tesing/TestData/h5_testfile_cube_size3.h5"
 
 namespace aux_test
 {
