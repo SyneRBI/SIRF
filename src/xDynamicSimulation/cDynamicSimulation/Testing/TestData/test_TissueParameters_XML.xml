@@ -10,9 +10,9 @@
 		<name>Myocardium</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	89		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			1000		</t1_miliseconds>
-			<t2_miliseconds> 			2000 		</t2_miliseconds>
+			<spin_density_percentH2O> 	50		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			0		</t1_miliseconds>
+			<t2_miliseconds> 			1 		</t2_miliseconds>
 			<cs_ppm> 					4.3			</cs_ppm>
 		</MRTissueParameter>
 
@@ -31,14 +31,14 @@
 		<name>Liver</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	65		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			650		</t1_miliseconds>
-			<t2_miliseconds> 			1000 		</t2_miliseconds>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			0		</t1_miliseconds>
+			<t2_miliseconds> 			1 		</t2_miliseconds>
 			<cs_ppm> 					4.3			</cs_ppm>
 		</MRTissueParameter>
 
 		<PETTissueParameter>
-			<attenuation_1_by_mm> 	0.3 	</attenuation_1_by_mm>
+			<attenuation_1_by_mm> 	0.1 	</attenuation_1_by_mm>
 			<SUV> 					3 		</SUV>
 		</PETTissueParameter>
 

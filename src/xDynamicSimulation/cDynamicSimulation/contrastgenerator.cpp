@@ -62,4 +62,7 @@ void MRContrastGenerator::read_rawdata_header()
 	}*/    
 }
 
-void MRContrastGenerator::map_contrast(){}
+void MRContrastGenerator::map_contrast()
+{
+
+}

@@ -47,7 +47,7 @@ protected:
 
 	std::string rawdata_file_path;
 
-	ISMRMRD::NDArray<float> contrast_filled_volume_;
+	ISMRMRD::NDArray< complex_float_t > contrast_filled_volume_;
 	TissueLabelMapper tlm_;
 
 };

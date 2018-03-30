@@ -54,7 +54,20 @@ bool test_contgen::test_mr_read_rawdata_header_file_exists( void )
 }
 
 
+bool test_contgen::test_mr_map_contrast( void )
+ {
 
+	LabelArray label_arr = aux_test::get_mock_label_array();
+	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
+
+	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
+
+	mr_contgen.read_rawdata_header();
+
+	return false;
+
+
+ }
 
 
 
