@@ -14,6 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdio.h>
 #include <iostream>
 
+#include <ismrmrd/xml.h>
 
 #include "auxiliary_testing_functions.h"
 

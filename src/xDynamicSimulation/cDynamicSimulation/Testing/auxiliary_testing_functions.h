@@ -10,7 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <ismrmrd/ismrmrd.h>
-
+#include <ismrmrd/xml.h>
 
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
@@ -35,6 +35,9 @@ namespace aux_test
 	TissueParameter get_mock_tissue_parameter( void );
 	PETTissueParameter get_mock_PET_tissue_parameter( void );
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
+
+	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
+
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{
