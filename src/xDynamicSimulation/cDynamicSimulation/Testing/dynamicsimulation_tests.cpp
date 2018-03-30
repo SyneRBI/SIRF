@@ -66,6 +66,7 @@ void run_tests_contrastgenerator(void)
 	tests_successful *= test_contgen::test_mr_set_get_rawdata_header_path();
 	tests_successful *= test_contgen::test_mr_read_rawdata_header_file_exists();
 
+	tests_successful *=	test_contgen::test_map_flash_contrast();
 
 
 	if ( !tests_successful )

@@ -32,6 +32,10 @@ namespace aux_test
 	TissueParameterList get_mock_tissue_param_list( void );
 	LabelArray get_mock_label_array( void );
 
+	TissueParameter get_mock_tissue_parameter( void );
+	PETTissueParameter get_mock_PET_tissue_parameter( void );
+	MRTissueParameter get_mock_MR_tissue_parameter( void );
+
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{
 		size_t const num_elements = one_array.getNumberOfElements();

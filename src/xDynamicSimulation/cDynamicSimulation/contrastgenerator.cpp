@@ -64,5 +64,5 @@ void MRContrastGenerator::read_rawdata_header()
 
 void MRContrastGenerator::map_contrast()
 {
-
+	throw std::runtime_error(" this is not implemented yet, test it alter");
 }

@@ -11,6 +11,43 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
+
+MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
+{
+	MRTissueParameter mr_tissue_pars;
+	mr_tissue_pars.spin_density_percentH2O_ = 100;
+	mr_tissue_pars.t1_miliseconds_ = 0;
+	mr_tissue_pars.t2_miliseconds_ = 1;
+	mr_tissue_pars.cs_ppm_ = 1;
+
+	return mr_tissue_pars;
+}
+
+PETTissueParameter aux_test::get_mock_PET_tissue_parameter(void)
+{
+	PETTissueParameter pet_tissue_pars;
+	pet_tissue_pars.attenuation_1_by_mm_ = 0.01;
+	pet_tissue_pars.suv_ = 15;
+
+
+	return pet_tissue_pars;
+}
+
+
+
+TissueParameter aux_test::get_mock_tissue_parameter( void )
+{
+
+	TissueParameter tiss_par;
+	tiss_par.name_ = "mocktissue";
+	tiss_par.label_ = 0;
+
+	tiss_par.mr_tissue_ = get_mock_MR_tissue_parameter();
+	tiss_par.pet_tissue_ = get_mock_PET_tissue_parameter();
+	return tiss_par;
+}
+
+
 TissueParameterList aux_test::get_mock_tissue_param_list( void )
 {
 	TissueParameter par1, par2, par3, par4;
