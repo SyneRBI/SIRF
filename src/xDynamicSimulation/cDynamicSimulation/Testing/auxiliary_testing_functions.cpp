@@ -16,9 +16,9 @@ MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 {
 	MRTissueParameter mr_tissue_pars;
 	mr_tissue_pars.spin_density_percentH2O_ = 100;
-	mr_tissue_pars.t1_miliseconds_ = 0;
-	mr_tissue_pars.t2_miliseconds_ = 1;
-	mr_tissue_pars.cs_ppm_ = 1;
+	mr_tissue_pars.t1_miliseconds_ = 1;
+	mr_tissue_pars.t2_miliseconds_ = 2;
+	mr_tissue_pars.cs_ppm_ = 0;
 
 	return mr_tissue_pars;
 }
@@ -48,7 +48,7 @@ TissueParameter aux_test::get_mock_tissue_parameter( void )
 }
 
 
-ISMRMRD::SequenceParameters get_mock_sequence_parameters( void )
+ISMRMRD::SequenceParameters aux_test::get_mock_sequence_parameters( void )
 {
 	
 	
@@ -58,7 +58,7 @@ ISMRMRD::SequenceParameters get_mock_sequence_parameters( void )
 	
 	SequenceParameters seq_pars;
 
-	ParType TR = {1};
+	ParType TR = {2};
 	ParType TE = {1};
 	ParType TI = {1};
 	ParType flipAngle_deg = {90};
@@ -71,6 +71,8 @@ ISMRMRD::SequenceParameters get_mock_sequence_parameters( void )
     seq_pars.flipAngle_deg = Optional< ParType >(flipAngle_deg);
     seq_pars.sequence_type = Optional< std::string >(sequ_type);
     seq_pars.echo_spacing = Optional< ParType >(dE);
+
+    return seq_pars;
 
 }
 

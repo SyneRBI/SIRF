@@ -66,3 +66,38 @@ void MRContrastGenerator::map_contrast()
 {
 	throw std::runtime_error(" this is not implemented yet, test it alter");
 }
+
+
+std::vector < complex_float_t > map_flash_contrast
+( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::SequenceParameters * ptr_to_sequ_par)
+{
+
+	SeqParamType TE = ptr_to_sequ_par->TE.get();
+	SeqParamType TR = ptr_to_sequ_par->TR.get();
+	SeqParamType flip_angle_deg = ptr_to_sequ_par->flipAngle_deg.get();
+
+	if (TR.size() > 1)
+		throw std::runtime_error(" More than one TR was given. Please give only one in Flash contrast.");
+
+	if (flip_angle_deg.size() > 1)
+		throw std::runtime_error(" More than one flip angle was given. Please give only one in Flash contrast.");
+
+	size_t const num_echoes = TE.size();
+
+	float const spin_dens = ptr_to_tiss_par->mr_tissue_.spin_density_percentH2O_;
+	float const T1_ms = ptr_to_tiss_par->mr_tissue_.t1_miliseconds_;
+	float const T2_ms = ptr_to_tiss_par->mr_tissue_.t2_miliseconds_;
+
+	std::vector< complex_float_t > contrast;
+	contrast.resize( num_echoes );
+
+	// signal forumla
+	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
+	{
+		contrast[i_echo] = 	spin_dens * sin( M_PI/180 * flip_angle_deg[0]) 
+						   	*(1 - exp(-TR[0]/T1_ms)) / ( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
+						   	* exp( -TE[i_echo]/T2_ms);
+	}
+
+	return contrast;
+}

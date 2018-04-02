@@ -9,6 +9,8 @@
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 ismrmrd/ismrmrd.h
 -
+ismrmrd/xml.h
+-
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 tissuelabelmapper.h
@@ -28,6 +30,8 @@ string
 stdio.h
 -
 iostream
+-
+ismrmrd/xml.h
 -
 auxiliary_testing_functions.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
@@ -518,6 +522,8 @@ src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
 -
 stdexcept
+-
+math.h
 -
 ismrmrd/ismrmrd.h
 -

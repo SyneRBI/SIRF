@@ -75,7 +75,7 @@ bool test_contgen::test_map_flash_contrast( void )
 {
 
 	TissueParameter tiss_par = aux_test::get_mock_tissue_parameter();
-	TissueParameter* ptr_to_mock_tiss = &tiss_par;
+	TissueParameter* const ptr_to_mock_tiss = &tiss_par;
 
 
 	ISMRMRD::SequenceParameters sequ_par = aux_test::get_mock_sequence_parameters();
@@ -84,10 +84,16 @@ bool test_contgen::test_map_flash_contrast( void )
 	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, ptr_to_mock_sequ);
 
 
-	complex_float_t input_contrast_echo1 = 1;
-	
-	complex_float_t mock_contrast = flash_contrast[0];
+	float const t1 = 1;
+	float const t2 = 2;
+	float const dens = 100;
+	float const angle = M_PI/2;
 
+	float const TR = 2;
+	float const TE = 1;
+
+	complex_float_t input_contrast_echo1 = dens * sin(angle) * (1-exp(-TR/t1)) / (1- exp(-TR/t1)*cos(angle)) * exp(-TE/t2);	
+	complex_float_t mock_contrast = flash_contrast[0];
 
 	return (input_contrast_echo1 == mock_contrast);
 

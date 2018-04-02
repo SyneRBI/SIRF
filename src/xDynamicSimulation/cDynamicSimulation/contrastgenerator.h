@@ -10,6 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <string>
 #include <stdexcept>
+#include <math.h>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
@@ -26,6 +27,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using ISMRMRD::NDArray;
 using ISMRMRD::IsmrmrdHeader;
+
+
+typedef std::vector<float> SeqParamType;
 
 
 class AbstractContrastGenerator {
@@ -66,11 +70,12 @@ public:
 
 private:
 
+
+	void get_sequence_type();
+	std::string sequence_type_;
 	IsmrmrdHeader hdr_;
 
 };
 
 
-
-
-
+std::vector < complex_float_t > map_flash_contrast( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::SequenceParameters * ptr_to_sequ_par);

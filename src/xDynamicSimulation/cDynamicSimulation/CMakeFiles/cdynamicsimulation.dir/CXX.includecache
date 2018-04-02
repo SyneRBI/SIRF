@@ -105,6 +105,8 @@ string
 -
 stdexcept
 -
+math.h
+-
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
@@ -694,6 +696,8 @@ src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
 -
 stdexcept
+-
+math.h
 -
 ismrmrd/ismrmrd.h
 -
