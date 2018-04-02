@@ -77,26 +77,35 @@ bool test_contgen::test_map_flash_contrast( void )
 	TissueParameter tiss_par = aux_test::get_mock_tissue_parameter();
 	TissueParameter* const ptr_to_mock_tiss = &tiss_par;
 
+	ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
+	ISMRMRD::IsmrmrdHeader* ptr_to_mock_hdr = &hdr;
 
-	ISMRMRD::SequenceParameters sequ_par = aux_test::get_mock_sequence_parameters();
-	ISMRMRD::SequenceParameters* ptr_to_mock_sequ = &sequ_par;
-
-	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, ptr_to_mock_sequ);
+	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, ptr_to_mock_hdr);
 
 
 	float const t1 = 1;
 	float const t2 = 2;
 	float const dens = 100;
 	float const angle = M_PI/2;
+	float const cs = 1;
 
 	float const TR = 2;
 	float const TE = 1;
 
-	complex_float_t input_contrast_echo1 = dens * sin(angle) * (1-exp(-TR/t1)) / (1- exp(-TR/t1)*cos(angle)) * exp(-TE/t2);	
+
+
+	complex_float_t IMAG_UNIT(0,1);
+
+	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * (float)42.58/1000.f * TE * cs)*dens * (float)sin(angle) * 
+															(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
 	complex_float_t mock_contrast = flash_contrast[0];
 
-	return (input_contrast_echo1 == mock_contrast);
+	float const epsilon = 0.0000001;
 
+	bool equal_contrast = (input_contrast_echo1.real() - mock_contrast.real() < epsilon );
+	equal_contrast *= (input_contrast_echo1.imag() - mock_contrast.imag() < epsilon );
+
+	return equal_contrast;
 
 }
 

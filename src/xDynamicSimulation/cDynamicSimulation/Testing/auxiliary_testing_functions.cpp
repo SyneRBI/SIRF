@@ -18,7 +18,7 @@ MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 	mr_tissue_pars.spin_density_percentH2O_ = 100;
 	mr_tissue_pars.t1_miliseconds_ = 1;
 	mr_tissue_pars.t2_miliseconds_ = 2;
-	mr_tissue_pars.cs_ppm_ = 0;
+	mr_tissue_pars.cs_ppm_ = 1;
 
 	return mr_tissue_pars;
 }

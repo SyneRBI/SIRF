@@ -69,12 +69,17 @@ void MRContrastGenerator::map_contrast()
 
 
 std::vector < complex_float_t > map_flash_contrast
-( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::SequenceParameters * ptr_to_sequ_par)
+( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header)
 {
+	using namespace ISMRMRD;
 
-	SeqParamType TE = ptr_to_sequ_par->TE.get();
-	SeqParamType TR = ptr_to_sequ_par->TR.get();
-	SeqParamType flip_angle_deg = ptr_to_sequ_par->flipAngle_deg.get();
+	SequenceParameters sequ_par = ptr_to_header->sequenceParameters.get(); 
+	AcquisitionSystemInformation asi = ptr_to_header->acquisitionSystemInformation.get();
+
+	SeqParamType TE = sequ_par.TE.get();
+	SeqParamType TR = sequ_par.TR.get();
+	SeqParamType flip_angle_deg = sequ_par.flipAngle_deg.get();
+	float const field_strength_t = asi.systemFieldStrength_T.get();
 
 	if (TR.size() > 1)
 		throw std::runtime_error(" More than one TR was given. Please give only one in Flash contrast.");
@@ -87,16 +92,20 @@ std::vector < complex_float_t > map_flash_contrast
 	float const spin_dens = ptr_to_tiss_par->mr_tissue_.spin_density_percentH2O_;
 	float const T1_ms = ptr_to_tiss_par->mr_tissue_.t1_miliseconds_;
 	float const T2_ms = ptr_to_tiss_par->mr_tissue_.t2_miliseconds_;
+	float const cs_ppm = ptr_to_tiss_par->mr_tissue_.cs_ppm_;
 
 	std::vector< complex_float_t > contrast;
 	contrast.resize( num_echoes );
 
+	complex_float_t const imag_unit(0,1);
+	float const gyro = 42.58;
+
 	// signal forumla
 	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
 	{
-		contrast[i_echo] = 	spin_dens * sin( M_PI/180 * flip_angle_deg[0]) 
-						   	*(1 - exp(-TR[0]/T1_ms)) / ( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
-						   	* exp( -TE[i_echo]/T2_ms);
+		contrast[i_echo] = 	spin_dens * (float)sin( M_PI/180 * flip_angle_deg[0]) 
+						   	*(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
+						   	*(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t);
 	}
 
 	return contrast;
