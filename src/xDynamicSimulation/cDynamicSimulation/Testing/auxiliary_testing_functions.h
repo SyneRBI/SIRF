@@ -36,8 +36,10 @@ namespace aux_test
 	PETTissueParameter get_mock_PET_tissue_parameter( void );
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
 
+	ISMRMRD::IsmrmrdHeader get_mock_ismrmrd_header( void );
+	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
-
+	
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{

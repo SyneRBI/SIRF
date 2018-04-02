@@ -47,6 +47,34 @@ TissueParameter aux_test::get_mock_tissue_parameter( void )
 	return tiss_par;
 }
 
+ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
+{
+	using namespace ISMRMRD;
+
+	IsmrmrdHeader hdr;
+
+	SequenceParameters seq_pars = get_mock_sequence_parameters();
+	AcquisitionSystemInformation asi = get_mock_acquisition_system_information();
+
+	hdr.sequenceParameters = Optional<SequenceParameters>(seq_pars); 
+	hdr.acquisitionSystemInformation = Optional<AcquisitionSystemInformation>(asi);
+	
+	return hdr;
+
+}
+
+ISMRMRD::AcquisitionSystemInformation aux_test::get_mock_acquisition_system_information( void )
+{
+	ISMRMRD::AcquisitionSystemInformation asi;
+
+	float const field_strength_t = 1.00; 
+
+
+  	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(field_strength_t);
+  	return asi;
+
+}
+
 
 ISMRMRD::SequenceParameters aux_test::get_mock_sequence_parameters( void )
 {
