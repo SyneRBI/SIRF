@@ -69,9 +69,9 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 	ISMRMRD::NDArray< complex_float_t >	contrast = mr_contgen.get_contrast_filled_volume();	
 
-	int const num_echoes = 1;
+	int const num_echoes = 3;
 
-	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,1,0,0,0};
+	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,num_echoes,1,1,1};
 	const size_t* contrast_dims = contrast.getDims();
 
 	bool dims_are_correct = true; 

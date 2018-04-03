@@ -99,6 +99,8 @@ tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.cpp
 contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
+Testing/auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
@@ -106,6 +108,8 @@ string
 stdexcept
 -
 math.h
+-
+omp.h
 -
 ismrmrd/ismrmrd.h
 -
@@ -698,6 +702,8 @@ string
 stdexcept
 -
 math.h
+-
+omp.h
 -
 ismrmrd/ismrmrd.h
 -

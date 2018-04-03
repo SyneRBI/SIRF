@@ -7,7 +7,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "contrastgenerator.h"
-
+#include "Testing/auxiliary_testing_functions.h"
 
 AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml)
 {
@@ -45,11 +45,11 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 void MRContrastGenerator::read_rawdata_header()
 {
 	//Let's open the existing dataset
-    ISMRMRD::Dataset d(this->rawdata_file_path_.c_str(),"dataset", false);
+	ISMRMRD::Dataset d(this->rawdata_file_path_.c_str(),"dataset", false);
 
-    std::string xml;
-    d.readHeader(xml);
-    ISMRMRD::deserialize(xml.c_str(),this->hdr_);
+	std::string xml;
+	d.readHeader(xml);
+	ISMRMRD::deserialize(xml.c_str(),this->hdr_);
 
 }
 
@@ -99,18 +99,35 @@ void MRContrastGenerator::map_contrast()
 	}
 
 	data_size[3] = num_echoes;
-
+	data_size[4] =1;
+	data_size[5] =1;
+	data_size[6] =1;
 	this->contrast_filled_volume_.resize(data_size);
+		
+	size_t Nz = data_size[2];
+	size_t Ny = data_size[1];
+	size_t Nx = data_size[0];
 	
-	for( size_t i_echo = 0; i_echo<num_echoes; i_echo++)
-		for
+	// sort data into NDArray
+	#pragma omp parallel
+	for( size_t nz=0; nz<Nz; nz++)
+	{
+		for( size_t ny=0; ny<Ny; ny++)
+		{
+			for( size_t nx=0; nx<Nx; nx++)
+			{
+				for( size_t i_echo = 0; i_echo<num_echoes; i_echo++)
+				{
+					size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+					std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
+					this->contrast_filled_volume_(nx,ny,nz,i_echo) = curr_voxel[i_echo];	
+				}
+			}
 
-	
+		}
+	}
 
 }
-
-
-	
 
 
 
@@ -150,8 +167,8 @@ std::vector < complex_float_t > map_flash_contrast
 	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
 	{
 		contrast[i_echo] = 	spin_dens * (float)sin( M_PI/180 * flip_angle_deg[0]) 
-						   	*(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
-						   	*(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t);
+		*(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
+		*(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t);
 	}
 
 	return contrast;

@@ -11,6 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 #include <stdexcept>
 #include <math.h>
+#include <omp.h>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>

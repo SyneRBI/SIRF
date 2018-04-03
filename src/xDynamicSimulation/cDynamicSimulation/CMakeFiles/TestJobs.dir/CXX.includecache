@@ -525,6 +525,8 @@ stdexcept
 -
 math.h
 -
+omp.h
+-
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
