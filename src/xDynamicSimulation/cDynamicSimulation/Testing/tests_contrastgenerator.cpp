@@ -75,7 +75,6 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 	const size_t* contrast_dims = contrast.getDims();
 
 	bool dims_are_correct = true; 
-
 	for( int i=0; i<ISMRMRD_NDARRAY_MAXDIM; i++)
 		dims_are_correct *= (contrast_dims[i] == input_dims[i]);
 
@@ -100,6 +99,7 @@ bool test_contgen::test_map_flash_contrast( void )
 	float const dens = 100;
 	float const angle = M_PI/2;
 	float const cs = 1;
+	float const field_strength_t = 1.0;
 
 	float const TR = 2;
 	float const TE = 1;
@@ -107,7 +107,7 @@ bool test_contgen::test_map_flash_contrast( void )
 
 	complex_float_t IMAG_UNIT(0,1);
 
-	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * (float)42.58/1000.f * TE * cs)*dens * (float)sin(angle) * 
+	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * (float)42.58/1000.f * TE * cs * field_strength_t)*dens * (float)sin(angle) * 
 															(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
 	complex_float_t mock_contrast = flash_contrast[0];
 

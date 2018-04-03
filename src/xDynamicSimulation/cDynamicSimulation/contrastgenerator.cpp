@@ -130,7 +130,6 @@ void MRContrastGenerator::map_contrast()
 }
 
 
-
 std::vector < complex_float_t > map_flash_contrast
 ( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header)
 {
@@ -167,8 +166,8 @@ std::vector < complex_float_t > map_flash_contrast
 	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
 	{
 		contrast[i_echo] = 	spin_dens * (float)sin( M_PI/180 * flip_angle_deg[0]) 
-		*(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
-		*(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t);
+						 *(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
+						 *(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t * cs_ppm);
 	}
 
 	return contrast;
