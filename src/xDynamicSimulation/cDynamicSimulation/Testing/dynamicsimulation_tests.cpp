@@ -55,11 +55,13 @@ void run_tests_contrastgenerator(void)
 	// tlm tests
 	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
 	tests_successful *= test_tlm::test_get_labels_array();
+	tests_successful *=	test_tlm::test_get_segmentation_dimensions();
 
 	tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
 	tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
 
 	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
+
 
 	// contgen tests
 	tests_successful *= test_contgen::test_mr_constructor();
@@ -67,6 +69,7 @@ void run_tests_contrastgenerator(void)
 	tests_successful *= test_contgen::test_mr_read_rawdata_header_file_exists();
 
 	tests_successful *=	test_contgen::test_map_flash_contrast();
+	tests_successful *=	test_contgen::test_mr_map_contrast_dim_check();
 
 
 	if ( !tests_successful )

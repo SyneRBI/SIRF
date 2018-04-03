@@ -18,29 +18,34 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 void AbstractContrastGenerator::set_rawdata_file_path(std::string const filepath_rawdata)
 {
-	this->rawdata_file_path = filepath_rawdata;
+	this->rawdata_file_path_ = filepath_rawdata;
 }
 
 std::string AbstractContrastGenerator::get_rawdata_file_path( void )
 {	
-	if (this->rawdata_file_path.empty())
+	if (this->rawdata_file_path_.empty())
 		throw std::runtime_error("Rawdata filepath is not set yet. Please do so first.");
 	else
-		return this -> rawdata_file_path;
+		return this -> rawdata_file_path_;
+}
+
+
+ISMRMRD::NDArray< complex_float_t > AbstractContrastGenerator::get_contrast_filled_volume()
+{
+	return this->contrast_filled_volume_;	
 }
 
 
 MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
-	// constructor does already something
 }
 
 
 void MRContrastGenerator::read_rawdata_header()
 {
 	//Let's open the existing dataset
-    ISMRMRD::Dataset d(this->rawdata_file_path.c_str(),"dataset", false);
+    ISMRMRD::Dataset d(this->rawdata_file_path_.c_str(),"dataset", false);
 
     std::string xml;
     d.readHeader(xml);
@@ -64,7 +69,7 @@ void MRContrastGenerator::read_rawdata_header()
 
 void MRContrastGenerator::map_contrast()
 {
-	throw std::runtime_error(" this is not implemented yet, test it alter");
+	//throw std::runtime_error(" this is not implemented yet, test it alter");
 }
 
 

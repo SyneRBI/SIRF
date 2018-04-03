@@ -41,15 +41,17 @@ public:
 	
 
 	// pure virtual since formats are very diff for pet and mri and ct
-	virtual void read_rawdata_header( void ) = 0; 
-	virtual void map_contrast() = 0;
+	virtual void read_rawdata_header( void )=0; 
+	virtual void map_contrast()=0;
+
+	virtual ISMRMRD::NDArray< complex_float_t > get_contrast_filled_volume();
 
 	virtual std::string get_rawdata_file_path();
 	virtual void set_rawdata_file_path(std::string filepath_rawdata);
 
 protected:
 
-	std::string rawdata_file_path;
+	std::string rawdata_file_path_;
 
 	ISMRMRD::NDArray< complex_float_t > contrast_filled_volume_;
 	TissueLabelMapper tlm_;
@@ -69,7 +71,6 @@ public:
 
 
 private:
-
 
 	void get_sequence_type();
 	std::string sequence_type_;

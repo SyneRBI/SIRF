@@ -40,6 +40,7 @@ public:
 	std::string get_filepath_tissue_parameter_xml( void );
 	LabelArray get_segmentation_labels( void );
 	
+	const size_t* get_segmentation_dimensions( void );
 
 	void map_labels_to_tissue_from_xml( void );
 

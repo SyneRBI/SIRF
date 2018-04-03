@@ -111,7 +111,6 @@ TissueParameterList aux_test::get_mock_tissue_param_list( void )
 	par1.name_ = "fake_one";
 	par1.label_ = 0;
 
-
 	par2.name_ = "fake_two";
 	par2.label_ = 1;
 

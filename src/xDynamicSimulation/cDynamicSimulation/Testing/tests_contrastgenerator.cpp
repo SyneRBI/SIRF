@@ -54,20 +54,32 @@ bool test_contgen::test_mr_read_rawdata_header_file_exists( void )
 }
 
 
-bool test_contgen::test_mr_map_contrast( void )
+bool test_contgen::test_mr_map_contrast_dim_check( void )
  {
+
+ 	//using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
 	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
-
 	mr_contgen.read_rawdata_header();
-
 
 	mr_contgen.map_contrast();
 
-	return false;
+	ISMRMRD::NDArray< complex_float_t >	contrast = mr_contgen.get_contrast_filled_volume();	
+
+	int const num_echoes = 1;
+
+	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,1,0,0,0};
+	const size_t* contrast_dims = contrast.getDims();
+
+	bool dims_are_correct = true; 
+
+	for( int i=0; i<ISMRMRD_NDARRAY_MAXDIM; i++)
+		dims_are_correct *= (contrast_dims[i] == input_dims[i]);
+
+	return dims_are_correct;
  }
 
 
@@ -91,7 +103,6 @@ bool test_contgen::test_map_flash_contrast( void )
 
 	float const TR = 2;
 	float const TE = 1;
-
 
 
 	complex_float_t IMAG_UNIT(0,1);
@@ -136,6 +147,24 @@ bool test_tlm::test_get_labels_array()
 	bool set_and_get_are_the_same = aux_test::equal_array_content<unsigned int> (labels_list, reference_list);
 
 	return set_and_get_are_the_same;
+}
+
+bool test_tlm::test_get_segmentation_dimensions( void )
+{
+
+	LabelArray labels_list = aux_test::get_mock_label_array();
+	TissueLabelMapper tlm( labels_list, XML_TEST_PATH);
+
+	const size_t* data_dims = tlm.get_segmentation_dimensions();
+
+	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,0,0,0,0};
+
+	bool dims_are_correct = true;
+
+	for( int i=0; i<ISMRMRD_NDARRAY_MAXDIM; i++)
+		dims_are_correct *= (data_dims[i] == input_dims[i]);		
+	
+	return dims_are_correct;
 }
 
 

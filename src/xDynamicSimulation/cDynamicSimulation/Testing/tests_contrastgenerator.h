@@ -22,6 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 #include "contrastgenerator.h"
 
+using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 namespace test_contgen
 {
@@ -29,9 +30,11 @@ namespace test_contgen
 bool test_mr_constructor( void );
 bool test_mr_set_get_rawdata_header_path( void );
 bool test_mr_read_rawdata_header_file_exists( void );
-bool test_mr_map_contrast( void );
 
 bool test_map_flash_contrast( void );
+
+bool test_mr_map_contrast_dim_check( void );
+
 
 }// namespace test_contgen
 
@@ -43,6 +46,8 @@ namespace test_tlm
 
 bool test_get_filepath_tissue_parameter_xml( void );
 bool test_get_labels_array(void);
+bool test_get_segmentation_dimensions( void );
+
 
 bool test_assign_tissue_parameters_label_found( void );
 bool test_assign_tissue_parameters_label_not_found( void );

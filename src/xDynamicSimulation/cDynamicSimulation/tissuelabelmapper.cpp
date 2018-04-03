@@ -39,6 +39,11 @@ void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 }
 
 
+const size_t* TissueLabelMapper::get_segmentation_dimensions( void )
+{
+	return this->segmentation_labels_.getDims();		
+}
+
 TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list, LabelArray label_volume )
 {
 
