@@ -72,7 +72,6 @@ public:
 
 private:
 
-	void get_sequence_type();
 	std::string sequence_type_;
 	IsmrmrdHeader hdr_;
 

@@ -50,27 +50,68 @@ void MRContrastGenerator::read_rawdata_header()
     std::string xml;
     d.readHeader(xml);
     ISMRMRD::deserialize(xml.c_str(),this->hdr_);
-	
 
-	/*
-    ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get();
-
-	std::vector<float> TE = sequ_par.TE.get();
-
-	size_t num_echoes = TE.size();
-	
-	for( int i=0; i<num_echoes; i++)
-	{
-
-		std::cout << "TE(" << i << ")" << TE[i] << std::endl;
-
-	}*/    
 }
 
 void MRContrastGenerator::map_contrast()
 {
-	//throw std::runtime_error(" this is not implemented yet, test it alter");
+
+	read_rawdata_header();
+	std::vector < complex_float_t >	(*contrast_map_function)(TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header);
+
+	
+
+	ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get(); 
+	std::string const sequ_name = sequ_par.sequence_type.get();
+
+	if(sequ_name.compare("Flash") == 0)
+	{
+		contrast_map_function = &map_flash_contrast;
+	}
+	else
+	{
+		throw std::runtime_error("The header you read in requires a contrast which has not been implemented yet. Please give another header or write the contrast map and add an else if to the map_contrast method.");
+	}
+
+
+	
+	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+	size_t const num_voxels = tissue_params.size();	
+
+
+	std::vector<std::vector< complex_float_t> > contrast_vector;
+	contrast_vector.resize(num_voxels);
+	
+
+	for (size_t i= 0; i<num_voxels; i++)
+	{
+		contrast_vector[i] = contrast_map_function(tissue_params[i], &(this->hdr_));
+	}
+	size_t const num_echoes = contrast_vector[0].size();
+
+	const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+
+	std::vector<size_t> data_size;
+	data_size.resize(ISMRMRD::ISMRMRD_NDARRAY_MAXDIM);
+	for( int i_dim=0; i_dim<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i_dim++)
+	{
+		data_size[i_dim] = segmentation_dims[i_dim];
+	}
+
+	data_size[3] = num_echoes;
+
+	this->contrast_filled_volume_.resize(data_size);
+	
+	for( size_t i_echo = 0; i_echo<num_echoes; i_echo++)
+		for
+
+	
+
 }
+
+
+	
+
 
 
 std::vector < complex_float_t > map_flash_contrast
