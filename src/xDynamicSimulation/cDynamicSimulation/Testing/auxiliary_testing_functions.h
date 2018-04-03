@@ -9,6 +9,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+#include <string>
+#include <sstream>
+#include <fstream>
+
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
@@ -24,7 +28,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // strings
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 #define ISMRMRD_H5_TEST_PATH "Testing/TestData/test_data_ismrmrd.h5"
-#define H5_PHANTOM_TEST_PATH "Tesing/TestData/h5_testfile_cube_size3.h5"
+#define H5_PHANTOM_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
+#define H5_XCAT_PHANTOM_PATH "Testing/TestData/xcat_tissue_segmentation_uint8.h5"
 
 namespace aux_test
 {
@@ -40,7 +45,8 @@ namespace aux_test
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
 	
-
+	void write_ndarray_to_binary(std::string const output_name_without_ext, ISMRMRD::NDArray<complex_float_t> data_array);
+	
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{
 		size_t const num_elements = one_array.getNumberOfElements();
@@ -59,7 +65,7 @@ namespace aux_test
 			}
 			return content_is_equal;
 		}
-	}
+	};
 
 
 }// namespace aux_test

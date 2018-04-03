@@ -32,7 +32,6 @@ bool test_contgen::test_mr_set_get_rawdata_header_path( void )
 
 	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
 
-
 	std::string raw_data_file_path = mr_contgen.get_rawdata_file_path();
 
 	return  !raw_data_file_path.compare(ISMRMRD_H5_TEST_PATH);
@@ -80,6 +79,33 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 	return dims_are_correct;
  }
+
+
+void test_contgen::test_mr_map_contrast_application_to_xcat( void )
+{
+	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_TEST_PATH);
+	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
+
+	mr_contgen.map_contrast();
+
+	ISMRMRD::NDArray< complex_float_t >	mr_contrast = mr_contgen.get_contrast_filled_volume();	
+
+	size_t num_elements = mr_contrast.getNumberOfElements();
+	std::cout << epiph(num_elements) << std::endl;
+
+	// check data sizes
+	const size_t* data_dimension = mr_contrast.getDims();
+	for(int i=0; i<7; i++)
+		std::cout << epiph( data_dimension[i]) << std::endl;
+
+	
+	std::string output_name = "/media/sf_SharedFiles/flash_contrast_xcat_test_";
+	
+	aux_test::write_ndarray_to_binary(output_name, mr_contrast);
+	
+}
 
 
 bool test_contgen::test_map_flash_contrast( void )

@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sstream>
 #include <string>
 #include <vector>
 #include <ismrmrd/ismrmrd.h>

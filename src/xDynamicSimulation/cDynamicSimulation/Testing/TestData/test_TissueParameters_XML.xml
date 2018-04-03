@@ -2,11 +2,10 @@
 
 <TissueParameterList>
 
-
 	<TissueParameter>
 
-		<label>  </label>
-		<name>  		</name>
+		<label> 0 </label>
+		<name> Air</name>
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
@@ -21,12 +20,6 @@
 		</PETTissueParameter>
 
 	</TissueParameter>
-
-
-
-
-
-
 
 
 	<TissueParameter>
@@ -197,10 +190,10 @@
 		<name>Body</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
-			<cs_ppm> 					0			</cs_ppm>
+			<spin_density_percentH2O> 	40		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			240		</t1_miliseconds>
+			<t2_miliseconds> 			85 		</t2_miliseconds>
+			<cs_ppm> 					-3.4			</cs_ppm>
 		</MRTissueParameter>
 
 		<PETTissueParameter>
@@ -218,9 +211,9 @@
 		<name>Muscle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			900		</t1_miliseconds>
+			<t2_miliseconds> 			50 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -238,9 +231,9 @@
 		<name>Brain</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			900		</t1_miliseconds>
+			<t2_miliseconds> 			90 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -257,9 +250,9 @@
 		<name>Liver</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			812		</t1_miliseconds>
+			<t2_miliseconds> 			42 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -659,6 +652,26 @@
 
 	</TissueParameter>
 
+
+	<TissueParameter>
+
+		<label> 34 </label>
+		<name> ??? </name>
+
+		<MRTissueParameter>
+			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			0		</t1_miliseconds>
+			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<cs_ppm> 					0			</cs_ppm>
+		</MRTissueParameter>
+
+		<PETTissueParameter>
+			<attenuation_1_by_mm> 	0	 	</attenuation_1_by_mm>
+			<SUV> 					0 		</SUV>
+		</PETTissueParameter>
+
+	</TissueParameter>
+
 	<TissueParameter>
 
 		<label> 35 </label>
@@ -950,10 +963,10 @@
 		<name> Pericardium </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
-			<cs_ppm> 					0			</cs_ppm>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			240		</t1_miliseconds>
+			<t2_miliseconds> 			85 		</t2_miliseconds>
+			<cs_ppm> 					-3.4	</cs_ppm>
 		</MRTissueParameter>
 
 		<PETTissueParameter>
@@ -969,9 +982,9 @@
 		<name> Cartilage</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			1150		</t1_miliseconds>
+			<t2_miliseconds> 			43 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -1233,7 +1246,7 @@
 
 		<label> 66 </label>
 		<name> Thymus </name>
-
+Fa
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			0		</t1_miliseconds>

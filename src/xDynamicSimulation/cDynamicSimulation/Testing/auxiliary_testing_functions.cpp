@@ -12,6 +12,46 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
+void aux_test::write_ndarray_to_binary(std::string const output_name_without_ext, ISMRMRD::NDArray<complex_float_t> data_array)
+{	
+	std::cout<< "Writing file " <<output_name_without_ext << std::endl;
+	std::stringstream name_stream;
+	name_stream << output_name_without_ext << "_";
+
+	const size_t* data_dimension = data_array.getDims();
+
+	name_stream<< data_dimension[0];
+
+	for(int i=1; i<7; i++)
+	{	
+		if( data_dimension[i] > 1)
+		{
+			name_stream << "x" << data_dimension[i];
+		}
+	}
+	name_stream << ".bin";
+
+	size_t num_elements = data_array.getNumberOfElements();
+	std::vector <float> buffer;
+	buffer.resize(num_elements);
+
+
+	for( size_t i=0; i<num_elements; i++)
+	{
+		buffer[i] = std::abs(data_array(i));
+	}
+
+	std::ofstream out( name_stream.str().c_str(), std::ios::binary);
+
+	out.write( (char*)&buffer[0], buffer.size()*sizeof(float));
+	out.close();
+
+	std::cout<< "Finished writing file " << name_stream.str() << std::endl;
+
+
+}
+
+
 MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 {
 	MRTissueParameter mr_tissue_pars;
@@ -70,8 +110,8 @@ ISMRMRD::AcquisitionSystemInformation aux_test::get_mock_acquisition_system_info
 	float const field_strength_t = 1.00; 
 
 
-  	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(field_strength_t);
-  	return asi;
+	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(field_strength_t);
+	return asi;
 
 }
 
@@ -93,14 +133,14 @@ ISMRMRD::SequenceParameters aux_test::get_mock_sequence_parameters( void )
 	std::string sequ_type = {"Flash"};
 	ParType dE = {0};
 
-    seq_pars.TR = Optional< ParType >(TR);
-    seq_pars.TE = Optional< ParType >(TE);
-    seq_pars.TI = Optional< ParType >(TI);
-    seq_pars.flipAngle_deg = Optional< ParType >(flipAngle_deg);
-    seq_pars.sequence_type = Optional< std::string >(sequ_type);
-    seq_pars.echo_spacing = Optional< ParType >(dE);
+	seq_pars.TR = Optional< ParType >(TR);
+	seq_pars.TE = Optional< ParType >(TE);
+	seq_pars.TI = Optional< ParType >(TI);
+	seq_pars.flipAngle_deg = Optional< ParType >(flipAngle_deg);
+	seq_pars.sequence_type = Optional< std::string >(sequ_type);
+	seq_pars.echo_spacing = Optional< ParType >(dE);
 
-    return seq_pars;
+	return seq_pars;
 
 }
 
@@ -109,16 +149,16 @@ TissueParameterList aux_test::get_mock_tissue_param_list( void )
 {
 	TissueParameter par1, par2, par3, par4;
 	par1.name_ = "fake_one";
-	par1.label_ = 0;
+	par1.label_ = 1;
 
 	par2.name_ = "fake_two";
-	par2.label_ = 1;
+	par2.label_ = 2;
 
 	par3.name_ = "fake_three";
-	par3.label_ = 2;
+	par3.label_ = 3;
 
 	par4.name_ = "fake_four";
-	par4.label_ = 3;
+	par4.label_ = 4;
 
 	TissueParameterList tiss_list;
 	
@@ -139,9 +179,9 @@ LabelArray aux_test::get_mock_label_array( void )
 	for( int i=0; i< labels_list.getNumberOfElements(); i++)
 	{
 		if( i< labels_list.getNumberOfElements()/2 )
-			labels_list(i) = 0;
-		else
 			labels_list(i) = 1;
+		else
+			labels_list(i) = 2;
 	}
 
 	return labels_list;	

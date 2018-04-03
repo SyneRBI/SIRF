@@ -69,8 +69,10 @@ TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list,
 			tissue_volume[i_vox] = key_value_pair->second;
 		}
 		else
-		{
-			throw std::runtime_error("The label in your label volume does not appear in the label list.");
+		{	
+			std::stringstream msg;
+			msg << "The label " <<  label_volume(i_vox) << " in your label volume does not appear in the label list.";
+			throw std::runtime_error(msg.str());
 		}
 
 	}

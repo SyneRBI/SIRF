@@ -79,12 +79,13 @@ void MRContrastGenerator::map_contrast()
 	size_t const num_voxels = tissue_params.size();	
 
 
+
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
 	
-
+	//#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
-	{
+	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], &(this->hdr_));
 	}
 	size_t const num_echoes = contrast_vector[0].size();
@@ -109,17 +110,17 @@ void MRContrastGenerator::map_contrast()
 	size_t Nx = data_size[0];
 	
 	// sort data into NDArray
-	#pragma omp parallel
+	//#pragma omp parallel
 	for( size_t nz=0; nz<Nz; nz++)
 	{
 		for( size_t ny=0; ny<Ny; ny++)
 		{
 			for( size_t nx=0; nx<Nx; nx++)
 			{
+				size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+				std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
 				for( size_t i_echo = 0; i_echo<num_echoes; i_echo++)
 				{
-					size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
-					std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
 					this->contrast_filled_volume_(nx,ny,nz,i_echo) = curr_voxel[i_echo];	
 				}
 			}

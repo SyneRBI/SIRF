@@ -11,6 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <string>
+#include <sstream>
 #include <stdio.h>
 #include <iostream>
 
@@ -21,6 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 #include "tissueparameters.h"
 #include "contrastgenerator.h"
+#include "phantom_input.h"
 
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
@@ -34,6 +36,8 @@ bool test_mr_read_rawdata_header_file_exists( void );
 bool test_map_flash_contrast( void );
 
 bool test_mr_map_contrast_dim_check( void );
+
+void test_mr_map_contrast_application_to_xcat( void );
 
 
 }// namespace test_contgen

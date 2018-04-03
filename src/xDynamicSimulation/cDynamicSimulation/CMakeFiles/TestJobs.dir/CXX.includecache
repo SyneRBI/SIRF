@@ -7,6 +7,12 @@
 #IncludeRegexTransform: 
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+string
+-
+sstream
+-
+fstream
+-
 ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
@@ -27,6 +33,8 @@ tests_phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
 string
 -
+sstream
+-
 stdio.h
 -
 iostream
@@ -41,6 +49,8 @@ tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/contrastgenerator.h
+phantom_input.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
 string
@@ -560,6 +570,8 @@ src/xDynamicSimulation/cDynamicSimulation/tissuelabelmapper.h
 stdio.h
 -
 stdlib.h
+-
+sstream
 -
 string
 -
