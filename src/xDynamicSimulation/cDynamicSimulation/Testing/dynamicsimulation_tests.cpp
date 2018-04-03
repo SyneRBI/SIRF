@@ -18,6 +18,25 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "dynamicsimulation_tests.h"
 
 
+void run_tests_auxiliary_testing_functions( void )
+{
+
+	bool tests_successful = true;
+
+	test_aux_test_funs::test_write_ndarray_to_raw();
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The auxiliary testing functions tests failed.");
+	}
+	else
+	{
+		std::cout<< "The auxiliary testing functions tests succeeded." <<std::endl;
+	}
+}
+
+
+
 void run_tests_tissueparameters(void)
 {
 	bool tests_successful = true;

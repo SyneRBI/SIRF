@@ -108,7 +108,7 @@ void MRContrastGenerator::map_contrast()
 	size_t Nz = data_size[2];
 	size_t Ny = data_size[1];
 	size_t Nx = data_size[0];
-	
+
 	// sort data into NDArray
 	//#pragma omp parallel
 	for( size_t nz=0; nz<Nz; nz++)
