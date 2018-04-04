@@ -56,10 +56,7 @@ void MRContrastGenerator::read_rawdata_header()
 void MRContrastGenerator::map_contrast()
 {
 
-	read_rawdata_header();
 	std::vector < complex_float_t >	(*contrast_map_function)(TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header);
-
-	
 
 	ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get(); 
 	std::string const sequ_name = sequ_par.sequence_type.get();

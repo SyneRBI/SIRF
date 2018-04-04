@@ -91,6 +91,7 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_TEST_PATH);
 	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.read_rawdata_header();
 
 	mr_contgen.map_contrast();
 
