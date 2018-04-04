@@ -23,7 +23,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 // checking for 
 template <class T>
-bool check_array_content( ISMRMRD::NDArray <T> input_array, T central_value)
+bool check_array_content( ISMRMRD::NDArray <T> input_array)
 {
 	try
 	{
@@ -44,20 +44,33 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array, T central_value)
 
 	bool content_is_correct = true;
 	
-	for (int nk = 0; nk < dimensions[6]; nk++)	
-	for (int nl = 0; nl < dimensions[5]; nl++)
-	for (int nm = 0; nm < dimensions[4]; nm++)
-	for (int nn = 0; nn < dimensions[3]; nn++)
-	for (int nz = 0; nz < dimensions[2]; nz++)
-	for (int ny = 0; ny < dimensions[1]; ny++)
-	for (int nx = 0; nx < dimensions[0]; nx++)
+
+	size_t Nk = dimensions[6];
+	size_t Nl = dimensions[5];
+	size_t Nm = dimensions[4];
+	size_t Nn = dimensions[3];
+	size_t Nz = dimensions[2];
+	size_t Ny = dimensions[1];
+	size_t Nx = dimensions[0];
+
+
+
+
+
+	for (int nk = 0; nk < Nk; nk++)	
+	for (int nl = 0; nl < Nl; nl++)
+	for (int nm = 0; nm < Nm; nm++)
+	for (int nn = 0; nn < Nn; nn++)
+	for (int nz = 0; nz < Nz; nz++)
+	for (int ny = 0; ny < Ny; ny++)
+	for (int nx = 0; nx < Nx; nx++)
 			{	
-				std::cout<< epiph(input_array(nx, ny, nz, nn, nm, nl, nk))<<std::endl;
+				size_t current_access = (((((nk*Nl + nl)*Nm + nm)*Nn + nn)*Nz + nz)*Ny + ny)*Nx+nx;
+				std::cout << epiph(current_access) << "   " << epiph(input_array(nx, ny, nz, nn, nm, nl, nk))<<std::endl;
+				content_is_correct *= (input_array(nx,ny,nz,nn,nm,nl,nk) == current_access + 1);
+				
 			}
 	
-	content_is_correct *= (input_array(dimensions[0]/2, dimensions[1]/2, dimensions[2]/2, 
-										dimensions[3]/2, dimensions[5]/2, dimensions[5]/2, dimensions[6]/2) == central_value);
-
 
 	return content_is_correct;
 	
@@ -72,7 +85,7 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array, T central_value)
 
 
 
-
+void test_read_h5_segmentation_for_xcat_input_check(std::string h5_filename_with_suffix);
 bool test_read_dataset_from_h5(std::string h5_filename_with_suffix);
 bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix);
 bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suffix);

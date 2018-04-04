@@ -33,11 +33,18 @@ bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suf
 	
 	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5( h5_filename_with_suffix );
 	
-	unsigned int const input_value = 1;
-
-	return check_array_content<unsigned int>( segmentation, input_value);
+	return check_array_content<unsigned int>( segmentation);
 		
 }
 
+
+void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xcat_seg_with_suffix)
+{
+	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5(h5_filename_xcat_seg_with_suffix);
+
+	std::string output_name_xcat_seg = "/media/sf_SharedFiles/test_output_xcat_seg_input_check";
+	aux_test::write_ndarray_to_binary<unsigned int> (output_name_xcat_seg, segmentation);
+
+}
 
 

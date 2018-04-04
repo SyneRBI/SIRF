@@ -29,12 +29,12 @@ void test_aux_test_funs::test_write_ndarray_to_raw( void )
 	for( int nx=0; nx<Nx; nx++)
 	for( int ne=0; ne<Ne; ne++)
 	{
-		dummy_data(nx,ny,nz,ne) = std::complex<float>(ne, 0);
+		dummy_data(nx,ny,nz,ne) = std::complex<float>(nx*ne, 0);
 	}
 
 
 	std::string output_name = "/media/sf_SharedFiles/test_binary_writer";
 
-	aux_test::write_ndarray_to_binary(output_name, dummy_data);
+	aux_test::write_ndarray_to_binary<complex_float_t>(output_name, dummy_data);
 
 }

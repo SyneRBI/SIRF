@@ -111,6 +111,7 @@ void run_tests_phantom_input( void )
 	tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);
 	tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);
 	
+	test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
 	
 	if ( !tests_successful )
 	{

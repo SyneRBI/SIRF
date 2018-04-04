@@ -85,6 +85,10 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
 	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
+	std::string name_output_segmentation = "/media/sf_SharedFiles/tissue_seg_xcat_test_";
+	aux_test::write_ndarray_to_binary<unsigned int>(name_output_segmentation, segmentation_labels);
+
+
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_TEST_PATH);
 	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
 
@@ -101,9 +105,9 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 		std::cout << epiph( data_dimension[i]) << std::endl;
 
 	
-	std::string output_name = "/media/sf_SharedFiles/flash_contrast_xcat_test_";
+	std::string name_output_contrast  = "/media/sf_SharedFiles/flash_contrast_xcat_test_";
 	
-	aux_test::write_ndarray_to_binary(output_name, mr_contrast);
+	aux_test::write_ndarray_to_binary<complex_float_t>(name_output_contrast, mr_contrast);
 	
 }
 

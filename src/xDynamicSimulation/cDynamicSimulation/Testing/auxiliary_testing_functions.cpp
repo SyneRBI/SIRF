@@ -12,46 +12,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
-void aux_test::write_ndarray_to_binary(std::string const output_name_without_ext, ISMRMRD::NDArray<complex_float_t> data_array)
-{	
-	std::cout<< "Writing file " <<output_name_without_ext << std::endl;
-	std::stringstream name_stream;
-	name_stream << output_name_without_ext << "_";
-
-	const size_t* data_dimension = data_array.getDims();
-
-	name_stream<< data_dimension[0];
-
-	for(int i=1; i<7; i++)
-	{	
-		if( data_dimension[i] > 1)
-		{
-			name_stream << "x" << data_dimension[i];
-		}
-	}
-	name_stream << ".bin";
-
-	size_t num_elements = data_array.getNumberOfElements();
-	std::vector <float> buffer;
-	buffer.resize(num_elements);
-
-
-	for( size_t i=0; i<num_elements; i++)
-	{
-		buffer[i] = std::abs(data_array(i));
-	}
-
-	std::ofstream out( name_stream.str().c_str(), std::ios::binary);
-
-	out.write( (char*)&buffer[0], buffer.size()*sizeof(float));
-	out.close();
-
-	std::cout<< "Finished writing file " << name_stream.str() << std::endl;
-
-
-}
-
-
 MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 {
 	MRTissueParameter mr_tissue_pars;

@@ -25,6 +25,11 @@ ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5
 
 	if( type_class == H5T_INTEGER )
 	{
+		IntType intype = dataset.getIntType();
+		size_t type_size = intype.getSize();
+		std::cout << "Type size is " << type_size << std::endl;
+
+
 	    DataSpace dataspace = dataset.getSpace();
 
 		hsize_t dimensions_input[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM];
@@ -37,7 +42,7 @@ ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5
 	
 		ISMRMRD::NDArray< unsigned int > segmentation( input_dimensions );
 
-		dataset.read( segmentation.begin(), PredType::NATIVE_INT, dataspace, dataspace);
+		dataset.read( segmentation.begin(), PredType::NATIVE_UINT, dataspace, dataspace);
 
 		return segmentation;
 	}
