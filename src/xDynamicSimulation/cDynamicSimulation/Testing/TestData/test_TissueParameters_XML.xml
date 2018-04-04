@@ -28,9 +28,9 @@
 		<name>Myocardium left ventricle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			1157		</t1_miliseconds>
+			<t2_miliseconds> 			44 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -47,9 +47,9 @@
 		<name>Myocardium right ventricle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			1157		</t1_miliseconds>
+			<t2_miliseconds> 			44 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -68,9 +68,9 @@
 		<name>Myocardium left atrium</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			1157		</t1_miliseconds>
+			<t2_miliseconds> 			44 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -90,9 +90,9 @@
 		<name>Myocardium right atrium</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			1157		</t1_miliseconds>
+			<t2_miliseconds> 			44 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -110,9 +110,9 @@
 		<name>Bloodpool left ventricle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -130,9 +130,9 @@
 		<name>Bloodpool right ventricle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -151,9 +151,9 @@
 		<name>Bloodpool left atrium</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -170,9 +170,9 @@
 		<name>Bloodpool right atrium</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -211,7 +211,7 @@
 		<name>Muscle</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			900		</t1_miliseconds>
 			<t2_miliseconds> 			50 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
@@ -250,9 +250,9 @@
 		<name>Liver</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	90		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			812		</t1_miliseconds>
-			<t2_miliseconds> 			42 		</t2_miliseconds>
+			<t2_miliseconds> 			50 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -288,9 +288,9 @@
 		<name>Left lung</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	10		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			750		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -308,9 +308,9 @@
 		<name>Right lung</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	10		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			750		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -445,9 +445,9 @@
 		<name>Right kidney cortex</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	75		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			862		</t1_miliseconds>
+			<t2_miliseconds> 			52 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -583,9 +583,9 @@
 		<name> Spleen </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			901		</t1_miliseconds>
+			<t2_miliseconds> 			50 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -620,9 +620,9 @@
 		<name> Cortical bone </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	12		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			250		</t1_miliseconds>
+			<t2_miliseconds> 			20 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -639,9 +639,9 @@
 		<name> Spine</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	12		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			250		</t1_miliseconds>
+			<t2_miliseconds> 			20 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -697,9 +697,9 @@
 		<name> Arteries </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -716,9 +716,9 @@
 		<name> Veins </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -1381,9 +1381,9 @@
 		<name> Coronary artery </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
@@ -1400,9 +1400,9 @@
 		<name> Coronary vein </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			0		</t1_miliseconds>
-			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
 
