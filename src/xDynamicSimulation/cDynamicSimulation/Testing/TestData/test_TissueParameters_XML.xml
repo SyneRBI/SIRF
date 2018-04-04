@@ -1244,9 +1244,28 @@
 
 	<TissueParameter>
 
+		<label> 65 </label>
+		<name> ??? </name>
+
+		<MRTissueParameter>
+			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			0		</t1_miliseconds>
+			<t2_miliseconds> 			0 		</t2_miliseconds>
+			<cs_ppm> 					0			</cs_ppm>
+		</MRTissueParameter>
+
+		<PETTissueParameter>
+			<attenuation_1_by_mm> 	0	 	</attenuation_1_by_mm>
+			<SUV> 					0 		</SUV>
+		</PETTissueParameter>
+
+	</TissueParameter>
+
+	<TissueParameter>
+
 		<label> 66 </label>
 		<name> Thymus </name>
-Fa
+
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			0		</t1_miliseconds>

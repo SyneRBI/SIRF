@@ -26,9 +26,6 @@ ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5
 	if( type_class == H5T_INTEGER )
 	{
 		IntType intype = dataset.getIntType();
-		size_t type_size = intype.getSize();
-		std::cout << "Type size is " << type_size << std::endl;
-
 
 	    DataSpace dataspace = dataset.getSpace();
 

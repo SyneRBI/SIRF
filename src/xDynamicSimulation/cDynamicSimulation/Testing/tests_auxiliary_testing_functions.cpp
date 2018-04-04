@@ -13,10 +13,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 void test_aux_test_funs::test_write_ndarray_to_raw( void )
 {
 
-	size_t Nx = 33;
-	size_t Ny = 33; 
-	size_t Nz = 33;
-	size_t Ne = 4;
+	size_t Nx = 192;
+	size_t Ny = 192; 
+	size_t Nz = 192;
+	size_t Ne = 3;
 
 	std::vector< size_t > data_size = {Nx, Ny, Nz, Ne};
 
@@ -29,8 +29,7 @@ void test_aux_test_funs::test_write_ndarray_to_raw( void )
 	for( int nx=0; nx<Nx; nx++)
 	for( int ne=0; ne<Ne; ne++)
 	{
-		dummy_data(nx,ny,nz,ne) = std::complex<float>(nx*ne, 0);
-		//dummy_data(nx,ny,nz,ne) = 1;
+		dummy_data(nx,ny,nz,ne) = std::complex<float>(nx*ne, nx*ne);
 	}
 
 

@@ -105,7 +105,7 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 		std::cout << epiph( data_dimension[i]) << std::endl;
 
 	
-	std::string name_output_contrast  = "/media/sf_SharedFiles/flash_contrast_xcat_test_";
+	std::string name_output_contrast  = "/media/sf_SharedFiles/flash_contrast_xcat_test";
 	
 	aux_test::write_ndarray_to_binary<complex_float_t>(name_output_contrast, mr_contrast);
 	

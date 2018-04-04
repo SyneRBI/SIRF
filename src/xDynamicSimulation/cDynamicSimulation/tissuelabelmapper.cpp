@@ -63,7 +63,7 @@ TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list,
 
 	for( int i_vox =0; i_vox<num_voxels; i_vox++)
 	{
-		auto key_value_pair = lut.find(label_volume(i_vox));
+		auto key_value_pair = lut.find( *(label_volume.begin() +i_vox) );
 		if( key_value_pair != lut.end())
 		{	
 			tissue_volume[i_vox] = key_value_pair->second;
@@ -71,7 +71,7 @@ TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list,
 		else
 		{	
 			std::stringstream msg;
-			msg << "The label " <<  label_volume(i_vox) << " in your label volume does not appear in the label list.";
+			msg << "The label " <<  *(label_volume.begin() +i_vox) << " in your label volume does not appear in the label list.";
 			throw std::runtime_error(msg.str());
 		}
 
