@@ -32,9 +32,10 @@ int main()
         converter.set_time_interval(0,10);
         converter.set_up();
         converter.estimate_randoms();
-    }
+		return 0;
+	}
     catch (...)
     {
-    }
-    return 0;
+		return 1;
+	}
 }

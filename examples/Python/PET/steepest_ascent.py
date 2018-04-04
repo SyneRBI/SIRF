@@ -137,9 +137,9 @@ def main():
             # at least one point is selected
             maxstep = ratio[select].min()
         else:
-            # no such points - use a plausible value based on tau and
+            # no such points - use a plausible value based on 'step' and
             # image-to-gradient ratio
-            maxstep = abs(tau)*max_image/max_grad
+            maxstep = abs(step)*max_image/max_grad
 
         # at some voxels image values may be close to zero and the gradient may
         # also be close to zero there; hence, both may become negative because
@@ -155,7 +155,7 @@ def main():
             x = scipy.optimize.fminbound \
                 (fun, 0, maxstep, xtol = 1e-4, maxfun = 3, disp = disp)
         else:
-            # x is such that the relative change in image is not greater than tau
+            # x is such that the relative change in image is not greater than 'step'
             x = step*max_image/max_grad
             if x > maxstep:
                 x = maxstep
