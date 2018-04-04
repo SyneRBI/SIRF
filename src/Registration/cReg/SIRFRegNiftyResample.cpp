@@ -37,56 +37,49 @@ using namespace std;
 
 void SIRFRegNiftyResample::update()
 {
-    try {
+    cout << "\n\nStarting resampling...\n\n";
 
-        cout << "\n\nStarting resampling...\n\n";
+    // Check that all the required information has been entered
+    check_parameters();
 
-        // Check that all the required information has been entered
-        check_parameters();
+    // Open images if necessary, correct if not
+    if (!_reference_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
 
-        // Open images if necessary, correct if not
-        if (!_reference_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
+    if (!_floating_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
 
-        if (!_floating_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
+    // Set up transformation matrix
+    mat44 transformation_matrix;
+    set_up_transformation_matrix(transformation_matrix);
 
-        // Set up transformation matrix
-        mat44 transformation_matrix;
-        set_up_transformation_matrix(transformation_matrix);
+    cout << "\n\nthe transformation matrix is:\n";
+    SIRFRegMisc::print_mat44(&transformation_matrix);
 
-        cout << "\n\nthe transformation matrix is:\n";
-        SIRFRegMisc::print_mat44(&transformation_matrix);
+    cout << "\n\nConverting affine transformation to deformation field...\n\n";
 
-        cout << "\n\nConverting affine transformation to deformation field...\n\n";
+    // Initialise the deformation field image
+    shared_ptr<nifti_image> deformation_field_image_sptr;
+    this->set_up_deformation_field_image(deformation_field_image_sptr, transformation_matrix);
 
-        // Initialise the deformation field image
-        shared_ptr<nifti_image> deformation_field_image_sptr;
-        this->set_up_deformation_field_image(deformation_field_image_sptr, transformation_matrix);
+    cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
-        cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
+    // Setup output image
+    set_up_output_image();
 
-        // Setup output image
-        set_up_output_image();
+    reg_resampleSourceImage(_reference_image_sptr.get(),
+                                _floating_image_sptr.get(),
+                                _output_image_sptr.get(),
+                                deformation_field_image_sptr.get(),
+                                NULL,
+                                _interpolation_type,
+                                0);
 
-        reg_resampleSourceImage(_reference_image_sptr.get(),
-                                    _floating_image_sptr.get(),
-                                    _output_image_sptr.get(),
-                                    deformation_field_image_sptr.get(),
-                                    NULL,
-                                    _interpolation_type,
-                                    0);
-
-        cout << "\n\nResampling finished!\n\n";
-
-    // If there was an error, rethrow it.
-    } catch (const std::exception &error) {
-        throw;
-    }
+    cout << "\n\nResampling finished!\n\n";
 }
 
 void SIRFRegNiftyResample::check_parameters()

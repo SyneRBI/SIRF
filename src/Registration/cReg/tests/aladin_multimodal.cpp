@@ -36,6 +36,10 @@ using namespace std;
 
 int aladin_multimodal(string output_path)
 {
+
+        cout << "\n========================================================\n";
+        cout << "    TESTING ALADIN MULTIMODAL";
+        cout << "\n========================================================\n";
     
         string SIRF_PATH     = getenv("SIRF_PATH");
         string examples_path = SIRF_PATH + "/data/examples/Registration";
@@ -53,4 +57,10 @@ int aladin_multimodal(string output_path)
         NA.set_parameter_file          (   parameter_file_f3d   );
         NA.update();
         NA.save_warped_image           ( warped_image_filename  );
+
+        cout << "\n========================================================\n";
+        cout << "    SUCCESSFULLY COMPLETED TESTING ALADIN MULTIMODAL";
+        cout << "\n========================================================\n";
+
+        return 0;
 }

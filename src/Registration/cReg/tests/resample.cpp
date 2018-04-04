@@ -37,6 +37,10 @@ using namespace std;
 
 int resample(string output_path)
 {
+    cout << "\n========================================================\n";
+    cout << "    TESTING RESAMPLING";
+    cout << "\n========================================================\n";
+
     string SIRF_PATH     = getenv("SIRF_PATH");
     string examples_path = SIRF_PATH + "/data/examples/Registration";
 
@@ -54,4 +58,10 @@ int resample(string output_path)
     resample.update();
 
     resample.save_resampled_image               (  output   );
+
+    cout << "\n========================================================\n";
+    cout << "    SUCCESSFULLY COMPLETED TESTING RESAMPLING";
+    cout << "\n========================================================\n";
+
+    return 0;
 }

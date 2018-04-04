@@ -39,13 +39,29 @@ namespace SIRFRegMisc {
     void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path filename);
 
     /// Save nifti image
+    void save_nifti_image(nifti_image *image, const std::string filename);
+
+    /// Save nifti image
     void save_nifti_image(std::shared_ptr<nifti_image> image, const std::string filename);
+
+    //! Split multi-component nifti image
+    /*! Assume that the multi-component aspect is in dim[5].
+        Split the image into that many single-component images
+    */
+    std::vector<std::shared_ptr<nifti_image> >
+        split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input);
+
+    /// Split and save a multicomponent nifti image
+    void save_split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input, const std::string filename);
 
     /// Copy nifti image
     void copy_nifti_image(const std::string input_filename, const std::string output_filename);
 
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
+
+    /// Flip multicomponent image along a given axis
+    void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim);
 
     /// Do nifti images match?
     bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std::shared_ptr<nifti_image> &im2_sptr);

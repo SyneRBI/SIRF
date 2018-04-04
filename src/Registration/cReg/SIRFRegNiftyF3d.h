@@ -55,6 +55,20 @@ public:
     /// Set reference time point
     void set_reference_time_point(int reference_time_point) { _reference_time_point = reference_time_point; }
 
+    /// Set initial affine transformation
+    void set_initial_affine_transformation(mat44 *mat)
+    {
+        _initial_transformation_sptr     = std::make_shared<mat44>(*mat);
+        _initial_transformation_filename = "";
+    }
+
+    /// Set initial affine transformation
+    void set_initial_affine_transformation(std::string filename)
+    {
+        _initial_transformation_filename = filename;
+        _initial_transformation_sptr.reset();
+    }
+
 protected:
 
     /// Check parameters
@@ -70,6 +84,10 @@ protected:
     int _floating_time_point;
     /// Reference time point
     int _reference_time_point;
+    /// Transformation matrix
+    std::shared_ptr<mat44> _initial_transformation_sptr;
+    /// Transformation matrix filename
+    std::string _initial_transformation_filename;
 };
 
 #endif

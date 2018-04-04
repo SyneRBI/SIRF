@@ -27,28 +27,36 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegImageWeightedMean.h"
+#include "SIRFRegActivityCorrect.h"
 #include <iostream>
 
 using namespace std;
 
-int weighted_mean(string output_path)
+int activity_correction(string output_path)
 {
+    cout << "\n========================================================\n";
+    cout << "    TESTING ACTIVTIY CORRECTION";
+    cout << "\n========================================================\n";
+
     string SIRF_PATH     = getenv("SIRF_PATH");
     string examples_path = SIRF_PATH + "/data/examples/Registration";
-    
-    string im1    = examples_path + "/weighted_mean/regis_recon_gate1.nii";
-    string im2    = examples_path + "/weighted_mean/regis_recon_gate2.nii";
-    string im3    = examples_path + "/weighted_mean/regis_recon_gate3.nii";
-    string im4    = examples_path + "/weighted_mean/regis_recon_gate4.nii";
-    string output = output_path   + "/weighted_mean";
+
+    string input  = examples_path + "/test.nii.gz";
+    string output = output_path   + "/activity_correction_CPLUSPLUS.nii";
 
     // Run the test
-    SIRFRegImageWeightedMean weighted_mean;
-    weighted_mean.add_image( im1, 0.2 );
-    weighted_mean.add_image( im2, 0.2 );
-    weighted_mean.add_image( im3, 0.2 );
-    weighted_mean.add_image( im4, 0.2 );
-    weighted_mean.update();
-    weighted_mean.save_image_to_file(output);
+    SIRFRegActivityCorrect act_corr;
+    act_corr.set_initial_activity(267000000);
+    act_corr.set_half_life(6586.2);
+    act_corr.set_input_image_filename(input);
+    act_corr.set_start(48);
+    act_corr.set_stop(96);
+    act_corr.update();
+    act_corr.save_output(output);
+
+    cout << "\n========================================================\n";
+    cout << "    SUCCESSFULLY COMPLETED TESTING ACTIVTIY CORRECTION";
+    cout << "\n========================================================\n";
+
+    return 0;
 }

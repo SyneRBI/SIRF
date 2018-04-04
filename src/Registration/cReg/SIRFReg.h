@@ -105,6 +105,9 @@ public:
     /// Save warped image to file
     void save_warped_image(const std::string filename) const;
 
+    /// Save displacement field image to file
+    void save_displacement_field_image(const std::string filename, bool split_xyz, bool flip_for_stir);
+
 protected:
 
     /// Parse parameter file
@@ -112,6 +115,9 @@ protected:
 
     /// Check parameters
     virtual void check_parameters();
+
+    /// Get the displacement field image from the cpp image
+    void get_disp_from_cpp(std::shared_ptr<nifti_image> &cpp_sptr);
 
     /// Parameter filename
     boost::filesystem::path      _parameter_filename;
@@ -125,6 +131,8 @@ protected:
     std::shared_ptr<nifti_image> _reference_image_sptr;
     /// Warped image
     std::shared_ptr<nifti_image> _warped_image_sptr;
+    /// Displacement field image
+    std::shared_ptr<nifti_image> _displacement_field_image_sptr;
 };
 
 #endif

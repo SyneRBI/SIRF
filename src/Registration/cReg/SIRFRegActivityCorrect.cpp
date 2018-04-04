@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "SIRFRegActivityCorrect.h"
 #include "SIRFRegMisc.h"
-#include "_reg_tools.h"
+#include <_reg_tools.h>
 
 using namespace std;
 

@@ -28,9 +28,11 @@ limitations under the License.
 */
 
 #include "SIRFRegMisc.h"
-#include "_reg_globalTransformation.h"
+#include <_reg_globalTransformation.h>
 #include <_reg_tools.h>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
@@ -62,7 +64,7 @@ void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::p
 }
 
 /// Save nifti image
-void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
+void save_nifti_image(nifti_image *image, const string filename)
 {
     if (!image) {
         throw runtime_error("Cannot save image to file.");
@@ -78,9 +80,84 @@ void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
         boost::filesystem::create_directory(filename_boost.parent_path());
     }
 
-    nifti_set_filenames(image.get(), filename.c_str(), 0, 0);
-    nifti_image_write(image.get());
+    nifti_set_filenames(image, filename.c_str(), 0, 0);
+    nifti_image_write(image);
     cout << "done.\n\n";
+}
+
+/// Save nifti image
+void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
+{
+    save_nifti_image(image.get(), filename);
+}
+
+/// Split multi-component image
+vector<shared_ptr<nifti_image> >
+    split_multicomponent_nifti_image(shared_ptr<nifti_image> input)
+{
+    // Only works for ndim==5
+    if (input->ndim != 5)
+        throw runtime_error("Splitting only currently works for ndim==5.");
+
+    // Create the vector to store the single component images
+    vector<shared_ptr<nifti_image> > output;
+
+    // Loop over all of the components
+    int num_components = input->dim[5];
+    for (int component=0; component<num_components; component++) {
+
+        // Create new image
+        nifti_image *image;
+
+        // Copy the input image
+        image = nifti_copy_nim_info(input.get());
+
+        // Alter the info to change the number of dimensions
+        image->dim[0] = image->ndim = 3;
+        image->dim[5] = image->nu   = 1;
+        image->nvox   = input->nvox / input->nu;
+
+        // How much memory do we need?
+        size_t mem = image->nvox*image->nbyper;
+
+        // Allocate the data
+        image->data=(void *)malloc(mem);
+
+        // Start index
+        size_t index = mem*component;
+
+        // Copy the data - assume that the highest dimension are stored first.
+        memcpy(image->data,static_cast<char*>(input.get()->data)+index,mem);
+
+        // Add to vector of single-component images
+        output.push_back(make_shared<nifti_image>(*image));
+    }
+    return output;
+}
+
+/// Split and save a multicomponent nifti image
+void save_split_multicomponent_nifti_image(shared_ptr<nifti_image> input, const string filename)
+{
+    // Split
+    vector<shared_ptr<nifti_image> > components =
+            split_multicomponent_nifti_image(input);
+
+    // Loop over each component
+    for (int i=0; i<components.size(); i++) {
+
+        // Edit the filename
+        string appended_filename;
+
+        if (components.size() == 3) {
+            if      (i == 0) appended_filename = filename + "_x";
+            else if (i == 1) appended_filename = filename + "_y";
+            else if (i == 2) appended_filename = filename + "_z";
+        }
+        else appended_filename = filename + "_" + to_string(i+1);
+
+        // And save it
+        save_nifti_image(components[i],appended_filename);
+    }
 }
 
 /// Copy nifti image
@@ -94,8 +171,68 @@ void copy_nifti_image(const string input_filename, const string output_filename)
 /// Copy nifti image
 void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_ptr<nifti_image> &image_to_copy_sptr)
 {
-    const char *fname = image_to_copy_sptr->fname;
-    open_nifti_image(output_image_sptr, fname);
+    cout << "\nPerforming hard copy of nifti image..." << flush;
+
+    // Copy the info
+    nifti_image *output_ptr;
+
+    output_ptr = nifti_copy_nim_info(image_to_copy_sptr.get());
+    output_image_sptr = make_shared<nifti_image>(*output_ptr);
+
+    // How much memory do we need to copy?
+    size_t mem = output_image_sptr->nvox * output_image_sptr->nbyper;
+
+    // Allocate the memory
+    output_image_sptr->data=(void *)malloc(mem);
+
+    // Copy!
+    memcpy(output_image_sptr->data, image_to_copy_sptr->data, mem);
+
+    cout << "done.\n\n";
+}
+
+/// Flip multicomponent image along a given axis
+void flip_multicomponent_image(shared_ptr<nifti_image> &im, int dim)
+{
+    cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
+
+    // Check the dimension to flip
+    if (dim < 0 || dim > 2)
+        throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
+
+    // Check that the number of dims==5 (this is a multicomponent nifti image)
+    if (im->dim[0] != 5)
+        throw runtime_error("\n\tNifti image is not a multicomponent image.");
+
+    // Check that the dim size of the multicomponent dimension ==3
+    if (im->nu != 3)
+        throw runtime_error("\n\tMulticomponent aspect should contain three values (x,y,z).");
+
+    // Data is ordered such that the multicomponent info is last.
+    // So, the first third of the data is the x-values, second third is y and last third is z.
+    // Data is therefore = dim_number * num_voxels/3
+    double start_index =   dim   * im->nvox/3;
+    // End index is one before the start of the next dimension (thus the minus 1)
+    double end_index   = (dim+1) * im->nvox/3 - 1;
+
+    // Check whether single or double precision
+    if (im->datatype == DT_FLOAT32) {
+        // Get data
+        float *data_ptr = static_cast<float*>(im->data);
+        for (int i=start_index; i<=end_index; i++) {
+            data_ptr[i] = -data_ptr[i];
+        }
+    }
+    else if (im->datatype == DT_FLOAT64) {
+        // Get data
+        double *data_ptr = static_cast<double*>(im->data);
+        for (int i=start_index; i<=end_index; i++)
+            data_ptr[i] = -data_ptr[i];
+    }
+    else
+        throw runtime_error("\n\tOnly double and float images are supported at the moment. (This would be easy to change.)");
+
+    cout << "done.\n\n";
 }
 
 /// Do nifti images match?
@@ -105,7 +242,7 @@ bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_p
     if( im1_sptr->analyze75_orient  != im2_sptr->analyze75_orient   ) { images_match = false; cout << "mismatch in analyze75_orient , (values: " <<  im1_sptr->analyze75_orient << " and " << im2_sptr->analyze75_orient << ")\n"; }
     if( im1_sptr->byteorder         != im2_sptr->byteorder          ) { images_match = false; cout << "mismatch in byteorder , (values: " <<  im1_sptr->byteorder << " and " << im2_sptr->byteorder << ")\n"; }
     if( im1_sptr->cal_max           != im2_sptr->cal_max            ) { images_match = false; cout << "mismatch in cal_max , (values: " <<  im1_sptr->cal_max << " and " << im2_sptr->cal_max << ")\n"; }
-    if( im1_sptr->cal_min          != im2_sptr->cal_min           ) { images_match = false; cout << "mismatch in cal_min , (values: " <<  im1_sptr->cal_min << " and " << im2_sptr->cal_min << ")\n"; }
+    if( im1_sptr->cal_min           != im2_sptr->cal_min            ) { images_match = false; cout << "mismatch in cal_min , (values: " <<  im1_sptr->cal_min << " and " << im2_sptr->cal_min << ")\n"; }
     if( im1_sptr->datatype          != im2_sptr->datatype           ) { images_match = false; cout << "mismatch in datatype , (values: " <<  im1_sptr->datatype << " and " << im2_sptr->datatype << ")\n"; }
     if( im1_sptr->du                != im2_sptr->du                 ) { images_match = false; cout << "mismatch in du , (values: " <<  im1_sptr->du << " and " << im2_sptr->du << ")\n"; }
     if( im1_sptr->dv                != im2_sptr->dv                 ) { images_match = false; cout << "mismatch in dv , (values: " <<  im1_sptr->dv << " and " << im2_sptr->dv << ")\n"; }
@@ -174,7 +311,7 @@ bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_p
 }
 
 /// Dump info of nifti image
-void dump_nifti_info(const std::string &im_filename)
+void dump_nifti_info(const string &im_filename)
 {
     shared_ptr<nifti_image> image;
     SIRFRegMisc::open_nifti_image(image,im_filename);
@@ -193,64 +330,100 @@ void dump_nifti_info(const shared_ptr<nifti_image> &im1_sptr)
 void dump_nifti_info(const vector<shared_ptr<nifti_image> > &images)
 {
     cout << "\nPrinting info for " << images.size() <<" nifti image:\n";
-    cout << "\tanalyze_75_orient: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->analyze75_orient << " \t"; } cout << "\n";
-    cout << "\tanalyze75_orient: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->analyze75_orient << " \t"; } cout << "\n";
-    cout << "\tbyteorder: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->byteorder << " \t"; } cout << "\n";
-    cout << "\tcal_max: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->cal_max << " \t"; } cout << "\n";
-    cout << "\tcal_min: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->cal_min << " \t"; } cout << "\n";
-    cout << "\tdatatype: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->datatype << " \t"; } cout << "\n";
-    cout << "\tdu: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->du << " \t"; } cout << "\n";
-    cout << "\tdv: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->dv << " \t"; } cout << "\n";
-    cout << "\tdw: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->dw << " \t"; } cout << "\n";
-    cout << "\tdx: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->dx << " \t"; } cout << "\n";
-    cout << "\tdy: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->dy << " \t"; } cout << "\n";
-    cout << "\tdz: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->dz << " \t"; } cout << "\n";
-    cout << "\text_list: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->ext_list << " \t"; } cout << "\n";
-    cout << "\tfreq_dim: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->freq_dim << " \t"; } cout << "\n";
-    cout << "\tiname_offset: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->iname_offset << " \t"; } cout << "\n";
-    cout << "\tintent_code: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->intent_code << " \t"; } cout << "\n";
-    cout << "\tintent_p1: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->intent_p1 << " \t"; } cout << "\n";
-    cout << "\tintent_p2: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->intent_p2 << " \t"; } cout << "\n";
-    cout << "\tintent_p3: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->intent_p3 << " \t"; } cout << "\n";
-    cout << "\tnbyper: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nbyper << " \t"; } cout << "\n";
-    cout << "\tndim: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->ndim << " \t"; } cout << "\n";
-    cout << "\tnifti_type: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nifti_type << " \t"; } cout << "\n";
-    cout << "\tnt: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nt << " \t"; } cout << "\n";
-    cout << "\tnu: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nu << " \t"; } cout << "\n";
-    cout << "\tnum_ext: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->num_ext << " \t"; } cout << "\n";
-    cout << "\tnv: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nv << " \t"; } cout << "\n";
-    cout << "\tnvox: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nvox << " \t"; } cout << "\n";
-    cout << "\tnw: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nw << " \t"; } cout << "\n";
-    cout << "\tnx: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nx << " \t"; } cout << "\n";
-    cout << "\tny: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->ny << " \t"; } cout << "\n";
-    cout << "\tnz: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->nz << " \t"; } cout << "\n";
-    cout << "\tphase_dim: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->phase_dim << " \t"; } cout << "\n";
-    cout << "\tqfac: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->qfac << " \t"; } cout << "\n";
-    cout << "\tqform_code: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->qform_code << " \t"; } cout << "\n";
-    cout << "\tqoffset_x: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->qoffset_x << " \t"; } cout << "\n";
-    cout << "\tqoffset_y: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->qoffset_y << " \t"; } cout << "\n";
-    cout << "\tqoffset_z: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->qoffset_z << " \t"; } cout << "\n";
-    cout << "\tquatern_b: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->quatern_b << " \t"; } cout << "\n";
-    cout << "\tquatern_c: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->quatern_c << " \t"; } cout << "\n";
-    cout << "\tquatern_d: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->quatern_d << " \t"; } cout << "\n";
-    cout << "\tscl_inter: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->scl_inter << " \t"; } cout << "\n";
-    cout << "\tscl_slope: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->scl_slope << " \t"; } cout << "\n";
-    cout << "\tsform_code: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->sform_code << " \t"; } cout << "\n";
-    cout << "\tslice_code: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->slice_code << " \t"; } cout << "\n";
-    cout << "\tslice_dim: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->slice_dim << " \t"; } cout << "\n";
-    cout << "\tslice_duration: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->slice_duration << " \t"; } cout << "\n";
-    cout << "\tslice_end: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->slice_end << " \t"; } cout << "\n";
-    cout << "\tslice_start: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->slice_start << " \t"; } cout << "\n";
-    cout << "\tswapsize: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->swapsize << " \t"; } cout << "\n";
-    cout << "\ttime_units: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->time_units << " \t"; } cout << "\n";
-    cout << "\ttoffset: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->toffset << " \t"; } cout << "\n";
-    cout << "\txyz_units: \t"; for(int i=0;i<images.size();i++) { cout << images[i]->xyz_units << " \t"; } cout << "\n";
-    cout << "\tqto_ijk:\n"; for(int i=0;i<4;i++) { cout << "\t\t"; for(int j=0;j<images.size();j++) { cout << "[" << images[j]->qto_ijk.m[0][i] << "," << images[j]->qto_ijk.m[1][i] << "," << images[j]->qto_ijk.m[2][i] << "," << images[j]->qto_ijk.m[3][i] << "]\t"; }; cout <<"\n"; }
-    cout << "\tqto_xyz:\n"; for(int i=0;i<4;i++) { cout << "\t\t"; for(int j=0;j<images.size();j++) { cout << "[" << images[j]->qto_xyz.m[0][i] << "," << images[j]->qto_xyz.m[1][i] << "," << images[j]->qto_xyz.m[2][i] << "," << images[j]->qto_xyz.m[3][i] << "]\t"; }; cout <<"\n"; }
-    cout << "\tsto_ijk:\n"; for(int i=0;i<4;i++) { cout << "\t\t"; for(int j=0;j<images.size();j++) { cout << "[" << images[j]->sto_ijk.m[0][i] << "," << images[j]->sto_ijk.m[1][i] << "," << images[j]->sto_ijk.m[2][i] << "," << images[j]->sto_ijk.m[3][i] << "]\t"; }; cout <<"\n"; }
-    cout << "\tsto_xyz:\n"; for(int i=0;i<4;i++) { cout << "\t\t"; for(int j=0;j<images.size();j++) { cout << "[" << images[j]->sto_xyz.m[0][i] << "," << images[j]->sto_xyz.m[1][i] << "," << images[j]->sto_xyz.m[2][i] << "," << images[j]->sto_xyz.m[3][i] << "]\t"; }; cout <<"\n"; }
-    for(int i=0;i<8;i++) { cout << "\tdim[" << i << "]: \t"; for(int j=0;j<images.size();j++) { cout << images[j]->dim[i] << "\t"; } cout << "\n"; }
-    for(int i=0;i<8;i++) { cout << "\tpixdim[" << i << "]: \t"; for(int j=0;j<images.size();j++) { cout << images[j]->pixdim[i] << "\t"; } cout << "\n"; }
+    cout << "\t" << left << setw(19) << "analyze_75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
+    cout << "\t" << left << setw(19) << "analyze75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
+    cout << "\t" << left << setw(19) << "byteorder:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->byteorder; } cout << "\n";
+    cout << "\t" << left << setw(19) << "cal_max:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->cal_max; } cout << "\n";
+    cout << "\t" << left << setw(19) << "cal_min:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->cal_min; } cout << "\n";
+    cout << "\t" << left << setw(19) << "datatype:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->datatype; } cout << "\n";
+    cout << "\t" << left << setw(19) << "du:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->du; } cout << "\n";
+    cout << "\t" << left << setw(19) << "dv:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dv; } cout << "\n";
+    cout << "\t" << left << setw(19) << "dw:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dw; } cout << "\n";
+    cout << "\t" << left << setw(19) << "dx:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dx; } cout << "\n";
+    cout << "\t" << left << setw(19) << "dy:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dy; } cout << "\n";
+    cout << "\t" << left << setw(19) << "dz:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dz; } cout << "\n";
+    cout << "\t" << left << setw(19) << "ext_list:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ext_list; } cout << "\n";
+    cout << "\t" << left << setw(19) << "freq_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->freq_dim; } cout << "\n";
+    cout << "\t" << left << setw(19) << "iname_offset:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->iname_offset; } cout << "\n";
+    cout << "\t" << left << setw(19) << "intent_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_code; } cout << "\n";
+    cout << "\t" << left << setw(19) << "intent_p1:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p1; } cout << "\n";
+    cout << "\t" << left << setw(19) << "intent_p2:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p2; } cout << "\n";
+    cout << "\t" << left << setw(19) << "intent_p3:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p3; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nbyper:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nbyper; } cout << "\n";
+    cout << "\t" << left << setw(19) << "ndim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ndim; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nifti_type:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nifti_type; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nt:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nt; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nu:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nu; } cout << "\n";
+    cout << "\t" << left << setw(19) << "num_ext:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->num_ext; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nv:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nv; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nvox:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nvox; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nw:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nw; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nx:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nx; } cout << "\n";
+    cout << "\t" << left << setw(19) << "ny:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ny; } cout << "\n";
+    cout << "\t" << left << setw(19) << "nz:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nz; } cout << "\n";
+    cout << "\t" << left << setw(19) << "phase_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->phase_dim; } cout << "\n";
+    cout << "\t" << left << setw(19) << "qfac:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qfac; } cout << "\n";
+    cout << "\t" << left << setw(19) << "qform_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qform_code; } cout << "\n";
+    cout << "\t" << left << setw(19) << "qoffset_x:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_x; } cout << "\n";
+    cout << "\t" << left << setw(19) << "qoffset_y:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_y; } cout << "\n";
+    cout << "\t" << left << setw(19) << "qoffset_z:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_z; } cout << "\n";
+    cout << "\t" << left << setw(19) << "quatern_b:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_b; } cout << "\n";
+    cout << "\t" << left << setw(19) << "quatern_c:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_c; } cout << "\n";
+    cout << "\t" << left << setw(19) << "quatern_d:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_d; } cout << "\n";
+    cout << "\t" << left << setw(19) << "scl_inter:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->scl_inter; } cout << "\n";
+    cout << "\t" << left << setw(19) << "scl_slope:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->scl_slope; } cout << "\n";
+    cout << "\t" << left << setw(19) << "sform_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->sform_code; } cout << "\n";
+    cout << "\t" << left << setw(19) << "slice_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_code; } cout << "\n";
+    cout << "\t" << left << setw(19) << "slice_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_dim; } cout << "\n";
+    cout << "\t" << left << setw(19) << "slice_duration:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_duration; } cout << "\n";
+    cout << "\t" << left << setw(19) << "slice_end:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_end; } cout << "\n";
+    cout << "\t" << left << setw(19) << "slice_start:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_start; } cout << "\n";
+    cout << "\t" << left << setw(19) << "swapsize:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->swapsize; } cout << "\n";
+    cout << "\t" << left << setw(19) << "time_units:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->time_units; } cout << "\n";
+    cout << "\t" << left << setw(19) << "toffset:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->toffset; } cout << "\n";
+    cout << "\t" << left << setw(19) << "xyz_units:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->xyz_units; } cout << "\n";
+    for(int i=0;i<8;i++) { cout << "\tdim[" << i << "]:\t\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->dim[i]; } cout << "\n"; }
+    for(int i=0;i<8;i++) { cout << "\tpixdim[" << i << "]:\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->pixdim[i]; } cout << "\n"; }
+    cout << "\t" << left << setw(19) << "qto_ijk:" << "\n";
+    for(int i=0;i<4;i++) {
+        cout << "\t\t\t   ";
+        for(int j=0;j<images.size();j++) {
+            ostringstream ss;
+            ss << "[" << setprecision(3) << images[j]->qto_ijk.m[0][i] << "," << setprecision(3) << images[j]->qto_ijk.m[1][i] << "," << setprecision(3) << images[j]->qto_ijk.m[2][i] << "," << setprecision(3) << images[j]->qto_ijk.m[3][i] << "]";
+            cout << setw(19) << ss.str();
+        }
+        cout << "\n";
+    }
+    cout << "\t" << left << setw(19) << "qto_xyz:" << "\n";
+    for(int i=0;i<4;i++) {
+        cout << "\t\t\t   ";
+        for(int j=0;j<images.size();j++) {
+            ostringstream ss;
+            ss << "[" << setprecision(3) << images[j]->qto_xyz.m[0][i] << "," << setprecision(3) << images[j]->qto_xyz.m[1][i] << "," << setprecision(3) << images[j]->qto_xyz.m[2][i] << "," << setprecision(3) << images[j]->qto_xyz.m[3][i] << "]";
+            cout << setw(19) << ss.str();
+        }
+        cout << "\n";
+    }
+    cout << "\t" << left << setw(19) << "sto_ijk:" << "\n";
+    for(int i=0;i<4;i++) {
+        cout << "\t\t\t   ";
+        for(int j=0;j<images.size();j++) {
+            ostringstream ss;
+            ss << "[" << setprecision(3) << images[j]->sto_ijk.m[0][i] << "," << setprecision(3) << images[j]->sto_ijk.m[1][i] << "," << setprecision(3) << images[j]->sto_ijk.m[2][i] << "," << setprecision(3) << images[j]->sto_ijk.m[3][i] << "]";
+            cout << setw(19) << ss.str();
+        }
+        cout << "\n";
+    }
+    cout << "\t" << left << setw(19) << "sto_xyz:" << "\n";
+    for(int i=0;i<4;i++) {
+        cout << "\t\t\t   ";
+        for(int j=0;j<images.size();j++) {
+            ostringstream ss;
+            ss << "[" << setprecision(3) << images[j]->sto_xyz.m[0][i] << "," << setprecision(3) << images[j]->sto_xyz.m[1][i] << "," << setprecision(3) << images[j]->sto_xyz.m[2][i] << "," << setprecision(3) << images[j]->sto_xyz.m[3][i] << "]";
+            cout << setw(19) << ss.str();
+        }
+        cout << "\n";
+    }
     cout << "\n";
 }
 
@@ -331,12 +504,12 @@ void save_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, c
 {
     // Check that the matrix exists
     if (!transformation_matrix_sptr) {
-        throw std::runtime_error("Transformation matrix is null pointer. Have you run the registration?");
+        throw runtime_error("Transformation matrix is null pointer. Have you run the registration?");
     }
 
     // Check that input isn't blank
     if (filename == "") {
-        throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
+        throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
     }
 
     reg_tool_WriteAffineFile(transformation_matrix_sptr.get(), filename.c_str());

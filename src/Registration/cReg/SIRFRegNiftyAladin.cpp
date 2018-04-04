@@ -30,68 +30,67 @@ limitations under the License.
 #include "SIRFRegNiftyAladin.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include "_reg_aladin.h"
-#include "_reg_tools.h"
+#include <_reg_aladin.h>
+#include <_reg_tools.h>
+#include <_reg_localTransformation.h>
 
 using namespace std;
 
 template<class T>
 void SIRFRegNiftyAladin<T>::update()
 {
-    // Try
-    try {
-        // Check the paramters that are NOT set via the parameter file have been set.
-        this->check_parameters();
+    // Check the paramters that are NOT set via the parameter file have been set.
+    this->check_parameters();
 
-        // Open images if necessary, correct if not
-        if (!_reference_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
+    // Open images if necessary, correct if not
+    if (!_reference_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
 
-        if (!_floating_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
+    if (!_floating_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
 
-        // Create the registration object
-        _registration_sptr = make_shared<reg_aladin<T> >();
-        _registration_sptr->SetInputReference(_reference_image_sptr.get());
-        _registration_sptr->SetInputFloating(_floating_image_sptr.get());
+    // Create the registration object
+    _registration_sptr = make_shared<reg_aladin<T> >();
+    _registration_sptr->SetInputReference(_reference_image_sptr.get());
+    _registration_sptr->SetInputFloating(_floating_image_sptr.get());
 
-        // Parse parameter file
-        this->parse_parameter_file();
+    // Parse parameter file
+    this->parse_parameter_file();
 
-        cout << "\n\nStarting registration...\n\n";
+    cout << "\n\nStarting registration...\n\n";
 
-        // Run
-        _registration_sptr->Run();
+    // Run
+    _registration_sptr->Run();
 
-        // Get the output
-        _warped_image_sptr                  = std::make_shared<nifti_image>(*_registration_sptr->GetFinalWarpedImage());
+    // Get the output
+    _warped_image_sptr = std::make_shared<nifti_image>(*_registration_sptr->GetFinalWarpedImage());
 
-        vector<shared_ptr<nifti_image> > f;
-        f.push_back(_reference_image_sptr);
-        f.push_back(_floating_image_sptr);
-        f.push_back(_warped_image_sptr);
-        SIRFRegMisc::dump_nifti_info(f);
+    // Get the transformation matrix and its inverse
+    _transformation_matrix_sptr         = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
+    _transformation_matrix_inverse_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_transformation_matrix_sptr.get()));
 
-        // Get the transformation matrix and its inverse
-        _transformation_matrix_sptr         = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
-        mat44 inverse_matrix = nifti_mat44_inverse(*_transformation_matrix_sptr.get());
-        _transformation_matrix_inverse_sptr = std::make_shared<mat44>(inverse_matrix);
+    cout << "\nPrinting tranformation matrix:\n";
+    SIRFRegMisc::print_mat44(_transformation_matrix_sptr.get());
+    cout << "\nPrinting inverse tranformation matrix:\n";
+    SIRFRegMisc::print_mat44(_transformation_matrix_inverse_sptr.get());
 
-        cout << "\nPrinting tranformation matrix:\n";
-        SIRFRegMisc::print_mat44(_transformation_matrix_sptr.get());
-        cout << "\nPrinting inverse tranformation matrix:\n";
-        SIRFRegMisc::print_mat44(_transformation_matrix_inverse_sptr.get());
+    // Convert transformation matrix to cpp image
+    shared_ptr<nifti_image> control_point_position_image_sptr;
+    set_up_CPP(control_point_position_image_sptr);
 
-        cout << "\n\nRegistration finished!\n\n";
+    // Get the disp field from the cpp image
+    this->get_disp_from_cpp(control_point_position_image_sptr);
 
-    // If there was an error, rethrow it.
-    } catch (const std::exception &error) {
-        throw;
-    }
+    vector<shared_ptr<nifti_image> > gf;
+    gf.push_back(_warped_image_sptr);
+    gf.push_back(_displacement_field_image_sptr);
+    SIRFRegMisc::dump_nifti_info(gf);
+
+    cout << "\n\nRegistration finished!\n\n";
 }
 
 template<class T>
@@ -157,6 +156,33 @@ void SIRFRegNiftyAladin<T>::save_inverse_transformation_matrix(const std::string
     reg_tool_WriteAffineFile(_transformation_matrix_inverse_sptr.get(), filename.c_str());
 
     cout << "Done.\n";
+}
+
+template<class T>
+void SIRFRegNiftyAladin<T>::set_up_CPP(shared_ptr<nifti_image> &cpp_sptr)
+{
+    // Copy info from the reference image
+    nifti_image *cpp_ptr = cpp_sptr.get();
+    cpp_ptr = nifti_copy_nim_info(_warped_image_sptr.get());
+
+    // Edit some of the information to make it a cpp image
+    cpp_ptr->dim[0]   = cpp_ptr->ndim = 5;
+    cpp_ptr->dim[5]   = cpp_ptr->nu   = 3;
+    cpp_ptr->datatype = 16;
+    cpp_ptr->nbyper   = 4;
+    cpp_ptr->nvox    *= 3;
+
+    // Allocate memory
+    cpp_ptr->data=(void *)malloc(cpp_ptr->nvox*cpp_ptr->nbyper);
+
+    // Convert affine transformation to cpp
+    reg_bspline_initialiseControlPointGridWithAffine(_transformation_matrix_sptr.get(), cpp_ptr);
+
+    // Need to correct the control point position image (otherwise nv=0 and you can't read with matlab)
+    reg_checkAndCorrectDimension(cpp_ptr);
+
+    // Copy output
+    cpp_sptr = make_shared<nifti_image>(*cpp_ptr);
 }
 
 // Put the instantiations of the template class at the END of the file!

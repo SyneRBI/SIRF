@@ -30,52 +30,60 @@ limitations under the License.
 #include "SIRFRegNiftyF3d.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include "_reg_f3d.h"
+#include <_reg_f3d.h>
 
 using namespace std;
 
 template<class T>
 void SIRFRegNiftyF3d<T>::update()
 {
-    // Try
-    try {
+    // Check the paramters that are NOT set via the parameter file have been set.
+    this->check_parameters();
 
-        // Check the paramters that are NOT set via the parameter file have been set.
-        this->check_parameters();
+    // Open images if necessary, correct if not
+    if (!_reference_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
 
-        // Open images if necessary, correct if not
-        if (!_reference_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
+    if (!_floating_image_sptr) {
+        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
+    else {
+        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
 
-        if (!_floating_image_sptr) {
-            SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-        else {
-            reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
+    // Create the registration object
+    _registration_sptr = shared_ptr<reg_f3d<T> >(new reg_f3d<T>(_reference_time_point, _floating_time_point));
+    _registration_sptr->SetFloatingImage(_floating_image_sptr.get());
+    _registration_sptr->SetReferenceImage(_reference_image_sptr.get());
 
-        // Create the registration object
-        _registration_sptr = std::shared_ptr<reg_f3d<T> >(new reg_f3d<T>(_reference_time_point, _floating_time_point));
-        _registration_sptr->SetFloatingImage(_floating_image_sptr.get());
-        _registration_sptr->SetReferenceImage(_reference_image_sptr.get());
+    // If an initial transformation matrix has been set via filename, open it
+    if (_initial_transformation_filename != "")
+        SIRFRegMisc::open_transformation_matrix(_initial_transformation_sptr,_initial_transformation_filename);
 
-        // Parse parameter file
-        this->parse_parameter_file();
+    // If there is an initial transformation matrix, set it
+    if (_initial_transformation_sptr)
+        _registration_sptr->SetAffineTransformation(_initial_transformation_sptr.get());
 
-        cout << "\n\nStarting registration...\n\n";
+    // Parse parameter file
+    this->parse_parameter_file();
 
-        // Run
-        _registration_sptr->Run_f3d();
+    cout << "\n\nStarting registration...\n\n";
 
-        // Get the output
-        _warped_image_sptr = std::shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
+    // Run
+    _registration_sptr->Run_f3d();
 
-        cout << "\n\nRegistration finished!\n\n";
+    // Get the warped image
+    _warped_image_sptr = shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
 
-    // If there was an error, rethrow it.
-    } catch (const std::runtime_error &error) {
-        throw;
-    }
+    // Get the CPP image
+    shared_ptr<nifti_image> control_point_position_image_sptr = shared_ptr<nifti_image>(_registration_sptr->GetControlPointPositionImage());
+    // Need to correct the control point position image (otherwise nv=0 and you can't read with matlab)
+    reg_checkAndCorrectDimension(control_point_position_image_sptr.get());
+
+    // Get the disp field from the cpp image
+    this->get_disp_from_cpp(control_point_position_image_sptr);
+
+    cout << "\n\nRegistration finished!\n\n";
 }
 
 template<class T>
@@ -85,9 +93,9 @@ void SIRFRegNiftyF3d<T>::check_parameters()
 
     // If anything is missing
     if (_floating_time_point == -1) {
-        throw std::runtime_error("Floating time point has not been set."); }
+        throw runtime_error("Floating time point has not been set."); }
     if (_reference_time_point == -1) {
-        throw std::runtime_error("Reference time point has not been set."); }
+        throw runtime_error("Reference time point has not been set."); }
 }
 
 template<class T>
@@ -96,7 +104,7 @@ void SIRFRegNiftyF3d<T>::parse_parameter_file()
     SIRFRegParser<reg_f3d<T> > parser;
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
-    parser.add_key      ("SetAdditiveMC",                &reg_f3d<T>::SetAdditiveMC               );
+    parser.add_key      ( "SetAdditiveMC",               &reg_f3d<T>::SetAdditiveMC               );
     parser.add_key      ( "SetBendingEnergyWeight",      &reg_f3d<T>::SetBendingEnergyWeight      );
     parser.add_key      ( "SetCompositionStepNumber",    &reg_f3d<T>::SetCompositionStepNumber    );
     parser.add_key      ( "SetFloatingBinNumber",        &reg_f3d<T>::SetFloatingBinNumber        );

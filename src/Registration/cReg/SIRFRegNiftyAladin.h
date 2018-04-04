@@ -59,6 +59,9 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
+    /// Set up CPP image
+    void set_up_CPP(std::shared_ptr<nifti_image> &cpp_sptr);
+
     /// Register object
     std::shared_ptr<reg_aladin<T> > _registration_sptr;
 
