@@ -29,7 +29,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 #define ISMRMRD_H5_TEST_PATH "Testing/TestData/test_data_ismrmrd.h5"
 #define H5_PHANTOM_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
-#define H5_XCAT_PHANTOM_PATH "Testing/TestData/xcat_tissue_segmentation_int8.h5"
+#define H5_XCAT_PHANTOM_PATH "Testing/TestData/xcat_tissue_segmentation_uint64.h5"
 
 namespace aux_test
 {
@@ -63,21 +63,24 @@ namespace aux_test
 				name_stream << "x" << data_dimension[i];
 			}
 		}
-		name_stream << ".bin";
+		name_stream << ".raw";
 
 		size_t num_elements = data_array.getNumberOfElements();
 		std::vector <float> buffer;
-		buffer.resize(num_elements);
-
+		buffer.reserve(num_elements);
+		
+		T* arr_start = data_array.begin();
 
 		for( size_t i=0; i<num_elements; i++)
 		{
-			buffer[i] = std::abs(data_array(i));
+			buffer.push_back( std::abs(*(arr_start + i)) );
 		}
 
-		std::ofstream out( name_stream.str().c_str(), std::ios::binary);
+		std::ofstream out;
+		out.open( name_stream.str().c_str(), std::ios::out | std::ios::binary);
 
-		out.write( (char*)&buffer[0], buffer.size()*sizeof(float));
+		out.write( reinterpret_cast<char*> (buffer.data()), buffer.size()*sizeof(float));
+
 		out.close();
 
 		std::cout<< "Finished writing file " << name_stream.str() << std::endl;

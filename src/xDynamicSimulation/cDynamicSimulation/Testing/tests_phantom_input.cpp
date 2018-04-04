@@ -19,7 +19,7 @@ bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix
 
 	const size_t* dimensions = segmentation.getDims();
 	
-	size_t const input_seg_size = 3;
+	size_t const input_seg_size = 33;
 	bool dimensions_are_correct = ( dimensions[0] == input_seg_size) 
 								* ( dimensions[1] == input_seg_size) 
 								* ( dimensions[2] == input_seg_size);

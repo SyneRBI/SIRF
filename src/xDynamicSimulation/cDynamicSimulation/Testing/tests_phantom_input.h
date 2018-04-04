@@ -67,11 +67,10 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array)
 			{	
 				size_t current_access = (((((nk*Nl + nl)*Nm + nm)*Nn + nn)*Nz + nz)*Ny + ny)*Nx+nx;
 				std::cout << epiph(current_access) << "   " << epiph(input_array(nx, ny, nz, nn, nm, nl, nk))<<std::endl;
-				content_is_correct *= (input_array(nx,ny,nz,nn,nm,nl,nk) == current_access + 1);
+				content_is_correct *= (input_array(nx,ny,nz,nn,nm,nl,nk) == current_access );
 				
 			}
 	
-
 	return content_is_correct;
 	
 	}

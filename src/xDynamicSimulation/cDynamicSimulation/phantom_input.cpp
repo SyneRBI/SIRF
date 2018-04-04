@@ -42,7 +42,7 @@ ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5
 	
 		ISMRMRD::NDArray< unsigned int > segmentation( input_dimensions );
 
-		dataset.read( segmentation.begin(), PredType::NATIVE_UINT, dataspace, dataspace);
+		dataset.read( segmentation.begin(), PredType::NATIVE_UINT32, dataspace, dataspace);
 
 		return segmentation;
 	}
