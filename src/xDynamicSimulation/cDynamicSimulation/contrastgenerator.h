@@ -9,13 +9,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <string>
-#include <stdexcept>
-#include <math.h>
-#include <omp.h>
+
 
 #include <ismrmrd/ismrmrd.h>
-#include <ismrmrd/xml.h>
-#include <ismrmrd/dataset.h>
 
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
@@ -42,17 +38,11 @@ public:
 	
 
 	// pure virtual since formats are very diff for pet and mri and ct
-	virtual void read_rawdata_header( void )=0; 
 	virtual void map_contrast()=0;
 
 	virtual ISMRMRD::NDArray< complex_float_t > get_contrast_filled_volume();
 
-	virtual std::string get_rawdata_file_path();
-	virtual void set_rawdata_file_path(std::string filepath_rawdata);
-
 protected:
-
-	std::string rawdata_file_path_;
 
 	ISMRMRD::NDArray< complex_float_t > contrast_filled_volume_;
 	TissueLabelMapper tlm_;
@@ -67,13 +57,12 @@ public:
 	
 	MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
 
-	void read_rawdata_header();
+	void set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr);
 	void map_contrast();
 
 
 private:
 
-	std::string sequence_type_;
 	IsmrmrdHeader hdr_;
 
 };

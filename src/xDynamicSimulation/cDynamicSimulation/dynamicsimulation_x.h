@@ -9,7 +9,18 @@ date: 15. March 2018
 
 #include "gadgetron_x.h"
 
-#include <stdio.h>
-#include <iostream>
+#include <ismrmrd/ismrmrd.h>
 
-void foo( void );
+//#include <stdio.h>
+//#include <iostream>
+
+
+
+
+
+
+
+ISMRMRD::IsmrmrdHeader read_ismrmrd_header( std::string path_ismrmrd_h5_file_with_ext);
+
+
+

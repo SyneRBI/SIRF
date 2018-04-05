@@ -7,26 +7,19 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 #include "contrastgenerator.h"
-#include "Testing/auxiliary_testing_functions.h"
+
+
+#include <stdexcept>
+#include <math.h>
+#include <omp.h>
+
+//#include "Testing/auxiliary_testing_functions.h"
 
 AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml)
 {
 	this->tlm_ = TissueLabelMapper( tissue_labels, filename_tissue_parameter_xml );
 	tlm_.map_labels_to_tissue_from_xml();
 
-}
-
-void AbstractContrastGenerator::set_rawdata_file_path(std::string const filepath_rawdata)
-{
-	this->rawdata_file_path_ = filepath_rawdata;
-}
-
-std::string AbstractContrastGenerator::get_rawdata_file_path( void )
-{	
-	if (this->rawdata_file_path_.empty())
-		throw std::runtime_error("Rawdata filepath is not set yet. Please do so first.");
-	else
-		return this -> rawdata_file_path_;
 }
 
 
@@ -41,17 +34,11 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
 
-
-void MRContrastGenerator::read_rawdata_header()
+void MRContrastGenerator::set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr)
 {
-	//Let's open the existing dataset
-	ISMRMRD::Dataset d(this->rawdata_file_path_.c_str(),"dataset", false);
-
-	std::string xml;
-	d.readHeader(xml);
-	ISMRMRD::deserialize(xml.c_str(),this->hdr_);
-
+	this->hrd_ = header;
 }
+
 
 void MRContrastGenerator::map_contrast()
 {
