@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <ismrmrd/ismrmrd.h>
+#include <ismrmrd/xml.h>
 
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
@@ -23,7 +24,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // as a virutal method
 
 using ISMRMRD::NDArray;
-using ISMRMRD::IsmrmrdHeader;
 
 
 typedef std::vector<float> SeqParamType;

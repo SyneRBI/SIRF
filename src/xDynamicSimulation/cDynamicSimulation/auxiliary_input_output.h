@@ -12,7 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 
 
-#include <ismrmrd/ismrmrd.h>
+#include <ismrmrd/xml.h>
 
 
 

@@ -10,28 +10,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 
-#include <string>
-#include <sstream>
-#include <stdio.h>
-#include <iostream>
 
-#include <ismrmrd/xml.h>
-
-#include "auxiliary_testing_functions.h"
-
-#include "tissuelabelmapper.h"
-#include "tissueparameters.h"
-#include "contrastgenerator.h"
-#include "phantom_input.h"
-
-using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 namespace test_contgen
 {
 
 bool test_mr_constructor( void );
-bool test_mr_set_get_rawdata_header_path( void );
-bool test_mr_read_rawdata_header_file_exists( void );
+bool test_mr_set_rawdata_header( void );
 
 bool test_map_flash_contrast( void );
 

@@ -10,7 +10,23 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_contrastgenerator.h"
 
 
+#include <string>
+#include <sstream>
+#include <stdio.h>
+#include <iostream>
 
+#include <ismrmrd/xml.h>
+
+#include "auxiliary_testing_functions.h"
+
+#include "tissuelabelmapper.h"
+#include "tissueparameters.h"
+#include "contrastgenerator.h"
+#include "phantom_input.h"
+#include "../auxiliary_input_output.h"
+
+
+using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 // contrast generator
 
@@ -24,45 +40,38 @@ bool test_contgen::test_mr_constructor( void )
 }
 
 
-bool test_contgen::test_mr_set_get_rawdata_header_path( void )
+bool test_contgen::test_mr_set_rawdata_header( void )
 {
-	
-	LabelArray label_arr = aux_test::get_mock_label_array();
-	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
+	try
+	{	
+		LabelArray label_arr = aux_test::get_mock_label_array();
+		MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
-	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
+		ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+		mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
 
-	std::string raw_data_file_path = mr_contgen.get_rawdata_file_path();
-
-	return  !raw_data_file_path.compare(ISMRMRD_H5_TEST_PATH);
+		return  true;
+	}
+	catch(...)
+	{
+		std::cout << "An unknown exception was caught" << std::endl;
+		return false;
+	}
 }
 
-
-bool test_contgen::test_mr_read_rawdata_header_file_exists( void )
-{
-	LabelArray label_arr = aux_test::get_mock_label_array();
-	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
-
-	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
-
-	mr_contgen.read_rawdata_header();
-
-
-	return true;
-	
-}
 
 
 bool test_contgen::test_mr_map_contrast_dim_check( void )
- {
+{
 
  	//using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
-	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.read_rawdata_header();
+	ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
+
 
 	mr_contgen.map_contrast();
 
@@ -78,7 +87,7 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 		dims_are_correct *= (contrast_dims[i] == input_dims[i]);
 
 	return dims_are_correct;
- }
+}
 
 
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
@@ -90,8 +99,8 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 
 
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_TEST_PATH);
-	mr_contgen.set_rawdata_file_path(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.read_rawdata_header();
+	ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
 
 	mr_contgen.map_contrast();
 
@@ -139,7 +148,7 @@ bool test_contgen::test_map_flash_contrast( void )
 	complex_float_t IMAG_UNIT(0,1);
 
 	complex_float_t input_contrast_echo1 = exp( IMAG_UNIT * (float)42.58/1000.f * TE * cs * field_strength_t)*dens * (float)sin(angle) * 
-															(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
+	(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
 	complex_float_t mock_contrast = flash_contrast[0];
 
 	float const epsilon = 0.0000001;

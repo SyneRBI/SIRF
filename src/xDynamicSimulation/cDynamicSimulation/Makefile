@@ -357,6 +357,33 @@ Testing/tests_tissueparameters.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_tissueparameters.cpp.s
 .PHONY : Testing/tests_tissueparameters.cpp.s
 
+auxiliary_input_output.o: auxiliary_input_output.cpp.o
+
+.PHONY : auxiliary_input_output.o
+
+# target to build an object file
+auxiliary_input_output.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/auxiliary_input_output.cpp.o
+.PHONY : auxiliary_input_output.cpp.o
+
+auxiliary_input_output.i: auxiliary_input_output.cpp.i
+
+.PHONY : auxiliary_input_output.i
+
+# target to preprocess a source file
+auxiliary_input_output.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/auxiliary_input_output.cpp.i
+.PHONY : auxiliary_input_output.cpp.i
+
+auxiliary_input_output.s: auxiliary_input_output.cpp.s
+
+.PHONY : auxiliary_input_output.s
+
+# target to generate assembly for a file
+auxiliary_input_output.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/auxiliary_input_output.cpp.s
+.PHONY : auxiliary_input_output.cpp.s
+
 contrastgenerator.o: contrastgenerator.cpp.o
 
 .PHONY : contrastgenerator.o
@@ -552,6 +579,9 @@ help:
 	@echo "... Testing/tests_tissueparameters.o"
 	@echo "... Testing/tests_tissueparameters.i"
 	@echo "... Testing/tests_tissueparameters.s"
+	@echo "... auxiliary_input_output.o"
+	@echo "... auxiliary_input_output.i"
+	@echo "... auxiliary_input_output.s"
 	@echo "... contrastgenerator.o"
 	@echo "... contrastgenerator.i"
 	@echo "... contrastgenerator.s"

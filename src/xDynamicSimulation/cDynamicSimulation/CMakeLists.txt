@@ -22,6 +22,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
 
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp dynamicsimulation_x.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} auxiliary_input_output.cpp auxiliary_input_output.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp Testing/auxiliary_testing_functions.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_testing_functions.cpp Testing/tests_auxiliary_testing_functions.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)

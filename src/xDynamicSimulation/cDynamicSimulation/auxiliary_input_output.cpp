@@ -9,7 +9,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_input_output.h"
 
 
-#include <ismrmrd/ismrmrd.xml.h>
+#include <ismrmrd/dataset.h>
+#include <ismrmrd/ismrmrd.h>
 
 
 

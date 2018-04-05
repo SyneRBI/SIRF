@@ -63,8 +63,6 @@ auxiliary_testing_functions.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.cpp
 tests_contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
-
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
 string
 -
 sstream
@@ -85,6 +83,10 @@ contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/contrastgenerator.h
 phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
+../auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.cpp
 tests_phantom_input.h
@@ -122,6 +124,20 @@ auxiliary_testing_functions.h
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tissueparameters.h
 
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.cpp
+auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+ismrmrd/dataset.h
+-
+ismrmrd/ismrmrd.h
+-
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+string
+-
+ismrmrd/xml.h
+-
+
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.cpp
 contrastgenerator.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
@@ -136,6 +152,8 @@ omp.h
 string
 -
 ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
 -
 tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
@@ -720,6 +738,8 @@ src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string
 -
 ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
 -
 tissueparameters.h
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
