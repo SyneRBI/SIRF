@@ -36,7 +36,7 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 
 void MRContrastGenerator::set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr)
 {
-	this->hrd_ = header;
+	this->hdr_ = hdr;
 }
 
 

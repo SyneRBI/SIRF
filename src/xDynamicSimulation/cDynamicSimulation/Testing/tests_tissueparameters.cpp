@@ -144,15 +144,15 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 
 	TissueParameter firstParam = tissueList[0];
 
-	std::string const input_name = "Myocardium" ;
-	int const input_label = 1;
+	std::string const input_name = "Dummy" ;
+	int const input_label = 0;
 
-	float const input_t1 = 1000;
-	float const input_t2 = 2000;
-	float const input_cs = 4.3;
+	float const input_t1 = 1;
+	float const input_t2 = 2;
+	float const input_cs = 3;
 
 
-	float const input_attenuation = 0.1;
+	float const input_attenuation = 4;
 	float const input_SUV = 5;
 
 
@@ -161,6 +161,7 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	// does not matter anyway, it is just for the user to be able to distinguish.
 
 	bool parameter_set_correct = true; 
+	parameter_set_correct *= (input_name.compare(firstParam.name_) == 0);
 	parameter_set_correct *= (firstParam.label_ == input_label);
 	
 	parameter_set_correct *= (input_t1 == firstParam.mr_tissue_.t1_miliseconds_);

@@ -10,11 +10,40 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <string>
-
+#include <sstream>
+#include <fstream>
 
 #include <ismrmrd/xml.h>
 
 
+namespace data_io{
+
+template <typename T>
+	void write_raw(std::string const output_name_without_ext, T* ptr_to_data, size_t const num_elements)
+	{	
+		std::cout<< "Writing file " << output_name_without_ext << std::endl;
+		std::stringstream name_stream;
+		name_stream << output_name_without_ext << ".raw";
+
+		std::vector <T> buffer;
+		buffer.resize(num_elements);
+
+		for( size_t i=0; i<num_elements; i++)
+			buffer[i] = *(ptr_to_data + i);
+		
+
+		std::ofstream out;
+		out.open( name_stream.str().c_str(), std::ios::out | std::ios::binary);
+
+		out.write( reinterpret_cast<char*> (buffer.data()), buffer.size()*sizeof(T));
+
+		out.close();
+
+		std::cout<< "Finished writing file " << name_stream.str() << std::endl;
+
+	};
+
+}
 
 namespace mr_io{
 

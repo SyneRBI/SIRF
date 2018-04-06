@@ -11,15 +11,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 #include <stdio.h>
 #include <iostream>
-#include <typeinfo>
-
 
 #include <ismrmrd/ismrmrd.h>
-
-#include "phantom_input.h"
-
-#include "auxiliary_testing_functions.h"
-
 
 // checking for 
 template <class T>
@@ -34,8 +27,6 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array)
 
 	for( int idim = 0; idim < NDims; idim++)
 	{
-		std::cout << epiph(dimensions[idim]) <<std::endl;
-
 		if( dimensions[idim] % 2 == 0)
 		{	
 			throw std::runtime_error("Please only test arrays with odd number of elements in each dimension.");
@@ -53,10 +44,6 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array)
 	size_t Ny = dimensions[1];
 	size_t Nx = dimensions[0];
 
-
-
-
-
 	for (int nk = 0; nk < Nk; nk++)	
 	for (int nl = 0; nl < Nl; nl++)
 	for (int nm = 0; nm < Nm; nm++)
@@ -66,7 +53,6 @@ bool check_array_content( ISMRMRD::NDArray <T> input_array)
 	for (int nx = 0; nx < Nx; nx++)
 			{	
 				size_t current_access = (((((nk*Nl + nl)*Nm + nm)*Nn + nn)*Nz + nz)*Ny + ny)*Nx+nx;
-				std::cout << epiph(current_access) << "   " << epiph(input_array(nx, ny, nz, nn, nm, nl, nk))<<std::endl;
 				content_is_correct *= (input_array(nx,ny,nz,nn,nm,nl,nk) == current_access );
 				
 			}

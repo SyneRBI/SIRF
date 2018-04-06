@@ -18,12 +18,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "dynamicsimulation_tests.h"
 
 
-void run_tests_auxiliary_testing_functions( void )
+void run_tests_auxiliary_input_output( void )
 {
 
 	bool tests_successful = true;
 
-	test_aux_test_funs::test_write_ndarray_to_raw();
+	test_aux_io::test_write_ndarray_to_raw();
 
 	if ( !tests_successful )
 	{
@@ -41,6 +41,7 @@ void run_tests_tissueparameters(void)
 {
 	bool tests_successful = true;
 
+
 	// call every test here
 	tests_successful *= test_allocate_MRTissueParameter_successful();
 	tests_successful *= test_allocate_PETTissueParameter_successful();
@@ -52,10 +53,10 @@ void run_tests_tissueparameters(void)
 	//tests_successful *= test_exception_throw_if_node_not_exists();
 
 	tests_successful *= test_read_TissueParameter_label_from_xml(XML_TEST_PATH);
-
+	
 	tests_successful *= test_check_label_uniqueness_fails();
 	tests_successful *= test_check_label_uniqueness_true();
-
+	
 
 	if ( !tests_successful )
 	{

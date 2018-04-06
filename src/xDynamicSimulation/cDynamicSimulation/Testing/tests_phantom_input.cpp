@@ -7,6 +7,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
+#include "phantom_input.h"
+#include "auxiliary_testing_functions.h"
+#include "../auxiliary_input_output.h"
 
 #include "tests_phantom_input.h"
 
@@ -43,7 +46,7 @@ void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xca
 	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5(h5_filename_xcat_seg_with_suffix);
 
 	std::string output_name_xcat_seg = "/media/sf_SharedFiles/test_output_xcat_seg_input_check";
-	aux_test::write_ndarray_to_binary<unsigned int> (output_name_xcat_seg, segmentation);
+	data_io::write_raw<unsigned int> (output_name_xcat_seg, segmentation.begin(), segmentation.getNumberOfElements());
 
 }
 

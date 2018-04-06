@@ -24,6 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // as a virutal method
 
 using ISMRMRD::NDArray;
+using ISMRMRD::IsmrmrdHeader;
 
 
 typedef std::vector<float> SeqParamType;
@@ -40,11 +41,11 @@ public:
 	// pure virtual since formats are very diff for pet and mri and ct
 	virtual void map_contrast()=0;
 
-	virtual ISMRMRD::NDArray< complex_float_t > get_contrast_filled_volume();
+	virtual NDArray< complex_float_t > get_contrast_filled_volume();
 
 protected:
 
-	ISMRMRD::NDArray< complex_float_t > contrast_filled_volume_;
+	NDArray< complex_float_t > contrast_filled_volume_;
 	TissueLabelMapper tlm_;
 
 };
@@ -57,7 +58,7 @@ public:
 	
 	MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
 
-	void set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr);
+	void set_rawdata_header(IsmrmrdHeader hdr);
 	void map_contrast();
 
 

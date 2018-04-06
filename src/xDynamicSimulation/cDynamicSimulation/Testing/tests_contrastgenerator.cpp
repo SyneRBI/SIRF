@@ -47,8 +47,8 @@ bool test_contgen::test_mr_set_rawdata_header( void )
 		LabelArray label_arr = aux_test::get_mock_label_array();
 		MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
-		ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-		mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
+		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+		mr_contgen.set_rawdata_header(hdr);
 
 		return  true;
 	}
@@ -69,8 +69,8 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
-	ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
+	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_rawdata_header(hdr);
 
 
 	mr_contgen.map_contrast();
@@ -94,13 +94,13 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
 	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
-	std::string name_output_segmentation = "/media/sf_SharedFiles/tissue_seg_xcat_test_";
-	aux_test::write_ndarray_to_binary<unsigned int>(name_output_segmentation, segmentation_labels);
+	std::string name_output_segmentation = "/media/sf_SharedFiles/tissue_seg_xcat_test_192x192x192";
+	data_io::write_raw<unsigned int>(name_output_segmentation, segmentation_labels.begin(), segmentation_labels.getNumberOfElements());
+	
 
-
-	MRContrastGenerator mr_contgen( segmentation_labels, XML_TEST_PATH);
-	ISMRMRD::IsmrmrdHeader hdr = read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.set_rawdata_header(ISMRMRD_H5_TEST_PATH);
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
+	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_rawdata_header(hdr);
 
 	mr_contgen.map_contrast();
 
@@ -111,13 +111,23 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 
 	// check data sizes
 	const size_t* data_dimension = mr_contrast.getDims();
-	for(int i=0; i<7; i++)
-		std::cout << epiph( data_dimension[i]) << std::endl;
+	std::vector < size_t > dims(data_dimension, data_dimension+ISMRMRD_NDARRAY_MAXDIM);
 
-	
-	std::string name_output_contrast  = "/media/sf_SharedFiles/flash_contrast_xcat_test";
-	
-	aux_test::write_ndarray_to_binary<complex_float_t>(name_output_contrast, mr_contrast);
+	ISMRMRD::NDArray< float > mr_contrast_abs, mr_contrast_arg; 
+	mr_contrast_abs.resize( dims );
+	mr_contrast_arg.resize( dims );
+
+	for( size_t i=0; i<num_elements; i++ )
+	{
+		*(mr_contrast_abs.begin() + i) = std::abs( *(mr_contrast.begin() + i) );
+		*(mr_contrast_arg.begin() + i) = std::arg( *(mr_contrast.begin() + i) );
+
+	}
+			
+	std::string name_output_contrast  = "/media/sf_SharedFiles/flash_contrast_xcat_test_";
+
+	data_io::write_raw<float>(name_output_contrast + "abs_192x192x192" , mr_contrast_abs.begin(), mr_contrast_abs.getNumberOfElements());
+	data_io::write_raw<float>(name_output_contrast + "arg_192x192x192" , mr_contrast_arg.begin(), mr_contrast_arg.getNumberOfElements());
 	
 }
 

@@ -18,9 +18,3 @@ date: 15. March 2018
 
 
 
-
-
-ISMRMRD::IsmrmrdHeader read_ismrmrd_header( std::string path_ismrmrd_h5_file_with_ext);
-
-
-

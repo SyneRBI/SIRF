@@ -37,8 +37,8 @@ dynamicsimulation_tests.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
-tests_auxiliary_testing_functions.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
+tests_auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
 tests_tissueparameters.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.h
 tests_contrastgenerator.h
@@ -46,19 +46,19 @@ tests_contrastgenerator.h
 tests_phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
 
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.cpp
-tests_auxiliary_testing_functions.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
-
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.cpp
 string
--
-ismrmrd/ismrmrd.h
 -
 vector
 -
-auxiliary_testing_functions.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+ismrmrd/ismrmrd.h
+-
+../auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+tests_auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.cpp
 tests_contrastgenerator.h
@@ -89,6 +89,12 @@ phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.cpp
+phantom_input.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+../auxiliary_input_output.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
 tests_phantom_input.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.h
 
@@ -99,14 +105,8 @@ stdio.h
 -
 iostream
 -
-typeinfo
--
 ismrmrd/ismrmrd.h
 -
-phantom_input.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
-auxiliary_testing_functions.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_tissueparameters.cpp
 tests_tissueparameters.h
@@ -134,6 +134,10 @@ ismrmrd/ismrmrd.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
 string
+-
+sstream
+-
+fstream
 -
 ismrmrd/xml.h
 -
