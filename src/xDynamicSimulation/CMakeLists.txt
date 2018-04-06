@@ -30,8 +30,7 @@ if (ISMRMRD_FOUND)
 endif()
 
 ######### Find The Gadgetron ############
-find_path(GADGETRON_CMAKE_MODULES FindGadgetron.cmake HINTS
-${SIRF_PATH}/../Gadgetron)
+find_path(GADGETRON_CMAKE_MODULES FindGadgetron.cmake HINTS $ENV{GADGETRON_HOME}/share/gadgetron/cmake) 
 if (NOT GADGETRON_CMAKE_MODULES)
   MESSAGE(FATAL_ERROR "GADGETRON_CMAKE_MODULES cannot be found. 
    Try to set GADGETRON_HOME environment variable.")
