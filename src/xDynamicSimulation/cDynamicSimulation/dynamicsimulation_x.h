@@ -7,14 +7,37 @@ date: 15. March 2018
 #pragma once
 
 
-#include "gadgetron_x.h"
-
 #include <ismrmrd/ismrmrd.h>
+#include <ismrmrd/xml.h>
 
-//#include <stdio.h>
-//#include <iostream>
-
-
+#include <gadgetron/hoNDArray.h>
 
 
+class aFullySampledFFT{
 
+public:
+
+	aFullySampledFFT(ISMRMRD::IsmrmrdHeader hdr)
+	{
+		this->hdr_ = hdr;
+	}
+
+	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data) = 0;
+
+protected:
+
+	ISMRMRD::NDArray<complex_float_t> k_data_;
+	ISMRMRD::IsmrmrdHeader hdr_;
+
+};
+
+
+class FullySampledCartesianFFT: public aFullySampledFFT{
+
+public:
+	FullySampledCartesianFFT(ISMRMRD:IsmrmrdHeader hdr): aFullySampledFFT(hdr){};
+
+
+
+
+};
