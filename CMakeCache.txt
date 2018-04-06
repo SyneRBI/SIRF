@@ -221,6 +221,9 @@ FFTW3F_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libfftw3f.so
 //Path to a file.
 FFTW3_INCLUDE_DIR:PATH=/usr/include
 
+//The directory containing a CMake configuration file for Gadgetron.
+Gadgetron_DIR:PATH=Gadgetron_DIR-NOTFOUND
+
 //HDF5 CXX Wrapper compiler.  Used only to detect HDF5 compile
 // flags.
 HDF5_CXX_COMPILER_EXECUTABLE:FILEPATH=/usr/bin/h5c++

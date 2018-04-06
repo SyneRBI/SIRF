@@ -5,12 +5,13 @@ date: 15. March 2018
 
 ##################*/
 #pragma once
-
+/*
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
-#include <gadgetron/hoNDArray.h>
+#include "hoNDArray.h"
+
 
 
 class aFullySampledFFT{
@@ -41,3 +42,4 @@ public:
 
 
 };
+*/

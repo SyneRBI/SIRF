@@ -35,10 +35,10 @@ set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp phantom_inpu
 
 add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 
-set (dynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 
-target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
+#target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
 
@@ -53,7 +53,7 @@ if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   endforeach()
 else()
   # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(dynamicsimulation Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+  target_link_libraries(cdynamicsimulation Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
