@@ -1,17 +1,16 @@
 /* ================================================
 
 Author: Johannes Mayer
-Date: 2018.03.15
+Date: 2018.04.06
 Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
-#pragma once
 
+
+#pragma once
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
-
-
 
 class aFullySampledFFT{
 

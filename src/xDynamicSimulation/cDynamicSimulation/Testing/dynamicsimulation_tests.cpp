@@ -14,6 +14,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <iostream>
 #include <stdexcept>
 
+#include "tests_auxiliary_input_output.h"
+#include "tests_tissueparameters.h"
+#include "tests_contrastgenerator.h"
+#include "tests_phantom_input.h"
+#include "tests_encoding.h"
 
 #include "dynamicsimulation_tests.h"
 
@@ -119,9 +124,27 @@ void run_tests_phantom_input( void )
 	}
 	else
 	{
-		std::cout<< "The h5 file reader tests succeeded" << std::endl;
+		std::cout<< "The phantom input tests succeeded" << std::endl;
 	}
 
 
 }
 
+
+
+void run_tests_encoding( void ){
+
+	bool tests_successful = true;
+
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The h5 file reader tests failed." );
+	}
+	else
+	{
+		std::cout<< "The encoding tests succeeded" << std::endl;
+	}
+
+
+}

@@ -11,10 +11,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 //#define H5_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
 
 
-#include "tests_auxiliary_input_output.h"
-#include "tests_tissueparameters.h"
-#include "tests_contrastgenerator.h"
-#include "tests_phantom_input.h"
 
 // Function declarations in order to collect tests for module dynamicssimulation
 
@@ -25,3 +21,5 @@ void run_tests_tissueparameters( void );
 void run_tests_phantom_input( void );
 
 void run_tests_contrastgenerator( void );
+
+void run_tests_encoding( void );
