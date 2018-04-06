@@ -36,23 +36,22 @@ if (NOT GADGETRON_CMAKE_MODULES)
    Try to set GADGETRON_HOME environment variable.")
 endif(NOT GADGETRON_CMAKE_MODULES)
 
-message( STATUS "######### Gadgetron cmake modules ######### " ${GADGETRON_CMAKE_MODULES})
 set(CMAKE_MODULE_PATH "${GADGETRON_CMAKE_MODULES}")
 
 ## find the package
 find_package(Gadgetron REQUIRED)
-message ( STATUS "######### Gadgetron inc dirs ######### " ${GADGETRON_INCLUDE_DIR})
-message ( STATUS "######### Gadgetron link dirs ######### " ${GADGETRON_LIB_DIR})
-#include_directories(${GADGETRON_INCLUDE_DIR})
-#link_directories(${GADGETRON_LIB_DIR})
+include_directories(${GADGETRON_INCLUDE_DIR})
+link_directories(${GADGETRON_LIB_DIR})
+
 
 #########################################
 
 find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
+
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
 ADD_SUBDIRECTORY(cDynamicSimulation)
 
-#set(cDynamicSimulation_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cDynamicSimulation")
+set(cDynamicSimulation_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cDynamicSimulation")
 

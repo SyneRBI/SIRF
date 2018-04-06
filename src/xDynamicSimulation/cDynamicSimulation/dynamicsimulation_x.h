@@ -5,12 +5,10 @@ date: 15. March 2018
 
 ##################*/
 #pragma once
-/*
+
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
-
-#include "hoNDArray.h"
 
 
 
@@ -36,10 +34,6 @@ protected:
 class FullySampledCartesianFFT: public aFullySampledFFT{
 
 public:
-	FullySampledCartesianFFT(ISMRMRD:IsmrmrdHeader hdr): aFullySampledFFT(hdr){};
-
-
-
+	FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr);
 
 };
-*/

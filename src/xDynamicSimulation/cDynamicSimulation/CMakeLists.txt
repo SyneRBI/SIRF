@@ -38,7 +38,7 @@ add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 
-#target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
+target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PRIVATE "${FFTW3_INCLUDE_DIR}")
 target_include_directories(cdynamicsimulation PUBLIC "${HDF5_INCLUDE_DIRS}")
 
@@ -62,8 +62,9 @@ endif()
 target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
-target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
+target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
+target_link_libraries(cdynamicsimulation gadgetron_toolbox_cpucore)
 
 #get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 #message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
