@@ -15,6 +15,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <ismrmrd/xml.h>
 
+#define SHARED_FOLDER_PATH std::string("/media/sf_SharedFiles/")
 
 namespace data_io{
 

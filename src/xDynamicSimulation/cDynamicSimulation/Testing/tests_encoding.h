@@ -9,3 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+namespace test_enc
+{
+	bool test_cube_input();
+}

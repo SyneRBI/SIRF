@@ -10,8 +10,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <string>
-#include <sstream>
-#include <fstream>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
@@ -46,7 +44,10 @@ namespace aux_test
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
 	
-	
+	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
+
+
+
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{
 		size_t const num_elements = one_array.getNumberOfElements();

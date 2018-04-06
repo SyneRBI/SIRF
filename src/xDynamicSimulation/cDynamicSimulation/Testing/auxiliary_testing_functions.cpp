@@ -10,6 +10,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_testing_functions.h"
 
 
+#include <omp.h>
+
 
 
 MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
@@ -147,3 +149,47 @@ LabelArray aux_test::get_mock_label_array( void )
 	return labels_list;	
 }
 
+
+
+ISMRMRD::NDArray<complex_float_t> aux_test::get_mock_ndarray_with_cube( void )
+{
+	size_t const Nx = 64;
+	size_t const Ny = 64;
+	size_t const Nz = 64;
+
+	std::vector< size_t > mock_dims;
+	mock_dims.push_back(Nx);
+	mock_dims.push_back(Ny);
+	mock_dims.push_back(Nz);
+
+	ISMRMRD::NDArray<complex_float_t> mock_arr;
+	mock_arr.resize(mock_dims);
+
+
+	float const val = 1;
+	complex_float_t const cube_value = std::complex<float>( val, val);
+
+	float const cube_radius = Nx/4;
+	std::vector<float> cube_center = {Nx/2, Ny/2, Nz/2};
+	//#pragma omp parallel
+	for( size_t nz=0; nz<Nz; nz++)
+	{
+		bool z_is_in_cube = (std::abs(nz - cube_center[2]) < cube_radius);
+		for( size_t ny=0; ny<Ny; ny++)
+		{
+			bool y_is_in_cube = (std::abs(ny - cube_center[1]) < cube_radius);
+
+			for( size_t nx=0; nx<Nx; nx++)
+			{
+				bool x_is_in_cube = (std::abs(nx - cube_center[0]) < cube_radius);
+				if( x_is_in_cube && y_is_in_cube && z_is_in_cube )
+					mock_arr(nx,ny,nz) = cube_value;
+
+				else
+					mock_arr(nx,ny,nz) = 0;
+			}
+		}
+	}
+
+	return mock_arr;
+}

@@ -136,6 +136,7 @@ void run_tests_encoding( void ){
 
 	bool tests_successful = true;
 
+	tests_successful *= test_enc::test_cube_input();
 
 	if ( !tests_successful )
 	{

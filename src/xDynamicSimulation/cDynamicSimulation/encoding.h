@@ -21,7 +21,9 @@ public:
 		this->hdr_ = hdr;
 	}
 
-	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data) = 0;
+	virtual ISMRMRD::NDArray<complex_float_t> get_k_data( void );
+
+	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data ) = 0;
 
 protected:
 
@@ -35,5 +37,6 @@ class FullySampledCartesianFFT: public aFullySampledFFT{
 
 public:
 	FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr);
+
 
 };

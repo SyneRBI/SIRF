@@ -10,10 +10,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <gadgetron/hoNDArray.h>
 
+ISMRMRD::NDArray<complex_float_t> aFullySampledFFT::get_k_data( void )
+{
+	return this->k_data_;	
+}
+
+
+
 
 FullySampledCartesianFFT::FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr):
 aFullySampledFFT( hdr )
 {
-	Gadgetron::hoNDArray< float > some_arr;
-
 }
