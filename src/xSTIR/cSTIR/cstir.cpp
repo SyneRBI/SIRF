@@ -466,18 +466,11 @@ void* cSTIR_acquisitionsDataFromScannerInfo
 	std::string storage = PETAcquisitionData::storage_scheme();
 	try{
 		shared_ptr<ExamInfo> sptr_ei(new ExamInfo());
-		if (storage[0] == 'f' || strcmp(storage.c_str(), "default") == 0) {
-			shared_ptr<PETAcquisitionDataInFile> 
-				sptr(new PETAcquisitionDataInFile
-				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
-			return newObjectHandle(sptr);
-		}
-		else {
-			shared_ptr<PETAcquisitionDataInMemory>
-				sptr(new PETAcquisitionDataInMemory
-				(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
-			return newObjectHandle(sptr);
-		}
+		shared_ptr<PETAcquisitionDataInMemory>
+			sptr_t(new PETAcquisitionDataInMemory);
+		shared_ptr<PETAcquisitionData> sptr(sptr_t->same_acquisition_data
+			(sptr_ei, scanner, span, max_ring_diff, view_mash_factor));
+		return newObjectHandle(sptr);
 	}
 	CATCH;
 }

@@ -134,10 +134,15 @@ storage mode (file/memory) selection.
 class PETAcquisitionData : public aDataContainer < float > {
 public:
 	virtual ~PETAcquisitionData() {}
+
+	// virtual constructors
 	virtual PETAcquisitionData* same_acquisition_data
 		(shared_ptr<ExamInfo> sptr_exam_info,
 		shared_ptr<ProjDataInfo> sptr_proj_data_info) = 0;
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	virtual aDataContainer<float>* new_data_container() = 0;
 
@@ -349,6 +354,14 @@ public:
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
 		return ptr_ad;
 	}
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile
+			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
+		return ptr_ad;
+	}
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
@@ -418,6 +431,14 @@ public:
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
+		return ptr_ad;
+	}
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory
+			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 		return ptr_ad;
 	}
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
