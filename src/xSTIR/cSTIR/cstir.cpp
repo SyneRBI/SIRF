@@ -73,8 +73,8 @@ void* cSTIR_newObject(const char* name)
 			return newObjectHandle<AcqModUsingMatrix3DF>();
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return newObjectHandle<RayTracingMatrix>();
-		if (boost::iequals(name, "QuadraticPrior"))
-			return newObjectHandle<QuadPrior3DF>();
+		//if (boost::iequals(name, "QuadraticPrior"))
+		//	return newObjectHandle<QuadPrior3DF>();
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return newObjectHandle<CylindricFilter3DF>();
 		if (boost::iequals(name, "EllipsoidalCylinder"))
@@ -110,6 +110,8 @@ void* cSTIR_setParameter
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (boost::iequals(obj, "QuadraticPrior"))
 			return cSTIR_setQuadraticPriorParameter(hs, name, hv);
+		else if (boost::iequals(obj, "PLSPrior"))
+			return cSTIR_setPLSPriorParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_setGeneralisedObjectiveFunctionParameter(hs, name, hv);
 		else if (boost::iequals(obj, "PoissonLogLikelihoodWithLinearModelForMean"))
@@ -723,6 +725,24 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 		fun.compute_sub_gradient_without_penalty_plus_sensitivity
 			(grad, image, subset);
 		return newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_setupPrior(void* ptr_p)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		xSTIR_GeneralisedPrior3DF& prior =
+			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
+		if (prior.post_process()){
+			ExecutionStatus status("cSTIR_setupPrior failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return handle;
 	}
 	CATCH;
 }

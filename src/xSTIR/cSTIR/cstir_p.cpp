@@ -288,6 +288,27 @@ cSTIR_setQuadraticPriorParameter
 }
 
 void*
+cSTIR_setPLSPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_PLSPrior3DF& prior =
+		objectFromHandle<xSTIR_PLSPrior3DF>(hp);
+	if (boost::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "anatomical_image")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_anatomical_image_sptr(id.data_sptr());
+	}
+	else if (boost::iequals(name, "kappa")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {

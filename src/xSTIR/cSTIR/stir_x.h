@@ -476,6 +476,13 @@ public:
 	}
 };
 
+class xSTIR_PLSPrior3DF : public PLSPrior < float > {
+public:
+	void only2D(int only) {
+		only_2D = only != 0;
+	}
+};
+
 class xSTIR_GeneralisedObjectiveFunction3DF :
 	public GeneralisedObjectiveFunction<Image3DF> {
 public:

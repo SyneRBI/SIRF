@@ -40,8 +40,6 @@ limitations under the License.
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
 
-#include "stir/SSRB.h"
-
 using stir::shared_ptr;
 
 class SIRFUtilities {

@@ -77,6 +77,10 @@ cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
+cSTIR_setPLSPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
 cSTIR_generalisedObjectiveFunctionParameter
 (const DataHandle* handle, const char* name);
 
