@@ -73,8 +73,8 @@ void* cSTIR_newObject(const char* name)
 			return newObjectHandle<AcqModUsingMatrix3DF>();
 		if (boost::iequals(name, "RayTracingMatrix"))
 			return newObjectHandle<RayTracingMatrix>();
-		//if (boost::iequals(name, "QuadraticPrior"))
-		//	return newObjectHandle<QuadPrior3DF>();
+		if (boost::iequals(name, "QuadraticPrior"))
+			return newObjectHandle<QuadPrior3DF>();
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return newObjectHandle<CylindricFilter3DF>();
 		if (boost::iequals(name, "EllipsoidalCylinder"))
