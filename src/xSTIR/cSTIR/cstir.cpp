@@ -460,7 +460,7 @@ void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t)
 }
 
 extern "C"
-void* cSTIR_rebinnedAcquisitionsData(void* ptr_t, 
+void* cSTIR_rebinnedAcquisitionData(void* ptr_t, 
 const int num_segments_to_combine,
 const int num_views_to_combine,
 const int num_tang_poss_to_trim,
@@ -472,6 +472,7 @@ const int max_in_segment_num_to_process
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_t, ptr_t);
 		shared_ptr<PETAcquisitionData> sptr =
 			sptr_t->single_slice_rebinned_data(
+			num_segments_to_combine,
 			num_views_to_combine,
 			num_tang_poss_to_trim,
 			do_normalisation,

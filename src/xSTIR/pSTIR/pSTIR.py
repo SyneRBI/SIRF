@@ -792,6 +792,16 @@ class AcquisitionData(DataContainer):
         ad.fill(value)
         ad.src = 'copy'
         return ad
+    def rebin(self, num_segments_to_combine, \
+        num_views_to_combine = 1, num_tang_poss_to_trim = 0, \
+        do_normalisation = True, max_in_segment_num_to_process = -1):
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_rebinnedAcquisitionData(self.handle, \
+            num_segments_to_combine, num_views_to_combine, \
+            num_tang_poss_to_trim, do_normalisation, \
+            max_in_segment_num_to_process)
+        check_status(ad.handle)
+        return ad
 
 DataContainer.register(AcquisitionData)
 
