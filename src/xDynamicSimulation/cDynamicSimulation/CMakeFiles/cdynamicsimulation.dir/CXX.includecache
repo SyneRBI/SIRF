@@ -101,6 +101,8 @@ auxiliary_testing_functions.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_encoding.h
+encoding.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/encoding.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_phantom_input.cpp
 phantom_input.h
@@ -817,6 +819,12 @@ tissueparameters.h
 src/xDynamicSimulation/cDynamicSimulation/tissueparameters.h
 tissuelabelmapper.h
 src/xDynamicSimulation/cDynamicSimulation/tissuelabelmapper.h
+
+src/xDynamicSimulation/cDynamicSimulation/encoding.h
+ismrmrd/ismrmrd.h
+-
+ismrmrd/xml.h
+-
 
 src/xDynamicSimulation/cDynamicSimulation/phantom_input.h
 iostream

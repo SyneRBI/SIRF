@@ -46,8 +46,30 @@ bool test_enc::test_cube_input()
 
 bool test_cart_enc::test_sample_fourier_space()
 {
+	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	FullySampledCartesianFFT cart_fft(hdr);
+
+
+	NDArray<complex_float_t> i_dat = aux_test::get_mock_ndarray_with_cube();
 	
-	return false;
+	cart_fft.SampleFourierSpace( i_dat);
+
+	NDArray<complex_float_t> k_dat = cart_fft.get_k_data();
+
+	size_t num_elements = k_dat.getNumberOfElements();
+
+	std::vector<float> k_dat_abs;
+
+	k_dat_abs.resize(num_elements);
+
+	for( size_t i=0; i<num_elements; i++)
+		k_dat_abs[i] = std::abs( *(k_dat.begin() + i) );
+
+	
+	std::string output_name = SHARED_FOLDER_PATH + "test_cart_enc_k_data";
+	data_io::write_raw<float>(output_name + "_abs_64x64x64", &k_dat_abs[0], k_dat_abs.size());
+
+	return true;
 }
 
 

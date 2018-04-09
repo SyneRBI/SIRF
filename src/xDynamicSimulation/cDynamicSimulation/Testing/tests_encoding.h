@@ -9,6 +9,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+#include "encoding.h"
+
 namespace test_enc
 {
 	bool test_cube_input();
