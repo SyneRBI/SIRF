@@ -65,7 +65,14 @@ target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
-target_link_libraries(cdynamicsimulation gadgetron_toolbox_cpucore)
+
+
+
+
+set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpucore)
+set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpufft)
+
+target_link_libraries(cdynamicsimulation ${GADGETRON_LIBRARIES_TOLINK})
 
 #get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 #message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})

@@ -195,6 +195,8 @@ encoding.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/encoding.h
 gadgetron/hoNDArray.h
 -
+gadgetron/hoNDFFT.h
+-
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/encoding.h
 ismrmrd/ismrmrd.h
@@ -320,6 +322,8 @@ host_defines.h
 
 /home/sirfuser/devel/install/include/gadgetron/cpucore_export.h
 
+/home/sirfuser/devel/install/include/gadgetron/cpufft_export.h
+
 /home/sirfuser/devel/install/include/gadgetron/hoNDArray.h
 NDArray.h
 /home/sirfuser/devel/install/include/gadgetron/NDArray.h
@@ -341,6 +345,22 @@ hoNDArray.hxx
 /home/sirfuser/devel/install/include/gadgetron/hoNDArray.hxx
 
 /home/sirfuser/devel/install/include/gadgetron/hoNDArray.hxx
+
+/home/sirfuser/devel/install/include/gadgetron/hoNDFFT.h
+hoNDArray.h
+/home/sirfuser/devel/install/include/gadgetron/hoNDArray.h
+cpufft_export.h
+/home/sirfuser/devel/install/include/gadgetron/cpufft_export.h
+mutex
+-
+iostream
+-
+fftw3.h
+-
+complex
+-
+omp.h
+/home/sirfuser/devel/install/include/gadgetron/omp.h
 
 /home/sirfuser/devel/install/include/gadgetron/log.h
 log_export.h
