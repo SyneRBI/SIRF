@@ -68,7 +68,7 @@ storage = args['--storage']
 
 def main():
 
-    # output goes to files
+    # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme

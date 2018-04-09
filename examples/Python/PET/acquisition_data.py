@@ -64,7 +64,7 @@ else:
 
 def main():
 
-    # output goes to files
+    # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # PET acquisition data to be read from this file

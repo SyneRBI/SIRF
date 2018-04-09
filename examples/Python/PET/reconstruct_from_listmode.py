@@ -78,7 +78,7 @@ storage = args['--storage']
 
 def main():
 
-    # output messages go to files, except error messages
+    # engine's messages go to files, except error messages, which go to stdout
     msg_red = MessageRedirector('info.txt', 'warn.txt')
 
     # select acquisition data storage scheme

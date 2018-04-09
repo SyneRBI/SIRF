@@ -59,7 +59,7 @@ raw_data_file = existing_filepath(data_path, data_file)
 
 def main():
 
-    # engine output goes to files
+    # engine's messages go to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # create acquisition model
