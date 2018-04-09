@@ -117,7 +117,7 @@ void run_tests_phantom_input( void )
 	tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);
 	
 	test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
-	
+		
 	if ( !tests_successful )
 	{
 		throw std::runtime_error( "The h5 file reader tests failed." );
@@ -138,9 +138,11 @@ void run_tests_encoding( void ){
 
 	tests_successful *= test_enc::test_cube_input();
 
+	tests_successful *= test_cart_enc::test_sample_fourier_space();
+
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The h5 file reader tests failed." );
+		throw std::runtime_error( "The encoding tests failed." );
 	}
 	else
 	{

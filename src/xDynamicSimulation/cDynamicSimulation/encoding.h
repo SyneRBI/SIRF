@@ -37,6 +37,8 @@ class FullySampledCartesianFFT: public aFullySampledFFT{
 
 public:
 	FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr);
+	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data);
+
 
 
 };

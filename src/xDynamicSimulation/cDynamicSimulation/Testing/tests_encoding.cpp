@@ -43,3 +43,12 @@ bool test_enc::test_cube_input()
 
 	return true;
 }
+
+bool test_cart_enc::test_sample_fourier_space()
+{
+	
+	return false;
+}
+
+
+

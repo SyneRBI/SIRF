@@ -35,7 +35,8 @@ int main( int argc, char *argv[] )
 	}
 
 	catch(const std::exception& e)
-	{
+	{	
+		std::cout << "Exception caught at highest level in main" << std::endl;
 		std::cout<< e.what() << '\n';			
 	}
 	catch(...)

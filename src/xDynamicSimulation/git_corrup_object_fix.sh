@@ -6,13 +6,14 @@ remote_url_FORK="https://github.com/johannesmayer/SIRF.git"
 
 # specify branches
 dev_branch="devJohannes"
-curr_branch="refactorContGen"
+curr_branch="cartFFTConstruction"
 
 # generate a hard backup for SIRF
 todays_date=`date +%Y-%m-%d`
 backup_filepath="/home/sirfuser/Code/Backup/SIRF_BACKUP_$todays_date"
 
 echo "Generating $backup_filepath for backing up SIRF"
+
 mkdir -p $backup_filepath
 
 echo "Copying SIRF into the backup filepath"
@@ -45,6 +46,7 @@ git pull origin master
 git fetch
 git checkout -b $dev_branch
 git pull origin $dev_branch
+
 git fetch 
 git checkout -b $curr_branch
 git pull origin $curr_branch

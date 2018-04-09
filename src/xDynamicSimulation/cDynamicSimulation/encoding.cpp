@@ -22,3 +22,9 @@ FullySampledCartesianFFT::FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr):
 aFullySampledFFT( hdr )
 {
 }
+
+
+void FullySampledCartesianFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data)
+{
+	
+}
