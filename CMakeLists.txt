@@ -99,3 +99,9 @@ ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
 ADD_SUBDIRECTORY(src/common)
+
+# Optional registration
+option(USE_SIRFREG "Build the SIRF registration package" OFF)
+if (USE_SIRFREG)
+  ADD_SUBDIRECTORY(src/Registration)
+endif()

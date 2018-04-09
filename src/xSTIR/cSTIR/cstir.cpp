@@ -75,6 +75,9 @@ void* cSTIR_newObject(const char* name)
 			return newObjectHandle<RayTracingMatrix>();
 		if (boost::iequals(name, "QuadraticPrior"))
 			return newObjectHandle<QuadPrior3DF>();
+		if (boost::iequals(name, "PLSPrior")) {
+			return newObjectHandle<PLSPrior3DF>();
+		}
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return newObjectHandle<CylindricFilter3DF>();
 		if (boost::iequals(name, "EllipsoidalCylinder"))
@@ -110,6 +113,8 @@ void* cSTIR_setParameter
 			return cSTIR_setGeneralisedPriorParameter(hs, name, hv);
 		else if (boost::iequals(obj, "QuadraticPrior"))
 			return cSTIR_setQuadraticPriorParameter(hs, name, hv);
+		else if (boost::iequals(obj, "PLSPrior"))
+			return cSTIR_setPLSPriorParameter(hs, name, hv);
 		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_setGeneralisedObjectiveFunctionParameter(hs, name, hv);
 		else if (boost::iequals(obj, "PoissonLogLikelihoodWithLinearModelForMean"))
@@ -152,6 +157,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
+		if (boost::iequals(obj, "PLSPrior"))
+			return cSTIR_PLSPriorParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
 		if (boost::iequals(obj,
@@ -976,3 +983,19 @@ cSTIR_axpby(
 	CATCH;
 }
 
+/*extern "C"
+void* cSTIR_setupPLSPrior(void* ptr)
+{
+	try {
+		PLSPrior3DF& prior = objectFromHandle<PLSPrior3DF>(ptr);
+		DataHandle* handle = new DataHandle;
+		if (prior.set_up()) {
+			ExecutionStatus status
+				("cSTIR_setupPLSPrior failed", 
+					__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}*/

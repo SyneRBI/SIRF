@@ -476,6 +476,37 @@ public:
 	}
 };
 
+class xSTIR_PLSPrior3DF : public PLSPrior < float > {
+public:
+	void only2D(int only) {
+		only_2D = only != 0;
+	}
+	void set_alpha(float arg) {
+		alpha = arg;
+	}
+	void set_eta(float arg) {
+		eta = arg;
+	}
+	void set_kappa_filename(const char *arg) {
+		kappa_filename = arg;
+	}
+	void set_anatomical_filename(const char *arg) {
+		anatomical_filename = arg;
+	}
+	bool get_only_2D() {
+		return only_2D;
+	}
+	float get_alpha() {
+		return alpha;
+	}
+	float get_eta() {
+		return eta;
+	}
+	/*stir::Succeeded set_up() {
+		return(this->set_up());
+	}*/
+};
+
 class xSTIR_GeneralisedObjectiveFunction3DF :
 	public GeneralisedObjectiveFunction<Image3DF> {
 public:
