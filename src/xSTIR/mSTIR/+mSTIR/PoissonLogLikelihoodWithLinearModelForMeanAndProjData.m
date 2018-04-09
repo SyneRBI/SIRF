@@ -56,13 +56,13 @@ classdef PoissonLogLikelihoodWithLinearModelForMeanAndProjData < ...
             mSTIR.setParameter(self.handle_, self.name,...
                 'zero_seg0_end_planes', str, 'c') 
         end
-        function set_max_segment_num_to_process(self, n)
-%***SIRF*** Limits the range of the acquisition data segments to be used.
-%         set_max_segment_num_to_process(n) restricts the range of the 
-%         acquisition data segments to be used to [-n, n].
-            mSTIR.setParameter(self.handle_, self.name, ...
-                'max_segment_num_to_process', n, 'i') 
-        end
+%         function set_max_segment_num_to_process(self, n)
+% %***SIRF*** Limits the range of the acquisition data segments to be used.
+% %         set_max_segment_num_to_process(n) restricts the range of the 
+% %         acquisition data segments to be used to [-n, n].
+%             mSTIR.setParameter(self.handle_, self.name, ...
+%                 'max_segment_num_to_process', n, 'i') 
+%         end
         function set_acquisition_model(self, acq_model)
 %***SIRF*** Sets the acquisition model to be used by this objective function.
             mUtilities.assert_validity(acq_model, 'AcquisitionModel')

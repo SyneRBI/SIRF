@@ -1390,8 +1390,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 ##    def set_zero_seg0_end_planes(self, flag):
 ##        _set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-    def set_max_segment_num_to_process(self, n):
-        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##    def set_max_segment_num_to_process(self, n):
+##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.

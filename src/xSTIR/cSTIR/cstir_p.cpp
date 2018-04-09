@@ -346,14 +346,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	else if (boost::iequals(name, "zero_seg0_end_planes"))
 		obj_fun.set_zero_seg0_end_planes
 			(boost::iequals(charDataFromDataHandle(hv), "true"));
-	else if (boost::iequals(name, "max_segment_num_to_process"))
-		obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
-	//else if (boost::iequals(name, "projector_pair_type"))
-	//	obj_fun.set_projector_pair_sptr
-	//		(objectSptrFromHandle<ProjectorByBinPair>(hv));
-	//else if (boost::iequals(name, "proj_data_sptr"))
-	//	obj_fun.set_proj_data_sptr
-	//	(objectSptrFromHandle<PETAcquisitionData>(hv)->data());
+	//else if (boost::iequals(name, "max_segment_num_to_process"))
+	//	obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
 	else if (boost::iequals(name, "acquisition_data"))
 		obj_fun.set_acquisition_data(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "acquisition_model"))
