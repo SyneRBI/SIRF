@@ -153,9 +153,12 @@ LabelArray aux_test::get_mock_label_array( void )
 
 ISMRMRD::NDArray<complex_float_t> aux_test::get_mock_ndarray_with_cube( void )
 {
-	size_t const Nx = 64;
-	size_t const Ny = 64;
-	size_t const Nz = 64;
+
+
+
+	size_t const Nx = MOCK_DATA_MATRIX_SIZE;
+	size_t const Ny = MOCK_DATA_MATRIX_SIZE;
+	size_t const Nz = MOCK_DATA_MATRIX_SIZE;
 
 	std::vector< size_t > mock_dims;
 	mock_dims.push_back(Nx);
@@ -211,4 +214,53 @@ ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( vo
 	}
 
 	return mock_img;
+}
+
+
+
+ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
+{
+	size_t const Nx = MOCK_DATA_MATRIX_SIZE;
+	size_t const Ny = MOCK_DATA_MATRIX_SIZE;
+	size_t const Nz = MOCK_DATA_MATRIX_SIZE;
+
+	std::vector <size_t> csm_dims;
+	csm_dims.push_back( Nx );
+	csm_dims.push_back( Ny );
+	csm_dims.push_back( Ny );
+	csm_dims.push_back( MOCK_DATA_NUM_CHANNELS );
+
+	ISMRMRD::NDArray< complex_float_t > csm(csm_dims);
+
+	for( size_t i=0; i<csm.getNumberOfElements(); i++)
+		*(csm.begin() +i) = 0;
+	
+	for(size_t nc=0; nc<MOCK_DATA_NUM_CHANNELS; nc++)
+	{
+		for(size_t nz=0; nz<Nz; nz++)
+		{
+			for(size_t ny; ny<Ny; ny++)
+			{
+				for(size_t nx; nx<Nx; nx++)
+				{
+					if( nc%2 == 0 && nz < MOCK_DATA_MATRIX_SIZE/2)
+						csm(nx, ny, nz, nc) = 1;	
+				
+					else if( nc%2 == 1 && nz > MOCK_DATA_MATRIX_SIZE/2 )
+						csm(nx, ny, nz, nc) = 1;	
+
+				}
+			}
+		}
+	}
+
+	return csm;
+}
+
+CoilSensitivitiesAsImages aux_test::get_mock_coilsensitivity_container( void )
+{
+
+	//ISMRMRD::NDArray<complex_float_t> csm = get_mock_csm();
+
+
 }

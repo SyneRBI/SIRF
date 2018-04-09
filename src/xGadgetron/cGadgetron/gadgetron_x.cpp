@@ -273,8 +273,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	for (unsigned int c = 0; c < nc; c++) {
 		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++) 
-{				uint16_t xout = x + (readout - nx) / 2;
+			for (unsigned int x = 0; x < nx; x++) {
+				uint16_t xout = x + (readout - nx) / 2;
 				complex_float_t zi = (complex_float_t)img(x, y);
 				complex_float_t zc = csm(x, y, 0, c);
 				ci(xout, y, c) = zi * zc;
