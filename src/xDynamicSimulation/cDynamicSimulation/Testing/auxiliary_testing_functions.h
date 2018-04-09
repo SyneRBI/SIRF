@@ -45,7 +45,7 @@ namespace aux_test
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
 	
 	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
-
+	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
 
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)

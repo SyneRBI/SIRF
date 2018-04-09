@@ -193,3 +193,22 @@ ISMRMRD::NDArray<complex_float_t> aux_test::get_mock_ndarray_with_cube( void )
 
 	return mock_arr;
 }
+
+
+ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( void )
+{
+
+	ISMRMRD::NDArray<complex_float_t> mock_arr = get_mock_ndarray_with_cube();
+	size_t const *  img_dims = mock_arr.getDims();
+
+	ISMRMRD::Image< complex_float_t > mock_img(img_dims[0], img_dims[1], img_dims[2], 1);
+		
+	size_t num_elements = mock_img.getNumberOfDataElements();
+
+	for( size_t i=0; i<num_elements; i++)
+	{
+		*(mock_img.begin() + i) = *(mock_arr.begin() + i);
+	}
+
+	return mock_img;
+}
