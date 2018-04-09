@@ -66,9 +66,6 @@ target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
-
-
-
 set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpucore)
 set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpufft)
 

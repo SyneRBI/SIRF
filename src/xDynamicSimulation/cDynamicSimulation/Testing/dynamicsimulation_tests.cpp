@@ -137,8 +137,8 @@ void run_tests_encoding( void ){
 	bool tests_successful = true;
 
 	tests_successful *= test_enc::test_cube_input();
-
 	tests_successful *= test_cart_enc::test_sample_fourier_space();
+	
 
 	if ( !tests_successful )
 	{
