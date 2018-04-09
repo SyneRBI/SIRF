@@ -164,6 +164,7 @@ public:
 		shared_ptr<PETAcquisitionData> sptr(same_acquisition_data
 			(data()->get_exam_info_sptr(), out_proj_data_info_sptr));
 		SSRB(*sptr, *data(), do_normalisation);
+		return sptr;
 	}
 
 	static std::string storage_scheme()
