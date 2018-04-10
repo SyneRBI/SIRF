@@ -52,6 +52,8 @@ namespace aux_test
 	PETTissueParameter get_mock_PET_tissue_parameter( void );
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
 
+
+	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );
 	ISMRMRD::IsmrmrdHeader get_mock_ismrmrd_header( void );
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );

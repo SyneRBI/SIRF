@@ -43,8 +43,6 @@ bool tests_mracqmod::test_fwd_method( void )
 						  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 		
 
-
-
 	ImageWrap img_wrap(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
 	AcquisitionsVector target_acqs;
 
