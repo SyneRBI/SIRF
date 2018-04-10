@@ -266,12 +266,10 @@ CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 	std::vector <size_t> data_size;
 	for(int i=0; i<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
 	{
-		std::cout << "dim " << dummy_size[i] << std::endl;
 		if(dummy_size[i] > 0)
 			data_size.push_back(dummy_size[i]);
 		else 
 			data_size.push_back( 1 ); 
-
 	}
 
 	CoilDataAsCFImage csm_as_img( data_size[0], data_size[1], data_size[2], data_size[3] );

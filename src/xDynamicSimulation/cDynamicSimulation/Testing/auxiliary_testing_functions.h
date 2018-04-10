@@ -15,6 +15,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 
 #include "gadgetron_data_containers.h"
+#include "gadgetron_image_wrap.h"
 
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
@@ -37,6 +38,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define MOCK_DATA_MATRIX_SIZE 64
 #define MOCK_DATA_NUM_CHANNELS 2
+#define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5
+
 
 
 namespace aux_test
@@ -57,7 +60,8 @@ namespace aux_test
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
-	
+
+	ISMRMRD::Acquisition get_mock_ismrmrd_acquisition ( void );	
 	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)

@@ -330,6 +330,33 @@ Testing/tests_encoding.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_encoding.cpp.s
 .PHONY : Testing/tests_encoding.cpp.s
 
+Testing/tests_mr_acquisition_model.o: Testing/tests_mr_acquisition_model.cpp.o
+
+.PHONY : Testing/tests_mr_acquisition_model.o
+
+# target to build an object file
+Testing/tests_mr_acquisition_model.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.o
+.PHONY : Testing/tests_mr_acquisition_model.cpp.o
+
+Testing/tests_mr_acquisition_model.i: Testing/tests_mr_acquisition_model.cpp.i
+
+.PHONY : Testing/tests_mr_acquisition_model.i
+
+# target to preprocess a source file
+Testing/tests_mr_acquisition_model.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.i
+.PHONY : Testing/tests_mr_acquisition_model.cpp.i
+
+Testing/tests_mr_acquisition_model.s: Testing/tests_mr_acquisition_model.cpp.s
+
+.PHONY : Testing/tests_mr_acquisition_model.s
+
+# target to generate assembly for a file
+Testing/tests_mr_acquisition_model.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.s
+.PHONY : Testing/tests_mr_acquisition_model.cpp.s
+
 Testing/tests_phantom_input.o: Testing/tests_phantom_input.cpp.o
 
 .PHONY : Testing/tests_phantom_input.o
@@ -630,6 +657,9 @@ help:
 	@echo "... Testing/tests_encoding.o"
 	@echo "... Testing/tests_encoding.i"
 	@echo "... Testing/tests_encoding.s"
+	@echo "... Testing/tests_mr_acquisition_model.o"
+	@echo "... Testing/tests_mr_acquisition_model.i"
+	@echo "... Testing/tests_mr_acquisition_model.s"
 	@echo "... Testing/tests_phantom_input.o"
 	@echo "... Testing/tests_phantom_input.i"
 	@echo "... Testing/tests_phantom_input.s"
