@@ -159,7 +159,6 @@ void run_tests_mr_acquisition_model( void )
 	bool tests_successful = true;
 
 	tests_successful *= tests_mracqmod::test_fwd_method();
-	std::cout << "nag" << std::endl;
 
 	if ( !tests_successful )
 	{

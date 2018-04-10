@@ -278,3 +278,10 @@ CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 	return csm_as_img;
 
 }
+
+
+ISMRMRD::Acquisition aux_test::get_mock_ismrmrd_acquisition ( void )
+{
+	ISMRMRD::Acquisition acq(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS, 0);
+	return acq;
+}
