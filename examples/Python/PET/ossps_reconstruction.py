@@ -4,7 +4,7 @@ Usage:
   ossps_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file
+  -d <file>, --file=<file>    raw data file
                               [default: Utahscat600k_ca_seg4.hs]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
@@ -56,7 +56,7 @@ def main():
 
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()
-    # output goes to files
+    # all engine's printing goes to files
 ##    msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition model that implements the geometric
@@ -66,6 +66,13 @@ def main():
     # PET acquisition data to be read from the file specified by --file option
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
+
+    # read an initial estimate for the reconstructed image from the file
+    # specified by --init option
+    init_image_file = existing_filepath(data_path, init_file)
+    image = ImageData(init_image_file)
+    image_array = image.as_array()
+    show_2D_array('Initial image', image_array[10,:,:])
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
@@ -81,14 +88,6 @@ def main():
     recon.set_num_subiterations(num_subiterations)
     recon.set_objective_function(obj_fun)
     recon.set_input(acq_data)
-
-    # read an initial estimate for the reconstructed image from the file
-    # specified by --init option
-    init_image_file = existing_filepath(data_path, init_file)
-    image = ImageData(init_image_file)
-    image_array = image.as_array()
-    pylab.figure(0)
-    pylab.imshow(image_array[10,:,:])
 
     # set up the reconstructor
     print('setting up, please wait...')

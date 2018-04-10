@@ -1242,6 +1242,10 @@ class PLSPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_image(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior',\
+            'anatomical_image', image.handle)
 
 class ObjectiveFunction:
     '''
