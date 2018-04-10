@@ -53,8 +53,12 @@ namespace aux_test
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
 
 
-	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );
 	ISMRMRD::IsmrmrdHeader get_mock_ismrmrd_header( void );
+	std::string get_serialized_mock_ismrmrd_header( void );
+
+
+
+
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
 	
@@ -63,6 +67,9 @@ namespace aux_test
 
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
 
+
+
+	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	ISMRMRD::Acquisition get_mock_ismrmrd_acquisition ( void );	
 	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 

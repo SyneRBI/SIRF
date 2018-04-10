@@ -11,7 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <omp.h>
-
+#include <sstream>
 
 
 MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
@@ -48,6 +48,32 @@ TissueParameter aux_test::get_mock_tissue_parameter( void )
 	tiss_par.pet_tissue_ = get_mock_PET_tissue_parameter();
 	return tiss_par;
 }
+
+ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
+{
+
+	ISMRMRD::AcquisitionHeader acq_hdr;
+
+}
+
+std::string aux_test::get_serialized_mock_ismrmrd_header( void )
+{
+
+	ISMRMRD::AcquisitionHeader acq_hdr = get_mock_acquisition_header();
+
+	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
+
+	std::ostringstream out;
+
+	ISMRMRD::serialize(hdr, out);
+
+	return out.str();
+}
+
+
+
+
+
 
 ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 {

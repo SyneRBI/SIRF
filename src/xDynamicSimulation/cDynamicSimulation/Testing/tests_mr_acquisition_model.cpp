@@ -23,6 +23,22 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
+void tests_mracqmod::test_get_serialized_ismrmrd_header( void )
+{
+
+	std::string serialized_hdr = aux_test::get_serialized_mock_ismrmrd_header();
+
+	std::cout << serialized_hdr << std::endl;
+
+}
+
+
+
+
+
+
+
+
 bool tests_mracqmod::test_fwd_method( void ) 
 {
 	
@@ -52,6 +68,7 @@ bool tests_mracqmod::test_fwd_method( void )
 
 	return false;
 }
+
 
 
 

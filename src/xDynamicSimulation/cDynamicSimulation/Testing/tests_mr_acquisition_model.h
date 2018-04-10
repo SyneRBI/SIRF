@@ -12,6 +12,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 namespace tests_mracqmod{
 
+	void test_get_serialized_ismrmrd_header( void );
+
 	bool test_fwd_method( void );
 
 }
