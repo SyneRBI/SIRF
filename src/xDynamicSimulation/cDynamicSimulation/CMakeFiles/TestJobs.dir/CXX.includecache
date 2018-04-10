@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
-
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/main.cpp
 stdio.h
 -
 iostream
 -
-Testing/dynamicsimulation_tests.h
-/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_tests.h
+all_simulation_tests.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/all_simulation_tests.h
+
+src/xDynamicSimulation/cDynamicSimulation/./Testing/all_simulation_tests.h
 

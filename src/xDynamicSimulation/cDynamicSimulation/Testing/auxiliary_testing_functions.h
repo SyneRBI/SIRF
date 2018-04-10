@@ -57,7 +57,8 @@ namespace aux_test
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
-	CoilSensitivitiesAsImages get_mock_coilsensitivity_container( void );
+	
+	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{

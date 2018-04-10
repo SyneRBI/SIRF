@@ -6,7 +6,7 @@ remote_url_FORK="https://github.com/johannesmayer/SIRF.git"
 
 # specify branches
 dev_branch="devJohannes"
-curr_branch="cartFFTConstruction"
+curr_branch="noncartMrAcquModel"
 
 # generate a hard backup for SIRF
 todays_date=`date +%Y-%m-%d`

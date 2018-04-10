@@ -20,12 +20,13 @@ include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
+include_directories(./Testing)
 
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp dynamicsimulation_x.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} auxiliary_input_output.cpp auxiliary_input_output.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp Testing/auxiliary_testing_functions.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_input_output.cpp Testing/tests_auxiliary_input_output.h)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/all_simulation_tests.cpp Testing/all_simulation_tests.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissueparameters.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp tissuelabelmapper.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} contrastgenerator.cpp contrastgenerator.h Testing/tests_contrastgenerator.cpp Testing/tests_contrastgenerator.h)
@@ -63,6 +64,8 @@ endif()
 target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
+
+target_link_libraries(cdynamicsimulation cgadgetron)
 
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
