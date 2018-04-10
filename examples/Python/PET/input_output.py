@@ -36,50 +36,88 @@ exec('from p' + args['--engine'] + ' import *')
 
 def main():
 
-    # create acquisition data from scanner parameters
-    print('creating acquisition data...')
-    acq_data = AcquisitionData('Siemens_mMR')
-    # set all values to 1.0
-    acq_data.fill(1.0)
+    # engine's messages go to files, except error messages, which go to stdout
+    msg_red = MessageRedirector('info.txt', 'warn.txt')
 
-    # copy the acquisition data into a Python array
-    acq_array = acq_data.as_array()
-    acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    # create acquisition data from scanner parameters to be used as a template
+    print('creating Siemens_mMR acquisition data...')
+    acq_template = AcquisitionData('Siemens_mMR')
+    # rebin to reduce the acquisition data size
+    print('rebinning...')
+    acq_template = acq_template.rebin(15)
 
     # create image of dimensions and voxel sizes compatible with the scanner
     # geometry (stored in the AcquisitionData object ad)
     # and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(2.0)
+    print('creating compatible phantom')
+    image = acq_template.create_uniform_image()
     # show the image
+    nx, ny, nz = image.dimensions()
+    vx, vy, vz = image.voxel_sizes()
+    print('phantom dimensions: %dx%dx%d' % (nx, ny, nz))
+    print('phantom voxel sizes: %fx%fx%f' % (vx, vy, vz))
+    image_size = (111, 111, int(nz))
+    voxel_size = (3.0, 3.0, float(vz))
+    image = ImageData()
+    image.initialise(image_size, voxel_size)
+
+    # create a shape
+    shape = EllipticCylinder()
+    shape.set_length(400)
+    shape.set_radii((100, 40))
+    shape.set_origin((0, 60, 10))
+
+    # add the shape to the image
+    image.add_shape(shape, scale = 1)
+
+    # add another shape
+    shape.set_radii((30, 30))
+    shape.set_origin((60, -30, 10))
+    image.add_shape(shape, scale = 1.5)
+
+    # add another shape
+    shape.set_origin((-60, -30, 10))
+    image.add_shape(shape, scale = 0.75)
+
     image_array = image.as_array()
-    print('image dimensions: %dx%dx%d' % image_array.shape[2::-1])
     z = int(image_array.shape[0]/2)
-    show_2D_array('Image', image_array[z,:,:])
+    show_2D_array('Phantom', image_array[z,:,:])
 
-    # write acquisition data and image to files
-    print('writing acquisition data...')
-    acq_data.write('ones')
-    print('writing image...')
-    image.write('twos')
+    # select acquisition model that implements the geometric
+    # forward projection by a ray tracing matrix multiplication
+    acq_model = AcquisitionModelUsingRayTracingMatrix()
+    acq_model.set_up(acq_template, image)
+    # project the image to obtain simulated acquisition data
+    simulated_data = acq_model.forward(image)
 
-    # read acquisition data and image from files
-    acq = AcquisitionData('ones.hs')
-    acq_array = acq.as_array()
+    # copy the acquisition data into a Python array
+    acq_array = simulated_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
+
+    # write acquisition data and image to files
+    print('writing acquisition data...')
+    simulated_data.write('simulated_data')
+    print('writing image...')
+    image.write('phantom')
+
+    # read acquisition data and image from files
+    acq_data = AcquisitionData('simulated_data.hs')
+    acq_array = acq_data.as_array()
+    acq_dim = acq_array.shape
+    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+    z = acq_dim[0]//2
+    show_2D_array('Simulated acquisition data', acq_array[z,:,:])
 
     # show the image again
     img = ImageData()
-    img.read_from_file('twos.hv')
+    img.read_from_file('phantom.hv')
     image_array = img.as_array()
-    print('image dimensions: %dx%dx%d' % image_array.shape[2::-1])
+    print('phantom dimensions: %dx%dx%d' % image_array.shape[2::-1])
     z = int(image_array.shape[0]/2)
-    show_2D_array('Image', image_array[z,:,:])
+    show_2D_array('Phantom', image_array[z,:,:])
 
 try:
     main()

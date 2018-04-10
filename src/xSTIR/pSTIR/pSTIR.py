@@ -470,19 +470,19 @@ class ImageData(DataContainer):
         assert self.handle is not None
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
-        '''Returns image dimensions.'''
+        '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim)
+        return tuple(dim[::-1])
     def voxel_sizes(self):
-        '''Returns image dimensions as a tuple (nz, ny, nx).'''
+        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs)
+        return tuple(vs[::-1])
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
