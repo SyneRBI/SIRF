@@ -1211,7 +1211,8 @@ class Prior:
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
-##    def set_up(self):
+    def set_up(self):
+        try_calling(pystir.cSTIR_setupPrior(self.handle))
 ##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
@@ -1223,6 +1224,19 @@ class QuadraticPrior(Prior):
     def __init__(self):
         self.handle = None
         self.name = 'QuadraticPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+class PLSPrior(Prior):
+    '''
+    Class for PLS prior.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.name = 'PLSPrior'
         self.handle = pystir.cSTIR_newObject(self.name)
         check_status(self.handle)
     def __del__(self):
