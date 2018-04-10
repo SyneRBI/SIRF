@@ -59,8 +59,7 @@ ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 std::string aux_test::get_serialized_mock_ismrmrd_header( void )
 {
 
-	ISMRMRD::AcquisitionHeader acq_hdr = get_mock_acquisition_header();
-
+	
 	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
 
 	std::ostringstream out;
@@ -69,9 +68,6 @@ std::string aux_test::get_serialized_mock_ismrmrd_header( void )
 
 	return out.str();
 }
-
-
-
 
 
 
@@ -84,9 +80,18 @@ ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 	SequenceParameters seq_pars = get_mock_sequence_parameters();
 	AcquisitionSystemInformation asi = get_mock_acquisition_system_information();
 
+	// necessary
+	hdr.experimentalConditions = get_mock_experimental_conditions();
+	hdr.encoding = aux_test::get_mock_encoding_vector();
+
+	// optional 
 	hdr.sequenceParameters = Optional<SequenceParameters>(seq_pars); 
 	hdr.acquisitionSystemInformation = Optional<AcquisitionSystemInformation>(asi);
-	
+
+
+
+
+
 	return hdr;
 
 }
@@ -131,6 +136,94 @@ ISMRMRD::SequenceParameters aux_test::get_mock_sequence_parameters( void )
 	return seq_pars;
 
 }
+
+ISMRMRD::ExperimentalConditions aux_test::get_mock_experimental_conditions( void )
+{
+	ISMRMRD::ExperimentalConditions e_con;
+	e_con.H1resonanceFrequency_Hz = 42580000;
+	return e_con;
+}
+
+ISMRMRD::EncodingSpace aux_test::get_mock_encoded_space( void )
+{
+
+	ISMRMRD::MatrixSize mat_size( MOCK_DATA_RO_OVERSAMPLING * MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE);
+	ISMRMRD::FieldOfView_mm fov;
+
+	float resolution_mm = 1.5f;
+
+	fov.x = 1/resolution_mm;
+	fov.y = 1/resolution_mm;
+	fov.z = 1/resolution_mm;
+
+
+	ISMRMRD::EncodingSpace enc_spac;
+	enc_spac.matrixSize = mat_size;
+	enc_spac.fieldOfView_mm = fov;
+
+	return enc_spac;
+}
+
+ISMRMRD::EncodingSpace aux_test::get_mock_recon_space( void )
+{
+
+	ISMRMRD::MatrixSize mat_size(MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE);
+	ISMRMRD::FieldOfView_mm fov;
+
+	float resolution_mm = 1.5;
+	fov.x = resolution_mm * MOCK_DATA_MATRIX_SIZE;
+	fov.y = resolution_mm * MOCK_DATA_MATRIX_SIZE;
+	fov.z = resolution_mm * MOCK_DATA_MATRIX_SIZE;
+
+	ISMRMRD::EncodingSpace enc_spac;
+	enc_spac.matrixSize = mat_size;
+	enc_spac.fieldOfView_mm = fov;
+
+	return enc_spac;
+
+}
+
+
+
+
+
+
+ISMRMRD::EncodingLimits aux_test::get_mock_encoding_limits( void )
+{
+	unsigned short const max_PE1 = MOCK_DATA_MATRIX_SIZE;
+	unsigned short const max_PE2 = MOCK_DATA_MATRIX_SIZE;
+	
+	unsigned short const center_PE1 = MOCK_DATA_MATRIX_SIZE/2 - 1;
+	unsigned short const center_PE2 = MOCK_DATA_MATRIX_SIZE/2 - 1;
+
+	ISMRMRD::Limit limit_PE1(0, max_PE1, center_PE1);
+	ISMRMRD::Limit limit_PE2(0, max_PE2, center_PE2);
+
+	ISMRMRD::EncodingLimits enc_lim;
+	enc_lim.kspace_encoding_step_1 = ISMRMRD::Optional<ISMRMRD::Limit>( limit_PE1);
+	enc_lim.kspace_encoding_step_2 = ISMRMRD::Optional<ISMRMRD::Limit>( limit_PE2);
+
+	return enc_lim;
+}
+
+
+
+std::vector< ISMRMRD::Encoding > aux_test::get_mock_encoding_vector( void )
+{
+	ISMRMRD::Encoding enc;
+
+	enc.trajectory = "Cartesian";
+
+	enc.encodedSpace = get_mock_encoded_space();
+	enc.reconSpace = get_mock_recon_space();
+	enc.encodingLimits = get_mock_encoding_limits();
+
+
+	std::vector< ISMRMRD::Encoding > enc_vec;
+	enc_vec.push_back( enc );
+	return enc_vec;
+}
+
 
 
 TissueParameterList aux_test::get_mock_tissue_param_list( void )

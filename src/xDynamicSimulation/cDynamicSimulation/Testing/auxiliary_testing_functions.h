@@ -38,6 +38,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define MOCK_DATA_MATRIX_SIZE 64
 #define MOCK_DATA_NUM_CHANNELS 2
+#define MOCK_DATA_RO_OVERSAMPLING 1
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5
 
 
@@ -61,7 +62,19 @@ namespace aux_test
 
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
+	ISMRMRD::ExperimentalConditions get_mock_experimental_conditions( void );
 	
+	std::vector< ISMRMRD::Encoding > get_mock_encoding_vector( void );
+	ISMRMRD::ExperimentalConditions get_mock_experimental_conditions( void );
+	ISMRMRD::EncodingSpace get_mock_encoded_space( void );
+	ISMRMRD::EncodingSpace get_mock_recon_space( void );
+	ISMRMRD::EncodingLimits get_mock_encoding_limits( void );
+
+
+
+
+
+
 	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 
