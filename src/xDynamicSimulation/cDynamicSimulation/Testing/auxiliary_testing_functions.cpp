@@ -14,6 +14,60 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <sstream>
 
 
+TissueParameterList aux_test::get_mock_tissue_param_list( void )
+{
+	TissueParameter par1, par2, par3, par4;
+	par1.name_ = "fake_one";
+	par1.label_ = 1;
+
+	par2.name_ = "fake_two";
+	par2.label_ = 2;
+
+	par3.name_ = "fake_three";
+	par3.label_ = 3;
+
+	par4.name_ = "fake_four";
+	par4.label_ = 4;
+
+	TissueParameterList tiss_list;
+	
+	tiss_list.push_back(par1);
+	tiss_list.push_back(par2);
+	tiss_list.push_back(par3);
+	tiss_list.push_back(par4);
+
+	return tiss_list;	
+}
+
+LabelArray aux_test::get_mock_label_array( void )
+{
+	
+	std::vector< size_t > labels_dims = {2,2,2};
+	LabelArray labels_list(labels_dims);
+
+	for( int i=0; i< labels_list.getNumberOfElements(); i++)
+	{
+		if( i< labels_list.getNumberOfElements()/2 )
+			labels_list(i) = 1;
+		else
+			labels_list(i) = 2;
+	}
+
+	return labels_list;	
+}
+
+TissueParameter aux_test::get_mock_tissue_parameter( void )
+{
+
+	TissueParameter tiss_par;
+	tiss_par.name_ = "mocktissue";
+	tiss_par.label_ = 0;
+
+	tiss_par.mr_tissue_ = get_mock_MR_tissue_parameter();
+	tiss_par.pet_tissue_ = get_mock_PET_tissue_parameter();
+	return tiss_par;
+}
+
 MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 {
 	MRTissueParameter mr_tissue_pars;
@@ -36,41 +90,6 @@ PETTissueParameter aux_test::get_mock_PET_tissue_parameter(void)
 }
 
 
-
-TissueParameter aux_test::get_mock_tissue_parameter( void )
-{
-
-	TissueParameter tiss_par;
-	tiss_par.name_ = "mocktissue";
-	tiss_par.label_ = 0;
-
-	tiss_par.mr_tissue_ = get_mock_MR_tissue_parameter();
-	tiss_par.pet_tissue_ = get_mock_PET_tissue_parameter();
-	return tiss_par;
-}
-
-ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
-{
-
-	ISMRMRD::AcquisitionHeader acq_hdr;
-
-}
-
-std::string aux_test::get_serialized_mock_ismrmrd_header( void )
-{
-
-	
-	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
-
-	std::ostringstream out;
-
-	ISMRMRD::serialize(hdr, out);
-
-	return out.str();
-}
-
-
-
 ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 {
 	using namespace ISMRMRD;
@@ -88,13 +107,23 @@ ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 	hdr.sequenceParameters = Optional<SequenceParameters>(seq_pars); 
 	hdr.acquisitionSystemInformation = Optional<AcquisitionSystemInformation>(asi);
 
-
-
-
-
 	return hdr;
 
 }
+
+std::string aux_test::get_serialized_mock_ismrmrd_header( void )
+{
+
+	
+	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
+
+	std::ostringstream out;
+
+	ISMRMRD::serialize(hdr, out);
+
+	return out.str();
+}
+
 
 ISMRMRD::AcquisitionSystemInformation aux_test::get_mock_acquisition_system_information( void )
 {
@@ -144,6 +173,22 @@ ISMRMRD::ExperimentalConditions aux_test::get_mock_experimental_conditions( void
 	return e_con;
 }
 
+std::vector< ISMRMRD::Encoding > aux_test::get_mock_encoding_vector( void )
+{
+	ISMRMRD::Encoding enc;
+
+	enc.trajectory = "Cartesian";
+
+	enc.encodedSpace = get_mock_encoded_space();
+	enc.reconSpace = get_mock_recon_space();
+	enc.encodingLimits = get_mock_encoding_limits();
+
+
+	std::vector< ISMRMRD::Encoding > enc_vec;
+	enc_vec.push_back( enc );
+	return enc_vec;
+}
+
 ISMRMRD::EncodingSpace aux_test::get_mock_encoded_space( void )
 {
 
@@ -183,11 +228,6 @@ ISMRMRD::EncodingSpace aux_test::get_mock_recon_space( void )
 
 }
 
-
-
-
-
-
 ISMRMRD::EncodingLimits aux_test::get_mock_encoding_limits( void )
 {
 	unsigned short const max_PE1 = MOCK_DATA_MATRIX_SIZE;
@@ -205,70 +245,6 @@ ISMRMRD::EncodingLimits aux_test::get_mock_encoding_limits( void )
 
 	return enc_lim;
 }
-
-
-
-std::vector< ISMRMRD::Encoding > aux_test::get_mock_encoding_vector( void )
-{
-	ISMRMRD::Encoding enc;
-
-	enc.trajectory = "Cartesian";
-
-	enc.encodedSpace = get_mock_encoded_space();
-	enc.reconSpace = get_mock_recon_space();
-	enc.encodingLimits = get_mock_encoding_limits();
-
-
-	std::vector< ISMRMRD::Encoding > enc_vec;
-	enc_vec.push_back( enc );
-	return enc_vec;
-}
-
-
-
-TissueParameterList aux_test::get_mock_tissue_param_list( void )
-{
-	TissueParameter par1, par2, par3, par4;
-	par1.name_ = "fake_one";
-	par1.label_ = 1;
-
-	par2.name_ = "fake_two";
-	par2.label_ = 2;
-
-	par3.name_ = "fake_three";
-	par3.label_ = 3;
-
-	par4.name_ = "fake_four";
-	par4.label_ = 4;
-
-	TissueParameterList tiss_list;
-	
-	tiss_list.push_back(par1);
-	tiss_list.push_back(par2);
-	tiss_list.push_back(par3);
-	tiss_list.push_back(par4);
-
-	return tiss_list;	
-}
-
-LabelArray aux_test::get_mock_label_array( void )
-{
-	
-	std::vector< size_t > labels_dims = {2,2,2};
-	LabelArray labels_list(labels_dims);
-
-	for( int i=0; i< labels_list.getNumberOfElements(); i++)
-	{
-		if( i< labels_list.getNumberOfElements()/2 )
-			labels_list(i) = 1;
-		else
-			labels_list(i) = 2;
-	}
-
-	return labels_list;	
-}
-
-
 
 ISMRMRD::NDArray<complex_float_t> aux_test::get_mock_ndarray_with_cube( void )
 {
@@ -315,7 +291,6 @@ ISMRMRD::NDArray<complex_float_t> aux_test::get_mock_ndarray_with_cube( void )
 
 	return mock_arr;
 }
-
 
 ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( void )
 {
@@ -378,7 +353,6 @@ ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
 
 CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 {
-
 	ISMRMRD::NDArray<complex_float_t> mock_csm = get_mock_csm();
 	
 	size_t const * dummy_size = mock_csm.getDims();
@@ -395,12 +369,20 @@ CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 	csm_as_img.set_data( mock_csm.begin() );
 
 	return csm_as_img;
-
 }
 
+
+
+
+ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
+{
+	ISMRMRD::AcquisitionHeader acq_hdr;
+}
 
 ISMRMRD::Acquisition aux_test::get_mock_ismrmrd_acquisition ( void )
 {
 	ISMRMRD::Acquisition acq(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS, 0);
 	return acq;
 }
+
+

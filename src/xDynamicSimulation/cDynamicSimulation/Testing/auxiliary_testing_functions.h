@@ -74,7 +74,6 @@ namespace aux_test
 
 
 
-
 	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 
