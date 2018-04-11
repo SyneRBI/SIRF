@@ -54,19 +54,39 @@ void SIRFReg::save_warped_image(const string filename) const
     SIRFRegMisc::save_nifti_image(_warped_image_sptr,filename);
 }
 
-void SIRFReg::save_displacement_field_image(const string filename, bool split_xyz, bool flip_for_stir)
+void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
 {
+    save_displacement_field_image(_disp_image_fwrd_sptr,filename,split_xyz,flip_for_stir);
+}
+
+void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+{
+    save_displacement_field_image(_disp_image_back_sptr,filename,split_xyz,flip_for_stir);
+}
+
+void SIRFReg::save_displacement_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+{
+    // Check that the disp image exists
+    if (!im_sptr)
+        throw std::runtime_error("Displacement field image not available. Have you run the registration?");
+
+    // Check that filename isn't blank
+    if (filename == "")
+        throw std::runtime_error("Error, cannot write displacement field image to file because filename is blank.");
+
+    cout << "\nSaving displacement field image to file (" << filename << ")..." << flush;
+
     shared_ptr<nifti_image> im_to_save_sptr;
 
     // If the user wants to save it as it is
     if (!flip_for_stir)
-        im_to_save_sptr = _displacement_field_image_sptr;
+        im_to_save_sptr = im_sptr;
 
-    // But if they want to output for stir, they need to flip the z-axis
+    // But if they want to output for stir, need to flip the z-axis
     else {
         im_to_save_sptr = make_shared<nifti_image>();
         // Deep copy the displacement image
-        SIRFRegMisc::copy_nifti_image(im_to_save_sptr,_displacement_field_image_sptr);
+        SIRFRegMisc::copy_nifti_image(im_to_save_sptr,im_sptr);
         // Flip the z-axis
         SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,2);
     }
@@ -80,40 +100,6 @@ void SIRFReg::save_displacement_field_image(const string filename, bool split_xy
     // If the user wants the multicomponent image split into 3 separate images.
     else
         SIRFRegMisc::save_split_multicomponent_nifti_image(im_to_save_sptr,filename);
-}
 
-void SIRFReg::get_disp_from_cpp(shared_ptr<nifti_image> &cpp_sptr)
-{
-    // Calculate deformation field image
-    nifti_image *def_ptr;
-    def_ptr = nifti_copy_nim_info(_reference_image_sptr.get());
-    def_ptr->dim[0]=def_ptr->ndim=5;
-    def_ptr->dim[1]=def_ptr->nx=_reference_image_sptr->nx;
-    def_ptr->dim[2]=def_ptr->ny=_reference_image_sptr->ny;
-    def_ptr->dim[3]=def_ptr->nz=_reference_image_sptr->nz;
-    def_ptr->dim[4]=def_ptr->nt=1;def_ptr->pixdim[4]=def_ptr->dt=1.0;
-    if(_reference_image_sptr->nz>1) def_ptr->dim[5]=def_ptr->nu=3;
-    else def_ptr->dim[5]=def_ptr->nu=2;
-    def_ptr->pixdim[5]=def_ptr->du=1.0;
-    def_ptr->dim[6]=def_ptr->nv=1;def_ptr->pixdim[6]=def_ptr->dv=1.0;
-    def_ptr->dim[7]=def_ptr->nw=1;def_ptr->pixdim[7]=def_ptr->dw=1.0;
-    def_ptr->nvox=def_ptr->nx*def_ptr->ny*def_ptr->nz*def_ptr->nt*def_ptr->nu;
-    def_ptr->datatype = cpp_sptr->datatype;
-    def_ptr->nbyper = cpp_sptr->nbyper;
-    def_ptr->data = (void *)calloc(def_ptr->nvox, def_ptr->nbyper);
-    reg_spline_getDeformationField(cpp_sptr.get(),
-                                   _reference_image_sptr.get(),
-                                   def_ptr,
-                                   NULL,
-                                   false, //composition
-                                   true // bspline
-                                   );
-
-    shared_ptr<nifti_image> def_sptr = make_shared<nifti_image>(*def_ptr);
-
-    // Get the disp field from the def field
-    _displacement_field_image_sptr = make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(_displacement_field_image_sptr,def_sptr);
-
-    reg_getDisplacementFromDeformation(_displacement_field_image_sptr.get());
+    cout << "Done.\n";
 }

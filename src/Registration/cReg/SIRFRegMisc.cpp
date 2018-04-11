@@ -28,8 +28,9 @@ limitations under the License.
 */
 
 #include "SIRFRegMisc.h"
-#include <_reg_globalTransformation.h>
 #include <_reg_tools.h>
+#include <_reg_globalTransformation.h>
+#include <_reg_localTransformation.h>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -233,6 +234,89 @@ void flip_multicomponent_image(shared_ptr<nifti_image> &im, int dim)
         throw runtime_error("\n\tOnly double and float images are supported at the moment. (This would be easy to change.)");
 
     cout << "done.\n\n";
+}
+
+/// Get cpp from transformation matrix
+void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<mat44> &TM_sptr, const shared_ptr<nifti_image> &warped_sptr)
+{
+    // Copy info from the reference image
+    cpp_sptr = make_shared<nifti_image>();
+    nifti_image *cpp_ptr = cpp_sptr.get();
+    cpp_ptr = nifti_copy_nim_info(warped_sptr.get());
+
+    // Edit some of the information to make it a cpp image
+    cpp_ptr->dim[0]   = cpp_ptr->ndim = 5;
+    cpp_ptr->dim[5]   = cpp_ptr->nu   = 3;
+    cpp_ptr->datatype = 16;
+    cpp_ptr->nbyper   = 4;
+    cpp_ptr->nvox    *= 3;
+
+    // Allocate memory
+    cpp_ptr->data=(void *)malloc(cpp_ptr->nvox*cpp_ptr->nbyper);
+
+    // Convert affine transformation to cpp
+    reg_bspline_initialiseControlPointGridWithAffine(TM_sptr.get(), cpp_ptr);
+
+    // Need to correct the control point position image (otherwise nv=0 and you can't read with matlab)
+    reg_checkAndCorrectDimension(cpp_ptr);
+
+    // Copy output
+    cpp_sptr = make_shared<nifti_image>(*cpp_ptr);
+}
+
+/// Get disp from cpp
+void get_disp_from_cpp(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<nifti_image> &ref_sptr)
+{
+    // Calculate deformation field image
+    nifti_image *def_ptr;
+    def_ptr = nifti_copy_nim_info(ref_sptr.get());
+    def_ptr->dim[0]=def_ptr->ndim=5;
+    def_ptr->dim[1]=def_ptr->nx=ref_sptr->nx;
+    def_ptr->dim[2]=def_ptr->ny=ref_sptr->ny;
+    def_ptr->dim[3]=def_ptr->nz=ref_sptr->nz;
+    def_ptr->dim[4]=def_ptr->nt=1;def_ptr->pixdim[4]=def_ptr->dt=1.0;
+    if(ref_sptr->nz>1) def_ptr->dim[5]=def_ptr->nu=3;
+    else def_ptr->dim[5]=def_ptr->nu=2;
+    def_ptr->pixdim[5]=def_ptr->du=1.0;
+    def_ptr->dim[6]=def_ptr->nv=1;def_ptr->pixdim[6]=def_ptr->dv=1.0;
+    def_ptr->dim[7]=def_ptr->nw=1;def_ptr->pixdim[7]=def_ptr->dw=1.0;
+    def_ptr->nvox=def_ptr->nx*def_ptr->ny*def_ptr->nz*def_ptr->nt*def_ptr->nu;
+    def_ptr->datatype = cpp_sptr->datatype;
+    def_ptr->nbyper = cpp_sptr->nbyper;
+    def_ptr->data = (void *)calloc(def_ptr->nvox, def_ptr->nbyper);
+    reg_spline_getDeformationField(cpp_sptr.get(),
+                                   ref_sptr.get(),
+                                   def_ptr,
+                                   NULL,
+                                   false, //composition
+                                   true // bspline
+                                   );
+
+    shared_ptr<nifti_image> def_sptr = make_shared<nifti_image>(*def_ptr);
+
+    // Get the disp field from the def field
+    disp_sptr = make_shared<nifti_image>();
+    SIRFRegMisc::copy_nifti_image(disp_sptr,def_sptr);
+
+    reg_getDisplacementFromDeformation(disp_sptr.get());
+}
+
+/// Multiply image
+void multiply_image(shared_ptr<nifti_image> &output, const shared_ptr<nifti_image> &input, const double &value)
+{
+    // for last argument:
+    // 0=add, 1=subtract, 2=multiply, 3=divide
+    reg_tools_addSubMulDivValue(input.get(), output.get(), value, 2);
+}
+
+/// Multiply image
+void multiply_image(const string &output_filename, const string &input_filename, const double &value)
+{
+    shared_ptr<nifti_image> output, input;
+    open_nifti_image(input,input_filename);
+    copy_nifti_image(output,input);
+    multiply_image(output,input,value);
+    save_nifti_image(output,output_filename);
 }
 
 /// Do nifti images match?

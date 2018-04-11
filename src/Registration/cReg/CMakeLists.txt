@@ -17,8 +17,8 @@
 SET(${proj}_DEPENDENCIES "nifti;Boost")
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladin.cpp" "SIRFRegNiftyF3d.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegActivityCorrect.cpp" "SIRFRegExtractTAC.cpp" "SIRFImageData.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladin.h"   "SIRFRegNiftyF3d.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFRegActivityCorrect.h"   "SIRFRegExtractTAC.h"   "SIRFImageData.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladin.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegActivityCorrect.cpp" "SIRFRegExtractTAC.cpp" "SIRFImageData.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladin.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFRegActivityCorrect.h"   "SIRFRegExtractTAC.h"   "SIRFImageData.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Create library
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${SOURCES})

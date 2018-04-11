@@ -42,36 +42,28 @@ int aladin_longitudinal(string output_path)
     cout << "\n========================================================\n";
 
     string SIRF_PATH     = getenv("SIRF_PATH");
-    string examples_path = SIRF_PATH + "/data/examples/Registration";
+    string examples_path = SIRF_PATH + "/data/examples/Registration/";
 
-    /*string reference_image_filename                = examples_path + "/test.nii.gz";
-    string floating_image_filename                 = examples_path + "/test2.nii.gz";
-    string parameter_file_aladin                   = examples_path + "/paramFiles/aladin.par";
-    string warped_image_filename                   = output_path   + "/aladin_longitudinal_cplusplus";
-    string transformation_matrix_filename          = output_path   + "/transformation_matrix_aladin_longitudinal_cplusplus.txt";
-    string transformation_matrix_inversefilename   = output_path   + "/transformation_matrix_inverse_aladin_longitudinal_cplusplus.txt";*/
+    string reference_image_filename = examples_path + "test.nii.gz";
+    string floating_image_filename  = examples_path + "test2.nii.gz";
+    string parameter_file_aladin    = examples_path + "paramFiles/aladin.par";
+    string warped_image_filename    = output_path   + "aladin_longitudinal_cplusplus";
+    string TM_fwrd_filename         = output_path   + "TM_fwrd_aladin_longitudinal_cplusplus.txt";
+    string TM_back_filename         = output_path   + "TM_back_aladin_longitudinal_cplusplus.txt";
+    string disp_fwrd_filename       = output_path   + "disp_fwrd_aladin_longitudinal_cplusplus";
+    string disp_back_filename       = output_path   + "disp_back_aladin_longitudinal_cplusplus";
 
-    for (int i=1; i<4; i++) {
-        string path                                    = "/Users/rich/Documents/OneDrive-UCL/Data/Tests/spheres/";
-        string reference_image_filename                = path + "1_sphere0.nii";
-        string floating_image_filename                 = path + "1_sphere" + to_string(i) + ".nii";
-        string parameter_file_aladin                   = examples_path + "/paramFiles/aladin.par";
-        string transformation_matrix_filename          = path   + "/2_TM" + to_string(i) + ".txt";
-        string warped_image_filename                   = path   + "/3_warped" + to_string(i) + "";
-        string displacement_field_image_filename       = path   + "/4_disp" + to_string(i) + "";
-
-        // Run the test
-        SIRFRegNiftyAladin<float> NA;
-        NA.set_reference_image_filename      (        reference_image_filename       );
-        NA.set_floating_image_filename       (        floating_image_filename        );
-        NA.set_parameter_file                (         parameter_file_aladin         );
-        NA.update();
-        NA.save_warped_image                 (         warped_image_filename         );
-        NA.save_transformation_matrix        (     transformation_matrix_filename    );
-        //NA.save_inverse_transformation_matrix( transformation_matrix_inversefilename );
-        NA.save_displacement_field_image     (   displacement_field_image_filename, false, true  );
-        NA.save_displacement_field_image     (   displacement_field_image_filename, true,  true  );
-    }
+    // Run the test
+    SIRFRegNiftyAladin<float> NA;
+    NA.set_reference_image_filename      (       reference_image_filename     );
+    NA.set_floating_image_filename       (       floating_image_filename      );
+    NA.set_parameter_file                (        parameter_file_aladin       );
+    NA.update();
+    NA.save_warped_image                 (        warped_image_filename       );
+    NA.save_transformation_matrix_fwrd   (          TM_fwrd_filename          );
+    NA.save_transformation_matrix_back   (          TM_back_filename          );
+    NA.save_displacement_field_fwrd_image(   disp_fwrd_filename, true,  true  );
+    NA.save_displacement_field_back_image(   disp_back_filename, true,  true  );
 
     cout << "\n========================================================\n";
     cout << "    SUCCESSFULLY COMPLETED TESTING ALADIN LONGITUDINAL";

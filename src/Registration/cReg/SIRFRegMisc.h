@@ -63,6 +63,18 @@ namespace SIRFRegMisc {
     /// Flip multicomponent image along a given axis
     void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim);
 
+    /// Get cpp from transformation matrix
+    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
+
+    /// Get disp from cpp
+    void get_disp_from_cpp(std::shared_ptr<nifti_image> &disp_sptr, const std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<nifti_image> &ref_sptr);
+
+    /// Multiply image
+    void multiply_image(std::shared_ptr<nifti_image> &output, const std::shared_ptr<nifti_image> &input, const double &value);
+
+    /// Multiply image
+    void multiply_image(const std::string &output_filename, const std::string &input_filename, const double &value);
+
     /// Do nifti images match?
     bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std::shared_ptr<nifti_image> &im2_sptr);
 

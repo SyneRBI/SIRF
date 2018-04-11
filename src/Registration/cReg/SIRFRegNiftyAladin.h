@@ -42,33 +42,33 @@ public:
     /// Update
     void update();
 
-    /// Get transformation matrix
-    mat44 *get_transformation_matrix() const { return _transformation_matrix_sptr.get(); }
+    /// Get forwards transformation matrix
+    mat44 *get_transformation_matrix_fwrd() const { return _TM_fwrd_sptr.get(); }
 
-    /// Get inverse transformation matrix
-    mat44 *get_inverse_transformation_matrix() const { return _transformation_matrix_inverse_sptr.get(); }
+    /// Get backwards transformation matrix
+    mat44 *get_transformation_matrix_back() const { return _TM_back_sptr.get(); }
 
-    /// Save transformation matrix to file
-    void save_transformation_matrix(const std::string filename) const;
+    /// Save forwards transformation matrix to file
+    void save_transformation_matrix_fwrd(const std::string &filename) const;
 
-    /// Save inverse transformation matrix to file
-    void save_inverse_transformation_matrix(const std::string filename) const;
+    /// Save backwards transformation matrix to file
+    void save_transformation_matrix_back(const std::string &filename) const;
 
 protected:
 
     /// Parse parameter file
     virtual void parse_parameter_file();
 
-    /// Set up CPP image
-    void set_up_CPP(std::shared_ptr<nifti_image> &cpp_sptr);
+    /// Save transformation matrix to file
+    void save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::string &filename) const;
 
     /// Register object
     std::shared_ptr<reg_aladin<T> > _registration_sptr;
 
-    /// Transformation matrix
-    std::shared_ptr<mat44>          _transformation_matrix_sptr;
-    /// Inverse transformation matrix
-    std::shared_ptr<mat44>          _transformation_matrix_inverse_sptr;
+    /// Forwards transformation matrix
+    std::shared_ptr<mat44>          _TM_fwrd_sptr;
+    /// Backwards transformation matrix
+    std::shared_ptr<mat44>          _TM_back_sptr;
 };
 
 #endif

@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegNiftyF3d.h"
+#include "SIRFRegNiftyF3dSym.h"
 
 using namespace std;
 
@@ -60,7 +60,7 @@ int f3d_mouse(string output_path)
     string displacement_image_image_filename     = "/Users/rich/Documents/OneDrive-UCL/Data/Tests/disp_field_im/disp_im";
 
     // Run the test
-    SIRFRegNiftyF3d<float> NF;
+    SIRFRegNiftyF3dSym<float> NF;
 
     NF.set_reference_image_filename (         reference_image_filename         );
     NF.set_floating_image_filename  (         floating_image_filename          );
@@ -69,8 +69,7 @@ int f3d_mouse(string output_path)
     NF.set_floating_time_point      (                     1                    );
     NF.update();
     NF.save_warped_image            (           warped_image_filename          );
-    NF.save_displacement_field_image( displacement_image_image_filename, true,  true );
-    NF.save_displacement_field_image( displacement_image_image_filename, false, true );
+    NF.save_displacement_field_fwrd_image(displacement_image_image_filename, true,  true );
 
     cout << "\n========================================================\n";
     cout << "    SUCCESSFULLY COMPLETED TESTING F3D";

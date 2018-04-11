@@ -9,7 +9,7 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 #define SWIG_FILE_WITH_INIT
 #include <cmath>
 #include "SIRFRegNiftyAladin.h"
-#include "SIRFRegNiftyF3d.h"
+#include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
 #include "SIRFRegActivityCorrect.h"
@@ -38,10 +38,10 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 %template(NiftyAladin) SIRFRegNiftyAladin<float>;
 // %template(NiftyAladin_double) SIRFRegNiftyAladin<double>;
 
-// F3d - only offer the user single precision for now
-%include "../cReg/SIRFRegNiftyF3d.h"
-%template(NiftyF3d) SIRFRegNiftyF3d<float>;
-// %template(NiftyF3d_double) SIRFRegNiftyF3d<double>;
+// F3dSym - only offer the user single precision for now
+%include "../cReg/SIRFRegNiftyF3dSym.h"
+%template(NiftyF3dSym) SIRFRegNiftyF3dSym<float>;
+// %template(NiftyF3d_double) SIRFRegNiftyF3dSym<double>;
 
 // Resample
 %rename(NiftyResample) SIRFRegNiftyResample;

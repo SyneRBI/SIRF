@@ -27,20 +27,20 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGNIFTYF3D_H_
-#define _SIRFREGNIFTYF3D_H_
+#ifndef _SIRFREGNIFTYF3DSYM_H_
+#define _SIRFREGNIFTYF3DSYM_H_
 
 #include "SIRFReg.h"
 
-template<class T> class reg_f3d;
+template<class T> class reg_f3d_sym;
 
 /// Wrapper around NiftyReg's f3d class for non-rigid transformations
-template<class T> class SIRFRegNiftyF3d : public SIRFReg
+template<class T> class SIRFRegNiftyF3dSym : public SIRFReg
 {
 public:
 
     /// Constructor
-    SIRFRegNiftyF3d()
+    SIRFRegNiftyF3dSym()
     {
         _floating_time_point  = -1;
         _reference_time_point = -1;
@@ -78,7 +78,7 @@ protected:
     virtual void parse_parameter_file();
 
     /// Registration object
-    std::shared_ptr<reg_f3d<T> > _registration_sptr;
+    std::shared_ptr<reg_f3d_sym<T> > _registration_sptr;
 
     /// Floating time point
     int _floating_time_point;
