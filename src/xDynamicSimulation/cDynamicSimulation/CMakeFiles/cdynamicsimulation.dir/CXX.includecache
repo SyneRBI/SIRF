@@ -117,6 +117,8 @@ tests_mr_acquisition_model.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_mr_acquisition_model.h
 memory
 -
+exception
+-
 ismrmrd/ismrmrd.h
 -
 gadgetron_x.h

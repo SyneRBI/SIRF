@@ -58,13 +58,11 @@ namespace aux_test
 	std::string get_serialized_mock_ismrmrd_header( void );
 
 
-
-
 	ISMRMRD::AcquisitionSystemInformation get_mock_acquisition_system_information( void );
 	ISMRMRD::SequenceParameters get_mock_sequence_parameters( void );
 	ISMRMRD::ExperimentalConditions get_mock_experimental_conditions( void );
-	
 	std::vector< ISMRMRD::Encoding > get_mock_encoding_vector( void );
+
 	ISMRMRD::ExperimentalConditions get_mock_experimental_conditions( void );
 	ISMRMRD::EncodingSpace get_mock_encoded_space( void );
 	ISMRMRD::EncodingSpace get_mock_recon_space( void );
@@ -72,18 +70,15 @@ namespace aux_test
 
 
 
-
-
 	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
-	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
-
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
 
-
+	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
+	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	ISMRMRD::Acquisition get_mock_ismrmrd_acquisition ( void );	
-	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
+
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{
