@@ -32,7 +32,7 @@ limitations under the License.
 #include "SIRFRegParser.h"
 #include <_reg_aladin.h>
 #include <_reg_tools.h>
-#include <_reg_localTransformation.h>
+#include <_reg_localTrans.h>
 
 using namespace std;
 
@@ -78,18 +78,21 @@ void SIRFRegNiftyAladin<T>::update()
     cout << "\nPrinting backwards tranformation matrix:\n";
     SIRFRegMisc::print_mat44(_TM_back_sptr.get());
 
-    // Convert the forward and backward transformation matrices to cpp images
-    shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
-    SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_fwrd_sptr,
-                                                    _TM_fwrd_sptr,
-                                                    _warped_image_sptr);
-    SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_back_sptr,
-                                                    _TM_back_sptr,
-                                                    _warped_image_sptr);
+    // Need to prepare a deformation field image for getting the forwards and backwards disp images
+    shared_ptr<nifti_image> def_sptr;
+    SIRFRegMisc::create_def_or_disp_image(def_sptr,_reference_image_sptr);
 
-    // Get the forward and backward disp fields from the cpp images
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_fwrd_sptr, cpp_fwrd_sptr, _reference_image_sptr);
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_back_sptr, cpp_back_sptr, _reference_image_sptr);
+    // forward: affine->def->disp
+    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), def_sptr.get());
+    _disp_image_fwrd_sptr = make_shared<nifti_image>();
+    SIRFRegMisc::copy_nifti_image(_disp_image_fwrd_sptr,def_sptr);
+    reg_getDisplacementFromDeformation(_disp_image_fwrd_sptr.get());
+
+    // backward: affine->def->disp
+    reg_affine_getDeformationField(_TM_back_sptr.get(), def_sptr.get());
+    _disp_image_back_sptr = make_shared<nifti_image>();
+    SIRFRegMisc::copy_nifti_image(_disp_image_back_sptr,def_sptr);
+    reg_getDisplacementFromDeformation(_disp_image_back_sptr.get());
 
     cout << "\n\nRegistration finished!\n\n";
 }
@@ -101,8 +104,12 @@ void SIRFRegNiftyAladin<T>::parse_parameter_file()
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
     parser.add_key      ( "SetAlignCentre",                     &reg_aladin<T>::SetAlignCentre                      );
+    parser.add_key      ( "SetAlignCentreGravity",              &reg_aladin<T>::SetAlignCentreGravity               );
     parser.add_key      ( "SetBlockPercentage",                 &reg_aladin<T>::SetBlockPercentage                  );
+    parser.add_key      ( "SetBlockStepSize",                   &reg_aladin<T>::SetBlockStepSize                    );
+    parser.add_key      ( "SetFloatingLowerThreshold",          &reg_aladin<T>::SetFloatingLowerThreshold           );
     parser.add_key      ( "SetFloatingSigma",                   &reg_aladin<T>::SetFloatingSigma                    );
+    parser.add_key      ( "SetFloatingUpperThreshold",          &reg_aladin<T>::SetFloatingUpperThreshold           );
     parser.add_key      ( "SetInlierLts",                       &reg_aladin<T>::SetInlierLts                        );
     parser.add_key      ( "SetInputTransform",                  &reg_aladin<T>::SetInputTransform                   );
     parser.add_key      ( "SetInterpolation",                   &reg_aladin<T>::SetInterpolation                    );
@@ -114,7 +121,13 @@ void SIRFRegNiftyAladin<T>::parse_parameter_file()
     parser.add_key      ( "SetNumberOfLevels",                  &reg_aladin<T>::SetNumberOfLevels                   );
     parser.add_key      ( "SetPerformAffine",                   &reg_aladin<T>::SetPerformAffine                    );
     parser.add_key      ( "SetPerformRigid",                    &reg_aladin<T>::SetPerformRigid                     );
+    parser.add_key      ( "SetReferenceLowerThreshold",         &reg_aladin<T>::SetReferenceLowerThreshold          );
     parser.add_key      ( "SetReferenceSigma",                  &reg_aladin<T>::SetReferenceSigma                   );
+    parser.add_key      ( "SetReferenceUpperThreshold",         &reg_aladin<T>::SetReferenceUpperThreshold          );
+    parser.add_key      ( "SetVerbose",                         &reg_aladin<T>::SetVerbose                          );
+    parser.add_key      ( "SetWarpedPaddingValue",              &reg_aladin<T>::SetWarpedPaddingValue               );
+    parser.add_key      ( "setGpuIdx",                          &reg_aladin<T>::setGpuIdx                           );
+    parser.add_key      ( "setPlatformCode",                    &reg_aladin<T>::setPlatformCode                     );
 
     parser.parse();
 }

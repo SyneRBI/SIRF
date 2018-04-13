@@ -28,9 +28,8 @@ limitations under the License.
 */
 
 #include "SIRFRegNiftyAladin.h"
-
-
-#include "SIRFRegMisc.h"
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 
 using namespace std;
 
@@ -75,8 +74,11 @@ int aladin_longitudinal(string output_path)
 int main(int, char* argv[])
 {
     try {
-        string output_path = argv[0];
-        output_path = output_path.substr(0, output_path.find_last_of('/'));
+        boost::filesystem::path path( boost::filesystem::initial_path<boost::filesystem::path>() );
+        path = boost::filesystem::system_complete( boost::filesystem::path( argv[0] ) );
+        path = path.remove_filename();
+
+        string output_path = path.string() + "/results/";
 
         aladin_longitudinal(output_path);
 

@@ -91,26 +91,19 @@ protected:
     /// Get the nth argument as a string
     std::string get_arg_as_string(std::string line, int arg_num)
     {
-        int index_start = 0;
-        int index_end;
+        // Start index is always to right of the ":="
+        // End index is up to ","
+        int index_start = line.find(":=") + 2;
+        int index_end   = line.find(",");
 
-        // If looking for the 0th arg, get the text between the ":=" and the first ","
-        if (arg_num == 0) {
-            index_start = line.find(":=") + 2;  // add 2 to go to right of ":="
-            index_end   = line.find(",");
-        }
-
-        // If anything else, get between nth and (n+1)th commas
-        else {
-            // loop until n
-            for (int i=0; i<arg_num; i++) {
-                index_start = line.find(",",index_start) + 1; // add 1 to go to right of ","
-                index_end   = line.find(",",index_start);
-            }
+        // For subsequent arguments
+        for (int i=0; i<arg_num; i++) {
+            index_start = line.find(",",index_start) + 1; // add 1 to go to right of ","
+            index_end   = line.find(",",index_start);
         }
 
         // Error check
-        if (index_end == index_start+1) {
+        if (index_end == index_start) {
             throw std::runtime_error("Error. Argument number " + std::to_string(arg_num) + " was not found.");
         }
 
@@ -122,22 +115,25 @@ protected:
     }
 
     /// Get argument - const char *
-    void get_argument(std::string line, int arg_num, const char *&arg)  { arg = get_arg_as_string(line, arg_num).c_str();     }
+    void get_argument(std::string line, int arg_num, const char *&arg  ) { arg = get_arg_as_string(line, arg_num).c_str();     }
 
     /// Get argument - bool
-    void get_argument(std::string line, int arg_num, bool &arg)         { arg = std::stoi(get_arg_as_string(line, arg_num));  }
+    void get_argument(std::string line, int arg_num, bool &arg         ) { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - int
-    void get_argument(std::string line, int arg_num, int &arg)          { arg = std::stoi(get_arg_as_string(line, arg_num));  }
+    void get_argument(std::string line, int arg_num, int &arg          ) { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - unsigned int
-    void get_argument(std::string line, int arg_num, unsigned int &arg) { arg = std::stoll(get_arg_as_string(line, arg_num)); }
+    void get_argument(std::string line, int arg_num, unsigned int &arg ) { arg = std::stoll(get_arg_as_string(line, arg_num)); }
 
     /// Get argument - float
-    void get_argument(std::string line, int arg_num, float &arg)        { arg = std::stof(get_arg_as_string(line, arg_num));  }
+    void get_argument(std::string line, int arg_num, float &arg        ) { arg = std::stof(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - double
-    void get_argument(std::string line, int arg_num, double &arg)       { arg = std::stod(get_arg_as_string(line, arg_num));  }
+    void get_argument(std::string line, int arg_num, double &arg       ) { arg = std::stod(get_arg_as_string(line, arg_num));  }
+
+    /// Get argument - unsigned long
+    void get_argument(std::string line, int arg_num, unsigned long &arg) { arg = std::stoul(get_arg_as_string(line, arg_num)); }
 
     /// Object to call the function on
     std::shared_ptr<Z> _object;

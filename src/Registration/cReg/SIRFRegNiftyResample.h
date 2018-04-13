@@ -134,9 +134,6 @@ protected:
     /// Set up the transformation matrix
     void set_up_transformation_matrix(mat44 &matrix);
 
-    /// Set up the deformation field image
-    void set_up_deformation_field_image(std::shared_ptr<nifti_image> &deformation_field_image_sptr, mat44 matrix);
-
     /// Set up the output image
     void set_up_output_image();
 

@@ -31,7 +31,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
 #include <_reg_f3d_sym.h>
-#include <_reg_f3d.h>
+#include <_reg_base.h>
 
 using namespace std;
 
@@ -42,15 +42,15 @@ void SIRFRegNiftyF3dSym<T>::update()
     this->check_parameters();
 
     // Open images if necessary, correct if not
-    if (!_reference_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
+    if (!_reference_image_sptr)
+        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename);
+    else
+        reg_checkAndCorrectDimension(_reference_image_sptr.get());
 
-    if (!_floating_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
+    if (!_floating_image_sptr)
+        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename);
+    else
+        reg_checkAndCorrectDimension(_floating_image_sptr.get());
 
     // Create the registration object
     _registration_sptr = shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
@@ -71,7 +71,7 @@ void SIRFRegNiftyF3dSym<T>::update()
     cout << "\n\nStarting registration...\n\n";
 
     // Run
-    _registration_sptr->Run_f3d();
+    _registration_sptr->Run();
 
     // Get the warped image
     _warped_image_sptr = shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
@@ -106,36 +106,36 @@ void SIRFRegNiftyF3dSym<T>::check_parameters()
 template<class T>
 void SIRFRegNiftyF3dSym<T>::parse_parameter_file()
 {
-    // Base class stuff (f3d)
     SIRFRegParser<reg_f3d_sym<T> > parser;
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
-    parser.add_key      ( "SetAdditiveMC",               &reg_f3d_sym<T>::SetAdditiveMC               );
-    parser.add_key      ( "SetBendingEnergyWeight",      &reg_f3d_sym<T>::SetBendingEnergyWeight      );
-    parser.add_key      ( "SetCompositionStepNumber",    &reg_f3d_sym<T>::SetCompositionStepNumber    );
-    parser.add_key      ( "SetFloatingBinNumber",        &reg_f3d_sym<T>::SetFloatingBinNumber        );
-    parser.add_key      ( "SetFloatingSmoothingSigma",   &reg_f3d_sym<T>::SetFloatingSmoothingSigma   );
-    parser.add_key      ( "SetFloatingThresholdLow",     &reg_f3d_sym<T>::SetFloatingThresholdLow     );
-    parser.add_key      ( "SetFloatingThresholdUp",      &reg_f3d_sym<T>::SetFloatingThresholdUp      );
-    parser.add_key      ( "SetGradientSmoothingSigma",   &reg_f3d_sym<T>::SetGradientSmoothingSigma   );
-    parser.add_key      ( "SetInverseConsistencyWeight", &reg_f3d_sym<T>::SetInverseConsistencyWeight );
-    parser.add_key      ( "SetJacobianLogWeight",        &reg_f3d_sym<T>::SetJacobianLogWeight        );
-    parser.add_key      ( "SetL2NormDisplacementWeight", &reg_f3d_sym<T>::SetL2NormDisplacementWeight );
-    parser.add_key      ( "SetLevelNumber",              &reg_f3d_sym<T>::SetLevelNumber              );
-    parser.add_key      ( "SetLevelToPerform",           &reg_f3d_sym<T>::SetLevelToPerform           );
-    parser.add_key      ( "SetLinearEnergyWeights",      &reg_f3d_sym<T>::SetLinearEnergyWeights      );
-    parser.add_key      ( "SetMaximalIterationNumber",   &reg_f3d_sym<T>::SetMaximalIterationNumber   );
-    parser.add_key      ( "SetReferenceBinNumber",       &reg_f3d_sym<T>::SetReferenceBinNumber       );
-    parser.add_key      ( "SetReferenceSmoothingSigma",  &reg_f3d_sym<T>::SetReferenceSmoothingSigma  );
-    parser.add_key      ( "SetReferenceThresholdLow",    &reg_f3d_sym<T>::SetReferenceThresholdLow    );
-    parser.add_key      ( "SetReferenceThresholdUp",     &reg_f3d_sym<T>::SetReferenceThresholdUp     );
-    parser.add_key      ( "SetSpacing",                  &reg_f3d_sym<T>::SetSpacing                  );
-    parser.add_key      ( "SetWarpedPaddingValue",       &reg_f3d_sym<T>::SetWarpedPaddingValue       );
-    parser.add_key      ( "SetInverseConsistencyWeight", &reg_f3d_sym<T>::SetInverseConsistencyWeight );
+
+    parser.add_key      ( "SetBendingEnergyWeight",         &reg_f3d_sym<T>::SetBendingEnergyWeight         );
+    parser.add_key      ( "SetCompositionStepNumber",       &reg_f3d_sym<T>::SetCompositionStepNumber       );
+    parser.add_key      ( "SetKLDWeight",                   &reg_f3d_sym<T>::SetKLDWeight                   );
+    parser.add_key      ( "SetFloatingSmoothingSigma",      &reg_f3d_sym<T>::SetFloatingSmoothingSigma      );
+    parser.add_key      ( "SetFloatingThresholdLow",        &reg_f3d_sym<T>::SetFloatingThresholdLow        );
+    parser.add_key      ( "SetFloatingThresholdUp",         &reg_f3d_sym<T>::SetFloatingThresholdUp         );
+    parser.add_key      ( "SetGradientSmoothingSigma",      &reg_f3d_sym<T>::SetGradientSmoothingSigma      );
+    parser.add_key      ( "SetInverseConsistencyWeight",    &reg_f3d_sym<T>::SetInverseConsistencyWeight    );
+    parser.add_key      ( "SetJacobianLogWeight",           &reg_f3d_sym<T>::SetJacobianLogWeight           );
+    parser.add_key      ( "SetLevelNumber",                 &reg_f3d_sym<T>::SetLevelNumber                 );
+    parser.add_key      ( "SetLevelToPerform",              &reg_f3d_sym<T>::SetLevelToPerform              );
+    parser.add_key      ( "SetLinearEnergyWeight",          &reg_f3d_sym<T>::SetLinearEnergyWeight          );
+    parser.add_key      ( "SetLNCCKernelType",              &reg_f3d_sym<T>::SetLNCCKernelType              );
+    parser.add_key      ( "SetLNCCWeight",                  &reg_f3d_sym<T>::SetLNCCWeight                  );
+    parser.add_key      ( "SetMaximalIterationNumber",      &reg_f3d_sym<T>::SetMaximalIterationNumber      );
+    parser.add_key      ( "SetNMIWeight",                   &reg_f3d_sym<T>::SetNMIWeight                   );
+    parser.add_key      ( "SetPerturbationNumber",          &reg_f3d_sym<T>::SetPerturbationNumber          );
+    parser.add_key      ( "SetReferenceSmoothingSigma",     &reg_f3d_sym<T>::SetReferenceSmoothingSigma     );
+    parser.add_key      ( "SetReferenceThresholdLow",       &reg_f3d_sym<T>::SetReferenceThresholdLow       );
+    parser.add_key      ( "SetReferenceThresholdUp",        &reg_f3d_sym<T>::SetReferenceThresholdUp        );
+    parser.add_key      ( "SetSpacing",                     &reg_f3d_sym<T>::SetSpacing                     );
+    parser.add_key      ( "SetSSDWeight",                   &reg_f3d_sym<T>::SetSSDWeight                   );
+    parser.add_key      ( "SetWarpedPaddingValue",          &reg_f3d_sym<T>::SetWarpedPaddingValue          );
 
     parser.parse();
-
 }
 
-template class SIRFRegNiftyF3dSym<double>;
+//template class SIRFRegNiftyF3dSym<double>;
 template class SIRFRegNiftyF3dSym<float>;

@@ -46,13 +46,13 @@ INCLUDE_DIRECTORIES(${NiftyReg_Install_DIR}/include)
 
 # Get the NiftyReg versions from its CMakeLists.txt
 FILE(READ ${NiftyReg_Source_DIR}/CMakeLists.txt NiftyReg_CMakeLists)
-STRING(REGEX MATCH "NiftyReg_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NR_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_MAJOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NiftyReg_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NR_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_MINOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NiftyReg_VERSION_PATCH ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NR_VERSION_PATCH ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_PATCH ${CMAKE_MATCH_1})
-MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.3.9, and cannot be guaranteed for other version numbers.")
+MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.0, and cannot be guaranteed for other version numbers.")
 MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}.")
 MESSAGE(STATUS "If there is a version mismatch, the keys in the parser may need to be altered.\n")
 

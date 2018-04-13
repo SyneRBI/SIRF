@@ -232,9 +232,9 @@ public:
 
 protected:
     /// Object
-    std::shared_ptr<Z>                                             _object;
+    std::shared_ptr<Z>                                                _object;
     /// Filename
-    boost::filesystem::path                                        _filename;
+    boost::filesystem::path                                           _filename;
     /// Map of keys
     std::map<std::string, std::shared_ptr<SIRFRegParserKeyBase<Z> > > _keys;
 };

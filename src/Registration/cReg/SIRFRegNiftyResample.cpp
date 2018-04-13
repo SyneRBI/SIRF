@@ -30,7 +30,7 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegMisc.h"
 #include <_reg_resampling.h>
-#include <_reg_globalTransformation.h>
+#include <_reg_globalTrans.h>
 #include <_reg_tools.h>
 
 using namespace std;
@@ -63,21 +63,21 @@ void SIRFRegNiftyResample::update()
     cout << "\n\nConverting affine transformation to deformation field...\n\n";
 
     // Initialise the deformation field image
-    shared_ptr<nifti_image> deformation_field_image_sptr;
-    this->set_up_deformation_field_image(deformation_field_image_sptr, transformation_matrix);
+    shared_ptr<nifti_image> deformation_field_image_sptr = make_shared<nifti_image>();
+    reg_affine_getDeformationField(&transformation_matrix,deformation_field_image_sptr.get());
 
     cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
     // Setup output image
-    set_up_output_image();
+    _output_image_sptr = std::make_shared<nifti_image>();
+    SIRFRegMisc::copy_nifti_image(_output_image_sptr,_floating_image_sptr);
 
-    reg_resampleSourceImage(_reference_image_sptr.get(),
-                                _floating_image_sptr.get(),
-                                _output_image_sptr.get(),
-                                deformation_field_image_sptr.get(),
-                                NULL,
-                                _interpolation_type,
-                                0);
+    reg_resampleImage(_reference_image_sptr.get(),
+                      _output_image_sptr.get(),
+                      deformation_field_image_sptr.get(),
+                      NULL,
+                      _interpolation_type,
+                      0);
 
     cout << "\n\nResampling finished!\n\n";
 }
@@ -118,32 +118,6 @@ void SIRFRegNiftyResample::set_up_transformation_matrix(mat44 &matrix)
     cout << "\n\nHere's the result of the matrix multiplications:\n";
     SIRFRegMisc::print_mat44(&matrix);
     cout << "\n\n";
-}
-
-void SIRFRegNiftyResample::set_up_deformation_field_image(shared_ptr<nifti_image> &deformation_field_image_sptr, mat44 matrix)
-{
-    // Copy the info from the reference image
-    deformation_field_image_sptr = shared_ptr<nifti_image>(nifti_copy_nim_info(_reference_image_sptr.get()));
-
-    // Set up the rest of the info
-    deformation_field_image_sptr->dim[0]=deformation_field_image_sptr->ndim=5;
-    deformation_field_image_sptr->dim[1]=deformation_field_image_sptr->nx=_reference_image_sptr->nx;
-    deformation_field_image_sptr->dim[2]=deformation_field_image_sptr->ny=_reference_image_sptr->ny;
-    deformation_field_image_sptr->dim[3]=deformation_field_image_sptr->nz=_reference_image_sptr->nz;
-    deformation_field_image_sptr->dim[4]=deformation_field_image_sptr->nt=1;deformation_field_image_sptr->pixdim[4]=deformation_field_image_sptr->dt=1.0;
-    if(_reference_image_sptr->nz>1) deformation_field_image_sptr->dim[5]=deformation_field_image_sptr->nu=3;
-    else deformation_field_image_sptr->dim[5]=deformation_field_image_sptr->nu=2;
-    deformation_field_image_sptr->pixdim[5]=deformation_field_image_sptr->du=1.0;
-    deformation_field_image_sptr->dim[6]=deformation_field_image_sptr->nv=1;deformation_field_image_sptr->pixdim[6]=deformation_field_image_sptr->dv=1.0;
-    deformation_field_image_sptr->dim[7]=deformation_field_image_sptr->nw=1;deformation_field_image_sptr->pixdim[7]=deformation_field_image_sptr->dw=1.0;
-    deformation_field_image_sptr->nvox=deformation_field_image_sptr->nx*deformation_field_image_sptr->ny*deformation_field_image_sptr->nz*deformation_field_image_sptr->nt*deformation_field_image_sptr->nu;
-    deformation_field_image_sptr->datatype = NIFTI_TYPE_FLOAT32; // need to add in an if/else NIFTI_TYPE_FLOAT64 if you want to template the class for doubles
-    deformation_field_image_sptr->nbyper = sizeof(float);
-    deformation_field_image_sptr->data = (void *)calloc(deformation_field_image_sptr->nvox, deformation_field_image_sptr->nbyper);
-
-    reg_affine_positionField(&matrix,
-                             _reference_image_sptr.get(),
-                             deformation_field_image_sptr.get());
 }
 
 void SIRFRegNiftyResample::set_up_output_image()

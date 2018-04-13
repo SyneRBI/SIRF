@@ -34,23 +34,20 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 SET(NiftyReg_requiredLibs
-    _reg_KLdivergence
-    _reg_ReadWriteImage
     _reg_aladin
     _reg_blockMatching
     _reg_f3d
-    _reg_femTransformation
-    _reg_globalTransformation
-    _reg_localTransformation
+    _reg_femTrans
+    _reg_globalTrans
+    _reg_localTrans
     _reg_maths
-    _reg_mutualinformation
+    _reg_measure
+    _reg_ReadWriteImage
     _reg_resampling
-    _reg_ssd
-    _reg_thinPlateSpline
     _reg_tools
     reg_nifti
-    reg_nrrd
-    reg_png)
+    reg_png
+    )
  
 # Loop over each library, find it and add it. Then link
 FOREACH(elem ${NiftyReg_requiredLibs})
