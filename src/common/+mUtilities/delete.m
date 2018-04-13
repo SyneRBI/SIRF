@@ -1,5 +1,5 @@
 function delete(handle)
-% Checks the execution status recorded in handle.
+% Deletes the object referred to by handle.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.

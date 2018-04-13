@@ -470,19 +470,19 @@ class ImageData(DataContainer):
         assert self.handle is not None
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
-        '''Returns image dimensions.'''
+        '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim)
+        return tuple(dim[::-1])
     def voxel_sizes(self):
-        '''Returns image dimensions as a tuple (nz, ny, nx).'''
+        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs)
+        return tuple(vs[::-1])
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
@@ -718,6 +718,20 @@ class AcquisitionData(DataContainer):
         check_status(image.handle)
         image.fill(value)
         return image
+    def dimensions(self):
+        ''' Returns a tuple of the data dimensions:
+        - number of sinograms
+        - number of views
+        - number of tangential positions.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data))
+        nt = dim[0]
+        nv = dim[1]
+        ns = dim[2]
+        return ns, nv, nt
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
@@ -791,6 +805,16 @@ class AcquisitionData(DataContainer):
         ad = AcquisitionData(self)
         ad.fill(value)
         ad.src = 'copy'
+        return ad
+    def rebin(self, num_segments_to_combine, \
+        num_views_to_combine = 1, num_tang_poss_to_trim = 0, \
+        do_normalisation = True, max_in_segment_num_to_process = -1):
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_rebinnedAcquisitionData(self.handle, \
+            num_segments_to_combine, num_views_to_combine, \
+            num_tang_poss_to_trim, do_normalisation, \
+            max_in_segment_num_to_process)
+        check_status(ad.handle)
         return ad
 
 DataContainer.register(AcquisitionData)
@@ -1201,7 +1225,8 @@ class Prior:
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
-##    def set_up(self):
+    def set_up(self):
+        try_calling(pystir.cSTIR_setupPrior(self.handle))
 ##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
@@ -1218,6 +1243,23 @@ class QuadraticPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+class PLSPrior(Prior):
+    '''
+    Class for PLS prior.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.name = 'PLSPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_image(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior',\
+            'anatomical_image', image.handle)
 
 class ObjectiveFunction:
     '''
@@ -1380,8 +1422,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 ##    def set_zero_seg0_end_planes(self, flag):
 ##        _set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-    def set_max_segment_num_to_process(self, n):
-        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##    def set_max_segment_num_to_process(self, n):
+##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.

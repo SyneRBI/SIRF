@@ -9,6 +9,7 @@ Usage:
 
 Options:
   -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
+  -a <file>, --anim=<file>    anatomical image file
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
@@ -49,6 +50,10 @@ data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('pet')
 raw_data_file = existing_filepath(data_path, data_file)
+if args['--anim'] is not None:
+    ai_file = existing_filepath(data_path, args['--anim'])
+else:
+    ai_file = None
 
 # Define a function that does something with an image. This function
 # provides a simplistic example of user's involvement in the reconstruction
@@ -79,7 +84,19 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    image = acq_data.create_uniform_image(1.0)
+    #image = acq_data.create_uniform_image(1.0)
+
+    if ai_file is not None:
+        anatomical_image = ImageData()
+        anatomical_image.read_from_file(ai_file)
+        image = anatomical_image.get_uniform_copy()
+        prior = PLSPrior()
+        prior.set_anatomical_image(anatomical_image)
+    else:
+        image = acq_data.create_uniform_image(1.0)
+        prior = QuadraticPrior()
+    prior.set_up()
+    prior.set_penalisation_factor(1.0)
 
     acq_model.set_up(acq_data, image)
 
@@ -87,6 +104,7 @@ def main():
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
+    obj_fun.set_prior(prior)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in

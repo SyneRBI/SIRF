@@ -288,6 +288,27 @@ cSTIR_setQuadraticPriorParameter
 }
 
 void*
+cSTIR_setPLSPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_PLSPrior3DF& prior =
+		objectFromHandle<xSTIR_PLSPrior3DF>(hp);
+	if (boost::iequals(name, "only_2D"))
+		prior.only2D(dataFromHandle<int>((void*)hv));
+	else if (boost::iequals(name, "anatomical_image")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_anatomical_image_sptr(id.data_sptr());
+	}
+	else if (boost::iequals(name, "kappa")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
 cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
@@ -346,14 +367,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	else if (boost::iequals(name, "zero_seg0_end_planes"))
 		obj_fun.set_zero_seg0_end_planes
 			(boost::iequals(charDataFromDataHandle(hv), "true"));
-	else if (boost::iequals(name, "max_segment_num_to_process"))
-		obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
-	//else if (boost::iequals(name, "projector_pair_type"))
-	//	obj_fun.set_projector_pair_sptr
-	//		(objectSptrFromHandle<ProjectorByBinPair>(hv));
-	//else if (boost::iequals(name, "proj_data_sptr"))
-	//	obj_fun.set_proj_data_sptr
-	//	(objectSptrFromHandle<PETAcquisitionData>(hv)->data());
+	//else if (boost::iequals(name, "max_segment_num_to_process"))
+	//	obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
 	else if (boost::iequals(name, "acquisition_data"))
 		obj_fun.set_acquisition_data(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "acquisition_model"))
