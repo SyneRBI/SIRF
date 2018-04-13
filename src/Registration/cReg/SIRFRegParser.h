@@ -35,6 +35,7 @@ limitations under the License.
 #include <map>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#include <type_traits>
 
 /// SIRFReg parser
 template<class Z>
@@ -62,9 +63,9 @@ public:
         std::cout << " done.\n" << std::flush;
     }
 
-    /// Add key with 1 argument
-    template<class A>
-    void add_key(const std::string keyword, void (Z::*function)(A))
+    /// Add key with 1 argument - we need to template Y in case Z is the derived class and Y is a parent class
+    template<class Y, class A>
+    void add_key(const std::string keyword, void (Y::*function)(A))
     {
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
@@ -77,9 +78,9 @@ public:
         std::cout << " done.\n" << std::flush;
     }
 
-    /// Add key with 2 arguments
-    template<class A, class B>
-    void add_key(const std::string keyword, void (Z::*function)(A, B))
+    /// Add key with 2 arguments - we need to template Y in case Z is the derived class and Y is a parent class
+    template<class Y, class A, class B>
+    void add_key(const std::string keyword, void (Y::*function)(A, B))
     {
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 

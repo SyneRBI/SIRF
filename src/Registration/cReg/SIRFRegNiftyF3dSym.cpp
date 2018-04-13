@@ -31,6 +31,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
 #include <_reg_f3d_sym.h>
+#include <_reg_f3d.h>
 
 using namespace std;
 
@@ -105,6 +106,7 @@ void SIRFRegNiftyF3dSym<T>::check_parameters()
 template<class T>
 void SIRFRegNiftyF3dSym<T>::parse_parameter_file()
 {
+    // Base class stuff (f3d)
     SIRFRegParser<reg_f3d_sym<T> > parser;
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
@@ -132,6 +134,7 @@ void SIRFRegNiftyF3dSym<T>::parse_parameter_file()
     parser.add_key      ( "SetInverseConsistencyWeight", &reg_f3d_sym<T>::SetInverseConsistencyWeight );
 
     parser.parse();
+
 }
 
 template class SIRFRegNiftyF3dSym<double>;
