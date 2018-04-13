@@ -4,6 +4,9 @@ Usage:
   input_output [--help | options]
 
 Options:
+  -a <name> , --afile=<name>  file to store simulated acquisition data
+                              [default: simulated_data]
+  -i <name> , --ifile=<name>  file to store phantom image data [default: phantom]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
@@ -34,6 +37,9 @@ from pUtilities import show_2D_array
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+acq_file = args['--afile']
+img_file = args['--ifile']
+
 def main():
 
     # engine's messages go to files, except error messages, which go to stdout
@@ -42,9 +48,15 @@ def main():
     # create acquisition data from scanner parameters to be used as a template
     print('creating Siemens_mMR acquisition data...')
     acq_template = AcquisitionData('Siemens_mMR')
+    acq_dim = acq_template.dimensions()
+    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
+          % acq_dim)
     # rebin to reduce the acquisition data size
     print('rebinning...')
     acq_template = acq_template.rebin(15)
+    acq_dim = acq_template.dimensions()
+    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
+          % acq_dim)
 
     # create image of dimensions and voxel sizes compatible with the scanner
     # geometry (stored in the AcquisitionData object ad)
@@ -54,8 +66,8 @@ def main():
     # show the image
     nx, ny, nz = image.dimensions()
     vx, vy, vz = image.voxel_sizes()
-    print('phantom dimensions: %dx%dx%d' % (nx, ny, nz))
-    print('phantom voxel sizes: %fx%fx%f' % (vx, vy, vz))
+##    print('phantom dimensions: %dx%dx%d' % (nx, ny, nz))
+##    print('phantom voxel sizes: %fx%fx%f' % (vx, vy, vz))
     image_size = (111, 111, int(nz))
     voxel_size = (3.0, 3.0, float(vz))
     image = ImageData()
@@ -86,28 +98,30 @@ def main():
     # select acquisition model that implements the geometric
     # forward projection by a ray tracing matrix multiplication
     acq_model = AcquisitionModelUsingRayTracingMatrix()
+    print('setting up the acquisition model...')
     acq_model.set_up(acq_template, image)
     # project the image to obtain simulated acquisition data
+    print('projecting the phantom to create simulated acquisition data...')
     simulated_data = acq_model.forward(image)
 
     # copy the acquisition data into a Python array
     acq_array = simulated_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
     show_2D_array('Simulated acquisition data', acq_array[z,:,:])
 
     # write acquisition data and image to files
     print('writing acquisition data...')
-    simulated_data.write('simulated_data')
+    simulated_data.write(acq_file)
     print('writing image...')
-    image.write('phantom')
+    image.write(img_file)
 
     # read acquisition data and image from files
     acq_data = AcquisitionData('simulated_data.hs')
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
-    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
+##    print('acquisition data dimensions: %dx%dx%d' % acq_dim)
     z = acq_dim[0]//2
     show_2D_array('Simulated acquisition data', acq_array[z,:,:])
 
@@ -115,7 +129,7 @@ def main():
     img = ImageData()
     img.read_from_file('phantom.hv')
     image_array = img.as_array()
-    print('phantom dimensions: %dx%dx%d' % image_array.shape[2::-1])
+##    print('phantom dimensions: %dx%dx%d' % image_array.shape[2::-1])
     z = int(image_array.shape[0]/2)
     show_2D_array('Phantom', image_array[z,:,:])
 

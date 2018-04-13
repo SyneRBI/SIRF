@@ -718,6 +718,20 @@ class AcquisitionData(DataContainer):
         check_status(image.handle)
         image.fill(value)
         return image
+    def dimensions(self):
+        ''' Returns a tuple of the data dimensions:
+        - number of sinograms
+        - number of views
+        - number of tangential positions.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data))
+        nt = dim[0]
+        nv = dim[1]
+        ns = dim[2]
+        return ns, nv, nt
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
