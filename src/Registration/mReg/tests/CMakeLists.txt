@@ -17,7 +17,7 @@
 #=========================================================================
 
 MATLAB_ADD_UNIT_TEST(NAME SIRFREG_TEST_MATLAB
-UNITTEST_FILE   test_all.m
+UNITTEST_FILE   test_mSIRFReg.m
 ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
 NO_UNITTEST_FRAMEWORK)
 
