@@ -50,7 +50,8 @@ public:
         NOTSET           = -1,
         NEARESTNEIGHBOUR =  0,
         LINEAR           =  1,
-        CUBICSPLINE      =  3
+        CUBICSPLINE      =  3,
+        SINC             =  4
     };
 
     /// Constructor
@@ -116,6 +117,9 @@ public:
 
     /// Set interpolation type to cubic spline
     void set_interpolation_type_to_cubic_spline() { _interpolation_type = CUBICSPLINE; }
+
+    /// Set interpolation type to since
+    void set_interpolation_type_to_since() { _interpolation_type = SINC; }
 
     /// Update
     void update();

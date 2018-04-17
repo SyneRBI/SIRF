@@ -27,15 +27,15 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGNIFTYALADIN_H_
-#define _SIRFREGNIFTYALADIN_H_
+#ifndef _SIRFREGNIFTYALADINSYM_H_
+#define _SIRFREGNIFTYALADINSYM_H_
 
 
 #include "SIRFReg.h"
-template<class T> class reg_aladin;
+template<class T> class reg_aladin_sym;
 
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
-template<class T> class SIRFRegNiftyAladin : public SIRFReg
+template<class T> class SIRFRegNiftyAladinSym : public SIRFReg
 {
 public:
 
@@ -63,7 +63,7 @@ protected:
     void save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::string &filename) const;
 
     /// Register object
-    std::shared_ptr<reg_aladin<T> > _registration_sptr;
+    std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
 
     /// Forwards transformation matrix
     std::shared_ptr<mat44>          _TM_fwrd_sptr;

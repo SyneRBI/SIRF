@@ -8,7 +8,7 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 #define SWIG_DOC_DOXYGEN_STYLE
 #define SWIG_FILE_WITH_INIT
 #include <cmath>
-#include "SIRFRegNiftyAladin.h"
+#include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
@@ -34,8 +34,8 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 %include "../cReg/SIRFReg.h"
 
 // Aladin - only offer the user single precision for now
-%include "../cReg/SIRFRegNiftyAladin.h"
-%template(NiftyAladin) SIRFRegNiftyAladin<float>;
+%include "../cReg/SIRFRegNiftyAladinSym.h"
+%template(NiftyAladinSym) SIRFRegNiftyAladinSym<float>;
 // %template(NiftyAladin_double) SIRFRegNiftyAladin<double>;
 
 // F3dSym - only offer the user single precision for now

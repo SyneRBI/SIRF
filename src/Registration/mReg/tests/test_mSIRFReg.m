@@ -30,7 +30,7 @@ output_weighted_mean     = [output_path    'matlab_weighted_mean'];
 % ----------------------------------------------------------------------- %
 % 							Nifty aladin
 %------------------------------------------------------------------------ %
-NA = mSIRFReg.NiftyAladin();
+NA = mSIRFReg.NiftyAladinSym();
 NA.set_reference_image_filename      (    reference_image_filename   );
 NA.set_floating_image_filename       (     floating_image_filename   );
 NA.set_parameter_file		         (      parameter_file_aladin    );

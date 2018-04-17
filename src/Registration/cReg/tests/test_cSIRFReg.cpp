@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "SIRFRegNiftyAladin.h"
+#include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegActivityCorrect.h"
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     // ----------------------------------------------------------------------- //
     //                           Nifty aladin
     //------------------------------------------------------------------------ //
-    SIRFRegNiftyAladin<float> NA;
+    SIRFRegNiftyAladinSym<float> NA;
     NA.set_reference_image_filename      (    reference_image_filename   );
     NA.set_floating_image_filename       (     floating_image_filename   );
     NA.set_parameter_file                (      parameter_file_aladin    );

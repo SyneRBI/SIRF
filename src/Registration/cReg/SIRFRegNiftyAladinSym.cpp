@@ -27,17 +27,17 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegNiftyAladin.h"
+#include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include <_reg_aladin.h>
+#include <_reg_aladin_sym.h>
 #include <_reg_tools.h>
 #include <_reg_localTrans.h>
 
 using namespace std;
 
 template<class T>
-void SIRFRegNiftyAladin<T>::update()
+void SIRFRegNiftyAladinSym<T>::update()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
@@ -54,7 +54,7 @@ void SIRFRegNiftyAladin<T>::update()
         reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
 
     // Create the registration object
-    _registration_sptr = make_shared<reg_aladin<T> >();
+    _registration_sptr = make_shared<reg_aladin_sym<T> >();
     _registration_sptr->SetInputReference(_reference_image_sptr.get());
     _registration_sptr->SetInputFloating(_floating_image_sptr.get());
 
@@ -98,54 +98,55 @@ void SIRFRegNiftyAladin<T>::update()
 }
 
 template<class T>
-void SIRFRegNiftyAladin<T>::parse_parameter_file()
+void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
 {
-    SIRFRegParser<reg_aladin<T> > parser;
+    SIRFRegParser<reg_aladin_sym<T> > parser;
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
-    parser.add_key      ( "SetAlignCentre",                     &reg_aladin<T>::SetAlignCentre                      );
-    parser.add_key      ( "SetAlignCentreGravity",              &reg_aladin<T>::SetAlignCentreGravity               );
-    parser.add_key      ( "SetBlockPercentage",                 &reg_aladin<T>::SetBlockPercentage                  );
-    parser.add_key      ( "SetBlockStepSize",                   &reg_aladin<T>::SetBlockStepSize                    );
-    parser.add_key      ( "SetFloatingLowerThreshold",          &reg_aladin<T>::SetFloatingLowerThreshold           );
-    parser.add_key      ( "SetFloatingSigma",                   &reg_aladin<T>::SetFloatingSigma                    );
-    parser.add_key      ( "SetFloatingUpperThreshold",          &reg_aladin<T>::SetFloatingUpperThreshold           );
-    parser.add_key      ( "SetInlierLts",                       &reg_aladin<T>::SetInlierLts                        );
-    parser.add_key      ( "SetInputTransform",                  &reg_aladin<T>::SetInputTransform                   );
-    parser.add_key      ( "SetInterpolation",                   &reg_aladin<T>::SetInterpolation                    );
-    parser.add_key      ( "SetInterpolationToCubic",            &reg_aladin<T>::SetInterpolationToCubic             );
-    parser.add_key      ( "SetInterpolationToNearestNeighbor",  &reg_aladin<T>::SetInterpolationToNearestNeighbor   );
-    parser.add_key      ( "SetInterpolationToTrilinear",        &reg_aladin<T>::SetInterpolationToTrilinear         );
-    parser.add_key      ( "SetLevelsToPerform",                 &reg_aladin<T>::SetLevelsToPerform                  );
-    parser.add_key      ( "SetMaxIterations",                   &reg_aladin<T>::SetMaxIterations                    );
-    parser.add_key      ( "SetNumberOfLevels",                  &reg_aladin<T>::SetNumberOfLevels                   );
-    parser.add_key      ( "SetPerformAffine",                   &reg_aladin<T>::SetPerformAffine                    );
-    parser.add_key      ( "SetPerformRigid",                    &reg_aladin<T>::SetPerformRigid                     );
-    parser.add_key      ( "SetReferenceLowerThreshold",         &reg_aladin<T>::SetReferenceLowerThreshold          );
-    parser.add_key      ( "SetReferenceSigma",                  &reg_aladin<T>::SetReferenceSigma                   );
-    parser.add_key      ( "SetReferenceUpperThreshold",         &reg_aladin<T>::SetReferenceUpperThreshold          );
-    parser.add_key      ( "SetVerbose",                         &reg_aladin<T>::SetVerbose                          );
-    parser.add_key      ( "SetWarpedPaddingValue",              &reg_aladin<T>::SetWarpedPaddingValue               );
-    parser.add_key      ( "setGpuIdx",                          &reg_aladin<T>::setGpuIdx                           );
-    parser.add_key      ( "setPlatformCode",                    &reg_aladin<T>::setPlatformCode                     );
+    parser.add_key      ( "SetAlignCentre",                     &reg_aladin_sym<T>::SetAlignCentre                      );
+    parser.add_key      ( "SetAlignCentreGravity",              &reg_aladin_sym<T>::SetAlignCentreGravity               );
+    parser.add_key      ( "SetBlockPercentage",                 &reg_aladin_sym<T>::SetBlockPercentage                  );
+    parser.add_key      ( "SetBlockStepSize",                   &reg_aladin_sym<T>::SetBlockStepSize                    );
+    parser.add_key      ( "SetFloatingLowerThreshold",          &reg_aladin_sym<T>::SetFloatingLowerThreshold           );
+    parser.add_key      ( "SetFloatingSigma",                   &reg_aladin_sym<T>::SetFloatingSigma                    );
+    parser.add_key      ( "SetFloatingUpperThreshold",          &reg_aladin_sym<T>::SetFloatingUpperThreshold           );
+    parser.add_key      ( "SetInlierLts",                       &reg_aladin_sym<T>::SetInlierLts                        );
+    parser.add_key      ( "SetInputTransform",                  &reg_aladin_sym<T>::SetInputTransform                   );
+    parser.add_key      ( "SetInterpolation",                   &reg_aladin_sym<T>::SetInterpolation                    );
+    parser.add_key      ( "SetInterpolationToCubic",            &reg_aladin_sym<T>::SetInterpolationToCubic             );
+    parser.add_key      ( "SetInterpolationToNearestNeighbor",  &reg_aladin_sym<T>::SetInterpolationToNearestNeighbor   );
+    parser.add_key      ( "SetInterpolationToTrilinear",        &reg_aladin_sym<T>::SetInterpolationToTrilinear         );
+    parser.add_key      ( "SetLevelsToPerform",                 &reg_aladin_sym<T>::SetLevelsToPerform                  );
+    parser.add_key      ( "SetMaxIterations",                   &reg_aladin_sym<T>::SetMaxIterations                    );
+    parser.add_key      ( "SetNumberOfLevels",                  &reg_aladin_sym<T>::SetNumberOfLevels                   );
+    parser.add_key      ( "SetPerformAffine",                   &reg_aladin_sym<T>::SetPerformAffine                    );
+    parser.add_key      ( "SetPerformRigid",                    &reg_aladin_sym<T>::SetPerformRigid                     );
+    parser.add_key      ( "SetReferenceLowerThreshold",         &reg_aladin_sym<T>::SetReferenceLowerThreshold          );
+    parser.add_key      ( "SetReferenceSigma",                  &reg_aladin_sym<T>::SetReferenceSigma                   );
+    parser.add_key      ( "SetReferenceUpperThreshold",         &reg_aladin_sym<T>::SetReferenceUpperThreshold          );
+    parser.add_key      ( "SetVerbose",                         &reg_aladin_sym<T>::SetVerbose                          );
+    parser.add_key      ( "SetWarpedPaddingValue",              &reg_aladin_sym<T>::SetWarpedPaddingValue               );
+    parser.add_key      ( "setCaptureRangeVox",                 &reg_aladin_sym<T>::setCaptureRangeVox                  );
+    parser.add_key      ( "setGpuIdx",                          &reg_aladin_sym<T>::setGpuIdx                           );
+    parser.add_key      ( "setPlatformCode",                    &reg_aladin_sym<T>::setPlatformCode                     );
 
     parser.parse();
 }
 
 template<class T>
-void SIRFRegNiftyAladin<T>::save_transformation_matrix_fwrd(const std::string &filename) const
+void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_fwrd(const std::string &filename) const
 {
     save_transformation_matrix(_TM_fwrd_sptr,filename);
 }
 
 template<class T>
-void SIRFRegNiftyAladin<T>::save_transformation_matrix_back(const std::string &filename) const
+void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_back(const std::string &filename) const
 {
     save_transformation_matrix(_TM_back_sptr,filename);
 }
 
 template<class T>
-void SIRFRegNiftyAladin<T>::
+void SIRFRegNiftyAladinSym<T>::
 save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::string &filename) const
 {
     // Check that the matrix exists
@@ -164,5 +165,5 @@ save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::str
 }
 
 // Put the instantiations of the template class at the END of the file!
-template class SIRFRegNiftyAladin<float>;
-template class SIRFRegNiftyAladin<double>;
+template class SIRFRegNiftyAladinSym<float>;
+template class SIRFRegNiftyAladinSym<double>;

@@ -34,7 +34,7 @@ output_weighted_mean     = output_path   + "python_weighted_mean";
 # ----------------------------------------------------------------------- #
 # 							Nifty aladin
 #------------------------------------------------------------------------ #
-NA = pSIRFReg.NiftyAladin();
+NA = pSIRFReg.NiftyAladinSym();
 NA.set_reference_image_filename      (    reference_image_filename   );
 NA.set_floating_image_filename       (     floating_image_filename   );
 NA.set_parameter_file		         (      parameter_file_aladin    );
