@@ -1,6 +1,7 @@
 #========================================================================
 # Author: Benjamin A Thomas
 # Author: Edoardo Pasca
+# Author: Casper da Costa-Luis
 # Copyright 2017 University College London
 # Copyright 2017 Science Technology Facilities Council
 #
@@ -217,14 +218,36 @@ endif()
 configure_file(env_ccppetmr.sh.in ${CCPPETMR_INSTALL}/bin/env_ccppetmr.sh)
 configure_file(env_ccppetmr.csh.in ${CCPPETMR_INSTALL}/bin/env_ccppetmr.csh)
 
+# Install python packages via pip and setup.py
 if(PYTHONINTERP_FOUND)
+  set(PYTHON_SETUP_PKGS "sirf" CACHE INTERNAL "list of provided python packages")
+
+  # alias sirf.p* -> p* for backward-compatibility
+  function(python_pkg_alias PY_PKG_NEW PY_PKG_OLD)
+    list(APPEND PYTHON_SETUP_PKGS ${PY_PKG_NEW})
+    set(PYTHON_SETUP_PKGS "${PYTHON_SETUP_PKGS}" PARENT_SCOPE)
+    set(SETUP_PY_INIT_IN "${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/__init__.py.in")
+    set(SETUP_PY_INIT "${PYTHON_DEST}/${PY_PKG_NEW}/__init__.py")
+    configure_file("${SETUP_PY_INIT_IN}" "${SETUP_PY_INIT}")
+    # message(STATUS "setup.py:${SETUP_PY_INIT}")
+    message(STATUS "setup.py:${PY_PKG_NEW}<-${PY_PKG_OLD}")
+  endfunction(python_pkg_alias)
+  python_pkg_alias(pGadgetron "sirf.pGadgetron")
+  python_pkg_alias(pSTIR "sirf.pSTIR")
+  python_pkg_alias(pUtilities "sirf.pUtilities")
+  # convert to python CSV tuple for setup.py configure_file
+  string(REPLACE ";" "', '" PYTHON_SETUP_PKGS_CSV "${PYTHON_SETUP_PKGS}")
+  set(PYTHON_SETUP_PKGS_CSV "'${PYTHON_SETUP_PKGS_CSV}'")
+  # message(STATUS "setup.py:pacakges:${PYTHON_SETUP_PKGS_CSV}")
+
+  # Create setup.py
   set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/SuperBuild/setup.py.in")
   set(SETUP_PY "${PYTHON_DEST}/setup.py")
   set(SETUP_PY_INIT "${PYTHON_DEST}/sirf/__init__.py")
-  message(STATUS "setup.py: ${SETUP_PY}")
-
+  message(STATUS "setup.py:${SETUP_PY}")
   configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
 
+  # pip install -e
   add_custom_command(OUTPUT "${SETUP_PY_INIT}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
     COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
@@ -232,10 +255,11 @@ if(PYTHONINTERP_FOUND)
     DEPENDS "${SETUP_PY_IN}"
     WORKING_DIRECTORY "${PYTHON_DEST}")
 
-  add_custom_target(pybuild_stir ALL DEPENDS ${SETUP_PY_INIT})
+  add_custom_target(pybuild_sirf ALL DEPENDS ${SETUP_PY_INIT})
 
+  # N.B. `-e` picks up cythonised libraries without messing with LD_LIBRARY_PATH
   install(CODE "execute_process(COMMAND\n\
-    \"${PYTHON_EXECUTABLE}\" -m pip install -U -e \"${CCPPETMR_INSTALL}\")")
+    \"${PYTHON_EXECUTABLE}\" -m pip install -U -e \"${PYTHON_DEST}\")")
 endif(PYTHONINTERP_FOUND)
 
 
