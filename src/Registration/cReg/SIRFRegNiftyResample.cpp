@@ -30,7 +30,9 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegMisc.h"
 #include <_reg_resampling.h>
+#if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
+#endif
 #include <_reg_tools.h>
 
 using namespace std;
@@ -65,22 +67,34 @@ void SIRFRegNiftyResample::update()
     // Initialise the deformation field image
     shared_ptr<nifti_image> deformation_field_image_sptr;
     SIRFRegMisc::create_def_or_disp_image(deformation_field_image_sptr,_reference_image_sptr);
+#if NIFTYREG_VER_1_5
     reg_affine_getDeformationField(&transformation_matrix,deformation_field_image_sptr.get());
-
-    SIRFRegMisc::save_nifti_image(deformation_field_image_sptr,"/Users/rich/Desktop/temp/def");
+#elif NIFTYREG_VER_1_3
+    reg_affine_positionField(&transformation_matrix,_reference_image_sptr.get(),deformation_field_image_sptr.get());
+#endif
 
     cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
     // Setup output image
     _output_image_sptr = std::make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(_output_image_sptr,_floating_image_sptr);
+    SIRFRegMisc::copy_nifti_image(_output_image_sptr,_reference_image_sptr);
 
+#if NIFTYREG_VER_1_5
     reg_resampleImage(_reference_image_sptr.get(),
                       _output_image_sptr.get(),
                       deformation_field_image_sptr.get(),
                       NULL,
                       _interpolation_type,
                       0);
+#elif NIFTYREG_VER_1_3
+    reg_resampleSourceImage(_reference_image_sptr.get(),
+                                _floating_image_sptr.get(),
+                                _output_image_sptr.get(),
+                                deformation_field_image_sptr.get(),
+                                NULL,
+                                _interpolation_type,
+                                0);
+#endif
 
     cout << "\n\nResampling finished!\n\n";
 }

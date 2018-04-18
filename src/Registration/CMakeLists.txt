@@ -45,16 +45,31 @@ INCLUDE_DIRECTORIES(${NiftyReg_Binary_DIR})                    # ugly, but requi
 INCLUDE_DIRECTORIES(${NiftyReg_Install_DIR}/include)
 
 # Get the NiftyReg versions from its CMakeLists.txt
+# This for older versions of NiftyReg
 FILE(READ ${NiftyReg_Source_DIR}/CMakeLists.txt NiftyReg_CMakeLists)
-STRING(REGEX MATCH "NR_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NiftyReg_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_MAJOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NR_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NiftyReg_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_MINOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NR_VERSION_PATCH ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+STRING(REGEX MATCH "NiftyReg_VERSION_PATCH ([0-9]*)" _ ${NiftyReg_CMakeLists} )
 SET(NiftyReg_VERSION_PATCH ${CMAKE_MATCH_1})
+# This for more recent versions of NiftyReg
+IF (NOT DEFINED NiftyReg_VERSION_MAJOR)
+	STRING(REGEX MATCH "NR_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+	SET(NiftyReg_VERSION_MAJOR ${CMAKE_MATCH_1})
+	STRING(REGEX MATCH "NR_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
+	SET(NiftyReg_VERSION_MINOR ${CMAKE_MATCH_1})
+	FILE(READ ${NiftyReg_Source_DIR}/niftyreg_build_version.txt NiftyReg_VERSION_PATCH)
+ENDIF()
+SET(NR_VERSION "${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}")
 MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.0, and cannot be guaranteed for other version numbers.")
-MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}.")
+MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NR_VERSION}.")
 MESSAGE(STATUS "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+IF (NR_VERSION LESS "1.4")
+	add_definitions(-DNIFTYREG_VER_1_3)
+ELSEIF(NR_VERSION LESS "1.6")
+	add_definitions(-DNIFTYREG_VER_1_5)
+ENDIF()
 
 # Compile the C++
 ADD_SUBDIRECTORY(cReg)

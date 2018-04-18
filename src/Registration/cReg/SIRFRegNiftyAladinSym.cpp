@@ -30,9 +30,10 @@ limitations under the License.
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include <_reg_aladin_sym.h>
-#include <_reg_tools.h>
+#if NIFTYREG_VER_1_5
 #include <_reg_localTrans.h>
+#endif
+#include <_reg_tools.h>
 
 using namespace std;
 
@@ -54,7 +55,11 @@ void SIRFRegNiftyAladinSym<T>::update()
         reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
 
     // Create the registration object
+#if NIFTYREG_VER_1_5
     _registration_sptr = make_shared<reg_aladin_sym<T> >();
+#elif NIFTYREG_VER_1_3
+    _registration_sptr = make_shared<reg_aladin<T> >();
+#endif
     _registration_sptr->SetInputReference(_reference_image_sptr.get());
     _registration_sptr->SetInputFloating(_floating_image_sptr.get());
 
@@ -82,6 +87,7 @@ void SIRFRegNiftyAladinSym<T>::update()
     shared_ptr<nifti_image> def_sptr;
     SIRFRegMisc::create_def_or_disp_image(def_sptr,_reference_image_sptr);
 
+#if NIFTYREG_VER_1_5
     // forward: affine->def->disp
     reg_affine_getDeformationField(_TM_fwrd_sptr.get(), def_sptr.get());
     _disp_image_fwrd_sptr = make_shared<nifti_image>();
@@ -93,6 +99,19 @@ void SIRFRegNiftyAladinSym<T>::update()
     _disp_image_back_sptr = make_shared<nifti_image>();
     SIRFRegMisc::copy_nifti_image(_disp_image_back_sptr,def_sptr);
     reg_getDisplacementFromDeformation(_disp_image_back_sptr.get());
+#elif NIFTYREG_VER_1_3
+    // Convert the forward and backward transformation matrices to cpp images
+    shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
+    SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_fwrd_sptr,
+                                                    _TM_fwrd_sptr,
+                                                    _warped_image_sptr);
+    SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_back_sptr,
+                                                    _TM_back_sptr,
+                                                    _warped_image_sptr);
+    // Get the forward and backward disp fields from the cpp images
+    SIRFRegMisc::get_disp_from_cpp(_disp_image_fwrd_sptr, cpp_fwrd_sptr, _reference_image_sptr);
+    SIRFRegMisc::get_disp_from_cpp(_disp_image_back_sptr, cpp_back_sptr, _reference_image_sptr);
+#endif
 
     cout << "\n\nRegistration finished!\n\n";
 }
@@ -100,36 +119,41 @@ void SIRFRegNiftyAladinSym<T>::update()
 template<class T>
 void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
 {
+#if NIFTYREG_VER_1_5
     SIRFRegParser<reg_aladin_sym<T> > parser;
+#elif NIFTYREG_VER_1_3
+    SIRFRegParser<reg_aladin<T> > parser;
+#endif
     parser.set_object   ( _registration_sptr  );
     parser.set_filename ( _parameter_filename );
-    parser.add_key      ( "SetAlignCentre",                     &reg_aladin_sym<T>::SetAlignCentre                      );
+    parser.add_key      ( "SetAlignCentre",                     &reg_aladin<T>::SetAlignCentre                      );
+    parser.add_key      ( "SetBlockPercentage",                 &reg_aladin<T>::SetBlockPercentage                  );
+    parser.add_key      ( "SetFloatingSigma",                   &reg_aladin<T>::SetFloatingSigma                    );
+    parser.add_key      ( "SetInlierLts",                       &reg_aladin<T>::SetInlierLts                        );
+    parser.add_key      ( "SetInputTransform",                  &reg_aladin<T>::SetInputTransform                   );
+    parser.add_key      ( "SetInterpolation",                   &reg_aladin<T>::SetInterpolation                    );
+    parser.add_key      ( "SetInterpolationToCubic",            &reg_aladin<T>::SetInterpolationToCubic             );
+    parser.add_key      ( "SetInterpolationToNearestNeighbor",  &reg_aladin<T>::SetInterpolationToNearestNeighbor   );
+    parser.add_key      ( "SetInterpolationToTrilinear",        &reg_aladin<T>::SetInterpolationToTrilinear         );
+    parser.add_key      ( "SetLevelsToPerform",                 &reg_aladin<T>::SetLevelsToPerform                  );
+    parser.add_key      ( "SetMaxIterations",                   &reg_aladin<T>::SetMaxIterations                    );
+    parser.add_key      ( "SetNumberOfLevels",                  &reg_aladin<T>::SetNumberOfLevels                   );
+    parser.add_key      ( "SetPerformAffine",                   &reg_aladin<T>::SetPerformAffine                    );
+    parser.add_key      ( "SetPerformRigid",                    &reg_aladin<T>::SetPerformRigid                     );
+    parser.add_key      ( "SetReferenceSigma",                  &reg_aladin<T>::SetReferenceSigma                   );
+#if NIFTYREG_VER_1_5
     parser.add_key      ( "SetAlignCentreGravity",              &reg_aladin_sym<T>::SetAlignCentreGravity               );
-    parser.add_key      ( "SetBlockPercentage",                 &reg_aladin_sym<T>::SetBlockPercentage                  );
     parser.add_key      ( "SetBlockStepSize",                   &reg_aladin_sym<T>::SetBlockStepSize                    );
     parser.add_key      ( "SetFloatingLowerThreshold",          &reg_aladin_sym<T>::SetFloatingLowerThreshold           );
-    parser.add_key      ( "SetFloatingSigma",                   &reg_aladin_sym<T>::SetFloatingSigma                    );
     parser.add_key      ( "SetFloatingUpperThreshold",          &reg_aladin_sym<T>::SetFloatingUpperThreshold           );
-    parser.add_key      ( "SetInlierLts",                       &reg_aladin_sym<T>::SetInlierLts                        );
-    parser.add_key      ( "SetInputTransform",                  &reg_aladin_sym<T>::SetInputTransform                   );
-    parser.add_key      ( "SetInterpolation",                   &reg_aladin_sym<T>::SetInterpolation                    );
-    parser.add_key      ( "SetInterpolationToCubic",            &reg_aladin_sym<T>::SetInterpolationToCubic             );
-    parser.add_key      ( "SetInterpolationToNearestNeighbor",  &reg_aladin_sym<T>::SetInterpolationToNearestNeighbor   );
-    parser.add_key      ( "SetInterpolationToTrilinear",        &reg_aladin_sym<T>::SetInterpolationToTrilinear         );
-    parser.add_key      ( "SetLevelsToPerform",                 &reg_aladin_sym<T>::SetLevelsToPerform                  );
-    parser.add_key      ( "SetMaxIterations",                   &reg_aladin_sym<T>::SetMaxIterations                    );
-    parser.add_key      ( "SetNumberOfLevels",                  &reg_aladin_sym<T>::SetNumberOfLevels                   );
-    parser.add_key      ( "SetPerformAffine",                   &reg_aladin_sym<T>::SetPerformAffine                    );
-    parser.add_key      ( "SetPerformRigid",                    &reg_aladin_sym<T>::SetPerformRigid                     );
     parser.add_key      ( "SetReferenceLowerThreshold",         &reg_aladin_sym<T>::SetReferenceLowerThreshold          );
-    parser.add_key      ( "SetReferenceSigma",                  &reg_aladin_sym<T>::SetReferenceSigma                   );
     parser.add_key      ( "SetReferenceUpperThreshold",         &reg_aladin_sym<T>::SetReferenceUpperThreshold          );
     parser.add_key      ( "SetVerbose",                         &reg_aladin_sym<T>::SetVerbose                          );
     parser.add_key      ( "SetWarpedPaddingValue",              &reg_aladin_sym<T>::SetWarpedPaddingValue               );
     parser.add_key      ( "setCaptureRangeVox",                 &reg_aladin_sym<T>::setCaptureRangeVox                  );
     parser.add_key      ( "setGpuIdx",                          &reg_aladin_sym<T>::setGpuIdx                           );
     parser.add_key      ( "setPlatformCode",                    &reg_aladin_sym<T>::setPlatformCode                     );
-
+#endif
     parser.parse();
 }
 

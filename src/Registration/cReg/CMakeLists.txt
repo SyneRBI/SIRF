@@ -37,17 +37,35 @@ SET(NiftyReg_requiredLibs
     _reg_aladin
     _reg_blockMatching
     _reg_f3d
-    _reg_femTrans
-    _reg_globalTrans
-    _reg_localTrans
     _reg_maths
-    _reg_measure
     _reg_ReadWriteImage
     _reg_resampling
     _reg_tools
     reg_nifti
     reg_png
     )
+IF (NR_VERSION LESS 1.4)
+    SET(NiftyReg_requiredLibs
+        ${NiftyReg_requiredLibs}
+        _reg_KLdivergence
+        _reg_ReadWriteImage
+        _reg_femTransformation
+        _reg_globalTransformation
+        _reg_localTransformation
+        _reg_mutualinformation
+        _reg_ssd
+        _reg_thinPlateSpline
+        reg_nrrd
+    )
+ELSEIF(NR_VERSION LESS 1.6)
+    SET(NiftyReg_requiredLibs
+        ${NiftyReg_requiredLibs}
+        _reg_femTrans
+        _reg_globalTrans
+        _reg_localTrans
+        _reg_measure
+        )
+ENDIF()
  
 # Loop over each library, find it and add it. Then link
 FOREACH(elem ${NiftyReg_requiredLibs})

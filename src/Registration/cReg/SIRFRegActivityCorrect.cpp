@@ -78,8 +78,12 @@ void SIRFRegActivityCorrect::update()
     // ac_cumu = A_0/lambda * (exp(-lambda*start) - exp(-lambda*stop))
     float ac_cumu = ( _initial_activity / lambda )  *  (  exp(-lambda*_start)  -  exp(-lambda*_stop)  );
 
-    // Do the division (last arg: 0=add,1=sub,2=mul,3=div)
+#if NIFTYREG_VER_1_5
     reg_tools_divideValueToImage(_input_image_sptr.get(),_output_image_sptr.get(),ac_cumu);
+#elif NIFTYREG_VER_1_3
+    // Do the division (last arg: 0=add,1=sub,2=mul,3=div)
+    reg_tools_addSubMulDivValue(_input_image_sptr.get(),_output_image_sptr.get(),ac_cumu,3);
+#endif
 }
 
 void SIRFRegActivityCorrect::save_output(const string filename) const

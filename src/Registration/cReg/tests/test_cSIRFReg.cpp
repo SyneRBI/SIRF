@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     string output_resample          = output_path   + "cplusplus_resample";
     string output_activity_corr     = output_path   + "cplusplus_activity_corr";
     string output_weighted_mean     = output_path   + "cplusplus_weighted_mean";
-
+/*
     // ----------------------------------------------------------------------- //
     //                           Nifty aladin
     //------------------------------------------------------------------------ //
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     NF.save_warped_image                 (         f3d_warped         );
     NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, true,  true );
     NF.save_displacement_field_fwrd_image( f3d_disp_back, true,  true );
-
+*/
     // ----------------------------------------------------------------------- //
     //                           Nifty resample
     //------------------------------------------------------------------------ //
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     NR.set_interpolation_type_to_cubic_spline();
     NR.update();
     NR.save_resampled_image               (       output_resample    );
-
+/*
     // ----------------------------------------------------------------------- //
     //                           Activity correction
     //------------------------------------------------------------------------ //
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     WM.add_image         (     wm_im4, 0.2    );
     WM.update();
     WM.save_image_to_file(output_weighted_mean);
-
+*/
     // If there was an error
     } catch(const exception &error) {
         cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
