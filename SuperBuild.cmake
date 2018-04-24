@@ -250,7 +250,7 @@ if(PYTHONINTERP_FOUND)
   message(STATUS "setup.py:${SETUP_PY}")
   configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
 
-  # pip install -e
+  # python setup.py build
   add_custom_command(OUTPUT "${SETUP_PY_INIT}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
     COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
@@ -260,9 +260,10 @@ if(PYTHONINTERP_FOUND)
 
   add_custom_target(pybuild_sirf ALL DEPENDS ${SETUP_PY_INIT})
 
-  # N.B. `-e` picks up cythonised libraries without messing with LD_LIBRARY_PATH
+  # python setup.py install
   install(CODE "execute_process(COMMAND\n\
-    \"${PYTHON_EXECUTABLE}\" -m pip install -U -e \"${PYTHON_DEST}\")")
+    \"${PYTHON_EXECUTABLE}\" setup.py install\n\
+    WORKING_DIRECTORY \"${PYTHON_DEST}\")")
 endif(PYTHONINTERP_FOUND)
 
 
