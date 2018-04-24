@@ -520,3 +520,27 @@ cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
+void*
+cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_FBP2DReconstruction& recon =
+		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
+	if (boost::iequals(name, "input")) {
+		PETAcquisitionData& acq_data = objectFromHandle<PETAcquisitionData>(hv);
+		recon.set_input(acq_data);
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_FBP2DParameter(DataHandle* hp, const char* name)
+{
+	xSTIR_FBP2DReconstruction& recon =
+		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
+	if (boost::iequals(name, "output"))
+		return newObjectHandle(recon.get_output());
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+

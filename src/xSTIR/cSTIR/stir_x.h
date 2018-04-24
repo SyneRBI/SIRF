@@ -586,4 +586,24 @@ public:
 	}
 };
 
+class xSTIR_FBP2DReconstruction : public FBP2DReconstruction {
+public:
+	void set_input(const PETAcquisitionData& acq)
+	{
+		set_input_data(acq.data());
+	}
+	Succeeded process()
+	{
+		shared_ptr<Image3DF> image_sptr(construct_target_image_ptr());
+		_sptr_image.reset(new PETImageData(image_sptr));
+		return reconstruct(image_sptr);
+	}
+	shared_ptr<PETImageData> get_output()
+	{
+		return _sptr_image;
+	}
+protected:
+	shared_ptr<PETImageData> _sptr_image;
+};
+
 #endif

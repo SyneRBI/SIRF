@@ -63,6 +63,8 @@ extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
+		if (boost::iequals(name, "FBP2D"))
+			return newObjectHandle<xSTIR_FBP2DReconstruction>();
 		if (boost::iequals(name, "ListmodeToSinograms"))
 			return newObjectHandle<ListmodeToSinograms>();
 		if (boost::iequals(name,
@@ -132,6 +134,8 @@ void* cSTIR_setParameter
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
+		else if (boost::iequals(obj, "FBP2D"))
+			return cSTIR_setFBP2DParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -169,6 +173,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_OSMAPOSLParameter(handle, name);
 		if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
+		if (boost::iequals(obj, "FBP2D"))
+			return cSTIR_FBP2DParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -572,6 +578,29 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_acq);
 		sptr_ad->write(filename);
 		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_FBP2DReconstruction(void* ptr_r)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		xSTIR_FBP2DReconstruction& recon =
+			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
+		if (recon.process() != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_FBP2DReconstruction failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		//shared_ptr<PETImageData> sptr_image = recon.get_output();
+		//PETImageData& image = *sptr_image;
+		//int dim[3];
+		//image.get_dimensions(dim);
+		//std::cout << "image dimensions: "
+		//	<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
+		return (void*)handle;
 	}
 	CATCH;
 }

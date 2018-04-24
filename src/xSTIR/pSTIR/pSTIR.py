@@ -1486,6 +1486,31 @@ class Reconstructor:
         # TODO: move to C++
         return self.image
 
+class FBP2DReconstructor:
+    '''
+    Class for 2D Filtered Back Projection reconstructor.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pystir.cSTIR_newObject('FBP2D')
+        check_status(self.handle)
+    def set_input(self, input_data):
+        '''Sets the acquisition data to use for reconstruction.
+        '''
+        assert_validity(input_data, AcquisitionData)
+        _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+    def reconstruct(self):
+        '''Performs reconstruction.
+        '''
+        try_calling(pystir.cSTIR_FBP2DReconstruction(self.handle))
+    def get_output(self):
+        '''Returns the reconstructed image.
+        '''
+        image = ImageData()
+        image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
+        check_status(image.handle)
+        return image
+
 class IterativeReconstructor(Reconstructor):
     '''
     Class for a generic iterative PET reconstructor.
