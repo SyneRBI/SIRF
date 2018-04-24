@@ -49,6 +49,12 @@ classdef Prior < handle
             value = mSTIR.parameter...
                 (self.handle_, 'GeneralisedPrior', 'penalisation_factor', 'f');
         end
+        function set_up(self)
+%***SIRF*** Prepares the prior for use.
+            h = calllib('mstir', 'mSTIR_setupPrior', self.handle_);
+            mUtilities.check_status('Prior:set_up', h)
+            mUtilities.delete(h)
+        end
         function grad = get_gradient(self, image)
 %***SIRF*** Returns the value of the gradient of the prior for the specified 
 %         image.

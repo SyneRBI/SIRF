@@ -739,6 +739,10 @@ cSTIR_setupPrior(void* ptr_p)
 		DataHandle* handle = new DataHandle;
 		xSTIR_GeneralisedPrior3DF& prior =
 			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
+		// empty image is a temporary measure for compatibility with old scripts
+		// (valid for as long as the argument of prior.set_up() is not used)
+		sptrImage3DF sptr_img(new Voxels3DF);
+		prior.set_up(sptr_img);
 		if (prior.post_process()){
 			ExecutionStatus status("cSTIR_setupPrior failed",
 				__FILE__, __LINE__);
