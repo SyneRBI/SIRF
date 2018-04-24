@@ -18,6 +18,7 @@ setup(
     author_email='ccppetmr@stfc.ac.uk',
     url='https://github.com/CCPPETMR/SIRF',
     platforms=['any'],
+    package_data={'sirf': ['*.so']},
     packages=[${PYTHON_SETUP_PKGS_CSV}],
     long_description='',
     classifiers=[
