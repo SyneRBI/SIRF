@@ -537,6 +537,14 @@ cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 		int xy = dataFromHandle<int>(hv);
 		recon.set_output_image_size_xy(xy);
 	}
+	else if (boost::iequals(name, "alpha")) {
+		double alpha = dataFromHandle<float>(hv);
+		recon.set_alpha_ramp(alpha);
+	}
+	else if (boost::iequals(name, "fc")) {
+		double fc = dataFromHandle<float>(hv);
+		recon.set_frequency_cut_off(fc);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

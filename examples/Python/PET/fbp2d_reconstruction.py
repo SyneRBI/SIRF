@@ -52,14 +52,45 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
 
+    # create reconstructor object
     recon = FBP2DReconstructor()
+    # specify the acquisition data
     recon.set_input(acq_data)
+
+    # reconstruct with default settings
     recon.reconstruct()
     image = recon.get_output()
+    image_array = image.as_array()
+    z = int(image_array.shape[0]*2/3)
+    print('xy-size %d' % image_array.shape[1])
+    image.show(z)
 
-    #image_array = image.as_array()
-    # interactively display the reconstructed image
-    image.show()
+    # change image size
+    recon.set_output_image_size_xy(image_array.shape[1]*2)
+    recon.reconstruct()
+    image = recon.get_output()
+    image_array = image.as_array()
+    print('xy-size %d' % image_array.shape[1])
+    image.show(z)
+
+    # zoom in
+    recon.set_zoom(2.5)
+    recon.reconstruct()
+    image = recon.get_output()
+    print('zoom 2.5')
+    image.show(z)
+
+    recon.set_alpha_ramp(0.25)
+    recon.reconstruct()
+    image = recon.get_output()
+    print('alpha 0.25')
+    image.show(z)
+
+    recon.set_frequency_cut_off(0.2)
+    recon.reconstruct()
+    image = recon.get_output()
+    print('frequency cut-off 0.2')
+    image.show(z)
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
