@@ -1499,6 +1499,9 @@ class FBP2DReconstructor:
         self.handle = None
         self.handle = pystir.cSTIR_newObject('FBP2D')
         check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
     def set_input(self, input_data):
         '''Sets the acquisition data to use for reconstruction.
         '''
