@@ -62,7 +62,7 @@ def main():
     image = recon.get_output()
     image_array = image.as_array()
     z = int(image_array.shape[0]*2/3)
-    print('xy-size %d' % image_array.shape[1])
+    print('--------\n xy-size %d' % image_array.shape[1])
     image.show(z)
 
     # change image size
@@ -70,33 +70,36 @@ def main():
     recon.reconstruct()
     image = recon.get_output()
     image_array = image.as_array()
-    print('xy-size %d' % image_array.shape[1])
+    print('--------\n xy-size %d' % image_array.shape[1])
     image.show(z)
 
     # zoom in
-    recon.set_zoom(2.5)
+    zoom = 2.5
+    recon.set_zoom(zoom)
     recon.reconstruct()
     image = recon.get_output()
-    print('zoom 2.5')
+    print('--------\n zoom %f' % zoom)
     image.show(z)
 
-    recon.set_alpha_ramp(0.25)
+    alpha = 0.25
+    recon.set_alpha_ramp(alpha)
     recon.reconstruct()
     image = recon.get_output()
-    print('alpha 0.25')
+    print('--------\n alpha %f' % alpha)
     image.show(z)
 
-    recon.set_frequency_cut_off(0.2)
+    fc = 0.2
+    recon.set_frequency_cut_off(fc)
     recon.reconstruct()
     image = recon.get_output()
-    print('frequency cut-off 0.2')
+    print('--------\n frequency cut-off %f' % fc)
     image.show(z)
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:
     main()
-    print('done')
+    print('--------\n done')
 except error as err:
     # display error information
     print('%s' % err.value)

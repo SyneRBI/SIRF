@@ -602,12 +602,18 @@ public:
 	}
 	void set_alpha_ramp(double alpha)
 	{
-		assert(alpha > 0 && alpha <= 1.0);
+		// does not work!
+		//assert(alpha > 0 && alpha <= 1.0);
+		if (!(alpha > 0 && alpha <= 1.0))
+			throw LocalisedException
+			("wrong ramp filter parameter alpha", __FILE__, __LINE__);
 		alpha_ramp = alpha;
 	}
 	void set_frequency_cut_off(double fc)
 	{
-		assert(fc > 0 && fc <= 0.5);
+		if (!(fc > 0 && fc <= 0.5))
+			throw LocalisedException
+			("wrong frequency cut-off", __FILE__, __LINE__);
 		fc_ramp = fc;
 	}
 	Succeeded process()
