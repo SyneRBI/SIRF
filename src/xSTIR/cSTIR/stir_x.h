@@ -592,6 +592,24 @@ public:
 	{
 		set_input_data(acq.data());
 	}
+	void set_zoom(double z)
+	{
+		zoom = z;
+	}
+	void set_output_image_size_xy(int xy)
+	{
+		output_image_size_xy = xy;
+	}
+	void set_alpha_ramp(double alpha)
+	{
+		assert(alpha > 0 && alpha <= 1.0);
+		alpha_ramp = alpha;
+	}
+	void set_frequency_cut_off(double fc)
+	{
+		assert(fc > 0 && fc <= 0.5);
+		fc_ramp = fc;
+	}
 	Succeeded process()
 	{
 		shared_ptr<Image3DF> image_sptr(construct_target_image_ptr());
