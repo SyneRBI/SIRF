@@ -583,7 +583,7 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
-void* cSTIR_FBP2DReconstruction(void* ptr_r)
+void* cSTIR_runFBP2DReconstruction(void* ptr_r)
 {
 	try {
 		DataHandle* handle = new DataHandle;
@@ -594,12 +594,6 @@ void* cSTIR_FBP2DReconstruction(void* ptr_r)
 				__FILE__, __LINE__);
 			handle->set(0, &status);
 		}
-		//shared_ptr<PETImageData> sptr_image = recon.get_output();
-		//PETImageData& image = *sptr_image;
-		//int dim[3];
-		//image.get_dimensions(dim);
-		//std::cout << "image dimensions: "
-		//	<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
 		return (void*)handle;
 	}
 	CATCH;
