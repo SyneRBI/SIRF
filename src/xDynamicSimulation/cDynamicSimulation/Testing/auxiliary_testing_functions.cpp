@@ -376,9 +376,6 @@ CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 	return csm_as_img;
 }
 
-
-
-
 ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 {
 	ISMRMRD::AcquisitionHeader acq_hdr;
@@ -391,23 +388,48 @@ ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 
 }
 
-std::string aux_test::get_serialized_mock_acquisition_header( void )
+AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader hdr )
 {
-
-	ISMRMRD::AcquisitionHeader acq_hdr = get_mock_acquisition_header();
 
 	std::ostringstream out;
+	ISMRMRD::serialize(hdr, out);
+	AcquisitionsVector acq_vec(out.str());
 
-	ISMRMRD::serialize(acq_hdr, out);
+	std::<vector> encodings = hdr.encoding;
 
-	return out.str();
+	size_t const num_scans = enc.size();
 
-}
+	for( size_t iacq=0; iacq<num_scans; iacq++)
+	{
+		ISMRMRD::Encoding enc = encodings[iacq];
+		ISMRMRD::EncodingSpace enc_spac = enc.encodedSpace;
+
+		ISMRMRD::SequenceParameters hdr.sequenceParameters
+
+		ISMRMRD::MatrixSize size_enc_space = enc_spac.matrixSize;
+
+		unsigned short const NPhase = size_enc_space.y;
+		unsigned short const NSlice = size_enc_space.z;
+		unsigned short const NContrast = ;
 
 
-ISMRMRD::Acquisition aux_test::get_mock_ismrmrd_acquisition ( void )
-{
-	ISMRMRD::Acquisition acq(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS, 0);
+		for( unsigned short iPhase=0; iPhase<NPhase; iPhase++ )
+		{
+			for( unsigned short iSlice=0; iSlice<NSlice; iSlice++ )
+			{
+					ISMRMRD::Acquisition acq();
+			}
+		}
+		
+
+		//ISMRMRD::Acquisition acq(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS, 0);	
+
+
+
+	}
+
+
+	
 	return acq;
 }
 

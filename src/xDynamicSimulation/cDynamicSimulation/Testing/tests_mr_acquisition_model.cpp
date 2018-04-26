@@ -68,8 +68,6 @@
 			unsigned int offset = 0;
 			ma.fwd(img_wrap, csm, target_acqs, offset);
 
-			std::cout << "nag" <<std::endl;
-
 			return false;
 		}
 		catch( std::runtime_error const &e)

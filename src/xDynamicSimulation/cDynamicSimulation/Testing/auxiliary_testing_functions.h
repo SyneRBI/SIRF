@@ -78,8 +78,7 @@ namespace aux_test
 	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
-	std::string get_serialized_mock_acquisition_header( void );
-	ISMRMRD::Acquisition get_mock_ismrmrd_acquisition ( void );	
+	ISMRMRD::Acquisition get_mock_acquisition_vector ( void );	
 
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
