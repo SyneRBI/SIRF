@@ -129,10 +129,8 @@ ISMRMRD::AcquisitionSystemInformation aux_test::get_mock_acquisition_system_info
 {
 	ISMRMRD::AcquisitionSystemInformation asi;
 
-	float const field_strength_t = 1.00; 
-
-
-	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(field_strength_t);
+	
+	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(MOCK_FIELD_STRENGTH);
 	return asi;
 
 }
@@ -195,7 +193,7 @@ ISMRMRD::EncodingSpace aux_test::get_mock_encoded_space( void )
 	ISMRMRD::MatrixSize mat_size( MOCK_DATA_RO_OVERSAMPLING * MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE);
 	ISMRMRD::FieldOfView_mm fov;
 
-	float resolution_mm = 1.5f;
+	float const resolution_mm = MOCK_FOV/MOCK_DATA_MATRIX_SIZE;
 
 	fov.x = 1/resolution_mm;
 	fov.y = 1/resolution_mm;
@@ -215,10 +213,9 @@ ISMRMRD::EncodingSpace aux_test::get_mock_recon_space( void )
 	ISMRMRD::MatrixSize mat_size(MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE,MOCK_DATA_MATRIX_SIZE);
 	ISMRMRD::FieldOfView_mm fov;
 
-	float resolution_mm = 1.5;
-	fov.x = resolution_mm * MOCK_DATA_MATRIX_SIZE;
-	fov.y = resolution_mm * MOCK_DATA_MATRIX_SIZE;
-	fov.z = resolution_mm * MOCK_DATA_MATRIX_SIZE;
+	fov.x = MOCK_FOV;
+	fov.y = MOCK_FOV;
+	fov.z = MOCK_FOV;
 
 	ISMRMRD::EncodingSpace enc_spac;
 	enc_spac.matrixSize = mat_size;
@@ -307,6 +304,14 @@ ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( vo
 		*(mock_img.begin() + i) = *(mock_arr.begin() + i);
 	}
 
+
+	mock_img.setMatrixSizeX( MOCK_DATA_MATRIX_SIZE );
+	mock_img.setMatrixSizeY( MOCK_DATA_MATRIX_SIZE );
+	mock_img.setMatrixSizeZ( MOCK_DATA_MATRIX_SIZE );
+	mock_img.setFieldOfView( MOCK_FOV, MOCK_FOV, MOCK_FOV );
+	mock_img.setNumberOfChannels ( 1 );
+	mock_img.setContrast( 1 );
+
 	return mock_img;
 }
 
@@ -377,7 +382,28 @@ CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 {
 	ISMRMRD::AcquisitionHeader acq_hdr;
+	acq_hdr.acquisition_time_stamp = 0;
+	acq_hdr.number_of_samples = MOCK_DATA_RO_OVERSAMPLING * MOCK_DATA_MATRIX_SIZE;
+	acq_hdr.available_channels = MOCK_DATA_NUM_CHANNELS;
+	acq_hdr.center_sample = MOCK_DATA_MATRIX_SIZE/2 - 1;
+
+	return acq_hdr;
+
 }
+
+std::string aux_test::get_serialized_mock_acquisition_header( void )
+{
+
+	ISMRMRD::AcquisitionHeader acq_hdr = get_mock_acquisition_header();
+
+	std::ostringstream out;
+
+	ISMRMRD::serialize(acq_hdr, out);
+
+	return out.str();
+
+}
+
 
 ISMRMRD::Acquisition aux_test::get_mock_ismrmrd_acquisition ( void )
 {

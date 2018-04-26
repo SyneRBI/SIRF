@@ -158,7 +158,7 @@ void run_tests_mr_acquisition_model( void )
 
 	bool tests_successful = true;
 
-	tests_successful *=tests_mracqmod::test_get_serialized_ismrmrd_header();
+	tests_successful *= tests_mracqmod::test_get_serialized_ismrmrd_header();
 	tests_successful *= tests_mracqmod::test_fwd_method();
 
 
