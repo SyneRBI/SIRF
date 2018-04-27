@@ -1,17 +1,16 @@
 /* ================================================
 
 Author: Johannes Mayer
-Date: 2018.03.15
+Date: 2018.04.06
 Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
-#pragma once
 
+
+#pragma once
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
-
-
 
 class aFullySampledFFT{
 
@@ -22,7 +21,9 @@ public:
 		this->hdr_ = hdr;
 	}
 
-	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data) = 0;
+	virtual ISMRMRD::NDArray<complex_float_t> get_k_data( void );
+
+	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data ) = 0;
 
 protected:
 
@@ -36,5 +37,6 @@ class FullySampledCartesianFFT: public aFullySampledFFT{
 
 public:
 	FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr);
+	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data);
 
 };

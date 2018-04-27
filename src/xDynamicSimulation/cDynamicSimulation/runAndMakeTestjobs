@@ -1,5 +1,5 @@
 #!/bin/bash
 
-make -j 2
+make -j 12
 
 ./TestJobs

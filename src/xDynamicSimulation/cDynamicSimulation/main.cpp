@@ -13,7 +13,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <stdio.h>
 #include <iostream>
 
-#include "Testing/dynamicsimulation_tests.h"
+
+#include "all_simulation_tests.h"
 
 int main( int argc, char *argv[] )
 {
@@ -25,17 +26,19 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 		
-		run_tests_auxiliary_input_output();
-		run_tests_tissueparameters();
-		run_tests_contrastgenerator();
-		run_tests_phantom_input();
-
+		//run_tests_auxiliary_input_output();
+		//run_tests_tissueparameters();
+		//run_tests_contrastgenerator();
+		//run_tests_phantom_input();
+		//run_tests_encoding();
+		run_tests_mr_acquisition_model();
 
 		return 0;
 	}
 
 	catch(const std::exception& e)
-	{
+	{	
+		std::cout << "Exception caught at highest level in main" << std::endl;
 		std::cout<< e.what() << '\n';			
 	}
 	catch(...)

@@ -19,8 +19,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_contrastgenerator.h"
 #include "tests_phantom_input.h"
 #include "tests_encoding.h"
+#include "tests_mr_acquisition_model.h"
 
-#include "dynamicsimulation_tests.h"
+#include "all_simulation_tests.h"
 
 
 void run_tests_auxiliary_input_output( void )
@@ -130,9 +131,8 @@ void run_tests_phantom_input( void )
 
 }
 
-
-
-void run_tests_encoding( void ){
+void run_tests_encoding( void )
+{
 
 	bool tests_successful = true;
 
@@ -151,3 +151,39 @@ void run_tests_encoding( void ){
 
 
 }
+
+
+void run_tests_mr_acquisition_model( void )
+{
+
+	bool tests_successful = true;
+
+	tests_successful *= tests_mracqmod::test_get_serialized_ismrmrd_header();
+	tests_successful *= tests_mracqmod::test_fwd_method();
+
+
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The acquisition model tests failed." );
+	}
+	else
+	{
+		std::cout<< "The acquisition model tests succeeded" << std::endl;
+	}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
