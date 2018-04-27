@@ -19,7 +19,7 @@
 if (BUILD_PYTHON)
 
   file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
-  INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}")
+  INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
 
 endif (BUILD_PYTHON)
 

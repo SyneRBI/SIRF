@@ -87,6 +87,10 @@ if (BUILD_PYTHON)
   endif()
   message(STATUS "Python libraries found")
   message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
+  set(PYTHON_STRATEGY "PYTHONPATH" CACHE STRING "\
+    PYTHONPATH: prefix PYTHONPATH \n\
+    SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
+    CONDA:      do nothing")
 endif()
 
 
@@ -120,3 +124,4 @@ ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
 ADD_SUBDIRECTORY(src/common)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
