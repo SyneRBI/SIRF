@@ -129,8 +129,8 @@ ISMRMRD::AcquisitionSystemInformation aux_test::get_mock_acquisition_system_info
 {
 	ISMRMRD::AcquisitionSystemInformation asi;
 
-	
-	asi.systemFieldStrength_T = ISMRMRD::Optional<float>(MOCK_FIELD_STRENGTH);
+	asi.receiverChannels = ISMRMRD::Optional<unsigned short > ( MOCK_DATA_NUM_CHANNELS );
+	asi.systemFieldStrength_T = ISMRMRD::Optional<float>( MOCK_FIELD_STRENGTH );
 	return asi;
 
 }
@@ -391,33 +391,66 @@ ISMRMRD::AcquisitionHeader aux_test::get_mock_acquisition_header( void )
 AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader hdr )
 {
 
+	using namespace ISMRMRD;
+	typedef unsigned short unshort;
+
+
 	std::ostringstream out;
-	ISMRMRD::serialize(hdr, out);
+	serialize(hdr, out);
 	AcquisitionsVector acq_vec(out.str());
 
-	std::<vector> encodings = hdr.encoding;
+	std::vector< Encoding > encodings = hdr.encoding;
 
-	size_t const num_scans = enc.size();
+	size_t const num_scans = encodings.size();
 
 	for( size_t iacq=0; iacq<num_scans; iacq++)
-	{
-		ISMRMRD::Encoding enc = encodings[iacq];
-		ISMRMRD::EncodingSpace enc_spac = enc.encodedSpace;
+	{	
 
-		ISMRMRD::SequenceParameters hdr.sequenceParameters
+		AcquisitionSystemInformation acq_sys_info = hdr.acquisitionSystemInformation();
+		unshort const NChannels = acq_sys_info.receiverChannels();
 
-		ISMRMRD::MatrixSize size_enc_space = enc_spac.matrixSize;
+		SequenceParameters seq_par = hdr.sequenceParameters();
+		std::vector<float> TE = seq_par.TE();
+		std::vector<float> TR = seq_par.TR();
 
-		unsigned short const NPhase = size_enc_space.y;
-		unsigned short const NSlice = size_enc_space.z;
-		unsigned short const NContrast = ;
+		Encoding enc = encodings[iacq];
+		EncodingSpace enc_spac = enc.encodedSpace;
+
+		MatrixSize size_enc_space = enc_spac.matrixSize;
+
+		unshort const NContrasts = TE.size();
+		unshort const NSamples = size_enc_space.x;
+		unshort const NPhases = size_enc_space.y;
+		unshort const NSlices = size_enc_space.z;
 
 
-		for( unsigned short iPhase=0; iPhase<NPhase; iPhase++ )
+		std::cout<< epiph(NChannels )<< std::endl ;
+		std::cout<< epiph(NSamples )<< std::endl ;
+		std::cout<< epiph(NPhases )	<< std::endl ;
+		std::cout<< epiph(NSlices )	<< std::endl ;	
+
+		Acquisition acq(NSamples, NChannels);
+
+		for( unshort iSlice=0; iSlice<NSlices; iSlice++ )
 		{
-			for( unsigned short iSlice=0; iSlice<NSlice; iSlice++ )
+			for( unshort iPhase=0; iPhase<NPhases; iPhase++ )
 			{
-					ISMRMRD::Acquisition acq();
+				
+				size_t const num_line = iSlice*NPhases + iPhase;
+				AcquisitionHeader acq_hdr = acq.getHead();
+				acq_hdr.idx.kspace_encode_step_1 = iPhase;
+				acq_hdr.idx.kspace_encode_step_2 = iSlice;
+
+				for( unshort iContrast=0; iContrast<NContrasts; iContrast++)
+				{
+					acq_hdr.scan_counter = num_line*NContrasts + iContrast;
+					acq_hdr.acquisition_time_stamp = num_line*TR[0] + TE[iContrast]; 	
+					
+					acq_hdr.idx.contrast = 	iContrast;
+
+					acq_vec.append_acquisition(acq);
+				
+				}
 			}
 		}
 		
@@ -430,7 +463,7 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 
 
 	
-	return acq;
+	return acq_vec;
 }
 
 

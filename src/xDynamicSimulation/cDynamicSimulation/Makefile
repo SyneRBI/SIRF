@@ -276,6 +276,33 @@ Testing/tests_auxiliary_input_output.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_input_output.cpp.s
 .PHONY : Testing/tests_auxiliary_input_output.cpp.s
 
+Testing/tests_auxiliary_testing_functions.o: Testing/tests_auxiliary_testing_functions.cpp.o
+
+.PHONY : Testing/tests_auxiliary_testing_functions.o
+
+# target to build an object file
+Testing/tests_auxiliary_testing_functions.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.o
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.o
+
+Testing/tests_auxiliary_testing_functions.i: Testing/tests_auxiliary_testing_functions.cpp.i
+
+.PHONY : Testing/tests_auxiliary_testing_functions.i
+
+# target to preprocess a source file
+Testing/tests_auxiliary_testing_functions.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.i
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.i
+
+Testing/tests_auxiliary_testing_functions.s: Testing/tests_auxiliary_testing_functions.cpp.s
+
+.PHONY : Testing/tests_auxiliary_testing_functions.s
+
+# target to generate assembly for a file
+Testing/tests_auxiliary_testing_functions.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.s
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.s
+
 Testing/tests_contrastgenerator.o: Testing/tests_contrastgenerator.cpp.o
 
 .PHONY : Testing/tests_contrastgenerator.o
@@ -651,6 +678,9 @@ help:
 	@echo "... Testing/tests_auxiliary_input_output.o"
 	@echo "... Testing/tests_auxiliary_input_output.i"
 	@echo "... Testing/tests_auxiliary_input_output.s"
+	@echo "... Testing/tests_auxiliary_testing_functions.o"
+	@echo "... Testing/tests_auxiliary_testing_functions.i"
+	@echo "... Testing/tests_auxiliary_testing_functions.s"
 	@echo "... Testing/tests_contrastgenerator.o"
 	@echo "... Testing/tests_contrastgenerator.i"
 	@echo "... Testing/tests_contrastgenerator.s"

@@ -46,6 +46,7 @@
 	{
 		try
 		{
+			/*
 			ISMRMRD::Image< complex_float_t > img = aux_test::get_mock_ismrmrd_image_with_cube();
 			CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
 
@@ -67,7 +68,7 @@
 
 			unsigned int offset = 0;
 			ma.fwd(img_wrap, csm, target_acqs, offset);
-
+			*/
 			return false;
 		}
 		catch( std::runtime_error const &e)

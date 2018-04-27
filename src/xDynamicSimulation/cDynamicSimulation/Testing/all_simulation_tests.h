@@ -14,6 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 // Function declarations in order to collect tests for module dynamicssimulation
 
+void run_tests_auxiliary_testing_functions( void );
+
 void run_tests_auxiliary_input_output( void );
 
 void run_tests_tissueparameters( void );

@@ -39,7 +39,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define MOCK_FOV 96
 #define MOCK_DATA_MATRIX_SIZE 64
 #define MOCK_DATA_NUM_CHANNELS 2
-#define MOCK_DATA_RO_OVERSAMPLING 1
+#define MOCK_DATA_RO_OVERSAMPLING 2
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5
 #define MOCK_FIELD_STRENGTH 1
 
@@ -78,7 +78,7 @@ namespace aux_test
 	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
-	ISMRMRD::Acquisition get_mock_acquisition_vector ( void );	
+	AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
 
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)

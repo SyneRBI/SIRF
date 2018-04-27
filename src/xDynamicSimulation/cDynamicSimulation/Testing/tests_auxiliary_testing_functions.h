@@ -20,6 +20,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 namespace test_aux_test_funs
 {
 
-void test_write_ndarray_to_raw( void );
+bool test_get_mock_acquisition_vector( void );
 
 }

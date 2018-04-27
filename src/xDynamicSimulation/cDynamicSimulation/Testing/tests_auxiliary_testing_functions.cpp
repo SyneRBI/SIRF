@@ -9,32 +9,18 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_auxiliary_testing_functions.h"
 
+#include <ismrmrd/ismrmrd.h>
 
-void test_aux_test_funs::test_write_ndarray_to_raw( void )
+#include "gadgetron_data_containers.h" 
+
+
+bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 {
 
-	size_t Nx = 192;
-	size_t Ny = 192; 
-	size_t Nz = 192;
-	size_t Ne = 3;
+	ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
+	AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
 
-	std::vector< size_t > data_size = {Nx, Ny, Nz, Ne};
-
-
-	ISMRMRD::NDArray< complex_float_t > dummy_data;
-	dummy_data.resize(data_size);
-
-	for( int nz=0; nz<Nz; nz++)
-	for( int ny=0; ny<Ny; ny++)
-	for( int nx=0; nx<Nx; nx++)
-	for( int ne=0; ne<Ne; ne++)
-	{
-		dummy_data(nx,ny,nz,ne) = std::complex<float>(nx*ne, nx*ne);
-	}
-
-
-	std::string output_name = "/media/sf_SharedFiles/test_binary_writer";
-
-	aux_test::write_ndarray_to_binary<complex_float_t>(output_name, dummy_data);
+	return true;
 
 }
+

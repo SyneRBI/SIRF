@@ -14,6 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <iostream>
 #include <stdexcept>
 
+#include "tests_auxiliary_testing_functions.h"
 #include "tests_auxiliary_input_output.h"
 #include "tests_tissueparameters.h"
 #include "tests_contrastgenerator.h"
@@ -22,6 +23,27 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_mr_acquisition_model.h"
 
 #include "all_simulation_tests.h"
+
+
+
+void run_tests_auxiliary_testing_functions( void )
+{
+
+	bool tests_successful = true;
+
+	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The auxiliary testing functions tests failed.");
+	}
+	else
+	{
+		std::cout<< "The auxiliary testing functions tests succeeded." <<std::endl;
+	}
+
+
+}
 
 
 void run_tests_auxiliary_input_output( void )

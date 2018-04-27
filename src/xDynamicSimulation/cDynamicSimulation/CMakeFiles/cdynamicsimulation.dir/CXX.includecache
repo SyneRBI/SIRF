@@ -13,6 +13,8 @@ iostream
 -
 stdexcept
 -
+tests_auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
 tests_auxiliary_input_output.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
 tests_tissueparameters.h
@@ -67,6 +69,24 @@ tests_auxiliary_input_output.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.cpp
+tests_auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
+ismrmrd/ismrmrd.h
+-
+gadgetron_data_containers.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/gadgetron_data_containers.h
+
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_testing_functions.h
+string
+-
+ismrmrd/ismrmrd.h
+-
+vector
+-
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_contrastgenerator.cpp
 tests_contrastgenerator.h
