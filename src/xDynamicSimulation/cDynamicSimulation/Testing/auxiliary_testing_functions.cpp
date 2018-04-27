@@ -448,8 +448,9 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 					
 					acq_hdr.idx.contrast = 	iContrast;
 
+					acq.setHead( acq_hdr );	
 					acq_vec.append_acquisition(acq);
-				
+										
 				}
 			}
 		}
