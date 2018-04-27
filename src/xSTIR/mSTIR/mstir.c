@@ -123,6 +123,9 @@ EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* p
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
 	return cSTIR_writeAcquisitionData(ptr_acq, filename);
 }
+EXPORTED_FUNCTION 	void* mSTIR_runFBP2DReconstruction(void* ptr_r) {
+	return cSTIR_runFBP2DReconstruction(ptr_r);
+}
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);
 }
@@ -147,8 +150,8 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient (void* ptr_f, void* ptr
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f, void* ptr_i, int subset) {
 	return cSTIR_objectiveFunctionGradientNotDivided (ptr_f, ptr_i, subset);
 }
-EXPORTED_FUNCTION 	void* mSTIR_setupPrior(void* ptr_p) {
-	return cSTIR_setupPrior(ptr_p);
+EXPORTED_FUNCTION 	void* mSTIR_setupPrior(void* ptr_p, void* ptr_i) {
+	return cSTIR_setupPrior(ptr_p, ptr_i);
 }
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 	return cSTIR_priorGradient(ptr_p, ptr_i);

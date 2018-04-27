@@ -84,7 +84,7 @@ def main():
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
     # object ad) and initialize each voxel to 1.0
-    #image = acq_data.create_uniform_image(1.0)
+    image = acq_data.create_uniform_image(1.0)
 
     if ai_file is not None:
         anatomical_image = ImageData()
@@ -93,9 +93,8 @@ def main():
         prior = PLSPrior()
         prior.set_anatomical_image(anatomical_image)
     else:
-        image = acq_data.create_uniform_image(1.0)
         prior = QuadraticPrior()
-    prior.set_up()
+    prior.set_up(image)
     prior.set_penalisation_factor(1.0)
 
     acq_model.set_up(acq_data, image)

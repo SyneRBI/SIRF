@@ -55,7 +55,7 @@ test.check(v)
 
 prior = QuadraticPrior();
 prior.set_penalisation_factor(0.5)
-prior.set_up();
+prior.set_up(image);
 
 matrix = RayTracingMatrix();
 matrix.set_num_tangential_LORs(2)

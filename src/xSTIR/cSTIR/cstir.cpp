@@ -756,15 +756,17 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 
 extern "C"
 void*
-cSTIR_setupPrior(void* ptr_p)
+cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 {
 	try {
 		DataHandle* handle = new DataHandle;
 		xSTIR_GeneralisedPrior3DF& prior =
 			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
+		PETImageData& image = objectFromHandle<PETImageData>(ptr_i);
+		sptrImage3DF sptr_img = image.data_sptr();
 		// empty image is a temporary measure for compatibility with old scripts
 		// (valid for as long as the argument of prior.set_up() is not used)
-		sptrImage3DF sptr_img(new Voxels3DF);
+		//sptrImage3DF sptr_img(new Voxels3DF);
 		prior.set_up(sptr_img);
 		if (prior.post_process()){
 			ExecutionStatus status("cSTIR_setupPrior failed",

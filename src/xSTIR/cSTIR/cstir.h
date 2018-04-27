@@ -102,7 +102,7 @@ extern "C" {
 		(void* ptr_f, void* ptr_i, int subset);
 
 	// Prior methods
-	void* cSTIR_setupPrior(void* ptr_p);
+	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 
 	// Image methods

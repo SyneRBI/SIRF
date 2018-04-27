@@ -73,7 +73,7 @@ def test_main(rec=False, verb=False, throw=True):
 
     prior = QuadraticPrior()
     prior.set_penalisation_factor(0.5)
-    prior.set_up()
+    prior.set_up(image)
 
     num_subsets = 12
 

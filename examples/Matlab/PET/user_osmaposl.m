@@ -56,7 +56,7 @@ try
     % create prior
     prior = QuadraticPrior();
     prior.set_penalisation_factor(0.5);
-	prior.set_up();
+	prior.set_up(image);
 
     num_subsets = 12;
     % create objective function of Poisson logarithmic likelihood type
