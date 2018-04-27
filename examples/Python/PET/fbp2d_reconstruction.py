@@ -95,6 +95,14 @@ def main():
     print('--------\n frequency cut-off %f' % fc)
     image.show(z)
 
+    # alternative way to set the output image parameters (via image template)
+    image1 = acq_data.create_uniform_image() # image template
+    recon.set_up(image1) # use image template to create the output image
+    recon.reconstruct()
+    image = recon.get_output()
+    print('--------\n alternative setup')
+    image.show(z)
+
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
 try:

@@ -588,6 +588,10 @@ public:
 
 class xSTIR_FBP2DReconstruction : public FBP2DReconstruction {
 public:
+	xSTIR_FBP2DReconstruction()
+	{
+		_is_set_up = false;
+	}
 	void set_input(const PETAcquisitionData& acq)
 	{
 		set_input_data(acq.data());
@@ -616,18 +620,29 @@ public:
 			("wrong frequency cut-off", __FILE__, __LINE__);
 		fc_ramp = fc;
 	}
+	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	{
+		_sptr_image_data.reset(new PETImageData(*sptr_id));
+		_is_set_up = true;
+		return Succeeded::yes;
+	}
 	Succeeded process()
 	{
-		shared_ptr<Image3DF> image_sptr(construct_target_image_ptr());
-		_sptr_image.reset(new PETImageData(image_sptr));
-		return reconstruct(image_sptr);
+		if (!_is_set_up) {
+			shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
+			_sptr_image_data.reset(new PETImageData(sptr_image));
+			return reconstruct(sptr_image);
+		}
+		else
+			return reconstruct(_sptr_image_data->data_sptr());
 	}
 	shared_ptr<PETImageData> get_output()
 	{
-		return _sptr_image;
+		return _sptr_image_data;
 	}
 protected:
-	shared_ptr<PETImageData> _sptr_image;
+	bool _is_set_up;
+	shared_ptr<PETImageData> _sptr_image_data;
 };
 
 #endif

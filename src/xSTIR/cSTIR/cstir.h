@@ -87,6 +87,7 @@ extern "C" {
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 
 	// Reconstruction methods
+	void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runFBP2DReconstruction(void* ptr_r);
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);

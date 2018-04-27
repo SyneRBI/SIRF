@@ -1512,6 +1512,11 @@ class FBP2DReconstructor:
         _set_float_par(self.handle, 'FBP2D', 'fc', v)
     def set_output_image_size_xy(self, xy):
         _set_int_par(self.handle, 'FBP2D', 'xy', xy)
+    def set_up(self, image):
+        '''Sets up the reconstructor.
+        '''
+        try_calling(pystir.cSTIR_setupFBP2DReconstruction \
+                    (self.handle, image.handle))
     def reconstruct(self):
         '''Performs reconstruction.
         '''

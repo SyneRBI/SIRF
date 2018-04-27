@@ -583,6 +583,25 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
+void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		xSTIR_FBP2DReconstruction& recon =
+			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
+		shared_ptr<PETImageData> sptr_id =
+			objectSptrFromHandle<PETImageData>(ptr_i);
+		if (recon.set_up(sptr_id) != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_runFBP2DReconstruction(void* ptr_r)
 {
 	try {
