@@ -586,4 +586,63 @@ public:
 	}
 };
 
+class xSTIR_FBP2DReconstruction : public FBP2DReconstruction {
+public:
+	xSTIR_FBP2DReconstruction()
+	{
+		_is_set_up = false;
+	}
+	void set_input(const PETAcquisitionData& acq)
+	{
+		set_input_data(acq.data());
+	}
+	void set_zoom(double z)
+	{
+		zoom = z;
+	}
+	void set_output_image_size_xy(int xy)
+	{
+		output_image_size_xy = xy;
+	}
+	void set_alpha_ramp(double alpha)
+	{
+		// does not work!
+		//assert(alpha > 0 && alpha <= 1.0);
+		if (!(alpha > 0 && alpha <= 1.0))
+			throw LocalisedException
+			("wrong ramp filter parameter alpha", __FILE__, __LINE__);
+		alpha_ramp = alpha;
+	}
+	void set_frequency_cut_off(double fc)
+	{
+		if (!(fc > 0 && fc <= 0.5))
+			throw LocalisedException
+			("wrong frequency cut-off", __FILE__, __LINE__);
+		fc_ramp = fc;
+	}
+	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	{
+		_sptr_image_data.reset(new PETImageData(*sptr_id));
+		_is_set_up = true;
+		return Succeeded::yes;
+	}
+	Succeeded process()
+	{
+		if (!_is_set_up) {
+			shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
+			_sptr_image_data.reset(new PETImageData(sptr_image));
+			return reconstruct(sptr_image);
+		}
+		else
+			return reconstruct(_sptr_image_data->data_sptr());
+	}
+	shared_ptr<PETImageData> get_output()
+	{
+		return _sptr_image_data;
+	}
+protected:
+	bool _is_set_up;
+	shared_ptr<PETImageData> _sptr_image_data;
+};
+
 #endif

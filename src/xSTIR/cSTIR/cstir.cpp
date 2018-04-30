@@ -63,6 +63,8 @@ extern "C"
 void* cSTIR_newObject(const char* name)
 {
 	try {
+		if (boost::iequals(name, "FBP2D"))
+			return newObjectHandle<xSTIR_FBP2DReconstruction>();
 		if (boost::iequals(name, "ListmodeToSinograms"))
 			return newObjectHandle<ListmodeToSinograms>();
 		if (boost::iequals(name,
@@ -132,6 +134,8 @@ void* cSTIR_setParameter
 			return cSTIR_setOSMAPOSLParameter(hs, name, hv);
 		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_setOSSPSParameter(hs, name, hv);
+		else if (boost::iequals(obj, "FBP2D"))
+			return cSTIR_setFBP2DParameter(hs, name, hv);
 		else
 			return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -169,6 +173,8 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_OSMAPOSLParameter(handle, name);
 		if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
+		if (boost::iequals(obj, "FBP2D"))
+			return cSTIR_FBP2DParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -577,6 +583,42 @@ void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename)
 }
 
 extern "C"
+void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		xSTIR_FBP2DReconstruction& recon =
+			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
+		shared_ptr<PETImageData> sptr_id =
+			objectSptrFromHandle<PETImageData>(ptr_i);
+		if (recon.set_up(sptr_id) != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_runFBP2DReconstruction(void* ptr_r)
+{
+	try {
+		DataHandle* handle = new DataHandle;
+		xSTIR_FBP2DReconstruction& recon =
+			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
+		if (recon.process() != Succeeded::yes) {
+			ExecutionStatus status("cSTIR_FBP2DReconstruction failed",
+				__FILE__, __LINE__);
+			handle->set(0, &status);
+		}
+		return (void*)handle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i)
 {
 	try {
@@ -733,12 +775,18 @@ cSTIR_objectiveFunctionGradientNotDivided(void* ptr_f, void* ptr_i, int subset)
 
 extern "C"
 void*
-cSTIR_setupPrior(void* ptr_p)
+cSTIR_setupPrior(void* ptr_p, void* ptr_i)
 {
 	try {
 		DataHandle* handle = new DataHandle;
 		xSTIR_GeneralisedPrior3DF& prior =
 			objectFromHandle<xSTIR_GeneralisedPrior3DF>(ptr_p);
+		PETImageData& image = objectFromHandle<PETImageData>(ptr_i);
+		sptrImage3DF sptr_img = image.data_sptr();
+		// empty image is a temporary measure for compatibility with old scripts
+		// (valid for as long as the argument of prior.set_up() is not used)
+		//sptrImage3DF sptr_img(new Voxels3DF);
+		prior.set_up(sptr_img);
 		if (prior.post_process()){
 			ExecutionStatus status("cSTIR_setupPrior failed",
 				__FILE__, __LINE__);

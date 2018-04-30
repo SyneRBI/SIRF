@@ -497,7 +497,7 @@ class ImageData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def show(self):
+    def show(self, im_num = None):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -505,6 +505,11 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
+        if im_num is not None:
+            if im_num < 1 or im_num > nz:
+                return
+            show_2D_array('slice %d' % im_num, data[im_num,:,:])
+            return
         print('Please enter slice numbers (e.g.: 1, 3-5)')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
@@ -1225,11 +1230,8 @@ class Prior:
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
-    def set_up(self):
-        try_calling(pystir.cSTIR_setupPrior(self.handle))
-##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
+    def set_up(self, image):
+        try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
 class QuadraticPrior(Prior):
     '''
@@ -1485,6 +1487,47 @@ class Reconstructor:
         '''
         # TODO: move to C++
         return self.image
+
+class FBP2DReconstructor:
+    '''
+    Class for 2D Filtered Back Projection reconstructor.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pystir.cSTIR_newObject('FBP2D')
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_input(self, input_data):
+        '''Sets the acquisition data to use for reconstruction.
+        '''
+        assert_validity(input_data, AcquisitionData)
+        _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+    def set_zoom(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'zoom', v)
+    def set_alpha_ramp(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'alpha', v)
+    def set_frequency_cut_off(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'fc', v)
+    def set_output_image_size_xy(self, xy):
+        _set_int_par(self.handle, 'FBP2D', 'xy', xy)
+    def set_up(self, image):
+        '''Sets up the reconstructor.
+        '''
+        try_calling(pystir.cSTIR_setupFBP2DReconstruction \
+                    (self.handle, image.handle))
+    def reconstruct(self):
+        '''Performs reconstruction.
+        '''
+        try_calling(pystir.cSTIR_runFBP2DReconstruction(self.handle))
+    def get_output(self):
+        '''Returns the reconstructed image.
+        '''
+        image = ImageData()
+        image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
+        check_status(image.handle)
+        return image
 
 class IterativeReconstructor(Reconstructor):
     '''

@@ -537,6 +537,10 @@ public:
 	{
 		return _data;
 	}
+	void set_data_sptr(shared_ptr<Image3DF> sptr_data)
+	{
+		_data = sptr_data;
+	}
 	void fill(float v)
 	{
 		_data->fill(v);
