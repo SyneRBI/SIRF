@@ -160,8 +160,6 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
-		if (boost::iequals(obj, "PLSPrior"))
-			return cSTIR_PLSPriorParameter(handle, name);
 		if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
 		if (boost::iequals(obj,
