@@ -76,8 +76,7 @@ void SIRFRegNiftyResample::update()
     cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
     // Setup output image
-    _output_image_sptr = std::make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(_output_image_sptr,_reference_image_sptr);
+    set_up_output_image();
 
 #if NIFTYREG_VER_1_5
     reg_resampleImage(_reference_image_sptr.get(),
