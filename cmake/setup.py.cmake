@@ -12,9 +12,9 @@ if(PYTHONINTERP_FOUND)
     # message(STATUS "setup.py:${SETUP_PY_INIT}")
     message(STATUS "setup.py:${PY_PKG_NEW}<-${PY_PKG_OLD}")
   endfunction(python_pkg_alias)
-  python_pkg_alias(pGadgetron "sirf.pGadgetron")
-  python_pkg_alias(pSTIR "sirf.pSTIR")
-  python_pkg_alias(pUtilities "sirf.pUtilities")
+  python_pkg_alias(pGadgetron "sirf.Gadgetron")
+  python_pkg_alias(pSTIR "sirf.STIR")
+  python_pkg_alias(pUtilities "sirf.Utilities")
   python_pkg_alias(pygadgetron "sirf.pygadgetron")
   python_pkg_alias(pystir "sirf.pystir")
   python_pkg_alias(pyiutilities "sirf.pyiutilities")
@@ -35,7 +35,7 @@ if(PYTHONINTERP_FOUND)
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
     COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
     COMMAND "${PYTHON_EXECUTABLE}" setup.py build
-    DEPENDS "${SETUP_PY_IN}"
+    DEPENDS "${SETUP_PY}"
     WORKING_DIRECTORY "${PYTHON_DEST}")
 
   add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")

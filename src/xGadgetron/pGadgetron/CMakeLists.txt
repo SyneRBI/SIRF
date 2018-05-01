@@ -38,7 +38,7 @@ if(BUILD_PYTHON)
   SWIG_LINK_LIBRARIES(pygadgetron cgadgetron iutilities "${PYTHON_LIBRARIES}")
 
   INSTALL(TARGETS ${SWIG_MODULE_pygadgetron_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
-  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py" pGadgetron.py DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pygadgetron.py" Gadgetron.py DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
 endif(BUILD_PYTHON)
