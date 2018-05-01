@@ -295,30 +295,17 @@ cSTIR_setPLSPriorParameter
 		objectFromHandle<xSTIR_PLSPrior3DF>(hp);
 	if (boost::iequals(name, "only_2D"))
 		prior.only2D(dataFromHandle<int>((void*)hv));
-	else if (boost::iequals(name, "alpha"))
-		prior.set_alpha(dataFromHandle<float>((void*)hv));
-	else if (boost::iequals(name, "eta"))
-		prior.set_eta(dataFromHandle<float>((void*)hv));
-	else if (boost::iequals(name, "kappa_filename"))
-		prior.set_kappa_filename(charDataFromDataHandle(hv));
-	else if (boost::iequals(name, "anatomical_filename"))
-		prior.set_anatomical_filename(charDataFromDataHandle(hv));
+	else if (boost::iequals(name, "anatomical_image")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_anatomical_image_sptr(id.data_sptr());
+	}
+	else if (boost::iequals(name, "kappa")) {
+		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		prior.set_kappa_sptr(id.data_sptr());
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
-}
-
-void*
-cSTIR_PLSPriorParameter(const DataHandle* handle, const char* name)
-{
-	xSTIR_PLSPrior3DF& prior = objectFromHandle< xSTIR_PLSPrior3DF >(handle);
-	if (boost::iequals(name, "only_2D"))
-		return dataHandle<float>(prior.get_only_2D());
-	else if (boost::iequals(name, "alpha"))
-		return dataHandle<float>(prior.get_alpha());
-	else if (boost::iequals(name, "eta"))
-		return dataHandle<float>(prior.get_eta());
-	return parameterNotFound(name, __FILE__, __LINE__);
 }
 
 void*
@@ -380,14 +367,8 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 	else if (boost::iequals(name, "zero_seg0_end_planes"))
 		obj_fun.set_zero_seg0_end_planes
 			(boost::iequals(charDataFromDataHandle(hv), "true"));
-	else if (boost::iequals(name, "max_segment_num_to_process"))
-		obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
-	//else if (boost::iequals(name, "projector_pair_type"))
-	//	obj_fun.set_projector_pair_sptr
-	//		(objectSptrFromHandle<ProjectorByBinPair>(hv));
-	//else if (boost::iequals(name, "proj_data_sptr"))
-	//	obj_fun.set_proj_data_sptr
-	//	(objectSptrFromHandle<PETAcquisitionData>(hv)->data());
+	//else if (boost::iequals(name, "max_segment_num_to_process"))
+	//	obj_fun.set_max_segment_num_to_process(dataFromHandle<int>((void*)hv));
 	else if (boost::iequals(name, "acquisition_data"))
 		obj_fun.set_acquisition_data(objectSptrFromHandle<PETAcquisitionData>(hv));
 	else if (boost::iequals(name, "acquisition_model"))
@@ -536,6 +517,46 @@ cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF>(handle);
+	return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+void*
+cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+{
+	xSTIR_FBP2DReconstruction& recon =
+		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
+	if (boost::iequals(name, "input")) {
+		PETAcquisitionData& acq_data = objectFromHandle<PETAcquisitionData>(hv);
+		recon.set_input(acq_data);
+	}
+	else if (boost::iequals(name, "zoom")) {
+		double zoom = dataFromHandle<float>(hv);
+		recon.set_zoom(zoom);
+	}
+	else if (boost::iequals(name, "xy")) {
+		int xy = dataFromHandle<int>(hv);
+		recon.set_output_image_size_xy(xy);
+	}
+	else if (boost::iequals(name, "alpha")) {
+		double alpha = dataFromHandle<float>(hv);
+		recon.set_alpha_ramp(alpha);
+	}
+	else if (boost::iequals(name, "fc")) {
+		double fc = dataFromHandle<float>(hv);
+		recon.set_frequency_cut_off(fc);
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_FBP2DParameter(DataHandle* hp, const char* name)
+{
+	xSTIR_FBP2DReconstruction& recon =
+		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
+	if (boost::iequals(name, "output"))
+		return newObjectHandle(recon.get_output());
 	return parameterNotFound(name, __FILE__, __LINE__);
 }
 

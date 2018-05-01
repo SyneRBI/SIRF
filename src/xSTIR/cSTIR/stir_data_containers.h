@@ -132,9 +132,38 @@ storage mode (file/memory) selection.
 class PETAcquisitionData : public aDataContainer < float > {
 public:
 	virtual ~PETAcquisitionData() {}
+
+	// virtual constructors
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_exam_info,
+		shared_ptr<ProjDataInfo> sptr_proj_data_info) = 0;
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	virtual aDataContainer<float>* new_data_container() = 0;
+
+	shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
+		const int num_segments_to_combine,
+		const int num_views_to_combine = 1,
+		const int num_tang_poss_to_trim = 0,
+		const bool do_normalisation = true,
+		const int max_in_segment_num_to_process = -1
+		)
+	{
+		shared_ptr<ProjDataInfo> out_proj_data_info_sptr(
+			SSRB(*data()->get_proj_data_info_ptr(),
+			num_segments_to_combine,
+			num_views_to_combine,
+			num_tang_poss_to_trim,
+			max_in_segment_num_to_process
+			));
+		shared_ptr<PETAcquisitionData> sptr(same_acquisition_data
+			(data()->get_exam_info_sptr(), out_proj_data_info_sptr));
+		SSRB(*sptr, *data(), do_normalisation);
+		return sptr;
+	}
 
 	static std::string storage_scheme()
 	{
@@ -264,6 +293,13 @@ public:
 	{
 		_data = ProjData::read_from_file(filename);
 	}
+	PETAcquisitionDataInFile(shared_ptr<ExamInfo> sptr_exam_info,
+		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	{
+		_data.reset(new ProjDataFile
+			(sptr_exam_info, sptr_proj_data_info, 
+			_filename = SIRFUtilities::scratch_file_name()));
+	}
 	PETAcquisitionDataInFile(const ProjData& pd) : _owns_file(true)
 	{
 		_data.reset(new ProjDataFile
@@ -304,9 +340,25 @@ public:
 		_template.reset(new PETAcquisitionDataInFile);
 	}
 
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_exam_info,
+		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	{
+		PETAcquisitionData* ptr_ad = 
+			new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
+		return ptr_ad;
+	}
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
+		return ptr_ad;
+	}
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile
+			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 		return ptr_ad;
 	}
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
@@ -335,6 +387,12 @@ private:
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
 public:
 	PETAcquisitionDataInMemory() {}
+	PETAcquisitionDataInMemory(shared_ptr<ExamInfo> sptr_exam_info,
+		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	{
+		_data = shared_ptr<ProjData>
+			(new ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
+	}
 	PETAcquisitionDataInMemory(const ProjData& pd)
 	{
 		_data = shared_ptr<ProjData>
@@ -361,9 +419,25 @@ public:
 		_template.reset(new PETAcquisitionDataInMemory);
 	}
 
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_exam_info,
+		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	{
+		PETAcquisitionData* ptr_ad =
+			new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
+		return ptr_ad;
+	}
 	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
+		return ptr_ad;
+	}
+	virtual PETAcquisitionData* same_acquisition_data
+		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
+	{
+		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory
+			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 		return ptr_ad;
 	}
 	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
@@ -462,6 +536,10 @@ public:
 	shared_ptr<Image3DF> data_sptr()
 	{
 		return _data;
+	}
+	void set_data_sptr(shared_ptr<Image3DF> sptr_data)
+	{
+		_data = sptr_data;
 	}
 	void fill(float v)
 	{

@@ -18,7 +18,7 @@ Detailed (short-term) issues are at
 SIRF 0.9 was our first public release. There will be some interface
 changes between 0.9 and 1.0.
 
-# SIRF 1.0
+# SIRF 1.0 (released 3 April 2018)
 
   - Software
     
@@ -59,7 +59,7 @@ Target date: Q2 2018
 
 # SIRF 2.0
 
-Target date: Q3 2018
+Target date: Q4 2018
 
   - Add major features that didn’t make it into SIRF 1.x
 
@@ -88,6 +88,8 @@ Target date: Q3 2018
     
       - PET TOF support (no scatter)
     
+      - Create subsets of acquisition and image data
+      
       - Interface to motion estimation software (NiftyReg?) (Flagship)
 
   - Expanded Testing framework

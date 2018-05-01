@@ -64,7 +64,7 @@ else:
 
 def main():
 
-    # output goes to files
+    # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # PET acquisition data to be read from this file
@@ -72,12 +72,17 @@ def main():
     print('raw data: %s' % raw_data_file)
     acq_data = AcquisitionData(raw_data_file)
 
-    # copy the acquisition data into a Python array
+    # copy the acquisition data into a Python array and display
     acq_array = acq_data.as_array()
+    print('data dimensions: %d x %d x %d' % acq_array.shape)
     acq_dim = acq_array.shape
     z = acq_dim[0]//2
-
     show_2D_array('Acquisition data', acq_array[z,:,:])
+
+    # rebin the acquisition data
+    new_acq_data = acq_data.rebin(3)
+    acq_array = new_acq_data.as_array()
+    print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
@@ -86,7 +91,6 @@ def main():
     show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
     print('Checking acquisition data algebra:')
-    print('data dimensions: %d x %d x %d' % acq_array.shape)
     s = acq_data.norm()
     t = acq_data * acq_data
     print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))

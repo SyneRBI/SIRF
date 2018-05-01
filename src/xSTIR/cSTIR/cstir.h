@@ -69,6 +69,13 @@ extern "C" {
 	void* cSTIR_getAcquisitionsStorageScheme();
 	void* cSTIR_setAcquisitionsStorageScheme(const char* scheme);
 	void* cSTIR_acquisitionsDataFromTemplate(void* ptr_t);
+	void* cSTIR_rebinnedAcquisitionData(void* ptr_t,
+		const int num_segments_to_combine,
+		const int num_views_to_combine,
+		const int num_tang_poss_to_trim,
+		const bool do_normalisation,
+		const int max_in_segment_num_to_process
+		);
 	void* cSTIR_acquisitionsDataFromScannerInfo
 		(const char* scanner, int span, int max_ring_diff, int view_mash_factor);
 	void* cSTIR_getAcquisitionsDimensions(const void* ptr_acq, PTR_INT ptr_dim);
@@ -80,6 +87,8 @@ extern "C" {
 	void* cSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
 
 	// Reconstruction methods
+	void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);
+	void* cSTIR_runFBP2DReconstruction(void* ptr_r);
 	void* cSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_runReconstruction(void* ptr_r, void* ptr_i);
 	void* cSTIR_updateReconstruction(void* ptr_r, void* ptr_i);
@@ -94,6 +103,7 @@ extern "C" {
 		(void* ptr_f, void* ptr_i, int subset);
 
 	// Prior methods
+	void* cSTIR_setupPrior(void* ptr_p, void* ptr_i);
 	void* cSTIR_priorGradient(void* ptr_p, void* ptr_i);
 
 	// Image methods

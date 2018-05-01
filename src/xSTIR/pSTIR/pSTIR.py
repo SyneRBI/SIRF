@@ -470,19 +470,19 @@ class ImageData(DataContainer):
         assert self.handle is not None
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
-        '''Returns image dimensions.'''
+        '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim)
+        return tuple(dim[::-1])
     def voxel_sizes(self):
-        '''Returns image dimensions as a tuple (nz, ny, nx).'''
+        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs)
+        return tuple(vs[::-1])
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
@@ -497,7 +497,7 @@ class ImageData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def show(self):
+    def show(self, im_num = None):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -505,6 +505,11 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
+        if im_num is not None:
+            if im_num < 1 or im_num > nz:
+                return
+            show_2D_array('slice %d' % im_num, data[im_num,:,:])
+            return
         print('Please enter slice numbers (e.g.: 1, 3-5)')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
@@ -718,6 +723,20 @@ class AcquisitionData(DataContainer):
         check_status(image.handle)
         image.fill(value)
         return image
+    def dimensions(self):
+        ''' Returns a tuple of the data dimensions:
+        - number of sinograms
+        - number of views
+        - number of tangential positions.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data))
+        nt = dim[0]
+        nv = dim[1]
+        ns = dim[2]
+        return ns, nv, nt
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
@@ -791,6 +810,16 @@ class AcquisitionData(DataContainer):
         ad = AcquisitionData(self)
         ad.fill(value)
         ad.src = 'copy'
+        return ad
+    def rebin(self, num_segments_to_combine, \
+        num_views_to_combine = 1, num_tang_poss_to_trim = 0, \
+        do_normalisation = True, max_in_segment_num_to_process = -1):
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_rebinnedAcquisitionData(self.handle, \
+            num_segments_to_combine, num_views_to_combine, \
+            num_tang_poss_to_trim, do_normalisation, \
+            max_in_segment_num_to_process)
+        check_status(ad.handle)
         return ad
 
 DataContainer.register(AcquisitionData)
@@ -1201,10 +1230,8 @@ class Prior:
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
-##    def set_up(self):
-##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
+    def set_up(self, image):
+        try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
 class QuadraticPrior(Prior):
     '''
@@ -1221,7 +1248,7 @@ class QuadraticPrior(Prior):
 
 class PLSPrior(Prior):
     '''
-    Class for PLS prior
+    Class for PLS prior.
     '''
     def __init__(self):
         self.handle = None
@@ -1231,24 +1258,10 @@ class PLSPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-    def set_alpha(self, n):
-        '''Set alpha.'''
-        _set_float_par(self.handle, self.name, 'alpha', n)
-    def set_eta(self, n):
-        '''Set eta.'''
-        _set_float_par(self.handle, self.name, 'eta', n)
-    def set_only_2D(self, n):
-        '''Set only 2D.'''
-        _set_float_par(self.handle, self.name, 'only_2D', n)
-    def set_kappa_filename(self, name):
-        '''Sets the kappa filename.'''
-        _set_char_par(self.handle, self.name, 'kappa_filename', name)
-    def set_anatomical_filename(self, name):
-        '''Sets the anatomical filename.'''
-        _set_char_par(self.handle, self.name, 'anatomical_filename', name)
-    #def set_up(self):
-    #    '''Sets up the PLS prior.'''
-    #    try_calling(pystir.cSTIR_setupPLSPrior(self.handle))
+    def set_anatomical_image(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior',\
+            'anatomical_image', image.handle)
 
 class ObjectiveFunction:
     '''
@@ -1411,8 +1424,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 ##    def set_zero_seg0_end_planes(self, flag):
 ##        _set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-    def set_max_segment_num_to_process(self, n):
-        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##    def set_max_segment_num_to_process(self, n):
+##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.
@@ -1474,6 +1487,47 @@ class Reconstructor:
         '''
         # TODO: move to C++
         return self.image
+
+class FBP2DReconstructor:
+    '''
+    Class for 2D Filtered Back Projection reconstructor.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pystir.cSTIR_newObject('FBP2D')
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_input(self, input_data):
+        '''Sets the acquisition data to use for reconstruction.
+        '''
+        assert_validity(input_data, AcquisitionData)
+        _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+    def set_zoom(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'zoom', v)
+    def set_alpha_ramp(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'alpha', v)
+    def set_frequency_cut_off(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'fc', v)
+    def set_output_image_size_xy(self, xy):
+        _set_int_par(self.handle, 'FBP2D', 'xy', xy)
+    def set_up(self, image):
+        '''Sets up the reconstructor.
+        '''
+        try_calling(pystir.cSTIR_setupFBP2DReconstruction \
+                    (self.handle, image.handle))
+    def reconstruct(self):
+        '''Performs reconstruction.
+        '''
+        try_calling(pystir.cSTIR_runFBP2DReconstruction(self.handle))
+    def get_output(self):
+        '''Returns the reconstructed image.
+        '''
+        image = ImageData()
+        image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
+        check_status(image.handle)
+        return image
 
 class IterativeReconstructor(Reconstructor):
     '''

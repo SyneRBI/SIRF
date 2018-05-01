@@ -55,6 +55,7 @@ test.check(v)
 
 prior = QuadraticPrior();
 prior.set_penalisation_factor(0.5)
+prior.set_up(image);
 
 prior2 = PLSPrior();
 prior2.set_penalisation_factor(0.5)

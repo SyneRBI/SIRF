@@ -38,6 +38,7 @@ limitations under the License.
 #include "stir/listmode/CListRecord.h"
 #include "stir/listmode/CListEventCylindricalScannerWithDiscreteDetectors.h"
 #include "stir/listmode/LmToProjData.h"
+#include "stir/analytic/FBP2D/FBP2DReconstruction.h"
 #include "stir/OSMAPOSL/OSMAPOSLReconstruction.h"
 #include "stir/OSSPS/OSSPSReconstruction.h"
 #include "stir/ProjDataInfoCylindrical.h"
@@ -47,6 +48,7 @@ limitations under the License.
 #include "stir/recon_buildblock/BinNormalisationFromECAT8.h"
 #include "stir/recon_buildblock/BinNormalisationFromProjData.h"
 #include "stir/recon_buildblock/ChainedBinNormalisation.h"
+#include "stir/recon_buildblock/PLSPrior.h"
 #include "stir/recon_buildblock/PoissonLogLikelihoodWithLinearModelForMeanAndProjData.h"
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
@@ -55,6 +57,7 @@ limitations under the License.
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
+#include "stir/SSRB.h"
 #include "stir/TruncateToCylindricalFOVImageProcessor.h"
 
 #include "stir/StirException.h"

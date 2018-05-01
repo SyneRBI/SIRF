@@ -122,6 +122,7 @@ def main():
     # create prior
     prior = QuadraticPrior()
     prior.set_penalisation_factor(0.5)
+    prior.set_up(image)
 
     # create objective function
     obj_fun = make_Poisson_loglikelihood(acq_data)
