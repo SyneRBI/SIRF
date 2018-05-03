@@ -77,10 +77,11 @@ set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
 # PYTHON_DEST_DIR allows the user to select the install destination of the 
 # SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
-# updated on the GUI. 
+# updated on the GUI.
+# If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
   set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
   if (PYTHON_DEST_DIR)
-   set(PYTHON_DEST "${PYTHON_DEST_DIR }")
+   set(PYTHON_DEST "${PYTHON_DEST_DIR}")
   else() 
     set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
   endif()
@@ -98,6 +99,7 @@ if (BUILD_MATLAB)
 # MATLAB_DEST_DIR allows the user to select the install destination of the 
 # SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
 # updated on the GUI. 
+# If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
   set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
   if (MATLAB_DEST_DIR)
    set(MATLAB_DEST "${MATLAB_DEST_DIR }")
