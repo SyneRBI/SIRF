@@ -102,7 +102,7 @@ if (BUILD_MATLAB)
 # If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
   set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
   if (MATLAB_DEST_DIR)
-   set(MATLAB_DEST "${MATLAB_DEST_DIR }")
+   set(MATLAB_DEST "${MATLAB_DEST_DIR}")
   else() 
     set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
   endif()
