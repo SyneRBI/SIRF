@@ -1,5 +1,5 @@
 # Install python packages via pip and setup.py
-if(PYTHONINTERP_FOUND)
+if(BUILD_PYTHON)
   set(PYTHON_SETUP_PKGS "sirf" CACHE INTERNAL "list of provided python packages")
 
   # alias sirf.p* -> p* for backward-compatibility
@@ -30,20 +30,22 @@ if(PYTHONINTERP_FOUND)
   message(STATUS "setup.py:${SETUP_PY}")
   configure_file("${SETUP_PY_IN}" "${SETUP_PY}")
 
-  # python setup.py build
-  add_custom_command(OUTPUT "${SETUP_PY_INIT}"
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
-    COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
-    COMMAND "${PYTHON_EXECUTABLE}" setup.py build
-    DEPENDS "${SETUP_PY}"
-    WORKING_DIRECTORY "${PYTHON_DEST}")
+  if(PYTHONINTERP_FOUND)
+    # python setup.py build
+    add_custom_command(OUTPUT "${SETUP_PY_INIT}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${PYTHON_DEST}/sirf"
+      COMMAND "${CMAKE_COMMAND}" -E touch "${SETUP_PY_INIT}"
+      COMMAND "${PYTHON_EXECUTABLE}" setup.py build
+      DEPENDS "${SETUP_PY}"
+      WORKING_DIRECTORY "${PYTHON_DEST}")
 
-  add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")
+    add_custom_target(pybuild_sirf ALL DEPENDS "${SETUP_PY_INIT}")
 
-  # python setup.py install
-  if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
-    install(CODE "execute_process(COMMAND\n\
-      \"${PYTHON_EXECUTABLE}\" setup.py install\n\
-      WORKING_DIRECTORY \"${PYTHON_DEST}\")")
-  endif()
-endif(PYTHONINTERP_FOUND)
+    # python setup.py install
+    if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
+      install(CODE "execute_process(COMMAND\n\
+        \"${PYTHON_EXECUTABLE}\" setup.py install\n\
+        WORKING_DIRECTORY \"${PYTHON_DEST}\")")
+    endif()
+  endif(PYTHONINTERP_FOUND)
+endif(BUILD_PYTHON)

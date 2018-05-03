@@ -91,7 +91,7 @@ if (BUILD_PYTHON)
     PYTHONPATH: prefix PYTHONPATH \n\
     SETUP_PY:   execute ${PYTHON_EXECUTABLE} setup.py install \n\
     CONDA:      do nothing")
-endif()
+endif(BUILD_PYTHON)
 
 
 message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
