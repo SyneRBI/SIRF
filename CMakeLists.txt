@@ -75,18 +75,39 @@ find_package(PythonInterp)
 find_package(PythonLibs)
 set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
-  set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+# PYTHON_DEST_DIR allows the user to select the install destination of the 
+# SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
+# updated on the GUI.
+# If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python 
+  set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
+  if (PYTHON_DEST_DIR)
+   set(PYTHON_DEST "${PYTHON_DEST_DIR}")
+  else() 
+    set(PYTHON_DEST "${CMAKE_INSTALL_PREFIX}/python")
+  endif()
   message(STATUS "Python libraries found")
+  message(STATUS "SIRF Python modules will be installed in " ${PYTHON_DEST})
 endif()
 
 
 message(STATUS "Attempting to find MATLAB (This might launch MATLAB so might take a while)")
 FIND_PACKAGE(Matlab COMPONENTS MAIN_PROGRAM)
 set (BUILD_MATLAB ${Matlab_FOUND})
+
 if (BUILD_MATLAB)
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
-  set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
-  message(STATUS "MATLAB libraries found")
+# MATLAB_DEST_DIR allows the user to select the install destination of the 
+# SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
+# updated on the GUI. 
+# If MATLAB_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/matlab 
+  set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
+  if (MATLAB_DEST_DIR)
+   set(MATLAB_DEST "${MATLAB_DEST_DIR}")
+  else() 
+    set(MATLAB_DEST "${CMAKE_INSTALL_PREFIX}/matlab")
+  endif()
+  message(STATUS "Matlab libraries found")
+  message(STATUS "SIRF Matlab libraries will be installed in " ${MATLAB_DEST})
 endif()
 
 if (NOT BUILD_MATLAB AND NOT BUILD_PYTHON)

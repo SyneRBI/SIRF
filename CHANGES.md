@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v1.0.1
+
+* Added PYTHON_DEST_DIR variable, which allows the user to select the install destination of the SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be updated on the GUI. If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python. Likewise for MATLAB_DEST_DIR.
+
 ## v1.0.0
 
 * Access to all MR images and acquisition parameters
