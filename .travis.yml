@@ -63,7 +63,7 @@ env:
  global:
   - BUILD_FLAGS="-DCMAKE_BUILD_TYPE=Release"
   # don't use too many threads - may crash
-  - MAKEFLAGS="-j 1"
+  - MAKEFLAGS="-j 2"
 
 # Ubuntu 14.04 LTS
 dist: trusty
