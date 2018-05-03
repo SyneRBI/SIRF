@@ -470,19 +470,19 @@ class ImageData(DataContainer):
         assert self.handle is not None
         try_calling(pystir.cSTIR_writeImage(self.handle, filename))
     def dimensions(self):
-        '''Returns image dimensions.'''
+        '''Returns image dimensions as a tuple (nx, ny, nz).'''
         assert self.handle is not None
         dim = numpy.ndarray((3,), dtype = numpy.int32)
         try_calling \
             (pystir.cSTIR_getImageDimensions(self.handle, dim.ctypes.data))
-        return tuple(dim)
+        return tuple(dim[::-1])
     def voxel_sizes(self):
-        '''Returns image dimensions as a tuple (nz, ny, nx).'''
+        '''Returns image voxel sizes as a tuple (vx, vy, vz).'''
         assert self.handle is not None
         vs = numpy.ndarray((3,), dtype = numpy.float32)
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
-        return tuple(vs)
+        return tuple(vs[::-1])
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None
@@ -497,7 +497,7 @@ class ImageData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def show(self):
+    def show(self, im_num = None):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -505,6 +505,11 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
+        if im_num is not None:
+            if im_num < 1 or im_num > nz:
+                return
+            show_2D_array('slice %d' % im_num, data[im_num,:,:])
+            return
         print('Please enter slice numbers (e.g.: 1, 3-5)')
         print('(a value outside the range [1 : %d] will stop this loop)' % nz)
         while True:
@@ -644,6 +649,12 @@ class AcquisitionData(DataContainer):
                 # src is a scanner name
                 self.handle = pystir.cSTIR_acquisitionsDataFromScannerInfo\
                     (src, span, max_ring_diff, view_mash_factor)
+                if pyiutil.executionStatus(self.handle) != 0:
+                    msg = pyiutil.executionError(self.handle)
+                    if msg == 'Unknown scanner':
+                        raise error\
+                            ('Unknown scanner ' + src + \
+                             ' or missing raw data file extension')
                 self.src = 'scanner'
         elif isinstance(src, AcquisitionData):
             # src is AcquisitionData
@@ -712,6 +723,20 @@ class AcquisitionData(DataContainer):
         check_status(image.handle)
         image.fill(value)
         return image
+    def dimensions(self):
+        ''' Returns a tuple of the data dimensions:
+        - number of sinograms
+        - number of views
+        - number of tangential positions.
+        '''
+        assert self.handle is not None
+        dim = numpy.ndarray((3,), dtype = numpy.int32)
+        try_calling(pystir.cSTIR_getAcquisitionsDimensions\
+            (self.handle, dim.ctypes.data))
+        nt = dim[0]
+        nv = dim[1]
+        ns = dim[2]
+        return ns, nv, nt
     def as_array(self):
         ''' 
         Returns a copy of acquisition data stored in this object as a
@@ -786,12 +811,53 @@ class AcquisitionData(DataContainer):
         ad.fill(value)
         ad.src = 'copy'
         return ad
+    def rebin(self, num_segments_to_combine, \
+        num_views_to_combine = 1, num_tang_poss_to_trim = 0, \
+        do_normalisation = True, max_in_segment_num_to_process = -1):
+        ad = AcquisitionData()
+        ad.handle = pystir.cSTIR_rebinnedAcquisitionData(self.handle, \
+            num_segments_to_combine, num_views_to_combine, \
+            num_tang_poss_to_trim, do_normalisation, \
+            max_in_segment_num_to_process)
+        check_status(ad.handle)
+        return ad
 
 DataContainer.register(AcquisitionData)
 
 class ListmodeToSinograms:
     '''
     Class for listmode-to-sinogram converter.
+
+    This class reads list mode data and produces corresponding *sinograms*,
+    i.e. histogrammed data in the format of PETAcquisitionData.
+
+    It has two main functions:
+      - process() can be used to read prompts and/or delayed coincidences to
+        produce a single PETAcquisitionData.
+        Two conversion flags decide what is to be done with 3 possible cases:
+        - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts stored
+        - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds stored
+        - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds stored
+        Clearly, enabling the `store_delayeds` option only makes sense if the
+        data was acquired accordingly.
+      - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+        random coincidences.
+
+    Currently, the randoms are estimated from the delayed coincidences using the
+    following strategy:
+       1. singles (one per detector) are estimated using a Maximum Likelihood
+          estimator
+       2. randoms-from-singles are computed per detector-pair via the usual
+          product formula. These are then added together for all detector pairs
+          in a certain histogram-bin in the data (accommodating for view mashing
+          and axial compression).
+
+    The actual algorithm is described in
+
+    D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+    "A study of bias for various iterative reconstruction methods in PET,"
+    in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE,
+    Nov. 2002, pp. 1519-1523 (http://dx.doi.org/10.1109/nssmic.2002.1239610).
     '''
     def __init__(self, file = None):
         self.handle = None
@@ -827,12 +893,14 @@ class ListmodeToSinograms:
         try_calling(pystir.cSTIR_setListmodeToSinogramsInterval\
             (self.handle, interval.ctypes.data))
     def flag_on(self, flag):
-        '''Switches on a conversion flag.
+        '''Switches on (sets to 'true') a conversion flag (see conversion flags
+           description above).
         '''
         try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
             (self.handle, flag, 1))
     def flag_off(self, flag):
-        '''Switches off a conversion flag.
+        '''Switches off (sets to 'false') a conversion flag (see conversion flags
+           description above).
         '''
         try_calling(pystir.cSTIR_setListmodeToSinogramsFlag\
             (self.handle, flag, 0))
@@ -848,13 +916,13 @@ class ListmodeToSinograms:
                            pystir.cSTIR_convertListmodeToSinograms(self.handle)
         check_status(self.output.handle)
     def get_output(self):
-        '''Returns the sinograms.
+        '''Returns the sinograms as an AcquisitionData object.
         '''
         if self.output is None:
             raise error('Conversion to sinograms not done')
         return self.output
     def estimate_randoms(self):
-        '''Estimates randoms.
+        '''Returns an estimate of the randoms as an AcquisitionData object.
         '''
         randoms = AcquisitionData()
         randoms.handle = pystir.cSTIR_computeRandoms(self.handle)
@@ -863,7 +931,7 @@ class ListmodeToSinograms:
 
 class AcquisitionSensitivityModel:
     '''
-    Class than handles PET scanner detector efficiencies and attenuation.
+    Class that handles PET scanner detector efficiencies and attenuation.
 
     Is used by AcquisitionModel (see below) for multiplication by 1/n.
     '''
@@ -917,6 +985,8 @@ class AcquisitionSensitivityModel:
             (self.handle, ad.handle))
     def normalise(self, ad):
         '''Multiplies the argument by n (cf. AcquisitionModel).
+           If self is a chain of two AcquisitionSensitivityModels, then n is
+           a product of two normalisations.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -924,14 +994,17 @@ class AcquisitionSensitivityModel:
             (self.handle, ad.handle, 'normalise'))
     def unnormalise(self, ad):
         '''Multiplies the argument by 1/n (cf. AcquisitionModel).
+           If self is a chain of two AcquisitionSensitivityModels, then n is
+           a product of two normalisations.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
         try_calling(pystir.cSTIR_applyAcquisitionSensitivityModel\
             (self.handle, ad.handle, 'unnormalise'))
     def forward(self, ad):
-        '''Returns a new AcquisitionData equal to the argument multiplied
-           by 1/n (cf. AcquisitionModel).
+        '''Same as unnormalise except that the argument remains unchanged
+           and  a new AcquisitionData equal to the argument multiplied
+           by 1/n is returned.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -941,8 +1014,9 @@ class AcquisitionSensitivityModel:
         check_status(fd.handle)
         return fd
     def invert(self, ad):
-        '''Returns a new AcquisitionData equal to the argument multiplied
-           by n (cf. AcquisitionModel).
+        '''Same as normalise except that the argument remains unchanged
+           and  a new AcquisitionData equal to the argument multiplied
+           by n is returned.
         '''
         assert self.handle is not None
         assert_validity(ad, AcquisitionData)
@@ -1006,14 +1080,6 @@ class AcquisitionModel:
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
-##    def set_normalisation(self, norm):
-##        ''' 
-##        Sets the normalization n in (F);
-##        norm:  an AcquisitionData object containing normalisation n
-##        '''
-##        assert_validity(norm, AcquisitionData)
-##        _setParameter\
-##            (self.handle, 'AcquisitionModel', 'normalisation', norm.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in (F);
@@ -1022,14 +1088,6 @@ class AcquisitionModel:
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
-    def set_bin_efficiency(self, bin_eff):
-        ''' 
-        Sets the bin_efficiency 1/n in (F);
-        bin_eff:  an AcquisitionData object containing bin efficiencies
-        '''
-        assert_validity(bin_eff, AcquisitionData)
-        _setParameter\
-            (self.handle, 'AcquisitionModel', 'bin_efficiency', bin_eff.handle)
     def forward(self, image):
         ''' 
         Returns the forward projection of x given by (F);
@@ -1172,10 +1230,8 @@ class Prior:
         grad.handle = pystir.cSTIR_priorGradient(self.handle, image.handle)
         check_status(grad.handle)
         return grad
-##    def set_up(self):
-##        handle = pystir.cSTIR_setupObject('GeneralisedPrior', self.handle)
-##        check_status(handle)
-##        pyiutil.deleteDataHandle(handle)
+    def set_up(self, image):
+        try_calling(pystir.cSTIR_setupPrior(self.handle, image.handle))
 
 class QuadraticPrior(Prior):
     '''
@@ -1189,6 +1245,23 @@ class QuadraticPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+class PLSPrior(Prior):
+    '''
+    Class for PLS prior.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.name = 'PLSPrior'
+        self.handle = pystir.cSTIR_newObject(self.name)
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_anatomical_image(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior',\
+            'anatomical_image', image.handle)
 
 class ObjectiveFunction:
     '''
@@ -1351,8 +1424,8 @@ class PoissonLogLikelihoodWithLinearModelForMeanAndProjData\
 ##    def set_zero_seg0_end_planes(self, flag):
 ##        _set_char_par\
 ##            (self.handle, self.name, 'zero_seg0_end_planes', repr(flag))
-    def set_max_segment_num_to_process(self, n):
-        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
+##    def set_max_segment_num_to_process(self, n):
+##        _set_int_par(self.handle, self.name, 'max_segment_num_to_process', n)
     def set_acquisition_model(self, am):
         '''
         Sets the acquisition model to be used by this objective function.
@@ -1414,6 +1487,47 @@ class Reconstructor:
         '''
         # TODO: move to C++
         return self.image
+
+class FBP2DReconstructor:
+    '''
+    Class for 2D Filtered Back Projection reconstructor.
+    '''
+    def __init__(self):
+        self.handle = None
+        self.handle = pystir.cSTIR_newObject('FBP2D')
+        check_status(self.handle)
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+    def set_input(self, input_data):
+        '''Sets the acquisition data to use for reconstruction.
+        '''
+        assert_validity(input_data, AcquisitionData)
+        _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
+    def set_zoom(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'zoom', v)
+    def set_alpha_ramp(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'alpha', v)
+    def set_frequency_cut_off(self, v):
+        _set_float_par(self.handle, 'FBP2D', 'fc', v)
+    def set_output_image_size_xy(self, xy):
+        _set_int_par(self.handle, 'FBP2D', 'xy', xy)
+    def set_up(self, image):
+        '''Sets up the reconstructor.
+        '''
+        try_calling(pystir.cSTIR_setupFBP2DReconstruction \
+                    (self.handle, image.handle))
+    def reconstruct(self):
+        '''Performs reconstruction.
+        '''
+        try_calling(pystir.cSTIR_runFBP2DReconstruction(self.handle))
+    def get_output(self):
+        '''Returns the reconstructed image.
+        '''
+        image = ImageData()
+        image.handle = _getParameterHandle(self.handle, 'FBP2D', 'output')
+        check_status(image.handle)
+        return image
 
 class IterativeReconstructor(Reconstructor):
     '''

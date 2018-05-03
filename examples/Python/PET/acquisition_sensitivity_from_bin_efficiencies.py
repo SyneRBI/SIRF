@@ -1,7 +1,7 @@
 '''Acquisition sensitivity model using bin efficiencies sinograms demo.
 
 Usage:
-  acquisition_sensitivity_model [--help | options]
+  acquisition_sensitivity_from_bin_efficiencies [--help | options]
 
 Options:
   -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
@@ -49,7 +49,7 @@ storage = args['--storage']
 
 def main():
 
-    # output goes to files
+    # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme
@@ -79,6 +79,7 @@ def main():
 
     # apply normalization to acquisition data
     ad = acq_data.clone()
+    asm.set_up(ad)
     asm.unnormalise(ad)
     ad_array = ad.as_array()
     show_2D_array('Normalized acquisition data', ad_array[z,:,:])

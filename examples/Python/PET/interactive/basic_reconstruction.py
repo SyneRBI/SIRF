@@ -32,12 +32,12 @@
 
 #%% just check if you ran the previous demo
 if 'image' in globals():
-    print 'Ok, we can proceed'
+    print('Ok, we can proceed')
 else:
-    print 'This script assumes you have run the display_and_projection.py demo first!'
+    print('This script assumes you have run the display_and_projection.py demo first!')
 
 #%% Import some extra functions
-from pUtil import show_2D_array, show_3D_array
+from pUtilities import show_2D_array, show_3D_array
 
 #%% Do a forward projection of our image
 am = pet.AcquisitionModelUsingRayTracingMatrix()
@@ -103,7 +103,9 @@ am2 = pet.AcquisitionModelUsingRayTracingMatrix()
 am2.set_num_tangential_LORs(5);
 am2.set_up(templ,image); 
 # now include the bin efficiencies in our acquisition model
-am2.set_bin_efficiency(bin_efficiencies)
+#am2.set_bin_efficiency(bin_efficiencies)
+asm = pet.AcquisitionSensitivityModel(bin_efficiencies)
+am2.set_acquisition_sensitivity(asm)
 #%% forward project the image again with this acquisition model and display
 acquired_data = am2.forward(image)
 acquisition_array = acquired_data.as_array()

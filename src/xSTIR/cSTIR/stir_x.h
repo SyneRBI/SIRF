@@ -44,10 +44,47 @@ using stir::shared_ptr;
 \ingroup STIR Extensions
 \brief Listmode-to-sinograms converter.
 
+This class reads list mode data and produces corresponding *sinograms*,
+i.e. histogrammed data in the format of PETAcquisitionData.
+
+It has 2 main functions:
+  - process() can be used to read prompts and/or delayed coincidences to produce a single
+    PETAcquisitionData. 2 variables decide what done with 3 possible cases:
+       - `store_prompts`=`true`, `store_delayeds`=`false`: only prompts are stored
+       - `store_prompts`=`false`, `store_delayeds`=`true`: only delayeds are stored
+       - `store_prompts`=`true`, `store_delayeds`=`true`: prompts-delayeds are stored
+    Clearly, enabling the `store_delayeds` option only makes sense if the data was 
+    acquired accordingly.
+  - estimate_randoms() can be used to get a relatively noiseless estimate of the 
+    random coincidences.
+
+Currently, the randoms are estimated from the delayed coincidences using the following
+strategy:
+   1. singles (one per detector) are estimated using a Maximum Likelihood estimator
+   2. randoms-from-singles are computed per detector-pair via the usual product formula.
+      These are then added together for all detector pairs in a certain histogram-bin in the
+      data (accommodating for view mashing and axial compression).
+
+The actual algorithm is described in
+
+> D. Hogg, K. Thielemans, S. Mustafovic, and T. J. Spinks,
+> "A study of bias for various iterative reconstruction methods in PET,"
+> in 2002 IEEE Nuclear Science Symposium Conference Record, vol. 3. IEEE, Nov. 2002, pp. 1519-1523. 
+> [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
 */
 
 class ListmodeToSinograms : public LmToProjData {
 public:
+	//! Constructor. 
+    /*! Takes an optional text string argument with
+	    the name of a STIR parameter file defining the conversion options.
+	    If no argument is given, default settings apply except
+	    for the names of input raw data file, template file and
+	    output filename prefix, which must be set by the user by
+	    calling respective methods.
+        
+        By default, `store_prompts` is `true` and `store_delayeds` is `false`.
+	*/
 	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
 	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
 	ListmodeToSinograms() : LmToProjData()
@@ -66,6 +103,9 @@ public:
 	{
 		input_filename = lm_file;
 	}
+    //! Specifies the prefix for the output file(s), 
+    /*! This will be appended by `_g1f1d0b0.hs`.
+    */
 	void set_output(std::string proj_data_file)
 	{
 		output_filename_prefix = proj_data_file;
@@ -410,7 +450,7 @@ public:
 	// divide by bin efficiencies
 	virtual void normalise(PETAcquisitionData& ad) const;
 protected:
-	shared_ptr<ProjectorByBinPair> sptr_projectors_;
+	shared_ptr<ForwardProjectorByBin> sptr_forw_projector_;
 };
 
 /*!
@@ -430,6 +470,13 @@ public:
 };
 
 class xSTIR_QuadraticPrior3DF : public QuadraticPrior < float > {
+public:
+	void only2D(int only) {
+		only_2D = only != 0;
+	}
+};
+
+class xSTIR_PLSPrior3DF : public PLSPrior < float > {
 public:
 	void only2D(int only) {
 		only_2D = only != 0;
@@ -537,6 +584,65 @@ public:
 	float& relaxation_parameter_value() {
 		return relaxation_parameter;
 	}
+};
+
+class xSTIR_FBP2DReconstruction : public FBP2DReconstruction {
+public:
+	xSTIR_FBP2DReconstruction()
+	{
+		_is_set_up = false;
+	}
+	void set_input(const PETAcquisitionData& acq)
+	{
+		set_input_data(acq.data());
+	}
+	void set_zoom(double z)
+	{
+		zoom = z;
+	}
+	void set_output_image_size_xy(int xy)
+	{
+		output_image_size_xy = xy;
+	}
+	void set_alpha_ramp(double alpha)
+	{
+		// does not work!
+		//assert(alpha > 0 && alpha <= 1.0);
+		if (!(alpha > 0 && alpha <= 1.0))
+			throw LocalisedException
+			("wrong ramp filter parameter alpha", __FILE__, __LINE__);
+		alpha_ramp = alpha;
+	}
+	void set_frequency_cut_off(double fc)
+	{
+		if (!(fc > 0 && fc <= 0.5))
+			throw LocalisedException
+			("wrong frequency cut-off", __FILE__, __LINE__);
+		fc_ramp = fc;
+	}
+	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	{
+		_sptr_image_data.reset(new PETImageData(*sptr_id));
+		_is_set_up = true;
+		return Succeeded::yes;
+	}
+	Succeeded process()
+	{
+		if (!_is_set_up) {
+			shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
+			_sptr_image_data.reset(new PETImageData(sptr_image));
+			return reconstruct(sptr_image);
+		}
+		else
+			return reconstruct(_sptr_image_data->data_sptr());
+	}
+	shared_ptr<PETImageData> get_output()
+	{
+		return _sptr_image_data;
+	}
+protected:
+	bool _is_set_up;
+	shared_ptr<PETImageData> _sptr_image_data;
 };
 
 #endif

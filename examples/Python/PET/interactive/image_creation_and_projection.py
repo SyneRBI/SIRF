@@ -32,12 +32,12 @@
 
 #%% just check if you ran the previous demo
 if 'image' in globals():
-    print 'Ok, we can proceed'
+    print('Ok, we can proceed')
 else:
-    print 'This script assumes you have run the display_and_projection.py demo first!'
+    print('This script assumes you have run the display_and_projection.py demo first!')
 
 #%% Import some extra functions
-from pUtil import show_2D_array, show_3D_array
+from pUtilities import show_2D_array, show_3D_array
 #%% create a shape
 shape = pet.EllipticCylinder()
 # define its size (in mm)

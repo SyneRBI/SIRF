@@ -29,7 +29,7 @@ classdef AcquisitionSensitivityModel < handle
     end
     methods
         function self = AcquisitionSensitivityModel(src, other_src)
-%         Creates new AcquisitionSensitivityModel object
+%***SIRF*** Creates new AcquisitionSensitivityModel object
 %         - from an ECAT8 file or
 %         - from ImageData object containing attenuation image (units: 1/cm) or
 %         - from AcquisitionData object containing bin efficiencies or
@@ -80,6 +80,7 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.check_status([self.name_ ':ctor'], self.handle_)
         end
         function set_up(self, acq_data)
+%***SIRF*** Sets up the object.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
             mUtilities.assert_validity(acq_data, 'AcquisitionData')
@@ -90,6 +91,9 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.delete(h)
         end
         function normalise(self, acq_data)
+%***SIRF*** Multiplies the argument by n (cf. AcquisitionModel).
+%         If self is a chain of two AcquisitionSensitivityModels, then 
+%         n is a product of two normalisations.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
             mUtilities.assert_validity(acq_data, 'AcquisitionData')
@@ -100,6 +104,9 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.delete(h)
         end
         function unnormalise(self, acq_data)
+%***SIRF*** Multiplies the argument by 1/n (cf. AcquisitionModel).
+%         If self is a chain of two AcquisitionSensitivityModels, then 
+%         n is a product of two normalisations.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
             mUtilities.assert_validity(acq_data, 'AcquisitionData')
@@ -110,7 +117,10 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.delete(h)
         end
         function fwd_data = forward(self, acq_data)
-            assert(~isempty(self.handle_),...
+%***SIRF*** Same as unnormalise except that the argument remains unchanged
+%         and a new AcquisitionData equal to the argument multiplied
+%         by 1/n is returned.
+           assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
             mUtilities.assert_validity(acq_data, 'AcquisitionData')
             fwd_data = mSTIR.AcquisitionData();
@@ -120,6 +130,9 @@ classdef AcquisitionSensitivityModel < handle
             mUtilities.check_status([self.name_ ':set_up'], fwd_data.handle_)
         end
         function inv_data = invert(self, acq_data)
+%***SIRF*** Same as normalise except that the argument remains unchanged
+%         and a new AcquisitionData equal to the argument multiplied
+%         by n is returned.
             assert(~isempty(self.handle_),...
                 'empty acquisition sensitivity object')
             mUtilities.assert_validity(acq_data, 'AcquisitionData')

@@ -1,12 +1,12 @@
 '''Acquisition sensitivity model using attenuation image.
 
 Usage:
-  asm_attenuation [--help | options]
+  acquisition_sensitivity_from_attenuation [--help | options]
 
 Options:
-  -t <temp>, --temp=<temp>     raw data template [default: template_span11.hs]
+  -t <temp>, --temp=<temp>     raw data template [default: mMR_template_span11_small.hs]
   -a <attn>, --attn=<attn>     attenuation image file file [default: mu_map.hv]
-  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET/mMR
                                subfolder of SIRF root folder
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
@@ -46,14 +46,17 @@ temp_file = args['--temp']
 attn_file = args['--attn']
 data_path = args['--path']
 if data_path is None:
-    data_path = petmr_data_path('pet')
+    # default to data/examples/PET/mMR
+    # Note: seem to need / even on Windows
+    #data_path = os.path.join(petmr_data_path('pet'), 'mMR')
+    data_path = petmr_data_path('pet') + '/mMR'
 temp_file = existing_filepath(data_path, temp_file)
 attn_file = existing_filepath(data_path, attn_file)
 storage = args['--storage']
 
 def main():
 
-    # messages go to files
+    # direct all engine's messages to files
     msg_red = MessageRedirector('info.txt', 'warn.txt', 'errr.txt')
 
     # select acquisition data storage scheme

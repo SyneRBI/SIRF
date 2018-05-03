@@ -48,7 +48,7 @@ import shutil
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 #%% Use the 'pet' prefix for all SIRF functions
-# This is done here to expliccitly differentiate between SIRF pet functions and 
+# This is done here to explicitly differentiate between SIRF pet functions and 
 # anything else.
 import pSTIR as pet
 
@@ -112,10 +112,10 @@ help(pet.ImageData)
 #%% Use as_array to get the underlying array of numbers
 image_array=image.as_array();
 # This a standard numpy 3D array with its associated methods.
-print image_array.shape
+print(image_array.shape)
 # Whenever we want to do something with the image-values, we have to do it via this array.
 # Let's print a voxel-value.
-print image_array[0,10,20]
+print(image_array[0,10,20])
 
 #%% Manipulate the image data for illustration
 # Multiply the data with a factor
@@ -163,7 +163,7 @@ acquired_data=am.forward(image)
 help(acquired_data)
 #%% Let's get the Python array
 acquisition_array = acquired_data.as_array()
-print acquisition_array.shape
+print(acquisition_array.shape)
 
 #%% Display bitmap of the middle sinogram
 # AcquisitionData are organised by sinograms, so we need to use the first index

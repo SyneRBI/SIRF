@@ -1,4 +1,4 @@
-function using_acquisition_model(engine)
+function acquisition_model(engine)
 % Acquisition model demo: creates an image, forward projects it to simulate
 % acquisition data and then backprojects the result.
 
@@ -6,8 +6,8 @@ function using_acquisition_model(engine)
 % doc AcquisitionModel
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
-% Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% Copyright 2015 - 2017 University College London.
+% Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC.
+% Copyright 2015 - 2018 University College London.
 % 
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -65,16 +65,12 @@ try
     image_array = image.as_array();
     mUtilities.show_2D_array(image_array(:,:,z), 'phantom', 'x', 'y');
 
-    % select the acquisition model that implements the geometric
-    % forward projection by a ray tracing matrix multiplication
-    acq_model = AcquisitionModelUsingRayTracingMatrix();
-    % project the image to obtain simulated acquisition data;
     % raw data selected by the user is used as a template
     [filename, pathname] = uigetfile...
         ('*.hs', 'Select raw data file to be used as a template', pet_data_path);
     template = AcquisitionData(fullfile(pathname, filename));
     
-    % create bin efficiencies
+    % create example bin efficiencies
     bin_eff = template.clone();
     bin_eff.fill(2.0);
     bin_eff_arr = bin_eff.as_array();
@@ -82,12 +78,12 @@ try
     mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
         'bin efficiencies', 'tang. pos.', 'views');
     bin_eff.fill(bin_eff_arr);
-%    acq_model.set_bin_efficiency(bin_eff);
     
     % create acquisition sensitivity model based on bin efficiencies
     as_mod1 = AcquisitionSensitivityModel(bin_eff);
 
     % create acquisition sensitivity model based on other bin efficiencies
+    % to illustrate that AcquisitionSensitivityModel can be combined
     bin_eff_arr(:, 10:50, :) = 2.0;
     bin_eff_arr(:, 60:80, :) = 0;
     mUtilities.show_2D_array(bin_eff_arr(:,:,z), ...
@@ -98,17 +94,24 @@ try
     % chain the two sensitivity models
     as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
     as_model.set_up(template)
+
+    % create acquisition data where every bin is set to 1
     ones = template.get_uniform_copy(1.0);
+
     % apply the chained model to view combined bin efficiencies
     as_model.unnormalise(ones)
     ones_arr = ones.as_array();
     mUtilities.show_2D_array(ones_arr(:,:,z), ...
         'combined bin efficiencies', 'tang. pos.', 'views');
 
-    %as_model = AcquisitionSensitivityModel(as_mod1, as_mod2);
+    % select the acquisition model that implements the geometric
+    % forward projection by a ray tracing matrix multiplication
+    acq_model = AcquisitionModelUsingRayTracingMatrix();
+
     % set acquisition model normalisation
     acq_model.set_acquisition_sensitivity(as_model);
 
+    % project the image to obtain simulated acquisition data
     fprintf('setting up acquisition model...\n')
     acq_model.set_up(template, image)
     fprintf('projecting...\n')
@@ -121,6 +124,7 @@ try
         'simulated acquisition data', 'tang. pos.', 'views');
 
     % backproject the simulated data
+    % note that the backprojection takes the as_model into account as well
     fprintf('backprojecting...\n')
     backprojected_image = acq_model.backward(simulated_data);
     % display backprojected data

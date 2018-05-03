@@ -77,6 +77,10 @@ cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
+cSTIR_setPLSPriorParameter
+(DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
 cSTIR_generalisedObjectiveFunctionParameter
 (const DataHandle* handle, const char* name);
 
@@ -119,5 +123,11 @@ cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 
 void*
 cSTIR_OSSPSParameter(const DataHandle* handle, const char* name);
+
+void*
+cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+
+void*
+cSTIR_FBP2DParameter(DataHandle* hp, const char* name);
 
 #endif

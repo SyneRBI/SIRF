@@ -1,6 +1,17 @@
 # ChangeLog
 
-## v1.0
+## master
+
+* create a python `sirf` package (recommended way of importing)
+  * alias p(Gadgetron|STIR|Utilities) -> sirf.(Gadgetron|STIR|Utilities)
+  * add `setup.py`
+  * expose cmake variable `PYTHON_STRATEGY`. Options:
+    * `PYTHONPATH`: prefix $PYTHONPATH (default)
+    * `SETUP_PY`:   execute `${PYTHON_EXECUTABLE} setup.py install`
+    * `CONDA`:      do nothing
+* Added PYTHON_DEST_DIR variable, which allows the user to select the install destination of the SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be updated on the GUI. If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python. Likewise for MATLAB_DEST_DIR.
+
+## v1.0.0
 
 * Access to all MR images and acquisition parameters
 * All 8 file IO available (PET: Interfile, MR: HDF5)
@@ -8,6 +19,7 @@
   * PETAcquisitionData object creation from scanner name and parameters
   * ListmodeToSinograms converter class, also estimating randoms (from delayed coincidences)
   * Normalization from ECAT8 (Siemens mMR) and attenuation image
+  * Build with OpenMP delivers stable and substantially accelerated performance
 * More documentation
   * Developer's Guide
   * Doxygen inline documentation (available on CCP PETMR website)
@@ -15,6 +27,7 @@
 * Coverage reporting for Python tests done by ctest
 
 ## v0.9.2
+
 - fixed version number and avoid confusing with wrong tag v0.9.1
 
 ## v0.9.1
@@ -32,4 +45,5 @@
 - SuperBuild update for Virtual Machine
 
 ## v0.9.0
+
 - first release

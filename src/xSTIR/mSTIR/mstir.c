@@ -99,6 +99,9 @@ EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme) 
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t) {
 	return cSTIR_acquisitionsDataFromTemplate(ptr_t);
 }
+EXPORTED_FUNCTION 	void* mSTIR_rebinnedAcquisitionData(void* ptr_t, const int num_segments_to_combine, const int num_views_to_combine, const int num_tang_poss_to_trim, const bool do_normalisation, const int max_in_segment_num_to_process ) {
+	return cSTIR_rebinnedAcquisitionData(ptr_t, num_segments_to_combine, num_views_to_combine, num_tang_poss_to_trim, do_normalisation, max_in_segment_num_to_process);
+}
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromScannerInfo (const char* scanner, int span, int max_ring_diff, int view_mash_factor) {
 	return cSTIR_acquisitionsDataFromScannerInfo (scanner, span, max_ring_diff, view_mash_factor);
 }
@@ -119,6 +122,9 @@ EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* p
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
 	return cSTIR_writeAcquisitionData(ptr_acq, filename);
+}
+EXPORTED_FUNCTION 	void* mSTIR_runFBP2DReconstruction(void* ptr_r) {
+	return cSTIR_runFBP2DReconstruction(ptr_r);
 }
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i) {
 	return cSTIR_setupReconstruction(ptr_r, ptr_i);
@@ -143,6 +149,9 @@ EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradient (void* ptr_f, void* ptr
 }
 EXPORTED_FUNCTION 	void* mSTIR_objectiveFunctionGradientNotDivided (void* ptr_f, void* ptr_i, int subset) {
 	return cSTIR_objectiveFunctionGradientNotDivided (ptr_f, ptr_i, subset);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setupPrior(void* ptr_p, void* ptr_i) {
+	return cSTIR_setupPrior(ptr_p, ptr_i);
 }
 EXPORTED_FUNCTION 	void* mSTIR_priorGradient(void* ptr_p, void* ptr_i) {
 	return cSTIR_priorGradient(ptr_p, ptr_i);

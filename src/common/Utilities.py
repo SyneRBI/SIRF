@@ -3,6 +3,7 @@
 import inspect
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy
 import os
 import pyiutilities as pyiutil
 import re
@@ -55,16 +56,21 @@ def existing_filepath(data_path, file_name):
     return full_name
 
 
-def show_2D_array(title, array, colorbar = True):
+def show_2D_array(title, array, scale = None, colorbar = True):
     '''
     Displays a 2D array.
     title   : the figure title
     array   : 2D array
     colorbar: flag specifying whether the colorbar is to be displayed
     '''
+    if scale is None:
+        vmin = numpy.amin(array)
+        vmax = numpy.amax(array)
+    else:
+        vmin, vmax = scale
     plt.figure()
     plt.title(title)
-    plt.imshow(array)
+    plt.imshow(array, vmin = vmin, vmax = vmax)
     if colorbar:
         plt.colorbar()
     fignums = plt.get_fignums()
@@ -90,6 +96,8 @@ def show_3D_array\
                 computed based on the array dimensions
     scale     : tuple (vmin, vmax) for imshow; defaults to the range of
                 array values
+    power     : if present, numpy.power(abs(array), power) is displayed
+                (power < 1 improves visibility of relatively small array values)
     suptitle  : figure title; defaults to None
     titles    : array of tile titles; if not present, each tile title is
                 label + tile_number
@@ -173,10 +181,10 @@ def show_3D_array\
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [1, ny])
         if power is None:
-            imgplot = ax.imshow(array[z,:,:], vmin=vmin, vmax=vmax)
+            imgplot = ax.imshow(array[z,:,:], vmin = vmin, vmax = vmax)
         else:
             imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), \
-                                vmin=vmin, vmax=vmax)
+                                vmin = vmin, vmax = vmax)
     if show:
         fignums = plt.get_fignums()
         last = fignums[-1]
@@ -300,7 +308,8 @@ def check_status(handle, stack = None):
         line = pyiutil.executionErrorLine(handle)
         errorMsg = \
             repr(msg) + ' exception caught at line ' + \
-            repr(line) + ' of ' + file
+            repr(line) + ' of ' + file + '\n' + \
+            'the reconstruction engine output may provide more information'
         raise error(errorMsg)
 
 
