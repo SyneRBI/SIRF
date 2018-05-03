@@ -75,6 +75,9 @@ find_package(PythonInterp)
 find_package(PythonLibs)
 set (BUILD_PYTHON ${PYTHONLIBS_FOUND})
 if (BUILD_PYTHON)
+# PYTHON_DEST_DIR allows the user to select the install destination of the 
+# SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be 
+# updated on the GUI. 
   set(PYTHON_DEST_DIR "" CACHE PATH "Directory of the SIRF Python modules")
   if (PYTHON_DEST_DIR)
    set(PYTHON_DEST "${PYTHON_DEST_DIR }")
@@ -92,6 +95,9 @@ set (BUILD_MATLAB ${Matlab_FOUND})
 
 if (BUILD_MATLAB)
   matlab_get_mex_suffix("${Matlab_ROOT_DIR}" MATLAB_MEX_EXT)
+# MATLAB_DEST_DIR allows the user to select the install destination of the 
+# SIRF matlab modules. MATLAB_DEST_DIR is a cached variable which can be 
+# updated on the GUI. 
   set(MATLAB_DEST_DIR "" CACHE PATH "Directory of the SIRF Matlab libraries")
   if (MATLAB_DEST_DIR)
    set(MATLAB_DEST "${MATLAB_DEST_DIR }")
