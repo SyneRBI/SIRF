@@ -41,7 +41,8 @@ changes between 0.9 and 1.0.
     
       - Docker images with pre-installed software
 
-# SIRF 1.1
+# SIRF 1.x
+These updates will be split over a few intermediate releases.
 
 Target date: Q2 2018
 
