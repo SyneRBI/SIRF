@@ -240,7 +240,84 @@ MRAcquisitionModel::bwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
 		ic.append(iw);
 	}
 }
+/*
+template< typename T>
+void 
+MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
+	MRAcquisitionData& ac, unsigned int& off)
+{
+	ISMRMRD::Image<T>& img = *ptr_img;
 
+	uint16_t const size_x = img.getMatrixSizeX(); 
+	uint16_t const size_y = img.getMatrixSizeY(); 
+	uint16_t const size_z = img.getMatrixSizeZ(); 
+	uint16_t const size_dyn = img.getNumberOfChannels();	
+
+	std::cout << " sx " << size_x << std::endl;
+	std::cout << " sy " << size_y << std::endl;
+	std::cout << " sz " << size_z << std::endl;
+	std::cout << " sc " << size_dyn << std::endl;
+
+	std::string par;
+	ISMRMRD::IsmrmrdHeader header;
+	par = sptr_acqs_->acquisitions_info();
+	ISMRMRD::deserialize(par.c_str(), header);
+	ISMRMRD::Encoding e = header.encoding[0];
+		
+	//int readout = e.encodedSpace.matrixSize.x;
+	unsigned int nx = e.reconSpace.matrixSize.x;
+	unsigned int ny = e.reconSpace.matrixSize.y;
+	unsigned int nz = e.reconSpace.matrixSize.z;
+	unsigned int nc = acq.active_channels();
+	unsigned int readout = acq.number_of_samples();
+
+	std::vector<size_t> dims;
+	dims.push_back(readout);
+	dims.push_back(ny);
+	dims.push_back(nc);
+
+	ISMRMRD::NDArray<complex_float_t> ci(dims);
+	memset(ci.getDataPtr(), 0, ci.getDataSize());
+
+	for (unsigned int c = 0; c < nc; c++) {
+		for (unsigned int y = 0; y < ny; y++) {
+			for (unsigned int x = 0; x < nx; x++) {
+				uint16_t xout = x + (readout - nx) / 2;
+				complex_float_t zi = (complex_float_t)img(x, y);
+				complex_float_t zc = csm(x, y, 0, c);
+				ci(xout, y, c) = zi * zc;
+			}
+		}
+	}
+
+	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+
+	fft2c(ci);
+
+	int y = 0;
+	for (;;){
+		sptr_acqs_->get_acquisition(off + y, acq);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
+			break;
+		y++;
+	}
+	for (;;) {
+		sptr_acqs_->get_acquisition(off + y, acq);
+		int yy = acq.idx().kspace_encode_step_1;
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < readout; s++) {
+				acq.data(s, c) = ci(s, yy, c);
+			}
+		}
+		ac.append_acquisition(acq);
+		y++;
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+			break;
+	}
+	off += y;
+
+}
+*/
 template< typename T>
 void 
 MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,

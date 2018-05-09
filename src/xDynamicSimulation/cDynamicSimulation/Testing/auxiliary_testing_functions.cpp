@@ -489,5 +489,3 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 	
 	return acq_vec;
 }
-
-

@@ -32,6 +32,7 @@ bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 		std::cout << epiph( check_aqu_num[i] ) << std::endl;
 		acq_vec.get_acquisition(check_aqu_num[i], acq);
 
+
 		uint16_t const available_channels = acq.available_channels();
 		std::cout << epiph( available_channels ) << std::endl;
 		std::cout << epiph( acq.getHead().idx.kspace_encode_step_1 ) << std::endl;
@@ -53,5 +54,6 @@ bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 	}
 
 	return true;
+
 }
 
