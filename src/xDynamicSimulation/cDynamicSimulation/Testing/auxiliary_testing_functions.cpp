@@ -422,15 +422,7 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 		unshort const NSamples = size_enc_space.x;
 		unshort const NPhases = size_enc_space.y;
 		unshort const NSlices = size_enc_space.z;
-
-
-		std::cout<< epiph(NChannels )<< std::endl ;
-		std::cout<< epiph(NSamples )<< std::endl ;
-		std::cout<< epiph(NPhases )	<< std::endl ;
-		std::cout<< epiph(NSlices )	<< std::endl ;	
-
-		
-
+	
 		for( unshort iSlice=0; iSlice<NSlices; iSlice++ )
 		{
 			Acquisition acq(NSamples, NChannels);

@@ -363,6 +363,13 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
+
+	size_t const * ci_dims = ci.getDims();
+	for(int i=0; i<7; i++)
+		std::cout <<  ci_dims[i] << std::endl;
+
+
+
 	fft2c(ci);
 
 	int y = 0;

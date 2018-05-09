@@ -29,30 +29,37 @@
 	{
 		try
 		{
-			/*
+			
 			ISMRMRD::Image< complex_float_t > img = aux_test::get_mock_ismrmrd_image_with_cube();
 			CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
 
 			ImagesVector img_vec;
 			img_vec.append(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t> (img));
 
-			ISMRMRD::Acquisition acq = aux_test::get_mock_ismrmrd_acquisition();
+			ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
+			AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
 
-			AcquisitionsVector acq_vec(aux_test::get_serialized_mock_ismrmrd_header());
-			acq_vec.append_acquisition(acq);
 			
-
-			MRAcquisitionModel ma(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(acq_vec) ), 
-				std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
+			MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(acq_vec) ), 
+								  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 
 
 			ImageWrap img_wrap(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
 			AcquisitionsVector target_acqs;
 
 			unsigned int offset = 0;
-			ma.fwd(img_wrap, csm, target_acqs, offset);
-			*/
-			return false;
+			acq_model.fwd(img_wrap, csm, target_acqs, offset);
+			
+			unsigned int const num_stored_acquisitions = target_acqs.items();
+			unsigned int const num_expected_acquisitions = acq_vec.items();
+
+			std::cout << epiph(num_stored_acquisitions) << std::endl;
+			std::cout << epiph(num_expected_acquisitions) << std::endl;
+
+
+			bool number_acquisitions_match = (num_stored_acquisitions == num_expected_acquisitions);
+
+			return number_acquisitions_match;
 		}
 		catch( std::runtime_error const &e)
 		{
