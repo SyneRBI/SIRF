@@ -19,8 +19,8 @@ ISMRMRD::NDArray<complex_float_t> aFullySampledFFT::get_k_data( void )
 }
 
 
-FullySampledCartesianFFT::FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr):
-aFullySampledFFT( hdr )
+FullySampledCartesianFFT::FullySampledCartesianFFT():
+aFullySampledFFT()
 {
 }
 
