@@ -19,7 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 namespace test_aux_test_funs
 {
-
+bool test_get_serialized_ismrmrd_header( void );
 bool test_get_mock_acquisition_vector( void );
 
 }

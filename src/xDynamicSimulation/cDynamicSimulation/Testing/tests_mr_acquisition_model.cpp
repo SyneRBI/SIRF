@@ -23,23 +23,6 @@
 	#include "auxiliary_testing_functions.h"
 
 
-
-	bool tests_mracqmod::test_get_serialized_ismrmrd_header( void )
-	{
-		try
-		{
-			std::string serialized_hdr = aux_test::get_serialized_mock_ismrmrd_header();
-			std::cout << serialized_hdr << std::endl;
-		}
-		catch( std::runtime_error const &e)
-		{
-			std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
-			std::cout << e.what() << std::endl;
-			throw e;
-		}
-		return true;
-	}
-
 	
 
 	bool tests_mracqmod::test_fwd_method( void ) 

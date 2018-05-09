@@ -31,6 +31,7 @@ void run_tests_auxiliary_testing_functions( void )
 
 	bool tests_successful = true;
 
+	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
 	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
 
 	if ( !tests_successful )
@@ -180,7 +181,6 @@ void run_tests_mr_acquisition_model( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= tests_mracqmod::test_get_serialized_ismrmrd_header();
 	tests_successful *= tests_mracqmod::test_fwd_method();
 
 
