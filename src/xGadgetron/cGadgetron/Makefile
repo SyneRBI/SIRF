@@ -207,6 +207,33 @@ cgadgetron.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/build.make src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/cgadgetron.cpp.s
 .PHONY : cgadgetron.cpp.s
 
+encoding.o: encoding.cpp.o
+
+.PHONY : encoding.o
+
+# target to build an object file
+encoding.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/build.make src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/encoding.cpp.o
+.PHONY : encoding.cpp.o
+
+encoding.i: encoding.cpp.i
+
+.PHONY : encoding.i
+
+# target to preprocess a source file
+encoding.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/build.make src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/encoding.cpp.i
+.PHONY : encoding.cpp.i
+
+encoding.s: encoding.cpp.s
+
+.PHONY : encoding.s
+
+# target to generate assembly for a file
+encoding.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/build.make src/xGadgetron/cGadgetron/CMakeFiles/cgadgetron.dir/encoding.cpp.s
+.PHONY : encoding.cpp.s
+
 gadgetron_client.o: gadgetron_client.cpp.o
 
 .PHONY : gadgetron_client.o
@@ -359,6 +386,9 @@ help:
 	@echo "... cgadgetron.o"
 	@echo "... cgadgetron.i"
 	@echo "... cgadgetron.s"
+	@echo "... encoding.o"
+	@echo "... encoding.i"
+	@echo "... encoding.s"
 	@echo "... gadgetron_client.o"
 	@echo "... gadgetron_client.i"
 	@echo "... gadgetron_client.s"

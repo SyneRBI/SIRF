@@ -33,7 +33,8 @@ set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissuepar
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp tissuelabelmapper.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} contrastgenerator.cpp contrastgenerator.h Testing/tests_contrastgenerator.cpp Testing/tests_contrastgenerator.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp phantom_input.h Testing/tests_phantom_input.cpp Testing/tests_phantom_input.h)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} encoding.cpp encoding.h Testing/tests_encoding.cpp Testing/tests_encoding.h)
+#set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} encoding.cpp encoding.h Testing/tests_encoding.cpp Testing/tests_encoding.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_encoding.cpp Testing/tests_encoding.h)
 
 
 

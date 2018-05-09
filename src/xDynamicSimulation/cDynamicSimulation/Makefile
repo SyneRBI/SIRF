@@ -519,33 +519,6 @@ dynamicsimulation_x.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.s
 .PHONY : dynamicsimulation_x.cpp.s
 
-encoding.o: encoding.cpp.o
-
-.PHONY : encoding.o
-
-# target to build an object file
-encoding.cpp.o:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.o
-.PHONY : encoding.cpp.o
-
-encoding.i: encoding.cpp.i
-
-.PHONY : encoding.i
-
-# target to preprocess a source file
-encoding.cpp.i:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.i
-.PHONY : encoding.cpp.i
-
-encoding.s: encoding.cpp.s
-
-.PHONY : encoding.s
-
-# target to generate assembly for a file
-encoding.cpp.s:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.s
-.PHONY : encoding.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -705,9 +678,6 @@ help:
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"
-	@echo "... encoding.o"
-	@echo "... encoding.i"
-	@echo "... encoding.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

@@ -390,6 +390,9 @@ Matlab_MEX_LIBRARY:FILEPATH=Matlab_MEX_LIBRARY-NOTFOUND
 //Matlab installation root path
 Matlab_ROOT_DIR:PATH=
 
+//Directory of the SIRF Python modules
+PYTHON_DEST_DIR:PATH=
+
 //Path to a program.
 PYTHON_EXECUTABLE:FILEPATH=/usr/bin/python
 
@@ -401,6 +404,11 @@ PYTHON_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libpython2.7.so
 
 //Path to a library.
 PYTHON_LIBRARY_DEBUG:FILEPATH=PYTHON_LIBRARY_DEBUG-NOTFOUND
+
+//    PYTHONPATH: prefix PYTHONPATH 
+//\n    SETUP_PY:   execute /usr/bin/python setup.py install 
+//\n    CONDA:      do nothing
+PYTHON_STRATEGY:STRING=PYTHONPATH
 
 //Value Computed by CMake
 SIRF_BINARY_DIR:STATIC=/home/sirfuser/devel/buildVM/sources/SIRF
@@ -716,6 +724,8 @@ PYTHON_INCLUDE_DIR-ADVANCED:INTERNAL=1
 PYTHON_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_LIBRARY_DEBUG
 PYTHON_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//list of provided python packages
+PYTHON_SETUP_PKGS:INTERNAL=sirf
 //ADVANCED property for variable: SWIG_DIR
 SWIG_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: SWIG_VERSION

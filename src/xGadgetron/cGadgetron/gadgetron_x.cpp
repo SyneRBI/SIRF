@@ -31,6 +31,8 @@ limitations under the License.
 #include "data_handle.h"
 #include "gadgetron_x.h"
 
+#include "encoding.h"
+
 using namespace gadgetron;
 
 bool
