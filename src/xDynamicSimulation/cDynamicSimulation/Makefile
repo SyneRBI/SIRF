@@ -195,6 +195,33 @@ TestJobs/fast:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/TestJobs.dir/build
 .PHONY : TestJobs/fast
 
+Testing/all_simulation_tests.o: Testing/all_simulation_tests.cpp.o
+
+.PHONY : Testing/all_simulation_tests.o
+
+# target to build an object file
+Testing/all_simulation_tests.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/all_simulation_tests.cpp.o
+.PHONY : Testing/all_simulation_tests.cpp.o
+
+Testing/all_simulation_tests.i: Testing/all_simulation_tests.cpp.i
+
+.PHONY : Testing/all_simulation_tests.i
+
+# target to preprocess a source file
+Testing/all_simulation_tests.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/all_simulation_tests.cpp.i
+.PHONY : Testing/all_simulation_tests.cpp.i
+
+Testing/all_simulation_tests.s: Testing/all_simulation_tests.cpp.s
+
+.PHONY : Testing/all_simulation_tests.s
+
+# target to generate assembly for a file
+Testing/all_simulation_tests.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/all_simulation_tests.cpp.s
+.PHONY : Testing/all_simulation_tests.cpp.s
+
 Testing/auxiliary_testing_functions.o: Testing/auxiliary_testing_functions.cpp.o
 
 .PHONY : Testing/auxiliary_testing_functions.o
@@ -221,33 +248,6 @@ Testing/auxiliary_testing_functions.s: Testing/auxiliary_testing_functions.cpp.s
 Testing/auxiliary_testing_functions.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/auxiliary_testing_functions.cpp.s
 .PHONY : Testing/auxiliary_testing_functions.cpp.s
-
-Testing/dynamicsimulation_tests.o: Testing/dynamicsimulation_tests.cpp.o
-
-.PHONY : Testing/dynamicsimulation_tests.o
-
-# target to build an object file
-Testing/dynamicsimulation_tests.cpp.o:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.o
-.PHONY : Testing/dynamicsimulation_tests.cpp.o
-
-Testing/dynamicsimulation_tests.i: Testing/dynamicsimulation_tests.cpp.i
-
-.PHONY : Testing/dynamicsimulation_tests.i
-
-# target to preprocess a source file
-Testing/dynamicsimulation_tests.cpp.i:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.i
-.PHONY : Testing/dynamicsimulation_tests.cpp.i
-
-Testing/dynamicsimulation_tests.s: Testing/dynamicsimulation_tests.cpp.s
-
-.PHONY : Testing/dynamicsimulation_tests.s
-
-# target to generate assembly for a file
-Testing/dynamicsimulation_tests.cpp.s:
-	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/dynamicsimulation_tests.cpp.s
-.PHONY : Testing/dynamicsimulation_tests.cpp.s
 
 Testing/tests_auxiliary_input_output.o: Testing/tests_auxiliary_input_output.cpp.o
 
@@ -276,6 +276,33 @@ Testing/tests_auxiliary_input_output.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_input_output.cpp.s
 .PHONY : Testing/tests_auxiliary_input_output.cpp.s
 
+Testing/tests_auxiliary_testing_functions.o: Testing/tests_auxiliary_testing_functions.cpp.o
+
+.PHONY : Testing/tests_auxiliary_testing_functions.o
+
+# target to build an object file
+Testing/tests_auxiliary_testing_functions.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.o
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.o
+
+Testing/tests_auxiliary_testing_functions.i: Testing/tests_auxiliary_testing_functions.cpp.i
+
+.PHONY : Testing/tests_auxiliary_testing_functions.i
+
+# target to preprocess a source file
+Testing/tests_auxiliary_testing_functions.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.i
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.i
+
+Testing/tests_auxiliary_testing_functions.s: Testing/tests_auxiliary_testing_functions.cpp.s
+
+.PHONY : Testing/tests_auxiliary_testing_functions.s
+
+# target to generate assembly for a file
+Testing/tests_auxiliary_testing_functions.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_auxiliary_testing_functions.cpp.s
+.PHONY : Testing/tests_auxiliary_testing_functions.cpp.s
+
 Testing/tests_contrastgenerator.o: Testing/tests_contrastgenerator.cpp.o
 
 .PHONY : Testing/tests_contrastgenerator.o
@@ -302,6 +329,60 @@ Testing/tests_contrastgenerator.s: Testing/tests_contrastgenerator.cpp.s
 Testing/tests_contrastgenerator.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_contrastgenerator.cpp.s
 .PHONY : Testing/tests_contrastgenerator.cpp.s
+
+Testing/tests_encoding.o: Testing/tests_encoding.cpp.o
+
+.PHONY : Testing/tests_encoding.o
+
+# target to build an object file
+Testing/tests_encoding.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_encoding.cpp.o
+.PHONY : Testing/tests_encoding.cpp.o
+
+Testing/tests_encoding.i: Testing/tests_encoding.cpp.i
+
+.PHONY : Testing/tests_encoding.i
+
+# target to preprocess a source file
+Testing/tests_encoding.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_encoding.cpp.i
+.PHONY : Testing/tests_encoding.cpp.i
+
+Testing/tests_encoding.s: Testing/tests_encoding.cpp.s
+
+.PHONY : Testing/tests_encoding.s
+
+# target to generate assembly for a file
+Testing/tests_encoding.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_encoding.cpp.s
+.PHONY : Testing/tests_encoding.cpp.s
+
+Testing/tests_mr_acquisition_model.o: Testing/tests_mr_acquisition_model.cpp.o
+
+.PHONY : Testing/tests_mr_acquisition_model.o
+
+# target to build an object file
+Testing/tests_mr_acquisition_model.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.o
+.PHONY : Testing/tests_mr_acquisition_model.cpp.o
+
+Testing/tests_mr_acquisition_model.i: Testing/tests_mr_acquisition_model.cpp.i
+
+.PHONY : Testing/tests_mr_acquisition_model.i
+
+# target to preprocess a source file
+Testing/tests_mr_acquisition_model.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.i
+.PHONY : Testing/tests_mr_acquisition_model.cpp.i
+
+Testing/tests_mr_acquisition_model.s: Testing/tests_mr_acquisition_model.cpp.s
+
+.PHONY : Testing/tests_mr_acquisition_model.s
+
+# target to generate assembly for a file
+Testing/tests_mr_acquisition_model.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_mr_acquisition_model.cpp.s
+.PHONY : Testing/tests_mr_acquisition_model.cpp.s
 
 Testing/tests_phantom_input.o: Testing/tests_phantom_input.cpp.o
 
@@ -438,6 +519,33 @@ dynamicsimulation_x.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/dynamicsimulation_x.cpp.s
 .PHONY : dynamicsimulation_x.cpp.s
 
+encoding.o: encoding.cpp.o
+
+.PHONY : encoding.o
+
+# target to build an object file
+encoding.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.o
+.PHONY : encoding.cpp.o
+
+encoding.i: encoding.cpp.i
+
+.PHONY : encoding.i
+
+# target to preprocess a source file
+encoding.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.i
+.PHONY : encoding.cpp.i
+
+encoding.s: encoding.cpp.s
+
+.PHONY : encoding.s
+
+# target to generate assembly for a file
+encoding.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/encoding.cpp.s
+.PHONY : encoding.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -561,18 +669,27 @@ help:
 	@echo "... test"
 	@echo "... TestJobs"
 	@echo "... edit_cache"
+	@echo "... Testing/all_simulation_tests.o"
+	@echo "... Testing/all_simulation_tests.i"
+	@echo "... Testing/all_simulation_tests.s"
 	@echo "... Testing/auxiliary_testing_functions.o"
 	@echo "... Testing/auxiliary_testing_functions.i"
 	@echo "... Testing/auxiliary_testing_functions.s"
-	@echo "... Testing/dynamicsimulation_tests.o"
-	@echo "... Testing/dynamicsimulation_tests.i"
-	@echo "... Testing/dynamicsimulation_tests.s"
 	@echo "... Testing/tests_auxiliary_input_output.o"
 	@echo "... Testing/tests_auxiliary_input_output.i"
 	@echo "... Testing/tests_auxiliary_input_output.s"
+	@echo "... Testing/tests_auxiliary_testing_functions.o"
+	@echo "... Testing/tests_auxiliary_testing_functions.i"
+	@echo "... Testing/tests_auxiliary_testing_functions.s"
 	@echo "... Testing/tests_contrastgenerator.o"
 	@echo "... Testing/tests_contrastgenerator.i"
 	@echo "... Testing/tests_contrastgenerator.s"
+	@echo "... Testing/tests_encoding.o"
+	@echo "... Testing/tests_encoding.i"
+	@echo "... Testing/tests_encoding.s"
+	@echo "... Testing/tests_mr_acquisition_model.o"
+	@echo "... Testing/tests_mr_acquisition_model.i"
+	@echo "... Testing/tests_mr_acquisition_model.s"
 	@echo "... Testing/tests_phantom_input.o"
 	@echo "... Testing/tests_phantom_input.i"
 	@echo "... Testing/tests_phantom_input.s"
@@ -588,6 +705,9 @@ help:
 	@echo "... dynamicsimulation_x.o"
 	@echo "... dynamicsimulation_x.i"
 	@echo "... dynamicsimulation_x.s"
+	@echo "... encoding.o"
+	@echo "... encoding.i"
+	@echo "... encoding.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

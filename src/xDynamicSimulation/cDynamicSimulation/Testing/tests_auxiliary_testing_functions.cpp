@@ -9,32 +9,49 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_auxiliary_testing_functions.h"
 
+#include <ismrmrd/ismrmrd.h>
 
-void test_aux_test_funs::test_write_ndarray_to_raw( void )
+#include "gadgetron_data_containers.h" 
+
+
+bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 {
 
-	size_t Nx = 192;
-	size_t Ny = 192; 
-	size_t Nz = 192;
-	size_t Ne = 3;
+	ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
+	AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
 
-	std::vector< size_t > data_size = {Nx, Ny, Nz, Ne};
+	unsigned int num_acquis = acq_vec.number();
+	std::cout<< epiph(num_acquis) << std::endl;
 
 
-	ISMRMRD::NDArray< complex_float_t > dummy_data;
-	dummy_data.resize(data_size);
+	ISMRMRD::Acquisition acq;
+	int const check_aqu_num[3] = {0, 10, 100};
 
-	for( int nz=0; nz<Nz; nz++)
-	for( int ny=0; ny<Ny; ny++)
-	for( int nx=0; nx<Nx; nx++)
-	for( int ne=0; ne<Ne; ne++)
-	{
-		dummy_data(nx,ny,nz,ne) = std::complex<float>(nx*ne, nx*ne);
+	for( int i=0; i<3; i++)
+	{	
+		std::cout << epiph( check_aqu_num[i] ) << std::endl;
+		acq_vec.get_acquisition(check_aqu_num[i], acq);
+
+		uint16_t const available_channels = acq.available_channels();
+		std::cout << epiph( available_channels ) << std::endl;
+		std::cout << epiph( acq.getHead().idx.kspace_encode_step_1 ) << std::endl;
+		std::cout << epiph( acq.getHead().idx.kspace_encode_step_2 ) << std::endl;
 	}
 
+	std::cout << "\n \n" << std::endl;
+	
 
-	std::string output_name = "/media/sf_SharedFiles/test_binary_writer";
+	for( size_t i=0; i<num_acquis; i++ )
+	{
+		acq_vec.get_acquisition(i, acq);
 
-	aux_test::write_ndarray_to_binary<complex_float_t>(output_name, dummy_data);
+		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
+		{
+			std::cout << epiph( acq.getHead().idx.kspace_encode_step_1 ) << std::endl;
+			std::cout << epiph( acq.getHead().idx.kspace_encode_step_2 ) << std::endl;
+		}
+	}
 
+	return true;
 }
+

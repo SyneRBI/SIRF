@@ -20,22 +20,26 @@ include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities)
 
+include_directories(./Testing)
 
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamicsimulation_x.cpp dynamicsimulation_x.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_mr_acquisition_model.cpp Testing/tests_mr_acquisition_model.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} auxiliary_input_output.cpp auxiliary_input_output.h)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp Testing/auxiliary_testing_functions.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_testing_functions.cpp Testing/tests_auxiliary_testing_functions.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_auxiliary_input_output.cpp Testing/tests_auxiliary_input_output.h)
-set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/dynamicsimulation_tests.cpp Testing/dynamicsimulation_tests.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/auxiliary_testing_functions.cpp Testing/auxiliary_testing_functions.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/all_simulation_tests.cpp Testing/all_simulation_tests.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissueparameters.cpp tissueparameters.h Testing/tests_tissueparameters.cpp Testing/tests_tissueparameters.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} tissuelabelmapper.cpp tissuelabelmapper.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} contrastgenerator.cpp contrastgenerator.h Testing/tests_contrastgenerator.cpp Testing/tests_contrastgenerator.h)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp phantom_input.h Testing/tests_phantom_input.cpp Testing/tests_phantom_input.h)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} encoding.cpp encoding.h Testing/tests_encoding.cpp Testing/tests_encoding.h)
 
 
 
 add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
 
-set (dynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+set (cdynamicsimulation "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 
 target_include_directories(cdynamicsimulation PUBLIC "${cDynamicSimulation_INCLUDE_DIR}")
@@ -53,7 +57,7 @@ if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   endforeach()
 else()
   # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(dynamicsimulation Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
+  target_link_libraries(cdynamicsimulation Boost::system Boost::filesystem Boost::thread Boost::date_time Boost::chrono)
 endif()
 
 # Note: cannot use ISMRMRD_LIBRARIES on Windows as it generally contains 
@@ -62,8 +66,15 @@ endif()
 target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
+
+target_link_libraries(cdynamicsimulation cgadgetron)
+
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
+set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpucore)
+set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpufft)
+
+target_link_libraries(cdynamicsimulation ${GADGETRON_LIBRARIES_TOLINK})
 
 #get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 #message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
