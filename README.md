@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Synergistic Image Reconstruction Framework
 
 [![travis-badge]][travis]
@@ -15,3 +16,4 @@ See [our Wiki page for installation instructions](https://github.com/CCPPETMR/SI
 [codecov]: https://codecov.io/gh/CCPPETMR/SIRF
 [travis-badge]: https://travis-ci.org/CCPPETMR/SIRF.svg?branch=master
 [travis]: https://travis-ci.org/CCPPETMR/SIRF
+
