@@ -70,9 +70,11 @@ def show_2D_array(title, array, scale = None, colorbar = True):
         vmin, vmax = scale
     plt.figure()
     plt.title(title)
-    plt.imshow(array, vmin = vmin, vmax = vmax)
     if colorbar:
+        plt.imshow(array, vmin = vmin, vmax = vmax)
         plt.colorbar()
+    else:
+        plt.imshow(array, cmap = 'gray', vmin = vmin, vmax = vmax)
     fignums = plt.get_fignums()
     print('Close Figure %d window to continue...' % fignums[-1])
     plt.show()
@@ -83,7 +85,7 @@ def show_3D_array\
      suptitle = None, titles = None, \
      xlabel = None, ylabel = None, label = None, \
      title_size = None, \
-     show = True):
+     cmap = None, show = True):
     '''
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
@@ -104,6 +106,7 @@ def show_3D_array\
     xlabel    : label for x axis
     ylabel    : label for y axis
     label     : tile title prefix
+    cmap      : colormap
     show      : flag specifying whether the array must be displayed immediately
     '''
     import math
@@ -181,9 +184,9 @@ def show_3D_array\
                 plt.ylabel(ylabel)
                 plt.yticks([0, ny - 1], [1, ny])
         if power is None:
-            imgplot = ax.imshow(array[z,:,:], vmin = vmin, vmax = vmax)
+            imgplot = ax.imshow(array[z,:,:], cmap, vmin = vmin, vmax = vmax)
         else:
-            imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), \
+            imgplot = ax.imshow(numpy.power(abs(array[z,:,:]), power), cmap, \
                                 vmin = vmin, vmax = vmax)
     if show:
         fignums = plt.get_fignums()

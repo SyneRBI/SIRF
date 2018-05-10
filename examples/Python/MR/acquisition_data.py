@@ -141,7 +141,8 @@ def main():
     acq_array = acq_array[:,:ny,:]
     title = 'Acquisition data (magnitude)'
     show_3D_array(acq_array, power = 0.2, suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts', show = False)
+                  xlabel = 'samples', ylabel = 'readouts', \
+                  cmap = 'gray', show = False)
 
     cloned_acq_data = acq_data.clone()
     cloned_acq_array = cloned_acq_data.as_array()
@@ -153,7 +154,8 @@ def main():
     title = 'Cloned acquisition data (magnitude)'
     show_3D_array(cloned_acq_array, power = 0.2, \
                   suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts', show = False)
+                  xlabel = 'samples', ylabel = 'readouts', \
+                  cmap = 'gray', show = False)
 
     # pre-process acquired k-space data
     # Prior to image reconstruction several pre-processing steps such as 
@@ -176,7 +178,7 @@ def main():
     title = 'Processed acquisition data (magnitude)'
     show_3D_array(processed_acq_array, power = 0.2, \
                   suptitle = title, label = 'coil', \
-                  xlabel = 'samples', ylabel = 'readouts')
+                  xlabel = 'samples', ylabel = 'readouts', cmap = 'gray')
 
 try:
     main()
