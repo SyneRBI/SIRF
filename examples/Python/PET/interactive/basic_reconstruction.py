@@ -70,12 +70,12 @@ recon.reconstruct(reconstructed_image)
 #%% display of image
 reconstructed_array=reconstructed_image.as_array()
 slice=reconstructed_array.shape[0]/3;
-show_2D_array('reconstructed image after 5 iterations',reconstructed_array[slice,:,:,]);
+show_2D_array('reconstructed image after 5 sub-iterations',reconstructed_array[slice,:,:,]);
 
 #%% do a another set of iterations
 recon.reconstruct(reconstructed_image)
 reconstructed_array=reconstructed_image.as_array()
-show_2D_array('reconstructed image after 10 iterations',reconstructed_array[slice,:,:,]);
+show_2D_array('reconstructed image after 10 sub-iterations',reconstructed_array[slice,:,:,]);
 
 #%% We now add a multiplicative term to the acquisition model
 # In PET, detector-pairs have different efficiencies. We want to include
@@ -103,9 +103,9 @@ am2 = pet.AcquisitionModelUsingRayTracingMatrix()
 am2.set_num_tangential_LORs(5);
 am2.set_up(templ,image); 
 # now include the bin efficiencies in our acquisition model
-#am2.set_bin_efficiency(bin_efficiencies)
 asm = pet.AcquisitionSensitivityModel(bin_efficiencies)
 am2.set_acquisition_sensitivity(asm)
+am2.set_up(templ,image);
 #%% forward project the image again with this acquisition model and display
 acquired_data = am2.forward(image)
 acquisition_array = acquired_data.as_array()
