@@ -4,7 +4,7 @@ and applying projection from the image space into acquisition space and back
 defined by the aquisition model.
 
 Usage:
-  using_acquisition_model.py [--help | options]
+  acquisition_model.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file

@@ -3,7 +3,7 @@ Upper-level interface demo that illustrates how MR data can be interfaced
 from python.
 
 Usage:
-  using_acquisition_data.py [--help | options]
+  acquisition_data.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file
