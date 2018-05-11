@@ -370,7 +370,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 					uint16_t xout = x + (readout - nx) / 2;
 					complex_float_t zi = (complex_float_t)img(x, y, z);
 					complex_float_t zc = csm(x, y, z, c);
-					ci(xout, y, c) = zi * zc;
+					ci(xout, y, z, c) = zi * zc;
 				}
 			}
 		}
@@ -380,6 +380,13 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	FullySampledCartesianFFT CartFFT;
 	CartFFT.SampleFourierSpace( ci );
+
+	for( int i=0; i<ci.getNumberOfElements(); i++)
+	{
+		if( std::abs(*(ci.getDataPtr() + i )) > 0 )
+			std::cout << *(ci.getDataPtr() + i ) << std::endl;		
+	}	
+	
 	
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
@@ -389,7 +396,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
-
+		
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < readout; s++) {
 				acq.data(s, c) = ci(s, enc_step_1, enc_step_2, c);

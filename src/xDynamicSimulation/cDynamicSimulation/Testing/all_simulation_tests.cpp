@@ -33,6 +33,9 @@ void run_tests_auxiliary_testing_functions( void )
 
 	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
 	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+	tests_successful *= test_aux_test_funs::test_get_mock_csm();
+	tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
+
 
 	if ( !tests_successful )
 	{

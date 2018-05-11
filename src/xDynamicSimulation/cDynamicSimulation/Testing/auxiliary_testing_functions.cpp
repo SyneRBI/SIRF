@@ -332,27 +332,27 @@ ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
 	ISMRMRD::NDArray< complex_float_t > csm(csm_dims);
 
 	for( size_t i=0; i<csm.getNumberOfElements(); i++)
-		*(csm.begin() +i) = 0;
-	
+		*(csm.begin() +i) = std::complex<float> (0,0);
+		
+
 	for(size_t nc=0; nc<MOCK_DATA_NUM_CHANNELS; nc++)
 	{
 		for(size_t nz=0; nz<Nz; nz++)
 		{
-			for(size_t ny; ny<Ny; ny++)
+			for(size_t ny=0; ny<Ny; ny++)
 			{
-				for(size_t nx; nx<Nx; nx++)
+				for(size_t nx=0; nx<Nx; nx++)
 				{
 					if( nc%2 == 0 && nz < MOCK_DATA_MATRIX_SIZE/2)
-						csm(nx, ny, nz, nc) = 1;	
-				
+						csm(nx, ny, nz, nc) = std::complex<float> (1,0);	
+									
 					else if( nc%2 == 1 && nz > MOCK_DATA_MATRIX_SIZE/2 )
-						csm(nx, ny, nz, nc) = 1;	
-
+						csm(nx, ny, nz, nc) = std::complex<float> (1,0);	
 				}
 			}
 		}
 	}
-
+	
 	return csm;
 }
 

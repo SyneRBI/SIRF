@@ -32,6 +32,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFiles/test_data_ismrmrd.h5"
 #define H5_PHANTOM_TEST_PATH "Testing/TestData/h5_testfile_cube_size3.h5"
 #define H5_XCAT_PHANTOM_PATH "Testing/TestData/xcat_tissue_segmentation_uint64.h5"
+#define ACQU_FILE_NAME "/media/sf_SharedFiles/acquisitions_file_fwd_test.h5"
 
 
 // volume sizes
