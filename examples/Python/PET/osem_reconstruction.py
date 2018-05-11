@@ -8,13 +8,13 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
-  -a <file>, --anim=<file>    anatomical image file
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of SIRF root folder
-  -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <iter>, --subiter=<iter> number of sub-iterations [default: 2]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
+  -a <file>, --anim=<file>     anatomical image file
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+                               subfolder of SIRF root folder
+  -s <subs>, --subs=<subs>     number of subsets [default: 12]
+  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
+  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -116,7 +116,7 @@ def main():
     # in order to see the reconstructed image evolution
     # open up the user's access to the iterative process
     # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(num_iterations):
+    for iteration in range(num_subiterations):
         print('\n------------- iteration %d' % iteration)
         # perform one OSMAPOSL iteration
         recon.update_current_estimate()
