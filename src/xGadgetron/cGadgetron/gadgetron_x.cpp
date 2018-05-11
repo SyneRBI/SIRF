@@ -327,11 +327,13 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
 
+	
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
-	//par = ac.acquisitions_info();
+	
 	par = sptr_acqs_->acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
+	
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
 	sptr_acqs_->get_acquisition(0, acq);
@@ -339,55 +341,66 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	//int readout = e.encodedSpace.matrixSize.x;
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;
+	unsigned int nz = e.reconSpace.matrixSize.z;
+	
+	
+	if( img.getMatrixSizeX() != nx ) 
+		throw LocalisedException("Acquisition info contains nx not matching image dimension x", __FILE__, __LINE__);
+	if( img.getMatrixSizeY() != ny  )
+		throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
+	if( img.getMatrixSizeZ() != nz  )
+		throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
+	
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
 
 	std::vector<size_t> dims;
 	dims.push_back(readout);
 	dims.push_back(ny);
+	dims.push_back(nz);
 	dims.push_back(nc);
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
 
 	for (unsigned int c = 0; c < nc; c++) {
-		for (unsigned int y = 0; y < ny; y++) {
-			for (unsigned int x = 0; x < nx; x++) {
-				uint16_t xout = x + (readout - nx) / 2;
-				complex_float_t zi = (complex_float_t)img(x, y);
-				complex_float_t zc = csm(x, y, 0, c);
-				ci(xout, y, c) = zi * zc;
+		for( unsigned int z = 0; z < nz; z++) {
+			for (unsigned int y = 0; y < ny; y++) {
+				for (unsigned int x = 0; x < nx; x++) {
+					uint16_t xout = x + (readout - nx) / 2;
+					complex_float_t zi = (complex_float_t)img(x, y, z);
+					complex_float_t zc = csm(x, y, z, c);
+					ci(xout, y, c) = zi * zc;
+				}
 			}
 		}
 	}
 
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	FullySampledCartesianFFT FFT();
-	FFT.SampleFourierSpace( ci );
-	//fft2c(ci);
+	FullySampledCartesianFFT CartFFT;
+	CartFFT.SampleFourierSpace( ci );
+	
+	unsigned int const num_acq = sptr_acqs_->items(); 
 
-	int y = 0;
-	for (;;){
-		sptr_acqs_->get_acquisition(off + y, acq);
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_SLICE))
-			break;
-		y++;
-	}
-	for (;;) {
-		sptr_acqs_->get_acquisition(off + y, acq);
-		int yy = acq.idx().kspace_encode_step_1;
+	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
+	{
+		sptr_acqs_->get_acquisition(i_acq, acq);
+
+		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
+		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
+
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < readout; s++) {
-				acq.data(s, c) = ci(s, yy, c);
+				acq.data(s, c) = ci(s, enc_step_1, enc_step_2, c);
 			}
 		}
+
+		acq.idx().contrast = img.getContrast();
+
 		ac.append_acquisition(acq);
-		y++;
-		if (acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_SLICE))
-			break;
+
 	}
-	off += y;
 
 }
 

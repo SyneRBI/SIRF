@@ -47,7 +47,7 @@ bool test_enc::test_cube_input()
 bool test_cart_enc::test_sample_fourier_space()
 {
 	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	FullySampledCartesianFFT cart_fft(hdr);
+	FullySampledCartesianFFT cart_fft;
 
 
 	NDArray<complex_float_t> i_dat = aux_test::get_mock_ndarray_with_cube();
