@@ -10,9 +10,9 @@ Options:
                               subfolder of SIRF root folder
   -g <file>, --init=<file>    initial image guess file
                               [default: test_image_PM_QP_6.hv]
-  -f <fact>, --penf=<fact>    penalty factor [default: 0]
+  -f <fact>, --penf=<fact>    penalty factor [default: 1000]
   -s <subs>, --subs=<subs>    number of subsets [default: 4]
-  -i <iter>, --iter=<iter>    number of iterations [default: 2]
+  -i <iter>, --subiter=<iter> number of sub-iterations [default: 2]
   -e <engn>, --engn=<engn>    reconstruction engine [default: STIR]
 '''
 
@@ -44,7 +44,7 @@ exec('from p' + args['--engn'] + ' import *')
 # process command-line options
 pen_factor = args['--penf']
 num_subsets = int(args['--subs'])
-num_subiterations = int(args['--iter'])
+num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
