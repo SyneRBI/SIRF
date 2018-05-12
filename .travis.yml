@@ -111,6 +111,7 @@ before_install:
  # in compounds statements (note that export/cd etc won't persist).
  - |
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
       export BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
       if [ $PYMVER == 2 ]; then
         export PYINST=/System/Library/Frameworks/Python.framework/Versions
@@ -118,15 +119,17 @@ before_install:
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/2.7/lib/libpython2.7.dylib"
         export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/2.7/include/python2.7"
       else
-        brew install python3 || travis_terminate 1
-        export PYINST=/usr/local/Cellar/python3/3.6.4_2/Frameworks/Python.framework/Versions
-        export PY_EXE=$PYINST/$PYMVER.6/bin/python3.6
-        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/3.6/Python"
-        export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/3.6/include/python3.6m"
+        brew upgrade python || travis_terminate 1
+        # find exact location of Python executable to pass to CMake
+        PY_INST=`echo /usr/local/Cellar/python/3.*/Frameworks/Python.framework/Versions/3.*`
+        PY_EXE=$PY_INST/bin/python3
+        PY_LIB=$PY_INST/Python
+        PY_INC=$PY_INST/Headers
+        # This is not necessary if we give the actual path for the executable
+        # BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PY_LIB -DPYTHON_INCLUDE_DIR=$PY_INC"
       fi
       export BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
       ( set -ev
-        brew update
         # boost is already installed but 1.65 doesn't work so update
         brew upgrade boost
         # we currently need boost-python
