@@ -3,7 +3,7 @@ Lower-level interface demo that illustrates creating and running a chain
 of gadgets - shortest version.
 
 Usage:
-  fully_sampled_recon_single_chain.py [--help | options]
+  fully_sampled_recon_single_chain_short.py [--help | options]
 
 Options:
   -f <file>, --file=<file>    raw data file

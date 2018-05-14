@@ -49,7 +49,6 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
-ro_range = literal_eval(args['--range'])
 slcs = int(args['--slices'])
 
 scheme = AcquisitionData.get_storage_scheme()
@@ -79,9 +78,18 @@ def main():
     #    - kspace encode step 1
     acq_data.sort()
 
+    ro_range = literal_eval(args['--range'])
     # retrieve the range of readouts to examine
-    if ro_range[0] >= ro_range[1] or ro_range[1] >= na:
-        raise error('Wrong readouts range')
+##    if ro_range[0] >= ro_range[1] or ro_range[1] > na:
+##        raise error('Wrong readouts range')
+    while ro_range[0] >= ro_range[1] or ro_range[1] > na:
+        print('??? Wrong readouts range (%d, %d)' % ro_range)
+        first = int(input( \
+            'enter the first readout number (0 to %d): ' % (na - 1)))
+        last = int(input( \
+            'enter the last readout number (0 to %d): ' % (na - 1)))
+        ro_range = (first, last + 1)
+
     where = range(ro_range[0], ro_range[1])
 
     # retrieve readouts flags
