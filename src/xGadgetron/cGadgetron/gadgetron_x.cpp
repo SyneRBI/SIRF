@@ -51,11 +51,20 @@ static void
 check_connection(std::string host, std::string port)
 {
 	GTConnector conn;
+	std::string xml_script("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	xml_script += "<gadgetronStreamConfiguration xsi:schemaLocation=";
+	xml_script += "\"http://gadgetron.sf.net/gadgetron gadgetron.xsd\"\n";
+	xml_script += "xmlns=\"http://gadgetron.sf.net/gadgetron\"\n";
+	xml_script += "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\n";
+	xml_script += "</gadgetronStreamConfiguration>\n";
+	std::cout << "checking connection...\n";
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host, port);
+			conn().send_gadgetron_configuration_script(xml_script);
 			conn().send_gadgetron_close();
 			conn().wait();
+			std::cout << "ok\n";
 			break;
 		}
 		catch (...) {
@@ -148,12 +157,13 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
-	check_connection(host_, port_);
+	//check_connection(host_, port_);
 }
 
 void 
 ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
+	//check_connection(host_, port_);
 
 	std::string config = xml();
 	//std::cout << "config:\n" << config << std::endl;
@@ -167,8 +177,10 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
+			//std::cout << "ok so far...\n";
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
+			//std::cout << "still ok...\n";
 
 			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
 
@@ -193,7 +205,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
-	check_connection(host_, port_);
+	//check_connection(host_, port_);
 }
 
 void 
@@ -229,7 +241,7 @@ ImagesProcessor::process(MRImageData& images)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
-	check_connection(host_, port_);
+	//check_connection(host_, port_);
 }
 
 void 
