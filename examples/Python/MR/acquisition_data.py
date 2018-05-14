@@ -10,8 +10,6 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -r <rnge>, --range=<rnge>   range of readouts to examine as string '(a,b)'
-                              [default: (254, 258)]
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
@@ -78,19 +76,9 @@ def main():
     #    - kspace encode step 1
     acq_data.sort()
 
-    ro_range = literal_eval(args['--range'])
-    # retrieve the range of readouts to examine
-##    if ro_range[0] >= ro_range[1] or ro_range[1] > na:
-##        raise error('Wrong readouts range')
-    while ro_range[0] >= ro_range[1] or ro_range[1] > na:
-        print('??? Wrong readouts range (%d, %d)' % ro_range)
-        first = int(input( \
-            'enter the first readout number (0 to %d): ' % (na - 1)))
-        last = int(input( \
-            'enter the last readout number (0 to %d): ' % (na - 1)))
-        ro_range = (first, last + 1)
-
-    where = range(ro_range[0], ro_range[1])
+    first = int(round(max(0, (na - 1)/2 - 1)))
+    last = min(na - 1, first + 3)
+    where = range(first, last + 1)
 
     # retrieve readouts flags
     flags = acq_data.get_info('flags')
