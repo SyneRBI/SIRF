@@ -109,13 +109,12 @@ def main():
         print('writing to %s' % output_file)
         image_data.write(output_file, time_str)
 
-##        saved_image_data = ImageData(output_file)
-##        image_array = saved_image_data.as_array()
-##        print(image_array.shape)
-##        title = 'Reconstructed images (magnitude)'
-##        show_3D_array(abs(image_array), suptitle = title, \
-##                      xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-##                      cmap = 'gray')
+        saved_image_data = ImageData(output_file)
+        image_array = saved_image_data.as_array()
+        title = 'Reconstructed images (magnitude)'
+        show_3D_array(abs(image_array), suptitle = title, \
+                      xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
+                      cmap = 'gray')
     
 try:
     main()

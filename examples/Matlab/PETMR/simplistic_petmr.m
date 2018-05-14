@@ -68,8 +68,12 @@ mUtilities.show_3D_array(abs(mr_image.as_array()), 'MR image data', ...
 
 % convert MR image to PET image
 image_array = abs(mr_image.as_array());
+dim = size(image_array);
+if length(dim) < 3 % there is only one 2D slice, but we need 3 dimensions
+    dim = [dim 1];
+end
 pet_image = PET.ImageData();
-pet_image.initialise(size(image_array));
+pet_image.initialise(dim);
 pet_image.fill(image_array);
 
 % apply PET filter to PET image

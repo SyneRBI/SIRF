@@ -31,6 +31,8 @@ for each change (in particular with a single "subject" line
 followed by an empty line and then more details).
 5. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request)
 (enable changes by project admins.) Be prepared to add further commits to your branch after discussion.
+In the description of the PR, add a statement about which Issue this applies to
+using [a phrase such that github auto-closes the issue when merged to master](https://help.github.com/articles/closing-issues-using-keywords/).
 6. After acceptance of your PR, go home with a nice warm feeling.
 
 ## Project rules
