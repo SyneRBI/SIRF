@@ -33,7 +33,7 @@ limitations under the License.
 
 using namespace gadgetron;
 
-bool
+static bool
 connection_failed(int nt)
 {
 	std::cout << "connection failed";
@@ -45,7 +45,24 @@ connection_failed(int nt)
 		std::cout << std::endl;
 		return true;
 	}
+}
 
+static void
+check_connection(std::string host, std::string port)
+{
+	GTConnector conn;
+	for (int nt = 0; nt < N_TRIALS; nt++) {
+		try {
+			conn().connect(host, port);
+			conn().send_gadgetron_close();
+			conn().wait();
+			break;
+		}
+		catch (...) {
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron server lost, check Gadgetron output");
+		}
+	}
 }
 
 shared_ptr<aGadget> 
@@ -131,6 +148,7 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_connection(host_, port_);
 }
 
 void 
@@ -175,6 +193,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_connection(host_, port_);
 }
 
 void 
@@ -210,6 +229,7 @@ ImagesProcessor::process(MRImageData& images)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_connection(host_, port_);
 }
 
 void 
