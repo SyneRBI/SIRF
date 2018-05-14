@@ -10,8 +10,6 @@ Options:
                               [default: simulated_MR_2D_cartesian.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -r <rnge>, --range=<rnge>   range of readouts to examine as string '(a,b)'
-                              [default: (254, 258)]
   -s <slcs>, --slices=<slcs>  max number of slices to display [default: 8]
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
@@ -49,7 +47,6 @@ data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
     data_path = petmr_data_path('mr')
-ro_range = literal_eval(args['--range'])
 slcs = int(args['--slices'])
 
 scheme = AcquisitionData.get_storage_scheme()
@@ -79,10 +76,9 @@ def main():
     #    - kspace encode step 1
     acq_data.sort()
 
-    # retrieve the range of readouts to examine
-    if ro_range[0] >= ro_range[1] or ro_range[1] >= na:
-        raise error('Wrong readouts range')
-    where = range(ro_range[0], ro_range[1])
+    first = int(round(max(0, (na - 1)/2 - 1)))
+    last = min(na - 1, first + 3)
+    where = range(first, last + 1)
 
     # retrieve readouts flags
     flags = acq_data.get_info('flags')
