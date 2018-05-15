@@ -33,10 +33,10 @@ limitations under the License.
 
 using namespace gadgetron;
 
-bool
+static bool
 connection_failed(int nt)
 {
-	std::cout << "connection failed";
+	std::cout << "connection to gadgetron server failed";
 	if (nt < N_TRIALS - 1) {
 		std::cout << ", trying again...\n";
 		return false;
@@ -45,7 +45,24 @@ connection_failed(int nt)
 		std::cout << std::endl;
 		return true;
 	}
+}
 
+static void
+check_gadgetron_connection(std::string host, std::string port)
+{
+	ImagesProcessor ip;
+	//std::cout << "checking connection...\n";
+	for (int nt = 0; nt < N_TRIALS; nt++) {
+		try {
+			ip.check_connection();
+			//std::cout << "ok\n";
+			break;
+		}
+		catch (...) {
+			if (connection_failed(nt))
+				THROW("Connection to Gadgetron server lost, check Gadgetron output");
+		}
+	}
 }
 
 shared_ptr<aGadget> 
@@ -94,36 +111,27 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 {
 
 	std::string config = xml();
-	//std::cout << config << std::endl;
-
 	GTConnector conn;
-
+	uint32_t nacq = 0;
+	nacq = acquisitions.number();
+	//std::cout << nacq << " acquisitions" << std::endl;
+	ISMRMRD::Acquisition acq_tmp;
 	sptr_acqs_ = acquisitions.new_acquisitions_container();
+
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_ACQUISITION,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientAcquisitionMessageCollector(sptr_acqs_)));
-
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
-
 			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-
-			uint32_t nacq = 0;
-			nacq = acquisitions.number();
-
-			//std::cout << nacq << " acquisitions" << std::endl;
-
-			ISMRMRD::Acquisition acq_tmp;
 			for (uint32_t i = 0; i < nacq; i++) {
 				acquisitions.get_acquisition(i, acq_tmp);
 				conn().send_ismrmrd_acquisition(acq_tmp);
 			}
-
 			conn().send_gadgetron_close();
 			conn().wait();
-
 			break;
 		}
 		catch (...) {
@@ -131,43 +139,38 @@ AcquisitionsProcessor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_gadgetron_connection(host_, port_);
 }
 
 void 
 ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 {
+	//check_gadgetron_connection(host_, port_);
 
 	std::string config = xml();
 	//std::cout << "config:\n" << config << std::endl;
 
-	GTConnector conn;
+	uint32_t nacquisitions = 0;
+	nacquisitions = acquisitions.number();
+	//std::cout << nacquisitions << " acquisitions" << std::endl;
+	ISMRMRD::Acquisition acq_tmp;
 
+	GTConnector conn;
 	sptr_images_.reset(new ImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
-
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
-
 			conn().send_gadgetron_parameters(acquisitions.acquisitions_info());
-
-			uint32_t nacquisitions = 0;
-			nacquisitions = acquisitions.number();
-
-			//std::cout << nacquisitions << " acquisitions" << std::endl;
-
-			ISMRMRD::Acquisition acq_tmp;
 			for (uint32_t i = 0; i < nacquisitions; i++) {
 				acquisitions.get_acquisition(i, acq_tmp);
 				conn().send_ismrmrd_acquisition(acq_tmp);
 			}
-
 			conn().send_gadgetron_close();
 			conn().wait();
-
 			break;
 		}
 		catch (...) {
@@ -175,34 +178,28 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_gadgetron_connection(host_, port_);
 }
 
 void 
 ImagesProcessor::process(MRImageData& images)
 {
 	std::string config = xml();
-	//std::cout << config << std::endl;
-
 	GTConnector conn;
-
 	sptr_images_ = images.new_images_container();
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
-
 	for (int nt = 0; nt < N_TRIALS; nt++) {
 		try {
 			conn().connect(host_, port_);
 			conn().send_gadgetron_configuration_script(config);
-
 			for (unsigned int i = 0; i < images.number(); i++) {
 				ImageWrap& iw = images.image_wrap(i);
 				conn().send_wrapped_image(iw);
 			}
-
 			conn().send_gadgetron_close();
 			conn().wait();
-
 			break;
 		}
 		catch (...) {
@@ -210,9 +207,30 @@ ImagesProcessor::process(MRImageData& images)
 				THROW("Server running Gadgetron not accessible");
 		}
 	}
+	check_gadgetron_connection(host_, port_);
 }
 
-void 
+void
+ImagesProcessor::check_connection()
+{
+	std::string config = xml();
+	GTConnector conn;
+	shared_ptr<MRImageData> sptr_images(new ImagesVector);
+	MRImageData& images = *sptr_images_;
+	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
+		shared_ptr<GadgetronClientMessageReader>
+		(new GadgetronClientImageMessageCollector(sptr_images)));
+	conn().connect(host_, port_);
+	conn().send_gadgetron_configuration_script(config);
+	ISMRMRD::Image<float>* ptr_im = new ISMRMRD::Image<float>(128, 128, 1);
+	memset(ptr_im->getDataPtr(), 0, ptr_im->getDataSize());
+	ImageWrap iw(ptr_im->getDataType(), ptr_im);
+	conn().send_wrapped_image(iw);
+	conn().send_gadgetron_close();
+	conn().wait();
+}
+
+void
 MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
