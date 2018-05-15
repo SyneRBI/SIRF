@@ -23,4 +23,5 @@ bool test_get_serialized_ismrmrd_header( void );
 bool test_get_mock_acquisition_vector( void );
 bool test_get_mock_csm( void );
 bool test_get_mock_coildata_as_cfimage( void );
+bool test_get_mock_ismrmrd_image_with_cube( void );
 }

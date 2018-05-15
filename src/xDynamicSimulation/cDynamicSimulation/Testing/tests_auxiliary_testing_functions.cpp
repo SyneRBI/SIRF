@@ -57,7 +57,6 @@ bool test_aux_test_funs::test_get_mock_acquisition_vector( void )
 		std::cout << epiph( check_aqu_num[i] ) << std::endl;
 		acq_vec.get_acquisition(check_aqu_num[i], acq);
 
-
 		uint16_t const available_channels = acq.available_channels();
 		
 	}
@@ -114,6 +113,42 @@ try
 		name_stream << "/media/sf_SharedFiles/test_mock_coildata_asscfimage_" << dim[0] << "x" <<  dim[1] << "x" << dim[2]*dim[3];
 
 		data_io::write_raw<float>(name_stream.str(), csm_abs.begin(), csm_abs.getNumberOfDataElements());
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+	return true;
+
+}
+
+
+bool test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube( void )
+{
+
+try
+	{
+		ISMRMRD::Image< complex_float_t > img = aux_test::get_mock_ismrmrd_image_with_cube();
+
+		std::vector< size_t > dim;
+		dim.push_back(img.getMatrixSizeX ());
+		dim.push_back(img.getMatrixSizeY ());
+		dim.push_back(img.getMatrixSizeZ ());
+
+		ISMRMRD::NDArray<float> dat( dim );
+		for( int i=0; i<img.getNumberOfDataElements(); i++)
+		{
+			*(dat.begin() + i)  = std::abs( *(img.begin() + i ) );
+		}
+
+
+		std::stringstream name_stream;
+		name_stream << "/media/sf_SharedFiles/test_get_mock_ismrmrd_image_with_cube_" << dim[0] << "x" <<  dim[1] << "x" << dim[2];
+
+		data_io::write_raw<float>(name_stream.str(), dat.begin(), dat.getNumberOfElements());
 
 	}
 	catch( std::runtime_error const &e)

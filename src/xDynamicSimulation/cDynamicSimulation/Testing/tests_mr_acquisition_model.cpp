@@ -21,6 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "auxiliary_testing_functions.h"
+#include "auxiliary_input_output.h"
 
 
 
@@ -38,14 +39,30 @@ bool tests_mracqmod::test_fwd_method( void )
 
 		ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
 		AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
-
 		
 		MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(acq_vec) ), 
 							  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 
-
 		ImageWrap img_wrap(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
 		AcquisitionsVector target_acqs;
+
+
+		ISMRMRD::Image< complex_float_t >* ptr_wrapped_img = (ISMRMRD::Image< complex_float_t >*)img_wrap.ptr_image();
+
+		ISMRMRD::Image< complex_float_t > wrapped_img = *ptr_wrapped_img;
+
+/*		std::vector<float> img_wrap_data;
+		img_wrap_data.resize(wrapped_img.getNumberOfDataElements(), 10);
+		for( int i=0; i<img_wrap_data.size(); i++)
+			img_wrap_data[i] = std::abs( *( wrapped_img.begin() + i ) );
+
+		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgWrapData_fromPTR", &img_wrap_data[0], img_wrap_data.size());
+*/
+		std::vector<float> img_wrap_data;
+		img_wrap_data.resize(img.getNumberOfDataElements(), 10);
+		img_wrap.get_data( &img_wrap_data[0]);
+		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgWrapData", &img_wrap_data[0], img_wrap_data.size());
+	
 
 		unsigned int offset = 0;
 		acq_model.fwd(img_wrap, csm, target_acqs, offset);
@@ -55,7 +72,6 @@ bool tests_mracqmod::test_fwd_method( void )
 
 		std::cout << epiph(num_stored_acquisitions) << std::endl;
 		std::cout << epiph(num_expected_acquisitions) << std::endl;
-
 
 		bool number_acquisitions_match = (num_stored_acquisitions == num_expected_acquisitions);
 
