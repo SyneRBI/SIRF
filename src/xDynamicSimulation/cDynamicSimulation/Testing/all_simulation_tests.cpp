@@ -124,6 +124,7 @@ void run_tests_contrastgenerator(void)
 	tests_successful *=	test_contgen::test_map_flash_contrast();
 	tests_successful *=	test_contgen::test_mr_map_contrast_dim_check();
 
+
 	test_contgen::test_mr_map_contrast_application_to_xcat();
 
 	if ( !tests_successful )

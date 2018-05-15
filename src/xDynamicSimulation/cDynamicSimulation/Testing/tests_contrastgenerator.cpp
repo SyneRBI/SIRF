@@ -92,11 +92,11 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
+
 	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 	std::string name_output_segmentation = SHARED_FOLDER_PATH +"tissue_seg_xcat_test_192x192x192";
 	data_io::write_raw<unsigned int>(name_output_segmentation, segmentation_labels.begin(), segmentation_labels.getNumberOfElements());
-	
 
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
 	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);

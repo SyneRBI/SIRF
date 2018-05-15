@@ -15,10 +15,9 @@ using namespace H5;
 
 ISMRMRD::NDArray< unsigned int > read_segmentation_from_h5( std::string const h5_filename_with_suffix)
 {
-	
 	const H5std_string name_segmentation_dataset = "segmentation";
-	H5File file( h5_filename_with_suffix, H5F_ACC_RDONLY );
 
+	H5File file( h5_filename_with_suffix, H5F_ACC_RDONLY );
 	DataSet dataset = file.openDataSet( name_segmentation_dataset );
 
 	H5T_class_t type_class = dataset.getTypeClass();
