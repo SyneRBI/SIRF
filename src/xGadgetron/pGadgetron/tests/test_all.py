@@ -13,7 +13,7 @@ Options:
 
 {licence}
 """
-from pUtilities import __licence__, RE_PYEXT
+from sirf.Utilities import __licence__, RE_PYEXT
 from glob import glob
 from os import path
 __version__ = "0.2.0"

@@ -8,13 +8,13 @@ Usage:
   osem_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
-  -a <file>, --anim=<file>    anatomical image file
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of SIRF root folder
-  -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
+  -f <file>, --file=<file>     raw data file [default: my_forward_projection.hs]
+  -a <file>, --anim=<file>     anatomical image file
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+                               subfolder of SIRF root folder
+  -s <subs>, --subs=<subs>     number of subsets [default: 12]
+  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
+  -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -44,7 +44,7 @@ exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
-num_iterations = int(args['--iter'])
+num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
@@ -86,24 +86,12 @@ def main():
     # object ad) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0)
 
-    if ai_file is not None:
-        anatomical_image = ImageData()
-        anatomical_image.read_from_file(ai_file)
-        image = anatomical_image.get_uniform_copy()
-        prior = PLSPrior()
-        prior.set_anatomical_image(anatomical_image)
-    else:
-        prior = QuadraticPrior()
-    prior.set_up(image)
-    prior.set_penalisation_factor(1.0)
-
     acq_model.set_up(acq_data, image)
 
     # define objective function to be maximized as
     # Poisson logarithmic likelihood (with linear model for mean)
     obj_fun = make_Poisson_loglikelihood(acq_data)
     obj_fun.set_acquisition_model(acq_model)
-    obj_fun.set_prior(prior)
 
     # select Ordered Subsets Maximum A-Posteriori One Step Late as the
     # reconstruction algorithm (since we are not using a penalty, or prior, in
@@ -128,7 +116,7 @@ def main():
     # in order to see the reconstructed image evolution
     # open up the user's access to the iterative process
     # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(num_iterations):
+    for iteration in range(num_subiterations):
         print('\n------------- iteration %d' % iteration)
         # perform one OSMAPOSL iteration
         recon.update_current_estimate()

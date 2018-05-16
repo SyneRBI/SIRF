@@ -289,6 +289,7 @@ public:
 		return "ImagesProcessor";
 	}
 
+	void check_connection();
 	void process(MRImageData& images);
 	shared_ptr<MRImageData> get_output() 
 	{

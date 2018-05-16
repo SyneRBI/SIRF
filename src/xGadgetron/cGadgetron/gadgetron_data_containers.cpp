@@ -683,7 +683,7 @@ ImagesVector::read(std::string filename)
 		int num_im = ismrmrd_get_number_of_images(&dataset, var);
 		std::cout << "number of images: " << num_im << '\n';
 		ismrmrd_init_image(&im);
-		ismrmrd_read_image(&dataset, var, 1, &im);
+		ismrmrd_read_image(&dataset, var, 0, &im);
 		printf("image data type: %d\n", im.head.data_type);
 		ismrmrd_cleanup_image(&im);
 		ismrmrd_close_dataset(&dataset);
