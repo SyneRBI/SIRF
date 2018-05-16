@@ -235,7 +235,7 @@ ROI_mean_lung = ROI_lung.mean(axis=(1,2,3))
 ROI_std_lung = ROI_lung.std(axis=(1,2,3))
 
 plt.figure()
-plt.hold('on')
+#plt.hold('on')
 plt.subplot(1,2,1)
 plt.plot(ROI_mean_lesion,'k',label='lesion')
 plt.plot(ROI_mean_lung,'r',label='lung')
@@ -297,7 +297,7 @@ for iter in range(1, num_subiters+1):
     all_images[iter,:,:,:] = idata; 
 #%% Plot objective function values
 plt.figure()
-plt.hold('on')
+#plt.hold('on')
 plt.title('Objective function value vs subiterations')
 plt.plot(GD_objective_function_values,'b');
 plt.plot(osem_objective_function_values,'r');
