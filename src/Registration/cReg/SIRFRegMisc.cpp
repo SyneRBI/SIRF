@@ -82,8 +82,10 @@ void save_nifti_image(nifti_image *image, const string filename)
 
     // If the folder doesn't exist, create it
     if (!boost::filesystem::exists(filename_boost.parent_path())) {
-        cout << "\n\tCreating folder: \"" << filename_boost.parent_path().string() << "\"\n" << flush;
-        boost::filesystem::create_directory(filename_boost.parent_path());
+        if (filename_boost.parent_path().string() != "") {
+            cout << "\n\tCreating folder: \"" << filename_boost.parent_path().string() << "\"\n" << flush;
+            boost::filesystem::create_directory(filename_boost.parent_path());
+        }
     }
 
     nifti_set_filenames(image, filename.c_str(), 0, 0);
@@ -141,28 +143,54 @@ vector<shared_ptr<nifti_image> >
     return output;
 }
 
-/// Split and save a multicomponent nifti image
-void save_split_multicomponent_nifti_image(shared_ptr<nifti_image> input, const string filename)
+/// Save a multicomponent nifti image
+void save_multicomponent_nifti_image(shared_ptr<nifti_image> input, const string &filename, const bool &split_xyz, const bool &flip_for_stir)
 {
-    // Split
-    vector<shared_ptr<nifti_image> > components =
-            split_multicomponent_nifti_image(input);
+    std::shared_ptr<nifti_image> im_to_save_sptr;
 
-    // Loop over each component
-    for (int i=0; i<components.size(); i++) {
+    // If the user wants to save it as it is
+    if (!flip_for_stir)
+        im_to_save_sptr = input;
 
-        // Edit the filename
-        string appended_filename;
+    // But if they want to output for stir, need to flip the x-, y- and z-axes
+    else {
+        im_to_save_sptr = make_shared<nifti_image>();
+        // Deep copy the image
+        SIRFRegMisc::copy_nifti_image(im_to_save_sptr,input);
+        // Flip the x-, y- and z-axes
+        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,0);
+        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,1);
+        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,2);
+    }
 
-        if (components.size() == 3) {
-            if      (i == 0) appended_filename = filename + "_x";
-            else if (i == 1) appended_filename = filename + "_y";
-            else if (i == 2) appended_filename = filename + "_z";
+    // Whether anything has been flipped or not, save the result...
+
+    // If the user wants it saved as multicomponent image
+    if (!split_xyz)
+        SIRFRegMisc::save_nifti_image(im_to_save_sptr,filename);
+
+    // If the user wants the multicomponent image split into 3 separate images.
+    else {
+
+        // Split
+        vector<shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(im_to_save_sptr);
+
+        // Loop over each component
+        for (int i=0; i<components.size(); i++) {
+
+            // Edit the filename
+            string appended_filename;
+
+            if (components.size() == 3) {
+                if      (i == 0) appended_filename = filename + "_x";
+                else if (i == 1) appended_filename = filename + "_y";
+                else if (i == 2) appended_filename = filename + "_z";
+            }
+            else appended_filename = filename + "_" + to_string(i+1);
+
+            // And save it
+            save_nifti_image(components[i],appended_filename);
         }
-        else appended_filename = filename + "_" + to_string(i+1);
-
-        // And save it
-        save_nifti_image(components[i],appended_filename);
     }
 }
 
@@ -293,10 +321,10 @@ void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const
     cpp_sptr = make_shared<nifti_image>(*cpp_ptr);
 }
 
-/// Get disp from cpp
-void get_disp_from_cpp(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<nifti_image> &ref_sptr)
+/// Get def from cpp
+void get_def_from_cpp(shared_ptr<nifti_image> &def_sptr, const shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<nifti_image> &ref_sptr)
 {
-    shared_ptr<nifti_image> def_sptr;
+    def_sptr = make_shared<nifti_image>();
     create_def_or_disp_image(def_sptr,ref_sptr);
 
     reg_spline_getDeformationField(cpp_sptr.get(),
@@ -308,12 +336,16 @@ void get_disp_from_cpp(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nift
                                    false, //composition
                                    true // bspline
                                    );
+}
+
+/// Get disp from def
+void get_disp_from_def(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nifti_image> &def_sptr)
+{
     // Get the disp field from the def field
     disp_sptr = make_shared<nifti_image>();
     SIRFRegMisc::copy_nifti_image(disp_sptr,def_sptr);
 
     reg_getDisplacementFromDeformation(disp_sptr.get());
-
 }
 
 /// Multiply image

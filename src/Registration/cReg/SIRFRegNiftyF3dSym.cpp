@@ -83,16 +83,20 @@ void SIRFRegNiftyF3dSym<T>::update()
     _warped_image_sptr = shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
 
     // Get the CPP images
-    shared_ptr<nifti_image> cpp_sptr_fwrd = shared_ptr<nifti_image>(_registration_sptr->GetControlPointPositionImage());
-    shared_ptr<nifti_image> cpp_sptr_back = shared_ptr<nifti_image>(_registration_sptr->GetBackwardControlPointPositionImage());
+    shared_ptr<nifti_image> cpp_fwrd_sptr = shared_ptr<nifti_image>(_registration_sptr->GetControlPointPositionImage());
+    shared_ptr<nifti_image> cpp_back_sptr = shared_ptr<nifti_image>(_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Need to correct the CPP images (otherwise nv=0 and you can't read with matlab)
-    reg_checkAndCorrectDimension(cpp_sptr_fwrd.get());
-    reg_checkAndCorrectDimension(cpp_sptr_back.get());
+    reg_checkAndCorrectDimension(cpp_fwrd_sptr.get());
+    reg_checkAndCorrectDimension(cpp_back_sptr.get());
 
-    // Get the disp fields from the cpp images
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_fwrd_sptr, cpp_sptr_fwrd, _reference_image_sptr);
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_back_sptr, cpp_sptr_back, _reference_image_sptr);
+    // Get deformation fields from cpp
+    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd_sptr,cpp_fwrd_sptr, _reference_image_sptr);
+    SIRFRegMisc::get_def_from_cpp(_def_image_back_sptr,cpp_back_sptr, _reference_image_sptr);
+
+    // Get the displacement fields from the def
+    SIRFRegMisc::get_disp_from_def(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
+    SIRFRegMisc::get_disp_from_def(_disp_image_back_sptr,_def_image_back_sptr);
 
     cout << "\n\nRegistration finished!\n\n";
 }

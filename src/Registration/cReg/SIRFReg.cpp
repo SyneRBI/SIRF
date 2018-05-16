@@ -53,52 +53,39 @@ void SIRFReg::save_warped_image(const string filename) const
     SIRFRegMisc::save_nifti_image(_warped_image_sptr,filename);
 }
 
+void SIRFReg::save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+{
+    save_def_or_disp_field_image(_def_image_fwrd_sptr,filename,split_xyz,flip_for_stir, "fowrard deformation");
+}
+
+void SIRFReg::save_deformation_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+{
+    save_def_or_disp_field_image(_def_image_back_sptr,filename,split_xyz,flip_for_stir, "backwards deformation");
+}
+
 void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
 {
-    save_displacement_field_image(_disp_image_fwrd_sptr,filename,split_xyz,flip_for_stir);
+    save_def_or_disp_field_image(_disp_image_fwrd_sptr,filename,split_xyz,flip_for_stir, "forward displacement");
 }
 
 void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
 {
-    save_displacement_field_image(_disp_image_back_sptr,filename,split_xyz,flip_for_stir);
+    save_def_or_disp_field_image(_disp_image_back_sptr,filename,split_xyz,flip_for_stir, "backwards displacement");
 }
 
-void SIRFReg::save_displacement_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void SIRFReg::save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir, std::string type)
 {
     // Check that the disp image exists
     if (!im_sptr)
-        throw std::runtime_error("Displacement field image not available. Have you run the registration?");
+        throw std::runtime_error("Error, " + type + " image not available. Have you run the registration?");
 
     // Check that filename isn't blank
     if (filename == "")
-        throw std::runtime_error("Error, cannot write displacement field image to file because filename is blank.");
+        throw std::runtime_error("Error, cannot write " + type + " image to file because filename is blank.");
 
-    cout << "\nSaving displacement field image to file (" << filename << ")..." << flush;
+    cout << "\nSaving " + type + " image to file (" << filename << ")..." << flush;
 
-    shared_ptr<nifti_image> im_to_save_sptr;
-
-    // If the user wants to save it as it is
-    if (!flip_for_stir)
-        im_to_save_sptr = im_sptr;
-
-    // But if they want to output for stir, need to flip the z-axis
-    else {
-        im_to_save_sptr = make_shared<nifti_image>();
-        // Deep copy the displacement image
-        SIRFRegMisc::copy_nifti_image(im_to_save_sptr,im_sptr);
-        // Flip the z-axis
-        SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,2);
-    }
-
-    // Whether anything has been flipped or not, save the result...
-
-    // If the user wants it saved as multicomponent image
-    if (!split_xyz)
-        SIRFRegMisc::save_nifti_image(im_to_save_sptr,filename);
-
-    // If the user wants the multicomponent image split into 3 separate images.
-    else
-        SIRFRegMisc::save_split_multicomponent_nifti_image(im_to_save_sptr,filename);
+    SIRFRegMisc::save_multicomponent_nifti_image(im_sptr,filename,split_xyz,flip_for_stir);
 
     cout << "Done.\n";
 }

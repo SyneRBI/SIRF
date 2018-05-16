@@ -76,6 +76,12 @@ void SIRFRegNiftyAladinSym<T>::update()
 
     // Get the forward and backward transformation matrices
     _TM_fwrd_sptr = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
+
+    // Flip translations
+    //_TM_fwrd_sptr->m[0][3] = -_TM_fwrd_sptr->m[0][3];
+    //_TM_fwrd_sptr->m[1][3] = -_TM_fwrd_sptr->m[1][3];
+    //_TM_fwrd_sptr->m[2][3] = -_TM_fwrd_sptr->m[2][3];
+
     _TM_back_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_TM_fwrd_sptr.get()));
 
     cout << "\nPrinting forwards tranformation matrix:\n";
@@ -108,9 +114,15 @@ void SIRFRegNiftyAladinSym<T>::update()
     SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_back_sptr,
                                                     _TM_back_sptr,
                                                     _warped_image_sptr);
-    // Get the forward and backward disp fields from the cpp images
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_fwrd_sptr, cpp_fwrd_sptr, _reference_image_sptr);
-    SIRFRegMisc::get_disp_from_cpp(_disp_image_back_sptr, cpp_back_sptr, _reference_image_sptr);
+
+    // Get deformation fields from cpp
+    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd_sptr,cpp_fwrd_sptr, _reference_image_sptr);
+    SIRFRegMisc::get_def_from_cpp(_def_image_back_sptr,cpp_back_sptr, _reference_image_sptr);
+
+    // Get the displacement fields from the def
+    SIRFRegMisc::get_disp_from_def(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
+    SIRFRegMisc::get_disp_from_def(_disp_image_back_sptr,_def_image_back_sptr);
+
 #endif
 
     cout << "\n\nRegistration finished!\n\n";
@@ -181,7 +193,7 @@ save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::str
     if (filename == "")
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
-    cout << "\nSaving inverse transformation matrix to file (" << filename << ")..." << flush;
+    cout << "\nSaving transformation matrix to file (" << filename << ")..." << flush;
 
     reg_tool_WriteAffineFile(TM_sptr.get(), filename.c_str());
 

@@ -85,4 +85,8 @@ INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
 # Need to include the directory to be able to compile the example programs
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
+ADD_EXECUTABLE(affine_to_disp affine_to_disp.cpp)
+TARGET_LINK_LIBRARIES(affine_to_disp LINK_PUBLIC ${PROJECT_NAME})
+INSTALL(TARGETS affine_to_disp DESTINATION ${CMAKE_INSTALL_PREFIX}/bin    )
+
 ADD_SUBDIRECTORY(tests)
