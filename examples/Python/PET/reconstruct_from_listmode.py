@@ -114,20 +114,19 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
+    # select a slice appropriate for the NEMA acquisition data
+    z = 71
+    #z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # read attenuation image
     attn_image = ImageData(attn_file)
     attn_image_as_array = attn_image.as_array()
-    # select a slice appropriate for the NEMA acquistion data
-    z = 71   
-    # z = attn_image_as_array.shape[0]//2
     show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
-    # object ad) and initialize each voxel to 1.0
+    # object acq_data) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
     # select acquisition model that implements the geometric
@@ -146,10 +145,10 @@ def main():
     bin_eff.fill(1.0)
     print('applying attenuation (please wait, may take a while)...')
     asm_attn.unnormalise(bin_eff)
-    asm_beff = AcquisitionSensitivityModel(bin_eff)
+    asm_attn = AcquisitionSensitivityModel(bin_eff)
 
     # chain attenuation and ECAT8 normalisation
-    asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
+    asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
 
     acq_model.set_acquisition_sensitivity(asm)
     acq_model.set_background_term(randoms)

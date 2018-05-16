@@ -1,5 +1,16 @@
 # ChangeLog
 
+## v1.1.0
+
+* Various bug fixes and corrections
+* `BUILD_STIR_WITH_OPENMP` is now `ON` by default
+* Virtual Machine amendments:
+  * UK English keyboard
+  * Password protection removed from screen lock
+* Gadgetron data processors check for Gadgetron server crash
+* More data files in `SIRF/data/examples/MR`
+* Grayscale plotting enabled
+
 ## v1.1.0-rc.1
 
 * Created a python `sirf` package (recommended way of importing)

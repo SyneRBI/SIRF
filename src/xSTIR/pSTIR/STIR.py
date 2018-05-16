@@ -717,9 +717,14 @@ class AcquisitionData(DataContainer):
         image = ImageData()
         if xy is None:
             image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
-        else:
+        elif isinstance(xy, tuple):
             image.handle = pystir.cSTIR_imageFromAcquisitionDataAndNxNy\
                            (self.handle, xy[1], xy[0])
+        elif isinstance(xy, int):
+            image.handle = pystir.cSTIR_imageFromAcquisitionDataAndNxNy\
+                           (self.handle, xy, xy)
+        else:
+            raise error('Wrong second argument in create_uniform_image')
         check_status(image.handle)
         image.fill(value)
         return image
