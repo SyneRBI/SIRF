@@ -12,7 +12,7 @@ Options:
                                [default: test_image_PM_QP_6.hv]
   -f <fact>, --penf=<fact>     penalty factor [default: 1000]
   -s <subs>, --subs=<subs>     number of subsets [default: 4]
-  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
+  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
   -e <engn>, --engn=<engn>     reconstruction engine [default: STIR]
 '''
 
@@ -98,7 +98,7 @@ def main():
     # rather than allow recon.reconstruct to do all job at once
     for iter in range(num_subiterations):
         print('\n------------- Subiteration %d' % recon.get_subiteration_num())
-        # perform an iteration
+        # perform a sub-iteration
         recon.update(image)
         # display the current image at z = 10
         image_array = image.as_array()

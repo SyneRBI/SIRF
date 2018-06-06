@@ -13,13 +13,13 @@ Options:
   -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
                                subfolder of SIRF root folder
   -s <subs>, --subs=<subs>     number of subsets [default: 12]
-  -i <iter>, --subiter=<iter>  number of sub-iterations [default: 2]
+  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -116,14 +116,14 @@ def main():
     # in order to see the reconstructed image evolution
     # open up the user's access to the iterative process
     # rather than allow recon.reconstruct to do all job at once
-    for iteration in range(num_subiterations):
-        print('\n------------- iteration %d' % iteration)
-        # perform one OSMAPOSL iteration
+    for subiteration in range(num_subiterations):
+        print('\n------------- sub-iteration %d' % subiteration)
+        # perform one OSMAPOSL sub-iteration
         recon.update_current_estimate()
         # copy current image estimate into python array to inspect/process
         image_array = recon.get_current_estimate().as_array()
         # apply user defined image data processor/visualizer
-        processed_image_array = image_data_processor(image_array, iteration + 1)
+        processed_image_array = image_data_processor(image_array, subiteration + 1)
         # fill the current image estimate with new data
         image.fill(processed_image_array)
         recon.set_current_estimate(image)

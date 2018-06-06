@@ -20,7 +20,7 @@ Options:
                               subfolder of SIRF root folder
   -f <fact>, --penf=<fact>    penalty factor [default: 10]
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <iter>, --subiter=<iter>    number of sub-iterations [default: 2]
+  -i <iter>, --subiter=<siter>    number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
