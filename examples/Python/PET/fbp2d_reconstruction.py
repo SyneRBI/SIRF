@@ -83,7 +83,7 @@ def main():
 
     # use a Hann filter
     alpha = 0.5
-    recon.set_alpha_ramp(alpha)
+    recon.set_alpha_cosine_window(alpha)
     recon.reconstruct()
     image = recon.get_output()
     print('--------\n alpha %f' % alpha)

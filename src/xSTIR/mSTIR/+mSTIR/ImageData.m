@@ -160,6 +160,17 @@ classdef ImageData < mSTIR.DataContainer
             mUtilities.check_status('ImageData:add_shape', h);
             mUtilities.delete(h)
         end
+        function dim = size(self)
+%***SIRF*** Returns the dimensions of 3D array of this image values at voxels.
+            ptr_i = libpointer('int32Ptr', zeros(3, 1));
+            h = calllib...
+                ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
+            mUtilities.check_status('ImageData:as_array', h);
+            mUtilities.delete(h)
+            idim = ptr_i.Value;
+            dim = [idim(3) idim(2) idim(1)];
+%             dim = fliplr(idim); % does not work
+        end
         function data = as_array(self)
 %***SIRF*** Returns 3D array of this image values at voxels.
 
@@ -170,7 +181,6 @@ classdef ImageData < mSTIR.DataContainer
                 ('mstir', 'mSTIR_getImageDimensions', self.handle_, ptr_i);
             mUtilities.check_status('ImageData:as_array', h);
             mUtilities.delete(h)
-            %calllib('mutilities', 'mDeleteDataHandle', h)
             dim = ptr_i.Value;
             n = dim(1)*dim(2)*dim(3);
 %             [ptr, data] = calllib...
@@ -183,7 +193,7 @@ classdef ImageData < mSTIR.DataContainer
             mUtilities.delete(h)
             data = reshape(ptr_v.Value, dim(3), dim(2), dim(1));
         end
-        function show(self)
+        function show(self, z)
 %***SIRF*** Interactively plots this image data as a set of 2D image slices.
             data = self.as_array();
             shape = size(data);
@@ -191,6 +201,11 @@ classdef ImageData < mSTIR.DataContainer
             if nz < 1
                 return
             end
+            if nargin > 1
+                the_title = sprintf('Slice %d', z);
+                mUtilities.show_2D_array(data(:,:,z), the_title, 'x', 'y');
+                return
+            end                
             data = data/max(data(:));
             fprintf('Please enter z-slice numbers (ex: 1, 3-5) %s\n', ...
                 'or 0 to stop the loop')

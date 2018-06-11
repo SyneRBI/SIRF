@@ -1496,6 +1496,15 @@ class Reconstructor:
 class FBP2DReconstructor:
     '''
     Class for 2D Filtered Back Projection reconstructor.
+    This is an implementation of the 2D FBP algorithm. 
+    Oblique angles in data will be ignored. The exception is the span=1 case,
+    where the ring differences +1 and -1 are first combined to give indirect
+    sinograms.
+    By default, the algorithm uses the ramp filter. An apodizing filter can be
+    added by using set_alpha_cosine_window and/or set_frequency_cut_off.
+    The apodizing filter in frequency space has the form
+
+        (alpha + (1 - alpha) * cos(pi * f / fc))
     '''
     def __init__(self):
         self.handle = None
@@ -1511,9 +1520,20 @@ class FBP2DReconstructor:
         _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
     def set_zoom(self, v):
         _set_float_par(self.handle, 'FBP2D', 'zoom', v)
-    def set_alpha_ramp(self, v):
+    def set_alpha_cosine_window(self, v):
+        '''
+        Set alpha in the apodizing filter.
+        See the class documentation for the filter. The value of alpha should
+        be between 0.5 and 1. alpha=0.5 corresponds to the Hann filter, while
+        0.54 corresponds to the Hamming filter.
+        '''
         _set_float_par(self.handle, 'FBP2D', 'alpha', v)
     def set_frequency_cut_off(self, v):
+        '''
+        Set the cut-off frequency for the apodizing filter.
+        See the class documentation for the filter. The value of fc should be
+        between 0 and 0.5.
+        '''
         _set_float_par(self.handle, 'FBP2D', 'fc', v)
     def set_output_image_size_xy(self, xy):
         _set_int_par(self.handle, 'FBP2D', 'xy', xy)

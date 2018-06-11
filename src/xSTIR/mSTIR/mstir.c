@@ -123,6 +123,9 @@ EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* p
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
 	return cSTIR_writeAcquisitionData(ptr_acq, filename);
 }
+EXPORTED_FUNCTION 	void* mSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i) {
+	return cSTIR_setupFBP2DReconstruction(ptr_r, ptr_i);
+}
 EXPORTED_FUNCTION 	void* mSTIR_runFBP2DReconstruction(void* ptr_r) {
 	return cSTIR_runFBP2DReconstruction(ptr_r);
 }
