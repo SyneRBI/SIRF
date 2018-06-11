@@ -508,6 +508,7 @@ class ImageData(DataContainer):
         if im_num is not None:
             if im_num < 1 or im_num > nz:
                 return
+            im_num -= 1
             show_2D_array('slice %d' % im_num, data[im_num,:,:])
             return
         print('Please enter slice numbers (e.g.: 1, 3-5)')
