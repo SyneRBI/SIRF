@@ -85,16 +85,18 @@ def main():
         prior = PLSPrior()
         prior.set_anatomical_image(anatomical_image)
         print('using PLS prior...')
+        aimage = prior.get_anatomical_image()
+        aimage.show(1)
     else:
         prior = QuadraticPrior()
         print('using Quadratic prior...')
         # create initial image estimate of dimensions and voxel sizes
         # compatible with the scanner geometry (included in the AcquisitionData
         # object ad) and initialize each voxel to 1.0
+        image = acq_data.create_uniform_image(1.0)
 ##        image = ImageData()
 ##        image.initialise((111, 111, 31), (3.0, 3.0, 3.375))
 ##        image.fill(1.0)
-        image = acq_data.create_uniform_image(1.0)
 
     prior.set_up(image)
     prior.set_penalisation_factor(float(pen_factor))

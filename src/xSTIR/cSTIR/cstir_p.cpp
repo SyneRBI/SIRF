@@ -318,10 +318,16 @@ cSTIR_PLSPriorParameter
 		objectFromHandle<PLSPrior<float> >(hp);
 	if (boost::iequals(name, "only_2D"))
 		return dataHandle<int>(prior.get_only_2D());
-	else if (boost::iequals(name, "anatomical_image"))
-		return newObjectHandle(prior.get_anatomical_image_sptr());
-	else if (boost::iequals(name, "kappa"))
-		return newObjectHandle(prior.get_kappa_sptr());
+	else if (boost::iequals(name, "anatomical_image")) {
+		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
+		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		return newObjectHandle(sptr_id);
+	}
+	else if (boost::iequals(name, "kappa")) {
+		sptrImage3DF sptr_im = prior.get_kappa_sptr();
+		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		return newObjectHandle(sptr_id);
+	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

@@ -1268,6 +1268,12 @@ class PLSPrior(Prior):
         assert isinstance(image, ImageData)
         _setParameter(self.handle, 'PLSPrior',\
             'anatomical_image', image.handle)
+    def get_anatomical_image(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter\
+            (self.handle, 'PLSPrior', 'anatomical_image')
+        check_status(image.handle)
+        return image
 
 class ObjectiveFunction:
     '''
