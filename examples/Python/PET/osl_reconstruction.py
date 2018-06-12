@@ -14,13 +14,13 @@ Usage:
   OSL_reconstruction [--help | options]
 
 Options:
-  -f <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
+  -d <file>, --file=<file>    raw data file [default: my_forward_projection.hs]
   -a <file>, --anim=<file>    anatomical image file
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -f <fact>, --penf=<fact>    penalty factor [default: 10]
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <iter>, --subiter=<siter>    number of sub-iterations [default: 2]
+  -i <iter>, --subiter=<iter>    number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
@@ -84,11 +84,16 @@ def main():
         image = anatomical_image.get_uniform_copy()
         prior = PLSPrior()
         prior.set_anatomical_image(anatomical_image)
+        print('using PLS prior...')
     else:
         prior = QuadraticPrior()
+        print('using Quadratic prior...')
         # create initial image estimate of dimensions and voxel sizes
         # compatible with the scanner geometry (included in the AcquisitionData
         # object ad) and initialize each voxel to 1.0
+##        image = ImageData()
+##        image.initialise((111, 111, 31), (3.0, 3.0, 3.375))
+##        image.fill(1.0)
         image = acq_data.create_uniform_image(1.0)
 
     prior.set_up(image)
@@ -119,9 +124,14 @@ def main():
 
     # reconstruct from the initial image estimate
     # (check the OSEM demo to learn how to display results during sub-iterations)
+    print('reconstructing...')
     recon.reconstruct(image)
-    image.show()
+    image.show(1)
 
+##    v = image.as_array()
+##    nz, ny, nx = v.shape
+##    for z in range(nz):
+##        print(numpy.amin(v[z,:,:]), numpy.amax(v[z,:,:]))
 
 # if anything goes wrong, an exception will be thrown 
 # (cf. Error Handling section in the spec)
