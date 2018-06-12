@@ -1264,6 +1264,15 @@ class PLSPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_only_2D(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        _set_int_par(self.handle, 'PLSPrior', 'only_2D', v)
+    def get_only_2D(self):
+        v = _int_par(self.handle, 'PLSPrior', 'only_2D')
+        return v != 0
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
         _setParameter(self.handle, 'PLSPrior',\
@@ -1272,6 +1281,14 @@ class PLSPrior(Prior):
         image = ImageData()
         image.handle = pystir.cSTIR_parameter\
             (self.handle, 'PLSPrior', 'anatomical_image')
+        check_status(image.handle)
+        return image
+    def set_kappa(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
+    def get_kappa(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
         check_status(image.handle)
         return image
 
