@@ -82,19 +82,28 @@ def main():
         anatomical_image = ImageData()
         anatomical_image.read_from_file(ai_file)
         image = anatomical_image.get_uniform_copy()
+        kappa = anatomical_image.get_uniform_copy()
         prior = PLSPrior()
         prior.set_anatomical_image(anatomical_image)
+        prior.set_kappa(kappa)
+        prior.set_only_2D(True)
         print('using PLS prior...')
+        aimage = prior.get_anatomical_image()
+        aimage.show(1)
+        kimage = prior.get_kappa()
+        kimage.show(1)
+        tf = prior.get_only_2D()
+        print(tf)
     else:
         prior = QuadraticPrior()
         print('using Quadratic prior...')
         # create initial image estimate of dimensions and voxel sizes
         # compatible with the scanner geometry (included in the AcquisitionData
         # object ad) and initialize each voxel to 1.0
+        image = acq_data.create_uniform_image(1.0)
 ##        image = ImageData()
 ##        image.initialise((111, 111, 31), (3.0, 3.0, 3.375))
 ##        image.fill(1.0)
-        image = acq_data.create_uniform_image(1.0)
 
     prior.set_up(image)
     prior.set_penalisation_factor(float(pen_factor))
