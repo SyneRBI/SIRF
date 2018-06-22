@@ -104,7 +104,7 @@ def main():
         image_array = image.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(image_array[10,:,:])
-        print('close Figure %d window to continue' % (iter + 1))
+        print('You may neet to close Figure %d window to continue' % (iter + 1))
     pylab.show()
 
     # interactively display the reconstructed image
