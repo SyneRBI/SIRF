@@ -48,7 +48,8 @@ Converters for data from other scanners are available from [https://github.com/i
 
 ### PET <a name="PET"></a>
 
-STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for file format conversion, estimation of randoms and scatter etc. Therefore, in the current SIRF release, we do not yet support measured data from any scanner. This will be fixed for version 1.0. 
+STIR (and therefore SIRF) can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for scatter estimation, so this is currently not yet supported in SIRF. Hopefully this will be fixed in 
+the next version. 
 
 # Where to find further information <a name="Further_information"></a>
 
