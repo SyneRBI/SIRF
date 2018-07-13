@@ -76,12 +76,6 @@ void SIRFRegNiftyAladinSym<T>::update()
 
     // Get the forward and backward transformation matrices
     _TM_fwrd_sptr = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
-
-    // Flip translations
-    //_TM_fwrd_sptr->m[0][3] = -_TM_fwrd_sptr->m[0][3];
-    //_TM_fwrd_sptr->m[1][3] = -_TM_fwrd_sptr->m[1][3];
-    //_TM_fwrd_sptr->m[2][3] = -_TM_fwrd_sptr->m[2][3];
-
     _TM_back_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_TM_fwrd_sptr.get()));
 
     cout << "\nPrinting forwards tranformation matrix:\n";
@@ -89,22 +83,18 @@ void SIRFRegNiftyAladinSym<T>::update()
     cout << "\nPrinting backwards tranformation matrix:\n";
     SIRFRegMisc::print_mat44(_TM_back_sptr.get());
 
-    // Need to prepare a deformation field image for getting the forwards and backwards disp images
-    shared_ptr<nifti_image> def_sptr;
-    SIRFRegMisc::create_def_or_disp_image(def_sptr,_reference_image_sptr);
 
 #if NIFTYREG_VER_1_5
-    // forward: affine->def->disp
-    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), def_sptr.get());
-    _disp_image_fwrd_sptr = make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(_disp_image_fwrd_sptr,def_sptr);
-    reg_getDisplacementFromDeformation(_disp_image_fwrd_sptr.get());
+    // affine->def->disp
+    SIRFRegMisc::create_def_or_disp_image(_def_image_fwrd_sptr,_reference_image_sptr);
+    SIRFRegMisc::create_def_or_disp_image(_def_image_back_sptr,_reference_image_sptr);
 
-    // backward: affine->def->disp
-    reg_affine_getDeformationField(_TM_back_sptr.get(), def_sptr.get());
-    _disp_image_back_sptr = make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(_disp_image_back_sptr,def_sptr);
-    reg_getDisplacementFromDeformation(_disp_image_back_sptr.get());
+    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), _def_image_fwrd_sptr.get());
+    reg_affine_getDeformationField(_TM_back_sptr.get(), _def_image_back_sptr.get());
+
+    SIRFRegMisc::copy_nifti_image(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
+    SIRFRegMisc::copy_nifti_image(_disp_image_back_sptr,_def_image_back_sptr);
+
 #elif NIFTYREG_VER_1_3
     // Convert the forward and backward transformation matrices to cpp images
     shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
@@ -119,11 +109,11 @@ void SIRFRegNiftyAladinSym<T>::update()
     SIRFRegMisc::get_def_from_cpp(_def_image_fwrd_sptr,cpp_fwrd_sptr, _reference_image_sptr);
     SIRFRegMisc::get_def_from_cpp(_def_image_back_sptr,cpp_back_sptr, _reference_image_sptr);
 
+#endif
+
     // Get the displacement fields from the def
     SIRFRegMisc::get_disp_from_def(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
     SIRFRegMisc::get_disp_from_def(_disp_image_back_sptr,_def_image_back_sptr);
-
-#endif
 
     cout << "\n\nRegistration finished!\n\n";
 }

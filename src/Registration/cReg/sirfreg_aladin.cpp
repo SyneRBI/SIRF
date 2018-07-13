@@ -21,39 +21,39 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Convert affine transformation matrix to displacement or deformation field image(s)
+\brief Perform niftyreg aladin registration
 
 \author Richard Brown
 \author CCP PETMR
 */
 
-#include <iostream>
-#include "SIRFRegMisc.h"
-#if NIFTYREG_VER_1_5
-#include "_reg_globalTrans.h"
-#endif
+#include "SIRFRegNiftyAladinSym.h"
 
 using namespace std;
 
-/// Print usage
+/// print usage
 void print_usage()
 {
-    cout << "\n*** affine_to_disp usage ***\n";
+    cout << "\n*** sirfreg_aladin usage ***\n";
 
     // Required flags
     cout << "\n  Required flags:\n";
-    cout << "    -TM:\taffine transformation matrix\n";
     cout << "    -ref:\treference image\n";
+    cout << "    -flo:\tfloating image\n";
+    cout << "    -par:\tparameter file\n";
 
     // Optional flags
-    cout << "\n  Optional flags (but at least one is required):\n";
+    cout << "\n  Optional flags:\n";
+    cout << "    -warped:\twarped image filename\n";
+    cout << "    -TM_fwrd:\tforward transformation matrix\n";
+    cout << "    -TM_back:\tbackwards transformation matrix\n";
     cout << "    -disp_4D:\t4D forward displacement field image\n";
     cout << "    -disp_3D:\t3D forward displacement field image\n";
     cout << "    -def_4D:\t4D forward deformation field image\n";
     cout << "    -def_3D:\t3D forward deformation field image\n";
 }
 
-/// Find flag
+/// find flag
 int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required=false)
 {
     for (int i=0; i<unused_flags.size(); i++) {
@@ -75,7 +75,6 @@ int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required
 /// main
 int main(int argc, char* argv[])
 {
-
     try {
         // Create a list of all unused flags
         vector<int> unused_flags;
@@ -88,22 +87,33 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
 
+        SIRFRegNiftyAladinSym<float> aladin;
 
 
         // ------------------------------------------------ //
         // Required flags
         // ------------------------------------------------ //
 
-        int flag_TM = find_flag(unused_flags,argv,"-TM",true);
-        string TM_filename = argv[flag_TM+1];
-
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        string ref_filename = argv[flag_ref+1];
+        aladin.set_reference_image_filename(argv[flag_ref+1]);
+
+        int flag_flo = find_flag(unused_flags,argv,"-flo",true);
+        aladin.set_floating_image_filename(argv[flag_flo+1]);
+
+        int flag_par = find_flag(unused_flags,argv,"-par",true);
+        aladin.set_parameter_file(argv[flag_par+1]);
 
 
         // ------------------------------------------------ //
         // Optional flags
         // ------------------------------------------------ //
+
+        // Warped image
+        int flag_warped   = find_flag(unused_flags,argv,"-warped");
+
+        // TMs
+        int flag_TM_fwrd  = find_flag(unused_flags,argv,"-TM_fwrd");
+        int flag_TM_back  = find_flag(unused_flags,argv,"-TM_back");
 
         // Disp field images
         int flag_disp_4D = find_flag(unused_flags,argv,"-disp_4D");
@@ -112,16 +122,6 @@ int main(int argc, char* argv[])
         // Def field images
         int flag_def_4D  = find_flag(unused_flags,argv,"-def_4D");
         int flag_def_3D  = find_flag(unused_flags,argv,"-def_3D");
-
-        // If all are blank nothing to do
-        if (flag_def_3D == -1 &&
-                flag_def_4D  == -1 &&
-                flag_disp_3D == -1 &&
-                flag_disp_4D == -1) {
-            cout << "\nRequired at least one output type. Exiting...\n";
-            print_usage();
-            return EXIT_FAILURE;
-        }
 
 
         // ------------------------------------------------ //
@@ -137,46 +137,42 @@ int main(int argc, char* argv[])
 
 
         // ------------------------------------------------ //
-        // Do the conversion
+        // Update
         // ------------------------------------------------ //
 
-        // Open the transformation matrix
-        std::shared_ptr<mat44> TM_sptr;
-        SIRFRegMisc::open_transformation_matrix(TM_sptr,TM_filename);
+        aladin.update();
 
-        // Create images
-        shared_ptr<nifti_image> ref_sptr, cpp_sptr, def_sptr, disp_sptr;
 
-        // Open reference image
-        SIRFRegMisc::open_nifti_image(ref_sptr, ref_filename);
+        // ------------------------------------------------ //
+        // Save results
+        // ------------------------------------------------ //
 
-        // Get the deformation field image
-#if NIFTYREG_VER_1_5
-        SIRFRegMisc::create_def_or_disp_image(def_sptr,ref_sptr);
-        reg_affine_getDeformationField(TM_sptr.get(), def_sptr.get());
-#elif NIFTYREG_VER_1_3
-        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM_sptr, ref_sptr);
-        SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);
-#endif
+        // Warped image
+        if (flag_warped != -1)
+            aladin.save_warped_image(argv[flag_warped+1]);
 
-        // Get the displacement fields from the def
-        SIRFRegMisc::get_disp_from_def(disp_sptr,def_sptr);
+        // TMs
+        if (flag_TM_fwrd != -1)
+            aladin.save_transformation_matrix_fwrd(argv[flag_TM_fwrd+1]);
+        if (flag_TM_back != -1)
+            aladin.save_transformation_matrix_back(argv[flag_TM_back+1]);
 
-        // If they want to save the deformation field images
-        if (flag_def_4D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(def_sptr,argv[flag_def_4D+1],false);
-        if (flag_def_3D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(def_sptr,argv[flag_def_3D+1],true);
-        // If they want to save the displacement field images
+        // Disp field images
         if (flag_disp_4D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(disp_sptr,argv[flag_disp_4D+1],false);
+            aladin.save_displacement_field_fwrd_image(argv[flag_disp_4D+1],false);
         if (flag_disp_3D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(disp_sptr,argv[flag_disp_3D+1],true);
+            aladin.save_displacement_field_fwrd_image(argv[flag_disp_3D+1],true);
 
+        // Def field images
+        if (flag_def_4D != -1)
+            aladin.save_deformation_field_fwrd_image(argv[flag_def_4D+1],false);
+        if (flag_def_3D != -1)
+            aladin.save_deformation_field_fwrd_image(argv[flag_def_3D+1],true);
+    }
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    catch(const exception &error) {
+        cerr << "\nError encountered:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

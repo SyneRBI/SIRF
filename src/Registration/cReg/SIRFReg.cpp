@@ -53,27 +53,27 @@ void SIRFReg::save_warped_image(const string filename) const
     SIRFRegMisc::save_nifti_image(_warped_image_sptr,filename);
 }
 
-void SIRFReg::save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void SIRFReg::save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_def_image_fwrd_sptr,filename,split_xyz,flip_for_stir, "fowrard deformation");
+    save_def_or_disp_field_image(_def_image_fwrd_sptr,filename,split_xyz,"fowrard deformation");
 }
 
-void SIRFReg::save_deformation_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void SIRFReg::save_deformation_field_back_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_def_image_back_sptr,filename,split_xyz,flip_for_stir, "backwards deformation");
+    save_def_or_disp_field_image(_def_image_back_sptr,filename,split_xyz,"backwards deformation");
 }
 
-void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_disp_image_fwrd_sptr,filename,split_xyz,flip_for_stir, "forward displacement");
+    save_def_or_disp_field_image(_disp_image_fwrd_sptr,filename,split_xyz,"forward displacement");
 }
 
-void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_disp_image_back_sptr,filename,split_xyz,flip_for_stir, "backwards displacement");
+    save_def_or_disp_field_image(_disp_image_back_sptr,filename,split_xyz,"backwards displacement");
 }
 
-void SIRFReg::save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir, std::string type)
+void SIRFReg::save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, std::string type)
 {
     // Check that the disp image exists
     if (!im_sptr)
@@ -85,7 +85,7 @@ void SIRFReg::save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &i
 
     cout << "\nSaving " + type + " image to file (" << filename << ")..." << flush;
 
-    SIRFRegMisc::save_multicomponent_nifti_image(im_sptr,filename,split_xyz,flip_for_stir);
+    SIRFRegMisc::save_multicomponent_nifti_image(im_sptr,filename,split_xyz);
 
     cout << "Done.\n";
 }

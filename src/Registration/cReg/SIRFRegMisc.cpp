@@ -72,9 +72,8 @@ void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::p
 /// Save nifti image
 void save_nifti_image(nifti_image *image, const string filename)
 {
-    if (!image) {
+    if (!image)
         throw runtime_error("Cannot save image to file.");
-    }
 
     cout << "\nSaving image to file (" << filename << ")..." << flush;
 
@@ -101,96 +100,81 @@ void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
 
 /// Split multi-component image
 vector<shared_ptr<nifti_image> >
-    split_multicomponent_nifti_image(shared_ptr<nifti_image> input)
+    split_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr)
 {
     // Only works for ndim==5
-    if (input->ndim != 5)
+    if (input_sptr->ndim != 5)
         throw runtime_error("Splitting only currently works for ndim==5.");
 
     // Create the vector to store the single component images
     vector<shared_ptr<nifti_image> > output;
 
     // Loop over all of the components
-    int num_components = input->dim[5];
+    int num_components = input_sptr->dim[5];
     for (int component=0; component<num_components; component++) {
 
         // Create new image
-        nifti_image *image;
+        nifti_image *image_ptr;
 
         // Copy the input image
-        image = nifti_copy_nim_info(input.get());
+        image_ptr = nifti_copy_nim_info(input_sptr.get());
 
         // Alter the info to change the number of dimensions
-        image->dim[0] = image->ndim = 3;
-        image->dim[5] = image->nu   = 1;
-        image->nvox   = input->nvox / input->nu;
+        image_ptr->dim[0] = image_ptr->ndim = 3;
+        image_ptr->dim[5] = image_ptr->nu   = 1;
+        image_ptr->nvox   = image_ptr->nvox / input_sptr->nu;
 
         // How much memory do we need?
-        size_t mem = image->nvox*image->nbyper;
+        size_t mem = image_ptr->nvox*image_ptr->nbyper;
 
         // Allocate the data
-        image->data=(void *)malloc(mem);
+        image_ptr->data=(void *)malloc(mem);
 
         // Start index
         size_t index = mem*component;
 
-        // Copy the data - assume that the highest dimension are stored first.
-        memcpy(image->data,static_cast<char*>(input.get()->data)+index,mem);
+        // Copy the data, assuming that the highest dimension are stored first.
+        char *src  = static_cast<char*>(input_sptr->data);
+        char *dest = static_cast<char*>(image_ptr->data);
+        memcpy(dest, src+index, mem);
+
+        // The code was vector. now set to none
+        image_ptr->intent_code = NIFTI_INTENT_NONE;
 
         // Add to vector of single-component images
-        output.push_back(make_shared<nifti_image>(*image));
+        output.push_back(make_shared<nifti_image>(*image_ptr));
     }
+
     return output;
 }
 
 /// Save a multicomponent nifti image
-void save_multicomponent_nifti_image(shared_ptr<nifti_image> input, const string &filename, const bool &split_xyz, const bool &flip_for_stir)
+void save_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr, const string &filename, const bool &split_xyz)
 {
-    std::shared_ptr<nifti_image> im_to_save_sptr;
-
-    // If the user wants to save it as it is
-    if (!flip_for_stir)
-        im_to_save_sptr = input;
-
-    // But if they want to output for stir, need to flip the x-, y- and z-axes
-    else {
-        im_to_save_sptr = make_shared<nifti_image>();
-        // Deep copy the image
-        SIRFRegMisc::copy_nifti_image(im_to_save_sptr,input);
-        // Flip the x-, y- and z-axes
-        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,0);
-        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,1);
-        //SIRFRegMisc::flip_multicomponent_image(im_to_save_sptr,2);
+    // If the user wants it saved as multicomponent image
+    if (!split_xyz) {
+        SIRFRegMisc::save_nifti_image(input_sptr,filename);
+        return;
     }
 
-    // Whether anything has been flipped or not, save the result...
+    // Else, the user wants the multicomponent image split into 3 separate images.
+    vector<shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(input_sptr);
 
-    // If the user wants it saved as multicomponent image
-    if (!split_xyz)
-        SIRFRegMisc::save_nifti_image(im_to_save_sptr,filename);
+    // Loop over each component
+    for (int i=0; i<components.size(); i++) {
 
-    // If the user wants the multicomponent image split into 3 separate images.
-    else {
+        // Edit the filename
+        string appended_filename;
 
-        // Split
-        vector<shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(im_to_save_sptr);
-
-        // Loop over each component
-        for (int i=0; i<components.size(); i++) {
-
-            // Edit the filename
-            string appended_filename;
-
-            if (components.size() == 3) {
-                if      (i == 0) appended_filename = filename + "_x";
-                else if (i == 1) appended_filename = filename + "_y";
-                else if (i == 2) appended_filename = filename + "_z";
-            }
-            else appended_filename = filename + "_" + to_string(i+1);
-
-            // And save it
-            save_nifti_image(components[i],appended_filename);
+        if (components.size() == 3) {
+            if      (i == 0) appended_filename = filename + "_x";
+            else if (i == 1) appended_filename = filename + "_y";
+            else if (i == 2) appended_filename = filename + "_z";
         }
+        else appended_filename = filename + "_" + to_string(i+1);
+
+        // And save it
+        save_nifti_image(components[i],appended_filename);
     }
 }
 
@@ -230,15 +214,11 @@ void flip_multicomponent_image(shared_ptr<nifti_image> &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
-    // Check the dimension to flip
+    // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
         throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
-
-    // Check that the number of dims==5 (this is a multicomponent nifti image)
     if (im->dim[0] != 5)
         throw runtime_error("\n\tNifti image is not a multicomponent image.");
-
-    // Check that the dim size of the multicomponent dimension ==3
     if (im->nu != 3)
         throw runtime_error("\n\tMulticomponent aspect should contain three values (x,y,z).");
 
@@ -289,24 +269,26 @@ void create_def_or_disp_image(shared_ptr<nifti_image> &output_sptr, const shared
     output_ptr->datatype = DT_FLOAT32;
     output_ptr->nbyper = sizeof(float);
     output_ptr->data = (void *)calloc(output_ptr->nvox, output_ptr->nbyper);
+    output_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
     output_sptr = make_shared<nifti_image>(*output_ptr);
 }
 
+#if NIFTYREG_VER_1_3
 /// Get cpp from transformation matrix
 void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<mat44> &TM_sptr, const shared_ptr<nifti_image> &warped_sptr)
 {
     // Copy info from the reference image
-    cpp_sptr = make_shared<nifti_image>();
     nifti_image *cpp_ptr = cpp_sptr.get();
     cpp_ptr = nifti_copy_nim_info(warped_sptr.get());
 
     // Edit some of the information to make it a cpp image
-    cpp_ptr->dim[0]   = cpp_ptr->ndim = 5;
-    cpp_ptr->dim[5]   = cpp_ptr->nu   = 3;
-    cpp_ptr->datatype = 16;
-    cpp_ptr->nbyper   = 4;
-    cpp_ptr->nvox    *= 3;
+    cpp_ptr->dim[0]      = cpp_ptr->ndim = 5;
+    cpp_ptr->dim[5]      = cpp_ptr->nu   = 3;
+    cpp_ptr->datatype    = 16;
+    cpp_ptr->nbyper      = 4;
+    cpp_ptr->nvox       *= 3;
+    cpp_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
     // Allocate memory
     cpp_ptr->data=(void *)malloc(cpp_ptr->nvox*cpp_ptr->nbyper);
@@ -320,7 +302,7 @@ void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const
     // Copy output
     cpp_sptr = make_shared<nifti_image>(*cpp_ptr);
 }
-
+#endif
 /// Get def from cpp
 void get_def_from_cpp(shared_ptr<nifti_image> &def_sptr, const shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<nifti_image> &ref_sptr)
 {

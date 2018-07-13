@@ -49,10 +49,10 @@ namespace SIRFRegMisc {
         Split the image into that many single-component images
     */
     std::vector<std::shared_ptr<nifti_image> >
-        split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input);
+        split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr);
 
     /// Save a multicomponent nifti image
-    void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir);
+    void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, const std::string &filename, const bool &split_xyz);
 
     /// Copy nifti image
     void copy_nifti_image(const std::string input_filename, const std::string output_filename);
@@ -67,8 +67,9 @@ namespace SIRFRegMisc {
     void create_def_or_disp_image(std::shared_ptr<nifti_image> &output_sptr, const std::shared_ptr<nifti_image> &reference_sptr);
 
     /// Get cpp from transformation matrix
+#if NIFTYREG_VER_1_3
     void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
-
+#endif
     /// Get def from cpp
     void get_def_from_cpp(std::shared_ptr<nifti_image> &def_sptr, const std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<nifti_image> &ref_sptr);
 

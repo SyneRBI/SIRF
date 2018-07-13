@@ -106,16 +106,16 @@ public:
     void save_warped_image(const std::string filename) const;
 
     /// Save forward deformation field image to file
-    void save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir);
+    void save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz);
 
     /// Save backward deformation field image to file
-    void save_deformation_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir);
+    void save_deformation_field_back_image(const std::string &filename, const bool &split_xyz);
 
     /// Save forward displacement field image to file
-    void save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir);
+    void save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz);
 
     /// Save backward displacement field image to file
-    void save_displacement_field_back_image(const std::string &filename, const bool &split_xyz, const bool &flip_for_stir);
+    void save_displacement_field_back_image(const std::string &filename, const bool &split_xyz);
 
 protected:
 
@@ -126,7 +126,7 @@ protected:
     virtual void check_parameters();
 
     /// Save deformation or displacement field image to file
-    void save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, const bool &flip_for_stir, std::string type);
+    void save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, std::string type);
 
     /// Parameter filename
     boost::filesystem::path      _parameter_filename;
