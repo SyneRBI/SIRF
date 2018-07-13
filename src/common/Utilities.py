@@ -76,7 +76,7 @@ def show_2D_array(title, array, scale = None, colorbar = True):
     else:
         plt.imshow(array, cmap = 'gray', vmin = vmin, vmax = vmax)
     fignums = plt.get_fignums()
-    print('Close Figure %d window to continue...' % fignums[-1])
+    print('You may need to close Figure %d window to continue...' % fignums[-1])
     plt.show()
 
 
@@ -192,9 +192,10 @@ def show_3D_array\
         fignums = plt.get_fignums()
         last = fignums[-1]
         if last > 1:
-            print("Close Figures' 1 - %d windows to continue..." % last)
+            print("You may need to close Figures' 1 - %d windows to continue..." \
+                  % last)
         else:
-            print('Close Figure 1 window to continue...')
+            print('You may need to close Figure 1 window to continue...')
         plt.show()
     mpl.rcParams['axes.titlesize'] = current_title_size
     mpl.rcParams['axes.labelsize'] = current_label_size

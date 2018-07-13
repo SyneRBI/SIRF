@@ -79,7 +79,9 @@ ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
 			if (record.is_time())
 			{
 				const double new_time = record.time().get_time_in_secs();
-				if (new_time >= frame_defs.get_end_time(current_frame_num))
+				if (new_time >= frame_defs.get_end_time(current_frame_num) &&
+					frame_defs.get_end_time(current_frame_num) > 
+					frame_defs.get_start_time(current_frame_num))
 				{
 					while (current_frame_num <= frame_defs.get_num_frames() &&
 						new_time >= frame_defs.get_end_time(current_frame_num))

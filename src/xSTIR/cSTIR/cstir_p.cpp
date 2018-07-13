@@ -291,10 +291,12 @@ void*
 cSTIR_setPLSPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
-	xSTIR_PLSPrior3DF& prior =
-		objectFromHandle<xSTIR_PLSPrior3DF>(hp);
+	//xSTIR_PLSPrior3DF& prior =
+	//	objectFromHandle<xSTIR_PLSPrior3DF>(hp);
+	PLSPrior<float>& prior =
+		objectFromHandle<PLSPrior<float> >(hp);
 	if (boost::iequals(name, "only_2D"))
-		prior.only2D(dataFromHandle<int>((void*)hv));
+		prior.set_only_2D(dataFromHandle<int>((void*)hv));
 	else if (boost::iequals(name, "anatomical_image")) {
 		PETImageData& id = objectFromHandle<PETImageData>(hv);
 		prior.set_anatomical_image_sptr(id.data_sptr());
@@ -302,6 +304,29 @@ cSTIR_setPLSPriorParameter
 	else if (boost::iequals(name, "kappa")) {
 		PETImageData& id = objectFromHandle<PETImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
+	}
+	else
+		return parameterNotFound(name, __FILE__, __LINE__);
+	return new DataHandle;
+}
+
+void*
+cSTIR_PLSPriorParameter
+(DataHandle* hp, const char* name)
+{
+	PLSPrior<float>& prior =
+		objectFromHandle<PLSPrior<float> >(hp);
+	if (boost::iequals(name, "only_2D"))
+		return dataHandle<int>(prior.get_only_2D());
+	else if (boost::iequals(name, "anatomical_image")) {
+		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
+		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		return newObjectHandle(sptr_id);
+	}
+	else if (boost::iequals(name, "kappa")) {
+		sptrImage3DF sptr_im = prior.get_kappa_sptr();
+		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		return newObjectHandle(sptr_id);
 	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
