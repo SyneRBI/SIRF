@@ -538,6 +538,7 @@ Provides methods for for applying (1/n) factor in (F) and (B) or its inverse.
     asm = AcquisitionSensitivityModel(norm_file)
 
     # create acquisition sensitivity model from attenuation image
+    # attenuation image should be in units cm^-1 (attenuation per cm)
     attn_image = ImageData(attn_file)
     am = AcquisitionModelUsingRayTracingMatrix()
     am.set_up(template, attn_image)
