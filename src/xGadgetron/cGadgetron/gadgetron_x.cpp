@@ -381,13 +381,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	FullySampledCartesianFFT CartFFT;
 	CartFFT.SampleFourierSpace( ci );
 
-	for( int i=0; i<ci.getNumberOfElements(); i++)
-	{
-		if( std::abs(*(ci.getDataPtr() + i )) > 0 )
-			std::cout << *(ci.getDataPtr() + i ) << std::endl;		
-	}	
-	
-	
+
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
