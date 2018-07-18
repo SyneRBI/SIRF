@@ -13,9 +13,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 #include "../auxiliary_input_output.h"
+#include "auxiliary_testing_functions.h"
 
 #include "tests_auxiliary_input_output.h"
-
 
 
 void test_aux_io::test_write_ndarray_to_raw( void )
@@ -45,5 +45,26 @@ void test_aux_io::test_write_ndarray_to_raw( void )
 	name_stream << "/media/sf_SharedFiles/test_binary_writer_" << Nx << "x" << Ny << "x" << Nz;
 
 	data_io::write_raw<complex_float_t>(name_stream.str(), dummy_data.begin(), dummy_data.getNumberOfElements());
+
+}
+
+
+
+bool test_aux_io::test_read_acquisitions_vector_number_consistency( void )
+{
+
+	size_t const expected_num_acquisitions = 128*128;
+
+
+	AcquisitionsVector acqu_vec = mr_io::read_ismrmrd_acquisitions(ISMRMRD_H5_TEST_PATH);
+
+
+	size_t const read_num_acquisitions = acqu_vec.items();	
+
+	std::cout << epiph(expected_num_acquisitions) << std::endl;
+	std::cout << epiph(read_num_acquisitions) << std::endl;
+
+
+	return read_num_acquisitions == expected_num_acquisitions;
 
 }

@@ -58,6 +58,9 @@ void run_tests_auxiliary_input_output( void )
 	bool tests_successful = true;
 
 	test_aux_io::test_write_ndarray_to_raw();
+	
+	tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
+
 
 	if ( !tests_successful )
 	{

@@ -28,7 +28,7 @@ int main( int argc, char *argv[] )
 
 		
 		// run_tests_auxiliary_testing_functions();
-		// run_tests_auxiliary_input_output();
+		//run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
 		// run_tests_contrastgenerator();
 		// run_tests_phantom_input();
