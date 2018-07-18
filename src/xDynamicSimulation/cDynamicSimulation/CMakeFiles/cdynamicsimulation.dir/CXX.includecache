@@ -65,6 +65,8 @@ ismrmrd/ismrmrd.h
 -
 ../auxiliary_input_output.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+auxiliary_testing_functions.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
 tests_auxiliary_input_output.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_auxiliary_input_output.h
 
@@ -211,6 +213,8 @@ fstream
 -
 ismrmrd/xml.h
 -
+gadgetron_data_containers.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/gadgetron_data_containers.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.cpp
 contrastgenerator.h
@@ -817,6 +821,8 @@ fstream
 -
 ismrmrd/xml.h
 -
+gadgetron_data_containers.h
+src/xDynamicSimulation/cDynamicSimulation/gadgetron_data_containers.h
 
 src/xDynamicSimulation/cDynamicSimulation/contrastgenerator.h
 string

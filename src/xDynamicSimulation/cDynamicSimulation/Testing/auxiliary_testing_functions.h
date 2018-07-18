@@ -29,16 +29,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // strings
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 #define XML_XCAT_PATH "Testing/TestData/XCAT_TissueParameters_XML.xml" 
-#define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
+//#define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
+#define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 #define H5_PHANTOM_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/h5_testfile_cube_size3.h5"
 #define H5_XCAT_PHANTOM_PATH "/media/sf_SharedFolder/CCPPETMR/xcat_tissue_segmentation_uint64.h5"
-#define ACQU_FILE_NAME "/media/sf_SharedFolder/acquisitions_file_fwd_test.h5"
+#define ACQU_FILE_NAME "/media/sf_SharedFolder/CCPPETMR/acquisitions_file_fwd_test.h5"
 
 
 // volume sizes
 
-#define MOCK_FOV 96
-#define MOCK_DATA_MATRIX_SIZE 64
+#define MOCK_FOV 256
+#define MOCK_DATA_MATRIX_SIZE 128
 #define MOCK_DATA_NUM_CHANNELS 2
 #define MOCK_DATA_RO_OVERSAMPLING 2
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5

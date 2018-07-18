@@ -352,10 +352,10 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
 	
 	unsigned int nc = acq.active_channels();
-	unsigned int readout = acq.number_of_samples();
+	unsigned int num_readout_pts = acq.number_of_samples();
 
 	std::vector<size_t> dims;
-	dims.push_back(readout);
+	dims.push_back(num_readout_pts);
 	dims.push_back(ny);
 	dims.push_back(nz);
 	dims.push_back(nc);
@@ -367,7 +367,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		for( unsigned int z = 0; z < nz; z++) {
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
-					uint16_t xout = x + (readout - nx) / 2;
+					uint16_t xout = x + (num_readout_pts - nx) / 2;
 					complex_float_t zi = (complex_float_t)img(x, y, z);
 					complex_float_t zc = csm(x, y, z, c);
 					ci(xout, y, z, c) = zi * zc;
@@ -381,6 +381,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	FullySampledCartesianFFT CartFFT;
 	CartFFT.SampleFourierSpace( ci );
 
+	ISMRMRD::NDArray< complex_float_t > k_data = CartFFT.get_k_data();
 
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
@@ -392,8 +393,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 		
 		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < readout; s++) {
-				acq.data(s, c) = ci(s, enc_step_1, enc_step_2, c);
+			for (unsigned int s = 0; s < num_readout_pts; s++) {
+				acq.data(s, c) = k_data(s, enc_step_1, enc_step_2, c);
 			}
 		}
 

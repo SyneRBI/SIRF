@@ -47,10 +47,14 @@ bool tests_mracqmod::test_fwd_method( void )
 		ImagesVector img_vec;
 		img_vec.append(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t> (img));
 
-		ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
-		AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
+		// ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
+		// AcquisitionsVector source_acqs = aux_test::get_mock_acquisition_vector( hdr );
 		
-		MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(acq_vec) ), 
+		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+		AcquisitionsVector source_acqs = mr_io::read_ismrmrd_acquisitions(ISMRMRD_H5_TEST_PATH);
+		
+		
+		MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(source_acqs) ), 
 							  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 
 		ImageWrap img_wrap(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
@@ -58,9 +62,9 @@ bool tests_mracqmod::test_fwd_method( void )
 		AcquisitionsVector target_acqs;
 
 
-		ISMRMRD::Image< complex_float_t >* ptr_wrapped_img = (ISMRMRD::Image< complex_float_t >*)img_wrap.ptr_image();
+		// ISMRMRD::Image< complex_float_t >* ptr_wrapped_img = (ISMRMRD::Image< complex_float_t >*)img_wrap.ptr_image();
 
-		ISMRMRD::Image< complex_float_t > wrapped_img = *ptr_wrapped_img;
+		// ISMRMRD::Image< complex_float_t > wrapped_img = *ptr_wrapped_img;
 
 /*		std::vector<float> img_wrap_data;
 		img_wrap_data.resize(wrapped_img.getNumberOfDataElements(), 10);
@@ -80,10 +84,11 @@ bool tests_mracqmod::test_fwd_method( void )
 	
 
 		unsigned int offset = 0;
+
 		acq_model.fwd(img_wrap, csm, target_acqs, offset);
 		
 		unsigned int const num_stored_acquisitions = target_acqs.items();
-		unsigned int const num_expected_acquisitions = acq_vec.items();
+		unsigned int const num_expected_acquisitions = source_acqs.items();
 
 		std::cout << epiph(num_stored_acquisitions) << std::endl;
 		std::cout << epiph(num_expected_acquisitions) << std::endl;
