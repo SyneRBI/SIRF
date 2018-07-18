@@ -32,10 +32,20 @@ bool tests_mracqmod::test_fwd_method( void )
 	{
 		
 		ISMRMRD::Image< complex_float_t > img = aux_test::get_mock_ismrmrd_image_with_cube();
+
+		std::vector<float> img_data;
+		img_data.resize(img.getNumberOfDataElements(), 0);
+		for (int i_pixel=0; i_pixel<img.getNumberOfDataElements(); i_pixel++)
+		{
+			img_data[i_pixel] = std::real( *(img.begin() + i_pixel));			
+		}
+
+		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgInput", &img_data[0], img_data.size());
+
 		CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
 
 		ImagesVector img_vec;
-		img_vec.append(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t> (img));
+		img_vec.append(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t> (img));
 
 		ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
 		AcquisitionsVector acq_vec = aux_test::get_mock_acquisition_vector( hdr );
@@ -43,7 +53,8 @@ bool tests_mracqmod::test_fwd_method( void )
 		MRAcquisitionModel acq_model(std::shared_ptr<AcquisitionsVector> ( new AcquisitionsVector(acq_vec) ), 
 							  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 
-		ImageWrap img_wrap(MOCK_IMAGE_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
+		ImageWrap img_wrap(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
+		// ImageWrap img_wrap( MOCK_IMAGE_TYPE, img.begin() );		
 		AcquisitionsVector target_acqs;
 
 
@@ -58,10 +69,14 @@ bool tests_mracqmod::test_fwd_method( void )
 
 		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgWrapData_fromPTR", &img_wrap_data[0], img_wrap_data.size());
 */
-		std::vector<float> img_wrap_data;
-		img_wrap_data.resize(img.getNumberOfDataElements(), 10);
-		img_wrap.get_data( &img_wrap_data[0]);
-		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgWrapData", &img_wrap_data[0], img_wrap_data.size());
+		std::vector<float> re_img_wrap_data, im_img_wrap_data;
+		re_img_wrap_data.resize(img.getNumberOfDataElements(), 150);
+		im_img_wrap_data.resize(img.getNumberOfDataElements(), 70);
+		
+		img_wrap.get_cmplx_data( &re_img_wrap_data[0], &im_img_wrap_data[0] );
+		
+
+		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_real_imgWrapData", &re_img_wrap_data[0], re_img_wrap_data.size());
 	
 
 		unsigned int offset = 0;

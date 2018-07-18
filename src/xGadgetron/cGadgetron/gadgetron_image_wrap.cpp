@@ -34,6 +34,10 @@ ImageWrap::get_cmplx_data(float* re, float* im) const
 {
 	int dim[4];
 	size_t n = get_dim(dim);
+	std::cout << type_ << std::endl;
+	std::cout << ISMRMRD::ISMRMRD_CXFLOAT << std::endl;
+	std::cout << ISMRMRD::ISMRMRD_CXDOUBLE << std::endl;
+
 	if (type_ == ISMRMRD::ISMRMRD_CXFLOAT) {
 		const CFImage& img = *(const CFImage*)ptr_;
 		const complex_float_t* ptr = img.getDataPtr();
