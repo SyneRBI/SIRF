@@ -326,14 +326,13 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	MRAcquisitionData& ac, unsigned int& off)
 {
 	ISMRMRD::Image<T>& img = *ptr_img;
-
 	
 	std::string par;
 	ISMRMRD::IsmrmrdHeader header;
-	
+
 	par = sptr_acqs_->acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
-	
+
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
 	sptr_acqs_->get_acquisition(0, acq);
