@@ -28,7 +28,7 @@
 		<name>Dummy</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	10		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			1		</t1_miliseconds>
 			<t2_miliseconds> 			2 		</t2_miliseconds>
 			<cs_ppm> 					3			</cs_ppm>
@@ -47,7 +47,7 @@
 		<name>Dummy</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	20		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			1		</t1_miliseconds>
 			<t2_miliseconds> 			2 		</t2_miliseconds>
 			<cs_ppm> 					3			</cs_ppm>
@@ -66,7 +66,7 @@
 		<name>Dummy</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	0		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	30		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			1		</t1_miliseconds>
 			<t2_miliseconds> 			2 		</t2_miliseconds>
 			<cs_ppm> 					3			</cs_ppm>

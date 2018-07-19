@@ -12,29 +12,4 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 
 
-
-class aFullySampledFFT{
-
-public:
-
-	aFullySampledFFT(ISMRMRD::IsmrmrdHeader hdr)
-	{
-		this->hdr_ = hdr;
-	}
-
-	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data) = 0;
-
-protected:
-
-	ISMRMRD::NDArray<complex_float_t> k_data_;
-	ISMRMRD::IsmrmrdHeader hdr_;
-
-};
-
-
-class FullySampledCartesianFFT: public aFullySampledFFT{
-
-public:
-	FullySampledCartesianFFT(ISMRMRD::IsmrmrdHeader hdr);
-
-};
+#include "gadgetron_x.h"

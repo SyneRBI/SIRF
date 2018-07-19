@@ -247,6 +247,8 @@ ismrmrd/ismrmrd.h
 -
 ismrmrd/xml.h
 -
+gadgetron_x.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/gadgetron_x.h
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/phantom_input.cpp
 phantom_input.h

@@ -41,11 +41,12 @@ public:
 	// pure virtual since formats are very diff for pet and mri and ct
 	virtual void map_contrast()=0;
 
-	virtual NDArray< complex_float_t > get_contrast_filled_volume();
+	virtual std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
 
 protected:
 
-	NDArray< complex_float_t > contrast_filled_volume_;
+	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes_;
+
 	TissueLabelMapper tlm_;
 
 };

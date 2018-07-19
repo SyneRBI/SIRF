@@ -111,7 +111,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -131,7 +131,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -152,7 +152,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -171,7 +171,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -698,7 +698,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -717,7 +717,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -1382,7 +1382,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>
@@ -1401,7 +1401,7 @@
 
 		<MRTissueParameter>
 			<spin_density_percentH2O> 	95		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			450		</t1_miliseconds>
+			<t1_miliseconds> 			1000		</t1_miliseconds>
 			<t2_miliseconds> 			100 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
 		</MRTissueParameter>

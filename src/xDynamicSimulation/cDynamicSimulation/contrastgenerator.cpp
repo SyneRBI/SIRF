@@ -23,9 +23,9 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 }
 
 
-ISMRMRD::NDArray< complex_float_t > AbstractContrastGenerator::get_contrast_filled_volume()
+std::vector< ISMRMRD::Image< complex_float_t> > AbstractContrastGenerator::get_contrast_filled_volumes()
 {
-	return this->contrast_filled_volume_;	
+	return this->contrast_filled_volumes_;	
 }
 
 
@@ -58,60 +58,67 @@ void MRContrastGenerator::map_contrast()
 	}
 
 
-	
+
 	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 	size_t const num_voxels = tissue_params.size();	
 
 
-
 	std::vector<std::vector< complex_float_t> > contrast_vector;
 	contrast_vector.resize(num_voxels);
+
 	
 	//#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], &(this->hdr_));
+		
 	}
-	size_t const num_echoes = contrast_vector[0].size();
+	for(int i=0;i<8;i++)
+	{
+		std::vector< complex_float_t> first_voxel(contrast_vector[i]);
+	}
+
+	size_t const num_contrasts = contrast_vector[0].size();
 
 	const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
 
 	std::vector<size_t> data_size;
-	data_size.resize(ISMRMRD::ISMRMRD_NDARRAY_MAXDIM);
+	
 	for( int i_dim=0; i_dim<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i_dim++)
 	{
-		data_size[i_dim] = segmentation_dims[i_dim];
+		data_size.push_back( segmentation_dims[i_dim] );
 	}
-
-	data_size[3] = num_echoes;
-	data_size[4] =1;
-	data_size[5] =1;
-	data_size[6] =1;
-	this->contrast_filled_volume_.resize(data_size);
+	
 		
 	size_t Nz = data_size[2];
 	size_t Ny = data_size[1];
 	size_t Nx = data_size[0];
 
+
+	ISMRMRD::Image< complex_float_t > contrast_img(Nx, Ny, Nz, 1);
+
 	// sort data into NDArray
-	//#pragma omp parallel
-	for( size_t nz=0; nz<Nz; nz++)
+	
+	for( size_t i_contrast = 0; i_contrast<num_contrasts; i_contrast++)
 	{
-		for( size_t ny=0; ny<Ny; ny++)
+	
+		// #pragma omp parallel
+		for( size_t nz=0; nz<Nz; nz++)
 		{
-			for( size_t nx=0; nx<Nx; nx++)
+			for( size_t ny=0; ny<Ny; ny++)
 			{
-				size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
-				std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
-				for( size_t i_echo = 0; i_echo<num_echoes; i_echo++)
+				for( size_t nx=0; nx<Nx; nx++)
 				{
-					this->contrast_filled_volume_(nx,ny,nz,i_echo) = curr_voxel[i_echo];	
+					size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+					std::vector<complex_float_t> curr_voxel = contrast_vector[linear_index_access];
+					contrast_img(nx, ny, nz, 0) = curr_voxel[i_contrast];						
 				}
 			}
-
 		}
-	}
 
+		contrast_img.setContrast(i_contrast);
+		this->contrast_filled_volumes_.push_back( contrast_img );
+	}
 }
 
 

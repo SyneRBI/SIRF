@@ -64,28 +64,42 @@ bool test_contgen::test_mr_set_rawdata_header( void )
 bool test_contgen::test_mr_map_contrast_dim_check( void )
 {
 
+
  	//using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
-	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
-	mr_contgen.set_rawdata_header(hdr);
 
+	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+
+	mr_contgen.set_rawdata_header(hdr);
 
 	mr_contgen.map_contrast();
 
-	ISMRMRD::NDArray< complex_float_t >	contrast = mr_contgen.get_contrast_filled_volume();	
+	std::vector< ISMRMRD::Image< complex_float_t> > contrasts = mr_contgen.get_contrast_filled_volumes();	
+
 
 	int const num_echoes = 3;
-
 	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,num_echoes,1,1,1};
-	const size_t* contrast_dims = contrast.getDims();
 
+	std::vector< size_t > contrast_dims;
+
+	contrast_dims.push_back( contrasts[0].getMatrixSizeX() );
+	contrast_dims.push_back( contrasts[0].getMatrixSizeY() );
+	contrast_dims.push_back( contrasts[0].getMatrixSizeZ() );
+	contrast_dims.push_back( contrasts.size() );
+
+	std::cout << input_dims[0] << std::endl;
+	std::cout << input_dims[1] << std::endl;
+	std::cout << input_dims[2] << std::endl;
+
+	
 	bool dims_are_correct = true; 
-	for( int i=0; i<ISMRMRD_NDARRAY_MAXDIM; i++)
+	for( int i=0; i< 4; i++)
 		dims_are_correct *= (contrast_dims[i] == input_dims[i]);
 
+	
 	return dims_are_correct;
 }
 
@@ -103,27 +117,36 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	mr_contgen.set_rawdata_header(hdr);
 
 	mr_contgen.map_contrast();
+	
+	std::vector< ISMRMRD::Image< complex_float_t> >	mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
 
-	ISMRMRD::NDArray< complex_float_t >	mr_contrast = mr_contgen.get_contrast_filled_volume();	
-
-	size_t num_elements = mr_contrast.getNumberOfElements();
+	size_t num_elements = mr_contrasts[0].getNumberOfDataElements();
+	size_t num_contrasts = mr_contrasts.size();
 	std::cout << epiph(num_elements) << std::endl;
+	std::cout << epiph(num_contrasts) << std::endl;
 
 	// check data sizes
-	const size_t* data_dimension = mr_contrast.getDims();
-	std::vector < size_t > dims(data_dimension, data_dimension+ISMRMRD_NDARRAY_MAXDIM);
+	std::vector< size_t > contrast_dims;
 
+	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeX() );
+	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeY() );
+	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeZ() );
+	contrast_dims.push_back( num_contrasts );
+	
 	ISMRMRD::NDArray< float > mr_contrast_abs, mr_contrast_arg; 
-	mr_contrast_abs.resize( dims );
-	mr_contrast_arg.resize( dims );
+	mr_contrast_abs.resize( contrast_dims );
+	mr_contrast_arg.resize( contrast_dims );
 
-	for( size_t i=0; i<num_elements; i++ )
-	{
-		*(mr_contrast_abs.begin() + i) = std::abs( *(mr_contrast.begin() + i) );
-		*(mr_contrast_arg.begin() + i) = std::arg( *(mr_contrast.begin() + i) );
+	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
+	{	
+		size_t contrast_offset = i_contrast * num_elements;
+		for( size_t i=0; i<num_elements; i++ )
+		{
+			*(mr_contrast_abs.begin() + i + contrast_offset) = std::abs( *(mr_contrasts[i_contrast].begin() + i) );
+			*(mr_contrast_arg.begin() + i + contrast_offset) = std::arg( *(mr_contrasts[i_contrast].begin() + i) );
 
-	}
-			
+		}
+	}			
 	std::string name_output_contrast  = SHARED_FOLDER_PATH + "flash_contrast_xcat_test_";
 
 	data_io::write_raw<float>(name_output_contrast + "abs_192x192x192" , mr_contrast_abs.begin(), mr_contrast_abs.getNumberOfElements());
