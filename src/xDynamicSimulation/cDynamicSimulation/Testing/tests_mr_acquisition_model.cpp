@@ -58,31 +58,18 @@ bool tests_mracqmod::test_fwd_method( void )
 							  std::shared_ptr<ImagesVector> (new ImagesVector(img_vec) ));
 
 		ImageWrap img_wrap(MOCK_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(img));		
-		// ImageWrap img_wrap( MOCK_IMAGE_TYPE, img.begin() );		
+
 		AcquisitionsVector target_acqs;
+		target_acqs.copy_acquisitions_info( source_acqs );
 
-
-		// ISMRMRD::Image< complex_float_t >* ptr_wrapped_img = (ISMRMRD::Image< complex_float_t >*)img_wrap.ptr_image();
-
-		// ISMRMRD::Image< complex_float_t > wrapped_img = *ptr_wrapped_img;
-
-/*		std::vector<float> img_wrap_data;
-		img_wrap_data.resize(wrapped_img.getNumberOfDataElements(), 10);
-		for( int i=0; i<img_wrap_data.size(); i++)
-			img_wrap_data[i] = std::abs( *( wrapped_img.begin() + i ) );
-
-		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgWrapData_fromPTR", &img_wrap_data[0], img_wrap_data.size());
-*/
 		std::vector<float> re_img_wrap_data, im_img_wrap_data;
 		re_img_wrap_data.resize(img.getNumberOfDataElements(), 150);
 		im_img_wrap_data.resize(img.getNumberOfDataElements(), 70);
 		
 		img_wrap.get_cmplx_data( &re_img_wrap_data[0], &im_img_wrap_data[0] );
 		
-
 		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_real_imgWrapData", &re_img_wrap_data[0], re_img_wrap_data.size());
 	
-
 		unsigned int offset = 0;
 
 		acq_model.fwd(img_wrap, csm, target_acqs, offset);
