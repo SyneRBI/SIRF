@@ -333,6 +333,10 @@ constructor as a template.
 class MRAcquisitionModel {
 public:
 
+	MRAcquisitionModel()
+	{		
+	}
+
 	/*
 	The constructor records, by copying shared pointers, the two supplied
 	arguments as templates, to be used for obtaining scanner and image
