@@ -141,6 +141,8 @@ dynamicsimulation_x.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/dynamicsimulation_x.h
 auxiliary_testing_functions.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/auxiliary_testing_functions.h
+phantom_input.h
+/home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/phantom_input.h
 tests_dynamicsimulation.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/Testing/tests_dynamicsimulation.h
 
@@ -267,6 +269,8 @@ dynamicsimulation_x.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
 auxiliary_input_output.h
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/auxiliary_input_output.h
+memory
+-
 
 /home/sirfuser/devel/buildVM/sources/SIRF/src/xDynamicSimulation/cDynamicSimulation/dynamicsimulation_x.h
 string

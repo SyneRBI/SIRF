@@ -20,6 +20,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "contrastgenerator.h"
 
 
+#define IMG_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
+
+
 
 class MRDynamicSimulation {
 
@@ -48,7 +51,7 @@ protected:
 	AcquisitionsVector target_acquisitions_;
 	
 	MRContrastGenerator mr_cont_gen_;
-	//MRAcquisitionModel acq_model_;
+	MRAcquisitionModel acq_model_;
 
 
 };

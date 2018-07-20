@@ -355,6 +355,12 @@ public:
 		sptr_csms_ = sptr_csms;
 	}
 
+	// Sets the acquisition info 
+	void set_acquisition_template(shared_ptr<MRAcquisitionData> sptr_ac)
+	{
+		sptr_acqs_ = sptr_ac;
+	}
+			
 	// Forward projects one image item (typically xy-slice) into
 	// respective readouts, and appends them to the AcquisitionContainer
 	// passed as the last argument.

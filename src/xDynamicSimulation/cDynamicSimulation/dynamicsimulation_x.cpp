@@ -9,6 +9,8 @@ date: 15. March 2018
 
 #include "auxiliary_input_output.h"
 
+#include <memory>
+
 
 void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
 {
@@ -20,11 +22,54 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 	this->extract_src_information();
 	this->mr_cont_gen_.map_contrast();
+
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
 	size_t const num_contrasts = contrast_filled_volumes.size();
 
-	std::cout << num_contrasts << std::endl;
+	size_t Nx = contrast_filled_volumes[0].getMatrixSizeX();
+	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
+	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
+
+	size_t Nc = 1;
+	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , 1);
+	std::vector< complex_float_t > mock_csm;
+	mock_csm.resize( Nx * Ny * Nz, std::complex<float>(1,0) );
+
+	csm_as_img.set_data( &mock_csm[0] );
+
+	unsigned int offset = 0;
+
+
+	ISMRMRD::Acquisition acq;
+	
+	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
+	{
+		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
+		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
+
+		AcquisitionsVector acq_vec;
+
+		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
+		{
+			this->source_acquisitions_.get_acquisition(i_acqu, acq);
+			ISMRMRD::AcquisitionHeader acq_head = acq.getHead();
+			
+			if( acq_head.idx.contrast == i_contrast )
+				acq_vec.append_acquisition( acq );
+
+		}
+		
+		acq_vec.copy_acquisitions_info(source_acquisitions_);
+		std::cout << this->source_acquisitions_.items() << std::endl;
+		std::cout << acq_vec.items() << std::endl;
+
+		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
+
+		this->acq_model_.set_acquisition_template( curr_template_acquis );
+
+		this->acq_model_.fwd(curr_img_wrap, csm_as_img, this->target_acquisitions_, offset);
+	}
 
 }
 

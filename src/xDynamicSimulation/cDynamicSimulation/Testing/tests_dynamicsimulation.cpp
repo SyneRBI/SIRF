@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "dynamicsimulation_x.h"
 #include "auxiliary_testing_functions.h"
+#include "phantom_input.h"
 
 #include "tests_dynamicsimulation.h"
 
@@ -86,7 +87,8 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 	try
 	{
 	
-	MRContrastGenerator mr_cont_gen = aux_test::get_mock_mr_contrast_generator();
+	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 

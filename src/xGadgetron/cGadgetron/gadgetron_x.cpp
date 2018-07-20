@@ -333,6 +333,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	par = sptr_acqs_->acquisitions_info();
 	ISMRMRD::deserialize(par.c_str(), header);
 
+
 	ISMRMRD::Encoding e = header.encoding[0];
 	ISMRMRD::Acquisition acq; // (acq_);
 	sptr_acqs_->get_acquisition(0, acq);
