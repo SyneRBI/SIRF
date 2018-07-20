@@ -81,8 +81,6 @@ void tests_mr_dynsim::test_extract_src_information( void )
 
 }
 
-
-
 bool tests_mr_dynsim::test_simulate_dynamics( void )
 {
 	try
@@ -105,7 +103,6 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
-
 }
 
 
