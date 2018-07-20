@@ -27,3 +27,5 @@ void run_tests_contrastgenerator( void );
 void run_tests_encoding( void );
 
 void run_tests_mr_acquisition_model( void );
+
+void run_tests_mr_dynamic_simulation( void );

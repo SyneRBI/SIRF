@@ -89,6 +89,19 @@ PETTissueParameter aux_test::get_mock_PET_tissue_parameter(void)
 	return pet_tissue_pars;
 }
 
+MRContrastGenerator aux_test::get_mock_mr_contrast_generator( void )
+{
+	LabelArray label_list = get_mock_label_array();
+
+	MRContrastGenerator mr_cont(label_list, XML_TEST_PATH);
+
+	ISMRMRD::IsmrmrdHeader hdr = get_mock_ismrmrd_header();
+
+	mr_cont.set_rawdata_header( hdr);
+
+	return mr_cont;
+
+}
 
 ISMRMRD::IsmrmrdHeader aux_test::get_mock_ismrmrd_header( void )
 {

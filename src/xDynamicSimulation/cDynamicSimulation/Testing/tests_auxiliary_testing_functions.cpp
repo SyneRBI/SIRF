@@ -129,7 +129,7 @@ try
 bool test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube( void )
 {
 
-try
+	try
 	{
 		ISMRMRD::Image< complex_float_t > img = aux_test::get_mock_ismrmrd_image_with_cube();
 
@@ -157,6 +157,27 @@ try
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+	return true;
+
+}
+
+
+bool test_aux_test_funs::test_get_mock_contrast_generator( void )
+{
+
+
+	try
+	{
+		MRContrastGenerator mr_cont_gen = aux_test::get_mock_mr_contrast_generator();
+		mr_cont_gen.map_contrast();
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
 	return true;
 
 }

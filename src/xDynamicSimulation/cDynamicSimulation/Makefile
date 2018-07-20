@@ -330,6 +330,33 @@ Testing/tests_contrastgenerator.cpp.s:
 	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_contrastgenerator.cpp.s
 .PHONY : Testing/tests_contrastgenerator.cpp.s
 
+Testing/tests_dynamicsimulation.o: Testing/tests_dynamicsimulation.cpp.o
+
+.PHONY : Testing/tests_dynamicsimulation.o
+
+# target to build an object file
+Testing/tests_dynamicsimulation.cpp.o:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_dynamicsimulation.cpp.o
+.PHONY : Testing/tests_dynamicsimulation.cpp.o
+
+Testing/tests_dynamicsimulation.i: Testing/tests_dynamicsimulation.cpp.i
+
+.PHONY : Testing/tests_dynamicsimulation.i
+
+# target to preprocess a source file
+Testing/tests_dynamicsimulation.cpp.i:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_dynamicsimulation.cpp.i
+.PHONY : Testing/tests_dynamicsimulation.cpp.i
+
+Testing/tests_dynamicsimulation.s: Testing/tests_dynamicsimulation.cpp.s
+
+.PHONY : Testing/tests_dynamicsimulation.s
+
+# target to generate assembly for a file
+Testing/tests_dynamicsimulation.cpp.s:
+	cd /home/sirfuser/devel/buildVM/sources/SIRF && $(MAKE) -f src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/build.make src/xDynamicSimulation/cDynamicSimulation/CMakeFiles/cdynamicsimulation.dir/Testing/tests_dynamicsimulation.cpp.s
+.PHONY : Testing/tests_dynamicsimulation.cpp.s
+
 Testing/tests_encoding.o: Testing/tests_encoding.cpp.o
 
 .PHONY : Testing/tests_encoding.o
@@ -657,6 +684,9 @@ help:
 	@echo "... Testing/tests_contrastgenerator.o"
 	@echo "... Testing/tests_contrastgenerator.i"
 	@echo "... Testing/tests_contrastgenerator.s"
+	@echo "... Testing/tests_dynamicsimulation.o"
+	@echo "... Testing/tests_dynamicsimulation.i"
+	@echo "... Testing/tests_dynamicsimulation.s"
 	@echo "... Testing/tests_encoding.o"
 	@echo "... Testing/tests_encoding.i"
 	@echo "... Testing/tests_encoding.s"
