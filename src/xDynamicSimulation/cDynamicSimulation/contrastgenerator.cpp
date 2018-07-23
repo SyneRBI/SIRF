@@ -23,10 +23,6 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 }
 
 
-std::vector< ISMRMRD::Image< complex_float_t> > AbstractContrastGenerator::get_contrast_filled_volumes()
-{
-	return this->contrast_filled_volumes_;	
-}
 
 
 MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
@@ -39,6 +35,10 @@ void MRContrastGenerator::set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr)
 	this->hdr_ = hdr;
 }
 
+std::vector< ISMRMRD::Image< complex_float_t> > MRContrastGenerator::get_contrast_filled_volumes()
+{
+	return this->contrast_filled_volumes_;	
+}
 
 void MRContrastGenerator::map_contrast()
 {

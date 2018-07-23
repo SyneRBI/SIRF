@@ -41,11 +41,9 @@ public:
 	// pure virtual since formats are very diff for pet and mri and ct
 	virtual void map_contrast()=0;
 
-	virtual std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
+	
 
 protected:
-
-	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes_;
 
 	TissueLabelMapper tlm_;
 
@@ -62,9 +60,12 @@ public:
 	void set_rawdata_header(IsmrmrdHeader hdr);
 	void map_contrast();
 
+	virtual std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
 
 private:
 
+
+	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes_;
 	IsmrmrdHeader hdr_;
 
 };
