@@ -104,6 +104,55 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 }
 
 
+
+void test_contgen::test_match_output_dims_to_headerinfo( void )
+{
+
+	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
+	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	mr_contgen.set_rawdata_header(hdr);
+
+	mr_contgen.map_contrast();
+
+	// std::vector< ISMRMRD::Image< complex_float_t> > mr_contrasts = mr_contget.get_contrast_filled_volumes();
+	auto mr_contrasts = mr_contgen.get_contrast_filled_volumes();
+	size_t num_contrasts = mr_contrasts.size();
+
+	std::vector< size_t > dims_pre_matching; 
+	dims_pre_matching.push_back( mr_contrasts[0].getMatrixSizeX() );
+	dims_pre_matching.push_back( mr_contrasts[0].getMatrixSizeY() );
+	dims_pre_matching.push_back( mr_contrasts[0].getMatrixSizeZ() );
+	dims_pre_matching.push_back( num_contrasts );
+
+	mr_contgen.match_output_dims_to_headerinfo();
+
+
+	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
+
+
+	// check data sizes
+	std::vector< size_t > dims_post_matching;
+
+	dims_post_matching.push_back( mr_contrasts[0].getMatrixSizeX() );
+	dims_post_matching.push_back( mr_contrasts[0].getMatrixSizeY() );
+	dims_post_matching.push_back( mr_contrasts[0].getMatrixSizeZ() );
+	dims_post_matching.push_back( num_contrasts );
+		
+	bool dims_match = true;		
+	for( int i=0; i<4; i++)
+	{
+		std::cout << epiph( i ) << std::endl;
+		std::cout << epiph( dims_pre_matching[i] ) << std::endl;
+		std::cout << epiph( dims_post_matching[i] ) << std::endl;
+		dims_match *= (dims_pre_matching[i] == dims_post_matching[i]);
+	}
+
+}
+
+
+
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
 

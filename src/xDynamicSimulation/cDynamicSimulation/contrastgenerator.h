@@ -62,8 +62,9 @@ public:
 
 	virtual std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
 
-private:
+	void match_output_dims_to_headerinfo( void );
 
+private:
 
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes_;
 	IsmrmrdHeader hdr_;

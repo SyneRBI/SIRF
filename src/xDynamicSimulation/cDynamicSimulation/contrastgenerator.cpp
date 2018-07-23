@@ -24,7 +24,6 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 
 
-
 MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
@@ -39,6 +38,74 @@ std::vector< ISMRMRD::Image< complex_float_t> > MRContrastGenerator::get_contras
 {
 	return this->contrast_filled_volumes_;	
 }
+
+
+
+void MRContrastGenerator::match_output_dims_to_headerinfo( void )
+{
+	
+
+	using namespace ISMRMRD;
+
+	std::vector< Image< complex_float_t > > padded_volumes;
+
+    std::vector< Encoding > enc_vec = this->hdr_.encoding;
+
+    if( enc_vec.size() != 1 )
+    {
+    	throw std::runtime_error(" More than one encoding object was given. ");
+    }
+
+    Encoding enc = enc_vec[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	MatrixSize enc_matrix_size = enc_space.matrixSize;	
+
+
+	size_t num_contrast_volumes = this->contrast_filled_volumes_.size();
+
+
+
+	for( int i_img=0; i_img<num_contrast_volumes; i_img++)
+	{
+
+		Image< complex_float_t > curr_image = this->contrast_filled_volumes_[i_img];
+		auto padded_image = curr_image;
+		padded_image.resize(enc_matrix_size.x, enc_matrix_size.y, enc_matrix_size.z, 1);
+		
+
+
+		for( size_t i_vox=0; i_vox< padded_image.getNumberOfDataElements();i_vox++)
+			*(padded_image.begin() + i_vox) = std::complex< float > (0,0);
+
+		std::vector < size_t > size_ratio; 
+		size_ratio.push_back( enc_matrix_size.x / curr_image.getMatrixSizeX() );		
+		size_ratio.push_back( enc_matrix_size.y / curr_image.getMatrixSizeY() );		
+		size_ratio.push_back( enc_matrix_size.z / curr_image.getMatrixSizeZ() );		
+
+		bool dims_match = true;
+		for( int i = 0; i<3; i++)
+			dims_match *= (size_ratio[i] == 1 || size_ratio[i] == 2);		
+					
+		if( dims_match )
+		{
+			for( size_t nz = 0; nz<curr_image.getMatrixSizeZ(); nz++ ) 
+			for( size_t ny = 0; ny<curr_image.getMatrixSizeY(); ny++ ) 
+			for( size_t nx = 0; nx<curr_image.getMatrixSizeX(); nx++ ) 
+			{
+				padded_image(nx + (size_ratio[0] - 1) * enc_matrix_size.x/4, ny + (size_ratio[1] - 1) * enc_matrix_size.y/4, nz + (size_ratio[3] - 1, 0) * enc_matrix_size.z/4, 0) = curr_image(nx, ny, nz, 0);
+			}
+		}
+		else
+		{
+			throw std::runtime_error("The dimensions of the segmentation do not match the header information. Please modify either one to match the other. Dimension sizes in the segmentation half of the one in the encoded space are padded to cope for readout oversampling.");				
+		}
+
+		padded_volumes.push_back(padded_image);
+	
+	}
+	this->contrast_filled_volumes_ = padded_volumes;
+}
+
 
 void MRContrastGenerator::map_contrast()
 {

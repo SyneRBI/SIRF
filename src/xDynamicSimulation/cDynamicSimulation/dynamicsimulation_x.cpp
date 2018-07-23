@@ -22,6 +22,8 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 	this->extract_src_information();
 	this->mr_cont_gen_.map_contrast();
+	this->mr_cont_gen_.match_output_dims_to_headerinfo();
+
 
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
