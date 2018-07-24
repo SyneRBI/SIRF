@@ -58,6 +58,8 @@ output_file = args['--output']
 
 def main():
 
+    AcquisitionData.set_storage_scheme('mem')
+
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()
     # output goes to files
@@ -131,7 +133,7 @@ def main():
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
-    simulated_data = acq_model.forward(image)
+    simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write('simulated_data')
 
@@ -142,7 +144,7 @@ def main():
     print('backprojecting the forward projection...')
     # backproject the computed forward projection
     # note that the backprojection takes the acquisition sensitivy model asm into account as well
-    back_projected_image = acq_model.backward(simulated_data)
+    back_projected_image = acq_model.backward(simulated_data, 0, 4)
 
     back_projected_image_as_array = back_projected_image.as_array()
     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
