@@ -1094,17 +1094,18 @@ class AcquisitionModel:
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
-    def forward(self, image):
+    def forward(self, image, subset_num = 0, num_subsets = 1):
         ''' 
         Returns the forward projection of x given by (F);
         image   :  an ImageData object containing x;
         '''
         assert_validity(image, ImageData)
         ad = AcquisitionData()
-        ad.handle = pystir.cSTIR_acquisitionModelFwd(self.handle, image.handle)
+        ad.handle = pystir.cSTIR_acquisitionModelFwd \
+                    (self.handle, image.handle, subset_num, num_subsets)
         check_status(ad.handle)
         return ad;
-    def backward(self, ad):
+    def backward(self, ad, subset_num = 0, num_subsets = 1):
         ''' 
         Returns the backward projection of y giben by (B);
         ad:  an AcquisitionData object containing y.
@@ -1112,7 +1113,7 @@ class AcquisitionModel:
         assert_validity(ad, AcquisitionData)
         image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
-            (self.handle, ad.handle)
+            (self.handle, ad.handle, subset_num, num_subsets)
         check_status(image.handle)
         return image
 

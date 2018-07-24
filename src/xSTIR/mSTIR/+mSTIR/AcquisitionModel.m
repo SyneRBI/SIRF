@@ -92,25 +92,33 @@ classdef AcquisitionModel < handle
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function ad = forward(self, image)
+        function ad = forward(self, image, subset_num, num_subsets)
 %***SIRF*** computes the forward projection of ImageData x = image given by 
 %         (F) above in the main class documentation.
 %         Usage: 
 %             acq_data = forward(image);
 %         image:  an ImageData object containing x;
             mUtilities.assert_validity(image, 'ImageData')
+            if nargin < 4
+                subset_num = 0;
+                num_subsets = 1;
+            end
             ad = mSTIR.AcquisitionData();
             ad.handle_ = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
-                self.handle_, image.handle_);
+                self.handle_, image.handle_, subset_num, num_subsets);
             mUtilities.check_status([self.name ':forward'], ad.handle_)
         end
-        function image = backward(self, ad)
+        function image = backward(self, ad, subset_num, num_subsets)
 %***SIRF*** returns the backprojection z for y = ad given by (B) above;
 %         ad:  an AcquisitionData object containing y.
             mUtilities.assert_validity(ad, 'AcquisitionData')
+            if nargin < 4
+                subset_num = 0;
+                num_subsets = 1;
+            end
             image = mSTIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
-                self.handle_, ad.handle_);
+                self.handle_, ad.handle_, subset_num, num_subsets);
             mUtilities.check_status...
                 ([self.name ':backward'], image.handle_)
         end
