@@ -359,18 +359,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	dims.push_back(ny);
 	dims.push_back(nz);
 	dims.push_back(nc);
-	
-	std::cout<< " size dims " << dims.size() << std::endl;
-	
-	for( int i = 0; i< dims.size(); i++)
-	{
-		std::cout << dims[i] << std::endl;
-	}
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
-	std::cout<< " nag " << std::endl;
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
-	std::cout<< " nag " << std::endl;
 
 
 	// #pragma omp parallel for
@@ -387,13 +378,11 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			}
 		}
 	}
-	std::cout<< " nag " << std::endl;
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
 	FullySampledCartesianFFT CartFFT;
 	CartFFT.SampleFourierSpace( ci );
 	
-	std::cout<< " nag " << std::endl;
 	ISMRMRD::NDArray< complex_float_t > k_data = CartFFT.get_k_data();
 
 	unsigned int const num_acq = sptr_acqs_->items(); 
@@ -416,7 +405,6 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		ac.append_acquisition(acq);
 
 	}
-	std::cout<< " nag out" << std::endl;
 }
 
 template< typename T>

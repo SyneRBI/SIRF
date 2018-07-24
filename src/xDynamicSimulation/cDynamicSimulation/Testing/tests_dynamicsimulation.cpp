@@ -96,7 +96,9 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 
 	mr_dyn_sim.simulate_dynamics();
 
-	return false;
+	mr_dyn_sim.write_simulation_results( FILENAME_DYNSIM );
+
+	return true;
 
 	}
 	catch( std::runtime_error const &e)

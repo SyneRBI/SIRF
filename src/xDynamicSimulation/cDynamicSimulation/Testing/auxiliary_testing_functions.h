@@ -36,14 +36,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "CV_nav_Flash_192Cube_3Echo_cartesian_ismrmrd.h5"
+#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
 
 #define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "h5_testfile_cube_size3.h5"
 
 // #define H5_XCAT_PHANTOM_PATH "/media/sf_SharedFolder/CCPPETMR/xcat_tissue_segmentation_uint64.h5"
-#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "xcat_phantom_64_cubed.h5"
+#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "xcat_phantom_128_cubed.h5"
 
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
+#define FILENAME_DYNSIM  SHARED_FOLDER_PATH "testoutput_dynamic_simulation.h5"
 
 
 // volume sizes

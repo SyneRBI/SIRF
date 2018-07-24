@@ -13,7 +13,8 @@ date: 15. March 2018
 
 
 void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
-{
+{	
+	std::cout << "Writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
 	target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
 }
 
@@ -62,9 +63,6 @@ void MRDynamicSimulation::simulate_dynamics( void )
 				acq_vec.append_acquisition( acq );
 
 		}
-		
-		std::cout << this->source_acquisitions_.items() << std::endl;
-		std::cout << acq_vec.items() << std::endl;
 
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
 
