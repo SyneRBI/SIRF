@@ -374,9 +374,10 @@ public:
 		shared_ptr<PETImageData> sptr_image);
 
 	shared_ptr<PETAcquisitionData>
-		forward(const PETImageData& image);
+		forward(const PETImageData& image, int subset_num = 0, int num_subsets = 1);
 
-	shared_ptr<PETImageData> backward(PETAcquisitionData& ad);
+	shared_ptr<PETImageData> backward(PETAcquisitionData& ad, 
+		int subset_num = 0, int num_subsets = 1);
 
 protected:
 	shared_ptr<ProjectorByBinPair> sptr_projectors_;

@@ -472,22 +472,23 @@ PETAcquisitionModel::set_up(
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
-	if ( s == Succeeded(Succeeded::yes)) {
-                if (sptr_asm_ && sptr_asm_->data())
-                         s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
-        }
+	if (s == Succeeded(Succeeded::yes)) {
+		if (sptr_asm_ && sptr_asm_->data())
+			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+	}
 	return s;
 }
 
 shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const PETImageData& image)
+PETAcquisitionModel::forward(const PETImageData& image, 
+	int subset_num, int num_subsets)
 {
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
-		(*sptr_fd, image.data());
+		(*sptr_fd, image.data(), subset_num, num_subsets);
 	//sptr_fd->fill(1.0f);
 
 	if (sptr_add_.get()) {
@@ -521,7 +522,8 @@ PETAcquisitionModel::forward(const PETImageData& image)
 }
 
 shared_ptr<PETImageData> 
-PETAcquisitionModel::backward(PETAcquisitionData& ad)
+PETAcquisitionModel::backward(PETAcquisitionData& ad, 
+	int subset_num, int num_subsets)
 {
 	shared_ptr<PETImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
@@ -537,12 +539,14 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad)
 		//sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
 		std::cout << "ok\n";
 		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
+		sptr_projectors_->get_back_projector_sptr()->back_project
+			(*sptr_im, *sptr_ad, subset_num, num_subsets);
 		std::cout << "ok\n";
 	}
 	else {
 		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
+		sptr_projectors_->get_back_projector_sptr()->back_project
+			(*sptr_im, ad, subset_num, num_subsets);
 		std::cout << "ok\n";
 	}
 
