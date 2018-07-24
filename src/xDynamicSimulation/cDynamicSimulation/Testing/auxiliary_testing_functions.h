@@ -17,6 +17,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "gadgetron_data_containers.h"
 #include "gadgetron_image_wrap.h"
 
+#include "auxiliary_input_output.h"
+
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
@@ -30,12 +32,18 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // strings
 #define XML_TEST_PATH "Testing/TestData/test_TissueParameters_XML.xml" 
 #define XML_XCAT_PATH "Testing/TestData/XCAT_TissueParameters_XML.xml" 
+
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
-#define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/CV_nav_Flash_192Cube_3Echo_cartesian_ismrmrd.h5" 
-#define H5_PHANTOM_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/h5_testfile_cube_size3.h5"
-#define H5_XCAT_PHANTOM_PATH "/media/sf_SharedFolder/CCPPETMR/xcat_tissue_segmentation_uint64.h5"
-#define ACQU_FILE_NAME "/media/sf_SharedFolder/CCPPETMR/acquisitions_file_fwd_test.h5"
+
+#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "CV_nav_Flash_192Cube_3Echo_cartesian_ismrmrd.h5"
+
+#define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "h5_testfile_cube_size3.h5"
+
+// #define H5_XCAT_PHANTOM_PATH "/media/sf_SharedFolder/CCPPETMR/xcat_tissue_segmentation_uint64.h5"
+#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "xcat_phantom_64_cubed.h5"
+
+#define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
 
 
 // volume sizes

@@ -40,7 +40,7 @@ bool tests_mracqmod::test_fwd_method( void )
 			img_data[i_pixel] = std::real( *(img.begin() + i_pixel));			
 		}
 
-		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_imgInput", &img_data[0], img_data.size());
+		data_io::write_raw<float> ( std::string(SHARED_FOLDER_PATH) + "test_fwd_method_imgInput", &img_data[0], img_data.size());
 
 		CoilDataAsCFImage csm = aux_test::get_mock_coildata_as_cfimage();
 
@@ -68,7 +68,7 @@ bool tests_mracqmod::test_fwd_method( void )
 		
 		img_wrap.get_cmplx_data( &re_img_wrap_data[0], &im_img_wrap_data[0] );
 		
-		data_io::write_raw<float> (SHARED_FOLDER_PATH + "test_fwd_method_real_imgWrapData", &re_img_wrap_data[0], re_img_wrap_data.size());
+		data_io::write_raw<float> ( std::string(SHARED_FOLDER_PATH) + "test_fwd_method_real_imgWrapData", &re_img_wrap_data[0], re_img_wrap_data.size());
 	
 		unsigned int offset = 0;
 

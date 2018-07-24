@@ -24,7 +24,7 @@ bool test_enc::test_cube_input()
 
 	NDArray<complex_float_t> arr = aux_test::get_mock_ndarray_with_cube();
 
-	std::string output_name = SHARED_FOLDER_PATH + "test_enc_mock_array";
+	std::string output_name = std::string( SHARED_FOLDER_PATH ) + "test_enc_mock_array" ;
 
 	size_t num_elements = arr.getNumberOfElements();
 
@@ -66,7 +66,7 @@ bool test_cart_enc::test_sample_fourier_space()
 		k_dat_abs[i] = std::abs( *(k_dat.begin() + i) );
 
 	
-	std::string output_name = SHARED_FOLDER_PATH + "test_cart_enc_k_data";
+	std::string output_name =  std::string(SHARED_FOLDER_PATH)+ "test_cart_enc_k_data" ;
 	data_io::write_raw<float>(output_name + "_abs_64x64x64", &k_dat_abs[0], k_dat_abs.size());
 
 	return true;

@@ -17,7 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "gadgetron_data_containers.h"
 
-#define SHARED_FOLDER_PATH std::string("/media/sf_SharedFolder/CCPPETMR/")
+#define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
 
 namespace data_io{
 
