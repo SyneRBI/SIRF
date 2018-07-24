@@ -22,7 +22,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 	this->extract_src_information();
 	this->mr_cont_gen_.map_contrast();
-	this->mr_cont_gen_.match_output_dims_to_headerinfo();
+	//this->mr_cont_gen_.match_output_dims_to_headerinfo();
 
 
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
@@ -33,24 +33,25 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
 	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
 
-	size_t Nc = 1;
-	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , 1);
+	size_t Nc = 4;
+	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , Nc);
 	std::vector< complex_float_t > mock_csm;
-	mock_csm.resize( Nx * Ny * Nz, std::complex<float>(1,0) );
+	mock_csm.resize( Nx * Ny * Nz * Nc, std::complex<float>(1,0) );
 
 	csm_as_img.set_data( &mock_csm[0] );
 
 	unsigned int offset = 0;
 
-
 	ISMRMRD::Acquisition acq;
 	
 	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
 	{
+		std::cout << "Mapping contrast " << i_contrast << std::endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
 
 		AcquisitionsVector acq_vec;
+		acq_vec.copy_acquisitions_info( this->source_acquisitions_ );
 
 		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
 		{
@@ -62,7 +63,6 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		}
 		
-		acq_vec.copy_acquisitions_info(source_acquisitions_);
 		std::cout << this->source_acquisitions_.items() << std::endl;
 		std::cout << acq_vec.items() << std::endl;
 

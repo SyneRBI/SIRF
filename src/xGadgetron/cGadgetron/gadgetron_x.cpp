@@ -342,8 +342,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	unsigned int nx = e.reconSpace.matrixSize.x;
 	unsigned int ny = e.reconSpace.matrixSize.y;
 	unsigned int nz = e.reconSpace.matrixSize.z;
-	
-	
+
 	if( img.getMatrixSizeX() != nx ) 
 		throw LocalisedException("Acquisition info contains nx not matching image dimension x", __FILE__, __LINE__);
 	if( img.getMatrixSizeY() != ny  )
@@ -352,6 +351,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
 	
 	unsigned int nc = acq.active_channels();
+
 	unsigned int num_readout_pts = acq.number_of_samples();
 
 	std::vector<size_t> dims;
@@ -359,14 +359,26 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	dims.push_back(ny);
 	dims.push_back(nz);
 	dims.push_back(nc);
+	
+	std::cout<< " size dims " << dims.size() << std::endl;
+	
+	for( int i = 0; i< dims.size(); i++)
+	{
+		std::cout << dims[i] << std::endl;
+	}
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
+	std::cout<< " nag " << std::endl;
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
+	std::cout<< " nag " << std::endl;
 
+
+	// #pragma omp parallel for
 	for (unsigned int c = 0; c < nc; c++) {
 		for( unsigned int z = 0; z < nz; z++) {
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
+
 					uint16_t xout = x + (num_readout_pts - nx) / 2;
 					complex_float_t zi = (complex_float_t)img(x, y, z);
 					complex_float_t zc = csm(x, y, z, c);
@@ -375,12 +387,13 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			}
 		}
 	}
-
+	std::cout<< " nag " << std::endl;
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
 	FullySampledCartesianFFT CartFFT;
 	CartFFT.SampleFourierSpace( ci );
-
+	
+	std::cout<< " nag " << std::endl;
 	ISMRMRD::NDArray< complex_float_t > k_data = CartFFT.get_k_data();
 
 	unsigned int const num_acq = sptr_acqs_->items(); 
@@ -403,7 +416,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		ac.append_acquisition(acq);
 
 	}
-
+	std::cout<< " nag out" << std::endl;
 }
 
 template< typename T>
