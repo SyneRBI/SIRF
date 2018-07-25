@@ -472,38 +472,33 @@ PETAcquisitionModel::set_up(
 		sptr_acq_template_ = sptr_acq;
 		sptr_image_template_ = sptr_image;
 	}
-	if ( s == Succeeded(Succeeded::yes)) {
-                if (sptr_asm_ && sptr_asm_->data())
-                         s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
-        }
+	if (s == Succeeded(Succeeded::yes)) {
+		if (sptr_asm_ && sptr_asm_->data())
+			s = sptr_asm_->set_up(sptr_acq->get_proj_data_info_sptr());
+	}
 	return s;
 }
 
-shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const PETImageData& image)
+void 
+PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
+	int subset_num, int num_subsets, bool zero)
 {
-	shared_ptr<PETAcquisitionData> sptr_ad;
-	sptr_ad = sptr_acq_template_->new_acquisition_data();
-	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
-
+	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
-		(*sptr_fd, image.data());
-	//sptr_fd->fill(1.0f);
+		(*sptr_fd, image.data(), subset_num, num_subsets, zero);
 
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
-		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
+		ad.axpby(1.0, ad, 1.0, *sptr_add_);
 		std::cout << "ok\n";
 	}
 	else
 		std::cout << "no additive term added\n";
 
-	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
 	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
 	if (sm && sm->data() && !sm->data()->is_trivial()) {
 		std::cout << "applying unnormalisation...";
-		sptr_asm_->unnormalise(*sptr_ad);
-		//sptr_normalisation_->undo(*sptr_fd, 0, 1);
+		sptr_asm_->unnormalise(ad);
 		std::cout << "ok\n";
 	}
 	else
@@ -511,17 +506,61 @@ PETAcquisitionModel::forward(const PETImageData& image)
 
 	if (sptr_background_.get()) {
 		std::cout << "background term added...";
-		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
+		ad.axpby(1.0, ad, 1.0, *sptr_background_);
 		std::cout << "ok\n";
 	}
 	else
 		std::cout << "no background term added\n";
+}
+
+shared_ptr<PETAcquisitionData>
+PETAcquisitionModel::forward(const PETImageData& image, 
+	int subset_num, int num_subsets)
+{
+	shared_ptr<PETAcquisitionData> sptr_ad;
+	sptr_ad = sptr_acq_template_->new_acquisition_data();
+	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+	//if (num_subsets > 1)
+	//	sptr_fd->fill(0.0f);
+	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1);
+
+	//sptr_projectors_->get_forward_projector_sptr()->forward_project
+	//	(*sptr_fd, image.data(), subset_num, num_subsets);
+	////sptr_fd->fill(1.0f);
+
+	//if (sptr_add_.get()) {
+	//	std::cout << "additive term added...";
+	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no additive term added\n";
+
+	////if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+	//PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
+	//if (sm && sm->data() && !sm->data()->is_trivial()) {
+	//	std::cout << "applying unnormalisation...";
+	//	sptr_asm_->unnormalise(*sptr_ad);
+	//	//sptr_normalisation_->undo(*sptr_fd, 0, 1);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no unnormalisation applied\n";
+
+	//if (sptr_background_.get()) {
+	//	std::cout << "background term added...";
+	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no background term added\n";
 
 	return sptr_ad;
 }
 
 shared_ptr<PETImageData> 
-PETAcquisitionModel::backward(PETAcquisitionData& ad)
+PETAcquisitionModel::backward(PETAcquisitionData& ad, 
+	int subset_num, int num_subsets)
 {
 	shared_ptr<PETImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
@@ -537,12 +576,14 @@ PETAcquisitionModel::backward(PETAcquisitionData& ad)
 		//sptr_normalisation_->undo(*sptr_ad->data(), 0, 1);
 		std::cout << "ok\n";
 		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, *sptr_ad);
+		sptr_projectors_->get_back_projector_sptr()->back_project
+			(*sptr_im, *sptr_ad, subset_num, num_subsets);
 		std::cout << "ok\n";
 	}
 	else {
 		std::cout << "backprojecting...";
-		sptr_projectors_->get_back_projector_sptr()->back_project(*sptr_im, ad);
+		sptr_projectors_->get_back_projector_sptr()->back_project
+			(*sptr_im, ad, subset_num, num_subsets);
 		std::cout << "ok\n";
 	}
 
