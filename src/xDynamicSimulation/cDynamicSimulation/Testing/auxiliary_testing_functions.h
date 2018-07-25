@@ -41,7 +41,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define H5_PHANTOM_TEST_PATH  SHARED_FOLDER_PATH "h5_testfile_cube_size3.h5"
 
 // #define H5_XCAT_PHANTOM_PATH "/media/sf_SharedFolder/CCPPETMR/xcat_tissue_segmentation_uint64.h5"
-#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "xcat_phantom_128_cubed.h5"
+#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
 #define FILENAME_DYNSIM  SHARED_FOLDER_PATH "testoutput_dynamic_simulation.h5"

@@ -14,8 +14,9 @@ date: 15. March 2018
 
 void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
 {	
-	std::cout << "Writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
+	std::cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
 	target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
+	std::cout << "Finished writing simulation output."<<std::endl;
 }
 
 void MRDynamicSimulation::simulate_dynamics( void )
@@ -47,7 +48,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	
 	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
 	{
-		std::cout << "Mapping contrast " << i_contrast << std::endl;
+		std::cout << "Acquisition contrast " << i_contrast << std::endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
 

@@ -190,9 +190,9 @@
 		<name>Body</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	40		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			240		</t1_miliseconds>
-			<t2_miliseconds> 			85 		</t2_miliseconds>
+			<spin_density_percentH2O> 	70		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			350		</t1_miliseconds>
+			<t2_miliseconds> 			30 		</t2_miliseconds>
 			<cs_ppm> 					-3.4			</cs_ppm>
 		</MRTissueParameter>
 
@@ -963,9 +963,9 @@
 		<name> Pericardium </name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
-			<t1_miliseconds> 			240		</t1_miliseconds>
-			<t2_miliseconds> 			85 		</t2_miliseconds>
+			<spin_density_percentH2O> 	70		 	</spin_density_percentH2O>
+			<t1_miliseconds> 			350		</t1_miliseconds>
+			<t2_miliseconds> 			30 		</t2_miliseconds>
 			<cs_ppm> 					-3.4	</cs_ppm>
 		</MRTissueParameter>
 
@@ -982,7 +982,7 @@
 		<name> Cartilage</name>
 
 		<MRTissueParameter>
-			<spin_density_percentH2O> 	100		 	</spin_density_percentH2O>
+			<spin_density_percentH2O> 	80		 	</spin_density_percentH2O>
 			<t1_miliseconds> 			1150		</t1_miliseconds>
 			<t2_miliseconds> 			43 		</t2_miliseconds>
 			<cs_ppm> 					0			</cs_ppm>
