@@ -58,7 +58,7 @@ output_file = args['--output']
 
 def main():
 
-    AcquisitionData.set_storage_scheme('mem')
+##    AcquisitionData.set_storage_scheme('mem')
 
     # no info printing from the engine, warnings and errors sent to stdout
     msg_red = MessageRedirector()

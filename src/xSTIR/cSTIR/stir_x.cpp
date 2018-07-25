@@ -486,6 +486,8 @@ PETAcquisitionModel::forward(const PETImageData& image,
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
+	if (num_subsets > 1)
+		sptr_fd->fill(0.0f);
 
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image.data(), subset_num, num_subsets);
