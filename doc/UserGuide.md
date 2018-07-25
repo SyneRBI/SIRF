@@ -78,7 +78,7 @@ The MR module and the demos create temporary files during operation. They are no
 
 ### Object-oriented paradigm <a name="Object-oriented_paradigm"></a>
 
-SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their methods, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class ImageData that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
+SIRF library modules are interfaces to object-oriented C++, which makes it reasonable for them to follow the object-oriented programming paradigm as well. This means that instead of having data containers (arrays, files etc.) and functions that operate on them, we employ objects, which contain data and come with sets of functions, called their _methods_, that operate on data. Each object contains a special method called constructor, which has the same name as the object class name and must be called to create that object. For example, to create an object of class ImageData that handles MR image data and fill it with data stored in the HDF5 file 'my_image.h5' one needs to do assignment 
 
     image = ImageData('my_image.h5'); 
 
@@ -95,6 +95,8 @@ Parameters of objects are modified/accessed via set/get methods (mutators and ac
     obj_fun_value = obj_fun.get_value(image); 
 
 The mutators are also responsible for basic error checking. 
+
+Some classes are derived from other classes, which means that they have all the methods of the classes they are derived from: we say that these methods are _inherited_. For example, class `AcquisitionModelUsingRayTracingMatrix` is derived from `AcquisitionModelUsingMatrix`, which in turn is derived from `AcquisitionModel`, and so it inherits all the methods of the latter two.
 
 ### Error handling <a name="Error_handling"></a>
 
@@ -158,6 +160,8 @@ will provide information on pGadgetron ImageData class, and
     doc mSTIR.AcquisitionData  
 
 on the mSTIR.AcquisitionData class. Regrettably, help and doc show all methods, including some common built-in methods such as __weakref__ method in Python or addlistener method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with \*\*\*SIRF\*\*\*. Methods not marked this way should be ignored. 
+
+In order to understand the functionality of a derived class (see [Object-oriented paradigm](#Object-oriented_paradigm)), you are advised to first get help on the classes it is derived from. In Python, you can see that a class is derived by the presence of "Method resolution order" section in Python help output, which lists all classes it is derived from. You are advised to get help on all these classes except Python's class `builtins.object`. In Matlab, look at "Superclasses" item in "Class Details", and get help on the classes listed there except Matlab's class `handle`.
 
 ### General structure of the classes <a name="General_structure_of_the_classes"></a>
 
