@@ -133,7 +133,7 @@ def main():
     acq_model.set_up(acq_template, image)
     simulated_data = acq_model.forward(image)
     if output_file is not None:
-        simulated_data.write('simulated_data')
+        simulated_data.write(output_file)
 
     # show simulated acquisition data
     simulated_data_as_array = simulated_data.as_array()
