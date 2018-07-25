@@ -1072,7 +1072,7 @@ class AcquisitionModel:
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
         ''' 
-        Sets the additive term a in (F);
+        Sets the additive term a in the acquisition model;
         at:  an AcquisitionData object containing a.
         '''
         assert_validity(at, AcquisitionData)
@@ -1080,7 +1080,7 @@ class AcquisitionModel:
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
         ''' 
-        Sets the background term b in (F);
+        Sets the background term b in the acquisition model;
         bt:  an AcquisitionData object containing b.
         '''
         assert_validity(bt, AcquisitionData)
@@ -1088,16 +1088,16 @@ class AcquisitionModel:
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
-        Sets the normalization n in (F);
-        norm:  an AcquisitionSensitivityModel object containing normalisation n
+        Sets the normalization n in the acquisition model;
+        norm:  an AcquisitionSensitivityModel object containing normalisation n.
         '''
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
     def forward(self, image, subset_num = 0, num_subsets = 1):
         ''' 
-        Returns the forward projection of x given by (F);
-        image   :  an ImageData object containing x;
+        Returns the forward projection of image;
+        image   :  an ImageData object.
         '''
         assert_validity(image, ImageData)
         ad = AcquisitionData()
@@ -1107,8 +1107,8 @@ class AcquisitionModel:
         return ad;
     def backward(self, ad, subset_num = 0, num_subsets = 1):
         ''' 
-        Returns the backward projection of y giben by (B);
-        ad:  an AcquisitionData object containing y.
+        Returns the backward projection of ad;
+        ad:  an AcquisitionData object.
         '''
         assert_validity(ad, AcquisitionData)
         image = ImageData()
@@ -1120,13 +1120,13 @@ class AcquisitionModel:
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
-    matrix for G in (F).
+    matrix for G - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
         Creates an AcquisitionModelUsingMatrix object, optionally setting
         the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -1142,7 +1142,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
     def set_matrix(self, matrix):
         ''' 
         Sets the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
@@ -1159,13 +1159,13 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a ray tracing
-    matrix for G in (F).
+    matrix for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
         Creates an AcquisitionModelUsingMatrix object, optionally setting
         the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -1188,7 +1188,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     def get_matrix(self):
         ''' 
         Returns the ray tracing matrix used for projecting;
-        matrix:  a RayTracingMatrix object representing G in (F).
+        matrix:  a RayTracingMatrix object representing G in acquisition model.
         '''
         matrix = RayTracingMatrix()
         matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
@@ -1255,7 +1255,7 @@ class QuadraticPrior(Prior):
 
 class PLSPrior(Prior):
     '''
-    Class for PLS prior.
+    Class for Parallel Level Sets prior.
     '''
     def __init__(self):
         self.handle = None

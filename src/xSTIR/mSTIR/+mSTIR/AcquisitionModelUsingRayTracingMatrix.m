@@ -25,7 +25,8 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
         function self = AcquisitionModelUsingRayTracingMatrix(matrix)
 %         Creates an AcquisitionModelUsingRayTracingMatrix object.
 %         The optional argument sets the ray tracing matrix to be used;
-%         matrix:  a RayTracingMatrix object to represent G in (F).
+%         matrix:  a RayTracingMatrix object to represent G in (F) -
+%                  see AcquisitionModel
             self.name = 'AcqModUsingMatrix';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtilities.check_status([self.name ':ctor'], self.handle_)
@@ -44,7 +45,8 @@ classdef AcquisitionModelUsingRayTracingMatrix < ...
         end
         function matrix = get_matrix(self)
 %***SIRF*** Returns the ray tracing matrix used for projecting;
-%         matrix:  a RayTracingMatrix object representing G in (F).
+%         matrix:  a RayTracingMatrix object representing G in (F) -
+%                  see AcquisitionModel
             matrix = mSTIR.RayTracingMatrix();
             mUtilities.delete(matrix.handle_)
             matrix.handle_ = calllib('mstir', 'mSTIR_parameter',...
