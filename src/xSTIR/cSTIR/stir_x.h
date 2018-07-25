@@ -379,10 +379,11 @@ public:
 
 	// computes and returns a subset of forward-projected data 
 	shared_ptr<PETAcquisitionData>
-		forward(const PETImageData& image, int subset_num = 0, int num_subsets = 1);
+		forward(const PETImageData& image, 
+		int subset_num = 0, int num_subsets = 1);
 	// replaces a subset of acquisition data with forward-projected data
 	void forward(PETAcquisitionData& acq_data, const PETImageData& image, 
-		int subset_num, int num_subsets);
+		int subset_num, int num_subsets, bool zero = false);
 
 	shared_ptr<PETImageData> backward(PETAcquisitionData& ad, 
 		int subset_num = 0, int num_subsets = 1);

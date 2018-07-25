@@ -481,11 +481,11 @@ PETAcquisitionModel::set_up(
 
 void 
 PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
-	int subset_num, int num_subsets)
+	int subset_num, int num_subsets, bool zero)
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
-		(*sptr_fd, image.data(), subset_num, num_subsets);
+		(*sptr_fd, image.data(), subset_num, num_subsets, zero);
 
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
@@ -520,9 +520,9 @@ PETAcquisitionModel::forward(const PETImageData& image,
 	shared_ptr<PETAcquisitionData> sptr_ad;
 	sptr_ad = sptr_acq_template_->new_acquisition_data();
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
-	if (num_subsets > 1)
-		sptr_fd->fill(0.0f);
-	forward(*sptr_ad, image, subset_num, num_subsets);
+	//if (num_subsets > 1)
+	//	sptr_fd->fill(0.0f);
+	forward(*sptr_ad, image, subset_num, num_subsets, num_subsets > 1);
 
 	//sptr_projectors_->get_forward_projector_sptr()->forward_project
 	//	(*sptr_fd, image.data(), subset_num, num_subsets);
