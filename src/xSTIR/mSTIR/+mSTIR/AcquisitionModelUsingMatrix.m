@@ -1,7 +1,7 @@
 classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
 % ADVANCED USERS ONLY.    
 % Class for PET acquisition model with the geometric projection G
-% represented by a sparse matrix
+% represented by a sparse matrix - see AcquisitionModel.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -26,7 +26,8 @@ classdef AcquisitionModelUsingMatrix < mSTIR.AcquisitionModel
         function self = AcquisitionModelUsingMatrix(matrix)
 %         Creates an AcquisitionModelUsingMatrix object.
 %         The optional argument sets the projection matrix to be used.
-%         matrix:  a RayTracingMatrix object to represent G in (F).
+%         matrix:  a RayTracingMatrix object to represent G in (F) -
+%                  see AcquisitionModel
             self.name = 'AcqModUsingMatrix';
             self.handle_ = calllib('mstir', 'mSTIR_newObject', self.name);
             mUtilities.check_status([self.name ':ctor'], self.handle_)
