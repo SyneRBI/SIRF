@@ -304,6 +304,10 @@ referred to as forward projection, and the computation of
 
 where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
 backward projection.
+
+At present we use quick-fix implementation of forward projection for
+the computation of a subset of y. A more proper implementation will be done 
+later via AcquisitionData subsets.
 */
 
 class PETAcquisitionModel {
