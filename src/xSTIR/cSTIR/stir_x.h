@@ -375,6 +375,8 @@ public:
 
 	shared_ptr<PETAcquisitionData>
 		forward(const PETImageData& image, int subset_num = 0, int num_subsets = 1);
+	void forward(PETAcquisitionData& acq, const PETImageData& image, 
+		int subset_num, int num_subsets);
 
 	shared_ptr<PETImageData> backward(PETAcquisitionData& ad, 
 		int subset_num = 0, int num_subsets = 1);

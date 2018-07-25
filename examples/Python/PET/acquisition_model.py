@@ -133,7 +133,9 @@ def main():
     # project the image to obtain simulated acquisition data
     # data from raw_data_file is used as a template
     acq_model.set_up(acq_template, image)
-    simulated_data = acq_model.forward(image, 0, 4)
+    simulated_data = acq_template.get_uniform_copy()
+    acq_model.forward(image, 0, 4, simulated_data)
+#    simulated_data = acq_model.forward(image, 0, 4)
     if output_file is not None:
         simulated_data.write(output_file)
 

@@ -479,6 +479,40 @@ PETAcquisitionModel::set_up(
 	return s;
 }
 
+void 
+PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
+	int subset_num, int num_subsets)
+{
+	shared_ptr<ProjData> sptr_fd = ad.data();
+	sptr_projectors_->get_forward_projector_sptr()->forward_project
+		(*sptr_fd, image.data(), subset_num, num_subsets);
+
+	if (sptr_add_.get()) {
+		std::cout << "additive term added...";
+		ad.axpby(1.0, ad, 1.0, *sptr_add_);
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no additive term added\n";
+
+	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
+	if (sm && sm->data() && !sm->data()->is_trivial()) {
+		std::cout << "applying unnormalisation...";
+		sptr_asm_->unnormalise(ad);
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no unnormalisation applied\n";
+
+	if (sptr_background_.get()) {
+		std::cout << "background term added...";
+		ad.axpby(1.0, ad, 1.0, *sptr_background_);
+		std::cout << "ok\n";
+	}
+	else
+		std::cout << "no background term added\n";
+}
+
 shared_ptr<PETAcquisitionData>
 PETAcquisitionModel::forward(const PETImageData& image, 
 	int subset_num, int num_subsets)
@@ -488,37 +522,38 @@ PETAcquisitionModel::forward(const PETImageData& image,
 	shared_ptr<ProjData> sptr_fd = sptr_ad->data();
 	if (num_subsets > 1)
 		sptr_fd->fill(0.0f);
+	forward(*sptr_ad, image, subset_num, num_subsets);
 
-	sptr_projectors_->get_forward_projector_sptr()->forward_project
-		(*sptr_fd, image.data(), subset_num, num_subsets);
-	//sptr_fd->fill(1.0f);
+	//sptr_projectors_->get_forward_projector_sptr()->forward_project
+	//	(*sptr_fd, image.data(), subset_num, num_subsets);
+	////sptr_fd->fill(1.0f);
 
-	if (sptr_add_.get()) {
-		std::cout << "additive term added...";
-		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
-		std::cout << "ok\n";
-	}
-	else
-		std::cout << "no additive term added\n";
+	//if (sptr_add_.get()) {
+	//	std::cout << "additive term added...";
+	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_add_);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no additive term added\n";
 
-	//if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
-	PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
-	if (sm && sm->data() && !sm->data()->is_trivial()) {
-		std::cout << "applying unnormalisation...";
-		sptr_asm_->unnormalise(*sptr_ad);
-		//sptr_normalisation_->undo(*sptr_fd, 0, 1);
-		std::cout << "ok\n";
-	}
-	else
-		std::cout << "no unnormalisation applied\n";
+	////if (sptr_normalisation_.get() && !sptr_normalisation_->is_trivial()) {
+	//PETAcquisitionSensitivityModel* sm = sptr_asm_.get();
+	//if (sm && sm->data() && !sm->data()->is_trivial()) {
+	//	std::cout << "applying unnormalisation...";
+	//	sptr_asm_->unnormalise(*sptr_ad);
+	//	//sptr_normalisation_->undo(*sptr_fd, 0, 1);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no unnormalisation applied\n";
 
-	if (sptr_background_.get()) {
-		std::cout << "background term added...";
-		sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
-		std::cout << "ok\n";
-	}
-	else
-		std::cout << "no background term added\n";
+	//if (sptr_background_.get()) {
+	//	std::cout << "background term added...";
+	//	sptr_ad->axpby(1.0, *sptr_ad, 1.0, *sptr_background_);
+	//	std::cout << "ok\n";
+	//}
+	//else
+	//	std::cout << "no background term added\n";
 
 	return sptr_ad;
 }

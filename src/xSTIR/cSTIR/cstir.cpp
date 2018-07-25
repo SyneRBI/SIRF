@@ -430,6 +430,20 @@ void* cSTIR_acquisitionModelFwd
 }
 
 extern "C"
+void* cSTIR_acquisitionModelFwdReplace
+(void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		am.forward(ad, id, subset_num, num_subsets);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, 
 	int subset_num, int num_subsets)
 {
