@@ -48,8 +48,7 @@ Converters for data from other scanners are available from [https://github.com/i
 
 ### PET <a name="PET"></a>
 
-STIR (and therefore SIRF) can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for scatter estimation, so this is currently not yet supported in SIRF. Hopefully this will be fixed in 
-the next version. 
+STIR can handle data from the Siemens mMR Biograph with progress being made for the GE Signa PET/MR. However, STIR currently still relies on some bash scripts for file format conversion, estimation of randoms and scatter etc. Therefore, in the current SIRF release, we do not yet support measured data from any scanner. This will be fixed for version 1.0. 
 
 # Where to find further information <a name="Further_information"></a>
 
@@ -133,20 +132,20 @@ In order to have a true (i.e. independent) copy of a SIRF object, the user must 
 	
 ## Library components <a name="Library_components"></a>
 
-At present, the SIRF library provides two Python interface modules pStir and pGadgetron for STIR and Gadgetron respectively, and two respective Matlab modules mStir and mGadgetron. 
+At present, the SIRF library provides two Python interface modules pSTIR and pGadgetron for STIR and Gadgetron respectively, and two respective Matlab modules mSTIR and mGadgetron. 
 
 ### Getting help on SIRF library modules <a name="Getting_help_on_SIRF_library_modules"></a>
 
 We remind that to see the contents of a Python module, the user needs to import it and use Python's help, and in Matlab one needs to use doc. For example,  
 
     # Python  
-    import pStir 
-    help(pStir) 
+    import pSTIR 
+    help(pSTIR) 
 
-will show the components of pStir, and similarly 
+will show the components of pSTIR, and similarly 
 
     % Matlab 
-    doc mStir 
+    doc mSTIR 
 
 will show the components of mGadgetron. In the same way,   
 
@@ -156,9 +155,9 @@ will show the components of mGadgetron. In the same way,
 will provide information on pGadgetron ImageData class, and  
 
     % Matlab 
-    doc mStir.AcquisitionData  
+    doc mSTIR.AcquisitionData  
 
-on the mStir.AcquisitionData class. Regrettably, help and doc show all methods, including some common built-in methods such as __weakref__ method in Python or addlistener method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with \*\*\*SIRF\*\*\*. Methods not marked this way should be ignored. 
+on the mSTIR.AcquisitionData class. Regrettably, help and doc show all methods, including some common built-in methods such as __weakref__ method in Python or addlistener method in Matlab. Methods that are not related to SIRF is relatively easy to identify in Python (built-in methods have underscores in names). In Matlab they are difficult to identify, which is why we mark relevant Matlab methods other than constructors with \*\*\*SIRF\*\*\*. Methods not marked this way should be ignored. 
 
 ### General structure of the classes <a name="General_structure_of_the_classes"></a>
 
@@ -177,9 +176,9 @@ and a method to create a copy of the object
     recon.process(); 
     output_image_data=recon.get_output(); 
 
-Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up Reconstructor and IterativeReconstructor classes in pStir or mStir using help or doc. We note that help(pStir.IterativeReconstructor) and doc mStir.IterativeReconstructor will show all the functionality of this class, i.e. including that of Reconstructor (and also some built-in functionality common to Python/Matlab classes). 
+Classes follow a simple hierarchy, where top-level describes the generic functionality, and derived classes add/specify functionality. To see an example, look up Reconstructor and IterativeReconstructor classes in pSTIR or mSTIR using help or doc. We note that help(pSTIR.IterativeReconstructor) and doc mSTIR.IterativeReconstructor will show all the functionality of this class, i.e. including that of Reconstructor (and also some built-in functionality common to Python/Matlab classes). 
 
-In what follows we use PET instead of pStir/mStir and MR instead of pGadgetron/mGadgetron to cover both Python and Matlab and also prospective alternative reconstruction engines. 
+In what follows we use PET instead of pSTIR/mSTIR and MR instead of pGadgetron/mGadgetron to cover both Python and Matlab and also prospective alternative reconstruction engines. 
 
 In the rest of the document we give basic information on the SIRF classes, including brief descriptions of the methods that are of interest to the user. Please use the inline help facility discussed above for more information. 
 
@@ -438,6 +437,7 @@ It has 2 main functions:
     lm2sino.set_template(tmpl_file)
     lm2sino.set_time_interval(0, 10)
     lm2sino.flag_on('store_prompts')
+
     lm2sino.set_up()
     lm2sino.process()
     acq_data = lm2sino.get_output()
@@ -538,7 +538,6 @@ Provides methods for for applying (1/n) factor in (F) and (B) or its inverse.
     asm = AcquisitionSensitivityModel(norm_file)
 
     # create acquisition sensitivity model from attenuation image
-    # attenuation image should be in units cm^-1 (attenuation per cm)
     attn_image = ImageData(attn_file)
     am = AcquisitionModelUsingRayTracingMatrix()
     am.set_up(template, attn_image)
