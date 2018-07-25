@@ -1106,7 +1106,7 @@ class AcquisitionModel:
         return ad;
     def backward(self, ad):
         ''' 
-        Returns the backward projection of y giben by (B);
+        Returns the backward projection of y given by (B);
         ad:  an AcquisitionData object containing y.
         '''
         assert_validity(ad, AcquisitionData)
@@ -1119,7 +1119,7 @@ class AcquisitionModel:
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
-    matrix for G in (F).
+    matrix for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
@@ -1158,7 +1158,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a ray tracing
-    matrix for G in (F).
+    matrix for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
@@ -1254,7 +1254,7 @@ class QuadraticPrior(Prior):
 
 class PLSPrior(Prior):
     '''
-    Class for PLS prior.
+    Class for Parallel Level Sets prior.
     '''
     def __init__(self):
         self.handle = None
