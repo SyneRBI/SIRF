@@ -1137,6 +1137,9 @@ class AcquisitionModel(object):
                                              subset_num=subset_num, \
                                              num_subsets = num_subsets, \
                                              ad = ad)
+    def adjoint(self, ad, subset_num = 0, num_subsets = 1):
+        return self.backward(ad, subset_num = subset_num, 
+                             num_subsets = num_subsets)
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
