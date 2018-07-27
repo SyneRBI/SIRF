@@ -159,7 +159,10 @@ def main():
     # show simulated acquisition data
     simulated_data_as_array_direct = simulated_data.as_array()
     show_2D_array('Direct projection', simulated_data_as_array_direct[0,:,:])
+    back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)
 
+    back_projected_image_as_array_adj = back_projected_image_adj.as_array()
+    show_2D_array('Adjoint projection', back_projected_image_as_array_adj[z,:,:])
 
 try:
     main()
