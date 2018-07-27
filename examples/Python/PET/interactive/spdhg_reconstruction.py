@@ -113,105 +113,47 @@ plt.close('all')
 # Since we are not using a penalty, or prior in this example, it
 # defaults to using MLEM, but we will modify it to OSEM
 
-import pCIL
+import pCIL  # the code from this module needs to be imported somehow differently
 
-data = acquired_data.as_array()
+data = acquired_data
 background = 0 * data.copy()
 
-f = pCIL.KullbackLeibler(data, background)
+f = [pCIL.KullbackLeibler(data, background)]
 g = pCIL.ZeroFun()
 
-init_image = image.asarray().clone()
+init_image = 0 * image.copy()
 z = init_image.copy()
-y = data.copy()
-A = am
+y = [0 * data.copy()]
+A = [am]
 
 niter = 10
 
-L = pCIL.PowerMethodNonsquare(A, 10)
+L = pCIL.PowerMethodNonsquare(A[0], 10, x0=image.copy())
 L *= 1.05
 tau = 1 / L
 sigma = [1 / L]
    
 # Selection function
-def fun_select(x):
-    return [int(numpy.random.choice(len(A), 1, p=1 / len(A)))]
-    
+def fun_select(k):
+    n = len(A)
+    return [int(numpy.random.choice(n, 1, p=[1./n] * n))]
+
+init_image = 0 * image.copy()   
 recon = pCIL.spdhg(init_image, y, z, f, g, A, tau, sigma, fun_select)
 
+# %%
 for i in range(niter):
     print(i)
     recon.update()
 
+# a = am.forward(x, subset_num=0, num_subsets=10)
+# b = am.forward(x)
+# b.as_array().shape
 #%%  create initial image
 # we could just use a uniform image but here we will create a disk with a different
 # initial value (this will help the display later on)
-init_image=image.clone()
-init_image.fill(cmax/4)
-make_cylindrical_FOV(init_image)
-# display
-idata = init_image.as_array()
+idata = recon.x.as_array()
 slice=idata.shape[0]/2;
 plt.figure()
 imshow(idata[slice,:,:],[0,cmax], 'initial image');
-
-#%% reconstruct the image 
-reconstructed_image=init_image.clone()
-# set up the reconstructor
-recon.set_up(reconstructed_image)
-# do actual recon
-recon.reconstruct(reconstructed_image)
-
-#%% bitmap display of images
-reconstructed_array=reconstructed_image.as_array()
-
-plt.figure();
-plt.subplot(1,2,1);
-imshow(image_array[slice,:,:,], [0,cmax*1.2],'emission image');
-plt.subplot(1,2,2);
-imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'reconstructed image');
-
-
-#%% Generate a noisy realisation of the data
-noisy_array=numpy.random.poisson(acquisition_array).astype('float64')
-print(' Maximum counts in the data: %d' % noisy_array.max())
-# stuff into a new AcquisitionData object
-noisy_data = acquired_data.clone()
-noisy_data.fill(noisy_array);
-
-#%% Display bitmaps of the middle sinogram
-plt.figure()
-plt.subplot(1,2,1);
-imshow(acquisition_array[slice,:,:,], [0,acquisition_array.max()], 'original');
-plt.subplot(1,2,2);
-imshow(noisy_array[slice,:,:,], [0,acquisition_array.max()], 'noisy');
-
-#%% reconstruct the noisy data
-obj_fun.set_acquisition_data(noisy_data)
-# We could save the data to file if we wanted to, but currently we don't.
-# recon.set_output_filename_prefix('reconstructedImage_noisydata')
-
-noisy_reconstructed_image=init_image.clone()
-recon.reconstruct(noisy_reconstructed_image)
-#%% bitmap display of images
-noisy_reconstructed_array=noisy_reconstructed_image.as_array()
-
-plt.figure();
-plt.subplot(1,2,1);
-imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'no noise');
-plt.subplot(1,2,2);
-imshow(noisy_reconstructed_array[slice,:,:,], [0,cmax*1.2], 'with noise');
-
-#%% run same reconstruction but saving images and objective function values every sub-iteration
-num_subiters = 64;
-all_osem_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
-current_image = init_image.clone()
-osem_objective_function_values = [ obj_fun.value(current_image) ]
-all_osem_images[0,:,:,:] =  current_image.as_array();
-for iter in range(1, num_subiters+1):
-    recon.update(current_image);
-    
-    obj_fun_value = obj_fun.value(current_image);
-    osem_objective_function_values.append(obj_fun_value);
-    all_osem_images[iter,:,:,:] =  current_image.as_array();
   
