@@ -1071,6 +1071,11 @@ class AcquisitionModel:
         '''
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
+
+        # temporary save the templates in the class
+        self.acq_templ = acqu_templ
+        self.img_templ = img_templ
+
         try_calling(pystir.cSTIR_setupAcquisitionModel\
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
@@ -1123,6 +1128,15 @@ class AcquisitionModel:
             (self.handle, ad.handle, subset_num, num_subsets)
         check_status(image.handle)
         return image
+    def get_linear_acquisition_model(self):
+        am = type(self)()
+        am.set_up( self.acq_templ, self.img_templ )
+        return am
+    def direct(self, image, subset_num = 0, num_subsets = 1, ad = None):
+        return self.get_linear_acquisition_model()(image, \
+                                             subset_num=subset_num, \
+                                             num_subsets = num_subsets, \
+                                             ad = ad)
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
