@@ -1138,6 +1138,10 @@ class AcquisitionModel:
             (self.handle, ad.handle)
         check_status(image.handle)
         return image
+    def direct(self, image):
+        return self.forward(image)
+    def adjoint(self, ad):
+        return self.backward(ad)
 
 class Gadget:
     '''
