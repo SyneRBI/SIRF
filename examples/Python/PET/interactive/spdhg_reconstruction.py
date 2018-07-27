@@ -129,6 +129,7 @@ A = [am]
 niter = 10
 
 L = pCIL.PowerMethodNonsquare(A[0], 10, x0=image.copy())
+
 L *= 1.05
 tau = 1 / L
 sigma = [1 / L]
