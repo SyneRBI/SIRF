@@ -118,6 +118,12 @@ def main():
     print('norm of image*10: %f' % image.norm())
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
+    
+    # test clone vs copy
+    
+    new_acq_data_copy = acq_data.copy()
+    acq_array_copy = new_acq_data_copy.as_array()
+    show_2D_array('Copied acquisition data', acq_array_copy[z,:,:])
 
 try:
     main()
@@ -127,3 +133,6 @@ except error as err:
 
 if scheme != storage:
     AcquisitionData.set_storage_scheme(scheme)
+    
+
+
