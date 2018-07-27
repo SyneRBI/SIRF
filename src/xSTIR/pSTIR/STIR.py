@@ -328,6 +328,9 @@ class DataContainer(ABC):
             return z;
         else:
             raise error('wrong multiplier')
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
 
 class ImageData(DataContainer):
     '''Class for PET image data objects.
