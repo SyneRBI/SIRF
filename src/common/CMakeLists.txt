@@ -16,6 +16,11 @@
 #
 #=========================================================================
 
+# TODO target
+include_directories(include)
+add_library(common geometrical_info.cpp)
+#INSTALL(common)
+
 if (BUILD_PYTHON)
 
   file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
@@ -32,4 +37,3 @@ if (BUILD_MATLAB)
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
 
 endif (BUILD_MATLAB)
-

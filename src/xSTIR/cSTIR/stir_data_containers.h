@@ -39,6 +39,7 @@ limitations under the License.
 #include "data_handle.h"
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
+#include "SIRF/common/geometrical_info.h"
 
 using stir::shared_ptr;
 
@@ -469,30 +470,91 @@ public:
 	PETImageData(const PETImageData& image)
 	{
 		_data.reset(image.data().clone());
+		_patient_coord_geometrical_info.reset(
+			new GeometricalInfo(image.get_patient_coord_geometrical_info()));
 	}
 	PETImageData(const PETAcquisitionData& ad)
 	{
 		_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+		// TODO: How can we get the geometrical info?
 	}
+	// Perhaps this can no longer exist, as we can't know the size and spacing of a DiscretisedDensity
 	PETImageData(const Image3DF& image)
 	{
 		_data.reset(image.clone());
+		GeometricalInfo::Offset offset;
+		offset[0] = image.get_origin()[0];
+		offset[1] = image.get_origin()[1];
+		offset[2] = image.get_origin()[2];
+		// TODO: How can we get the size?
 	}
 	PETImageData(const Voxels3DF& v)
 	{
 		_data.reset(v.clone());
+		GeometricalInfo::Offset gantry_offset;  // TODO: This is a const per scanner?
+		gantry_offset[0] = 0;  // TODO
+		gantry_offset[1] = 0;  // TODO
+		gantry_offset[2] = 0;  // TODO
+		GeometricalInfo::Offset offset;
+		offset[0] = v.get_origin()[0] + gantry_offset[0];
+		offset[1] = v.get_origin()[1] + gantry_offset[1];
+		offset[2] = v.get_origin()[2] + gantry_offset[2];
+		GeometricalInfo::Size size;
+		size[0] = v.get_x_size();
+		size[1] = v.get_y_size();
+		size[2] = v.get_z_size();
+		GeometricalInfo::Spacing spacing;
+		spacing[0] = v.get_voxel_size()[0];
+		spacing[1] = v.get_voxel_size()[1];
+		spacing[2] = v.get_voxel_size()[2];
+		GeometricalInfo::Direction direction;
+		PatientPosition::PositionValue patient_position =
+			v.get_exam_info().patient_position.get_position();
+		if (patient_position == PatientPosition::HFS)
+		{
+			direction[0][0] = -1; // R
+			direction[1][1] = -1; // A
+			direction[2][2] = 1;  // S
+		}
+		else if (patient_position == PatientPosition::HFP)
+		{
+			direction[0][0] = 1;  // L
+			direction[1][1] = 1;  // P
+			direction[2][2] = 1;  // S
+		}
+		else if (patient_position == PatientPosition::FFS)
+		{
+			direction[0][0] = 1;  // L
+			direction[1][1] = 1;  // P
+			direction[2][2] = -1; // I
+		}
+		else if (patient_position == PatientPosition::FFP)
+		{
+			direction[0][0] = -1; // R
+			direction[1][1] = -1; // A
+			direction[2][2] = -1; // I
+		}
+		_patient_coord_geometrical_info =
+			shared_ptr<GeometricalInfo>(
+				new GeometricalInfo(
+					offset, spacing, size, direction));
+		// TODO: remove this
+		//std::cout << _patient_coord_geometrical_info << std::endl;
 	}
 	PETImageData(const ProjDataInfo& pdi)
 	{
 		_data.reset(new Voxels3DF(pdi));
+		// TODO geom
 	}
 	PETImageData(shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
+		// TODO geom
 	}
 	PETImageData(std::string filename)
 	{
 		_data = read_from_file<Image3DF>(filename);
+		// TODO
 	}
 	PETImageData* same_image_data()
 	{
@@ -549,9 +611,16 @@ public:
 	void get_voxel_sizes(float* vsizes) const;
 	int get_data(float* data) const;
 	int set_data(const float* data);
+	// GeometricalInfo get_patient_coord_geometrical_info() {
+	//   return *_patient_coord_geometrical_info;
+	// }
+	GeometricalInfo get_patient_coord_geometrical_info() const {
+		return *_patient_coord_geometrical_info;
+	}
 
 protected:
 	shared_ptr<Image3DF> _data;
+	shared_ptr<GeometricalInfo> _patient_coord_geometrical_info;
 };
 
 #endif
