@@ -339,6 +339,12 @@ class DataContainer(ABC):
     def copy(self):
         '''alias of clone'''
         return self.clone()
+    def conjugate(self):
+        '''Returns the complex conjugate of the data '''
+        if self.handle is not None:
+            array = self.as_array()
+            self.fill(array.conjugate())
+            return self
         
 class CoilImageData(DataContainer):
     '''
