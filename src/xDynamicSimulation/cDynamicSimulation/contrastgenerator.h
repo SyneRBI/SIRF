@@ -29,6 +29,10 @@ using ISMRMRD::NDArray;
 using ISMRMRD::IsmrmrdHeader;
 
 
+#define CASE_MAP_PET_CONTRAST 0
+#define CASE_MAP_PET_ATTENUATION 1
+
+
 typedef std::vector<float> SeqParamType;
 
 class AbstractContrastGenerator {
@@ -80,20 +84,23 @@ std::vector < complex_float_t > map_flash_contrast( TissueParameter const * cons
 
 
 
+#define CASE_MAP_CONTRAST 0
+#define CASE_MAP_ATTENUATION 1
+
 
 class PETContrastGenerator : public AbstractContrastGenerator {
 
 public:
 
 	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
-	void set_rawdata_header ( SOME PET RAWDATA HEADER);
+	void set_rawdata_header ( void ) {};
 
 	void map_contrast();
 	void map_attenuation();
 
 private:
 	std::vector < Image3DF > contrast_filled_volumes_;
-;
-	someheader
+	map_tissueparams_member(int const case_map);
+	// someheader;
 
 }

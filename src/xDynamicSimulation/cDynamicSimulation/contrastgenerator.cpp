@@ -231,3 +231,62 @@ std::vector < complex_float_t > map_flash_contrast
 
 	return contrast;
 }
+
+
+
+PETContrastGenerator::PETContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
+AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
+{
+}
+
+
+PETContrastGenerator::map_tissueparams_member(int const case_map)
+{
+	const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+
+	std::vector<size_t> data_size;
+	for( int i_dim=0; i_dim<3; i_dim++)
+	{
+		data_size.push_back( segmentation_dims[i_dim] );
+	}
+			
+	size_t Nz = data_size[2];
+	size_t Ny = data_size[1];
+	size_t Nx = data_size[0];
+
+	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+
+	Image3DF contrast_img(Nx, Ny, Nz);
+	
+	// #pragma omp parallel
+	for( size_t nz=0; nz<Nz; nz++)
+	{
+		for( size_t ny=0; ny<Ny; ny++)
+		{
+			for( size_t nx=0; nx<Nx; nx++)
+			{
+				size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
+				TissueParameter param_in_voxel = *(tissue_params[linear_index_access]);
+				
+				if(case_map==CASE_MAP_PET_CONTRAST)
+					contrast_img(nx, ny, nz) = param_in_voxel.pet_tissue_.suv_;						
+				else if(case_map == CASE_MAP_PET_ATTENUATION)
+					contrast_img(nx, ny, nz) = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
+			}
+		}
+	}
+
+	this->contrast_filled_volumes_.push_back( contrast_img );
+}
+
+
+
+PETContrastGenerator::map_contrast()
+{
+	this->map_tissueparams_member( CASE_MAP_PET_CONTRAST );
+}
+
+PETContrastGenerator::map_attenuation()
+{
+	this->map_tissueparams_member( CASE_MAP_PET_ATTENUATION );
+}
