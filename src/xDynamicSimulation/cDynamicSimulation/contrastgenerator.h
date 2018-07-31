@@ -65,7 +65,7 @@ public:
 	void set_rawdata_header(IsmrmrdHeader hdr);
 	void map_contrast();
 
-	virtual std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
+	std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
 
 	void match_output_dims_to_headerinfo( void );
 
@@ -84,10 +84,6 @@ std::vector < complex_float_t > map_flash_contrast( TissueParameter const * cons
 
 
 
-#define CASE_MAP_CONTRAST 0
-#define CASE_MAP_ATTENUATION 1
-
-
 class PETContrastGenerator : public AbstractContrastGenerator {
 
 public:
@@ -95,12 +91,14 @@ public:
 	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
 	void set_rawdata_header ( void ) {};
 
+	std::vector< Voxels3DF > get_contrast_filled_volumes();
+
 	void map_contrast();
 	void map_attenuation();
 
 private:
-	std::vector < Image3DF > contrast_filled_volumes_;
-	map_tissueparams_member(int const case_map);
+	std::vector < Voxels3DF > contrast_filled_volumes_;
+	void map_tissueparams_member(int const case_map);
 	// someheader;
 
-}
+};

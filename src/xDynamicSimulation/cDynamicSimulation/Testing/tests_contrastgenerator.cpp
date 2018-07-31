@@ -242,6 +242,25 @@ bool test_contgen::test_map_flash_contrast( void )
 
 }
 
+bool test_contgen::test_pet_constructor( void )
+{
+	try
+	{
+		LabelArray label_arr = aux_test::get_mock_label_array();
+		PETContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+
+
 
 
 

@@ -174,7 +174,7 @@ void run_tests_contrastgenerator(void)
 	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
 
 
-	// contgen tests
+	// mr contgen tests
 	tests_successful *= test_contgen::test_mr_constructor();
 	tests_successful *= test_contgen::test_mr_set_rawdata_header();
 
@@ -183,6 +183,11 @@ void run_tests_contrastgenerator(void)
 
 	test_contgen::test_match_output_dims_to_headerinfo();
 	test_contgen::test_mr_map_contrast_application_to_xcat();
+
+	// pet contgen tests
+	tests_successful *=	test_contgen::test_pet_constructor();
+
+
 
 	if ( !tests_successful )
 	{

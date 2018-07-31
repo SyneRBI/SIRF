@@ -27,6 +27,11 @@ void test_match_output_dims_to_headerinfo( void );
 void test_mr_map_contrast_application_to_xcat( void );
 
 
+bool test_pet_constructor( void );
+void test_pet_map_contrast_application_to_xcat( void );
+
+
+
 }// namespace test_contgen
 
 

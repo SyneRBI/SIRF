@@ -70,6 +70,7 @@ target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 
 target_link_libraries(cdynamicsimulation cgadgetron)
+target_link_libraries(cdynamicsimulation cstir)
 
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
