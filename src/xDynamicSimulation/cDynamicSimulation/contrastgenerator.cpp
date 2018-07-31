@@ -239,6 +239,10 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
 
+std::vector< Voxels3DF > PETContrastGenerator::get_contrast_filled_volumes()
+{
+	return this->contrast_filled_volumes_;	
+}
 
 void PETContrastGenerator::map_tissueparams_member(int const case_map)
 {

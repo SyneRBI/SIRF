@@ -28,6 +28,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
+using namespace stir;
+
 // contrast generator
 
 bool test_contgen::test_mr_constructor( void )
@@ -299,25 +301,48 @@ bool test_contgen::test_pet_map_attenuation( void )
 	}
 }
 
-tbool test_contgen::est_pet_map_contrast_application_to_xcat( void )
+void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {
 	try
 	{
 
+		int const num_dims = 3;
+
 		LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+		PETContrastGenerator pet_contgen (segmentation_labels, XML_XCAT_PATH); 
 
 		pet_contgen.map_contrast();
+		std::vector< Voxels3DF > volume_container = pet_contgen.get_contrast_filled_volumes();
 
-		pet_contgen.map_attenuation();
+		Voxels3DF contrast_volume = volume_container[0];
+		
+		IndexRange< num_dims > ind_rang = contrast_volume.get_index_range();
+		IndexRange<1> range_x = ind_rang[0][0];
+		IndexRange<1> range_y = ind_rang[0][1];
+		IndexRange<1> range_z = ind_rang[0][2];
 
-  		inline IndexRange<num_dimensions> get_index_range() const;
+		int Nx = range_x.get_length();
+		int Ny = range_y.get_length();
+		int Nz = range_z.get_length();
 
-		std::vector< Voxels3DF > 
+		std::cout << epiph( Nx ) << std::endl;
+		std::cout << epiph( Ny ) << std::endl;
+		std::cout << epiph( Nz ) << std::endl;
 
+		std::vector< float > data_output;
 
-		return true;
+		for(size_t nz=0; nz<Nz; nz++)
+			for(size_t ny=0; ny<Ny; ny++)
+				for(size_t nx=0; nx<Nx; nx++)
+				{
+					data_output.push_back( contrast_volume[nx][ny][nz] );
+				}
+
+		std::stringstream outname_contrast; 
+		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast"<< Nx << "x"<< Ny << "x" << Nz;
+		data_io::write_raw< float >( outname_contrast.str() , &data_output[0], Nx*Ny*Nz);
+
 	}
 	catch( std::runtime_error const &e)
 	{	
