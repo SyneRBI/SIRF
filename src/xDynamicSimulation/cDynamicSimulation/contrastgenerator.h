@@ -18,6 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 
 
+#include "stir_types.h"
+
 // base class for contrast generators. inherit for different modalities.
 // Reading the header is the same for each modality (hopefully!!!).
 // otherwise the header reading can be just inherited and implemented
@@ -28,7 +30,6 @@ using ISMRMRD::IsmrmrdHeader;
 
 
 typedef std::vector<float> SeqParamType;
-
 
 class AbstractContrastGenerator {
 
@@ -74,3 +75,25 @@ private:
 
 std::vector < complex_float_t > map_flash_contrast( TissueParameter const * const ptr_to_tiss_par, 
 													ISMRMRD::IsmrmrdHeader * ptr_to_header);
+
+
+
+
+
+
+class PETContrastGenerator : public AbstractContrastGenerator {
+
+public:
+
+	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
+	void set_rawdata_header ( SOME PET RAWDATA HEADER);
+
+	void map_contrast();
+	void map_attenuation();
+
+private:
+	std::vector < Image3DF > contrast_filled_volumes_;
+;
+	someheader
+
+}
