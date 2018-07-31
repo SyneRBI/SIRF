@@ -36,30 +36,33 @@ private:
 };
 
 class GeometricalInfo {
+private:
+	const static int DIM = 3;
+
 public:
-	typedef Coordinate<DIM, float>                  Offset;
-	typedef Coordinate<DIM, float>                  Spacing;
-	typedef Coordinate<DIM, int>                    Size;
-	typedef Coordinate<DIM, Coordinate<DIM, float>> Direction;
+	typedef Coordinate<DIM, float>                   Offset;
+	typedef Coordinate<DIM, float>                   Spacing;
+	typedef Coordinate<DIM, int>                     Size;
+	typedef Coordinate<DIM, Coordinate<DIM, float> > Direction;
 
 
-	GeometricalInfo(Offset offset, Spacing spacing, Size size, Direction direction);
-	GeometricalInfo(const GeometricalInfo& other) {
-		*this = other;
-	}
-	~GeometricalInfo() {};
-	Offset get_offset();
-	Spacing get_spacing();
-	Size get_size();
-	Direction get_direction();
-	//Transfrom GetTransfrom();
+	GeometricalInfo(
+		const Offset& offset, const Spacing& spacing,
+		const Size& size, const Direction& direction);
+	// GeometricalInfo(const GeometricalInfo& other) {
+	// 	*this = other;
+	// }
+	virtual ~GeometricalInfo() {};
+	const Offset get_offset();
+	const Spacing get_spacing();
+	const Size get_size();
+	const Direction get_direction();
 
 private:
 	Offset offset;
 	Spacing spacing;
 	Size size;
 	Direction direction;
-	//Transform transform;
 };
 
 #endif

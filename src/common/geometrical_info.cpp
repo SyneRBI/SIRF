@@ -16,14 +16,15 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-
 */
 
 #include <string>
 #include "SIRF/common/geometrical_info.h"
 
 GeometricalInfo::
-GeometricalInfo(Offset offset, Spacing spacing, Size size, Direction direction)
+GeometricalInfo(
+	const Offset& offset, const Spacing& spacing,
+	const Size& size, const Direction& direction)
 	:
 	offset (offset),
 	spacing (spacing),
@@ -31,25 +32,25 @@ GeometricalInfo(Offset offset, Spacing spacing, Size size, Direction direction)
 	direction (direction)
 {}
 
-GeometricalInfo::Offset
+const GeometricalInfo::Offset
 GeometricalInfo::get_offset()
 {
 	return offset;
 }
 
-GeometricalInfo::Spacing
+const GeometricalInfo::Spacing
 GeometricalInfo::get_spacing()
 {
 	return spacing;
 }
 
-GeometricalInfo::Size
+const GeometricalInfo::Size
 GeometricalInfo::get_size()
 {
 	return size;
 }
 
-GeometricalInfo::Direction
+const GeometricalInfo::Direction
 GeometricalInfo::get_direction()
 {
 	return direction;
