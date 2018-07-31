@@ -28,6 +28,9 @@ void test_mr_map_contrast_application_to_xcat( void );
 
 
 bool test_pet_constructor( void );
+bool test_pet_map_contrast( void );
+bool test_pet_map_attenuation( void );
+
 void test_pet_map_contrast_application_to_xcat( void );
 
 

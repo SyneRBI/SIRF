@@ -247,7 +247,27 @@ bool test_contgen::test_pet_constructor( void )
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
-		PETContrastGenerator mr_contgen (label_arr, XML_TEST_PATH); 
+		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+bool test_contgen::test_pet_map_contrast( void )
+{
+	try
+	{
+		LabelArray label_arr = aux_test::get_mock_label_array();
+		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+		pet_contgen.map_contrast();
+
+
 
 		return true;
 	}
@@ -260,8 +280,53 @@ bool test_contgen::test_pet_constructor( void )
 }
 
 
+bool test_contgen::test_pet_map_attenuation( void )
+{
+	try
+	{
+		LabelArray label_arr = aux_test::get_mock_label_array();
+		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
+		pet_contgen.map_attenuation();
 
 
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
+tbool test_contgen::est_pet_map_contrast_application_to_xcat( void )
+{
+	try
+	{
+
+		LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+
+		pet_contgen.map_contrast();
+
+		pet_contgen.map_attenuation();
+
+  		inline IndexRange<num_dimensions> get_index_range() const;
+
+		std::vector< Voxels3DF > 
+
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+	
+}
 
 
 // tissue label mapper 
