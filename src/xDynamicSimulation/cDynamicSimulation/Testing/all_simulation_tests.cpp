@@ -164,7 +164,7 @@ void run_tests_contrastgenerator(void)
 	bool tests_successful = true;
 
 	// tlm tests
-/*	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
+	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
 	tests_successful *= test_tlm::test_get_labels_array();
 	tests_successful *=	test_tlm::test_get_segmentation_dimensions();
 
@@ -187,7 +187,7 @@ void run_tests_contrastgenerator(void)
 	// pet contgen tests
 	tests_successful *=	test_contgen::test_pet_constructor();
 	tests_successful *= test_contgen::test_pet_map_contrast();
-	tests_successful *= test_contgen::test_pet_map_attenuation(); */
+	tests_successful *= test_contgen::test_pet_map_attenuation(); 
 
 	test_contgen::test_pet_map_contrast_application_to_xcat();
 
