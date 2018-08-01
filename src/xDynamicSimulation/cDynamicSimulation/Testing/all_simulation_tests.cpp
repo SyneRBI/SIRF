@@ -188,6 +188,7 @@ void run_tests_contrastgenerator(void)
 	tests_successful *=	test_contgen::test_pet_constructor();
 	tests_successful *= test_contgen::test_pet_map_contrast();
 	tests_successful *= test_contgen::test_pet_map_attenuation(); 
+	tests_successful *= test_contgen::test_pet_set_imagedata_from_file();
 
 	test_contgen::test_pet_map_contrast_application_to_xcat();
 

@@ -37,6 +37,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
 
+#define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.v"
+
+
 #define XML_TEST_PATH SHARED_FOLDER_PATH "XMLTestData/test_TissueParameters_XML.xml" 
 #define XML_XCAT_PATH SHARED_FOLDER_PATH "XMLTestData/XCAT_TissueParameters_XML.xml" 
 

@@ -301,6 +301,27 @@ bool test_contgen::test_pet_map_attenuation( void )
 	}
 }
 
+bool test_contgen::test_pet_set_imagedata_from_file( void )
+{
+	try
+	{
+		LabelArray label_arr = aux_test::get_mock_label_array();
+		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
+			
+		pet_contgen.set_imagedata_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+
+
 void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {
 	try

@@ -9,7 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <string>
-
+#include <memory>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "stir_types.h"
+#include "stir_data_containers.h"
 
 // base class for contrast generators. inherit for different modalities.
 // Reading the header is the same for each modality (hopefully!!!).
@@ -27,6 +28,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using ISMRMRD::NDArray;
 using ISMRMRD::IsmrmrdHeader;
+
+using namespace stir;
 
 
 #define CASE_MAP_PET_CONTRAST 0
@@ -89,7 +92,11 @@ class PETContrastGenerator : public AbstractContrastGenerator {
 public:
 
 	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
-	void set_rawdata_header ( void ) {};
+	void set_imagedata_from_file ( std::string const filename_header ) 
+	{
+	 	// this->sptr_image_ = std::make_shared<PETImageData>(filename_header);
+	 	// this->pet_image_data_ = PETImageData(filename_header);
+	};
 
 	std::vector< Voxels3DF > get_contrast_filled_volumes();
 
@@ -99,6 +106,7 @@ public:
 private:
 	std::vector < Voxels3DF > contrast_filled_volumes_;
 	void map_tissueparams_member(int const case_map);
-	// someheader;
-
+	
+	// std::shared_ptr<PETImageData> sptr_image_;
+	PETImageData pet_image_data_;
 };
