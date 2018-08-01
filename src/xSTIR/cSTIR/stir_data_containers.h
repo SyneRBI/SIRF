@@ -569,8 +569,9 @@ public:
 	PETImageData(const PETImageData& image)
 	{
 		_data.reset(image.data().clone());
-		_patient_coord_geometrical_info.reset(
-			new GeometricalInfo3D(image.get_patient_coord_geometrical_info()));
+		_patient_coord_geometrical_info =
+			GeometricalInfo3D(
+				image.get_patient_coord_geometrical_info());
 	}
 	PETImageData(const PETAcquisitionData& ad)
 	{
@@ -634,9 +635,7 @@ public:
 			direction[2][2] = -1; // I
 		}
 		_patient_coord_geometrical_info =
-			shared_ptr<VoxelisedGeometricalInfo3D>(
-				new VoxelisedGeometricalInfo3D(
-					offset, spacing, size, direction));
+			VoxelisedGeometricalInfo3D(offset, spacing, size, direction);
 		// TODO: remove this
 		//std::cout << _patient_coord_geometrical_info << std::endl;
 	}
@@ -714,12 +713,12 @@ public:
 	//   return *_patient_coord_geometrical_info;
 	// }
 	GeometricalInfo3D get_patient_coord_geometrical_info() const {
-		return *_patient_coord_geometrical_info;
+		return _patient_coord_geometrical_info;
 	}
 
 protected:
 	shared_ptr<Image3DF> _data;
-	shared_ptr<GeometricalInfo3D> _patient_coord_geometrical_info;
+	GeometricalInfo3D _patient_coord_geometrical_info;
 };
 
 }  // namespace sirf
