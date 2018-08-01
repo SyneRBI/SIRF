@@ -563,12 +563,14 @@ namespace sirf {
 
 class PETImageData : public aDataContainer<float> {
 public:
+	typedef GeometricalInfo<3, 3> GeometricalInfo3D;
+
 	PETImageData(){}
 	PETImageData(const PETImageData& image)
 	{
 		_data.reset(image.data().clone());
 		_patient_coord_geometrical_info.reset(
-			new GeometricalInfo(image.get_patient_coord_geometrical_info()));
+			new GeometricalInfo3D(image.get_patient_coord_geometrical_info()));
 	}
 	PETImageData(const PETAcquisitionData& ad)
 	{
@@ -579,7 +581,7 @@ public:
 	PETImageData(const Image3DF& image)
 	{
 		_data.reset(image.clone());
-		GeometricalInfo::Offset offset;
+		VoxelisedGeometricalInfo3D::Offset offset;
 		offset[0] = image.get_origin()[0];
 		offset[1] = image.get_origin()[1];
 		offset[2] = image.get_origin()[2];
@@ -588,23 +590,23 @@ public:
 	PETImageData(const Voxels3DF& v)
 	{
 		_data.reset(v.clone());
-		GeometricalInfo::Offset gantry_offset;  // TODO: This is a const per scanner?
+		VoxelisedGeometricalInfo3D::Offset gantry_offset;  // TODO: This is a const per scanner?
 		gantry_offset[0] = 0;  // TODO
 		gantry_offset[1] = 0;  // TODO
 		gantry_offset[2] = 0;  // TODO
-		GeometricalInfo::Offset offset;
+		VoxelisedGeometricalInfo3D::Offset offset;
 		offset[0] = v.get_origin()[0] + gantry_offset[0];
 		offset[1] = v.get_origin()[1] + gantry_offset[1];
 		offset[2] = v.get_origin()[2] + gantry_offset[2];
-		GeometricalInfo::Size size;
+		VoxelisedGeometricalInfo3D::Size size;
 		size[0] = v.get_x_size();
 		size[1] = v.get_y_size();
 		size[2] = v.get_z_size();
-		GeometricalInfo::Spacing spacing;
+		VoxelisedGeometricalInfo3D::Spacing spacing;
 		spacing[0] = v.get_voxel_size()[0];
 		spacing[1] = v.get_voxel_size()[1];
 		spacing[2] = v.get_voxel_size()[2];
-		GeometricalInfo::Direction direction;
+		VoxelisedGeometricalInfo3D::Direction direction;
 		PatientPosition::PositionValue patient_position =
 			v.get_exam_info().patient_position.get_position();
 		if (patient_position == PatientPosition::HFS)
@@ -632,8 +634,8 @@ public:
 			direction[2][2] = -1; // I
 		}
 		_patient_coord_geometrical_info =
-			shared_ptr<GeometricalInfo>(
-				new GeometricalInfo(
+			shared_ptr<VoxelisedGeometricalInfo3D>(
+				new VoxelisedGeometricalInfo3D(
 					offset, spacing, size, direction));
 		// TODO: remove this
 		//std::cout << _patient_coord_geometrical_info << std::endl;
@@ -711,13 +713,13 @@ public:
 	// GeometricalInfo get_patient_coord_geometrical_info() {
 	//   return *_patient_coord_geometrical_info;
 	// }
-	GeometricalInfo get_patient_coord_geometrical_info() const {
+	GeometricalInfo3D get_patient_coord_geometrical_info() const {
 		return *_patient_coord_geometrical_info;
 	}
 
 protected:
 	shared_ptr<Image3DF> _data;
-	shared_ptr<GeometricalInfo> _patient_coord_geometrical_info;
+	shared_ptr<GeometricalInfo3D> _patient_coord_geometrical_info;
 };
 
 }  // namespace sirf
