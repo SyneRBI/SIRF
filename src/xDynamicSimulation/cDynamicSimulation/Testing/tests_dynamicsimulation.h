@@ -21,3 +21,10 @@ bool test_simulate_dynamics( void );
 
 }
 
+namespace test_pet_dynsim
+{
+
+bool test_constructor( void );
+
+
+}
