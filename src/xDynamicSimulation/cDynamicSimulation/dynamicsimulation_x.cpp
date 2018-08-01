@@ -14,9 +14,18 @@ date: 15. March 2018
 
 void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
 {	
-	std::cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
-	target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
-	std::cout << "Finished writing simulation output."<<std::endl;
+	try	
+	{
+		std::cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
+		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
+		std::cout << "Finished writing simulation output."<<std::endl;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		std::cout << "Maybe you forgot to give the correct filename ending .h5 in this case." << std::endl;
+	}
 }
 
 void MRDynamicSimulation::simulate_dynamics( void )
@@ -76,11 +85,11 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 void MRDynamicSimulation::extract_src_information( void )
 {
-	this->hdr_ = mr_io::read_ismrmrd_header( filename_mr_rawdata_ );
+	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
 
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 
-	this->source_acquisitions_ = mr_io::read_ismrmrd_acquisitions( filename_mr_rawdata_ );
+	this->source_acquisitions_ = mr_io::read_ismrmrd_acquisitions( filename_rawdata_ );
 	this->target_acquisitions_.copy_acquisitions_info( this->source_acquisitions_ );
 
 }

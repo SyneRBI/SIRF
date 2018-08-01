@@ -59,7 +59,7 @@ void tests_mr_dynsim::test_extract_src_information( void )
 
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 
-	mr_dyn_sim.set_filename_mr_rawdata( ISMRMRD_H5_TEST_PATH );
+	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
 	mr_dyn_sim.extract_src_information();
 
@@ -70,7 +70,6 @@ void tests_mr_dynsim::test_extract_src_information( void )
 	serialize(hdr, xml);
 
 	std::cout << xml.str() << std::endl;	
-
 
 	}
 	catch( std::runtime_error const &e)
@@ -92,7 +91,7 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 
 	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 
-	mr_dyn_sim.set_filename_mr_rawdata( ISMRMRD_H5_TEST_PATH );
+	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
 	mr_dyn_sim.simulate_dynamics();
 
