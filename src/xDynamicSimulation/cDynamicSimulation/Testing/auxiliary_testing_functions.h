@@ -22,7 +22,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
-
+#include "dynamics.h"
 
 
 // for easier logging 
@@ -62,6 +62,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define MOCK_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
 #define MOCK_FIELD_STRENGTH 1
 
+// mock signal
+#define MOCK_NUM_SIG_PTS 10
+
 
 namespace aux_test
 {
@@ -99,6 +102,11 @@ namespace aux_test
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
+
+
+	SignalContainer get_mock_motion_signal( void );
+
+
 
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)

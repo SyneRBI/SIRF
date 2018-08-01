@@ -17,11 +17,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
-
-
 typedef float TimeAxisType;
 typedef float SignalAxisType;
 
+
+typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
 typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
 
 // typedef ... MotionFieldContainer;
@@ -34,18 +34,25 @@ class aDynamic {
 public:
 
 	aDynamic() {};
-	aDynamic(int num_simul_states) : num_simul_states_(num_simul_states){};
+	aDynamic(int const num_simul_states);
 
+
+	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
 	void set_num_simul_states(int const num_states);
 	void set_dyn_signal(SignalContainer signal);
 
 	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
-	std::vector<AcquisitionsVector> bin_mr_acquisitions( AcquisitionsVector acq_vec );
+	std::vector<AcquisitionsVector> bin_mr_acquisitions( AcquisitionsVector all_acquisitions );
 
 protected:
 
 	int num_simul_states_;
+	void set_bins( int const num_bins );
+
+	std::vector< SignalBin > signal_bins_;
 	SignalContainer dyn_signal_; 
+
+
 };
 
 

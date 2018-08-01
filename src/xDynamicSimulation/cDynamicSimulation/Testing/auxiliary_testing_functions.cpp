@@ -490,7 +490,23 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 
 	}
 
-
-	
 	return acq_vec;
+}
+
+
+SignalContainer aux_test::get_mock_motion_signal()
+{
+	SignalContainer signal;
+	float const dt = 0.1;
+
+	std::pair<TimeAxisType, SignalAxisType> signal_point;
+
+	for( size_t i_time=0; i_time<MOCK_NUM_SIG_PTS; i_time++)
+	{
+		signal_point.first = dt * i_time;
+		signal_point.second = float(i_time)/float(MOCK_NUM_SIG_PTS);
+		signal.push_back( signal_point);
+	}
+
+	return signal;
 }

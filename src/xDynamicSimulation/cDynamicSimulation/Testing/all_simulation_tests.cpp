@@ -21,6 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_phantom_input.h"
 #include "tests_encoding.h"
 #include "tests_mr_acquisition_model.h"
+#include "tests_dynamics.h"
 #include "tests_dynamicsimulation.h"
 
 #include "all_simulation_tests.h"
@@ -53,6 +54,24 @@ void run_tests_auxiliary_testing_functions( void )
 	}
 
 
+}
+
+void run_tests_dynamics( void )
+{
+	
+	bool tests_successful = true;
+
+	tests_successful *= test_dynamic::test_linear_interpolate_signal();
+	tests_successful *= test_dynamic::test_get_set_bins();
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The dynamics tests failed." );
+	}
+	else
+	{
+		std::cout<< "The dynamics tests succeeded" << std::endl;
+	}	
 }
 
 
