@@ -22,7 +22,7 @@
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
 template <int num_dimensions, typename CoordT>
-class Coordinate {
+class aCoordinate {
 	typedef CoordT _CoordsT[num_dimensions];
 
 public:
@@ -35,24 +35,36 @@ private:
 	_CoordsT coords;
 };
 
+
+template <int num_physical_dimensions, int num_index_dimensions>
 class GeometricalInfo {
-private:
-	const static int DIM = 3;
+	typedef aCoordinate<num_physical_dimensions, float>     Coordinate;
+	typedef aCoordinate<num_index_dimensions, unsigned int> Index;
+	// Eventually something here like
+	// Coordinate transform_index_to_physical_point(Index)
+	// Index transform_physical_point_to_index(Coordinate)
+};
 
+
+template <int num_dimensions>
+class VoxelisedGeometricalInfo :
+	public GeometricalInfo<num_dimensions, num_dimensions> {
 public:
-	typedef Coordinate<DIM, float>                   Offset;
-	typedef Coordinate<DIM, float>                   Spacing;
-	typedef Coordinate<DIM, int>                     Size;
-	typedef Coordinate<DIM, Coordinate<DIM, float> > Direction;
+	typedef aCoordinate<num_dimensions, float>        Offset;
+	typedef aCoordinate<num_dimensions, float>        Spacing;
+	typedef aCoordinate<num_dimensions, unsigned int> Size;
+	typedef aCoordinate<num_dimensions, aCoordinate<num_dimensions, float> >
+		Direction;
 
 
-	GeometricalInfo(
+	VoxelisedGeometricalInfo(
 		const Offset& offset, const Spacing& spacing,
 		const Size& size, const Direction& direction);
 	// GeometricalInfo(const GeometricalInfo& other) {
 	// 	*this = other;
 	// }
-	virtual ~GeometricalInfo() {};
+	virtual ~VoxelisedGeometricalInfo() {};
+
 	const Offset get_offset();
 	const Spacing get_spacing();
 	const Size get_size();
@@ -64,5 +76,7 @@ private:
 	Size size;
 	Direction direction;
 };
+
+typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
 
 #endif

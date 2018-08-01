@@ -21,8 +21,9 @@
 #include <string>
 #include "SIRF/common/geometrical_info.h"
 
-GeometricalInfo::
-GeometricalInfo(
+template <int num_dimensions>
+VoxelisedGeometricalInfo<num_dimensions>::
+VoxelisedGeometricalInfo(
 	const Offset& offset, const Spacing& spacing,
 	const Size& size, const Direction& direction)
 	:
@@ -32,26 +33,30 @@ GeometricalInfo(
 	direction (direction)
 {}
 
-const GeometricalInfo::Offset
-GeometricalInfo::get_offset()
+template <int num_dimensions>
+const typename VoxelisedGeometricalInfo<num_dimensions>::Offset
+VoxelisedGeometricalInfo<num_dimensions>::get_offset()
 {
 	return offset;
 }
 
-const GeometricalInfo::Spacing
-GeometricalInfo::get_spacing()
+template <int num_dimensions>
+const typename VoxelisedGeometricalInfo<num_dimensions>::Spacing
+VoxelisedGeometricalInfo<num_dimensions>::get_spacing()
 {
 	return spacing;
 }
 
-const GeometricalInfo::Size
-GeometricalInfo::get_size()
+template <int num_dimensions>
+const typename VoxelisedGeometricalInfo<num_dimensions>::Size
+VoxelisedGeometricalInfo<num_dimensions>::get_size()
 {
 	return size;
 }
 
-const GeometricalInfo::Direction
-GeometricalInfo::get_direction()
+template <int num_dimensions>
+const typename VoxelisedGeometricalInfo<num_dimensions>::Direction
+VoxelisedGeometricalInfo<num_dimensions>::get_direction()
 {
 	return direction;
 }
