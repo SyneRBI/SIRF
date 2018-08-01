@@ -35,7 +35,8 @@ def test_main(rec=False, verb=False, throw=True):
     new_acq_data = acq_data.clone()
     diff = new_acq_data - acq_data
     test.check(diff.norm())
-    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
+    test.check(1 - math.sqrt(acq_data.dot(acq_data)) / acq_data.norm())
+#    test.check(1 - math.sqrt(acq_data * acq_data) / acq_data.norm())
     new_acq_data = acq_data * 10.0
     test.check(1 - 10 * acq_data.norm() / new_acq_data.norm())
 
@@ -44,7 +45,8 @@ def test_main(rec=False, verb=False, throw=True):
     image_data = acq_data.create_uniform_image(10.0)
     diff = image_data.clone() - image_data
     test.check(diff.norm())
-    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
+    test.check(1 - math.sqrt(image_data.dot(image_data)) / image_data.norm())
+#    test.check(1 - math.sqrt(image_data * image_data) / image_data.norm())
     new_image_data = image_data * 10
     test.check(1 - 10 * image_data.norm() / new_image_data.norm())
 

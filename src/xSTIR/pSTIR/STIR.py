@@ -300,8 +300,8 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
-        if type(self) == type(other):
-            return self.dot(other)
+##        if type(self) == type(other):
+##            return self.dot(other)
         z = self.same_object()
         if type(other) == type(0):
             other = float(other)
