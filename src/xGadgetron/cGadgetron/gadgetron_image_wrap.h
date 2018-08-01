@@ -162,6 +162,14 @@ public:
 	{
 		IMAGE_PROCESSING_SWITCH(type_, axpby_, x.ptr_image(), a, b);
 	}
+	void multiply(const ImageWrap& x)
+	{
+		IMAGE_PROCESSING_SWITCH(type_, multiply_, x.ptr_image());
+	}
+	void divide(const ImageWrap& x)
+	{
+		IMAGE_PROCESSING_SWITCH(type_, divide_, x.ptr_image());
+	}
 	complex_float_t dot(const ImageWrap& iw) const
 	{
 		complex_float_t z;
@@ -298,6 +306,39 @@ private:
 			complex_float_t u = (complex_float_t)*i;
 			complex_float_t v = (complex_float_t)*j;
 			xGadgetronUtilities::convert_complex(a*u + b*v, *j);
+		}
+	}
+
+	template<typename T>
+	void multiply_(const ISMRMRD::Image<T>* ptr_x)
+	{
+		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
+		const T* i;
+		T* j;
+		size_t ii = 0;
+		size_t n = ptr_x->getNumberOfDataElements();
+		for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
+			i++, j++, ii++) {
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
+			xGadgetronUtilities::convert_complex(u*v, *j);
+		}
+	}
+
+	template<typename T>
+	void divide_(const ISMRMRD::Image<T>* ptr_x)
+	{
+		ISMRMRD::Image<T>* ptr_y = (ISMRMRD::Image<T>*)ptr_;
+		const T* i;
+		T* j;
+		size_t ii = 0;
+		size_t n = ptr_x->getNumberOfDataElements();
+		for (i = ptr_x->getDataPtr(), j = ptr_y->getDataPtr(); ii < n;
+			i++, j++, ii++) {
+			complex_float_t u = (complex_float_t)*i;
+			complex_float_t v = (complex_float_t)*j;
+			// TODO: check for zero denominator
+			xGadgetronUtilities::convert_complex(u/v, *j);
 		}
 	}
 

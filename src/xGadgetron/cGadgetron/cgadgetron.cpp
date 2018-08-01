@@ -965,6 +965,44 @@ float br, float bi, const void* ptr_y
 
 extern "C"
 void*
+cGT_multiply(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer<complex_float_t>& x =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		shared_ptr<aDataContainer<complex_float_t> >
+			sptr_z(x.new_data_container());
+		sptr_z->multiply(x, y);
+		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_divide(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer<complex_float_t>& x =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		shared_ptr<aDataContainer<complex_float_t> >
+			sptr_z(x.new_data_container());
+		sptr_z->divide(x, y);
+		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms)
 {
 	try {
