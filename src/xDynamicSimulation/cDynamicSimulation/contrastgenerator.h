@@ -108,5 +108,5 @@ private:
 	void map_tissueparams_member(int const case_map);
 	
 	// std::shared_ptr<PETImageData> sptr_image_;
-	PETImageData pet_image_data_;
+	// PETImageData pet_image_data_;
 };
