@@ -674,7 +674,7 @@ public:
 			spacing[0] = vox_image->get_voxel_size()[0];
 			spacing[1] = vox_image->get_voxel_size()[1];
 			spacing[2] = vox_image->get_voxel_size()[2];
-			VoxelisedGeometricalInfo3D::Direction direction;
+			VoxelisedGeometricalInfo3D::DirectionMatrix direction;
 			PatientPosition::PositionValue patient_position =
 				vox_image->get_exam_info().patient_position.get_position();
 			if (patient_position == PatientPosition::HFS)

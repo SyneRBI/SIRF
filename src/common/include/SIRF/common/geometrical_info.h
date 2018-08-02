@@ -21,25 +21,27 @@
 #ifndef SIRF_GEOMETRICAL_INFO_TYPE
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
-template <int num_dimensions, typename CoordT>
-class aCoordinate {
-	typedef CoordT _CoordsT[num_dimensions];
+template <int num_dimensions, typename T>
+class tVector {
+private:
+	typedef T _vectT[num_dimensions];
 
 public:
-	inline CoordT& operator[](const int d)
-		{ return coords[d]; }
-	inline CoordT operator[](const int d) const
-		{ return coords[d]; }
+	inline T& operator[](const int d)
+		{ return vect[d]; }
+	inline T operator[](const int d) const
+		{ return vect[d]; }
 
 private:
-	_CoordsT coords;
+	_vectT vect;
 };
 
 
 template <int num_physical_dimensions, int num_index_dimensions>
 class GeometricalInfo {
-	typedef aCoordinate<num_physical_dimensions, float>     Coordinate;
-	typedef aCoordinate<num_index_dimensions, unsigned int> Index;
+public:
+	typedef tVector<num_physical_dimensions, float>     Coordinate;
+	typedef tVector<num_index_dimensions, unsigned int> Index;
 	// Eventually something here like
 	// Coordinate transform_index_to_physical_point(Index)
 	// Index transform_physical_point_to_index(Coordinate)
@@ -49,32 +51,57 @@ class GeometricalInfo {
 template <int num_dimensions>
 class VoxelisedGeometricalInfo :
 	public GeometricalInfo<num_dimensions, num_dimensions> {
+private:
+	typedef GeometricalInfo<num_dimensions, num_dimensions> BaseType;
+
 public:
-	typedef aCoordinate<num_dimensions, float>        Offset;
-	typedef aCoordinate<num_dimensions, float>        Spacing;
-	typedef aCoordinate<num_dimensions, unsigned int> Size;
-	typedef aCoordinate<num_dimensions, aCoordinate<num_dimensions, float> >
-		Direction;
+	// TODO: Why to I have to define these again?
+	typedef typename BaseType::Coordinate Coordinate;
+	typedef typename BaseType::Index Index;
+
+	/*!
+	   Offset is the coordinate of the center of the first voxel in physical
+	   space.
+	*/
+	typedef Coordinate Offset;
+	/*!
+	   Spacing is the physical distance between voxels in each dimensions.
+	*/
+	typedef Coordinate Spacing;
+	/*!
+	   Size is the number of voxels in each dimension.
+	*/
+	typedef Index Size;
+	/*!
+	   Each vector in Direction tells the direction of the axis in LPS
+	   physical space.
+	*/
+	typedef tVector<num_dimensions, Coordinate> DirectionMatrix;
+	/*!
+	   Each vector in Direction tells the direction of the axis in LPS
+	   physical space.
+	*/
+	typedef tVector<num_dimensions+1, tVector<num_dimensions+1, float> >
+		TransformMatrix;
 
 
 	VoxelisedGeometricalInfo(
 		const Offset& offset, const Spacing& spacing,
-		const Size& size, const Direction& direction);
-	// GeometricalInfo(const GeometricalInfo& other) {
-	// 	*this = other;
-	// }
+		const Size& size, const DirectionMatrix& direction);
 	virtual ~VoxelisedGeometricalInfo() {};
 
 	const Offset get_offset();
 	const Spacing get_spacing();
 	const Size get_size();
-	const Direction get_direction();
+	const DirectionMatrix get_direction();
+
+	const TransformMatrix calculate_index_to_physical_point_matrix();
 
 private:
 	Offset offset;
 	Spacing spacing;
 	Size size;
-	Direction direction;
+	DirectionMatrix direction;
 };
 
 typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
