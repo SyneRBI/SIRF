@@ -132,7 +132,11 @@ try
 		int const num_bins = 10;
 		aDynamic dyn(num_bins);
 
-		auto binned_acquis = dyn.bin_mr_acquisitions( acq_vec );
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal(acq_vec);
+		dyn.set_dyn_signal( mock_signal );
+
+		dyn.bin_mr_acquisitions( acq_vec );
+		auto binned_acquis = dyn.get_binned_mr_acquisitions();
 
 		test_succesful = (binned_acquis.size() == num_bins);
 

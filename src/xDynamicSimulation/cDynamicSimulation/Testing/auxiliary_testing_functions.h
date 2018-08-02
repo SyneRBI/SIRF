@@ -35,7 +35,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
+// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
+#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 
 #define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.v"
 
@@ -105,7 +106,8 @@ namespace aux_test
 
 
 	SignalContainer get_mock_motion_signal( void );
-
+	SignalContainer get_mock_motion_signal( AcquisitionsVector acq_vec);
+	
 
 
 
