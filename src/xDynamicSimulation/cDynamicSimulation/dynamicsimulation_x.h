@@ -18,6 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "gadgetron_x.h"
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
+#include "dynamics.h"
+
 
 
 #define IMG_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
@@ -108,3 +110,58 @@ private:
 };
 */
 
+
+
+
+
+
+class LinearCombiGenerator{
+
+public:
+	LinearCombiGenerator(std::vector<size_t> const dims): dims_(dims){};
+
+	void set_dims(std::vector< size_t > const dims){ this->dims_ = dims;};
+	std::vector< size_t > get_dims( void ){ return this->dims_;};
+
+	
+	std::vector< std::vector< int > > get_all_combinations( void )
+	{
+		return this->all_combinations_;
+	};
+	
+	void compute_all_combinations( void )
+	{
+		size_t linear_range = 1;
+		for( int direction=0; direction<dims_.size(); direction++ )
+			linear_range *= dims_[direction];
+
+		for( size_t i=0; i<linear_range; i++)
+		{
+			std::vector< int > curr_combination;
+
+			for( int j=0; j<this->dims_.size(); j++)
+			{
+				size_t curr_idx = i;
+
+				for(int k=0;k<j;k++)
+					curr_idx = this->recurse(curr_idx, k, curr_combination);
+
+				curr_idx = curr_idx % this->dims_[j];
+				curr_combination.push_back(curr_idx);
+			}
+			this->all_combinations_.push_back( curr_combination );
+		}
+	};
+
+private:
+
+	std::vector< size_t > dims_;
+	std::vector< std::vector< int > > all_combinations_;
+
+	int recurse(size_t const idx, int const num_iter, std::vector< int > const curr_combination)
+	{	
+		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];
+		return l;
+	};
+
+};

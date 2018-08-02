@@ -10,6 +10,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
+namespace test_lin_combi_gen{
+
+bool test_get_all_combinations( void );
+
+}
+
+
 namespace tests_mr_dynsim
 {
 

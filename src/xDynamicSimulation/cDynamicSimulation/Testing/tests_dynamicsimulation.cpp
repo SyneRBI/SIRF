@@ -26,6 +26,56 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
+
+bool test_lin_combi_gen::test_get_all_combinations( void )
+{
+
+try
+	{
+		size_t const N = 1;
+		size_t const M = 2;
+		size_t const L = 3;
+
+		std::vector< size_t > dims;
+		dims.push_back(N);
+		dims.push_back(M);
+		dims.push_back(L);
+
+
+
+		LinearCombiGenerator lcg( dims );
+
+		lcg.compute_all_combinations();
+		auto all_perm = lcg.get_all_combinations();
+
+		for(size_t i=0;i<all_perm.size();i++)
+		{
+			auto curr_perm = all_perm[i];
+			
+			for(size_t j=0;j<curr_perm.size();j++)	
+				std::cout << curr_perm[j] << "/";
+			std::cout << std::endl;
+		}
+
+
+		bool test_succesful = (all_perm.size() == N*M*L);
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+
+
+
+
+
+
+
 bool tests_mr_dynsim::test_constructor( void ) 
 {
 	try
