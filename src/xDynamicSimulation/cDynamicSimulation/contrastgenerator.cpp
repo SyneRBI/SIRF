@@ -292,7 +292,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 		}
 	}
 
-	this->contrast_filled_volumes_.push_back( contrast_img );
+	this->contrast_filled_volumes_.push_back(contrast_img );
 }
 
 void PETContrastGenerator::map_contrast()
