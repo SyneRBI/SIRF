@@ -26,7 +26,7 @@ limitations under the License.
 #include "stir_x.h"
 #include "stir_data_containers.h"
 
-using stir::shared_ptr;
+using namespace stir;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)

@@ -73,7 +73,7 @@ The actual algorithm is described in
 > [Online](http://dx.doi.org/10.1109/nssmic.2002.1239610).
 */
 
-class ListmodeToSinograms : public LmToProjData {
+class ListmodeToSinograms : public stir::LmToProjData {
 public:
 	//! Constructor. 
     /*! Takes an optional text string argument with
@@ -85,9 +85,9 @@ public:
         
         By default, `store_prompts` is `true` and `store_delayeds` is `false`.
 	*/
-	//ListmodeToSinograms(const char* const par) : LmToProjData(par) {}
-	ListmodeToSinograms(const char* par) : LmToProjData(par) {}
-	ListmodeToSinograms() : LmToProjData()
+	//ListmodeToSinograms(const char* const par) : stir::LmToProjData(par) {}
+	ListmodeToSinograms(const char* par) : stir::LmToProjData(par) {}
+	ListmodeToSinograms() : stir::LmToProjData()
 	{
 		fan_size = -1;
 		store_prompts = true;
@@ -119,7 +119,7 @@ public:
 		std::pair<double, double> interval(start, stop);
 		std::vector < std::pair<double, double> > intervals;
 		intervals.push_back(interval);
-		frame_defs = TimeFrameDefinitions(intervals);
+		frame_defs = stir::TimeFrameDefinitions(intervals);
 		do_time_frame = true;
 	}
 	int set_flag(const char* flag, bool value)
@@ -207,8 +207,8 @@ protected:
 	int display_interval;
 	int KL_interval;
 	int save_interval;
-	shared_ptr<std::vector<Array<2, float> > > fan_sums_sptr;
-	shared_ptr<DetectorEfficiencies> det_eff_sptr;
+	shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
+	shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
 	shared_ptr<PETAcquisitionData> randoms_sptr;
 	void compute_fan_sums_(bool prompt_fansum = false);
 	int compute_singles_();
@@ -235,10 +235,10 @@ public:
 	PETAcquisitionSensitivityModel
 		(PETAcquisitionSensitivityModel& mod1, PETAcquisitionSensitivityModel& mod2)
 	{
-		norm_.reset(new ChainedBinNormalisation(mod1.data(), mod2.data()));
+		norm_.reset(new stir::ChainedBinNormalisation(mod1.data(), mod2.data()));
 	}
 
-	Succeeded set_up(const shared_ptr<ProjDataInfo>&);
+	stir::Succeeded set_up(const shared_ptr<stir::ProjDataInfo>&);
 
 	// multiply by bin efficiencies
 	virtual void unnormalise(PETAcquisitionData& ad) const;
@@ -261,15 +261,15 @@ public:
 		return sptr_ad;
 	}
 
-	shared_ptr<BinNormalisation> data()
+	shared_ptr<stir::BinNormalisation> data()
 	{
 		return norm_;
-		//return std::dynamic_pointer_cast<BinNormalisation>(norm_);
+		//return std::dynamic_pointer_cast<stir::BinNormalisation>(norm_);
 	}
 
 protected:
-	shared_ptr<BinNormalisation> norm_;
-	//shared_ptr<ChainedBinNormalisation> norm_;
+	shared_ptr<stir::BinNormalisation> norm_;
+	//shared_ptr<stir::ChainedBinNormalisation> norm_;
 };
 
 /*!
@@ -312,11 +312,11 @@ later via AcquisitionData subsets.
 
 class PETAcquisitionModel {
 public:
-	void set_projectors(shared_ptr<ProjectorByBinPair> sptr_projectors)
+	void set_projectors(shared_ptr<stir::ProjectorByBinPair> sptr_projectors)
 	{
 		sptr_projectors_ = sptr_projectors;
 	}
-	shared_ptr<ProjectorByBinPair> projectors_sptr()
+	shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
 	{
 		return sptr_projectors_;
 	}
@@ -336,22 +336,22 @@ public:
 	{
 		return sptr_background_;
 	}
-	//void set_normalisation(shared_ptr<BinNormalisation> sptr)
+	//void set_normalisation(shared_ptr<stir::BinNormalisation> sptr)
 	//{
 	//	sptr_normalisation_ = sptr;
 	//}
-	shared_ptr<BinNormalisation> normalisation_sptr()
+	shared_ptr<stir::BinNormalisation> normalisation_sptr()
 	{
 		if (sptr_asm_.get())
 			return sptr_asm_->data();
-		shared_ptr<BinNormalisation> sptr;
+		shared_ptr<stir::BinNormalisation> sptr;
 		return sptr;
 		//return sptr_normalisation_;
 	}
 	//void set_bin_efficiency(shared_ptr<PETAcquisitionData> sptr_data);
 	//void set_normalisation(shared_ptr<PETAcquisitionData> sptr_data)
 	//{
-	//	sptr_normalisation_.reset(new BinNormalisationFromProjData(*sptr_data));
+	//	sptr_normalisation_.reset(new stir::BinNormalisationFromProjData(*sptr_data));
 	//}
 	void set_asm(shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
 	{
@@ -373,7 +373,7 @@ public:
 		//sptr_normalisation_.reset();
 	}
 
-	virtual Succeeded set_up(
+	virtual stir::Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
 		shared_ptr<PETImageData> sptr_image);
 
@@ -389,13 +389,13 @@ public:
 		int subset_num = 0, int num_subsets = 1);
 
 protected:
-	shared_ptr<ProjectorByBinPair> sptr_projectors_;
+	shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;
 	shared_ptr<PETAcquisitionData> sptr_acq_template_;
 	shared_ptr<PETImageData> sptr_image_template_;
 	shared_ptr<PETAcquisitionData> sptr_add_;
 	shared_ptr<PETAcquisitionData> sptr_background_;
 	shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
-	//shared_ptr<BinNormalisation> sptr_normalisation_;
+	//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 };
 
 /*!
@@ -418,28 +418,28 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	{
 		this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
 	}
-	void set_matrix(shared_ptr<ProjMatrixByBin> sptr_matrix)
+	void set_matrix(shared_ptr<stir::ProjMatrixByBin> sptr_matrix)
 	{
 		sptr_matrix_ = sptr_matrix;
 		((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			set_proj_matrix_sptr(sptr_matrix);
 	}
-	shared_ptr<ProjMatrixByBin> matrix_sptr()
+	shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
 	{
 		return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			get_proj_matrix_sptr();
 	}
-	virtual Succeeded set_up(
+	virtual stir::Succeeded set_up(
 		shared_ptr<PETAcquisitionData> sptr_acq,
 		shared_ptr<PETImageData> sptr_image)
 	{
 		if (!sptr_matrix_.get())
-			return Succeeded::no;
+			return stir::Succeeded::no;
 		return PETAcquisitionModel::set_up(sptr_acq, sptr_image);
 	}
 
 private:
-	shared_ptr<ProjMatrixByBin> sptr_matrix_;
+	shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
 };
 
 typedef PETAcquisitionModel AcqMod3DF;
@@ -460,7 +460,7 @@ public:
 	// divide by bin efficiencies
 	virtual void normalise(PETAcquisitionData& ad) const;
 protected:
-	shared_ptr<ForwardProjectorByBin> sptr_forw_projector_;
+	shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
 };
 
 /*!
@@ -472,21 +472,21 @@ and hence cannot be called directly. The 'accessor' classes below bypass the
 protection by inheritance.
 */
 
-class xSTIR_GeneralisedPrior3DF : public GeneralisedPrior < Image3DF > {
+class xSTIR_GeneralisedPrior3DF : public stir::GeneralisedPrior < Image3DF > {
 public:
 	bool post_process() {
 		return post_processing();
 	}
 };
 
-class xSTIR_QuadraticPrior3DF : public QuadraticPrior < float > {
+class xSTIR_QuadraticPrior3DF : public stir::QuadraticPrior < float > {
 public:
 	void only2D(int only) {
 		only_2D = only != 0;
 	}
 };
 
-class xSTIR_PLSPrior3DF : public PLSPrior < float > {
+class xSTIR_PLSPrior3DF : public stir::PLSPrior < float > {
 public:
 	void only2D(int only) {
 		only_2D = only != 0;
@@ -494,7 +494,7 @@ public:
 };
 
 class xSTIR_GeneralisedObjectiveFunction3DF :
-	public GeneralisedObjectiveFunction<Image3DF> {
+	public stir::GeneralisedObjectiveFunction<Image3DF> {
 public:
 	bool post_process() {
 		return post_processing();
@@ -504,7 +504,7 @@ public:
 //typedef xSTIR_GeneralisedObjectiveFunction3DF ObjectiveFunction3DF;
 
 class xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF :
-	public PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> {
+	public stir::PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF> {
 public:
 	void set_input_file(const char* filename) {
 		input_filename = filename;
@@ -537,14 +537,14 @@ typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
 PoissonLogLhLinModMeanProjData3DF;
 
 class xSTIR_IterativeReconstruction3DF :
-	public IterativeReconstruction<Image3DF> {
+	public stir::IterativeReconstruction<Image3DF> {
 public:
 	bool post_process() {
 		if (this->output_filename_prefix.length() < 1)
 			this->set_output_filename_prefix("reconstructed_image");
 		return post_processing();
 	}
-	Succeeded setup(sptrImage3DF const& image) {
+	stir::Succeeded setup(sptrImage3DF const& image) {
 		return set_up(image);
 	}
 	void update(Image3DF &image) {
@@ -564,11 +564,11 @@ public:
 };
 
 class xSTIR_OSMAPOSLReconstruction3DF : 
-	public OSMAPOSLReconstruction < Image3DF > {
+	public stir::OSMAPOSLReconstruction < Image3DF > {
 public:
-	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	stir::Succeeded set_up(shared_ptr<PETImageData> sptr_id)
 	{
-		Succeeded s = Succeeded::no;
+		stir::Succeeded s = stir::Succeeded::no;
 		xSTIR_IterativeReconstruction3DF* ptr_r =
 			(xSTIR_IterativeReconstruction3DF*)this;
 		if (!ptr_r->post_process()) {
@@ -589,14 +589,14 @@ public:
 
 typedef xSTIR_OSMAPOSLReconstruction3DF OSMAPOSLReconstruction3DF;
 
-class xSTIR_OSSPSReconstruction3DF : public OSSPSReconstruction < Image3DF > {
+class xSTIR_OSSPSReconstruction3DF : public stir::OSSPSReconstruction < Image3DF > {
 public:
 	float& relaxation_parameter_value() {
 		return relaxation_parameter;
 	}
 };
 
-class xSTIR_FBP2DReconstruction : public FBP2DReconstruction {
+class xSTIR_FBP2DReconstruction : public stir::FBP2DReconstruction {
 public:
 	xSTIR_FBP2DReconstruction()
 	{
@@ -630,13 +630,13 @@ public:
 			("wrong frequency cut-off", __FILE__, __LINE__);
 		fc_ramp = fc;
 	}
-	Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	stir::Succeeded set_up(shared_ptr<PETImageData> sptr_id)
 	{
 		_sptr_image_data.reset(new PETImageData(*sptr_id));
 		_is_set_up = true;
-		return Succeeded::yes;
+		return stir::Succeeded::yes;
 	}
-	Succeeded process()
+	stir::Succeeded process()
 	{
 		if (!_is_set_up) {
 			shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());

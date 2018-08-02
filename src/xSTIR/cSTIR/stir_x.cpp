@@ -24,7 +24,8 @@ limitations under the License.
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 
-using stir::shared_ptr;
+using namespace stir;
+USING_NAMESPACE_ECAT
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)
