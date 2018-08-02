@@ -63,8 +63,10 @@ def test_main(rec=False, verb=False, throw=True):
     rd = imgs_diff.norm()/complex_images.norm()
     test.check(rd, abs_tol = 1e-4)
 
-    xFy = processed_data * fwd_acqs
-    Bxy = bwd_images * complex_images
+##    xFy = processed_data * fwd_acqs
+##    Bxy = bwd_images * complex_images
+    xFy = processed_data.dot(fwd_acqs)
+    Bxy = bwd_images.dot(complex_images)
     test.check(abs(xFy.real/Bxy.real - 1), abs_tol = 1e-4)
     test.check(abs(xFy.imag/xFy.real), abs_tol = 1e-4)
     test.check(abs(Bxy.imag/Bxy.real), abs_tol = 1e-4)

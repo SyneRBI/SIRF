@@ -304,6 +304,10 @@ referred to as forward projection, and the computation of
 
 where \e G' is the transpose of \e G and \f$ m = 1/n \f$, is referred to as
 backward projection.
+
+At present we use quick-fix implementation of forward projection for
+the computation of a subset of y. A more proper implementation will be done 
+later via AcquisitionData subsets.
 */
 
 class PETAcquisitionModel {
@@ -373,10 +377,16 @@ public:
 		shared_ptr<PETAcquisitionData> sptr_acq,
 		shared_ptr<PETImageData> sptr_image);
 
+	// computes and returns a subset of forward-projected data 
 	shared_ptr<PETAcquisitionData>
-		forward(const PETImageData& image);
+		forward(const PETImageData& image, 
+		int subset_num = 0, int num_subsets = 1);
+	// replaces a subset of acquisition data with forward-projected data
+	void forward(PETAcquisitionData& acq_data, const PETImageData& image, 
+		int subset_num, int num_subsets, bool zero = false);
 
-	shared_ptr<PETImageData> backward(PETAcquisitionData& ad);
+	shared_ptr<PETImageData> backward(PETAcquisitionData& ad, 
+		int subset_num = 0, int num_subsets = 1);
 
 protected:
 	shared_ptr<ProjectorByBinPair> sptr_projectors_;
