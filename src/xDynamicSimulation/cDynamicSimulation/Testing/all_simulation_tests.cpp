@@ -61,8 +61,16 @@ void run_tests_dynamics( void )
 	
 	bool tests_successful = true;
 
+	tests_successful *= test_dynamic::test_is_in_bin();
+
 	tests_successful *= test_dynamic::test_linear_interpolate_signal();
 	tests_successful *= test_dynamic::test_get_set_bins();
+
+	tests_successful *= test_dynamic::test_bin_mr_acquisitions();
+
+
+
+
 
 	if ( !tests_successful )
 	{
@@ -80,12 +88,14 @@ void run_tests_mr_dynamic_simulation( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= tests_mr_dynsim::test_constructor();
+	// tests_successful *= tests_mr_dynsim::test_constructor();
 	
 	//tests_mr_dynsim::test_extract_src_information();
 
-	tests_successful *= tests_mr_dynsim::test_simulate_dynamics( );
+	// tests_successful *= tests_mr_dynsim::test_simulate_dynamics( );
 
+
+	tests_successful *= test_lin_combi_gen::test_get_all_combinations();
 	
 
 
