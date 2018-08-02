@@ -9,6 +9,24 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "dynamics.h"
 
 
+bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
+{
+
+	auto bin_min = std::get<0>(bin);
+	auto bin_max = std::get<2>(bin);
+
+	if( bin_min < bin_max )
+		return (signal >= bin_min && signal < bin_max);
+	else if ( bin_min > bin_max )
+		return (signal >= bin_min || signal < bin_max);
+	else
+		return false;
+}
+
+
+
+
+
 aDynamic::aDynamic(int const num_simul_states) : num_simul_states_(num_simul_states)
 {
 	set_bins( num_simul_states );
@@ -88,3 +106,34 @@ SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
 	return interpol_signal;
 
 }
+
+
+
+std::vector<AcquisitionsVector> aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
+{
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

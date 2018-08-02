@@ -26,7 +26,7 @@ typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
 
 // typedef ... MotionFieldContainer;
 
-
+bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
 
 class aDynamic {
@@ -69,5 +69,7 @@ protected:
 
 };
 */
+
+
 
 

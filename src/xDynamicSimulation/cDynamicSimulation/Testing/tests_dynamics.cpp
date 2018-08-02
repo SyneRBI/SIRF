@@ -8,8 +8,41 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_dynamics.h"
 
+#include "auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
 
+
+bool test_dynamic::test_is_in_bin( void )
+{
+
+	bool test_succesful;
+	SignalAxisType test_signal = 0.15;
+
+	SignalAxisType bin_min = 0.0;
+	SignalAxisType bin_ctr = 0.1;
+	SignalAxisType bin_max = 0.2;
+
+	SignalBin bin{bin_min, bin_ctr, bin_max};
+
+	test_succesful = is_in_bin( test_signal , bin );
+
+
+	std::get<0>(bin) = 0.8;
+	std::get<1>(bin) = 0.0;
+	std::get<2>(bin) = 0.2;
+
+	test_succesful *= is_in_bin(test_signal, bin);
+
+
+	std::get<0>(bin) = 0.0;
+	std::get<1>(bin) = 0.0;
+	std::get<2>(bin) = 0.0;
+
+	test_succesful *= !(is_in_bin(test_signal, bin));
+
+	return test_succesful;
+
+}
 
 
 
@@ -88,11 +121,32 @@ bool test_dynamic::test_get_set_bins()
 
 
 
+bool test_dynamic::test_bin_mr_acquisitions()
+{
+try
+	{
+		bool test_succesful = true;
+
+		auto acq_vec = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
+
+		int const num_bins = 10;
+		aDynamic dyn(num_bins);
+
+		auto binned_acquis = dyn.bin_mr_acquisitions( acq_vec );
+
+		test_succesful = (binned_acquis.size() == num_bins);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
 
 
-
-
-
+}
 
 
 
