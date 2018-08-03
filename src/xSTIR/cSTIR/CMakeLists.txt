@@ -28,6 +28,7 @@ target_include_directories(cstir PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 
 target_link_libraries(cstir iutilities)
+target_link_libraries(cstir common)
 target_link_libraries(cstir "${STIR_LIBRARIES}")
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))

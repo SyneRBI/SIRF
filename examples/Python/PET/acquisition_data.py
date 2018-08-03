@@ -121,6 +121,12 @@ def main():
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())
 
+    print('image voxel sizes:')
+    print(image.voxel_sizes())
+    print('image transform matrix:')
+    tmx = image.transf_matrix()
+    print(tmx)
+
 try:
     main()
     print('done')
