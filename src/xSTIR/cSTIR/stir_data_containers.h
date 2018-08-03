@@ -40,7 +40,6 @@ limitations under the License.
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
 
-// using stir::stir::shared_ptr;
 
 class SIRFUtilities {
 public:
@@ -63,7 +62,7 @@ public:
 
 /*!
 \ingroup STIR Extensions
-\brief STIR stir::ProjDataInterfile wrapper with additional file managing features.
+\brief STIR ProjDataInterfile wrapper with additional file managing features.
 
 This derived class has additional capability of deleting the file it handles
 when an object of this class goes out of existence.
@@ -122,9 +121,9 @@ private:
 
 /*!
 \ingroup STIR Extensions
-\brief STIR stir::ProjData wrapper with added functionality.
+\brief STIR ProjData wrapper with added functionality.
 
-This class enjoys some features of STIR stir::ProjData and, additionally,
+This class enjoys some features of STIR ProjData and, additionally,
 implements the linear algebra functionality specified by the
 abstract base class aDatacontainer, and provides means for the data
 storage mode (file/memory) selection.
@@ -213,7 +212,7 @@ public:
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
 
-	// stir::ProjData methods
+	// ProjData methods
 	int get_num_tangential_poss()
 	{
 		return data()->get_num_tangential_poss();
@@ -253,7 +252,7 @@ public:
 		return data()->get_proj_data_info_sptr();
 	}
 
-	// stir::ProjData casts
+	// ProjData casts
 	operator stir::ProjData&() { return *data(); }
 	operator const stir::ProjData&() const { return *data(); }
 	operator stir::shared_ptr<stir::ProjData>() { return data(); }
