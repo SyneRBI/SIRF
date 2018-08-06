@@ -64,29 +64,25 @@ limitations under the License.
 
 #define GRAB 1
 
-using stir::shared_ptr;
 
-USING_NAMESPACE_STIR
-USING_NAMESPACE_ECAT
-
-typedef DiscretisedDensity<3, float> Image3DF;
-typedef shared_ptr<Image3DF> sptrImage3DF;
-typedef shared_ptr<ProjData> sptrProjData;
-typedef CartesianCoordinate3D<float> Coord3DF;
-typedef VoxelsOnCartesianGrid<float> Voxels3DF;
-typedef shared_ptr<Voxels3DF> sptrVoxels3DF;
-typedef shared_ptr<Shape3D> sptrShape3D;
-typedef Reconstruction<Image3DF> Reconstruction3DF;
-typedef IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
-typedef GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;
-typedef PoissonLogLikelihoodWithLinearModelForMean<Image3DF>
+typedef stir::DiscretisedDensity<3, float> Image3DF;
+typedef stir::shared_ptr<Image3DF> sptrImage3DF;
+typedef stir::shared_ptr<stir::ProjData> sptrProjData;
+typedef stir::CartesianCoordinate3D<float> Coord3DF;
+typedef stir::VoxelsOnCartesianGrid<float> Voxels3DF;
+typedef stir::shared_ptr<Voxels3DF> sptrVoxels3DF;
+typedef stir::shared_ptr<stir::Shape3D> sptrShape3D;
+typedef stir::Reconstruction<Image3DF> Reconstruction3DF;
+typedef stir::IterativeReconstruction<Image3DF> IterativeReconstruction3DF;
+typedef stir::GeneralisedObjectiveFunction<Image3DF> ObjectiveFunction3DF;
+typedef stir::PoissonLogLikelihoodWithLinearModelForMean<Image3DF>
 PoissonLogLhLinModMean3DF;
 //PoissonLogLikelihoodWithLinearModelForMeanAndProjData<Image3DF>
-typedef ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
-typedef ProjMatrixByBinUsingRayTracing RayTracingMatrix;
-typedef GeneralisedPrior<Image3DF> Prior3DF;
-typedef QuadraticPrior<float> QuadPrior3DF;
-typedef DataProcessor<Image3DF> DataProcessor3DF;
-typedef TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
+typedef stir::ProjectorByBinPairUsingProjMatrixByBin ProjectorPairUsingMatrix;
+typedef stir::ProjMatrixByBinUsingRayTracing RayTracingMatrix;
+typedef stir::GeneralisedPrior<Image3DF> Prior3DF;
+typedef stir::QuadraticPrior<float> QuadPrior3DF;
+typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
+typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
 
 #endif

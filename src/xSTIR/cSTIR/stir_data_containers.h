@@ -40,7 +40,6 @@ limitations under the License.
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
 
-using stir::shared_ptr;
 
 class SIRFUtilities {
 public:
@@ -69,19 +68,20 @@ This derived class has additional capability of deleting the file it handles
 when an object of this class goes out of existence.
 */
 
-class ProjDataFile : public ProjDataInterfile {
+class ProjDataFile : public stir::ProjDataInterfile {
+
 public:
-	ProjDataFile(const ProjData& pd, const std::string& filename, bool owns_file = true) :
-		ProjDataInterfile(pd.get_exam_info_sptr(),
+	ProjDataFile(const stir::ProjData& pd, const std::string& filename, bool owns_file = true) :
+		stir::ProjDataInterfile(pd.get_exam_info_sptr(),
 		pd.get_proj_data_info_sptr(),
 		filename, std::ios::in | std::ios::out | std::ios::trunc),
 		_filename(filename),
 		_owns_file(owns_file)
 	{}
-	ProjDataFile(shared_ptr<ExamInfo> sptr_exam_info, 
-		shared_ptr<ProjDataInfo> sptr_proj_data_info, 
+	ProjDataFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info, 
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info, 
 		const std::string& filename, bool owns_file = true) :
-		ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
+		stir::ProjDataInterfile(sptr_exam_info, sptr_proj_data_info,
 		filename, std::ios::in | std::ios::out | std::ios::trunc),
 		_filename(filename),
 		_owns_file(owns_file)
@@ -102,7 +102,7 @@ public:
 			std::cout << "deleting " << _filename << ".s "
 			<< "failed, please delete manually" << std::endl;
 	}
-	shared_ptr<std::iostream> sino_stream_sptr()
+	stir::shared_ptr<std::iostream> sino_stream_sptr()
 	{
 		return sino_stream;
 	}
@@ -135,16 +135,16 @@ public:
 
 	// virtual constructors
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_exam_info,
-		shared_ptr<ProjDataInfo> sptr_proj_data_info) = 0;
-	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd) = 0;
+		(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info) = 0;
+	virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd) = 0;
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
-	virtual shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
+	virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
 	virtual aDataContainer<float>* new_data_container() = 0;
 
-	shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
+	stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 		const int num_segments_to_combine,
 		const int num_views_to_combine = 1,
 		const int num_tang_poss_to_trim = 0,
@@ -152,14 +152,14 @@ public:
 		const int max_in_segment_num_to_process = -1
 		)
 	{
-		shared_ptr<ProjDataInfo> out_proj_data_info_sptr(
-			SSRB(*data()->get_proj_data_info_ptr(),
+		stir::shared_ptr<stir::ProjDataInfo> out_proj_data_info_sptr(
+			stir::SSRB(*data()->get_proj_data_info_ptr(),
 			num_segments_to_combine,
 			num_views_to_combine,
 			num_tang_poss_to_trim,
 			max_in_segment_num_to_process
 			));
-		shared_ptr<PETAcquisitionData> sptr(same_acquisition_data
+		stir::shared_ptr<PETAcquisitionData> sptr(same_acquisition_data
 			(data()->get_exam_info_sptr(), out_proj_data_info_sptr));
 		SSRB(*sptr, *data(), do_normalisation);
 		return sptr;
@@ -175,15 +175,15 @@ public:
 		return _storage_scheme;
 	}
 
-	shared_ptr<ProjData> data()
+	stir::shared_ptr<stir::ProjData> data()
 	{
 		return _data;
 	}
-	const shared_ptr<ProjData> data() const
+	const stir::shared_ptr<stir::ProjData> data() const
 	{
 		return _data;
 	}
-	void set_data(shared_ptr<ProjData> data)
+	void set_data(stir::shared_ptr<stir::ProjData> data)
 	{
 		_data = data;
 	}
@@ -192,7 +192,7 @@ public:
 	void fill(float v) { data()->fill(v); }
 	void fill(PETAcquisitionData& ad)
 	{
-		shared_ptr<ProjData> sptr = ad.data();
+		stir::shared_ptr<stir::ProjData> sptr = ad.data();
 		data()->fill(*sptr);
 	}
 	void fill_from(const float* d) { data()->fill_from(d); }
@@ -229,44 +229,44 @@ public:
 	{
 		return data()->get_max_segment_num();
 	}
-	SegmentBySinogram<float>
+	stir::SegmentBySinogram<float>
 		get_segment_by_sinogram(const int segment_num) const
 	{
 		return data()->get_segment_by_sinogram(segment_num);
 	}
-	SegmentBySinogram<float>
+	stir::SegmentBySinogram<float>
 		get_empty_segment_by_sinogram(const int segment_num) const
 	{
 		return data()->get_empty_segment_by_sinogram(segment_num);
 	}
-	virtual Succeeded set_segment(const SegmentBySinogram<float>& s)
+	virtual stir::Succeeded set_segment(const stir::SegmentBySinogram<float>& s)
 	{
 		return data()->set_segment(s);
 	}
-	shared_ptr<ExamInfo> get_exam_info_sptr() const
+	stir::shared_ptr<stir::ExamInfo> get_exam_info_sptr() const
 	{
 		return data()->get_exam_info_sptr();
 	}
-	shared_ptr<ProjDataInfo> get_proj_data_info_sptr() const
+	stir::shared_ptr<stir::ProjDataInfo> get_proj_data_info_sptr() const
 	{
 		return data()->get_proj_data_info_sptr();
 	}
 
 	// ProjData casts
-	operator ProjData&() { return *data(); }
-	operator const ProjData&() const { return *data(); }
-	operator shared_ptr<ProjData>() { return data(); }
+	operator stir::ProjData&() { return *data(); }
+	operator const stir::ProjData&() const { return *data(); }
+	operator stir::shared_ptr<stir::ProjData>() { return data(); }
 
 protected:
 	static std::string _storage_scheme;
-	static shared_ptr<PETAcquisitionData> _template;
-	shared_ptr<ProjData> _data;
+	static stir::shared_ptr<PETAcquisitionData> _template;
+	stir::shared_ptr<stir::ProjData> _data;
 
-	static shared_ptr<ProjDataInfo> 
+	static stir::shared_ptr<stir::ProjDataInfo> 
 		proj_data_info_from_scanner(std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
-		shared_ptr<Scanner> sptr_s(Scanner::get_scanner_from_name(scanner_name));
+		stir::shared_ptr<stir::Scanner> sptr_s(stir::Scanner::get_scanner_from_name(scanner_name));
 		//std::cout << "scanner: " << sptr_s->get_name().c_str() << '\n';
 		if (boost::iequals(sptr_s->get_name(), "unknown")) {
 			throw LocalisedException("Unknown scanner", __FILE__, __LINE__);
@@ -275,7 +275,7 @@ protected:
 		int num_tang_pos = sptr_s->get_max_num_non_arccorrected_bins();
 		if (max_ring_diff < 0)
 			max_ring_diff = sptr_s->get_num_rings() - 1;
-		return std::move(ProjDataInfo::construct_proj_data_info
+		return std::move(stir::ProjDataInfo::construct_proj_data_info
 			(sptr_s, span, max_ring_diff, num_views, num_tang_pos, false));
 	}
 };
@@ -291,25 +291,25 @@ public:
 	PETAcquisitionDataInFile() : _owns_file(false) {}
 	PETAcquisitionDataInFile(const char* filename) : _owns_file(false)
 	{
-		_data = ProjData::read_from_file(filename);
+		_data = stir::ProjData::read_from_file(filename);
 	}
-	PETAcquisitionDataInFile(shared_ptr<ExamInfo> sptr_exam_info,
-		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	PETAcquisitionDataInFile(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 	{
 		_data.reset(new ProjDataFile
 			(sptr_exam_info, sptr_proj_data_info, 
 			_filename = SIRFUtilities::scratch_file_name()));
 	}
-	PETAcquisitionDataInFile(const ProjData& pd) : _owns_file(true)
+	PETAcquisitionDataInFile(const stir::ProjData& pd) : _owns_file(true)
 	{
 		_data.reset(new ProjDataFile
 		(pd, _filename = SIRFUtilities::scratch_file_name()));
 	}
 	PETAcquisitionDataInFile
-		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
-		shared_ptr<ProjDataInfo> sptr_pdi =
+		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner_name, span, max_ring_diff, view_mash_factor);
 		ProjDataFile* ptr = new ProjDataFile(sptr_ei, sptr_pdi,
@@ -317,9 +317,9 @@ public:
 		ptr->fill(0.0f);
 		_data.reset(ptr);
 	}
-	shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
+	stir::shared_ptr<PETAcquisitionData> new_acquisition_data(std::string filename)
 	{
-		shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
+		stir::shared_ptr<PETAcquisitionDataInFile> sptr_ad(new PETAcquisitionDataInFile);
 		sptr_ad->_data.reset(new ProjDataFile(*data(), filename, false));
 		return sptr_ad;
 	}
@@ -341,30 +341,30 @@ public:
 	}
 
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_exam_info,
-		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+		(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 	{
 		PETAcquisitionData* ptr_ad = 
 			new PETAcquisitionDataInFile(sptr_exam_info, sptr_proj_data_info);
 		return ptr_ad;
 	}
-	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile(pd);
 		return ptr_ad;
 	}
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInFile
 			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 		return ptr_ad;
 	}
-	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
+	virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
-		return shared_ptr<PETAcquisitionData>
+		return stir::shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
 	virtual aDataContainer<float>* new_data_container()
@@ -387,26 +387,26 @@ private:
 class PETAcquisitionDataInMemory : public PETAcquisitionData {
 public:
 	PETAcquisitionDataInMemory() {}
-	PETAcquisitionDataInMemory(shared_ptr<ExamInfo> sptr_exam_info,
-		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+	PETAcquisitionDataInMemory(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 	{
-		_data = shared_ptr<ProjData>
-			(new ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
+		_data = stir::shared_ptr<stir::ProjData>
+			(new stir::ProjDataInMemory(sptr_exam_info, sptr_proj_data_info));
 	}
-	PETAcquisitionDataInMemory(const ProjData& pd)
+	PETAcquisitionDataInMemory(const stir::ProjData& pd)
 	{
-		_data = shared_ptr<ProjData>
-			(new ProjDataInMemory(pd.get_exam_info_sptr(),
+		_data = stir::shared_ptr<stir::ProjData>
+			(new stir::ProjDataInMemory(pd.get_exam_info_sptr(),
 			pd.get_proj_data_info_sptr()));
 	}
 	PETAcquisitionDataInMemory
-		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
-		shared_ptr<ProjDataInfo> sptr_pdi =
+		stir::shared_ptr<stir::ProjDataInfo> sptr_pdi =
 			PETAcquisitionData::proj_data_info_from_scanner
 			(scanner_name, span, max_ring_diff, view_mash_factor);
-		ProjDataInMemory* ptr = new ProjDataInMemory(sptr_ei, sptr_pdi);
+		stir::ProjDataInMemory* ptr = new stir::ProjDataInMemory(sptr_ei, sptr_pdi);
 		ptr->fill(0.0f);
 		_data.reset(ptr);
 	}
@@ -420,30 +420,30 @@ public:
 	}
 
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_exam_info,
-		shared_ptr<ProjDataInfo> sptr_proj_data_info)
+		(stir::shared_ptr<stir::ExamInfo> sptr_exam_info,
+		stir::shared_ptr<stir::ProjDataInfo> sptr_proj_data_info)
 	{
 		PETAcquisitionData* ptr_ad =
 			new PETAcquisitionDataInMemory(sptr_exam_info, sptr_proj_data_info);
 		return ptr_ad;
 	}
-	virtual PETAcquisitionData* same_acquisition_data(const ProjData& pd)
+	virtual PETAcquisitionData* same_acquisition_data(const stir::ProjData& pd)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory(pd);
 		return ptr_ad;
 	}
 	virtual PETAcquisitionData* same_acquisition_data
-		(shared_ptr<ExamInfo> sptr_ei, std::string scanner_name,
+		(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 		int span = 1, int max_ring_diff = -1, int view_mash_factor = 1)
 	{
 		PETAcquisitionData* ptr_ad = new PETAcquisitionDataInMemory
 			(sptr_ei, scanner_name, span, max_ring_diff, view_mash_factor);
 		return ptr_ad;
 	}
-	virtual shared_ptr<PETAcquisitionData> new_acquisition_data()
+	virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data()
 	{
 		init();
-		return shared_ptr<PETAcquisitionData>
+		return stir::shared_ptr<PETAcquisitionData>
 			(_template->same_acquisition_data(*data()));
 	}
 	virtual aDataContainer<float>* new_data_container()
@@ -482,17 +482,17 @@ public:
 	{
 		_data.reset(v.clone());
 	}
-	PETImageData(const ProjDataInfo& pdi)
+	PETImageData(const stir::ProjDataInfo& pdi)
 	{
 		_data.reset(new Voxels3DF(pdi));
 	}
-	PETImageData(shared_ptr<Image3DF> ptr)
+	PETImageData(stir::shared_ptr<Image3DF> ptr)
 	{
 		_data = ptr;
 	}
 	PETImageData(std::string filename)
 	{
-		_data = read_from_file<Image3DF>(filename);
+		_data = stir::read_from_file<Image3DF>(filename);
 	}
 	PETImageData* same_image_data()
 	{
@@ -500,9 +500,9 @@ public:
 		ptr_image->_data.reset(_data->get_empty_copy());
 		return ptr_image;
 	}
-	shared_ptr<PETImageData> new_image_data()
+	stir::shared_ptr<PETImageData> new_image_data()
 	{
-		return shared_ptr<PETImageData>(same_image_data());
+		return stir::shared_ptr<PETImageData>(same_image_data());
 	}
 	aDataContainer<float>* new_data_container()
 	{
@@ -533,11 +533,11 @@ public:
 	{
 		return _data.get();
 	}
-	shared_ptr<Image3DF> data_sptr()
+	stir::shared_ptr<Image3DF> data_sptr()
 	{
 		return _data;
 	}
-	void set_data_sptr(shared_ptr<Image3DF> sptr_data)
+	void set_data_sptr(stir::shared_ptr<Image3DF> sptr_data)
 	{
 		_data = sptr_data;
 	}
@@ -551,7 +551,7 @@ public:
 	int set_data(const float* data);
 
 protected:
-	shared_ptr<Image3DF> _data;
+	stir::shared_ptr<Image3DF> _data;
 };
 
 #endif

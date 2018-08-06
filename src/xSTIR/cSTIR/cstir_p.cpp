@@ -27,10 +27,10 @@ limitations under the License.
 #include "stir_x.h"
 #include "stir_data_containers.h"
 
+using namespace stir;
+
 extern "C"
 char* charDataFromHandle(const void* ptr);
-
-using stir::shared_ptr;
 
 static void*
 parameterNotFound(const char* name, const char* file, int line) 
