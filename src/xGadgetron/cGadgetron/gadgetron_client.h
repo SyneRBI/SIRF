@@ -111,13 +111,13 @@ class GadgetronClientAcquisitionMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientAcquisitionMessageCollector
-		(shared_ptr<MRAcquisitionData> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
+		(gadgetron::shared_ptr<MRAcquisitionData> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 	virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
 	virtual void read(tcp::socket* stream);
 
 private:
-	shared_ptr<MRAcquisitionData> ptr_acqs_;
+	gadgetron::shared_ptr<MRAcquisitionData> ptr_acqs_;
 };
 
 /**
@@ -127,7 +127,7 @@ class GadgetronClientImageMessageCollector :
 	public GadgetronClientMessageReader {
 public:
 	GadgetronClientImageMessageCollector
-		(shared_ptr<MRImageData> ptr_images) : ptr_images_(ptr_images) {}
+		(gadgetron::shared_ptr<MRImageData> ptr_images) : ptr_images_(ptr_images) {}
 	virtual ~GadgetronClientImageMessageCollector() {}
 
 	template <typename T>
@@ -160,7 +160,7 @@ public:
 	virtual void read(tcp::socket* stream);
 
 private:
-	shared_ptr<MRImageData> ptr_images_;
+	gadgetron::shared_ptr<MRImageData> ptr_images_;
 };
 
 /**
@@ -245,14 +245,14 @@ public:
 	}
 
 	void register_reader
-		(unsigned short slot, shared_ptr<GadgetronClientMessageReader> r) 
+		(unsigned short slot, gadgetron::shared_ptr<GadgetronClientMessageReader> r) 
 	{
 		readers_[slot] = r;
 	}
 
 protected:
 	typedef 
-		std::map<unsigned short, shared_ptr<GadgetronClientMessageReader> > 
+		std::map<unsigned short, gadgetron::shared_ptr<GadgetronClientMessageReader> > 
 		maptype;
 
 	GadgetronClientMessageReader* find_reader(unsigned short r);

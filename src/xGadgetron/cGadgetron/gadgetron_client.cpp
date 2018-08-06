@@ -35,10 +35,9 @@ limitations under the License.
 using boost::asio::ip::tcp;
 
 #include "cgadgetron_shared_ptr.h"
+#include "gadgetron_client.h"
 
 using namespace gadgetron;
-
-#include "gadgetron_client.h"
 
 void
 GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)

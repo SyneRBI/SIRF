@@ -35,9 +35,6 @@ using boost::asio::ip::tcp;
 #include <ismrmrd/dataset.h>
 
 #include "cgadgetron_shared_ptr.h"
-
-using namespace gadgetron;
-
 #include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
@@ -46,6 +43,8 @@ using namespace gadgetron;
 #include "gadgetron_x.h"
 #include "gadget_lib.h"
 #include "chain_lib.h"
+
+using namespace gadgetron;
 
 #define GRAB 1
 
