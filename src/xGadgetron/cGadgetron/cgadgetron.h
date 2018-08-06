@@ -99,6 +99,8 @@ extern "C" {
 	void* cGT_axpby(
 		float ar, float ai, const void* ptr_x,
 		float br, float bi, const void* ptr_y);
+	void* cGT_multiply(const void* ptr_x, const void* ptr_y);
+	void* cGT_divide(const void* ptr_x, const void* ptr_y);
 
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);

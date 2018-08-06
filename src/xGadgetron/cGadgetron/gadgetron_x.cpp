@@ -27,11 +27,19 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+using boost::asio::ip::tcp;
+
 #include "cgadgetron_shared_ptr.h"
-#include "data_handle.h"
-#include "gadgetron_x.h"
 
 using namespace gadgetron;
+
+#include "data_handle.h"
+#include "gadgetron_x.h"
 
 static bool
 connection_failed(int nt)

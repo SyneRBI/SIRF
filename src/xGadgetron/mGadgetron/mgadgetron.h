@@ -81,6 +81,8 @@ EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_norm(const void* ptr_x);
 EXPORTED_FUNCTION 	void* mGT_dot(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mGT_axpby( float ar, float ai, const void* ptr_x, float br, float bi, const void* ptr_y);
+EXPORTED_FUNCTION 	void* mGT_multiply(const void* ptr_x, const void* ptr_y);
+EXPORTED_FUNCTION 	void* mGT_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 EXPORTED_FUNCTION 	void* mGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);

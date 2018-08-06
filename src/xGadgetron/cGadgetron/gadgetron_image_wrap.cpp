@@ -27,6 +27,10 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include "cgadgetron_shared_ptr.h"
+
+using namespace gadgetron;
+
 #include "gadgetron_image_wrap.h"
 
 void

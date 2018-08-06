@@ -27,6 +27,17 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+using boost::asio::ip::tcp;
+
+#include "cgadgetron_shared_ptr.h"
+
+using namespace gadgetron;
+
 #include "gadgetron_client.h"
 
 void

@@ -33,9 +33,6 @@ limitations under the License.
 #include <stdlib.h>
 
 #include "stir_data_containers.h"
-#include "stir_types.h"
-
-using stir::shared_ptr;
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -177,10 +174,10 @@ public:
 
 		return false;
 	}
-	shared_ptr<PETAcquisitionData> get_output()
+	stir::shared_ptr<PETAcquisitionData> get_output()
 	{
 		std::string filename = output_filename_prefix + "_f1g1d0b0.hs";
-		return shared_ptr<PETAcquisitionData>
+		return stir::shared_ptr<PETAcquisitionData>
 			(new PETAcquisitionDataInFile(filename.c_str()));
 	}
 
@@ -193,7 +190,7 @@ public:
 		estimate_randoms_();
 		return 0;
 	}
-	shared_ptr<PETAcquisitionData> get_randoms_sptr()
+	stir::shared_ptr<PETAcquisitionData> get_randoms_sptr()
 	{
 		return randoms_sptr;
 	}
@@ -207,9 +204,9 @@ protected:
 	int display_interval;
 	int KL_interval;
 	int save_interval;
-	shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
-	shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
-	shared_ptr<PETAcquisitionData> randoms_sptr;
+	stir::shared_ptr<std::vector<stir::Array<2, float> > > fan_sums_sptr;
+	stir::shared_ptr<stir::DetectorEfficiencies> det_eff_sptr;
+	stir::shared_ptr<PETAcquisitionData> randoms_sptr;
 	void compute_fan_sums_(bool prompt_fansum = false);
 	int compute_singles_();
 	void estimate_randoms_();
@@ -238,37 +235,37 @@ public:
 		norm_.reset(new stir::ChainedBinNormalisation(mod1.data(), mod2.data()));
 	}
 
-	stir::Succeeded set_up(const shared_ptr<stir::ProjDataInfo>&);
+	stir::Succeeded set_up(const stir::shared_ptr<stir::ProjDataInfo>&);
 
 	// multiply by bin efficiencies
 	virtual void unnormalise(PETAcquisitionData& ad) const;
 	// divide by bin efficiencies
 	virtual void normalise(PETAcquisitionData& ad) const;
 	// same as apply, but returns new data rather than changes old one
-	shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
+	stir::shared_ptr<PETAcquisitionData> forward(PETAcquisitionData& ad) const
 	{
-		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
+		stir::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
 		this->unnormalise(*sptr_ad);
 		return sptr_ad;
 	}
 	// same as undo, but returns new data rather than changes old one
-	shared_ptr<PETAcquisitionData> invert(PETAcquisitionData& ad) const
+	stir::shared_ptr<PETAcquisitionData> invert(PETAcquisitionData& ad) const
 	{
-		shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
+		stir::shared_ptr<PETAcquisitionData> sptr_ad = ad.new_acquisition_data();
 		sptr_ad->fill(ad);
 		this->normalise(*sptr_ad);
 		return sptr_ad;
 	}
 
-	shared_ptr<stir::BinNormalisation> data()
+	stir::shared_ptr<stir::BinNormalisation> data()
 	{
 		return norm_;
 		//return std::dynamic_pointer_cast<stir::BinNormalisation>(norm_);
 	}
 
 protected:
-	shared_ptr<stir::BinNormalisation> norm_;
+	stir::shared_ptr<stir::BinNormalisation> norm_;
 	//shared_ptr<stir::ChainedBinNormalisation> norm_;
 };
 
@@ -312,27 +309,27 @@ later via AcquisitionData subsets.
 
 class PETAcquisitionModel {
 public:
-	void set_projectors(shared_ptr<stir::ProjectorByBinPair> sptr_projectors)
+	void set_projectors(stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors)
 	{
 		sptr_projectors_ = sptr_projectors;
 	}
-	shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
+	stir::shared_ptr<stir::ProjectorByBinPair> projectors_sptr()
 	{
 		return sptr_projectors_;
 	}
-	void set_additive_term(shared_ptr<PETAcquisitionData> sptr)
+	void set_additive_term(stir::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_add_ = sptr;
 	}
-	shared_ptr<PETAcquisitionData> additive_term_sptr()
+	stir::shared_ptr<PETAcquisitionData> additive_term_sptr()
 	{
 		return sptr_add_;
 	}
-	void set_background_term(shared_ptr<PETAcquisitionData> sptr)
+	void set_background_term(stir::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_background_ = sptr;
 	}
-	shared_ptr<PETAcquisitionData> background_term_sptr()
+	stir::shared_ptr<PETAcquisitionData> background_term_sptr()
 	{
 		return sptr_background_;
 	}
@@ -340,11 +337,11 @@ public:
 	//{
 	//	sptr_normalisation_ = sptr;
 	//}
-	shared_ptr<stir::BinNormalisation> normalisation_sptr()
+	stir::shared_ptr<stir::BinNormalisation> normalisation_sptr()
 	{
 		if (sptr_asm_.get())
 			return sptr_asm_->data();
-		shared_ptr<stir::BinNormalisation> sptr;
+		stir::shared_ptr<stir::BinNormalisation> sptr;
 		return sptr;
 		//return sptr_normalisation_;
 	}
@@ -353,7 +350,7 @@ public:
 	//{
 	//	sptr_normalisation_.reset(new stir::BinNormalisationFromProjData(*sptr_data));
 	//}
-	void set_asm(shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
+	void set_asm(stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm)
 	{
 		//sptr_normalisation_ = sptr_asm->data();
 		sptr_asm_ = sptr_asm;
@@ -374,27 +371,27 @@ public:
 	}
 
 	virtual stir::Succeeded set_up(
-		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<PETImageData> sptr_image);
+		stir::shared_ptr<PETAcquisitionData> sptr_acq,
+		stir::shared_ptr<PETImageData> sptr_image);
 
 	// computes and returns a subset of forward-projected data 
-	shared_ptr<PETAcquisitionData>
+	stir::shared_ptr<PETAcquisitionData>
 		forward(const PETImageData& image, 
 		int subset_num = 0, int num_subsets = 1);
 	// replaces a subset of acquisition data with forward-projected data
 	void forward(PETAcquisitionData& acq_data, const PETImageData& image, 
 		int subset_num, int num_subsets, bool zero = false);
 
-	shared_ptr<PETImageData> backward(PETAcquisitionData& ad, 
+	stir::shared_ptr<PETImageData> backward(PETAcquisitionData& ad,
 		int subset_num = 0, int num_subsets = 1);
 
 protected:
-	shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;
-	shared_ptr<PETAcquisitionData> sptr_acq_template_;
-	shared_ptr<PETImageData> sptr_image_template_;
-	shared_ptr<PETAcquisitionData> sptr_add_;
-	shared_ptr<PETAcquisitionData> sptr_background_;
-	shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
+	stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;
+	stir::shared_ptr<PETAcquisitionData> sptr_acq_template_;
+	stir::shared_ptr<PETImageData> sptr_image_template_;
+	stir::shared_ptr<PETAcquisitionData> sptr_add_;
+	stir::shared_ptr<PETAcquisitionData> sptr_background_;
+	stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
 	//shared_ptr<stir::BinNormalisation> sptr_normalisation_;
 };
 
@@ -418,20 +415,20 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	{
 		this->sptr_projectors_.reset(new ProjectorPairUsingMatrix);
 	}
-	void set_matrix(shared_ptr<stir::ProjMatrixByBin> sptr_matrix)
+	void set_matrix(stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix)
 	{
 		sptr_matrix_ = sptr_matrix;
 		((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			set_proj_matrix_sptr(sptr_matrix);
 	}
-	shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
+	stir::shared_ptr<stir::ProjMatrixByBin> matrix_sptr()
 	{
 		return ((ProjectorPairUsingMatrix*)this->sptr_projectors_.get())->
 			get_proj_matrix_sptr();
 	}
 	virtual stir::Succeeded set_up(
-		shared_ptr<PETAcquisitionData> sptr_acq,
-		shared_ptr<PETImageData> sptr_image)
+		stir::shared_ptr<PETAcquisitionData> sptr_acq,
+		stir::shared_ptr<PETImageData> sptr_image)
 	{
 		if (!sptr_matrix_.get())
 			return stir::Succeeded::no;
@@ -439,12 +436,12 @@ class PETAcquisitionModelUsingMatrix : public PETAcquisitionModel {
 	}
 
 private:
-	shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
+	stir::shared_ptr<stir::ProjMatrixByBin> sptr_matrix_;
 };
 
 typedef PETAcquisitionModel AcqMod3DF;
 typedef PETAcquisitionModelUsingMatrix AcqModUsingMatrix3DF;
-typedef shared_ptr<AcqMod3DF> sptrAcqMod3DF;
+typedef stir::shared_ptr<AcqMod3DF> sptrAcqMod3DF;
 
 /*!
 \ingroup STIR Extensions
@@ -460,7 +457,7 @@ public:
 	// divide by bin efficiencies
 	virtual void normalise(PETAcquisitionData& ad) const;
 protected:
-	shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
+	stir::shared_ptr<stir::ForwardProjectorByBin> sptr_forw_projector_;
 };
 
 /*!
@@ -509,12 +506,12 @@ public:
 	void set_input_file(const char* filename) {
 		input_filename = filename;
 	}
-	void set_acquisition_data(shared_ptr<PETAcquisitionData> sptr)
+	void set_acquisition_data(stir::shared_ptr<PETAcquisitionData> sptr)
 	{
 		sptr_ad_ = sptr;
 		set_proj_data_sptr(sptr->data());
 	}
-	void set_acquisition_model(shared_ptr<AcqMod3DF> sptr)
+	void set_acquisition_model(stir::shared_ptr<AcqMod3DF> sptr)
 	{
 		sptr_am_ = sptr;
 		AcqMod3DF& am = *sptr;
@@ -524,13 +521,13 @@ public:
 		if (am.normalisation_sptr().get())
 			set_normalisation_sptr(am.normalisation_sptr());
 	}
-	shared_ptr<AcqMod3DF> acquisition_model_sptr()
+	stir::shared_ptr<AcqMod3DF> acquisition_model_sptr()
 	{
 		return sptr_am_;
 	}
 private:
-	shared_ptr<PETAcquisitionData> sptr_ad_;
-	shared_ptr<AcqMod3DF> sptr_am_;
+	stir::shared_ptr<PETAcquisitionData> sptr_ad_;
+	stir::shared_ptr<AcqMod3DF> sptr_am_;
 };
 
 typedef xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF
@@ -566,7 +563,7 @@ public:
 class xSTIR_OSMAPOSLReconstruction3DF : 
 	public stir::OSMAPOSLReconstruction < Image3DF > {
 public:
-	stir::Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	stir::Succeeded set_up(stir::shared_ptr<PETImageData> sptr_id)
 	{
 		stir::Succeeded s = stir::Succeeded::no;
 		xSTIR_IterativeReconstruction3DF* ptr_r =
@@ -581,7 +578,7 @@ public:
 	{
 		((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
 	}
-	void update(shared_ptr<PETImageData> sptr_id)
+	void update(stir::shared_ptr<PETImageData> sptr_id)
 	{
 		update(*sptr_id);
 	}
@@ -630,7 +627,7 @@ public:
 			("wrong frequency cut-off", __FILE__, __LINE__);
 		fc_ramp = fc;
 	}
-	stir::Succeeded set_up(shared_ptr<PETImageData> sptr_id)
+	stir::Succeeded set_up(stir::shared_ptr<PETImageData> sptr_id)
 	{
 		_sptr_image_data.reset(new PETImageData(*sptr_id));
 		_is_set_up = true;
@@ -639,20 +636,20 @@ public:
 	stir::Succeeded process()
 	{
 		if (!_is_set_up) {
-			shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
+			stir::shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
 			_sptr_image_data.reset(new PETImageData(sptr_image));
 			return reconstruct(sptr_image);
 		}
 		else
 			return reconstruct(_sptr_image_data->data_sptr());
 	}
-	shared_ptr<PETImageData> get_output()
+	stir::shared_ptr<PETImageData> get_output()
 	{
 		return _sptr_image_data;
 	}
 protected:
 	bool _is_set_up;
-	shared_ptr<PETImageData> _sptr_image_data;
+	stir::shared_ptr<PETImageData> _sptr_image_data;
 };
 
 #endif
