@@ -26,7 +26,7 @@ limitations under the License.
 #include "stir_x.h"
 #include "stir_data_containers.h"
 
-using stir::shared_ptr;
+using namespace stir;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -78,7 +78,9 @@ void* cSTIR_newObject(const char* name)
 		if (boost::iequals(name, "QuadraticPrior"))
 			return newObjectHandle<QuadPrior3DF>();
 		if (boost::iequals(name, "PLSPrior"))
-			return newObjectHandle<xSTIR_PLSPrior3DF>();
+			return newObjectHandle<PLSPrior<float> >();
+		//if (boost::iequals(name, "PLSPrior"))
+		//	return newObjectHandle<xSTIR_PLSPrior3DF>();
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
 			return newObjectHandle<CylindricFilter3DF>();
 		if (boost::iequals(name, "EllipsoidalCylinder"))
@@ -149,31 +151,33 @@ void* cSTIR_parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
 		if (boost::iequals(obj, "Shape"))
 			return cSTIR_shapeParameter(handle, name);
-		if (boost::iequals(obj, "EllipsoidalCylinder"))
+		else if (boost::iequals(obj, "EllipsoidalCylinder"))
 			return cSTIR_ellipsoidalCylinderParameter(handle, name);
 		else if (boost::iequals(obj, "TruncateToCylindricalFOVImageProcessor"))
 			return cSTIR_truncateToCylindricalFOVImageProcessorParameter
 			(handle, name);
-		if (boost::iequals(obj, "RayTracingMatrix"))
+		else if (boost::iequals(obj, "RayTracingMatrix"))
 			return cSTIR_rayTracingMatrixParameter(handle, name);
 		else if (boost::iequals(obj, "AcqModUsingMatrix"))
 			return cSTIR_acqModUsingMatrixParameter(handle, name);
-		if (boost::iequals(obj, "GeneralisedPrior"))
+		else if (boost::iequals(obj, "GeneralisedPrior"))
 			return cSTIR_generalisedPriorParameter(handle, name);
-		if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
+		else if (boost::iequals(obj, "PLSPrior"))
+			return cSTIR_PLSPriorParameter(handle, name);
+		else if (boost::iequals(obj, "GeneralisedObjectiveFunction"))
 			return cSTIR_generalisedObjectiveFunctionParameter(handle, name);
-		if (boost::iequals(obj,
+		else if (boost::iequals(obj,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
 			return
 			cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 			(handle, name);
-		if (boost::iequals(obj, "IterativeReconstruction"))
+		else if (boost::iequals(obj, "IterativeReconstruction"))
 			return cSTIR_iterativeReconstructionParameter(handle, name);
-		if (boost::iequals(obj, "OSMAPOSL"))
+		else if (boost::iequals(obj, "OSMAPOSL"))
 			return cSTIR_OSMAPOSLParameter(handle, name);
-		if (boost::iequals(obj, "OSSPS"))
+		else if (boost::iequals(obj, "OSSPS"))
 			return cSTIR_OSSPSParameter(handle, name);
-		if (boost::iequals(obj, "FBP2D"))
+		else if (boost::iequals(obj, "FBP2D"))
 			return cSTIR_FBP2DParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -415,23 +419,38 @@ void* cSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im)
 
 extern "C"
 void* cSTIR_acquisitionModelFwd
-(void* ptr_am, void* ptr_im)
+(void* ptr_am, void* ptr_im, int subset_num, int num_subsets)
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
-		return newObjectHandle(am.forward(id));
+		return newObjectHandle(am.forward(id, subset_num, num_subsets));
 	}
 	CATCH;
 }
 
 extern "C"
-void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad)
+void* cSTIR_acquisitionModelFwdReplace
+(void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad)
+{
+	try {
+		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
+		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
+		am.forward(ad, id, subset_num, num_subsets);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void* cSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, 
+	int subset_num, int num_subsets)
 {
 	try {
 		AcqMod3DF& am = objectFromHandle<AcqMod3DF>(ptr_am);
 		PETAcquisitionData& ad = objectFromHandle<PETAcquisitionData>(ptr_ad);
-		return newObjectHandle(am.backward(ad));
+		return newObjectHandle(am.backward(ad, subset_num, num_subsets));
 	}
 	CATCH;
 }

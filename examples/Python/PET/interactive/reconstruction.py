@@ -184,13 +184,13 @@ imshow(reconstructed_array[slice,:,:,], [0,cmax*1.2], 'no noise');
 plt.subplot(1,2,2);
 imshow(noisy_reconstructed_array[slice,:,:,], [0,cmax*1.2], 'with noise');
 
-#%% run same reconstruction but saving images and objective function values every iteration
-num_iters = 64;
-all_osem_images = numpy.ndarray(shape=(num_iters+1,) + idata.shape );
+#%% run same reconstruction but saving images and objective function values every sub-iteration
+num_subiters = 64;
+all_osem_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 current_image = init_image.clone()
 osem_objective_function_values = [ obj_fun.value(current_image) ]
 all_osem_images[0,:,:,:] =  current_image.as_array();
-for iter in range(1, num_iters+1):
+for iter in range(1, num_subiters+1):
     recon.update(current_image);
     
     obj_fun_value = obj_fun.value(current_image);
@@ -198,13 +198,13 @@ for iter in range(1, num_iters+1):
     all_osem_images[iter,:,:,:] =  current_image.as_array();
   
 #%% define a function for plotting images and the updates
-def plot_progress(all_images, title, iterations = []):
-    if len(iterations)==0:
-        num_iters = all_images[0].shape[0]-1;
-        iterations = range(1, num_iters+1);
+def plot_progress(all_images, title, subiterations = []):
+    if len(subiterations)==0:
+        num_subiters = all_images[0].shape[0]-1;
+        subiterations = range(1, num_subiters+1);
     num_rows = len(all_images);
     plt.close('all');
-    for iter in iterations:
+    for iter in subiterations:
         plt.figure(iter)
         for r in range(num_rows):
             plt.subplot(num_rows,2,2*r+1)
@@ -214,12 +214,12 @@ def plot_progress(all_images, title, iterations = []):
             plt.pause(.05)
         
 #%% now call this function to see how we went along
-sub_iterations = (1,2,4,8,16,32,64);
-plot_progress([all_osem_images], ['OSEM'],sub_iterations)
+subiterations = (1,2,4,8,16,32,64);
+plot_progress([all_osem_images], ['OSEM'],subiterations)
 
 #%% plot objective function values
 plt.figure()
-#plt.plot(sub_iterations, [ osem_objective_function_values[i] for i in sub_iterations])
+#plt.plot(subiterations, [ osem_objective_function_values[i] for i in subiterations])
 plt.plot(osem_objective_function_values)
 plt.title('Objective function values')
 plt.xlabel('sub-iterations')
@@ -235,7 +235,7 @@ ROI_mean_lung = ROI_lung.mean(axis=(1,2,3))
 ROI_std_lung = ROI_lung.std(axis=(1,2,3))
 
 plt.figure()
-plt.hold('on')
+#plt.hold('on')
 plt.subplot(1,2,1)
 plt.plot(ROI_mean_lesion,'k',label='lesion')
 plt.plot(ROI_mean_lung,'r',label='lung')
@@ -260,12 +260,12 @@ plt.close('all')
 
 
 
-#%% Perform gradient descent for 8 iterations
+#%% Perform gradient descent for a few (sub)iterations
 # Gradient descent (GD) works by updating the image in the direction of the gradient
 #    new_image = current_image + step_size * gradient
-# Here we will use a fixed step-size and use "truncattion" to enforce
+# Here we will use a fixed step-size and use "truncation" to enforce
 # non-negativity of the image
-num_iters = 32
+num_subiters = 32
 # relative step-size
 tau = .3
 
@@ -273,11 +273,11 @@ tau = .3
 current_image = init_image.clone()
 GD_objective_function_values = [ obj_fun.value(current_image) ]
 idata = current_image.as_array()
-all_images = numpy.ndarray(shape=(num_iters+1,) + idata.shape );
+all_images = numpy.ndarray(shape=(num_subiters+1,) + idata.shape );
 all_images[0,:,:,:] =  idata;
 
 #%% perform GD iterations
-for iter in range(1, num_iters+1):  
+for iter in range(1, num_subiters+1):  
     # obtain gradient for subset 0
     # with current settings, this means we will only use the data of that subset
     # (gradient descent with subsets is too complicated for this demo)
@@ -297,8 +297,8 @@ for iter in range(1, num_iters+1):
     all_images[iter,:,:,:] = idata; 
 #%% Plot objective function values
 plt.figure()
-plt.hold('on')
-plt.title('Objective function value vs iterations')
+#plt.hold('on')
+plt.title('Objective function value vs subiterations')
 plt.plot(GD_objective_function_values,'b');
 plt.plot(osem_objective_function_values,'r');
 plt.legend(('gradient descent', 'OSEM'),loc='lower right');

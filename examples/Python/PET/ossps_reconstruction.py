@@ -4,16 +4,16 @@ Usage:
   ossps_reconstruction [--help | options]
 
 Options:
-  -d <file>, --file=<file>    raw data file
-                              [default: Utahscat600k_ca_seg4.hs]
-  -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
-                              subfolder of SIRF root folder
-  -g <file>, --init=<file>    initial image guess file
-                              [default: test_image_PM_QP_6.hv]
-  -f <fact>, --penf=<fact>    penalty factor [default: 0]
-  -s <subs>, --subs=<subs>    number of subsets [default: 4]
-  -i <iter>, --iter=<iter>    number of iterations [default: 2]
-  -e <engn>, --engn=<engn>    reconstruction engine [default: STIR]
+  -d <file>, --file=<file>     raw data file
+                               [default: Utahscat600k_ca_seg4.hs]
+  -p <path>, --path=<path>     path to data files, defaults to data/examples/PET
+                               subfolder of SIRF root folder
+  -g <file>, --init=<file>     initial image guess file
+                               [default: test_image_PM_QP_6.hv]
+  -f <fact>, --penf=<fact>     penalty factor [default: 1000]
+  -s <subs>, --subs=<subs>     number of subsets [default: 4]
+  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
+  -e <engn>, --engn=<engn>     reconstruction engine [default: STIR]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -44,7 +44,7 @@ exec('from p' + args['--engn'] + ' import *')
 # process command-line options
 pen_factor = args['--penf']
 num_subsets = int(args['--subs'])
-num_subiterations = int(args['--iter'])
+num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
@@ -98,13 +98,13 @@ def main():
     # rather than allow recon.reconstruct to do all job at once
     for iter in range(num_subiterations):
         print('\n------------- Subiteration %d' % recon.get_subiteration_num())
-        # perform an iteration
+        # perform a sub-iteration
         recon.update(image)
         # display the current image at z = 10
         image_array = image.as_array()
         pylab.figure(iter + 1)
         pylab.imshow(image_array[10,:,:])
-        print('close Figure %d window to continue' % (iter + 1))
+        print('You may neet to close Figure %d window to continue' % (iter + 1))
     pylab.show()
 
     # interactively display the reconstructed image

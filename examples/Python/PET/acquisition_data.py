@@ -38,7 +38,7 @@ import math
 from pUtilities import show_2D_array
 
 # import engine module
-exec('from p' + args['--engine'] + ' import *')
+exec('from sirf.' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -92,10 +92,11 @@ def main():
 
     print('Checking acquisition data algebra:')
     s = acq_data.norm()
-    t = acq_data * acq_data
+    t = acq_data.dot(acq_data)
+##    t = acq_data * acq_data
     print('norm of acq_data.as_array(): %f' % numpy.linalg.norm(acq_array))
     print('acq_data.norm(): %f' % s)
-    print('sqrt(acq_data * acq_data): %f' % math.sqrt(t))
+    print('sqrt(acq_data.dot(acq_data)): %f' % math.sqrt(t))
     diff = new_acq_data - acq_data
     print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
     new_acq_data = acq_data * 10.0
@@ -110,10 +111,11 @@ def main():
     image_array = image.as_array()
     print('image dimensions: %d x %d x %d' % image_array.shape)
     s = image.norm()
-    t = image * image
+    t = image.dot(image)
+##    t = image * image
     print('norm of image.as_array(): %f' % numpy.linalg.norm(image_array))
     print('image.norm(): %f' % s)
-    print('sqrt(image * image): %f' % math.sqrt(t))
+    print('sqrt(image.dot(image)): %f' % math.sqrt(t))
     image = image*10
     print('norm of image*10: %f' % image.norm())
     diff = image.clone() - image

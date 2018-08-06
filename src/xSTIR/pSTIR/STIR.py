@@ -300,8 +300,8 @@ class DataContainer(ABC):
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
-        if type(self) == type(other):
-            return self.dot(other)
+##        if type(self) == type(other):
+##            return self.dot(other)
         z = self.same_object()
         if type(other) == type(0):
             other = float(other)
@@ -508,6 +508,7 @@ class ImageData(DataContainer):
         if im_num is not None:
             if im_num < 1 or im_num > nz:
                 return
+            im_num -= 1
             show_2D_array('slice %d' % im_num, data[im_num,:,:])
             return
         print('Please enter slice numbers (e.g.: 1, 3-5)')
@@ -717,9 +718,14 @@ class AcquisitionData(DataContainer):
         image = ImageData()
         if xy is None:
             image.handle = pystir.cSTIR_imageFromAcquisitionData(self.handle)
-        else:
+        elif isinstance(xy, tuple):
             image.handle = pystir.cSTIR_imageFromAcquisitionDataAndNxNy\
                            (self.handle, xy[1], xy[0])
+        elif isinstance(xy, int):
+            image.handle = pystir.cSTIR_imageFromAcquisitionDataAndNxNy\
+                           (self.handle, xy, xy)
+        else:
+            raise error('Wrong second argument in create_uniform_image')
         check_status(image.handle)
         image.fill(value)
         return image
@@ -1066,7 +1072,7 @@ class AcquisitionModel:
             (self.handle, acq_templ.handle, img_templ.handle))
     def set_additive_term(self, at):
         ''' 
-        Sets the additive term a in (F);
+        Sets the additive term a in the acquisition model;
         at:  an AcquisitionData object containing a.
         '''
         assert_validity(at, AcquisitionData)
@@ -1074,7 +1080,7 @@ class AcquisitionModel:
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
     def set_background_term(self, bt):
         ''' 
-        Sets the background term b in (F);
+        Sets the background term b in the acquisition model;
         bt:  an AcquisitionData object containing b.
         '''
         assert_validity(bt, AcquisitionData)
@@ -1082,44 +1088,49 @@ class AcquisitionModel:
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
     def set_acquisition_sensitivity(self, asm):
         ''' 
-        Sets the normalization n in (F);
-        norm:  an AcquisitionSensitivityModel object containing normalisation n
+        Sets the normalization n in the acquisition model;
+        norm:  an AcquisitionSensitivityModel object containing normalisation n.
         '''
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
-    def forward(self, image):
+    def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
-        Returns the forward projection of x given by (F);
-        image   :  an ImageData object containing x;
+        Returns the forward projection of image;
+        image   :  an ImageData object.
         '''
         assert_validity(image, ImageData)
-        ad = AcquisitionData()
-        ad.handle = pystir.cSTIR_acquisitionModelFwd(self.handle, image.handle)
-        check_status(ad.handle)
-        return ad;
-    def backward(self, ad):
+        if ad is None:
+            ad = AcquisitionData()
+            ad.handle = pystir.cSTIR_acquisitionModelFwd \
+                        (self.handle, image.handle, subset_num, num_subsets)
+            check_status(ad.handle)
+            return ad;
+        assert_validity(ad, AcquisitionData)
+        try_calling(pystir.cSTIR_acquisitionModelFwdReplace \
+            (self.handle, image.handle, subset_num, num_subsets, ad.handle))
+    def backward(self, ad, subset_num = 0, num_subsets = 1):
         ''' 
-        Returns the backward projection of y giben by (B);
-        ad:  an AcquisitionData object containing y.
+        Returns the backward projection of ad;
+        ad:  an AcquisitionData object.
         '''
         assert_validity(ad, AcquisitionData)
         image = ImageData()
         image.handle = pystir.cSTIR_acquisitionModelBwd\
-            (self.handle, ad.handle)
+            (self.handle, ad.handle, subset_num, num_subsets)
         check_status(image.handle)
         return image
 
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
-    matrix for G in (F).
+    matrix for G - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
         Creates an AcquisitionModelUsingMatrix object, optionally setting
         the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -1135,7 +1146,7 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
     def set_matrix(self, matrix):
         ''' 
         Sets the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         assert_validity(matrix, RayTracingMatrix)
         _setParameter(self.handle, self.name, 'matrix', matrix.handle)
@@ -1152,13 +1163,13 @@ class AcquisitionModelUsingMatrix(AcquisitionModel):
 class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a ray tracing
-    matrix for G in (F).
+    matrix for G in (F) - see AcquisitionModel class.
     '''
     def __init__(self, matrix = None):
         ''' 
         Creates an AcquisitionModelUsingMatrix object, optionally setting
         the ray tracing matrix to be used for projecting;
-        matrix:  a RayTracingMatrix object to represent G in (F).
+        matrix:  a RayTracingMatrix object to represent G in acquisition model.
         '''
         self.handle = None
         self.name = 'AcqModUsingMatrix'
@@ -1181,7 +1192,7 @@ class AcquisitionModelUsingRayTracingMatrix(AcquisitionModelUsingMatrix):
     def get_matrix(self):
         ''' 
         Returns the ray tracing matrix used for projecting;
-        matrix:  a RayTracingMatrix object representing G in (F).
+        matrix:  a RayTracingMatrix object representing G in acquisition model.
         '''
         matrix = RayTracingMatrix()
         matrix.handle = pystir.cSTIR_parameter(self.handle, self.name, 'matrix')
@@ -1248,7 +1259,7 @@ class QuadraticPrior(Prior):
 
 class PLSPrior(Prior):
     '''
-    Class for PLS prior.
+    Class for Parallel Level Sets prior.
     '''
     def __init__(self):
         self.handle = None
@@ -1258,10 +1269,33 @@ class PLSPrior(Prior):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_only_2D(self, tf):
+        if tf:
+            v = 1
+        else:
+            v = 0
+        _set_int_par(self.handle, 'PLSPrior', 'only_2D', v)
+    def get_only_2D(self):
+        v = _int_par(self.handle, 'PLSPrior', 'only_2D')
+        return v != 0
     def set_anatomical_image(self, image):
         assert isinstance(image, ImageData)
         _setParameter(self.handle, 'PLSPrior',\
             'anatomical_image', image.handle)
+    def get_anatomical_image(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter\
+            (self.handle, 'PLSPrior', 'anatomical_image')
+        check_status(image.handle)
+        return image
+    def set_kappa(self, image):
+        assert isinstance(image, ImageData)
+        _setParameter(self.handle, 'PLSPrior', 'kappa', image.handle)
+    def get_kappa(self):
+        image = ImageData()
+        image.handle = pystir.cSTIR_parameter(self.handle, 'PLSPrior', 'kappa')
+        check_status(image.handle)
+        return image
 
 class ObjectiveFunction:
     '''
@@ -1491,6 +1525,15 @@ class Reconstructor:
 class FBP2DReconstructor:
     '''
     Class for 2D Filtered Back Projection reconstructor.
+    This is an implementation of the 2D FBP algorithm. 
+    Oblique angles in data will be ignored. The exception is the span=1 case,
+    where the ring differences +1 and -1 are first combined to give indirect
+    sinograms.
+    By default, the algorithm uses the ramp filter. An apodizing filter can be
+    added by using set_alpha_cosine_window and/or set_frequency_cut_off.
+    The apodizing filter in frequency space has the form
+
+        (alpha + (1 - alpha) * cos(pi * f / fc))
     '''
     def __init__(self):
         self.handle = None
@@ -1506,9 +1549,20 @@ class FBP2DReconstructor:
         _setParameter(self.handle, 'FBP2D', 'input', input_data.handle)
     def set_zoom(self, v):
         _set_float_par(self.handle, 'FBP2D', 'zoom', v)
-    def set_alpha_ramp(self, v):
+    def set_alpha_cosine_window(self, v):
+        '''
+        Set alpha in the apodizing filter.
+        See the class documentation for the filter. The value of alpha should
+        be between 0.5 and 1. alpha=0.5 corresponds to the Hann filter, while
+        0.54 corresponds to the Hamming filter.
+        '''
         _set_float_par(self.handle, 'FBP2D', 'alpha', v)
     def set_frequency_cut_off(self, v):
+        '''
+        Set the cut-off frequency for the apodizing filter.
+        See the class documentation for the filter. The value of fc should be
+        between 0 and 0.5.
+        '''
         _set_float_par(self.handle, 'FBP2D', 'fc', v)
     def set_output_image_size_xy(self, xy):
         _set_int_par(self.handle, 'FBP2D', 'xy', xy)

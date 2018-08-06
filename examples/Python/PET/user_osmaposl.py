@@ -9,7 +9,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/PET
                               subfolder of SIRF root folder
   -s <subs>, --subs=<subs>    number of subsets [default: 12]
-  -i <iter>, --iter=<iter>    number of iterations [default: 2]
+  -i <siter>, --subiter=<siter>    number of sub-iterations [default: 2]
   -e <engn>, --engine=<engn>  reconstruction engine [default: STIR]
 '''
 
@@ -42,7 +42,7 @@ exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
 num_subsets = int(args['--subs'])
-num_subiterations = int(args['--iter'])
+num_subiterations = int(args['--subiter'])
 data_file = args['--file']
 data_path = args['--path']
 if data_path is None:
@@ -92,7 +92,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 ##        # show current image at z = 20
 ##        image_array = image.as_array()
 ##        show_2D_array\
-##            ('Image at z = 20, iteration %d' % iter, image_array[20,:,:])
+##            ('Image at z = 20, sub-iteration %d' % iter, image_array[20,:,:])
 
     return image
 

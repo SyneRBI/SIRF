@@ -4,6 +4,9 @@ Usage:
   input_output [--help | options]
 
 Options:
+  -p <path> , --path=<path>   path to data files, defaults to data/examples/PET
+                              subfolder of SIRF root folder
+  -t <file> , --tfile=<file>  termplate file [default: my_forward_projection.hs]
   -a <name> , --afile=<name>  file to store simulated acquisition data
                               [default: simulated_data]
   -i <name> , --ifile=<name>  file to store phantom image data [default: phantom]
@@ -37,6 +40,11 @@ from pUtilities import show_2D_array
 # import engine module
 exec('from p' + args['--engine'] + ' import *')
 
+data_path = args['--path']
+if data_path is None:
+    data_path = petmr_data_path('pet')
+templ_file = args['--tfile']
+templ_file = existing_filepath(data_path, templ_file)
 acq_file = args['--afile']
 img_file = args['--ifile']
 
@@ -45,15 +53,16 @@ def main():
     # engine's messages go to files, except error messages, which go to stdout
     msg_red = MessageRedirector('info.txt', 'warn.txt')
 
-    # create acquisition data from scanner parameters to be used as a template
-    print('creating Siemens_mMR acquisition data...')
-    acq_template = AcquisitionData('Siemens_mMR')
-    acq_dim = acq_template.dimensions()
-    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
-          % acq_dim)
-    # rebin to reduce the acquisition data size
-    print('rebinning...')
-    acq_template = acq_template.rebin(15)
+    acq_template = AcquisitionData(templ_file)
+##    # create acquisition data from scanner parameters to be used as a template
+##    print('creating Siemens_mMR acquisition data...')
+##    acq_template = AcquisitionData('Siemens_mMR')
+##    acq_dim = acq_template.dimensions()
+##    print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
+##          % acq_dim)
+##    # rebin to reduce the acquisition data size
+##    print('rebinning...')
+##    acq_template = acq_template.rebin(15)
     acq_dim = acq_template.dimensions()
     print('acquisition data dimensions: %d sinograms, %d views, %d tang. pos.' \
           % acq_dim)

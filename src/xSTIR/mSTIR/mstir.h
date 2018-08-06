@@ -51,8 +51,8 @@ EXPORTED_FUNCTION 	void* mSTIR_chainPETAcquisitionSensitivityModels (const void*
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionSensitivityModel(void* ptr_sm, void* ptr_ad);
 EXPORTED_FUNCTION 	void* mSTIR_applyAcquisitionSensitivityModel (void* ptr_sm, void* ptr_ad, const char* job);
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im);
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im);
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im,  int subset_num, int num_subsets);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,  int subset_num, int num_subsets);
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme();
 EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsStorageScheme(const char* scheme);
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionsDataFromTemplate(void* ptr_t);
@@ -64,6 +64,7 @@ EXPORTED_FUNCTION 	void* mSTIR_setAcquisitionsData(void* ptr_acq, PTR_FLOAT ptr_
 EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsData(void* ptr_acq, float v);
 EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* ptr_acq, const void * ptr_from);
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename);
+EXPORTED_FUNCTION 	void* mSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_runFBP2DReconstruction(void* ptr_r);
 EXPORTED_FUNCTION 	void* mSTIR_setupReconstruction(void* ptr_r, void* ptr_i);
 EXPORTED_FUNCTION 	void* mSTIR_runReconstruction(void* ptr_r, void* ptr_i);

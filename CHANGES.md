@@ -1,15 +1,29 @@
 # ChangeLog
 
-## master
+## v1.1.0
 
-* create a python `sirf` package (recommended way of importing)
-  * alias p(Gadgetron|STIR|Utilities) -> sirf.(Gadgetron|STIR|Utilities)
-  * add `setup.py`
-  * expose cmake variable `PYTHON_STRATEGY`. Options:
-    * `PYTHONPATH`: prefix $PYTHONPATH (default)
-    * `SETUP_PY`:   execute `${PYTHON_EXECUTABLE} setup.py install`
-    * `CONDA`:      do nothing
-* Added PYTHON_DEST_DIR variable, which allows the user to select the install destination of the SIRF python modules. PYTHON_DEST_DIR is a cached variable which can be updated on the GUI. If PYTHON_DEST_DIR is not set, we will install in ${CMAKE_INSTALL_PREFIX}/python. Likewise for MATLAB_DEST_DIR.
+* Various bug fixes and corrections
+* `BUILD_STIR_WITH_OPENMP` is now `ON` by default
+* Virtual Machine amendments:
+  * UK English keyboard
+  * Password protection removed from screen lock
+* Gadgetron data processors check for Gadgetron server crash
+* More data files in `SIRF/data/examples/MR`
+* Grayscale plotting enabled
+
+## v1.1.0-rc.1
+
+* Created a python `sirf` package (recommended way of importing)
+  * aliased `p(Gadgetron|STIR|Utilities) -> sirf.(Gadgetron|STIR|Utilities)`
+  * added `setup.py`
+  * exposed cmake variable `PYTHON_STRATEGY`. Options:
+     * `PYTHONPATH`: prefix `$PYTHONPATH` (default)
+     * `SETUP_PY`:   execute `${PYTHON_EXECUTABLE} setup.py install`
+     * `CONDA`:      do nothing
+* Added `PYTHON_DEST_DIR` variable, which allows the user to select the install destination of the SIRF python modules. `PYTHON_DEST_DIR` is a cached variable which can be updated on the GUI. If `PYTHON_DEST_DIR` is not set, we will install in `${CMAKE_INSTALL_PREFIX}/python`. Likewise for `MATLAB_DEST_DIR`.
+* Some improvements to the demos. Note that PET reconstruction demos have somewhat different parameters.
+* Implemented PLS Prior
+* Implemented 2D Filtered Back Projection
 
 ## v1.0.0
 

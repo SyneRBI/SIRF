@@ -16,7 +16,7 @@ Options:
   -d <nxny>, --nxny=<nxny>     image x and y dimensions as string '(nx,ny)'
                                (no space after comma) [default: (127,127)]
   -S <subs>, --subs=<subs>     number of subsets [default: 7]
-  -I <iter>, --iter=<iter>     number of iterations [default: 2]
+  -i <siter>, --subiter=<siter>  number of sub-iterations [default: 2]
   -o <outp>, --outp=<outp>     output file prefix [default: recon]
   -e <engn>, --engine=<engn>   reconstruction engine [default: STIR]
   -s <stsc>, --storage=<stsc>  acquisition data storage scheme [default: file]
@@ -73,7 +73,7 @@ attn_file = existing_filepath(data_path, attn_file)
 nxny = literal_eval(args['--nxny'])
 interval = literal_eval(args['--interval'])
 num_subsets = int(args['--subs'])
-num_iterations = int(args['--iter'])
+num_subiterations = int(args['--subiter'])
 storage = args['--storage']
 
 def main():
@@ -89,6 +89,7 @@ def main():
     # See the listmode_to_sinograms demo for some more information on this step.
 
     # create listmode-to-sinograms converter object
+    # See also the listmode_to_sinograms demo
     lm2sino = ListmodeToSinograms()
 
     # set input, output and template files
@@ -114,20 +115,19 @@ def main():
     acq_array = acq_data.as_array()
     acq_dim = acq_array.shape
     print('acquisition data dimensions: %dx%dx%d' % acq_dim)
-    z = acq_dim[0]//2
+    # select a slice appropriate for the NEMA acquisition data
+    z = 71
+    #z = acq_dim[0]//2
     show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # read attenuation image
     attn_image = ImageData(attn_file)
     attn_image_as_array = attn_image.as_array()
-    # select a slice appropriate for the NEMA acquistion data
-    z = 71   
-    # z = attn_image_as_array.shape[0]//2
     show_2D_array('Attenuation image', attn_image_as_array[z,:,:])
 
     # create initial image estimate of dimensions and voxel sizes
     # compatible with the scanner geometry (included in the AcquisitionData
-    # object ad) and initialize each voxel to 1.0
+    # object acq_data) and initialize each voxel to 1.0
     image = acq_data.create_uniform_image(1.0, nxny)
 
     # select acquisition model that implements the geometric
@@ -146,10 +146,10 @@ def main():
     bin_eff.fill(1.0)
     print('applying attenuation (please wait, may take a while)...')
     asm_attn.unnormalise(bin_eff)
-    asm_beff = AcquisitionSensitivityModel(bin_eff)
+    asm_attn = AcquisitionSensitivityModel(bin_eff)
 
     # chain attenuation and ECAT8 normalisation
-    asm = AcquisitionSensitivityModel(asm_norm, asm_beff)
+    asm = AcquisitionSensitivityModel(asm_norm, asm_attn)
 
     acq_model.set_acquisition_sensitivity(asm)
     acq_model.set_background_term(randoms)
@@ -168,7 +168,7 @@ def main():
     recon = OSMAPOSLReconstructor()
     recon.set_objective_function(obj_fun)
     recon.set_num_subsets(num_subsets)
-    recon.set_num_subiterations(num_iterations)
+    recon.set_num_subiterations(num_subiterations)
 
     # set up the reconstructor based on a sample image
     # (checks the validity of parameters, sets up objective function

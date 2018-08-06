@@ -84,11 +84,11 @@ EXPORTED_FUNCTION 	void* mSTIR_applyAcquisitionSensitivityModel (void* ptr_sm, v
 EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt, void* ptr_im) {
 	return cSTIR_setupAcquisitionModel(ptr_am, ptr_dt, ptr_im);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im) {
-	return cSTIR_acquisitionModelFwd(ptr_am, ptr_im);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im,  int subset_num, int num_subsets) {
+	return cSTIR_acquisitionModelFwd(ptr_am, ptr_im, subset_num, num_subsets);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad) {
-	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad);
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,  int subset_num, int num_subsets) {
+	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad, subset_num, num_subsets);
 }
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme() {
 	return cSTIR_getAcquisitionsStorageScheme();
@@ -122,6 +122,9 @@ EXPORTED_FUNCTION 	void* mSTIR_fillAcquisitionsDataFromAcquisitionsData (void* p
 }
 EXPORTED_FUNCTION 	void* mSTIR_writeAcquisitionData(void* ptr_acq, const char* filename) {
 	return cSTIR_writeAcquisitionData(ptr_acq, filename);
+}
+EXPORTED_FUNCTION 	void* mSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i) {
+	return cSTIR_setupFBP2DReconstruction(ptr_r, ptr_i);
 }
 EXPORTED_FUNCTION 	void* mSTIR_runFBP2DReconstruction(void* ptr_r) {
 	return cSTIR_runFBP2DReconstruction(ptr_r);

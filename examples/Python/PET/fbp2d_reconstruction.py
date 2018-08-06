@@ -12,8 +12,8 @@ Options:
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -81,13 +81,15 @@ def main():
     print('--------\n zoom %f' % zoom)
     image.show(z)
 
-    alpha = 0.25
-    recon.set_alpha_ramp(alpha)
+    # use a Hann filter
+    alpha = 0.5
+    recon.set_alpha_cosine_window(alpha)
     recon.reconstruct()
     image = recon.get_output()
     print('--------\n alpha %f' % alpha)
     image.show(z)
 
+    # a Hann filter with lower cut-off (0.5 is no cut-off)
     fc = 0.2
     recon.set_frequency_cut_off(fc)
     recon.reconstruct()

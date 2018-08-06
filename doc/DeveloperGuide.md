@@ -25,7 +25,7 @@
 # Overview <a name="Overview"></a>
 
 The SIRF (Synergistic Image Reconstruction Framework) software is an Open Source toolkit for the reconstruction of PET and MRI raw data. The aim is to provide code simple enough to easily perform a reconstruction, yet powerful enough to be able to handle real, full-size datasets. Our strategy in achieving this aim is to employ available Open Source reconstruction software written in advanced programming languages such as C++ and provide basic-user-friendly interfaces to it written in script languages, primarily Matlab and Python. This document describes in detail the interfacing principles and structure in order to facilitate the contributions to SIRF from any interested developer.
-This Developer's Guide describes version 1.0.0-rc.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
+This Developer's Guide is for version 1.1.0-rc.1 of SIRF. The software can be found on [https://github.com/CCPPETMR](https://github.com/CCPPETMR).
 
 # SIRF structure <a name="SIRF_structure"></a>
 
@@ -57,7 +57,7 @@ As you start to explore SIRF code, you may notice files and folders preceded by 
 
 ### Reconstruction engines <a name="Reconstruction_engines"></a>
 
-AAt present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
+At present, SIRF uses software package STIR for PET reconstruction and Gadgetron for MR reconstruction.
 
 STIR implements a library of C++ classes for performing PET reconstruction and related tasks such as data input/output. Parameters of a STIR reconstructor object are normally defined by the user in an Interfile rather than set by directly calling its mutator (set) methods. A set of executables is provided that read the parameter Interfile and raw data file specified in the command line and perform the required tasks, so that the user does not need to know C\+\+ or any other programming languages at all.
 
@@ -112,7 +112,7 @@ A class for storing properties and generating xml description of a Gadgetron gad
 
 At present, the set of classes that have been derived from Gadgets (representing a subset of Gadgetron gadgets) contains:
 
-	NoiseAdjustGadget
+    NoiseAdjustGadget
     AsymmetricEchoAdjustROGadget
     RemoveROOversamplingGadget
     AcquisitionAccumulateTriggerGadget
@@ -143,11 +143,11 @@ Wrapping C\++ into C dramatically simplifies the interfacing into any programmin
 
 For Python, we use SWIG, which requires just these 5 lines to generate the interface for STIR (and similar 5 lines for Gadgetron):
 
-	%module pystir
-	%{
-	#include "cstir.h"
-	%}
-	%include "cstir.h"
+    %module pystir
+    %{
+    #include "cstir.h"
+    %}
+    %include "cstir.h"
 
 
 ### Matlab and Python OO interfaces <a name="Matlab_Python_OO_interfaces"></a>
@@ -160,11 +160,11 @@ Matlab and Python interfaces of the previous section are not user-friendly and n
         common         : code common to all engines
         iUtilities     : interface utilities
         xGadgetron     : Gadgetron extesions and interfaces
-        	cGadgetron : Gadgetron extensions and C wrappers
+            cGadgetron : Gadgetron extensions and C wrappers
             mGadgetron : Object-Oriented Matlab interface
             pGadgetron : Object-Oriented Python interface
         xSTIR          : STIR extensions and interfaces
-        	cSTIR      : STIR extensions and C wrappers
+            cSTIR      : STIR extensions and C wrappers
             mSTIR      : Object-Oriented Matlab interface
             pSTIR      : Object-Oriented Python interface
 
@@ -203,7 +203,7 @@ The C function that is called is as follows:
         CATCH;
     }
 
-As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an MRAcquisitionData object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an MRAcquisitionData object (cf. [C interface](#C_interface)). We note that MRAcquisitionData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line
+As can be seen from the above C source, the function checks if the acquisition data file exists, and if it does, creates an MRAcquisitionData object of derived type AcquisitionsFile. The return value of this function, which ends up in `acq_data.handle`, is a C void pointer to a C++ object ObjectHandle that encapsulates a shared pointer to an MRAcquisitionData object (cf. [C interface](#C_interface)). We note that MRAcquisitionData and AcquisitionsFile types are part of extended Gadgetron functionality, the first layer above the Gadgetron engine, and the ObjectHandle type is part of the second layer. Finally, the constructor of AcquisitionsFile has the following line:
 
     dataset_ = boost::shared_ptr<ISMRMRD::Dataset>
         (new ISMRMRD::Dataset(filename.c_str(), "/dataset"));

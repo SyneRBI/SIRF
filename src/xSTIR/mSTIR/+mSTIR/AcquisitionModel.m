@@ -1,6 +1,7 @@
 classdef AcquisitionModel < handle
 %     Class for PET acquisition model objects.
-%     Relates an image x to the simulated acquisition data y as
+%     PET acquisition model relates an image x to the simulated acquisition 
+%     data y as
 %     (F)    y = [1/n](G x + [a]) + [b]
 %     where:
 %     G is the geometric (ray tracing) projector from the image voxels
@@ -52,21 +53,21 @@ classdef AcquisitionModel < handle
             end
         end
         function set_additive_term(self, at)
-%***SIRF*** sets the additive term a in (F);
+%***SIRF*** sets the additive term a in the acquisition model;
 %         at:  an AcquisitionData object containing a.
             mUtilities.assert_validity(at, 'AcquisitionData')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'additive_term', at, 'h');
         end
         function set_background_term(self, bt)
-%***SIRF*** sets the background term b in (F);
+%***SIRF*** sets the background term b in the acquisition model;
 %         bt:  an AcquisitionData object containing b.
             mUtilities.assert_validity(bt, 'AcquisitionData')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
                 'background_term', bt, 'h');
         end
         function set_acquisition_sensitivity(self, asm)
-%***SIRF*** sets the acquisition sensitivity model responsible for n in (F);
+%***SIRF*** sets the acquisition sensitivity model responsible for n in the acquisition model;
 %         asm: an AcquisitionSensitivityModel object.
             mUtilities.assert_validity(asm, 'AcquisitionSensitivityModel')
             mSTIR.setParameter(self.handle_, 'AcquisitionModel', ...
@@ -92,25 +93,32 @@ classdef AcquisitionModel < handle
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)
         end
-        function ad = forward(self, image)
-%***SIRF*** computes the forward projection of ImageData x = image given by 
-%         (F) above in the main class documentation.
+        function ad = forward(self, x, subset_num, num_subsets)
+%***SIRF*** computes the forward projection of x (see AcquisitionModel)
 %         Usage: 
 %             acq_data = forward(image);
-%         image:  an ImageData object containing x;
-            mUtilities.assert_validity(image, 'ImageData')
+%         x:  an ImageData object.
+            mUtilities.assert_validity(x, 'ImageData')
+            if nargin < 4
+                subset_num = 0;
+                num_subsets = 1;
+            end
             ad = mSTIR.AcquisitionData();
             ad.handle_ = calllib('mstir', 'mSTIR_acquisitionModelFwd',...
-                self.handle_, image.handle_);
+                self.handle_, x.handle_, subset_num, num_subsets);
             mUtilities.check_status([self.name ':forward'], ad.handle_)
         end
-        function image = backward(self, ad)
-%***SIRF*** returns the backprojection z for y = ad given by (B) above;
-%         ad:  an AcquisitionData object containing y.
-            mUtilities.assert_validity(ad, 'AcquisitionData')
+        function image = backward(self, y, subset_num, num_subsets)
+%***SIRF*** returns the backprojection of y (see AcquisitionModel)
+%         y:  an AcquisitionData object.
+            mUtilities.assert_validity(y, 'AcquisitionData')
+            if nargin < 4
+                subset_num = 0;
+                num_subsets = 1;
+            end
             image = mSTIR.ImageData();
             image.handle_ = calllib('mstir', 'mSTIR_acquisitionModelBwd',...
-                self.handle_, ad.handle_);
+                self.handle_, y.handle_, subset_num, num_subsets);
             mUtilities.check_status...
                 ([self.name ':backward'], image.handle_)
         end
