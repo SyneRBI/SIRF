@@ -24,11 +24,20 @@ limitations under the License.
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+using boost::asio::ip::tcp;
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
 #include "cgadgetron_shared_ptr.h"
+
+using namespace gadgetron;
+
 #include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
@@ -37,8 +46,6 @@ limitations under the License.
 #include "gadgetron_x.h"
 #include "gadget_lib.h"
 #include "chain_lib.h"
-
-using namespace gadgetron;
 
 #define GRAB 1
 

@@ -41,11 +41,11 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
 #include "localised_exception.h"
-#include "cgadgetron_shared_ptr.h"
 
 #define N_TRIALS 5
 
@@ -54,8 +54,6 @@ limitations under the License.
 \brief Shared pointer wrap-up for GadgetronClientConnector.
 
 */
-
-using namespace gadgetron;
 
 class GTConnector {
 public:

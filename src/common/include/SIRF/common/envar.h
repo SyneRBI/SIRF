@@ -19,21 +19,19 @@ limitations under the License.
 */
 
 #include <string>
-using std::string;
 
 #ifdef _MSC_VER
 #if _MSC_VER >= 1900
-using namespace System;
-inline string toStandardString(System::String^ var)
+inline std::string toStandardString(System::String^ var)
 {
 	using System::Runtime::InteropServices::Marshal;
 	System::IntPtr pointer = Marshal::StringToHGlobalAnsi(var);
 	char* charPointer = reinterpret_cast<char*>(pointer.ToPointer());
-	string returnString(charPointer, var->Length);
+	std::string returnString(charPointer, var->Length);
 	Marshal::FreeHGlobal(pointer);
 	return returnString;
 }
-inline string EnvironmentVariable(const char* name)
+inline std::string EnvironmentVariable(const char* name)
 {
 	try {
 		System::String^ var = gcnew String(name);
@@ -47,24 +45,24 @@ inline string EnvironmentVariable(const char* name)
 #include <tchar.h>
 #include <Windows.h>
 #define BUFSIZE 4096
-inline string EnvironmentVariable(const char* name)
+inline std::string EnvironmentVariable(const char* name)
 {
 	DWORD dwRet;
 	LPTSTR ptr_value;
-	string value;
+	std::string value;
 	ptr_value = (LPTSTR)malloc(BUFSIZE*sizeof(TCHAR));
 	dwRet = GetEnvironmentVariable(TEXT(name), ptr_value, BUFSIZE);
 	if (dwRet)
-		value = string(ptr_value);
+		value = std::string(ptr_value);
 	else
-		value = string("");
+		value = std::string("");
 	free(ptr_value);
 	return value;
 }
 #endif
 #else
 #include <cstdlib>
-inline string EnvironmentVariable(const char* name)
+inline std::string EnvironmentVariable(const char* name)
 {
 	const char* val = ::getenv(name);
 	if (val)

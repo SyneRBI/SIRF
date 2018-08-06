@@ -19,14 +19,15 @@ limitations under the License.
 
 */
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "cstir_p.h"
-#include "stir_types.h"
 #include "stir_x.h"
-#include "stir_data_containers.h"
-
-using stir::shared_ptr;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)

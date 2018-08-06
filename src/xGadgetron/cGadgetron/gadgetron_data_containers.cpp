@@ -27,9 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "gadgetron_data_containers.h"
 #include "cgadgetron_shared_ptr.h"
+
 using namespace gadgetron;
+
+#include "gadgetron_data_containers.h"
 
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;

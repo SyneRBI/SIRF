@@ -46,8 +46,7 @@ limitations under the License.
 #include <map>
 #include <thread>
 
-using boost::asio::ip::tcp;
-
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
 
 enum GadgetronMessageID {

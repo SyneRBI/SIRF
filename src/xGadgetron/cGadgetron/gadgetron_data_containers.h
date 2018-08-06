@@ -43,8 +43,6 @@ limitations under the License.
 #include "SIRF/common/data_container.h"
 #include "SIRF/common/multisort.h"
 
-using namespace gadgetron;
-
 /*!
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.

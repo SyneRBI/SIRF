@@ -64,11 +64,6 @@ limitations under the License.
 
 #define GRAB 1
 
-using stir::shared_ptr;
-
-USING_NAMESPACE_STIR
-USING_NAMESPACE_ECAT
-
 typedef DiscretisedDensity<3, float> Image3DF;
 typedef shared_ptr<Image3DF> sptrImage3DF;
 typedef shared_ptr<ProjData> sptrProjData;

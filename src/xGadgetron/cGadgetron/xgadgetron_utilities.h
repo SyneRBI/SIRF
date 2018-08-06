@@ -37,8 +37,6 @@ limitations under the License.
 
 #include "cgadgetron_shared_ptr.h"
 
-using namespace gadgetron;
-
 class xGadgetronUtilities {
 public:
 	static long long milliseconds()

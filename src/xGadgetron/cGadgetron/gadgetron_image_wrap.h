@@ -82,8 +82,6 @@ limitations under the License.
 typedef ISMRMRD::Image<complex_float_t> CFImage;
 typedef ISMRMRD::Image<complex_double_t> CDImage;
 
-using namespace gadgetron;
-
 /**
 \brief Wrapper for ISMRMRD::Image.
 

@@ -18,9 +18,12 @@ limitations under the License.
 
 */
 
-#include "stir_data_containers.h"
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
 
-using stir::shared_ptr;
+#include "stir_data_containers.h"
 
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
