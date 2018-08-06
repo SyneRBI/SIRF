@@ -26,9 +26,10 @@ limitations under the License.
 //USING_NAMESPACE_STIR
 //USING_NAMESPACE_ECAT
 
+#include "stir_x.h"
+
 using namespace stir;
 USING_NAMESPACE_ECAT
-#include "stir_x.h"
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)

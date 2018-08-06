@@ -35,11 +35,10 @@ limitations under the License.
 using boost::asio::ip::tcp;
 
 #include "cgadgetron_shared_ptr.h"
-
-using namespace gadgetron;
-
 #include "data_handle.h"
 #include "gadgetron_x.h"
+
+using namespace gadgetron;
 
 static bool
 connection_failed(int nt)

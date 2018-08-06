@@ -28,10 +28,9 @@ limitations under the License.
 */
 
 #include "cgadgetron_shared_ptr.h"
+#include "gadgetron_image_wrap.h"
 
 using namespace gadgetron;
-
-#include "gadgetron_image_wrap.h"
 
 void
 ImageWrap::get_cmplx_data(float* re, float* im) const
