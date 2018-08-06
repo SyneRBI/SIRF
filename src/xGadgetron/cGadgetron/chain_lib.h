@@ -31,8 +31,8 @@ limitations under the License.
 #ifndef PROCESSOR_CHAINS_LIBRARY
 #define PROCESSOR_CHAINS_LIBRARY
 
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_x.h"
-using namespace gadgetron;
 
 /**
 \brief Class for an xml-definition generator for oversampling removing chain.

@@ -22,8 +22,6 @@ limitations under the License.
 
 #include "stir/TextWriter.h"
 
-USING_NAMESPACE_STIR
-
 class mexTextPrinter : public aTextWriter {
 public:
 	virtual void write(const char* text) const {

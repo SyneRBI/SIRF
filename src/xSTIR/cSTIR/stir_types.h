@@ -64,7 +64,6 @@ limitations under the License.
 
 #define GRAB 1
 
-
 typedef stir::DiscretisedDensity<3, float> Image3DF;
 typedef stir::shared_ptr<Image3DF> sptrImage3DF;
 typedef stir::shared_ptr<stir::ProjData> sptrProjData;

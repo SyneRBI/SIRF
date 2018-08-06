@@ -43,8 +43,6 @@ limitations under the License.
 #include "SIRF/common/data_container.h"
 #include "SIRF/common/multisort.h"
 
-using namespace gadgetron;
-
 /*!
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.
@@ -114,6 +112,14 @@ public:
 	// the inner (l2) product of x and y
 	static complex_float_t dot
 	(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
+	// elementwise multiplication
+	// y := x .* y
+	static void multiply
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+	// elementwise division
+	// y := x ./ y
+	static void divide
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 	// l2 norm of x
 	static float norm(const ISMRMRD::Acquisition& acq_x);
 	// obsolete
@@ -142,6 +148,12 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 	//float diff(MRAcquisitionData& other);
@@ -346,6 +358,12 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 
@@ -537,6 +555,18 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+	{
+		return;
+	}
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y)
+	{
+		return;
+	}
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y)
 	{
 		return;
 	}

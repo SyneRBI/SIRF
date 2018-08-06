@@ -1,5 +1,10 @@
 #include <iostream>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 #define CREATE_OBJ(Obj, X, sptr_X, Par) \
 	stir::shared_ptr< Obj > sptr_X(new Obj(Par)); \
 	Obj& X = (Obj&)*sptr_X
@@ -7,7 +12,7 @@
 	stir::shared_ptr< Base > sptr_X(new Object(Par)); \
 	Object& X = (Object&)*sptr_X
 
-#include "stir_types.h"
+//#include "stir_types.h"
 #include "stir_x.h"
 #include "SIRF/common/envar.h"
 

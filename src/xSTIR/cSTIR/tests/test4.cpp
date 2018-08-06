@@ -1,13 +1,14 @@
 #include <iostream>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 #include "cstir.h"
 #include "object.h"
-#include "stir_types.h"
-#include "stir_data_containers.h"
 #include "stir_x.h"
 #include "SIRF/common/envar.h"
-
-using namespace std;
 
 int main()
 {
