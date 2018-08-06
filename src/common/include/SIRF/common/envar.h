@@ -34,8 +34,8 @@ inline std::string toStandardString(System::String^ var)
 inline std::string EnvironmentVariable(const char* name)
 {
 	try {
-		System::String^ var = gcnew String(name);
-		return toStandardString(Environment::GetEnvironmentVariable(var));
+		System::String^ var = gcnew System::String(name);
+		return toStandardString(System::Environment::GetEnvironmentVariable(var));
 	}
 	catch (...) {
 		return "";
