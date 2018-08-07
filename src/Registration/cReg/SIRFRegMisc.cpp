@@ -128,7 +128,7 @@ vector<shared_ptr<nifti_image> >
         size_t mem = image_ptr->nvox*image_ptr->nbyper;
 
         // Allocate the data
-        image_ptr->data=(void *)malloc(mem);
+        image_ptr->data=static_cast<void *>(malloc(mem));
 
         // Start index
         size_t index = mem*component;
@@ -201,7 +201,7 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
     size_t mem = output_image_sptr->nvox * output_image_sptr->nbyper;
 
     // Allocate the memory
-    output_image_sptr->data=(void *)malloc(mem);
+    output_image_sptr->data=static_cast<void *>(malloc(mem));
 
     // Copy!
     memcpy(output_image_sptr->data, image_to_copy_sptr->data, mem);
@@ -268,7 +268,7 @@ void create_def_or_disp_image(shared_ptr<nifti_image> &output_sptr, const shared
     output_ptr->nvox=output_ptr->nx*output_ptr->ny*output_ptr->nz*output_ptr->nt*output_ptr->nu;
     output_ptr->datatype = DT_FLOAT32;
     output_ptr->nbyper = sizeof(float);
-    output_ptr->data = (void *)calloc(output_ptr->nvox, output_ptr->nbyper);
+    output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
     output_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
     output_sptr = make_shared<nifti_image>(*output_ptr);
@@ -291,7 +291,7 @@ void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const
     cpp_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
     // Allocate memory
-    cpp_ptr->data=(void *)malloc(cpp_ptr->nvox*cpp_ptr->nbyper);
+    cpp_ptr->data=static_cast<void *>(malloc(cpp_ptr->nvox*cpp_ptr->nbyper));
 
     // Convert affine transformation to cpp
     reg_bspline_initialiseControlPointGridWithAffine(TM_sptr.get(), cpp_ptr);

@@ -148,5 +148,5 @@ void SIRFRegNiftyResample::set_up_output_image()
     _output_image_sptr->datatype = _floating_image_sptr->datatype;
     _output_image_sptr->nbyper = _floating_image_sptr->nbyper;
     _output_image_sptr->nvox = _output_image_sptr->dim[1] * _output_image_sptr->dim[2] * _output_image_sptr->dim[3] * _output_image_sptr->dim[4];
-    _output_image_sptr->data = (void *)calloc(_output_image_sptr->nvox, _output_image_sptr->nbyper);
+    _output_image_sptr->data = static_cast<void *>(calloc(_output_image_sptr->nvox, unsigned(_output_image_sptr->nbyper)));
 }
