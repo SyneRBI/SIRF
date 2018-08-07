@@ -90,12 +90,12 @@ public:
 		const Size& size, const DirectionMatrix& direction);
 	virtual ~VoxelisedGeometricalInfo() {};
 
-	const Offset get_offset();
-	const Spacing get_spacing();
-	const Size get_size();
-	const DirectionMatrix get_direction();
+    const Offset get_offset() const;
+    const Spacing get_spacing() const;
+    const Size get_size() const;
+    const DirectionMatrix get_direction() const;
 
-	const TransformMatrix calculate_index_to_physical_point_matrix();
+    const TransformMatrix calculate_index_to_physical_point_matrix() const;
 
 private:
 	Offset offset;
@@ -122,28 +122,28 @@ VoxelisedGeometricalInfo(
 
 template <int num_dimensions>
 const typename VoxelisedGeometricalInfo<num_dimensions>::Offset
-VoxelisedGeometricalInfo<num_dimensions>::get_offset()
+VoxelisedGeometricalInfo<num_dimensions>::get_offset() const
 {
 	return offset;
 }
 
 template <int num_dimensions>
 const typename VoxelisedGeometricalInfo<num_dimensions>::Spacing
-VoxelisedGeometricalInfo<num_dimensions>::get_spacing()
+VoxelisedGeometricalInfo<num_dimensions>::get_spacing() const
 {
 	return spacing;
 }
 
 template <int num_dimensions>
 const typename VoxelisedGeometricalInfo<num_dimensions>::Size
-VoxelisedGeometricalInfo<num_dimensions>::get_size()
+VoxelisedGeometricalInfo<num_dimensions>::get_size() const
 {
 	return size;
 }
 
 template <int num_dimensions>
 const typename VoxelisedGeometricalInfo<num_dimensions>::DirectionMatrix
-VoxelisedGeometricalInfo<num_dimensions>::get_direction()
+VoxelisedGeometricalInfo<num_dimensions>::get_direction() const
 {
 	return direction;
 }
@@ -151,7 +151,7 @@ VoxelisedGeometricalInfo<num_dimensions>::get_direction()
 template <int num_dimensions>
 const typename VoxelisedGeometricalInfo<num_dimensions>::TransformMatrix
 VoxelisedGeometricalInfo<num_dimensions>::
-calculate_index_to_physical_point_matrix()
+calculate_index_to_physical_point_matrix() const
 {
 	TransformMatrix index_to_physical_point_matrix;
 	for (unsigned int j = 0; j<num_dimensions; j++) {
