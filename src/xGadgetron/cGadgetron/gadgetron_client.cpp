@@ -32,12 +32,11 @@ limitations under the License.
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
-using boost::asio::ip::tcp;
-
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_client.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 void
 GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)

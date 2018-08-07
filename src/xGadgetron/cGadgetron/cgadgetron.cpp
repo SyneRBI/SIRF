@@ -45,6 +45,7 @@ using boost::asio::ip::tcp;
 #include "chain_lib.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 #define GRAB 1
 
@@ -705,6 +706,7 @@ cGT_imageParameter(void* ptr_im, const char* name)
 			return dataHandle((float*)head.slice_dir);
 		if (boost::iequals(name, "patient_table_position"))
 			return dataHandle((float*)head.patient_table_position);
+		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
 }

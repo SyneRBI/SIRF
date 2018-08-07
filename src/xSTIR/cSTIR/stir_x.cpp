@@ -23,13 +23,12 @@ limitations under the License.
 #include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
-//USING_NAMESPACE_STIR
-//USING_NAMESPACE_ECAT
 
 #include "stir_x.h"
 
 using namespace stir;
-USING_NAMESPACE_ECAT
+using namespace ecat;
+using namespace sirf;
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)

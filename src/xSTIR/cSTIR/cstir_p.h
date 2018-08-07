@@ -23,115 +23,119 @@ limitations under the License.
 
 #include "data_handle.h"
 
-void*
-cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
+namespace sirf {
 
-void*
-cSTIR_setShapeParameter(void* hp, const char* name, const void* hv);
+	void*
+		cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv);
 
-void*
-cSTIR_shapeParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setShapeParameter(void* hp, const char* name, const void* hv);
 
-void*
-cSTIR_setEllipsoidalCylinderParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_shapeParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setEllipsoidalCylinderParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setRayTracingMatrixParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setRayTracingMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setAcquisitionModelParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_setAcqModUsingMatrixParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_setAcquisitionModelParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_acqModUsingMatrixParameter(DataHandle* hp, const char* name);
+	void*
+		cSTIR_setAcqModUsingMatrixParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_acqModUsingMatrixParameter(DataHandle* hp, const char* name);
 
-void*
-cSTIR_truncateToCylindricalFOVImageProcessorParameter
-(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setGeneralisedPriorParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_truncateToCylindricalFOVImageProcessorParameter
+		(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setGeneralisedPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setQuadraticPriorParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_setPLSPriorParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_setQuadraticPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_PLSPriorParameter
-(DataHandle* hp, const char* name);
+	void*
+		cSTIR_setPLSPriorParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_generalisedObjectiveFunctionParameter
-(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_PLSPriorParameter
+		(DataHandle* hp, const char* name);
 
-void*
-cSTIR_setGeneralisedObjectiveFunctionParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_generalisedObjectiveFunctionParameter
+		(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_setGeneralisedObjectiveFunctionParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
-(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setReconstructionParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+		(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_setIterativeReconstructionParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_setReconstructionParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_iterativeReconstructionParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setIterativeReconstructionParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setOSMAPOSLParameter
-(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_iterativeReconstructionParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setOSMAPOSLParameter
+		(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_OSSPSParameter(const DataHandle* handle, const char* name);
+	void*
+		cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv);
 
-void*
-cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+	void*
+		cSTIR_OSSPSParameter(const DataHandle* handle, const char* name);
 
-void*
-cSTIR_FBP2DParameter(DataHandle* hp, const char* name);
+	void*
+		cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv);
+
+	void*
+		cSTIR_FBP2DParameter(DataHandle* hp, const char* name);
+
+}
 
 #endif

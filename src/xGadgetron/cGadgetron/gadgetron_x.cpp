@@ -41,6 +41,7 @@ using boost::asio::ip::tcp;
 #include "encoding.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 static bool
 connection_failed(int nt)
