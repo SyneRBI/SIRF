@@ -16,8 +16,6 @@
 #
 #=========================================================================
 
-PROJECT(SIRFReg)
-
 # To be able to build with niftyreg, you need to append the cmake_cxx_flags
 # to suppress errors from converting float to double
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
