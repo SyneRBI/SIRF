@@ -25,8 +25,7 @@ limitations under the License.
 
 #include "data_handle.h"
 
-USING_NAMESPACE_STIR
-//using namespace sirf;
+using namespace stir;
 
 extern "C" {
 	void* newTextPrinter(const char* stream) 

@@ -23,8 +23,6 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-//USING_NAMESPACE_STIR
-//USING_NAMESPACE_ECAT
 
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
