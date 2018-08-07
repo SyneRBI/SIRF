@@ -406,15 +406,10 @@ bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std
     if( im1_sptr->time_units        != im2_sptr->time_units         ) { images_match = false; cout << "mismatch in time_units , (values: " <<  im1_sptr->time_units << " and " << im2_sptr->time_units << ")\n"; }
     if( im1_sptr->toffset           != im2_sptr->toffset            ) { images_match = false; cout << "mismatch in toffset , (values: " <<  im1_sptr->toffset << " and " << im2_sptr->toffset << ")\n"; }
     if( im1_sptr->xyz_units         != im2_sptr->xyz_units          ) { images_match = false; cout << "mismatch in xyz_units , (values: " <<  im1_sptr->xyz_units << " and " << im2_sptr->xyz_units << ")\n"; }
-
-    for (int i=0; i<4; i++) {
-        for (int j=0; j<4; j++) {
-            if( im1_sptr->qto_ijk.m[i][j] != im2_sptr->qto_ijk.m[i][j] ) { images_match = false; cout << "mismatch in qto_ijk["<<i<<"]["<<j<<"] , (values: " <<  im1_sptr->qto_ijk.m[i][j] << " and " << im2_sptr->qto_ijk.m[i][j] << ")\n"; }
-            if( im1_sptr->qto_xyz.m[i][j] != im2_sptr->qto_xyz.m[i][j] ) { images_match = false; cout << "mismatch in qto_xyz["<<i<<"]["<<j<<"] , (values: " <<  im1_sptr->qto_xyz.m[i][j] << " and " << im2_sptr->qto_xyz.m[i][j] << ")\n"; }
-            if( im1_sptr->sto_ijk.m[i][j] != im2_sptr->sto_ijk.m[i][j] ) { images_match = false; cout << "mismatch in sto_ijk["<<i<<"]["<<j<<"] , (values: " <<  im1_sptr->sto_ijk.m[i][j] << " and " << im2_sptr->sto_ijk.m[i][j] << ")\n"; }
-            if( im1_sptr->sto_xyz.m[i][j] != im2_sptr->sto_xyz.m[i][j] ) { images_match = false; cout << "mismatch in sto_xyz["<<i<<"]["<<j<<"] , (values: " <<  im1_sptr->sto_xyz.m[i][j] << " and " << im2_sptr->sto_xyz.m[i][j] << ")\n"; }
-        }
-    }
+    if( !do_mat44_match(im1_sptr->qto_ijk, im2_sptr->qto_ijk)       ) { images_match = false; cout << "mismatch in qto_ijk\n"; vector<mat44>vec; vec.push_back(im1_sptr->qto_ijk); vec.push_back(im2_sptr->qto_ijk); print_mat44(vec); cout << "\n"; }
+    if( !do_mat44_match(im1_sptr->qto_xyz, im2_sptr->qto_xyz)       ) { images_match = false; cout << "mismatch in qto_xyz\n"; vector<mat44>vec; vec.push_back(im1_sptr->qto_xyz); vec.push_back(im2_sptr->qto_xyz); print_mat44(vec); cout << "\n"; }
+    if( !do_mat44_match(im1_sptr->sto_ijk, im2_sptr->sto_ijk)       ) { images_match = false; cout << "mismatch in sto_ijk\n"; vector<mat44>vec; vec.push_back(im1_sptr->sto_ijk); vec.push_back(im2_sptr->sto_ijk); print_mat44(vec); cout << "\n"; }
+    if( !do_mat44_match(im1_sptr->sto_xyz, im2_sptr->sto_xyz)       ) { images_match = false; cout << "mismatch in sto_xyz\n"; vector<mat44>vec; vec.push_back(im1_sptr->sto_xyz); vec.push_back(im2_sptr->sto_xyz); print_mat44(vec); cout << "\n"; }
 
     for (int i=0; i<8; i++) {
         if (   im1_sptr->dim[i] !=   im2_sptr->dim[i]  ) { images_match = false; cout << "mismatch in dim[" <<i<<  "] , (values: " <<   im1_sptr->dim[i]   << " and " <<  im2_sptr->dim[i]   << ")\n"; }
@@ -459,6 +454,7 @@ void dump_nifti_info(const vector<std::shared_ptr<nifti_image> > &images)
     cout << "\t" << left << setw(19) << "dy:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dy; } cout << "\n";
     cout << "\t" << left << setw(19) << "dz:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dz; } cout << "\n";
     cout << "\t" << left << setw(19) << "ext_list:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ext_list; } cout << "\n";
+    cout << "\t" << left << setw(19) << "fname:"; for(int i=0;i<images.size();i++) { if(images[i]->fname) cout << setw(19) << images[i]->fname << std::flush; } cout << "\n";
     cout << "\t" << left << setw(19) << "freq_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->freq_dim; } cout << "\n";
     cout << "\t" << left << setw(19) << "iname_offset:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->iname_offset; } cout << "\n";
     cout << "\t" << left << setw(19) << "intent_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_code; } cout << "\n";
@@ -500,119 +496,25 @@ void dump_nifti_info(const vector<std::shared_ptr<nifti_image> > &images)
     cout << "\t" << left << setw(19) << "xyz_units:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->xyz_units; } cout << "\n";
     for(int i=0;i<8;i++) { cout << "\tdim[" << i << "]:\t\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->dim[i]; } cout << "\n"; }
     for(int i=0;i<8;i++) { cout << "\tpixdim[" << i << "]:\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->pixdim[i]; } cout << "\n"; }
+
+    // Print transformation matrices
+    vector<mat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    for(int j=0; j<int(images.size()); j++) {
+        qto_ijk_vec.push_back(images[j]->qto_ijk);
+        qto_xyz_vec.push_back(images[j]->qto_xyz);
+        sto_ijk_vec.push_back(images[j]->sto_ijk);
+        sto_xyz_vec.push_back(images[j]->sto_xyz);
+    }
     cout << "\t" << left << setw(19) << "qto_ijk:" << "\n";
-    for(int i=0;i<4;i++) {
-        cout << "\t\t\t   ";
-        for(int j=0;j<images.size();j++) {
-            ostringstream ss;
-            ss << "[" << setprecision(3) << images[j]->qto_ijk.m[0][i] << "," << setprecision(3) << images[j]->qto_ijk.m[1][i] << "," << setprecision(3) << images[j]->qto_ijk.m[2][i] << "," << setprecision(3) << images[j]->qto_ijk.m[3][i] << "]";
-            cout << setw(19) << ss.str();
-        }
-        cout << "\n";
-    }
+    SIRFRegMisc::print_mat44(qto_ijk_vec);
     cout << "\t" << left << setw(19) << "qto_xyz:" << "\n";
-    for(int i=0;i<4;i++) {
-        cout << "\t\t\t   ";
-        for(int j=0;j<images.size();j++) {
-            ostringstream ss;
-            ss << "[" << setprecision(3) << images[j]->qto_xyz.m[0][i] << "," << setprecision(3) << images[j]->qto_xyz.m[1][i] << "," << setprecision(3) << images[j]->qto_xyz.m[2][i] << "," << setprecision(3) << images[j]->qto_xyz.m[3][i] << "]";
-            cout << setw(19) << ss.str();
-        }
-        cout << "\n";
-    }
+    SIRFRegMisc::print_mat44(qto_xyz_vec);
     cout << "\t" << left << setw(19) << "sto_ijk:" << "\n";
-    for(int i=0;i<4;i++) {
-        cout << "\t\t\t   ";
-        for(int j=0;j<images.size();j++) {
-            ostringstream ss;
-            ss << "[" << setprecision(3) << images[j]->sto_ijk.m[0][i] << "," << setprecision(3) << images[j]->sto_ijk.m[1][i] << "," << setprecision(3) << images[j]->sto_ijk.m[2][i] << "," << setprecision(3) << images[j]->sto_ijk.m[3][i] << "]";
-            cout << setw(19) << ss.str();
-        }
-        cout << "\n";
-    }
+    SIRFRegMisc::print_mat44(sto_ijk_vec);
     cout << "\t" << left << setw(19) << "sto_xyz:" << "\n";
-    for(int i=0;i<4;i++) {
-        cout << "\t\t\t   ";
-        for(int j=0;j<images.size();j++) {
-            ostringstream ss;
-            ss << "[" << setprecision(3) << images[j]->sto_xyz.m[0][i] << "," << setprecision(3) << images[j]->sto_xyz.m[1][i] << "," << setprecision(3) << images[j]->sto_xyz.m[2][i] << "," << setprecision(3) << images[j]->sto_xyz.m[3][i] << "]";
-            cout << setw(19) << ss.str();
-        }
-        cout << "\n";
-    }
+    SIRFRegMisc::print_mat44(sto_xyz_vec);
+
     cout << "\n";
-}
-
-/// Print info of element of nifti image
-void print_nifti_info(const string &im_filename, const string keyword)
-{
-    shared_ptr<nifti_image> image;
-    SIRFRegMisc::open_nifti_image(image,im_filename);
-    SIRFRegMisc::print_nifti_info(image,keyword);
-}
-
-/// Print info of element of nifti image
-void print_nifti_info(const shared_ptr<nifti_image> &im1_sptr, const string keyword)
-{
-    if (keyword == "analyze75_orient") cout << "analyze75_orient: " << im1_sptr->analyze75_orient << "\n";
-    if (keyword == "analyze75_orient") cout << "analyze75_orient: " << im1_sptr->analyze75_orient << "\n";
-    if (keyword == "byteorder") cout << "byteorder: " << im1_sptr->byteorder << "\n";
-    if (keyword == "cal_max") cout << "cal_max: " << im1_sptr->cal_max << "\n";
-    if (keyword == "cal_min") cout << "cal_min: " << im1_sptr->cal_min << "\n";
-    if (keyword == "datatype") cout << "datatype: " << im1_sptr->datatype << "\n";
-    if (keyword == "du") cout << "du: " << im1_sptr->du << "\n";
-    if (keyword == "dv") cout << "dv: " << im1_sptr->dv << "\n";
-    if (keyword == "dw") cout << "dw: " << im1_sptr->dw << "\n";
-    if (keyword == "dx") cout << "dx: " << im1_sptr->dx << "\n";
-    if (keyword == "dy") cout << "dy: " << im1_sptr->dy << "\n";
-    if (keyword == "dz") cout << "dz: " << im1_sptr->dz << "\n";
-    if (keyword == "ext_list") cout << "ext_list: " << im1_sptr->ext_list << "\n";
-    if (keyword == "freq_dim") cout << "freq_dim: " << im1_sptr->freq_dim << "\n";
-    if (keyword == "iname_offset") cout << "iname_offset: " << im1_sptr->iname_offset << "\n";
-    if (keyword == "intent_code") cout << "intent_code: " << im1_sptr->intent_code << "\n";
-    if (keyword == "intent_p1") cout << "intent_p1: " << im1_sptr->intent_p1 << "\n";
-    if (keyword == "intent_p2") cout << "intent_p2: " << im1_sptr->intent_p2 << "\n";
-    if (keyword == "intent_p3") cout << "intent_p3: " << im1_sptr->intent_p3 << "\n";
-    if (keyword == "nbyper") cout << "nbyper: " << im1_sptr->nbyper << "\n";
-    if (keyword == "ndim") cout << "ndim: " << im1_sptr->ndim << "\n";
-    if (keyword == "nifti_type") cout << "nifti_type: " << im1_sptr->nifti_type << "\n";
-    if (keyword == "nt") cout << "nt: " << im1_sptr->nt << "\n";
-    if (keyword == "nu") cout << "nu: " << im1_sptr->nu << "\n";
-    if (keyword == "num_ext") cout << "num_ext: " << im1_sptr->num_ext << "\n";
-    if (keyword == "nv") cout << "nv: " << im1_sptr->nv << "\n";
-    if (keyword == "nvox") cout << "nvox: " << im1_sptr->nvox << "\n";
-    if (keyword == "nw") cout << "nw: " << im1_sptr->nw << "\n";
-    if (keyword == "nx") cout << "nx: " << im1_sptr->nx << "\n";
-    if (keyword == "ny") cout << "ny: " << im1_sptr->ny << "\n";
-    if (keyword == "nz") cout << "nz: " << im1_sptr->nz << "\n";
-    if (keyword == "phase_dim") cout << "phase_dim: " << im1_sptr->phase_dim << "\n";
-    if (keyword == "qfac") cout << "qfac: " << im1_sptr->qfac << "\n";
-    if (keyword == "qform_code") cout << "qform_code: " << im1_sptr->qform_code << "\n";
-    if (keyword == "qoffset_x") cout << "qoffset_x: " << im1_sptr->qoffset_x << "\n";
-    if (keyword == "qoffset_y") cout << "qoffset_y: " << im1_sptr->qoffset_y << "\n";
-    if (keyword == "qoffset_z") cout << "qoffset_z: " << im1_sptr->qoffset_z << "\n";
-    if (keyword == "quatern_b") cout << "quatern_b: " << im1_sptr->quatern_b << "\n";
-    if (keyword == "quatern_c") cout << "quatern_c: " << im1_sptr->quatern_c << "\n";
-    if (keyword == "quatern_d") cout << "quatern_d: " << im1_sptr->quatern_d << "\n";
-    if (keyword == "scl_inter") cout << "scl_inter: " << im1_sptr->scl_inter << "\n";
-    if (keyword == "scl_slope") cout << "scl_slope: " << im1_sptr->scl_slope << "\n";
-    if (keyword == "sform_code") cout << "sform_code: " << im1_sptr->sform_code << "\n";
-    if (keyword == "slice_code") cout << "slice_code: " << im1_sptr->slice_code << "\n";
-    if (keyword == "slice_dim") cout << "slice_dim: " << im1_sptr->slice_dim << "\n";
-    if (keyword == "slice_duration") cout << "slice_duration: " << im1_sptr->slice_duration << "\n";
-    if (keyword == "slice_end") cout << "slice_end: " << im1_sptr->slice_end << "\n";
-    if (keyword == "slice_start") cout << "slice_start: " << im1_sptr->slice_start << "\n";
-    if (keyword == "swapsize") cout << "swapsize: " << im1_sptr->swapsize << "\n";
-    if (keyword == "time_units") cout << "time_units: " << im1_sptr->time_units << "\n";
-    if (keyword == "toffset") cout << "toffset: " << im1_sptr->toffset << "\n";
-    if (keyword == "xyz_units") cout << "xyz_units: " << im1_sptr->xyz_units << "\n";
-
-    if (keyword == "qto_ijk") cout << "qto_ijk:\n"; SIRFRegMisc::print_mat44(&im1_sptr->qto_ijk);
-    if (keyword == "qto_xyz") cout << "qto_xyz:\n"; SIRFRegMisc::print_mat44(&im1_sptr->qto_xyz);
-    if (keyword == "sto_ijk") cout << "sto_ijk:\n"; SIRFRegMisc::print_mat44(&im1_sptr->sto_ijk);
-    if (keyword == "sto_xyz") cout << "sto_xyz:\n"; SIRFRegMisc::print_mat44(&im1_sptr->sto_xyz);
-    if (keyword == "dim")     for (int i=0;i<8;i++) cout << "dim["    << i << "]: " << im1_sptr->dim[i]    << "\n";
-    if (keyword == "pixdim")  for (int i=0;i<8;i++) cout << "pixdim[" << i << "]: " << im1_sptr->pixdim[i] << "\n";
 }
 
 /// Save transformation matrix to file

@@ -94,17 +94,11 @@ namespace SIRFRegMisc {
     /// Dump info of multiple nifti images
     void dump_nifti_info(const std::vector<std::shared_ptr<nifti_image> > &ims);
 
-    /// Print info of element of nifti image
-    void print_nifti_info(const std::string &im_filename, const std::string keyword);
-
-    /// Print info of element of nifti image
-    void print_nifti_info(const std::shared_ptr<nifti_image> &im1_sptr, const std::string keyword);
-
     /// Save transformation matrix to file
-    void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string filename);
+    void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
 
     /// Read transformation matrix from file
-    void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string filename);
+    void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
 
     /// Print mat44
     void print_mat44(const mat44 &mat);
