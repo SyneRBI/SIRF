@@ -27,8 +27,9 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "gadgetron_data_containers.h"
 #include "cgadgetron_shared_ptr.h"
+#include "gadgetron_data_containers.h"
+
 using namespace gadgetron;
 
 std::string MRAcquisitionData::_storage_scheme;
@@ -238,7 +239,32 @@ MRAcquisitionData::axpby
 	}
 }
 
-complex_float_t 
+void
+MRAcquisitionData::multiply
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+	complex_float_t* px;
+	complex_float_t* py;
+	for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		*py = complex_float_t(*px) * complex_float_t(*py);
+	}
+}
+
+void
+MRAcquisitionData::divide
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+	complex_float_t* px;
+	complex_float_t* py;
+	for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		// TODO: check for zero denominator
+		*py = complex_float_t(*px) / complex_float_t(*py);
+	}
+}
+
+complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
@@ -296,7 +322,69 @@ MRAcquisitionData::axpby(
 	}
 }
 
-complex_float_t 
+void
+MRAcquisitionData::multiply(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	int m = x.number();
+	int n = y.number();
+	ISMRMRD::Acquisition ax;
+	ISMRMRD::Acquisition ay;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		y.get_acquisition(i, ay);
+		x.get_acquisition(j, ax);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << i << " ignored (ay)\n";
+			i++;
+			continue;
+		}
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << j << " ignored (ax)\n";
+			j++;
+			continue;
+		}
+		MRAcquisitionData::multiply(ax, ay);
+		append_acquisition(ay);
+		i++;
+		j++;
+	}
+}
+
+void
+MRAcquisitionData::divide(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	int m = x.number();
+	int n = y.number();
+	ISMRMRD::Acquisition ax;
+	ISMRMRD::Acquisition ay;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		y.get_acquisition(i, ay);
+		x.get_acquisition(j, ax);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << i << " ignored (ay)\n";
+			i++;
+			continue;
+		}
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << j << " ignored (ax)\n";
+			j++;
+			continue;
+		}
+		MRAcquisitionData::divide(ax, ay);
+		append_acquisition(ay);
+		i++;
+		j++;
+	}
+}
+
+complex_float_t
 MRAcquisitionData::dot(const aDataContainer<complex_float_t>& dc)
 {
 	MRAcquisitionData& other = (MRAcquisitionData&)dc;
@@ -554,7 +642,35 @@ MRImageData::axpby(
 	}
 }
 
-complex_float_t 
+void
+MRImageData::multiply(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRImageData& x = (MRImageData&)a_x;
+	MRImageData& y = (MRImageData&)a_y;
+	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+		ImageWrap w(x.image_wrap(i));
+		w.multiply(y.image_wrap(i));
+		append(w);
+	}
+}
+
+void
+MRImageData::divide(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRImageData& x = (MRImageData&)a_x;
+	MRImageData& y = (MRImageData&)a_y;
+	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+		ImageWrap w(x.image_wrap(i));
+		w.divide(y.image_wrap(i));
+		append(w);
+	}
+}
+
+complex_float_t
 MRImageData::dot(const aDataContainer<complex_float_t>& dc)
 {
 	MRImageData& ic = (MRImageData&)dc;

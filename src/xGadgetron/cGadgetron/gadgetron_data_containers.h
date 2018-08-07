@@ -43,8 +43,6 @@ limitations under the License.
 #include "SIRF/common/data_container.h"
 #include "SIRF/common/multisort.h"
 
-using namespace gadgetron;
-
 /*!
 \ingroup Gadgetron Data Containers
 \brief Acquisitions filter.
@@ -114,6 +112,14 @@ public:
 	// the inner (l2) product of x and y
 	static complex_float_t dot
 	(const ISMRMRD::Acquisition& acq_x, const ISMRMRD::Acquisition& acq_y);
+	// elementwise multiplication
+	// y := x .* y
+	static void multiply
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
+	// elementwise division
+	// y := x ./ y
+	static void divide
+		(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y);
 	// l2 norm of x
 	static float norm(const ISMRMRD::Acquisition& acq_x);
 	// obsolete
@@ -131,7 +137,7 @@ public:
 	virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
 
 	// 'export' constructors: workaround for creating 'ABC' objects
-	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
+	virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container() = 0;
 	virtual MRAcquisitionData* 
 		same_acquisitions_container(AcquisitionsInfo info) = 0;
 
@@ -142,6 +148,12 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 	//float diff(MRAcquisitionData& other);
@@ -179,7 +191,7 @@ protected:
 	static std::string _storage_scheme;
 	// new MRAcquisitionData objects will be created from this template
 	// using same_acquisitions_container()
-	static shared_ptr<MRAcquisitionData> acqs_templ_;
+	static gadgetron::shared_ptr<MRAcquisitionData> acqs_templ_;
 };
 
 /*!
@@ -238,17 +250,17 @@ public:
 		init();
 		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
-	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container()
+	virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 	{
 		init();
-		return shared_ptr<MRAcquisitionData>
+		return gadgetron::shared_ptr<MRAcquisitionData>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 private:
 	bool own_file_;
 	std::string filename_;
-	shared_ptr<ISMRMRD::Dataset> dataset_;
+	gadgetron::shared_ptr<ISMRMRD::Dataset> dataset_;
 };
 
 /*!
@@ -275,7 +287,7 @@ public:
 	virtual unsigned int items() { return (unsigned int)acqs_.size(); }
 	virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 	{
-		acqs_.push_back(shared_ptr<ISMRMRD::Acquisition>
+		acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 			(new ISMRMRD::Acquisition(acq)));
 	}
 	virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
@@ -298,15 +310,15 @@ public:
 		AcquisitionsFile::init();
 		return acqs_templ_->same_acquisitions_container(acqs_info_);
 	}
-	virtual shared_ptr<MRAcquisitionData> new_acquisitions_container()
+	virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 	{
 		AcquisitionsFile::init();
-		return shared_ptr<MRAcquisitionData>
+		return gadgetron::shared_ptr<MRAcquisitionData>
 			(acqs_templ_->same_acquisitions_container(acqs_info_));
 	}
 
 private:
-	std::vector<shared_ptr<ISMRMRD::Acquisition> > acqs_;
+	std::vector<gadgetron::shared_ptr<ISMRMRD::Acquisition> > acqs_;
 };
 
 /*!
@@ -319,8 +331,8 @@ public:
 	virtual unsigned int number() = 0;
 	virtual int types() = 0;
 	virtual void count(int i) = 0;
-	virtual shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
-	virtual shared_ptr<const ImageWrap> sptr_image_wrap
+	virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
+	virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 		(unsigned int im_num) const = 0;
 	virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
@@ -333,10 +345,10 @@ public:
 	virtual void set_complex_images_data(const float* re, const float* im) = 0;
 	virtual int read(std::string filename) = 0;
 	virtual void write(std::string filename, std::string groupname) = 0;
-	virtual shared_ptr<MRImageData> new_images_container() = 0;
-	virtual shared_ptr<MRImageData>
+	virtual gadgetron::shared_ptr<MRImageData> new_images_container() = 0;
+	virtual gadgetron::shared_ptr<MRImageData>
 		clone(unsigned int inc = 1, unsigned int off = 0) = 0;
-	virtual shared_ptr<MRImageData>
+	virtual gadgetron::shared_ptr<MRImageData>
 		clone(const char* attr, const char* target) = 0;
 	virtual int image_data_type(unsigned int im_num) const
 	{
@@ -346,6 +358,12 @@ public:
 	virtual void axpby(
 		complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 		complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y);
 	virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 	virtual float norm();
 
@@ -386,30 +404,30 @@ public:
 	}
 	virtual void append(int image_data_type, void* ptr_image)
 	{
-		images_.push_back(shared_ptr<ImageWrap>
+		images_.push_back(gadgetron::shared_ptr<ImageWrap>
 			(new ImageWrap(image_data_type, ptr_image)));
 	}
 	virtual void append(const ImageWrap& iw)
 	{
-		images_.push_back(shared_ptr<ImageWrap>(new ImageWrap(iw)));
+		images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 	}
-	virtual shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
+	virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
 	{
 		return images_[im_num];
 	}
-	virtual shared_ptr<const ImageWrap> sptr_image_wrap
+	virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 	(unsigned int im_num) const
 	{
 		return images_[im_num];
 	}
 	virtual ImageWrap& image_wrap(unsigned int im_num)
 	{
-		shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
+		gadgetron::shared_ptr<ImageWrap> sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual const ImageWrap& image_wrap(unsigned int im_num) const
 	{
-		const shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
+		const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 		return *sptr_iw;
 	}
 	virtual int read(std::string filename);
@@ -433,23 +451,23 @@ public:
 	{
 		return (aDataContainer<complex_float_t>*)new ImagesVector();
 	}
-	virtual shared_ptr<MRImageData> new_images_container()
+	virtual gadgetron::shared_ptr<MRImageData> new_images_container()
 	{
-		return shared_ptr<MRImageData>((MRImageData*)new ImagesVector());
+		return gadgetron::shared_ptr<MRImageData>((MRImageData*)new ImagesVector());
 	}
-	virtual shared_ptr<MRImageData>
+	virtual gadgetron::shared_ptr<MRImageData>
 		clone(const char* attr, const char* target)
 	{
-		return shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
+		return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
 	}
-	virtual shared_ptr<MRImageData>
+	virtual gadgetron::shared_ptr<MRImageData>
 		clone(unsigned int inc = 1, unsigned int off = 0)
 	{
-		return shared_ptr<MRImageData>(new ImagesVector(*this, inc, off));
+		return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, inc, off));
 	}
 
 private:
-	std::vector<shared_ptr<ImageWrap> > images_;
+	std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
 	int nimages_;
 
 };
@@ -540,6 +558,18 @@ public:
 	{
 		return;
 	}
+	virtual void multiply(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y)
+	{
+		return;
+	}
+	virtual void divide(
+		const aDataContainer<complex_float_t>& a_x,
+		const aDataContainer<complex_float_t>& a_y)
+	{
+		return;
+	}
 	void get_dim(int slice, int* dim) //const
 	{
 		CoilData& ci = (CoilData&)(*this)(slice);
@@ -570,7 +600,7 @@ public:
 		CoilData& ci = (CoilData&)(*this)(slice);
 		ci.get_data_abs(v);
 	}
-	virtual void append(shared_ptr<CoilData> sptr_csm) = 0;
+	virtual void append(gadgetron::shared_ptr<CoilData> sptr_csm) = 0;
 	virtual CoilData& operator()(int slice) = 0;
 	//virtual const CoilData& operator()(int slice) const = 0;
 };
@@ -590,12 +620,12 @@ public:
 	CoilData& data(int slice) {
 		return *coil_data_[slice];
 	}
-	virtual void append(shared_ptr<CoilData> sptr_cd)
+	virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 	{
 		coil_data_.push_back(sptr_cd);
 	}
 private:
-	std::vector< shared_ptr<CoilData> > coil_data_;
+	std::vector< gadgetron::shared_ptr<CoilData> > coil_data_;
 };
 
 /*!
@@ -635,7 +665,7 @@ public:
 	{
 		return data(slice);
 	}
-	virtual void append(shared_ptr<CoilData> sptr_cd)
+	virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 	{
 		CoilDataVector::append(sptr_cd);
 	}
@@ -670,7 +700,7 @@ public:
 	{
 		//CoilData* ptr_img = new CoilDataType(nx, ny, nz, nc);
 		CoilData* ptr_img = new CoilDataAsCFImage(nx, ny, nz, nc);
-		shared_ptr<CoilData> sptr_img(ptr_img);
+		gadgetron::shared_ptr<CoilData> sptr_img(ptr_img);
 		ptr_img->set_data(re, im);
 		append(sptr_img);
 	}
@@ -724,7 +754,7 @@ public:
 	{
 		return data(slice);
 	}
-	virtual void append(shared_ptr<CoilData> sptr_cd)
+	virtual void append(gadgetron::shared_ptr<CoilData> sptr_cd)
 	{
 		CoilDataVector::append(sptr_cd);
 	}

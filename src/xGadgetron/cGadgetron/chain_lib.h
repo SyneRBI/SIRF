@@ -31,8 +31,8 @@ limitations under the License.
 #ifndef PROCESSOR_CHAINS_LIBRARY
 #define PROCESSOR_CHAINS_LIBRARY
 
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_x.h"
-using namespace gadgetron;
 
 /**
 \brief Class for an xml-definition generator for oversampling removing chain.
@@ -41,7 +41,7 @@ class RemoveOversamplingProcessor : public AcquisitionsProcessor {
 public:
 	RemoveOversamplingProcessor()
 	{
-		shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g(new RemoveROOversamplingGadget);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()
@@ -59,7 +59,7 @@ public:
 	SimpleReconstructionProcessor()
 	{
 		//class_ = "SimpleReconstructionProcessor";
-		shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
+		gadgetron::shared_ptr<aGadget> sptr_g(new SimpleReconGadgetSet);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()
@@ -77,15 +77,15 @@ public:
 	SimpleGRAPPAReconstructionProcessor()
 	{
 		//class_ = "SimpleGRAPPAReconstructionProcessor";
-		shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
-		shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
-		shared_ptr<aGadget> sptr_g3
+		gadgetron::shared_ptr<aGadget> sptr_g1(new AcquisitionAccumulateTriggerGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g2(new BucketToBufferGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g3
 			(new GenericReconCartesianReferencePrepGadget);
-		shared_ptr<aGadget> sptr_g4(new GenericReconCartesianGrappaGadget);
-		shared_ptr<aGadget> sptr_g5
+		gadgetron::shared_ptr<aGadget> sptr_g4(new GenericReconCartesianGrappaGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g5
 			(new GenericReconFieldOfViewAdjustmentGadget);
-		shared_ptr<aGadget> sptr_g6(new GenericReconImageArrayScalingGadget);
-		shared_ptr<aGadget> sptr_g7(new ImageArraySplitGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g6(new GenericReconImageArrayScalingGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g7(new ImageArraySplitGadget);
 		add_gadget("gadget1", sptr_g1);
 		add_gadget("gadget2", sptr_g2);
 		add_gadget("gadget3", sptr_g3);
@@ -108,7 +108,7 @@ public:
 	ExtractRealImagesProcessor()
 	{
 		//class_ = "ExtractRealImagesProcessor";
-		shared_ptr<aGadget> sptr_g(new ExtractGadget);
+		gadgetron::shared_ptr<aGadget> sptr_g(new ExtractGadget);
 		add_gadget("gadget", sptr_g);
 	}
 	static const char* class_name()

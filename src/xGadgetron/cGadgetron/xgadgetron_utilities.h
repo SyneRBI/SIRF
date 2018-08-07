@@ -37,8 +37,6 @@ limitations under the License.
 
 #include "cgadgetron_shared_ptr.h"
 
-using namespace gadgetron;
-
 class xGadgetronUtilities {
 public:
 	static long long milliseconds()
@@ -110,7 +108,7 @@ public:
 	{
 		return *sptr_mutex_.get();
 	}
-	shared_ptr<boost::mutex> sptr()
+	gadgetron::shared_ptr<boost::mutex> sptr()
 	{
 		return sptr_mutex_;
 	}
@@ -123,12 +121,12 @@ public:
 		sptr_mutex_->unlock();
 	}
 private:
-	static shared_ptr<boost::mutex> sptr_mutex_;
+	static gadgetron::shared_ptr<boost::mutex> sptr_mutex_;
 	static void init_()
 	{
 		static bool initialized = false;
 		if (!initialized) {
-			sptr_mutex_ = shared_ptr<boost::mutex>(new boost::mutex);
+			sptr_mutex_ = gadgetron::shared_ptr<boost::mutex>(new boost::mutex);
 			initialized = true;
 		}
 	}

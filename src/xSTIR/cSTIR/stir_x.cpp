@@ -19,10 +19,14 @@ limitations under the License.
 
 */
 
-#include "stir_types.h"
-#include "stir_x.h"
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
+//USING_NAMESPACE_STIR
+//USING_NAMESPACE_ECAT
+
+#include "stir_x.h"
 
 using namespace stir;
 USING_NAMESPACE_ECAT

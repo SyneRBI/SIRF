@@ -1,5 +1,10 @@
 #include <string>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 #include "cstir.h"
 #include "handle.h"
 #include "stir_types.h"

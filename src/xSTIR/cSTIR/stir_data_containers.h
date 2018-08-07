@@ -40,7 +40,6 @@ limitations under the License.
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
 
-
 class SIRFUtilities {
 public:
 	static long long milliseconds()
@@ -207,7 +206,8 @@ public:
 	unsigned int items() { return 1; }
 	float norm();
 	float dot(const aDataContainer<float>& x);
-	void mult(float a, const aDataContainer<float>& x);
+	void multiply(const aDataContainer<float>& x, const aDataContainer<float>& y);
+	void divide(const aDataContainer<float>& x, const aDataContainer<float>& y);
 	void inv(float a, const aDataContainer<float>& x);
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
@@ -514,7 +514,11 @@ public:
 	}
 	float norm();
 	float dot(const aDataContainer<float>& other);
-	void mult(float a, const aDataContainer<float>& x);
+	//void mult(float a, const aDataContainer<float>& x);
+	void multiply(const aDataContainer<float>& x,
+		const aDataContainer<float>& y);
+	void divide(const aDataContainer<float>& x,
+		const aDataContainer<float>& y);
 	void axpby(float a, const aDataContainer<float>& x,
 		float b, const aDataContainer<float>& y);
 	Image3DF& data()

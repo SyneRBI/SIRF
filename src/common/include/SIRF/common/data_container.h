@@ -38,7 +38,10 @@ public:
 	virtual unsigned int items() = 0;
 	virtual float norm() = 0;
 	virtual T dot(const aDataContainer<T>& dc) = 0;
-	//virtual void mult(T a, const aDataContainer<T>& x) = 0;
+	virtual void multiply
+		(const aDataContainer<T>& x, const aDataContainer<T>& y) = 0;
+	virtual void divide
+		(const aDataContainer<T>& x, const aDataContainer<T>& y) = 0;
 	virtual void axpby(
 		T a, const aDataContainer<T>& x,
 		T b, const aDataContainer<T>& y) = 0;
