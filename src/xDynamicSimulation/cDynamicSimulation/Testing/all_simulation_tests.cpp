@@ -61,7 +61,9 @@ void run_tests_dynamics( void )
 	
 	bool tests_successful = true;
 
+
 	tests_successful *= test_dynamic::test_is_in_bin();
+	tests_successful *= test_dynamic::test_intersect_mr_acquisition_data();
 
 	tests_successful *= test_dynamic::test_linear_interpolate_signal();
 	tests_successful *= test_dynamic::test_get_set_bins();
@@ -140,18 +142,19 @@ void run_tests_auxiliary_input_output( void )
 
 	bool tests_successful = true;
 
-	test_aux_io::test_write_ndarray_to_raw();
-	
-	tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
+	// test_aux_io::test_write_ndarray_to_raw();
+	test_aux_io::test_write_ismrmrd_image_to_analyze();
+
+	// tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
 
 
 	if ( !tests_successful )
 	{
-		throw std::runtime_error( "The auxiliary testing functions tests failed.");
+		throw std::runtime_error( "The auxiliary input output functions tests failed.");
 	}
 	else
 	{
-		std::cout<< "The auxiliary testing functions tests succeeded." <<std::endl;
+		std::cout<< "The auxiliary input output functions tests succeeded." <<std::endl;
 	}
 }
 

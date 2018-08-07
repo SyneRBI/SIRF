@@ -48,10 +48,11 @@ public:
 	virtual void simulate_dynamics( void ) = 0;
 	virtual void write_simulation_results( std::string const filename_output_with_extension ) = 0;
 	
-	/*void add_dynamic( MotionDynamic motion_dyn) 
+	void add_dynamic( MotionDynamic motion_dyn) 
 	{
 		this->motion_dynamics_.push_back(motion_dyn);
 	};
+	/*
 	void add_dynamic( ContrastDynamic cont_dyn) 
 	{
 		this->contrast_dynamics_.push_back(cont_dyn);
@@ -60,8 +61,8 @@ public:
 
 protected:
 
-	/*std::vector< MotionDynamic > motion_dynamics_;
-	std::vector< ContrastDynamic > contrast_dynamics_;*/
+	std::vector< MotionDynamic > motion_dynamics_;
+	// std::vector< ContrastDynamic > contrast_dynamics_;
 
 	std::string filename_rawdata_;
 
@@ -109,9 +110,6 @@ private:
 	
 };
 */
-
-
-
 
 
 

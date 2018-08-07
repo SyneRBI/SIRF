@@ -68,3 +68,23 @@ bool test_aux_io::test_read_acquisitions_vector_number_consistency( void )
 	return read_num_acquisitions == expected_num_acquisitions;
 
 }
+
+
+
+
+void test_aux_io::test_write_ismrmrd_image_to_analyze( void )
+{
+	typedef complex_float_t input_type_mock_object;
+	auto img =  aux_test::get_mock_ismrmrd_image_with_cube(  );
+
+	data_io::write_ISMRMRD_Image_to_Analyze< input_type_mock_object > (ANALYZE_OUTPUT_TESTPATH, img);
+
+}
+
+
+
+
+
+
+
+

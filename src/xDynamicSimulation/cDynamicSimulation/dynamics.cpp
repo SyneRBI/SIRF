@@ -10,11 +10,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <stdexcept>
 #include <deque>
+#include <algorithm>
 
 #include <ismrmrd/ismrmrd.h>
 
-
 #include "dynamics.h"
+
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 {
@@ -31,14 +32,69 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 }
 
 
+ 
+AcquisitionsVector intersect_mr_acquisition_data(AcquisitionsVector one_dat, AcquisitionsVector other_dat)
+{
 
+	bool one_dat_is_smaller = ( one_dat.items() >= other_dat.items() );
+
+	typedef std::vector<uint32_t> CounterBox;
+
+	CounterBox one_counters, other_counters;
+
+	ISMRMRD::Acquisition acq;
+
+	for( size_t i=0; i<one_dat.items(); i++)
+	{
+		one_dat.get_acquisition(i, acq);
+		one_counters.push_back(acq.getHead().scan_counter);
+	}
+
+	for( size_t i=0; i<other_dat.items(); i++)
+	{
+		other_dat.get_acquisition(i, acq);
+		other_counters.push_back(acq.getHead().scan_counter);
+	}
+	
+	std::sort(one_counters.begin(), one_counters.end() );
+	std::sort(other_counters.begin(), other_counters.end() );
+
+	CounterBox intersected_counters(one_counters.size() + other_counters.size()); 
+
+	CounterBox::iterator it;
+
+
+	it = std::set_intersection( one_counters.begin(), one_counters.end(),
+							    other_counters.begin(), other_counters.end(), 
+							    intersected_counters.begin() );
+
+	intersected_counters.resize( it - intersected_counters.begin() );
+	
+
+	MRDataType intersection;
+	intersection.copy_acquisitions_info(one_dat);
+
+	MRDataType& smaller_data_container = one_dat_is_smaller ? one_dat : other_dat;
+
+	for( size_t i=0; i<smaller_data_container.items(); i++)
+	{
+		smaller_data_container.get_acquisition(i, acq);
+		uint32_t acquis_counter = acq.getHead().scan_counter;
+		if(std::find(intersected_counters.begin(), intersected_counters.end(), acquis_counter) != intersected_counters.end()) 
+		{
+			intersection.append_acquisition(acq);
+    	} 
+	}
+
+	return intersection;
+
+}
 
 
 aDynamic::aDynamic(int const num_simul_states) : num_simul_states_(num_simul_states)
 {
 	set_bins( num_simul_states );
 }
-
 
 void aDynamic::set_bins(int const num_bins)
 {
@@ -124,6 +180,8 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 
 
 	std::deque< size_t > relevant_acq_numbers;
+	std::deque< size_t > acq_not_binned;
+
 
 	for( size_t i=0; i<all_acquisitions.items(); i++)
 		relevant_acq_numbers.push_back( i );
@@ -132,21 +190,17 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 	{
 
 		auto bin = this->signal_bins_[i_bin];
-		
-		std::deque< size_t > acq_not_binned;
+	
 
 		AcquisitionsVector curr_acq_vector;
 		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
 		
 		ISMRMRD::Acquisition acq;
+		acq_not_binned.clear();
 
 		while( relevant_acq_numbers.size() > 0 )	
 		{
-			acq_not_binned.clear();
-
 			auto curr_pos = relevant_acq_numbers[0];
-			std::cout << curr_pos << std::endl;
-
 			relevant_acq_numbers.pop_front();	
 			
 			all_acquisitions.get_acquisition(curr_pos, acq);
@@ -154,9 +208,8 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 			auto acq_hdr = acq.getHead();
 			
 			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
-			std::cout << "nag " << std::endl;
+			
 			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
-			std::cout << "nag " << std::endl;
 			if( is_in_bin(signal_of_acq, bin) )
 			{
 				curr_acq_vector.append_acquisition(acq);
@@ -165,11 +218,12 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 			{
 				acq_not_binned.push_back(curr_pos);
 			}
-			std::cout << "nag " << std::endl;	
+			
 		}
-
-		relevant_acq_numbers = acq_not_binned;
+	
+		relevant_acq_numbers.swap(acq_not_binned);
 		this->binned_mr_acquisitions_.push_back( curr_acq_vector );
+		
 	}
 }
 

@@ -27,7 +27,11 @@ bld/
 
 # CMake
 CMakeCache.txt
-CMakeFiles
+CMakeFiles*
+
+# Makefiles
+**/Makefile*
+
 
 # Roslyn cache directories
 *.ide/

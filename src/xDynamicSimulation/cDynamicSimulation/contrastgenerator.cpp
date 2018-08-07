@@ -15,6 +15,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 //#include "Testing/auxiliary_testing_functions.h"
 
+using namespace stir;
+
 AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml)
 {
 	this->tlm_ = TissueLabelMapper( tissue_labels, filename_tissue_parameter_xml );

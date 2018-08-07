@@ -32,6 +32,8 @@ USING_NAMESPACE_ECAT
 
 using namespace stir;
 
+using namespace stir;
+
 extern "C"
 char* charDataFromHandle(const void* ptr);
 

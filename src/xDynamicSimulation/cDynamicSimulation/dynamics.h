@@ -28,6 +28,8 @@ typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
+typedef AcquisitionsVector MRDataType;
+MRDataType intersect_mr_acquisition_data(MRDataType one_dat, MRDataType other_dat);
 
 class aDynamic {
 
@@ -63,18 +65,26 @@ protected:
 
 
 
-/*
+
 class MotionDynamic : public aDynamic {
 
 public:
+	MotionDynamic():aDynamic(){};
+	MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states){};
 
 protected:
-
-	MotionFieldContainer motion_field_;
+	// MotionFieldContainer motion_field_;
 
 };
-*/
 
+/*
+class ContrastDynamic : public aDynamic {
 
+public:
+	ContrastDynamic():aDynamic(){};
+protected:
+	// std::vector< TissueParameter > tissueparam_time_series_;
+
+};*/
 
 

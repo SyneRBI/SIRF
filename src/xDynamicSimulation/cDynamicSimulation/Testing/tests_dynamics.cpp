@@ -45,6 +45,55 @@ bool test_dynamic::test_is_in_bin( void )
 }
 
 
+bool test_dynamic::test_intersect_mr_acquisition_data( void )
+{
+
+	AcquisitionsVector one_vec, other_vec;
+	auto hdr = aux_test::get_serialized_mock_ismrmrd_header();
+	
+	one_vec.set_acquisitions_info( hdr );
+	other_vec.set_acquisitions_info( hdr );
+ 
+
+	ISMRMRD::Acquisition acq;
+	ISMRMRD::AcquisitionHeader acq_hdr = acq.getHead();
+
+	uint32_t const one_start_counter = 1;
+	uint32_t const one_end_counter = 10;
+
+	uint32_t const other_start_counter = 6;
+	uint32_t const other_end_counter = 13;
+
+	
+	for( uint32_t i=one_start_counter; i<=one_end_counter; i++)
+	{	
+		acq_hdr.scan_counter = i;
+		acq.setHead( acq_hdr );
+		one_vec.append_acquisition(acq);
+	}
+
+	for( uint32_t i=other_start_counter; i<=other_end_counter; i++)
+	{	
+		acq_hdr.scan_counter = i;
+		acq.setHead( acq_hdr );
+		other_vec.append_acquisition(acq);
+	}
+	
+	AcquisitionsVector intersec_vec = intersect_mr_acquisition_data(one_vec, other_vec);
+
+	int32_t num_overlap = one_end_counter - other_start_counter;
+	num_overlap = (num_overlap>=0) ? num_overlap+1 : 0;
+
+
+	bool test_succesful = (num_overlap == intersec_vec.items());
+	
+	std::cout << epiph(num_overlap) << std::endl;
+	std::cout << epiph(intersec_vec.items()) << std::endl;
+
+
+	return test_succesful;
+}
+
 
 bool test_dynamic::test_linear_interpolate_signal( )
 {
@@ -138,7 +187,18 @@ try
 		dyn.bin_mr_acquisitions( acq_vec );
 		auto binned_acquis = dyn.get_binned_mr_acquisitions();
 
-		test_succesful = (binned_acquis.size() == num_bins);
+		test_succesful *= (binned_acquis.size() == num_bins);
+
+		size_t num_tot_acquis = 0;
+		for( int i=0; i<num_bins; i++)
+		{
+			num_tot_acquis += binned_acquis[i].items();
+			std::cout << epiph( binned_acquis[i].items() ) << std::endl;
+		}
+
+		std::cout << epiph(num_tot_acquis) <<std::endl;
+		std::cout << epiph(acq_vec.items()) <<std::endl;
+
 
 		return test_succesful;
 	}

@@ -29,7 +29,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 using ISMRMRD::NDArray;
 using ISMRMRD::IsmrmrdHeader;
 
-using namespace stir;
+
 
 
 #define CASE_MAP_PET_CONTRAST 0

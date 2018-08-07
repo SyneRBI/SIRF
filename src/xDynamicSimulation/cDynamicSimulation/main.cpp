@@ -18,6 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "all_simulation_tests.h"
 
 
+#include "dynamics.h"
+
 int main( int argc, char *argv[] )
 {
 
@@ -28,18 +30,16 @@ int main( int argc, char *argv[] )
 			fprintf(stdout, "Please do not pass any arguments. This just runs test code.");
 		}
 
-		
-		
 
 		// run_tests_auxiliary_testing_functions();
-		// run_tests_auxiliary_input_output();
+		run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
 		// run_tests_contrastgenerator();
 		// run_tests_phantom_input();
 		// run_tests_encoding();
 		// run_tests_mr_acquisition_model();
 		// run_tests_mr_dynamic_simulation();
-		run_tests_dynamics();
+		// run_tests_dynamics();
 
 		return 0;
 	}

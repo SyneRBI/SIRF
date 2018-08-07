@@ -68,13 +68,18 @@ target_link_libraries(cdynamicsimulation ismrmrd)
 target_link_libraries(cdynamicsimulation "${FFTW3_LIBRARIES}")
 target_link_libraries(cdynamicsimulation "${HDF5_LIBRARIES}")
 
+
 target_link_libraries(cdynamicsimulation cgadgetron)
 target_link_libraries(cdynamicsimulation cstir)
 
 target_link_libraries(cdynamicsimulation ${HDF5_CXX_LIBRARIES})
 
-set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpucore)
-set( GADGETRON_LIBRARIES_TOLINK ${GADGETRON_LIBRARIES} gadgetron_toolbox_cpufft)
+set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpucore ${GADGETRON_LIBRARIES} )
+set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpufft ${GADGETRON_LIBRARIES_TOLINK} )
+set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_image_analyze_io ${GADGETRON_LIBRARIES_TOLINK} )
+set( GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_log ${GADGETRON_LIBRARIES_TOLINK} )
+
+#message(STATUS "#########################GADGETRON_LIBRARIES: ${GADGETRON_LIBRARIES_TOLINK}")
 
 target_link_libraries(cdynamicsimulation ${GADGETRON_LIBRARIES_TOLINK})
 
