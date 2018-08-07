@@ -192,30 +192,30 @@ void run_tests_contrastgenerator(void)
 	bool tests_successful = true;
 
 	// tlm tests
-	tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
-	tests_successful *= test_tlm::test_get_labels_array();
-	tests_successful *=	test_tlm::test_get_segmentation_dimensions();
+	// tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
+	// tests_successful *= test_tlm::test_get_labels_array();
+	// tests_successful *=	test_tlm::test_get_segmentation_dimensions();
 
-	tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
-	tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
+	// tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
+	// tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
 
-	tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
+	// tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
 
 
-	// mr contgen tests
-	tests_successful *= test_contgen::test_mr_constructor();
-	tests_successful *= test_contgen::test_mr_set_rawdata_header();
+	// // mr contgen tests
+	// tests_successful *= test_contgen::test_mr_constructor();
+	// tests_successful *= test_contgen::test_mr_set_rawdata_header();
 
-	tests_successful *=	test_contgen::test_map_flash_contrast();
-	tests_successful *=	test_contgen::test_mr_map_contrast_dim_check();
+	// tests_successful *=	test_contgen::test_map_flash_contrast();
+	// tests_successful *=	test_contgen::test_mr_map_contrast_dim_check();
 
-	test_contgen::test_match_output_dims_to_headerinfo();
-	test_contgen::test_mr_map_contrast_application_to_xcat();
+	// test_contgen::test_match_output_dims_to_headerinfo();
+	// test_contgen::test_mr_map_contrast_application_to_xcat();
 
-	// pet contgen tests
-	tests_successful *=	test_contgen::test_pet_constructor();
-	tests_successful *= test_contgen::test_pet_map_contrast();
-	tests_successful *= test_contgen::test_pet_map_attenuation(); 
+	// // pet contgen tests
+	// tests_successful *=	test_contgen::test_pet_constructor();
+	// tests_successful *= test_contgen::test_pet_map_contrast();
+	// tests_successful *= test_contgen::test_pet_map_attenuation(); 
 	tests_successful *= test_contgen::test_pet_set_imagedata_from_file();
 
 	test_contgen::test_pet_map_contrast_application_to_xcat();

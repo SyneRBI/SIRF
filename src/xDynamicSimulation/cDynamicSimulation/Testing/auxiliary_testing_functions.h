@@ -35,10 +35,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
-#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_3Echo.h5"
+// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 
-#define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.v"
+#define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.hv"
 
 
 #define XML_TEST_PATH SHARED_FOLDER_PATH "XMLTestData/test_TissueParameters_XML.xml" 

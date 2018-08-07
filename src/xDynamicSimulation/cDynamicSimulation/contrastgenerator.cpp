@@ -247,6 +247,35 @@ std::vector< Voxels3DF > PETContrastGenerator::get_contrast_filled_volumes()
 	return this->contrast_filled_volumes_;	
 }
 
+
+
+std::vector< int > PETContrastGenerator::get_dimensions( void )
+{
+	std::vector< int > dims;
+	dims.resize(3, 0);
+
+	auto works = this->template_pet_image_data_.get_dimensions(&dims[0]);
+
+	if(works == -1)
+		throw std::runtime_error("Irregular range of dimensions in PET image data.");
+
+
+	return dims;
+}
+
+std::vector< float > PETContrastGenerator::get_voxel_sizes( void )
+{
+
+	std::vector< float > vx_size;
+	vx_size.resize(3, 0);
+
+	this->template_pet_image_data_.get_voxel_sizes(&vx_size[0]);
+
+	return vx_size;
+
+}
+
+
 void PETContrastGenerator::map_tissueparams_member(int const case_map)
 {
 	using namespace stir;

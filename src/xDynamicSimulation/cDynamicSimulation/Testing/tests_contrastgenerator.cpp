@@ -310,7 +310,18 @@ bool test_contgen::test_pet_set_imagedata_from_file( void )
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
 			
 		pet_contgen.set_imagedata_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
-		
+
+
+		auto voxel_sizes = pet_contgen.get_voxel_sizes();
+		auto dims = pet_contgen.get_dimensions();
+
+		for(int i=0;i<3;i++)
+		{
+			std::cout<< dims[i] << std::endl;	
+			std::cout<< voxel_sizes[i] << std::endl;
+		}
+
+
 		return true;
 	}
 	catch( std::runtime_error const &e)
