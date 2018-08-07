@@ -31,6 +31,7 @@ limitations under the License.
 #include "gadgetron_data_containers.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;

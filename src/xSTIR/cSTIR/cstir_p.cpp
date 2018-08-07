@@ -23,14 +23,14 @@ limitations under the License.
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-USING_NAMESPACE_STIR
-USING_NAMESPACE_ECAT
 
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
+#include "cstir_p.h"
 #include "stir_x.h"
 
 using namespace stir;
+using namespace sirf;
 
 extern "C"
 char* charDataFromHandle(const void* ptr);
@@ -81,7 +81,7 @@ wrongFloatParameterValue
 }
 
 void*
-cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
+sirf::cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv)
 {
 	ListmodeToSinograms& lm2s = objectFromHandle<ListmodeToSinograms>(hp);
 	if (boost::iequals(name, "input"))
@@ -96,8 +96,7 @@ cSTIR_setListmodeToSinogramsParameter(void* hp, const char* name, const void* hv
 }
 
 void*
-cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
-//cSTIR_setShapeParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+sirf::cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
 {
 	Shape3D& s = objectFromHandle<Shape3D>(hp);
 	Coord3DF origin = s.get_origin();
@@ -115,7 +114,7 @@ cSTIR_setShapeParameter(void* hp, const char* name, const void* hv)
 }
 
 void*
-cSTIR_shapeParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_shapeParameter(const DataHandle* handle, const char* name)
 {
 	Shape3D& s = objectFromHandle<Shape3D>(handle);
 	Coord3DF origin = s.get_origin();
@@ -130,7 +129,7 @@ cSTIR_shapeParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setEllipsoidalCylinderParameter
+sirf::cSTIR_setEllipsoidalCylinderParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	EllipsoidalCylinder& c =
@@ -148,7 +147,7 @@ cSTIR_setEllipsoidalCylinderParameter
 }
 
 void*
-cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
 {
 	EllipsoidalCylinder& c =
 		objectFromHandle<EllipsoidalCylinder>(handle);
@@ -162,7 +161,7 @@ cSTIR_ellipsoidalCylinderParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
+sirf::cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	CylindricFilter3DF& filter =
@@ -176,7 +175,7 @@ cSTIR_setTruncateToCylindricalFOVImageProcessorParameter
 }
 
 void*
-cSTIR_truncateToCylindricalFOVImageProcessorParameter
+sirf::cSTIR_truncateToCylindricalFOVImageProcessorParameter
 (const DataHandle* handle, const char* name)
 {
 	CylindricFilter3DF& filter =
@@ -188,7 +187,7 @@ cSTIR_truncateToCylindricalFOVImageProcessorParameter
 }
 
 void*
-cSTIR_setRayTracingMatrixParameter
+sirf::cSTIR_setRayTracingMatrixParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	RayTracingMatrix& matrix = 
@@ -202,7 +201,7 @@ cSTIR_setRayTracingMatrixParameter
 }
 
 void*
-cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
 {
 	RayTracingMatrix& matrix = 
 		objectFromHandle<RayTracingMatrix>(handle);
@@ -212,7 +211,7 @@ cSTIR_rayTracingMatrixParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setAcquisitionModelParameter
+sirf::cSTIR_setAcquisitionModelParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	AcqMod3DF& am = objectFromHandle< AcqMod3DF >(hp);
@@ -233,7 +232,7 @@ cSTIR_setAcquisitionModelParameter
 }
 
 void*
-cSTIR_setAcqModUsingMatrixParameter
+sirf::cSTIR_setAcqModUsingMatrixParameter
 (DataHandle* hm, const char* name, const DataHandle* hv)
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle<AcqModUsingMatrix3DF>(hm);
@@ -245,7 +244,7 @@ cSTIR_setAcqModUsingMatrixParameter
 }
 
 void*
-cSTIR_acqModUsingMatrixParameter
+sirf::cSTIR_acqModUsingMatrixParameter
 (DataHandle* hm, const char* name)
 {
 	AcqModUsingMatrix3DF& am = objectFromHandle<AcqModUsingMatrix3DF>(hm);
@@ -257,7 +256,7 @@ cSTIR_acqModUsingMatrixParameter
 }
 
 void*
-cSTIR_setGeneralisedPriorParameter
+sirf::cSTIR_setGeneralisedPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	Prior3DF& prior = objectFromHandle< Prior3DF >(hp);
@@ -269,7 +268,7 @@ cSTIR_setGeneralisedPriorParameter
 }
 
 void*
-cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
 {
 	Prior3DF& prior = objectFromHandle< Prior3DF >(handle);
 	if (boost::iequals(name, "penalisation_factor"))
@@ -278,7 +277,7 @@ cSTIR_generalisedPriorParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setQuadraticPriorParameter
+sirf::cSTIR_setQuadraticPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_QuadraticPrior3DF& prior =
@@ -291,7 +290,7 @@ cSTIR_setQuadraticPriorParameter
 }
 
 void*
-cSTIR_setPLSPriorParameter
+sirf::cSTIR_setPLSPriorParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	//xSTIR_PLSPrior3DF& prior =
@@ -314,7 +313,7 @@ cSTIR_setPLSPriorParameter
 }
 
 void*
-cSTIR_PLSPriorParameter
+sirf::cSTIR_PLSPriorParameter
 (DataHandle* hp, const char* name)
 {
 	PLSPrior<float>& prior =
@@ -337,7 +336,7 @@ cSTIR_PLSPriorParameter
 }
 
 void*
-cSTIR_setGeneralisedObjectiveFunctionParameter
+sirf::cSTIR_setGeneralisedObjectiveFunctionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	ObjectiveFunction3DF& obj_fun =
@@ -353,7 +352,7 @@ cSTIR_setGeneralisedObjectiveFunctionParameter
 }
 
 void*
-cSTIR_generalisedObjectiveFunctionParameter
+sirf::cSTIR_generalisedObjectiveFunctionParameter
 (const DataHandle* handle, const char* name)
 {
 	ObjectiveFunction3DF& obj_fun =
@@ -364,7 +363,7 @@ cSTIR_generalisedObjectiveFunctionParameter
 }
 
 void*
-cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
+sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	PoissonLogLhLinModMean3DF& obj_fun = 
@@ -383,7 +382,7 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanParameter
 }
 
 void*
-cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+sirf::cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF&
@@ -407,7 +406,7 @@ cSTIR_setPoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 }
 
 void*
-cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
+sirf::cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 (const DataHandle* handle, const char* name)
 {
 	xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF&
@@ -422,7 +421,7 @@ cSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjDataParameter
 }
 
 void*
-cSTIR_setReconstructionParameter
+sirf::cSTIR_setReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	Reconstruction<Image3DF>& recon =
@@ -438,7 +437,7 @@ cSTIR_setReconstructionParameter
 }
 
 void*
-cSTIR_setIterativeReconstructionParameter
+sirf::cSTIR_setIterativeReconstructionParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	IterativeReconstruction3DF& recon =
@@ -480,7 +479,7 @@ cSTIR_setIterativeReconstructionParameter
 }
 
 void*
-cSTIR_iterativeReconstructionParameter
+sirf::cSTIR_iterativeReconstructionParameter
 (const DataHandle* handle, const char* name)
 {
 	IterativeReconstruction3DF& recon = 
@@ -506,7 +505,7 @@ cSTIR_iterativeReconstructionParameter
 }
 
 void*
-cSTIR_setOSMAPOSLParameter
+sirf::cSTIR_setOSMAPOSLParameter
 (DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
@@ -519,7 +518,7 @@ cSTIR_setOSMAPOSLParameter
 }
 
 void* 
-cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 {
 	OSMAPOSLReconstruction<Image3DF>& recon =
 		objectFromHandle<OSMAPOSLReconstruction<Image3DF> >(handle);
@@ -529,7 +528,7 @@ cSTIR_OSMAPOSLParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+sirf::cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF >(hp);
@@ -541,7 +540,7 @@ cSTIR_setOSSPSParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 }
 
 void* 
-cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
+sirf::cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 {
 	xSTIR_OSSPSReconstruction3DF& recon =
 		objectFromHandle<xSTIR_OSSPSReconstruction3DF>(handle);
@@ -549,7 +548,7 @@ cSTIR_OSSPSParameter(const DataHandle* handle, const char* name)
 }
 
 void*
-cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
+sirf::cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 {
 	xSTIR_FBP2DReconstruction& recon =
 		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);
@@ -579,7 +578,7 @@ cSTIR_setFBP2DParameter(DataHandle* hp, const char* name, const DataHandle* hv)
 }
 
 void*
-cSTIR_FBP2DParameter(DataHandle* hp, const char* name)
+sirf::cSTIR_FBP2DParameter(DataHandle* hp, const char* name)
 {
 	xSTIR_FBP2DReconstruction& recon =
 		objectFromHandle<xSTIR_FBP2DReconstruction >(hp);

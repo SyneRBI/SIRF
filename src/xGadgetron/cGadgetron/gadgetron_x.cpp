@@ -39,6 +39,7 @@ using boost::asio::ip::tcp;
 #include "gadgetron_x.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 static bool
 connection_failed(int nt)
