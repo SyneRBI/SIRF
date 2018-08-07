@@ -17,6 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_auxiliary_input_output.h"
 
+using namespace sirf;
 
 void test_aux_io::test_write_ndarray_to_raw( void )
 {

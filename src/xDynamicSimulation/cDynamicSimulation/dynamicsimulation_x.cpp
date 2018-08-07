@@ -11,6 +11,7 @@ date: 15. March 2018
 
 #include <memory>
 
+using namespace sirf;
 
 void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
 {	

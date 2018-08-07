@@ -11,6 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
 
+using namespace sirf;
 
 bool test_dynamic::test_is_in_bin( void )
 {

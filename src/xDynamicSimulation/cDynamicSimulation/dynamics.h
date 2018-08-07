@@ -28,7 +28,7 @@ typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
-typedef AcquisitionsVector MRDataType;
+typedef sirf::AcquisitionsVector MRDataType;
 MRDataType intersect_mr_acquisition_data(MRDataType one_dat, MRDataType other_dat);
 
 class aDynamic {
@@ -43,13 +43,13 @@ public:
 	void set_num_simul_states(int const num_states);
 	void set_dyn_signal(SignalContainer signal);
 
-	std::vector<AcquisitionsVector> get_binned_mr_acquisitions( void )
+	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void )
 	{
 		return this->binned_mr_acquisitions_;
 	};
 
 	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
-	void bin_mr_acquisitions( AcquisitionsVector all_acquisitions );
+	void bin_mr_acquisitions( sirf::AcquisitionsVector all_acquisitions );
 
 protected:
 
@@ -59,7 +59,7 @@ protected:
 	std::vector< SignalBin > signal_bins_;
 	SignalContainer dyn_signal_; 
 
-	std::vector<AcquisitionsVector> binned_mr_acquisitions_;
+	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 };
 
 

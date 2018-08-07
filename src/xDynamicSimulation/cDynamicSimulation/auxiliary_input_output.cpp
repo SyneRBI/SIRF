@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
 
+using namespace sirf;
 
 // ++++++++++++++++++ mr_IO ++++++++++++++++++
 

@@ -29,6 +29,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 using namespace stir;
+using namespace sirf;
 
 // contrast generator
 

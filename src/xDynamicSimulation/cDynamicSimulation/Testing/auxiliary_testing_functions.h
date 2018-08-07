@@ -99,14 +99,14 @@ namespace aux_test
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
 
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
-	CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
+	sirf::CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
-	AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
+	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
 
 
 	SignalContainer get_mock_motion_signal( void );
-	SignalContainer get_mock_motion_signal( AcquisitionsVector acq_vec);
+	SignalContainer get_mock_motion_signal( sirf::AcquisitionsVector acq_vec);
 	
 
 

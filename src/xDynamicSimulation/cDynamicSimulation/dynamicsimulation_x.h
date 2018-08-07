@@ -88,11 +88,11 @@ private:
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 
-	AcquisitionsVector source_acquisitions_;
-	AcquisitionsVector target_acquisitions_;
+	sirf::AcquisitionsVector source_acquisitions_;
+	sirf::AcquisitionsVector target_acquisitions_;
 	
 	MRContrastGenerator mr_cont_gen_;
-	MRAcquisitionModel acq_model_;
+	sirf::MRAcquisitionModel acq_model_;
 
 };
 

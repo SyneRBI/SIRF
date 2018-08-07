@@ -13,6 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <omp.h>
 #include <sstream>
 
+using namespace sirf;
 
 TissueParameterList aux_test::get_mock_tissue_param_list( void )
 {

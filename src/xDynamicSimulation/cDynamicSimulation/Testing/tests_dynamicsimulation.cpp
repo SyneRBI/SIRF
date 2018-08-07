@@ -24,6 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 
 
+using namespace sirf;
 
 
 

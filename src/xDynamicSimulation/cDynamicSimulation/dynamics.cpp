@@ -16,6 +16,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "dynamics.h"
 
+using namespace sirf;
+
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 {

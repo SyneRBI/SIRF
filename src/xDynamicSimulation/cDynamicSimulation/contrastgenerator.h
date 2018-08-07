@@ -94,19 +94,19 @@ public:
 	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
 	void set_imagedata_from_file ( std::string const filename_header ) 
 	{
-	 	// this->sptr_image_ = std::make_shared<PETImageData>(filename_header);
-	 	 this->pet_image_data_ = PETImageData(filename_header);
+	 	// this->sptr_image_ = std::make_shared<sirf::PETImageData>(filename_header);
+	 	 this->pet_image_data_ = sirf::PETImageData(filename_header);
 	};
 
-	std::vector< Voxels3DF > get_contrast_filled_volumes();
+	std::vector< sirf::Voxels3DF > get_contrast_filled_volumes();
 
 	void map_contrast();
 	void map_attenuation();
 
 private:
-	std::vector < Voxels3DF > contrast_filled_volumes_;
+	std::vector < sirf::Voxels3DF > contrast_filled_volumes_;
 	void map_tissueparams_member(int const case_map);
 	
-	// std::shared_ptr<PETImageData> sptr_image_;
-	PETImageData pet_image_data_;
+	// std::shared_ptr<sirf::PETImageData> sptr_image_;
+	sirf::PETImageData pet_image_data_;
 };

@@ -27,10 +27,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "all_simulation_tests.h"
 
 
-
-
-
-
 void run_tests_auxiliary_testing_functions( void )
 {
 
