@@ -162,7 +162,11 @@ calculate_index_to_physical_point_matrix()
 			//std::cout << direction[j][i] << ' ' << spacing[j] << '\n';
 		}
 		// set translations
-		index_to_physical_point_matrix[j][num_dimensions] = offset[j];
+        // TODO This will only work for diagonal matrices i.e.,:
+        // 1 0 0     0 1 0
+        // 0 1 0 not 1 0 0 or similar
+        // 0 0 1     0 0 1
+        index_to_physical_point_matrix[j][num_dimensions] = offset[j] * direction[j][j];
 		index_to_physical_point_matrix[num_dimensions][j] = 0;
 	}
 	index_to_physical_point_matrix[num_dimensions][num_dimensions] = 1;
