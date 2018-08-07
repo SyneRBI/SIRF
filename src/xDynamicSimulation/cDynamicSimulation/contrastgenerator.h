@@ -95,7 +95,7 @@ public:
 	void set_imagedata_from_file ( std::string const filename_header ) 
 	{
 	 	// this->sptr_image_ = std::make_shared<PETImageData>(filename_header);
-	 	// this->pet_image_data_ = PETImageData(filename_header);
+	 	 this->pet_image_data_ = PETImageData(filename_header);
 	};
 
 	std::vector< Voxels3DF > get_contrast_filled_volumes();
@@ -108,5 +108,5 @@ private:
 	void map_tissueparams_member(int const case_map);
 	
 	// std::shared_ptr<PETImageData> sptr_image_;
-	// PETImageData pet_image_data_;
+	PETImageData pet_image_data_;
 };
