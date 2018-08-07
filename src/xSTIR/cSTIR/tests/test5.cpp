@@ -1,5 +1,10 @@
 #include <iostream>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 #define CREATE_OBJ(Obj, X, sptr_X, Par) \
 	stir::shared_ptr< Obj > sptr_X(new Obj(Par)); \
 	Obj& X = (Obj&)*sptr_X
@@ -7,9 +12,9 @@
 	stir::shared_ptr< Base > sptr_X(new Object(Par)); \
 	Object& X = (Object&)*sptr_X
 
-#include "stir_types.h"
+//#include "stir_types.h"
 #include "stir_x.h"
-#include "SIRF/common/envar.h"
+//#include "SIRF/common/envar.h"
 
 int test_a(shared_ptr<ProjData> sptr_data, shared_ptr<Image3DF>& sptr_image);
 int test_b(const PETAcquisitionData& acq_data, PETImageData& image);
@@ -22,7 +27,8 @@ int main()
 	size_t sinos, views, tangs;
 	float im_norm;
 
-	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	std::string SIRF_path = std::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;

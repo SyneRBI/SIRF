@@ -87,7 +87,10 @@ EXPORTED_FUNCTION 	void* mSTIR_setupAcquisitionModel(void* ptr_am, void* ptr_dt,
 EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwd(void* ptr_am, void* ptr_im,  int subset_num, int num_subsets) {
 	return cSTIR_acquisitionModelFwd(ptr_am, ptr_im, subset_num, num_subsets);
 }
-EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad,  int subset_num, int num_subsets) {
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelFwdReplace (void* ptr_am, void* ptr_im, int subset_num, int num_subsets, void* ptr_ad) {
+	return cSTIR_acquisitionModelFwdReplace (ptr_am, ptr_im, subset_num, num_subsets, ptr_ad);
+}
+EXPORTED_FUNCTION 	void* mSTIR_acquisitionModelBwd(void* ptr_am, void* ptr_ad, int subset_num, int num_subsets) {
 	return cSTIR_acquisitionModelBwd(ptr_am, ptr_ad, subset_num, num_subsets);
 }
 EXPORTED_FUNCTION 	void* mSTIR_getAcquisitionsStorageScheme() {
@@ -201,11 +204,14 @@ EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x) {
 EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y) {
 	return cSTIR_dot(ptr_x, ptr_y);
 }
-EXPORTED_FUNCTION 	void* mSTIR_mult(float a, const void* ptr_x) {
-	return cSTIR_mult(a, ptr_x);
-}
 EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y) {
 	return cSTIR_axpby(a, ptr_x, b, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mSTIR_multiply(const void* ptr_x, const void* ptr_y) {
+	return cSTIR_multiply(ptr_x, ptr_y);
+}
+EXPORTED_FUNCTION 	void* mSTIR_divide(const void* ptr_x, const void* ptr_y) {
+	return cSTIR_divide(ptr_x, ptr_y);
 }
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream) {
 	return newTextPrinter(stream);

@@ -99,7 +99,9 @@ def main():
     print('sqrt(acq_data.dot(acq_data)): %f' % math.sqrt(t))
     diff = new_acq_data - acq_data
     print('norm of acq_data.clone() - acq_data: %f' % diff.norm())
-    new_acq_data = acq_data * 10.0
+    acq_factor = acq_data.get_uniform_copy(0.1)
+    new_acq_data = acq_data / acq_factor
+##    new_acq_data = acq_data * 10.0
     print('norm of acq_data*10: %f' % new_acq_data.norm())
 
     # display the scaled data
@@ -116,7 +118,9 @@ def main():
     print('norm of image.as_array(): %f' % numpy.linalg.norm(image_array))
     print('image.norm(): %f' % s)
     print('sqrt(image.dot(image)): %f' % math.sqrt(t))
-    image = image*10
+    image_factor = image.get_uniform_copy(0.1)
+    image = image / image_factor
+##    image = image*10
     print('norm of image*10: %f' % image.norm())
     diff = image.clone() - image
     print('norm of image.clone() - image: %f' % diff.norm())

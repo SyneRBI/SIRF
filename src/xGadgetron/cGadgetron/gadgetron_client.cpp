@@ -27,7 +27,16 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_client.h"
+
+using namespace gadgetron;
+using namespace sirf;
 
 void
 GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)

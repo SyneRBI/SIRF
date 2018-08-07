@@ -1,18 +1,24 @@
 #include <fstream>
 #include <string>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+USING_NAMESPACE_STIR
+USING_NAMESPACE_ECAT
+
 //#include "stir/listmode/LmToProjData.h"
 
 #include "cstir.h"
 #include "object.h"
-#include "stir_types.h"
-#include "stir_data_containers.h"
+//#include "stir_types.h"
+//#include "stir_data_containers.h"
 #include "stir_x.h"
-#include "SIRF/common/envar.h"
+//#include "SIRF/common/envar.h"
 
 int test3()
 {
-	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	std::string SIRF_path = std::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;
