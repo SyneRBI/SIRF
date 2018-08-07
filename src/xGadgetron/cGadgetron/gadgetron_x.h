@@ -30,6 +30,8 @@ limitations under the License.
 #ifndef GADGETRON_EXTENSIONS
 #define GADGETRON_EXTENSIONS
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <cmath>
 #include <string>
 

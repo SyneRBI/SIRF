@@ -21,6 +21,8 @@ limitations under the License.
 #ifndef EXTRA_STIR_TYPES
 #define EXTRA_STIR_TYPES
 
+#define WIN32_LEAN_AND_MEAN
+
 /*!
 \file
 \ingroup STIR Extensions
