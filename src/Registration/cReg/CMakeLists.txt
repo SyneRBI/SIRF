@@ -33,46 +33,8 @@ FIND_PACKAGE(Boost 1.63.0 COMPONENTS filesystem)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${Boost_LIBRARIES})
 
-SET(NiftyReg_requiredLibs
-    _reg_aladin
-    _reg_blockMatching
-    _reg_f3d
-    _reg_maths
-    _reg_ReadWriteImage
-    _reg_resampling
-    _reg_tools
-    reg_nifti
-    reg_png
-    )
-IF (NR_VERSION LESS 1.4)
-    SET(NiftyReg_requiredLibs
-        ${NiftyReg_requiredLibs}
-        _reg_KLdivergence
-        _reg_ReadWriteImage
-        _reg_femTransformation
-        _reg_globalTransformation
-        _reg_localTransformation
-        _reg_mutualinformation
-        _reg_ssd
-        _reg_thinPlateSpline
-        reg_nrrd
-    )
-ELSEIF(NR_VERSION LESS 1.6)
-    SET(NiftyReg_requiredLibs
-        ${NiftyReg_requiredLibs}
-        _reg_femTrans
-        _reg_globalTrans
-        _reg_localTrans
-        _reg_measure
-        )
-ENDIF()
- 
-# Loop over each library, find it and add it. Then link
-FOREACH(elem ${NiftyReg_requiredLibs})
-    FIND_LIBRARY(NiftyReg_${elem} ${elem} HINTS ${NiftyReg_Install_DIR}/lib)
-    SET(NiftyReg_Libs ${NiftyReg_${elem}} ${NiftyReg_Libs})
-ENDFOREACH(elem ${NiftyReg_requiredLibs})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${NiftyReg_Libs})
+# NiftyReg
+TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
 
 # Add libz (should be in /usr/local)
 FIND_LIBRARY(LIBZ  z)

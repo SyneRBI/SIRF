@@ -18,11 +18,6 @@
 
 PROJECT(SIRFReg)
 
-# NiftyReg
-SET(NiftyReg_Source_DIR  CACHE PATH "NiftyReg source directory" )
-SET(NiftyReg_Binary_DIR  CACHE PATH "NiftyReg binary directory" )
-SET(NiftyReg_Install_DIR CACHE PATH "NiftyReg install directory")
-
 # To be able to build with niftyreg, you need to append the cmake_cxx_flags
 # to suppress errors from converting float to double
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
@@ -36,40 +31,9 @@ IF(STIR_FOUND)
     INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include)
 ENDIF(STIR_FOUND)
 
-IF ((NOT IS_DIRECTORY ${NiftyReg_Source_DIR}) AND (NOT IS_DIRECTORY ${NiftyReg_Binary_DIR}) AND (NOT IS_DIRECTORY ${NiftyReg_Install_DIR}))
-	MESSAGE(FATAL_ERROR "Enter the source, binary and install directories of NiftyReg.")
-ENDIF()
 
-INCLUDE_DIRECTORIES(${NiftyReg_Source_DIR}/reg-io/nrrd/NrrdIO) # ugly, but required for nrrdIO.h
-INCLUDE_DIRECTORIES(${NiftyReg_Binary_DIR})                    # ugly, but required for NrrdConfigure.h
-INCLUDE_DIRECTORIES(${NiftyReg_Install_DIR}/include)
-
-# Get the NiftyReg versions from its CMakeLists.txt
-# This for older versions of NiftyReg
-FILE(READ ${NiftyReg_Source_DIR}/CMakeLists.txt NiftyReg_CMakeLists)
-STRING(REGEX MATCH "NiftyReg_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
-SET(NiftyReg_VERSION_MAJOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NiftyReg_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
-SET(NiftyReg_VERSION_MINOR ${CMAKE_MATCH_1})
-STRING(REGEX MATCH "NiftyReg_VERSION_PATCH ([0-9]*)" _ ${NiftyReg_CMakeLists} )
-SET(NiftyReg_VERSION_PATCH ${CMAKE_MATCH_1})
-# This for more recent versions of NiftyReg
-IF (NOT DEFINED NiftyReg_VERSION_MAJOR)
-	STRING(REGEX MATCH "NR_VERSION_MAJOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
-	SET(NiftyReg_VERSION_MAJOR ${CMAKE_MATCH_1})
-	STRING(REGEX MATCH "NR_VERSION_MINOR ([0-9]*)" _ ${NiftyReg_CMakeLists} )
-	SET(NiftyReg_VERSION_MINOR ${CMAKE_MATCH_1})
-	FILE(READ ${NiftyReg_Source_DIR}/niftyreg_build_version.txt NiftyReg_VERSION_PATCH)
-ENDIF()
-SET(NR_VERSION "${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}")
-MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.0, and cannot be guaranteed for other version numbers.")
-MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NR_VERSION}.")
-MESSAGE(STATUS "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-IF (NR_VERSION LESS "1.4")
-	add_definitions(-DNIFTYREG_VER_1_3)
-ELSEIF(NR_VERSION LESS "1.6")
-	add_definitions(-DNIFTYREG_VER_1_5)
-ENDIF()
+# NiftyReg
+include("${CMAKE_CURRENT_SOURCE_DIR}/NiftyReg.cmake")
 
 # Compile the C++
 ADD_SUBDIRECTORY(cReg)
