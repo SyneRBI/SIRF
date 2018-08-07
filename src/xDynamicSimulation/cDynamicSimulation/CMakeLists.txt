@@ -86,6 +86,6 @@ target_link_libraries(cdynamicsimulation ${GADGETRON_LIBRARIES_TOLINK})
 #get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 #message ( STATUS "##################################### include dirs #####################################: " ${inc_dirs})
 
-
-add_executable( TestJobs main.cpp)
-target_link_libraries( TestJobs cdynamicsimulation)
+message(STATUS "XXXXXXXXXXXXXXXXXXSTIR_LIB ${STIR_LIBRARIES}")
+add_executable( TestJobs main.cpp ${STIR_REGISTRIES})
+target_link_libraries( TestJobs cdynamicsimulation ${STIR_LIBRARIES} )

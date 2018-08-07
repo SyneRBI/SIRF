@@ -50,7 +50,7 @@ find_package(HDF5 1.8 COMPONENTS C CXX HL REQUIRED)
 
 
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
+find_package(STIR REQUIRED)
 ADD_SUBDIRECTORY(cDynamicSimulation)
 
 set(cDynamicSimulation_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cDynamicSimulation")
