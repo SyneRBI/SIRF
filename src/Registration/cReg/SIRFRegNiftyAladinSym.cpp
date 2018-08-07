@@ -79,9 +79,9 @@ void SIRFRegNiftyAladinSym<T>::update()
     _TM_back_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_TM_fwrd_sptr.get()));
 
     cout << "\nPrinting forwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(_TM_fwrd_sptr.get());
+    SIRFRegMisc::print_mat44(*_TM_fwrd_sptr);
     cout << "\nPrinting backwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(_TM_back_sptr.get());
+    SIRFRegMisc::print_mat44(*_TM_back_sptr);
 
 
 #if NIFTYREG_VER_1_5

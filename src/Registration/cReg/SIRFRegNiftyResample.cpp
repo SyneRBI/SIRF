@@ -60,7 +60,7 @@ void SIRFRegNiftyResample::update()
     set_up_transformation_matrix(transformation_matrix);
 
     cout << "\n\nthe transformation matrix is:\n";
-    SIRFRegMisc::print_mat44(&transformation_matrix);
+    SIRFRegMisc::print_mat44(transformation_matrix);
 
     cout << "\n\nConverting affine transformation to deformation field...\n\n";
 
@@ -132,7 +132,7 @@ void SIRFRegNiftyResample::set_up_transformation_matrix(mat44 &matrix)
     }
 
     cout << "\n\nHere's the result of the matrix multiplications:\n";
-    SIRFRegMisc::print_mat44(&matrix);
+    SIRFRegMisc::print_mat44(matrix);
     cout << "\n\n";
 }
 

@@ -107,7 +107,13 @@ namespace SIRFRegMisc {
     void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string filename);
 
     /// Print mat44
-    void print_mat44(const mat44 *mat_ptr);
+    void print_mat44(const mat44 &mat);
+
+    /// Print multiple mat44
+    void print_mat44(const std::vector<mat44> &mats);
+
+    /// Do mat44 match?
+    bool do_mat44_match( const mat44& mat1, const mat44& mat2 );
 
     /// Mat44 multiplier
     mat44 multiply_mat44(const mat44 &x, const mat44 &y);

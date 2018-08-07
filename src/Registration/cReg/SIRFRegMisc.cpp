@@ -635,38 +635,50 @@ void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sp
 void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string& filename)
 {
     // Check that the file exists
-    if (!boost::filesystem::exists(filename)) {
+    if (!boost::filesystem::exists(filename))
         throw runtime_error("Cannot find the file: " + filename + ".");
-    }
 
     cout << "\n\nReading transformation matrix from file...\n\n";
-
-    // Initialise the matrix
     transformation_matrix_sptr = make_shared<mat44>();
-
     reg_tool_ReadAffineFile(transformation_matrix_sptr.get(), (char*)filename.c_str());
-
     cout << "\n\nSuccessfully read transformation matrix from file:\n";
 
-    for (int i=0; i<4; i++) {
-        cout << "\t" << flush;
-        cout << transformation_matrix_sptr->m[i][0] << ", " << flush;
-        cout << transformation_matrix_sptr->m[i][1] << ", " << flush;
-        cout << transformation_matrix_sptr->m[i][2] << ", " << flush;
-        cout << transformation_matrix_sptr->m[i][3] << "\n" << flush;
-    }
+    print_mat44(*transformation_matrix_sptr);
 }
 
 /// Print mat44
-void print_mat44(const mat44 *mat_ptr)
+void print_mat44(const mat44 &mat)
 {
-    for (int i=0; i<4; i++) {
-        cout << "[";
-        cout << mat_ptr->m[i][0] << " "   << flush;
-        cout << mat_ptr->m[i][1] << " "   << flush;
-        cout << mat_ptr->m[i][2] << " "   << flush;
-        cout << mat_ptr->m[i][3] << "]\n" << flush;
+    std::vector<mat44> mat_vec;
+    mat_vec.push_back(mat);
+    print_mat44(mat_vec);
+}
+
+/// Print mat44
+void print_mat44(const vector<mat44> &mats)
+{
+    for(int i=0;i<4;i++) {
+        cout << "\t\t\t   ";
+        for(int j=0;j<mats.size();j++) {
+            ostringstream ss;
+            ss << "[" <<
+                  setprecision(3) << mats[j].m[i][0] << "," <<
+                  setprecision(3) << mats[j].m[i][1] << "," <<
+                  setprecision(3) << mats[j].m[i][2] << "," <<
+                  setprecision(3) << mats[j].m[i][3] << "] ";
+            cout << setw(19) << ss.str();
+        }
+        cout << "\n";
     }
+}
+
+bool do_mat44_match( const mat44& mat1, const mat44& mat2 )
+{
+    for (int i=0; i<4; i++)
+        for (int j=0; j<4; j++)
+            if( fabs(mat1.m[j][i] - mat2.m[j][i]) > 1.e-7 )
+                return false;
+    return true;
 }
 
 /// Mat44 multiplier
@@ -675,9 +687,9 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
     // Print info
     cout << "\nMultiplying two matrices...\n";
     cout << "Matrix 1:\n";
-    print_mat44(&x);
+    print_mat44(x);
     cout << "Matrix 2:\n";
-    print_mat44(&y);
+    print_mat44(y);
 
     // Create result, set to zero
     mat44 res;
@@ -696,7 +708,7 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
     }
 
     cout << "Result:\n";
-    print_mat44(&res);
+    print_mat44(res);
 
     return res;
 }
