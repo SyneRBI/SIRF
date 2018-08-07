@@ -346,6 +346,18 @@ namespace sirf {
 		{
 		}
 
+		// Records the acquisition template to be used. 
+		void set_acquisition_template
+			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac)
+		{
+			sptr_acqs_ = sptr_ac;
+		}
+		// Records the image template to be used. 
+		void set_image_template
+			(gadgetron::shared_ptr<MRImageData> sptr_ic)
+		{
+			sptr_imgs_ = sptr_ic;
+		}
 		// Records the coil sensitivities maps to be used. 
 		void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
 		{

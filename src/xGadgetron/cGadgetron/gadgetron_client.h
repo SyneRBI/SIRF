@@ -35,6 +35,8 @@ limitations under the License.
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
+using boost::asio::ip::tcp;
+
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/meta.h>
