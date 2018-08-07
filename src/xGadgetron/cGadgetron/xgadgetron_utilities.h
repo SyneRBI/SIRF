@@ -30,16 +30,33 @@ limitations under the License.
 #ifndef XGADGETRON_UTILITIES
 #define XGADGETRON_UTILITIES
 
+#include <chrono>
 #include <complex>
 
 #include <boost/thread/mutex.hpp>
 
-#include <ismrmrd/ismrmrd.h>
+#include "cgadgetron_shared_ptr.h"
 
 namespace sirf {
 
 	class xGadgetronUtilities {
 	public:
+		static long long milliseconds()
+		{
+			auto now = std::chrono::system_clock::now();
+			auto ms = std::chrono::duration_cast < std::chrono::milliseconds >
+				(now.time_since_epoch());
+			return (long long)ms.count();
+		}
+		static std::string scratch_file_name()
+		{
+			static int calls = 0;
+			char buff[32];
+			long long int ms = xGadgetronUtilities::milliseconds();
+			calls++;
+			sprintf(buff, "tmp_%d_%lld.h5", calls, ms);
+			return std::string(buff);
+		}
 		template<typename T>
 		static void convert_complex(std::complex<T> z, unsigned short& t)
 		{
@@ -93,10 +110,10 @@ namespace sirf {
 		{
 			return *sptr_mutex_.get();
 		}
-		//gadgetron::shared_ptr<boost::mutex> sptr()
-		//{
-		//	return sptr_mutex_;
-		//}
+		gadgetron::shared_ptr<boost::mutex> sptr()
+		{
+			return sptr_mutex_;
+		}
 		void lock()
 		{
 			sptr_mutex_->lock();

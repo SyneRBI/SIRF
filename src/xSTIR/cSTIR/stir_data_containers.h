@@ -32,16 +32,34 @@ limitations under the License.
 
 #include <stdlib.h>
 
+#include <chrono>
 #include <fstream>
-
-#include "SIRF/common/data_container.h"
-#include "SIRF/common/utilities.h"
 
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
+#include "SIRF/common/data_container.h"
 
 namespace sirf {
+
+	class SIRFUtilities {
+	public:
+		static long long milliseconds()
+		{
+			auto now = std::chrono::system_clock::now();
+			auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+			return (long long)ms.count();
+		}
+		static std::string scratch_file_name()
+		{
+			static int calls = 0;
+			char buff[32];
+			long long int ms = milliseconds();
+			calls++;
+			sprintf(buff, "tmp_%d_%lld", calls, ms);
+			return std::string(buff);
+		}
+	};
 
 	/*!
 	\ingroup STIR Extensions

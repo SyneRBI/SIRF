@@ -33,8 +33,6 @@ limitations under the License.
 using namespace gadgetron;
 using namespace sirf;
 
-shared_ptr<boost::mutex> Mutex::sptr_mutex_;
-
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
 
@@ -475,8 +473,7 @@ AcquisitionsFile::AcquisitionsFile
 AcquisitionsFile::AcquisitionsFile(AcquisitionsInfo info)
 {
 	own_file_ = true;
-	//filename_ = xGadgetronUtilities::scratch_file_name();
-	filename_ = SIRFUtilities::scratch_file_name();
+	filename_ = xGadgetronUtilities::scratch_file_name();
 	Mutex mtx;
 	mtx.lock();
 	dataset_ = shared_ptr<ISMRMRD::Dataset>
