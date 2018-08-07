@@ -21,16 +21,19 @@ limitations under the License.
 #ifndef CGADGETRON_PARAMETERS_HANDLERS
 #define CGADGETRON_PARAMETERS_HANDLERS
 
-extern "C"
-void* cGT_acquisitionParameter(void* ptr_acq, const char* name);
+namespace sirf {
 
-extern "C"
-void* cGT_acquisitionsParameter(void* ptr_acq, const char* name);
+	extern "C"
+		void* cGT_acquisitionParameter(void* ptr_acq, const char* name);
 
-extern "C"
-void* cGT_imageParameter(void* ptr_im, const char* name);
+	extern "C"
+		void* cGT_acquisitionsParameter(void* ptr_acq, const char* name);
 
-extern "C"
-void* cGT_setCSParameter(void* ptr, const char* par, const void* val);
+	extern "C"
+		void* cGT_imageParameter(void* ptr_im, const char* name);
+
+	extern "C"
+		void* cGT_setCSParameter(void* ptr, const char* par, const void* val);
+}
 
 #endif

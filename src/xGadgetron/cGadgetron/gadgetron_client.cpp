@@ -38,6 +38,7 @@ using boost::asio::ip::tcp;
 #include "gadgetron_client.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 void
 GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)

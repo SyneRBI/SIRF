@@ -19,7 +19,9 @@ limitations under the License.
 */
 
 #include "stir_data_containers.h"
+
 using namespace stir;
+using namespace sirf;
 
 std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;

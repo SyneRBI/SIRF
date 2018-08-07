@@ -27,6 +27,7 @@ limitations under the License.
 #include "stir_x.h"
 
 using namespace stir;
+using namespace sirf;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)

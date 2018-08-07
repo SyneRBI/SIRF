@@ -30,6 +30,7 @@ limitations under the License.
 
 using namespace stir;
 USING_NAMESPACE_ECAT
+using namespace sirf;
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)

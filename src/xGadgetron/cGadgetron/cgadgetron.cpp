@@ -45,6 +45,7 @@ using boost::asio::ip::tcp;
 #include "chain_lib.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 #define GRAB 1
 
