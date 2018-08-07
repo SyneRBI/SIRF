@@ -55,7 +55,7 @@ void SIRFRegNiftyF3dSym<T>::update()
         reg_checkAndCorrectDimension(_floating_image_sptr.get());
 
     // Create the registration object
-    _registration_sptr = shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
+    _registration_sptr = std::shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
     _registration_sptr->SetFloatingImage(_floating_image_sptr.get());
     _registration_sptr->SetReferenceImage(_reference_image_sptr.get());
 
@@ -80,11 +80,11 @@ void SIRFRegNiftyF3dSym<T>::update()
 #endif
 
     // Get the warped image
-    _warped_image_sptr = shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
+    _warped_image_sptr = std::shared_ptr<nifti_image>(*_registration_sptr->GetWarpedImage());
 
     // Get the CPP images
-    shared_ptr<nifti_image> cpp_fwrd_sptr = shared_ptr<nifti_image>(_registration_sptr->GetControlPointPositionImage());
-    shared_ptr<nifti_image> cpp_back_sptr = shared_ptr<nifti_image>(_registration_sptr->GetBackwardControlPointPositionImage());
+    std::shared_ptr<nifti_image> cpp_fwrd_sptr = std::shared_ptr<nifti_image>(_registration_sptr->GetControlPointPositionImage());
+    std::shared_ptr<nifti_image> cpp_back_sptr = std::shared_ptr<nifti_image>(_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Need to correct the CPP images (otherwise nv=0 and you can't read with matlab)
     reg_checkAndCorrectDimension(cpp_fwrd_sptr.get());

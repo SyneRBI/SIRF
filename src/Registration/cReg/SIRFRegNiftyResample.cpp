@@ -65,7 +65,7 @@ void SIRFRegNiftyResample::update()
     cout << "\n\nConverting affine transformation to deformation field...\n\n";
 
     // Initialise the deformation field image
-    shared_ptr<nifti_image> deformation_field_image_sptr;
+    std::shared_ptr<nifti_image> deformation_field_image_sptr;
     SIRFRegMisc::create_def_or_disp_image(deformation_field_image_sptr,_reference_image_sptr);
 #if NIFTYREG_VER_1_5
     reg_affine_getDeformationField(&transformation_matrix,deformation_field_image_sptr.get());
@@ -138,7 +138,7 @@ void SIRFRegNiftyResample::set_up_transformation_matrix(mat44 &matrix)
 
 void SIRFRegNiftyResample::set_up_output_image()
 {
-    _output_image_sptr = shared_ptr<nifti_image>(nifti_copy_nim_info(_reference_image_sptr.get()));
+    _output_image_sptr = std::shared_ptr<nifti_image>(nifti_copy_nim_info(_reference_image_sptr.get()));
     _output_image_sptr->dim[0]=_output_image_sptr->ndim=_floating_image_sptr->dim[0];
     _output_image_sptr->dim[4]=_output_image_sptr->nt=_floating_image_sptr->dim[4];
     _output_image_sptr->cal_min=_floating_image_sptr->cal_min;

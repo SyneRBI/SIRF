@@ -97,7 +97,7 @@ void SIRFRegNiftyAladinSym<T>::update()
 
 #elif NIFTYREG_VER_1_3
     // Convert the forward and backward transformation matrices to cpp images
-    shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
+    std::shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
     SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_fwrd_sptr,
                                                     _TM_fwrd_sptr,
                                                     _warped_image_sptr);

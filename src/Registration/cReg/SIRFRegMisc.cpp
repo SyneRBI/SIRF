@@ -45,7 +45,7 @@ using namespace std;
 namespace SIRFRegMisc {
 
 /// Open nifti image
-void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::path filename)
+void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path filename)
 {
     // If no filename has been set, return
     if (filename == "") {
@@ -93,21 +93,21 @@ void save_nifti_image(nifti_image *image, const string filename)
 }
 
 /// Save nifti image
-void save_nifti_image(shared_ptr<nifti_image> image, const string filename)
+void save_nifti_image(std::shared_ptr<nifti_image> image, const string filename)
 {
     save_nifti_image(image.get(), filename);
 }
 
 /// Split multi-component image
-vector<shared_ptr<nifti_image> >
-    split_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr)
+vector<std::shared_ptr<nifti_image> >
+    split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr)
 {
     // Only works for ndim==5
     if (input_sptr->ndim != 5)
         throw runtime_error("Splitting only currently works for ndim==5.");
 
     // Create the vector to store the single component images
-    vector<shared_ptr<nifti_image> > output;
+    vector<std::shared_ptr<nifti_image> > output;
 
     // Loop over all of the components
     int num_components = input_sptr->dim[5];
@@ -149,7 +149,7 @@ vector<shared_ptr<nifti_image> >
 }
 
 /// Save a multicomponent nifti image
-void save_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr, const string &filename, const bool &split_xyz)
+void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, const string &filename, const bool &split_xyz)
 {
     // If the user wants it saved as multicomponent image
     if (!split_xyz) {
@@ -158,7 +158,7 @@ void save_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr, const s
     }
 
     // Else, the user wants the multicomponent image split into 3 separate images.
-    vector<shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(input_sptr);
+    vector<std::shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(input_sptr);
 
     // Loop over each component
     for (int i=0; i<components.size(); i++) {
@@ -181,13 +181,13 @@ void save_multicomponent_nifti_image(shared_ptr<nifti_image> input_sptr, const s
 /// Copy nifti image
 void copy_nifti_image(const string input_filename, const string output_filename)
 {
-    shared_ptr<nifti_image> image;
+    std::shared_ptr<nifti_image> image;
     open_nifti_image(image, input_filename);
     save_nifti_image(image, output_filename);
 }
 
 /// Copy nifti image
-void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_ptr<nifti_image> &image_to_copy_sptr)
+void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr)
 {
     cout << "\nPerforming hard copy of nifti image..." << flush;
 
@@ -210,7 +210,7 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
 }
 
 /// Flip multicomponent image along a given axis
-void flip_multicomponent_image(shared_ptr<nifti_image> &im, int dim)
+void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
@@ -250,7 +250,7 @@ void flip_multicomponent_image(shared_ptr<nifti_image> &im, int dim)
 }
 
 /// Create def or disp image
-void create_def_or_disp_image(shared_ptr<nifti_image> &output_sptr, const shared_ptr<nifti_image> &reference_sptr)
+void create_def_or_disp_image(std::shared_ptr<nifti_image> &output_sptr, const std::shared_ptr<nifti_image> &reference_sptr)
 {
     // Calculate deformation field image
     nifti_image *output_ptr;
@@ -276,7 +276,7 @@ void create_def_or_disp_image(shared_ptr<nifti_image> &output_sptr, const shared
 
 #if NIFTYREG_VER_1_3
 /// Get cpp from transformation matrix
-void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<mat44> &TM_sptr, const shared_ptr<nifti_image> &warped_sptr)
+void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr)
 {
     // Copy info from the reference image
     nifti_image *cpp_ptr = cpp_sptr.get();
@@ -304,7 +304,7 @@ void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const
 }
 #endif
 /// Get def from cpp
-void get_def_from_cpp(shared_ptr<nifti_image> &def_sptr, const shared_ptr<nifti_image> &cpp_sptr, const shared_ptr<nifti_image> &ref_sptr)
+void get_def_from_cpp(std::shared_ptr<nifti_image> &def_sptr, const std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<nifti_image> &ref_sptr)
 {
     def_sptr = make_shared<nifti_image>();
     create_def_or_disp_image(def_sptr,ref_sptr);
@@ -321,7 +321,7 @@ void get_def_from_cpp(shared_ptr<nifti_image> &def_sptr, const shared_ptr<nifti_
 }
 
 /// Get disp from def
-void get_disp_from_def(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nifti_image> &def_sptr)
+void get_disp_from_def(std::shared_ptr<nifti_image> &disp_sptr, const std::shared_ptr<nifti_image> &def_sptr)
 {
     // Get the disp field from the def field
     disp_sptr = make_shared<nifti_image>();
@@ -331,7 +331,7 @@ void get_disp_from_def(shared_ptr<nifti_image> &disp_sptr, const shared_ptr<nift
 }
 
 /// Multiply image
-void multiply_image(shared_ptr<nifti_image> &output, const shared_ptr<nifti_image> &input, const double &value)
+void multiply_image(std::shared_ptr<nifti_image> &output, const std::shared_ptr<nifti_image> &input, const double &value)
 {
 #if NIFTYREG_VER_1_5
     reg_tools_multiplyValueToImage(input.get(), output.get(), value);
@@ -344,7 +344,7 @@ void multiply_image(shared_ptr<nifti_image> &output, const shared_ptr<nifti_imag
 /// Multiply image
 void multiply_image(const string &output_filename, const string &input_filename, const double &value)
 {
-    shared_ptr<nifti_image> output, input;
+    std::shared_ptr<nifti_image> output, input;
     open_nifti_image(input,input_filename);
     copy_nifti_image(output,input);
     multiply_image(output,input,value);
@@ -352,7 +352,7 @@ void multiply_image(const string &output_filename, const string &input_filename,
 }
 
 /// Do nifti images match?
-bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_ptr<nifti_image> &im2_sptr)
+bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std::shared_ptr<nifti_image> &im2_sptr)
 {
     bool images_match = true;
     if( im1_sptr->analyze75_orient  != im2_sptr->analyze75_orient   ) { images_match = false; cout << "mismatch in analyze75_orient , (values: " <<  im1_sptr->analyze75_orient << " and " << im2_sptr->analyze75_orient << ")\n"; }
@@ -429,21 +429,21 @@ bool do_nift_image_match(const shared_ptr<nifti_image> &im1_sptr, const shared_p
 /// Dump info of nifti image
 void dump_nifti_info(const string &im_filename)
 {
-    shared_ptr<nifti_image> image;
+    std::shared_ptr<nifti_image> image;
     SIRFRegMisc::open_nifti_image(image,im_filename);
     SIRFRegMisc::dump_nifti_info(image);
 }
 
 /// Dump info of nifti image
-void dump_nifti_info(const shared_ptr<nifti_image> &im1_sptr)
+void dump_nifti_info(const std::shared_ptr<nifti_image> &im1_sptr)
 {
-    vector<shared_ptr<nifti_image> > image;
+    vector<std::shared_ptr<nifti_image> > image;
     image.push_back(im1_sptr);
     dump_nifti_info(image);
 }
 
 /// Dump info of multiple nifti images
-void dump_nifti_info(const vector<shared_ptr<nifti_image> > &images)
+void dump_nifti_info(const vector<std::shared_ptr<nifti_image> > &images)
 {
     cout << "\nPrinting info for " << images.size() <<" nifti image:\n";
     cout << "\t" << left << setw(19) << "analyze_75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
@@ -616,7 +616,7 @@ void print_nifti_info(const shared_ptr<nifti_image> &im1_sptr, const string keyw
 }
 
 /// Save transformation matrix to file
-void save_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, const string filename)
+void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string &filename)
 {
     // Check that the matrix exists
     if (!transformation_matrix_sptr) {
@@ -632,7 +632,7 @@ void save_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, c
 }
 
 /// Read transformation matrix from file
-void open_transformation_matrix(shared_ptr<mat44> &transformation_matrix_sptr, const string filename)
+void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string& filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename)) {

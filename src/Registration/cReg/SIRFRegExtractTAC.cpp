@@ -38,14 +38,14 @@ void SIRFRegExtractTAC::update()
     check_parameters();
 
     // Open the segmented image
-    shared_ptr<nifti_image> segmented_sptr;
+    std::shared_ptr<nifti_image> segmented_sptr;
     SIRFRegMisc::open_nifti_image(segmented_sptr,_segmentation_filename);
 
     // Loop over each input image
     for (int i=0; i<_filenames.size(); i++) {
 
         // Open the file
-        shared_ptr<nifti_image> im_sptr;
+        std::shared_ptr<nifti_image> im_sptr;
         SIRFRegMisc::open_nifti_image(im_sptr,_filenames[i]);
 
 

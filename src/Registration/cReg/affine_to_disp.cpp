@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
         SIRFRegMisc::open_transformation_matrix(TM_sptr,TM_filename);
 
         // Create images
-        shared_ptr<nifti_image> ref_sptr, cpp_sptr, def_sptr, disp_sptr;
+        std::shared_ptr<nifti_image> ref_sptr, cpp_sptr, def_sptr, disp_sptr;
 
         // Open reference image
         SIRFRegMisc::open_nifti_image(ref_sptr, ref_filename);
