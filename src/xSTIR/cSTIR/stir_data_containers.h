@@ -662,10 +662,11 @@ public:
 			gantry_offset[0] = 0;  // TODO
 			gantry_offset[1] = 0;  // TODO
 			gantry_offset[2] = 0;  // TODO
-			VoxelisedGeometricalInfo3D::Offset offset;
-			offset[0] = vox_image->get_origin()[3] + gantry_offset[0];
-			offset[1] = vox_image->get_origin()[2] + gantry_offset[1];
-			offset[2] = vox_image->get_origin()[1] + gantry_offset[2];
+            VoxelisedGeometricalInfo3D::Offset offset;
+            //const BasicCoordinate<3,int> indices = make_coordinate(0,0,0);
+            offset[0] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[3] + gantry_offset[0];
+            offset[1] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[2] + gantry_offset[1];
+            offset[2] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[1] + gantry_offset[2];
 			VoxelisedGeometricalInfo3D::Size size;
 			size[0] = vox_image->get_x_size();
 			size[1] = vox_image->get_y_size();
