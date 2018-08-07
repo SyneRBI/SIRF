@@ -54,8 +54,6 @@ return newObjectHandle<G>();
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
 return newObjectHandle<C>();
 
-shared_ptr<boost::mutex> Mutex::sptr_mutex_;
-
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {

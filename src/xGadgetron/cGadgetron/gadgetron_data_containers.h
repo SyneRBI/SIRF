@@ -37,11 +37,13 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "SIRF/common/data_container.h"
+#include "SIRF/common/multisort.h"
+#include "SIRF/common/utilities.h"
+
 #include "ismrmrd_fftw.h"
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_image_wrap.h"
-#include "SIRF/common/data_container.h"
-#include "SIRF/common/multisort.h"
 
 /*!
 \ingroup Gadgetron Data Containers
