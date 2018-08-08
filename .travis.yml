@@ -131,7 +131,7 @@ before_install:
       BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_EXECUTABLE=$PY_EXE"
       ( set -ev
         # boost is already installed but 1.65 doesn't work so update
-        brew upgrade boost
+        brew reinstall boost
         # we currently need boost-python
         # brew install boost-python
         brew install ace
