@@ -16,6 +16,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "gadgetron_x.h"
+#include "stir_x.h"
+
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
@@ -35,19 +37,19 @@ public:
 	aDynamicSimulation(){};
 	~aDynamicSimulation(){};
 
-	virtual std::string get_filename_rawdata( void )
+	std::string get_filename_rawdata( void )
 	{ 
 		return this-> filename_rawdata_; 
 	}
 
-	virtual	void set_filename_rawdata( std::string const filename_template_rawdata ) 
+	void set_filename_rawdata( std::string const filename_template_rawdata ) 
 	{ 
 		this->filename_rawdata_ = filename_template_rawdata; 
 	}
 
 	virtual void simulate_dynamics( void ) = 0;
 	virtual void write_simulation_results( std::string const filename_output_with_extension ) = 0;
-	
+
 	void add_dynamic( MotionDynamic motion_dyn) 
 	{
 		this->motion_dynamics_.push_back(motion_dyn);
@@ -80,6 +82,7 @@ public:
 
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
+	
 	void extract_src_information( void );
 
 	void simulate_dynamics( void );
@@ -97,19 +100,33 @@ private:
 };
 
 
-/*class PETDynamicSimulation : public aDynamicSimulation{
+class PETDynamicSimulation : public aDynamicSimulation{
 
 public:
-	PETDynamicSimulation( PETContrastGenerator pet_cont_gen) : pet_cont_gen_(pet_cont_gen);
-
+	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ) : pet_cont_gen_(pet_cont_gen) 
+	{ 
+		// this->pet_cont_gen_ = pet_cont_gen;
+	};
+		
 	void simulate_dynamics( void ){};
+	void write_simulation_results( std::string const filename_output_with_extension );
+
+	void extract_src_information( void );
 
 private:
 
 	PETContrastGenerator pet_cont_gen_;
+	sirf::PETAcquisitionModelUsingMatrix acq_model_;
+
+	sirf::PETAcquisitionDataInFile source_acquisitions_;
+	sirf::PETAcquisitionDataInMemory target_acquisitions_;
 	
 };
-*/
+
+
+
+
+
 
 
 

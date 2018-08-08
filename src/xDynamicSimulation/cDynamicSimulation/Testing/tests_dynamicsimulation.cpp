@@ -85,7 +85,7 @@ bool tests_mr_dynsim::test_constructor( void )
 	
 	MRContrastGenerator mr_cont = aux_test::get_mock_mr_contrast_generator();
 
-	MRDynamicSimulation mr_dyn_sim( MRContrastGenerator mr_cont_gen );
+	MRDynamicSimulation mr_dyn_sim( mr_cont );
 
 	return true;
 
@@ -158,5 +158,31 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 		throw e;
 	}
 }
+
+
+
+
+bool test_pet_dynsim::test_constructor()
+{
+
+try
+{
+	PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+	PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+
+	return true;
+
+
+}
+catch( std::runtime_error const &e)
+{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+}
+
+}
+
+
 
 

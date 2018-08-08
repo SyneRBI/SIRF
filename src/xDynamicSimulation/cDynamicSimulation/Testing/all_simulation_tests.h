@@ -30,5 +30,5 @@ void run_tests_mr_acquisition_model( void );
 
 void run_tests_dynamics( void );
 
-void run_tests_mr_dynamic_simulation( void );
+void run_tests_dynamic_simulation( void );
 

@@ -97,3 +97,16 @@ void MRDynamicSimulation::extract_src_information( void )
 
 
 
+
+
+
+void PETDynamicSimulation::write_simulation_results( std::string const filename_output_with_extension )
+{
+	this->target_acquisitions_.write( filename_output_with_extension.c_str() );
+}
+
+
+void PETDynamicSimulation::extract_src_information(void)
+{
+	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
+}
