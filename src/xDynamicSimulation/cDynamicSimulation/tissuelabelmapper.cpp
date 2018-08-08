@@ -49,11 +49,11 @@ TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list,
 
 	size_t num_tissue_params = tiss_list.size();
 
-	std::map <int, TissueParameter* >  lut;
+	std::map <int, std::shared_ptr<TissueParameter> >  lut;
 
 	for(int i =0; i<num_tissue_params; i++)
 	{
-		lut.insert(std::make_pair( tiss_list[i].label_, &tiss_list[i]));	//map label to pointer
+		lut.insert(std::make_pair( tiss_list[i].label_, std::make_shared<TissueParameter>(tiss_list[i]) ));	//map label to pointer
 	}
 
 	size_t const num_voxels = label_volume.getNumberOfElements();

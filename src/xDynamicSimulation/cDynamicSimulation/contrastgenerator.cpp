@@ -113,7 +113,7 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 void MRContrastGenerator::map_contrast()
 {
 
-	std::vector < complex_float_t >	(*contrast_map_function)(TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header);
+	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
 
 	ISMRMRD::SequenceParameters sequ_par = this->hdr_.sequenceParameters.get(); 
 	std::string const sequ_name = sequ_par.sequence_type.get();
@@ -140,7 +140,7 @@ void MRContrastGenerator::map_contrast()
 	//#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 	{	
-		contrast_vector[i] = contrast_map_function(tissue_params[i], &(this->hdr_));
+		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
 		
 	}
 	for(int i=0;i<8;i++)
@@ -192,13 +192,12 @@ void MRContrastGenerator::map_contrast()
 }
 
 
-std::vector < complex_float_t > map_flash_contrast
-( TissueParameter const * const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader * ptr_to_header)
+std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader ismrmrd_hdr)
 {
 	using namespace ISMRMRD;
 
-	SequenceParameters sequ_par = ptr_to_header->sequenceParameters.get(); 
-	AcquisitionSystemInformation asi = ptr_to_header->acquisitionSystemInformation.get();
+	SequenceParameters sequ_par = ismrmrd_hdr.sequenceParameters.get(); 
+	AcquisitionSystemInformation asi = ismrmrd_hdr.acquisitionSystemInformation.get();
 
 	SeqParamType TE = sequ_par.TE.get();
 	SeqParamType TR = sequ_par.TR.get();

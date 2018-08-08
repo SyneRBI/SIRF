@@ -79,8 +79,8 @@ private:
 };
 
 
-std::vector < complex_float_t > map_flash_contrast( TissueParameter const * const ptr_to_tiss_par, 
-													ISMRMRD::IsmrmrdHeader * ptr_to_header);
+std::vector < complex_float_t > map_flash_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par, 
+													ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
 
 
 

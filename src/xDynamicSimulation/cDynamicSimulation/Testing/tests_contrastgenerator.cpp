@@ -211,12 +211,11 @@ bool test_contgen::test_map_flash_contrast( void )
 {
 
 	TissueParameter tiss_par = aux_test::get_mock_tissue_parameter();
-	TissueParameter* const ptr_to_mock_tiss = &tiss_par;
+	auto ptr_to_mock_tiss = std::make_shared<TissueParameter>(tiss_par);
 
 	ISMRMRD::IsmrmrdHeader hdr = aux_test::get_mock_ismrmrd_header();
-	ISMRMRD::IsmrmrdHeader* ptr_to_mock_hdr = &hdr;
 
-	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, ptr_to_mock_hdr);
+	std::vector <complex_float_t> flash_contrast = map_flash_contrast(ptr_to_mock_tiss, hdr);
 
 
 	float const t1 = 1;
@@ -446,7 +445,7 @@ bool test_tlm::test_assign_tissue_parameters_label_found( void )
 	for( int i=0; i<num_elements_tissue_pointers; i++)
 	{
 		
-		TissueParameter* current_tissue_param = tissue_volume[i];
+		std::shared_ptr<TissueParameter> current_tissue_param = tissue_volume[i];
 		unsigned int associated_label = current_tissue_param->label_;
 		
 		all_labels_correct *= (labels_list(i) == associated_label);

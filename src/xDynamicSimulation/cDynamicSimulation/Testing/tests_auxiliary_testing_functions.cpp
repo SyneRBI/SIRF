@@ -181,3 +181,24 @@ bool test_aux_test_funs::test_get_mock_contrast_generator( void )
 	return true;
 
 }
+
+bool test_aux_test_funs::test_get_mock_pet_contrast_generator( void )
+{
+
+	try
+	{
+		PETContrastGenerator pet_contgen = aux_test::get_mock_pet_contrast_generator();
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+
+		pet_contgen.map_contrast();
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+	return true;	
+}
