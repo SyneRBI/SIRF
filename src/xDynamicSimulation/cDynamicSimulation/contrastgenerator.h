@@ -42,7 +42,6 @@ class AbstractContrastGenerator {
 
 public:
 
-
 	AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
 	
 
@@ -91,7 +90,7 @@ class PETContrastGenerator : public AbstractContrastGenerator {
 
 public:
 
-	PETContrastGenerator ( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
+	PETContrastGenerator( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
 
 
 	void set_template_image_from_file ( std::string const filename_header_with_ext ) 
@@ -106,15 +105,15 @@ public:
 
 	std::vector< sirf::PETImageData > get_contrast_filled_volumes();
 
+	std::vector< float > get_template_based_volume_subset(std::vector<float> vol_data, std::vector<size_t> data_dims);
+
+
 	void map_contrast();
 	void map_attenuation();
 
 private:
 
 	bool template_img_is_set_ = false;
-
-	std::vector< int > img_template_dims_;
-	std::vector< float > img_template_spacing_; 
 
 	std::vector < sirf::PETImageData > contrast_filled_volumes_;
 	void map_tissueparams_member(int const case_map);

@@ -267,7 +267,12 @@ bool test_contgen::test_pet_map_contrast( void )
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
+
 		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+
+
+
 		pet_contgen.map_contrast();
 
 
@@ -288,7 +293,10 @@ bool test_contgen::test_pet_map_attenuation( void )
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
+
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+
 		pet_contgen.map_attenuation();
 
 
@@ -307,8 +315,8 @@ bool test_contgen::test_set_template_image_from_file( void )
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
+		
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
-			
 		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
 
 

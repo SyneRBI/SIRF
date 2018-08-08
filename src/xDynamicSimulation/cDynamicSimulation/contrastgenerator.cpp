@@ -309,17 +309,17 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 
 		const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
 
-		std::vector<size_t> data_size;
+		std::vector<size_t> data_dims;
 		for( int i_dim=0; i_dim<3; i_dim++)
 		{
-			data_size.push_back( segmentation_dims[i_dim] );
+			data_dims.push_back( segmentation_dims[i_dim] );
 		}
 		
 		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
 	
-		size_t Nz = data_size[2];
-		size_t Ny = data_size[1];
-		size_t Nx = data_size[0];
+		size_t Nz = data_dims[2];
+		size_t Ny = data_dims[1];
+		size_t Nx = data_dims[0];
 		
 		size_t const num_voxels = Nx*Ny*Nz;
 
@@ -337,6 +337,8 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
 		}
 	
+		contrast_img = this->get_template_based_volume_subset(contrast_img, data_dims);
+
 		PETImageData contrast_img_right_dims(template_pet_image_data_);
 		contrast_img_right_dims.set_data(&contrast_img[0]);
 
@@ -345,6 +347,35 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	else
 		throw std::runtime_error("To get dimensions of output correct please set image from file as template first using the dedicated method.");
 
+}
+
+
+std::vector< float > PETContrastGenerator::get_template_based_volume_subset(std::vector<float> vol_data, std::vector<size_t> data_dims)
+{
+	std::vector< int > template_dims = this->get_dimensions();
+
+	std::vector< float > out;
+	out.resize(template_dims[0]*template_dims[1]*template_dims[2],0);
+
+	std::vector< size_t > offsets;
+	for(int i = 0; i<3; i++)
+	{
+		if(data_dims[i] >= template_dims[i])
+			offsets.push_back(data_dims[i]/2 - template_dims[i]/2);
+		else
+			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
+	}
+
+	for(size_t nz = 0; nz<template_dims[2]; nz++)
+	for(size_t ny = 0; ny<template_dims[1]; ny++)
+	for(size_t nx = 0; nx<template_dims[0]; nx++)
+	{
+		size_t const linear_index_subset = (nz*template_dims[1] + ny)*template_dims[0] + nx;
+		size_t const linear_index_vol_data = ( (nz+offsets[2]) * data_dims[1] + (ny+offsets[1]) ) * data_dims[0] + (nx+offsets[0]);
+
+		out[linear_index_subset] = vol_data[linear_index_vol_data];
+	}	
+	return out;
 }
 
 
