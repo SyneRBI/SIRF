@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "auxiliary_input_output.h"
 
+#include "phantom_input.h"
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
@@ -78,6 +79,7 @@ namespace aux_test
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
 
 	MRContrastGenerator get_mock_mr_contrast_generator( void );
+	PETContrastGenerator get_mock_pet_contrast_generator( void );
 
 	ISMRMRD::IsmrmrdHeader get_mock_ismrmrd_header( void );
 	std::string get_serialized_mock_ismrmrd_header( void );
