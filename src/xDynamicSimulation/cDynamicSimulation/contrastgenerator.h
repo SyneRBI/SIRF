@@ -41,7 +41,7 @@ typedef std::vector<float> SeqParamType;
 class AbstractContrastGenerator {
 
 public:
-
+	AbstractContrastGenerator(){};
 	AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
 	
 
@@ -89,6 +89,8 @@ std::vector < complex_float_t > map_flash_contrast( std::shared_ptr<TissueParame
 class PETContrastGenerator : public AbstractContrastGenerator {
 
 public:
+
+	PETContrastGenerator():AbstractContrastGenerator() {};
 
 	PETContrastGenerator( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
 

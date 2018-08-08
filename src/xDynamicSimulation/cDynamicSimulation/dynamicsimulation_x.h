@@ -103,15 +103,12 @@ private:
 class PETDynamicSimulation : public aDynamicSimulation{
 
 public:
-	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ) : pet_cont_gen_(pet_cont_gen) 
-	{ 
-		// this->pet_cont_gen_ = pet_cont_gen;
-	};
+	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ):aDynamicSimulation(), pet_cont_gen_(pet_cont_gen){};
 		
-	void simulate_dynamics( void ){};
+	void simulate_dynamics( void );
 	void write_simulation_results( std::string const filename_output_with_extension );
 
-	void extract_src_information( void );
+	void set_template_acquisition_data( void );
 
 private:
 
@@ -119,7 +116,7 @@ private:
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;
 
 	sirf::PETAcquisitionDataInFile source_acquisitions_;
-	sirf::PETAcquisitionDataInMemory target_acquisitions_;
+	std::shared_ptr<sirf::PETAcquisitionData> target_acquisitions_;
 	
 };
 

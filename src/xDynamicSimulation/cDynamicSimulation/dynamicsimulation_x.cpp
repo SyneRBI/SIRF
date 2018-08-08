@@ -96,17 +96,68 @@ void MRDynamicSimulation::extract_src_information( void )
 }
 
 
-
-
-
-
 void PETDynamicSimulation::write_simulation_results( std::string const filename_output_with_extension )
 {
-	this->target_acquisitions_.write( filename_output_with_extension.c_str() );
+	this->target_acquisitions_->write( filename_output_with_extension.c_str() );
 }
 
 
-void PETDynamicSimulation::extract_src_information(void)
+void PETDynamicSimulation::set_template_acquisition_data(void)
 {
 	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
 }
+
+void PETDynamicSimulation::simulate_dynamics()
+{
+
+	this->pet_cont_gen_.map_contrast();
+	std::vector< sirf::PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
+	size_t num_contrast = contrast_filled_volumes.size();
+
+	if( num_contrast != 1)
+		throw std::runtime_error("Please give only one contrast for the time being."); // POSSIBLY REMOVE LATER!
+
+
+
+	auto dims = pet_cont_gen_.get_dimensions();
+	auto vxsizes = pet_cont_gen_.get_voxel_sizes();
+
+/*
+	std::cout << dims[0] << std::endl;
+	std::cout << dims[1] << std::endl;
+	std::cout << dims[2] << std::endl;
+
+	std::cout << vxsizes[0] << std::endl;
+	std::cout << vxsizes[1] << std::endl;
+	std::cout << vxsizes[2] << std::endl;
+*/
+	for( size_t i_vol=0; i_vol<num_contrast; i_vol++)
+	{
+
+		sirf::PETImageData curr_img = contrast_filled_volumes[i_vol];
+		sirf::PETImageData template_img(curr_img);
+
+		sirf::Image3DF& image = curr_img.data();
+		stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
+		stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
+
+		format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
+
+		
+		stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new sirf::RayTracingMatrix() );
+		std::cout << "a" << std::endl;
+		this->acq_model_.set_matrix( sptr_ray_matrix );		
+		std::cout << "b" << std::endl;
+		auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
+		 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
+
+		if( succeeded == stir::Succeeded::no )
+			throw std::runtime_error("Setup of acquisition model failed");
+
+			
+		this->target_acquisitions_ = this->acq_model_.forward(curr_img);
+
+	 }
+
+}
+		

@@ -40,6 +40,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 
 #define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.hv"
+#define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_acquisition_input.hs"
 
 
 #define XML_TEST_PATH SHARED_FOLDER_PATH "XMLTestData/test_TissueParameters_XML.xml" 
@@ -53,6 +54,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
 #define FILENAME_DYNSIM  SHARED_FOLDER_PATH "testoutput_dynamic_simulation.h5"
 
+#define FILENAME_DYNSIM_PET SHARED_FOLDER_PATH "testoutput_pet_dynamic_simulation.hs"
 
 // volume sizes
 

@@ -157,6 +157,7 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+
 }
 
 
@@ -165,21 +166,80 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 bool test_pet_dynsim::test_constructor()
 {
 
-try
-{
-	PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
-	PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+	try
+	{
+		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-	return true;
+		return true;
 
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
 
 }
-catch( std::runtime_error const &e)
+
+
+
+
+bool test_pet_dynsim::set_template_acquisition_data()
 {
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
-		throw e;
+
+	try
+	{
+		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+
+		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
+
+		pet_dyn_sim.set_template_acquisition_data();
+
+		return true;
+
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
 }
+
+
+bool test_pet_dynsim::test_simulate_dynamics()
+{
+
+	try
+	{
+		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+		
+		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
+		
+		pet_dyn_sim.set_template_acquisition_data();
+		
+		pet_dyn_sim.simulate_dynamics();
+		
+		pet_dyn_sim.write_simulation_results(FILENAME_DYNSIM_PET);
+
+		return true;
+
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
 
 }
 

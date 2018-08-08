@@ -32,6 +32,8 @@ namespace test_pet_dynsim
 {
 
 bool test_constructor( void );
+bool set_template_acquisition_data( void );
+bool test_simulate_dynamics( void );
 
 
 }
