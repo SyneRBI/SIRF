@@ -30,7 +30,7 @@ void test_mr_map_contrast_application_to_xcat( void );
 bool test_pet_constructor( void );
 bool test_pet_map_contrast( void );
 bool test_pet_map_attenuation( void );
-bool test_pet_set_imagedata_from_file( void );
+bool test_set_template_image_from_file( void );
 
 void test_pet_map_contrast_application_to_xcat( void );
 

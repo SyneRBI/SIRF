@@ -302,14 +302,14 @@ bool test_contgen::test_pet_map_attenuation( void )
 	}
 }
 
-bool test_contgen::test_pet_set_imagedata_from_file( void )
+bool test_contgen::test_set_template_image_from_file( void )
 {
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
 			
-		pet_contgen.set_imagedata_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
 
 
 		auto voxel_sizes = pet_contgen.get_voxel_sizes();
@@ -338,39 +338,30 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 {
 	try
 	{
-
-		int const num_dims = 3;
-
 		LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (segmentation_labels, XML_XCAT_PATH); 
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
 
 		pet_contgen.map_contrast();
-		std::vector< Voxels3DF > volume_container = pet_contgen.get_contrast_filled_volumes();
+		auto volume_container = pet_contgen.get_contrast_filled_volumes();
 
-		Voxels3DF contrast_volume = volume_container[0];
+		PETImageData contrast_volume = volume_container[0];
 		
-		IndexRange< num_dims > ind_rang = contrast_volume.get_index_range();
-		IndexRange<1> range_x = ind_rang[0][0];
-		IndexRange<1> range_y = ind_rang[0][1];
-		IndexRange<1> range_z = ind_rang[0][2];
+		auto dims = pet_contgen.get_dimensions();
 
-		int Nx = range_x.get_length();
-		int Ny = range_y.get_length();
-		int Nz = range_z.get_length();
+		int Nx = dims[0];
+		int Ny = dims[1];
+		int Nz = dims[2];
 
 		std::cout << epiph( Nx ) << std::endl;
 		std::cout << epiph( Ny ) << std::endl;
 		std::cout << epiph( Nz ) << std::endl;
 
 		std::vector< float > data_output;
+		data_output.resize(Nx*Ny*Nz, 0);
 
-		for(size_t nz=0; nz<Nz; nz++)
-			for(size_t ny=0; ny<Ny; ny++)
-				for(size_t nx=0; nx<Nx; nx++)
-				{
-					data_output.push_back( contrast_volume[nx][ny][nz] );
-				}
+		contrast_volume.get_data(&data_output[0]);
 
 		std::stringstream outname_contrast; 
 		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast"<< Nx << "x"<< Ny << "x" << Nz;

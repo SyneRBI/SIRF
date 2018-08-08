@@ -242,7 +242,7 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
 
-std::vector< Voxels3DF > PETContrastGenerator::get_contrast_filled_volumes()
+std::vector< PETImageData > PETContrastGenerator::get_contrast_filled_volumes()
 {
 	return this->contrast_filled_volumes_;	
 }
@@ -251,81 +251,44 @@ std::vector< Voxels3DF > PETContrastGenerator::get_contrast_filled_volumes()
 
 std::vector< int > PETContrastGenerator::get_dimensions( void )
 {
-	std::vector< int > dims;
-	dims.resize(3, 0);
+	if( this->template_img_is_set_ )
+	{
+		std::vector< int > dims;
+		dims.resize(3, 0);
 
-	auto works = this->template_pet_image_data_.get_dimensions(&dims[0]);
+		auto works = this->template_pet_image_data_.get_dimensions(&dims[0]);
 
-	if(works == -1)
-		throw std::runtime_error("Irregular range of dimensions in PET image data.");
+		if(works == -1)
+			throw std::runtime_error("Irregular range of dimensions in PET image data.");
 
 
-	return dims;
+		return dims;
+	}
+	else
+	{	
+		std::stringstream error_msg; error_msg << "From " << __FUNCTION__ << ": please set image template first using the dedicated function.";
+		throw std::runtime_error( error_msg.str() );
+	}
 }
 
 std::vector< float > PETContrastGenerator::get_voxel_sizes( void )
 {
+	if( this->template_img_is_set_ )
+	{
+		std::vector< float > vx_size;
+		vx_size.resize(3, 0);
 
-	std::vector< float > vx_size;
-	vx_size.resize(3, 0);
+		this->template_pet_image_data_.get_voxel_sizes(&vx_size[0]);
 
-	this->template_pet_image_data_.get_voxel_sizes(&vx_size[0]);
-
-	return vx_size;
-
+		return vx_size;
+	}
+	else
+	{	
+		std::stringstream error_msg; error_msg << "From " << __FUNCTION__ << ": please set image template first using the dedicated function.";
+		throw std::runtime_error( error_msg.str() );
+	}
 }
 
-
-void PETContrastGenerator::map_tissueparams_member(int const case_map)
-{
-	using namespace stir;
-
-	const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
-
-	std::vector<size_t> data_size;
-	for( int i_dim=0; i_dim<3; i_dim++)
-	{
-		data_size.push_back( segmentation_dims[i_dim] );
-	}
-			
-	size_t Nz = data_size[2];
-	size_t Ny = data_size[1];
-	size_t Nx = data_size[0];
-
-	TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
-	
-	IndexRange3D ind_rang_volume(Nx, Ny, Nz);
-
-	float const origin_placeholder = 0.f;
-	float const gridspace_placeholder = 1.f;
-	int const num_dims = 3;
-
-	Coord3DF origin_volume(origin_placeholder, origin_placeholder, origin_placeholder);
-	BasicCoordinate<num_dims,float> grid_spacing(gridspace_placeholder);
-
-  	
-  	Voxels3DF contrast_img(ind_rang_volume, origin_volume, grid_spacing);
-
-	// #pragma omp parallel
-	for( size_t nz=0; nz<Nz; nz++)
-	{
-		for( size_t ny=0; ny<Ny; ny++)
-		{
-			for( size_t nx=0; nx<Nx; nx++)
-			{
-				size_t linear_index_access = (nz*Ny + ny)*Nx + nx;
-				TissueParameter param_in_voxel = *(tissue_params[linear_index_access]);
-				
-				if(case_map==CASE_MAP_PET_CONTRAST)
-					contrast_img[nx][ny][nz] = param_in_voxel.pet_tissue_.suv_;						
-				else if(case_map == CASE_MAP_PET_ATTENUATION)
-					contrast_img[nx][ny][nz] = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
-			}
-		}
-	}
-
-	this->contrast_filled_volumes_.push_back(contrast_img );
-}
 
 void PETContrastGenerator::map_contrast()
 {
@@ -336,3 +299,52 @@ void PETContrastGenerator::map_attenuation()
 {
 	this->map_tissueparams_member( CASE_MAP_PET_ATTENUATION );
 }
+
+void PETContrastGenerator::map_tissueparams_member(int const case_map)
+{
+	using namespace stir;
+
+	if (this->template_img_is_set_)
+	{
+
+		const size_t* segmentation_dims = this->tlm_.get_segmentation_dimensions();
+
+		std::vector<size_t> data_size;
+		for( int i_dim=0; i_dim<3; i_dim++)
+		{
+			data_size.push_back( segmentation_dims[i_dim] );
+		}
+		
+		TissueVector tissue_params = this->tlm_.get_segmentation_tissues();
+	
+		size_t Nz = data_size[2];
+		size_t Ny = data_size[1];
+		size_t Nx = data_size[0];
+		
+		size_t const num_voxels = Nx*Ny*Nz;
+
+	  	std::vector < float > contrast_img;
+	  	contrast_img.resize(num_voxels, 0);
+
+		// #pragma omp parallel
+		for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
+		{
+			TissueParameter param_in_voxel = *(tissue_params[i_vox]);
+
+			if(case_map==CASE_MAP_PET_CONTRAST)
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.suv_;						
+			else if(case_map == CASE_MAP_PET_ATTENUATION)
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
+		}
+	
+		PETImageData contrast_img_right_dims(template_pet_image_data_);
+		contrast_img_right_dims.set_data(&contrast_img[0]);
+
+		this->contrast_filled_volumes_.push_back( contrast_img_right_dims );
+	}
+	else
+		throw std::runtime_error("To get dimensions of output correct please set image from file as template first using the dedicated method.");
+
+}
+
+
