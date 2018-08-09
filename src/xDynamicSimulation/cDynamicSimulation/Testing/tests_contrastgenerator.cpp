@@ -371,7 +371,7 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 		contrast_volume.get_data(&data_output[0]);
 
 		std::stringstream outname_contrast; 
-		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast"<< Nx << "x"<< Ny << "x" << Nz;
+		outname_contrast << std::string(SHARED_FOLDER_PATH) << "xcat_pet_contrast"<< Nz << "x"<< Ny << "x" << Nx;
 		data_io::write_raw< float >( outname_contrast.str() , &data_output[0], Nx*Ny*Nz);
 
 	}
