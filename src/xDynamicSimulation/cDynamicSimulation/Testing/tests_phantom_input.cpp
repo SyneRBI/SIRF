@@ -17,7 +17,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix)
 {
 	
-	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5( h5_filename_with_suffix );
+	ISMRMRD::NDArray< DataTypeSegmentation > segmentation = read_segmentation_from_h5( h5_filename_with_suffix );
 	
 
 	const size_t* dimensions = segmentation.getDims();
@@ -34,20 +34,41 @@ bool test_read_h5_segmentation_correct_dims( std::string h5_filename_with_suffix
 bool test_read_h5_segmentation_correct_content( std::string h5_filename_with_suffix)
 {
 	
-	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5( h5_filename_with_suffix );
+	ISMRMRD::NDArray< DataTypeSegmentation > segmentation = read_segmentation_from_h5( h5_filename_with_suffix );
 	
-	return check_array_content<unsigned int>( segmentation);
+	return check_array_content<DataTypeSegmentation>( segmentation);
 		
 }
 
 
 void test_read_h5_segmentation_for_xcat_input_check( std::string h5_filename_xcat_seg_with_suffix)
 {
-	ISMRMRD::NDArray< unsigned int > segmentation = read_segmentation_from_h5(h5_filename_xcat_seg_with_suffix);
+	ISMRMRD::NDArray< DataTypeSegmentation > segmentation = read_segmentation_from_h5(h5_filename_xcat_seg_with_suffix);
 
 	std::string output_name_xcat_seg =std::string( SHARED_FOLDER_PATH ) + "test_output_xcat_seg_input_check" ;
-	data_io::write_raw<unsigned int> (output_name_xcat_seg, segmentation.begin(), segmentation.getNumberOfElements());
+	data_io::write_raw<DataTypeSegmentation> (output_name_xcat_seg, segmentation.begin(), segmentation.getNumberOfElements());
 
+}
+
+
+bool test_read_h5_motionfields( void )
+{
+
+try
+	{
+
+		ISMRMRD::NDArray< DataTypeMotionFields > resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		ISMRMRD::NDArray< DataTypeMotionFields > card_mvfs = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+	
 }
 
 
