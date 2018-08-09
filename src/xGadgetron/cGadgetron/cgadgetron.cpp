@@ -104,6 +104,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GTConnector>();
 		if (boost::iequals(name, "CoilImages"))
 			return newObjectHandle<CoilImagesVector>();
+		if (boost::iequals(name, "AcquisitionModel"))
+			return newObjectHandle<MRAcquisitionModel>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);
@@ -335,6 +337,61 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 			objectSptrFromHandle<MRImageData>(h_imgs);
 		shared_ptr<MRAcquisitionModel> am(new MRAcquisitionModel(acqs, imgs));
 		return newObjectHandle<MRAcquisitionModel>(am);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setUpAcquisitionModel
+(void* ptr_am, const void* ptr_acqs, const void* ptr_imgs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+		shared_ptr<MRAcquisitionData> sptr_acqs =
+			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<MRImageData> sptr_imgs =
+			objectSptrFromHandle<MRImageData>(h_imgs);
+		am.set_up(sptr_acqs, sptr_imgs);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionModelParameter
+(void* ptr_am, const char* name, const void* ptr)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		if (boost::iequals(name, "acquisition_template")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<MRAcquisitionData> sptr =
+				objectSptrFromHandle<MRAcquisitionData>(handle);
+			am.set_acquisition_template(sptr);
+		}
+		else if (boost::iequals(name, "image_template")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<MRImageData> sptr =
+				objectSptrFromHandle<MRImageData>(handle);
+			am.set_image_template(sptr);
+		}
+		else if (boost::iequals(name, "coil_sensitivity_maps")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<CoilSensitivitiesContainer> sptr =
+				objectSptrFromHandle<CoilSensitivitiesContainer>(handle);
+			am.setCSMs(sptr);
+		}
+		else
+			return unknownObject("parameter", name, __FILE__, __LINE__);
+		return (void*)new DataHandle;
 	}
 	CATCH;
 }
