@@ -36,6 +36,7 @@ set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} contrastgenerator.cpp  Testing
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} phantom_input.cpp Testing/tests_phantom_input.cpp )
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_encoding.cpp )
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamics.cpp Testing/tests_dynamics.cpp)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynsim_noisegenerator.cpp Testing/tests_noisegenerator.cpp)
 
 
 add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})
