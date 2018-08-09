@@ -39,7 +39,7 @@ using namespace gadgetron;
 using namespace sirf;
 
 void
-GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)
+GadgetronClientAcquisitionMessageCollector::read(boost::asio::ip::tcp::socket* stream)
 {
 	ISMRMRD::Acquisition acq;
 	ISMRMRD::AcquisitionHeader h;
@@ -67,7 +67,7 @@ GadgetronClientAcquisitionMessageCollector::read(tcp::socket* stream)
 }
 
 void 
-GadgetronClientImageMessageCollector::read(tcp::socket* stream)
+GadgetronClientImageMessageCollector::read(boost::asio::ip::tcp::socket* stream)
 {
 	//Read the image headerfrom the socket
 	ISMRMRD::ImageHeader h;
@@ -122,12 +122,14 @@ GadgetronClientConnector::read_task()
 void 
 GadgetronClientConnector::connect(std::string hostname, std::string port)
 {
-	tcp::resolver resolver(io_service);
-	tcp::resolver::query query(tcp::v4(), hostname.c_str(), port.c_str());
-	tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-	tcp::resolver::iterator end;
+	boost::asio::ip::tcp::resolver resolver(io_service);
+	boost::asio::ip::tcp::resolver::query 
+		query(boost::asio::ip::tcp::v4(), hostname.c_str(), port.c_str());
+	boost::asio::ip::tcp::resolver::iterator 
+		endpoint_iterator = resolver.resolve(query);
+	boost::asio::ip::tcp::resolver::iterator end;
 
-	socket_ = new tcp::socket(io_service);
+	socket_ = new boost::asio::ip::tcp::socket(io_service);
 	if (!socket_) {
 		throw GadgetronClientException("Unable to create socket.");
 	}

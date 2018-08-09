@@ -35,7 +35,7 @@ limitations under the License.
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
-using boost::asio::ip::tcp;
+//using boost::asio::ip::tcp;
 
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
@@ -105,7 +105,7 @@ namespace sirf {
 		/**
 		Function must be implemented to read a specific message.
 		*/
-		virtual void read(tcp::socket* s) = 0;
+		virtual void read(boost::asio::ip::tcp::socket* s) = 0;
 	};
 
 	/**
@@ -118,7 +118,7 @@ namespace sirf {
 			(gadgetron::shared_ptr<MRAcquisitionData> ptr_acqs) : ptr_acqs_(ptr_acqs) {}
 		virtual ~GadgetronClientAcquisitionMessageCollector() {}
 
-		virtual void read(tcp::socket* stream);
+		virtual void read(boost::asio::ip::tcp::socket* stream);
 
 	private:
 		gadgetron::shared_ptr<MRAcquisitionData> ptr_acqs_;
@@ -137,7 +137,7 @@ namespace sirf {
 		template <typename T>
 		void read_data_attributes
 			(ISMRMRD::Image<T>* ptr, const ISMRMRD::ImageHeader& h, void** ptr_ptr,
-			tcp::socket* stream)
+			boost::asio::ip::tcp::socket* stream)
 		{
 			ISMRMRD::Image < T >* ptr_im = new ISMRMRD::Image < T > ;
 			*ptr_ptr = (void*)ptr_im;
@@ -161,7 +161,7 @@ namespace sirf {
 				(*stream, boost::asio::buffer(im.getDataPtr(), im.getDataSize()));
 		}
 
-		virtual void read(tcp::socket* stream);
+		virtual void read(boost::asio::ip::tcp::socket* stream);
 
 	private:
 		gadgetron::shared_ptr<MRImageData> ptr_images_;
@@ -262,7 +262,7 @@ namespace sirf {
 		GadgetronClientMessageReader* find_reader(unsigned short r);
 
 		boost::asio::io_service io_service;
-		tcp::socket* socket_;
+		boost::asio::ip::tcp::socket* socket_;
 		boost::thread reader_thread_;
 		maptype readers_;
 		unsigned int timeout_ms_;
