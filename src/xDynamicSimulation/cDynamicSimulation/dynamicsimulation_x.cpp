@@ -122,32 +122,23 @@ void PETDynamicSimulation::simulate_dynamics()
 	auto dims = pet_cont_gen_.get_dimensions();
 	auto vxsizes = pet_cont_gen_.get_voxel_sizes();
 
-/*
-	std::cout << dims[0] << std::endl;
-	std::cout << dims[1] << std::endl;
-	std::cout << dims[2] << std::endl;
-
-	std::cout << vxsizes[0] << std::endl;
-	std::cout << vxsizes[1] << std::endl;
-	std::cout << vxsizes[2] << std::endl;
-*/
 	for( size_t i_vol=0; i_vol<num_contrast; i_vol++)
 	{
 
 		sirf::PETImageData curr_img = contrast_filled_volumes[i_vol];
 		sirf::PETImageData template_img(curr_img);
 
-		sirf::Image3DF& image = curr_img.data();
-		stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
-		stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
+		// sirf::Image3DF& image = curr_img.data();
+		// stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
+		// stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
 
-		format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
-
+		// format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
+		// std::cout << "Finished Writing image in memory" << std::endl;
 		
 		stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new sirf::RayTracingMatrix() );
-		std::cout << "a" << std::endl;
+
 		this->acq_model_.set_matrix( sptr_ray_matrix );		
-		std::cout << "b" << std::endl;
+
 		auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
 		 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
 
