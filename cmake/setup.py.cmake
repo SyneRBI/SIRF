@@ -43,8 +43,9 @@ if(BUILD_PYTHON)
 
     # python setup.py install
     if("${PYTHON_STRATEGY}" STREQUAL "SETUP_PY")
+      message("intalling setup.py")
       install(CODE "execute_process(COMMAND\n\
-        \"${PYTHON_EXECUTABLE}\" setup.py install\n\
+        \"${PYTHON_EXECUTABLE}\" setup.py install --prefix ${PYTHON_DEST}\n\
         WORKING_DIRECTORY \"${PYTHON_DEST}\")")
     endif()
   endif(PYTHONINTERP_FOUND)
