@@ -11,6 +11,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <stdexcept>
 #include <math.h>
+#include <algorithm>
 #include <omp.h>
 
 //#include "Testing/auxiliary_testing_functions.h"
@@ -260,7 +261,7 @@ std::vector< int > PETContrastGenerator::get_dimensions( void )
 		if(works == -1)
 			throw std::runtime_error("Irregular range of dimensions in PET image data.");
 
-
+		std::reverse( dims.begin(), dims.end() );
 		return dims;
 	}
 	else
@@ -363,17 +364,20 @@ std::vector< float > PETContrastGenerator::get_template_based_volume_subset(std:
 			offsets.push_back(data_dims[i]/2 - template_dims[i]/2);
 		else
 			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
+		std::cout << offsets[i] << std::endl;
 	}
 
 	for(size_t nz = 0; nz<template_dims[2]; nz++)
 	for(size_t ny = 0; ny<template_dims[1]; ny++)
 	for(size_t nx = 0; nx<template_dims[0]; nx++)
 	{
-		size_t const linear_index_subset = (nz*template_dims[1] + ny)*template_dims[0] + nx;
+		
 		size_t const linear_index_vol_data = ( (nz+offsets[2]) * data_dims[1] + (ny+offsets[1]) ) * data_dims[0] + (nx+offsets[0]);
-
+		size_t const linear_index_subset = (nz*template_dims[1] + ny)*template_dims[0] + nx;
+		
 		out[linear_index_subset] = vol_data[linear_index_vol_data];
 	}	
+
 	return out;
 }
 
