@@ -44,15 +44,8 @@ void SIRFRegNiftyAladinSym<T>::update()
     this->check_parameters();
 
     // Open images if necessary, correct if not
-    if (!_reference_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
-
-    if (!_floating_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
+    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
+    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
 
     // Create the registration object
 #if NIFTYREG_VER_1_5
@@ -60,8 +53,8 @@ void SIRFRegNiftyAladinSym<T>::update()
 #elif NIFTYREG_VER_1_3
     _registration_sptr = make_shared<reg_aladin<T> >();
 #endif
-    _registration_sptr->SetInputReference(_reference_image_sptr.get());
-    _registration_sptr->SetInputFloating(_floating_image_sptr.get());
+    _registration_sptr->SetInputReference(_reference_image.get_image_as_nifti().get());
+    _registration_sptr->SetInputFloating(_floating_image.get_image_as_nifti().get());
 
     // Parse parameter file
     this->parse_parameter_file();
@@ -72,7 +65,7 @@ void SIRFRegNiftyAladinSym<T>::update()
     _registration_sptr->Run();
 
     // Get the output
-    _warped_image_sptr = std::make_shared<nifti_image>(*_registration_sptr->GetFinalWarpedImage());
+    _warped_image = SIRFImageData(_registration_sptr->GetFinalWarpedImage());
 
     // Get the forward and backward transformation matrices
     _TM_fwrd_sptr = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
@@ -86,14 +79,14 @@ void SIRFRegNiftyAladinSym<T>::update()
 
 #if NIFTYREG_VER_1_5
     // affine->def->disp
-    SIRFRegMisc::create_def_or_disp_image(_def_image_fwrd_sptr,_reference_image_sptr);
-    SIRFRegMisc::create_def_or_disp_image(_def_image_back_sptr,_reference_image_sptr);
+    _def_image_fwrd.create_from_3D_image(_reference_image);
+    _def_image_back.create_from_3D_image(_reference_image);
 
-    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), _def_image_fwrd_sptr.get());
-    reg_affine_getDeformationField(_TM_back_sptr.get(), _def_image_back_sptr.get());
+    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), _def_image_fwrd.get_image_as_nifti().get());
+    reg_affine_getDeformationField(_TM_back_sptr.get(), _def_image_back.get_image_as_nifti().get());
 
-    SIRFRegMisc::copy_nifti_image(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
-    SIRFRegMisc::copy_nifti_image(_disp_image_back_sptr,_def_image_back_sptr);
+    _disp_image_fwrd = _def_image_fwrd;
+    _disp_image_back = _def_image_back;
 
 #elif NIFTYREG_VER_1_3
     // Convert the forward and backward transformation matrices to cpp images
@@ -112,8 +105,8 @@ void SIRFRegNiftyAladinSym<T>::update()
 #endif
 
     // Get the displacement fields from the def
-    SIRFRegMisc::get_disp_from_def(_disp_image_fwrd_sptr,_def_image_fwrd_sptr);
-    SIRFRegMisc::get_disp_from_def(_disp_image_back_sptr,_def_image_back_sptr);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back);
 
     cout << "\n\nRegistration finished!\n\n";
 }
@@ -162,32 +155,13 @@ void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
 template<class T>
 void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_fwrd(const std::string &filename) const
 {
-    save_transformation_matrix(_TM_fwrd_sptr,filename);
+    SIRFRegMisc::save_transformation_matrix(_TM_fwrd_sptr,filename);
 }
 
 template<class T>
 void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_back(const std::string &filename) const
 {
-    save_transformation_matrix(_TM_back_sptr,filename);
-}
-
-template<class T>
-void SIRFRegNiftyAladinSym<T>::
-save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::string &filename) const
-{
-    // Check that the matrix exists
-    if (!TM_sptr)
-        throw std::runtime_error("Transformation matrix not available. Have you run the registration?");
-
-    // Check that input isn't blank
-    if (filename == "")
-        throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
-
-    cout << "\nSaving transformation matrix to file (" << filename << ")..." << flush;
-
-    reg_tool_WriteAffineFile(TM_sptr.get(), filename.c_str());
-
-    cout << "Done.\n";
+    SIRFRegMisc::save_transformation_matrix(_TM_back_sptr,filename);
 }
 
 // Put the instantiations of the template class at the END of the file!

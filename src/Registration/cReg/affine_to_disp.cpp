@@ -29,6 +29,7 @@ limitations under the License.
 
 #include <iostream>
 #include "SIRFRegMisc.h"
+#include "SIRFImageDataDeformation.h"
 #if NIFTYREG_VER_1_5
 #include "_reg_globalTrans.h"
 #endif
@@ -145,33 +146,35 @@ int main(int argc, char* argv[])
         SIRFRegMisc::open_transformation_matrix(TM_sptr,TM_filename);
 
         // Create images
-        std::shared_ptr<nifti_image> ref_sptr, cpp_sptr, def_sptr, disp_sptr;
+        std::shared_ptr<nifti_image> ref_sptr, cpp_sptr;
+        SIRFImageDataDeformation def, disp;
 
         // Open reference image
         SIRFRegMisc::open_nifti_image(ref_sptr, ref_filename);
 
         // Get the deformation field image
 #if NIFTYREG_VER_1_5
-        SIRFRegMisc::create_def_or_disp_image(def_sptr,ref_sptr);
-        reg_affine_getDeformationField(TM_sptr.get(), def_sptr.get());
+        def.create_from_3D_image(ref_sptr);
+        reg_affine_getDeformationField(TM_sptr.get(), def.get_image_as_nifti().get());
 #elif NIFTYREG_VER_1_3
         SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM_sptr, ref_sptr);
         SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);
 #endif
 
         // Get the displacement fields from the def
-        SIRFRegMisc::get_disp_from_def(disp_sptr,def_sptr);
+        disp = def;
+        SIRFRegMisc::convert_from_def_to_disp(disp);
 
         // If they want to save the deformation field images
         if (flag_def_4D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(def_sptr,argv[flag_def_4D+1],false);
+            def.save_to_file(argv[flag_def_4D+1],false,   "4D deformation field");
         if (flag_def_3D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(def_sptr,argv[flag_def_3D+1],true);
+            def.save_to_file(argv[flag_def_3D+1],true,    "3D deformation field");
         // If they want to save the displacement field images
         if (flag_disp_4D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(disp_sptr,argv[flag_disp_4D+1],false);
+            disp.save_to_file(argv[flag_disp_4D+1],false, "4D displacement field");
         if (flag_disp_3D != -1)
-            SIRFRegMisc::save_multicomponent_nifti_image(disp_sptr,argv[flag_disp_3D+1],true);
+            disp.save_to_file(argv[flag_disp_3D+1],true,  "3D displacement field");
 
 
     // If there was an error

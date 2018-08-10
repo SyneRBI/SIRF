@@ -39,74 +39,57 @@ i.e., if A was set first, followed by B, then they will be multiplied AB.
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include "SIRFRegMisc.h"
+#include "SIRFImageData.h"
+#include "SIRFImageDataDeformation.h"
 
 /// Wrapper around NiftyReg's resample class
 class SIRFRegNiftyResample
 {
 public:
 
-	/// Interpolation type
-    enum InterpolationType {
-        NOTSET           = -1,
-        NEARESTNEIGHBOUR =  0,
-        LINEAR           =  1,
-        CUBICSPLINE      =  3,
-        SINC             =  4
-    };
-
     /// Constructor
-    SIRFRegNiftyResample() { _interpolation_type = NOTSET; }
+    SIRFRegNiftyResample() { _interpolation_type = I_NOTSET; }
 
     /// Destructor
     virtual ~SIRFRegNiftyResample() {}
 
-    /// Set reference .nii image
-    void set_reference_image(const nifti_image *reference_image_ptr)
+    /// Set reference image
+    void set_reference_image(const SIRFImageData &reference_image)
     {
-        _reference_image_sptr     = std::make_shared<nifti_image>(*reference_image_ptr);
-        _reference_image_filename = "";
+        _reference_image = reference_image;
     }
 
-    /// Set reference .nii filename
-    void set_reference_image_filename(const std::string reference_image_filename)
+    /// Set floating image
+    void set_floating_image(const SIRFImageData &floating_image)
     {
-        _reference_image_filename = reference_image_filename;
-        _reference_image_sptr.reset();
+        _floating_image = floating_image;
     }
 
-    /// Set floating .nii image
-    void set_floating_image(const nifti_image *floating_image_ptr)
+    /// Set transformation matrix
+    void set_transformation_matrix(const mat44 *transformation_matrix)
     {
-        _floating_image_sptr     = std::make_shared<nifti_image>(*floating_image_ptr);
-        _floating_image_filename = "";
+        _transformation_matrix = std::make_shared<mat44>(*transformation_matrix);
     }
 
-    /// Set floating .nii filename
-    void set_floating_image_filename(const std::string floating_image_filename)
+    /// Set transformation matrix
+    void set_transformation_matrix(const std::string &filename)
     {
-        _floating_image_filename = floating_image_filename;
-        _floating_image_sptr.reset();
+        SIRFRegMisc::open_transformation_matrix(_transformation_matrix, filename);
+        _transformation_type = TM;
     }
 
-    /// Add transformation matrix
-    void add_transformation_matrix(const mat44 *transformation_matrix)
+    /// Set displacement field
+    void set_displacement_field(const SIRFImageDataDeformation &displacement_field)
     {
-        _transformation_matrices.push_back(std::make_shared<mat44>(*transformation_matrix));
+        _displacement_field = displacement_field;
+        _transformation_type = disp;
     }
 
-    /// Add transformation matrix filename (4x4 .csv file)
-    void add_transformation_matrix_filename(const std::string transformation_matrix_filename)
+    /// Set deformation field
+    void set_deformation_field(const SIRFImageDataDeformation &deformation_field)
     {
-        std::shared_ptr<mat44> transformation_matrix;
-        SIRFRegMisc::open_transformation_matrix(transformation_matrix,transformation_matrix_filename);
-        _transformation_matrices.push_back(transformation_matrix);
-    }
-
-    /// Clear transformation matrices
-    void clear_transformation_matrices()
-    {
-        // Empty the vector containing the transformation matrices
-        _transformation_matrices.resize(0);
+        _deformation_field = deformation_field;
+        _transformation_type = def;
     }
 
     /// Set interpolation type to nearest neighbour
@@ -125,12 +108,24 @@ public:
     void update();
 
     /// Get output
-    nifti_image *get_output() const { return _output_image_sptr.get(); }
+    const SIRFImageData &get_output() const { return _output_image; }
 
     /// Save resampled image to file
     void save_resampled_image(const std::string filename) const;
 
 protected:
+
+    /// Interpolation type
+    enum InterpolationType {
+        I_NOTSET         = -1,
+        NEARESTNEIGHBOUR =  0,
+        LINEAR           =  1,
+        CUBICSPLINE      =  3,
+        SINC             =  4
+    };
+
+    /// Transformation type
+    enum TransformationType { TM, disp, def };
 
     /// Check parameters
     virtual void check_parameters();
@@ -141,24 +136,25 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
-    /// Reference image filename
-    boost::filesystem::path              _reference_image_filename;
     /// Reference image
-    std::shared_ptr<nifti_image>         _reference_image_sptr;
-
-    /// Floating image filename
-    boost::filesystem::path              _floating_image_filename;
+    SIRFImageData            _reference_image;
     /// Floating image
-    std::shared_ptr<nifti_image>         _floating_image_sptr;
+    SIRFImageData            _floating_image;
 
-    /// Transformation matrices
-    std::vector<std::shared_ptr<mat44> > _transformation_matrices;
+    /// Transformation matrix
+    std::shared_ptr<mat44>   _transformation_matrix;
+    /// Displacement field
+    SIRFImageDataDeformation _displacement_field;
+    /// Deformation field
+    SIRFImageDataDeformation _deformation_field;
 
+    /// Transformation type
+    TransformationType       _transformation_type;
     /// Interpolation type
-    InterpolationType                    _interpolation_type;
+    InterpolationType        _interpolation_type;
 
     /// Output image
-    std::shared_ptr<nifti_image>         _output_image_sptr;
+    SIRFImageData            _output_image;
 };
 
 #endif

@@ -1,5 +1,6 @@
 # Imports
 import os
+import sys
 import pSIRFReg
 
 # Paths
@@ -13,9 +14,7 @@ floating_image_filename  = examples_path + "/mouseMoving.nii.gz";
 parameter_file_aladin    = examples_path + "/paramFiles/aladin.par";
 parameter_file_f3d       = examples_path + "/paramFiles/f3d.par";
 matrix                   = examples_path + "/transformation_matrix.txt";
-wm_im2     				 = examples_path + "/weighted_mean/regis_recon_gate2.nii";
-wm_im3     				 = examples_path + "/weighted_mean/regis_recon_gate3.nii";
-wm_im4     				 = examples_path + "/weighted_mean/regis_recon_gate4.nii";
+stir_nifti               = examples_path + "/nifti_created_by_stir.nii";
 
 # Output filenames
 aladin_warped            = output_path   + "python_aladin_warped";
@@ -31,63 +30,107 @@ output_resample          = output_path   + "python_resample";
 output_activity_corr     = output_path   + "python_activity_corr";
 output_weighted_mean     = output_path   + "python_weighted_mean";
 
-# ----------------------------------------------------------------------- #
-# 							Nifty aladin
-#------------------------------------------------------------------------ #
+output_stir_nifti        = output_path   + "python_stir_nifti.nii";
+
+reference = pSIRFReg.ImageData( reference_image_filename );
+floating  = pSIRFReg.ImageData(  floating_image_filename );
+nifti     = pSIRFReg.ImageData(        stir_nifti        );
+
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Starting Nifty aladin test...                         #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 NA = pSIRFReg.NiftyAladinSym();
-NA.set_reference_image_filename      (    reference_image_filename   );
-NA.set_floating_image_filename       (     floating_image_filename   );
-NA.set_parameter_file		         (      parameter_file_aladin    );
+NA.set_reference_image               (       reference        );
+NA.set_floating_image                (        floating        );
+NA.set_parameter_file		         ( parameter_file_aladin  );
 NA.update();
-NA.save_warped_image                 (         aladin_warped         );
-NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
-NA.save_transformation_matrix_back   (             TM_back           );
-NA.save_displacement_field_fwrd_image( aladin_disp_fwrd, True,  True );
-NA.save_displacement_field_back_image( aladin_disp_back, True,  True );
+NA.save_warped_image                 (      aladin_warped     );
+NA.save_transformation_matrix_fwrd   (         TM_fwrd        );
+NA.save_transformation_matrix_back   (         TM_back        );
+NA.save_displacement_field_fwrd_image( aladin_disp_fwrd, True );
+NA.save_displacement_field_back_image( aladin_disp_back, True );
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Finished Nifty aladin test.                           #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 
-# ----------------------------------------------------------------------- #
-# 							Nifty f3d
-#------------------------------------------------------------------------ #
+
+
+
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Starting Nifty f3d test...                            #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 NF = pSIRFReg.NiftyF3dSym();
-NF.set_reference_image_filename      (  reference_image_filename  );
-NF.set_floating_image_filename       (   floating_image_filename  );
-NF.set_parameter_file		         (     parameter_file_f3d     );
-NF.set_reference_time_point	         (             1              );
-NF.set_floating_time_point	         (             1              );
+NF.set_reference_image               (      reference      );
+NF.set_floating_image                (      floating       );
+NF.set_parameter_file		         ( parameter_file_f3d  );
+NF.set_reference_time_point	         (          1          );
+NF.set_floating_time_point	         (          1          );
 NF.update();
-NF.save_warped_image                 (         f3d_warped         );
-NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, True,  True );
-NF.save_displacement_field_fwrd_image( f3d_disp_back, True,  True );
+NF.save_warped_image                 (     f3d_warped      );
+NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, True );
+NF.save_displacement_field_fwrd_image( f3d_disp_back, True );
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Finished Nifty f3d test.                              #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 
-# ----------------------------------------------------------------------- #
-# 							Nifty resample
-#------------------------------------------------------------------------ #
+
+
+
+
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Starting Nifty resample test...                       #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 NR = pSIRFReg.NiftyResample();
-NR.set_reference_image_filename       ( reference_image_filename );
-NR.set_floating_image_filename        ( floating_image_filename  );
-NR.add_transformation_matrix_filename (          matrix          );
+NR.set_reference_image                (    reference    );
+NR.set_floating_image                 (    floating     );
+NR.add_transformation_matrix          (     matrix      );
 NR.set_interpolation_type_to_cubic_spline();
 NR.update();
-NR.save_resampled_image               (       output_resample    );
+NR.save_resampled_image               ( output_resample );
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Finished Nifty resample test.                         #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 
-# ----------------------------------------------------------------------- #
-# 							Activity correction
-#------------------------------------------------------------------------ #
-AC = pSIRFReg.ActivityCorrect();
-AC.set_initial_activity    (        267000000         );
-AC.set_half_life           (          6586.2          );
-AC.set_input_image_filename( reference_image_filename );
-AC.set_start               (            0             );
-AC.set_stop                (           10             );
-AC.update();
-AC.save_output             (    output_activity_corr  );
 
-# ----------------------------------------------------------------------- #
-# 							Weighted mean
-#------------------------------------------------------------------------ #
+
+
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Starting weighted mean test...                        #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 WM = pSIRFReg.ImageWeightedMean();
-WM.add_image         (     wm_im2, 0.2    );
-WM.add_image         (     wm_im3, 0.2    );
-WM.add_image         (     wm_im4, 0.2    );
+WM.add_image( nifti, 0.2 );
+WM.add_image( nifti, 0.2 );
+WM.add_image( nifti, 0.2 );
 WM.update();
 WM.save_image_to_file(output_weighted_mean);
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Finished weighted mean test.                          #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
+
+
+
+
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Starting PET SIRFImageData test...                    #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
+# Open stir image
+pet_image_data = pSIRFReg.PETImageData(stir_nifti);
+image_data_from_stir = pSIRFReg.ImageData(pet_image_data);
+# Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
+image_data_from_nifti = pSIRFReg.ImageData(stir_nifti);
+pSIRFReg.do_nift_image_match(image_data_from_stir, image_data_from_nifti);
+# Print info
+ims=pSIRFReg.ImageDataVector();
+ims.push_back(image_data_from_stir);
+ims.push_back(image_data_from_nifti);
+pSIRFReg.dump_nifti_info(ims);
+# Save the one opened by stir
+image_data_from_stir.save_to_file(output_stir_nifti);
+# Now clone the converted and fill with 1's
+cloned = pet_image_data;
+cloned.fill(1.);
+# Fill the cloned image with data from converted
+image_data_from_stir.copy_data_to(cloned);
+sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
+sys.stderr.write(  '#                             Finished PET SIRFImageData test.                      #\n')
+sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')

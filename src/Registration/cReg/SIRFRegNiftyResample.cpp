@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegMisc.h"
+#include "SIRFImageDataDeformation.h"
 #include <_reg_resampling.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
@@ -44,49 +45,40 @@ void SIRFRegNiftyResample::update()
     // Check that all the required information has been entered
     check_parameters();
 
-    // Open images if necessary, correct if not
-    if (!_reference_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_reference_image_sptr,_reference_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_reference_image_sptr.get()); }
-
-    if (!_floating_image_sptr) {
-        SIRFRegMisc::open_nifti_image(_floating_image_sptr,_floating_image_filename); }
-    else {
-        reg_checkAndCorrectDimension(_floating_image_sptr.get()); }
-
-    // Set up transformation matrix
-    mat44 transformation_matrix;
-    set_up_transformation_matrix(transformation_matrix);
-
-    cout << "\n\nthe transformation matrix is:\n";
-    SIRFRegMisc::print_mat44(transformation_matrix);
-
-    cout << "\n\nConverting affine transformation to deformation field...\n\n";
+    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
+    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
 
     // Initialise the deformation field image
-    std::shared_ptr<nifti_image> deformation_field_image_sptr;
-    SIRFRegMisc::create_def_or_disp_image(deformation_field_image_sptr,_reference_image_sptr);
-#if NIFTYREG_VER_1_5
-    reg_affine_getDeformationField(&transformation_matrix,deformation_field_image_sptr.get());
-#elif NIFTYREG_VER_1_3
-    reg_affine_positionField(&transformation_matrix,_reference_image_sptr.get(),deformation_field_image_sptr.get());
-#endif
+    SIRFImageDataDeformation deformation_field_image;
+    deformation_field_image.create_from_3D_image(_reference_image);
 
+    // If transformation matrix
+    if (_transformation_matrix) {
+#if NIFTYREG_VER_1_5
+        reg_affine_getDeformationField(_transformation_matrix.get(),deformation_field_image.get_image_as_nifti().get());
+#elif NIFTYREG_VER_1_3
+        reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),deformation_field_image_sptr.get());
+#endif
+    }
+    // If displacement field
+    else if (_displacement_field.is_initialised()) {
+        deformation_field_image = _displacement_field;
+        SIRFRegMisc::convert_from_disp_to_def(deformation_field_image);
+    }
     cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
     // Setup output image
     set_up_output_image();
 
 #if NIFTYREG_VER_1_5
-    reg_resampleImage(_reference_image_sptr.get(),
-                      _output_image_sptr.get(),
-                      deformation_field_image_sptr.get(),
+    reg_resampleImage(_reference_image.get_image_as_nifti().get(),
+                      _output_image.get_image_as_nifti().get(),
+                      deformation_field_image.get_image_as_nifti().get(),
                       NULL,
                       _interpolation_type,
                       0);
 #elif NIFTYREG_VER_1_3
-    reg_resampleSourceImage(_reference_image_sptr.get(),
+    reg_resampleSourceImage(_reference_image.get_image_as_nifti().get(),
                                 _floating_image_sptr.get(),
                                 _output_image_sptr.get(),
                                 deformation_field_image_sptr.get(),
@@ -101,52 +93,35 @@ void SIRFRegNiftyResample::update()
 void SIRFRegNiftyResample::check_parameters()
 {
     // If anything is missing
-    if (!_reference_image_sptr && _reference_image_filename == "") {
+    if (!_reference_image.is_initialised()) {
         throw std::runtime_error("Reference image has not been set."); }
-    if (!_floating_image_sptr && _floating_image_filename == "") {
+    if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }
-    if (_transformation_matrices.size() == 0) {
-        throw std::runtime_error("Transformation matrix/matrices not set."); }
-    if (_interpolation_type == NOTSET) {
-        throw std::runtime_error("Interpolation type has not been set."); }
+
+    if ((_transformation_type == TM && !_transformation_matrix) ||
+            (_transformation_type == disp && _displacement_field.is_initialised()) ||
+            (_transformation_type == def && _deformation_field.is_initialised()))
+        throw std::runtime_error("Transformation not set.");
 }
 
 void SIRFRegNiftyResample::save_resampled_image(const string filename) const
 {
-    SIRFRegMisc::save_nifti_image(_output_image_sptr,filename);
-}
-
-void SIRFRegNiftyResample::set_up_transformation_matrix(mat44 &matrix)
-{
-    // Start as identity
-    for (int i=0;i<4;i++) {
-        for (int j=0; j<4; j++) {
-            if (i==j) matrix.m[i][j] = 1.;
-            else      matrix.m[i][j] = 0.;
-        }
-    }
-
-    // Loop over the transformation matrices
-    for (int i=0; i<_transformation_matrices.size(); i++) {
-        matrix = SIRFRegMisc::multiply_mat44(matrix,*_transformation_matrices[i].get());
-    }
-
-    cout << "\n\nHere's the result of the matrix multiplications:\n";
-    SIRFRegMisc::print_mat44(matrix);
-    cout << "\n\n";
+    _output_image.save_to_file(filename);
 }
 
 void SIRFRegNiftyResample::set_up_output_image()
 {
-    _output_image_sptr = std::shared_ptr<nifti_image>(nifti_copy_nim_info(_reference_image_sptr.get()));
-    _output_image_sptr->dim[0]=_output_image_sptr->ndim=_floating_image_sptr->dim[0];
-    _output_image_sptr->dim[4]=_output_image_sptr->nt=_floating_image_sptr->dim[4];
-    _output_image_sptr->cal_min=_floating_image_sptr->cal_min;
-    _output_image_sptr->cal_max=_floating_image_sptr->cal_max;
-    _output_image_sptr->scl_slope=_floating_image_sptr->scl_slope;
-    _output_image_sptr->scl_inter=_floating_image_sptr->scl_inter;
-    _output_image_sptr->datatype = _floating_image_sptr->datatype;
-    _output_image_sptr->nbyper = _floating_image_sptr->nbyper;
-    _output_image_sptr->nvox = _output_image_sptr->dim[1] * _output_image_sptr->dim[2] * _output_image_sptr->dim[3] * _output_image_sptr->dim[4];
-    _output_image_sptr->data = static_cast<void *>(calloc(_output_image_sptr->nvox, unsigned(_output_image_sptr->nbyper)));
+    _output_image = _reference_image;
+    nifti_image *output_ptr   = _output_image.get_image_as_nifti().get();
+    nifti_image *floating_ptr = _floating_image.get_image_as_nifti().get();
+    output_ptr->dim[0]    = output_ptr->ndim=floating_ptr->dim[0];
+    output_ptr->dim[4]    = output_ptr->nt=floating_ptr->dim[4];
+    output_ptr->cal_min   = floating_ptr->cal_min;
+    output_ptr->cal_max   = floating_ptr->cal_max;
+    output_ptr->scl_slope = floating_ptr->scl_slope;
+    output_ptr->scl_inter = floating_ptr->scl_inter;
+    output_ptr->datatype  = floating_ptr->datatype;
+    output_ptr->nbyper    = floating_ptr->nbyper;
+    output_ptr->nvox = output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4];
+    output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
 }

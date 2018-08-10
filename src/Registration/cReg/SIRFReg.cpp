@@ -42,50 +42,33 @@ void SIRFReg::check_parameters()
     // If anything is missing
     if (_parameter_filename == "") {
         throw std::runtime_error("Parameter file has not been set.");}
-    if (!_floating_image_sptr && _floating_image_filename == "") {
+    if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }
-    if (!_reference_image_sptr && _reference_image_filename == "") {
+    if (!_reference_image.is_initialised()) {
         throw std::runtime_error("Reference image has not been set."); }
 }
 
 void SIRFReg::save_warped_image(const string filename) const
 {
-    SIRFRegMisc::save_nifti_image(_warped_image_sptr,filename);
+    _warped_image.save_to_file(filename);
 }
 
 void SIRFReg::save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_def_image_fwrd_sptr,filename,split_xyz,"fowrard deformation");
+    _def_image_fwrd.save_to_file(filename,split_xyz,"fowrard deformation");
 }
 
 void SIRFReg::save_deformation_field_back_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_def_image_back_sptr,filename,split_xyz,"backwards deformation");
+    _def_image_back.save_to_file(filename,split_xyz,"backwards deformation");
 }
 
 void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_disp_image_fwrd_sptr,filename,split_xyz,"forward displacement");
+    _disp_image_fwrd.save_to_file(filename,split_xyz,"forward displacement");
 }
 
 void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz)
 {
-    save_def_or_disp_field_image(_disp_image_back_sptr,filename,split_xyz,"backwards displacement");
-}
-
-void SIRFReg::save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, std::string type)
-{
-    // Check that the disp image exists
-    if (!im_sptr)
-        throw std::runtime_error("Error, " + type + " image not available. Have you run the registration?");
-
-    // Check that filename isn't blank
-    if (filename == "")
-        throw std::runtime_error("Error, cannot write " + type + " image to file because filename is blank.");
-
-    cout << "\nSaving " + type + " image to file (" << filename << ")..." << flush;
-
-    SIRFRegMisc::save_multicomponent_nifti_image(im_sptr,filename,split_xyz);
-
-    cout << "Done.\n";
+    _disp_image_back.save_to_file(filename,split_xyz,"backwards displacement");
 }

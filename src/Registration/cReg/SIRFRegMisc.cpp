@@ -28,6 +28,8 @@ limitations under the License.
 */
 
 #include "SIRFRegMisc.h"
+#include "SIRFImageData.h"
+#include "SIRFImageDataDeformation.h"
 #include <_reg_tools.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
@@ -179,14 +181,6 @@ void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, co
 }
 
 /// Copy nifti image
-void copy_nifti_image(const string input_filename, const string output_filename)
-{
-    std::shared_ptr<nifti_image> image;
-    open_nifti_image(image, input_filename);
-    save_nifti_image(image, output_filename);
-}
-
-/// Copy nifti image
 void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr)
 {
     cout << "\nPerforming hard copy of nifti image..." << flush;
@@ -210,36 +204,38 @@ void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std
 }
 
 /// Flip multicomponent image along a given axis
-void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim)
+void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
+
+    std:shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
 
     // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
         throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
-    if (im->dim[0] != 5)
+    if (im_sptr->dim[0] != 5)
         throw runtime_error("\n\tNifti image is not a multicomponent image.");
-    if (im->nu != 3)
+    if (im_sptr->nu != 3)
         throw runtime_error("\n\tMulticomponent aspect should contain three values (x,y,z).");
 
     // Data is ordered such that the multicomponent info is last.
     // So, the first third of the data is the x-values, second third is y and last third is z.
     // Data is therefore = dim_number * num_voxels/3
-    double start_index =   dim   * im->nvox/3;
+    double start_index =   dim   * im_sptr->nvox/3;
     // End index is one before the start of the next dimension (thus the minus 1)
-    double end_index   = (dim+1) * im->nvox/3 - 1;
+    double end_index   = (dim+1) * im_sptr->nvox/3 - 1;
 
     // Check whether single or double precision
-    if (im->datatype == DT_FLOAT32) {
+    if (im_sptr->datatype == DT_FLOAT32) {
         // Get data
-        float *data_ptr = static_cast<float*>(im->data);
+        float *data_ptr = static_cast<float*>(im_sptr->data);
         for (int i=start_index; i<=end_index; i++) {
             data_ptr[i] = -data_ptr[i];
         }
     }
-    else if (im->datatype == DT_FLOAT64) {
+    else if (im_sptr->datatype == DT_FLOAT64) {
         // Get data
-        double *data_ptr = static_cast<double*>(im->data);
+        double *data_ptr = static_cast<double*>(im_sptr->data);
         for (int i=start_index; i<=end_index; i++)
             data_ptr[i] = -data_ptr[i];
     }
@@ -247,31 +243,6 @@ void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim)
         throw runtime_error("\n\tOnly double and float images are supported at the moment. (This would be easy to change.)");
 
     cout << "done.\n\n";
-}
-
-/// Create def or disp image
-void create_def_or_disp_image(std::shared_ptr<nifti_image> &output_sptr, const std::shared_ptr<nifti_image> &reference_sptr)
-{
-    // Calculate deformation field image
-    nifti_image *output_ptr;
-    output_ptr = nifti_copy_nim_info(reference_sptr.get());
-    output_ptr->dim[0]=output_ptr->ndim=5;
-    output_ptr->dim[1]=output_ptr->nx=reference_sptr->nx;
-    output_ptr->dim[2]=output_ptr->ny=reference_sptr->ny;
-    output_ptr->dim[3]=output_ptr->nz=reference_sptr->nz;
-    output_ptr->dim[4]=output_ptr->nt=1;output_ptr->pixdim[4]=output_ptr->dt=1.0;
-    if(reference_sptr->nz>1) output_ptr->dim[5]=output_ptr->nu=3;
-    else output_ptr->dim[5]=output_ptr->nu=2;
-    output_ptr->pixdim[5]=output_ptr->du=1.0;
-    output_ptr->dim[6]=output_ptr->nv=1;output_ptr->pixdim[6]=output_ptr->dv=1.0;
-    output_ptr->dim[7]=output_ptr->nw=1;output_ptr->pixdim[7]=output_ptr->dw=1.0;
-    output_ptr->nvox=output_ptr->nx*output_ptr->ny*output_ptr->nz*output_ptr->nt*output_ptr->nu;
-    output_ptr->datatype = DT_FLOAT32;
-    output_ptr->nbyper = sizeof(float);
-    output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
-    output_ptr->intent_code = NIFTI_INTENT_VECTOR;
-
-    output_sptr = make_shared<nifti_image>(*output_ptr);
 }
 
 #if NIFTYREG_VER_1_3
@@ -304,56 +275,52 @@ void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, 
 }
 #endif
 /// Get def from cpp
-void get_def_from_cpp(std::shared_ptr<nifti_image> &def_sptr, const std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<nifti_image> &ref_sptr)
+void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformation &cpp, const SIRFImageData &ref)
 {
-    def_sptr = make_shared<nifti_image>();
-    create_def_or_disp_image(def_sptr,ref_sptr);
-
-    reg_spline_getDeformationField(cpp_sptr.get(),
+    def.create_from_3D_image(ref);
+    
+    reg_spline_getDeformationField(cpp.get_image_as_nifti().get(),
 #if NIFTYREG_VER_1_3
-                                   ref_sptr.get(),
+                                   ref.get_image_as_nifti().get(),
 #endif
-                                   def_sptr.get(),
+                                   def.get_image_as_nifti().get(),
                                    NULL,
                                    false, //composition
                                    true // bspline
                                    );
 }
 
-/// Get disp from def
-void get_disp_from_def(std::shared_ptr<nifti_image> &disp_sptr, const std::shared_ptr<nifti_image> &def_sptr)
+/// Convert from deformation to displacement field image
+void convert_from_def_to_disp(SIRFImageDataDeformation &im)
 {
     // Get the disp field from the def field
-    disp_sptr = make_shared<nifti_image>();
-    SIRFRegMisc::copy_nifti_image(disp_sptr,def_sptr);
+    reg_getDisplacementFromDeformation(im.get_image_as_nifti().get());
+}
 
-    reg_getDisplacementFromDeformation(disp_sptr.get());
+/// Convert from displacement to deformation field image
+void convert_from_disp_to_def(SIRFImageDataDeformation &im)
+{
+    // Get the def field from the disp field
+    reg_getDeformationFromDisplacement(im.get_image_as_nifti().get());
 }
 
 /// Multiply image
-void multiply_image(std::shared_ptr<nifti_image> &output, const std::shared_ptr<nifti_image> &input, const double &value)
+void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value)
 {
 #if NIFTYREG_VER_1_5
-    reg_tools_multiplyValueToImage(input.get(), output.get(), value);
+    reg_tools_multiplyValueToImage(input.get_image_as_nifti().get(), output.get_image_as_nifti().get(), value);
 #elif NIFTYREG_VER_1_3
     // for last argument: 0=add, 1=subtract, 2=multiply, 3=divide
-    reg_tools_addSubMulDivValue(input.get(), output.get(), value, 2);
+    reg_tools_addSubMulDivValue(input.get_image_as_nifti().get(), output.get_image_as_nifti().get(), value, 2);
 #endif
 }
 
-/// Multiply image
-void multiply_image(const string &output_filename, const string &input_filename, const double &value)
-{
-    std::shared_ptr<nifti_image> output, input;
-    open_nifti_image(input,input_filename);
-    copy_nifti_image(output,input);
-    multiply_image(output,input,value);
-    save_nifti_image(output,output_filename);
-}
-
 /// Do nifti images match?
-bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std::shared_ptr<nifti_image> &im2_sptr)
+bool do_nift_image_match(const SIRFImageData &im1, const SIRFImageData &im2)
 {
+    const std::shared_ptr<nifti_image> im1_sptr = im1.get_image_as_nifti();
+    const std::shared_ptr<nifti_image> im2_sptr = im2.get_image_as_nifti();
+
     bool images_match = true;
     if( im1_sptr->analyze75_orient  != im2_sptr->analyze75_orient   ) { images_match = false; cout << "mismatch in analyze75_orient , (values: " <<  im1_sptr->analyze75_orient << " and " << im2_sptr->analyze75_orient << ")\n"; }
     if( im1_sptr->byteorder         != im2_sptr->byteorder          ) { images_match = false; cout << "mismatch in byteorder , (values: " <<  im1_sptr->byteorder << " and " << im2_sptr->byteorder << ")\n"; }
@@ -424,22 +391,25 @@ bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std
 /// Dump info of nifti image
 void dump_nifti_info(const string &im_filename)
 {
-    std::shared_ptr<nifti_image> image;
-    SIRFRegMisc::open_nifti_image(image,im_filename);
+    SIRFImageData image(im_filename);
     SIRFRegMisc::dump_nifti_info(image);
 }
 
 /// Dump info of nifti image
-void dump_nifti_info(const std::shared_ptr<nifti_image> &im1_sptr)
+void dump_nifti_info(const SIRFImageData &im)
 {
-    vector<std::shared_ptr<nifti_image> > image;
-    image.push_back(im1_sptr);
+    vector<SIRFImageData> image;
+    image.push_back(im);
     dump_nifti_info(image);
 }
 
 /// Dump info of multiple nifti images
-void dump_nifti_info(const vector<std::shared_ptr<nifti_image> > &images)
+void dump_nifti_info(const vector<SIRFImageData> &ims)
 {
+    vector<std::shared_ptr<nifti_image> > images;
+    for(int i=0;i<ims.size();i++)
+        images.push_back(ims[i].get_image_as_nifti());
+
     cout << "\nPrinting info for " << images.size() <<" nifti image:\n";
     cout << "\t" << left << setw(19) << "analyze_75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
     cout << "\t" << left << setw(19) << "analyze75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
@@ -518,17 +488,15 @@ void dump_nifti_info(const vector<std::shared_ptr<nifti_image> > &images)
 }
 
 /// Save transformation matrix to file
-void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string &filename)
+void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const string &filename)
 {
     // Check that the matrix exists
-    if (!transformation_matrix_sptr) {
-        throw runtime_error("Transformation matrix is null pointer. Have you run the registration?");
-    }
+    if (!transformation_matrix_sptr)
+        throw runtime_error("Transformation matrix is null pointer, can't save.");
 
     // Check that input isn't blank
-    if (filename == "") {
+    if (filename == "")
         throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
-    }
 
     reg_tool_WriteAffineFile(transformation_matrix_sptr.get(), filename.c_str());
 }

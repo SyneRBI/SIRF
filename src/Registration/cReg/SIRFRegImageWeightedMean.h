@@ -33,6 +33,7 @@ limitations under the License.
 #include <nifti1_io.h>
 #include <string>
 #include <vector>
+#include "SIRFImageData.h"
 
 /// Calculate the weighted mean of a set of images
 class SIRFRegImageWeightedMean
@@ -46,33 +47,33 @@ public:
     ~SIRFRegImageWeightedMean() {}
 
     /// Add an image (from filename) and its corresponding weight
-    void add_image(const std::string filename, const float weight);
+    void add_image(const std::string &filename, const float weight);
 
     /// Add an image (from nifti image) and its corresponding weight
-    void add_image(const nifti_image *image, const float weight);
+    void add_image(const SIRFImageData &image, const float weight);
 
     /// Update
     void update();
 
     /// Save image to file
-    void save_image_to_file(const std::string filename);
+    void save_image_to_file(const std::string &filename) const;
 
     /// Get output
-    nifti_image *get_output();
+    const SIRFImageData &get_output() const { return _output_image; }
 
 protected:
 
     /// Check if its possible to calculate the mean
-    void check_can_do_mean();
+    void check_can_do_mean() const;
 
     /// Bool to check if update is necessary
-    bool                                        need_to_update;
+    bool                        _need_to_update;
     /// Vector of input images
-    std::vector<std::shared_ptr<nifti_image> >  input_images;
+    std::vector<SIRFImageData>  _input_images;
     /// Vector of weights
-    std::vector<float>                          weights;
+    std::vector<float>          _weights;
     /// Output image
-    std::shared_ptr<nifti_image>                output_image_sptr;
+    SIRFImageData               _output_image;
 
 };
 

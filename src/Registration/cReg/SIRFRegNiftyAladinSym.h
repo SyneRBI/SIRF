@@ -74,9 +74,9 @@ protected:
 #endif
 
     /// Forwards transformation matrix
-    std::shared_ptr<mat44>          _TM_fwrd_sptr;
+    std::shared_ptr<mat44> _TM_fwrd_sptr;
     /// Backwards transformation matrix
-    std::shared_ptr<mat44>          _TM_back_sptr;
+    std::shared_ptr<mat44> _TM_back_sptr;
 };
 
 #endif

@@ -53,6 +53,8 @@ More examples can be found in // Need to give path
 #include <vector>
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include "SIRFImageData.h"
+#include "SIRFImageDataDeformation.h"
 
 /// Base class for registration algorithms wrapped by SIRFReg
 class SIRFReg
@@ -68,39 +70,17 @@ public:
     /// Set parameter file
     void set_parameter_file(const std::string parameter_filename) { _parameter_filename = parameter_filename; }
 
-    /// Set reference image filename
-    void set_reference_image_filename(const std::string filename)
-    {
-        _reference_image_filename = filename;
-        _reference_image_sptr.reset();
-    }
-
     /// Set reference image
-    void set_reference_image(const nifti_image *reference_image)
-    {
-        _reference_image_sptr     = std::make_shared<nifti_image>(*reference_image);
-        _reference_image_filename = "";
-    }
-
-    /// Set floating image filename
-    void set_floating_image_filename(const std::string filename)
-    {
-        _floating_image_filename = filename;
-        _floating_image_sptr.reset();
-    }
+    void set_reference_image(const SIRFImageData &reference_image) { _reference_image = reference_image; }
 
     /// Set floating image
-    void set_floating_image(const nifti_image *floating_image)
-    {
-        _floating_image_sptr = std::make_shared<nifti_image>(*floating_image);
-        _floating_image_filename = "";
-    }
+    void set_floating_image(const SIRFImageData &floating_image) { _floating_image = floating_image; }
 
     /// Update
     virtual void update() = 0;
 
     /// Get registered image
-    nifti_image *get_output() const { return _warped_image_sptr.get(); }
+    SIRFImageData get_output() const { return _warped_image; }
 
     /// Save warped image to file
     void save_warped_image(const std::string filename) const;
@@ -125,29 +105,24 @@ protected:
     /// Check parameters
     virtual void check_parameters();
 
-    /// Save deformation or displacement field image to file
-    void save_def_or_disp_field_image(const std::shared_ptr<nifti_image> &im_sptr, const std::string &filename, const bool &split_xyz, std::string type);
-
     /// Parameter filename
-    boost::filesystem::path      _parameter_filename;
-    /// Floating image filename
-    boost::filesystem::path      _floating_image_filename;
-    /// Reference image filename
-    boost::filesystem::path      _reference_image_filename;
-    /// Floating image
-    std::shared_ptr<nifti_image> _floating_image_sptr;
+    boost::filesystem::path _parameter_filename;
+
     /// Reference image
-    std::shared_ptr<nifti_image> _reference_image_sptr;
+    SIRFImageData _reference_image;
+    /// Floating image
+    SIRFImageData _floating_image;
     /// Warped image
-    std::shared_ptr<nifti_image> _warped_image_sptr;
+    SIRFImageData _warped_image;
+
     /// Forward displacement field image
-    std::shared_ptr<nifti_image> _disp_image_fwrd_sptr;
+    SIRFImageDataDeformation _disp_image_fwrd;
     /// Backward displacement field image
-    std::shared_ptr<nifti_image> _disp_image_back_sptr;
+    SIRFImageDataDeformation _disp_image_back;
     /// Forward deformation field image
-    std::shared_ptr<nifti_image> _def_image_fwrd_sptr;
+    SIRFImageDataDeformation _def_image_fwrd;
     /// Backward deformation field image
-    std::shared_ptr<nifti_image> _def_image_back_sptr;
+    SIRFImageDataDeformation _def_image_back;
 };
 
 #endif

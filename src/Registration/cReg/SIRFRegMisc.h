@@ -33,6 +33,9 @@ limitations under the License.
 #include <boost/filesystem.hpp>
 #include <nifti1_io.h>
 
+class SIRFImageData;
+class SIRFImageDataDeformation;
+
 namespace SIRFRegMisc {
 
     /// Open nifti image
@@ -55,47 +58,41 @@ namespace SIRFRegMisc {
     void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, const std::string &filename, const bool &split_xyz);
 
     /// Copy nifti image
-    void copy_nifti_image(const std::string input_filename, const std::string output_filename);
-
-    /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
     /// Flip multicomponent image along a given axis
-    void flip_multicomponent_image(std::shared_ptr<nifti_image> &im, int dim);
-
-    /// Create def or disp image
-    void create_def_or_disp_image(std::shared_ptr<nifti_image> &output_sptr, const std::shared_ptr<nifti_image> &reference_sptr);
+    void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim);
 
     /// Get cpp from transformation matrix
 #if NIFTYREG_VER_1_3
     void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
 #endif
     /// Get def from cpp
-    void get_def_from_cpp(std::shared_ptr<nifti_image> &def_sptr, const std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<nifti_image> &ref_sptr);
+    void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformation &cpp, const SIRFImageData &ref);
 
-    /// Get disp from def
-    void get_disp_from_def(std::shared_ptr<nifti_image> &disp_sptr, const std::shared_ptr<nifti_image> &def_sptr);
+    /// Convert from deformation to displacement field image
+    void convert_from_def_to_disp(SIRFImageDataDeformation &im);
+
+    /// Convert from displacement to deformation field image
+    void convert_from_disp_to_def(SIRFImageDataDeformation &im);
 
     /// Multiply image
-    void multiply_image(std::shared_ptr<nifti_image> &output, const std::shared_ptr<nifti_image> &input, const double &value);
-
-    /// Multiply image
-    void multiply_image(const std::string &output_filename, const std::string &input_filename, const double &value);
+    void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value);
 
     /// Do nifti images match?
-    bool do_nift_image_match(const std::shared_ptr<nifti_image> &im1_sptr, const std::shared_ptr<nifti_image> &im2_sptr);
+    bool do_nift_image_match(const SIRFImageData &im1, const SIRFImageData &im2);
 
     /// Dump info of nifti image
     void dump_nifti_info(const std::string &im_filename);
 
     /// Dump info of nifti image
-    void dump_nifti_info(const std::shared_ptr<nifti_image> &im1_sptr);
+    void dump_nifti_info(const SIRFImageData &im);
 
     /// Dump info of multiple nifti images
-    void dump_nifti_info(const std::vector<std::shared_ptr<nifti_image> > &ims);
+    void dump_nifti_info(const std::vector<SIRFImageData> &ims);
 
     /// Save transformation matrix to file
-    void save_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
+    void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
 
     /// Read transformation matrix from file
     void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);

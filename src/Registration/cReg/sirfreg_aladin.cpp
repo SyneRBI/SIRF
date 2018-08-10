@@ -95,10 +95,12 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        aladin.set_reference_image_filename(argv[flag_ref+1]);
+        SIRFImageData reference(argv[flag_ref+1]);
+        aladin.set_reference_image(reference);
 
         int flag_flo = find_flag(unused_flags,argv,"-flo",true);
-        aladin.set_floating_image_filename(argv[flag_flo+1]);
+        SIRFImageData floating(argv[flag_flo+1]);
+        aladin.set_floating_image(floating);
 
         int flag_par = find_flag(unused_flags,argv,"-par",true);
         aladin.set_parameter_file(argv[flag_par+1]);

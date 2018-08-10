@@ -31,8 +31,9 @@ limitations under the License.
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
-#include "SIRFRegActivityCorrect.h"
+#include "SIRFImageData.h"
 #include "SIRFRegImageWeightedMean.h"
+#include "stir_data_containers.h"
 
 using namespace std;
 
@@ -57,9 +58,7 @@ int main(int argc, char* argv[])
     string parameter_file_aladin    = examples_path + "/paramFiles/aladin.par";
     string parameter_file_f3d       = examples_path + "/paramFiles/f3d.par";
     string matrix                   = examples_path + "/transformation_matrix.txt";
-    string wm_im2                   = examples_path + "/weighted_mean/regis_recon_gate2.nii";
-    string wm_im3                   = examples_path + "/weighted_mean/regis_recon_gate3.nii";
-    string wm_im4                   = examples_path + "/weighted_mean/regis_recon_gate4.nii";
+    string stir_nifti               = examples_path + "/nifti_created_by_stir.nii";
 
     // Output filenames
     string aladin_warped            = output_path   + "cplusplus_aladin_warped";
@@ -74,69 +73,120 @@ int main(int argc, char* argv[])
     string output_resample          = output_path   + "cplusplus_resample";
     string output_activity_corr     = output_path   + "cplusplus_activity_corr";
     string output_weighted_mean     = output_path   + "cplusplus_weighted_mean";
-/*
-    // ----------------------------------------------------------------------- //
-    //                           Nifty aladin
-    //------------------------------------------------------------------------ //
+
+    string output_stir_nifti        = output_path   + "cplusplus_stir_nifti.nii";
+
+    SIRFImageData reference( reference_image_filename );
+    SIRFImageData floating (  floating_image_filename );
+    SIRFImageData nifti    (        stir_nifti        );
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting Nifty aladin test...                          //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
     SIRFRegNiftyAladinSym<float> NA;
-    NA.set_reference_image_filename      (    reference_image_filename   );
-    NA.set_floating_image_filename       (     floating_image_filename   );
+    NA.set_reference_image               (            reference          );
+    NA.set_floating_image                (            floating           );
     NA.set_parameter_file                (      parameter_file_aladin    );
     NA.update();
     NA.save_warped_image                 (         aladin_warped         );
     NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
     NA.save_transformation_matrix_back   (             TM_back           );
-    NA.save_displacement_field_fwrd_image( aladin_disp_fwrd, true,  true );
-    NA.save_displacement_field_back_image( aladin_disp_back, true,  true );
+    NA.save_displacement_field_fwrd_image( aladin_disp_fwrd, true        );
+    NA.save_displacement_field_back_image( aladin_disp_back, true        );
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished Nifty aladin test.                            //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
 
-    // ----------------------------------------------------------------------- //
-    //                           Nifty f3d
-    //------------------------------------------------------------------------ //
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting Nifty f3d test...                             //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
     SIRFRegNiftyF3dSym<float> NF;
-    NF.set_reference_image_filename      (  reference_image_filename  );
-    NF.set_floating_image_filename       (   floating_image_filename  );
+    NF.set_reference_image               (         reference          );
+    NF.set_floating_image                (          floating          );
     NF.set_parameter_file                (     parameter_file_f3d     );
     NF.set_reference_time_point          (             1              );
     NF.set_floating_time_point           (             1              );
     NF.update();
     NF.save_warped_image                 (         f3d_warped         );
-    NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, true,  true );
-    NF.save_displacement_field_fwrd_image( f3d_disp_back, true,  true );
-*/
-    // ----------------------------------------------------------------------- //
-    //                           Nifty resample
-    //------------------------------------------------------------------------ //
+    NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, true        );
+    NF.save_displacement_field_fwrd_image( f3d_disp_back, true        );
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished Nifty f3d test.                               //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting Nifty resample test...                        //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
     SIRFRegNiftyResample NR;
-    NR.set_reference_image_filename       ( reference_image_filename );
-    NR.set_floating_image_filename        ( floating_image_filename  );
-    NR.add_transformation_matrix_filename (          matrix          );
+    NR.set_reference_image                (         reference        );
+    NR.set_floating_image                 (         floating         );
+    NR.set_transformation_matrix          (          matrix          );
     NR.set_interpolation_type_to_cubic_spline();
     NR.update();
     NR.save_resampled_image               (       output_resample    );
-/*
-    // ----------------------------------------------------------------------- //
-    //                           Activity correction
-    //------------------------------------------------------------------------ //
-    SIRFRegActivityCorrect AC;
-    AC.set_initial_activity    (        267000000         );
-    AC.set_half_life           (          6586.2          );
-    AC.set_input_image_filename( reference_image_filename );
-    AC.set_start               (            0             );
-    AC.set_stop                (           10             );
-    AC.update();
-    AC.save_output             (    output_activity_corr  );
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished Nifty resample test.                          //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
 
-    // ----------------------------------------------------------------------- //
-    //                           Weighted mean
-    //------------------------------------------------------------------------ //
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting weighted mean test...                         //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
     SIRFRegImageWeightedMean WM;
-    WM.add_image         (     wm_im2, 0.2    );
-    WM.add_image         (     wm_im3, 0.2    );
-    WM.add_image         (     wm_im4, 0.2    );
+    WM.add_image         (     nifti, 0.2F    );
+    WM.add_image         (     nifti, 0.2F    );
+    WM.add_image         (     nifti, 0.2F    );
     WM.update();
     WM.save_image_to_file(output_weighted_mean);
-*/
-    // If there was an error
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished weighted mean test.                           //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting PET SIRFImageData test...                     //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+    // Open stir image and convert to SIRFImageData
+    sirf::PETImageData pet_image_data(stir_nifti);
+    SIRFImageData image_data_from_stir(pet_image_data);
+    // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
+    SIRFImageData image_data_from_nifti(stir_nifti);
+    SIRFRegMisc::do_nift_image_match(image_data_from_stir, image_data_from_nifti);
+    // Print info
+    std::vector<SIRFImageData> ims;
+    ims.push_back(image_data_from_stir);
+    ims.push_back(image_data_from_nifti);
+    SIRFRegMisc::dump_nifti_info(ims);
+    // Save the one opened by stir
+    image_data_from_stir.save_to_file(output_stir_nifti);
+    // Now clone the converted and fill with 1's
+    sirf::PETImageData cloned = pet_image_data;
+    cloned.fill(1.F);
+    // Fill the cloned image with data from converted
+    image_data_from_stir.copy_data_to(cloned);
+    // Compare
+    if (fabs(cloned.data()[0][0][0] - pet_image_data.data()[0][0][0]) > 1.e-7F) {
+        throw std::runtime_error("Image was not filled from nifti.");
+    }
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished PET SIRFImageData test.                       //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+    // Error handling
     } catch(const exception &error) {
         cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
