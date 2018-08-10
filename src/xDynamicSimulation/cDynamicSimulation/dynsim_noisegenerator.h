@@ -12,6 +12,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <memory>
 
+#include <stir/GeneralisedPoissonNoiseGenerator.h>
+
 #include "stir_types.h"
 
 #include "stir_data_containers.h"
@@ -29,11 +31,11 @@ public:
 	aNoiseGenerator(){};
 	aNoiseGenerator( SeedType const random_seed ): random_seed_(random_seed){};
 
-	void const set_random_seed( SeedType const seed) {this->random_seed_ = seed;};
+	virtual void set_random_seed( SeedType const seed) {this->random_seed_ = seed;};
 	SeedType const get_random_seed( void ) {return this->random_seed_;};
 
 protected:
-	SeedType random_seed_ = 0;
+	SeedType random_seed_ = 1;
 
 };
 
@@ -43,9 +45,22 @@ class PoissonNoiseGenerator: public aNoiseGenerator{
 
 public:
 
-	PoissonNoiseGenerator():aNoiseGenerator(){};
+	PoissonNoiseGenerator():aNoiseGenerator(), stir_noise_gen_(1.0f,true)
+	{
+		this->stir_noise_gen_.seed(this->random_seed_);
+	}
 
-	std::shared_ptr<sirf::PETAcquisitionData> add_noise(sirf::PETAcquisitionData& acq_data){};
+
+	virtual void set_random_seed( SeedType const seed) 
+	{
+		this->random_seed_ = seed;
+		this->stir_noise_gen_.seed(this->random_seed_);
+	}
+
+	void add_noise( sirf::PETAcquisitionData& noisy_acq, sirf::PETAcquisitionData& noise_free_acq);
+
+private:
+	stir::GeneralisedPoissonNoiseGenerator stir_noise_gen_;	
 
 };
 
@@ -56,7 +71,7 @@ public:
 	GaussianNoiseGenerator():aNoiseGenerator(){};
 	GaussianNoiseGenerator(float const width_noise): aNoiseGenerator(), width_noise_(width_noise){};	
 
-	std::shared_ptr<sirf::MRAcquisitionData> add_noise(sirf::MRAcquisitionData& acq_data){};
+	void add_noise(sirf::MRAcquisitionData& noisy_acq, sirf::MRAcquisitionData& noise_free_acq ){};
 
 private:
 	float width_noise_;

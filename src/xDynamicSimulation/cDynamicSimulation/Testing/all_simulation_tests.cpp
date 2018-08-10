@@ -23,6 +23,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_mr_acquisition_model.h"
 #include "tests_dynamics.h"
 #include "tests_dynamicsimulation.h"
+#include "tests_noisegenerator.h"
 
 #include "all_simulation_tests.h"
 
@@ -110,6 +111,26 @@ void run_tests_dynamic_simulation( void )
 
 
 }
+
+void run_tests_noise_generator( void )
+{
+
+	bool tests_successful = true;
+
+	tests_successful *= test_noisegen::test_add_poisson_noise();
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The noise generator tests failed." );
+	}
+	else
+	{
+		std::cout<< "The noise generator tests succeeded" << std::endl;
+	}
+
+
+}
+
 
 
 void run_tests_mr_acquisition_model( void )

@@ -17,8 +17,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 namespace test_noisegen{
 
-	bool test_poisson_add_noise( void ){};
-
-
+	bool test_add_poisson_noise( void );
 
 }

@@ -32,3 +32,4 @@ void run_tests_dynamics( void );
 
 void run_tests_dynamic_simulation( void );
 
+void run_tests_noise_generator( void );
