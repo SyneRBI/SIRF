@@ -584,30 +584,30 @@ namespace sirf {
 			spacing[1] = vox_image->get_voxel_size()[2];
 			spacing[2] = vox_image->get_voxel_size()[1];
 			VoxelisedGeometricalInfo3D::DirectionMatrix direction;
-			PatientPosition::PositionValue patient_position =
+            stir::PatientPosition::PositionValue patient_position =
 				vox_image->get_exam_info().patient_position.get_position();
 			for (int i = 0; i < 3; i++)
 				for (int j = 0; j < 3; j++)
 					direction[i][j] = 0;
-			if (patient_position == PatientPosition::HFS)
+            if (patient_position == stir::PatientPosition::HFS)
 			{
 				direction[0][0] = -1; // R
 				direction[1][1] = -1; // A
 				direction[2][2] = 1;  // S
 			}
-			else if (patient_position == PatientPosition::HFP)
+            else if (patient_position == stir::PatientPosition::HFP)
 			{
 				direction[0][0] = 1;  // L
 				direction[1][1] = 1;  // P
 				direction[2][2] = 1;  // S
 			}
-			else if (patient_position == PatientPosition::FFS)
+            else if (patient_position == stir::PatientPosition::FFS)
 			{
 				direction[0][0] = 1;  // L
 				direction[1][1] = 1;  // P
 				direction[2][2] = -1; // I
 			}
-			else if (patient_position == PatientPosition::FFP)
+            else if (patient_position == stir::PatientPosition::FFP)
 			{
 				direction[0][0] = -1; // R
 				direction[1][1] = -1; // A
