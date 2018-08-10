@@ -48,22 +48,19 @@ void SIRFRegNiftyResample::update()
     reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
     reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
 
-    // Initialise the deformation field image
-    SIRFImageDataDeformation deformation_field_image;
-    deformation_field_image.create_from_3D_image(_reference_image);
-
     // If transformation matrix
     if (_transformation_matrix) {
+        _deformation_field.create_from_3D_image(_reference_image);
 #if NIFTYREG_VER_1_5
-        reg_affine_getDeformationField(_transformation_matrix.get(),deformation_field_image.get_image_as_nifti().get());
+        reg_affine_getDeformationField(_transformation_matrix.get(),_deformation_field.get_image_as_nifti().get());
 #elif NIFTYREG_VER_1_3
-        reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),deformation_field_image_sptr.get());
+        reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),_deformation_field.get());
 #endif
     }
     // If displacement field
     else if (_displacement_field.is_initialised()) {
-        deformation_field_image = _displacement_field;
-        SIRFRegMisc::convert_from_disp_to_def(deformation_field_image);
+        _deformation_field = _displacement_field;
+        SIRFRegMisc::convert_from_disp_to_def(_deformation_field);
     }
     cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
 
@@ -73,7 +70,7 @@ void SIRFRegNiftyResample::update()
 #if NIFTYREG_VER_1_5
     reg_resampleImage(_reference_image.get_image_as_nifti().get(),
                       _output_image.get_image_as_nifti().get(),
-                      deformation_field_image.get_image_as_nifti().get(),
+                      _deformation_field.get_image_as_nifti().get(),
                       NULL,
                       _interpolation_type,
                       0);
@@ -81,7 +78,7 @@ void SIRFRegNiftyResample::update()
     reg_resampleSourceImage(_reference_image.get_image_as_nifti().get(),
                                 _floating_image_sptr.get(),
                                 _output_image_sptr.get(),
-                                deformation_field_image_sptr.get(),
+                                _deformation_field.get_image_as_nifti().get(),
                                 NULL,
                                 _interpolation_type,
                                 0);
@@ -99,8 +96,8 @@ void SIRFRegNiftyResample::check_parameters()
         throw std::runtime_error("Floating image has not been set."); }
 
     if ((_transformation_type == TM && !_transformation_matrix) ||
-            (_transformation_type == disp && _displacement_field.is_initialised()) ||
-            (_transformation_type == def && _deformation_field.is_initialised()))
+            (_transformation_type == disp && !_displacement_field.is_initialised()) ||
+            (_transformation_type == def && !_deformation_field.is_initialised()))
         throw std::runtime_error("Transformation not set.");
 }
 
