@@ -66,6 +66,8 @@ ${SWIG_SIRFREG_DOCUMENTATION_PATH}
 // Image data
 %rename(ImageData) SIRFImageData;
 %include "../cReg/SIRFImageData.h"
+%rename(ImageDataDeformation) SIRFImageDataDeformation;
+%include "../cReg/SIRFImageDataDeformation.h"
 
 // STIR
 %ignore PETAcquisitionData;
