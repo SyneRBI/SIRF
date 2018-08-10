@@ -85,6 +85,8 @@ void SIRFRegNiftyF3dSym<T>::update()
     SIRFRegMisc::get_def_from_cpp(_def_image_back,cpp_back.get_image_as_nifti(), _reference_image);
 
     // Get the displacement fields from the def
+    _disp_image_fwrd = _def_image_fwrd;
+    _disp_image_back = _def_image_back;
     SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd);
     SIRFRegMisc::convert_from_def_to_disp(_disp_image_back);
 
