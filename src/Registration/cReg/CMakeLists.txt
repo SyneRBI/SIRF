@@ -14,8 +14,8 @@
 #  See the License for the specific language governing permissions and
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegActivityCorrect.cpp" "SIRFRegExtractTAC.cpp" "SIRFImageData.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFRegActivityCorrect.h"   "SIRFRegExtractTAC.h"   "SIRFImageData.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFImageData.cpp" "SIRFImageDataDeformation.cpp" )
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Create library
 ADD_LIBRARY(SIRFReg ${SOURCES} ${STIR_REGISTRIES})

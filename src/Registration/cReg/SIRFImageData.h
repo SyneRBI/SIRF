@@ -30,10 +30,10 @@ limitations under the License.
 #ifndef _SIRFIMAGEDATA_H_
 #define _SIRFIMAGEDATA_H_
 
-#include <memory>
-#include <string>
 #include <nifti1_io.h>
-#include <stir_data_containers.h>
+#include "stir_data_containers.h"
+
+class MRImageData;
 
 /// SIRF image data
 class SIRFImageData
@@ -46,26 +46,58 @@ public:
     /// Destructor
     virtual ~SIRFImageData() {}
 
-    /// Set image as nifti
-    void set_image_nifti(const nifti_image &image_nifti);
+    /// Assignment
+    virtual SIRFImageData operator=(const SIRFImageData& to_copy);
 
-    /// Set image as filename
-    void set_image_filename(const std::string &image_filename);
+    /// Filename constructor
+    SIRFImageData(const std::string &filename);
 
-    /// Set image as SIRF's PETImageData
-    void set_image_PETImageData(const PETImageData &image_sirf_pet);
+    /// Nifti constructor
+    SIRFImageData(const nifti_image *image_nifti);
+
+    /// Nifti shared_ptr constructor
+    SIRFImageData(const std::shared_ptr<nifti_image> image_nifti);
+
+    /// STIR constructor
+    SIRFImageData(const sirf::PETImageData &pet_image);
+
+    /// Gadgetron constructor
+    SIRFImageData(const MRImageData &);
+
+    /// Is the image initialised (should unless default constructor was used)?
+    bool is_initialised() const { return (_nifti_image ? true : false); }
 
     /// Get image as nifti
-    nifti_image *get_image_as_nifti();
+    std::shared_ptr<nifti_image> get_image_as_nifti() const;
+
+    /// Copy data to PETImageData
+    void copy_data_to(sirf::PETImageData &pet_image) const;
+
+    /// Copy data to MRImageData
+    void copy_data_to(MRImageData &) const;
+
+    /// Save to file
+    void save_to_file(const std::string &filename) const;
+
+    /// Get max
+    float get_max() const;
+
+    /// Get min
+    float get_min() const;
+
+    /// Get element
+    float get_element(const int x, const int y, const int z) const;
 
 protected:
 
+    /// Set up nifti image
+    void set_up_nifti(const VoxelisedGeometricalInfo3D &info);
+
+    /// Check that images are aligned
+    bool check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const;
+
     /// Image data as a nifti object
-    std::shared_ptr<nifti_image>  _image_nifti;
-    /// Image data as a filename
-    std::string                   _image_filename;
-    /// Image data as a SIRF Image Data
-    std::shared_ptr<PETImageData> _image_sirf_pet;
+    std::shared_ptr<nifti_image>  _nifti_image;
 };
 
 #endif
