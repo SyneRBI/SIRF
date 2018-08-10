@@ -32,8 +32,9 @@ limitations under the License.
 
 #include <boost/filesystem.hpp>
 #include <nifti1_io.h>
+#include <iostream>
+#include "SIRFImageData.h"
 
-class SIRFImageData;
 class SIRFImageDataDeformation;
 
 namespace SIRFRegMisc {
@@ -80,7 +81,20 @@ namespace SIRFRegMisc {
     void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value);
 
     /// Do nifti images match?
-    bool do_nift_image_match(const SIRFImageData &im1, const SIRFImageData &im2);
+    bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2);
+
+    /// Do nifti image elements match?
+    template<typename T>
+    bool do_nifti_image_elements_match(const std::string &name, const T &elem1, const T &elem2)
+    {
+        if(fabs(elem1-elem2) < 1.e-7F)
+            return true;
+        std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
+        return false;
+    }
+
+    /// Do nifti image elements match?
+    bool do_nifti_image_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
 
     /// Dump info of nifti image
     void dump_nifti_info(const std::string &im_filename);
