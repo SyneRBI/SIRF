@@ -336,6 +336,7 @@ namespace sirf {
 	class MRAcquisitionModel {
 	public:
 
+		MRAcquisitionModel() {}
 		/*
 		The constructor records, by copying shared pointers, the two supplied
 		arguments as templates, to be used for obtaining scanner and image
@@ -364,6 +365,15 @@ namespace sirf {
 		void setCSMs(gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms)
 		{
 			sptr_csms_ = sptr_csms;
+		}
+
+		// Records templates
+		void set_up
+			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
+			gadgetron::shared_ptr<MRImageData> sptr_ic)
+		{
+			sptr_acqs_ = sptr_ac;
+			sptr_imgs_ = sptr_ic;
 		}
 
 		// Forward projects one image item (typically xy-slice) into
@@ -401,6 +411,9 @@ namespace sirf {
 		// coil sensitivity maps referred to by sptr_csms_.
 		gadgetron::shared_ptr<MRAcquisitionData> fwd(MRImageData& ic)
 		{
+			if (!sptr_acqs_.get())
+				throw LocalisedException
+				("acquisition data template not set", __FILE__, __LINE__);
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);
@@ -415,6 +428,9 @@ namespace sirf {
 		// coil sensitivity maps referred to by sptr_csms_.
 		gadgetron::shared_ptr<MRImageData> bwd(MRAcquisitionData& ac)
 		{
+			if (!sptr_imgs_.get())
+				throw LocalisedException
+				("image data template not set", __FILE__, __LINE__);
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);

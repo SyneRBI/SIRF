@@ -110,7 +110,9 @@ def main():
 
     # create acquisition model based on the acquisition parameters
     # stored in processed_data and image parameters stored in complex_images
-    acq_model = AcquisitionModel(processed_data, complex_images)
+##    acq_model = AcquisitionModel(processed_data, complex_images)
+    acq_model = AcquisitionModel()
+    acq_model.set_up(processed_data, complex_images)
     acq_model.set_coil_sensitivity_maps(csms)
 
     # use the acquisition model (forward projection) to produce simulated

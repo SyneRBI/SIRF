@@ -1128,18 +1128,26 @@ class AcquisitionModel:
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
     '''
-    def __init__(self, acqs, imgs):
+    def __init__(self, acqs = None, imgs = None):
+        self.handle = None
+        if acqs == None:
+            self.handle = pygadgetron.cGT_newObject('AcquisitionModel')
+        else:
 ##        assert isinstance(acqs, AcquisitionData)
 ##        assert isinstance(imgs, ImageData)
-        assert_validity(acqs, AcquisitionData)
-        assert_validity(imgs, ImageData)
-        self.handle = None
-        self.handle = \
-            pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
+            assert_validity(acqs, AcquisitionData)
+            assert_validity(imgs, ImageData)
+            self.handle = \
+                pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_up(self, acqs, imgs):
+        assert_validity(acqs, AcquisitionData)
+        assert_validity(imgs, ImageData)
+        try_calling(pygadgetron.cGT_setUpAcquisitionModel \
+            (self.handle, acqs.handle, imgs.handle))
     def set_coil_sensitivity_maps(self, csm):
         '''
         Specifies the coil sensitivity maps to be used by the model.
@@ -1147,7 +1155,9 @@ class AcquisitionModel:
         '''
 ##        assert isinstance(csm, CoilSensitivityData)
         assert_validity(csm, CoilSensitivityData)
-        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
+        try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
+            (self.handle, 'coil_sensitivity_maps', csm.handle))
+##        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
