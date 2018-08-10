@@ -53,6 +53,7 @@ limitations under the License.
 #include "stir/recon_buildblock/ProjectorByBinPairUsingProjMatrixByBin.h"
 #include "stir/recon_buildblock/ProjMatrixByBinUsingRayTracing.h"
 #include "stir/recon_buildblock/QuadraticPrior.h"
+#include "stir/recon_buildblock/PLSPrior.h"
 #include "stir/Shape/EllipsoidalCylinder.h"
 #include "stir/Shape/Shape3D.h"
 #include "stir/shared_ptr.h"
@@ -85,7 +86,6 @@ namespace sirf {
 	typedef stir::QuadraticPrior<float> QuadPrior3DF;
 	typedef stir::DataProcessor<Image3DF> DataProcessor3DF;
 	typedef stir::TruncateToCylindricalFOVImageProcessor<float> CylindricFilter3DF;
-
 }
 
 #endif

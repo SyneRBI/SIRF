@@ -57,6 +57,11 @@ prior = QuadraticPrior();
 prior.set_penalisation_factor(0.5)
 prior.set_up(image);
 
+prior2 = PLSPrior();
+prior2.set_penalisation_factor(0.5)
+prior2.set_alpha(2.3)
+prior2.set_eta(12.3)
+
 matrix = RayTracingMatrix();
 matrix.set_num_tangential_LORs(2)
 

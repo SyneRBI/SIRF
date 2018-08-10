@@ -75,6 +75,11 @@ def test_main(rec=False, verb=False, throw=True):
     prior.set_penalisation_factor(0.5)
     prior.set_up(image)
 
+    prior2 = PLSPrior()
+    prior2.set_penalisation_factor(0.5)
+    prior2.set_anatomical_image(image)
+    prior2.set_up(image)
+
     num_subsets = 12
 
     obj_fun = make_Poisson_loglikelihood(ad)

@@ -1,0 +1,82 @@
+/* File: ${p_or_m}SIRFReg.i */
+%module ${p_or_m}SIRFReg
+%include <std_string.i>
+%include <exception.i>
+%include <std_vector.i>
+
+${SWIG_SIRFREG_DOCUMENTATION_PATH}
+
+%{
+#define SWIG_DOC_DOXYGEN_STYLE
+#define SWIG_FILE_WITH_INIT
+#include <cmath>
+#include "SIRFRegNiftyAladinSym.h"
+#include "SIRFRegNiftyF3dSym.h"
+#include "SIRFRegNiftyResample.h"
+#include "SIRFRegImageWeightedMean.h"
+#include "SIRFRegMisc.h"
+#include "SIRFImageData.h"
+// STIR
+#include "stir_types.h"
+#include "stir_x.h"
+#include "stir_data_containers.h"
+#include "geometrical_info.h"
+
+// Gadgetron
+//#include "gadgetron_data_containers.h"
+%}
+
+%exception {
+    try {
+        $action
+    } catch(const std::exception& e) {
+        SWIG_exception(SWIG_RuntimeError, e.what());
+    } catch(...) {
+        SWIG_exception(SWIG_RuntimeError,"Unknown exception");
+    }
+}
+
+// Vectors
+%template(ImageDataVector) std::vector<SIRFImageData>;
+
+// Misc
+%include "../cReg/SIRFRegMisc.h"
+
+// Base class
+%include "../cReg/SIRFReg.h"
+
+// Aladin - only offer the user single precision for now
+%include "../cReg/SIRFRegNiftyAladinSym.h"
+%template(NiftyAladinSym) SIRFRegNiftyAladinSym<float>;
+// %template(NiftyAladin_double) SIRFRegNiftyAladin<double>;
+
+// F3dSym - only offer the user single precision for now
+%include "../cReg/SIRFRegNiftyF3dSym.h"
+%template(NiftyF3dSym) SIRFRegNiftyF3dSym<float>;
+// %template(NiftyF3d_double) SIRFRegNiftyF3dSym<double>;
+
+// Resample
+%rename(NiftyResample) SIRFRegNiftyResample;
+%include "../cReg/SIRFRegNiftyResample.h"
+
+// Weighted mean of images
+%rename(ImageWeightedMean) SIRFRegImageWeightedMean;
+%include "../cReg/SIRFRegImageWeightedMean.h"
+
+// Image data
+%rename(ImageData) SIRFImageData;
+%include "../cReg/SIRFImageData.h"
+%rename(ImageDataDeformation) SIRFImageDataDeformation;
+%include "../cReg/SIRFImageDataDeformation.h"
+
+// STIR
+%ignore PETAcquisitionData;
+%ignore PETAcquisitionDataInFile;
+%ignore PETAcquisitionDataInMemory;
+%include "../../xSTIR/cSTIR/stir_types.h"
+%include "../../xSTIR/cSTIR/stir_data_containers.h"
+%include "../../common/include/SIRF/common/geometrical_info.h"
+
+// Gadgetron
+//%ignore AcquisitionsInfo;
+//%include "../../xGadgetron/cGadgetron/gadgetron_data_containers.h"

@@ -34,11 +34,13 @@ limitations under the License.
 
 #include <chrono>
 #include <fstream>
+#include <exception>
 
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
+#include "SIRF/common/geometrical_info.h"
 
 namespace sirf {
 
@@ -555,11 +557,84 @@ namespace sirf {
 		void get_voxel_sizes(float* vsizes) const;
 		int get_data(float* data) const;
 		int set_data(const float* data);
+			// GeometricalInfo get_patient_coord_geometrical_info() {
+	//   return *_patient_coord_geometrical_info;
+	// }
+	VoxelisedGeometricalInfo3D get_patient_coord_geometrical_info() const {
+		const Voxels3DF* vox_image = dynamic_cast<const Voxels3DF*>(&data());
+		if (vox_image != 0) {
+			// TODO: This is a const per scanner?
+			VoxelisedGeometricalInfo3D::Offset gantry_offset;
+			gantry_offset[0] = 0;  // TODO
+			gantry_offset[1] = 0;  // TODO
+			gantry_offset[2] = 0;  // TODO
+            VoxelisedGeometricalInfo3D::Offset offset;
+            //const BasicCoordinate<3,int> indices = make_coordinate(0,0,0);
+            offset[0] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[3] + gantry_offset[0];
+            offset[1] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[2] + gantry_offset[1];
+            offset[2] = vox_image->get_physical_coordinates_for_indices(vox_image->get_min_indices())[1] + gantry_offset[2];
+			VoxelisedGeometricalInfo3D::Size size;
+			size[0] = vox_image->get_x_size();
+			size[1] = vox_image->get_y_size();
+			size[2] = vox_image->get_z_size();
+			VoxelisedGeometricalInfo3D::Spacing spacing;
+			//for (int i = 0; i < 4; i++)
+			//	std::cout << vox_image->get_origin()[i] << '\n';
+			spacing[0] = vox_image->get_voxel_size()[3];
+			spacing[1] = vox_image->get_voxel_size()[2];
+			spacing[2] = vox_image->get_voxel_size()[1];
+			VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+            stir::PatientPosition::PositionValue patient_position =
+				vox_image->get_exam_info().patient_position.get_position();
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+					direction[i][j] = 0;
+            if (patient_position == stir::PatientPosition::HFS)
+			{
+				direction[0][0] = -1; // R
+				direction[1][1] = -1; // A
+				direction[2][2] = 1;  // S
+			}
+            else if (patient_position == stir::PatientPosition::HFP)
+			{
+				direction[0][0] = 1;  // L
+				direction[1][1] = 1;  // P
+				direction[2][2] = 1;  // S
+			}
+            else if (patient_position == stir::PatientPosition::FFS)
+			{
+				direction[0][0] = 1;  // L
+				direction[1][1] = 1;  // P
+				direction[2][2] = -1; // I
+			}
+            else if (patient_position == stir::PatientPosition::FFP)
+			{
+				direction[0][0] = -1; // R
+				direction[1][1] = -1; // A
+				direction[2][2] = -1; // I
+			}
+			else {
+				std::cerr << "WARNING: patient position not set, assuming HFS\n";
+				direction[0][0] = -1; // R
+				direction[1][1] = -1; // A
+				direction[2][2] = 1;  // S
+			}
+			return VoxelisedGeometricalInfo3D(offset, spacing, size, direction);
+		} else {
+			throw std::runtime_error("Can't determine geometry for this image type");
+		}
+		// TODO: remove this
+		//std::cout << _patient_coord_geometrical_info << std::endl;
+	}
+	TransformMatrix3D calculate_index_to_physical_point_matrix() const
+	{
+		VoxelisedGeometricalInfo3D geom_info(get_patient_coord_geometrical_info());
+		return geom_info.calculate_index_to_physical_point_matrix();
+	}
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;
 	};
-
 }
 
 #endif

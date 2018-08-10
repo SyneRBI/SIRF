@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Evgueni Ovtchinnikov
-# Copyright 2017 University College London
+# Author: Richard Brown
+# Copyright 2016, 2017 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,24 +16,8 @@
 #
 #=========================================================================
 
-# TODO target
-include_directories(include)
-add_library(common geometrical_info.cpp)
-#INSTALL(common)
+MATLAB_ADD_UNIT_TEST(NAME SIRFREG_TEST_MATLAB
+UNITTEST_FILE   test_mSIRFReg.m
+ADDITIONAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+NO_UNITTEST_FRAMEWORK)
 
-if (BUILD_PYTHON)
-
-  file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
-  INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
-
-endif (BUILD_PYTHON)
-
-if (BUILD_MATLAB)
-
-  add_library(mig mig.cpp)
-
-  INSTALL(DIRECTORY +mUtilities DESTINATION "${MATLAB_DEST}")
-  file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
-  INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
-
-endif (BUILD_MATLAB)
