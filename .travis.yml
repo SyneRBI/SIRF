@@ -114,17 +114,24 @@ before_install:
       brew update
       BUILD_FLAGS="$BUILD_FLAGS -DSHARED_LIBS_ABS_PATH=ON"
       if [ $PYMVER == 2 ]; then
-        PYINST=/System/Library/Frameworks/Python.framework/Versions
-        PY_EXE=$PYINST/$PYMVER.7/bin/python2.7
-        BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/2.7/lib/libpython2.7.dylib"
-        BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/2.7/include/python2.7"
+        PYINST=/System/Library/Frameworks/Python.framework/Versions/$PYMVER.7
+        PY_EXE=$PYINST/bin/python2.7
+        # Next lines are not necessary if we give the actual path for the executable to cmake
+        #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PYINST/lib/libpython2.7.dylib"
+        #BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_INCLUDE_DIR=$PYINST/include/python2.7"
       else
-        brew upgrade python || travis_terminate 1
+        brew upgrade python || true # don't fail if upgrading doesn't do anything
         # find exact location of Python executable to pass to CMake
         # we attempt to find the last one if there are multiple Python 3 versions installed
-        PY_INST=$(ls /usr/local/Cellar/python/$PYMVER.*/Frameworks/Python.framework/Versions/$PYMVER.*|tail -n 1)
+        PY_INST=$(ls -d1 /usr/local/Cellar/python/$PYMVER.*/Frameworks/Python.framework/Versions/$PYMVER.*|tail -n 1)
+        PYMVER=$(basename ${PY_INST})
         PY_EXE=$PY_INST/bin/python$PYMVER
-        # This is not necessary if we give the actual path for the executable
+        if [ ! -x "$PY_EXE" ]; then
+          echo "Something wrong with finding Python executable for OSX"
+          echo "PY_EXE = $PY_EXE"
+          travis_terminate 1
+        fi
+        # Next lines are not necessary if we give the actual path for the executable to cmake
         #PY_LIB=$PY_INST/Python
         #PY_INC=$PY_INST/Headers
         # BUILD_FLAGS="$BUILD_FLAGS -DPYTHON_LIBRARY=$PY_LIB -DPYTHON_INCLUDE_DIR=$PY_INC"
@@ -138,22 +145,22 @@ before_install:
         brew install ace
         brew install swig
         brew install ccache
-        # brew install scipy matplotlib
         # need curl to get pip and more recent cmake
         brew install curl
-        curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
-        tar xzf cmake.tar.gz
-        mv cmake-*/CMake.app/Contents/* cmake-*
+        #brew install cmake # already present
+        # alternative: get our own
+        #curl -0 https://cmake.org/files/v3.8/cmake-3.8.0-Darwin-x86_64.tar.gz -o cmake.tar.gz
+        #tar xzf cmake.tar.gz
+        #mv cmake-*/CMake.app/Contents/* cmake-*
+        #export PATH="$PWD/cmake-*/bin:$PATH"
       )
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       PY_EXE=python$PYMVER
       curl -0 https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake.tar.gz
       tar xzf cmake.tar.gz
+      export PATH="$PWD/cmake-*/bin:$PATH"
     fi
- # cmake override
- - pushd cmake-*/bin
- - export PATH="$PWD:$PATH"
- - popd
+ - echo "Using Python executable $PY_EXE"
  # get pip
  - curl -0 https://bootstrap.pypa.io/get-pip.py -o get-pip.py
  - $PY_EXE get-pip.py --user
@@ -167,17 +174,6 @@ before_install:
  - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
  # count unique clones, excluding travis, and print total
  - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
- - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      # pip path fix
-      # show lib/site-packages path
-      $PY_EXE -m pydoc pip | grep -i -A 1 file
-      $PY_EXE -m pydoc codecov | grep -i -A 1 file
-      # append python bin dir to path (consult output from previous lines)
-      pushd $HOME/Library/Python/$PYMVER*/bin
-      export PATH="$PWD:$PATH"
-      popd
-    fi
  - $PY_EXE --version
  - $PY_EXE -m pip --version
  - $PY_EXE -m pip freeze
@@ -196,6 +192,7 @@ before_install:
  - cd ..
  - git clone https://github.com/CCPPETMR/SIRF-SuperBuild --recursive -b master
  - cd SIRF-SuperBuild
+ - cmake --version
 
 install:
  - $PY_EXE -m pip install --user --only-binary=numpy,scipy,matplotlib numpy scipy matplotlib
