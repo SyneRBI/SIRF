@@ -92,12 +92,12 @@ void run_tests_dynamic_simulation( void )
 
 	// tests_successful *= tests_mr_dynsim::test_constructor();
 	// tests_mr_dynsim::test_extract_src_information();
-	// tests_successful *= tests_mr_dynsim::test_simulate_dynamics( );
+	tests_successful *= tests_mr_dynsim::test_simulate_dynamics( );
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	tests_successful *= test_pet_dynsim::test_simulate_dynamics();
+	// tests_successful *= test_pet_dynsim::test_simulate_dynamics();
 
 	if ( !tests_successful )
 	{
@@ -118,6 +118,7 @@ void run_tests_noise_generator( void )
 	bool tests_successful = true;
 
 	tests_successful *= test_noisegen::test_add_poisson_noise();
+	tests_successful *= test_noisegen::test_add_gaussian_noise();
 
 	if ( !tests_successful )
 	{

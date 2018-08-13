@@ -7,6 +7,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
+#include <random>
+#include <stdexcept>
+
 
 #include "dynsim_noisegenerator.h"
 
@@ -27,5 +30,34 @@ void PoissonNoiseGenerator::add_noise( PETAcquisitionData& noisy_acq, PETAcquisi
 	catch(...)
 	{
 		std::cout << "Something went wrong in adding poisson noise" << std::endl;
+	}
+}
+
+
+void GaussianNoiseGenerator::add_noise( MRAcquisitionData& noisy_acquisition_data, MRAcquisitionData& noise_free_acquisition_data ) 
+{
+
+	std::default_random_engine generator;
+	generator.seed( this->random_seed_ ); 
+	std::normal_distribution< float > gaussian_distribution( this->mean_noise_ , this->width_noise_ );
+
+	if(noisy_acquisition_data.number() != 0)
+		throw std::runtime_error("Please give an empty container as noisy acquisitions. It will be filled with the noised data."); 
+
+	ISMRMRD::Acquisition source_acq;
+
+	for( size_t i_acq=0; i_acq<noise_free_acquisition_data.number(); i_acq++)
+	{
+		noise_free_acquisition_data.get_acquisition( i_acq, source_acq);
+		ISMRMRD::Acquisition noisy_acq(source_acq);
+
+		complex_float_t* const ptr_data =  noisy_acq.getDataPtr();
+		
+		for(size_t i_data_point=0; i_data_point<noisy_acq.getNumberOfDataElements(); i_data_point++)
+		{
+			*(ptr_data + i_data_point) +=  complex_float_t(gaussian_distribution(generator), gaussian_distribution(generator));	
+		}
+
+		noisy_acquisition_data.append_acquisition(noisy_acq);
 	}
 }

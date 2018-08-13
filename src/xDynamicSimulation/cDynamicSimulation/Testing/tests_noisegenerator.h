@@ -9,7 +9,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
-#include "auxiliary_testing_functions.h"
 #include "dynsim_noisegenerator.h"
 
 
@@ -18,5 +17,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 namespace test_noisegen{
 
 	bool test_add_poisson_noise( void );
+	bool test_add_gaussian_noise( void );
 
 }

@@ -29,8 +29,7 @@ class aNoiseGenerator{
 public:
 
 	aNoiseGenerator(){};
-	aNoiseGenerator( SeedType const random_seed ): random_seed_(random_seed){};
-
+	aNoiseGenerator( SeedType const random_seed ): random_seed_(random_seed){}
 	virtual void set_random_seed( SeedType const seed) {this->random_seed_ = seed;};
 	SeedType const get_random_seed( void ) {return this->random_seed_;};
 
@@ -71,9 +70,10 @@ public:
 	GaussianNoiseGenerator():aNoiseGenerator(){};
 	GaussianNoiseGenerator(float const width_noise): aNoiseGenerator(), width_noise_(width_noise){};	
 
-	void add_noise(sirf::MRAcquisitionData& noisy_acq, sirf::MRAcquisitionData& noise_free_acq ){};
+	void add_noise(sirf::MRAcquisitionData& noisy_acquisition_data, sirf::MRAcquisitionData& noise_free_acquisition_data );
 
 private:
+	static float constexpr mean_noise_ = 0.f;
 	float width_noise_;
 
 };
