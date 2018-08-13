@@ -18,7 +18,7 @@ SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "
 SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Create library
-ADD_LIBRARY(SIRFReg ${SOURCES} ${STIR_REGISTRIES})
+ADD_LIBRARY(SIRFReg ${SOURCES})
 #TARGET_LINK_LIBRARIES(SIRFReg SIRF_common)
 
 # Link against stir and gadgetron
