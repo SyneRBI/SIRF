@@ -97,8 +97,7 @@ ELSEIF(NR_VERSION LESS 1.6)
         )
 ENDIF()
  
-# Loop over each library, find it and add it. 
-# Do it twice to resolve linking errors depending on order
+# Loop over each library, find it and add it. Then link. Do it twice to resolve linking errors depending on order
 FOREACH(elem ${NiftyReg_requiredLibs} ${NiftyReg_requiredLibs})
     FIND_LIBRARY(NiftyReg_${elem} ${elem} HINTS ${NiftyReg_Install_DIR}/lib)
     MARK_AS_ADVANCED(NiftyReg_${elem})

@@ -18,7 +18,7 @@ SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "
 SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Create library
-ADD_LIBRARY(SIRFReg ${SOURCES})
+ADD_LIBRARY(SIRFReg ${SOURCES} )
 #TARGET_LINK_LIBRARIES(SIRFReg SIRF_common)
 
 # Link against stir and gadgetron
@@ -48,8 +48,8 @@ SET(SIRFREG_executables
     affine_to_disp
     sirfreg_aladin)
 
-FOREACH(elem ${SIRFREG_executables})
-    ADD_EXECUTABLE(${elem} ${elem}.cpp)
+FOREACH(elem ${SIRFREG_executables} )
+    ADD_EXECUTABLE(${elem} ${elem}.cpp ${STIR_REGISTRIES})
     TARGET_LINK_LIBRARIES(${elem} LINK_PUBLIC SIRFReg)
     INSTALL(TARGETS ${elem} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 ENDFOREACH(elem ${SIRFREG_executables})
