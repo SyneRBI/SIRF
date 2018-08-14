@@ -12,6 +12,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <utility>
 #include <vector>
 
+#include "tissueparameters.h"
+#include "tissuelabelmapper.h"
+
 
 #include "gadgetron_data_containers.h"
 
@@ -77,14 +80,19 @@ protected:
 
 };
 
-/*
+
 class ContrastDynamic : public aDynamic {
 
 public:
 	ContrastDynamic():aDynamic(){};
-protected:
-	// std::vector< TissueParameter > tissueparam_time_series_;
 
-};*/
+	TissueParameter linear_interpolate_tissue(TimeAxisType const time_point);
+	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
+
+protected:
+	std::vector< LabelType > list_cont_var_labels_;
+	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
+
+};
 
 

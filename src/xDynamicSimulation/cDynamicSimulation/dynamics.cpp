@@ -231,16 +231,17 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 
 
 
+void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
+{
+	this->tissue_parameter_extremes_.first = tiss_at_0;
+	this->tissue_parameter_extremes_.second = tiss_at_1;
+}
 
-
-
-
-
-
-
-
-
-
+TissueParameter ContrastDynamic::linear_interpolate_tissue(TimeAxisType const time_point)
+{
+	SignalAxisType signal = this->linear_interpolate_signal(time_point);
+	return (signal * this->tissue_parameter_extremes_.first +  (1.f - signal) * this->tissue_parameter_extremes_.second);
+}
 
 
 
