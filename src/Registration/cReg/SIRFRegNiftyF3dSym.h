@@ -50,15 +50,15 @@ public:
     void update();
 
     /// Set floating time point
-    void set_floating_time_point(int floating_time_point) { _floating_time_point = floating_time_point; }
+    void set_floating_time_point(const int floating_time_point) { _floating_time_point = floating_time_point; }
 
     /// Set reference time point
-    void set_reference_time_point(int reference_time_point) { _reference_time_point = reference_time_point; }
+    void set_reference_time_point(const int reference_time_point) { _reference_time_point = reference_time_point; }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(mat44 *mat)
+    void set_initial_affine_transformation(const mat44 &mat)
     {
-        _initial_transformation_sptr     = std::make_shared<mat44>(*mat);
+        _initial_transformation_sptr     = std::make_shared<mat44>(mat);
         _initial_transformation_filename = "";
     }
 
@@ -68,6 +68,18 @@ public:
         _initial_transformation_filename = filename;
         _initial_transformation_sptr.reset();
     }
+
+    /// Get forward deformation field image
+    SIRFImageDataDeformation get_deformation_fwrd()  const { return _def_image_fwrd;  }
+
+    /// Get backward deformation field image
+    SIRFImageDataDeformation get_deformation_back()  const { return _def_image_back;  }
+
+    /// Get forward displacement field image
+    SIRFImageDataDeformation get_displacement_fwrd() const { return _disp_image_fwrd; }
+
+    /// Get backward displacement field image
+    SIRFImageDataDeformation get_displacement_back() const { return _disp_image_back; }
 
 protected:
 

@@ -66,9 +66,9 @@ public:
     }
 
     /// Set transformation matrix
-    void set_transformation_matrix(const mat44 *transformation_matrix)
+    void set_transformation_matrix(const mat44 &transformation_matrix)
     {
-        _transformation_matrix = std::make_shared<mat44>(*transformation_matrix);
+        _transformation_matrix = std::make_shared<mat44>(transformation_matrix);
     }
 
     /// Set transformation matrix
