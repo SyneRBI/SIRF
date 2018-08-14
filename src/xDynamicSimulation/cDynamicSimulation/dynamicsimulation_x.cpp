@@ -36,6 +36,23 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	this->mr_cont_gen_.map_contrast();
 	//this->mr_cont_gen_.match_output_dims_to_headerinfo();
 
+	this->acquire_raw_data();
+
+}
+
+void MRDynamicSimulation::extract_src_information( void )
+{
+	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
+
+	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
+
+	this->source_acquisitions_ = mr_io::read_ismrmrd_acquisitions( filename_rawdata_ );
+	this->target_acquisitions_.copy_acquisitions_info( this->source_acquisitions_ );
+
+}
+
+void MRDynamicSimulation::acquire_raw_data( void )
+{
 
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
@@ -81,20 +98,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		this->acq_model_.fwd(curr_img_wrap, csm_as_img, this->target_acquisitions_, offset);
 	}
-
 }
-
-void MRDynamicSimulation::extract_src_information( void )
-{
-	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
-
-	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-
-	this->source_acquisitions_ = mr_io::read_ismrmrd_acquisitions( filename_rawdata_ );
-	this->target_acquisitions_.copy_acquisitions_info( this->source_acquisitions_ );
-
-}
-
 
 void PETDynamicSimulation::write_simulation_results( std::string const filename_output_with_extension )
 {
@@ -102,22 +106,28 @@ void PETDynamicSimulation::write_simulation_results( std::string const filename_
 }
 
 
+
+
+void PETDynamicSimulation::simulate_dynamics()
+{
+	this->pet_cont_gen_.map_contrast();
+	this->set_template_acquisition_data();
+	this->acquire_raw_data();
+}
+		
 void PETDynamicSimulation::set_template_acquisition_data(void)
 {
 	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
 }
 
-void PETDynamicSimulation::simulate_dynamics()
-{
 
-	this->pet_cont_gen_.map_contrast();
+void PETDynamicSimulation::acquire_raw_data( void )
+{
 	std::vector< sirf::PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
 	size_t num_contrast = contrast_filled_volumes.size();
 
 	if( num_contrast != 1)
 		throw std::runtime_error("Please give only one contrast for the time being."); // POSSIBLY REMOVE LATER!
-
-
 
 	auto dims = pet_cont_gen_.get_dimensions();
 	auto vxsizes = pet_cont_gen_.get_voxel_sizes();
@@ -149,6 +159,4 @@ void PETDynamicSimulation::simulate_dynamics()
 		this->target_acquisitions_ = this->acq_model_.forward(curr_img);
 
 	 }
-
 }
-		

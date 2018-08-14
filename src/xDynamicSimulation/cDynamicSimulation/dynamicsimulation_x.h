@@ -54,6 +54,10 @@ public:
 	{
 		this->motion_dynamics_.push_back(motion_dyn);
 	};
+
+	virtual void acquire_raw_data( void ) = 0;
+
+
 	/*
 	void add_dynamic( ContrastDynamic cont_dyn) 
 	{
@@ -83,9 +87,13 @@ public:
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
-	void extract_src_information( void );
+
+
 
 	void simulate_dynamics( void );
+	void extract_src_information( void );
+	
+	virtual void acquire_raw_data( void );
 
 private:
 
@@ -106,9 +114,14 @@ public:
 	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ):aDynamicSimulation(), pet_cont_gen_(pet_cont_gen){};
 		
 	void simulate_dynamics( void );
-	void write_simulation_results( std::string const filename_output_with_extension );
 
 	void set_template_acquisition_data( void );
+
+	virtual void acquire_raw_data( void );
+
+	void write_simulation_results( std::string const filename_output_with_extension );
+
+	
 
 private:
 
