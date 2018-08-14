@@ -136,7 +136,7 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!SIRFRegMisc::do_nifti_image_match(_input_images[i],_input_images[j])) can_do_mean = false;
+            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j])) can_do_mean = false;
         }
     }
 
