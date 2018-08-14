@@ -26,6 +26,10 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 }
 
+void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label, TissueParameter tiss_param)	
+{
+	this->tlm_.replace_petmr_tissue_parameters(label, tiss_param);
+}
 
 
 MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
@@ -379,5 +383,6 @@ std::vector< float > PETContrastGenerator::get_template_based_volume_subset(std:
 
 	return out;
 }
+
 
 
