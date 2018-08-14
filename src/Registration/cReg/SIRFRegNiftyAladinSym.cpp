@@ -63,6 +63,11 @@ void SIRFRegNiftyAladinSym<T>::update()
     // Get the output
     _warped_image = SIRFImageData(_registration_sptr->GetFinalWarpedImage());
 
+    // For some reason, dt & pixdim[4] are sometimes set to 1
+    if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
+            _reference_image.get_image_as_nifti()->dt < 1.e-7F)
+        _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
+
     // Get the forward and backward transformation matrices
     _TM_fwrd_sptr = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
     _TM_back_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_TM_fwrd_sptr.get()));
