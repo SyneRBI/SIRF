@@ -24,8 +24,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 
 
+typedef unsigned int LabelType;
 typedef std::vector< std::shared_ptr<TissueParameter> > TissueVector;
-typedef ISMRMRD::NDArray<unsigned int> LabelArray;
+typedef ISMRMRD::NDArray<LabelType> LabelArray;
 
 class TissueLabelMapper{
 
