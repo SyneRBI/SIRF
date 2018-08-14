@@ -41,6 +41,7 @@ public:
 	aDynamic() {};
 	aDynamic(int const num_simul_states);
 
+	int get_num_simul_states( void ){ return this->num_simul_states_; };
 
 	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
 	void set_num_simul_states(int const num_states);
@@ -86,10 +87,12 @@ class ContrastDynamic : public aDynamic {
 public:
 	ContrastDynamic():aDynamic(){};
 
-	TissueParameter linear_interpolate_tissue(TimeAxisType const time_point);
+	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
+
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
 protected:
+
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
 

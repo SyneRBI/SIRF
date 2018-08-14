@@ -237,15 +237,22 @@ void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissuePa
 	this->tissue_parameter_extremes_.second = tiss_at_1;
 }
 
-TissueParameter ContrastDynamic::linear_interpolate_tissue(TimeAxisType const time_point)
+
+TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisType const signal)
 {
-	SignalAxisType signal = this->linear_interpolate_signal(time_point);
-	return (signal * this->tissue_parameter_extremes_.first +  (1.f - signal) * this->tissue_parameter_extremes_.second);
+	TissueParameterList tiss_list;
+
+	for(size_t i=0; i< this->list_cont_var_labels_.size(); i++)
+	{
+		TissueParameter curr_par = (signal * this->tissue_parameter_extremes_.first + (1-signal) * this->tissue_parameter_extremes_.second);
+		curr_par.name_ = "";	// name info is lost unfortunately, but better than the wrong information
+		curr_par.label_ = this->list_cont_var_labels_[i];
+
+		tiss_list.push_back( curr_par);
+	}
+
+	return tiss_list;
 }
-
-
-
-
 
 
 
