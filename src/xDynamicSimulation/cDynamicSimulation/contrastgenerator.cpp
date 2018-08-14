@@ -364,7 +364,6 @@ std::vector< float > PETContrastGenerator::get_template_based_volume_subset(std:
 			offsets.push_back(data_dims[i]/2 - template_dims[i]/2);
 		else
 			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
-		std::cout << offsets[i] << std::endl;
 	}
 
 	for(size_t nz = 0; nz<template_dims[2]; nz++)
