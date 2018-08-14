@@ -37,7 +37,7 @@ int main( int argc, char *argv[] )
 		// run_tests_phantom_input();
 		// run_tests_encoding();
 		// run_tests_mr_acquisition_model();
-		// run_tests_dynamic_simulation();
+		run_tests_dynamic_simulation();
 		// run_tests_dynamics();
 		// run_tests_noise_generator();
 		
