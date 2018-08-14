@@ -32,6 +32,11 @@ LabelArray TissueLabelMapper::get_segmentation_labels( void )
 	return this->segmentation_labels_;
 }
 
+TissueParameterList TissueLabelMapper::get_tissue_parameter_list( void )
+{
+	return this->tissue_parameter_list_;
+}
+
 void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 {
 	this->tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
@@ -81,3 +86,28 @@ TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list,
 }
 
 
+
+void TissueLabelMapper::replace_petmr_tissue_parameters( const LabelType&  label, const TissueParameter& replacement_tiss)
+{
+	size_t const num_tissues = tissue_parameter_list_.size();
+
+	bool label_found = false;
+
+	for( size_t i_tiss=0; i_tiss<num_tissues; i_tiss++)
+	{
+		TissueParameter curr_tiss = this->tissue_parameter_list_[i_tiss];
+
+		if(curr_tiss.label_ == label)
+		{
+			curr_tiss.mr_tissue_ = replacement_tiss.mr_tissue_;
+			curr_tiss.pet_tissue_ = replacement_tiss.pet_tissue_;
+
+			this->tissue_parameter_list_[i_tiss] = curr_tiss;			
+			label_found = true;
+			
+			break;
+		}
+	}
+	if( !label_found )
+		throw std::runtime_error("The label you tried to replace did not exist in the segmentation.");
+}

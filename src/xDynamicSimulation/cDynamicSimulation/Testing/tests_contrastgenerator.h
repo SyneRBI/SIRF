@@ -53,6 +53,7 @@ bool test_assign_tissue_parameters_label_found( void );
 bool test_assign_tissue_parameters_label_not_found( void );
 
 bool test_map_labels_to_tissue_from_xml( void );
+bool test_replace_petmr_tissue_parameters( void );
 
 }// namespace test_tlm
 

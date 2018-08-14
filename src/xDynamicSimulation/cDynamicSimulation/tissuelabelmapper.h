@@ -40,12 +40,14 @@ public:
 	};
 
 	std::string get_filepath_tissue_parameter_xml( void );
-	LabelArray get_segmentation_labels( void );
-	
 	const size_t* get_segmentation_dimensions( void );
 
+	LabelArray get_segmentation_labels( void );
+	TissueParameterList get_tissue_parameter_list( void );
+	
 	void map_labels_to_tissue_from_xml( void );
 
+	void replace_petmr_tissue_parameters( const LabelType&  label, const TissueParameter& tiss);
 
 //private:
 

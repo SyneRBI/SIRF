@@ -249,7 +249,7 @@ bool test_contgen::test_pet_constructor( void )
 	try
 	{
 		LabelArray label_arr = aux_test::get_mock_label_array();
-		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+		PETContrastGenerator pet_contgen (label_arr, XML_XCAT_PATH); 
 
 		return true;
 	}
@@ -265,12 +265,10 @@ bool test_contgen::test_pet_map_contrast( void )
 {
 	try
 	{
-		LabelArray label_arr = aux_test::get_mock_label_array();
+		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
-		PETContrastGenerator pet_contgen (label_arr, XML_TEST_PATH); 
+		PETContrastGenerator pet_contgen (label_arr, XML_XCAT_PATH); 
 		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
-
-
 
 		pet_contgen.map_contrast();
 
@@ -291,7 +289,7 @@ bool test_contgen::test_pet_map_attenuation( void )
 {
 	try
 	{
-		LabelArray label_arr = aux_test::get_mock_label_array();
+		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
 		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
@@ -313,7 +311,7 @@ bool test_contgen::test_set_template_image_from_file( void )
 {
 	try
 	{
-		LabelArray label_arr = aux_test::get_mock_label_array();
+		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
 		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
@@ -492,4 +490,59 @@ bool test_tlm::test_map_labels_to_tissue_from_xml( void )
 	}
 
 	return all_labels_correct;
+}
+
+
+bool test_tlm::test_replace_petmr_tissue_parameters( void )
+
+{
+	try
+	{
+		
+		LabelArray lab_arr = aux_test::get_mock_label_array();
+		TissueLabelMapper tlm(lab_arr, XML_TEST_PATH);
+
+		tlm.map_labels_to_tissue_from_xml();
+
+		TissueParameterList tpl_before_replacement = tlm.get_tissue_parameter_list();
+
+
+		LabelType label_to_replace = 2;
+
+		TissueParameter tiss_par_to_substitute;
+		tiss_par_to_substitute.name_ = "lala";
+		tiss_par_to_substitute.label_ = 19;
+		tiss_par_to_substitute.mr_tissue_.t1_miliseconds_ = 1.01;
+		tiss_par_to_substitute.mr_tissue_.t2_miliseconds_ = 1.02;
+		tiss_par_to_substitute.mr_tissue_.cs_ppm_ = 1.03;
+		tiss_par_to_substitute.mr_tissue_.spin_density_percentH2O_ = 1.04;
+
+		tiss_par_to_substitute.pet_tissue_.attenuation_1_by_mm_= 1.05;
+		tiss_par_to_substitute.pet_tissue_.suv_= 1.06;
+
+		tlm.replace_petmr_tissue_parameters(label_to_replace, tiss_par_to_substitute);
+
+		TissueParameterList tpl_after_replacement = tlm.get_tissue_parameter_list();
+
+		for(size_t i=0; i<tpl_after_replacement.size(); i++)
+		{
+
+			TissueParameter curr_tiss = tpl_after_replacement[i];
+			TissueParameter ancient_tiss = tpl_before_replacement[i];
+
+			if(curr_tiss.label_ == label_to_replace )	
+			{
+				std::cout << epiph(curr_tiss.mr_tissue_.t1_miliseconds_) << std::endl;	
+				std::cout << epiph(ancient_tiss.mr_tissue_.t1_miliseconds_) << std::endl;
+			}
+		}
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
 }
