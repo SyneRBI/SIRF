@@ -31,6 +31,7 @@ limitations under the License.
 #define _SIRFREGNIFTYF3DSYM_H_
 
 #include "SIRFReg.h"
+#include "SIRFRegMisc.h"
 
 template<class T> class reg_f3d_sym;
 
@@ -44,6 +45,7 @@ public:
     {
         _floating_time_point  = -1;
         _reference_time_point = -1;
+        _use_initial_transformation = false;
     }
 
     /// Update
@@ -58,15 +60,15 @@ public:
     /// Set initial affine transformation
     void set_initial_affine_transformation(const mat44 &mat)
     {
-        _initial_transformation_sptr     = std::make_shared<mat44>(mat);
-        _initial_transformation_filename = "";
+        _initial_transformation = mat;
+        _use_initial_transformation = true;
     }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(std::string filename)
+    void set_initial_affine_transformation(const std::string &filename)
     {
-        _initial_transformation_filename = filename;
-        _initial_transformation_sptr.reset();
+        SIRFRegMisc::open_transformation_matrix(_initial_transformation,filename);
+        _use_initial_transformation = true;
     }
 
     /// Get forward deformation field image
@@ -97,9 +99,9 @@ protected:
     /// Reference time point
     int _reference_time_point;
     /// Transformation matrix
-    std::shared_ptr<mat44> _initial_transformation_sptr;
-    /// Transformation matrix filename
-    std::string _initial_transformation_filename;
+    mat44 _initial_transformation;
+    /// Bool to use transformation matrix
+    bool _use_initial_transformation;
 };
 
 #endif

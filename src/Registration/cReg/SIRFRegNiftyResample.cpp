@@ -46,16 +46,16 @@ void SIRFRegNiftyResample::update()
     check_parameters();
 
     // If transformation matrix
-    if (_transformation_matrix) {
+    if (_transformation_type == TM) {
         _deformation_field.create_from_3D_image(_reference_image);
 #if NIFTYREG_VER_1_5
-        reg_affine_getDeformationField(_transformation_matrix.get(),_deformation_field.get_image_as_nifti().get());
+        reg_affine_getDeformationField(&_transformation_matrix,_deformation_field.get_image_as_nifti().get());
 #elif NIFTYREG_VER_1_3
         reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),_deformation_field.get());
 #endif
     }
     // If displacement field
-    else if (_displacement_field.is_initialised()) {
+    else if (_transformation_type == disp) {
         _deformation_field = _displacement_field;
         SIRFRegMisc::convert_from_disp_to_def(_deformation_field);
     }
@@ -93,9 +93,7 @@ void SIRFRegNiftyResample::check_parameters()
     if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }
 
-    if ((_transformation_type == TM && !_transformation_matrix) ||
-            (_transformation_type == disp && !_displacement_field.is_initialised()) ||
-            (_transformation_type == def && !_deformation_field.is_initialised()))
+    if (_transformation_type == T_NOTSET)
         throw std::runtime_error("Transformation not set.");
 }
 

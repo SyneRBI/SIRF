@@ -247,7 +247,7 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 
 #if NIFTYREG_VER_1_3
 /// Get cpp from transformation matrix
-void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr)
+void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr)
 {
     // Copy info from the reference image
     nifti_image *cpp_ptr = cpp_sptr.get();
@@ -528,32 +528,29 @@ void dump_nifti_info(const vector<SIRFImageData> &ims)
 }
 
 /// Save transformation matrix to file
-void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const string &filename)
+void save_transformation_matrix(const mat44 &transformation_matrix, const string &filename)
 {
-    // Check that the matrix exists
-    if (!transformation_matrix_sptr)
-        throw runtime_error("Transformation matrix is null pointer, can't save.");
-
     // Check that input isn't blank
     if (filename == "")
         throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
-    reg_tool_WriteAffineFile(transformation_matrix_sptr.get(), filename.c_str());
+    // Have to create copy as the following function isn't const
+    mat44 temp = transformation_matrix;
+    reg_tool_WriteAffineFile(&temp, filename.c_str());
 }
 
 /// Read transformation matrix from file
-void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string& filename)
+void open_transformation_matrix(mat44 &transformation_matrix, const string& filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename))
         throw runtime_error("Cannot find the file: " + filename + ".");
 
     cout << "\n\nReading transformation matrix from file...\n\n";
-    transformation_matrix_sptr = make_shared<mat44>();
-    reg_tool_ReadAffineFile(transformation_matrix_sptr.get(), (char*)filename.c_str());
+    reg_tool_ReadAffineFile(&transformation_matrix, (char*)filename.c_str());
     cout << "\n\nSuccessfully read transformation matrix from file:\n";
 
-    print_mat44(*transformation_matrix_sptr);
+    print_mat44(transformation_matrix);
 }
 
 /// Print mat44

@@ -47,10 +47,10 @@ public:
     void update();
 
     /// Get forwards transformation matrix
-    mat44 *get_transformation_matrix_fwrd() const { return _TM_fwrd_sptr.get(); }
+    const mat44 &get_transformation_matrix_fwrd() const { return _TM_fwrd; }
 
     /// Get backwards transformation matrix
-    mat44 *get_transformation_matrix_back() const { return _TM_back_sptr.get(); }
+    const mat44 &get_transformation_matrix_back() const { return _TM_back; }
 
     /// Save forwards transformation matrix to file
     void save_transformation_matrix_fwrd(const std::string &filename) const;
@@ -63,9 +63,6 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
-    /// Save transformation matrix to file
-    void save_transformation_matrix(const std::shared_ptr<mat44> &TM_sptr, const std::string &filename) const;
-
     /// Register object
 #if NIFTYREG_VER_1_5
     std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
@@ -74,9 +71,9 @@ protected:
 #endif
 
     /// Forwards transformation matrix
-    std::shared_ptr<mat44> _TM_fwrd_sptr;
+    mat44 _TM_fwrd;
     /// Backwards transformation matrix
-    std::shared_ptr<mat44> _TM_back_sptr;
+    mat44 _TM_back;
 };
 
 #endif

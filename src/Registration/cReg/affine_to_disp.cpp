@@ -142,8 +142,8 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         // Open the transformation matrix
-        std::shared_ptr<mat44> TM_sptr;
-        SIRFRegMisc::open_transformation_matrix(TM_sptr,TM_filename);
+        mat44 TM;
+        SIRFRegMisc::open_transformation_matrix(TM,TM_filename);
 
         // Create images
         std::shared_ptr<nifti_image> ref_sptr, cpp_sptr;
@@ -155,9 +155,9 @@ int main(int argc, char* argv[])
         // Get the deformation field image
 #if NIFTYREG_VER_1_5
         def.create_from_3D_image(ref_sptr);
-        reg_affine_getDeformationField(TM_sptr.get(), def.get_image_as_nifti().get());
+        reg_affine_getDeformationField(&TM, def.get_image_as_nifti().get());
 #elif NIFTYREG_VER_1_3
-        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM_sptr, ref_sptr);
+        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM, ref_sptr);
         SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);
 #endif
 

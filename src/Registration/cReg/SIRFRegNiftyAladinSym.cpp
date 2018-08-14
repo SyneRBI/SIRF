@@ -69,13 +69,13 @@ void SIRFRegNiftyAladinSym<T>::update()
         _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
 
     // Get the forward and backward transformation matrices
-    _TM_fwrd_sptr = std::make_shared<mat44>(*_registration_sptr->GetTransformationMatrix());
-    _TM_back_sptr = std::make_shared<mat44>(nifti_mat44_inverse(*_TM_fwrd_sptr.get()));
+    _TM_fwrd = *_registration_sptr->GetTransformationMatrix();
+    _TM_back = nifti_mat44_inverse(_TM_fwrd);
 
     cout << "\nPrinting forwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(*_TM_fwrd_sptr);
+    SIRFRegMisc::print_mat44(_TM_fwrd);
     cout << "\nPrinting backwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(*_TM_back_sptr);
+    SIRFRegMisc::print_mat44(_TM_back);
 
 
 #if NIFTYREG_VER_1_5
@@ -83,8 +83,8 @@ void SIRFRegNiftyAladinSym<T>::update()
     _def_image_fwrd.create_from_3D_image(_reference_image);
     _def_image_back.create_from_3D_image(_reference_image);
 
-    reg_affine_getDeformationField(_TM_fwrd_sptr.get(), _def_image_fwrd.get_image_as_nifti().get());
-    reg_affine_getDeformationField(_TM_back_sptr.get(), _def_image_back.get_image_as_nifti().get());
+    reg_affine_getDeformationField(&_TM_fwrd, _def_image_fwrd.get_image_as_nifti().get());
+    reg_affine_getDeformationField(&_TM_back, _def_image_back.get_image_as_nifti().get());
 
     _disp_image_fwrd = _def_image_fwrd;
     _disp_image_back = _def_image_back;
@@ -156,13 +156,13 @@ void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
 template<class T>
 void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_fwrd(const std::string &filename) const
 {
-    SIRFRegMisc::save_transformation_matrix(_TM_fwrd_sptr,filename);
+    SIRFRegMisc::save_transformation_matrix(_TM_fwrd,filename);
 }
 
 template<class T>
 void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_back(const std::string &filename) const
 {
-    SIRFRegMisc::save_transformation_matrix(_TM_back_sptr,filename);
+    SIRFRegMisc::save_transformation_matrix(_TM_back,filename);
 }
 
 // Put the instantiations of the template class at the END of the file!

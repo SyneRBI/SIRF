@@ -48,7 +48,7 @@ class SIRFRegNiftyResample
 public:
 
     /// Constructor
-    SIRFRegNiftyResample() { _interpolation_type = I_NOTSET; }
+    SIRFRegNiftyResample() { _interpolation_type = I_NOTSET; _transformation_type = T_NOTSET; }
 
     /// Destructor
     virtual ~SIRFRegNiftyResample() {}
@@ -68,7 +68,8 @@ public:
     /// Set transformation matrix
     void set_transformation_matrix(const mat44 &transformation_matrix)
     {
-        _transformation_matrix = std::make_shared<mat44>(transformation_matrix);
+        _transformation_matrix = transformation_matrix;
+        _transformation_type = TM;
     }
 
     /// Set transformation matrix
@@ -125,7 +126,7 @@ protected:
     };
 
     /// Transformation type
-    enum TransformationType { TM, disp, def };
+    enum TransformationType { T_NOTSET, TM, disp, def };
 
     /// Check parameters
     virtual void check_parameters();
@@ -142,7 +143,7 @@ protected:
     SIRFImageData            _floating_image;
 
     /// Transformation matrix
-    std::shared_ptr<mat44>   _transformation_matrix;
+    mat44                    _transformation_matrix;
     /// Displacement field
     SIRFImageDataDeformation _displacement_field;
     /// Deformation field

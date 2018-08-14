@@ -66,7 +66,7 @@ namespace SIRFRegMisc {
 
     /// Get cpp from transformation matrix
 #if NIFTYREG_VER_1_3
-    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
+    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
 #endif
     /// Get def from cpp
     void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformation &cpp, const SIRFImageData &ref);
@@ -131,10 +131,10 @@ namespace SIRFRegMisc {
     }
 
     /// Save transformation matrix to file
-    void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
+    void save_transformation_matrix(const mat44 &transformation_matrix, const std::string &filename);
 
     /// Read transformation matrix from file
-    void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
+    void open_transformation_matrix(mat44 &transformation_matrix, const std::string &filename);
 
     /// Print mat44
     void print_mat44(const mat44 &mat);
