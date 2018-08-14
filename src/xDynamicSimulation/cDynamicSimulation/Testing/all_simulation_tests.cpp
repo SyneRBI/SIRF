@@ -199,6 +199,9 @@ void run_tests_tissueparameters(void)
 	tests_successful *= test_check_label_uniqueness_fails();
 	tests_successful *= test_check_label_uniqueness_true();
 	
+	tests_successful *= test_TissueParameter_algebra();
+
+
 
 	if ( !tests_successful )
 	{

@@ -12,6 +12,44 @@ institute	PTB Berlin
 
 using boost::property_tree::ptree;
 
+
+
+MRTissueParameter operator* (float  const x, const MRTissueParameter& a_mr) 
+{
+	MRTissueParameter mr_tiss;
+	mr_tiss.spin_density_percentH2O_ = x * a_mr.spin_density_percentH2O_;
+	mr_tiss.t1_miliseconds_ = x * a_mr.t1_miliseconds_;
+	mr_tiss.t2_miliseconds_ = x * a_mr.t2_miliseconds_;
+	mr_tiss.cs_ppm_ = x * a_mr.cs_ppm_;
+	
+	return mr_tiss;
+}
+
+PETTissueParameter operator* (float const x, const PETTissueParameter& a_pet) 
+{
+	PETTissueParameter pet_tiss;
+	pet_tiss.attenuation_1_by_mm_ = x * a_pet.attenuation_1_by_mm_;
+	pet_tiss.suv_ = x * a_pet.suv_;
+	
+	return pet_tiss;
+}
+
+TissueParameter operator* (float const  x, const TissueParameter& a_tiss) 
+{ 
+	TissueParameter tiss;
+	tiss.label_ = a_tiss.label_;
+	tiss.name_ =  a_tiss.name_;
+	
+	tiss.mr_tissue_ =  x * a_tiss.mr_tissue_;
+	tiss.pet_tissue_ =  x * a_tiss.pet_tissue_;
+
+	return tiss;
+}
+
+
+
+
+
 TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepath)
 {	
 	

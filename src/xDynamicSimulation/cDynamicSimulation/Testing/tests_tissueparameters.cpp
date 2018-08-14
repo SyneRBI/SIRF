@@ -9,6 +9,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "tests_tissueparameters.h"
 
+#include "auxiliary_testing_functions.h"
+
 using boost::property_tree::ptree;
 
 
@@ -44,6 +46,55 @@ bool test_allocate_TissueParameter_successful(void)
 	tissue_pars.pet_tissue_ = pet_tiss;
 
 	return true;
+}
+
+bool test_TissueParameter_algebra( void )
+{
+	TissueParameter first_param, second_param;
+		
+	first_param.label_ = 0;
+	first_param.name_ = "name_0";
+
+	first_param.mr_tissue_.spin_density_percentH2O_ = 0.f;
+	first_param.mr_tissue_.t1_miliseconds_ = 0.f;
+	first_param.mr_tissue_.t2_miliseconds_ = 0.f;
+	first_param.mr_tissue_.cs_ppm_ = 0.f;
+
+
+	first_param.pet_tissue_.attenuation_1_by_mm_ = 0.f;
+	first_param.pet_tissue_.suv_ = 0.f;
+
+
+	second_param.label_ = 1;
+	second_param.name_ = "name_1";
+
+	second_param.mr_tissue_.spin_density_percentH2O_ = 1.f;
+	second_param.mr_tissue_.t1_miliseconds_ = 1.f;
+	second_param.mr_tissue_.t2_miliseconds_ = 1.f;
+	second_param.mr_tissue_.cs_ppm_ = 1.f;
+
+
+	second_param.pet_tissue_.attenuation_1_by_mm_ = 1.f;
+	second_param.pet_tissue_.suv_ = 1.f;
+
+	float interpol_weight = 0.3;
+
+	TissueParameter interpol_param = (1.f-interpol_weight) * second_param + interpol_weight*first_param;
+
+	std::cout<<epiph(interpol_param.label_ )<< std::endl;
+	std::cout<<epiph(interpol_param.name_ )<< std::endl;
+
+	std::cout<<epiph(interpol_param.mr_tissue_.spin_density_percentH2O_ )<< std::endl;
+	std::cout<<epiph(interpol_param.mr_tissue_.t1_miliseconds_)<< std::endl;
+	std::cout<<epiph(interpol_param.mr_tissue_.t2_miliseconds_)<< std::endl;
+	std::cout<<epiph(interpol_param.mr_tissue_.cs_ppm_)<< std::endl;
+
+
+	std::cout<<epiph(interpol_param.pet_tissue_.attenuation_1_by_mm_)<< std::endl; 
+	std::cout<<epiph(interpol_param.pet_tissue_.suv_ )<< std::endl;
+
+	return true;
+
 }
 
 
