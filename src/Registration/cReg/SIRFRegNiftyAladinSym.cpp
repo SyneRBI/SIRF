@@ -43,10 +43,6 @@ void SIRFRegNiftyAladinSym<T>::update()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
-    // Open images if necessary, correct if not
-    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
-    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
-
     // Create the registration object
 #if NIFTYREG_VER_1_5
     _registration_sptr = make_shared<reg_aladin_sym<T> >();

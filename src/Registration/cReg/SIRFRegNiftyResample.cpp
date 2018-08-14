@@ -45,9 +45,6 @@ void SIRFRegNiftyResample::update()
     // Check that all the required information has been entered
     check_parameters();
 
-    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
-    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
-
     // If transformation matrix
     if (_transformation_matrix) {
         _deformation_field.create_from_3D_image(_reference_image);

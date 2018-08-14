@@ -44,10 +44,6 @@ void SIRFRegNiftyF3dSym<T>::update()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
-    // Open images if necessary, correct if not
-    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
-    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
-
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
     _registration_sptr->SetFloatingImage(_floating_image.get_image_as_nifti().get());
