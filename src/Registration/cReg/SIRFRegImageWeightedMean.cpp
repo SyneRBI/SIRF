@@ -106,16 +106,14 @@ void SIRFRegImageWeightedMean::save_image_to_file(const string &filename) const
 
 void SIRFRegImageWeightedMean::check_can_do_mean() const
 {
-    std::string errors;
-
     // Check that num_images > 0. If not, throw error
     if (_input_images.size() == 0)
-        errors += "Need to add images to be able to do weighted mean.\n";
+        throw std::runtime_error("Need to add images to be able to do weighted mean.");
 
     // Print all the info
     std::cout << "\n\nChecking that images can be combined...\n\n";
-    std::cout << "im || datatype | ndim | nvox    | nx  | ny  | nz | dx     | dy     | dz  \n";
-    std::cout << "---++----------+------+---------+-----+-----+----+--------+--------+-----\n";
+    std::cout << "im || datatype | ndim | nvox     | nx  | ny  | nz | dx      | dy      | dz  \n";
+    std::cout << "---++----------+------+----------+-----+-----+----+---------+---------+------\n";
     for (unsigned i=0; i<_input_images.size(); i++) {
         std::cout << i << "  || ";
         std::string data_type = nifti_datatype_string(_input_images[i].get_image_as_nifti()->datatype);
