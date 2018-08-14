@@ -283,12 +283,12 @@ void SIRFImageData::save_to_file(const std::string &filename) const
 
 float SIRFImageData::get_max() const
 {
-    if(!this->is_initialised())
+    if(!_nifti_image)
         throw runtime_error("Image not initialised.");
-    if (_nifti_image->datatype != DT_FLOAT32)
-        throw runtime_error("Only implemented for floating precision.");
 
-    float *data = static_cast<float*>(_nifti_image->data);
+    // Get image as float
+    SIRFImageData temp = this->get_as_float_sirf_imagedata();
+    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
     return *std::max_element(data, data + _nifti_image->nvox);
 }
 
@@ -296,10 +296,10 @@ float SIRFImageData::get_min() const
 {
     if(!this->is_initialised())
         throw runtime_error("Image not initialised.");
-    if (_nifti_image->datatype != DT_FLOAT32)
-        throw runtime_error("Only implemented for floating precision.");
 
-    float *data = static_cast<float*>(_nifti_image->data);
+    // Get image as float
+    SIRFImageData temp = this->get_as_float_sirf_imagedata();
+    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
     return *std::min_element(data, data + _nifti_image->nvox);
 }
 
@@ -307,18 +307,35 @@ float SIRFImageData::get_element(const int x, const int y, const int z) const
 {
     if(!this->is_initialised())
         throw runtime_error("Image not initialised.");
-    if (_nifti_image->datatype != DT_FLOAT32)
-        throw runtime_error("Only implemented for floating precision.");
+
+    // Get image as float
+    SIRFImageData temp = this->get_as_float_sirf_imagedata();
+    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
 
     int nx = _nifti_image->nx;
     int ny = _nifti_image->nz;
     int nz = _nifti_image->ny;
 
-    if(x<0 || x>=nx || y<0 || y>=ny || z<0 || z>=nz)
-        throw runtime_error("Out of bounds");
+    if (_nifti_image->ndim > 3)
+        throw std::runtime_error("get_element: Currently only implemented for 3 dimensions");
 
-    float *data = static_cast<float*>(_nifti_image->data);
+    if(x<0 || x>=nx || y<0 || y>=ny || z<0 || z>=nz)
+        throw std::runtime_error("get_element: Element out of bounds");
+
     std::cout << "\nBe careful, I made this quickly for debugging and haven't thought about data order."
                  " You might have to switch x and z.\n";
-    return(data[x*ny*nz + y*nz + z]);
+
+    return data[x*ny*nz + y*nz + z];
+}
+
+const SIRFImageData SIRFImageData::get_as_float_sirf_imagedata() const
+{
+    SIRFImageData copy;
+    copy = *this;
+
+    // If datatype is already float, return
+    if (_nifti_image->datatype != DT_FLOAT32)
+        reg_tools_changeDatatype<float>(copy.get_image_as_nifti().get());
+
+    return copy;
 }

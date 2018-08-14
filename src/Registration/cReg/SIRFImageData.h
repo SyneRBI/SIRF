@@ -88,6 +88,9 @@ public:
     /// Get element
     float get_element(const int x, const int y, const int z) const;
 
+    /// Get as float SIRFImageData (deep copy)
+    const SIRFImageData get_as_float_sirf_imagedata() const;
+
 protected:
 
     /// Set up nifti image
