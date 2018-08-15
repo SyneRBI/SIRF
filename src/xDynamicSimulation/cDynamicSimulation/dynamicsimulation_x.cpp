@@ -31,53 +31,70 @@ void MRDynamicSimulation::write_simulation_results( std::string const filename_o
 
 void MRDynamicSimulation::simulate_dynamics( void )
 {
-	this->extract_src_information();
+	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 
-
-
-
-
-	if(this->contrast_dynamics_.size() != 1 || this->motion_dynamics_.size() != 0)
+	if(this->motion_dynamics_.size() != 0)
 		throw std::runtime_error("So far only one contrast and zero motion dynamics are supported. Please give the appropriate number of dynamics.");			
 
-	ContrastDynamic cont_dyn = this->contrast_dynamics_[0];
-	std::vector< SignalBin > signal_bins = cont_dyn.get_bins();
-	std::vector<sirf::AcquisitionsVector> binned_acquisitions = cont_dyn.get_binned_mr_acquisitions();
+	
+	size_t const num_contrast_dyns = this->contrast_dynamics_.size();
 
-	for(int i_dyn_state=0; i_dyn_state < cont_dyn.get_num_simul_states(); i_dyn_state++)
+	std::vector< int > all_num_dyn_states;
+	for(size_t i=0; i<num_contrast_dyns; i++)
+		all_num_dyn_states.push_back(contrast_dynamics_[i].get_num_simul_states());			
+
+
+	LinearCombiGenerator lcg(all_num_dyn_states);
+	
+	size_t const num_total_dyn_states = lcg.get_num_total_combinations();
+	std::vector< DimensionsType >  all_dyn_state_combos = lcg.get_all_combinations();
+	
+	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
 	{
-		std:: cout << "Simulation of dynamic state #" << i_dyn_state <<"/ " << cont_dyn.get_num_simul_states()  <<std::endl;
-		SignalBin bin = signal_bins[i_dyn_state];	
-		
-		TissueParameterList tissueparameter_list_to_replace = cont_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
+		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
 
-		for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
+		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
+
+
+		for( int i_cont_dyn = 0; i_cont_dyn<num_contrast_dyns; i_cont_dyn++ )
 		{
-			TissueParameter curr_param = tissueparameter_list_to_replace[i_tiss];
-			this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
+			ContrastDynamic cont_dyn = this->contrast_dynamics_[i_cont_dyn];
+			std::vector< SignalBin > signal_bins = cont_dyn.get_bins();
+
+			SignalBin bin = signal_bins[ current_combination[i_cont_dyn] ];	
+			TissueParameterList tissueparameter_list_to_replace = cont_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
+
+
+			for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
+			{
+				TissueParameter curr_param = tissueparameter_list_to_replace[i_tiss];
+				this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
+			}
+
+			std::vector<sirf::AcquisitionsVector> binned_acquisitions = cont_dyn.get_binned_mr_acquisitions();
+			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, binned_acquisitions[ current_combination[i_cont_dyn] ]);
+
 		}
-		
-		this->mr_cont_gen_.map_contrast();
 
-		std::cout << "# of acquis in this dynamic state: " << binned_acquisitions[i_dyn_state].number() << std::endl;
+		std::cout << "# of acquis in this dynamic state: " << acquisitions_for_this_state.number() << std::endl;
 
-		this->source_acquisitions_ = binned_acquisitions[i_dyn_state];
+		if( acquisitions_for_this_state.number() > 0)
+		{
+			this->mr_cont_gen_.map_contrast();
+			this->source_acquisitions_ = acquisitions_for_this_state;
+			this->acquire_raw_data();	
 
-		auto temp_vols = this->mr_cont_gen_.get_contrast_filled_volumes();
 
-		this->acquire_raw_data();	
+		}
 	}
 }
 
-void MRDynamicSimulation::extract_src_information( void )
+void MRDynamicSimulation::extract_hdr_information( void )
 {
 	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
 
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-
-	this->source_acquisitions_ = mr_io::read_ismrmrd_acquisitions( filename_rawdata_ );
-	this->target_acquisitions_.copy_acquisitions_info( this->source_acquisitions_ );
 
 }
 

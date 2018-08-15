@@ -98,7 +98,7 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 	TissueParameter	tiss_at_0, tiss_at_1;
 
 	tiss_at_0.name_ = "dynamic_par";
-	tiss_at_0.label_ = 1;
+	tiss_at_0.label_ = 10000;
 
 	tiss_at_0.mr_tissue_.spin_density_percentH2O_ = 80;
 	tiss_at_0.mr_tissue_.t1_miliseconds_ = 1157;
@@ -111,7 +111,7 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 	output.first = tiss_at_0;
 
 	tiss_at_1.name_ = "dynamic_par";
-	tiss_at_1.label_ = 1;
+	tiss_at_1.label_ = 10000;
 
 	tiss_at_1.mr_tissue_.spin_density_percentH2O_ = 80;
 	tiss_at_1.mr_tissue_.t1_miliseconds_ = 100;

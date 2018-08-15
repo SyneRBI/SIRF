@@ -74,7 +74,7 @@ protected:
 };
 
 
-
+typedef sirf::AcquisitionsVector MRDataContainerType;
 
 class MRDynamicSimulation : public aDynamicSimulation {
 
@@ -86,11 +86,14 @@ public:
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
-
-
+	void set_all_source_acquisitions(MRDataContainerType acquisitions )
+	{
+		this->all_source_acquisitions_ = acquisitions;
+		this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );
+	}
 
 	void simulate_dynamics( void );
-	void extract_src_information( void );
+	void extract_hdr_information( void );
 	
 	virtual void acquire_raw_data( void );
 
@@ -98,8 +101,9 @@ private:
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 
-	sirf::AcquisitionsVector source_acquisitions_;
-	sirf::AcquisitionsVector target_acquisitions_;
+	MRDataContainerType all_source_acquisitions_;
+	MRDataContainerType source_acquisitions_;
+	MRDataContainerType target_acquisitions_;
 	
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
@@ -138,30 +142,42 @@ private:
 
 
 
+typedef std::vector<int> DimensionsType;
 
 class LinearCombiGenerator{
 
 public:
-	LinearCombiGenerator(std::vector<size_t> const dims): dims_(dims){};
+	LinearCombiGenerator(DimensionsType const dims): dims_(dims){};
 
-	void set_dims(std::vector< size_t > const dims){ this->dims_ = dims;};
-	std::vector< size_t > get_dims( void ){ return this->dims_;};
+	void set_dims(DimensionsType const dims){ this->dims_ = dims;};
+	DimensionsType get_dims( void ){ return this->dims_;};
 
 	
-	std::vector< std::vector< int > > get_all_combinations( void )
+	std::vector< DimensionsType > get_all_combinations( void )
 	{
+		this->compute_all_combinations();
 		return this->all_combinations_;
 	};
 	
-	void compute_all_combinations( void )
+	size_t get_num_total_combinations()
 	{
 		size_t linear_range = 1;
 		for( int direction=0; direction<dims_.size(); direction++ )
 			linear_range *= dims_[direction];
 
+		return linear_range;
+	}
+
+
+private:
+
+	void compute_all_combinations( void )
+	{
+		size_t const linear_range = this->get_num_total_combinations();
+
 		for( size_t i=0; i<linear_range; i++)
 		{
-			std::vector< int > curr_combination;
+			DimensionsType curr_combination;
 
 			for( int j=0; j<this->dims_.size(); j++)
 			{
@@ -177,12 +193,12 @@ public:
 		}
 	};
 
-private:
 
-	std::vector< size_t > dims_;
-	std::vector< std::vector< int > > all_combinations_;
 
-	int recurse(size_t const idx, int const num_iter, std::vector< int > const curr_combination)
+	DimensionsType dims_;
+	std::vector< DimensionsType > all_combinations_;
+
+	int recurse(size_t const idx, int const num_iter, DimensionsType const curr_combination)
 	{	
 		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];
 		return l;

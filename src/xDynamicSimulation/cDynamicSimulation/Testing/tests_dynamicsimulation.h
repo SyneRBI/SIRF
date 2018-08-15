@@ -22,9 +22,9 @@ namespace tests_mr_dynsim
 
 bool test_constructor( void );
 
-void test_extract_src_information( void );
+void test_extract_hdr_information( void );
 
-bool test_simulate_dynamics( void );
+bool test_simulate_contrast_dynamics( void );
 
 }
 

@@ -33,11 +33,11 @@ bool test_lin_combi_gen::test_get_all_combinations( void )
 
 try
 	{
-		size_t const N = 1;
-		size_t const M = 2;
-		size_t const L = 3;
+		int const N = 1;
+		int const M = 2;
+		int const L = 3;
 
-		std::vector< size_t > dims;
+		DimensionsType dims;
 		dims.push_back(N);
 		dims.push_back(M);
 		dims.push_back(L);
@@ -46,7 +46,6 @@ try
 
 		LinearCombiGenerator lcg( dims );
 
-		lcg.compute_all_combinations();
 		auto all_perm = lcg.get_all_combinations();
 
 		for(size_t i=0;i<all_perm.size();i++)
@@ -101,7 +100,7 @@ bool tests_mr_dynsim::test_constructor( void )
 
 }
 
-void tests_mr_dynsim::test_extract_src_information( void )
+void tests_mr_dynsim::test_extract_hdr_information( void )
 {
 	try
 	{
@@ -112,7 +111,7 @@ void tests_mr_dynsim::test_extract_src_information( void )
 
 	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
-	mr_dyn_sim.extract_src_information();
+	mr_dyn_sim.extract_hdr_information();
 
 
 	ISMRMRD::IsmrmrdHeader hdr = mr_dyn_sim.get_ismrmrd_header();
@@ -132,7 +131,7 @@ void tests_mr_dynsim::test_extract_src_information( void )
 
 }
 
-bool tests_mr_dynsim::test_simulate_dynamics( void )
+bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 {
 	try
 	{
@@ -143,32 +142,60 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
-		
-		int const num_simul_states = 2;
 
-		ContrastDynamic cont_dyn(num_simul_states);
 		
-		std::vector<LabelType> dynamic_labels = {1, 3, 4};	
-		for(int i=0; i<dynamic_labels.size(); i++)
+		int const num_simul_states_first_dyn = 2;
+		int const num_simul_states_second_dyn = 3;
+
+		ContrastDynamic first_cont_dyn(num_simul_states_first_dyn), second_cont_dyn(num_simul_states_second_dyn);
+		
+		std::vector<LabelType> first_dynamic_labels = {1, 3, 4};	
+		for(int i=0; i<first_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << dynamic_labels[i] << std::endl;
-			cont_dyn.add_dynamic_label(dynamic_labels[i]);
+			std::cout << "Adding label " << first_dynamic_labels[i] << " to first dynamic." << std::endl;
+			first_cont_dyn.add_dynamic_label(first_dynamic_labels[i]);
+		}
+
+		std::vector<LabelType> second_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		for(int i=0; i<second_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << second_dynamic_labels[i] << " to second dynamic." << std::endl;
+			second_cont_dyn.add_dynamic_label(second_dynamic_labels[i]);
 		}
 
 
 		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+		first_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+
+		auto second_extremes_0 = extreme_tissue_params.first;
+		auto second_extremes_1 = extreme_tissue_params.second;
+
+		second_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+		second_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+		second_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+		
+		second_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+		second_extremes_1.mr_tissue_.t1_miliseconds_ = 300;
+		second_extremes_1.mr_tissue_.t2_miliseconds_= 85;
+
+		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
+
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
 		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
-	 	cont_dyn.set_dyn_signal(mock_signal);
 
-		cont_dyn.bin_mr_acquisitions( all_acquis );
+	 	first_cont_dyn.set_dyn_signal( mock_signal );
+	 	second_cont_dyn.set_dyn_signal( mock_signal );
 
-		mr_dyn_sim.add_dynamic( cont_dyn );
+		first_cont_dyn.bin_mr_acquisitions( all_acquis );
+		second_cont_dyn.bin_mr_acquisitions( all_acquis );
 
+		mr_dyn_sim.add_dynamic( first_cont_dyn );
+		mr_dyn_sim.add_dynamic( second_cont_dyn );
+		
+		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();
 
 		mr_dyn_sim.write_simulation_results( FILENAME_DYNSIM );
