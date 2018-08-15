@@ -6,7 +6,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-
 #include "tissuelabelmapper.h"
 
 
@@ -49,7 +48,7 @@ const size_t* TissueLabelMapper::get_segmentation_dimensions( void )
 	return this->segmentation_labels_.getDims();		
 }
 
-TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list, LabelArray label_volume )
+TissueVector assign_tissue_parameters_to_labels( TissueParameterList& tiss_list, LabelArray label_volume )
 {
 
 	size_t num_tissue_params = tiss_list.size();
@@ -110,4 +109,10 @@ void TissueLabelMapper::replace_petmr_tissue_parameters( const LabelType&  label
 	}
 	if( !label_found )
 		throw std::runtime_error("The label you tried to replace did not exist in the segmentation.");
+	else
+	{       
+		this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, segmentation_labels_);
+	}
+
+
 }

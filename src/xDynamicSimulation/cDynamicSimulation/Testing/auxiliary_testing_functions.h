@@ -45,8 +45,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #elif defined(USE_128_CUBE_INPUT)
 
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 
 #endif
 
@@ -92,6 +92,8 @@ namespace aux_test
 	TissueParameter get_mock_tissue_parameter( void );
 	PETTissueParameter get_mock_PET_tissue_parameter( void );
 	MRTissueParameter get_mock_MR_tissue_parameter( void );
+
+	std::pair< TissueParameter, TissueParameter> get_mock_contrast_signal_extremes( void );
 
 	MRContrastGenerator get_mock_mr_contrast_generator( void );
 	PETContrastGenerator get_mock_pet_contrast_generator( void );

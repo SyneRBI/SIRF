@@ -207,6 +207,63 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 }
 
 
+void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
+{
+	using namespace ISMRMRD;
+
+	NDArray< LabelType > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
+	IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+	
+	mr_contgen.set_rawdata_header(hdr);
+	mr_contgen.map_contrast();
+
+	auto mr_contrasts = mr_contgen.get_contrast_filled_volumes();
+
+	std::string const output_name_pre_contrast = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_pre_contrast";
+	
+	auto img_data = mr_contrasts[0];
+	
+	ImageHeader img_hdr = img_data.getHead();
+	img_hdr.data_type = ISMRMRD_FLOAT; 
+
+	Image< float > output_img;
+	output_img.setHead( img_hdr );
+
+	size_t const num_voxels = output_img.getNumberOfDataElements(); 
+
+	for(size_t i_vx=0; i_vx<num_voxels; i_vx++) 
+		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
+	
+
+	data_io::write_ISMRMRD_Image_to_Analyze<float>(output_name_pre_contrast, output_img);
+
+
+
+	// now replace one label and see what happens in the image
+	LabelType label_to_replace = 1;
+	auto tissue_param_pair = aux_test::get_mock_contrast_signal_extremes();
+
+	mr_contgen.replace_petmr_tissue_parameters(label_to_replace, tissue_param_pair.second);
+	mr_contgen.map_contrast();
+
+	mr_contrasts = mr_contgen.get_contrast_filled_volumes();
+
+	std::string const output_name_post_contrast = std::string(SHARED_FOLDER_PATH) + "test_contrast_gen_post_contrast";
+	
+	img_data = mr_contrasts[0];
+	
+	for(size_t i_vx=0; i_vx<num_voxels; i_vx++) 
+		*(output_img.begin() + i_vx) = std::abs( *(img_data.begin()+ i_vx) );
+
+	data_io::write_ISMRMRD_Image_to_Analyze<float>(output_name_post_contrast, output_img);
+
+
+}
+
+
+
 bool test_contgen::test_map_flash_contrast( void )
 {
 

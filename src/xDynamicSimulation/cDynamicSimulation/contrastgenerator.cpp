@@ -28,6 +28,10 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label, TissueParameter tiss_param)	
 {
+	std::cout << "replacing label: " << label << "with " << std::endl;
+	std::cout << tiss_param.mr_tissue_.t1_miliseconds_ << std::endl;
+
+
 	this->tlm_.replace_petmr_tissue_parameters(label, tiss_param);
 }
 
@@ -117,6 +121,7 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 
 void MRContrastGenerator::map_contrast()
 {
+	this->contrast_filled_volumes_.clear();
 
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
 
@@ -148,10 +153,6 @@ void MRContrastGenerator::map_contrast()
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
 		
 	}
-	for(int i=0;i<8;i++)
-	{
-		std::vector< complex_float_t> first_voxel(contrast_vector[i]);
-	}
 
 	size_t const num_contrasts = contrast_vector[0].size();
 
@@ -172,8 +173,6 @@ void MRContrastGenerator::map_contrast()
 
 	ISMRMRD::Image< complex_float_t > contrast_img(Nx, Ny, Nz, 1);
 
-	// sort data into NDArray
-	
 	for( size_t i_contrast = 0; i_contrast<num_contrasts; i_contrast++)
 	{
 	
@@ -296,6 +295,7 @@ std::vector< float > PETContrastGenerator::get_voxel_sizes( void )
 
 void PETContrastGenerator::map_contrast()
 {
+	this->contrast_filled_volumes_.clear();
 	this->map_tissueparams_member( CASE_MAP_PET_CONTRAST );
 }
 

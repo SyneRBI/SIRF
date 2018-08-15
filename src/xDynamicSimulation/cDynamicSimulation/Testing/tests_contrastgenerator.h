@@ -33,8 +33,7 @@ bool test_pet_map_attenuation( void );
 bool test_set_template_image_from_file( void );
 
 void test_pet_map_contrast_application_to_xcat( void );
-
-
+void test_replace_petmr_tissue_parameters_in_xcat( void );
 
 }// namespace test_contgen
 

@@ -90,6 +90,42 @@ PETTissueParameter aux_test::get_mock_PET_tissue_parameter(void)
 	return pet_tissue_pars;
 }
 
+
+std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_extremes( void )
+{
+	std::pair< TissueParameter, TissueParameter> output;
+
+	TissueParameter	tiss_at_0, tiss_at_1;
+
+	tiss_at_0.name_ = "dynamic_par";
+	tiss_at_0.label_ = 1;
+
+	tiss_at_0.mr_tissue_.spin_density_percentH2O_ = 80;
+	tiss_at_0.mr_tissue_.t1_miliseconds_ = 1157;
+	tiss_at_0.mr_tissue_.t2_miliseconds_ = 44;
+	tiss_at_0.mr_tissue_.cs_ppm_ = 0;
+	
+	tiss_at_0.pet_tissue_.attenuation_1_by_mm_= 0;
+	tiss_at_0.pet_tissue_.suv_= 0;
+
+	output.first = tiss_at_0;
+
+	tiss_at_1.name_ = "dynamic_par";
+	tiss_at_1.label_ = 1;
+
+	tiss_at_1.mr_tissue_.spin_density_percentH2O_ = 80;
+	tiss_at_1.mr_tissue_.t1_miliseconds_ = 100;
+	tiss_at_1.mr_tissue_.t2_miliseconds_ = 44;
+	tiss_at_1.mr_tissue_.cs_ppm_ = 0;
+	
+	tiss_at_1.pet_tissue_.attenuation_1_by_mm_= 0;
+	tiss_at_1.pet_tissue_.suv_= 0;
+
+	output.second = tiss_at_1;
+
+	return output;
+}
+
 MRContrastGenerator aux_test::get_mock_mr_contrast_generator( void )
 {
 	LabelArray label_list = get_mock_label_array();
