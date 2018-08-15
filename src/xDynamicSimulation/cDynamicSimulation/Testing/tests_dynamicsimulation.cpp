@@ -144,7 +144,7 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
 		
-		int const num_simul_states = 20;
+		int const num_simul_states = 2;
 
 		ContrastDynamic cont_dyn(num_simul_states);
 		

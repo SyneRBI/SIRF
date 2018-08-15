@@ -39,7 +39,7 @@ TissueParameterList TissueLabelMapper::get_tissue_parameter_list( void )
 void TissueLabelMapper::map_labels_to_tissue_from_xml( void )
 {
 	this->tissue_parameter_list_ = read_TissueParameters_from_xml(filepath_tissue_parameter_xml_);
-	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( tissue_parameter_list_, segmentation_labels_);
+	this-> assign_tissues_to_labels();
 }
 
 
@@ -109,10 +109,17 @@ void TissueLabelMapper::replace_petmr_tissue_parameters( const LabelType&  label
 	}
 	if( !label_found )
 		throw std::runtime_error("The label you tried to replace did not exist in the segmentation.");
-	else
-	{       
-		this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, segmentation_labels_);
-	}
+	// else
+	// {       
+	// 	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, segmentation_labels_);
+	// }
 
 
 }
+
+
+void TissueLabelMapper::assign_tissues_to_labels( void )
+{
+	this->segmentation_tissues_ = assign_tissue_parameters_to_labels( this->tissue_parameter_list_, this->segmentation_labels_);
+}
+	

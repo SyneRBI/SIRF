@@ -49,7 +49,11 @@ public:
 
 	void replace_petmr_tissue_parameters( const LabelType&  label, const TissueParameter& tiss);
 
-//private:
+	// NEEDS TO STAY PUBLIC!
+	void assign_tissues_to_labels( void );
+	
+
+// private:
 
 	std::string filepath_tissue_parameter_xml_;
 

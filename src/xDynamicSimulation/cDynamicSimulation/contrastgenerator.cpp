@@ -28,10 +28,6 @@ AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, s
 
 void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label, TissueParameter tiss_param)	
 {
-	std::cout << "replacing label: " << label << "with " << std::endl;
-	std::cout << tiss_param.mr_tissue_.t1_miliseconds_ << std::endl;
-
-
 	this->tlm_.replace_petmr_tissue_parameters(label, tiss_param);
 }
 
@@ -121,6 +117,7 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 
 void MRContrastGenerator::map_contrast()
 {
+	this->tlm_.assign_tissues_to_labels();
 	this->contrast_filled_volumes_.clear();
 
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
