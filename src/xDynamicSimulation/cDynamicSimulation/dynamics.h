@@ -86,8 +86,12 @@ class ContrastDynamic : public aDynamic {
 
 public:
 	ContrastDynamic():aDynamic(){};
+	ContrastDynamic(int const num_simul_states) : aDynamic(num_simul_states){};
+
 
 	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
+
+	void add_dynamic_label(LabelType l) { this->list_cont_var_labels_.push_back(l);};
 
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
