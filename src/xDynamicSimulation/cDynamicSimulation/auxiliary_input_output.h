@@ -57,6 +57,7 @@ namespace data_io{
 	template <typename T>
 	void write_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> img)
 	{
+		std::cout << "Started writing " << output_name_without_ext << std::endl;	
 
 		std::vector < size_t > img_dims;
 		img_dims.push_back( img.getMatrixSizeX() );
@@ -81,6 +82,7 @@ namespace data_io{
 
 		analyze_io.export_array(data_to_be_written, output_name_without_ext);
 
+		std::cout << "Finished writing " << std::endl;	
 	};
 
 }
