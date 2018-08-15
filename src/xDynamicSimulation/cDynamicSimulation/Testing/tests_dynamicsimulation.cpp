@@ -137,18 +137,43 @@ bool tests_mr_dynsim::test_simulate_dynamics( void )
 	try
 	{
 	
-	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
-	MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
-	MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		
+		int const num_simul_states = 20;
 
-	mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		ContrastDynamic cont_dyn(num_simul_states);
+		
+		std::vector<LabelType> dynamic_labels = {1, 3, 4};	
+		for(int i=0; i<dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << dynamic_labels[i] << std::endl;
+			cont_dyn.add_dynamic_label(dynamic_labels[i]);
+		}
 
-	mr_dyn_sim.simulate_dynamics();
 
-	mr_dyn_sim.write_simulation_results( FILENAME_DYNSIM );
+		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-	return true;
+		cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+
+		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
+
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+	 	cont_dyn.set_dyn_signal(mock_signal);
+
+		cont_dyn.bin_mr_acquisitions( all_acquis );
+
+		mr_dyn_sim.add_dynamic( cont_dyn );
+
+		mr_dyn_sim.simulate_dynamics();
+
+		mr_dyn_sim.write_simulation_results( FILENAME_DYNSIM );
+
+		return true;
 
 	}
 	catch( std::runtime_error const &e)

@@ -31,13 +31,43 @@ void MRDynamicSimulation::write_simulation_results( std::string const filename_o
 
 void MRDynamicSimulation::simulate_dynamics( void )
 {
-
 	this->extract_src_information();
 	this->mr_cont_gen_.map_contrast();
-	//this->mr_cont_gen_.match_output_dims_to_headerinfo();
 
-	this->acquire_raw_data();
 
+
+
+
+	if(this->contrast_dynamics_.size() != 1 || this->motion_dynamics_.size() != 0)
+		throw std::runtime_error("So far only one contrast and zero motion dynamics are supported. Please give the appropriate number of dynamics.");			
+
+	ContrastDynamic cont_dyn = this->contrast_dynamics_[0];
+	std::vector< SignalBin > signal_bins = cont_dyn.get_bins();
+	std::vector<sirf::AcquisitionsVector> binned_acquisitions = cont_dyn.get_binned_mr_acquisitions();
+
+	for(int i_dyn_state=0; i_dyn_state < cont_dyn.get_num_simul_states(); i_dyn_state++)
+	{
+		std:: cout << "Simulation of dynamic state #" << i_dyn_state <<"/ " << cont_dyn.get_num_simul_states()  <<std::endl;
+		SignalBin bin = signal_bins[i_dyn_state];	
+		
+		TissueParameterList tissueparameter_list_to_replace = cont_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
+
+		for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
+		{
+			TissueParameter curr_param = tissueparameter_list_to_replace[i_tiss];
+			this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
+		}
+		
+		this->mr_cont_gen_.map_contrast();
+
+		std::cout << "# of acquis in this dynamic state: " << binned_acquisitions[i_dyn_state].number() << std::endl;
+
+		this->source_acquisitions_ = binned_acquisitions[i_dyn_state];
+
+		auto temp_vols = this->mr_cont_gen_.get_contrast_filled_volumes();
+
+		this->acquire_raw_data();	
+	}
 }
 
 void MRDynamicSimulation::extract_src_information( void )
@@ -79,9 +109,10 @@ void MRDynamicSimulation::acquire_raw_data( void )
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
 
+
 		AcquisitionsVector acq_vec;
 		acq_vec.copy_acquisitions_info( this->source_acquisitions_ );
-
+		
 		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
 		{
 			this->source_acquisitions_.get_acquisition(i_acqu, acq);
@@ -91,12 +122,13 @@ void MRDynamicSimulation::acquire_raw_data( void )
 				acq_vec.append_acquisition( acq );
 
 		}
-
+		
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
-
+		
 		this->acq_model_.set_acquisition_template( curr_template_acquis );
-
+		
 		this->acq_model_.fwd(curr_img_wrap, csm_as_img, this->target_acquisitions_, offset);
+		
 	}
 }
 
