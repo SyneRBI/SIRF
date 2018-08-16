@@ -67,9 +67,10 @@ class GaussianNoiseGenerator: public aNoiseGenerator{
 
 public:
 
-	GaussianNoiseGenerator():aNoiseGenerator(){};
+	GaussianNoiseGenerator():aNoiseGenerator(), width_noise_(0.f){};
 	GaussianNoiseGenerator(float const width_noise): aNoiseGenerator(), width_noise_(width_noise){};	
 
+	void set_noise_width(float const sigma){ this->width_noise_ = sigma; };
 	void add_noise(sirf::MRAcquisitionData& noisy_acquisition_data, sirf::MRAcquisitionData& noise_free_acquisition_data );
 
 private:
