@@ -56,6 +56,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
 
+		std::vector< SignalAxisType> cont_signals;
 
 		for( int i_cont_dyn = 0; i_cont_dyn<num_contrast_dyns; i_cont_dyn++ )
 		{
@@ -64,7 +65,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 			SignalBin bin = signal_bins[ current_combination[i_cont_dyn] ];	
 			TissueParameterList tissueparameter_list_to_replace = cont_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
-
+			cont_signals.push_back(std::get<1>(bin));	
 
 			for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
 			{
@@ -88,6 +89,8 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		}
 	}
+
+	// this->noise_generator_.add_noise(this->target_acquisitions_, this->target_acquisitions_);
 }
 
 void MRDynamicSimulation::extract_hdr_information( void )
@@ -96,6 +99,18 @@ void MRDynamicSimulation::extract_hdr_information( void )
 
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 
+}
+
+void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquisitions )
+{
+	this->all_source_acquisitions_ = acquisitions;
+	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );
+}
+
+
+void MRDynamicSimulation::set_noise_width(float const sigma)
+{
+	this->noise_generator_.set_noise_width( sigma );
 }
 
 void MRDynamicSimulation::acquire_raw_data( void )

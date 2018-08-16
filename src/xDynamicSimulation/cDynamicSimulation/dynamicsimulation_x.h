@@ -21,6 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
+#include "dynsim_noisegenerator.h"
 
 
 
@@ -86,11 +87,8 @@ public:
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
-	void set_all_source_acquisitions(MRDataContainerType acquisitions )
-	{
-		this->all_source_acquisitions_ = acquisitions;
-		this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );
-	}
+	void set_all_source_acquisitions(MRDataContainerType acquisitions );
+	void set_noise_width(float const sigma);
 
 	void simulate_dynamics( void );
 	void extract_hdr_information( void );
@@ -98,6 +96,8 @@ public:
 	virtual void acquire_raw_data( void );
 
 private:
+
+	GaussianNoiseGenerator noise_generator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 
