@@ -201,12 +201,15 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 	AcquisitionSystemInformation asi = ismrmrd_hdr.acquisitionSystemInformation.get();
 
 	SeqParamType TE = sequ_par.TE.get();
-	SeqParamType TR = sequ_par.TR.get();
+	// SeqParamType TR = sequ_par.TR.get();
+
+	SeqParamType echo_spacing = sequ_par.echo_spacing.get();
+
 	SeqParamType flip_angle_deg = sequ_par.flipAngle_deg.get();
 	float const field_strength_t = asi.systemFieldStrength_T.get();
 
-	if (TR.size() > 1)
-		throw std::runtime_error(" More than one TR was given. Please give only one in Flash contrast.");
+	if (echo_spacing.size() > 1)
+		throw std::runtime_error(" More than one echo spacing was given. Please give only one in Flash contrast.");
 
 	if (flip_angle_deg.size() > 1)
 		throw std::runtime_error(" More than one flip angle was given. Please give only one in Flash contrast.");
@@ -228,10 +231,11 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
 	{
 		contrast[i_echo] = 	spin_dens * (float)sin( M_PI/180 * flip_angle_deg[0]) 
-						 *(float)(1 - exp(-TR[0]/T1_ms)) / (float)( 1 - exp(-TR[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
+						 *(float)(1 - exp(-echo_spacing[0]/T1_ms)) / (float)( 1 - exp(-echo_spacing[0]/T1_ms)*cos(M_PI/180*flip_angle_deg[0]) )
 						 *(float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t * cs_ppm);
 	}
 
+	
 	return contrast;
 }
 
