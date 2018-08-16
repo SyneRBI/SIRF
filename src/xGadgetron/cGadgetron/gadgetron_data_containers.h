@@ -135,6 +135,7 @@ namespace sirf {
 		virtual unsigned int number() = 0;
 
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
@@ -240,6 +241,10 @@ namespace sirf {
 		virtual unsigned int items();
 		virtual unsigned int number() { return items(); }
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq);
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+		{
+			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
+		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
@@ -297,6 +302,11 @@ namespace sirf {
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
+		}
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+		{
+			int ind = index(num);
+			*acqs_[ind] = acq;
 		}
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac)
 		{
