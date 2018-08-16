@@ -114,7 +114,7 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 	tiss_at_1.label_ = 10000;
 
 	tiss_at_1.mr_tissue_.spin_density_percentH2O_ = 80;
-	tiss_at_1.mr_tissue_.t1_miliseconds_ = 100;
+	tiss_at_1.mr_tissue_.t1_miliseconds_ = 600;
 	tiss_at_1.mr_tissue_.t2_miliseconds_ = 44;
 	tiss_at_1.mr_tissue_.cs_ppm_ = 0;
 	
@@ -574,13 +574,16 @@ SignalContainer aux_test::get_mock_motion_signal( AcquisitionsVector acq_vec)
 	signal_point.first = acq.getHead().acquisition_time_stamp;
 	signal_point.second = 0;
 
+	std::cout << "(" << signal_point.first << "/" << signal_point.second << ")" <<std::endl;
 
 	signal.push_back(signal_point);
 	
 	acq_vec.get_acquisition(acq_vec.items()-1, acq);
+	
 	signal_point.first = acq.getHead().acquisition_time_stamp;
 	signal_point.second = 1;
 
+	std::cout << "(" << signal_point.first<< "/"  << signal_point.second << ")" <<std::endl;
 	signal.push_back(signal_point);
 
 	return signal;
