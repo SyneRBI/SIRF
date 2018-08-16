@@ -26,9 +26,9 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 	auto bin_max = std::get<2>(bin);
 
 	if( bin_min < bin_max )
-		return (signal >= bin_min && signal < bin_max);
+		return (signal >= bin_min && signal <= bin_max);
 	else if ( bin_min > bin_max )
-		return (signal >= bin_min || signal < bin_max);
+		return (signal >= bin_min || signal <= bin_max);
 	else
 		return false;
 }
@@ -100,7 +100,6 @@ aDynamic::aDynamic(int const num_simul_states) : num_simul_states_(num_simul_sta
 
 void aDynamic::set_bins(int const num_bins)
 {
-
 	this->signal_bins_.clear();
 
 	for(int i_state=0; i_state<num_bins; i_state++)
@@ -230,6 +229,56 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 }
 
 
+void MotionDynamic::set_bins( int const num_bins )
+{
+	
+	aDynamic::set_bins(num_bins);
+
+	// this->signal_bins_.clear();
+
+	// for(int i_state=0; i_state<num_bins; i_state++)
+	// {	
+	// 	SignalBin bin;
+
+	// 	std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) - 1.f/(2*num_bins);
+	// 	std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
+	// 	std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
+		
+	// 	if( std::get<0>(bin) < 0 )
+	// 		std::get<0>(bin) = ( 1 + std::get<0>(bin) );
+
+	// 	if( std::get<1>(bin) < 0 )
+	// 		std::get<1>(bin) = ( 1 + std::get<1>(bin) );
+
+	// 	if( std::get<2>(bin) < 0 )
+	// 		std::get<2>(bin) = ( 1 + std::get<2>(bin) );
+
+	// 	this->signal_bins_.push_back( bin );
+	// }
+}
+
+
+ContrastDynamic::ContrastDynamic(int const num_simul_states) : aDynamic()
+{ 
+	this->num_simul_states_ =num_simul_states;
+	this->set_bins(num_simul_states_);
+}
+
+void ContrastDynamic::set_bins( int const num_bins )
+{
+	this->signal_bins_.clear();
+
+	for(int i_state=0; i_state<num_bins; i_state++)
+	{	
+		SignalBin bin;
+
+		std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
+		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
+		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(num_bins);
+	
+		this->signal_bins_.push_back( bin );
+	}
+}
 
 void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
 {
@@ -253,6 +302,7 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 
 	return tiss_list;
 }
+
 
 
 

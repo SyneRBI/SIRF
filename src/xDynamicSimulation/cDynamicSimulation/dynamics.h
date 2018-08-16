@@ -58,15 +58,13 @@ public:
 protected:
 
 	int num_simul_states_;
-	void set_bins( int const num_bins );
+	virtual void set_bins( int const num_bins );
 
 	std::vector< SignalBin > signal_bins_;
 	SignalContainer dyn_signal_; 
 
 	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 };
-
-
 
 
 
@@ -79,6 +77,8 @@ public:
 protected:
 	// MotionFieldContainer motion_field_;
 
+	virtual void set_bins( int const num_bins );
+
 };
 
 
@@ -86,7 +86,7 @@ class ContrastDynamic : public aDynamic {
 
 public:
 	ContrastDynamic():aDynamic(){};
-	ContrastDynamic(int const num_simul_states) : aDynamic(num_simul_states){};
+	ContrastDynamic(int const num_simul_states); 
 
 
 	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
@@ -96,6 +96,8 @@ public:
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
 protected:
+
+	virtual void set_bins(int const num_bins);
 
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
