@@ -144,11 +144,12 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		
 
 		
-		int const num_simul_states_first_dyn = 2;
-		int const num_simul_states_second_dyn = 3;
+		int const num_simul_states_first_dyn = 5;
+		int const num_simul_states_second_dyn = 5;
+
 
 		ContrastDynamic first_cont_dyn(num_simul_states_first_dyn), second_cont_dyn(num_simul_states_second_dyn);
-		
+
 		std::vector<LabelType> first_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<first_dynamic_labels.size(); i++)
 		{
@@ -176,8 +177,8 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		second_extremes_0.mr_tissue_.t2_miliseconds_= 100;
 		
 		second_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-		second_extremes_1.mr_tissue_.t1_miliseconds_ = 300;
-		second_extremes_1.mr_tissue_.t2_miliseconds_= 85;
+		second_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+		second_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
 		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
 
