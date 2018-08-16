@@ -293,7 +293,7 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 
 	for(size_t i=0; i< this->list_cont_var_labels_.size(); i++)
 	{
-		TissueParameter curr_par = (signal * this->tissue_parameter_extremes_.first + (1-signal) * this->tissue_parameter_extremes_.second);
+		TissueParameter curr_par = ((1-signal) * this->tissue_parameter_extremes_.first + signal * this->tissue_parameter_extremes_.second);
 		curr_par.name_ = "";	// name info is lost unfortunately, but better than the wrong information
 		curr_par.label_ = this->list_cont_var_labels_[i];
 
