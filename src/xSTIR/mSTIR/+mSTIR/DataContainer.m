@@ -85,7 +85,8 @@ classdef DataContainer < handle
                 z = self.dot(other);
             elseif isreal(other)
                 z = self.same_object();
-                z.handle_ = calllib('mstir', 'mSTIR_mult', other, self.handle_);
+                z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
+                    other, self.handle_, 0.0, self.handle_);
             else
                 error('DataContainer:mtimes', 'Wrong multiplier');
             end
