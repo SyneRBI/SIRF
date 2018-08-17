@@ -52,6 +52,8 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	
 	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
 	{
+		std::cout << "Acquiriing dynamic state #" << i_dyn_state << "/" << num_total_dyn_states << std::endl;
+
 		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
 
 		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
@@ -73,8 +75,8 @@ void MRDynamicSimulation::simulate_dynamics( void )
 				this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
 			}
 
-			std::vector<sirf::AcquisitionsVector> binned_acquisitions = cont_dyn.get_binned_mr_acquisitions();
-			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, binned_acquisitions[ current_combination[i_cont_dyn] ]);
+			AcquisitionsVector acquis_in_bin = cont_dyn.get_binned_mr_acquisitions( current_combination[i_cont_dyn] );
+			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
 
 		}
 
@@ -82,11 +84,9 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		if( acquisitions_for_this_state.number() > 0)
 		{
-			this->mr_cont_gen_.map_contrast();
-			this->source_acquisitions_ = acquisitions_for_this_state;
-			this->acquire_raw_data();	
-
-
+			// this->mr_cont_gen_.map_contrast();
+			// this->source_acquisitions_ = acquisitions_for_this_state;
+			// this->acquire_raw_data();	
 		}
 	}
 
