@@ -45,7 +45,7 @@ classdef DataContainer < handle
         function r = norm(self)
 %***SIRF*** Returns the 2-norm of this data container viewed as a vector.
             handle = calllib('mstir', 'mSTIR_norm', self.handle_);
-            mUtilities.check_status('DataContainer', handle);
+            mUtilities.check_status('DataContainer:norm', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
             mUtilities.delete(handle)
         end
@@ -54,7 +54,7 @@ classdef DataContainer < handle
 %         viewed as vectors.
             handle = calllib('mstir', 'mSTIR_dot', self.handle_, ...
                 other.handle_);
-            mUtilities.check_status('DataContainer', handle);
+            mUtilities.check_status('DataContainer:dot', handle);
             r = calllib('miutilities', 'mFloatDataFromHandle', handle);
             mUtilities.delete(handle)
         end
@@ -66,6 +66,7 @@ classdef DataContainer < handle
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 1.0, self.handle_, 1.0, other.handle_);
+            mUtilities.check_status('DataContainer:plus', z.handle_);
         end
         function z = minus(self, other)
 %***SIRF*** Overloads - for data containers.
@@ -75,6 +76,27 @@ classdef DataContainer < handle
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 1.0, self.handle_, -1.0, other.handle_);
+            mUtilities.check_status('DataContainer:minus', z.handle_);
+        end
+        function z = times(self, other)
+%***SIRF*** Overloads .* for data containers.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
+            mUtilities.assert_validities(self, other)
+            z = self.same_object();
+            z.handle_ = calllib('mstir', 'mSTIR_multiply', ...
+                self.handle_, other.handle_);
+            mUtilities.check_status('DataContainer:times', z.handle_);
+        end
+        function z = rdivide(self, other)
+%***SIRF*** Overloads ./ for data containers.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
+            mUtilities.assert_validities(self, other)
+            z = self.same_object();
+            z.handle_ = calllib('mstir', 'mSTIR_divide', ...
+                self.handle_, other.handle_);
+            mUtilities.check_status('DataContainer:rdivide', z.handle_);
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
@@ -87,8 +109,23 @@ classdef DataContainer < handle
                 z = self.same_object();
                 z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                     other, self.handle_, 0.0, self.handle_);
+                mUtilities.check_status('DataContainer:mtimes', z.handle_);
             else
                 error('DataContainer:mtimes', 'Wrong multiplier');
+            end
+        end
+        function z = mrdivide(self, other)
+%***SIRF*** mtimes(other) overloads * for data containers multiplication 
+%         by a scalar or another data container. 
+%         Returns the product self*other if other is a scalar or the dot 
+%         product with other if it is a data container.
+            if isreal(other)
+                z = self.same_object();
+                z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
+                    1.0/other, self.handle_, 0.0, self.handle_);
+                mUtilities.check_status('DataContainer:mrdivide', z.handle_);
+            else
+                error('DataContainer:mrdivide', 'Wrong divisor');
             end
         end
     end
@@ -102,6 +139,7 @@ classdef DataContainer < handle
             z = self.same_object();
             z.handle_ = calllib('mstir', 'mSTIR_axpby', ...
                 a, x.handle_, b, y.handle_);
+            mUtilities.check_status('DataContainer:axpby', z.handle_);
         end
     end
 end

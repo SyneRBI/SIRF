@@ -75,6 +75,7 @@ classdef DataContainer < handle
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, -1.0, 0.0, other.handle_);
+            mUtilities.check_status('DataContainer:minus', z.handle_);
         end
         function z = plus(self, other)
 %***SIRF*** Overloads + for data containers.
@@ -85,6 +86,27 @@ classdef DataContainer < handle
             z = self.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 1.0, 0.0, self.handle_, 1.0, 0.0, other.handle_);
+            mUtilities.check_status('DataContainer:plus', z.handle_);
+        end
+        function z = times(self, other)
+%***SIRF*** Overloads .* for data containers.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
+            mUtilities.assert_validities(self, other)
+            z = self.same_object();
+            z.handle_ = calllib('mstir', 'mGadgetron_multiply', ...
+                self.handle_, other.handle_);
+            mUtilities.check_status('DataContainer:times', z.handle_);
+        end
+        function z = rdivide(self, other)
+%***SIRF*** Overloads ./ for data containers.
+%         Returns the difference of this data container with another one
+%         viewed as vectors.
+            mUtilities.assert_validities(self, other)
+            z = self.same_object();
+            z.handle_ = calllib('mstir', 'mGadgetron_divide', ...
+                self.handle_, other.handle_);
+            mUtilities.check_status('DataContainer:rdivide', z.handle_);
         end
         function z = mtimes(self, other)
 %***SIRF*** mtimes(other) overloads * for data containers multiplication 
@@ -94,6 +116,7 @@ classdef DataContainer < handle
             %if isobject(other)
             if strcmp(class(self), class(other))
                 z = self.dot(other);
+                return
             elseif isreal(other)
                 z = self.same_object();
                 z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
@@ -107,6 +130,7 @@ classdef DataContainer < handle
                 error('DataContainer:mtimes', ...
                     'Wrong argument type %s\n', class(other))
             end
+            mUtilities.check_status('DataContainer:mtimes', z.handle_);
         end
     end
     methods(Static)
@@ -120,6 +144,7 @@ classdef DataContainer < handle
             z = x.same_object();
             z.handle_ = calllib('mgadgetron', 'mGT_axpby', ...
                 real(a), imag(a), x.handle_, real(b), imag(b), y.handle_);
+            mUtilities.check_status('DataContainer:axpby', z.handle_);
         end
     end
 end
