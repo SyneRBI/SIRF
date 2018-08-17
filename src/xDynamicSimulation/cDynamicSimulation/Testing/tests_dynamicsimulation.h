@@ -20,6 +20,8 @@ bool test_get_all_combinations( void );
 namespace tests_mr_dynsim
 {
 
+bool test_acquisitionsvector_memory_management( void );
+
 bool test_constructor( void );
 
 void test_extract_hdr_information( void );

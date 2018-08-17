@@ -88,11 +88,13 @@ void run_tests_dynamic_simulation( void )
 
 	bool tests_successful = true;
 	
+	tests_successful *= tests_mr_dynsim::test_acquisitionsvector_memory_management();
+
 	//tests_successful *= test_lin_combi_gen::test_get_all_combinations();
 
 	// tests_successful *= tests_mr_dynsim::test_constructor();
 	// tests_mr_dynsim::test_extract_hdr_information();
-	tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
+	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
