@@ -1041,8 +1041,12 @@ class AcquisitionData(DataContainer):
         '''
         Returns a copy of self.
         '''
-        ap = AcquisitionDataProcessor()
-        return ap.process(self)
+        ad = AcquisitionData()
+        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
+        check_status(ad.handle)
+        return ad;
+##        ap = AcquisitionDataProcessor()
+##        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.
