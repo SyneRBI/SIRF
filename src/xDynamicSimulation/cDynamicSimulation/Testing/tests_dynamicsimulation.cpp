@@ -141,16 +141,19 @@ bool tests_mr_dynsim::test_acquisitionsvector_memory_management( void )
 	for(uint i_rep=0; i_rep<num_reps; i_rep++)
 	{
 
-		std::cout << "Iteration number: " << i_rep << std::endl;
+
 		AcquisitionsVector temp_dummy_vector;
 		temp_dummy_vector.copy_acquisitions_info(all_acquis);
-		ISMRMRD::Acquisition acq;
 
 		for(size_t i_acq=0; i_acq<all_acquis.number(); i_acq++)
 		{
+			ISMRMRD::Acquisition acq;
 			all_acquis.get_acquisition(i_acq, acq);
 			temp_dummy_vector.append_acquisition(acq);
 		}
+
+		std::cout << "Iteration number: " << i_rep << std::endl;
+		std::cout << "Number count in vector: " << temp_dummy_vector.number() << std::endl;
 	}
 
 	return true;
@@ -220,7 +223,7 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		second_cont_dyn.bin_mr_acquisitions( all_acquis );
 
 		mr_dyn_sim.add_dynamic( first_cont_dyn );
-		// mr_dyn_sim.add_dynamic( second_cont_dyn );
+		mr_dyn_sim.add_dynamic( second_cont_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();

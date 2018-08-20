@@ -18,6 +18,7 @@ void MRDynamicSimulation::write_simulation_results( std::string const filename_o
 	try	
 	{
 		std::cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
+		std::cout << "Number of acquisitions to write: " << this->target_acquisitions_.number() << std::endl;
 		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
 		std::cout << "Finished writing simulation output."<<std::endl;
 	}
@@ -84,9 +85,9 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		if( acquisitions_for_this_state.number() > 0)
 		{
-			// this->mr_cont_gen_.map_contrast();
-			// this->source_acquisitions_ = acquisitions_for_this_state;
-			// this->acquire_raw_data();	
+			this->mr_cont_gen_.map_contrast();
+			this->source_acquisitions_ = acquisitions_for_this_state;
+			this->acquire_raw_data();	
 		}
 	}
 
@@ -133,10 +134,11 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 	unsigned int offset = 0;
 
-	ISMRMRD::Acquisition acq;
-	
+
 	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
 	{
+		ISMRMRD::Acquisition acq;
+
 		std::cout << "Acquisition contrast " << i_contrast << std::endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
