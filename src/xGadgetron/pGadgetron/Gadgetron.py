@@ -1072,17 +1072,25 @@ class AcquisitionData(DataContainer):
         else:
             dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def get_info(self, par):
+    def get_info(self, par, which = 'all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
         par: parameter name
         '''
         na, nc, ns = self.dimensions()
+        if which == 'all':
+            rng = range(na)
+        else:
+            rng = which
+            na = len(rng)
         info = numpy.empty((na,), dtype = object)
-        for a in range(na):
+        i = 0
+        for a in rng: #range(na):
             acq = self.acquisition(a)
-            info[a] = acq.info(par)
+            info[i] = acq.info(par)
+            i += 1
+##            info[a] = acq.info(par)
         return info
     def as_array(self, select = 'image'):
         '''
