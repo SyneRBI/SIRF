@@ -697,43 +697,38 @@ MRImageData::norm()
 	return r;
 }
 
-ImagesVector::ImagesVector(const ImagesVector& list, const char* attr, const char* target)
+void
+MRImageData::order()
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
-	for (i = list.images_.begin(); i != list.images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		std::string atts = sptr_iw->attributes();
+	typedef std::array<int, 3> tuple;
+	int ni = number();
+	tuple t;
+	std::vector<tuple> vt;
+	for (int i = 0; i < ni; i++) {
+      ImageWrap& iw = image_wrap(i);
+      ISMRMRD::ImageHeader& head = iw.head();
+		t[0] = head.repetition;
+		t[1] = head.position[2];
+		t[2] = head.slice;
+		vt.push_back(t);
+	}
+	if (index_)
+		delete[] index_;
+	index_ = new int[ni];
+	Multisort::sort(vt, index_);
+}
+
+ImagesVector::ImagesVector(ImagesVector& list, const char* attr, const char* target)
+{
+	for (unsigned int i = 0; i < list.number(); i++) {
+		const ImageWrap& u = list.image_wrap(i);
+		std::string atts = u.attributes();
 		ISMRMRD::MetaContainer mc;
 		ISMRMRD::deserialize(atts.c_str(), mc);
 		std::string value = mc.as_str(attr);
 		if (boost::iequals(value, target))
-			append(*sptr_iw);
+			append(u);
 	}
-}
-
-ImagesVector::ImagesVector(const ImagesVector& list, unsigned int inc, unsigned int off)
-{
-	int n = 0;
-	unsigned int j = 0;
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
-	for (i = list.images_.begin(); i != list.images_.end() && j < off; i++, j++);
-
-	for (; i != list.images_.end(); i++, j++) {
-		if ((j - off) % inc)
-			continue;
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		append(*sptr_iw);
-		n++;
-	}
-	nimages_ = n;
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -830,30 +825,18 @@ ImagesVector::write(std::string filename, std::string groupname)
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 	mtx.unlock();
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::iterator i;
-#endif
-	for (i = images_.begin(); i != images_.end(); i++) {
-		shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.write(dataset);
 	}
 }
 
 void
-ImagesVector::get_images_data_as_float_array(float* data) const
+ImagesVector::get_images_data_as_float_array(float* data)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.get_data(data);
 		iw.get_dim(dim);
 		size_t size = dim[0];
@@ -865,17 +848,11 @@ ImagesVector::get_images_data_as_float_array(float* data) const
 }
 
 void
-ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
+ImagesVector::get_images_data_as_complex_array(float* re, float* im)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.get_dim(dim);
 		size_t size = dim[0];
 		size *= dim[1];
@@ -897,15 +874,9 @@ ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
 void
 ImagesVector::set_complex_images_data(const float* re, const float* im)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		size_t n = iw.get_dim(dim);
 		iw.set_cmplx_data(re, im);
 		re += n;

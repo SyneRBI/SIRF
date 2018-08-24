@@ -187,6 +187,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 		}
 	}
 	check_gadgetron_connection(host_, port_);
+	sptr_images_->order();
 }
 
 void 

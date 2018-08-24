@@ -5,6 +5,7 @@
 * removed `using` statements from the header files
 * created namespace `sirf`
 * added default constructor and set_up to MRAcquisitionModel
+* implemented sorting of MR images
 
 ## v1.1.0
 
