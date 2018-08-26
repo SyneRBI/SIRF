@@ -48,17 +48,18 @@ bool test_noisegen::test_add_gaussian_noise( void )
 {
 	try
 	{
-		AcquisitionsVector noise_free_acquisitions =  mr_io::read_ismrmrd_acquisitions( FILENAME_DYNSIM );
+		AcquisitionsVector acquisitions_data =  mr_io::read_ismrmrd_acquisitions( FILENAME_DYNSIM );
 		AcquisitionsVector noisy_acquisitions;
-		noisy_acquisitions.copy_acquisitions_info(noise_free_acquisitions);
+		noisy_acquisitions.copy_acquisitions_info(acquisitions_data);
 
-		float const noise_width = 1;
+		float const noise_width = 0.1;
 
 		GaussianNoiseGenerator noise_gen( noise_width );
-		noise_gen.add_noise(noisy_acquisitions, noise_free_acquisitions);
+
+		noise_gen.add_noise(acquisitions_data);
 
 		std::string const filename_test_output = std::string(SHARED_FOLDER_PATH) + "test_gaussian_noise_generator.h5";		
-		noisy_acquisitions.write(filename_test_output.c_str());
+		acquisitions_data.write(filename_test_output.c_str());
 
 		return true;
 

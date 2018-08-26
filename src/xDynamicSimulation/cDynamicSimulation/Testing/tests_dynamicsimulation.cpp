@@ -171,10 +171,13 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
-
+		// float const test_noise_width = 0.1;
+		// mr_dyn_sim.set_noise_width( test_noise_width );
+		float const test_SNR = 1;
+		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_states_first_dyn = 35;
-		int const num_simul_states_second_dyn = 5;
+		int const num_simul_states_first_dyn = 10;
+		int const num_simul_states_second_dyn = 10;
 
 
 		ContrastDynamic first_cont_dyn(num_simul_states_first_dyn), second_cont_dyn(num_simul_states_second_dyn);

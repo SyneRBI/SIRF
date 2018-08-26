@@ -89,6 +89,7 @@ public:
 	
 	void set_all_source_acquisitions(MRDataContainerType acquisitions );
 	void set_noise_width(float const sigma);
+	void set_SNR(float const SNR);
 
 	void simulate_dynamics( void );
 	void extract_hdr_information( void );

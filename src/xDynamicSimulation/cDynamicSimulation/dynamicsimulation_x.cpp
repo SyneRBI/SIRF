@@ -91,7 +91,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 		}
 	}
 
-	// this->noise_generator_.add_noise(this->target_acquisitions_, this->target_acquisitions_);
+	this->noise_generator_.add_noise(this->target_acquisitions_);
 }
 
 void MRDynamicSimulation::extract_hdr_information( void )
@@ -112,6 +112,11 @@ void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquis
 void MRDynamicSimulation::set_noise_width(float const sigma)
 {
 	this->noise_generator_.set_noise_width( sigma );
+}
+
+void MRDynamicSimulation::set_SNR(float const SNR)
+{
+	this->noise_generator_.set_SNR(SNR);
 }
 
 void MRDynamicSimulation::acquire_raw_data( void )

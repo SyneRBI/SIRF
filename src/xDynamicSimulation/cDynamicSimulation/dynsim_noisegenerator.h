@@ -71,10 +71,18 @@ public:
 	GaussianNoiseGenerator(float const width_noise): aNoiseGenerator(), width_noise_(width_noise){};	
 
 	void set_noise_width(float const sigma){ this->width_noise_ = sigma; };
-	void add_noise(sirf::MRAcquisitionData& noisy_acquisition_data, sirf::MRAcquisitionData& noise_free_acquisition_data );
+	void set_SNR(float const SNR){ this->SNR_ = SNR; };
+
+	void add_noise( sirf::AcquisitionsVector& acquisition_vector );
+	
 
 private:
 	static float constexpr mean_noise_ = 0.f;
 	float width_noise_;
+	float SNR_ = -1;
+
+	void add_noise_to_data( sirf::AcquisitionsVector& acquisition_vector );
+	// void add_noise_to_data( sirf::MRAcquisitionData& noisy_acquisition_data, sirf::MRAcquisitionData& noise_free_acquisition_data );
+	float noise_width_from_snr( sirf::AcquisitionsVector& acquisition_vector );
 
 };

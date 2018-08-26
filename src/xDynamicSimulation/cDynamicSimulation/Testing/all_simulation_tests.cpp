@@ -88,7 +88,7 @@ void run_tests_dynamic_simulation( void )
 
 	bool tests_successful = true;
 	
-	tests_successful *= tests_mr_dynsim::test_acquisitionsvector_memory_management();
+	// tests_successful *= tests_mr_dynsim::test_acquisitionsvector_memory_management();
 
 	//tests_successful *= test_lin_combi_gen::test_get_all_combinations();
 
@@ -119,7 +119,7 @@ void run_tests_noise_generator( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= test_noisegen::test_add_poisson_noise();
+	// tests_successful *= test_noisegen::test_add_poisson_noise();
 	tests_successful *= test_noisegen::test_add_gaussian_noise();
 
 	if ( !tests_successful )
