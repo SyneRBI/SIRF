@@ -83,7 +83,7 @@ public:
 	MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states){};
 
 protected:
-	// MotionFieldContainer motion_field_;
+	// MotionFieldContainer displacement_field_;
 
 	virtual void set_bins( int const num_bins );
 
