@@ -13,9 +13,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <utility>
 #include <vector>
 
+#include <ismrmrd/ismrmrd.h>
+
+#include "phantom_input.h"
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
-
 
 #include "gadgetron_data_containers.h"
 
@@ -28,7 +30,9 @@ typedef float SignalAxisType;
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
 typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
 
-// typedef ... MotionFieldContainer;
+typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
+
+
 
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
@@ -114,23 +118,29 @@ public:
 
 	std::string get_temp_folder_name();
 
-	bool make_temp_folder();
-	bool delete_temp_folder();
+	void set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields);
+	void write_temp_displacements_fields( void );
 
 protected:
 
+	bool const destroy_upon_deletion_ = false;
+
 	virtual void set_bins( int const num_bins );
+	
 	std::string setup_tmp_folder_name( void );
+	bool make_temp_folder();
+	bool delete_temp_folder();
 
-	// MotionFieldContainer displacement_field_;
-	const static std::string temp_folder_path_;
+	std::string const temp_folder_prefix_  = "/tmp/";;
+	std::string const temp_mvf_prefix_ = "/motion_field_";
 	std::string temp_folder_name_ ;
-
-
-
+	std::vector<std::string> temp_mvf_filenames_; 
 
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
+
+
+	MotionFieldContainer displacment_fields_;
 
 };
 

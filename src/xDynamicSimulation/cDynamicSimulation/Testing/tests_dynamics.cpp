@@ -261,10 +261,10 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 
 		MotionDynamic first_dyn;
 		std::cout << epiph( first_dyn.get_temp_folder_name() )<< std::endl;
-		test_succesful *= first_dyn.make_temp_folder();
-		test_succesful *= first_dyn.delete_temp_folder();
+		// test_succesful *= first_dyn.make_temp_folder();
+		// test_succesful *= first_dyn.delete_temp_folder();
 
-		test_succesful *= !(first_dyn.delete_temp_folder());
+		// test_succesful *= !(first_dyn.delete_temp_folder());
 
 		return test_succesful;
 	}
@@ -276,3 +276,52 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 	}
 
 }
+
+bool test_dynamic::test_motion_dynamic_set_motion_fields()
+{
+try
+	{
+		bool test_succesful = true;
+
+		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		int const num_simul_bins = 12;
+		MotionDynamic motion_dyn(num_simul_bins);
+		motion_dyn.set_displacment_fields(resp_mvfs);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+
+
+bool test_dynamic::test_motion_dynamic_write_motion_fields()
+{
+try
+	{
+		bool test_succesful = true;
+
+		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		int const num_simul_bins = 12;
+		MotionDynamic motion_dyn(num_simul_bins);
+		motion_dyn.set_displacment_fields(resp_mvfs);
+		motion_dyn.write_temp_displacements_fields();
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+

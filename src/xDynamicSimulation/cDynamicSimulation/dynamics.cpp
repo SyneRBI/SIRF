@@ -20,6 +20,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 #include "dynamics.h"
+#include "auxiliary_input_output.h"
 
 using namespace sirf;
 
@@ -315,7 +316,6 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 
 
 int MotionDynamic::num_total_motion_dynamics_ = 0;
-const std::string MotionDynamic::temp_folder_path_ = "/tmp/";
 
 MotionDynamic::MotionDynamic():aDynamic()
 {
@@ -338,7 +338,9 @@ MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic(num_simul_st
 
 MotionDynamic::~MotionDynamic()
 { 
-	this->delete_temp_folder();
+	if( this->destroy_upon_deletion_)
+		this->delete_temp_folder();
+
 	this->num_total_motion_dynamics_ -= 1; 
 }
 
@@ -348,9 +350,9 @@ int MotionDynamic::get_num_total_motion_dynamics(){ return this->num_total_motio
 
 std::string MotionDynamic::setup_tmp_folder_name()
 {
-	std::string const folder_prefix = "temp_folder_motion_dyn_";
+	std::string const current_folder_prefix = "temp_folder_motion_dyn_";
 	std::stringstream tmp_stream;
-	tmp_stream << this->temp_folder_path_ << folder_prefix << this->which_motion_dynamic_am_i_;
+	tmp_stream << this->temp_folder_prefix_ << current_folder_prefix << this->which_motion_dynamic_am_i_;
 	return tmp_stream.str();
 
 }
@@ -402,5 +404,55 @@ bool MotionDynamic::delete_temp_folder()
 		std::cout << e.message() << std::endl;
 		throw e;	
 	}
+;
+}
 
+
+void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields)
+{
+	using namespace ISMRMRD;
+
+	const size_t* dimensions = motion_fields.getDims();
+
+	for(int i=0; i<7; i++)
+		std::cout << "dim = " << dimensions[i] <<std::endl;
+
+	size_t const num_signal_points = dimensions[0];
+
+	for(size_t i_signal_point=0; i_signal_point<num_signal_points; i_signal_point++)
+	{
+		
+		Image<DataTypeMotionFields> img(dimensions[4],dimensions[3], dimensions[2], dimensions[1]);
+ 		
+ 		for(uint16_t  v= 0; v< dimensions[1]; v++)
+		for(uint16_t  z= 0; z< dimensions[2]; z++)
+		for(uint16_t  y= 0; y< dimensions[3]; y++)
+		for(uint16_t  x= 0; x< dimensions[4]; x++)
+		{
+			// std::cout << "(x,y,z,v) = (" << x << ", " << y << ", " << z << ", " << v << ")"<< std::endl;
+			img(x,y,z,v) = 	motion_fields(i_signal_point, v, z, y, x);
+		}
+		this->displacment_fields_.push_back(img);
+	}
+}
+
+void MotionDynamic::write_temp_displacements_fields()
+{
+	bool const temp_folder_creation_successful = this->make_temp_folder();
+
+	if( temp_folder_creation_successful )
+	{
+		for(int i=0; i<this->displacment_fields_.size(); i++)
+		{
+
+			std::cout << "Writing MVF #: " << i <<  std::endl;
+			std::stringstream temp_filename_mvf;
+			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
+
+			data_io::write_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
+		}
+	}
+	else
+		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
 }

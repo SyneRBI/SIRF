@@ -70,7 +70,9 @@ void run_tests_dynamics( void )
 
 	tests_successful *= test_dynamic::test_motion_dynamic_counter();
 
-	tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
+	// tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
+	tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
+	tests_successful *= test_dynamic::test_motion_dynamic_write_motion_fields();
 
 
 	if ( !tests_successful )
