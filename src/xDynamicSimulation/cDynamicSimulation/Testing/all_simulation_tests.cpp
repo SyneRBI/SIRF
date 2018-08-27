@@ -24,6 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamics.h"
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
+#include "tests_dynsim_deformer.h"
 
 #include "all_simulation_tests.h"
 
@@ -314,7 +315,24 @@ void run_tests_encoding( void )
 
 
 
+void run_tests_dynsim_deformer( void )
+{
+	// bool tests_successful = true;
+	bool tests_successful = true;
 
+	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The dynsim deformer tests failed." );
+	}
+	else
+	{
+		std::cout<< "The dynsim deformer tests succeeded" << std::endl;
+	}
+
+}
 
 
 
