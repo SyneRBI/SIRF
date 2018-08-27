@@ -232,7 +232,7 @@ bool test_dynamic::test_motion_dynamic_counter()
 		std::cout << epiph(first_counter) << std::endl;
 		std::cout << epiph(second_counter) << std::endl;
 		std::cout << epiph(third_counter) << std::endl;
-		std::cout << epiph(total_acquisitions) << std::endl;
+		std::cout << epiph(total_counter) << std::endl;
 
 		test_succesful *= (first_counter == 0);
 		test_succesful *= (second_counter == 1);
