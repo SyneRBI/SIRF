@@ -65,9 +65,9 @@ namespace data_io{
 		img_dims.push_back( img.getMatrixSizeZ() );
 		img_dims.push_back( img.getNumberOfChannels() );
 
-		float const pix_size_X = img.getFieldOfViewX() / (float)img_dims[0];
-		float const pix_size_Y = img.getFieldOfViewY() / (float)img_dims[1];
-		float const pix_size_Z = img.getFieldOfViewZ() / (float)img_dims[2];
+		float const pix_size_X = 1.f;//img.getFieldOfViewX() / (float)img_dims[0];
+		float const pix_size_Y = 1.f;//img.getFieldOfViewY() / (float)img_dims[1];
+		float const pix_size_Z = 1.f;//img.getFieldOfViewZ() / (float)img_dims[2];
 		float const pix_size_Vec = 1.f;
 
 
@@ -82,7 +82,7 @@ namespace data_io{
 
 		analyze_io.export_array(data_to_be_written, output_name_without_ext);
 
-		std::cout << "Finished writing " << std::endl;	
+		std::cout << "Finished writing "  << output_name_without_ext << std::endl;		
 	};
 
 }
