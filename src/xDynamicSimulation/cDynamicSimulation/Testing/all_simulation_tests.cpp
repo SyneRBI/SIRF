@@ -68,7 +68,7 @@ void run_tests_dynamics( void )
 
 	tests_successful *= test_dynamic::test_bin_mr_acquisitions();
 
-
+	tests_successful *= test_dynamic::test_motion_dynamic_counter();
 
 
 

@@ -12,6 +12,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <deque>
 #include <algorithm>
 
+#include <boost/filesystem.hpp>
+
 #include <ismrmrd/ismrmrd.h>
 
 #include "dynamics.h"
@@ -309,7 +311,7 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 }
 
 
-
+int MotionDynamic::num_total_motion_dynamics_ = 0;
 
 
 

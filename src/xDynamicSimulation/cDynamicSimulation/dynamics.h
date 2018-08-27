@@ -76,19 +76,6 @@ protected:
 
 
 
-class MotionDynamic : public aDynamic {
-
-public:
-	MotionDynamic():aDynamic(){};
-	MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states){};
-
-protected:
-	// MotionFieldContainer displacement_field_;
-
-	virtual void set_bins( int const num_bins );
-
-};
-
 
 class ContrastDynamic : public aDynamic {
 
@@ -113,3 +100,31 @@ protected:
 };
 
 
+class MotionDynamic : public aDynamic {
+
+public:
+	MotionDynamic():aDynamic()
+	{
+		this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
+		this->num_total_motion_dynamics_ += 1;
+	};
+	MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states)
+	{
+		this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
+		this->num_total_motion_dynamics_ += 1;
+	};
+
+	~MotionDynamic(){ this->num_total_motion_dynamics_ -= 1; };
+
+	int get_which_motion_dynamic_am_i(){ return this->which_motion_dynamic_am_i_; };
+	int get_num_total_motion_dynamics(){ return this->num_total_motion_dynamics_; };
+
+protected:
+	// MotionFieldContainer displacement_field_;
+
+	virtual void set_bins( int const num_bins );
+	
+	static int num_total_motion_dynamics_;
+	int which_motion_dynamic_am_i_;
+
+};

@@ -173,7 +173,7 @@ bool test_dynamic::test_get_set_bins()
 
 bool test_dynamic::test_bin_mr_acquisitions()
 {
-try
+	try
 	{
 		bool test_succesful = true;
 
@@ -211,6 +211,42 @@ try
 	}
 
 
+}
+
+
+bool test_dynamic::test_motion_dynamic_counter()
+{
+	try
+	{
+		bool test_succesful = true;
+
+		MotionDynamic first_dyn, second_dyn, third_dyn;
+
+		
+		int const first_counter = first_dyn.get_which_motion_dynamic_am_i();
+		int const second_counter = second_dyn.get_which_motion_dynamic_am_i();
+		int const third_counter = third_dyn.get_which_motion_dynamic_am_i();
+
+		int const total_counter = first_dyn.get_num_total_motion_dynamics();
+
+		std::cout << epiph(first_counter) << std::endl;
+		std::cout << epiph(second_counter) << std::endl;
+		std::cout << epiph(third_counter) << std::endl;
+		std::cout << epiph(total_acquisitions) << std::endl;
+
+		test_succesful *= (first_counter == 0);
+		test_succesful *= (second_counter == 1);
+		test_succesful *= (third_counter == 2);
+		test_succesful *= (total_counter == 3);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
 }
 
 

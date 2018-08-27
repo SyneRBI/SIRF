@@ -23,6 +23,7 @@ bool test_get_set_bins( void );
 bool test_linear_interpolate_signal( void );
 bool test_bin_mr_acquisitions(void);
 
+bool test_motion_dynamic_counter( void );
 
 	 
 }
