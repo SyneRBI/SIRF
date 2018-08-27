@@ -7,12 +7,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 ================================================ */
 
 
-
+#include <sstream>
 #include <stdexcept>
 #include <deque>
 #include <algorithm>
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/system/error_code.hpp>
+
 
 #include <ismrmrd/ismrmrd.h>
 
@@ -312,8 +315,92 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 
 
 int MotionDynamic::num_total_motion_dynamics_ = 0;
+const std::string MotionDynamic::temp_folder_path_ = "/tmp/";
+
+MotionDynamic::MotionDynamic():aDynamic()
+{
+	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
+	this->num_total_motion_dynamics_ += 1;
+	
+	this->temp_folder_name_ = setup_tmp_folder_name();
+
+}
+
+MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states)
+{
+	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
+	this->num_total_motion_dynamics_ += 1;
+
+	this->temp_folder_name_ = setup_tmp_folder_name();
+
+}
 
 
+MotionDynamic::~MotionDynamic()
+{ 
+	this->delete_temp_folder();
+	this->num_total_motion_dynamics_ -= 1; 
+}
 
 
+int MotionDynamic::get_which_motion_dynamic_am_i(){ return this->which_motion_dynamic_am_i_; }
+int MotionDynamic::get_num_total_motion_dynamics(){ return this->num_total_motion_dynamics_; }
 
+std::string MotionDynamic::setup_tmp_folder_name()
+{
+	std::string const folder_prefix = "temp_folder_motion_dyn_";
+	std::stringstream tmp_stream;
+	tmp_stream << this->temp_folder_path_ << folder_prefix << this->which_motion_dynamic_am_i_;
+	return tmp_stream.str();
+
+}
+
+std::string MotionDynamic::get_temp_folder_name()
+{
+	return this->temp_folder_name_;
+}
+
+bool MotionDynamic::make_temp_folder()
+{
+	try
+	{
+		std::cout << "Generating temporary folder " << this->temp_folder_name_ << std::endl;
+		boost::filesystem::path dir_to_make(this->temp_folder_name_.c_str());
+		bool folder_creation_worked = boost::filesystem::create_directories(dir_to_make);
+		return folder_creation_worked;
+
+	}
+	catch(boost::system::error_code& e)
+	{
+		std::cout << e.message() << std::endl;
+		throw e;	
+	}
+}
+
+bool MotionDynamic::delete_temp_folder()
+{
+	try
+	{
+		boost::filesystem::path dir_to_del( this->temp_folder_name_.c_str() );
+		
+		if( boost::filesystem::exists(dir_to_del) )
+		{
+			std::cout << "Deleting temporary folder " << this->temp_folder_name_ << std::endl;
+
+			bool folder_deletion_worked = boost::filesystem::remove_all(dir_to_del);
+			return folder_deletion_worked;
+		}
+		else
+		{
+			std::cout << "Folder " << this->temp_folder_name_ << " does not exist. Deletion omitted" << std::endl;
+			return false;
+		}
+
+	}
+	catch(boost::system::error_code& e)
+	{
+		std::cout << e.message() << std::endl;
+		throw e;	
+	}
+
+}

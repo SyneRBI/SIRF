@@ -252,3 +252,27 @@ bool test_dynamic::test_motion_dynamic_counter()
 
 
 
+bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
+{
+
+	try
+	{
+		bool test_succesful = true;
+
+		MotionDynamic first_dyn;
+		std::cout << epiph( first_dyn.get_temp_folder_name() )<< std::endl;
+		test_succesful *= first_dyn.make_temp_folder();
+		test_succesful *= first_dyn.delete_temp_folder();
+
+		test_succesful *= !(first_dyn.delete_temp_folder());
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}

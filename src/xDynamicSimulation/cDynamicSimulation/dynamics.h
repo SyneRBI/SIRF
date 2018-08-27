@@ -9,6 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -103,28 +104,34 @@ protected:
 class MotionDynamic : public aDynamic {
 
 public:
-	MotionDynamic():aDynamic()
-	{
-		this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
-		this->num_total_motion_dynamics_ += 1;
-	};
-	MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states)
-	{
-		this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
-		this->num_total_motion_dynamics_ += 1;
-	};
+	MotionDynamic();
+	MotionDynamic(int const num_simul_states);
 
-	~MotionDynamic(){ this->num_total_motion_dynamics_ -= 1; };
+	~MotionDynamic();
 
-	int get_which_motion_dynamic_am_i(){ return this->which_motion_dynamic_am_i_; };
-	int get_num_total_motion_dynamics(){ return this->num_total_motion_dynamics_; };
+	int get_which_motion_dynamic_am_i();
+	int get_num_total_motion_dynamics();
+
+	std::string get_temp_folder_name();
+
+	bool make_temp_folder();
+	bool delete_temp_folder();
 
 protected:
-	// MotionFieldContainer displacement_field_;
 
 	virtual void set_bins( int const num_bins );
-	
+	std::string setup_tmp_folder_name( void );
+
+	// MotionFieldContainer displacement_field_;
+	const static std::string temp_folder_path_;
+	std::string temp_folder_name_ ;
+
+
+
+
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
 
 };
+
+

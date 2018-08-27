@@ -66,10 +66,11 @@ void run_tests_dynamics( void )
 	tests_successful *= test_dynamic::test_linear_interpolate_signal();
 	tests_successful *= test_dynamic::test_get_set_bins();
 
-	tests_successful *= test_dynamic::test_bin_mr_acquisitions();
+	// tests_successful *= test_dynamic::test_bin_mr_acquisitions();
 
 	tests_successful *= test_dynamic::test_motion_dynamic_counter();
 
+	tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
 
 
 	if ( !tests_successful )

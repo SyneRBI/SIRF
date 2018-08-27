@@ -24,6 +24,7 @@ bool test_linear_interpolate_signal( void );
 bool test_bin_mr_acquisitions(void);
 
 bool test_motion_dynamic_counter( void );
+bool test_motion_dynamic_temp_folder_setup( void );
 
 	 
 }
