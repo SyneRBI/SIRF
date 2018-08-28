@@ -63,46 +63,29 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	boost::filesystem::path temp_dir_name(temp_folder_name_);
 	bool const temp_folder_creation_successful = boost::filesystem::create_directories(temp_dir_name);
 
-	std::stringstream namestream_temp_img_output;
-	namestream_temp_img_output << temp_folder_name_ << "/temp_img_data";
+	
 
 	if( temp_folder_creation_successful )
 	{
-		std::vector< ISMRMRD::Image< complex_float_t> >  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
+		std::vector< ISMRMRD::Image< complex_float_t> >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
 
 		for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
 		{
-			std::string filename_temp_img = namestream_temp_img_output.str();
-			auto real_image_part =  DynamicSimulationDeformer::extract_real_part(vect_img_data[i_cont]);
+			ISMRMRD::Image<complex_float_t> &curr_img = vect_img_data[i_cont];
 
-			data_io::write_ISMRMRD_Image_to_Analyze< float > (filename_temp_img, real_image_part);
+			auto real_image_part =  DynamicSimulationDeformer::extract_real_part(curr_img);
+			DynamicSimulationDeformer::deform_ismrmrd_image( real_image_part, displacement_field);
 
-			filename_temp_img += ".hdr";
+			auto imaginary_image_part =  DynamicSimulationDeformer::extract_imaginary_part(curr_img);
+			DynamicSimulationDeformer::deform_ismrmrd_image( imaginary_image_part, displacement_field);			
 
-		    SIRFImageData img_to_deform(filename_temp_img);
-
-		    SIRFRegNiftyResample resampler; 
-
-		    resampler.set_interpolation_type_to_linear();
-    		resampler.set_reference_image(img_to_deform);
-    		resampler.set_floating_image(img_to_deform);
-
-			resampler.set_displacement_field(displacement_field);
-
-			resampler.update();
-
-			auto deformed_img = resampler.get_output();
-			auto deformed_img_as_nifti = *(deformed_img.get_image_as_nifti());
-			
-			if( deformed_img_as_nifti.nvox != real_image_part.getNumberOfDataElements() )
-				throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
-
-			for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
-				*(real_image_part.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
-
-
-			data_io::write_ISMRMRD_Image_to_Analyze< float > (filename_temp_img, real_image_part);
-
+			for( size_t i_vox=0; i_vox<curr_img.getNumberOfDataElements(); i_vox++)
+			{
+				float const voxel_real_part = *(real_image_part.begin() + i_vox);
+				float const voxel_imag_part = *(imaginary_image_part.begin() + i_vox);
+				
+				*(curr_img.begin() + i_vox) =  std::complex<float> ( voxel_real_part, voxel_imag_part );
+			}
 		}
 	}
 	else
@@ -113,3 +96,37 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 	bool  dummy_variable = boost::filesystem::remove_all(temp_folder_name_);
 }
 
+
+
+void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, SIRFImageDataDeformation& displacement_field)
+{
+	std::stringstream namestream_temp_img_output;
+	namestream_temp_img_output << temp_folder_name_ << "/temp_img_data";
+	std::string filename_temp_img = namestream_temp_img_output.str();
+
+	data_io::write_ISMRMRD_Image_to_Analyze< float > (filename_temp_img, img);
+
+	filename_temp_img += ".hdr";
+
+    SIRFImageData img_to_deform(filename_temp_img);
+
+    SIRFRegNiftyResample resampler; 
+
+    resampler.set_interpolation_type_to_linear();
+	resampler.set_reference_image(img_to_deform);
+	resampler.set_floating_image(img_to_deform);
+
+	resampler.set_displacement_field(displacement_field);
+
+	resampler.update();
+
+	auto deformed_img = resampler.get_output();
+	auto deformed_img_as_nifti = *(deformed_img.get_image_as_nifti());
+	
+	if( deformed_img_as_nifti.nvox != img.getNumberOfDataElements() )
+		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
+
+	for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
+		*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
+
+}

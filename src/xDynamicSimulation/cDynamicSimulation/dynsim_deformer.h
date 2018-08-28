@@ -34,6 +34,8 @@ protected:
 
 	static const std::string temp_folder_name_;
 
+	static void deform_ismrmrd_image(ISMRMRD::Image< float >& img, SIRFImageDataDeformation& displacement_field);
+
 	static ISMRMRD::Image< float > extract_complex_subpart( ISMRMRD::Image< complex_float_t >& img, bool const extract_real_part );
 
 };
