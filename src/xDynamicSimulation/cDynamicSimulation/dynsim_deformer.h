@@ -23,7 +23,7 @@ class DynamicSimulationDeformer
 
 public:
 
-	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& img_deformation);
+	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& displacement_field);
 
 protected:
 

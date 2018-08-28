@@ -414,9 +414,6 @@ void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFiel
 
 	const size_t* dimensions = motion_fields.getDims();
 
-	for(int i=0; i<7; i++)
-		std::cout << "dim = " << dimensions[i] <<std::endl;
-
 	size_t const num_signal_points = dimensions[0];
 
 	for(size_t i_signal_point=0; i_signal_point<num_signal_points; i_signal_point++)
@@ -429,8 +426,8 @@ void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFiel
 		for(uint16_t  y= 0; y< dimensions[3]; y++)
 		for(uint16_t  x= 0; x< dimensions[4]; x++)
 		{
-			// std::cout << "(x,y,z,v) = (" << x << ", " << y << ", " << z << ", " << v << ")"<< std::endl;
 			img(x,y,z,v) = 	motion_fields(i_signal_point, v, z, y, x);
+			
 		}
 		this->displacment_fields_.push_back(img);
 	}
@@ -445,7 +442,7 @@ void MotionDynamic::write_temp_displacements_fields()
 		for(int i=0; i<this->displacment_fields_.size(); i++)
 		{
 
-			std::cout << "Writing MVF #: " << i <<  std::endl;
+			// std::cout << "Writing MVF #: " << i <<  std::endl;
 			std::stringstream temp_filename_mvf;
 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
 

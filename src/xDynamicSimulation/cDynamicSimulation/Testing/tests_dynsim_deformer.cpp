@@ -27,7 +27,22 @@ try
 
 		mr_cont_gen.map_contrast();
 
-		SIRFImageDataDeformation img_dat_deform;
+		SIRFImageDataDeformation img_dat_deform( DISPLACEMENT_FIELD_PATH );
+
+
+		auto sptr_mvf_as_nifti = img_dat_deform.get_image_as_nifti();
+		nifti_image mvf_as_nifti = *sptr_mvf_as_nifti;
+
+
+		std:: cout << epiph(mvf_as_nifti.ndim) << std::endl;
+		std:: cout << epiph(mvf_as_nifti.nx) << std::endl;
+		std:: cout << epiph(mvf_as_nifti.ny) << std::endl;
+		std:: cout << epiph(mvf_as_nifti.nz) << std::endl;
+		std:: cout << epiph(mvf_as_nifti.nt) << std::endl;
+		std:: cout << epiph(mvf_as_nifti.nu) << std::endl;
+
+
+
 		DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, img_dat_deform);
 
 		test_succesful = false;

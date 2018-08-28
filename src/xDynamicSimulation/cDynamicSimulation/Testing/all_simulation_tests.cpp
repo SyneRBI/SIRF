@@ -61,18 +61,18 @@ void run_tests_dynamics( void )
 	bool tests_successful = true;
 
 
-	tests_successful *= test_dynamic::test_is_in_bin();
-	tests_successful *= test_dynamic::test_intersect_mr_acquisition_data();
+	// tests_successful *= test_dynamic::test_is_in_bin();
+	// tests_successful *= test_dynamic::test_intersect_mr_acquisition_data();
 
-	tests_successful *= test_dynamic::test_linear_interpolate_signal();
-	tests_successful *= test_dynamic::test_get_set_bins();
+	// tests_successful *= test_dynamic::test_linear_interpolate_signal();
+	// tests_successful *= test_dynamic::test_get_set_bins();
 
 	// tests_successful *= test_dynamic::test_bin_mr_acquisitions();
 
-	tests_successful *= test_dynamic::test_motion_dynamic_counter();
+	// tests_successful *= test_dynamic::test_motion_dynamic_counter();
 
 	// tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
-	tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
+	// tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
 	tests_successful *= test_dynamic::test_motion_dynamic_write_motion_fields();
 
 
