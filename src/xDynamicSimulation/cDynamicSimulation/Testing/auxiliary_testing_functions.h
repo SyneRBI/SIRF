@@ -72,6 +72,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define FILENAME_DYNSIM_PET SHARED_FOLDER_PATH "testoutput_pet_dynamic_simulation.hs"
 
 
+#define FILENAME_MR_DEFORM_TEST SHARED_FOLDER_PATH "output_deforming_tests/deformed_img"
+
 // volume sizes
 
 #define MOCK_FOV 256

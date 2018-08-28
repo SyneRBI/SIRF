@@ -33,19 +33,16 @@ try
 		auto sptr_mvf_as_nifti = img_dat_deform.get_image_as_nifti();
 		nifti_image mvf_as_nifti = *sptr_mvf_as_nifti;
 
-
-		std:: cout << epiph(mvf_as_nifti.ndim) << std::endl;
-		std:: cout << epiph(mvf_as_nifti.nx) << std::endl;
-		std:: cout << epiph(mvf_as_nifti.ny) << std::endl;
-		std:: cout << epiph(mvf_as_nifti.nz) << std::endl;
-		std:: cout << epiph(mvf_as_nifti.nt) << std::endl;
-		std:: cout << epiph(mvf_as_nifti.nu) << std::endl;
-
-
-
 		DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, img_dat_deform);
 
-		test_succesful = false;
+		auto cont_filled_vols = mr_cont_gen.get_contrast_filled_volumes();
+
+		for(int i=0; i<cont_filled_vols.size(); i++)
+		{
+			std::stringstream output_name;
+			output_name << FILENAME_MR_DEFORM_TEST << "_" << i;
+			data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (output_name.str(), cont_filled_vols[i]);
+		}
 
 		return test_succesful;
 	}
