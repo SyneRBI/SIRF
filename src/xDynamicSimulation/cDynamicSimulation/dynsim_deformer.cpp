@@ -15,13 +15,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <boost/filesystem/operations.hpp>
 
 
-std::string const temp_folder_name_ = "/tmp/tmp_img_data_to_deform";
+std::string const DynamicSimulationDeformer::temp_folder_name_ = "/tmp/tmp_img_data_to_deform";
 
 void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& img_deformation)
 {
+
 	boost::filesystem::path temp_dir_name(temp_folder_name_);
 	bool const temp_folder_creation_successful = boost::filesystem::create_directories(temp_dir_name);
-
 
 	std::stringstream name_temp_img_output;
 	name_temp_img_output << temp_folder_name_ << "/temp_img_data";
