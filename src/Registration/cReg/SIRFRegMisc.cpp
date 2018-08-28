@@ -247,7 +247,7 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 
 #if NIFTYREG_VER_1_3
 /// Get cpp from transformation matrix
-void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr)
+void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr)
 {
     // Copy info from the reference image
     nifti_image *cpp_ptr = cpp_sptr.get();
@@ -315,77 +315,117 @@ void multiply_image(SIRFImageData &output, const SIRFImageData &input, const flo
 #endif
 }
 
-/// Do nifti images match?
-bool do_nift_image_match(const SIRFImageData &im1, const SIRFImageData &im2)
+/// Do nifti image metadatas match?
+bool do_nifti_image_metadata_match(const SIRFImageData &im1, const SIRFImageData &im2)
 {
     const std::shared_ptr<nifti_image> im1_sptr = im1.get_image_as_nifti();
     const std::shared_ptr<nifti_image> im2_sptr = im2.get_image_as_nifti();
 
     bool images_match = true;
-    if( im1_sptr->analyze75_orient  != im2_sptr->analyze75_orient   ) { images_match = false; cout << "mismatch in analyze75_orient , (values: " <<  im1_sptr->analyze75_orient << " and " << im2_sptr->analyze75_orient << ")\n"; }
-    if( im1_sptr->byteorder         != im2_sptr->byteorder          ) { images_match = false; cout << "mismatch in byteorder , (values: " <<  im1_sptr->byteorder << " and " << im2_sptr->byteorder << ")\n"; }
-    if( im1_sptr->cal_max           != im2_sptr->cal_max            ) { images_match = false; cout << "mismatch in cal_max , (values: " <<  im1_sptr->cal_max << " and " << im2_sptr->cal_max << ")\n"; }
-    if( im1_sptr->cal_min           != im2_sptr->cal_min            ) { images_match = false; cout << "mismatch in cal_min , (values: " <<  im1_sptr->cal_min << " and " << im2_sptr->cal_min << ")\n"; }
-    if( im1_sptr->datatype          != im2_sptr->datatype           ) { images_match = false; cout << "mismatch in datatype , (values: " <<  im1_sptr->datatype << " and " << im2_sptr->datatype << ")\n"; }
-    if( im1_sptr->du                != im2_sptr->du                 ) { images_match = false; cout << "mismatch in du , (values: " <<  im1_sptr->du << " and " << im2_sptr->du << ")\n"; }
-    if( im1_sptr->dv                != im2_sptr->dv                 ) { images_match = false; cout << "mismatch in dv , (values: " <<  im1_sptr->dv << " and " << im2_sptr->dv << ")\n"; }
-    if( im1_sptr->dw                != im2_sptr->dw                 ) { images_match = false; cout << "mismatch in dw , (values: " <<  im1_sptr->dw << " and " << im2_sptr->dw << ")\n"; }
-    if( im1_sptr->dx                != im2_sptr->dx                 ) { images_match = false; cout << "mismatch in dx , (values: " <<  im1_sptr->dx << " and " << im2_sptr->dx << ")\n"; }
-    if( im1_sptr->dy                != im2_sptr->dy                 ) { images_match = false; cout << "mismatch in dy , (values: " <<  im1_sptr->dy << " and " << im2_sptr->dy << ")\n"; }
-    if( im1_sptr->dz                != im2_sptr->dz                 ) { images_match = false; cout << "mismatch in dz , (values: " <<  im1_sptr->dz << " and " << im2_sptr->dz << ")\n"; }
-    if( im1_sptr->ext_list          != im2_sptr->ext_list           ) { images_match = false; cout << "mismatch in ext_list , (values: " <<  im1_sptr->ext_list << " and " << im2_sptr->ext_list << ")\n"; }
-    if( im1_sptr->freq_dim          != im2_sptr->freq_dim           ) { images_match = false; cout << "mismatch in freq_dim , (values: " <<  im1_sptr->freq_dim << " and " << im2_sptr->freq_dim << ")\n"; }
-    if( im1_sptr->iname_offset      != im2_sptr->iname_offset       ) { images_match = false; cout << "mismatch in iname_offset , (values: " <<  im1_sptr->iname_offset << " and " << im2_sptr->iname_offset << ")\n"; }
-    if( im1_sptr->intent_code       != im2_sptr->intent_code        ) { images_match = false; cout << "mismatch in intent_code , (values: " <<  im1_sptr->intent_code << " and " << im2_sptr->intent_code << ")\n"; }
-    if( im1_sptr->intent_p1         != im2_sptr->intent_p1          ) { images_match = false; cout << "mismatch in intent_p1 , (values: " <<  im1_sptr->intent_p1 << " and " << im2_sptr->intent_p1 << ")\n"; }
-    if( im1_sptr->intent_p2         != im2_sptr->intent_p2          ) { images_match = false; cout << "mismatch in intent_p2 , (values: " <<  im1_sptr->intent_p2 << " and " << im2_sptr->intent_p2 << ")\n"; }
-    if( im1_sptr->intent_p3         != im2_sptr->intent_p3          ) { images_match = false; cout << "mismatch in intent_p3 , (values: " <<  im1_sptr->intent_p3 << " and " << im2_sptr->intent_p3 << ")\n"; }
-    if( im1_sptr->nbyper            != im2_sptr->nbyper             ) { images_match = false; cout << "mismatch in nbyper , (values: " <<  im1_sptr->nbyper << " and " << im2_sptr->nbyper << ")\n"; }
-    if( im1_sptr->ndim              != im2_sptr->ndim               ) { images_match = false; cout << "mismatch in ndim , (values: " <<  im1_sptr->ndim << " and " << im2_sptr->ndim << ")\n"; }
-    if( im1_sptr->nifti_type        != im2_sptr->nifti_type         ) { images_match = false; cout << "mismatch in nifti_type , (values: " <<  im1_sptr->nifti_type << " and " << im2_sptr->nifti_type << ")\n"; }
-    if( im1_sptr->nt                != im2_sptr->nt                 ) { images_match = false; cout << "mismatch in nt , (values: " <<  im1_sptr->nt << " and " << im2_sptr->nt << ")\n"; }
-    if( im1_sptr->nu                != im2_sptr->nu                 ) { images_match = false; cout << "mismatch in nu , (values: " <<  im1_sptr->nu << " and " << im2_sptr->nu << ")\n"; }
-    if( im1_sptr->num_ext           != im2_sptr->num_ext            ) { images_match = false; cout << "mismatch in num_ext , (values: " <<  im1_sptr->num_ext << " and " << im2_sptr->num_ext << ")\n"; }
-    if( im1_sptr->nv                != im2_sptr->nv                 ) { images_match = false; cout << "mismatch in nv , (values: " <<  im1_sptr->nv << " and " << im2_sptr->nv << ")\n"; }
-    if( im1_sptr->nvox              != im2_sptr->nvox               ) { images_match = false; cout << "mismatch in nvox , (values: " <<  im1_sptr->nvox << " and " << im2_sptr->nvox << ")\n"; }
-    if( im1_sptr->nw                != im2_sptr->nw                 ) { images_match = false; cout << "mismatch in nw , (values: " <<  im1_sptr->nw << " and " << im2_sptr->nw << ")\n"; }
-    if( im1_sptr->nx                != im2_sptr->nx                 ) { images_match = false; cout << "mismatch in nx , (values: " <<  im1_sptr->nx << " and " << im2_sptr->nx << ")\n"; }
-    if( im1_sptr->ny                != im2_sptr->ny                 ) { images_match = false; cout << "mismatch in ny , (values: " <<  im1_sptr->ny << " and " << im2_sptr->ny << ")\n"; }
-    if( im1_sptr->nz                != im2_sptr->nz                 ) { images_match = false; cout << "mismatch in nz , (values: " <<  im1_sptr->nz << " and " << im2_sptr->nz << ")\n"; }
-    if( im1_sptr->phase_dim         != im2_sptr->phase_dim          ) { images_match = false; cout << "mismatch in phase_dim , (values: " <<  im1_sptr->phase_dim << " and " << im2_sptr->phase_dim << ")\n"; }
-    if( im1_sptr->qfac              != im2_sptr->qfac               ) { images_match = false; cout << "mismatch in qfac , (values: " <<  im1_sptr->qfac << " and " << im2_sptr->qfac << ")\n"; }
-    if( im1_sptr->qform_code        != im2_sptr->qform_code         ) { images_match = false; cout << "mismatch in qform_code , (values: " <<  im1_sptr->qform_code << " and " << im2_sptr->qform_code << ")\n"; }
-    if( im1_sptr->qoffset_x         != im2_sptr->qoffset_x          ) { images_match = false; cout << "mismatch in qoffset_x , (values: " <<  im1_sptr->qoffset_x << " and " << im2_sptr->qoffset_x << ")\n"; }
-    if( im1_sptr->qoffset_y         != im2_sptr->qoffset_y          ) { images_match = false; cout << "mismatch in qoffset_y , (values: " <<  im1_sptr->qoffset_y << " and " << im2_sptr->qoffset_y << ")\n"; }
-    if( im1_sptr->qoffset_z         != im2_sptr->qoffset_z          ) { images_match = false; cout << "mismatch in qoffset_z , (values: " <<  im1_sptr->qoffset_z << " and " << im2_sptr->qoffset_z << ")\n"; }
-    if( im1_sptr->quatern_b         != im2_sptr->quatern_b          ) { images_match = false; cout << "mismatch in quatern_b , (values: " <<  im1_sptr->quatern_b << " and " << im2_sptr->quatern_b << ")\n"; }
-    if( im1_sptr->quatern_c         != im2_sptr->quatern_c          ) { images_match = false; cout << "mismatch in quatern_c , (values: " <<  im1_sptr->quatern_c << " and " << im2_sptr->quatern_c << ")\n"; }
-    if( im1_sptr->quatern_d         != im2_sptr->quatern_d          ) { images_match = false; cout << "mismatch in quatern_d , (values: " <<  im1_sptr->quatern_d << " and " << im2_sptr->quatern_d << ")\n"; }
-    if( im1_sptr->scl_inter         != im2_sptr->scl_inter          ) { images_match = false; cout << "mismatch in scl_inter , (values: " <<  im1_sptr->scl_inter << " and " << im2_sptr->scl_inter << ")\n"; }
-    if( im1_sptr->scl_slope         != im2_sptr->scl_slope          ) { images_match = false; cout << "mismatch in scl_slope , (values: " <<  im1_sptr->scl_slope << " and " << im2_sptr->scl_slope << ")\n"; }
-    if( im1_sptr->sform_code        != im2_sptr->sform_code         ) { images_match = false; cout << "mismatch in sform_code , (values: " <<  im1_sptr->sform_code << " and " << im2_sptr->sform_code << ")\n"; }
-    if( im1_sptr->slice_code        != im2_sptr->slice_code         ) { images_match = false; cout << "mismatch in slice_code , (values: " <<  im1_sptr->slice_code << " and " << im2_sptr->slice_code << ")\n"; }
-    if( im1_sptr->slice_dim         != im2_sptr->slice_dim          ) { images_match = false; cout << "mismatch in slice_dim , (values: " <<  im1_sptr->slice_dim << " and " << im2_sptr->slice_dim << ")\n"; }
-    if( im1_sptr->slice_duration    != im2_sptr->slice_duration     ) { images_match = false; cout << "mismatch in slice_duration , (values: " <<  im1_sptr->slice_duration << " and " << im2_sptr->slice_duration << ")\n"; }
-    if( im1_sptr->slice_end         != im2_sptr->slice_end          ) { images_match = false; cout << "mismatch in slice_end , (values: " <<  im1_sptr->slice_end << " and " << im2_sptr->slice_end << ")\n"; }
-    if( im1_sptr->slice_start       != im2_sptr->slice_start        ) { images_match = false; cout << "mismatch in slice_start , (values: " <<  im1_sptr->slice_start << " and " << im2_sptr->slice_start << ")\n"; }
-    if( im1_sptr->swapsize          != im2_sptr->swapsize           ) { images_match = false; cout << "mismatch in swapsize , (values: " <<  im1_sptr->swapsize << " and " << im2_sptr->swapsize << ")\n"; }
-    if( im1_sptr->time_units        != im2_sptr->time_units         ) { images_match = false; cout << "mismatch in time_units , (values: " <<  im1_sptr->time_units << " and " << im2_sptr->time_units << ")\n"; }
-    if( im1_sptr->toffset           != im2_sptr->toffset            ) { images_match = false; cout << "mismatch in toffset , (values: " <<  im1_sptr->toffset << " and " << im2_sptr->toffset << ")\n"; }
-    if( im1_sptr->xyz_units         != im2_sptr->xyz_units          ) { images_match = false; cout << "mismatch in xyz_units , (values: " <<  im1_sptr->xyz_units << " and " << im2_sptr->xyz_units << ")\n"; }
-    if( !do_mat44_match(im1_sptr->qto_ijk, im2_sptr->qto_ijk)       ) { images_match = false; cout << "mismatch in qto_ijk\n"; vector<mat44>vec; vec.push_back(im1_sptr->qto_ijk); vec.push_back(im2_sptr->qto_ijk); print_mat44(vec); cout << "\n"; }
-    if( !do_mat44_match(im1_sptr->qto_xyz, im2_sptr->qto_xyz)       ) { images_match = false; cout << "mismatch in qto_xyz\n"; vector<mat44>vec; vec.push_back(im1_sptr->qto_xyz); vec.push_back(im2_sptr->qto_xyz); print_mat44(vec); cout << "\n"; }
-    if( !do_mat44_match(im1_sptr->sto_ijk, im2_sptr->sto_ijk)       ) { images_match = false; cout << "mismatch in sto_ijk\n"; vector<mat44>vec; vec.push_back(im1_sptr->sto_ijk); vec.push_back(im2_sptr->sto_ijk); print_mat44(vec); cout << "\n"; }
-    if( !do_mat44_match(im1_sptr->sto_xyz, im2_sptr->sto_xyz)       ) { images_match = false; cout << "mismatch in sto_xyz\n"; vector<mat44>vec; vec.push_back(im1_sptr->sto_xyz); vec.push_back(im2_sptr->sto_xyz); print_mat44(vec); cout << "\n"; }
+    if (!do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient)) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("byteorder",       im1_sptr->byteorder,       im2_sptr->byteorder       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("cal_max",         im1_sptr->cal_max,         im2_sptr->cal_max         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("cal_min",         im1_sptr->cal_min,         im2_sptr->cal_min         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("datatype",        im1_sptr->datatype,        im2_sptr->datatype        )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("du",              im1_sptr->du,              im2_sptr->du              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("dv",              im1_sptr->dv,              im2_sptr->dv              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("dw",              im1_sptr->dw,              im2_sptr->dw              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("dx",              im1_sptr->dx,              im2_sptr->dx              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("dy",              im1_sptr->dy,              im2_sptr->dy              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("dz",              im1_sptr->dz,              im2_sptr->dz              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list        )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("freq_dim",        im1_sptr->freq_dim,        im2_sptr->freq_dim        )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("iname_offset",    im1_sptr->iname_offset,    im2_sptr->iname_offset    )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("intent_code",     im1_sptr->intent_code,     im2_sptr->intent_code     )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("intent_p1",       im1_sptr->intent_p1,       im2_sptr->intent_p1       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("intent_p2",       im1_sptr->intent_p2,       im2_sptr->intent_p2       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("intent_p3",       im1_sptr->intent_p3,       im2_sptr->intent_p3       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nbyper",          im1_sptr->nbyper,          im2_sptr->nbyper          )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("ndim",            im1_sptr->ndim,            im2_sptr->ndim            )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nifti_type",      im1_sptr->nifti_type,      im2_sptr->nifti_type      )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nt",              im1_sptr->nt,              im2_sptr->nt              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nu",              im1_sptr->nu,              im2_sptr->nu              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("num_ext",         im1_sptr->num_ext,         im2_sptr->num_ext         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nv",              im1_sptr->nv,              im2_sptr->nv              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nvox",            im1_sptr->nvox,            im2_sptr->nvox            )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nw",              im1_sptr->nw,              im2_sptr->nw              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nx",              im1_sptr->nx,              im2_sptr->nx              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("ny",              im1_sptr->ny,              im2_sptr->ny              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("nz",              im1_sptr->nz,              im2_sptr->nz              )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("phase_dim",       im1_sptr->phase_dim,       im2_sptr->phase_dim       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qfac",            im1_sptr->qfac,            im2_sptr->qfac            )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qform_code",      im1_sptr->qform_code,      im2_sptr->qform_code      )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qoffset_x",       im1_sptr->qoffset_x,       im2_sptr->qoffset_x       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qoffset_y",       im1_sptr->qoffset_y,       im2_sptr->qoffset_y       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qoffset_z",       im1_sptr->qoffset_z,       im2_sptr->qoffset_z       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("quatern_b",       im1_sptr->quatern_b,       im2_sptr->quatern_b       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("quatern_c",       im1_sptr->quatern_c,       im2_sptr->quatern_c       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("quatern_d",       im1_sptr->quatern_d,       im2_sptr->quatern_d       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("scl_inter",       im1_sptr->scl_inter,       im2_sptr->scl_inter       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("scl_slope",       im1_sptr->scl_slope,       im2_sptr->scl_slope       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("sform_code",      im1_sptr->sform_code,      im2_sptr->sform_code      )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("slice_code",      im1_sptr->slice_code,      im2_sptr->slice_code      )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("slice_dim",       im1_sptr->slice_dim,       im2_sptr->slice_dim       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("slice_duration",  im1_sptr->slice_duration,  im2_sptr->slice_duration  )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("slice_end",       im1_sptr->slice_end,       im2_sptr->slice_end       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("slice_start",     im1_sptr->slice_start,     im2_sptr->slice_start     )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("swapsize",        im1_sptr->swapsize,        im2_sptr->swapsize        )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("time_units",      im1_sptr->time_units,      im2_sptr->time_units      )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("toffset",         im1_sptr->toffset,         im2_sptr->toffset         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("xyz_units",       im1_sptr->xyz_units,       im2_sptr->xyz_units       )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qto_ijk",         im1_sptr->qto_ijk,         im2_sptr->qto_ijk         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("qto_xyz",         im1_sptr->qto_xyz,         im2_sptr->qto_xyz         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("sto_ijk",         im1_sptr->sto_ijk,         im2_sptr->sto_ijk         )) images_match = false;
+    if (!do_nifti_image_metadata_elements_match("sto_xyz",         im1_sptr->sto_xyz,         im2_sptr->sto_xyz         )) images_match = false;
 
     for (int i=0; i<8; i++) {
-        if (   im1_sptr->dim[i] !=   im2_sptr->dim[i]  ) { images_match = false; cout << "mismatch in dim[" <<i<<  "] , (values: " <<   im1_sptr->dim[i]   << " and " <<  im2_sptr->dim[i]   << ")\n"; }
-        if ( im1_sptr->pixdim[i] != im2_sptr->pixdim[i]) { images_match = false; cout << "mismatch in pixdim["<<i<<"] , (values: " <<  im1_sptr->pixdim[i] << " and " << im2_sptr->pixdim[i] << ")\n"; }
+        if (!do_nifti_image_metadata_elements_match("dim["+std::to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i] ))   images_match = false;
+        if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i])) images_match = false;
     }
 
     if (images_match) cout << "\tOK!\n";
 
     return images_match;
+}
+
+bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2)
+{
+    if(do_mat44_match(elem1, elem1))
+        return true;
+    std::cout << "mismatch in " << name << "\n";
+    std::vector<mat44>vec;
+    vec.push_back(elem1);
+    vec.push_back(elem2);
+    print_mat44(vec);
+    std::cout << "\n";
+    return false;
+}
+
+bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
+{
+    if (!do_nifti_image_metadata_match(im1,im2)) {
+        cout << "\nImage metadata does not match.\n";
+        return false;
+    }
+
+    // Create images as float
+    SIRFImageData im1_float = im1.get_as_float_sirf_imagedata();
+    SIRFImageData im2_float = im2.get_as_float_sirf_imagedata();
+
+    // Get data
+    float *data1 = static_cast<float *>(im1_float.get_image_as_nifti()->data);
+    float *data2 = static_cast<float *>(im2_float.get_image_as_nifti()->data);
+
+    // Calculate required accuracy
+    float epsilon = im1.get_max() > im2.get_max() ? im1.get_max() : im2.get_max();
+    epsilon *= accuracy_percentage_of_max;
+
+    for (unsigned i=0; i<im1.get_image_as_nifti()->nvox; ++i)
+        if (fabs(data1[i]-data2[i]) > epsilon) {
+            std::cout << "\nMismatch in index " << i << " (" << data1[i] << " versus " << data2[i] << ").\n";
+            return false;
+        }
+    return true;
 }
 
 /// Dump info of nifti image
@@ -406,66 +446,66 @@ void dump_nifti_info(const SIRFImageData &im)
 /// Dump info of multiple nifti images
 void dump_nifti_info(const vector<SIRFImageData> &ims)
 {
+    cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
+    dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
+    dump_nifti_element(ims, "analyze75_orient",  &nifti_image::analyze75_orient);
+    dump_nifti_element(ims, "byteorder",         &nifti_image::byteorder);
+    dump_nifti_element(ims, "cal_max",           &nifti_image::cal_max);
+    dump_nifti_element(ims, "cal_min",           &nifti_image::cal_min);
+    dump_nifti_element(ims, "datatype",          &nifti_image::datatype);
+    dump_nifti_element(ims, "dt",                &nifti_image::dt);
+    dump_nifti_element(ims, "du",                &nifti_image::du);
+    dump_nifti_element(ims, "dv",                &nifti_image::dv);
+    dump_nifti_element(ims, "dw",                &nifti_image::dw);
+    dump_nifti_element(ims, "dx",                &nifti_image::dx);
+    dump_nifti_element(ims, "dy",                &nifti_image::dy);
+    dump_nifti_element(ims, "dz",                &nifti_image::dz);
+    dump_nifti_element(ims, "ext_list",          &nifti_image::ext_list);
+    dump_nifti_element(ims, "freq_dim",          &nifti_image::freq_dim);
+    dump_nifti_element(ims, "iname_offset",      &nifti_image::iname_offset);
+    dump_nifti_element(ims, "intent_code",       &nifti_image::intent_code);
+    dump_nifti_element(ims, "intent_p1",         &nifti_image::intent_p1);
+    dump_nifti_element(ims, "intent_p2",         &nifti_image::intent_p2);
+    dump_nifti_element(ims, "intent_p3",         &nifti_image::intent_p3);
+    dump_nifti_element(ims, "nbyper",            &nifti_image::nbyper);
+    dump_nifti_element(ims, "ndim",              &nifti_image::ndim);
+    dump_nifti_element(ims, "nifti_type",        &nifti_image::nifti_type);
+    dump_nifti_element(ims, "nt",                &nifti_image::nt);
+    dump_nifti_element(ims, "nu",                &nifti_image::nu);
+    dump_nifti_element(ims, "num_ext",           &nifti_image::num_ext);
+    dump_nifti_element(ims, "nv",                &nifti_image::nv);
+    dump_nifti_element(ims, "nvox",              &nifti_image::nvox);
+    dump_nifti_element(ims, "nw",                &nifti_image::nw);
+    dump_nifti_element(ims, "nx",                &nifti_image::nx);
+    dump_nifti_element(ims, "ny",                &nifti_image::ny);
+    dump_nifti_element(ims, "nz",                &nifti_image::nz);
+    dump_nifti_element(ims, "phase_dim",         &nifti_image::phase_dim);
+    dump_nifti_element(ims, "qfac",              &nifti_image::qfac);
+    dump_nifti_element(ims, "qform_code",        &nifti_image::qform_code);
+    dump_nifti_element(ims, "qoffset_x",         &nifti_image::qoffset_x);
+    dump_nifti_element(ims, "qoffset_y",         &nifti_image::qoffset_y);
+    dump_nifti_element(ims, "qoffset_z",         &nifti_image::qoffset_z);
+    dump_nifti_element(ims, "quatern_b",         &nifti_image::quatern_b);
+    dump_nifti_element(ims, "quatern_c",         &nifti_image::quatern_c);
+    dump_nifti_element(ims, "quatern_d",         &nifti_image::quatern_d);
+    dump_nifti_element(ims, "scl_inter",         &nifti_image::scl_inter);
+    dump_nifti_element(ims, "scl_slope",         &nifti_image::scl_slope);
+    dump_nifti_element(ims, "sform_code",        &nifti_image::sform_code);
+    dump_nifti_element(ims, "slice_code",        &nifti_image::slice_code);
+    dump_nifti_element(ims, "slice_dim",         &nifti_image::slice_dim);
+    dump_nifti_element(ims, "slice_duration",    &nifti_image::slice_duration);
+    dump_nifti_element(ims, "slice_end",         &nifti_image::slice_end);
+    dump_nifti_element(ims, "slice_start",       &nifti_image::slice_start);
+    dump_nifti_element(ims, "swapsize",          &nifti_image::swapsize);
+    dump_nifti_element(ims, "time_units",        &nifti_image::time_units);
+    dump_nifti_element(ims, "toffset",           &nifti_image::toffset);
+    dump_nifti_element(ims, "xyz_units",         &nifti_image::xyz_units);
+    dump_nifti_element(ims, "dim",               &nifti_image::dim,    8);
+    dump_nifti_element(ims, "pixdim",            &nifti_image::pixdim, 8);
+
     vector<std::shared_ptr<nifti_image> > images;
     for(int i=0;i<ims.size();i++)
         images.push_back(ims[i].get_image_as_nifti());
-
-    cout << "\nPrinting info for " << images.size() <<" nifti image:\n";
-    cout << "\t" << left << setw(19) << "analyze_75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
-    cout << "\t" << left << setw(19) << "analyze75_orient:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->analyze75_orient; } cout << "\n";
-    cout << "\t" << left << setw(19) << "byteorder:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->byteorder; } cout << "\n";
-    cout << "\t" << left << setw(19) << "cal_max:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->cal_max; } cout << "\n";
-    cout << "\t" << left << setw(19) << "cal_min:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->cal_min; } cout << "\n";
-    cout << "\t" << left << setw(19) << "datatype:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->datatype; } cout << "\n";
-    cout << "\t" << left << setw(19) << "du:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->du; } cout << "\n";
-    cout << "\t" << left << setw(19) << "dv:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dv; } cout << "\n";
-    cout << "\t" << left << setw(19) << "dw:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dw; } cout << "\n";
-    cout << "\t" << left << setw(19) << "dx:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dx; } cout << "\n";
-    cout << "\t" << left << setw(19) << "dy:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dy; } cout << "\n";
-    cout << "\t" << left << setw(19) << "dz:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->dz; } cout << "\n";
-    cout << "\t" << left << setw(19) << "ext_list:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ext_list; } cout << "\n";
-    cout << "\t" << left << setw(19) << "fname:"; for(int i=0;i<images.size();i++) { if(images[i]->fname) cout << setw(19) << images[i]->fname << std::flush; } cout << "\n";
-    cout << "\t" << left << setw(19) << "freq_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->freq_dim; } cout << "\n";
-    cout << "\t" << left << setw(19) << "iname_offset:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->iname_offset; } cout << "\n";
-    cout << "\t" << left << setw(19) << "intent_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_code; } cout << "\n";
-    cout << "\t" << left << setw(19) << "intent_p1:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p1; } cout << "\n";
-    cout << "\t" << left << setw(19) << "intent_p2:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p2; } cout << "\n";
-    cout << "\t" << left << setw(19) << "intent_p3:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->intent_p3; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nbyper:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nbyper; } cout << "\n";
-    cout << "\t" << left << setw(19) << "ndim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ndim; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nifti_type:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nifti_type; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nt:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nt; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nu:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nu; } cout << "\n";
-    cout << "\t" << left << setw(19) << "num_ext:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->num_ext; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nv:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nv; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nvox:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nvox; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nw:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nw; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nx:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nx; } cout << "\n";
-    cout << "\t" << left << setw(19) << "ny:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->ny; } cout << "\n";
-    cout << "\t" << left << setw(19) << "nz:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->nz; } cout << "\n";
-    cout << "\t" << left << setw(19) << "phase_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->phase_dim; } cout << "\n";
-    cout << "\t" << left << setw(19) << "qfac:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qfac; } cout << "\n";
-    cout << "\t" << left << setw(19) << "qform_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qform_code; } cout << "\n";
-    cout << "\t" << left << setw(19) << "qoffset_x:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_x; } cout << "\n";
-    cout << "\t" << left << setw(19) << "qoffset_y:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_y; } cout << "\n";
-    cout << "\t" << left << setw(19) << "qoffset_z:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->qoffset_z; } cout << "\n";
-    cout << "\t" << left << setw(19) << "quatern_b:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_b; } cout << "\n";
-    cout << "\t" << left << setw(19) << "quatern_c:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_c; } cout << "\n";
-    cout << "\t" << left << setw(19) << "quatern_d:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->quatern_d; } cout << "\n";
-    cout << "\t" << left << setw(19) << "scl_inter:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->scl_inter; } cout << "\n";
-    cout << "\t" << left << setw(19) << "scl_slope:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->scl_slope; } cout << "\n";
-    cout << "\t" << left << setw(19) << "sform_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->sform_code; } cout << "\n";
-    cout << "\t" << left << setw(19) << "slice_code:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_code; } cout << "\n";
-    cout << "\t" << left << setw(19) << "slice_dim:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_dim; } cout << "\n";
-    cout << "\t" << left << setw(19) << "slice_duration:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_duration; } cout << "\n";
-    cout << "\t" << left << setw(19) << "slice_end:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_end; } cout << "\n";
-    cout << "\t" << left << setw(19) << "slice_start:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->slice_start; } cout << "\n";
-    cout << "\t" << left << setw(19) << "swapsize:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->swapsize; } cout << "\n";
-    cout << "\t" << left << setw(19) << "time_units:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->time_units; } cout << "\n";
-    cout << "\t" << left << setw(19) << "toffset:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->toffset; } cout << "\n";
-    cout << "\t" << left << setw(19) << "xyz_units:"; for(int i=0;i<images.size();i++) { cout << setw(19) << images[i]->xyz_units; } cout << "\n";
-    for(int i=0;i<8;i++) { cout << "\tdim[" << i << "]:\t\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->dim[i]; } cout << "\n"; }
-    for(int i=0;i<8;i++) { cout << "\tpixdim[" << i << "]:\t   "; for(int j=0;j<images.size();j++) { cout << setw(19) << images[j]->pixdim[i]; } cout << "\n"; }
 
     // Print transformation matrices
     vector<mat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
@@ -488,32 +528,29 @@ void dump_nifti_info(const vector<SIRFImageData> &ims)
 }
 
 /// Save transformation matrix to file
-void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const string &filename)
+void save_transformation_matrix(const mat44 &transformation_matrix, const string &filename)
 {
-    // Check that the matrix exists
-    if (!transformation_matrix_sptr)
-        throw runtime_error("Transformation matrix is null pointer, can't save.");
-
     // Check that input isn't blank
     if (filename == "")
         throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
-    reg_tool_WriteAffineFile(transformation_matrix_sptr.get(), filename.c_str());
+    // Have to create copy as the following function isn't const
+    mat44 temp = transformation_matrix;
+    reg_tool_WriteAffineFile(&temp, filename.c_str());
 }
 
 /// Read transformation matrix from file
-void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const string& filename)
+void open_transformation_matrix(mat44 &transformation_matrix, const string& filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename))
         throw runtime_error("Cannot find the file: " + filename + ".");
 
     cout << "\n\nReading transformation matrix from file...\n\n";
-    transformation_matrix_sptr = make_shared<mat44>();
-    reg_tool_ReadAffineFile(transformation_matrix_sptr.get(), (char*)filename.c_str());
+    reg_tool_ReadAffineFile(&transformation_matrix, (char*)filename.c_str());
     cout << "\n\nSuccessfully read transformation matrix from file:\n";
 
-    print_mat44(*transformation_matrix_sptr);
+    print_mat44(transformation_matrix);
 }
 
 /// Print mat44

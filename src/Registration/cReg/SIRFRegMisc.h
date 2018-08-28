@@ -32,8 +32,9 @@ limitations under the License.
 
 #include <boost/filesystem.hpp>
 #include <nifti1_io.h>
+#include <iostream>
+#include "SIRFImageData.h"
 
-class SIRFImageData;
 class SIRFImageDataDeformation;
 
 namespace SIRFRegMisc {
@@ -65,7 +66,7 @@ namespace SIRFRegMisc {
 
     /// Get cpp from transformation matrix
 #if NIFTYREG_VER_1_3
-    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const std::shared_ptr<mat44> &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
+    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
 #endif
     /// Get def from cpp
     void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformation &cpp, const SIRFImageData &ref);
@@ -79,8 +80,24 @@ namespace SIRFRegMisc {
     /// Multiply image
     void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value);
 
-    /// Do nifti images match?
-    bool do_nift_image_match(const SIRFImageData &im1, const SIRFImageData &im2);
+    /// Do nifti image metadatas match?
+    bool do_nifti_image_metadata_match(const SIRFImageData &im1, const SIRFImageData &im2);
+
+    /// Do nifti image metadata elements match?
+    template<typename T>
+    bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2)
+    {
+        if(fabs(elem1-elem2) < 1.e-7F)
+            return true;
+        std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
+        return false;
+    }
+
+    /// Do nifti image metadata elements match?
+    bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
+
+    /// Do nift images match?
+    bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max/* = 0.F*/);
 
     /// Dump info of nifti image
     void dump_nifti_info(const std::string &im_filename);
@@ -91,11 +108,33 @@ namespace SIRFRegMisc {
     /// Dump info of multiple nifti images
     void dump_nifti_info(const std::vector<SIRFImageData> &ims);
 
+    /// Dump nifti element
+    template<typename T>
+    void dump_nifti_element(const std::vector<SIRFImageData> &ims, const std::string &name, const T &call_back)
+    {
+        std::cout << "\t" << std::left << std::setw(19) << name << ": ";
+        for(int i=0; i<ims.size(); i++)
+            std::cout << std::setw(19) << ims[i].get_image_as_nifti().get()->*call_back;
+        std::cout << "\n";
+    }
+
+    /// Dump nifti element
+    template<typename T>
+    void dump_nifti_element(const std::vector<SIRFImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+    {
+        for(int i=0; i<num_elems; i++) {
+            std::cout << "\t" << name << "[" << i << "]:\t\t   ";
+            for(unsigned j=0; j<ims.size(); j++)
+                std::cout << std::setw(19) << (ims[j].get_image_as_nifti().get()->*call_back)[i];
+            std::cout << "\n";
+        }
+    }
+
     /// Save transformation matrix to file
-    void save_transformation_matrix(const std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
+    void save_transformation_matrix(const mat44 &transformation_matrix, const std::string &filename);
 
     /// Read transformation matrix from file
-    void open_transformation_matrix(std::shared_ptr<mat44> &transformation_matrix_sptr, const std::string &filename);
+    void open_transformation_matrix(mat44 &transformation_matrix, const std::string &filename);
 
     /// Print mat44
     void print_mat44(const mat44 &mat);

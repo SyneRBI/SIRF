@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
     SIRFImageData image_data_from_stir(pet_image_data);
     // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
     SIRFImageData image_data_from_nifti(stir_nifti);
-    SIRFRegMisc::do_nift_image_match(image_data_from_stir, image_data_from_nifti);
+    SIRFRegMisc::do_nifti_image_match(image_data_from_stir, image_data_from_nifti);
     // Print info
     std::vector<SIRFImageData> ims;
     ims.push_back(image_data_from_stir);

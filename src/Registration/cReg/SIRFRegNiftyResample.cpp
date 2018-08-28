@@ -45,20 +45,17 @@ void SIRFRegNiftyResample::update()
     // Check that all the required information has been entered
     check_parameters();
 
-    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
-    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
-
     // If transformation matrix
-    if (_transformation_matrix) {
+    if (_transformation_type == TM) {
         _deformation_field.create_from_3D_image(_reference_image);
 #if NIFTYREG_VER_1_5
-        reg_affine_getDeformationField(_transformation_matrix.get(),_deformation_field.get_image_as_nifti().get());
+        reg_affine_getDeformationField(&_transformation_matrix,_deformation_field.get_image_as_nifti().get());
 #elif NIFTYREG_VER_1_3
         reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),_deformation_field.get());
 #endif
     }
     // If displacement field
-    else if (_displacement_field.is_initialised()) {
+    else if (_transformation_type == disp) {
         _deformation_field = _displacement_field;
         SIRFRegMisc::convert_from_disp_to_def(_deformation_field);
     }
@@ -68,13 +65,14 @@ void SIRFRegNiftyResample::update()
     set_up_output_image();
 
 #if NIFTYREG_VER_1_5
-    reg_resampleImage(_reference_image.get_image_as_nifti().get(),
+    reg_resampleImage(_floating_image.get_image_as_nifti().get(),
                       _output_image.get_image_as_nifti().get(),
                       _deformation_field.get_image_as_nifti().get(),
                       NULL,
                       _interpolation_type,
                       0);
 #elif NIFTYREG_VER_1_3
+    throw std::runtime_error("TODO");
     reg_resampleSourceImage(_reference_image.get_image_as_nifti().get(),
                                 _floating_image_sptr.get(),
                                 _output_image_sptr.get(),
@@ -95,9 +93,7 @@ void SIRFRegNiftyResample::check_parameters()
     if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }
 
-    if ((_transformation_type == TM && !_transformation_matrix) ||
-            (_transformation_type == disp && !_displacement_field.is_initialised()) ||
-            (_transformation_type == def && !_deformation_field.is_initialised()))
+    if (_transformation_type == T_NOTSET)
         throw std::runtime_error("Transformation not set.");
 }
 
@@ -109,16 +105,22 @@ void SIRFRegNiftyResample::save_resampled_image(const string filename) const
 void SIRFRegNiftyResample::set_up_output_image()
 {
     _output_image = _reference_image;
+
     nifti_image *output_ptr   = _output_image.get_image_as_nifti().get();
     nifti_image *floating_ptr = _floating_image.get_image_as_nifti().get();
-    output_ptr->dim[0]    = output_ptr->ndim=floating_ptr->dim[0];
-    output_ptr->dim[4]    = output_ptr->nt=floating_ptr->dim[4];
-    output_ptr->cal_min   = floating_ptr->cal_min;
-    output_ptr->cal_max   = floating_ptr->cal_max;
-    output_ptr->scl_slope = floating_ptr->scl_slope;
-    output_ptr->scl_inter = floating_ptr->scl_inter;
+
+    output_ptr->cal_min                   = floating_ptr->cal_min;
+    output_ptr->cal_max                   = floating_ptr->cal_max;
+    output_ptr->scl_slope                 = floating_ptr->scl_slope;
+    output_ptr->scl_inter                 = floating_ptr->scl_inter;
+    output_ptr->datatype = floating_ptr->datatype;
+    output_ptr->intent_code=floating_ptr->intent_code;
+    memset(output_ptr->intent_name, 0, 16);
+    strcpy(output_ptr->intent_name,floating_ptr->intent_name);
+    output_ptr->intent_p1 = floating_ptr->intent_p1;
+    output_ptr->intent_p2 = floating_ptr->intent_p2;
     output_ptr->datatype  = floating_ptr->datatype;
     output_ptr->nbyper    = floating_ptr->nbyper;
-    output_ptr->nvox = output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4];
+    output_ptr->nvox = unsigned(output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4] * output_ptr->dim[5]);
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
 }

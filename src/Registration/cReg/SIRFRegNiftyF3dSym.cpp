@@ -44,22 +44,14 @@ void SIRFRegNiftyF3dSym<T>::update()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
-    // Open images if necessary, correct if not
-    reg_checkAndCorrectDimension(_reference_image.get_image_as_nifti().get());
-    reg_checkAndCorrectDimension(_floating_image.get_image_as_nifti().get());
-
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
     _registration_sptr->SetFloatingImage(_floating_image.get_image_as_nifti().get());
     _registration_sptr->SetReferenceImage(_reference_image.get_image_as_nifti().get());
 
-    // If an initial transformation matrix has been set via filename, open it
-    if (_initial_transformation_filename != "")
-        SIRFRegMisc::open_transformation_matrix(_initial_transformation_sptr,_initial_transformation_filename);
-
     // If there is an initial transformation matrix, set it
-    if (_initial_transformation_sptr)
-        _registration_sptr->SetAffineTransformation(_initial_transformation_sptr.get());
+    if (_use_initial_transformation)
+        _registration_sptr->SetAffineTransformation(&_initial_transformation);
 
     // Parse parameter file
     this->parse_parameter_file();
@@ -75,6 +67,11 @@ void SIRFRegNiftyF3dSym<T>::update()
 
     // Get the warped image
     _warped_image = SIRFImageData(*_registration_sptr->GetWarpedImage());
+
+    // For some reason, dt & pixdim[4] are sometimes set to 1
+    if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
+            _reference_image.get_image_as_nifti()->dt < 1.e-7F)
+        _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
 
     // Get the CPP images
     SIRFImageDataDeformation cpp_fwrd(_registration_sptr->GetControlPointPositionImage());
