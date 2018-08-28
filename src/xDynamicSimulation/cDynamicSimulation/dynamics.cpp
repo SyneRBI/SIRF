@@ -414,20 +414,32 @@ void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFiel
 
 	const size_t* dimensions = motion_fields.getDims();
 
-	size_t const num_signal_points = dimensions[0];
+	std::string const output_name_mvf = "/media/sf_SharedFolder/CCPPETMR/motionfields_in_memory_10x3x64x64x64";
 
-	for(size_t i_signal_point=0; i_signal_point<num_signal_points; i_signal_point++)
+	data_io::write_raw(output_name_mvf, motion_fields.begin(), motion_fields.getNumberOfElements() );
+
+	for( int i=0; i<7; i++)
+		std::cout << "dim_" << i << "=" << dimensions[i] << std::endl;
+
+	size_t const Nt = dimensions[0];
+	size_t const Nv = dimensions[1];
+	size_t const Nz = dimensions[2];
+	size_t const Ny = dimensions[3];
+	size_t const Nx = dimensions[4];
+
+	for(size_t nt=0; nt<Nt; nt++)
 	{
 		
 		Image<DataTypeMotionFields> img(dimensions[4],dimensions[3], dimensions[2], dimensions[1]);
  		
- 		for(uint16_t  v= 0; v< dimensions[1]; v++)
-		for(uint16_t  z= 0; z< dimensions[2]; z++)
-		for(uint16_t  y= 0; y< dimensions[3]; y++)
-		for(uint16_t  x= 0; x< dimensions[4]; x++)
+ 		for(uint16_t  nv= 0; nv<Nv ; nv++)
+		for(uint16_t  nz= 0; nz<Nz ; nz++)
+		for(uint16_t  ny= 0; ny<Ny ; ny++)
+		for(uint16_t  nx= 0; nx<Nx ; nx++)
 		{
-			img(x,y,z,v) = 	motion_fields(i_signal_point, v, z, y, x);
-			
+			// size_t const lin_index = ((((Nt-1 -nt)*Nv + Nv-1 -nv)*Nz + Nz-1 - nz)*Ny + Ny-1 - ny)*Nx + Nx-1 - nx;
+			size_t const lin_index = (((nt*Nv + nv)*Nz + nz)*Ny + ny)*Nx + nx;
+			img(nx,ny,nz,nv) = 	  *(motion_fields.begin() + lin_index);
 		}
 		this->displacment_fields_.push_back(img);
 	}
