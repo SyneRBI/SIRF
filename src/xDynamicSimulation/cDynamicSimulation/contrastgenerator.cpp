@@ -42,7 +42,7 @@ void MRContrastGenerator::set_rawdata_header(ISMRMRD::IsmrmrdHeader hdr)
 	this->hdr_ = hdr;
 }
 
-std::vector< ISMRMRD::Image< complex_float_t> > MRContrastGenerator::get_contrast_filled_volumes()
+std::vector< ISMRMRD::Image< complex_float_t> >& MRContrastGenerator::get_contrast_filled_volumes()
 {
 	return this->contrast_filled_volumes_;	
 }
@@ -246,7 +246,7 @@ AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
 
-std::vector< PETImageData > PETContrastGenerator::get_contrast_filled_volumes()
+std::vector< PETImageData >& PETContrastGenerator::get_contrast_filled_volumes()
 {
 	return this->contrast_filled_volumes_;	
 }

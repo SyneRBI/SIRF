@@ -66,7 +66,7 @@ public:
 	void set_rawdata_header(IsmrmrdHeader hdr);
 	void map_contrast();
 
-	std::vector< ISMRMRD::Image< complex_float_t> > get_contrast_filled_volumes();
+	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes();
 
 	void match_output_dims_to_headerinfo( void );
 
@@ -104,7 +104,7 @@ public:
 	std::vector< int > get_dimensions( void );
 	std::vector< float > get_voxel_sizes( void );
 
-	std::vector< sirf::PETImageData > get_contrast_filled_volumes();
+	std::vector< sirf::PETImageData >& get_contrast_filled_volumes();
 
 	std::vector< float > get_template_based_volume_subset(std::vector<float> vol_data, std::vector<size_t> data_dims);
 
