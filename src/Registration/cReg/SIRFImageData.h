@@ -31,8 +31,14 @@ limitations under the License.
 #define _SIRFIMAGEDATA_H_
 
 #include <nifti1_io.h>
-#include "stir_data_containers.h"
+#include <string>
 
+template <int num_dimensions>
+class VoxelisedGeometricalInfo;
+typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
+namespace sirf {
+class PETImageData;
+};
 class MRImageData;
 
 /// SIRF image data
@@ -64,7 +70,7 @@ public:
     /// Gadgetron constructor
     SIRFImageData(const MRImageData &);
 
-    /// Is the image initialised (should unless default constructor was used)?
+    /// Is the image initialised? (Should unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image ? true : false); }
 
     /// Get image as nifti

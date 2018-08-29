@@ -49,7 +49,7 @@ public:
     /// Add an image (from filename) and its corresponding weight
     void add_image(const std::string &filename, const float weight);
 
-    /// Add an image (from nifti image) and its corresponding weight
+    /// Add an image (from SIRFImageData) and its corresponding weight
     void add_image(const SIRFImageData &image, const float weight);
 
     /// Update
