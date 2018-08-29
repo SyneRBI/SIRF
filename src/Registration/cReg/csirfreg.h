@@ -59,7 +59,8 @@ extern "C" {
 
 	// SIRFReg
     void* cSIRFReg_SIRFReg_update(void* ptr);
-    void* cSIRFReg_SIRFReg_save_image(const void* ptr, const char* filename, const char* type, const bool split_xyz = false);
+    void* cSIRFReg_SIRFReg_save_image(const void* ptr, const char* filename);
+    void* cSIRFReg_SIRFReg_save_deformation_displacement_image(const void* ptr, const char* filename, const char* type, const bool split_xyz);
 
     // SIRFRegAladin methods
     void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void* ptr, const char* filename, const char* dir);

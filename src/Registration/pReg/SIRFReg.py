@@ -351,31 +351,31 @@ class _SIRFReg(ABC):
     def save_warped_image(self, filename):
         """Save warped image."""
         assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename, 'warped'))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename))
 
     def save_deformation_field_fwrd_image(self, filename, split_xyz):
         """Save forward deformation field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename, 'fwrd_deformation', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'fwrd_deformation', split_xyz))
 
     def save_deformation_field_back_image(self, filename, split_xyz):
         """Save backward deformation field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename, 'back_deformation', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'back_deformation', split_xyz))
 
     def save_displacement_field_fwrd_image(self, filename, split_xyz):
         """Save forward displacement field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename, 'fwrd_displacement', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'fwrd_displacement', split_xyz))
 
     def save_displacement_field_back_image(self, filename, split_xyz):
         """Save backward displacement field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename, 'back_displacement', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'back_displacement', split_xyz))
 
     def update(self):
         """Run the registration"""

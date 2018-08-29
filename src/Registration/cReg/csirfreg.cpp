@@ -288,23 +288,31 @@ void* cSIRFReg_SIRFReg_update(void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFReg_save_image(const void *ptr, const char* filename, const char* type, const bool split_xyz)
+void* cSIRFReg_SIRFReg_save_image(const void *ptr, const char* filename)
 {
 	try {
 		SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
-		if (strcmp(type,"warped"))
-			reg.save_warped_image(filename);
-		else if (strcmp(type,"fwrd_deformation"))
-			reg.save_deformation_field_fwrd_image(filename, split_xyz);
-		else if (strcmp(type,"back_deformation"))
-			reg.save_deformation_field_back_image(filename, split_xyz);
-		else if (strcmp(type,"fwrd_displacement"))
-			reg.save_displacement_field_fwrd_image(filename, split_xyz);
-		else if (strcmp(type,"back_displacement"))
-			reg.save_displacement_field_back_image(filename, split_xyz);
+		reg.save_warped_image(filename);
 		return new DataHandle;
 	}
 	CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFReg_save_deformation_displacement_image(const void *ptr, const char* filename, const char* type, const bool split_xyz)
+{
+    try {
+        SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
+        if (strcmp(type,"fwrd_deformation"))
+            reg.save_deformation_field_fwrd_image(filename, split_xyz);
+        else if (strcmp(type,"back_deformation"))
+            reg.save_deformation_field_back_image(filename, split_xyz);
+        else if (strcmp(type,"fwrd_displacement"))
+            reg.save_displacement_field_fwrd_image(filename, split_xyz);
+        else if (strcmp(type,"back_displacement"))
+            reg.save_displacement_field_back_image(filename, split_xyz);
+        return new DataHandle;
+    }
+    CATCH;
 }
 
 // -------------------------------------------------------------------------------- //
