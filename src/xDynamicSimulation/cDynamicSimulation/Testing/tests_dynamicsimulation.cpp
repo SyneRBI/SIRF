@@ -246,6 +246,55 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 }
 
 
+bool tests_mr_dynsim::test_simulate_motion_dynamics( )
+{
+	try
+	{
+		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		// float const test_noise_width = 0.1;
+		// mr_dyn_sim.set_noise_width( test_noise_width );
+		float const test_SNR = 1;
+		mr_dyn_sim.set_SNR(test_SNR);
+		
+		int const num_simul_states_first_dyn = 10;
+		
+		MotionDynamic first_motion_dyn(num_simul_states_first_dyn)	;
+
+		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
+
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+
+	 	first_motion_dyn.set_dyn_signal( mock_signal );
+	 	first_motion_dyn.bin_mr_acquisitions( all_acquis );
+		
+		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		first_motion_dyn.set_displacement_fields( resp_mvfs );
+
+		mr_dyn_sim.add_dynamic( first_motion_dyn );
+		
+		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		mr_dyn_sim.simulate_motion_dynamics();
+
+
+		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_DYNSIM );
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+}
+
 
 
 bool test_pet_dynsim::test_constructor()

@@ -4,12 +4,17 @@ date: 15. March 2018
 
 */
 
+#include <memory>
 
 #include "dynamicsimulation_x.h"
 
 #include "auxiliary_input_output.h"
 
-#include <memory>
+#include "SIRFImageDataDeformation.h"
+
+#include "dynsim_deformer.h"
+
+
 
 using namespace sirf;
 
@@ -35,10 +40,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 
-	if(this->motion_dynamics_.size() != 0)
-		throw std::runtime_error("So far only one contrast and zero motion dynamics are supported. Please give the appropriate number of dynamics.");			
-
-	
+		
 	size_t const num_contrast_dyns = this->contrast_dynamics_.size();
 
 	std::vector< int > all_num_dyn_states;
@@ -93,6 +95,89 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 	this->noise_generator_.add_noise(this->target_acquisitions_);
 }
+
+void MRDynamicSimulation::simulate_motion_dynamics( void )
+{
+	this->extract_hdr_information();
+	this->mr_cont_gen_.map_contrast();
+
+	if(this->motion_dynamics_.size() > 1)
+		throw std::runtime_error("So far only one motion dynamics are supported. Please give the appropriate number of dynamics.");			
+	
+	size_t const num_motion_dynamics = this->motion_dynamics_.size();
+
+	std::vector< int > all_num_dyn_states;
+	for(size_t i=0; i<num_motion_dynamics; i++)
+	{
+		all_num_dyn_states.push_back(motion_dynamics_[i].get_num_simul_states());			
+		motion_dynamics_[i].write_temp_displacements_fields();
+	}
+
+
+	LinearCombiGenerator lcg(all_num_dyn_states);
+	
+	size_t const num_total_dyn_states = lcg.get_num_total_combinations();
+	std::vector< DimensionsType >  all_dyn_state_combos = lcg.get_all_combinations();
+	
+	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
+	{
+		std::cout << "Acquisition motion state #" << i_dyn_state << "/" << num_total_dyn_states << std::endl;
+
+		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
+
+		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
+
+		std::vector< SignalAxisType > motion_signals;
+
+		SIRFImageDataDeformation all_motion_fields_composed; // initialize this with the identiy map later!
+
+		for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
+		{
+			MotionDynamic motion_dyn = this->motion_dynamics_[i_motion_dyn];
+			std::vector< SignalBin > signal_bins = motion_dyn.get_bins();
+
+			SignalBin bin = signal_bins[ current_combination[i_motion_dyn] ];	
+
+			all_motion_fields_composed = motion_dyn.get_interpolated_displacement_field( std::get<1>(bin) ); //compose all motion fields from all dynamics
+			std::cout << "H" <<std::endl;
+
+
+			auto displacement_field_as_nifti = *(all_motion_fields_composed.get_image_as_nifti());
+
+			std::cout << displacement_field_as_nifti.nx << std::endl;
+			std::cout << displacement_field_as_nifti.ny << std::endl;
+			std::cout << displacement_field_as_nifti.nz << std::endl;
+			std::cout << displacement_field_as_nifti.nt << std::endl;
+			std::cout << displacement_field_as_nifti.nu << std::endl;
+
+			
+			motion_signals.push_back(std::get<1>(bin));	
+			
+			AcquisitionsVector acquis_in_bin = motion_dyn.get_binned_mr_acquisitions( current_combination[i_motion_dyn] );
+			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
+
+		}
+
+		std::cout << "# of acquis in this motion state: " << acquisitions_for_this_state.number() << std::endl;
+
+		if( acquisitions_for_this_state.number() > 0)
+		{
+			this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
+			DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields_composed);
+			this->source_acquisitions_ = acquisitions_for_this_state;
+			this->acquire_raw_data();	
+		}
+	}
+
+	this->noise_generator_.add_noise(this->target_acquisitions_);
+
+	for(size_t i=0; i<num_motion_dynamics; i++)
+		motion_dynamics_[i].delete_temp_folder();		
+
+}
+
+
+
 
 void MRDynamicSimulation::extract_hdr_information( void )
 {

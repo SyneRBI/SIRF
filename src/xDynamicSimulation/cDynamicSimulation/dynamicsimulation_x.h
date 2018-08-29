@@ -92,6 +92,8 @@ public:
 	void set_SNR(float const SNR);
 
 	void simulate_dynamics( void );
+	void simulate_motion_dynamics( void );
+
 	void extract_hdr_information( void );
 	
 	virtual void acquire_raw_data( void );
