@@ -243,14 +243,9 @@ namespace SIRFRegMisc {
 
     /// Convert type (performs deep copy)
     template<typename T>
-    const SIRFImageData change_datatype(const SIRFImageData &input)
+    void change_datatype(const SIRFImageData &image)
     {
-        SIRFImageData copy;
-        copy = input;
-
-        reg_tools_changeDatatype<T>(copy.get_image_as_nifti().get());
-
-        return copy;
+        reg_tools_changeDatatype<T>(image.get_image_as_nifti().get());
     }
 }
 

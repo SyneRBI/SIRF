@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
     string nonrigid_resample_def    = output_path   + "cplusplus_nonrigid_resample_def";
     string nonrigid_resample_disp   = output_path   + "cplusplus_nonrigid_resample_disp";
     string output_weighted_mean     = output_path   + "cplusplus_weighted_mean";
+    string output_weighted_mean_def = output_path   + "cplusplus_weighted_mean_def";
 
     string output_stir_nifti        = output_path   + "cplusplus_stir_nifti.nii";
 
@@ -207,6 +208,27 @@ int main(int argc, char* argv[])
 
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Finished weighted mean test.                           //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting weighted mean deformation test...             //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+    SIRFRegImageWeightedMean WM_def;
+    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
+    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
+    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
+    WM_def.update();
+    WM_def.save_image_to_file(output_weighted_mean_def);
+
+    if (!SIRFRegMisc::do_nifti_images_match(NF.get_deformation_field_fwrd() ,WM_def.get_output(), required_percentage_accuracy))
+        throw runtime_error("Weighted mean does not match the original.");
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished weighted mean deformation test.               //\n";
     cout << "//------------------------------------------------------------------------ //\n";
 
 

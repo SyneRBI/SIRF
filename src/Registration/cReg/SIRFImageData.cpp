@@ -68,7 +68,7 @@ SIRFImageData::SIRFImageData(const sirf::PETImageData &pet_image)
     // Set up the nifti
     set_up_nifti(pet_image.get_patient_coord_geometrical_info());
 
-    // Copy the data
+    // Copy the data. this cast is ok because PETImageData is always float.
     float *data = static_cast<float*>(_nifti_image->data);
     pet_image.get_data(data);
 
@@ -155,13 +155,22 @@ void SIRFImageData::copy_data_to(sirf::PETImageData &pet_image) const
             check_images_are_aligned(
                 pet_image.get_patient_coord_geometrical_info());
 
-    if (!everything_ok) return;
+    if (!everything_ok)
+        throw std::runtime_error("Cannot copy data from SIRFImageData to STIRImageData as they are not aligned.");
 
-    // Get the nifti as float
-    float *nifti_data_ptr = static_cast<float *>(_nifti_image->data);
-
-    // Set it
-    pet_image.set_data(nifti_data_ptr);
+    // If datatype is already float
+    if (_nifti_image->datatype == DT_FLOAT32) {
+        float *nifti_data_ptr = static_cast<float *>(_nifti_image->data);
+        pet_image.set_data(nifti_data_ptr);
+    }
+    // If not, cast to it
+    else {
+        SIRFImageData temp;
+        temp = *this;
+        SIRFRegMisc::change_datatype<float>(temp);
+        float *nifti_data_ptr = static_cast<float *>(temp.get_image_as_nifti()->data);
+        pet_image.set_data(nifti_data_ptr);
+    }
 
     cout << "Done!\n";
 }
