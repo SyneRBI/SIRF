@@ -208,7 +208,7 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
-    std:shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
+    std::shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
 
     // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
@@ -221,9 +221,9 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
     // Data is ordered such that the multicomponent info is last.
     // So, the first third of the data is the x-values, second third is y and last third is z.
     // Data is therefore = dim_number * num_voxels/3
-    double start_index =   dim   * im_sptr->nvox/3;
+    int start_index =   dim   * int(im_sptr->nvox/3);
     // End index is one before the start of the next dimension (thus the minus 1)
-    double end_index   = (dim+1) * im_sptr->nvox/3 - 1;
+    int end_index   = (dim+1) * int(im_sptr->nvox/3 - 1);
 
     // Check whether single or double precision
     if (im_sptr->datatype == DT_FLOAT32) {
