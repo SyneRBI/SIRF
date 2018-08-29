@@ -310,10 +310,6 @@ class ImageDataDeformation(ImageData):
         assert isinstance(src, ImageData)
         try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(self.handle, src.handle))
 
-    def get_min(self):
-        """Get min."""
-        return _float_par(self.handle, self.name, 'min')
-
 
 class _SIRFReg(ABC):
     """
@@ -328,7 +324,7 @@ class _SIRFReg(ABC):
             pyiutil.deleteDataHandle(self.handle)
 
     def set_parameter_file(self, filename):
-        """Sets the parameter file name."""
+        """Sets the parameter filename."""
         _set_char_par(self.handle, 'SIRFReg', 'parameter_file', filename)
 
     def set_reference_image(self, input):
@@ -341,7 +337,7 @@ class _SIRFReg(ABC):
         assert isinstance(input, ImageData)
         _setParameter(self.handle, 'SIRFReg', 'floating_image', input.handle)
 
-    def get_warped(self):
+    def get_output(self):
         """Gets the registered image."""
         output = SIRFImageData()
         output.handle = pysirfreg.cSIRFReg_parameter(self.handle, 'SIRFReg', 'output')

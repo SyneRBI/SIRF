@@ -1,3 +1,6 @@
+[~] = set_up_Reg([]);
+[~] = set_up_PET([]);
+
 % Paths
 SIRF_PATH     = getenv('SIRF_PATH');
 examples_path = [SIRF_PATH  '/data/examples/Registration'];
@@ -31,6 +34,7 @@ reference = mSIRFReg.ImageData( reference_image_filename );
 floating  = mSIRFReg.ImageData(  floating_image_filename );
 nifti     = mSIRFReg.ImageData(        stir_nifti        );
 
+required_percentage_accuracy = single(1);
 
 disp('% ----------------------------------------------------------------------- %')
 disp('%                  Starting Nifty aladin test...                          %')
@@ -107,16 +111,13 @@ disp('% ----------------------------------------------------------------------- 
 disp('%                  Starting PET SIRFImageData test...                     %')
 disp('%------------------------------------------------------------------------ %')
 % Open stir image
-pet_image_data = mSIRFReg.PETImageData(stir_nifti);
+pet_image_data = mSTIR.ImageData(stir_nifti);
 image_data_from_stir = mSIRFReg.ImageData(pet_image_data);
 % Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
 image_data_from_nifti = mSIRFReg.ImageData(stir_nifti);
-mSIRFReg.do_nifti_image_match(image_data_from_stir, image_data_from_nifti);
+mSIRFReg.Misc.do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
 % Print info
-ims=mSIRFReg.ImageDataVector();
-ims.push_back(image_data_from_stir);
-ims.push_back(image_data_from_nifti);
-mSIRFReg.dump_nifti_info(ims);
+mSIRFReg.Misc.dump_nifti_info([image_data_from_stir image_data_from_nifti]);
 % Save the one opened by stir
 image_data_from_stir.save_to_file(output_stir_nifti);
 % Now clone the converted and fill with 1's
