@@ -287,7 +287,7 @@ try
 
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacment_fields(resp_mvfs);
+		motion_dyn.set_displacement_fields(resp_mvfs);
 
 		return test_succesful;
 	}
@@ -311,7 +311,7 @@ try
 
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
-		motion_dyn.set_displacment_fields(resp_mvfs);
+		motion_dyn.set_displacement_fields(resp_mvfs);
 		motion_dyn.write_temp_displacements_fields();
 
 		return test_succesful;

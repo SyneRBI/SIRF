@@ -53,22 +53,22 @@ void MRDynamicSimulation::simulate_dynamics( void )
 	
 	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
 	{
-		std::cout << "Acquiriing dynamic state #" << i_dyn_state << "/" << num_total_dyn_states << std::endl;
+		std::cout << "Acquisition dynamic state #" << i_dyn_state << "/" << num_total_dyn_states << std::endl;
 
 		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
 
 		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
 
-		std::vector< SignalAxisType> cont_signals;
+		std::vector< SignalAxisType > contrast_signals;
 
-		for( int i_cont_dyn = 0; i_cont_dyn<num_contrast_dyns; i_cont_dyn++ )
+		for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
 		{
-			ContrastDynamic cont_dyn = this->contrast_dynamics_[i_cont_dyn];
-			std::vector< SignalBin > signal_bins = cont_dyn.get_bins();
+			ContrastDynamic contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
+			std::vector< SignalBin > signal_bins = contrast_dyn.get_bins();
 
-			SignalBin bin = signal_bins[ current_combination[i_cont_dyn] ];	
-			TissueParameterList tissueparameter_list_to_replace = cont_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
-			cont_signals.push_back(std::get<1>(bin));	
+			SignalBin bin = signal_bins[ current_combination[i_contrast_dyn] ];	
+			TissueParameterList tissueparameter_list_to_replace = contrast_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
+			contrast_signals.push_back(std::get<1>(bin));	
 
 			for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
 			{
@@ -76,7 +76,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 				this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
 			}
 
-			AcquisitionsVector acquis_in_bin = cont_dyn.get_binned_mr_acquisitions( current_combination[i_cont_dyn] );
+			AcquisitionsVector acquis_in_bin = contrast_dyn.get_binned_mr_acquisitions( current_combination[i_contrast_dyn] );
 			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
 
 		}

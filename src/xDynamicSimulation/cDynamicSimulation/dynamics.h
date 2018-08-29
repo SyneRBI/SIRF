@@ -19,9 +19,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 #include "tissuelabelmapper.h"
 
+
 #include "gadgetron_data_containers.h"
+// #include "SIRFRegImageWeightedMean.h"
+// #include "SIRFImageDataDeformation.h"
 
-
+#include "auxiliary_input_output.h"
 
 typedef float TimeAxisType;
 typedef float SignalAxisType;
@@ -71,7 +74,13 @@ public:
 protected:
 
 	int num_simul_states_;
-	virtual void set_bins( int const num_bins );
+
+	bool is_cyclic_dynamic_ = false;
+
+	void set_bins( int const num_bins );
+	void set_cyclic_bins( int const num_bins);
+	void set_non_cyclic_bins( int const num_bins);
+
 
 	std::vector< SignalBin > signal_bins_;
 	SignalContainer dyn_signal_; 
@@ -97,8 +106,6 @@ public:
 
 protected:
 
-	virtual void set_bins(int const num_bins);
-
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
 
@@ -113,20 +120,21 @@ public:
 
 	~MotionDynamic();
 
+	// SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal);
+
 	int get_which_motion_dynamic_am_i();
 	int get_num_total_motion_dynamics();
 
 	std::string get_temp_folder_name();
 
-	void set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields);
+	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const cyclic_motion_fields = false);
+	     
 	void write_temp_displacements_fields( void );
 
 protected:
 
 	bool const destroy_upon_deletion_ = false;
 
-	virtual void set_bins( int const num_bins );
-	
 	std::string setup_tmp_folder_name( void );
 	bool make_temp_folder();
 	bool delete_temp_folder();
@@ -138,7 +146,6 @@ protected:
 
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
-
 
 	MotionFieldContainer displacment_fields_;
 

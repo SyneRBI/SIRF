@@ -16,11 +16,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <boost/filesystem/operations.hpp>
 #include <boost/system/error_code.hpp>
 
-
 #include <ismrmrd/ismrmrd.h>
 
+
 #include "dynamics.h"
-#include "auxiliary_input_output.h"
+
 
 using namespace sirf;
 
@@ -113,6 +113,17 @@ void aDynamic::set_bins(int const num_bins)
 {
 	this->signal_bins_.clear();
 
+	this->signal_bins_.clear();
+
+
+	if( this-> is_cyclic_dynamic_ )
+		this->set_cyclic_bins(num_bins);
+	else if ( ! this->is_cyclic_dynamic_)
+		this->set_non_cyclic_bins(num_bins);
+}
+
+void aDynamic::set_cyclic_bins(int const num_bins)
+{
 	for(int i_state=0; i_state<num_bins; i_state++)
 	{	
 		SignalBin bin;
@@ -130,6 +141,20 @@ void aDynamic::set_bins(int const num_bins)
 		if( std::get<2>(bin) < 0 )
 			std::get<2>(bin) = ( 1 + std::get<2>(bin) );
 
+		this->signal_bins_.push_back( bin );
+	}
+}
+
+void aDynamic::set_non_cyclic_bins(int const num_bins)
+{
+	for(int i_state=0; i_state<num_bins; i_state++)
+	{	
+		SignalBin bin;
+
+		std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
+		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
+		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(num_bins);
+	
 		this->signal_bins_.push_back( bin );
 	}
 }
@@ -240,55 +265,10 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 }
 
 
-void MotionDynamic::set_bins( int const num_bins )
-{
-	
-	aDynamic::set_bins(num_bins);
-
-	// this->signal_bins_.clear();
-
-	// for(int i_state=0; i_state<num_bins; i_state++)
-	// {	
-	// 	SignalBin bin;
-
-	// 	std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) - 1.f/(2*num_bins);
-	// 	std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
-	// 	std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
-		
-	// 	if( std::get<0>(bin) < 0 )
-	// 		std::get<0>(bin) = ( 1 + std::get<0>(bin) );
-
-	// 	if( std::get<1>(bin) < 0 )
-	// 		std::get<1>(bin) = ( 1 + std::get<1>(bin) );
-
-	// 	if( std::get<2>(bin) < 0 )
-	// 		std::get<2>(bin) = ( 1 + std::get<2>(bin) );
-
-	// 	this->signal_bins_.push_back( bin );
-	// }
-}
-
-
 ContrastDynamic::ContrastDynamic(int const num_simul_states) : aDynamic()
 { 
 	this->num_simul_states_ =num_simul_states;
 	this->set_bins(num_simul_states_);
-}
-
-void ContrastDynamic::set_bins( int const num_bins )
-{
-	this->signal_bins_.clear();
-
-	for(int i_state=0; i_state<num_bins; i_state++)
-	{	
-		SignalBin bin;
-
-		std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
-		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(2*num_bins);
-		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins) + 1.f/(num_bins);
-	
-		this->signal_bins_.push_back( bin );
-	}
 }
 
 void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
@@ -343,6 +323,46 @@ MotionDynamic::~MotionDynamic()
 
 	this->num_total_motion_dynamics_ -= 1; 
 }
+/*
+
+SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal)
+{
+	
+	if (signal > 1.f || signal< 0.f)
+		throw std::runtime_error("Please pass a signal in the range of [0,1].");
+
+	if( this->temp_mvf_filenames_.size() == 0)
+		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this")
+	
+	// check in which interval the signal lies
+	SignalAxisType signal_on_bin_range;
+	
+	if( this->is_cyclic_dynamic_ )
+		signal_on_bin_range = this->num_simul_states_ * signal;
+	else
+		signal_on_bin_range = (this->num_simul_states_  - 1)* signal;
+
+
+	int const bin_floor = int( signal_on_bin_range +1) -1;
+	int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
+	
+	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
+
+	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor];
+	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil];
+
+	  /// Constructor
+    SIRFRegImageWeightedMean dvf_interpolator;
+    
+    dvf_interpolator.add_image(filename_dvf_floor, 1 - linear_interpolation_weight);
+    dvf_interpolator.add_image(filename_dvf_ceil, linear_interpolation_weight);
+    dvf_interpolator.update();
+
+    return dvf_interpolator.get_output();
+
+}*/
+
+
 
 
 int MotionDynamic::get_which_motion_dynamic_am_i(){ return this->which_motion_dynamic_am_i_; }
@@ -408,8 +428,16 @@ bool MotionDynamic::delete_temp_folder()
 }
 
 
-void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields)
+void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const cyclic_motion_fields)
 {
+	
+	if ( cyclic_motion_fields )
+	{
+		this->is_cyclic_dynamic_ = true;
+		this->set_bins( this->num_simul_states_ );
+	}	
+
+
 	using namespace ISMRMRD;
 
 	const size_t* dimensions = motion_fields.getDims();
@@ -447,6 +475,9 @@ void MotionDynamic::set_displacment_fields( ISMRMRD::NDArray< DataTypeMotionFiel
 
 void MotionDynamic::write_temp_displacements_fields()
 {
+	if(this->displacment_fields_.size() == 0)
+		throw std::runtime_error("Please call set_displacements_fields() first.");
+
 	bool const temp_folder_creation_successful = this->make_temp_folder();
 
 	if( temp_folder_creation_successful )
