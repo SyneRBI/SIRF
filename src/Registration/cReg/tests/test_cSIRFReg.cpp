@@ -42,19 +42,20 @@ int main(int argc, char* argv[])
 
     try {
 
-    // Get current working directory
-    boost::filesystem::path path( boost::filesystem::initial_path<boost::filesystem::path>() );
-    path = boost::filesystem::system_complete( boost::filesystem::path( argv[0] ) );
-    path = path.remove_filename();
-
     // Paths
-    string SIRF_PATH     = getenv("SIRF_PATH");
+    string SIRF_PATH;
+    if (argc==1)
+        SIRF_PATH = getenv("SIRF_PATH");
+    else
+        SIRF_PATH = argv[1];
     string examples_path = SIRF_PATH + "/data/examples/Registration";
-    string output_path   = path.string() + "/results/";
+    string output_path   = "results/";
 
     // Input filenames
-    string reference_image_filename = examples_path + "/mouseFixed.nii.gz";
-    string floating_image_filename  = examples_path + "/mouseMoving.nii.gz";
+    string ref_aladin_filename      = examples_path + "/test.nii.gz";
+    string flo_aladin_filename      = examples_path + "/test2.nii.gz";
+    string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
+    string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
     string parameter_file_aladin    = examples_path + "/paramFiles/aladin.par";
     string parameter_file_f3d       = examples_path + "/paramFiles/f3d.par";
     string matrix                   = examples_path + "/transformation_matrix.txt";
@@ -69,25 +70,29 @@ int main(int argc, char* argv[])
     string aladin_disp_back         = output_path   + "cplusplus_aladin_disp_back";
     string f3d_disp_fwrd            = output_path   + "cplusplus_f3d_disp_fwrd";
     string f3d_disp_back            = output_path   + "cplusplus_f3d_disp_back";
-
-    string output_resample          = output_path   + "cplusplus_resample";
-    string output_activity_corr     = output_path   + "cplusplus_activity_corr";
+    string rigid_resample           = output_path   + "cplusplus_rigid_resample";
+    string nonrigid_resample_def    = output_path   + "cplusplus_nonrigid_resample_def";
+    string nonrigid_resample_disp   = output_path   + "cplusplus_nonrigid_resample_disp";
     string output_weighted_mean     = output_path   + "cplusplus_weighted_mean";
 
     string output_stir_nifti        = output_path   + "cplusplus_stir_nifti.nii";
 
-    SIRFImageData reference( reference_image_filename );
-    SIRFImageData floating (  floating_image_filename );
-    SIRFImageData nifti    (        stir_nifti        );
+    SIRFImageData ref_aladin( ref_aladin_filename );
+    SIRFImageData flo_aladin( flo_aladin_filename );
+    SIRFImageData ref_f3d   (   ref_f3d_filename  );
+    SIRFImageData flo_f3d   (   flo_f3d_filename  );
+    SIRFImageData nifti     (      stir_nifti     );
 
+    float required_percentage_accuracy = 1.F;
 
 
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Starting Nifty aladin test...                          //\n";
     cout << "//------------------------------------------------------------------------ //\n";
+
     SIRFRegNiftyAladinSym<float> NA;
-    NA.set_reference_image               (            reference          );
-    NA.set_floating_image                (            floating           );
+    NA.set_reference_image               (           ref_aladin          );
+    NA.set_floating_image                (           flo_aladin          );
     NA.set_parameter_file                (      parameter_file_aladin    );
     NA.update();
     NA.save_warped_image                 (         aladin_warped         );
@@ -105,8 +110,8 @@ int main(int argc, char* argv[])
     cout << "//                  Starting Nifty f3d test...                             //\n";
     cout << "//------------------------------------------------------------------------ //\n";
     SIRFRegNiftyF3dSym<float> NF;
-    NF.set_reference_image               (         reference          );
-    NF.set_floating_image                (          floating          );
+    NF.set_reference_image               (          ref_f3d           );
+    NF.set_floating_image                (          flo_f3d           );
     NF.set_parameter_file                (     parameter_file_f3d     );
     NF.set_reference_time_point          (             1              );
     NF.set_floating_time_point           (             1              );
@@ -122,18 +127,67 @@ int main(int argc, char* argv[])
 
 
     cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty resample test...                        //\n";
+    cout << "//                  Starting Nifty resample rigid test...                  //\n";
     cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegNiftyResample NR;
-    NR.set_reference_image                (         reference        );
-    NR.set_floating_image                 (         floating         );
-    NR.set_transformation_matrix          (          matrix          );
-    NR.set_interpolation_type_to_cubic_spline();
-    NR.update();
-    NR.save_resampled_image               (       output_resample    );
+    SIRFRegNiftyResample NRA;
+    NRA.set_reference_image                (        ref_aladin        );
+    NRA.set_floating_image                 (        flo_aladin        );
+    NRA.set_transformation_matrix          (          TM_fwrd         );
+    NRA.set_interpolation_type_to_cubic_spline();
+    NRA.update();
+    NRA.save_resampled_image               (        rigid_resample    );
+
+    if (!SIRFRegMisc::do_nifti_images_match(NA.get_output(),NRA.get_output(), required_percentage_accuracy))
+        throw runtime_error("Resampled image (rigid) does not match the one resampled with aladin.");
+
     cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty resample test.                          //\n";
+    cout << "//                  Finished Nifty resample rigid test.                    //\n";
     cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting Nifty resample non-rigid deformation test...  //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+    SIRFRegNiftyResample NRF2;
+    NRF2.set_reference_image                (               ref_f3d            );
+    NRF2.set_floating_image                 (               flo_f3d            );
+    NRF2.set_interpolation_type_to_cubic_spline();
+    NRF2.set_deformation_field              (  NF.get_deformation_field_fwrd() );
+    NRF2.update();
+    NRF2.save_resampled_image               (       nonrigid_resample_def      );
+
+    if (!SIRFRegMisc::do_nifti_images_match(NF.get_output(),NRF2.get_output(), required_percentage_accuracy))
+        throw runtime_error("Resampled image (non-rigid) does not match the one resampled with f3d.");
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished Nifty resample non-rigid deformation test.    //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting Nifty resample non-rigid displacement test... //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+    SIRFRegNiftyResample NRF1;
+    NRF1.set_reference_image                (               ref_f3d            );
+    NRF1.set_floating_image                 (               flo_f3d            );
+    NRF1.set_interpolation_type_to_cubic_spline();
+    NRF1.set_displacement_field             ( NF.get_displacement_field_fwrd() );
+    NRF1.update();
+    NRF1.save_resampled_image               (      nonrigid_resample_disp      );
+
+    if (!SIRFRegMisc::do_nifti_images_match(NF.get_output(),NRF1.get_output(), required_percentage_accuracy))
+        throw runtime_error("Resampled image (non-rigid) does not match the one resampled with f3d.");
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished Nifty resample non-rigid displacement test.   //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
 
 
 
@@ -147,6 +201,10 @@ int main(int argc, char* argv[])
     WM.add_image         (     nifti, 0.2F    );
     WM.update();
     WM.save_image_to_file(output_weighted_mean);
+
+    if (!SIRFRegMisc::do_nifti_images_match(nifti,WM.get_output(), required_percentage_accuracy))
+        throw runtime_error("Weighted mean does not match the original.");
+
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Finished weighted mean test.                           //\n";
     cout << "//------------------------------------------------------------------------ //\n";
@@ -163,7 +221,7 @@ int main(int argc, char* argv[])
     SIRFImageData image_data_from_stir(pet_image_data);
     // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
     SIRFImageData image_data_from_nifti(stir_nifti);
-    SIRFRegMisc::do_nifti_image_match(image_data_from_stir, image_data_from_nifti);
+    SIRFRegMisc::do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
     // Print info
     std::vector<SIRFImageData> ims;
     ims.push_back(image_data_from_stir);

@@ -96,8 +96,8 @@ namespace SIRFRegMisc {
     /// Do nifti image metadata elements match?
     bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
 
-    /// Do nift images match?
-    bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max/* = 0.F*/);
+    /// Do nifti images match?
+    bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max/* = 0.F*/);
 
     /// Dump info of nifti image
     void dump_nifti_info(const std::string &im_filename);

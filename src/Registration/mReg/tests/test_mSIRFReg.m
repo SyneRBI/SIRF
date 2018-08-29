@@ -111,7 +111,7 @@ pet_image_data = mSIRFReg.PETImageData(stir_nifti);
 image_data_from_stir = mSIRFReg.ImageData(pet_image_data);
 % Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
 image_data_from_nifti = mSIRFReg.ImageData(stir_nifti);
-mSIRFReg.do_nift_image_match(image_data_from_stir, image_data_from_nifti);
+mSIRFReg.do_nifti_image_match(image_data_from_stir, image_data_from_nifti);
 % Print info
 ims=mSIRFReg.ImageDataVector();
 ims.push_back(image_data_from_stir);

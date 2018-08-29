@@ -401,8 +401,13 @@ bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44
     return false;
 }
 
-bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
+bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
 {
+    if(!im1.is_initialised())
+        throw runtime_error("do_nifti_images_match: Image 1 not initialised.");
+    if(!im2.is_initialised())
+        throw runtime_error("do_nifti_images_match: Image 2 not initialised.");
+
     if (!do_nifti_image_metadata_match(im1,im2)) {
         cout << "\nImage metadata does not match.\n";
         return false;

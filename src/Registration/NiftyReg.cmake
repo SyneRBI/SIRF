@@ -54,9 +54,10 @@ IF (NOT DEFINED NiftyReg_VERSION_MAJOR)
 	FILE(READ ${NiftyReg_Source_DIR}/niftyreg_build_version.txt NiftyReg_VERSION_PATCH)
 ENDIF()
 SET(NR_VERSION "${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}")
-MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.58, and cannot be guaranteed for other version numbers.")
-MESSAGE(STATUS "Your compiled version of NiftyReg is version ${NR_VERSION}")
-MESSAGE(STATUS "If there is a version mismatch, the keys in the parser may need to be altered.\n")
+string(REGEX REPLACE "\n$" "" NR_VERSION "${NR_VERSION}")
+MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.58, and cannot be guaranteed for other version numbers.\n"
+    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
+    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
 IF (NR_VERSION LESS "1.4")
 	add_definitions(-DNIFTYREG_VER_1_3)
 ELSEIF(NR_VERSION LESS "1.6")
