@@ -135,6 +135,7 @@ namespace sirf {
 		virtual unsigned int number() = 0;
 
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
@@ -165,6 +166,8 @@ namespace sirf {
 
 		std::string acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
+
+		gadgetron::shared_ptr<MRAcquisitionData> clone();
 
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim);
@@ -240,6 +243,10 @@ namespace sirf {
 		virtual unsigned int items();
 		virtual unsigned int number() { return items(); }
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq);
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+		{
+			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
+		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
@@ -298,6 +305,11 @@ namespace sirf {
 			int ind = index(num);
 			acq = *acqs_[ind];
 		}
+		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+		{
+			int ind = index(num);
+			*acqs_[ind] = acq;
+		}
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac)
 		{
 			acqs_info_ = ac.acquisitions_info();
@@ -331,6 +343,13 @@ namespace sirf {
 	*/
 	class MRImageData : public aDataContainer < complex_float_t > {
 	public:
+		MRImageData() : ordered_(false), index_(0) {}
+		virtual ~MRImageData()
+		{
+			if (index_)
+				delete[] index_;
+		}
+
 		virtual unsigned int number() = 0;
 		virtual int types() = 0;
 		virtual void count(int i) = 0;
@@ -342,15 +361,13 @@ namespace sirf {
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		virtual void get_images_data_as_float_array(float* data) const = 0;
-		virtual void get_images_data_as_complex_array
-			(float* re, float* im) const = 0;
-		virtual void set_complex_images_data(const float* re, const float* im) = 0;
+		virtual void get_images_data_as_float_array(float* data) = 0;
+		virtual void get_images_data_as_complex_array(float* re, float* im) = 0;
+		virtual void set_complex_images_data
+		(const float* re, const float* im) = 0;
 		virtual int read(std::string filename) = 0;
 		virtual void write(std::string filename, std::string groupname) = 0;
 		virtual gadgetron::shared_ptr<MRImageData> new_images_container() = 0;
-		virtual gadgetron::shared_ptr<MRImageData>
-			clone(unsigned int inc = 1, unsigned int off = 0) = 0;
 		virtual gadgetron::shared_ptr<MRImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
@@ -377,6 +394,22 @@ namespace sirf {
 			iw.get_cmplx_data(re, im);
 		}
 
+		void order();
+		bool ordered() const { return ordered_; }
+		void set_ordered(bool ordered) { ordered_ = ordered; }
+		int* index() { return index_; }
+		const int* index() const { return index_; }
+		int index(int i) const
+		{
+			if (index_) // && i >= 0 && i < (int)number())
+				return index_[i];
+			else
+				return i;
+		}
+
+	protected:
+		bool ordered_;
+		int* index_;
 	};
 
 	/*!
@@ -388,9 +421,7 @@ namespace sirf {
 	class ImagesVector : public MRImageData {
 	public:
 		ImagesVector() : images_(), nimages_(0) {}
-		ImagesVector(const ImagesVector& list, const char* attr, const char* target);
-		ImagesVector
-			(const ImagesVector& list, unsigned int inc = 1, unsigned int off = 0);
+		ImagesVector(ImagesVector& list, const char* attr, const char* target);
 		virtual unsigned int items() { return (unsigned int)images_.size(); }
 		virtual unsigned int number() { return (unsigned int)images_.size(); }
 		virtual int types()
@@ -416,12 +447,16 @@ namespace sirf {
 		}
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
 		{
-			return images_[im_num];
+			int i = index(im_num);
+			return images_[i];
+//			return images_[im_num];
 		}
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const
 		{
-			return images_[im_num];
+			int i = index(im_num);
+			return images_[i];
+//			return images_[im_num];
 		}
 		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{
@@ -447,8 +482,8 @@ namespace sirf {
 			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 			//std::cout << attr << '\n';
 		}
-		virtual void get_images_data_as_float_array(float* data) const;
-		virtual void get_images_data_as_complex_array(float* re, float* im) const;
+		virtual void get_images_data_as_float_array(float* data);
+		virtual void get_images_data_as_complex_array(float* re, float* im);
 		virtual void set_complex_images_data(const float* re, const float* im);
 		virtual aDataContainer<complex_float_t>* new_data_container()
 		{
@@ -462,11 +497,6 @@ namespace sirf {
 			clone(const char* attr, const char* target)
 		{
 			return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
-		}
-		virtual gadgetron::shared_ptr<MRImageData>
-			clone(unsigned int inc = 1, unsigned int off = 0)
-		{
-			return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, inc, off));
 		}
 
 	private:
