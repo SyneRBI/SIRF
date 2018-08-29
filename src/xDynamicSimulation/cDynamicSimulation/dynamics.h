@@ -21,10 +21,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "gadgetron_data_containers.h"
-// #include "SIRFRegImageWeightedMean.h"
-// #include "SIRFImageDataDeformation.h"
-
 #include "auxiliary_input_output.h"
+
+#include "SIRFRegImageWeightedMean.h"
+#include "SIRFImageDataDeformation.h"
+
+
 
 typedef float TimeAxisType;
 typedef float SignalAxisType;
@@ -120,7 +122,7 @@ public:
 
 	~MotionDynamic();
 
-	// SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal);
+	SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal);
 
 	int get_which_motion_dynamic_am_i();
 	int get_num_total_motion_dynamics();

@@ -325,3 +325,31 @@ try
 
 }
 
+
+
+bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
+{
+	try
+	{
+		bool test_succesful = true;
+
+		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		int const num_simul_bins = 12;
+		MotionDynamic motion_dyn(num_simul_bins);
+		motion_dyn.set_displacement_fields(resp_mvfs);
+		motion_dyn.write_temp_displacements_fields();
+
+		SignalAxisType motion_signal = 0.6;
+
+		auto interpolated_dvf = motion_dyn.get_interpolated_displacement_field(motion_signal);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}

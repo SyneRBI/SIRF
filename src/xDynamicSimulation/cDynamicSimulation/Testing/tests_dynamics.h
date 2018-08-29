@@ -27,5 +27,7 @@ bool test_motion_dynamic_counter( void );
 bool test_motion_dynamic_temp_folder_setup( void );
 bool test_motion_dynamic_set_motion_fields(void);
 bool test_motion_dynamic_write_motion_fields( void );
+bool test_motion_dynamic_temp_interpolate_dvfs( void );
+
 	 
 }

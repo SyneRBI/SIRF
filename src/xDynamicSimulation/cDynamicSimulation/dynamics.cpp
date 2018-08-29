@@ -323,16 +323,16 @@ MotionDynamic::~MotionDynamic()
 
 	this->num_total_motion_dynamics_ -= 1; 
 }
-/*
 
-SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType signal)
+
+SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(SignalAxisType signal)
 {
 	
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
 	if( this->temp_mvf_filenames_.size() == 0)
-		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this")
+		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this");
 	
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
@@ -360,7 +360,7 @@ SIRFImageDataDeformation get_interpolated_displacement_field(SignalAxisType sign
 
     return dvf_interpolator.get_output();
 
-}*/
+}
 
 
 
