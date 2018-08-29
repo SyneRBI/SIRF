@@ -112,8 +112,8 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
 
     // Print all the info
     std::cout << "\n\nChecking that images can be combined...\n\n";
-    std::cout << "im || datatype | ndim | nvox     | nx  | ny  | nz | dx      | dy      | dz  \n";
-    std::cout << "---++----------+------+----------+-----+-----+----+---------+---------+------\n";
+    std::cout << "im || datatype | ndim | nvox | nx  | ny  | nz | nt | nu | dx | dy | dz | dt | du \n";
+    std::cout << "---++----------+------+------+-----+-----+----+----+----+----+----+----+----+----\n";
     for (unsigned i=0; i<_input_images.size(); i++) {
         std::cout << i << "  || ";
         std::string data_type = nifti_datatype_string(_input_images[i].get_image_as_nifti()->datatype);
@@ -123,9 +123,13 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         std::cout << _input_images[i].get_image_as_nifti()->nx   <<    " | ";
         std::cout << _input_images[i].get_image_as_nifti()->ny   <<    " | ";
         std::cout << _input_images[i].get_image_as_nifti()->nz   <<    " | ";
+        std::cout << _input_images[i].get_image_as_nifti()->nt   <<    " | ";
+        std::cout << _input_images[i].get_image_as_nifti()->nu   <<    " | ";
         std::cout << _input_images[i].get_image_as_nifti()->dx   <<    " | ";
         std::cout << _input_images[i].get_image_as_nifti()->dy   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->dz   << "\n";
+        std::cout << _input_images[i].get_image_as_nifti()->dz   <<    " | ";
+        std::cout << _input_images[i].get_image_as_nifti()->dt   <<    " | ";
+        std::cout << _input_images[i].get_image_as_nifti()->du   <<    "\n";
     }
     bool can_do_mean = true;
 
