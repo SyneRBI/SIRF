@@ -9,6 +9,15 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 
+#ifdef _SIRFIMAGEDATA_H_
+	std::cout << "###############################################################" <<std::endl;
+	std::cout << "######################### WARNING #############################" <<std::endl;
+	std::cout << "THE HEADER FILE SIRFImageData.h WAS INCLUDED ALREADY." <<std::endl;
+	std::cout << "COULD LEAD TO PROBLEMS." <<std::endl;
+	std::cout << "###############################################################" <<std::endl;
+#endif
+
+
 #include <string>
 #include <sstream>
 #include <fstream>
