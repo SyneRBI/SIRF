@@ -141,7 +141,7 @@ protected:
 	bool make_temp_folder();
 	bool delete_temp_folder();
 
-	std::string const temp_folder_prefix_  = "/media/sf_SharedFolder/CCPPETMR/";;
+	std::string const temp_folder_prefix_  = "/tmp/";;
 	std::string const temp_mvf_prefix_ = "/motion_field_";
 	std::string temp_folder_name_ ;
 	std::vector<std::string> temp_mvf_filenames_; 
