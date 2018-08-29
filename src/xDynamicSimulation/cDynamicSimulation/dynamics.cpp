@@ -327,12 +327,13 @@ MotionDynamic::~MotionDynamic()
 
 SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(SignalAxisType signal)
 {
-	
+	std::cout << "nag" <<std::endl;
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
 	if( this->temp_mvf_filenames_.size() == 0)
 		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this");
+	
 	
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
@@ -342,17 +343,18 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	else
 		signal_on_bin_range = (this->num_simul_states_  - 1)* signal;
 
-
 	int const bin_floor = int( signal_on_bin_range +1) -1;
 	int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
 	
+
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
-	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor];
-	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil];
+	std::string const extension_input_file = ".hdr";
+	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor] + extension_input_file;
+	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil] + extension_input_file;
 
 	  /// Constructor
-    SIRFRegImageWeightedMean dvf_interpolator;
+    SIRFRegImageDeformationWeightedMean dvf_interpolator;
     
     dvf_interpolator.add_image(filename_dvf_floor, 1 - linear_interpolation_weight);
     dvf_interpolator.add_image(filename_dvf_ceil, linear_interpolation_weight);
