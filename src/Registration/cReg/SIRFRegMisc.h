@@ -30,9 +30,11 @@ limitations under the License.
 #ifndef _SIRFMISC_H_
 #define _SIRFMISC_H_
 
-#include <boost/filesystem.hpp>
-#include <nifti1_io.h>
 #include <iostream>
+#include <iomanip>
+#include <nifti1_io.h>
+#include <boost/filesystem.hpp>
+#include <_reg_tools.h>
 #include "SIRFImageData.h"
 
 class SIRFImageDataDeformation;
@@ -99,6 +101,97 @@ namespace SIRFRegMisc {
     /// Do nifti images match?
     bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max/* = 0.F*/);
 
+    /// Do arrays match?
+    template<typename T>
+    bool do_arrays_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
+    {
+        if(!im1.is_initialised())
+            throw std::runtime_error("do_arrays_match: Image 1 not initialised.");
+        if(!im2.is_initialised())
+            throw std::runtime_error("do_arrays_match: Image 2 not initialised.");
+
+        // Check sizes
+        if (im1.get_image_as_nifti()->nbyper != im2.get_image_as_nifti()->nbyper)
+            throw std::runtime_error("do_arrays_match: Images are not of same datatype.");
+        if (im1.get_image_as_nifti()->nbyper != sizeof(T))
+            throw std::runtime_error("do_arrays_match: Datatype does not match desired cast type (" + std::to_string(im1.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+
+        // Get data
+        T *data1 = static_cast<T*>(im1.get_image_as_nifti()->data);
+        T *data2 = static_cast<T*>(im2.get_image_as_nifti()->data);
+
+        // Calculate required accuracy
+        float max1 = im1.get_max();
+        float max2 = im2.get_max();
+        float epsilon = max1 > max2 ? max1 : max2;
+        epsilon *= accuracy_percentage_of_max;
+
+        for (unsigned i=0; i<im1.get_image_as_nifti()->nvox; ++i)
+            if (fabs(data1[i]-data2[i]) > epsilon) {
+                std::cout << "\nMismatch in index " << i << " (" << data1[i] << " versus " << data2[i] << ").\n";
+                return false;
+            }
+        return true;
+    }
+
+    /// Get array max
+    template<typename T>
+    float get_array_max(const SIRFImageData &im)
+    {
+        if(!im.is_initialised())
+            throw std::runtime_error("get_array_max: Image not initialised.");
+
+        // Check sizes
+        if (im.get_image_as_nifti()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_max: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+
+        // Get data
+        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+        return *std::max_element(data, data + im.get_image_as_nifti()->nvox);
+    }
+
+    /// Get array min
+    template<typename T>
+    float get_array_min(const SIRFImageData &im)
+    {
+        if(!im.is_initialised())
+            throw std::runtime_error("get_array_min: Image not initialised.");
+
+        // Check sizes
+        if (im.get_image_as_nifti()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_min: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+
+        // Get data
+        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+        return *std::min_element(data, data + im.get_image_as_nifti()->nvox);
+    }
+
+    /// Get 3D array element
+    template<typename T>
+    float get_3D_array_element(const SIRFImageData &im, const int x, const int y, const int z)
+    {
+        if(!im.is_initialised())
+            throw std::runtime_error("get_3D_array_element: Image not initialised.");
+
+        // Check sizes
+        if (im.get_image_as_nifti()->nbyper != sizeof(T))
+            throw std::runtime_error("get_3D_array_element: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+
+        int nx = im.get_image_as_nifti()->nx;
+        int ny = im.get_image_as_nifti()->nz;
+        int nz = im.get_image_as_nifti()->ny;
+        if(x<0 || x>=nx || y<0 || y>=ny || z<0 || z>=nz)
+            throw std::runtime_error("get_3D_array_element: Element out of bounds");
+
+        // Get data
+        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+
+        std::cout << "\nBe careful, I made this quickly for debugging and haven't thought about data order."
+                     " You might have to switch x and z.\n";
+
+        return data[x*ny*nz + y*nz + z];
+    }
+
     /// Dump info of nifti image
     void dump_nifti_info(const std::string &im_filename);
 
@@ -147,6 +240,18 @@ namespace SIRFRegMisc {
 
     /// Mat44 multiplier
     mat44 multiply_mat44(const mat44 &x, const mat44 &y);
+
+    /// Convert type (performs deep copy)
+    template<typename T>
+    const SIRFImageData change_datatype(const SIRFImageData &input)
+    {
+        SIRFImageData copy;
+        copy = input;
+
+        reg_tools_changeDatatype<T>(copy.get_image_as_nifti().get());
+
+        return copy;
+    }
 }
 
 #endif

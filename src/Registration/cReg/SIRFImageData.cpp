@@ -29,9 +29,9 @@ limitations under the License.
 
 #include "SIRFImageData.h"
 #include "SIRFRegMisc.h"
-//#include "gadgetron_data_containers.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
+#include "stir_data_containers.h"
 
 using namespace std;
 
@@ -286,21 +286,51 @@ float SIRFImageData::get_max() const
     if(!_nifti_image)
         throw runtime_error("Image not initialised.");
 
-    // Get image as float
-    SIRFImageData temp = this->get_as_float_sirf_imagedata();
-    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
-    return *std::max_element(data, data + _nifti_image->nvox);
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_max<bool>              (*this);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_max<signed char>       (*this);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_array_max<signed short>      (*this);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_array_max<signed int>        (*this);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_array_max<float>             (*this);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_array_max<double>            (*this);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_array_max<unsigned char>     (*this);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_array_max<unsigned short>    (*this);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_array_max<unsigned int>      (*this);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_array_max<signed long long>  (*this);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_array_max<unsigned long long>(*this);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_max<long double>       (*this);
+
+    stringstream ss;
+    ss << "SIRFImageData::get_max not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
 }
 
 float SIRFImageData::get_min() const
 {
-    if(!this->is_initialised())
+    if(!_nifti_image)
         throw runtime_error("Image not initialised.");
 
-    // Get image as float
-    SIRFImageData temp = this->get_as_float_sirf_imagedata();
-    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
-    return *std::min_element(data, data + _nifti_image->nvox);
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_min<bool>              (*this);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_min<signed char>       (*this);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_array_min<signed short>      (*this);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_array_min<signed int>        (*this);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_array_min<float>             (*this);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_array_min<double>            (*this);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_array_min<unsigned char>     (*this);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_array_min<unsigned short>    (*this);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_array_min<unsigned int>      (*this);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_array_min<signed long long>  (*this);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_array_min<unsigned long long>(*this);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_min<long double>       (*this);
+
+    stringstream ss;
+    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
 }
 
 float SIRFImageData::get_element(const int x, const int y, const int z) const
@@ -308,34 +338,26 @@ float SIRFImageData::get_element(const int x, const int y, const int z) const
     if(!this->is_initialised())
         throw runtime_error("Image not initialised.");
 
-    // Get image as float
-    SIRFImageData temp = this->get_as_float_sirf_imagedata();
-    float *data = static_cast<float*>(temp.get_image_as_nifti()->data);
-
-    int nx = _nifti_image->nx;
-    int ny = _nifti_image->nz;
-    int nz = _nifti_image->ny;
-
     if (_nifti_image->ndim > 3)
         throw std::runtime_error("get_element: Currently only implemented for 3 dimensions");
 
-    if(x<0 || x>=nx || y<0 || y>=ny || z<0 || z>=nz)
-        throw std::runtime_error("get_element: Element out of bounds");
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_3D_array_element<bool>              (*this, x, y, z);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_3D_array_element<signed char>       (*this, x, y, z);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_3D_array_element<signed short>      (*this, x, y, z);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_3D_array_element<signed int>        (*this, x, y, z);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_3D_array_element<float>             (*this, x, y, z);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_3D_array_element<double>            (*this, x, y, z);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_3D_array_element<unsigned char>     (*this, x, y, z);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_3D_array_element<unsigned short>    (*this, x, y, z);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_3D_array_element<unsigned int>      (*this, x, y, z);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_3D_array_element<signed long long>  (*this, x, y, z);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_3D_array_element<unsigned long long>(*this, x, y, z);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_3D_array_element<long double>       (*this, x, y, z);
 
-    std::cout << "\nBe careful, I made this quickly for debugging and haven't thought about data order."
-                 " You might have to switch x and z.\n";
-
-    return data[x*ny*nz + y*nz + z];
-}
-
-const SIRFImageData SIRFImageData::get_as_float_sirf_imagedata() const
-{
-    SIRFImageData copy;
-    copy = *this;
-
-    // If datatype is already float, return
-    if (_nifti_image->datatype != DT_FLOAT32)
-        reg_tools_changeDatatype<float>(copy.get_image_as_nifti().get());
-
-    return copy;
+    stringstream ss;
+    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
 }
