@@ -429,6 +429,19 @@ MRAcquisitionData::norm()
 	return sqrt(r);
 }
 
+gadgetron::shared_ptr<MRAcquisitionData> 
+MRAcquisitionData::clone()
+{
+	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad =
+		new_acquisitions_container();
+	for (int i = 0; i < number(); i++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+		sptr_ad->append_acquisition(acq);
+	}
+	return sptr_ad;
+}
+
 void
 MRAcquisitionData::order()
 {

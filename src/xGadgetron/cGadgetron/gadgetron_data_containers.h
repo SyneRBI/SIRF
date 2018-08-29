@@ -167,6 +167,8 @@ namespace sirf {
 		std::string acquisitions_info() const { return acqs_info_; }
 		void set_acquisitions_info(std::string info) { acqs_info_ = info; }
 
+		gadgetron::shared_ptr<MRAcquisitionData> clone();
+
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim);
 		void get_acquisitions_flags(unsigned int n, int* flags);
