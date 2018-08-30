@@ -93,6 +93,17 @@ public:
         _transformation_type = def;
     }
 
+    /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
+    void set_interpolation_type(const int type)
+    {
+        if      (type == 0) _interpolation_type = NEARESTNEIGHBOUR;
+        else if (type == 1) _interpolation_type = LINEAR;
+        else if (type == 3) _interpolation_type = CUBICSPLINE;
+        else if (type == 4) _interpolation_type = SINC;
+        else
+            throw std::runtime_error("Invalid interpolation type");
+    }
+
     /// Set interpolation type to nearest neighbour
     void set_interpolation_type_to_nearest_neighbour() { _interpolation_type = NEARESTNEIGHBOUR; }
 
@@ -102,8 +113,8 @@ public:
     /// Set interpolation type to cubic spline
     void set_interpolation_type_to_cubic_spline() { _interpolation_type = CUBICSPLINE; }
 
-    /// Set interpolation type to since
-    void set_interpolation_type_to_since() { _interpolation_type = SINC; }
+    /// Set interpolation type to sinc
+    void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
 
     /// Update
     void update();

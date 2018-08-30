@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Richard Brown
-# Copyright 2016, 2017 University College London
+# Author: Kris Thielemans
+# Copyright 2016 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,22 +16,27 @@
 #
 #=========================================================================
 
-# Set p_or_m to Python for the configure file
-SET(p_or_m p)
+if(BUILD_PYTHON)
+  set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-# Find python
-FIND_PACKAGE( PythonLibs REQUIRED )
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+  FIND_PACKAGE(SWIG REQUIRED)
+  INCLUDE("${SWIG_USE_FILE}")
 
-CONFIGURE_FILE( ../SWIG_SIRFReg.in ${CMAKE_CURRENT_BINARY_DIR}/pSIRFReg.i )
+  SET_SOURCE_FILES_PROPERTIES(pysirfreg.i PROPERTIES CPLUSPLUS ON)
+  SET_SOURCE_FILES_PROPERTIES(pysirfreg.i PROPERTIES SWIG_FLAGS "-I${cSIRFREG_INCLUDE_DIR}")
+  # find libraries and include files
+  # TODO would be better to use target_include_directories
 
-# Swig to convert c++ to python
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_BINARY_DIR}/pSIRFReg.i PROPERTIES CPLUSPLUS ON)
-SWIG_ADD_LIBRARY(pSIRFReg LANGUAGE python SOURCES ${CMAKE_CURRENT_BINARY_DIR}/pSIRFReg.i ${STIR_REGISTRIES})
-SWIG_LINK_LIBRARIES(pSIRFReg ${PYTHON_LIBRARIES} SIRFReg)#SIRF_common)
+  FIND_PACKAGE(PythonLibs REQUIRED)
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+  SET(SWIG_MODULE_pysirfreg_EXTRA_DEPS "${cSIRFREG_INCLUDE_DIR}/csirfreg.h")
+  SWIG_ADD_MODULE(pysirfreg python pysirfreg.i)
+  SWIG_LINK_LIBRARIES(pysirfreg SIRFReg ${PYTHON_LIBRARIES})
 
-# Install
-INSTALL(TARGETS  						 _pSIRFReg	  DESTINATION ${PYTHON_DEST})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pSIRFReg.py DESTINATION ${PYTHON_DEST})
+  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+
+  INSTALL(TARGETS ${SWIG_MODULE_pysirfreg_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirfreg.py" SIRFReg.py DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
+endif(BUILD_PYTHON)

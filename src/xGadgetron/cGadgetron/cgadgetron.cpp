@@ -525,6 +525,20 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 
 extern "C"
 void*
+cGT_cloneAcquisitions(void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		MRAcquisitionData& input =
+			objectFromHandle<MRAcquisitionData>(h_input);
+		shared_ptr<MRAcquisitionData> sptr_ac = input.clone();
+		return newObjectHandle<MRAcquisitionData>(sptr_ac);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num)
 {
 	try {

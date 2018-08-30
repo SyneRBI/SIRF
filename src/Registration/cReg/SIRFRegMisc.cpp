@@ -208,7 +208,7 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
-    std:shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
+    std::shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
 
     // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
@@ -221,9 +221,9 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
     // Data is ordered such that the multicomponent info is last.
     // So, the first third of the data is the x-values, second third is y and last third is z.
     // Data is therefore = dim_number * num_voxels/3
-    double start_index =   dim   * im_sptr->nvox/3;
+    int start_index =   dim   * int(im_sptr->nvox/3);
     // End index is one before the start of the next dimension (thus the minus 1)
-    double end_index   = (dim+1) * im_sptr->nvox/3 - 1;
+    int end_index   = (dim+1) * int(im_sptr->nvox/3 - 1);
 
     // Check whether single or double precision
     if (im_sptr->datatype == DT_FLOAT32) {
@@ -401,31 +401,37 @@ bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44
     return false;
 }
 
-bool do_nifti_image_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
+bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
 {
+    if(!im1.is_initialised())
+        throw runtime_error("do_nifti_images_match: Image 1 not initialised.");
+    if(!im2.is_initialised())
+        throw runtime_error("do_nifti_images_match: Image 2 not initialised.");
+
     if (!do_nifti_image_metadata_match(im1,im2)) {
         cout << "\nImage metadata does not match.\n";
         return false;
     }
 
-    // Create images as float
-    SIRFImageData im1_float = im1.get_as_float_sirf_imagedata();
-    SIRFImageData im2_float = im2.get_as_float_sirf_imagedata();
+    if (im1.get_image_as_nifti()->datatype == DT_BINARY)   return do_arrays_match<bool>              (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_INT8)     return do_arrays_match<signed char>       (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_INT16)    return do_arrays_match<signed short>      (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_INT32)    return do_arrays_match<signed int>        (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_FLOAT32)  return do_arrays_match<float>             (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_FLOAT64)  return do_arrays_match<double>            (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_UINT8)    return do_arrays_match<unsigned char>     (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_UINT16)   return do_arrays_match<unsigned short>    (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_UINT32)   return do_arrays_match<unsigned int>      (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_INT64)    return do_arrays_match<signed long long>  (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_UINT64)   return do_arrays_match<unsigned long long>(im1, im2, accuracy_percentage_of_max);
+    if (im1.get_image_as_nifti()->datatype == DT_FLOAT128) return do_arrays_match<long double>       (im1, im2, accuracy_percentage_of_max);
 
-    // Get data
-    float *data1 = static_cast<float *>(im1_float.get_image_as_nifti()->data);
-    float *data2 = static_cast<float *>(im2_float.get_image_as_nifti()->data);
-
-    // Calculate required accuracy
-    float epsilon = im1.get_max() > im2.get_max() ? im1.get_max() : im2.get_max();
-    epsilon *= accuracy_percentage_of_max;
-
-    for (unsigned i=0; i<im1.get_image_as_nifti()->nvox; ++i)
-        if (fabs(data1[i]-data2[i]) > epsilon) {
-            std::cout << "\nMismatch in index " << i << " (" << data1[i] << " versus " << data2[i] << ").\n";
-            return false;
-        }
-    return true;
+    stringstream ss;
+    ss << "do_nifti_images_match not implemented for your data type: ";
+    ss << nifti_datatype_string(im1.get_image_as_nifti()->datatype);
+    ss << " (bytes per voxel: ";
+    ss << im1.get_image_as_nifti()->nbyper << ").";
+    throw std::runtime_error(ss.str());
 }
 
 /// Dump info of nifti image

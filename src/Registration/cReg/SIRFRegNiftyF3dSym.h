@@ -71,18 +71,6 @@ public:
         _use_initial_transformation = true;
     }
 
-    /// Get forward deformation field image
-    SIRFImageDataDeformation get_deformation_fwrd()  const { return _def_image_fwrd;  }
-
-    /// Get backward deformation field image
-    SIRFImageDataDeformation get_deformation_back()  const { return _def_image_back;  }
-
-    /// Get forward displacement field image
-    SIRFImageDataDeformation get_displacement_fwrd() const { return _disp_image_fwrd; }
-
-    /// Get backward displacement field image
-    SIRFImageDataDeformation get_displacement_back() const { return _disp_image_back; }
-
 protected:
 
     /// Check parameters

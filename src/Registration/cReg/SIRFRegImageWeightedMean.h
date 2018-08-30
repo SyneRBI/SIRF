@@ -50,7 +50,7 @@ public:
     /// Add an image (from filename) and its corresponding weight
     void add_image(const std::string &filename, const float weight);
 
-    /// Add an image (from nifti image) and its corresponding weight
+    /// Add an image (from SIRFImageData) and its corresponding weight
     void add_image(const SIRFImageData &image, const float weight);
 
     /// Update
@@ -60,7 +60,7 @@ public:
     void save_image_to_file(const std::string &filename) const;
 
     /// Get output
-    const SIRFImageData &get_output() const { return _output_image; }
+    const SIRFImageData &get_output() const { return *_output_image; }
 
 protected:
 
@@ -69,15 +69,13 @@ protected:
 
     /// Bool to check if update is necessary
     bool                        _need_to_update;
-    /// Vector of weights
-    std::vector<float>          _weights;
-    
 
-private:
     /// Vector of input images
-    std::vector<SIRFImageData>  _input_images;
+    std::vector<std::shared_ptr<SIRFImageData> > _input_images;
+    /// Vector of weights
+    std::vector<float>                           _weights;
     /// Output image
-    SIRFImageData               _output_image;
+    std::shared_ptr<SIRFImageData>               _output_image;
 
 };
 

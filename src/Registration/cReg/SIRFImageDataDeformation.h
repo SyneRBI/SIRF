@@ -42,13 +42,13 @@ public:
     SIRFImageDataDeformation() {}
 
     /// Filename constructor
-    SIRFImageDataDeformation(const std::string &filename) : SIRFImageData(filename) {}
+    SIRFImageDataDeformation(const std::string &filename);
 
     /// Nifti constructor
-    SIRFImageDataDeformation(const nifti_image *image_nifti) : SIRFImageData(image_nifti) {}
+    SIRFImageDataDeformation(const nifti_image *image_nifti);
 
     /// Nifti shared_ptr constructor
-    SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti) : SIRFImageData(image_nifti) {}
+    SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti);
 
     /// Create from 3D image
     void create_from_3D_image(const SIRFImageData &image);

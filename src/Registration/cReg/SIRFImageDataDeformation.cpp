@@ -32,6 +32,27 @@ limitations under the License.
 
 using namespace std;
 
+SIRFImageDataDeformation::SIRFImageDataDeformation(const std::string &filename)
+    : SIRFImageData(filename)
+{
+    if (_nifti_image->ndim != 5)
+        throw runtime_error("A deformation/displacement field image should have ndim=5.");
+}
+
+SIRFImageDataDeformation::SIRFImageDataDeformation(const nifti_image *image_nifti)
+    : SIRFImageData(image_nifti)
+{
+    if (_nifti_image->ndim != 5)
+        throw runtime_error("A deformation/displacement field image should have ndim=5.");
+}
+
+SIRFImageDataDeformation::SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti)
+    : SIRFImageData(image_nifti)
+{
+    if (_nifti_image->ndim != 5)
+        throw runtime_error("A deformation/displacement field image should have ndim=5.");
+}
+
 void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
 {
     std::shared_ptr<nifti_image> image_sptr = image.get_image_as_nifti();

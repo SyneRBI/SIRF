@@ -39,20 +39,16 @@ SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const string &filename, const float weight)
+void SIRFRegImageWeightedMean::add_image(const std::string &filename, const float weight)
 {
-    // Open image
-    std::shared_ptr<nifti_image> input_image_sptr;
-    SIRFRegMisc::open_nifti_image(input_image_sptr, filename);
-
     // Use other function to add image to list of vectors
-    this->add_image(input_image_sptr.get(), weight);
+    this->add_image(SIRFImageData(filename), weight);
 }
 
 void SIRFRegImageWeightedMean::add_image(const SIRFImageData &image, const float weight)
 {
     // Add image to vector
-    _input_images.push_back(image);
+    _input_images.push_back(std::shared_ptr<SIRFImageData>(new SIRFImageData(image)));
     _weights.push_back(weight);
 
     _need_to_update = true;
@@ -73,27 +69,41 @@ void SIRFRegImageWeightedMean::update()
     for (unsigned i=0; i<_weights.size(); i++) normalised_weights[i] /= sum_of_weights;
 
     // Create a copy of the first image to use as a template for the output
-    _output_image = _input_images[0];
+    _output_image.reset(new SIRFImageData(*_input_images[0]));
 
-    // Get the data and cast it to float
-    float *output_data_ptr = static_cast<float*>(_output_image.get_image_as_nifti()->data);
+    // Change to double to minimise rounding errors. Get the data.
+    SIRFRegMisc::change_datatype<double>(*_output_image);
+    double *output_data_ptr = static_cast<double*>(_output_image->get_image_as_nifti()->data);
 
     // Set all of the output image's voxels to 0
-    for (unsigned i=0; i<_output_image.get_image_as_nifti()->nvox; i++) output_data_ptr[i] = 0.;
+    for (unsigned i=0; i<_output_image->get_image_as_nifti()->nvox; i++) output_data_ptr[i] = 0.;
 
     // Loop over each input image
     for (unsigned i=0; i<_input_images.size(); i++) {
 
+        // Create a temporary copy of the image so that we can change the datatype
+        std::shared_ptr<SIRFImageData> temp(new SIRFImageData(*_input_images[i]));
+        SIRFRegMisc::change_datatype<double>(*temp);
+
         // Get the data and cast it to float for the ith input image
-        float *input_data_ptr = static_cast<float*>(_input_images[i].get_image_as_nifti()->data);
+        double *input_data_ptr = static_cast<double*>(temp->get_image_as_nifti()->data);
 
         // Loop over each voxel
-        for (unsigned j=0; j<_output_image.get_image_as_nifti()->nvox; j++) {
+        for (unsigned j=0; j<_output_image->get_image_as_nifti()->nvox; j++) {
 
             // Add in the weighted contribution of the jth voxel of the ith image
-            output_data_ptr[j] += input_data_ptr[j] * normalised_weights[i];
+            output_data_ptr[j] += input_data_ptr[j] * double(normalised_weights[i]);
         }
     }
+
+    // Put the output type back so that it matches the input type
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_INT16)   SIRFRegMisc::change_datatype<signed short>  (*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_INT32)   SIRFRegMisc::change_datatype<signed int>    (*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_FLOAT32) SIRFRegMisc::change_datatype<float>         (*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_FLOAT64) SIRFRegMisc::change_datatype<double>        (*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT8)   SIRFRegMisc::change_datatype<unsigned char> (*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT16)  SIRFRegMisc::change_datatype<unsigned short>(*_output_image);
+    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT32)  SIRFRegMisc::change_datatype<unsigned int>  (*_output_image);
 
     // Once the update is done, set the need_to_update flag to false
     _need_to_update = false;
@@ -101,7 +111,7 @@ void SIRFRegImageWeightedMean::update()
 
 void SIRFRegImageWeightedMean::save_image_to_file(const string &filename) const
 {
-    _output_image.save_to_file(filename);
+    _output_image->save_to_file(filename);
 }
 
 void SIRFRegImageWeightedMean::check_can_do_mean() const
@@ -110,27 +120,6 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
     if (_input_images.size() == 0)
         throw std::runtime_error("Need to add images to be able to do weighted mean.");
 
-    // Print all the info
-    std::cout << "\n\nChecking that images can be combined...\n\n";
-    std::cout << "im || datatype | ndim | nvox | nx  | ny  | nz | nt | nu | dx | dy | dz | dt | du \n";
-    std::cout << "---++----------+------+------+-----+-----+----+----+----+----+----+----+----+----\n";
-    for (unsigned i=0; i<_input_images.size(); i++) {
-        std::cout << i << "  || ";
-        std::string data_type = nifti_datatype_string(_input_images[i].get_image_as_nifti()->datatype);
-        std::cout << data_type             <<   "  | ";
-        std::cout << _input_images[i].get_image_as_nifti()->ndim << "    | ";
-        std::cout << _input_images[i].get_image_as_nifti()->nvox <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->nx   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->ny   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->nz   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->nt   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->nu   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->dx   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->dy   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->dz   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->dt   <<    " | ";
-        std::cout << _input_images[i].get_image_as_nifti()->du   <<    "\n";
-    }
     bool can_do_mean = true;
 
     // Check each of the images against all the other images
@@ -138,7 +127,7 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j])) can_do_mean = false;
+            if (!SIRFRegMisc::do_nifti_image_metadata_match(*_input_images[i],*_input_images[j])) can_do_mean = false;
         }
     }
 

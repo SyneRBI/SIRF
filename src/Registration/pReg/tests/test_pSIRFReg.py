@@ -2,6 +2,8 @@
 import os
 import sys
 import pSIRFReg
+import pSTIR
+import numpy as np
 
 # Paths
 SIRF_PATH     = os.environ.get('SIRF_PATH')
@@ -35,6 +37,8 @@ output_stir_nifti        = output_path   + "python_stir_nifti.nii"
 reference = pSIRFReg.ImageData( reference_image_filename )
 floating  = pSIRFReg.ImageData(  floating_image_filename )
 nifti     = pSIRFReg.ImageData(        stir_nifti        )
+
+required_percentage_accuracy = float(1)
 
 sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
 sys.stderr.write(  '#                             Starting Nifty aladin test...                         #\n')
@@ -83,7 +87,7 @@ sys.stderr.write(  '# ----------------------------------------------------------
 NR = pSIRFReg.NiftyResample()
 NR.set_reference_image                (    reference    )
 NR.set_floating_image                 (    floating     )
-NR.add_transformation_matrix          (     matrix      )
+NR.set_transformation_matrix          (     matrix      )
 NR.set_interpolation_type_to_cubic_spline()
 NR.update()
 NR.save_resampled_image               ( output_resample )
@@ -114,16 +118,13 @@ sys.stderr.write('\n# ----------------------------------------------------------
 sys.stderr.write(  '#                             Starting PET SIRFImageData test...                    #\n')
 sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
 # Open stir image
-pet_image_data = pSIRFReg.PETImageData(stir_nifti)
+pet_image_data = pSTIR.ImageData(stir_nifti)
 image_data_from_stir = pSIRFReg.ImageData(pet_image_data)
 # Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
 image_data_from_nifti = pSIRFReg.ImageData(stir_nifti)
-pSIRFReg.do_nift_image_match(image_data_from_stir, image_data_from_nifti)
+pSIRFReg.do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy)
 # Print info
-ims=pSIRFReg.ImageDataVector()
-ims.push_back(image_data_from_stir)
-ims.push_back(image_data_from_nifti)
-pSIRFReg.dump_nifti_info(ims)
+pSIRFReg.dump_nifti_info([image_data_from_stir, image_data_from_nifti, image_data_from_nifti])
 # Save the one opened by stir
 image_data_from_stir.save_to_file(output_stir_nifti)
 # Now clone the converted and fill with 1's

@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2017 University College London
+# Author: Evgueni Ovtchinnikov
+# Copyright 2017 STFC
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -23,18 +23,8 @@ if(BUILD_MATLAB)
   include_directories(${Matlab_INCLUDE_DIRS})
 
   include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+  add_executable(gmi_xsirfreg gmi_xsirfreg.cpp)
+  target_link_libraries(gmi_xsirfreg mig)
+  INSTALL(TARGETS gmi_xsirfreg DESTINATION bin)
 
-  add_library(msirfreg SHARED msirfreg.c printer.cpp)
-  # fix output name and link flags
-  SET_TARGET_PROPERTIES(msirfreg PROPERTIES
-        SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(msirfreg SIRFReg iutilities common ${Matlab_LIBRARIES})
-  INSTALL(TARGETS msirfreg DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES msirfreg.h DESTINATION "${MATLAB_DEST}")
-  INSTALL(DIRECTORY +mSIRFReg DESTINATION "${MATLAB_DEST}")
-  file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
-  INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
-
-  ADD_SUBDIRECTORY(gmi)
-  ADD_SUBDIRECTORY(tests)
 endif(BUILD_MATLAB)
