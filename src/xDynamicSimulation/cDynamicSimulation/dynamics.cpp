@@ -337,10 +337,12 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
 	
+	size_t const num_motion_fields = this->temp_mvf_filenames_.size();
+
 	if( this->is_cyclic_dynamic_ )
-		signal_on_bin_range = this->num_simul_states_ * signal;
+		signal_on_bin_range = num_motion_fields * signal;
 	else
-		signal_on_bin_range = (this->num_simul_states_  - 1)* signal;
+		signal_on_bin_range = (num_motion_fields  - 1)* signal;
 
 	int const bin_floor = int( signal_on_bin_range +1) -1;
 	int const bin_ceil  = int( signal_on_bin_range + 1) % this->num_simul_states_;
@@ -348,7 +350,6 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
-	
 	std::string const extension_input_file = ".hdr";
 	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor] + extension_input_file;
 	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil] + extension_input_file;
