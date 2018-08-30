@@ -354,20 +354,14 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil] + extension_input_file;
 
 	  /// Constructor
-    SIRFRegImageDeformationWeightedMean dvf_interpolator;
+    SIRFRegImageWeightedMean4D dvf_interpolator;
     
     dvf_interpolator.add_image(filename_dvf_floor, 1 - linear_interpolation_weight);
     dvf_interpolator.add_image(filename_dvf_ceil, linear_interpolation_weight);
 
     dvf_interpolator.update();
     
-	std::cout << "E" <<std::endl;
-
     SIRFImageDataDeformation output_deformation = dvf_interpolator.get_output();
-
-    std::cout << "F" <<std::endl;
-    auto dummy_obj = output_deformation.get_image_as_nifti();
-    std::cout << "G" <<std::endl;
 
     return output_deformation;
 
