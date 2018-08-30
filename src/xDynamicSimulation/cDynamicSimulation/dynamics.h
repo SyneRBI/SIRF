@@ -138,6 +138,7 @@ public:
 protected:
 
 	bool const destroy_upon_deletion_ = false;
+	bool const keep_motion_fields_in_memory_ = false;
 
 	std::string setup_tmp_folder_name( void );
 	bool make_temp_folder();

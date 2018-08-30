@@ -491,6 +491,9 @@ void MotionDynamic::write_temp_displacements_fields()
 			data_io::write_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
+
+		if( this-> keep_motion_fields_in_memory_ == false)
+			this->displacment_fields_ = MotionFieldContainer();
 	}
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
