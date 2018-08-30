@@ -258,7 +258,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		// float const test_noise_width = 0.1;
 		// mr_dyn_sim.set_noise_width( test_noise_width );
-		float const test_SNR = 1;
+		float const test_SNR = 10;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
 		int const num_simul_states_first_dyn = 10;
