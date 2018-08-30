@@ -5,6 +5,7 @@ date: 15. March 2018
 */
 
 #include <memory>
+#include <mutex>
 
 #include "dynamicsimulation_x.h"
 
@@ -61,7 +62,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
 
-		std::vector< SignalAxisType > contrast_signals;
+		// std::vector< SignalAxisType > contrast_signals;
 
 		for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
 		{
@@ -70,7 +71,7 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 			SignalBin bin = signal_bins[ current_combination[i_contrast_dyn] ];	
 			TissueParameterList tissueparameter_list_to_replace = contrast_dyn.get_interpolated_tissue_params( std::get<1>(bin) );
-			contrast_signals.push_back(std::get<1>(bin));	
+			// contrast_signals.push_back(std::get<1>(bin));	
 
 			for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
 			{
@@ -101,7 +102,7 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 
-	if(this->motion_dynamics_.size() > 1)
+	if(this->motion_dynamics_.size() != 1)
 		throw std::runtime_error("So far only one motion dynamics are supported. Please give the appropriate number of dynamics.");			
 	
 	size_t const num_motion_dynamics = this->motion_dynamics_.size();
@@ -112,7 +113,6 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 		all_num_dyn_states.push_back(motion_dynamics_[i].get_num_simul_states());			
 		motion_dynamics_[i].write_temp_displacements_fields();
 	}
-
 
 	LinearCombiGenerator lcg(all_num_dyn_states);
 	
@@ -127,41 +127,36 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 
 		sirf::AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
 
-		std::vector< SignalAxisType > motion_signals;
-
 		SIRFImageDataDeformation all_motion_fields_composed; // initialize this with the identiy map later!
 
 		for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
 		{
-			MotionDynamic motion_dyn = this->motion_dynamics_[i_motion_dyn];
-			std::vector< SignalBin > signal_bins = motion_dyn.get_bins();
-
-			SignalBin bin = signal_bins[ current_combination[i_motion_dyn] ];	
-
-			all_motion_fields_composed = motion_dyn.get_interpolated_displacement_field( std::get<1>(bin) ); //compose all motion fields from all dynamics
-			std::cout << "H" <<std::endl;
-
-
-			auto displacement_field_as_nifti = *(all_motion_fields_composed.get_image_as_nifti());
-
-			std::cout << displacement_field_as_nifti.nx << std::endl;
-			std::cout << displacement_field_as_nifti.ny << std::endl;
-			std::cout << displacement_field_as_nifti.nz << std::endl;
-			std::cout << displacement_field_as_nifti.nt << std::endl;
-			std::cout << displacement_field_as_nifti.nu << std::endl;
-
-			
-			motion_signals.push_back(std::get<1>(bin));	
-			
+			MotionDynamic& motion_dyn = this->motion_dynamics_[i_motion_dyn];
+						
 			AcquisitionsVector acquis_in_bin = motion_dyn.get_binned_mr_acquisitions( current_combination[i_motion_dyn] );
 			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
 
 		}
 
-		std::cout << "# of acquis in this motion state: " << acquisitions_for_this_state.number() << std::endl;
+		std::cout << "# of mr acquis in this motion state: " << acquisitions_for_this_state.number() << std::endl;
 
 		if( acquisitions_for_this_state.number() > 0)
 		{
+			SIRFImageDataDeformation all_motion_fields_composed; // initialize this with the identiy map later!
+
+			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
+			{
+				std::cout << i_motion_dyn << std::endl;
+
+				MotionDynamic& motion_dyn = this->motion_dynamics_[i_motion_dyn];
+				std::vector< SignalBin > signal_bins = motion_dyn.get_bins();
+
+				SignalBin bin = signal_bins[ current_combination[i_motion_dyn] ];	
+
+				all_motion_fields_composed = motion_dyn.get_interpolated_displacement_field( std::get<1>(bin) ); //compose all motion fields from all dynamics
+
+			}
+
 			this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
 			DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields_composed);
 			this->source_acquisitions_ = acquisitions_for_this_state;
@@ -173,7 +168,6 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 
 	for(size_t i=0; i<num_motion_dynamics; i++)
 		motion_dynamics_[i].delete_temp_folder();		
-
 }
 
 

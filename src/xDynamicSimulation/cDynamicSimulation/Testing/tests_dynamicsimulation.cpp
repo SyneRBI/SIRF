@@ -173,7 +173,7 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		
 		// float const test_noise_width = 0.1;
 		// mr_dyn_sim.set_noise_width( test_noise_width );
-		float const test_SNR = 1;
+		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
 		int const num_simul_states_first_dyn = 10;
@@ -231,7 +231,7 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();
 
-		mr_dyn_sim.write_simulation_results( FILENAME_DYNSIM );
+		mr_dyn_sim.write_simulation_results( FILENAME_MR_CONTRAST_DYNSIM );
 
 		return true;
 
@@ -258,10 +258,10 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		// float const test_noise_width = 0.1;
 		// mr_dyn_sim.set_noise_width( test_noise_width );
-		float const test_SNR = 10;
+		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_states_first_dyn = 10;
+		int const num_simul_states_first_dyn = 50;
 		
 		MotionDynamic first_motion_dyn(num_simul_states_first_dyn)	;
 
