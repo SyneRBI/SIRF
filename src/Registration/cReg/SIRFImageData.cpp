@@ -165,8 +165,7 @@ void SIRFImageData::copy_data_to(sirf::PETImageData &pet_image) const
     }
     // If not, cast to it
     else {
-        SIRFImageData temp;
-        temp = *this;
+        SIRFImageData temp = this->deep_copy();
         SIRFRegMisc::change_datatype<float>(temp);
         float *nifti_data_ptr = static_cast<float *>(temp.get_image_as_nifti()->data);
         pet_image.set_data(nifti_data_ptr);
@@ -369,4 +368,37 @@ float SIRFImageData::get_element(const int x, const int y, const int z) const
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
+}
+
+void SIRFImageData::fill(const float &v)
+{
+    if(!this->is_initialised())
+        throw runtime_error("Image not initialised.");
+
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::fill_array<bool>              (*this, v);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::fill_array<signed char>       (*this, v);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::fill_array<signed short>      (*this, v);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::fill_array<signed int>        (*this, v);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::fill_array<float>             (*this, v);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::fill_array<double>            (*this, v);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::fill_array<unsigned char>     (*this, v);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::fill_array<unsigned short>    (*this, v);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::fill_array<unsigned int>      (*this, v);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::fill_array<signed long long>  (*this, v);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::fill_array<unsigned long long>(*this, v);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::fill_array<long double>       (*this, v);
+
+    stringstream ss;
+    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
+}
+
+SIRFImageData SIRFImageData::deep_copy() const
+{
+    SIRFImageData copy;
+    copy = *this;
+    return copy;
 }

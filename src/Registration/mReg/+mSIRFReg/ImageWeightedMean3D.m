@@ -1,5 +1,5 @@
-classdef ImageWeightedMean < handle
-% Class resampling nifti image using NiftyReg.
+classdef ImageWeightedMean3D < handle
+% Class for performing weighted mean of images.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -24,12 +24,12 @@ classdef ImageWeightedMean < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegImageWeightedMean';
+            name = 'SIRFRegImageWeightedMean3D';
         end
     end
     methods
-        function self = ImageWeightedMean(src)
-            self.name = 'SIRFRegImageWeightedMean';
+        function self = ImageWeightedMean3D(src)
+            self.name = 'SIRFRegImageWeightedMean3D';
             self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -43,25 +43,25 @@ classdef ImageWeightedMean < handle
         function add_image(self, image, weight)
             %Add an image (filename or SIRFImageData) and its corresponding weight.
             if isa(image, 'mSIRFReg.ImageData')
-                h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_add_image', self.handle_, image.handle_, weight);
+                h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean3D_add_image', self.handle_, image.handle_, weight);
             elseif ischar(image)
-                h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_add_image_filename', self.handle_, image, weight);
+                h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename', self.handle_, image, weight);
             else
-                error("mSIRFReg.ImageWeightedMean.add_image: image must be SIRFImageData or filename.")
+                error("mSIRFReg.ImageWeightedMean3D.add_image: image must be SIRFImageData or filename.")
             end
             mUtilities.check_status([self.name ':add_image'], h);
             mUtilities.delete(h)
         end
         function update(self)
             %Update.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_update', self.handle_);
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean3D_update', self.handle_);
             mUtilities.check_status([self.name ':update'], h);
             mUtilities.delete(h)
         end
         function save_image_to_file(self, filename)
             %Save image to file.
             assert(ischar(filename))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_save_image_to_file', self.handle_, filename);
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file', self.handle_, filename);
             mUtilities.check_status([self.name ':save_image_to_file'], h);
             mUtilities.delete(h)
         end

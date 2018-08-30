@@ -69,5 +69,11 @@ classdef ImageData < handle
             mUtilities.check_status([self.name ':copy_data_to'], h);
             mUtilities.delete(h)            
         end
+        function fill(self, val)
+            %Fill image with single value.
+            h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_fill', self.handle_, val);
+            mUtilities.check_status([self.name ':fill'], h);
+            mUtilities.delete(h)            
+        end
     end
 end

@@ -79,7 +79,7 @@ void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
     _nifti_image = make_shared<nifti_image>(*output_ptr);
 }
 
-void SIRFImageDataDeformation::save_to_file(const std::string &filename, bool split_xyz, string type)
+void SIRFImageDataDeformation::save_to_file(const std::string &filename, bool split_xyz, string type) const
 {
     // Check that the disp image exists
     if (!_nifti_image)
@@ -94,4 +94,11 @@ void SIRFImageDataDeformation::save_to_file(const std::string &filename, bool sp
     SIRFRegMisc::save_multicomponent_nifti_image(_nifti_image,filename,split_xyz);
 
     cout << "Done.\n";
+}
+
+SIRFImageDataDeformation SIRFImageDataDeformation::deep_copy() const
+{
+    SIRFImageDataDeformation copy;
+    copy = *this;
+    return copy;
 }

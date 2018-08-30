@@ -64,8 +64,10 @@ void* cSIRFReg_newObject(const char* name)
             return newObjectHandle<SIRFRegNiftyF3dSym<float> >();
         if (boost::iequals(name, "SIRFRegNiftyResample"))
             return newObjectHandle<SIRFRegNiftyResample>();
-        if (boost::iequals(name, "SIRFRegImageWeightedMean"))
-            return newObjectHandle<SIRFRegImageWeightedMean>();
+        if (boost::iequals(name, "SIRFRegImageWeightedMean3D"))
+            return newObjectHandle<SIRFRegImageWeightedMean3D>();
+        if (boost::iequals(name, "SIRFRegImageWeightedMean4D"))
+            return newObjectHandle<SIRFRegImageWeightedMean4D>();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -102,8 +104,10 @@ void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name)
             return cSIRFReg_SIRFRegParameter(handle, name);
         if (boost::iequals(obj, "SIRFRegNiftyResample"))
             return cSIRFReg_SIRFRegNiftyResampleParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegImageWeightedMean"))
-            return cSIRFReg_SIRFRegImageWeightedMeanParameter(handle, name);
+        if (boost::iequals(obj, "SIRFRegImageWeightedMean3D"))
+            return cSIRFReg_SIRFRegImageWeightedMean3DParameter(handle, name);
+        if (boost::iequals(obj, "SIRFRegImageWeightedMean4D"))
+            return cSIRFReg_SIRFRegImageWeightedMean4DParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -250,6 +254,17 @@ void* cSIRFReg_SIRFImageData_copy_data_to(const void* ptr, const void* obj)
     }
     CATCH;
 }
+
+extern "C"
+void* cSIRFReg_SIRFImageData_fill(const void* ptr, const float val)
+{
+    try {
+        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        im.fill(val);
+        return new DataHandle;
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFImageDataDeformation
 // -------------------------------------------------------------------------------- //
@@ -359,13 +374,13 @@ void* cSIRFReg_SIRFRegNiftyResample_save_resampled_image(void* ptr, const char* 
 }
 
 // -------------------------------------------------------------------------------- //
-//      SIRFRegNiftyResample
+//      SIRFRegImageWeightedMean3D
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)
+void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image(void* ptr, const void *obj, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
+        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
         SIRFImageData& im = objectFromHandle<SIRFImageData>(obj);
         im_weight.add_image(im,weight);
         return new DataHandle;
@@ -373,30 +388,74 @@ void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, co
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight)
+void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(void* ptr, const char* filename, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
+        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
         im_weight.add_image(filename,weight);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr)
+void* cSIRFReg_SIRFRegImageWeightedMean3D_update(void* ptr)
 {
     try {
-        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
+        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
         im_weight.update();
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_save_image_to_file(const void *ptr, const char* filename)
+void* cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(const void *ptr, const char* filename)
 {
     try {
-        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
+        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
+        im_weight.save_image_to_file(filename);
+        return new DataHandle;
+    }
+    CATCH;
+}
+// -------------------------------------------------------------------------------- //
+//      SIRFRegImageWeightedMean3D
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image(void* ptr, const void *obj, const float weight)
+{
+    try {
+        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
+        SIRFImageData& im = objectFromHandle<SIRFImageData>(obj);
+        im_weight.add_image(im,weight);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(void* ptr, const char* filename, const float weight)
+{
+    try {
+        SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
+        im_weight.add_image(filename,weight);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegImageWeightedMean4D_update(void* ptr)
+{
+    try {
+        SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
+        im_weight.update();
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(const void *ptr, const char* filename)
+{
+    try {
+        SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
         im_weight.save_image_to_file(filename);
         return new DataHandle;
     }

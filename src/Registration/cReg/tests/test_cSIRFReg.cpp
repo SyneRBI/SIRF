@@ -196,14 +196,31 @@ int main(int argc, char* argv[])
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Starting weighted mean test...                         //\n";
     cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegImageWeightedMean WM;
-    WM.add_image         (     nifti, 0.2F    );
-    WM.add_image         (     nifti, 0.2F    );
-    WM.add_image         (     nifti, 0.2F    );
+    SIRFRegImageWeightedMean<SIRFImageData> WM;
+    SIRFImageData im1(stir_nifti);
+    SIRFImageData im2(stir_nifti);
+    SIRFImageData im3(stir_nifti);
+    SIRFImageData im4(stir_nifti);
+    im1.fill(1.F);
+    im2.fill(4.F);
+    im3.fill(7.F);
+    im4.fill(6.F);
+
+    WM.add_image( im1, 2.F );
+    WM.add_image( im2, 4.F );
+    WM.add_image( im3, 3.F );
+    WM.add_image( im4, 1.F );
     WM.update();
     WM.save_image_to_file(output_weighted_mean);
 
-    if (!SIRFRegMisc::do_nifti_images_match(nifti,WM.get_output(), required_percentage_accuracy))
+    // Answer should be 4.5, so compare it to that!
+    SIRFImageData res(stir_nifti);
+    res.fill(4.5F);
+
+    SIRFImageData dt = WM.get_output();
+    //SIRFImageDataDeformation def3 = dynamic_cast<SIRFImageDataDeformation&>(dt);
+
+    if (!SIRFRegMisc::do_nifti_images_match(WM.get_output(), res, required_percentage_accuracy))
         throw runtime_error("Weighted mean does not match the original.");
 
     cout << "// ----------------------------------------------------------------------- //\n";
@@ -217,12 +234,13 @@ int main(int argc, char* argv[])
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Starting weighted mean deformation test...             //\n";
     cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegImageWeightedMean WM_def;
+    SIRFRegImageWeightedMean<SIRFImageDataDeformation> WM_def;
     WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
     WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
     WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
     WM_def.update();
     WM_def.save_image_to_file(output_weighted_mean_def);
+    SIRFImageDataDeformation def = WM_def.get_output();
 
     if (!SIRFRegMisc::do_nifti_images_match(NF.get_deformation_field_fwrd() ,WM_def.get_output(), required_percentage_accuracy))
         throw runtime_error("Weighted mean does not match the original.");

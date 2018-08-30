@@ -34,27 +34,31 @@ limitations under the License.
 
 using namespace std;
 
-SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
+template<class ImType>
+SIRFRegImageWeightedMean<ImType>::SIRFRegImageWeightedMean()
 {
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const std::string &filename, const float weight)
+template<class ImType>
+void SIRFRegImageWeightedMean<ImType>::add_image(const std::string &filename, const float weight)
 {
     // Use other function to add image to list of vectors
-    this->add_image(SIRFImageData(filename), weight);
+    this->add_image(ImType(filename), weight);
 }
 
-void SIRFRegImageWeightedMean::add_image(const SIRFImageData &image, const float weight)
+template<class ImType>
+void SIRFRegImageWeightedMean<ImType>::add_image(const ImType &image, const float weight)
 {
     // Add image to vector
-    _input_images.push_back(std::shared_ptr<SIRFImageData>(new SIRFImageData(image)));
+    _input_images.push_back(image.deep_copy());
     _weights.push_back(weight);
 
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::update()
+template<class ImType>
+void SIRFRegImageWeightedMean<ImType>::update()
 {
     // Only update if you need to
     if (!_need_to_update) return;
@@ -69,27 +73,27 @@ void SIRFRegImageWeightedMean::update()
     for (unsigned i=0; i<_weights.size(); i++) normalised_weights[i] /= sum_of_weights;
 
     // Create a copy of the first image to use as a template for the output
-    _output_image.reset(new SIRFImageData(*_input_images[0]));
+    _output_image = _input_images[0].deep_copy();
 
     // Change to double to minimise rounding errors. Get the data.
-    SIRFRegMisc::change_datatype<double>(*_output_image);
-    double *output_data_ptr = static_cast<double*>(_output_image->get_image_as_nifti()->data);
+    SIRFRegMisc::change_datatype<double>(_output_image);
+    double *output_data_ptr = static_cast<double*>(_output_image.get_image_as_nifti()->data);
 
     // Set all of the output image's voxels to 0
-    for (unsigned i=0; i<_output_image->get_image_as_nifti()->nvox; i++) output_data_ptr[i] = 0.;
+    _output_image.fill(0.F);
 
     // Loop over each input image
     for (unsigned i=0; i<_input_images.size(); i++) {
 
         // Create a temporary copy of the image so that we can change the datatype
-        std::shared_ptr<SIRFImageData> temp(new SIRFImageData(*_input_images[i]));
-        SIRFRegMisc::change_datatype<double>(*temp);
+        ImType temp = _input_images[i].deep_copy();
+        SIRFRegMisc::change_datatype<double>(temp);
 
         // Get the data and cast it to float for the ith input image
-        double *input_data_ptr = static_cast<double*>(temp->get_image_as_nifti()->data);
+        double *input_data_ptr = static_cast<double*>(temp.get_image_as_nifti()->data);
 
         // Loop over each voxel
-        for (unsigned j=0; j<_output_image->get_image_as_nifti()->nvox; j++) {
+        for (unsigned j=0; j<_output_image.get_image_as_nifti()->nvox; j++) {
 
             // Add in the weighted contribution of the jth voxel of the ith image
             output_data_ptr[j] += input_data_ptr[j] * double(normalised_weights[i]);
@@ -97,24 +101,26 @@ void SIRFRegImageWeightedMean::update()
     }
 
     // Put the output type back so that it matches the input type
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_INT16)   SIRFRegMisc::change_datatype<signed short>  (*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_INT32)   SIRFRegMisc::change_datatype<signed int>    (*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_FLOAT32) SIRFRegMisc::change_datatype<float>         (*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_FLOAT64) SIRFRegMisc::change_datatype<double>        (*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT8)   SIRFRegMisc::change_datatype<unsigned char> (*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT16)  SIRFRegMisc::change_datatype<unsigned short>(*_output_image);
-    if (_input_images[0]->get_image_as_nifti()->datatype == DT_UINT32)  SIRFRegMisc::change_datatype<unsigned int>  (*_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_INT16)   SIRFRegMisc::change_datatype<signed short>  (_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_INT32)   SIRFRegMisc::change_datatype<signed int>    (_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_FLOAT32) SIRFRegMisc::change_datatype<float>         (_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_FLOAT64) SIRFRegMisc::change_datatype<double>        (_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_UINT8)   SIRFRegMisc::change_datatype<unsigned char> (_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_UINT16)  SIRFRegMisc::change_datatype<unsigned short>(_output_image);
+    if (_input_images[0].get_image_as_nifti()->datatype == DT_UINT32)  SIRFRegMisc::change_datatype<unsigned int>  (_output_image);
 
     // Once the update is done, set the need_to_update flag to false
     _need_to_update = false;
 }
 
-void SIRFRegImageWeightedMean::save_image_to_file(const string &filename) const
+template<class ImType>
+void SIRFRegImageWeightedMean<ImType>::save_image_to_file(const string &filename) const
 {
-    _output_image->save_to_file(filename);
+    _output_image.save_to_file(filename);
 }
 
-void SIRFRegImageWeightedMean::check_can_do_mean() const
+template<class ImType>
+void SIRFRegImageWeightedMean<ImType>::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error
     if (_input_images.size() == 0)
@@ -127,7 +133,7 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!SIRFRegMisc::do_nifti_image_metadata_match(*_input_images[i],*_input_images[j])) can_do_mean = false;
+            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j])) can_do_mean = false;
         }
     }
 
@@ -138,3 +144,7 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
 
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
 }
+
+// Put the instantiations of the template class at the END of the file!
+template class SIRFRegImageWeightedMean<SIRFImageData>;
+template class SIRFRegImageWeightedMean<SIRFImageDataDeformation>;

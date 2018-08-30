@@ -247,6 +247,21 @@ namespace SIRFRegMisc {
     {
         reg_tools_changeDatatype<T>(image.get_image_as_nifti().get());
     }
+
+    template<typename T>
+    void fill_array(const SIRFImageData &im, const float &v)
+    {
+        if(!im.is_initialised())
+            throw std::runtime_error("fill_array: Image not initialised.");
+
+        // Check sizes
+        if (im.get_image_as_nifti()->nbyper != sizeof(T))
+            throw std::runtime_error("fill_array: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+
+        // Get data
+        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+        for (unsigned i=0; i<im.get_image_as_nifti()->nvox; i++) data[i] = T(v);
+    }
 }
 
 #endif

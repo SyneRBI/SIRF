@@ -94,6 +94,12 @@ public:
     /// Get element
     float get_element(const int x, const int y, const int z) const;
 
+    /// Fill
+    void fill(const float &v);
+
+    /// Deep copy
+    SIRFImageData deep_copy() const;
+
 protected:
 
     /// Set up nifti image

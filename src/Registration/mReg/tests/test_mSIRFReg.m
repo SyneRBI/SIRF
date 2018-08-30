@@ -95,12 +95,27 @@ disp('%------------------------------------------------------------------------ 
 disp('% ----------------------------------------------------------------------- %')
 disp('%                  Starting weighted mean test...                         %')
 disp('%------------------------------------------------------------------------ %')
-WM = mSIRFReg.ImageWeightedMean();
-WM.add_image( nifti, 0.2 );
-WM.add_image( nifti, 0.2 );
-WM.add_image( nifti, 0.2 );
+WM = mSIRFReg.ImageWeightedMean3D();
+im1 = mSIRFReg.ImageData(stir_nifti);
+im2 = mSIRFReg.ImageData(stir_nifti);
+im3 = mSIRFReg.ImageData(stir_nifti);
+im4 = mSIRFReg.ImageData(stir_nifti);
+im1.fill(1);
+im2.fill(4);
+im3.fill(7);
+im4.fill(6);
+WM.add_image( im1, 2 );
+WM.add_image( im2, 4 );
+WM.add_image( im3, 3 );
+WM.add_image( im4, 1 );
 WM.update();
 WM.save_image_to_file(output_weighted_mean);
+% Answer should be 4.5, so compare it to that!
+res = mSIRFReg.ImageData(stir_nifti);
+res.fill(4.5);
+if ~mSIRFReg.Misc.do_nifti_images_match(WM.get_output(), res, required_percentage_accuracy)
+    error("Weighted mean test. Images do not match.")
+end
 disp('% ----------------------------------------------------------------------- %')
 disp('%                  Finished weighted mean test.                           %')
 disp('%------------------------------------------------------------------------ %')
