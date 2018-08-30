@@ -129,9 +129,11 @@ public:
 
 	std::string get_temp_folder_name();
 
-	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const cyclic_motion_fields = false);
+	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	     
 	void write_temp_displacements_fields( void );
+
+	bool delete_temp_folder();
 
 protected:
 
@@ -139,7 +141,6 @@ protected:
 
 	std::string setup_tmp_folder_name( void );
 	bool make_temp_folder();
-	bool delete_temp_folder();
 
 	std::string const temp_folder_prefix_  = "/tmp/";;
 	std::string const temp_mvf_prefix_ = "/motion_field_";

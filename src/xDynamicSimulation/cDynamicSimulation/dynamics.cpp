@@ -318,23 +318,22 @@ MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic(num_simul_st
 
 MotionDynamic::~MotionDynamic()
 { 
-	if( this->destroy_upon_deletion_)
-		this->delete_temp_folder();
+	// if( this->destroy_upon_deletion_)
+	// 	this->delete_temp_folder();
 
-	this->num_total_motion_dynamics_ -= 1; 
+	// this->num_total_motion_dynamics_ -= 1; 
 }
 
 
 SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(SignalAxisType signal)
 {
-	std::cout << "nag" <<std::endl;
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
 	if( this->temp_mvf_filenames_.size() == 0)
 		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this");
 	
-	
+
 	// check in which interval the signal lies
 	SignalAxisType signal_on_bin_range;
 	
@@ -349,6 +348,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
+	
 	std::string const extension_input_file = ".hdr";
 	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor] + extension_input_file;
 	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil] + extension_input_file;
@@ -358,9 +358,18 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
     
     dvf_interpolator.add_image(filename_dvf_floor, 1 - linear_interpolation_weight);
     dvf_interpolator.add_image(filename_dvf_ceil, linear_interpolation_weight);
-    dvf_interpolator.update();
 
-    return dvf_interpolator.get_output();
+    dvf_interpolator.update();
+    
+	std::cout << "E" <<std::endl;
+
+    SIRFImageDataDeformation output_deformation = dvf_interpolator.get_output();
+
+    std::cout << "F" <<std::endl;
+    auto dummy_obj = output_deformation.get_image_as_nifti();
+    std::cout << "G" <<std::endl;
+
+    return output_deformation;
 
 }
 
@@ -430,10 +439,10 @@ bool MotionDynamic::delete_temp_folder()
 }
 
 
-void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const cyclic_motion_fields)
+void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic)
 {
 	
-	if ( cyclic_motion_fields )
+	if ( motion_fields_are_cyclic )
 	{
 		this->is_cyclic_dynamic_ = true;
 		this->set_bins( this->num_simul_states_ );
@@ -443,13 +452,6 @@ void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFie
 	using namespace ISMRMRD;
 
 	const size_t* dimensions = motion_fields.getDims();
-
-	std::string const output_name_mvf = "/media/sf_SharedFolder/CCPPETMR/motionfields_in_memory_10x3x64x64x64";
-
-	data_io::write_raw(output_name_mvf, motion_fields.begin(), motion_fields.getNumberOfElements() );
-
-	for( int i=0; i<7; i++)
-		std::cout << "dim_" << i << "=" << dimensions[i] << std::endl;
 
 	size_t const Nt = dimensions[0];
 	size_t const Nv = dimensions[1];
