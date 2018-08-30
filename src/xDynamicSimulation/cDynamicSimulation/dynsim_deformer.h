@@ -26,7 +26,9 @@ class DynamicSimulationDeformer
 public:
 
 	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& displacement_field);
-	
+	static SIRFImageDataDeformation init_deformation_with_identity( const SIRFImageDataDeformation& template_deformation );
+	static SIRFImageDataDeformation compose_deformations(const SIRFImageDataDeformation& dvf_ab, const SIRFImageDataDeformation& dvf_bc);
+
 	static ISMRMRD::Image< float > extract_real_part( ISMRMRD::Image< complex_float_t >& img );
 	static ISMRMRD::Image< float > extract_imaginary_part( ISMRMRD::Image< complex_float_t >& img );
 

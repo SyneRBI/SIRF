@@ -21,6 +21,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 std::string const DynamicSimulationDeformer::temp_folder_name_ = "/tmp/tmp_img_data_to_deform";
 
 
+SIRFImageDataDeformation DynamicSimulationDeformer::init_deformation_with_identity( const SIRFImageDataDeformation& template_deformation )
+{
+	SIRFImageDataDeformation identity_deformation = template_deformation;
+	identity_deformation.fill(0.f);
+	return identity_deformation;
+}
+
+
 
 ISMRMRD::Image< float > DynamicSimulationDeformer::extract_real_part(  ISMRMRD::Image< complex_float_t >& complex_img )
 {
@@ -98,6 +106,24 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 
 
 
+
+SIRFImageDataDeformation DynamicSimulationDeformer::compose_deformations(const SIRFImageDataDeformation& dvf_ab, const SIRFImageDataDeformation& dvf_bc)
+{
+	SIRFRegNiftyResample resampler; 
+
+    resampler.set_interpolation_type_to_cubic_spline();
+	resampler.set_reference_image(dvf_bc);
+	resampler.set_floating_image(dvf_bc);
+
+	resampler.set_displacement_field(dvf_ab);
+
+	resampler.update();
+
+	SIRFImageDataDeformation dvf_ac;// = dvf_ab + resampler.get_output();
+	std::cout << "TODO" <<std::endl;
+	return dvf_ac;
+}
+
 void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, SIRFImageDataDeformation& displacement_field)
 {
 	std::stringstream namestream_temp_img_output;
@@ -112,7 +138,7 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 
     SIRFRegNiftyResample resampler; 
 
-    resampler.set_interpolation_type_to_linear();
+    resampler.set_interpolation_type_to_cubic_spline();
 	resampler.set_reference_image(img_to_deform);
 	resampler.set_floating_image(img_to_deform);
 
