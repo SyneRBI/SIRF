@@ -37,6 +37,7 @@ limitations under the License.
 #include "SIRFImageDataDeformation.h"
 
 /// Calculate the weighted mean of a set of images
+template<class ImType>
 class SIRFRegImageWeightedMean
 {
 public:
@@ -51,7 +52,7 @@ public:
     void add_image(const std::string &filename, const float weight);
 
     /// Add an image (from SIRFImageData) and its corresponding weight
-    void add_image(const SIRFImageData &image, const float weight);
+    void add_image(const ImType &image, const float weight);
 
     /// Update
     void update();
@@ -60,7 +61,7 @@ public:
     void save_image_to_file(const std::string &filename) const;
 
     /// Get output
-    const SIRFImageData &get_output() const { return *_output_image; }
+    const ImType &get_output() const { return _output_image; }
 
 protected:
 
@@ -68,32 +69,19 @@ protected:
     void check_can_do_mean() const;
 
     /// Bool to check if update is necessary
-    bool                        _need_to_update;
+    bool                      _need_to_update;
 
     /// Vector of input images
-    std::vector<std::shared_ptr<SIRFImageData> > _input_images;
+    std::vector<const ImType> _input_images;
     /// Vector of weights
-    std::vector<float>                           _weights;
+    std::vector<float>        _weights;
     /// Output image
-    std::shared_ptr<SIRFImageData>               _output_image;
+    ImType                    _output_image;
 
 };
 
+typedef SIRFRegImageWeightedMean<SIRFImageData>            SIRFRegImageWeightedMean3D;
+typedef SIRFRegImageWeightedMean<SIRFImageDataDeformation> SIRFRegImageWeightedMean4D;
 
-class SIRFRegImageDeformationWeightedMean : public SIRFRegImageWeightedMean
-{
-
-public:
-    /// Get output
-    const SIRFImageDataDeformation &get_output() const { return _output_image; }
-
-private:
-
-    /// Vector of input images
-    std::vector<SIRFImageDataDeformation>  _input_images;
-    /// Output image
-    SIRFImageDataDeformation               _output_image;
-
-};
 
 #endif

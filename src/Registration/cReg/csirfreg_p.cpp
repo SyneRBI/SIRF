@@ -184,13 +184,13 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 }
 
 // ------------------------------------------------------------------------------------ //
-//   SIRFRegImageWeightedMean
+//   SIRFRegImageWeightedMean3D
 // ------------------------------------------------------------------------------------ //
 // get
 void*
-sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name)
+sirf::cSIRFReg_SIRFRegImageWeightedMean3DParameter(const DataHandle* handle, const char* name)
 {
-    SIRFRegImageWeightedMean& s = objectFromHandle<SIRFRegImageWeightedMean>(handle);
+    SIRFRegImageWeightedMean3D& s = objectFromHandle<SIRFRegImageWeightedMean3D>(handle);
     if (boost::iequals(name, "output")) {
         shared_ptr<SIRFImageData> sptr_id(new SIRFImageData(s.get_output()));
         return newObjectHandle(sptr_id);
@@ -198,3 +198,21 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
     else
         return parameterNotFound(name, __FILE__, __LINE__);
 }
+
+
+// ------------------------------------------------------------------------------------ //
+//   SIRFRegImageWeightedMean3D
+// ------------------------------------------------------------------------------------ //
+// get
+void*
+sirf::cSIRFReg_SIRFRegImageWeightedMean4DParameter(const DataHandle* handle, const char* name)
+{
+    SIRFRegImageWeightedMean4D& s = objectFromHandle<SIRFRegImageWeightedMean4D>(handle);
+    if (boost::iequals(name, "output")) {
+        shared_ptr<SIRFImageDataDeformation> sptr_id(new SIRFImageDataDeformation(s.get_output()));
+        return newObjectHandle(sptr_id);
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+}
+

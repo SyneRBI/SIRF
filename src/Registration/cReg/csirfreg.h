@@ -52,6 +52,7 @@ extern "C" {
     void* cSIRFReg_SIRFImageData_from_PETImageData(void* ptr);
     void* cSIRFReg_SIRFImageData_save_to_file(const void* ptr, const char* filename);
     void* cSIRFReg_SIRFImageData_copy_data_to(const void* ptr, const void* obj);
+    void* cSIRFReg_SIRFImageData_fill(const void* ptr, const float val);
 
 	// SIRFRegImageDataDeformation
     void* cSIRFReg_SIRFImageDataDeformation_save_to_file(const void* ptr, const char* filename, const bool split_xyz);
@@ -69,11 +70,17 @@ extern "C" {
     void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr);
     void* cSIRFReg_SIRFRegNiftyResample_save_resampled_image(void* ptr, const char* filename);
 
-    // SIRFReg
-    void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
-    void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
-    void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr);
-    void* cSIRFReg_SIRFRegImageWeightedMean_save_image_to_file(const void* ptr, const char* filename);
+    // SIRFRegImageWeightedMean3D
+    void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image(void* ptr, const void* obj, const float weight);
+    void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(void* ptr, const char* filename, const float weight);
+    void* cSIRFReg_SIRFRegImageWeightedMean3D_update(void* ptr);
+    void* cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(const void* ptr, const char* filename);
+
+    // SIRFRegImageWeightedMean4D
+    void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image(void* ptr, const void* obj, const float weight);
+    void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(void* ptr, const char* filename, const float weight);
+    void* cSIRFReg_SIRFRegImageWeightedMean4D_update(void* ptr);
+    void* cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(const void* ptr, const char* filename);
 
 #ifndef CSIRFREG_FOR_MATLAB
 }

@@ -101,15 +101,31 @@ sys.stderr.write(  '# ----------------------------------------------------------
 sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
 sys.stderr.write(  '#                             Starting weighted mean test...                        #\n')
 sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
-WM = pSIRFReg.ImageWeightedMean()
-WM.add_image( nifti, 0.2 )
-WM.add_image( nifti, 0.2 )
-WM.add_image( nifti, 0.2 )
+WM = pSIRFReg.ImageWeightedMean3D()
+im1 = pSIRFReg.ImageData(stir_nifti)
+im2 = pSIRFReg.ImageData(stir_nifti)
+im3 = pSIRFReg.ImageData(stir_nifti)
+im4 = pSIRFReg.ImageData(stir_nifti)
+im1.fill(1)
+im2.fill(4)
+im3.fill(7)
+im4.fill(6)
+WM.add_image(im1, 2)
+WM.add_image(im2, 4)
+WM.add_image(im3, 3)
+WM.add_image(im4, 1)
 WM.update()
 WM.save_image_to_file(output_weighted_mean)
+# Answer should be 4.5, so compare it to that!
+res = pSIRFReg.ImageData(stir_nifti)
+res.fill(4.5)
+if not pSIRFReg.do_nifti_images_match(WM.get_output(), res, required_percentage_accuracy):
+    raise error("Weighted mean test. Images do not match.")
 sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
 sys.stderr.write(  '#                             Finished weighted mean test.                          #\n')
 sys.stderr.write(  '# --------------------------------------------------------------------------------- #\n')
+
+
 
 
 

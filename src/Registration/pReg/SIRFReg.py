@@ -276,6 +276,11 @@ class ImageData:
         assert isinstance(pet_image, pSTIR.ImageData)
         try_calling(pysirfreg.cSIRFReg_SIRFImageData_copy_data_to(self.handle, pet_image.handle))
 
+    def fill(self, val):
+        """Fill image with single value."""
+        assert self.handle is not None
+        try_calling(pysirfreg.cSIRFReg_SIRFImageData_fill(self.handle, val))
+
 
 class ImageDataDeformation(ImageData):
     """
@@ -503,13 +508,14 @@ class NiftyResample:
         assert isinstance(filename, str)
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_save_resampled_image(self.handle, filename))
 
-class ImageWeightedMean:
+
+class ImageWeightedMean3D:
     """
-    Perform weighted mean of images.
+    Class for performing weighted mean of images.
     """
 
     def __init__(self):
-        self.name = 'SIRFRegImageWeightedMean'
+        self.name = 'SIRFRegImageWeightedMean3D'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         check_status(self.handle)
 
@@ -520,19 +526,58 @@ class ImageWeightedMean:
     def add_image(self, image, weight):
         """Add an image (filename or SIRFImageData) and its corresponding weight."""
         if isinstance(image, ImageData):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_add_image(self.handle, image.handle, weight))
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_add_image(self.handle, image.handle, weight))
         elif isinstance(image, str):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(self.handle, image, weight))
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(self.handle, image, weight))
         else:
-            raise error("pSIRFReg.ImageWeightedMean.add_image: image must be SIRFImageData or filename.")
+            raise error("pSIRFReg.ImageWeightedMean3D.add_image: image must be SIRFImageData or filename.")
 
     def update(self):
         """Update."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_update(self.handle))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_update(self.handle))
 
     def save_image_to_file(self, filename):
         """Save image to file."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_save_image_to_file(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(self.handle, filename))
+
+    def get_output(self):
+        """Get output."""
+        image = ImageData()
+        image.handle = _getParameterHandle(self.handle, self.name, 'output')
+        check_status(image.handle)
+        return image
+
+
+class ImageWeightedMean4D:
+    """
+    Class for performing weighted mean of deformation/displacement field images.
+    """
+
+    def __init__(self):
+        self.name = 'SIRFRegImageWeightedMean4D'
+        self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def add_image(self, image, weight):
+        """Add an image (filename or SIRFImageDataDeformation) and its corresponding weight."""
+        if isinstance(image, ImageData):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_add_image(self.handle, image.handle, weight))
+        elif isinstance(image, str):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(self.handle, image, weight))
+        else:
+            raise error("pSIRFReg.ImageWeightedMean4D.add_image: image must be SIRFImageDataDeformation or filename.")
+
+    def update(self):
+        """Update."""
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_update(self.handle))
+
+    def save_image_to_file(self, filename):
+        """Save image to file."""
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(self.handle, filename))
 
     def get_output(self):
         """Get output."""
