@@ -142,7 +142,8 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 
 		if( acquisitions_for_this_state.number() > 0)
 		{
-			SIRFImageDataDeformation all_motion_fields_composed; // initialize this with the identiy map later!
+			SIRFImageDataDeformation all_motion_fields_composed = 
+			DynamicSimulationDeformer::init_deformation_with_identity( this->motion_dynamics_[0].get_interpolated_displacement_field(0.f) );
 
 			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
 			{
