@@ -48,7 +48,7 @@ bool test_noisegen::test_add_gaussian_noise( void )
 {
 	try
 	{
-		AcquisitionsVector acquisitions_data =  mr_io::read_ismrmrd_acquisitions( FILENAME_DYNSIM );
+		AcquisitionsVector acquisitions_data =  mr_io::read_ismrmrd_acquisitions( FILENAME_MR_CONTRAST_DYNSIM );
 		AcquisitionsVector noisy_acquisitions;
 		noisy_acquisitions.copy_acquisitions_info(acquisitions_data);
 
