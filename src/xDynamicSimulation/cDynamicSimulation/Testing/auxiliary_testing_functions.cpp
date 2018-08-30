@@ -574,8 +574,6 @@ SignalContainer aux_test::get_mock_motion_signal( AcquisitionsVector acq_vec)
 	signal_point.first = acq.getHead().acquisition_time_stamp;
 	signal_point.second = 0;
 
-	std::cout << "(" << signal_point.first << "/" << signal_point.second << ")" <<std::endl;
-
 	signal.push_back(signal_point);
 	
 	acq_vec.get_acquisition(acq_vec.items()-1, acq);
@@ -583,7 +581,6 @@ SignalContainer aux_test::get_mock_motion_signal( AcquisitionsVector acq_vec)
 	signal_point.first = acq.getHead().acquisition_time_stamp;
 	signal_point.second = 1;
 
-	std::cout << "(" << signal_point.first<< "/"  << signal_point.second << ")" <<std::endl;
 	signal.push_back(signal_point);
 
 	return signal;
