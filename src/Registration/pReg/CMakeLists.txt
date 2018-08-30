@@ -16,7 +16,7 @@
 #
 #=========================================================================
 
-if(BUILD_PYTHON)
+if(BUILD_SIRFREG_PYTHON)
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
   FIND_PACKAGE(SWIG REQUIRED)
@@ -39,4 +39,4 @@ if(BUILD_PYTHON)
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirfreg.py" SIRFReg.py DESTINATION "${PYTHON_DEST}/sirf")
 
 ADD_SUBDIRECTORY(tests)
-endif(BUILD_PYTHON)
+endif(BUILD_SIRFREG_PYTHON)
