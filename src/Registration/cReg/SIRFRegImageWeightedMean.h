@@ -71,7 +71,7 @@ protected:
     /// Bool to check if update is necessary
     bool                      _need_to_update;
     /// Vector of input images
-    std::vector<const ImType> _input_images;
+    std::vector<ImType> _input_images;
     /// Vector of weights
     std::vector<float>        _weights;
     /// Output image

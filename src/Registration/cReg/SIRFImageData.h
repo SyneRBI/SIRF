@@ -32,6 +32,7 @@ limitations under the License.
 
 #include <nifti1_io.h>
 #include <string>
+#include <memory>
 
 template <int num_dimensions>
 class VoxelisedGeometricalInfo;
