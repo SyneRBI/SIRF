@@ -34,6 +34,7 @@ limitations under the License.
 #include "SIRFImageData.h"
 #include "SIRFRegImageWeightedMean.h"
 #include "stir_data_containers.h"
+#include <memory>
 
 using namespace std;
 
@@ -126,6 +127,43 @@ int main(int argc, char* argv[])
 
 
 
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Starting transformations test...                       //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+    cout << "\nchecking if affine to deformation is ok...\n";
+    SIRFRegTransformationAffine trans_affine(NA.get_transformation_matrix_fwrd());
+    if (!SIRFRegMisc::do_nifti_images_match(trans_affine.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        throw runtime_error("Affine as deformation does not match deformation.");
+
+    cout << "\nchecking if displacement to deformation is ok...\n";
+    SIRFRegTransformationDisplacement trans_disp(NA.get_displacement_field_fwrd());
+    if (!SIRFRegMisc::do_nifti_images_match(trans_disp.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        throw runtime_error("Disp as deformation does not match deformation.");
+
+    cout << "\nchecking if deformation to deformation is ok...\n";
+    SIRFRegTransformationDeformation  trans_def(NA.get_deformation_field_fwrd());
+    if (!SIRFRegMisc::do_nifti_images_match(trans_def.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        throw runtime_error("Def as deformation does not match deformation.");
+
+    cout << "\njoining two identity matrices and the disp field. convert to deformation, should be the same as the deformation created by the same registration...\n";
+    // Check that the composition of two identity matrices and the displacement field equals the deformation field image.
+    mat44 identity = SIRFRegMisc::get_identity_matrix();
+    std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
+    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(identity)));
+    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(identity)));
+    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDisplacement(trans_disp)));
+    SIRFRegTransformationDeformation trans_composed;
+    SIRFRegMisc::compose_transformations_into_single_deformation(trans_composed, vec, ref_aladin);
+    if (!SIRFRegMisc::do_nifti_images_match(trans_composed.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        throw runtime_error("identity(identity(displacement)) as deformation does not match deformation.");
+
+    cout << "// ----------------------------------------------------------------------- //\n";
+    cout << "//                  Finished transformations test.                         //\n";
+    cout << "//------------------------------------------------------------------------ //\n";
+
+
+
 
     cout << "// ----------------------------------------------------------------------- //\n";
     cout << "//                  Starting Nifty resample rigid test...                  //\n";
@@ -133,7 +171,8 @@ int main(int argc, char* argv[])
     SIRFRegNiftyResample NRA;
     NRA.set_reference_image                (        ref_aladin        );
     NRA.set_floating_image                 (        flo_aladin        );
-    NRA.set_transformation_matrix          (          TM_fwrd         );
+    NRA.add_transformation_affine          (          identity        );
+    NRA.add_transformation_affine          (          TM_fwrd         );
     NRA.set_interpolation_type_to_cubic_spline();
     NRA.update();
     NRA.save_resampled_image               (        rigid_resample    );
@@ -156,7 +195,7 @@ int main(int argc, char* argv[])
     NRF2.set_reference_image                (               ref_f3d            );
     NRF2.set_floating_image                 (               flo_f3d            );
     NRF2.set_interpolation_type_to_cubic_spline();
-    NRF2.set_deformation_field              (  NF.get_deformation_field_fwrd() );
+    NRF2.add_transformation_def             (  NF.get_deformation_field_fwrd() );
     NRF2.update();
     NRF2.save_resampled_image               (       nonrigid_resample_def      );
 
@@ -178,7 +217,7 @@ int main(int argc, char* argv[])
     NRF1.set_reference_image                (               ref_f3d            );
     NRF1.set_floating_image                 (               flo_f3d            );
     NRF1.set_interpolation_type_to_cubic_spline();
-    NRF1.set_displacement_field             ( NF.get_displacement_field_fwrd() );
+    NRF1.add_transformation_disp            ( NF.get_displacement_field_fwrd() );
     NRF1.update();
     NRF1.save_resampled_image               (      nonrigid_resample_disp      );
 

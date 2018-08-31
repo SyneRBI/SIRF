@@ -79,7 +79,9 @@ protected:
 
 };
 
+/// Typedef for 3D
 typedef SIRFRegImageWeightedMean<SIRFImageData>            SIRFRegImageWeightedMean3D;
+/// Typedef for 4D
 typedef SIRFRegImageWeightedMean<SIRFImageDataDeformation> SIRFRegImageWeightedMean4D;
 
 #endif

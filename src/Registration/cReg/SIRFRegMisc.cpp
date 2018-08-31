@@ -30,6 +30,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 #include "SIRFImageData.h"
 #include "SIRFImageDataDeformation.h"
+#include "SIRFRegTransformation.h"
 #include <_reg_tools.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
@@ -295,6 +296,7 @@ void convert_from_def_to_disp(SIRFImageDataDeformation &im)
 {
     // Get the disp field from the def field
     reg_getDisplacementFromDeformation(im.get_image_as_nifti().get());
+    im.get_image_as_nifti()->intent_p1 = DISP_FIELD;
 }
 
 /// Convert from displacement to deformation field image
@@ -302,6 +304,7 @@ void convert_from_disp_to_def(SIRFImageDataDeformation &im)
 {
     // Get the def field from the disp field
     reg_getDeformationFromDisplacement(im.get_image_as_nifti().get());
+    im.get_image_as_nifti()->intent_p1 = DEF_FIELD;
 }
 
 /// Multiply image
@@ -624,6 +627,38 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
     print_mat44(res);
 
     return res;
+}
+
+/// Compose multiple transformations into single deformation field
+void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const SIRFImageData &ref)
+{
+    if (transformations.size() == 0)
+        throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation no transformations given.");
+
+    SIRFImageDataDeformation deformation = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
+
+    for (unsigned i=1; i<transformations.size(); ++i) {
+
+        SIRFImageDataDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
+        reg_defField_compose(temp.get_image_as_nifti().get(),deformation.get_image_as_nifti().get(),nullptr);
+    }
+
+    def = SIRFRegTransformationDeformation(deformation);
+}
+
+/// Get identity matrix
+mat44 get_identity_matrix()
+{
+    mat44 mat;
+    for (int i=0; i<4; ++i) {
+        for (int j=0; j<4; ++j) {
+            if (i==j)
+                mat.m[i][j] = 1.F;
+            else
+                mat.m[i][j] = 0.F;
+        }
+    }
+    return mat;
 }
 
 }
