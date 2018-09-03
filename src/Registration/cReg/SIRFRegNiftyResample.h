@@ -23,8 +23,8 @@ limitations under the License.
 \ingroup Registration
 \brief Resampling class based on nifty resample
 
-If multiple matrices are set, they will be multiplied in the order that they have been added.
-i.e., if A was set first, followed by B, then they will be multiplied AB.
+If multiple transformations are set, they will be used in the order that they have been added.
+i.e., Trans3(Trans2(Trans1(x))).
 
 \author Richard Brown
 \author CCP PETMR
@@ -41,6 +41,7 @@ i.e., if A was set first, followed by B, then they will be multiplied AB.
 #include "SIRFRegMisc.h"
 #include "SIRFImageData.h"
 #include "SIRFImageDataDeformation.h"
+#include "SIRFRegTransformation.h"
 
 /// Wrapper around NiftyReg's resample class
 class SIRFRegNiftyResample
@@ -48,7 +49,7 @@ class SIRFRegNiftyResample
 public:
 
     /// Constructor
-    SIRFRegNiftyResample() { _interpolation_type = I_NOTSET; _transformation_type = T_NOTSET; }
+    SIRFRegNiftyResample() { _interpolation_type = NOTSET; }
 
     /// Destructor
     virtual ~SIRFRegNiftyResample() {}
@@ -65,33 +66,14 @@ public:
         _floating_image = floating_image;
     }
 
-    /// Set transformation matrix
-    void set_transformation_matrix(const mat44 &transformation_matrix)
-    {
-        _transformation_matrix = transformation_matrix;
-        _transformation_type = TM;
-    }
+    /// Add affine transformation
+    void add_transformation_affine(const SIRFRegTransformationAffine &affine);
 
-    /// Set transformation matrix
-    void set_transformation_matrix(const std::string &filename)
-    {
-        SIRFRegMisc::open_transformation_matrix(_transformation_matrix, filename);
-        _transformation_type = TM;
-    }
+    /// Add displacement transformation
+    void add_transformation_disp(const SIRFRegTransformationDisplacement &disp);
 
-    /// Set displacement field
-    void set_displacement_field(const SIRFImageDataDeformation &displacement_field)
-    {
-        _displacement_field = displacement_field;
-        _transformation_type = disp;
-    }
-
-    /// Set deformation field
-    void set_deformation_field(const SIRFImageDataDeformation &deformation_field)
-    {
-        _deformation_field = deformation_field;
-        _transformation_type = def;
-    }
+    /// Add deformation transformation
+    void add_transformation_def(const SIRFRegTransformationDeformation &def);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     void set_interpolation_type(const int type)
@@ -129,15 +111,12 @@ protected:
 
     /// Interpolation type
     enum InterpolationType {
-        I_NOTSET         = -1,
+        NOTSET           = -1,
         NEARESTNEIGHBOUR =  0,
         LINEAR           =  1,
         CUBICSPLINE      =  3,
         SINC             =  4
     };
-
-    /// Transformation type
-    enum TransformationType { T_NOTSET, TM, disp, def };
 
     /// Check parameters
     virtual void check_parameters();
@@ -153,15 +132,9 @@ protected:
     /// Floating image
     SIRFImageData            _floating_image;
 
-    /// Transformation matrix
-    mat44                    _transformation_matrix;
-    /// Displacement field
-    SIRFImageDataDeformation _displacement_field;
-    /// Deformation field
-    SIRFImageDataDeformation _deformation_field;
+    /// Transformations (could be mixture of affine, displacements, deformations).
+    std::vector<std::shared_ptr<SIRFRegTransformation> > _transformations;
 
-    /// Transformation type
-    TransformationType       _transformation_type;
     /// Interpolation type
     InterpolationType        _interpolation_type;
 

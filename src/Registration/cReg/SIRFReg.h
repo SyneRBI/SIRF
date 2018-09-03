@@ -85,11 +85,11 @@ public:
     /// Get forward deformation field image
     SIRFImageDataDeformation get_deformation_field_fwrd()  const { return _def_image_fwrd; }
     /// Get backward deformation field image
-    SIRFImageDataDeformation get_deformation_back_fwrd()   const { return _def_image_back; }
+    SIRFImageDataDeformation get_deformation_field_back()   const { return _def_image_back; }
     /// Get forward displacement field image
     SIRFImageDataDeformation get_displacement_field_fwrd() const { return _disp_image_fwrd; }
     /// Get backward displacement field image
-    SIRFImageDataDeformation get_displacement_back_fwrd()  const { return _disp_image_back; }
+    SIRFImageDataDeformation get_displacement_field_back()  const { return _disp_image_back; }
 
     /// Save warped image to file
     void save_warped_image(const std::string filename) const;

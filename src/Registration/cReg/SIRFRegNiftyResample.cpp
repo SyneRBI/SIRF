@@ -35,8 +35,24 @@ limitations under the License.
 #include <_reg_globalTrans.h>
 #endif
 #include <_reg_tools.h>
+#include <memory>
 
 using namespace std;
+
+void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegTransformationAffine &affine)
+{
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(affine.deep_copy())));
+}
+
+void SIRFRegNiftyResample::add_transformation_disp(const SIRFRegTransformationDisplacement &disp)
+{
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDisplacement(disp.deep_copy())));
+}
+
+void SIRFRegNiftyResample::add_transformation_def(const SIRFRegTransformationDeformation &def)
+{
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDeformation(def.deep_copy())));
+}
 
 void SIRFRegNiftyResample::update()
 {
@@ -45,21 +61,9 @@ void SIRFRegNiftyResample::update()
     // Check that all the required information has been entered
     check_parameters();
 
-    // If transformation matrix
-    if (_transformation_type == TM) {
-        _deformation_field.create_from_3D_image(_reference_image);
-#if NIFTYREG_VER_1_5
-        reg_affine_getDeformationField(&_transformation_matrix,_deformation_field.get_image_as_nifti().get());
-#elif NIFTYREG_VER_1_3
-        reg_affine_positionField(_transformation_matrix.get(),_reference_image_sptr.get(),_deformation_field.get());
-#endif
-    }
-    // If displacement field
-    else if (_transformation_type == disp) {
-        _deformation_field = _displacement_field;
-        SIRFRegMisc::convert_from_disp_to_def(_deformation_field);
-    }
-    cout << "\n\nSuccessfully converted affine transformation to deformation field.\n\n";
+    // Compose single transformation from multiple
+    SIRFRegTransformationDeformation transformation;
+    SIRFRegMisc::compose_transformations_into_single_deformation(transformation, _transformations, _reference_image);
 
     // Setup output image
     set_up_output_image();
@@ -67,7 +71,7 @@ void SIRFRegNiftyResample::update()
 #if NIFTYREG_VER_1_5
     reg_resampleImage(_floating_image.get_image_as_nifti().get(),
                       _output_image.get_image_as_nifti().get(),
-                      _deformation_field.get_image_as_nifti().get(),
+                      transformation.get_as_deformation_field(_reference_image).get_image_as_nifti().get(),
                       NULL,
                       _interpolation_type,
                       0);
@@ -93,8 +97,8 @@ void SIRFRegNiftyResample::check_parameters()
     if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }
 
-    if (_transformation_type == T_NOTSET)
-        throw std::runtime_error("Transformation not set.");
+    if (_transformations.size() == 0)
+        throw std::runtime_error("Transformation(s) not set.");
 }
 
 void SIRFRegNiftyResample::save_resampled_image(const string filename) const

@@ -81,6 +81,68 @@ SIRFImageData::SIRFImageData(const MRImageData &)
     exit(0);
 }
 
+SIRFImageData SIRFImageData::operator+ (const SIRFImageData& c) const
+{
+    if (!this->is_initialised())
+        throw runtime_error("Can't add SIRFImageData as first image is not initialised.");
+    if (!c.is_initialised())
+        throw runtime_error("Can't add SIRFImageData as second image is not initialised.");
+
+    if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
+        throw runtime_error("Can't add SIRFImageData as metadata do not match.");
+
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::sum_arrays<bool>              (*this,c);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::sum_arrays<signed char>       (*this,c);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::sum_arrays<signed short>      (*this,c);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::sum_arrays<signed int>        (*this,c);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::sum_arrays<float>             (*this,c);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::sum_arrays<double>            (*this,c);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::sum_arrays<unsigned char>     (*this,c);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::sum_arrays<unsigned short>    (*this,c);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::sum_arrays<unsigned int>      (*this,c);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::sum_arrays<signed long long>  (*this,c);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::sum_arrays<unsigned long long>(*this,c);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::sum_arrays<long double>       (*this,c);
+
+    stringstream ss;
+    ss << "SIRFImageData::operator+ not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
+}
+
+SIRFImageData SIRFImageData::operator- (const SIRFImageData& c) const
+{
+    if (!this->is_initialised())
+        throw runtime_error("Can't subtract SIRFImageData as first image is not initialised.");
+    if (!c.is_initialised())
+        throw runtime_error("Can't subtract SIRFImageData as second image is not initialised.");
+
+    if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
+        throw runtime_error("Can't subtract SIRFImageData as metadata do not match.");
+
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::sub_arrays<bool>              (*this,c);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::sub_arrays<signed char>       (*this,c);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::sub_arrays<signed short>      (*this,c);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::sub_arrays<signed int>        (*this,c);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::sub_arrays<float>             (*this,c);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::sub_arrays<double>            (*this,c);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::sub_arrays<unsigned char>     (*this,c);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::sub_arrays<unsigned short>    (*this,c);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::sub_arrays<unsigned int>      (*this,c);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::sub_arrays<signed long long>  (*this,c);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::sub_arrays<unsigned long long>(*this,c);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::sub_arrays<long double>       (*this,c);
+
+    stringstream ss;
+    ss << "SIRFImageData::operator- not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
+}
+
 void SIRFImageData::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 {
     typedef VoxelisedGeometricalInfo3D Info;
@@ -361,6 +423,32 @@ float SIRFImageData::get_element(const int x, const int y, const int z) const
     if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_3D_array_element<signed long long>  (*this, x, y, z);
     if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_3D_array_element<unsigned long long>(*this, x, y, z);
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_3D_array_element<long double>       (*this, x, y, z);
+
+    stringstream ss;
+    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw std::runtime_error(ss.str());
+}
+
+float SIRFImageData::get_sum() const
+{
+    if(!_nifti_image)
+        throw runtime_error("Image not initialised.");
+
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_sum<bool>              (*this);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_sum<signed char>       (*this);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_array_sum<signed short>      (*this);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_array_sum<signed int>        (*this);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_array_sum<float>             (*this);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_array_sum<double>            (*this);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_array_sum<unsigned char>     (*this);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_array_sum<unsigned short>    (*this);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_array_sum<unsigned int>      (*this);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_array_sum<signed long long>  (*this);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_array_sum<unsigned long long>(*this);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_sum<long double>       (*this);
 
     stringstream ss;
     ss << "SIRFImageData::get_min not implemented for your data type: ";

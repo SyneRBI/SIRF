@@ -33,9 +33,11 @@ limitations under the License.
 #include <nifti1_io.h>
 #include <string>
 #include <memory>
+#include <iostream>
 
 template <int num_dimensions>
 class VoxelisedGeometricalInfo;
+/// Typedef VoxelisedGeometricalInfo for 3D
 typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
 namespace sirf {
 class PETImageData;
@@ -71,6 +73,12 @@ public:
     /// Gadgetron constructor
     SIRFImageData(const MRImageData &);
 
+    /// Addition operator
+    SIRFImageData operator+(const SIRFImageData&) const;
+
+    /// Subtraction operator
+    SIRFImageData operator-(const SIRFImageData&) const;
+
     /// Is the image initialised? (Should unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image ? true : false); }
 
@@ -95,11 +103,21 @@ public:
     /// Get element
     float get_element(const int x, const int y, const int z) const;
 
+    /// Get sum
+    float get_sum() const;
+
     /// Fill
     void fill(const float &v);
 
     /// Deep copy
     SIRFImageData deep_copy() const;
+
+    /// Get number of voxels
+    void get_dimensions(int dims[8]) const
+    {
+        for (int i=0; i<8; ++i)
+            dims[i] = _nifti_image->dim[i];
+    }
 
 protected:
 

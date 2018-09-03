@@ -14,8 +14,8 @@
 #  See the License for the specific language governing permissions and
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFImageData.cpp" "SIRFImageDataDeformation.cpp" )
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFImageData.cpp" "SIRFImageDataDeformation.cpp" "SIRFRegTransformation.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h"    "SIRFRegTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_SIRFREG_PYTHON OR BUILD_SIRFREG_MATLAB)
