@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <omp.h>
 #include <sstream>
+#include <math.h>
 
 using namespace sirf;
 
@@ -562,7 +563,42 @@ SignalContainer aux_test::get_mock_motion_signal()
 }
 
 
-SignalContainer aux_test::get_mock_motion_signal( AcquisitionsVector acq_vec)
+SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
+{
+
+	#define PI 3.14159265
+
+	ISMRMRD::Acquisition acq;
+	
+	acq_vec.get_acquisition(0, acq);
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
+	acq_vec.get_acquisition(acq_vec.items()-1, acq);
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
+
+
+	unsigned const num_sampling_points = 30000;
+	TimeAxisType const frequ_miliseconds = 1000;
+
+	TimeAxisType dt = float(t_fin - t_0)/ float(num_sampling_points);
+
+	SignalContainer signal;
+
+	for( unsigned i=0; i<num_sampling_points; i++)
+	{
+		std::pair<TimeAxisType, SignalAxisType> signal_point;
+
+		signal_point.first = t_0 + i * dt;
+		signal_point.second = (1 - cos(2*PI / frequ_miliseconds * i * dt))/2;
+		signal.push_back(signal_point);
+	}
+
+	return signal;
+}
+
+
+
+SignalContainer aux_test::get_mock_contrast_signal( AcquisitionsVector acq_vec)
 {
 	SignalContainer signal;
 	

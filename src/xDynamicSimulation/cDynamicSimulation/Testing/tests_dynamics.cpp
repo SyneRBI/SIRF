@@ -182,7 +182,7 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		int const num_bins = 10;
 		aDynamic dyn(num_bins);
 
-		SignalContainer mock_signal = aux_test::get_mock_motion_signal(acq_vec);
+		SignalContainer mock_signal = aux_test::get_mock_sinus_signal(acq_vec);
 		dyn.set_dyn_signal( mock_signal );
 
 		dyn.bin_mr_acquisitions( acq_vec );

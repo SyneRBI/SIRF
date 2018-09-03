@@ -217,7 +217,7 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
-		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+		SignalContainer mock_signal = aux_test::get_mock_contrast_signal(all_acquis);
 
 	 	first_cont_dyn.set_dyn_signal( mock_signal );
 	 	second_cont_dyn.set_dyn_signal( mock_signal );
@@ -267,7 +267,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+		SignalContainer mock_signal = aux_test::get_mock_contrast_signal(all_acquis);
 
 	 	cardiac_dyn.set_dyn_signal( mock_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
@@ -327,14 +327,14 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 
-		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+		SignalContainer mock_motion_signal = aux_test::get_mock_sinus_signal(all_acquis);
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	 	first_motion_dyn.set_dyn_signal( mock_signal );
+	 	first_motion_dyn.set_dyn_signal( mock_motion_signal );
 	 	first_motion_dyn.bin_mr_acquisitions( all_acquis );
 		
-		second_motion_dyn.set_dyn_signal( mock_signal );
+		second_motion_dyn.set_dyn_signal( mock_motion_signal );
 	 	second_motion_dyn.bin_mr_acquisitions( all_acquis );
 
 		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -349,8 +349,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_first_contrast_dyn = 5;
-		int const num_simul_states_second_contrast_dyn = 5;
+		int const num_simul_states_first_contrast_dyn = 10;
+		int const num_simul_states_second_contrast_dyn = 10;
 
 
 		ContrastDynamic first_cont_dyn(num_simul_states_first_contrast_dyn), second_cont_dyn(num_simul_states_second_contrast_dyn);
@@ -386,8 +386,11 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		second_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
 		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
-		first_cont_dyn.set_dyn_signal( mock_signal );
-	 	second_cont_dyn.set_dyn_signal( mock_signal );
+
+		SignalContainer mock_contrast_signal = aux_test::get_mock_contrast_signal(all_acquis);
+
+		first_cont_dyn.set_dyn_signal( mock_contrast_signal );
+	 	second_cont_dyn.set_dyn_signal( mock_contrast_signal );
 
 		first_cont_dyn.bin_mr_acquisitions( all_acquis );
 		second_cont_dyn.bin_mr_acquisitions( all_acquis );
@@ -402,7 +405,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.simulate_dynamics();
 		t = clock() - t;
 
-		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC << "SECONDS." <<std::endl;
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_CONTRAST_DYNSIM );
 
 		return true;

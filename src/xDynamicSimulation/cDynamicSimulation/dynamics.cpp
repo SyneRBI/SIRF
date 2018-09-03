@@ -247,6 +247,7 @@ void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
 			
 			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
+			
 			if( is_in_bin(signal_of_acq, bin) )
 			{
 				curr_acq_vector.append_acquisition(acq);

@@ -134,7 +134,9 @@ namespace aux_test
 
 
 	SignalContainer get_mock_motion_signal( void );
-	SignalContainer get_mock_motion_signal( sirf::AcquisitionsVector acq_vec);
+	SignalContainer get_mock_sinus_signal( sirf::AcquisitionsVector acq_vec);
+	SignalContainer get_mock_contrast_signal( sirf::AcquisitionsVector acq_vec);
+
 	
 
 
