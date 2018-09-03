@@ -21,15 +21,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 std::string const DynamicSimulationDeformer::temp_folder_name_ = "/tmp/tmp_img_data_to_deform";
 
 
-SIRFImageDataDeformation DynamicSimulationDeformer::init_deformation_with_identity( const SIRFImageDataDeformation& template_deformation )
-{
-	SIRFImageDataDeformation identity_deformation = template_deformation;
-	identity_deformation.fill(0.f);
-	return identity_deformation;
-}
-
-
-
 ISMRMRD::Image< float > DynamicSimulationDeformer::extract_real_part(  ISMRMRD::Image< complex_float_t >& complex_img )
 {
 	return DynamicSimulationDeformer::extract_complex_subpart( complex_img, true);
@@ -65,12 +56,10 @@ ISMRMRD::Image< float > DynamicSimulationDeformer::extract_complex_subpart( ISMR
 
 
 
-void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& displacement_field)
+void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation> vec_displacement_fields)
 {
-
 	boost::filesystem::path temp_dir_name(temp_folder_name_);
 	bool const temp_folder_creation_successful = boost::filesystem::create_directories(temp_dir_name);
-
 	
 
 	if( temp_folder_creation_successful )
@@ -82,10 +71,10 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 			ISMRMRD::Image<complex_float_t> &curr_img = vect_img_data[i_cont];
 
 			auto real_image_part =  DynamicSimulationDeformer::extract_real_part(curr_img);
-			DynamicSimulationDeformer::deform_ismrmrd_image( real_image_part, displacement_field);
+			DynamicSimulationDeformer::deform_ismrmrd_image( real_image_part, vec_displacement_fields);
 
 			auto imaginary_image_part =  DynamicSimulationDeformer::extract_imaginary_part(curr_img);
-			DynamicSimulationDeformer::deform_ismrmrd_image( imaginary_image_part, displacement_field);			
+			DynamicSimulationDeformer::deform_ismrmrd_image( imaginary_image_part, vec_displacement_fields);			
 
 			for( size_t i_vox=0; i_vox<curr_img.getNumberOfDataElements(); i_vox++)
 			{
@@ -105,26 +94,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 }
 
 
-
-
-SIRFImageDataDeformation DynamicSimulationDeformer::compose_deformations(const SIRFImageDataDeformation& dvf_ab, const SIRFImageDataDeformation& dvf_bc)
-{
-	SIRFRegNiftyResample resampler; 
-
-    resampler.set_interpolation_type_to_cubic_spline();
-	resampler.set_reference_image(dvf_bc);
-	resampler.set_floating_image(dvf_bc);
-
-	resampler.set_displacement_field(dvf_ab);
-
-	resampler.update();
-
-	SIRFImageDataDeformation dvf_ac;// = dvf_ab + resampler.get_output();
-	std::cout << "TODO" <<std::endl;
-	return dvf_ac;
-}
-
-void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, SIRFImageDataDeformation& displacement_field)
+void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> vec_displacement_fields)
 {
 	std::stringstream namestream_temp_img_output;
 	namestream_temp_img_output << temp_folder_name_ << "/temp_img_data";
@@ -142,7 +112,11 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 	resampler.set_reference_image(img_to_deform);
 	resampler.set_floating_image(img_to_deform);
 
-	resampler.set_displacement_field(displacement_field);
+	for( size_t i_disp=0; i_disp<vec_displacement_fields.size(); i_disp++)
+	{
+		SIRFRegTransformationDisplacement disp_trafo( vec_displacement_fields[i_disp] );
+		resampler.add_transformation_disp(disp_trafo);
+	}
 
 	resampler.update();
 
