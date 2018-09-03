@@ -1,0 +1,23 @@
+#========================================================================
+# Author: Johannes Mayer
+# Date: 03.09.2018
+#=========================================================================
+
+
+
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_dynamicsimulation.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_mr_acquisition_model.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_auxiliary_testing_functions.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_auxiliary_input_output.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} auxiliary_testing_functions.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} all_simulation_tests.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_tissueparameters.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_contrastgenerator.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_phantom_input.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_encoding.cpp )
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_dynamics.cpp)
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_noisegenerator.cpp)
+set( TEST_SRC_FILES ${TEST_SRC_FILES} tests_dynsim_deformer.cpp)
+
+add_library( tests_dynamicsimulation ${TEST_SRC_FILES})
+
