@@ -92,7 +92,7 @@ public:
 	void set_SNR(float const SNR);
 
 	void simulate_dynamics( void );
-	void simulate_motion_dynamics( void );
+
 
 	void extract_hdr_information( void );
 	
@@ -110,6 +110,10 @@ private:
 	
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
+
+	void simulate_motion_dynamics( void );
+	void simulate_contrast_dynamics( void );
+	void simulate_simultaneous_motion_contrast_dynamics( void );
 
 };
 
@@ -171,7 +175,6 @@ public:
 		return linear_range;
 	}
 
-
 private:
 
 	void compute_all_combinations( void )
@@ -196,8 +199,6 @@ private:
 		}
 	};
 
-
-
 	DimensionsType dims_;
 	std::vector< DimensionsType > all_combinations_;
 
@@ -206,5 +207,4 @@ private:
 		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];
 		return l;
 	};
-
 };
