@@ -137,7 +137,7 @@ public:
 
 protected:
 
-	bool const destroy_upon_deletion_ = false;
+	bool const destroy_upon_deletion_ = true;
 	bool const keep_motion_fields_in_memory_ = false;
 
 	std::string setup_tmp_folder_name( void );

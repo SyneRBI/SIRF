@@ -321,7 +321,7 @@ MotionDynamic::~MotionDynamic()
 	// if( this->destroy_upon_deletion_)
 	// 	this->delete_temp_folder();
 
-	// this->num_total_motion_dynamics_ -= 1; 
+	this->num_total_motion_dynamics_ -= 1; 
 }
 
 
@@ -331,7 +331,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
 	if( this->temp_mvf_filenames_.size() == 0)
-		throw std::runtime_error("Please use write_temp_displacements_fields() before calling this");
+		throw std::runtime_error("Please use write_temp_displacements_fields() before calling get_interpolated_displacement_field");
 	
 
 	// check in which interval the signal lies
