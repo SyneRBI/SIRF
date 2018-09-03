@@ -261,25 +261,33 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_states_first_dyn = 50;
+		int const num_simul_cardiac_states = 10;
+		int const num_simul_resp_states = 10;
 		
-		MotionDynamic first_motion_dyn(num_simul_states_first_dyn)	;
+		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-
 		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
 
-	 	first_motion_dyn.set_dyn_signal( mock_signal );
-	 	first_motion_dyn.bin_mr_acquisitions( all_acquis );
-		
-		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		first_motion_dyn.set_displacement_fields( resp_mvfs );
+	 	cardiac_dyn.set_dyn_signal( mock_signal );
+	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( first_motion_dyn );
+	 	resp_dyn.set_dyn_signal( mock_signal );
+	 	resp_dyn.bin_mr_acquisitions( all_acquis );
+		
+		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		
+		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
+		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+
+
+		mr_dyn_sim.add_dynamic( cardiac_dyn );
+		mr_dyn_sim.add_dynamic( resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
-		mr_dyn_sim.simulate_motion_dynamics();
-
+		mr_dyn_sim.simulate_dynamics();
 
 		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_DYNSIM );
 
@@ -293,6 +301,118 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		throw e;
 	}
 
+}
+
+bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
+{
+	try
+	{	
+		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+		
+		// float const test_noise_width = 0.1;
+		// mr_dyn_sim.set_noise_width( test_noise_width );
+		float const test_SNR = 15;
+		mr_dyn_sim.set_SNR(test_SNR);
+		
+
+		int const num_simul_motion_dyn = 5;
+		
+		MotionDynamic first_motion_dyn(num_simul_motion_dyn), second_motion_dyn( num_simul_motion_dyn );
+
+		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
+		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+
+
+		SignalContainer mock_signal = aux_test::get_mock_motion_signal(all_acquis);
+
+		// SETTING UP MOTION DYNAMICS ########################################################################
+
+	 	first_motion_dyn.set_dyn_signal( mock_signal );
+	 	first_motion_dyn.bin_mr_acquisitions( all_acquis );
+		
+		second_motion_dyn.set_dyn_signal( mock_signal );
+	 	second_motion_dyn.bin_mr_acquisitions( all_acquis );
+
+		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		first_motion_dyn.set_displacement_fields( motion_fields, true );
+
+		motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		second_motion_dyn.set_displacement_fields( motion_fields, false );
+
+		mr_dyn_sim.add_dynamic( first_motion_dyn );
+		mr_dyn_sim.add_dynamic( second_motion_dyn );
+
+
+		// SETTING UP CONRAST DYNAMICS ########################################################################
+
+		int const num_simul_states_first_contrast_dyn = 5;
+		int const num_simul_states_second_contrast_dyn = 5;
+
+
+		ContrastDynamic first_cont_dyn(num_simul_states_first_contrast_dyn), second_cont_dyn(num_simul_states_second_contrast_dyn);
+
+		std::vector<LabelType> first_dynamic_labels = {1, 3, 4};	
+		for(int i=0; i<first_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << first_dynamic_labels[i] << " to first dynamic." << std::endl;
+			first_cont_dyn.add_dynamic_label(first_dynamic_labels[i]);
+		}
+
+		std::vector<LabelType> second_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		for(int i=0; i<second_dynamic_labels.size(); i++)
+		{
+			std::cout << "Adding label " << second_dynamic_labels[i] << " to second dynamic." << std::endl;
+			second_cont_dyn.add_dynamic_label(second_dynamic_labels[i]);
+		}
+
+
+		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
+
+		first_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+
+		auto second_extremes_0 = extreme_tissue_params.first;
+		auto second_extremes_1 = extreme_tissue_params.second;
+
+		second_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+		second_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+		second_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+		
+		second_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+		second_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+		second_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+
+		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
+		first_cont_dyn.set_dyn_signal( mock_signal );
+	 	second_cont_dyn.set_dyn_signal( mock_signal );
+
+		first_cont_dyn.bin_mr_acquisitions( all_acquis );
+		second_cont_dyn.bin_mr_acquisitions( all_acquis );
+
+		mr_dyn_sim.add_dynamic( first_cont_dyn );
+		mr_dyn_sim.add_dynamic( second_cont_dyn );
+		
+		// ####################################################################################################
+
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC << "SECONDS." <<std::endl;
+		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_CONTRAST_DYNSIM );
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
 }
 
 

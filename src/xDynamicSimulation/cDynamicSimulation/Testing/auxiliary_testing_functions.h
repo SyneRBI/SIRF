@@ -70,6 +70,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
 #define FILENAME_MR_CONTRAST_DYNSIM  SHARED_FOLDER_PATH "testoutput_mr_dynamic_contrast_simulation.h5"
 #define FILENAME_MR_MOTION_DYNSIM SHARED_FOLDER_PATH "testoutput_mr_dynamic_motion_simulation.h5"
+#define FILENAME_MR_MOTION_CONTRAST_DYNSIM SHARED_FOLDER_PATH "testoutput_mr_dynamic_motion_contrast_simulation.h5"
+
 
 #define FILENAME_DYNSIM_PET SHARED_FOLDER_PATH "testoutput_pet_dynamic_simulation.hs"
 

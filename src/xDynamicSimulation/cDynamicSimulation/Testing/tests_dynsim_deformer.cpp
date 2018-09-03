@@ -29,11 +29,13 @@ try
 
 		SIRFImageDataDeformation img_dat_deform( DISPLACEMENT_FIELD_PATH );
 
+		std::vector< SIRFImageDataDeformation > all_img_deforms;
+		all_img_deforms.push_back(img_dat_deform);
 
 		auto sptr_mvf_as_nifti = img_dat_deform.get_image_as_nifti();
 		nifti_image mvf_as_nifti = *sptr_mvf_as_nifti;
 
-		DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, img_dat_deform);
+		DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, all_img_deforms);
 
 		auto cont_filled_vols = mr_cont_gen.get_contrast_filled_volumes();
 
