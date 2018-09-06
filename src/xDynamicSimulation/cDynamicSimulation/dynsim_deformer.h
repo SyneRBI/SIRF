@@ -27,7 +27,7 @@ class DynamicSimulationDeformer
 public:
 
 	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& displacement_field);
-	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation> vec_displacement_fields);
+	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields);
 
 	static ISMRMRD::Image< float > extract_real_part( ISMRMRD::Image< complex_float_t >& img );
 	static ISMRMRD::Image< float > extract_imaginary_part( ISMRMRD::Image< complex_float_t >& img );
@@ -36,7 +36,7 @@ protected:
 
 	static const std::string temp_folder_name_;
 
-	static void deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> vec_displacement_fields);
+	static void deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> &vec_displacement_fields);
 
 
 	static ISMRMRD::Image< float > extract_complex_subpart( ISMRMRD::Image< complex_float_t >& img, bool const extract_real_part );

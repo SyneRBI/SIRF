@@ -56,12 +56,11 @@ ISMRMRD::Image< float > DynamicSimulationDeformer::extract_complex_subpart( ISMR
 
 
 
-void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation> vec_displacement_fields)
+void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation> &vec_displacement_fields)
 {
 	boost::filesystem::path temp_dir_name(temp_folder_name_);
 	bool const temp_folder_creation_successful = boost::filesystem::create_directories(temp_dir_name);
 	
-
 	if( temp_folder_creation_successful )
 	{
 		std::vector< ISMRMRD::Image< complex_float_t> >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
@@ -94,7 +93,7 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 }
 
 
-void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> vec_displacement_fields)
+void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> &vec_displacement_fields)
 {
 	std::stringstream namestream_temp_img_output;
 	namestream_temp_img_output << temp_folder_name_ << "/temp_img_data";

@@ -331,8 +331,8 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
-	if( this->temp_mvf_filenames_.size() == 0)
-		throw std::runtime_error("Please use write_temp_displacements_fields() before calling get_interpolated_displacement_field");
+	if( this->temp_displacement_fields_.size() == 0)
+		throw std::runtime_error("Please use prep_displacements_fields() before calling get_interpolated_displacement_field");
 	
 
 	// check in which interval the signal lies
@@ -351,15 +351,11 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 
 	SignalAxisType const linear_interpolation_weight = signal_on_bin_range - bin_floor;
 
-	std::string const extension_input_file = ".hdr";
-	std::string filename_dvf_floor = this->temp_mvf_filenames_[bin_floor] + extension_input_file;
-	std::string filename_dvf_ceil  = this->temp_mvf_filenames_[bin_ceil] + extension_input_file;
-
 	  /// Constructor
     SIRFRegImageWeightedMean4D dvf_interpolator;
     
-    dvf_interpolator.add_image(filename_dvf_floor, 1 - linear_interpolation_weight);
-    dvf_interpolator.add_image(filename_dvf_ceil, linear_interpolation_weight);
+    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_ceil], linear_interpolation_weight);
 
     dvf_interpolator.update();
     
@@ -473,7 +469,7 @@ void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFie
 	}
 }
 
-void MotionDynamic::write_temp_displacements_fields()
+void MotionDynamic::prep_displacements_fields()
 {
 	if(this->displacment_fields_.size() == 0)
 		throw std::runtime_error("Please call set_displacements_fields() first.");
@@ -490,6 +486,7 @@ void MotionDynamic::write_temp_displacements_fields()
 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
 
 			data_io::write_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+			temp_filename_mvf << ".hdr";
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
 
@@ -498,4 +495,12 @@ void MotionDynamic::write_temp_displacements_fields()
 	}
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
+
+	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
+	{
+		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+		temp_displacement_fields_.push_back( temp_deformation );
+	}
+
+	this->delete_temp_folder();
 }

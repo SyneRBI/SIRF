@@ -67,7 +67,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	for(size_t i=0; i<num_motion_dyns; i++)	
 	{
 		num_all_dyn_states.push_back(motion_dynamics_[i].get_num_simul_states());			
-		motion_dynamics_[i].write_temp_displacements_fields();
+		motion_dynamics_[i].prep_displacements_fields();
 	}
 
 	LinearCombiGenerator lcg(num_all_dyn_states);
@@ -138,13 +138,12 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 				int const motion_bin_number = current_combination[ num_contrast_dyns + i_motion_dyn ];						
 				SignalBin bin = signal_bins[ motion_bin_number ];
 
-	
-
 				all_motion_fields.push_back( motion_dyn.get_interpolated_displacement_field( std::get<1>(bin) ) ); 
 
 			}
 
 			this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
+			std::cout << " num motoin fields " << all_motion_fields.size() << std::endl;
 			DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
 			this->source_acquisitions_ = acquisitions_for_this_state;
 			this->acquire_raw_data();	
@@ -153,8 +152,8 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	}
 	this->noise_generator_.add_noise(this->target_acquisitions_);
 
-	for(size_t i=0; i<num_motion_dyns; i++)
-		this->motion_dynamics_[i].delete_temp_folder();	
+	// for(size_t i=0; i<num_motion_dyns; i++)
+	// 	this->motion_dynamics_[i].delete_temp_folder();	
 
 }
 void MRDynamicSimulation::simulate_contrast_dynamics( void )
@@ -236,7 +235,7 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 	for(size_t i=0; i<num_motion_dynamics; i++)
 	{
 		all_num_dyn_states.push_back(motion_dynamics_[i].get_num_simul_states());			
-		motion_dynamics_[i].write_temp_displacements_fields();
+		motion_dynamics_[i].prep_displacements_fields();
 	}
 
 	LinearCombiGenerator lcg(all_num_dyn_states);

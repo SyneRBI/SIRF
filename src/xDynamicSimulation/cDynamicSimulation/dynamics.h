@@ -131,7 +131,7 @@ public:
 
 	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	     
-	void write_temp_displacements_fields( void );
+	void prep_displacements_fields( void );
 
 	bool delete_temp_folder();
 
@@ -146,12 +146,14 @@ protected:
 	std::string const temp_folder_prefix_  = "/tmp/";;
 	std::string const temp_mvf_prefix_ = "/motion_field_";
 	std::string temp_folder_name_ ;
-	std::vector<std::string> temp_mvf_filenames_; 
+	
+	std::vector< std::string > temp_mvf_filenames_;
 
 	static int num_total_motion_dynamics_;
 	int which_motion_dynamic_am_i_;
 
 	MotionFieldContainer displacment_fields_;
+	std::vector< SIRFImageDataDeformation > temp_displacement_fields_; 
 
 };
 

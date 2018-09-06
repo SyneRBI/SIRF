@@ -301,7 +301,7 @@ try
 }
 
 
-bool test_dynamic::test_motion_dynamic_write_motion_fields()
+bool test_dynamic::test_motion_dynamic_prep_motion_fields()
 {
 try
 	{
@@ -312,7 +312,7 @@ try
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
 		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.write_temp_displacements_fields();
+		motion_dyn.prep_displacements_fields();
 
 		return test_succesful;
 	}
@@ -338,7 +338,7 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 		int const num_simul_bins = 12;
 		MotionDynamic motion_dyn(num_simul_bins);
 		motion_dyn.set_displacement_fields(resp_mvfs);
-		motion_dyn.write_temp_displacements_fields();
+		motion_dyn.prep_displacements_fields();
 
 		SignalAxisType motion_signal = 0.6;
 
