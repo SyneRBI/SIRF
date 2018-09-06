@@ -13,14 +13,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using Gadgetron::hoNDFFT;
 
-ISMRMRD::NDArray<complex_float_t> aFullySampledFFT::get_k_data( void )
+ISMRMRD::NDArray<complex_float_t> aCartesianReadoutFFT::get_k_data( void )
 {
 	return this->k_data_;	
 }
 
 
 FullySampledCartesianFFT::FullySampledCartesianFFT():
-aFullySampledFFT()
+aCartesianReadoutFFT()
 {
 }
 
@@ -50,4 +50,11 @@ void FullySampledCartesianFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_floa
 		*(this->k_data_.begin() + i) = *(data_to_be_fftd.begin() + i);
 	}
 
+}
+
+
+
+void RadialPhaseEncodingFFT::set_trajectory(TrajectoryType &traj)
+{
+	this->traj_ = traj;
 }

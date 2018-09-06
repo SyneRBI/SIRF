@@ -10,13 +10,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <ismrmrd/ismrmrd.h>
-#include <ismrmrd/xml.h>
+// #include <ismrmrd/xml.h>
 
-class aFullySampledFFT{
+typedef ISMRMRD::NDArray< std::vector<float> > TrajectoryType;
+
+
+
+class aCartesianReadoutFFT{
 
 public:
 
-	aFullySampledFFT()
+	aCartesianReadoutFFT()
 	{}
 
 	virtual ISMRMRD::NDArray<complex_float_t> get_k_data( void );
@@ -30,10 +34,26 @@ protected:
 };
 
 
-class FullySampledCartesianFFT: public aFullySampledFFT{
+class FullySampledCartesianFFT: public aCartesianReadoutFFT{
 
 public:
 	FullySampledCartesianFFT();
 	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data);
+
+};
+
+
+class RadialPhaseEncodingFFT: public aCartesianReadoutFFT{
+
+public:
+
+	RadialPhaseEncodingFFT() {};
+
+	void set_trajectory(TrajectoryType &traj);
+	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data );
+
+private:
+
+	TrajectoryType traj_;
 
 };
