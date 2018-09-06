@@ -91,6 +91,8 @@ sirf::cSIRFReg_SIRFImageDataParameter(const DataHandle* handle, const char* name
 		return dataHandle<float>(s.get_max());
 	if (boost::iequals(name, "min"))
 		return dataHandle<float>(s.get_min());
+    if (boost::iequals(name, "sum"))
+        return dataHandle<float>(s.get_sum());
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 }
@@ -158,12 +160,6 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
         s.set_reference_image(objectFromHandle<SIRFImageData>(hv));
     else if (boost::iequals(name, "floating_image"))
         s.set_floating_image(objectFromHandle<SIRFImageData>(hv));
-    else if (boost::iequals(name, "transformation_matrix"))
-        s.set_transformation_matrix(charDataFromHandle(hv));
-    else if (boost::iequals(name, "displacement_field"))
-        s.set_displacement_field(objectFromHandle<SIRFImageDataDeformation>(hv));
-    else if (boost::iequals(name, "deformation_field"))
-        s.set_deformation_field(objectFromHandle<SIRFImageDataDeformation>(hv));
     else if (boost::iequals(name, "interpolation_type"))
         s.set_interpolation_type(intDataFromHandle(hv));
     else

@@ -95,16 +95,16 @@ public:
     void save_warped_image(const std::string filename) const;
 
     /// Save forward deformation field image to file
-    void save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz);
+    void save_deformation_field_fwrd(const std::string &filename, const bool &split_xyz);
 
     /// Save backward deformation field image to file
-    void save_deformation_field_back_image(const std::string &filename, const bool &split_xyz);
+    void save_deformation_field_back(const std::string &filename, const bool &split_xyz);
 
     /// Save forward displacement field image to file
-    void save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz);
+    void save_displacement_field_fwrd(const std::string &filename, const bool &split_xyz);
 
     /// Save backward displacement field image to file
-    void save_displacement_field_back_image(const std::string &filename, const bool &split_xyz);
+    void save_displacement_field_back(const std::string &filename, const bool &split_xyz);
 
 protected:
 

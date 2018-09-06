@@ -348,6 +348,9 @@ namespace SIRFRegMisc {
     }
 
     /// Compose multiple transformations into single deformation field
+    void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const SIRFImageData &ref);
+
+    /// Compose multiple transformations into single deformation field
     void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const SIRFImageData &ref);
 
     /// Get identity matrix
