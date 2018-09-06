@@ -217,10 +217,12 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
-		SignalContainer mock_signal = aux_test::get_mock_contrast_signal(all_acquis);
+		SignalContainer mock_sinus_signal = aux_test::get_mock_sinus_signal(all_acquis);
+		SignalContainer mock_ramp_signal = aux_test::get_mock_contrast_signal(all_acquis);
 
-	 	first_cont_dyn.set_dyn_signal( mock_signal );
-	 	second_cont_dyn.set_dyn_signal( mock_signal );
+
+	 	first_cont_dyn.set_dyn_signal( mock_sinus_signal );
+	 	second_cont_dyn.set_dyn_signal( mock_ramp_signal );
 
 		first_cont_dyn.bin_mr_acquisitions( all_acquis );
 		second_cont_dyn.bin_mr_acquisitions( all_acquis );
@@ -267,12 +269,13 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-		SignalContainer mock_signal = aux_test::get_mock_contrast_signal(all_acquis);
+		SignalContainer mock_sinus_signal = aux_test::get_mock_sinus_signal(all_acquis);
+		SignalContainer mock_ramp_signal = aux_test::get_mock_contrast_signal(all_acquis);
 
-	 	cardiac_dyn.set_dyn_signal( mock_signal );
+	 	cardiac_dyn.set_dyn_signal( mock_sinus_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	resp_dyn.set_dyn_signal( mock_signal );
+	 	resp_dyn.set_dyn_signal( mock_ramp_signal );
 	 	resp_dyn.bin_mr_acquisitions( all_acquis );
 		
 		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );

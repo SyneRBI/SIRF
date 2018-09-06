@@ -51,6 +51,8 @@ void MRDynamicSimulation::simulate_dynamics( void )
 
 void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 {
+	std::cout << "Simulating motion and contrast dynamics... " <<std::endl;
+
 	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 		
@@ -157,6 +159,8 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 }
 void MRDynamicSimulation::simulate_contrast_dynamics( void )
 {
+	std::cout << "Simulating contrast dynamics... " <<std::endl;
+
 	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 
@@ -218,6 +222,8 @@ void MRDynamicSimulation::simulate_contrast_dynamics( void )
 
 void MRDynamicSimulation::simulate_motion_dynamics( void )
 {
+	std::cout << "Simulating motion dynamics... " <<std::endl;
+
 	this->extract_hdr_information();
 	this->mr_cont_gen_.map_contrast();
 
