@@ -19,6 +19,6 @@ private:
 
 public:
 	static bool test_deform_contrast_generator( void );
-
+	static bool test_SIRFImageDataDeformation_memory_behavior( void );
 
 };

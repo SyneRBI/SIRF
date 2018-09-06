@@ -8,8 +8,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "auxiliary_testing_functions.h"
 
+#include "SIRFImageDataDeformation.h"
+
 #include "tests_dynsim_deformer.h"
 
+
+using namespace sirf;
 
 bool DynSimDeformerTester::test_deform_contrast_generator( void )
 {
@@ -54,8 +58,34 @@ try
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+}
 
 
+bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
+{
 
+	
+
+	try
+	{
+		bool test_succesful = true;
+	
+		typedef SIRFImageData ImageType; 
+		size_t const num_cycles = 10000;
+
+		for(size_t i_cycle=0; i_cycle<num_cycles; i_cycle++)
+		{
+			std::cout << "Cycle: " << i_cycle+1 << "/" << num_cycles << std::endl;
+			ImageType temp_img(DISPLACEMENT_FIELD_PATH);				
+		}
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
 
 }
