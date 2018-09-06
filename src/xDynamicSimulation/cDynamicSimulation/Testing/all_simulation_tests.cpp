@@ -67,14 +67,14 @@ void run_tests_dynamics( void )
 	// tests_successful *= test_dynamic::test_linear_interpolate_signal();
 	// tests_successful *= test_dynamic::test_get_set_bins();
 
-	// tests_successful *= test_dynamic::test_bin_mr_acquisitions();
+	tests_successful *= test_dynamic::test_bin_mr_acquisitions();
 
 	// tests_successful *= test_dynamic::test_motion_dynamic_counter();
 
 	// tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
 	// tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
 	// tests_successful *= test_dynamic::test_motion_dynamic_write_motion_fields();
-	tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
+	// tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
 
 	if ( !tests_successful )
 	{
@@ -99,8 +99,8 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= tests_mr_dynsim::test_constructor();
 	// tests_mr_dynsim::test_extract_hdr_information();
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
-	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
-	tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
+	tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
+	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
@@ -322,7 +322,8 @@ void run_tests_dynsim_deformer( void )
 	// bool tests_successful = true;
 	bool tests_successful = true;
 
-	tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
+	tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
 
 
 	if ( !tests_successful )
