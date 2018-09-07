@@ -1,5 +1,5 @@
-classdef ImageDataDeformation < mSIRFReg.ImageData
-% Class for deformation/displacement image data.
+classdef TransformationDisplacement < mSIRFReg.Transformation
+% Class for displacement transformations.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,17 +20,21 @@ classdef ImageDataDeformation < mSIRFReg.ImageData
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFImageDataDeformation';
+            name = 'SIRFRegTransformationDisplacement';
         end
     end
     methods
-        function self = ImageDataDeformation(filename)
+        function self = TransformationDisplacement(src)
             narginchk(0,1)
-            self.name = 'SIRFImageDataDeformation';
+            self.name = 'SIRFRegTransformationDisplacement';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+            elseif ischar(src)
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
+            elseif isa(src, 'mSIRFReg.ImageDataDeformation')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation', src.handle_);
             else
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, filename);
+                error('ImageData accepts no args, filename or ImageDataDeformation.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -39,19 +43,6 @@ classdef ImageDataDeformation < mSIRFReg.ImageData
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
-        end
-        function save_to_file(self, filename, split_xyz)
-            % Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_save_to_file', self.handle_, filename, split_xyz);
-            mUtilities.check_status([self.name ':save_to_file'], h);
-            mUtilities.delete(h)
-        end
-        function create_from_3D_image(self, src)
-            %Create deformation/displacement field from 3D image.
-            assert(isa(src, 'mSIRFReg.ImageData'))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_create_from_3D_image', self.handle_, src.handle_);
-            mUtilities.check_status([self.name ':create_from_3d_image'], h);
-            mUtilities.delete(h)
         end
     end
 end

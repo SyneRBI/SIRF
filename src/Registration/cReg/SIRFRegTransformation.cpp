@@ -30,28 +30,56 @@ limitations under the License.
 #include "SIRFRegTransformation.h"
 #include "SIRFRegMisc.h"
 #include <_reg_globalTrans.h>
+#include <sstream>
 
 using namespace std;
 
-SIRFImageDataDeformation SIRFRegTransformationAffine::get_as_deformation_field(const SIRFImageData &ref)
+void SIRFRegTransformation::check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const
+{
+    // Check image size of ref matches def
+    int ref_dims[8], def_dims[8];
+    ref.get_dimensions(ref_dims);
+    def.get_dimensions(def_dims);
+
+    bool all_ok = true;
+    for (int i=1; i<=3; ++i)
+        if (ref_dims[i] != def_dims[i])
+            all_ok = false;
+
+    if (!all_ok) {
+        stringstream ss;
+        ss << "Deformation field image should contain same number of x, y and z voxels.\n";
+        ss << "Reference: ";
+        for (int i=1; i<=3; ++i) ss << ref_dims[i] << " ";
+        ss << "\nDeformation: ";
+        for (int i=1; i<=3; ++i) ss << def_dims[i] << " ";
+        throw std::runtime_error(ss.str());
+    }
+}
+
+SIRFImageDataDeformation SIRFRegTransformationAffine::get_as_deformation_field(const SIRFImageData &ref) const
 {
     SIRFImageDataDeformation def;
     def.create_from_3D_image(ref);
-    reg_affine_getDeformationField(&_tm, def.get_image_as_nifti().get());
+    mat44 temp = _tm; // Need temp as the following isn't marked const
+    reg_affine_getDeformationField(&temp, def.get_image_as_nifti().get());
     def.get_image_as_nifti()->intent_p1 = DEF_FIELD;
     return def;
 }
 
-SIRFImageDataDeformation SIRFRegTransformationDisplacement::get_as_deformation_field(const SIRFImageData &)
+SIRFImageDataDeformation SIRFRegTransformationDisplacement::get_as_deformation_field(const SIRFImageData &ref) const
 {
     SIRFImageDataDeformation def;
     def = _disp.deep_copy();
     SIRFRegMisc::convert_from_disp_to_def(def);
+
+    check_ref_and_def(ref,def);
     return def;
 }
 
-SIRFImageDataDeformation SIRFRegTransformationDeformation::get_as_deformation_field(const SIRFImageData &)
+SIRFImageDataDeformation SIRFRegTransformationDeformation::get_as_deformation_field(const SIRFImageData &ref) const
 {
+    check_ref_and_def(ref,_def);
     return _def;
 }
 

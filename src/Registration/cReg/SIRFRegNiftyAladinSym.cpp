@@ -61,7 +61,7 @@ void SIRFRegNiftyAladinSym<T>::update()
     _registration_sptr->Run();
 
     // Get the output
-    _warped_image = SIRFImageData(_registration_sptr->GetFinalWarpedImage());
+    _warped_image = SIRFImageData(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
@@ -76,7 +76,6 @@ void SIRFRegNiftyAladinSym<T>::update()
     SIRFRegMisc::print_mat44(_TM_fwrd);
     cout << "\nPrinting backwards tranformation matrix:\n";
     SIRFRegMisc::print_mat44(_TM_back);
-
 
 #if NIFTYREG_VER_1_5
     // affine->def->disp

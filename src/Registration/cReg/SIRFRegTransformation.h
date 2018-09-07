@@ -44,7 +44,11 @@ public:
     virtual ~SIRFRegTransformation() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &) = 0;
+    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const = 0;
+
+protected:
+    /// Check that the deformation field image matches the reference image.
+    void check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const;
 };
 
 /// Class for SIRFReg transformations with an affine transformation
@@ -68,7 +72,7 @@ public:
     virtual ~SIRFRegTransformationAffine() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref);
+    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationAffine deep_copy() const;
@@ -95,7 +99,7 @@ public:
     virtual ~SIRFRegTransformationDisplacement() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &);
+    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationDisplacement deep_copy() const;
@@ -123,7 +127,7 @@ public:
     virtual ~SIRFRegTransformationDeformation() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &);
+    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationDeformation deep_copy() const;

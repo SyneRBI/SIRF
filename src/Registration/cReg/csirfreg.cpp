@@ -30,6 +30,7 @@ limitations under the License.
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
+#include "SIRFRegTransformation.h"
 #include "stir_data_containers.h"
 
 using namespace stir;
@@ -68,6 +69,12 @@ void* cSIRFReg_newObject(const char* name)
             return newObjectHandle<SIRFRegImageWeightedMean3D>();
         if (boost::iequals(name, "SIRFRegImageWeightedMean4D"))
             return newObjectHandle<SIRFRegImageWeightedMean4D>();
+        if (boost::iequals(name, "SIRFRegTransformationAffine"))
+            return newObjectHandle<SIRFRegTransformationAffine>();
+        if (boost::iequals(name, "SIRFRegTransformationDisplacement"))
+            return newObjectHandle<SIRFRegTransformationDisplacement>();
+        if (boost::iequals(name, "SIRFRegTransformationDeformation"))
+            return newObjectHandle<SIRFRegTransformationDeformation>();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -128,6 +135,21 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
 				sptr(new SIRFImageDataDeformation(filename));
 			return newObjectHandle(sptr);
 		}
+        if (boost::iequals(name, "SIRFRegTransformationAffine")) {
+            shared_ptr<SIRFRegTransformationAffine>
+                sptr(new SIRFRegTransformationAffine(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "SIRFRegTransformationDisplacement")) {
+            shared_ptr<SIRFRegTransformationDisplacement>
+                sptr(new SIRFRegTransformationDisplacement(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "SIRFRegTransformationDeformation")) {
+            shared_ptr<SIRFRegTransformationDeformation>
+                sptr(new SIRFRegTransformationDeformation(filename));
+            return newObjectHandle(sptr);
+        }
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -219,6 +241,85 @@ void* cSIRFReg_dump_nifti_info_im5(const void* im1, const void* im2, const void*
     }
     CATCH;
 }
+extern "C"
+void* cSIRFReg_SIRFReg_open_TM(const char* filename, size_t ptr_TM)
+{
+    try {
+        float* TM = (float*)ptr_TM;
+        mat44 tm;
+        SIRFRegMisc::open_transformation_matrix(tm, filename);
+
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                TM[i+j*4] = tm.m[i][j];
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+void* cSIRFReg_compose_transformations_into_single_deformation2(const void* im, const void* trans1, const void* trans2)
+{
+    try {
+        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        std::vector<SIRFRegTransformation*> vec;
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
+
+        SIRFRegMisc::compose_transformations_into_single_deformation(*def_sptr, vec, ref);
+        return newObjectHandle(def_sptr);
+    }
+    CATCH;
+}
+void* cSIRFReg_compose_transformations_into_single_deformation3(const void* im, const void* trans1, const void* trans2, const void* trans3)
+{
+    try {
+        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        std::vector<SIRFRegTransformation*> vec;
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans3));
+
+        SIRFRegMisc::compose_transformations_into_single_deformation(*def_sptr, vec, ref);
+        return newObjectHandle(def_sptr);
+    }
+    CATCH;
+}
+void* cSIRFReg_compose_transformations_into_single_deformation4(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4)
+{
+    try {
+        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        std::vector<SIRFRegTransformation*> vec;
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans3));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans4));
+
+        SIRFRegMisc::compose_transformations_into_single_deformation(*def_sptr, vec, ref);
+        return newObjectHandle(def_sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_compose_transformations_into_single_deformation5(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
+{
+    try {
+        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        std::vector<SIRFRegTransformation*> vec;
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans3));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans4));
+        vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans5));
+
+        SIRFRegMisc::compose_transformations_into_single_deformation(*def_sptr, vec, ref);
+        return newObjectHandle(def_sptr);
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFImageData
 // -------------------------------------------------------------------------------- //
@@ -265,6 +366,58 @@ void* cSIRFReg_SIRFImageData_fill(const void* ptr, const float val)
     }
     CATCH;
 }
+extern "C"
+void* cSIRFReg_SIRFImageData_deep_copy(const void* ptr)
+{
+    try {
+        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        shared_ptr<SIRFImageData> sptr(new SIRFImageData(im.deep_copy()));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFImageData_get_dimensions(const void* ptr, size_t ptr_dim)
+{
+    try {
+        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        int* dim = (int*)ptr_dim;
+        im.get_dimensions(dim);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFImageData_get_data(const void* ptr, size_t ptr_data)
+{
+    try {
+        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        SIRFImageData copy = im.deep_copy();
+        SIRFRegMisc::change_datatype<float>(copy);
+        float* data = (float*)ptr_data;
+        size_t mem = im.get_image_as_nifti()->nvox * size_t(im.get_image_as_nifti()->nbyper);
+        // Copy!
+        memcpy(data, im.get_image_as_nifti()->data, mem);
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int maths_type)
+{
+    try {
+        SIRFImageData& im1 = objectFromHandle<SIRFImageData>(ptr);
+        SIRFImageData& im2 = objectFromHandle<SIRFImageData>(obj);
+        SIRFImageData res;
+        if (maths_type == 1)
+            res = im1 + im2;
+        else if (maths_type == -1)
+            res = im1 - im2;
+        shared_ptr<SIRFImageData> sptr(new SIRFImageData(res));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFImageDataDeformation
 // -------------------------------------------------------------------------------- //
@@ -288,6 +441,16 @@ void* cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(void* ptr, const vo
 		return new DataHandle;
 	}
 	CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFImageDataDeformation_deep_copy(const void* ptr)
+{
+    try {
+        SIRFImageDataDeformation& im = objectFromHandle<SIRFImageDataDeformation>(ptr);
+        shared_ptr<SIRFImageDataDeformation> sptr(new SIRFImageDataDeformation(im.deep_copy()));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
 }
 // -------------------------------------------------------------------------------- //
 //      SIRFReg
@@ -317,19 +480,38 @@ void* cSIRFReg_SIRFReg_save_deformation_displacement_image(const void *ptr, cons
 {
     try {
         SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
-        if (strcmp(type,"fwrd_deformation"))
-            reg.save_deformation_field_fwrd_image(filename, split_xyz);
-        else if (strcmp(type,"back_deformation"))
-            reg.save_deformation_field_back_image(filename, split_xyz);
-        else if (strcmp(type,"fwrd_displacement"))
-            reg.save_displacement_field_fwrd_image(filename, split_xyz);
-        else if (strcmp(type,"back_displacement"))
-            reg.save_displacement_field_back_image(filename, split_xyz);
+        if (strcmp(type,"fwrd_deformation") == 0)
+            reg.save_deformation_field_fwrd(filename, split_xyz);
+        else if (strcmp(type,"back_deformation") == 0)
+            reg.save_deformation_field_back(filename, split_xyz);
+        else if (strcmp(type,"fwrd_displacement") == 0)
+            reg.save_displacement_field_fwrd(filename, split_xyz);
+        else if (strcmp(type,"back_displacement") == 0)
+            reg.save_displacement_field_back(filename, split_xyz);
         return new DataHandle;
     }
     CATCH;
 }
-
+extern "C"
+void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char* type)
+{
+    try {
+        SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
+        shared_ptr<SIRFImageDataDeformation> sptr;
+        if (strcmp(type,"fwrd_deformation") == 0)
+            sptr.reset(new SIRFImageDataDeformation(reg.get_deformation_field_fwrd()));
+        else if (strcmp(type,"back_deformation") == 0)
+            sptr.reset(new SIRFImageDataDeformation(reg.get_deformation_field_back()));
+        else if (strcmp(type,"fwrd_displacement") == 0)
+            sptr.reset(new SIRFImageDataDeformation(reg.get_displacement_field_fwrd()));
+        else if (strcmp(type,"back_displacement") == 0)
+            sptr.reset(new SIRFImageDataDeformation(reg.get_displacement_field_back()));
+        else
+            throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFRegNiftyAladinSym
 // -------------------------------------------------------------------------------- //
@@ -338,12 +520,34 @@ void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void *ptr,
 {
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
-        if (strcmp(dir,"fwrd"))
+        if (strcmp(dir,"fwrd") == 0)
             reg.save_transformation_matrix_fwrd(filename);
-        else if (strcmp(dir,"back"))
+        else if (strcmp(dir,"back") == 0)
             reg.save_transformation_matrix_fwrd(filename);
         else
             throw std::runtime_error("only accept fwrd or back as argument to dir for saving transformation matrix");
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFReg_get_TM(const void* ptr, size_t ptr_TM, const char* dir)
+{
+    try {
+        SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
+        float* TM = (float*)ptr_TM;
+        mat44 trans_m;
+        if (strcmp(dir,"fwrd") == 0)
+            trans_m = reg.get_transformation_matrix_fwrd();
+        else if (strcmp(dir,"back") == 0)
+            trans_m = reg.get_transformation_matrix_back();
+        else
+            throw std::runtime_error("only accept fwrd or back as argument to dir for saving transformation matrix");
+
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                TM[i+j*4] = trans_m.m[i][j];
+
         return new DataHandle;
     }
     CATCH;
@@ -352,6 +556,23 @@ void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void *ptr,
 // -------------------------------------------------------------------------------- //
 //      SIRFRegNiftyResample
 // -------------------------------------------------------------------------------- //
+extern "C"
+void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char *type)
+{
+    try {
+        SIRFRegNiftyResample& res = objectFromHandle<SIRFRegNiftyResample>(self);
+        if (strcmp(type, "affine") == 0)
+            res.add_transformation_affine(objectFromHandle<SIRFRegTransformationAffine>(trans));
+        else if (strcmp(type, "displacement") == 0)
+            res.add_transformation_disp(objectFromHandle<SIRFRegTransformationDisplacement>(trans));
+        else if (strcmp(type, "deformation") == 0)
+            res.add_transformation_def(objectFromHandle<SIRFRegTransformationDeformation>(trans));
+        else
+            throw std::runtime_error("only accept 'affine', 'displacement' or 'deformation' as argument adding transformation matrix to resample.");
+        return new DataHandle;
+    }
+    CATCH;
+}
 extern "C"
 void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr)
 {
@@ -458,6 +679,60 @@ void* cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(const void *ptr, co
         SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
         im_weight.save_image_to_file(filename);
         return new DataHandle;
+    }
+    CATCH;
+}
+
+// -------------------------------------------------------------------------------- //
+//      SIRFRegTransformation
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref)
+{
+    try {
+        SIRFRegTransformation& trans = objectFromHandle<SIRFRegTransformation>(ptr);
+        SIRFImageData& ref_im = objectFromHandle<SIRFImageData>(ref);
+        SIRFImageDataDeformation res = trans.get_as_deformation_field(ref_im);
+        shared_ptr<SIRFImageData> sptr(new SIRFImageData(res));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(size_t ptr_TM)
+{
+    try {
+        float* TM = (float*)ptr_TM;
+        mat44 trans_m;
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                trans_m.m[i][j] = TM[i+j*4];
+
+        SIRFRegTransformationAffine trans(trans_m);
+        shared_ptr<SIRFRegTransformationAffine> sptr(new SIRFRegTransformationAffine(trans));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation(const void* ptr)
+{
+    try {
+        SIRFImageDataDeformation& disp = objectFromHandle<SIRFImageDataDeformation>(ptr);
+        SIRFRegTransformationDisplacement trans(disp);
+        shared_ptr<SIRFRegTransformationDisplacement> sptr(new SIRFRegTransformationDisplacement(trans.deep_copy()));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_SIRFRegTransformationDeformation_construct_from_SIRFImageDataDeformation(const void* ptr)
+{
+    try {
+        SIRFImageDataDeformation& def = objectFromHandle<SIRFImageDataDeformation>(ptr);
+        SIRFRegTransformationDeformation trans(def);
+        shared_ptr<SIRFRegTransformationDeformation> sptr(new SIRFRegTransformationDeformation(trans.deep_copy()));
+        return newObjectHandle(sptr);
     }
     CATCH;
 }

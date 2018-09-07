@@ -65,28 +65,28 @@ classdef (Abstract = true) SIRFReg < handle
             mUtilities.check_status([self.name ':save_warped_image'], h);
             mUtilities.delete(h)
         end
-        function save_deformation_field_fwrd_image(self, filename, split_xyz)
+        function save_deformation_field_fwrd(self, filename, split_xyz)
             %Save forward deformation field image to file.
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'fwrd_deformation', split_xyz);
-            mUtilities.check_status([self.name ':save_deformation_field_fwrd_image'], h);
+            mUtilities.check_status([self.name ':save_deformation_field_fwrd'], h);
             mUtilities.delete(h)
         end
-        function save_deformation_field_back_image(self, filename, split_xyz)
+        function save_deformation_field_back(self, filename, split_xyz)
             %Save backward deformation field image to file.
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'back_deformation', split_xyz);
-            mUtilities.check_status([self.name ':save_deformation_field_back_image'], h);
+            mUtilities.check_status([self.name ':save_deformation_field_back'], h);
             mUtilities.delete(h)
         end
-        function save_displacement_field_fwrd_image(self, filename, split_xyz)
+        function save_displacement_field_fwrd(self, filename, split_xyz)
             %Save forward displacement field image to file.
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'fwrd_displacement', split_xyz);
-            mUtilities.check_status([self.name ':save_displacement_field_fwrd_image'], h);
+            mUtilities.check_status([self.name ':save_displacement_field_fwrd'], h);
             mUtilities.delete(h)
         end
-        function save_displacement_field_back_image(self, filename, split_xyz)
+        function save_displacement_field_back(self, filename, split_xyz)
             %Save backward displacement field image to file.
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'back_displacement', split_xyz);
-            mUtilities.check_status([self.name ':save_displacement_field_back_image'], h);
+            mUtilities.check_status([self.name ':save_displacement_field_back'], h);
             mUtilities.delete(h)
         end
         function update(self)
@@ -95,6 +95,30 @@ classdef (Abstract = true) SIRFReg < handle
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_update', self.handle_);
             mUtilities.check_status([self.name ':update'], h);
             mUtilities.delete(h)
+        end
+        function output = get_deformation_field_fwrd(self)
+            %Gets the forward deformation field image.
+            output = mSIRFReg.ImageDataDeformation();
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_deformation');
+            mUtilities.check_status([self.name ':get_deformation_field_fwrd'], output.handle_);
+        end
+        function output = get_deformation_field_back(self)
+            %Gets the backwards deformation field image.
+            output = mSIRFReg.ImageDataDeformation();
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_deformation');
+            mUtilities.check_status([self.name ':get_deformation_field_back'], output.handle_);
+        end
+        function output = get_displacement_field_fwrd(self)
+            %Gets the forward displacement field image.
+            output = mSIRFReg.ImageDataDeformation();
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_displacement');
+            mUtilities.check_status([self.name ':get_displacement_field_fwrd'], output.handle_);
+        end
+        function output = get_displacement_field_back(self)
+            %Gets the backwards displacement field image.
+            output = mSIRFReg.ImageDataDeformation();
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_displacement');
+            mUtilities.check_status([self.name ':get_displacement_field_back'], output.handle_);
         end
     end
 end

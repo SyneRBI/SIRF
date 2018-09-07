@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     else
         SIRF_PATH = argv[1];
     string examples_path = SIRF_PATH + "/data/examples/Registration";
-    string output_path   = "results/";
+    string output_path   = "results/cplusplus_";
 
     // Input filenames
     string ref_aladin_filename      = examples_path + "/test.nii.gz";
@@ -63,21 +63,28 @@ int main(int argc, char* argv[])
     string stir_nifti               = examples_path + "/nifti_created_by_stir.nii";
 
     // Output filenames
-    string aladin_warped            = output_path   + "cplusplus_aladin_warped";
-    string f3d_warped               = output_path   + "cplusplus_f3d_warped";
-    string TM_fwrd                  = output_path   + "cplusplus_TM_fwrd.txt";
-    string TM_back                  = output_path   + "cplusplus_TM_back.txt";
-    string aladin_disp_fwrd         = output_path   + "cplusplus_aladin_disp_fwrd";
-    string aladin_disp_back         = output_path   + "cplusplus_aladin_disp_back";
-    string f3d_disp_fwrd            = output_path   + "cplusplus_f3d_disp_fwrd";
-    string f3d_disp_back            = output_path   + "cplusplus_f3d_disp_back";
-    string rigid_resample           = output_path   + "cplusplus_rigid_resample";
-    string nonrigid_resample_def    = output_path   + "cplusplus_nonrigid_resample_def";
-    string nonrigid_resample_disp   = output_path   + "cplusplus_nonrigid_resample_disp";
-    string output_weighted_mean     = output_path   + "cplusplus_weighted_mean";
-    string output_weighted_mean_def = output_path   + "cplusplus_weighted_mean_def";
+    string img_data                 = output_path + "save_SIRFImageData";
+    string img_data_def_not_split   = output_path + "save_SIRFImageDataDeformation_not_split";
+    string img_data_def_split       = output_path + "save_SIRFImageDataDeformation_split";
+    string aladin_warped            = output_path   + "aladin_warped";
+    string f3d_warped               = output_path   + "f3d_warped";
+    string TM_fwrd                  = output_path   + "TM_fwrd.txt";
+    string TM_back                  = output_path   + "TM_back.txt";
+    string aladin_def_fwrd          = output_path   + "aladin_def_fwrd";
+    string aladin_def_back          = output_path   + "aladin_def_back";
+    string aladin_disp_fwrd         = output_path   + "aladin_disp_fwrd";
+    string aladin_disp_back         = output_path   + "aladin_disp_back";
+    string f3d_disp_fwrd            = output_path   + "f3d_disp_fwrd";
+    string f3d_disp_back            = output_path   + "f3d_disp_back";
+    string f3d_def_fwrd             = output_path   + "f3d_def_fwrd";
+    string f3d_def_back             = output_path   + "f3d_def_back";
+    string rigid_resample           = output_path   + "rigid_resample";
+    string nonrigid_resample_disp   = output_path   + "nonrigid_resample_disp";
+    string nonrigid_resample_def    = output_path   + "nonrigid_resample_def";
+    string output_weighted_mean     = output_path   + "weighted_mean";
+    string output_weighted_mean_def = output_path   + "weighted_mean_def";
 
-    string output_stir_nifti        = output_path   + "cplusplus_stir_nifti.nii";
+    string output_stir_nifti        = output_path   + "stir_nifti.nii";
 
     SIRFImageData ref_aladin( ref_aladin_filename );
     SIRFImageData flo_aladin( flo_aladin_filename );
@@ -87,241 +94,439 @@ int main(int argc, char* argv[])
 
     float required_percentage_accuracy = 1.F;
 
+    bool try_misc_functions = true;
+    bool try_sirfimagedata = true;
+    bool try_sirfimagedatadeformation = true;
+    bool try_niftyaladin = true;
+    bool try_niftyf3d = true;
+    bool try_transformations = true;
+    bool try_resample = true;
+    bool try_weighted_mean = true;
+    bool try_stir_to_sirfreg = true;
 
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty aladin test...                          //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
+    if (try_misc_functions) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting misc functions test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        // do nifti images match?
+        if (!SIRFRegMisc::do_nifti_images_match(ref_aladin, ref_aladin, required_percentage_accuracy))
+            throw runtime_error("Images don't match, but they should.");
+        cerr << "\nThe following images intentionally do not match.\n";
+        if (SIRFRegMisc::do_nifti_images_match(ref_aladin, flo_aladin, required_percentage_accuracy))
+            throw runtime_error("Images don't match, but they should.");
+
+        // dump from filename
+        SIRFRegMisc::dump_nifti_info(ref_aladin_filename);
+        // dump from SIRFImageData
+        SIRFRegMisc::dump_nifti_info(ref_aladin);
+        // dump from multiple images
+        std::vector<SIRFImageData> vec;
+        vec.push_back(ref_aladin);
+        vec.push_back(flo_aladin);
+        vec.push_back(nifti);
+        SIRFRegMisc::dump_nifti_info(vec);
+        // dump from SIRFImageDataDeformation
+        SIRFImageDataDeformation deform;
+        deform.create_from_3D_image(ref_aladin);
+        SIRFRegMisc::dump_nifti_info(deform);
+
+        // identity matrix
+        mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished misc functions test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_sirfimagedata) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting SIRFImageData test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+
+        // default constructor
+        SIRFImageData a;
+
+        // Read from file
+        SIRFImageData b(ref_aladin_filename);
+
+        // Construct from stir pSTIR.ImageData
+        sirf::PETImageData stir(stir_nifti);
+        SIRFImageData c(stir);
+
+        // Save to file
+        c.save_to_file(img_data);
+
+        // Fill
+        c.fill(100);
+
+        // Get max
+        if (fabs(c.get_max() - 100) > 1.e-5F)
+            throw runtime_error("SIRFImageData fill()/get_max() failed.");
+
+        // Get min
+        if (fabs(c.get_min() - 100) > 1.e-5F)
+            throw runtime_error("SIRFImageData fill()/get_min() failed.");
+
+        // Copy data to pSTIRImageData
+        stir.fill(3.);
+        c.copy_data_to(stir);
+        if (fabs(stir.data_sptr()->find_max() - 100) > 1.e-5F)
+            throw runtime_error("SIRFImageData copy_data_to stir ImageData failed.");
+
+        // Deep copy
+        SIRFImageData d = c.deep_copy();
+        if (&d == &c)
+            throw runtime_error("SIRFImageData deep_copy failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+            throw runtime_error("SIRFImageData deep_copy failed.");
+
+        // Addition
+        SIRFImageData e = d + d;
+        if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
+            throw runtime_error("SIRFImageData __add__/get_max() failed.");
+
+        // Subtraction
+        e = d - d;
+        if (e.get_max() > 0.0001F)
+            throw runtime_error("SIRFImageData __sub__/get_max() failed.");
+
+        // Sum
+        if (e.get_sum() > 0.0001F)
+            throw runtime_error("SIRFImageData get_sum() failed.");
+
+        // Dimensions
+        int f[8];
+        int g[8] = {3, 285, 285, 127, 1, 1, 1, 1};
+        e.get_dimensions(f);
+        for (int i=0; i<8; ++i)
+            if (g[i] != f[i])
+                throw runtime_error("SIRFImageData get_dimensions() failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished SIRFImageData test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_sirfimagedatadeformation) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting SIRFImageDataDeformation test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+
+        // Create SIRFImageDataDeformation from SIRFImageData
+        SIRFImageDataDeformation b;
+        b.create_from_3D_image(ref_aladin);
+
+        // Save to file
+        b.save_to_file(img_data_def_not_split, false);
+        b.save_to_file(img_data_def_split, true);
+
+        // Constructor from file
+        SIRFImageDataDeformation c(img_data_def_not_split + ".nii");
+
+        // Fill
+        c.fill(100);
+
+        // Get max
+        if (fabs(c.get_max() - 100) > 1.e-5F)
+            throw runtime_error("SIRFImageDataDeformation fill()/get_max() failed.");
+
+        // Get min
+        if (fabs(c.get_min() - 100) > 1.e-5F)
+            throw runtime_error("SIRFImageDataDeformation fill()/get_min() failed.");
+
+        // Deep copy
+        SIRFImageDataDeformation d = c.deep_copy();
+        if (&d == &c)
+            throw runtime_error("SIRFImageDataDeformation deep_copy failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+            throw runtime_error("SIRFImageDataDeformation deep_copy failed.");
+
+        // Addition
+        SIRFImageData e = d + d;
+        if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
+            throw runtime_error("SIRFImageDataDeformation __add__/get_max() failed.");
+
+        // Subtraction
+        e = d - d;
+        if (e.get_max() > 0.0001F)
+            throw runtime_error("SIRFImageDataDeformation __sub__/get_max() failed.");
+
+        // Sum
+        if (e.get_sum() > 0.0001F)
+            throw runtime_error("SIRFImageDataDeformation get_sum() failed.");
+
+        // Dimensions
+        int f[8];
+        int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
+        e.get_dimensions(f);
+        for (int i=0; i<8; ++i)
+            if (g[i] != f[i])
+                throw runtime_error("SIRFImageDataDeformation get_dimensions() failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished SIRFImageDataDeformation test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
 
     SIRFRegNiftyAladinSym<float> NA;
-    NA.set_reference_image               (           ref_aladin          );
-    NA.set_floating_image                (           flo_aladin          );
-    NA.set_parameter_file                (      parameter_file_aladin    );
-    NA.update();
-    NA.save_warped_image                 (         aladin_warped         );
-    NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
-    NA.save_transformation_matrix_back   (             TM_back           );
-    NA.save_displacement_field_fwrd_image( aladin_disp_fwrd, true        );
-    NA.save_displacement_field_back_image( aladin_disp_back, true        );
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty aladin test.                            //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
+    if (try_niftyaladin) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting Nifty aladin test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
 
+        NA.set_reference_image               (           ref_aladin          );
+        NA.set_floating_image                (           flo_aladin          );
+        NA.set_parameter_file                (      parameter_file_aladin    );
+        NA.update();
+        NA.save_warped_image                 (         aladin_warped         );
+        NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
+        NA.save_transformation_matrix_back   (             TM_back           );
+        NA.save_displacement_field_fwrd      ( aladin_disp_fwrd, false       );
+        NA.save_displacement_field_back      ( aladin_disp_back, true        );
+        NA.save_deformation_field_fwrd       ( aladin_def_fwrd,  false       );
+        NA.save_deformation_field_back       ( aladin_def_back,  true        );
 
+        // Get outputs
+        SIRFImageData warped = NA.get_output();
+        SIRFImageDataDeformation def_fwrd  = NA.get_deformation_field_fwrd();
+        SIRFImageDataDeformation def_back  = NA.get_deformation_field_back();
+        SIRFImageDataDeformation disp_fwrd = NA.get_displacement_field_fwrd();
+        SIRFImageDataDeformation disp_back = NA.get_displacement_field_back();
 
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty f3d test...                             //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegNiftyF3dSym<float> NF;
-    NF.set_reference_image               (          ref_f3d           );
-    NF.set_floating_image                (          flo_f3d           );
-    NF.set_parameter_file                (     parameter_file_f3d     );
-    NF.set_reference_time_point          (             1              );
-    NF.set_floating_time_point           (             1              );
-    NF.update();
-    NF.save_warped_image                 (         f3d_warped         );
-    NF.save_displacement_field_fwrd_image( f3d_disp_fwrd, true        );
-    NF.save_displacement_field_fwrd_image( f3d_disp_back, true        );
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty f3d test.                               //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
+        // Fwrd TM
+        mat44 fwrd_tm = NA.get_transformation_matrix_fwrd();
+        SIRFRegMisc::print_mat44(fwrd_tm);
 
+        // Back TM
+        mat44 back_tm = NA.get_transformation_matrix_back();
+        SIRFRegMisc::print_mat44(back_tm);
 
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting transformations test...                       //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-    cout << "\nchecking if affine to deformation is ok...\n";
-    SIRFRegTransformationAffine trans_affine(NA.get_transformation_matrix_fwrd());
-    if (!SIRFRegMisc::do_nifti_images_match(trans_affine.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-        throw runtime_error("Affine as deformation does not match deformation.");
-
-    cout << "\nchecking if displacement to deformation is ok...\n";
-    SIRFRegTransformationDisplacement trans_disp(NA.get_displacement_field_fwrd());
-    if (!SIRFRegMisc::do_nifti_images_match(trans_disp.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-        throw runtime_error("Disp as deformation does not match deformation.");
-
-    cout << "\nchecking if deformation to deformation is ok...\n";
-    SIRFRegTransformationDeformation  trans_def(NA.get_deformation_field_fwrd());
-    if (!SIRFRegMisc::do_nifti_images_match(trans_def.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-        throw runtime_error("Def as deformation does not match deformation.");
-
-    cout << "\njoining two identity matrices and the disp field. convert to deformation, should be the same as the deformation created by the same registration...\n";
-    // Check that the composition of two identity matrices and the displacement field equals the deformation field image.
-    mat44 identity = SIRFRegMisc::get_identity_matrix();
-    std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
-    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(identity)));
-    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(identity)));
-    vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDisplacement(trans_disp)));
-    SIRFRegTransformationDeformation trans_composed;
-    SIRFRegMisc::compose_transformations_into_single_deformation(trans_composed, vec, ref_aladin);
-    if (!SIRFRegMisc::do_nifti_images_match(trans_composed.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-        throw runtime_error("identity(identity(displacement)) as deformation does not match deformation.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished transformations test.                         //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty resample rigid test...                  //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegNiftyResample NRA;
-    NRA.set_reference_image                (        ref_aladin        );
-    NRA.set_floating_image                 (        flo_aladin        );
-    NRA.add_transformation_affine          (          identity        );
-    NRA.add_transformation_affine          (          TM_fwrd         );
-    NRA.set_interpolation_type_to_cubic_spline();
-    NRA.update();
-    NRA.save_resampled_image               (        rigid_resample    );
-
-    if (!SIRFRegMisc::do_nifti_images_match(NA.get_output(),NRA.get_output(), required_percentage_accuracy))
-        throw runtime_error("Resampled image (rigid) does not match the one resampled with aladin.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty resample rigid test.                    //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty resample non-rigid deformation test...  //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-    SIRFRegNiftyResample NRF2;
-    NRF2.set_reference_image                (               ref_f3d            );
-    NRF2.set_floating_image                 (               flo_f3d            );
-    NRF2.set_interpolation_type_to_cubic_spline();
-    NRF2.add_transformation_def             (  NF.get_deformation_field_fwrd() );
-    NRF2.update();
-    NRF2.save_resampled_image               (       nonrigid_resample_def      );
-
-    if (!SIRFRegMisc::do_nifti_images_match(NF.get_output(),NRF2.get_output(), required_percentage_accuracy))
-        throw runtime_error("Resampled image (non-rigid) does not match the one resampled with f3d.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty resample non-rigid deformation test.    //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting Nifty resample non-rigid displacement test... //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-    SIRFRegNiftyResample NRF1;
-    NRF1.set_reference_image                (               ref_f3d            );
-    NRF1.set_floating_image                 (               flo_f3d            );
-    NRF1.set_interpolation_type_to_cubic_spline();
-    NRF1.add_transformation_disp            ( NF.get_displacement_field_fwrd() );
-    NRF1.update();
-    NRF1.save_resampled_image               (      nonrigid_resample_disp      );
-
-    if (!SIRFRegMisc::do_nifti_images_match(NF.get_output(),NRF1.get_output(), required_percentage_accuracy))
-        throw runtime_error("Resampled image (non-rigid) does not match the one resampled with f3d.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished Nifty resample non-rigid displacement test.   //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting weighted mean test...                         //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegImageWeightedMean<SIRFImageData> WM;
-    SIRFImageData im1(stir_nifti);
-    SIRFImageData im2(stir_nifti);
-    SIRFImageData im3(stir_nifti);
-    SIRFImageData im4(stir_nifti);
-    im1.fill(1.F);
-    im2.fill(4.F);
-    im3.fill(7.F);
-    im4.fill(6.F);
-
-    WM.add_image( im1, 2.F );
-    WM.add_image( im2, 4.F );
-    WM.add_image( im3, 3.F );
-    WM.add_image( im4, 1.F );
-    WM.update();
-    WM.save_image_to_file(output_weighted_mean);
-
-    // Answer should be 4.5, so compare it to that!
-    SIRFImageData res(stir_nifti);
-    res.fill(4.5F);
-
-    SIRFImageData dt = WM.get_output();
-    //SIRFImageDataDeformation def3 = dynamic_cast<SIRFImageDataDeformation&>(dt);
-
-    if (!SIRFRegMisc::do_nifti_images_match(WM.get_output(), res, required_percentage_accuracy))
-        throw runtime_error("Weighted mean does not match the original.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished weighted mean test.                           //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting weighted mean deformation test...             //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-    SIRFRegImageWeightedMean<SIRFImageDataDeformation> WM_def;
-    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
-    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
-    WM_def.add_image         (     NF.get_deformation_field_fwrd(), 0.2F    );
-    WM_def.update();
-    WM_def.save_image_to_file(output_weighted_mean_def);
-    SIRFImageDataDeformation def = WM_def.get_output();
-
-    if (!SIRFRegMisc::do_nifti_images_match(NF.get_deformation_field_fwrd() ,WM_def.get_output(), required_percentage_accuracy))
-        throw runtime_error("Weighted mean does not match the original.");
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished weighted mean deformation test.               //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-
-
-
-
-
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Starting PET SIRFImageData test...                     //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
-    // Open stir image and convert to SIRFImageData
-    sirf::PETImageData pet_image_data(stir_nifti);
-    SIRFImageData image_data_from_stir(pet_image_data);
-    // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
-    SIRFImageData image_data_from_nifti(stir_nifti);
-    SIRFRegMisc::do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
-    // Print info
-    std::vector<SIRFImageData> ims;
-    ims.push_back(image_data_from_stir);
-    ims.push_back(image_data_from_nifti);
-    SIRFRegMisc::dump_nifti_info(ims);
-    // Save the one opened by stir
-    image_data_from_stir.save_to_file(output_stir_nifti);
-    // Now clone the converted and fill with 1's
-    sirf::PETImageData cloned = pet_image_data;
-    cloned.fill(1.F);
-    // Fill the cloned image with data from converted
-    image_data_from_stir.copy_data_to(cloned);
-    // Compare
-    if (fabs(cloned.data()[0][0][0] - pet_image_data.data()[0][0][0]) > 1.e-7F) {
-        throw std::runtime_error("Image was not filled from nifti.");
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished Nifty aladin test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
     }
-    cout << "// ----------------------------------------------------------------------- //\n";
-    cout << "//                  Finished PET SIRFImageData test.                       //\n";
-    cout << "//------------------------------------------------------------------------ //\n";
 
 
+    if (try_niftyf3d)
+    {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting Nifty f3d test..\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        SIRFRegNiftyF3dSym<float> NF;
+        NF.set_reference_image               (          ref_f3d           );
+        NF.set_floating_image                (          flo_f3d           );
+        NF.set_parameter_file                (     parameter_file_f3d     );
+        NF.set_reference_time_point          (             1              );
+        NF.set_floating_time_point           (             1              );
+        NF.update();
+        NF.save_warped_image                 (         f3d_warped         );
+        NF.save_deformation_field_fwrd       ( f3d_def_fwrd,  true        );
+        NF.save_deformation_field_back       ( f3d_def_back,  false       );
+        NF.save_displacement_field_fwrd      ( f3d_disp_fwrd, true        );
+        NF.save_displacement_field_back      ( f3d_disp_back, false       );
+
+        // Get outputs
+        SIRFImageData warped = NF.get_output();
+        SIRFImageDataDeformation def_fwrd  = NF.get_deformation_field_fwrd();
+        SIRFImageDataDeformation def_back  = NF.get_deformation_field_back();
+        SIRFImageDataDeformation disp_fwrd = NF.get_displacement_field_fwrd();
+        SIRFImageDataDeformation disp_back = NF.get_displacement_field_back();
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished Nifty f3d test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_transformations) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting transformations test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        // Affine
+        cout << "\nTesting affine...\n";
+        SIRFRegTransformationAffine a1;
+        SIRFRegTransformationAffine a2(TM_fwrd);
+        SIRFRegTransformationAffine a3(NA.get_transformation_matrix_fwrd());
+
+        // Displacement
+        cout << "\nTesting displacement...\n";
+        SIRFRegTransformationDisplacement b1;
+        SIRFRegTransformationDisplacement b2(aladin_disp_fwrd + ".nii");
+        SIRFRegTransformationDisplacement b3(NA.get_displacement_field_fwrd());
+
+        // Deformation
+        cout << "\nTesting deformation...\n";
+        SIRFRegTransformationDeformation c1;
+        SIRFRegTransformationDeformation c2(aladin_def_fwrd + ".nii");
+        SIRFRegTransformationDeformation c3(NA.get_deformation_field_fwrd());
+
+        // Get as deformations
+        SIRFImageDataDeformation a_def = a3.get_as_deformation_field(ref_aladin);
+        SIRFImageDataDeformation b_def = b3.get_as_deformation_field(ref_aladin);
+        SIRFImageDataDeformation c_def = c3.get_as_deformation_field(ref_aladin);
+        if (!SIRFRegMisc::do_nifti_images_match(a_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+            throw runtime_error("SIRFRegTransformationAffine::get_as_deformation_field failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(b_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+            throw runtime_error("SIRFRegTransformationDisplacement::get_as_deformation_field failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(c_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+            throw runtime_error("SIRFImageDataDeformation::get_as_deformation_field failed.");
+
+        // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
+        mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
+        SIRFRegTransformationAffine trans_aff_iden(tm_iden);
+        std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDeformation(c3)));
+        SIRFRegTransformationDeformation composed;
+        SIRFRegMisc::compose_transformations_into_single_deformation(composed, vec, ref_aladin);
+        if (!SIRFRegMisc::do_nifti_images_match(composed.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+            throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished transformations test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_resample) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting Nifty resample test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        mat44 tm_eye = SIRFRegMisc::get_identity_matrix();
+        SIRFRegTransformationAffine tm_iden(tm_eye);
+        SIRFRegTransformationAffine tm(NA.get_transformation_matrix_fwrd());
+        SIRFRegTransformationDisplacement disp(NA.get_displacement_field_fwrd());
+        SIRFRegTransformationDeformation deff(NA.get_deformation_field_fwrd());
+
+        cout << "Testing rigid resample...\n";
+        SIRFRegNiftyResample nr1;
+        nr1.set_reference_image(ref_aladin);
+        nr1.set_floating_image(flo_aladin);
+        nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
+        nr1.set_interpolation_type(3); // try different interpolations (cubic)
+        nr1.add_transformation_affine(tm_iden);
+        nr1.add_transformation_affine(tm);
+        nr1.update();
+        nr1.save_resampled_image(rigid_resample);
+
+        cout << "Testing non-rigid displacement...\n";
+        SIRFRegNiftyResample nr2;
+        nr2.set_reference_image(ref_aladin);
+        nr2.set_floating_image(flo_aladin);
+        nr2.set_interpolation_type_to_sinc(); // try different interpolations
+        nr2.set_interpolation_type_to_linear(); // try different interpolations
+        nr2.add_transformation_disp(disp);
+        nr2.update();
+        nr2.save_resampled_image(nonrigid_resample_disp);
+
+        cout << "Testing non-rigid deformation...\n";
+        SIRFRegNiftyResample nr3;
+        nr3.set_reference_image(ref_aladin);
+        nr3.set_floating_image(flo_aladin);
+        nr3.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
+        nr3.add_transformation_def(deff);
+        nr3.set_interpolation_type_to_linear();
+        nr3.update();
+        nr3.save_resampled_image(nonrigid_resample_def);
+
+        if (!SIRFRegMisc::do_nifti_images_match(NA.get_output(), nr1.get_output(), required_percentage_accuracy))
+            throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished Nifty resample test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_weighted_mean) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting weighted mean test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        //  Do 3D
+        SIRFRegImageWeightedMean3D wm1;
+        SIRFImageData im1(stir_nifti);
+        SIRFImageData im2(stir_nifti);
+        SIRFImageData im3(stir_nifti);
+        SIRFImageData im4(stir_nifti);
+        im1.fill(1);
+        im2.fill(4);
+        im3.fill(7);
+        im4.fill(6);
+        wm1.add_image(im1, 2.F);
+        wm1.add_image(im2, 4.F);
+        wm1.add_image(im3, 3.F);
+        wm1.add_image(im4, 1.F);
+        wm1.update();
+        wm1.save_image_to_file(output_weighted_mean);
+        //  Answer should be 4.5, so compare it to that!
+        SIRFImageData res(stir_nifti);
+        res.fill(4.5F);
+
+        if (!SIRFRegMisc::do_nifti_images_match(wm1.get_output(), res, required_percentage_accuracy))
+            throw runtime_error("SIRFRegImageWeightedMean3D failed.");
+
+        //  Do 4D
+        SIRFRegImageWeightedMean4D wm2;
+        SIRFImageDataDeformation im4D1 = NA.get_deformation_field_fwrd().deep_copy();
+        SIRFImageDataDeformation im4D2 = NA.get_deformation_field_fwrd().deep_copy();
+        SIRFImageDataDeformation im4D3 = NA.get_deformation_field_fwrd().deep_copy();
+        SIRFImageDataDeformation im4D4 = NA.get_deformation_field_fwrd().deep_copy();
+        im4D1.fill(1.F);
+        im4D2.fill(4.F);
+        im4D3.fill(7.F);
+        im4D4.fill(6.F);
+        wm2.add_image(im4D1, 2.F);
+        wm2.add_image(im4D2, 4.F);
+        wm2.add_image(im4D3, 3.F);
+        wm2.add_image(im4D4, 1.F);
+        wm2.update();
+        wm2.save_image_to_file(output_weighted_mean_def);
+        //  Answer should be 4.5, so compare it to that!
+        SIRFImageDataDeformation res4D = NA.get_deformation_field_fwrd().deep_copy();
+        res4D.fill(4.5);
+
+        if (!SIRFRegMisc::do_nifti_images_match(wm2.get_output(), res4D, required_percentage_accuracy))
+            throw runtime_error("SIRFRegImageWeightedMean4D failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished weighted mean test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_stir_to_sirfreg) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting STIR to SIRFReg test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+            // Open stir image
+            sirf::PETImageData pet_image_data(stir_nifti);
+            SIRFImageData image_data_from_stir(pet_image_data);
+
+            // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
+            SIRFImageData image_data_from_nifti(stir_nifti);
+            SIRFRegMisc::do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
+
+            // Now fill the stir and sirfreg images with 1 and 100, respectively
+            pet_image_data.fill(1.F);
+            image_data_from_stir.fill(100.F);
+
+            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
+                throw runtime_error("STIR & SIRFReg seem to share the same data pointers (their values should be different, but they're the same).");
+
+            // Fill the stir image with the sirfreg
+            image_data_from_stir.copy_data_to(pet_image_data);
+            if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
+                throw runtime_error("SIRFImageData::copy_data_to failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished STIR to SIRFReg test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
 
     // Error handling
     } catch(const exception &error) {
