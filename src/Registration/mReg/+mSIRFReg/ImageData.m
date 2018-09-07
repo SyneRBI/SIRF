@@ -115,4 +115,11 @@ classdef ImageData < handle
             array = reshape(ptr_v.Value,dim);
         end
     end
+    methods (Hidden = true)
+        function dim = size(self)
+            % size
+            dim = self.get_dimensions();
+            dim = dim(2:dim(1)+1);
+        end
+    end
 end
