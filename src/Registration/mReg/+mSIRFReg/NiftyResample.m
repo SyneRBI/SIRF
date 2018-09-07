@@ -3,11 +3,11 @@ classdef NiftyResample < handle
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
-% 
+%
 % This is software developed for the Collaborative Computational
 % Project in Positron Emission Tomography and Magnetic Resonance imaging
 % (http://www.ccppetmr.ac.uk/).
-% 
+%
 % Licensed under the Apache License, Version 2.0 (the "License");
 % you may not use this file except in compliance with the License.
 % You may obtain a copy of the License at
@@ -39,38 +39,38 @@ classdef NiftyResample < handle
                 self.handle_ = [];
             end
         end
-        
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mSIRFReg.ImageData'))
+            assert(isa(reference_image, 'mSIRFReg.ImageData'), 'NiftyResample::set_reference_image expects ImageData')
             mSIRFReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mSIRFReg.ImageData'))
+            assert(isa(floating_image, 'mSIRFReg.ImageData'), 'NiftyResample::set_floating_image expects ImageData')
             mSIRFReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
-        function set_transformation_matrix(self, filename)
+        function add_transformation_affine(self, src)
             %Set transformation matrix.
-            assert(ischar(filename))
-            mSIRFReg.setParameter(self.handle_, self.name, 'transformation_matrix', filename)
+            assert(isa(src, 'mSIRFReg.TransformationAffine'), 'NiftyResample::add_transformation_affine expects TransformationAffine.')
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
         end
-        function set_displacement_field(self, displacement_field)
+
+        function add_transformation_disp(self, src)
             %Set displacement field.
-            assert(isa(displacement_field, 'mSIRFReg.ImageDataDeformation'))
-            mSIRFReg.setParameter(self.handle_, self.name, 'displacement_field', displacement_field, 'h')
+            assert(isa(src, 'mSIRFReg.TransformationDisplacement'), 'NiftyResample::add_transformation_disp expects TransformationDisplacement.')
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
         end
-        function set_deformation_field(self, deformation_field)
+
+        function add_transformation_def(self, src)
             %Set deformation field.
-            assert(isa(deformation_field, 'mSIRFReg.ImageDataDeformation'))
-            mSIRFReg.setParameter(self.handle_, self.name, 'deformation_field', deformation_field, 'h')
+            assert(isa(src, 'mSIRFReg.TransformationDeformation'), 'NiftyResample::add_transformation_def expects TransformationDeformation.')
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
         end
         function set_interpolation_type(self, type)
             %Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc.
-            assert(isinteger(type))
             mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')
         end
-        function set_interpolation_type_to_nearestneighbour(self)
+        function set_interpolation_type_to_nearest_neighbour(self)
             %Set interpolation type to nearest neighbour.
             mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 0, 'i')
         end
@@ -101,7 +101,7 @@ classdef NiftyResample < handle
         end
         function save_resampled_image(self, filename)
             %Save resampled image to file.
-            assert(ischar(filename))
+            assert(ischar(filename), 'NiftyResample::save_resampled_image expects char')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_save_resampled_image', self.handle_, filename);
             mUtilities.check_status([self.name ':save_resampled_image'], h);
             mUtilities.delete(h)

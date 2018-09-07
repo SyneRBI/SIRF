@@ -77,7 +77,6 @@ void SIRFRegNiftyAladinSym<T>::update()
     cout << "\nPrinting backwards tranformation matrix:\n";
     SIRFRegMisc::print_mat44(_TM_back);
 
-
 #if NIFTYREG_VER_1_5
     // affine->def->disp
     _def_image_fwrd.create_from_3D_image(_reference_image);

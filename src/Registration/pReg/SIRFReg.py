@@ -2,23 +2,23 @@
 Object-Oriented wrap for the cSIRFReg-to-Python interface pysirfreg.py
 """
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2018 University College London
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS, 
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2018 University College London
+#
+# This is software developed for the Collaborative Computational
+# Project in Positron Emission Tomography and Magnetic Resonance imaging
+# (http://www.ccppetmr.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import abc
 import inspect
@@ -57,7 +57,7 @@ ALL_CHANNELS = -1
 ############ Utilities for internal use only ##############
 
 
-def _setParameter(hs, set, par, hv, stack = None):
+def _setParameter(hs, set, par, hv, stack=None):
     # try_calling(pysirfreg.cSIRFReg_setParameter(hs, set, par, hv))
     if stack is None:
         stack = inspect.stack()[1]
@@ -223,10 +223,10 @@ def dump_nifti_info(to_dump):
             try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im3(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle))
         elif len(to_dump) == 4:
             try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im4(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle,
-                                                              to_dump[3].handle))
+                                                               to_dump[3].handle))
         elif len(to_dump) == 5:
             try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im5(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle,
-                                                              to_dump[3].handle, to_dump[4].handle))
+                                                               to_dump[3].handle, to_dump[4].handle))
         else:
             raise error('dump_nifti_info only implemented for up to 5 images.')
 
@@ -234,11 +234,46 @@ def dump_nifti_info(to_dump):
         raise error('dump_nifti_info requires filename, SIRFImageData or a list of SIRFImageData.')
 
 
+def get_matrix(filename=None):
+    """Get 4x4 matrix. If str is given, read from file. Else, return identity."""
+    if filename is None:
+        return numpy.identity(4, dtype=numpy.float32)
+    assert isinstance(filename, str)
+    tm = numpy.ndarray((4, 4), dtype=numpy.float32)
+    try_calling(pysirfreg.cSIRFReg_SIRFReg_open_TM(filename, tm.ctypes.data))
+    return tm
+
+
+def compose_transformations_into_single_deformation(trans, ref):
+    """Compose up to transformations into single deformation."""
+    assert isinstance(ref, ImageData)
+    assert all(isinstance(n, _Transformation) for n in trans)
+    if len(trans) == 1:
+        return trans[0]
+    z = TransformationDeformation()
+    if len(trans) == 2:
+        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation2(
+            ref.handle, trans[0].handle, trans[1].handle)
+    elif len(trans) == 3:
+        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation3(
+            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle)
+    elif len(trans) == 4:
+        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation4(
+            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle)
+    elif len(trans) == 5:
+        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation5(
+            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
+    else:
+        raise error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
+    check_status(z.handle)
+    return z
+
+
 class ImageData:
     """
     Class for image data.
     """
-    def __init__(self, src = None):
+    def __init__(self, src=None):
         self.handle = None
         self.name = 'SIRFImageData'
         if src is None:
@@ -247,8 +282,7 @@ class ImageData:
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
         elif isinstance(src, pSTIR.ImageData):
             # src is ImageData
-            self.handle = pysirfreg.cSIRFReg_SIRFImageData_from_PETImageData\
-                (src.handle)
+            self.handle = pysirfreg.cSIRFReg_SIRFImageData_from_PETImageData(src.handle)
         else:
             raise error('Wrong source in ImageData constructor')
         check_status(self.handle)
@@ -257,6 +291,26 @@ class ImageData:
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def __add__(self, other):
+        """
+        Overloads + for image data.
+        """
+        assert_validities(self, other)
+        z = ImageData()
+        z.handle = pysirfreg.cSIRFReg_SIRFImageData_maths(self.handle, other.handle, 1)
+        check_status(z.handle)
+        return z
+
+    def __sub__(self, other):
+        """
+        Overloads - for image data.
+        """
+        assert_validities(self, other)
+        z = ImageData()
+        z.handle = pysirfreg.cSIRFReg_SIRFImageData_maths(self.handle, other.handle, -1)
+        check_status(z.handle)
+        return z
+
     def save_to_file(self, filename):
         """Save to file."""
         assert self.handle is not None
@@ -264,11 +318,23 @@ class ImageData:
 
     def get_max(self):
         """Get max."""
-        return _float_par(self.handle, self.name, 'max')
+        return _float_par(self.handle, 'SIRFImageData', 'max')
 
     def get_min(self):
         """Get min."""
-        return _float_par(self.handle, self.name, 'min')
+        return _float_par(self.handle, 'SIRFImageData', 'min')
+
+    def get_sum(self):
+        """Get sum."""
+        return _float_par(self.handle, 'SIRFImageData', 'sum')
+
+    def get_dimensions(self):
+        """Get dimensions. Returns nifti format.
+        i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,..."""
+        assert self.handle is not None
+        dim = numpy.ndarray((8,), dtype=numpy.int32)
+        try_calling(pysirfreg.cSIRFReg_SIRFImageData_get_dimensions(self.handle, dim.ctypes.data))
+        return dim
 
     def copy_data_to(self, pet_image):
         """Fill the STIRImageData with the values from SIRFImageData."""
@@ -281,12 +347,28 @@ class ImageData:
         assert self.handle is not None
         try_calling(pysirfreg.cSIRFReg_SIRFImageData_fill(self.handle, val))
 
+    def deep_copy(self):
+        """Deep copy image."""
+        assert self.handle is not None
+        image = ImageData()
+        image.handle = pysirfreg.cSIRFReg_SIRFImageData_deep_copy(self.handle)
+        return image
+
+    def as_array(self):
+        """Get data as numpy array."""
+        assert self.handle is not None
+        dim = self.get_dimensions()
+        dim = dim[1:dim[0]+1]
+        array = numpy.ndarray(dim, dtype=numpy.float32)
+        try_calling(pysirfreg.cSIRFReg_SIRFImageData_get_data(self.handle, array.ctypes.data))
+        return array
+
 
 class ImageDataDeformation(ImageData):
     """
     Class for deformation/displacement image data.
     """
-    def __init__(self, src = None):
+    def __init__(self, src=None):
         self.handle = None
         self.name = 'SIRFImageDataDeformation'
         if src is None:
@@ -314,6 +396,14 @@ class ImageDataDeformation(ImageData):
         assert src.handle is not None
         assert isinstance(src, ImageData)
         try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(self.handle, src.handle))
+        check_status(self.handle)
+
+    def deep_copy(self):
+        """Deep copy image."""
+        assert self.handle is not None
+        image = ImageDataDeformation()
+        image.handle = pysirfreg.cSIRFReg_SIRFImageDataDeformation_deep_copy(self.handle)
+        return image
 
 
 class _SIRFReg(ABC):
@@ -332,19 +422,19 @@ class _SIRFReg(ABC):
         """Sets the parameter filename."""
         _set_char_par(self.handle, 'SIRFReg', 'parameter_file', filename)
 
-    def set_reference_image(self, input):
+    def set_reference_image(self, src):
         """Sets the reference image."""
-        assert isinstance(input, ImageData)
-        _setParameter(self.handle, 'SIRFReg', 'reference_image', input.handle)
+        assert isinstance(src, ImageData)
+        _setParameter(self.handle, 'SIRFReg', 'reference_image', src.handle)
 
-    def set_floating_image(self, input):
+    def set_floating_image(self, src):
         """Sets the floating image."""
-        assert isinstance(input, ImageData)
-        _setParameter(self.handle, 'SIRFReg', 'floating_image', input.handle)
+        assert isinstance(src, ImageData)
+        _setParameter(self.handle, 'SIRFReg', 'floating_image', src.handle)
 
     def get_output(self):
         """Gets the registered image."""
-        output = SIRFImageData()
+        output = ImageData()
         output.handle = pysirfreg.cSIRFReg_parameter(self.handle, 'SIRFReg', 'output')
         check_status(output.handle)
         return output
@@ -354,33 +444,65 @@ class _SIRFReg(ABC):
         assert isinstance(filename, str)
         try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename))
 
-    def save_deformation_field_fwrd_image(self, filename, split_xyz):
+    def save_deformation_field_fwrd(self, filename, split_xyz):
         """Save forward deformation field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'fwrd_deformation', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
+                                                                                   'fwrd_deformation', split_xyz))
 
-    def save_deformation_field_back_image(self, filename, split_xyz):
+    def save_deformation_field_back(self, filename, split_xyz):
         """Save backward deformation field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'back_deformation', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
+                                                                                   'back_deformation', split_xyz))
 
-    def save_displacement_field_fwrd_image(self, filename, split_xyz):
+    def save_displacement_field_fwrd(self, filename, split_xyz):
         """Save forward displacement field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'fwrd_displacement', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
+                                                                                   'fwrd_displacement', split_xyz))
 
-    def save_displacement_field_back_image(self, filename, split_xyz):
+    def save_displacement_field_back(self, filename, split_xyz):
         """Save backward displacement field image to file."""
         assert isinstance(filename, str)
         assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename, 'back_displacement', split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
+                                                                                   'back_displacement', split_xyz))
 
     def update(self):
         """Run the registration"""
         try_calling(pysirfreg.cSIRFReg_SIRFReg_update(self.handle))
+
+    def get_deformation_field_fwrd(self):
+        """Gets the forward deformation field image."""
+        output = ImageDataDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_deformation')
+        check_status(output.handle)
+        return output
+
+    def get_deformation_field_back(self):
+        """Gets the backwards deformation field image."""
+        output = ImageDataDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_deformation')
+        check_status(output.handle)
+        return output
+
+    def get_displacement_field_fwrd(self):
+        """Gets the forward displacement field image."""
+        output = ImageDataDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_displacement')
+        check_status(output.handle)
+        return output
+
+    def get_displacement_field_back(self):
+        """Gets the backwards displacement field image."""
+        output = ImageDataDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_displacement')
+        check_status(output.handle)
+        return output
 
 
 class NiftyAladinSym(_SIRFReg):
@@ -405,6 +527,20 @@ class NiftyAladinSym(_SIRFReg):
         """Save backward transformation matrix."""
         assert isinstance(filename, str)
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(self.handle, filename, 'back'))
+
+    def get_transformation_matrix_fwrd(self):
+        """Get forward transformation matrix."""
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype=numpy.float32)
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, tm.ctypes.data, 'fwrd'))
+        return tm
+
+    def get_transformation_matrix_back(self):
+        """Get backwards transformation matrix."""
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype=numpy.float32)
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, tm.ctypes.data, 'back'))
+        return tm
 
 
 class NiftyF3dSym(_SIRFReg):
@@ -456,27 +592,30 @@ class NiftyResample:
         assert isinstance(floating_image, ImageData)
         _setParameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
-    def set_transformation_matrix(self, filename):
-        """Set transformation matrix."""
-        assert isinstance(filename, str)
-        _set_char_par(self.handle, self.name, 'transformation_matrix', filename)
+    def add_transformation_affine(self, src):
+        """Add affine transformation."""
+        assert isinstance(src, TransformationAffine)
+        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
 
-    def set_displacement_field(self, displacement_field):
-        """Set displacement field."""
-        assert isinstance(displacement_field, ImageDataDeformation)
-        _setParameter(self.handle, self.name, 'displacement_field', displacement_field.handle)
+    def add_transformation_disp(self, src):
+        """Add displacement field."""
+        sys.stderr.write('\n\n\nim here1\n\n\n\n')
+        assert isinstance(src, TransformationDisplacement)
+        sys.stderr.write('\n\n\nim here2\n\n\n\n')
+        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
+        sys.stderr.write('\n\n\nim here3\n\n\n\n')
 
-    def set_deformation_field(self, deformation_field):
-        """Set deformation field."""
-        assert isinstance(deformation_field, ImageDataDeformation)
-        _setParameter(self.handle, self.name, 'deformation_field', deformation_field.handle)
+    def add_transformation_def(self, src):
+        """Add deformation field."""
+        assert isinstance(src, TransformationDeformation)
+        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
 
     def set_interpolation_type(self, type):
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
         assert isinstance(type, int)
         _set_int_par(self.handle, self.name, 'interpolation_type', type)
 
-    def set_interpolation_type_to_nearestneighbour(self):
+    def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
         _set_int_par(self.handle, self.name, 'interpolation_type', 0)
 
@@ -552,7 +691,6 @@ class ImageWeightedMean4D:
     """
     Class for performing weighted mean of deformation/displacement field images.
     """
-
     def __init__(self):
         self.name = 'SIRFRegImageWeightedMean4D'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
@@ -585,3 +723,93 @@ class ImageWeightedMean4D:
         image.handle = _getParameterHandle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
+
+
+class _Transformation(ABC):
+    """
+    Abstract base class for transformations.
+    """
+    def __init__(self):
+        self.handle = None
+        self.name = 'SIRFRegTransformation'
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def get_as_deformation_field(self, ref):
+        """Get any type of transformation as a deformation field.
+        This is useful for joining them together. Require a reference
+        image for converting transformation matrices to deformations."""
+        assert isinstance(ref, ImageData)
+        output = ImageDataDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFRegTransformation_get_as_deformation_field(self.handle, ref.handle)
+        check_status(output.handle)
+        return output
+
+
+class TransformationAffine(_Transformation):
+    """
+    Class for affine transformations.
+    """
+    def __init__(self, src=None):
+        self.name = 'SIRFRegTransformationAffine'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src, numpy.ndarray):
+            assert(src.shape == (4, 4))
+            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(src.ctypes.data)
+        else:
+            raise error('Wrong source in affine transformation constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
+class TransformationDisplacement(_Transformation):
+    """
+    Class for displacement transformations.
+    """
+    def __init__(self, src=None):
+        self.name = 'SIRFRegTransformationDisplacement'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src, ImageDataDeformation):
+            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation(
+                src.handle)
+        else:
+            raise error('Wrong source in displacement transformation constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
+class TransformationDeformation(_Transformation):
+    """
+    Class for deformation transformations.
+    """
+    def __init__(self, src=None):
+        self.name = 'SIRFRegTransformationDeformation'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src, ImageDataDeformation):
+            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDeformation_construct_from_SIRFImageDataDeformation(
+                src.handle)
+        else:
+            raise error('Wrong source in deformation transformation constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+

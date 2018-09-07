@@ -48,6 +48,20 @@ classdef ImageData < handle
                 self.handle_ = [];
             end
         end
+        function z = plus(self, other)
+            % Overloads the addition operator
+            mUtilities.assert_validities(self, other)
+            z = mSIRFReg.ImageData();
+            z.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_maths', self.handle_, other.handle_, 1);
+            mUtilities.check_status('ImageData:plus', z.handle_);
+        end
+        function z = minus(self, other)
+            % Overloads the subtraction operator
+            mUtilities.assert_validities(self, other)
+            z = mSIRFReg.ImageData();
+            z.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_maths', self.handle_, other.handle_, -1);
+            mUtilities.check_status('ImageData:plus', z.handle_);
+        end
         function save_to_file(self, filename)
             %Save to file.
             h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_save_to_file', self.handle_, filename);
@@ -56,11 +70,21 @@ classdef ImageData < handle
         end
         function value = get_max(self)
             %Get max.
-            value = mSIRFReg.parameter(self.handle_, self.name, 'max', 'f');
+            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'max', 'f');
         end
         function value = get_min(self)
             %Get min.
-            value = mSIRFReg.parameter(self.handle_, self.name, 'max', 'f');
+            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'max', 'f');
+        end
+        function value = get_sum(self)
+            %Get sum.
+            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'sum', 'f');
+        end
+        function value = get_dimensions(self)
+            %Get dimensions.
+            ptr_i = libpointer('int32Ptr', zeros(1, 8));
+            calllib('msirfreg', 'mSIRFReg_SIRFImageData_get_dimensions', self.handle_, ptr_i);
+            value = ptr_i.Value;
         end
         function copy_data_to(self, pet_image)
             %Fill the STIRImageData with the values from SIRFImageData.
@@ -74,6 +98,21 @@ classdef ImageData < handle
             h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_fill', self.handle_, val);
             mUtilities.check_status([self.name ':fill'], h);
             mUtilities.delete(h)            
+        end
+        function output = deep_copy(self)
+            %Deep copy image.
+            output = mSIRFReg.ImageData();
+            mUtilities.delete(output.handle_)
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_deep_copy', self.handle_);
+            mUtilities.check_status([self.name ':get_output'], output.handle_)
+        end
+        function array = as_array(self)
+            %Get data as numpy array.
+            dim = self.get_dimensions();
+            dim = dim(2:dim(1)+1);
+            ptr_v = libpointer('singlePtr', zeros(dim));
+            calllib('msirfreg', 'mSIRFReg_SIRFImageData_get_data', self.handle_, ptr_v);
+            array = reshape(ptr_v.Value,dim);
         end
     end
 end

@@ -630,7 +630,7 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
 }
 
 /// Compose multiple transformations into single deformation field
-void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const SIRFImageData &ref)
+void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const SIRFImageData &ref)
 {
     if (transformations.size() == 0)
         throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation no transformations given.");
@@ -644,6 +644,15 @@ void compose_transformations_into_single_deformation(SIRFRegTransformationDeform
     }
 
     def = SIRFRegTransformationDeformation(deformation);
+}
+
+/// Compose multiple transformations into single deformation field
+void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const SIRFImageData &ref)
+{
+    std::vector<SIRFRegTransformation*> vec;
+    for (unsigned i=0; i<transformations.size(); ++i)
+        vec.push_back(transformations.at(i).get());
+    compose_transformations_into_single_deformation(def, vec, ref);
 }
 
 /// Get identity matrix

@@ -161,15 +161,15 @@ int main(int argc, char* argv[])
 
         // Disp field images
         if (flag_disp_4D != -1)
-            aladin.save_displacement_field_fwrd_image(argv[flag_disp_4D+1],false);
+            aladin.save_displacement_field_fwrd(argv[flag_disp_4D+1],false);
         if (flag_disp_3D != -1)
-            aladin.save_displacement_field_fwrd_image(argv[flag_disp_3D+1],true);
+            aladin.save_displacement_field_fwrd(argv[flag_disp_3D+1],true);
 
         // Def field images
         if (flag_def_4D != -1)
-            aladin.save_deformation_field_fwrd_image(argv[flag_def_4D+1],false);
+            aladin.save_deformation_field_fwrd(argv[flag_def_4D+1],false);
         if (flag_def_3D != -1)
-            aladin.save_deformation_field_fwrd_image(argv[flag_def_3D+1],true);
+            aladin.save_deformation_field_fwrd(argv[flag_def_3D+1],true);
     }
 
     // If there was an error

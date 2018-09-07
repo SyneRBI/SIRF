@@ -50,5 +50,44 @@ classdef Misc < handle
 		    end
 		    mUtilities.check_status('parameter', h)
 		end
+		function tm = get_matrix(filename)
+	    	%Get 4x4 matrix. If str is given, read from file. Else, return identity.
+		    tm = eye(4,'single');
+		    if nargin == 1
+		    	assert(ischar(filename))
+		    	ptr_v = libpointer('singlePtr', zeros(4, 4));
+		    	calllib('msirfreg', 'mSIRFReg_SIRFReg_open_TM', filename, ptr_v);
+		    	tm = ptr_v.Value;
+			end
+			return
+		end
+		function z = compose_transformations_into_single_deformation(trans, ref)
+	    	%Compose up to transformations into single deformation.
+		    assert(isa(ref, 'mSIRFReg.ImageData'))
+		    assert(isa(trans, 'mSIRFReg.Transformation'))
+		    if isrow(trans); trans=trans'; end
+		    assert(iscolumn(trans));
+		    if size(trans,1) == 1
+		    	z = trans(1);
+		        return
+		    end
+		    z = mSIRFReg.TransformationDeformation();
+		    if size(trans,1) == 2
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_compose_transformations_into_single_deformation2',...
+		        	ref.handle_, trans(1).handle_, trans(2).handle_);
+		    elseif size(trans,1) == 3
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_compose_transformations_into_single_deformation3',...
+		            ref.handle_, trans(1).handle_, trans(2).handle_, trans(3).handle_);
+		    elseif size(trans,1) == 4
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_compose_transformations_into_single_deformation4',...
+		            ref.handle_, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_);
+		    elseif size(trans,1) == 5
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_compose_transformations_into_single_deformation5',...
+		            ref.handle_, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, trans(5).handle_);
+		    else
+		        error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
+		    end
+		    mUtilities.check_status('compose_transformations_into_single_deformation', z.handle_);
+		end
     end
 end

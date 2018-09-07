@@ -53,22 +53,22 @@ void SIRFReg::save_warped_image(const string filename) const
     _warped_image.save_to_file(filename);
 }
 
-void SIRFReg::save_deformation_field_fwrd_image(const std::string &filename, const bool &split_xyz)
+void SIRFReg::save_deformation_field_fwrd(const std::string &filename, const bool &split_xyz)
 {
     _def_image_fwrd.save_to_file(filename,split_xyz,"fowrard deformation");
 }
 
-void SIRFReg::save_deformation_field_back_image(const std::string &filename, const bool &split_xyz)
+void SIRFReg::save_deformation_field_back(const std::string &filename, const bool &split_xyz)
 {
     _def_image_back.save_to_file(filename,split_xyz,"backwards deformation");
 }
 
-void SIRFReg::save_displacement_field_fwrd_image(const std::string &filename, const bool &split_xyz)
+void SIRFReg::save_displacement_field_fwrd(const std::string &filename, const bool &split_xyz)
 {
     _disp_image_fwrd.save_to_file(filename,split_xyz,"forward displacement");
 }
 
-void SIRFReg::save_displacement_field_back_image(const std::string &filename, const bool &split_xyz)
+void SIRFReg::save_displacement_field_back(const std::string &filename, const bool &split_xyz)
 {
     _disp_image_back.save_to_file(filename,split_xyz,"backwards displacement");
 }

@@ -51,5 +51,17 @@ classdef NiftyAladinSym < mSIRFReg.SIRFReg
             mUtilities.check_status([self.name ':save_transformation_matrix_back'], h);
             mUtilities.delete(h)
         end
+        function tm = get_transformation_matrix_fwrd(self)
+            %Get forward transformation matrix.
+            ptr_v = libpointer('singlePtr', zeros(4, 4));
+            calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, ptr_v, 'fwrd');
+            tm = ptr_v.Value;
+        end
+        function tm = get_transformation_matrix_back(self)
+            %Get backwards transformation matrix.
+            ptr_v = libpointer('singlePtr', zeros(4, 4));
+            calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, ptr_v, 'back');
+            tm = ptr_v.Value;
+        end
     end
 end
