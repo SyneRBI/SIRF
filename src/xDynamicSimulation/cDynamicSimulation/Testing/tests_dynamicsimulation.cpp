@@ -330,9 +330,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 
-		// SignalContainer mock_motion_signal = aux_test::get_mock_sinus_signal(all_acquis);
-		SignalContainer mock_motion_signal = aux_test::get_mock_contrast_signal(all_acquis);
-
+		SignalContainer mock_motion_signal = aux_test::get_mock_sinus_signal(all_acquis);
+		
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
 	 	first_motion_dyn.set_dyn_signal( mock_motion_signal );
