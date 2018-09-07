@@ -110,8 +110,8 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 		
 		std::vector<size_t> spatial_traj_dims = data_dims_from_ndarray< std::vector<float> >( this->traj_ );
 
-		ho2DArray< floatd2 > trajectory( &spatial_traj_dims );
-		ho2DArray< float > DCF;
+
+		hoNDArray< floatd2 > trajectory( &spatial_traj_dims );
 		
 		size_t const num_traj_points = this->traj_.getNumberOfElements();
 
@@ -121,6 +121,8 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 		plan.preprocess( trajectory );
 
 		ho2DArray<float_complext> result; result.create(spatial_traj_dims[0], spatial_traj_dims[1]);
+		
+		ho2DArray< float > DCF;
 		plan.compute( sub_slice, result, DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
 
 	}
