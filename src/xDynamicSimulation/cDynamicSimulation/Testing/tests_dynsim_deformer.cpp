@@ -71,12 +71,13 @@ bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()
 		typedef SIRFImageData ImageType; 
 		size_t const num_cycles = 10000;
 
-		ImageType temp_img(DISPLACEMENT_FIELD_PATH);				
+		
 
 		for(size_t i_cycle=0; i_cycle<num_cycles; i_cycle++)
 		{
+			ImageType temp_img(DISPLACEMENT_FIELD_PATH);				
 			std::cout << "Cycle: " << i_cycle+1 << "/" << num_cycles << std::endl;
-			ImageType another_img(temp_img);				
+			// ImageType another_img(temp_img);				
 		}
 
 		return test_succesful;
