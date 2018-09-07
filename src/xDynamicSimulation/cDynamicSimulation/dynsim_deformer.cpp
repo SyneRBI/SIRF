@@ -89,7 +89,15 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 		throw std::runtime_error("The temporary folder creation to store image data to deform failed. Please choose a path which does not exist yet or to which you have access.");
 	}
 
-	bool  dummy_variable = boost::filesystem::remove_all(temp_folder_name_);
+	if( boost::filesystem::remove_all(temp_folder_name_) )
+		return;
+
+	else
+	{
+		throw std::runtime_error("The temporary folder deletion of stored image data to deform failed.");
+	}
+
+	
 }
 
 
