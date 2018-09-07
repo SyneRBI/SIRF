@@ -37,7 +37,7 @@ using namespace std;
 void SIRFRegTransformation::check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const
 {
     // Check image size of ref matches def
-    int ref_dims[6], def_dims[6];
+    int ref_dims[8], def_dims[8];
     ref.get_dimensions(ref_dims);
     def.get_dimensions(def_dims);
 

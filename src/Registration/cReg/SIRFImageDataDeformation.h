@@ -45,7 +45,7 @@ public:
     SIRFImageDataDeformation(const std::string &filename);
 
     /// Nifti constructor
-    SIRFImageDataDeformation(const nifti_image *image_nifti);
+    SIRFImageDataDeformation(const nifti_image &image_nifti);
 
     /// Nifti shared_ptr constructor
     SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti);
