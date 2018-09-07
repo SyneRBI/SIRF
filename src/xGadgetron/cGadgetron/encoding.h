@@ -16,6 +16,23 @@ typedef ISMRMRD::NDArray< std::vector<float> > TrajectoryType;
 
 
 
+template <typename T>
+std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > data)
+{
+	std::vector<size_t> data_dims( data.getDims(), data.getDims()+ISMRMRD::ISMRMRD_NDARRAY_MAXDIM );
+	for( int i=0; i<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
+	{
+		if( data_dims[i] == 0)
+			data_dims[i] = 1;
+	}
+	return data_dims;
+};
+
+
+
+
+
+
 class aCartesianReadoutFFT{
 
 public:
@@ -30,6 +47,8 @@ public:
 protected:
 
 	ISMRMRD::NDArray<complex_float_t> k_data_;
+
+
 	
 };
 
