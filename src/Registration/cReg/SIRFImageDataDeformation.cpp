@@ -39,7 +39,7 @@ SIRFImageDataDeformation::SIRFImageDataDeformation(const std::string &filename)
         throw runtime_error("A deformation/displacement field image should have ndim=5.");
 }
 
-SIRFImageDataDeformation::SIRFImageDataDeformation(const nifti_image *image_nifti)
+SIRFImageDataDeformation::SIRFImageDataDeformation(const nifti_image &image_nifti)
     : SIRFImageData(image_nifti)
 {
     if (_nifti_image->ndim != 5)
@@ -76,7 +76,7 @@ void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
     output_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
-    _nifti_image = make_shared<nifti_image>(*output_ptr);
+    _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 }
 
 void SIRFImageDataDeformation::save_to_file(const std::string &filename, bool split_xyz, string type) const

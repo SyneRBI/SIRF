@@ -62,7 +62,7 @@ public:
     SIRFImageData(const std::string &filename);
 
     /// Nifti constructor
-    SIRFImageData(const nifti_image *image_nifti);
+    SIRFImageData(const nifti_image &image_nifti);
 
     /// Nifti shared_ptr constructor
     SIRFImageData(const std::shared_ptr<nifti_image> image_nifti);

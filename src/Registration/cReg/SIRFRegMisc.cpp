@@ -66,7 +66,8 @@ void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesyst
     }
 
     // Open file
-    image = make_shared<nifti_image>(*nifti_image_read(filename.c_str(), 1));
+    nifti_image *im = nifti_image_read(filename.c_str(), 1);
+    image = std::shared_ptr<nifti_image>(im, nifti_image_free);
 
     // Ensure the image has all the values correctly set
     reg_checkAndCorrectDimension(image.get());
@@ -145,7 +146,7 @@ vector<std::shared_ptr<nifti_image> >
         image_ptr->intent_code = NIFTI_INTENT_NONE;
 
         // Add to vector of single-component images
-        output.push_back(make_shared<nifti_image>(*image_ptr));
+        output.push_back(std::shared_ptr<nifti_image>(image_ptr, nifti_image_free));
     }
 
     return output;
@@ -190,10 +191,10 @@ void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std
     nifti_image *output_ptr;
 
     output_ptr = nifti_copy_nim_info(image_to_copy_sptr.get());
-    output_image_sptr = make_shared<nifti_image>(*output_ptr);
+    output_image_sptr = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
     // How much memory do we need to copy?
-    size_t mem = output_image_sptr->nvox * output_image_sptr->nbyper;
+    size_t mem = output_image_sptr->nvox * unsigned(output_image_sptr->nbyper);
 
     // Allocate the memory
     output_image_sptr->data=static_cast<void *>(malloc(mem));
@@ -272,7 +273,7 @@ void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, 
     reg_checkAndCorrectDimension(cpp_ptr);
 
     // Copy output
-    cpp_sptr = make_shared<nifti_image>(*cpp_ptr);
+    cpp_sptr = std::shared_ptr<nifti_image>(cpp_ptr, nifti_image_free);
 }
 #endif
 /// Get def from cpp

@@ -49,9 +49,9 @@ SIRFImageData::SIRFImageData(const std::string &filename)
     SIRFRegMisc::open_nifti_image(_nifti_image,filename);
 }
 
-SIRFImageData::SIRFImageData(const nifti_image *image_nifti)
+SIRFImageData::SIRFImageData(const nifti_image &image_nifti)
 {
-    SIRFRegMisc::copy_nifti_image(_nifti_image,make_shared<nifti_image>(*image_nifti));
+    SIRFRegMisc::copy_nifti_image(_nifti_image,make_shared<nifti_image>(image_nifti));
     reg_checkAndCorrectDimension(_nifti_image.get());
 }
 
@@ -150,7 +150,7 @@ void SIRFImageData::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
     Info::Spacing         spacing = info.get_spacing();
     Info::TransformMatrix tm      = info.calculate_index_to_physical_point_matrix();
 
-    _nifti_image = make_shared<nifti_image>();
+    _nifti_image = std::shared_ptr<nifti_image>(new nifti_image, nifti_image_free);
     _nifti_image->dim[0]=_nifti_image->ndim=3;
     // Size
     _nifti_image->dim[1]=_nifti_image->nx=int(size[0]);
@@ -194,6 +194,11 @@ void SIRFImageData::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
                             nullptr,
                             nullptr,
                             &_nifti_image->qfac );
+    // Null pointers for some stuff
+    _nifti_image->fname = nullptr;
+    _nifti_image->iname = nullptr;
+    _nifti_image->num_ext = 0;
+    _nifti_image->ext_list = nullptr;
 
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());

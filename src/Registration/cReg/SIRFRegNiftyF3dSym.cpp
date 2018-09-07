@@ -66,7 +66,7 @@ void SIRFRegNiftyF3dSym<T>::update()
 #endif
 
     // Get the warped image
-    _warped_image = SIRFImageData(*_registration_sptr->GetWarpedImage());
+    _warped_image = SIRFImageData(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
@@ -74,8 +74,8 @@ void SIRFRegNiftyF3dSym<T>::update()
         _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
 
     // Get the CPP images
-    SIRFImageDataDeformation cpp_fwrd(_registration_sptr->GetControlPointPositionImage());
-    SIRFImageDataDeformation cpp_back(_registration_sptr->GetBackwardControlPointPositionImage());
+    SIRFImageDataDeformation cpp_fwrd(*_registration_sptr->GetControlPointPositionImage());
+    SIRFImageDataDeformation cpp_back(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
     SIRFRegMisc::get_def_from_cpp(_def_image_fwrd,cpp_fwrd.get_image_as_nifti(), _reference_image);
