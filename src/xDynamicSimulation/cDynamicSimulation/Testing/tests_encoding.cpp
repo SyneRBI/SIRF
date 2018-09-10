@@ -78,11 +78,14 @@ bool RPETester::test_sample_fourier_space( void )
 {
 	try
 	{
+
 		
 		NDArray<complex_float_t> i_dat = aux_test::get_mock_ndarray_with_cube();
+		
+		auto img_dims = i_dat.getDims();
 
 		size_t const NRad = 64;
-		size_t const NAng = 64;
+		size_t const NAng = 32;
 		TrajectoryContainer radial_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 
 
@@ -103,9 +106,11 @@ bool RPETester::test_sample_fourier_space( void )
 		for( size_t i=0; i<num_elements; i++)
 			k_dat_abs[i] = std::abs( *(k_dat.begin() + i) );
 
-		
-		std::string output_name =  std::string(SHARED_FOLDER_PATH)+ "test_rpe_enc_k_data" ;
-		data_io::write_raw<float>(output_name + "_abs_64x64x64", &k_dat_abs[0], k_dat_abs.size());
+		std::stringstream output_name;
+		output_name << std::string(SHARED_FOLDER_PATH)+ "test_rpe_enc_k_data_" ;
+		output_name << img_dims[0] << "x" << NRad << "x"<< NAng;
+
+		data_io::write_raw<float>(output_name.str(), &k_dat_abs[0], k_dat_abs.size());
 
 		return true;
 

@@ -421,6 +421,44 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 	}
 }
 
+bool tests_mr_dynsim::test_simulate_rpe_acquisition()
+{
+	
+	try
+	{	
+		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
+
+		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
+		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+
+		float const test_SNR = 15;
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_CONTRAST_DYNSIM );
+
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
+}
+
+
+// PET #################################################################################
+
 
 
 bool test_pet_dynsim::test_constructor()
