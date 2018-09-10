@@ -69,4 +69,5 @@ set( SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpunfft ${GADGET
 
 
 target_link_libraries(cgadgetron "${SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK}")
-target_link_libraries(cgadgetron ismrmrd)
+
+
