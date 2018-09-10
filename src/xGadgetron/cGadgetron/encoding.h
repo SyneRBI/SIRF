@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 #include <gadgetron/hoNDArray.h>
+#include <gadgetron/ho2DArray.h>
 #include <gadgetron/vector_td.h>
 
 
@@ -39,11 +40,15 @@ std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > data)
 };
 
 template < typename TrajType >
-class aTrajectoryPreparation{
+class aTrajectoryPreparation 
+{
 
 public:
 
-	virtual ~aTrajectoryPreparation() = 0;
+	std::vector< size_t > get_traj_dims()
+	{
+		return traj_dims_;
+	}
 
 	Gadgetron::hoNDArray< TrajType > get_formatted_trajectory( void ) 
 	{
@@ -51,13 +56,30 @@ public:
 	};
 
 	template< typename OutputDataType >
-	Gadgetron::hoNDArray< OutputDataType > get_formatted_output_container( void )
+	Gadgetron::ho2DArray< OutputDataType > get_formatted_output_container( void )
 	{
 		if(this->traj_dims_.size() == 0)
 			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
-		Gadgetron::hoNDArray< OutputDataType > output_container( this->traj_dims_ );
+		Gadgetron::ho2DArray< OutputDataType > output_container( &(this->traj_dims_) );
+
+		output_container.fill( OutputDataType(0) );
+
+
 		return output_container;
 	}
+
+	template< typename OutputDataType >
+	Gadgetron::hoNDArray< OutputDataType > get_formatted_identity_dcf( void )
+	{
+		if(this->traj_dims_.size() == 0)
+			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
+		Gadgetron::hoNDArray< OutputDataType > identity_dcf( this->traj_dims_ );
+
+		identity_dcf.fill( OutputDataType(1.f) );
+
+		return identity_dcf;
+	}
+
 
 protected:
 
@@ -74,9 +96,6 @@ public:
 	void set_and_check_trajectory( ISMRMRD::NDArray< TrajectoryPrecision > trajectory);
 
 };
-
-
-
 
 
 class aCartesianReadoutFFT{
@@ -119,7 +138,6 @@ public:
 
 private:
 
-	// void prep_trajectory( void );
 	RPETrajectoryPreparation traj_prep_;
 	
 };

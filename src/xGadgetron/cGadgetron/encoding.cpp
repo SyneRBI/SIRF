@@ -40,13 +40,16 @@ void RPETrajectoryPreparation::set_and_check_trajectory( ISMRMRD::NDArray< Traje
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
 
-	for( size_t i=0; i<num_traj_points; i++)
-	{
-		TrajectoryPrecision traj_x = *(trajectory.begin() + i);
-		TrajectoryPrecision traj_y = *(trajectory.begin() + i + 1);
+	std::cout << num_traj_points << std::endl;
+	for( size_t nr=0; nr<traj_dims_[0]; nr++)
+		for( size_t na=0; na<traj_dims_[1]; na++)
+		{
+			TrajectoryPrecision traj_x = trajectory(nr, na, 0);
+			TrajectoryPrecision traj_y = trajectory(nr, na, 1);
 
-		*(this->traj_.begin() + i) = TrajectoryType2D(traj_x, traj_y);
-	}
+			size_t lin_index = nr*traj_dims_[1] + na;
+			*(this->traj_.begin() + lin_index) = TrajectoryType2D(traj_x, traj_y);
+		}	
 }
 
 
@@ -105,11 +108,13 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 	bool is_3d_data = true;
 	for(int i=3; i<ISMRMRD_NDARRAY_MAXDIM; i++)
 		is_3d_data *= (data_dims[i] == 1);
+
 	
 	if( ! is_3d_data )
 		throw std::runtime_error("Please pass 3D data to the RPE fourier transform");
 
-    ho3DArray< complex_float_t > data_to_be_fftd( &data_dims );
+	std::vector<size_t> img_dims(data_dims.begin(),data_dims.begin() + 3) ;
+    ho3DArray< complex_float_t > data_to_be_fftd( &img_dims );
 		
 	for( size_t i=0; i<num_elements; i++)
 	{
@@ -120,11 +125,24 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
 
 
+	size_t num_slices = data_dims[0];
+	auto traj_dims = this->traj_prep_.get_traj_dims();
+
+	std::vector<size_t> output_data_size;
+	output_data_size.push_back(num_slices);
+	output_data_size.push_back(traj_dims[0]);
+	output_data_size.push_back(traj_dims[1]);
+	
+	this->k_data_.resize(output_data_size);
+	
+		
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	for(size_t i_slice=0; i_slice<data_dims[0]; i_slice++)
+	std::cout << num_slices << std::endl;
+
+	for(size_t i_slice=0; i_slice< num_slices; i_slice++)
 	{
-		ho2DArray< float_complext > sub_slice( &slice_dims );
+		ho2DArray< complex_float_t > sub_slice( &slice_dims );
 		for(size_t y=0; y<data_dims[1]; y++)
 		{
 			for(size_t z=0; z<data_dims[2]; z++)
@@ -134,19 +152,30 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 		}
 
 
-		float const oversampling_size = 1.2f;
+		float const oversampling_size = 1.f;
 		float const kernel_size = 5.5f;
 
-		hoNFFT_plan<float, 2> plan( from_std_vector<size_t, 2>(slice_dims) , oversampling_size, kernel_size);
-		
-		auto trajectory = this->traj_prep_.get_formatted_trajectory();
-		
-		plan.preprocess( trajectory );
 
-		auto result = this->traj_prep_.get_formatted_output_container< float_complext >();
+		hoNFFT_plan<float, 2> nufft_operator( from_std_vector<size_t, 2>(slice_dims) , oversampling_size, kernel_size);
+	
+		hoNDArray< TrajectoryType2D > trajectory = this->traj_prep_.get_formatted_trajectory();
 		
-		ho2DArray< float > DCF;
-		plan.compute( sub_slice, result, DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
+		nufft_operator.preprocess( trajectory );
+
+		auto result = this->traj_prep_.get_formatted_output_container< complex_float_t >();
+		
+		auto identitiy_DCF = this->traj_prep_.get_formatted_identity_dcf< float >();
+
+		nufft_operator.compute( sub_slice, result, identitiy_DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
+
+
+		for(size_t nr=0; nr<traj_dims[0]; nr++)
+		{
+			for(size_t na=0; na<traj_dims[1]; na++)
+			{
+				this->k_data_(i_slice, nr, na) = result(nr, na);
+			}
+		}
 
 	}
 }
