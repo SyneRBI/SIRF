@@ -288,7 +288,8 @@ namespace SIRFRegMisc {
     template<typename T>
     void dump_nifti_element(const std::vector<SIRFImageData> &ims, const std::string &name, const T &call_back)
     {
-        std::cout << "\t" << std::left << std::setw(19) << name << ": ";
+        std::string header = name + ": ";
+        std::cout << "\t" << std::left << std::setw(19) << header;
         for(int i=0; i<ims.size(); i++)
             std::cout << std::setw(19) << ims[i].get_image_as_nifti().get()->*call_back;
         std::cout << "\n";
@@ -299,7 +300,8 @@ namespace SIRFRegMisc {
     void dump_nifti_element(const std::vector<SIRFImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
     {
         for(int i=0; i<num_elems; i++) {
-            std::cout << "\t" << name << "[" << i << "]:\t\t   ";
+            std::string header = name + "[" + std::to_string(i) + "]: ";
+            std::cout << "\t" << std::left << std::setw(19) << header;
             for(unsigned j=0; j<ims.size(); j++)
                 std::cout << std::setw(19) << (ims[j].get_image_as_nifti().get()->*call_back)[i];
             std::cout << "\n";

@@ -52,6 +52,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 SET(SIRFREG_executables
     affine_to_disp
+    dump_nifti_info
     sirfreg_aladin)
 
 FOREACH(elem ${SIRFREG_executables})
