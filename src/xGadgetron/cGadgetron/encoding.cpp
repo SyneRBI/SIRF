@@ -40,7 +40,6 @@ void RPETrajectoryPreparation::set_and_check_trajectory( ISMRMRD::NDArray< Traje
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
 
-	std::cout << num_traj_points << std::endl;
 	for( size_t nr=0; nr<traj_dims_[0]; nr++)
 		for( size_t na=0; na<traj_dims_[1]; na++)
 		{
@@ -51,7 +50,6 @@ void RPETrajectoryPreparation::set_and_check_trajectory( ISMRMRD::NDArray< Traje
 			*(this->traj_.begin() + lin_index) = TrajectoryType2D(traj_x, traj_y);
 		}	
 }
-
 
 
 
@@ -135,10 +133,8 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 	
 	this->k_data_.resize(output_data_size);
 	
-		
-	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	std::cout << num_slices << std::endl;
+	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
 	for(size_t i_slice=0; i_slice< num_slices; i_slice++)
 	{
@@ -152,11 +148,11 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 		}
 
 
-		float const oversampling_size = 1.f;
+		float const oversampling_factor = 1.f;
 		float const kernel_size = 5.5f;
 
 
-		hoNFFT_plan<float, 2> nufft_operator( from_std_vector<size_t, 2>(slice_dims) , oversampling_size, kernel_size);
+		hoNFFT_plan<float, 2> nufft_operator( from_std_vector<size_t, 2>(slice_dims) , oversampling_factor, kernel_size);
 	
 		hoNDArray< TrajectoryType2D > trajectory = this->traj_prep_.get_formatted_trajectory();
 		
