@@ -42,7 +42,7 @@ namespace data_io{
 	{	
 		std::cout<< "Writing file " << output_name_without_ext << std::endl;
 		std::stringstream name_stream;
-		name_stream << output_name_without_ext << ".raw";
+		name_stream << output_name_without_ext << ".bin";
 
 		std::vector <T> buffer;
 		buffer.resize(num_elements);
