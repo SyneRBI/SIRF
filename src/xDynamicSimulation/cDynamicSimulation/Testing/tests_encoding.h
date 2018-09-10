@@ -11,13 +11,35 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "encoding.h"
 
+
 namespace test_enc
 {
 	bool test_cube_input();
 }
 
-
-namespace test_cart_enc
+class CartesianEncodingTester
 {
-	bool test_sample_fourier_space( void );
-}
+public:
+	static bool test_sample_fourier_space( void );
+
+};
+
+
+
+class RPETester
+{
+
+public:
+	static bool test_sample_fourier_space( void );
+
+};
+
+
+class RPETrajectoryPreparationTester{
+
+public:
+	
+	static bool test_get_set_trajectory();	
+	static bool test_get_result_container();	
+	
+};

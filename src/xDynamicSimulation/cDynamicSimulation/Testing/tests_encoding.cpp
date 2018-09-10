@@ -44,7 +44,7 @@ bool test_enc::test_cube_input()
 	return true;
 }
 
-bool test_cart_enc::test_sample_fourier_space()
+bool CartesianEncodingTester::test_sample_fourier_space()
 {
 	ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 	FullySampledCartesianFFT cart_fft;
@@ -74,3 +74,35 @@ bool test_cart_enc::test_sample_fourier_space()
 
 
 
+bool RPETrajectoryPreparationTester::test_get_set_trajectory()
+{
+try
+	{
+		std::cout << "TODO" << std::endl;
+		return false;
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}	
+
+
+bool RPETrajectoryPreparationTester::test_get_result_container()
+{
+try
+	{
+		std::cout << "TODO" << std::endl;
+		return false;
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}	

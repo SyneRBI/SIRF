@@ -10,11 +10,19 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #pragma once
 
 #include <ismrmrd/ismrmrd.h>
+
+#include <gadgetron/hoNDArray.h>
+#include <gadgetron/vector_td.h>
+
+
 // #include <ismrmrd/xml.h>
 
-// typedef std::vector<float> TrajectoryType;
-typedef float TrajectoryType;
-typedef ISMRMRD::NDArray< TrajectoryType > TrajectoryContainer;
+typedef float TrajectoryPrecision;
+typedef ISMRMRD::NDArray< TrajectoryPrecision > TrajectoryContainer;
+
+typedef Gadgetron::floatd2 TrajectoryType2D;
+
+
 
 
 
@@ -29,6 +37,44 @@ std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > data)
 	}
 	return data_dims;
 };
+
+template < typename TrajType >
+class aTrajectoryPreparation{
+
+public:
+
+	virtual ~aTrajectoryPreparation() = 0;
+
+	Gadgetron::hoNDArray< TrajType > get_formatted_trajectory( void ) 
+	{
+		return this->traj_;
+	};
+
+	template< typename OutputDataType >
+	Gadgetron::hoNDArray< OutputDataType > get_formatted_output_container( void )
+	{
+		if(this->traj_dims_.size() == 0)
+			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
+		Gadgetron::hoNDArray< OutputDataType > output_container( this->traj_dims_ );
+		return output_container;
+	}
+
+protected:
+
+	std::vector< size_t > traj_dims_;
+	Gadgetron::hoNDArray< TrajType > traj_;	
+
+
+};
+
+
+class RPETrajectoryPreparation: public aTrajectoryPreparation< TrajectoryType2D >{
+
+public:
+	void set_and_check_trajectory( ISMRMRD::NDArray< TrajectoryPrecision > trajectory);
+
+};
+
 
 
 
@@ -73,8 +119,11 @@ public:
 
 private:
 
-	void prep_trajctory( void );
-
-	TrajectoryContainer traj_;
-
+	// void prep_trajectory( void );
+	RPETrajectoryPreparation traj_prep_;
+	
 };
+
+
+
+
