@@ -12,7 +12,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 // #include <ismrmrd/xml.h>
 
-typedef ISMRMRD::NDArray< std::vector<float> > TrajectoryType;
+// typedef std::vector<float> TrajectoryType;
+typedef float TrajectoryType;
+typedef ISMRMRD::NDArray< TrajectoryType > TrajectoryContainer;
 
 
 
@@ -27,8 +29,6 @@ std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > data)
 	}
 	return data_dims;
 };
-
-
 
 
 
@@ -68,11 +68,13 @@ public:
 
 	RadialPhaseEncodingFFT() {};
 
-	void set_trajectory(TrajectoryType &traj);
+	void set_trajectory(TrajectoryContainer &traj);
 	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data );
 
 private:
 
-	TrajectoryType traj_;
+	void prep_trajctory( void );
+
+	TrajectoryContainer traj_;
 
 };

@@ -62,7 +62,7 @@ void FullySampledCartesianFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_floa
 
 
 
-void RadialPhaseEncodingFFT::set_trajectory(TrajectoryType &traj)
+void RadialPhaseEncodingFFT::set_trajectory(TrajectoryContainer &traj)
 {
 	this->traj_ = traj;
 }
@@ -108,15 +108,23 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 
 		hoNFFT_plan<float, 2> plan( from_std_vector<size_t, 2>(slice_dims) , 2.f, 1.f);
 		
-		std::vector<size_t> spatial_traj_dims = data_dims_from_ndarray< std::vector<float> >( this->traj_ );
+		std::vector<size_t> traj_dims = data_dims_from_ndarray< TrajectoryType >( this->traj_ );
 
+		std::vector<size_t> spatial_traj_dims;
+		spatial_traj_dims.push_back( traj_dims[0] );
+		spatial_traj_dims.push_back( traj_dims[1] );
 
 		hoNDArray< floatd2 > trajectory( &spatial_traj_dims );
 		
-		size_t const num_traj_points = this->traj_.getNumberOfElements();
+		size_t const num_traj_points = this->traj_.getNumberOfElements() / 2;
 
 		for( size_t i=0; i<num_traj_points; i++)
-			*(trajectory.begin() + i) = from_std_vector<float, 2>( *(this->traj_.begin() + i) );		
+		{
+			TrajectoryType traj_x = *(this->traj_.begin() + i);
+			TrajectoryType traj_y = *(this->traj_.begin() + i + 1);
+
+			*(trajectory.begin() + i) = floatd2(traj_x, traj_y);
+		}
 
 		plan.preprocess( trajectory );
 
@@ -126,4 +134,12 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( ISMRMRD::NDArray<complex_float_
 		plan.compute( sub_slice, result, DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
 
 	}
+}
+
+
+void RadialPhaseEncodingFFT::prep_trajctory( void )
+{
+
+
+	
 }
