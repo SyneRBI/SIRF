@@ -24,7 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
-
+#include "encoding.h"
 
 // for easier logging 
 #define epiph(x) #x << " = " << x
@@ -131,6 +131,8 @@ namespace aux_test
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
+
+	TrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng);
 
 
 	SignalContainer get_mock_motion_signal( void );
