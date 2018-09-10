@@ -305,6 +305,8 @@ void run_tests_encoding( void )
 	tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
 	tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
 
+	tests_successful *= RPETester::test_sample_fourier_space();
+
 	if ( !tests_successful )
 	{
 		throw std::runtime_error( "The encoding tests failed." );

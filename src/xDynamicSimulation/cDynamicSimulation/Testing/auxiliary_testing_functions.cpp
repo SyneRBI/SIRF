@@ -544,12 +544,14 @@ AcquisitionsVector aux_test::get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeade
 	return acq_vec;
 }
 
-TrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng)
+TrajectoryContainer aux_test::get_mock_radial_trajectory(size_t const NRad, size_t const NAng)
 {
 	std::vector<size_t> traj_dims;
 	traj_dims.push_back(NRad);
 	traj_dims.push_back(NAng);
-	traj_dims.push_back(2);
+	traj_dims.push_back((size_t)2);
+	for(int i=0; i<4; i++)
+		traj_dims.push_back((size_t)1);
 	
 	TrajectoryContainer mock_traj( traj_dims );
 
@@ -561,9 +563,9 @@ TrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const N
 			
 			float const nx = r_pos * cos( ang_pos )/ (NRad);
 			float const ny = r_pos * sin( ang_pos )/ (NRad);
-			
+
+			mock_traj(nr, na, 0) = ny;
 			mock_traj(nr, na, 1) = nx;
-			mock_traj(nr, na, 1) = ny;
 		}
 
 	return mock_traj;
