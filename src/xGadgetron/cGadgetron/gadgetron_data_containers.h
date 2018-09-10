@@ -793,6 +793,29 @@ namespace sirf {
 		}
 
 	};
+
+
+	/*
+	\ingroup Gadgetron Data Containers
+	\brief A trajectory container to pass non-cartesian sampling patterns to an MRAcquisition model.
+
+	Acquisition models are stored in ISMRMRD::NDArray<float> containers.
+	Additional functionality is provided to overwrite ISMRMRDHeader information.
+
+	*/
+	typedef float TrajPrecision;
+	typedef ISMRMRD::NDArray<TrajPrecision> TrajContainer;
+
+	class aTrajectoryContainer
+	{
+	public:
+		void overwrite_ismrmrd_trajectory_info(ISMRMRD::ISMRMRDHeader hdr;)
+
+	private:
+		ISMRMRD::NDArray<TrajPrecision> traj_;
+		std::string traj_type_;
+
+	};
 }
 
 #endif
