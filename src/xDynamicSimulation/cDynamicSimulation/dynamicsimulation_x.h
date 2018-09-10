@@ -18,10 +18,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "gadgetron_x.h"
 #include "stir_x.h"
 
+#include "encoding.h"
+
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
 #include "dynsim_noisegenerator.h"
+
+
 
 
 
@@ -91,10 +95,13 @@ public:
 	void set_noise_width(float const sigma);
 	void set_SNR(float const SNR);
 
+	void simulate_statics( void );
 	void simulate_dynamics( void );
 
 
 	void extract_hdr_information( void );
+	void set_trajectory( const TrajectoryContainer& trajectory, std::string const type );
+
 	
 	virtual void acquire_raw_data( void );
 
@@ -111,9 +118,14 @@ private:
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
 
+	TrajectoryContainer trajectory_;
+	std::string trajectory_type_;
+
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
+
+	void overwrite_trajectory_type(ISMRMRD::IsmrmrdHeader hdr);
 
 };
 

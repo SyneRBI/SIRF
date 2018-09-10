@@ -37,6 +37,16 @@ void MRDynamicSimulation::write_simulation_results( std::string const filename_o
 }
 
 
+void MRDynamicSimulation::simulate_statics( void )
+{
+	std::cout << "Simulating static data acquisition... " <<std::endl;
+
+	this->extract_hdr_information();
+	this->mr_cont_gen_.map_contrast();
+	this->source_acquisitions_ = this->all_source_acquisitions_;
+	this->acquire_raw_data;
+}
+
 void MRDynamicSimulation::simulate_dynamics( void )
 {
 	if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() > 0 )
@@ -302,6 +312,30 @@ void MRDynamicSimulation::extract_hdr_information( void )
 
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 
+}
+
+void MRDynamicSimulation::set_trajectory(const TrajectoryContainer& trajectory, std::string const type)
+{
+	this->trajectory_ = trajectory;
+	this->trajectory_type_ = type;
+	this->overwrite_trajectory_type(ISMRMRD::IsmrmrdHeader& hdr, std::string const traj_type);
+	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
+
+}
+
+void MRDynamicSimulation::overwrite_trajectory_type(ISMRMRD::IsmrmrdHeader& hdr, std::string const traj_type)
+{
+	std::vector<ISMRMRD::Encoding> current_encoding = hdr.encoding;
+	std::vector<ISMRMRD::Encoding> overwritten_encoding;
+	
+	for( int i=0; i<encoding.size(); i++)
+	{
+		ISMRMRD::Encoding enc = encoding[i];
+		enc.trajectory = traj_type.str();
+		overwritten_encoding.push_back(enc);
+	}
+
+	hdr.encoding = overwritten_encoding;
 }
 
 void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquisitions )
