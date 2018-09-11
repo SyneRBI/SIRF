@@ -434,6 +434,8 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
+
+		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 		clock_t t;
