@@ -125,8 +125,6 @@ private:
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
 
-	void overwrite_trajectory_type(ISMRMRD::IsmrmrdHeader hdr);
-
 };
 
 
