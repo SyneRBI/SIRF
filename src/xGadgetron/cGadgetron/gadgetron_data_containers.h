@@ -809,10 +809,15 @@ namespace sirf {
 	class aTrajectoryContainer
 	{
 	public:
-		void overwrite_ismrmrd_trajectory_info(ISMRMRD::ISMRMRDHeader hdr;)
 
-	private:
-		ISMRMRD::NDArray<TrajPrecision> traj_;
+		void set_trajectory( TrajContainer trajectory );
+		TrajContainer get_trajectory( void );
+
+		void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr);
+		void overwrite_ismrmrd_trajectory_info(std::string& serialized_header);
+
+	protected:
+		TrajContainer traj_;
 		std::string traj_type_;
 
 	};

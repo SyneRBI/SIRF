@@ -1281,3 +1281,47 @@ CoilSensitivitiesAsImages::CoilSensitivitiesAsImages(const char* file)
 	}
 	csm_smoothness_ = 0;
 }
+
+
+
+
+
+ 
+
+void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr) 
+{
+	std::vector<ISMRMRD::Encoding> current_encoding = hdr.encoding;
+	std::vector<ISMRMRD::Encoding> overwritten_encoding;
+	
+	for( int i=0; i<current_encoding.size(); i++)
+	{
+		ISMRMRD::Encoding enc = current_encoding[i];
+		enc.trajectory = traj_type_;
+		overwritten_encoding.push_back(enc);
+	}
+
+	hdr.encoding = overwritten_encoding;
+}
+
+
+void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(std::string& serialized_header) 
+{
+	ISMRMRD::IsmrmrdHeader hdr;
+	ISMRMRD::deserialize(serialized_header.c_str() , hdr);
+
+	this->overwrite_ismrmrd_trajectory_info( hdr );
+
+	std::stringstream updated_serialized_header_stream;
+    ISMRMRD::serialize( hdr, updated_serialized_header_stream);
+    serialized_header = updated_serialized_header_stream.str();
+}
+
+void aTrajectoryContainer::set_trajectory( TrajContainer trajectory )
+{
+	this->traj_ = trajectory;
+}
+
+TrajContainer aTrajectoryContainer::get_trajectory( void )
+{
+	return this->traj_;
+}
