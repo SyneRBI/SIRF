@@ -41,7 +41,12 @@ void MRDynamicSimulation::simulate_statics( void )
 {
 	std::cout << "Simulating static data acquisition... " <<std::endl;
 
+
+
 	this->extract_hdr_information();
+
+	this->acq_model_.setTraj( this->sptr_trajectory_ );
+
 	this->mr_cont_gen_.map_contrast();
 	this->source_acquisitions_ = this->all_source_acquisitions_;
 	this->acquire_raw_data();
@@ -64,6 +69,8 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 	std::cout << "Simulating motion and contrast dynamics... " <<std::endl;
 
 	this->extract_hdr_information();
+	this->acq_model_.setTraj( this->sptr_trajectory_ );
+
 	this->mr_cont_gen_.map_contrast();
 		
 	size_t const num_contrast_dyns = this->contrast_dynamics_.size();
@@ -172,6 +179,8 @@ void MRDynamicSimulation::simulate_contrast_dynamics( void )
 	std::cout << "Simulating contrast dynamics... " <<std::endl;
 
 	this->extract_hdr_information();
+	this->acq_model_.setTraj( this->sptr_trajectory_ );
+
 	this->mr_cont_gen_.map_contrast();
 
 		
@@ -235,6 +244,8 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 	std::cout << "Simulating motion dynamics... " <<std::endl;
 
 	this->extract_hdr_information();
+	this->acq_model_.setTraj( this->sptr_trajectory_ );
+
 	this->mr_cont_gen_.map_contrast();
 
 	// if(this->motion_dynamics_.size() != 1)
@@ -310,15 +321,18 @@ void MRDynamicSimulation::extract_hdr_information( void )
 {
 	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
 
+	this->acq_model_.setISMRMRDHeader( this->hdr_ );
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
+
 
 }
 
-void MRDynamicSimulation::set_trajectory(const TrajectoryContainer& trajectory, std::string const type)
+
+void MRDynamicSimulation::set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory)
 {
-	this->trajectory_ = trajectory;
-	this->trajectory_type_ = type;
-	// this->overwrite_trajectory_type(ISMRMRD::IsmrmrdHeader& hdr, std::string const traj_type);
+	this->sptr_trajectory_ = sptr_trajectory;
+	sptr_trajectory_->overwrite_ismrmrd_trajectory_info( this->hdr_ );
+	
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 
 }

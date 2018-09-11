@@ -100,7 +100,7 @@ public:
 
 
 	void extract_hdr_information( void );
-	void set_trajectory( const TrajectoryContainer& trajectory, std::string const type );
+	void set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory);
 
 	
 	virtual void acquire_raw_data( void );
@@ -118,8 +118,7 @@ private:
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
 
-	TrajectoryContainer trajectory_;
-	std::string trajectory_type_;
+	std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory_;
 
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
