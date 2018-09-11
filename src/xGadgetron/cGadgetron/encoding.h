@@ -15,14 +15,20 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <gadgetron/ho2DArray.h>
 #include <gadgetron/vector_td.h>
 
+#include "gadgetron_data_containers.h"
 
 // #include <ismrmrd/xml.h>
 
-typedef float TrajectoryPrecision;
-typedef ISMRMRD::NDArray< TrajectoryPrecision > TrajectoryContainer;
+using sirf::TrajPrecision;
+using sirf::TrajVessel;
+
+
+typedef float TrajPrecision;
+typedef ISMRMRD::NDArray<TrajPrecision> TrajVessel;
+
 
 typedef Gadgetron::floatd2 TrajectoryType2D;
-
+typedef ISMRMRD::NDArray<complex_float_t> MREncodingDataType;
 
 
 
@@ -93,7 +99,7 @@ protected:
 class RPETrajectoryPreparation: public aTrajectoryPreparation< TrajectoryType2D >{
 
 public:
-	void set_and_check_trajectory( ISMRMRD::NDArray< TrajectoryPrecision > trajectory);
+	void set_and_check_trajectory( TrajVessel trajectory);
 
 };
 
@@ -105,13 +111,13 @@ public:
 	aCartesianReadoutFFT()
 	{}
 
-	virtual ISMRMRD::NDArray<complex_float_t> get_k_data( void );
+	virtual MREncodingDataType get_k_data( void );
 
-	virtual void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data ) = 0;
+	virtual void SampleFourierSpace( MREncodingDataType i_data ) = 0;
 
 protected:
 
-	ISMRMRD::NDArray<complex_float_t> k_data_;
+	MREncodingDataType k_data_;
 
 
 	
@@ -122,7 +128,7 @@ class FullySampledCartesianFFT: public aCartesianReadoutFFT{
 
 public:
 	FullySampledCartesianFFT();
-	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data);
+	void SampleFourierSpace( MREncodingDataType i_data);
 
 };
 
@@ -133,8 +139,8 @@ public:
 
 	RadialPhaseEncodingFFT() {};
 
-	void set_trajectory(TrajectoryContainer &traj);
-	void SampleFourierSpace( ISMRMRD::NDArray<complex_float_t> i_data );
+	void set_trajectory(TrajVessel &traj);
+	void SampleFourierSpace( MREncodingDataType i_data );
 
 private:
 
