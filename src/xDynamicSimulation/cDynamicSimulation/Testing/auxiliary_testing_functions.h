@@ -40,8 +40,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #ifdef USE_64_CUBE_INPUT
 
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH "temp_folder_motion_dyn_0/motion_field_0.hdr"
 
@@ -68,6 +68,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #define ACQU_FILE_NAME  SHARED_FOLDER_PATH "acquisitions_file_fwd_test.h5"
+
+#define FILENAME_MR_RPE_SIM SHARED_FOLDER_PATH "testoutput_mr_rpe_simulation.h5"
 #define FILENAME_MR_CONTRAST_DYNSIM  SHARED_FOLDER_PATH "testoutput_mr_dynamic_contrast_simulation.h5"
 #define FILENAME_MR_MOTION_DYNSIM SHARED_FOLDER_PATH "testoutput_mr_dynamic_motion_simulation.h5"
 #define FILENAME_MR_MOTION_CONTRAST_DYNSIM SHARED_FOLDER_PATH "testoutput_mr_dynamic_motion_contrast_simulation.h5"
@@ -82,7 +84,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define MOCK_FOV 256
 #define MOCK_DATA_MATRIX_SIZE 128
-#define MOCK_DATA_NUM_CHANNELS 4
+#define MOCK_DATA_NUM_CHANNELS 1
 #define MOCK_DATA_RO_OVERSAMPLING 2
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5
 #define MOCK_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
@@ -132,7 +134,7 @@ namespace aux_test
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
 	sirf::AcquisitionsVector get_mock_acquisition_vector ( ISMRMRD::IsmrmrdHeader );	
 
-	TrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng);
+	sirf::RPETrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng);
 
 
 	SignalContainer get_mock_motion_signal( void );
