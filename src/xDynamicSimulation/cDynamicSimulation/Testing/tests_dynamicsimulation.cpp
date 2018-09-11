@@ -17,6 +17,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
+#include "gadgetron_data_containers.h"
+
 #include "dynamicsimulation_x.h"
 #include "auxiliary_testing_functions.h"
 #include "phantom_input.h"
@@ -424,6 +426,9 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 {
 	
+	using sirf::RPETrajectoryContainer;
+
+
 	try
 	{	
 		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -432,6 +437,16 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
+
+		size_t const NRad = 64;
+		size_t const NAng = 64;
+			 
+		RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
+		
+		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
+		
+		mr_dyn_sim.set_trajectory( sptr_traj );
+		
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 
@@ -440,11 +455,11 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 		clock_t t;
 		t = clock();
-		mr_dyn_sim.simulate_dynamics();
+		mr_dyn_sim.simulate_statics();
 		t = clock() - t;
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
-		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_CONTRAST_DYNSIM );
+		mr_dyn_sim.write_simulation_results( FILENAME_MR_RPE_SIM );
 
 
 		return true;

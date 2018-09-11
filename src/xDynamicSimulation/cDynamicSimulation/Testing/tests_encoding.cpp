@@ -14,6 +14,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include <gadgetron/vector_td.h>
 
+#include "gadgetron_data_containers.h"
+
 #include "auxiliary_input_output.h"
 #include "auxiliary_testing_functions.h"
 
@@ -86,8 +88,10 @@ bool RPETester::test_sample_fourier_space( void )
 
 		size_t const NRad = 64;
 		size_t const NAng = 32;
-		TrajectoryContainer radial_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
+		
+		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 
+		auto radial_traj = rpe_traj.get_trajectory();
 
 		RadialPhaseEncodingFFT rpe_fft;
 		
@@ -131,10 +135,10 @@ try
 	{
 		size_t const NRad = 64;
 		size_t const NAng = 64;
-		TrajectoryContainer radial_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 
 		
-
+		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
+		auto radial_traj = rpe_traj.get_trajectory();
 
 		RPETrajectoryPreparation traj_prep;
 		traj_prep.set_and_check_trajectory( radial_traj);
@@ -159,8 +163,9 @@ try
 	{
 		size_t const NRad = 64;
 		size_t const NAng = 64;
-		TrajectoryContainer radial_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 
+		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
+		auto radial_traj = rpe_traj.get_trajectory();
 
 		RPETrajectoryPreparation traj_prep;
 		traj_prep.set_and_check_trajectory( radial_traj);
