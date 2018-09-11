@@ -369,6 +369,27 @@ namespace sirf {
 			sptr_csms_ = sptr_csms;
 		}
 
+		void setISMRMRDHeader( ISMRMRD::IsmrmrdHeader hdr)
+		{
+			this->hdr_ = hdr;
+
+			std::stringstream serialized_hdr;
+			ISMRMRD::serialize(hdr, serialized_hdr);
+
+			this->acqs_info_ = serialized_hdr.str();
+		}
+
+		void setTraj( gadgetron::shared_ptr<aTrajectoryContainer> sptr_traj)
+		{
+			if(this->acqs_info_ == "")
+			{
+				throw LocalisedException("ismrmrd rawdata header not set.", __FILE__, __LINE__);
+			}
+			
+			sptr_traj_ = sptr_traj;
+			sptr_traj_->overwrite_ismrmrd_trajectory_info(this->hdr_);
+		}
+
 		// Records templates
 		void set_up
 			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
@@ -443,10 +464,12 @@ namespace sirf {
 		}
 
 	private:
+		ISMRMRD::IsmrmrdHeader hdr_;	
 		std::string acqs_info_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
 		gadgetron::shared_ptr<MRImageData> sptr_imgs_;
 		gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
+		gadgetron::shared_ptr<aTrajectoryContainer> sptr_traj_;
 
 		template< typename T>
 		void fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,

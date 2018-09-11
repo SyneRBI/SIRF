@@ -407,10 +407,28 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	}
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	FullySampledCartesianFFT CartFFT;
-	CartFFT.SampleFourierSpace( ci );
+
+	ISMRMRD::NDArray< complex_float_t > k_data;
 	
-	ISMRMRD::NDArray< complex_float_t > k_data = CartFFT.get_k_data();
+	std::string trajectory_type = this->sptr_traj_->get_traj_type();
+
+	if( trajectory_type == "RPE" )
+	{
+		RadialPhaseEncodingFFT RPE_FFT;
+		
+		auto traj = this->sptr_traj_->get_trajectory();
+		RPE_FFT.set_trajectory( traj );
+		RPE_FFT.SampleFourierSpace( ci );
+		
+		k_data = RPE_FFT.get_k_data();
+	}
+	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
+	{
+		FullySampledCartesianFFT CartFFT;
+		CartFFT.SampleFourierSpace( ci );
+		
+		k_data = CartFFT.get_k_data();
+	}
 
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
