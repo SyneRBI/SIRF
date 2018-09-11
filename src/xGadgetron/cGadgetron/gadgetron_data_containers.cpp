@@ -1316,12 +1316,17 @@ void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(std::string& serial
     serialized_header = updated_serialized_header_stream.str();
 }
 
-void aTrajectoryContainer::set_trajectory( TrajContainer trajectory )
+void aTrajectoryContainer::set_trajectory( TrajVessel trajectory )
 {
 	this->traj_ = trajectory;
 }
 
-TrajContainer aTrajectoryContainer::get_trajectory( void )
+TrajVessel aTrajectoryContainer::get_trajectory( void )
 {
 	return this->traj_;
+}
+
+std::string aTrajectoryContainer::get_traj_type( void )
+{
+	return this->traj_type_;
 }

@@ -804,23 +804,37 @@ namespace sirf {
 
 	*/
 	typedef float TrajPrecision;
-	typedef ISMRMRD::NDArray<TrajPrecision> TrajContainer;
+	typedef ISMRMRD::NDArray<TrajPrecision> TrajVessel;
 
 	class aTrajectoryContainer
 	{
 	public:
 
-		void set_trajectory( TrajContainer trajectory );
-		TrajContainer get_trajectory( void );
+		aTrajectoryContainer(){}
+		aTrajectoryContainer( const std::string &traj_type ): traj_type_(traj_type)
+		{}
+
+		void set_traj_type( std::string const type);
+		void set_trajectory( TrajVessel trajectory );
+		
+		std::string get_traj_type( void );
+		TrajVessel get_trajectory( void );
 
 		void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr);
 		void overwrite_ismrmrd_trajectory_info(std::string& serialized_header);
 
 	protected:
-		TrajContainer traj_;
+		TrajVessel traj_;
 		std::string traj_type_;
 
 	};
+
+	class RPETrajectoryContainer : public aTrajectoryContainer
+	{
+	public:
+		RPETrajectoryContainer(){	traj_type_ = "RPE"; }
+	};
+
 }
 
 #endif
