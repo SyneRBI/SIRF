@@ -132,24 +132,19 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 	}
 
 	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
-	// hoNDFFT< float >::instance()->fft3c( data_to_be_fftd );
-
-	
 
 	for(size_t i_coil=0; i_coil<num_coils; i_coil++)
 	{
 		for(size_t i_slice=0; i_slice< num_slices; i_slice++)
 		{
 			ho2DArray< complex_float_t > sub_slice( &slice_dims );
-			// hoNDArray< complex_float_t > sub_slice( slice_dims );
+
 			for(size_t z=0; z<data_dims[2]; z++)
 			{
 				for(size_t y=0; y<data_dims[1]; y++)
 				{
 					size_t const lin_index_access_4D = ((i_coil * data_dims[2] + z)*data_dims[1] + y)*num_slices + i_slice;
-					// size_t const lin_index_access_2D = z*data_dims[1] + y;
-				
-					// sub_slice[lin_index_access_2D] = data_to_be_fftd [ lin_index_access_4D ];		
+
 					sub_slice(y, z) = data_to_be_fftd [ lin_index_access_4D ];		
 
 				}
@@ -184,10 +179,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 			}
 		}	
 	}
-
-	// for( size_t i=0; i<num_elements; i++)
-	// 	*(this->k_data_.begin() + i) = *(data_to_be_fftd.begin() + i);
-	
 }
 
 
