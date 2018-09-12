@@ -85,7 +85,10 @@ class MRDynamicSimulation : public aDynamicSimulation {
 
 public:
 
-	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) { };
+	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
+	{
+		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
+	};
 	void write_simulation_results( std::string const filename_output_with_extension );
 
 
