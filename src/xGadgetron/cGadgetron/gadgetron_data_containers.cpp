@@ -27,8 +27,12 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <math.h>
+
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
+
+#include "localised_exception.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -1316,6 +1320,12 @@ void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(std::string& serial
     serialized_header = updated_serialized_header_stream.str();
 }
 
+void aTrajectoryContainer::set_header(ISMRMRD::IsmrmrdHeader hdr)
+{
+	this->hdr_ = hdr;
+	this->overwrite_ismrmrd_trajectory_info(this->hdr_);
+}
+
 void aTrajectoryContainer::set_trajectory( TrajVessel trajectory )
 {
 	this->traj_ = trajectory;
@@ -1330,3 +1340,69 @@ std::string aTrajectoryContainer::get_traj_type( void )
 {
 	return this->traj_type_;
 }
+
+
+void RPETrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NRadial, NAngles, 2}; 
+   	this->traj_.resize(traj_dims);
+
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; nr<NAngles; na++)
+	{
+		int const r_pos = nr - NRadial /2;
+		float const ang_pos = na*M_PI/ NAngles;
+			
+		float const nx = r_pos * cos( ang_pos )/ (NRadial);
+		float const ny = r_pos * sin( ang_pos )/ (NRadial);
+
+		this->traj_(nr, na, 0) = nx;
+		this->traj_(nr, na, 1) = ny;
+
+	}
+}
+
+void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& acq)
+{
+	if ( this->traj_.getNumberOfElements() == 0)
+		throw LocalisedException("No trajectory has been set or computed. I suggest you execute compute_trajectory first in order to be", __FILE__, __LINE__);
+
+
+	auto num_samples = acq.number_of_samples();
+	auto active_channels = acq.active_channels();
+	auto trajectory_dimensions = 3;
+
+	acq.resize(num_samples, active_channels, trajectory_dimensions);
+
+	uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
+	uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
+
+	for( unsigned i=0; i<num_samples; i++)
+	{
+		float const readout_traj = (-(float)num_samples/2.f + (float)i ) / (float)num_samples;
+		
+		acq.traj(0, readout_traj )	;
+		acq.traj(1, this->traj_( enc_step_1, enc_step_2, 1) );	
+		acq.traj(2, this->traj_( enc_step_1, enc_step_2, 2) );	
+	}
+}
+
+
+
+
+

@@ -806,15 +806,15 @@ namespace sirf {
 	typedef float TrajPrecision;
 	typedef ISMRMRD::NDArray<TrajPrecision> TrajVessel;
 
-	class aTrajectoryContainer
-	{
+	class aTrajectoryContainer{
+
 	public:
 
 		aTrajectoryContainer(){}
 		aTrajectoryContainer( const std::string &traj_type ): traj_type_(traj_type)
 		{}
 
-		void set_traj_type( std::string const type);
+		void set_header(ISMRMRD::IsmrmrdHeader hdr);
 		void set_trajectory( TrajVessel trajectory );
 		
 		std::string get_traj_type( void );
@@ -823,16 +823,34 @@ namespace sirf {
 		void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr);
 		void overwrite_ismrmrd_trajectory_info(std::string& serialized_header);
 
+		virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu)=0;
+		virtual void compute_trajectory()=0;
 	protected:
+
+		ISMRMRD::IsmrmrdHeader hdr_;
+
 		TrajVessel traj_;
 		std::string traj_type_;
 
 	};
 
-	class RPETrajectoryContainer : public aTrajectoryContainer
-	{
+	class CartesianTrajectoryContainer : public aTrajectoryContainer{
+	
+	public:
+		CartesianTrajectoryContainer(){	traj_type_ = "Cartesian"; }
+		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu){};
+		void compute_trajectory() {};
+	};
+
+	class RPETrajectoryContainer : public aTrajectoryContainer{
+
 	public:
 		RPETrajectoryContainer(){	traj_type_ = "RPE"; }
+		
+		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);
+		void compute_trajectory();
+		
+	
 	};
 
 }
