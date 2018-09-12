@@ -17,6 +17,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <gadgetron/hoNDFFT.h>
 #include <gadgetron/hoNFFT.h>
 
+
+#include <gadgetron/hoNDArray_utils.h>
 #include <gadgetron/vector_td_utilities.h>
 
 using namespace Gadgetron;
@@ -101,69 +103,67 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 	
 
 	std::vector<size_t> data_dims = data_dims_from_ndarray< complex_float_t >(i_data);
+	
 
-	// bool is_3d_data = true;
-	// for(int i=3; i<ISMRMRD_NDARRAY_MAXDIM; i++)
-	// {
-	// 	std::cout << data_dims[i] << std::endl;
-	// 	is_3d_data *= (data_dims[i] == 1);
-	// }
-
-	// if( ! is_3d_data )
-	// 	throw std::runtime_error("Please pass 3D data to the RPE fourier transform");
-
+	size_t num_slices = data_dims[0];
+	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 	size_t const num_coils = data_dims[3];
+	
+
+	auto traj_dims = this->traj_prep_.get_traj_dims();
+
+	std::vector<size_t> output_data_size;
+	output_data_size.push_back(num_slices);
+	output_data_size.push_back(traj_dims[0]);
+	output_data_size.push_back(traj_dims[1]);
+	output_data_size.push_back(num_coils);
+	
+	this->k_data_.resize(output_data_size);
+
+	
+
+	hoNDArray< complex_float_t > data_to_be_fftd( data_dims );
+
+	size_t const num_elements = i_data.getNumberOfElements();
+	for( size_t i=0; i<num_elements; i++)
+	{
+		auto const val= *(i_data.begin() + i);
+		*(data_to_be_fftd.begin() + i) = val;
+	}
+
+	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
+	// hoNDFFT< float >::instance()->fft3c( data_to_be_fftd );
+
+	
 
 	for(size_t i_coil=0; i_coil<num_coils; i_coil++)
 	{
-	
-		size_t const num_elements = i_data.getNumberOfElements()/num_coils;
-
-		std::vector<size_t> img_dims(data_dims.begin(),data_dims.begin() + 3) ;
-	    ho3DArray< complex_float_t > data_to_be_fftd( &img_dims );
-			
-		
-		for( size_t i=0; i<num_elements; i++)
-		{
-			size_t const linear_index_access = i + i_coil * num_elements;
-			auto const val= *(i_data.begin() + linear_index_access);
-			*(data_to_be_fftd.begin() + i) = val;
-		}
-		
-		hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
-
-
-		size_t num_slices = data_dims[0];
-		auto traj_dims = this->traj_prep_.get_traj_dims();
-
-		std::vector<size_t> output_data_size;
-		output_data_size.push_back(num_slices);
-		output_data_size.push_back(traj_dims[0]);
-		output_data_size.push_back(traj_dims[1]);
-		output_data_size.push_back(num_coils);
-		
-		this->k_data_.resize(output_data_size);
-		
-
-		std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
-
 		for(size_t i_slice=0; i_slice< num_slices; i_slice++)
 		{
 			ho2DArray< complex_float_t > sub_slice( &slice_dims );
-			for(size_t y=0; y<data_dims[1]; y++)
+			// hoNDArray< complex_float_t > sub_slice( slice_dims );
+			for(size_t z=0; z<data_dims[2]; z++)
 			{
-				for(size_t z=0; z<data_dims[2]; z++)
+				for(size_t y=0; y<data_dims[1]; y++)
 				{
-					sub_slice(y, z) = data_to_be_fftd(i_slice, y, z);
+					size_t const lin_index_access_4D = ((i_coil * data_dims[2] + z)*data_dims[1] + y)*num_slices + i_slice;
+					// size_t const lin_index_access_2D = z*data_dims[1] + y;
+				
+					// sub_slice[lin_index_access_2D] = data_to_be_fftd [ lin_index_access_4D ];		
+					sub_slice(y, z) = data_to_be_fftd [ lin_index_access_4D ];		
+
 				}
 			}
 
-
-			float const oversampling_factor = 1.f;
+			size_t const oversampling_factor = 2;
 			float const kernel_size = 5.5f;
 
+		    ho2DArray<complex_float_t> padded_sub_slice;
+		    Gadgetron::uint64d2 padded_size(oversampling_factor*slice_dims[0], oversampling_factor*slice_dims[1]);
 
-			hoNFFT_plan<float, 2> nufft_operator( from_std_vector<size_t, 2>(slice_dims) , oversampling_factor, kernel_size);
+			Gadgetron::pad<complex_float_t,  2>(padded_size, &sub_slice, &padded_sub_slice, false);
+
+			hoNFFT_plan<float, 2> nufft_operator( from_std_vector<size_t, 2>(slice_dims) , (float)oversampling_factor, kernel_size);
 		
 			hoNDArray< TrajectoryType2D > trajectory = this->traj_prep_.get_formatted_trajectory();
 			
@@ -173,8 +173,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 			
 			auto identitiy_DCF = this->traj_prep_.get_formatted_identity_dcf< float >();
 
-			nufft_operator.compute( sub_slice, result, identitiy_DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
-
+			nufft_operator.compute( padded_sub_slice, result, identitiy_DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
 
 			for(size_t nr=0; nr<traj_dims[0]; nr++)
 			{
@@ -185,6 +184,10 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 			}
 		}	
 	}
+
+	// for( size_t i=0; i<num_elements; i++)
+	// 	*(this->k_data_.begin() + i) = *(data_to_be_fftd.begin() + i);
+	
 }
 
 
