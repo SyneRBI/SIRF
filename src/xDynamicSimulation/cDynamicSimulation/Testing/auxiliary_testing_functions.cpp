@@ -564,8 +564,8 @@ sirf::RPETrajectoryContainer aux_test::get_mock_radial_trajectory(size_t const N
 			float const nx = r_pos * cos( ang_pos )/ (NRad);
 			float const ny = r_pos * sin( ang_pos )/ (NRad);
 
-			mock_traj(nr, na, 0) = ny;
-			mock_traj(nr, na, 1) = nx;
+			mock_traj(nr, na, 0) = nx;
+			mock_traj(nr, na, 1) = ny;
 		}
 
 	sirf::RPETrajectoryContainer rpe_traj;
