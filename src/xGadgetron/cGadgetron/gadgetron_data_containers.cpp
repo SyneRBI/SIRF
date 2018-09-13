@@ -1292,7 +1292,7 @@ CoilSensitivitiesAsImages::CoilSensitivitiesAsImages(const char* file)
 
  
 
-void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr) 
+void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader& hdr) 
 {
 	std::vector<ISMRMRD::Encoding> current_encoding = hdr.encoding;
 	std::vector<ISMRMRD::Encoding> overwritten_encoding;
@@ -1346,6 +1346,8 @@ void RPETrajectoryContainer::compute_trajectory()
 {
 	using namespace ISMRMRD;
 
+	std::cout << "Computing trajectory" << std::endl;
+
 	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
 
 	if( all_encodings.size() != 1 )
@@ -1363,8 +1365,9 @@ void RPETrajectoryContainer::compute_trajectory()
    	this->traj_.resize(traj_dims);
 
 	for( unsigned nr=0; nr<NRadial; nr++)
-	for( unsigned na=0; nr<NAngles; na++)
+	for( unsigned na=0; na<NAngles; na++)
 	{
+
 		int const r_pos = nr - NRadial /2;
 		float const ang_pos = na*M_PI/ NAngles;
 			
@@ -1374,6 +1377,8 @@ void RPETrajectoryContainer::compute_trajectory()
 		this->traj_(nr, na, 0) = nx;
 		this->traj_(nr, na, 1) = ny;
 
+		// std::cout << "Steps: " << "(" << nr << "," << na << ")" <<std::endl;
+		// std::cout << "Computed Traj: " << "(" << nx << "," << ny << ")" <<std::endl;
 	}
 }
 
@@ -1396,9 +1401,14 @@ void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& ac
 	{
 		float const readout_traj = (-(float)num_samples/2.f + (float)i ) / (float)num_samples;
 		
-		acq.traj(0, readout_traj )	;
-		acq.traj(1, this->traj_( enc_step_1, enc_step_2, 1) );	
-		acq.traj(2, this->traj_( enc_step_1, enc_step_2, 2) );	
+		acq.traj(0, i )				= readout_traj;
+		acq.traj(1, i ) 	= this->traj_( enc_step_1, enc_step_2, 0);	
+		acq.traj(2, i ) 	= this->traj_( enc_step_1, enc_step_2, 1);	
+
+		// std::cout << "Steps: " << "(" << enc_step_1 << "," << enc_step_2 << ")" <<std::endl;
+		// std::cout << "Filled Traj: " << "(" << readout_traj << "," << this->traj_( enc_step_1, enc_step_2, 0) << "," << this->traj_( enc_step_1, enc_step_2, 1) << ")" <<std::endl;
+		
+
 	}
 }
 

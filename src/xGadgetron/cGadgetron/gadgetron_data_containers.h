@@ -810,17 +810,18 @@ namespace sirf {
 
 	public:
 
-		aTrajectoryContainer(){}
-		aTrajectoryContainer( const std::string &traj_type ): traj_type_(traj_type)
-		{}
-
+		aTrajectoryContainer()
+		{
+			this->traj_.resize( std::vector<size_t>{0} );	
+		}
+		
 		void set_header(ISMRMRD::IsmrmrdHeader hdr);
 		void set_trajectory( TrajVessel trajectory );
 		
 		std::string get_traj_type( void );
 		TrajVessel get_trajectory( void );
 
-		void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader hdr);
+		void overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader& hdr);
 		void overwrite_ismrmrd_trajectory_info(std::string& serialized_header);
 
 		virtual void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu)=0;
@@ -837,7 +838,11 @@ namespace sirf {
 	class CartesianTrajectoryContainer : public aTrajectoryContainer{
 	
 	public:
-		CartesianTrajectoryContainer(){	traj_type_ = "Cartesian"; }
+		CartesianTrajectoryContainer() :aTrajectoryContainer()
+		{
+			traj_type_ = "Cartesian"; 
+		}
+
 		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu){};
 		void compute_trajectory() {};
 	};
@@ -845,7 +850,10 @@ namespace sirf {
 	class RPETrajectoryContainer : public aTrajectoryContainer{
 
 	public:
-		RPETrajectoryContainer(){	traj_type_ = "RPE"; }
+		RPETrajectoryContainer():aTrajectoryContainer()
+		{	
+			traj_type_ = "RPE"; 
+		}
 		
 		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);
 		void compute_trajectory();
