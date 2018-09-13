@@ -173,13 +173,19 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
-		// float const test_noise_width = 0.1;
-		// mr_dyn_sim.set_noise_width( test_noise_width );
-		float const test_SNR = 15;
-		mr_dyn_sim.set_SNR(test_SNR);
+		// size_t const NRad = 64;
+		// size_t const NAng = 64;
+		// RPETrajectoryContainer rpe_traj;
+		// auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
+		// mr_dyn_sim.set_trajectory( sptr_traj );
 		
-		int const num_simul_states_first_dyn = 10;
-		int const num_simul_states_second_dyn = 10;
+		float const test_noise_width = 0.1;
+		mr_dyn_sim.set_noise_width( test_noise_width );
+		float const test_SNR = 15;
+		// mr_dyn_sim.set_SNR(test_SNR);
+		
+		int const num_simul_states_first_dyn = 2;
+		int const num_simul_states_second_dyn = 1;
 
 
 		ContrastDynamic first_cont_dyn(num_simul_states_first_dyn), second_cont_dyn(num_simul_states_second_dyn);
@@ -230,7 +236,7 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		second_cont_dyn.bin_mr_acquisitions( all_acquis );
 
 		mr_dyn_sim.add_dynamic( first_cont_dyn );
-		mr_dyn_sim.add_dynamic( second_cont_dyn );
+		// mr_dyn_sim.add_dynamic( second_cont_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();
@@ -260,13 +266,20 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
-		// float const test_noise_width = 0.1;
-		// mr_dyn_sim.set_noise_width( test_noise_width );
-		float const test_SNR = 15;
-		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 10;
+		float const test_SNR = 15;
+		// mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_width( 0.f );
+
+		size_t const NRad = 64;
+		size_t const NAng = 64;
+			 
+		RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
+		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
+		// mr_dyn_sim.set_trajectory( sptr_traj );
+		
+		int const num_simul_cardiac_states = 2;
+		int const num_simul_resp_states = 1;
 		
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
@@ -323,8 +336,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-
-		int const num_simul_motion_dyn = 5;
+		int const num_simul_motion_dyn = 10;
 		
 		MotionDynamic first_motion_dyn(num_simul_motion_dyn), second_motion_dyn( num_simul_motion_dyn );
 
@@ -354,8 +366,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_first_contrast_dyn = 10;
-		int const num_simul_states_second_contrast_dyn = 10;
+		int const num_simul_states_first_contrast_dyn = 3;
+		int const num_simul_states_second_contrast_dyn = 3;
 
 
 		ContrastDynamic first_cont_dyn(num_simul_states_first_contrast_dyn), second_cont_dyn(num_simul_states_second_contrast_dyn);
@@ -437,16 +449,14 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
-
-		size_t const NRad = 64;
-		size_t const NAng = 64;
-			 
-		RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
-		
+		 
+		RPETrajectoryContainer rpe_traj;
 		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
 		
+		std::cout << "before setting traj" <<std::endl;
 		mr_dyn_sim.set_trajectory( sptr_traj );
-		
+		std::cout << "after setting traj" <<std::endl;
+
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 

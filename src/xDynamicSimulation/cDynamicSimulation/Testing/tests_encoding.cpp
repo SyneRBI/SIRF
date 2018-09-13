@@ -87,7 +87,7 @@ bool RPETester::test_sample_fourier_space( void )
 		auto img_dims = i_dat.getDims();
 
 		size_t const NRad = 64;
-		size_t const NAng = 32;
+		size_t const NAng = 64;
 		
 		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 

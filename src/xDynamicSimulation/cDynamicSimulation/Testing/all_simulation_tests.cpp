@@ -301,11 +301,11 @@ void run_tests_encoding( void )
 	bool tests_successful = true;
 
 	tests_successful *= test_enc::test_cube_input();
-	tests_successful *= CartesianEncodingTester::test_sample_fourier_space();
+	// tests_successful *= CartesianEncodingTester::test_sample_fourier_space();
 	
 
-	tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
-	tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
+	// tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
+	// tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
 
 	tests_successful *= RPETester::test_sample_fourier_space();
 
