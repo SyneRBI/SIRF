@@ -6,6 +6,7 @@ date: 15. March 2018
 
 #include <memory>
 #include <mutex>
+#include <sstream>
 
 #include "dynamicsimulation_x.h"
 
@@ -25,6 +26,11 @@ void MRDynamicSimulation::write_simulation_results( std::string const filename_o
 	{
 		std::cout << "Started writing simulation output to: " << filename_output_with_h5_extension <<std::endl;
 		std::cout << "Number of acquisitions to write: " << this->target_acquisitions_.number() << std::endl;
+
+		std::stringstream serialized_hdr;
+		ISMRMRD::serialize(this->hdr_, serialized_hdr);
+		target_acquisitions_.set_acquisitions_info( serialized_hdr.str() ); 
+
 		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
 		std::cout << "Finished writing simulation output."<<std::endl;
 	}
@@ -320,6 +326,11 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 void MRDynamicSimulation::extract_hdr_information( void )
 {
 	this->hdr_ = mr_io::read_ismrmrd_header( filename_rawdata_ );
+
+	this->sptr_trajectory_->set_header( this->hdr_ );
+	this->sptr_trajectory_->compute_trajectory();
+
+	sptr_trajectory_->overwrite_ismrmrd_trajectory_info( this->hdr_ );
 
 	this->acq_model_.setISMRMRDHeader( this->hdr_ );
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
