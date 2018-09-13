@@ -424,6 +424,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	}
 	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
 	{
+		std::cout << "Cartesian Acquisition Process" << std::endl;
 		FullySampledCartesianFFT CartFFT;
 		CartFFT.SampleFourierSpace( ci );
 		
@@ -445,6 +446,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			}
 		}
 
+		this->sptr_traj_->set_acquisition_trajectory(acq);
 		acq.idx().contrast = img.getContrast();
 
 		ac.append_acquisition(acq);
