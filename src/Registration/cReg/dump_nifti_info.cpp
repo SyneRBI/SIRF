@@ -53,6 +53,12 @@ int main(int argc, char* argv[])
         // Print info
         SIRFRegMisc::dump_nifti_info(ims);
 
+        for (int i=0; i<num_images; ++i) {
+            std::cout << "\nPrinting min/max of image " << i << "\n";
+            std::cout << "\tMin: " << ims.at(i).get_min() << "\n";
+            std::cout << "\tMax: " << ims.at(i).get_max() << "\n";
+        }
+
 
     // If there was an error
     } catch(const exception &error) {
