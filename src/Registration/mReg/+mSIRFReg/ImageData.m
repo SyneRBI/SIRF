@@ -115,11 +115,14 @@ classdef ImageData < handle
             array = reshape(ptr_v.Value,dim);
         end
     end
-    methods (Hidden = true)
-        function dim = size(self)
-            % size
-            dim = self.get_dimensions();
-            dim = dim(2:dim(1)+1);
-        end
-    end
+    % If you put this in, the workspace in matlab shows the size (eg., 64x64x64 ImageData)
+    % Without it, jusrt 1x1 ImageData. However, with it, can't tell if we have an array of
+    % ImageData or if there is just one. TODO
+    %methods (Hidden = true)
+    %     function dim = size(self)
+    %         % size
+    %         dim = self.get_dimensions();
+    %         dim = dim(2:dim(1)+1);
+    %     end
+    % end
 end
