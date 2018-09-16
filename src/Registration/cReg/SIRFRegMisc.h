@@ -118,15 +118,15 @@ namespace SIRFRegMisc {
         sirf::SIRFImageData sub = im1 - im2;
 
         // Get absolute of difference
-        T *data = static_cast<T*>(sub.get_image_as_nifti()->data);
-        for (unsigned i=0; i<sub.get_image_as_nifti()->nvox; ++i)
+        T *data = static_cast<T*>(sub.get_raw_nifti_sptr()->data);
+        for (unsigned i=0; i<sub.get_raw_nifti_sptr()->nvox; ++i)
             data[i] = fabs(data[i]);
 
         // Get sum of abs difference
         float sum = sub.get_sum();
 
         // Get average
-        float avg = sum / sub.get_image_as_nifti()->nvox;
+        float avg = sum / sub.get_raw_nifti_sptr()->nvox;
 
         // Calculate required accuracy
         float max1 = im1.get_max();
@@ -156,12 +156,12 @@ namespace SIRFRegMisc {
             throw std::runtime_error("get_array_max: Image not initialised.");
 
         // Check sizes
-        if (im.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("get_array_max: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_max: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         // Get data
-        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
-        return *std::max_element(data, data + im.get_image_as_nifti()->nvox);
+        T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
+        return *std::max_element(data, data + im.get_raw_nifti_sptr()->nvox);
     }
 
     /// Get array min
@@ -172,12 +172,12 @@ namespace SIRFRegMisc {
             throw std::runtime_error("get_array_min: Image not initialised.");
 
         // Check sizes
-        if (im.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("get_array_min: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_min: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         // Get data
-        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
-        return *std::min_element(data, data + im.get_image_as_nifti()->nvox);
+        T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
+        return *std::min_element(data, data + im.get_raw_nifti_sptr()->nvox);
     }
 
     /// Get array sum
@@ -188,41 +188,57 @@ namespace SIRFRegMisc {
             throw std::runtime_error("get_array_min: Image not initialised.");
 
         // Check sizes
-        if (im.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("get_array_min: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_min: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         // Get data
-        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+        T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
         T sum = T(0);
-        for (int i=0; i<im.get_image_as_nifti()->nvox; ++i)
+        for (int i=0; i<im.get_raw_nifti_sptr()->nvox; ++i)
             sum += data[i];
         return sum;
     }
 
     /// Get 3D array element
     template<typename T>
-    float get_3D_array_element(const sirf::SIRFImageData &im, const int x, const int y, const int z)
+    float get_array_element(const sirf::SIRFImageData &im, int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0)
     {
         if(!im.is_initialised())
             throw std::runtime_error("get_3D_array_element: Image not initialised.");
 
         // Check sizes
-        if (im.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("get_3D_array_element: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("get_array_element: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
-        int nx = im.get_image_as_nifti()->nx;
-        int ny = im.get_image_as_nifti()->nz;
-        int nz = im.get_image_as_nifti()->ny;
-        if(x<0 || x>=nx || y<0 || y>=ny || z<0 || z>=nz)
-            throw std::runtime_error("get_3D_array_element: Element out of bounds");
+        // Check the point is in bounds
+        const int &nx = im.get_raw_nifti_sptr()->nx;
+        const int &ny = im.get_raw_nifti_sptr()->ny;
+        const int &nz = im.get_raw_nifti_sptr()->nz;
+        const int &nt = im.get_raw_nifti_sptr()->nt;
+        const int &nu = im.get_raw_nifti_sptr()->nu;
+        const int &nv = im.get_raw_nifti_sptr()->ny;
+        const int &nw = im.get_raw_nifti_sptr()->nw;
+        if(x<0 || x>=nx ||
+           y<0 || y>=ny ||
+           z<0 || z>=nz ||
+           t<0 || t>=nt ||
+           u<0 || u>=nu ||
+           v<0 || v>=nv ||
+           w<0 || w>=nw)
+            throw std::runtime_error("get_array_element: Element out of bounds");
 
         // Get data
-        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
+        T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
 
-        std::cout << "\nBe careful, I made this quickly for debugging and haven't thought about data order."
-                     " You might have to switch x and z.\n";
+        std::cout << "\nBe careful, I made this quickly for debugging and haven't thought about data order.\n";
 
-        return data[x*ny*nz + y*nz + z];
+        x *= nw*nv*nu*nt*nz*ny;
+        y *= nw*nv*nu*nt*nz;
+        z *= nw*nv*nu*nt;
+        t *= nw*nv*nu;
+        u *= nw*nv;
+        v *= nw;
+        return data[x+y+z+t+u+v+w];
     }
 
     /// Sum arrays
@@ -236,16 +252,16 @@ namespace SIRFRegMisc {
         if(!do_nifti_image_metadata_match(im1,im2))
             throw std::runtime_error("sum_arrays: Cannot add images as metadata does not match.");
         // Check sizes
-        if (im1.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("sum_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("sum_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         sirf::SIRFImageData result = im1.deep_copy();
 
         // Get data
-        T *im2_data = static_cast<T*>(im2.get_image_as_nifti()->data);
-        T *res_data = static_cast<T*>(result.get_image_as_nifti()->data);
+        T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
+        T *res_data = static_cast<T*>(result.get_raw_nifti_sptr()->data);
 
-        for (unsigned i=0; i<im1.get_image_as_nifti()->nvox; ++i) {
+        for (unsigned i=0; i<im1.get_raw_nifti_sptr()->nvox; ++i) {
             res_data[i] += im2_data[i];
         }
         return result;
@@ -262,16 +278,16 @@ namespace SIRFRegMisc {
         if(!do_nifti_image_metadata_match(im1,im2))
             throw std::runtime_error("sub_arrays: Cannot add images as metadata does not match.");
         // Check sizes
-        if (im1.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("sub_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("sub_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         sirf::SIRFImageData result = im1.deep_copy();
 
         // Get data
-        T *im2_data = static_cast<T*>(im2.get_image_as_nifti()->data);
-        T *res_data = static_cast<T*>(result.get_image_as_nifti()->data);
+        T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
+        T *res_data = static_cast<T*>(result.get_raw_nifti_sptr()->data);
 
-        for (unsigned i=0; i<im1.get_image_as_nifti()->nvox; ++i) {
+        for (unsigned i=0; i<im1.get_raw_nifti_sptr()->nvox; ++i) {
             res_data[i] -= im2_data[i];
         }
         return result;
@@ -293,7 +309,7 @@ namespace SIRFRegMisc {
         std::string header = name + ": ";
         std::cout << "\t" << std::left << std::setw(19) << header;
         for(int i=0; i<ims.size(); i++)
-            std::cout << std::setw(19) << ims[i].get_image_as_nifti().get()->*call_back;
+            std::cout << std::setw(19) << ims[i].get_raw_nifti_sptr().get()->*call_back;
         std::cout << "\n";
     }
 
@@ -305,7 +321,7 @@ namespace SIRFRegMisc {
             std::string header = name + "[" + std::to_string(i) + "]: ";
             std::cout << "\t" << std::left << std::setw(19) << header;
             for(unsigned j=0; j<ims.size(); j++)
-                std::cout << std::setw(19) << (ims[j].get_image_as_nifti().get()->*call_back)[i];
+                std::cout << std::setw(19) << (ims[j].get_raw_nifti_sptr().get()->*call_back)[i];
             std::cout << "\n";
         }
     }
@@ -332,7 +348,7 @@ namespace SIRFRegMisc {
     template<typename T>
     void change_datatype(const sirf::SIRFImageData &image)
     {
-        reg_tools_changeDatatype<T>(image.get_image_as_nifti().get());
+        reg_tools_changeDatatype<T>(image.get_raw_nifti_sptr().get());
     }
 
     /// Fill array with single value.
@@ -343,12 +359,12 @@ namespace SIRFRegMisc {
             throw std::runtime_error("fill_array: Image not initialised.");
 
         // Check sizes
-        if (im.get_image_as_nifti()->nbyper != sizeof(T))
-            throw std::runtime_error("fill_array: Datatype does not match desired cast type (" + std::to_string(im.get_image_as_nifti()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+        if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
+            throw std::runtime_error("fill_array: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         // Get data
-        T *data = static_cast<T*>(im.get_image_as_nifti()->data);
-        for (unsigned i=0; i<im.get_image_as_nifti()->nvox; i++) data[i] = T(v);
+        T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
+        for (unsigned i=0; i<im.get_raw_nifti_sptr()->nvox; i++) data[i] = T(v);
     }
 
     /// Compose multiple transformations into single deformation field

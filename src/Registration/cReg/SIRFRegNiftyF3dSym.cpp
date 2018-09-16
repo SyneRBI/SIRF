@@ -47,8 +47,8 @@ void SIRFRegNiftyF3dSym<T>::update()
 
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<T> >(new reg_f3d_sym<T>(_reference_time_point, _floating_time_point));
-    _registration_sptr->SetFloatingImage(_floating_image.get_image_as_nifti().get());
-    _registration_sptr->SetReferenceImage(_reference_image.get_image_as_nifti().get());
+    _registration_sptr->SetFloatingImage(_floating_image.get_raw_nifti_sptr().get());
+    _registration_sptr->SetReferenceImage(_reference_image.get_raw_nifti_sptr().get());
 
     // If there is an initial transformation matrix, set it
     if (_use_initial_transformation)
@@ -70,17 +70,17 @@ void SIRFRegNiftyF3dSym<T>::update()
     _warped_image = SIRFImageData(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
-            _reference_image.get_image_as_nifti()->dt < 1.e-7F)
-        _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
+    if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
+            _reference_image.get_raw_nifti_sptr()->dt < 1.e-7F)
+        _warped_image.get_raw_nifti_sptr()->pixdim[4] = _warped_image.get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
     SIRFImageDataDeformation cpp_fwrd(*_registration_sptr->GetControlPointPositionImage());
     SIRFImageDataDeformation cpp_back(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
-    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd,cpp_fwrd.get_image_as_nifti(), _reference_image);
-    SIRFRegMisc::get_def_from_cpp(_def_image_back,cpp_back.get_image_as_nifti(), _reference_image);
+    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd,cpp_fwrd.get_raw_nifti_sptr(), _reference_image);
+    SIRFRegMisc::get_def_from_cpp(_def_image_back,cpp_back.get_raw_nifti_sptr(), _reference_image);
 
     // Get the displacement fields from the def
     _disp_image_fwrd = _def_image_fwrd;

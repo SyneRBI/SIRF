@@ -50,8 +50,8 @@ void SIRFRegNiftyAladinSym<T>::update()
 #elif NIFTYREG_VER_1_3
     _registration_sptr = make_shared<reg_aladin<T> >();
 #endif
-    _registration_sptr->SetInputReference(_reference_image.get_image_as_nifti().get());
-    _registration_sptr->SetInputFloating(_floating_image.get_image_as_nifti().get());
+    _registration_sptr->SetInputReference(_reference_image.get_raw_nifti_sptr().get());
+    _registration_sptr->SetInputFloating(_floating_image.get_raw_nifti_sptr().get());
 
     // Parse parameter file
     this->parse_parameter_file();
@@ -65,9 +65,9 @@ void SIRFRegNiftyAladinSym<T>::update()
     _warped_image = SIRFImageData(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (_floating_image.get_image_as_nifti()->dt < 1.e-7F &&
-            _reference_image.get_image_as_nifti()->dt < 1.e-7F)
-        _warped_image.get_image_as_nifti()->pixdim[4] = _warped_image.get_image_as_nifti()->dt = 0.F;
+    if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
+            _reference_image.get_raw_nifti_sptr()->dt < 1.e-7F)
+        _warped_image.get_raw_nifti_sptr()->pixdim[4] = _warped_image.get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and backward transformation matrices
     _TM_fwrd = *_registration_sptr->GetTransformationMatrix();
@@ -83,8 +83,8 @@ void SIRFRegNiftyAladinSym<T>::update()
     _def_image_fwrd.create_from_3D_image(_reference_image);
     _def_image_back.create_from_3D_image(_reference_image);
 
-    reg_affine_getDeformationField(&_TM_fwrd, _def_image_fwrd.get_image_as_nifti().get());
-    reg_affine_getDeformationField(&_TM_back, _def_image_back.get_image_as_nifti().get());
+    reg_affine_getDeformationField(&_TM_fwrd, _def_image_fwrd.get_raw_nifti_sptr().get());
+    reg_affine_getDeformationField(&_TM_back, _def_image_back.get_raw_nifti_sptr().get());
 
     _disp_image_fwrd = _def_image_fwrd;
     _disp_image_back = _def_image_back;

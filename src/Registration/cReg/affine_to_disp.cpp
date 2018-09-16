@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
         // Get the deformation field image
 #if NIFTYREG_VER_1_5
         def.create_from_3D_image(ref_sptr);
-        reg_affine_getDeformationField(&TM, def.get_image_as_nifti().get());
+        reg_affine_getDeformationField(&TM, def.get_raw_nifti_sptr().get());
 #elif NIFTYREG_VER_1_3
         SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM, ref_sptr);
         SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);

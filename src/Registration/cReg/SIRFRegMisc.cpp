@@ -211,7 +211,7 @@ void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
-    std::shared_ptr<nifti_image> im_sptr = im.get_image_as_nifti();
+    std::shared_ptr<nifti_image> im_sptr = im.get_raw_nifti_sptr();
 
     // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
@@ -282,11 +282,11 @@ void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformat
 {
     def.create_from_3D_image(ref);
     
-    reg_spline_getDeformationField(cpp.get_image_as_nifti().get(),
+    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
 #if NIFTYREG_VER_1_3
-                                   ref.get_image_as_nifti().get(),
+                                   ref.get_raw_nifti_sptr().get(),
 #endif
-                                   def.get_image_as_nifti().get(),
+                                   def.get_raw_nifti_sptr().get(),
                                    NULL,
                                    false, //composition
                                    true // bspline
@@ -297,34 +297,34 @@ void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformat
 void convert_from_def_to_disp(SIRFImageDataDeformation &im)
 {
     // Get the disp field from the def field
-    reg_getDisplacementFromDeformation(im.get_image_as_nifti().get());
-    im.get_image_as_nifti()->intent_p1 = DISP_FIELD;
+    reg_getDisplacementFromDeformation(im.get_raw_nifti_sptr().get());
+    im.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
 }
 
 /// Convert from displacement to deformation field image
 void convert_from_disp_to_def(SIRFImageDataDeformation &im)
 {
     // Get the def field from the disp field
-    reg_getDeformationFromDisplacement(im.get_image_as_nifti().get());
-    im.get_image_as_nifti()->intent_p1 = DEF_FIELD;
+    reg_getDeformationFromDisplacement(im.get_raw_nifti_sptr().get());
+    im.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
 }
 
 /// Multiply image
 void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value)
 {
 #if NIFTYREG_VER_1_5
-    reg_tools_multiplyValueToImage(input.get_image_as_nifti().get(), output.get_image_as_nifti().get(), value);
+    reg_tools_multiplyValueToImage(input.get_raw_nifti_sptr().get(), output.get_raw_nifti_sptr().get(), value);
 #elif NIFTYREG_VER_1_3
     // for last argument: 0=add, 1=subtract, 2=multiply, 3=divide
-    reg_tools_addSubMulDivValue(input.get_image_as_nifti().get(), output.get_image_as_nifti().get(), value, 2);
+    reg_tools_addSubMulDivValue(input.get_raw_nifti_sptr().get(), output.get_raw_nifti_sptr().get(), value, 2);
 #endif
 }
 
 /// Do nifti image metadatas match?
 bool do_nifti_image_metadata_match(const SIRFImageData &im1, const SIRFImageData &im2)
 {
-    const std::shared_ptr<nifti_image> im1_sptr = im1.get_image_as_nifti();
-    const std::shared_ptr<nifti_image> im2_sptr = im2.get_image_as_nifti();
+    const std::shared_ptr<nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
+    const std::shared_ptr<nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
 
     bool images_match = true;
     if (!do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient)) images_match = false;
@@ -418,24 +418,24 @@ bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, c
         return false;
     }
 
-    if (im1.get_image_as_nifti()->datatype == DT_BINARY)   return do_arrays_match<bool>              (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_INT8)     return do_arrays_match<signed char>       (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_INT16)    return do_arrays_match<signed short>      (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_INT32)    return do_arrays_match<signed int>        (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_FLOAT32)  return do_arrays_match<float>             (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_FLOAT64)  return do_arrays_match<double>            (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_UINT8)    return do_arrays_match<unsigned char>     (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_UINT16)   return do_arrays_match<unsigned short>    (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_UINT32)   return do_arrays_match<unsigned int>      (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_INT64)    return do_arrays_match<signed long long>  (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_UINT64)   return do_arrays_match<unsigned long long>(im1, im2, accuracy_percentage_of_max);
-    if (im1.get_image_as_nifti()->datatype == DT_FLOAT128) return do_arrays_match<long double>       (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_BINARY)   return do_arrays_match<bool>              (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_INT8)     return do_arrays_match<signed char>       (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_INT16)    return do_arrays_match<signed short>      (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_INT32)    return do_arrays_match<signed int>        (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT32)  return do_arrays_match<float>             (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT64)  return do_arrays_match<double>            (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT8)    return do_arrays_match<unsigned char>     (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT16)   return do_arrays_match<unsigned short>    (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT32)   return do_arrays_match<unsigned int>      (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_INT64)    return do_arrays_match<signed long long>  (im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT64)   return do_arrays_match<unsigned long long>(im1, im2, accuracy_percentage_of_max);
+    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT128) return do_arrays_match<long double>       (im1, im2, accuracy_percentage_of_max);
 
     stringstream ss;
     ss << "do_nifti_images_match not implemented for your data type: ";
-    ss << nifti_datatype_string(im1.get_image_as_nifti()->datatype);
+    ss << nifti_datatype_string(im1.get_raw_nifti_sptr()->datatype);
     ss << " (bytes per voxel: ";
-    ss << im1.get_image_as_nifti()->nbyper << ").";
+    ss << im1.get_raw_nifti_sptr()->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
@@ -516,7 +516,7 @@ void dump_nifti_info(const vector<SIRFImageData> &ims)
 
     vector<std::shared_ptr<nifti_image> > images;
     for(int i=0;i<ims.size();i++)
-        images.push_back(ims[i].get_image_as_nifti());
+        images.push_back(ims[i].get_raw_nifti_sptr());
 
     // Print transformation matrices
     vector<mat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
@@ -642,7 +642,7 @@ void compose_transformations_into_single_deformation(SIRFRegTransformationDeform
     for (unsigned i=1; i<transformations.size(); ++i) {
 
         SIRFImageDataDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
-        reg_defField_compose(temp.get_image_as_nifti().get(),deformation.get_image_as_nifti().get(),nullptr);
+        reg_defField_compose(temp.get_raw_nifti_sptr().get(),deformation.get_raw_nifti_sptr().get(),nullptr);
     }
 
     def = SIRFRegTransformationDeformation(deformation);

@@ -70,18 +70,18 @@ void SIRFRegNiftyResample::update()
     set_up_output_image();
 
 #if NIFTYREG_VER_1_5
-    reg_resampleImage(_floating_image.get_image_as_nifti().get(),
-                      _output_image.get_image_as_nifti().get(),
-                      transformation.get_as_deformation_field(_reference_image).get_image_as_nifti().get(),
+    reg_resampleImage(_floating_image.get_raw_nifti_sptr().get(),
+                      _output_image.get_raw_nifti_sptr().get(),
+                      transformation.get_as_deformation_field(_reference_image).get_raw_nifti_sptr().get(),
                       NULL,
                       _interpolation_type,
                       0);
 #elif NIFTYREG_VER_1_3
     throw std::runtime_error("TODO");
-    reg_resampleSourceImage(_reference_image.get_image_as_nifti().get(),
+    reg_resampleSourceImage(_reference_image.get_raw_nifti_sptr().get(),
                                 _floating_image_sptr.get(),
                                 _output_image_sptr.get(),
-                                _deformation_field.get_image_as_nifti().get(),
+                                _deformation_field.get_raw_nifti_sptr().get(),
                                 NULL,
                                 _interpolation_type,
                                 0);
@@ -111,8 +111,8 @@ void SIRFRegNiftyResample::set_up_output_image()
 {
     _output_image = _reference_image;
 
-    nifti_image *output_ptr   = _output_image.get_image_as_nifti().get();
-    nifti_image *floating_ptr = _floating_image.get_image_as_nifti().get();
+    nifti_image *output_ptr   = _output_image.get_raw_nifti_sptr().get();
+    nifti_image *floating_ptr = _floating_image.get_raw_nifti_sptr().get();
 
     output_ptr->cal_min                   = floating_ptr->cal_min;
     output_ptr->cal_max                   = floating_ptr->cal_max;

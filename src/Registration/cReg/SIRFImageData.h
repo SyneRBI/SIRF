@@ -84,7 +84,7 @@ public:
     bool is_initialised() const { return (_nifti_image ? true : false); }
 
     /// Get image as nifti
-    std::shared_ptr<nifti_image> get_image_as_nifti() const;
+    std::shared_ptr<nifti_image> get_raw_nifti_sptr() const;
 
     /// Copy data to PETImageData
     void copy_data_to(sirf::PETImageData &pet_image) const;
@@ -102,7 +102,7 @@ public:
     float get_min() const;
 
     /// Get element
-    float get_element(const int x, const int y, const int z) const;
+    float get_element(int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0) const;
 
     /// Get sum
     float get_sum() const;

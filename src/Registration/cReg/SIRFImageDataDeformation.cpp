@@ -56,7 +56,7 @@ SIRFImageDataDeformation::SIRFImageDataDeformation(const std::shared_ptr<nifti_i
 
 void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
 {
-    std::shared_ptr<nifti_image> image_sptr = image.get_image_as_nifti();
+    std::shared_ptr<nifti_image> image_sptr = image.get_raw_nifti_sptr();
 
     // Calculate deformation field image
     nifti_image *output_ptr;

@@ -208,7 +208,7 @@ void SIRFImageData::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
     _nifti_image->data = static_cast<void *>(calloc(_nifti_image->nvox, unsigned(_nifti_image->nbyper)));
 }
 
-std::shared_ptr<nifti_image> SIRFImageData::get_image_as_nifti() const
+std::shared_ptr<nifti_image> SIRFImageData::get_raw_nifti_sptr() const
 {
     if (!this->is_initialised())
         throw runtime_error("Warning, nifti has not been initialised.");
@@ -235,7 +235,7 @@ void SIRFImageData::copy_data_to(sirf::PETImageData &pet_image) const
     else {
         SIRFImageData temp = this->deep_copy();
         SIRFRegMisc::change_datatype<float>(temp);
-        float *nifti_data_ptr = static_cast<float *>(temp.get_image_as_nifti()->data);
+        float *nifti_data_ptr = static_cast<float *>(temp.get_raw_nifti_sptr()->data);
         pet_image.set_data(nifti_data_ptr);
     }
 
@@ -409,26 +409,23 @@ float SIRFImageData::get_min() const
     throw std::runtime_error(ss.str());
 }
 
-float SIRFImageData::get_element(const int x, const int y, const int z) const
+float SIRFImageData::get_element(int x, int y, int z, int t, int u, int v, int w) const
 {
     if(!this->is_initialised())
         throw runtime_error("Image not initialised.");
 
-    if (_nifti_image->ndim > 3)
-        throw std::runtime_error("get_element: Currently only implemented for 3 dimensions");
-
-    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_3D_array_element<bool>              (*this, x, y, z);
-    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_3D_array_element<signed char>       (*this, x, y, z);
-    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_3D_array_element<signed short>      (*this, x, y, z);
-    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_3D_array_element<signed int>        (*this, x, y, z);
-    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_3D_array_element<float>             (*this, x, y, z);
-    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_3D_array_element<double>            (*this, x, y, z);
-    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_3D_array_element<unsigned char>     (*this, x, y, z);
-    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_3D_array_element<unsigned short>    (*this, x, y, z);
-    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_3D_array_element<unsigned int>      (*this, x, y, z);
-    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_3D_array_element<signed long long>  (*this, x, y, z);
-    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_3D_array_element<unsigned long long>(*this, x, y, z);
-    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_3D_array_element<long double>       (*this, x, y, z);
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_element<bool>              (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_element<signed char>       (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::get_array_element<signed short>      (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::get_array_element<signed int>        (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::get_array_element<float>             (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::get_array_element<double>            (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::get_array_element<unsigned char>     (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::get_array_element<unsigned short>    (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::get_array_element<unsigned int>      (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::get_array_element<signed long long>  (*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::get_array_element<unsigned long long>(*this, x, y, z, t, u, v, w);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_element<long double>       (*this, x, y, z, t, u, v, w);
 
     stringstream ss;
     ss << "SIRFImageData::get_min not implemented for your data type: ";

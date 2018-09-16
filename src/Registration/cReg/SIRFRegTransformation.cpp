@@ -63,8 +63,8 @@ SIRFImageDataDeformation SIRFRegTransformationAffine::get_as_deformation_field(c
     SIRFImageDataDeformation def;
     def.create_from_3D_image(ref);
     mat44 temp = _tm; // Need temp as the following isn't marked const
-    reg_affine_getDeformationField(&temp, def.get_image_as_nifti().get());
-    def.get_image_as_nifti()->intent_p1 = DEF_FIELD;
+    reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
+    def.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
     return def;
 }
 
