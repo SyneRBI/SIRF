@@ -179,8 +179,8 @@ function try_sirfimagedatadeformation(g)
 
     % Deep copy
     d = c.deep_copy();
-    assert(d.handle_ ~= c.handle_, 'SIRFImageDataDeformation deep_copy failed.');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, c, g.required_percentage_accuracy) == 1, 'SIRFImageDataDeformation deep_copy failed.');
+    assert(d.handle_ ~= c.handle_, 'SIRFImageDataDeformation deep_copy failed (they have the same handle).');
+    assert(mSIRFReg.Misc.do_nifti_images_match(d, c, g.required_percentage_accuracy) == 1, 'SIRFImageDataDeformation deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
@@ -219,13 +219,6 @@ function na =try_niftyaladin(g)
     na.set_floating_image(g.flo_aladin);
     na.set_parameter_file(g.parameter_file_aladin);
     na.update();
-    na.save_warped_image(g.aladin_warped);
-    na.save_transformation_matrix_fwrd(g.TM_fwrd);
-    na.save_transformation_matrix_back(g.TM_back);
-    na.save_deformation_field_fwrd(g.aladin_def_fwrd, false);
-    na.save_deformation_field_back(g.aladin_def_back, true);
-    na.save_displacement_field_fwrd(g.aladin_disp_fwrd, false);
-    na.save_displacement_field_back(g.aladin_disp_back, true);
 
     % Get outputs
     warped = na.get_output();
@@ -233,6 +226,14 @@ function na =try_niftyaladin(g)
     def_back = na.get_deformation_field_back();
     disp_fwrd = na.get_displacement_field_fwrd();
     disp_back = na.get_displacement_field_back();
+
+    warped.save_to_file(g.aladin_warped);
+    na.save_transformation_matrix_fwrd(g.TM_fwrd);
+    na.save_transformation_matrix_back(g.TM_back);
+    def_fwrd.save_to_file(g.aladin_def_fwrd, false);
+    def_back.save_to_file(g.aladin_def_back, true);
+    disp_fwrd.save_to_file(g.aladin_disp_fwrd, false);
+    disp_back.save_to_file(g.aladin_disp_back, true);
 
     % Fwrd TM
     fwrd_tm = na.get_transformation_matrix_fwrd()
@@ -263,11 +264,6 @@ function try_niftyf3d(g)
     nf.set_floating_time_point(1);
     nf.set_initial_affine_transformation(g.TM_fwrd);
     nf.update();
-    nf.save_warped_image(g.f3d_warped);
-    nf.save_deformation_field_fwrd(g.f3d_def_fwrd, true);
-    nf.save_deformation_field_back(g.f3d_def_back, false);
-    nf.save_displacement_field_back(g.f3d_disp_fwrd, true);
-    nf.save_displacement_field_fwrd(g.f3d_disp_back, false);
 
     % Get outputs
     warped = nf.get_output();
@@ -275,6 +271,12 @@ function try_niftyf3d(g)
     def_back = nf.get_deformation_field_back();
     disp_fwrd = nf.get_displacement_field_fwrd();
     disp_back = nf.get_displacement_field_back();
+
+    warped.save_to_file(g.f3d_warped);
+    def_fwrd.save_to_file(g.f3d_def_fwrd, true);
+    def_back.save_to_file(g.f3d_def_back, false);
+    disp_fwrd.save_to_file(g.f3d_disp_fwrd, true);
+    disp_back.save_to_file(g.f3d_disp_back, false);
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')
@@ -346,7 +348,7 @@ function try_resample(g,na)
     nr1.add_transformation_affine(tm_iden);
 		nr1.add_transformation_affine(tm);
     nr1.update();
-    nr1.save_resampled_image(g.rigid_resample);
+    nr1.get_output().save_to_file(g.rigid_resample);
 
     disp('Testing non-rigid displacement...')
     nr2 = mSIRFReg.NiftyResample();
@@ -356,7 +358,7 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation_disp(displ);
     nr2.update();
-    nr2.save_resampled_image(g.nonrigid_resample_disp);
+    nr2.get_output().save_to_file(g.nonrigid_resample_disp);
 
     disp('Testing non-rigid deformation...')
     nr3 = mSIRFReg.NiftyResample()
@@ -366,7 +368,7 @@ function try_resample(g,na)
     nr3.add_transformation_def(deff);
     nr3.set_interpolation_type_to_linear()
     nr3.update()
-    nr3.save_resampled_image(g.nonrigid_resample_def)
+    nr3.get_output().save_to_file(g.nonrigid_resample_def)
 
     assert(mSIRFReg.Misc.do_nifti_images_match(na.get_output(), nr1.get_output(), g.required_percentage_accuracy) == 1, 'Rigid resampled output should match registration (aladin) output.')
 
@@ -395,7 +397,7 @@ function try_weighted_mean(g,na)
 		wm1.add_image(im3, 3);
 		wm1.add_image(im4, 1);
 		wm1.update();
-		wm1.save_image_to_file(g.output_weighted_mean);
+		wm1.get_output().save_to_file(g.output_weighted_mean);
 		% Answer should be 4.5, so compare it to that!
 		res = mSIRFReg.ImageData(g.stir_nifti);
 		res.fill(4.5);
@@ -416,7 +418,7 @@ function try_weighted_mean(g,na)
 		wm2.add_image(im3, 3)
 		wm2.add_image(im4, 1)
 		wm2.update()
-		wm2.save_image_to_file(g.output_weighted_mean_def)
+		wm2.get_output().save_to_file(g.output_weighted_mean_def)
 		% Answer should be 4.5, so compare it to that!
 		res = na.get_deformation_field_fwrd().deep_copy()
 		res.fill(4.5)

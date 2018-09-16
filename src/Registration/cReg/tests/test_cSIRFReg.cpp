@@ -282,13 +282,13 @@ int main(int argc, char* argv[])
         NA.set_floating_image                (           flo_aladin          );
         NA.set_parameter_file                (      parameter_file_aladin    );
         NA.update();
-        NA.save_warped_image                 (         aladin_warped         );
+        NA.get_output().save_to_file         (         aladin_warped         );
         NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
         NA.save_transformation_matrix_back   (             TM_back           );
-        NA.save_displacement_field_fwrd      ( aladin_disp_fwrd, false       );
-        NA.save_displacement_field_back      ( aladin_disp_back, true        );
-        NA.save_deformation_field_fwrd       ( aladin_def_fwrd,  false       );
-        NA.save_deformation_field_back       ( aladin_def_back,  true        );
+        NA.get_displacement_field_fwrd().save_to_file( aladin_disp_fwrd, false       );
+        NA.get_displacement_field_back().save_to_file( aladin_disp_back, true        );
+        NA.get_deformation_field_fwrd().save_to_file( aladin_def_fwrd,  false       );
+        NA.get_deformation_field_back().save_to_file( aladin_def_back,  true        );
 
         // Get outputs
         SIRFImageData warped = NA.get_output();
@@ -324,11 +324,11 @@ int main(int argc, char* argv[])
         NF.set_reference_time_point          (             1              );
         NF.set_floating_time_point           (             1              );
         NF.update();
-        NF.save_warped_image                 (         f3d_warped         );
-        NF.save_deformation_field_fwrd       ( f3d_def_fwrd,  true        );
-        NF.save_deformation_field_back       ( f3d_def_back,  false       );
-        NF.save_displacement_field_fwrd      ( f3d_disp_fwrd, true        );
-        NF.save_displacement_field_back      ( f3d_disp_back, false       );
+        NF.get_output().save_to_file         (         f3d_warped         );
+        NF.get_deformation_field_fwrd().save_to_file ( f3d_def_fwrd,  true        );
+        NF.get_deformation_field_back().save_to_file ( f3d_def_back,  false       );
+        NF.get_displacement_field_fwrd().save_to_file( f3d_disp_fwrd, true        );
+        NF.get_displacement_field_back().save_to_file( f3d_disp_back, false       );
 
         // Get outputs
         SIRFImageData warped = NF.get_output();
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
         nr1.add_transformation_affine(tm_iden);
         nr1.add_transformation_affine(tm);
         nr1.update();
-        nr1.save_resampled_image(rigid_resample);
+        nr1.get_output().save_to_file(rigid_resample);
 
         cout << "Testing non-rigid displacement...\n";
         SIRFRegNiftyResample nr2;
@@ -423,7 +423,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation_disp(disp);
         nr2.update();
-        nr2.save_resampled_image(nonrigid_resample_disp);
+        nr2.get_output().save_to_file(nonrigid_resample_disp);
 
         cout << "Testing non-rigid deformation...\n";
         SIRFRegNiftyResample nr3;
@@ -433,7 +433,7 @@ int main(int argc, char* argv[])
         nr3.add_transformation_def(deff);
         nr3.set_interpolation_type_to_linear();
         nr3.update();
-        nr3.save_resampled_image(nonrigid_resample_def);
+        nr3.get_output().save_to_file(nonrigid_resample_def);
 
         if (!SIRFRegMisc::do_nifti_images_match(NA.get_output(), nr1.get_output(), required_percentage_accuracy))
             throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
@@ -463,7 +463,7 @@ int main(int argc, char* argv[])
         wm1.add_image(im3, 3.F);
         wm1.add_image(im4, 1.F);
         wm1.update();
-        wm1.save_image_to_file(output_weighted_mean);
+        wm1.get_output().save_to_file(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
         SIRFImageData res(stir_nifti);
         res.fill(4.5F);
@@ -486,7 +486,7 @@ int main(int argc, char* argv[])
         wm2.add_image(im4D3, 3.F);
         wm2.add_image(im4D4, 1.F);
         wm2.update();
-        wm2.save_image_to_file(output_weighted_mean_def);
+        wm2.get_output().save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
         SIRFImageDataDeformation res4D = NA.get_deformation_field_fwrd().deep_copy();
         res4D.fill(4.5);

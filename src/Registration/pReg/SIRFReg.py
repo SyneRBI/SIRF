@@ -439,38 +439,6 @@ class _SIRFReg(ABC):
         check_status(output.handle)
         return output
 
-    def save_warped_image(self, filename):
-        """Save warped image."""
-        assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_image(self.handle, filename))
-
-    def save_deformation_field_fwrd(self, filename, split_xyz):
-        """Save forward deformation field image to file."""
-        assert isinstance(filename, str)
-        assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
-                                                                                   'fwrd_deformation', split_xyz))
-
-    def save_deformation_field_back(self, filename, split_xyz):
-        """Save backward deformation field image to file."""
-        assert isinstance(filename, str)
-        assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
-                                                                                   'back_deformation', split_xyz))
-
-    def save_displacement_field_fwrd(self, filename, split_xyz):
-        """Save forward displacement field image to file."""
-        assert isinstance(filename, str)
-        assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
-                                                                                   'fwrd_displacement', split_xyz))
-
-    def save_displacement_field_back(self, filename, split_xyz):
-        """Save backward displacement field image to file."""
-        assert isinstance(filename, str)
-        assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_save_deformation_displacement_image(self.handle, filename,
-                                                                                   'back_displacement', split_xyz))
 
     def update(self):
         """Run the registration"""
@@ -642,11 +610,6 @@ class NiftyResample:
         check_status(image.handle)
         return image
 
-    def save_resampled_image(self, filename):
-        """Save resampled image to file."""
-        assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_save_resampled_image(self.handle, filename))
-
 
 class ImageWeightedMean3D:
     """
@@ -674,10 +637,6 @@ class ImageWeightedMean3D:
     def update(self):
         """Update."""
         try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_update(self.handle))
-
-    def save_image_to_file(self, filename):
-        """Save image to file."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(self.handle, filename))
 
     def get_output(self):
         """Get output."""
@@ -712,10 +671,6 @@ class ImageWeightedMean4D:
     def update(self):
         """Update."""
         try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_update(self.handle))
-
-    def save_image_to_file(self, filename):
-        """Save image to file."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(self.handle, filename))
 
     def get_output(self):
         """Get output."""

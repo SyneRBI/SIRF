@@ -59,36 +59,6 @@ classdef (Abstract = true) SIRFReg < handle
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, 'SIRFReg', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
-        function save_warped_image(self, filename)
-            %Save warped image.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_image', self.handle_, filename);
-            mUtilities.check_status([self.name ':save_warped_image'], h);
-            mUtilities.delete(h)
-        end
-        function save_deformation_field_fwrd(self, filename, split_xyz)
-            %Save forward deformation field image to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'fwrd_deformation', split_xyz);
-            mUtilities.check_status([self.name ':save_deformation_field_fwrd'], h);
-            mUtilities.delete(h)
-        end
-        function save_deformation_field_back(self, filename, split_xyz)
-            %Save backward deformation field image to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'back_deformation', split_xyz);
-            mUtilities.check_status([self.name ':save_deformation_field_back'], h);
-            mUtilities.delete(h)
-        end
-        function save_displacement_field_fwrd(self, filename, split_xyz)
-            %Save forward displacement field image to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'fwrd_displacement', split_xyz);
-            mUtilities.check_status([self.name ':save_displacement_field_fwrd'], h);
-            mUtilities.delete(h)
-        end
-        function save_displacement_field_back(self, filename, split_xyz)
-            %Save backward displacement field image to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_save_deformation_displacement_image', self.handle_, filename, 'back_displacement', split_xyz);
-            mUtilities.check_status([self.name ':save_displacement_field_back'], h);
-            mUtilities.delete(h)
-        end
         function update(self)
             %Run the registration.
             assert(~isempty(self.handle_), 'SIRFReg.update: Registration object is empty.')

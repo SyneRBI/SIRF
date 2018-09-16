@@ -99,12 +99,5 @@ classdef NiftyResample < handle
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
-        function save_resampled_image(self, filename)
-            %Save resampled image to file.
-            assert(ischar(filename), 'NiftyResample::save_resampled_image expects char')
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_save_resampled_image', self.handle_, filename);
-            mUtilities.check_status([self.name ':save_resampled_image'], h);
-            mUtilities.delete(h)
-        end
     end
 end

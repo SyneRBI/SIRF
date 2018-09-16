@@ -58,13 +58,6 @@ classdef ImageWeightedMean3D < handle
             mUtilities.check_status([self.name ':update'], h);
             mUtilities.delete(h)
         end
-        function save_image_to_file(self, filename)
-            %Save image to file.
-            assert(ischar(filename))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file', self.handle_, filename);
-            mUtilities.check_status([self.name ':save_image_to_file'], h);
-            mUtilities.delete(h)
-        end
         function output = get_output(self)
             %Get output.
             output = mSIRFReg.ImageData();

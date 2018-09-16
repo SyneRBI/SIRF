@@ -115,12 +115,6 @@ void SIRFRegImageWeightedMean<ImType>::update()
 }
 
 template<class ImType>
-void SIRFRegImageWeightedMean<ImType>::save_image_to_file(const string &filename) const
-{
-    _output_image.save_to_file(filename);
-}
-
-template<class ImType>
 void SIRFRegImageWeightedMean<ImType>::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error

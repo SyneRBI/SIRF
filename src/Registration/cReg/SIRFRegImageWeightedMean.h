@@ -58,9 +58,6 @@ public:
     /// Update
     void update();
 
-    /// Save image to file
-    void save_image_to_file(const std::string &filename) const;
-
     /// Get output
     const ImType &get_output() const { return _output_image; }
 

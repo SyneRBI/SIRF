@@ -120,12 +120,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_deep_copy(const vo
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr) {
 	return cSIRFReg_SIRFReg_update(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_save_image(const void* ptr, const char* filename) {
-	return cSIRFReg_SIRFReg_save_image(ptr, filename);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_save_deformation_displacement_image(const void* ptr, const char* filename, const char* type, const bool split_xyz) {
-	return cSIRFReg_SIRFReg_save_deformation_displacement_image(ptr, filename, type, split_xyz);
-}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char* type) {
 	return cSIRFReg_SIRFReg_get_deformation_displacement_image(ptr, type);
 }
@@ -141,9 +135,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_add_transformation(voi
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_update(void* ptr) {
 	return cSIRFReg_SIRFRegNiftyResample_update(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_save_resampled_image(void* ptr, const char* filename) {
-	return cSIRFReg_SIRFRegNiftyResample_save_resampled_image(ptr, filename);
-}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean3D_add_image(void* ptr, const void* obj, const float weight) {
 	return cSIRFReg_SIRFRegImageWeightedMean3D_add_image(ptr, obj, weight);
 }
@@ -153,9 +144,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean3D_add_image_filena
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean3D_update(void* ptr) {
 	return cSIRFReg_SIRFRegImageWeightedMean3D_update(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(const void* ptr, const char* filename) {
-	return cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(ptr, filename);
-}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean4D_add_image(void* ptr, const void* obj, const float weight) {
 	return cSIRFReg_SIRFRegImageWeightedMean4D_add_image(ptr, obj, weight);
 }
@@ -164,9 +152,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean4D_add_image_filena
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean4D_update(void* ptr) {
 	return cSIRFReg_SIRFRegImageWeightedMean4D_update(ptr);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(const void* ptr, const char* filename) {
-	return cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(ptr, filename);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref) {
 	return cSIRFReg_SIRFRegTransformation_get_as_deformation_field(ptr, ref);

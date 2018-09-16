@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
         // Warped image
         if (flag_warped != -1)
-            aladin.save_warped_image(argv[flag_warped+1]);
+            aladin.get_output().save_to_file(argv[flag_warped+1]);
 
         // TMs
         if (flag_TM_fwrd != -1)
@@ -162,15 +162,15 @@ int main(int argc, char* argv[])
 
         // Disp field images
         if (flag_disp_4D != -1)
-            aladin.save_displacement_field_fwrd(argv[flag_disp_4D+1],false);
+            aladin.get_displacement_field_fwrd().save_to_file(argv[flag_disp_4D+1],false);
         if (flag_disp_3D != -1)
-            aladin.save_displacement_field_fwrd(argv[flag_disp_3D+1],true);
+            aladin.get_displacement_field_fwrd().save_to_file(argv[flag_disp_3D+1],true);
 
         // Def field images
         if (flag_def_4D != -1)
-            aladin.save_deformation_field_fwrd(argv[flag_def_4D+1],false);
+            aladin.get_deformation_field_fwrd().save_to_file(argv[flag_def_4D+1],false);
         if (flag_def_3D != -1)
-            aladin.save_deformation_field_fwrd(argv[flag_def_3D+1],true);
+            aladin.get_deformation_field_fwrd().save_to_file(argv[flag_def_3D+1],true);
     }
 
     // If there was an error

@@ -70,8 +70,6 @@ extern "C" {
 
 	// SIRFReg
     void* cSIRFReg_SIRFReg_update(void* ptr);
-    void* cSIRFReg_SIRFReg_save_image(const void* ptr, const char* filename);
-    void* cSIRFReg_SIRFReg_save_deformation_displacement_image(const void* ptr, const char* filename, const char* type, const bool split_xyz);
     void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char* type);
 
     // SIRFRegAladin methods
@@ -81,19 +79,16 @@ extern "C" {
     // SIRFRegNiftyResample
     void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char *type);
     void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr);
-    void* cSIRFReg_SIRFRegNiftyResample_save_resampled_image(void* ptr, const char* filename);
 
     // SIRFRegImageWeightedMean3D
     void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image(void* ptr, const void* obj, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(void* ptr, const char* filename, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean3D_update(void* ptr);
-    void* cSIRFReg_SIRFRegImageWeightedMean3D_save_image_to_file(const void* ptr, const char* filename);
 
     // SIRFRegImageWeightedMean4D
     void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image(void* ptr, const void* obj, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(void* ptr, const char* filename, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean4D_update(void* ptr);
-    void* cSIRFReg_SIRFRegImageWeightedMean4D_save_image_to_file(const void* ptr, const char* filename);
 
     // SIRFRegTransformation
     void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref);

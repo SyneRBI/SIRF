@@ -102,11 +102,6 @@ void SIRFRegNiftyResample::check_parameters()
         throw std::runtime_error("Transformation(s) not set.");
 }
 
-void SIRFRegNiftyResample::save_resampled_image(const string filename) const
-{
-    _output_image.save_to_file(filename);
-}
-
 void SIRFRegNiftyResample::set_up_output_image()
 {
     _output_image = _reference_image;

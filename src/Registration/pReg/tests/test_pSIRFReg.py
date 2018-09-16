@@ -237,13 +237,6 @@ def try_niftyaladin():
     na.set_floating_image(flo_aladin)
     na.set_parameter_file(parameter_file_aladin)
     na.update()
-    na.save_warped_image(aladin_warped)
-    na.save_transformation_matrix_fwrd(TM_fwrd)
-    na.save_transformation_matrix_back(TM_back)
-    na.save_deformation_field_fwrd(aladin_def_fwrd, False)
-    na.save_deformation_field_back(aladin_def_back, True)
-    na.save_displacement_field_fwrd(aladin_disp_fwrd, False)
-    na.save_displacement_field_back(aladin_disp_back, True)
 
     # Get outputs
     warped = na.get_output()
@@ -251,6 +244,14 @@ def try_niftyaladin():
     def_back = na.get_deformation_field_back()
     disp_fwrd = na.get_displacement_field_fwrd()
     disp_back = na.get_displacement_field_back()
+
+    warped.save_to_file(aladin_warped)
+    na.save_transformation_matrix_fwrd(TM_fwrd)
+    na.save_transformation_matrix_back(TM_back)
+    def_fwrd.save_to_file(aladin_def_fwrd, False)
+    def_back.save_to_file(aladin_def_back, True)
+    disp_fwrd.save_to_file(aladin_disp_fwrd, False)
+    disp_back.save_to_file(aladin_disp_back, True)
 
     # Fwrd TM
     fwrd_tm = na.get_transformation_matrix_fwrd()
@@ -286,11 +287,6 @@ def try_niftyf3d():
     nf.set_floating_time_point(1)
     nf.set_initial_affine_transformation(TM_fwrd)
     nf.update()
-    nf.save_warped_image(f3d_warped)
-    nf.save_deformation_field_fwrd(f3d_def_fwrd, True)
-    nf.save_deformation_field_back(f3d_def_back, False)
-    nf.save_displacement_field_fwrd(f3d_disp_fwrd, True)
-    nf.save_displacement_field_back(f3d_disp_back, False)
 
     # Get outputs
     warped = nf.get_output()
@@ -298,6 +294,12 @@ def try_niftyf3d():
     def_back = nf.get_deformation_field_back()
     disp_fwrd = nf.get_displacement_field_fwrd()
     disp_back = nf.get_displacement_field_back()
+
+    warped.save_to_file(f3d_warped)
+    def_fwrd.save_to_file(f3d_def_fwrd, True)
+    def_back.save_to_file(f3d_def_back, False)
+    disp_fwrd.save_to_file(f3d_disp_fwrd, True)
+    disp_back.save_to_file(f3d_disp_back, False)
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -378,7 +380,7 @@ def try_resample(na):
     nr1.add_transformation_affine(tm_iden)
     nr1.add_transformation_affine(tm)
     nr1.update()
-    nr1.save_resampled_image(rigid_resample)
+    nr1.get_output().save_to_file(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
     nr2 = pSIRFReg.NiftyResample()
@@ -388,7 +390,7 @@ def try_resample(na):
     nr2.set_interpolation_type_to_linear()  # try different interpolations
     nr2.add_transformation_disp(disp)
     nr2.update()
-    nr2.save_resampled_image(nonrigid_resample_disp)
+    nr2.get_output().save_to_file(nonrigid_resample_disp)
 
     sys.stderr.write('Testing non-rigid deformation...\n')
     nr3 = pSIRFReg.NiftyResample()
@@ -398,7 +400,7 @@ def try_resample(na):
     nr3.add_transformation_def(deff)
     nr3.set_interpolation_type_to_linear()
     nr3.update()
-    nr3.save_resampled_image(nonrigid_resample_def)
+    nr3.get_output().save_to_file(nonrigid_resample_def)
 
     assert pSIRFReg.do_nifti_images_match(na.get_output(), nr1.get_output(), required_percentage_accuracy)
 
@@ -432,7 +434,7 @@ def try_weighted_mean(na):
     wm1.add_image(im3, 3)
     wm1.add_image(im4, 1)
     wm1.update()
-    wm1.save_image_to_file(output_weighted_mean)
+    wm1.get_output().save_to_file(output_weighted_mean)
     # Answer should be 4.5, so compare it to that!
     res = pSIRFReg.ImageData(stir_nifti)
     res.fill(4.5)
@@ -453,7 +455,7 @@ def try_weighted_mean(na):
     wm2.add_image(im3, 3)
     wm2.add_image(im4, 1)
     wm2.update()
-    wm2.save_image_to_file(output_weighted_mean_def)
+    wm2.get_output().save_to_file(output_weighted_mean_def)
     # Answer should be 4.5, so compare it to that!
     res = na.get_deformation_field_fwrd().deep_copy()
     res.fill(4.5)
