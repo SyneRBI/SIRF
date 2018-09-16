@@ -44,6 +44,7 @@ class PETImageData;
 };
 class MRImageData;
 
+namespace sirf {
 /// SIRF image data
 class SIRFImageData
 {
@@ -130,5 +131,6 @@ protected:
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
 };
+}
 
 #endif

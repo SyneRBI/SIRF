@@ -37,6 +37,7 @@ limitations under the License.
 #include <memory>
 
 using namespace std;
+using namespace sirf;
 
 int main(int argc, char* argv[])
 {

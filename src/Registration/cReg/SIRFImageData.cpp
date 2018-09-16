@@ -34,6 +34,7 @@ limitations under the License.
 #include "stir_data_containers.h"
 
 using namespace std;
+using namespace sirf;
 
 SIRFImageData SIRFImageData::operator=(const SIRFImageData& to_copy)
 {

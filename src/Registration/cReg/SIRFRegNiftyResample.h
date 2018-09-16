@@ -43,6 +43,7 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include "SIRFImageDataDeformation.h"
 #include "SIRFRegTransformation.h"
 
+namespace sirf {
 /// Wrapper around NiftyReg's resample class
 class SIRFRegNiftyResample
 {
@@ -141,5 +142,6 @@ protected:
     /// Output image
     SIRFImageData            _output_image;
 };
+}
 
 #endif

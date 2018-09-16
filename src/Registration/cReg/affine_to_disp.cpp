@@ -35,6 +35,7 @@ limitations under the License.
 #endif
 
 using namespace std;
+using namespace sirf;
 
 /// Print usage
 void print_usage()

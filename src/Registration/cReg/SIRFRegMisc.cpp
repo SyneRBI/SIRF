@@ -44,6 +44,7 @@ limitations under the License.
 #include <sstream>
 
 using namespace std;
+using namespace sirf;
 
 namespace SIRFRegMisc {
 

@@ -38,6 +38,7 @@ limitations under the License.
 #include <memory>
 
 using namespace std;
+using namespace sirf;
 
 void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegTransformationAffine &affine)
 {

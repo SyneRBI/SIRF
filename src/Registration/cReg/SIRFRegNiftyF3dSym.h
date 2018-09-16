@@ -35,6 +35,7 @@ limitations under the License.
 
 template<class T> class reg_f3d_sym;
 
+namespace sirf {
 /// Wrapper around NiftyReg's f3d class for non-rigid transformations
 template<class T> class SIRFRegNiftyF3dSym : public SIRFReg
 {
@@ -91,5 +92,6 @@ protected:
     /// Bool to use transformation matrix
     bool _use_initial_transformation;
 };
+}
 
 #endif

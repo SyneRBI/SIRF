@@ -37,6 +37,7 @@ limitations under the License.
 #include <boost/filesystem.hpp>
 #include <type_traits>
 
+namespace sirf {
 /// SIRFReg parser
 template<class Z>
 class SIRFRegParser
@@ -238,5 +239,6 @@ protected:
     /// Map of keys
     std::map<std::string, std::shared_ptr<SIRFRegParserKeyBase<Z> > > _keys;
 };
+}
 
 #endif

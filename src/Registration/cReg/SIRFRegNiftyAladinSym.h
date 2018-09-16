@@ -38,6 +38,7 @@ limitations under the License.
 #include <_reg_aladin.h>
 #endif
 
+namespace sirf {
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
 template<class T> class SIRFRegNiftyAladinSym : public SIRFReg
 {
@@ -75,5 +76,6 @@ protected:
     /// Backwards transformation matrix
     mat44 _TM_back;
 };
+}
 
 #endif

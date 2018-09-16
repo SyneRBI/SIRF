@@ -33,6 +33,7 @@ limitations under the License.
 #include <string>
 #include <iostream>
 
+namespace sirf {
 /// Get template type
 template<class A>
 std::string get_typeid(A)
@@ -259,5 +260,6 @@ protected:
     /// Second argument
     B _arg2;
 };
+}
 
 #endif

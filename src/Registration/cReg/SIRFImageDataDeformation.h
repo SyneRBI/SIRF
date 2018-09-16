@@ -33,6 +33,7 @@ limitations under the License.
 
 #include "SIRFImageData.h"
 
+namespace sirf {
 /// SIRF image data
 class SIRFImageDataDeformation : public SIRFImageData
 {
@@ -63,5 +64,6 @@ protected:
 
 
 };
+}
 
 #endif

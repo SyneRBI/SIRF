@@ -30,6 +30,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 
 using namespace std;
+using namespace sirf;
 
 /// main
 int main(int argc, char* argv[])

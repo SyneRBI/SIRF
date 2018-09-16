@@ -36,6 +36,7 @@ limitations under the License.
 #include "SIRFImageData.h"
 #include "SIRFImageDataDeformation.h"
 
+namespace sirf {
 /// Calculate the weighted mean of a set of images
 template<class ImType>
 class SIRFRegImageWeightedMean
@@ -83,5 +84,6 @@ protected:
 typedef SIRFRegImageWeightedMean<SIRFImageData>            SIRFRegImageWeightedMean3D;
 /// Typedef for 4D
 typedef SIRFRegImageWeightedMean<SIRFImageDataDeformation> SIRFRegImageWeightedMean4D;
+}
 
 #endif

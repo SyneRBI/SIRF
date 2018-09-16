@@ -56,6 +56,7 @@ More examples can be found in // Need to give path
 #include "SIRFImageData.h"
 #include "SIRFImageDataDeformation.h"
 
+namespace sirf {
 /// Base class for registration algorithms wrapped by SIRFReg
 class SIRFReg
 {
@@ -71,16 +72,16 @@ public:
     void set_parameter_file(const std::string parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const SIRFImageData &reference_image) { _reference_image = reference_image; }
+    void set_reference_image(const sirf::SIRFImageData &reference_image) { _reference_image = reference_image; }
 
     /// Set floating image
-    void set_floating_image(const SIRFImageData &floating_image) { _floating_image = floating_image; }
+    void set_floating_image(const sirf::SIRFImageData &floating_image) { _floating_image = floating_image; }
 
     /// Update
     virtual void update() = 0;
 
     /// Get registered image
-    SIRFImageData get_output() const { return _warped_image; }
+    sirf::SIRFImageData get_output() const { return _warped_image; }
 
     /// Get forward deformation field image
     SIRFImageDataDeformation get_deformation_field_fwrd()  const { return _def_image_fwrd; }
@@ -133,5 +134,6 @@ protected:
     /// Backward deformation field image
     SIRFImageDataDeformation _def_image_back;
 };
+}
 
 #endif

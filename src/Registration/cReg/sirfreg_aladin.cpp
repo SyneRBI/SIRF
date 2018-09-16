@@ -30,6 +30,7 @@ limitations under the License.
 #include "SIRFRegNiftyAladinSym.h"
 
 using namespace std;
+using namespace sirf;
 
 /// print usage
 void print_usage()

@@ -32,6 +32,7 @@ limitations under the License.
 #include "SIRFImageDataDeformation.h"
 #include "SIRFRegMisc.h"
 
+namespace sirf {
 /// Abstract base class for SIRFReg transformations
 class SIRFRegTransformation
 {
@@ -136,6 +137,6 @@ public:
 protected:
     SIRFImageDataDeformation _def;
 };
-
+}
 
 #endif

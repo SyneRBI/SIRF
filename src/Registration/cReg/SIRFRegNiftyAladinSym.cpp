@@ -36,6 +36,7 @@ limitations under the License.
 #include <_reg_tools.h>
 
 using namespace std;
+using namespace sirf;
 
 template<class T>
 void SIRFRegNiftyAladinSym<T>::update()
@@ -164,6 +165,8 @@ void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_back(const std::string
     SIRFRegMisc::save_transformation_matrix(_TM_back,filename);
 }
 
+namespace sirf {
 // Put the instantiations of the template class at the END of the file!
 template class SIRFRegNiftyAladinSym<float>;
 template class SIRFRegNiftyAladinSym<double>;
+}

@@ -31,6 +31,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 
 using namespace std;
+using namespace sirf;
 
 SIRFImageDataDeformation::SIRFImageDataDeformation(const std::string &filename)
     : SIRFImageData(filename)

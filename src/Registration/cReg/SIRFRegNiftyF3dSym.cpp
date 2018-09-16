@@ -37,6 +37,7 @@ limitations under the License.
 #endif
 
 using namespace std;
+using namespace sirf;
 
 template<class T>
 void SIRFRegNiftyF3dSym<T>::update()
@@ -138,5 +139,7 @@ void SIRFRegNiftyF3dSym<T>::parse_parameter_file()
     parser.parse();
 }
 
+namespace sirf {
 //template class SIRFRegNiftyF3dSym<double>;
 template class SIRFRegNiftyF3dSym<float>;
+}

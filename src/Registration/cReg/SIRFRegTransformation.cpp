@@ -33,6 +33,7 @@ limitations under the License.
 #include <sstream>
 
 using namespace std;
+using namespace sirf;
 
 void SIRFRegTransformation::check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const
 {

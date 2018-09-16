@@ -33,6 +33,7 @@ limitations under the License.
 #include <iostream>
 
 using namespace std;
+using namespace sirf;
 
 template<class ImType>
 SIRFRegImageWeightedMean<ImType>::SIRFRegImageWeightedMean()
@@ -145,6 +146,8 @@ void SIRFRegImageWeightedMean<ImType>::check_can_do_mean() const
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
 }
 
+namespace sirf {
 // Put the instantiations of the template class at the END of the file!
 template class SIRFRegImageWeightedMean<SIRFImageData>;
 template class SIRFRegImageWeightedMean<SIRFImageDataDeformation>;
+}
