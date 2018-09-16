@@ -105,9 +105,6 @@ public:
     /// Get output
     const SIRFImageData &get_output() const { return _output_image; }
 
-    /// Save resampled image to file
-    void save_resampled_image(const std::string filename) const;
-
 protected:
 
     /// Interpolation type
