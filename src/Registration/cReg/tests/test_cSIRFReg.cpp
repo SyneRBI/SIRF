@@ -221,8 +221,8 @@ int main(int argc, char* argv[])
         b.create_from_3D_image(ref_aladin);
 
         // Save to file
-        b.save_to_file(img_data_def_not_split, false);
-        b.save_to_file(img_data_def_split, true);
+        b.save_to_file(img_data_def_not_split);
+        b.save_to_file_split_xyz_components(img_data_def_split);
 
         // Constructor from file
         SIRFImageDataDeformation c(img_data_def_not_split + ".nii");
@@ -285,10 +285,10 @@ int main(int argc, char* argv[])
         NA.get_output().save_to_file         (         aladin_warped         );
         NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
         NA.save_transformation_matrix_back   (             TM_back           );
-        NA.get_displacement_field_fwrd().save_to_file( aladin_disp_fwrd, false       );
-        NA.get_displacement_field_back().save_to_file( aladin_disp_back, true        );
-        NA.get_deformation_field_fwrd().save_to_file( aladin_def_fwrd,  false       );
-        NA.get_deformation_field_back().save_to_file( aladin_def_back,  true        );
+        NA.get_displacement_field_fwrd().save_to_file(aladin_disp_fwrd);
+        NA.get_displacement_field_back().save_to_file_split_xyz_components(aladin_disp_back);
+        NA.get_deformation_field_fwrd().save_to_file(aladin_def_fwrd);
+        NA.get_deformation_field_back().save_to_file_split_xyz_components(aladin_def_back);
 
         // Get outputs
         SIRFImageData warped = NA.get_output();
@@ -325,10 +325,10 @@ int main(int argc, char* argv[])
         NF.set_floating_time_point           (             1              );
         NF.update();
         NF.get_output().save_to_file         (         f3d_warped         );
-        NF.get_deformation_field_fwrd().save_to_file ( f3d_def_fwrd,  true        );
-        NF.get_deformation_field_back().save_to_file ( f3d_def_back,  false       );
-        NF.get_displacement_field_fwrd().save_to_file( f3d_disp_fwrd, true        );
-        NF.get_displacement_field_back().save_to_file( f3d_disp_back, false       );
+        NF.get_deformation_field_fwrd().save_to_file (f3d_def_fwrd);
+        NF.get_deformation_field_back().save_to_file_split_xyz_components(f3d_def_back);
+        NF.get_displacement_field_fwrd().save_to_file(f3d_disp_fwrd);
+        NF.get_displacement_field_back().save_to_file_split_xyz_components(f3d_disp_back);
 
         // Get outputs
         SIRFImageData warped = NF.get_output();

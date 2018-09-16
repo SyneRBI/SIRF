@@ -175,8 +175,8 @@ def try_sirfimagedatadeformation():
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
-    b.save_to_file(img_data_def_not_split, False)
-    b.save_to_file(img_data_def_split, True)
+    b.save_to_file(img_data_def_not_split)
+    b.save_to_file_split_xyz_components(img_data_def_split)
 
     # Constructor from file
     c = pSIRFReg.ImageDataDeformation(img_data_def_not_split + ".nii")
@@ -248,10 +248,10 @@ def try_niftyaladin():
     warped.save_to_file(aladin_warped)
     na.save_transformation_matrix_fwrd(TM_fwrd)
     na.save_transformation_matrix_back(TM_back)
-    def_fwrd.save_to_file(aladin_def_fwrd, False)
-    def_back.save_to_file(aladin_def_back, True)
-    disp_fwrd.save_to_file(aladin_disp_fwrd, False)
-    disp_back.save_to_file(aladin_disp_back, True)
+    def_fwrd.save_to_file(aladin_def_fwrd)
+    def_back.save_to_file_split_xyz_components(aladin_def_back)
+    disp_fwrd.save_to_file(aladin_disp_fwrd)
+    disp_back.save_to_file_split_xyz_components(aladin_disp_back)
 
     # Fwrd TM
     fwrd_tm = na.get_transformation_matrix_fwrd()
@@ -296,10 +296,10 @@ def try_niftyf3d():
     disp_back = nf.get_displacement_field_back()
 
     warped.save_to_file(f3d_warped)
-    def_fwrd.save_to_file(f3d_def_fwrd, True)
-    def_back.save_to_file(f3d_def_back, False)
-    disp_fwrd.save_to_file(f3d_disp_fwrd, True)
-    disp_back.save_to_file(f3d_disp_back, False)
+    def_fwrd.save_to_file_split_xyz_components(f3d_def_fwrd)
+    def_back.save_to_file(f3d_def_back)
+    disp_fwrd.save_to_file_split_xyz_components(f3d_disp_fwrd)
+    disp_back.save_to_file(f3d_disp_back)
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

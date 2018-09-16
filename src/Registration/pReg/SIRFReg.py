@@ -383,12 +383,11 @@ class ImageDataDeformation(ImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def save_to_file(self, filename, split_xyz):
+    def save_to_file_split_xyz_components(self, filename):
         """Save to file."""
         assert self.handle is not None
         assert isinstance(filename, str)
-        assert isinstance(split_xyz, bool)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_save_to_file(self.handle, filename, split_xyz))
+        try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(self.handle, filename))
 
     def create_from_3D_image(self, src):
         """Create deformation/displacement field from 3D image."""

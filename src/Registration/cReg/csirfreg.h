@@ -64,7 +64,7 @@ extern "C" {
     void* cSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int maths_type);
 
 	// SIRFRegImageDataDeformation
-    void* cSIRFReg_SIRFImageDataDeformation_save_to_file(const void* ptr, const char* filename, const bool split_xyz);
+    void* cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(const void* ptr, const char* filename);
     void* cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(void* ptr, const void* obj);
     void* cSIRFReg_SIRFImageDataDeformation_deep_copy(const void* ptr);
 

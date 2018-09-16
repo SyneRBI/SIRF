@@ -108,8 +108,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_get_data(const void* ptr, PTR
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int maths_type) {
 	return cSIRFReg_SIRFImageData_maths(ptr, obj, maths_type);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_save_to_file(const void* ptr, const char* filename, const bool split_xyz) {
-	return cSIRFReg_SIRFImageDataDeformation_save_to_file(ptr, filename, split_xyz);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(const void* ptr, const char* filename) {
+	return cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(ptr, filename);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_create_from_3D_image(void* ptr, const void* obj) {
 	return cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(ptr, obj);

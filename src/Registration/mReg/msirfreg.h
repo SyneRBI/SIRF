@@ -59,7 +59,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_deep_copy(const void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int maths_type);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_save_to_file(const void* ptr, const char* filename, const bool split_xyz);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_create_from_3D_image(void* ptr, const void* obj);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFImageDataDeformation_deep_copy(const void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr);

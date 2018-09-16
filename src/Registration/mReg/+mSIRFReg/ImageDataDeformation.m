@@ -40,9 +40,9 @@ classdef ImageDataDeformation < mSIRFReg.ImageData
                 self.handle_ = [];
             end
         end
-        function save_to_file(self, filename, split_xyz)
+        function save_to_file_split_xyz_components(self, filename)
             % Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_save_to_file', self.handle_, filename, split_xyz);
+            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components', self.handle_, filename);
             mUtilities.check_status([self.name ':save_to_file'], h);
             mUtilities.delete(h)
         end

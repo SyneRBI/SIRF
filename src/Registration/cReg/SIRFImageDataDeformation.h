@@ -55,7 +55,7 @@ public:
     void create_from_3D_image(const SIRFImageData &image);
 
     /// Save to file
-    void save_to_file(const std::string &filename, bool split_xyz=false, std::string type = "") const;
+    void save_to_file_split_xyz_components(const std::string &filename) const;
 
     /// Deep copy
     SIRFImageDataDeformation deep_copy() const;

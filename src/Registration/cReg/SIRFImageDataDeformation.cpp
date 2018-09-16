@@ -80,19 +80,19 @@ void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
     _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 }
 
-void SIRFImageDataDeformation::save_to_file(const std::string &filename, bool split_xyz, string type) const
+void SIRFImageDataDeformation::save_to_file_split_xyz_components(const std::string &filename) const
 {
     // Check that the disp image exists
-    if (!_nifti_image)
-        throw std::runtime_error("Error, " + type + " image not available. Have you run the registration?");
+    if (!this->is_initialised())
+        throw std::runtime_error("Error, cannot save " + filename + " because image not initialised.");
 
     // Check that filename isn't blank
     if (filename == "")
-        throw std::runtime_error("Error, cannot write " + type + " image to file because filename is blank.");
+        throw std::runtime_error("Error, cannot save " + filename + " because filename is blank.");
 
-    cout << "\nSaving " + type + " image to file (" << filename << ")..." << flush;
+    cout << "\nSaving image to file (" << filename << ")..." << flush;
 
-    SIRFRegMisc::save_multicomponent_nifti_image(_nifti_image,filename,split_xyz);
+    SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename);
 
     cout << "Done.\n";
 }

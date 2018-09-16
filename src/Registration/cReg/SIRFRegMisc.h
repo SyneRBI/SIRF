@@ -62,7 +62,7 @@ namespace SIRFRegMisc {
         split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr);
 
     /// Save a multicomponent nifti image
-    void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, const std::string &filename, const bool &split_xyz);
+    void save_multicomponent_nifti_image_split_xyz(std::shared_ptr<nifti_image> input_sptr, const std::string &filename);
 
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);

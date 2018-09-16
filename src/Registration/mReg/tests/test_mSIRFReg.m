@@ -162,8 +162,8 @@ function try_sirfimagedatadeformation(g)
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
-    b.save_to_file(g.img_data_def_not_split, false);
-    b.save_to_file(g.img_data_def_split, true);
+    b.save_to_file(g.img_data_def_not_split);
+    b.save_to_file_split_xyz_components(g.img_data_def_split);
 
     % Constructor from file
     c = mSIRFReg.ImageDataDeformation([g.img_data_def_not_split '.nii']);
@@ -230,10 +230,10 @@ function na =try_niftyaladin(g)
     warped.save_to_file(g.aladin_warped);
     na.save_transformation_matrix_fwrd(g.TM_fwrd);
     na.save_transformation_matrix_back(g.TM_back);
-    def_fwrd.save_to_file(g.aladin_def_fwrd, false);
-    def_back.save_to_file(g.aladin_def_back, true);
-    disp_fwrd.save_to_file(g.aladin_disp_fwrd, false);
-    disp_back.save_to_file(g.aladin_disp_back, true);
+    def_fwrd.save_to_file(g.aladin_def_fwrd);
+    def_back.save_to_file_split_xyz_components(g.aladin_def_back);
+    disp_fwrd.save_to_file(g.aladin_disp_fwrd);
+    disp_back.save_to_file_split_xyz_components(g.aladin_disp_back);
 
     % Fwrd TM
     fwrd_tm = na.get_transformation_matrix_fwrd()
@@ -273,10 +273,10 @@ function try_niftyf3d(g)
     disp_back = nf.get_displacement_field_back();
 
     warped.save_to_file(g.f3d_warped);
-    def_fwrd.save_to_file(g.f3d_def_fwrd, true);
-    def_back.save_to_file(g.f3d_def_back, false);
-    disp_fwrd.save_to_file(g.f3d_disp_fwrd, true);
-    disp_back.save_to_file(g.f3d_disp_back, false);
+    def_fwrd.save_to_file_split_xyz_components(g.f3d_def_fwrd);
+    def_back.save_to_file(g.f3d_def_back);
+    disp_fwrd.save_to_file_split_xyz_components(g.f3d_disp_fwrd);
+    disp_back.save_to_file(g.f3d_disp_back);
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')

@@ -154,15 +154,9 @@ vector<std::shared_ptr<nifti_image> >
 }
 
 /// Save a multicomponent nifti image
-void save_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr, const string &filename, const bool &split_xyz)
+void save_multicomponent_nifti_image_split_xyz(std::shared_ptr<nifti_image> input_sptr, const string &filename)
 {
-    // If the user wants it saved as multicomponent image
-    if (!split_xyz) {
-        SIRFRegMisc::save_nifti_image(input_sptr,filename);
-        return;
-    }
-
-    // Else, the user wants the multicomponent image split into 3 separate images.
+    // Split into 3 separate images.
     vector<std::shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(input_sptr);
 
     // Loop over each component

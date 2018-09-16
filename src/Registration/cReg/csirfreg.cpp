@@ -422,11 +422,11 @@ void* cSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int m
 //      SIRFImageDataDeformation
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFImageDataDeformation_save_to_file(const void *ptr, const char* filename, const bool split_xyz)
+void* cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(const void *ptr, const char* filename)
 {
 	try {
 		SIRFImageDataDeformation& im = objectFromHandle<SIRFImageDataDeformation>(ptr);
-		im.save_to_file(filename,split_xyz);
+                im.save_to_file_split_xyz_components(filename);
 		return new DataHandle;
 	}
 	CATCH;
