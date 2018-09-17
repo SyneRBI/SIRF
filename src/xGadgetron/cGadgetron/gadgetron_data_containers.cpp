@@ -1361,10 +1361,11 @@ void RPETrajectoryContainer::compute_trajectory()
 	unsigned short NRadial = encoding_mat_size.y;
 	unsigned short NAngles = encoding_mat_size.z;
 
-	std::vector<size_t> traj_dims{NRadial, NAngles, 2}; 
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
    	this->traj_.resize(traj_dims);
 
-	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned nr=0; nr<NRadial; nr++){
 	for( unsigned na=0; na<NAngles; na++)
 	{
 
@@ -1374,12 +1375,9 @@ void RPETrajectoryContainer::compute_trajectory()
 		float const nx = r_pos * cos( ang_pos )/ (NRadial);
 		float const ny = r_pos * sin( ang_pos )/ (NRadial);
 
-		this->traj_(nr, na, 0) = nx;
-		this->traj_(nr, na, 1) = ny;
-
-		// std::cout << "Steps: " << "(" << nr << "," << na << ")" <<std::endl;
-		// std::cout << "Computed Traj: " << "(" << nx << "," << ny << ")" <<std::endl;
-	}
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
 }
 
 void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& acq)
@@ -1396,18 +1394,17 @@ void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& ac
 
 	uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 	uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
+	
+	TrajPrecision const ky = this->traj_( enc_step_2, enc_step_1 ,0);
+	TrajPrecision const kz = this->traj_( enc_step_2, enc_step_1 ,1); 
 
 	for( unsigned i=0; i<num_samples; i++)
 	{
 		float const readout_traj = (-(float)num_samples/2.f + (float)i ) / (float)num_samples;
 		
-		acq.traj(0, i )				= readout_traj;
-		acq.traj(1, i ) 	= this->traj_( enc_step_1, enc_step_2, 0);	
-		acq.traj(2, i ) 	= this->traj_( enc_step_1, enc_step_2, 1);	
-
-		// std::cout << "Steps: " << "(" << enc_step_1 << "," << enc_step_2 << ")" <<std::endl;
-		// std::cout << "Filled Traj: " << "(" << readout_traj << "," << this->traj_( enc_step_1, enc_step_2, 0) << "," << this->traj_( enc_step_1, enc_step_2, 1) << ")" <<std::endl;
-		
+		acq.traj(0, i )		= readout_traj;
+		acq.traj(1, i ) 	= ky;
+		acq.traj(2, i ) 	= kz;
 
 	}
 }
