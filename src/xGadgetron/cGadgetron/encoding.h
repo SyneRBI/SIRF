@@ -62,14 +62,13 @@ public:
 	};
 
 	template< typename OutputDataType >
-	Gadgetron::ho2DArray< OutputDataType > get_formatted_output_container( void )
+	Gadgetron::hoNDArray< OutputDataType > get_formatted_output_container( void )
 	{
 		if(this->traj_dims_.size() == 0)
 			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
-		Gadgetron::ho2DArray< OutputDataType > output_container( &(this->traj_dims_) );
+		Gadgetron::hoNDArray< OutputDataType > output_container( &(this->traj_dims_) );
 
 		output_container.fill( OutputDataType(0) );
-
 
 		return output_container;
 	}
@@ -99,7 +98,7 @@ protected:
 class RPETrajectoryPreparation: public aTrajectoryPreparation< TrajectoryType2D >{
 
 public:
-	void set_and_check_trajectory( TrajVessel trajectory);
+	void set_and_check_trajectory( TrajVessel& trajectory);
 
 };
 
