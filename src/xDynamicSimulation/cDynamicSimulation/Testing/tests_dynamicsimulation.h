@@ -30,6 +30,8 @@ bool test_simulate_contrast_dynamics( void );
 bool test_simulate_motion_dynamics( void );
 bool test_simulate_simultaneous_motion_contrast_dynamics( void );
 
+bool test_simulate_rpe_acquisition( void );
+
 }
 
 namespace test_pet_dynsim

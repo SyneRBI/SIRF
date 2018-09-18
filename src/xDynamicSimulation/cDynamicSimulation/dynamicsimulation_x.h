@@ -18,10 +18,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "gadgetron_x.h"
 #include "stir_x.h"
 
+#include "encoding.h"
+
 #include "tissuelabelmapper.h"
 #include "contrastgenerator.h"
 #include "dynamics.h"
 #include "dynsim_noisegenerator.h"
+#include "volume_orientator.h"
+
 
 
 
@@ -81,7 +85,11 @@ class MRDynamicSimulation : public aDynamicSimulation {
 
 public:
 
-	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) { };
+	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
+	{
+		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
+		this->vol_orientator_.set_readout_direction( sirf::ro_dir_z);
+	};
 	void write_simulation_results( std::string const filename_output_with_extension );
 
 
@@ -91,16 +99,20 @@ public:
 	void set_noise_width(float const sigma);
 	void set_SNR(float const SNR);
 
+	void simulate_statics( void );
 	void simulate_dynamics( void );
 
 
 	void extract_hdr_information( void );
+	void set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory);
+
 	
 	virtual void acquire_raw_data( void );
 
 private:
 
 	GaussianNoiseGenerator noise_generator_;
+	sirf::aVolumeOrientator vol_orientator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 
@@ -110,6 +122,8 @@ private:
 	
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
+
+	std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory_;
 
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );

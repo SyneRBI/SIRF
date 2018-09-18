@@ -388,7 +388,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	dims.push_back(nc);
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
+
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
+
 
 
 	// #pragma omp parallel for
@@ -407,10 +409,28 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	}
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
-	FullySampledCartesianFFT CartFFT;
-	CartFFT.SampleFourierSpace( ci );
+	ISMRMRD::NDArray< complex_float_t > k_data;
 	
-	ISMRMRD::NDArray< complex_float_t > k_data = CartFFT.get_k_data();
+	std::string trajectory_type = this->sptr_traj_->get_traj_type();
+
+	if( trajectory_type == "RPE" )
+	{
+		RadialPhaseEncodingFFT RPE_FFT;
+		
+		auto traj = this->sptr_traj_->get_trajectory();
+		RPE_FFT.set_trajectory( traj );
+		RPE_FFT.SampleFourierSpace( ci );
+		
+		k_data = RPE_FFT.get_k_data();
+	}
+	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
+	{
+		std::cout << "Cartesian Acquisition Process" << std::endl;
+		FullySampledCartesianFFT CartFFT;
+		CartFFT.SampleFourierSpace( ci );
+		
+		k_data = CartFFT.get_k_data();
+	}
 
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
@@ -421,14 +441,17 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 		
+		bool values_became_huge = false;
+
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
 				acq.data(s, c) = k_data(s, enc_step_1, enc_step_2, c);
 			}
 		}
 
+		this->sptr_traj_->set_acquisition_trajectory(acq);
 		acq.idx().contrast = img.getContrast();
-
+	
 		ac.append_acquisition(acq);
 
 	}

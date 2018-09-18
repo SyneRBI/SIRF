@@ -27,8 +27,12 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <math.h>
+
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
+
+#include "localised_exception.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -1280,4 +1284,246 @@ CoilSensitivitiesAsImages::CoilSensitivitiesAsImages(const char* file)
 		append(sptr_img);
 	}
 	csm_smoothness_ = 0;
+}
+
+
+
+
+
+ 
+
+void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(ISMRMRD::IsmrmrdHeader& hdr) 
+{
+	std::vector<ISMRMRD::Encoding> current_encoding = hdr.encoding;
+	std::vector<ISMRMRD::Encoding> overwritten_encoding;
+	
+	for( int i=0; i<current_encoding.size(); i++)
+	{
+		ISMRMRD::Encoding enc = current_encoding[i];
+		enc.trajectory = traj_type_;
+		overwritten_encoding.push_back(enc);
+	}
+
+	hdr.encoding = overwritten_encoding;
+}
+
+
+void aTrajectoryContainer::overwrite_ismrmrd_trajectory_info(std::string& serialized_header) 
+{
+	ISMRMRD::IsmrmrdHeader hdr;
+	ISMRMRD::deserialize(serialized_header.c_str() , hdr);
+
+	this->overwrite_ismrmrd_trajectory_info( hdr );
+
+	std::stringstream updated_serialized_header_stream;
+    ISMRMRD::serialize( hdr, updated_serialized_header_stream);
+    serialized_header = updated_serialized_header_stream.str();
+}
+
+void aTrajectoryContainer::set_header(ISMRMRD::IsmrmrdHeader hdr)
+{
+	this->hdr_ = hdr;
+	this->overwrite_ismrmrd_trajectory_info(this->hdr_);
+}
+
+void aTrajectoryContainer::set_trajectory( TrajVessel trajectory )
+{
+	this->traj_ = trajectory;
+}
+
+TrajVessel aTrajectoryContainer::get_trajectory( void )
+{
+	return this->traj_;
+}
+
+std::string aTrajectoryContainer::get_traj_type( void )
+{
+	return this->traj_type_;
+}
+
+void aTrajectoryContainer::norm_trajectory( void )
+{
+	TrajPrecision traj_max = this->get_traj_max_abs();
+	
+	for(int j=0; j<this->traj_.getNumberOfElements(); j++)
+		*(this->traj_.begin() + j) /= (2*traj_max); 
+
+}
+
+
+
+TrajPrecision RPETrajectoryContainer::get_traj_max_abs( void )
+{
+	auto traj_dims = this->traj_.getDims();	
+
+	TrajPrecision maximum_traj_value = 0;
+
+	for(int nr=0; nr<traj_dims[1]; nr++)
+	for(int na=0; na<traj_dims[0]; na++){
+
+		std::complex< TrajPrecision > x( this->traj_(na,nr,0), this->traj_(na,nr,1) );
+		TrajPrecision abs_x = std::abs(x);
+		if(abs_x  > maximum_traj_value)
+			maximum_traj_value = abs_x;
+	}
+
+	return maximum_traj_value;
+}
+
+
+void RPETrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
+   	this->traj_.resize(traj_dims);
+
+	for( unsigned nr=0; nr<NRadial; nr++){
+	for( unsigned na=0; na<NAngles; na++)
+	{
+
+		int const r_pos = nr - NRadial /2;
+		float const ang_pos = na*M_PI/ NAngles;
+			
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
+
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
+
+	this->norm_trajectory();
+}
+
+void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& acq)
+{
+	if ( this->traj_.getNumberOfElements() == 0)
+		throw LocalisedException("No trajectory has been set or computed. I suggest you execute compute_trajectory first in order to be", __FILE__, __LINE__);
+
+
+	auto num_samples = acq.number_of_samples();
+	auto active_channels = acq.active_channels();
+	auto trajectory_dimensions = 3;
+
+	acq.resize(num_samples, active_channels, trajectory_dimensions);
+
+	uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
+	uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
+	
+	TrajPrecision const ky = this->traj_( enc_step_2, enc_step_1 ,0);
+	TrajPrecision const kz = this->traj_( enc_step_2, enc_step_1 ,1); 
+
+	for( unsigned i=0; i<num_samples; i++)
+	{
+		float const readout_traj = (-(float)num_samples/2.f + (float)i ) / (float)num_samples;
+		
+		acq.traj(0, i )		= readout_traj;
+		acq.traj(1, i ) 	= ky;
+		acq.traj(2, i ) 	= kz;
+
+	}
+}
+
+
+void RPEInterleavedTrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
+   	this->traj_.resize(traj_dims);
+
+   	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
+
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; na<NAngles; na++){
+	{
+
+		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float const ang_pos = na*M_PI/ NAngles;
+				
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
+
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
+
+	this->norm_trajectory();
+}
+
+
+#define GOLDENANGLE M_PI*(1 - sqrt(5.f))/2.f
+
+void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
+   	this->traj_.resize(traj_dims);
+
+   	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
+
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; na<NAngles; na++){
+	{
+
+		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float const ang_pos = na*GOLDENANGLE;
+				
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
+
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
+
+	this->norm_trajectory();
 }

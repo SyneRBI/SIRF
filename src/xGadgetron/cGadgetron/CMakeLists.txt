@@ -63,3 +63,11 @@ endif()
 target_link_libraries(cgadgetron ismrmrd)
 target_link_libraries(cgadgetron "${FFTW3_LIBRARIES}")
 target_link_libraries(cgadgetron "${HDF5_LIBRARIES}")
+
+set( SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpucore ${GADGETRON_LIBRARIES} )
+set( SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK gadgetron_toolbox_cpunfft ${GADGETRON_LIBRARIES_TOLINK} )
+
+
+target_link_libraries(cgadgetron "${SUPPLEMENTARY_GADGETRON_LIBRARIES_TOLINK}")
+
+

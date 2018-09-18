@@ -42,7 +42,7 @@ namespace data_io{
 	{	
 		std::cout<< "Writing file " << output_name_without_ext << std::endl;
 		std::stringstream name_stream;
-		name_stream << output_name_without_ext << ".raw";
+		name_stream << output_name_without_ext << ".bin";
 
 		std::vector <T> buffer;
 		buffer.resize(num_elements);
@@ -64,7 +64,7 @@ namespace data_io{
 
 
 	template <typename T>
-	void write_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> img)
+	void write_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> &img)
 	{
 		std::cout << "Started writing " << output_name_without_ext << std::endl;	
 

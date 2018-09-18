@@ -25,6 +25,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
+#include "tests_volume_orientator.h"
 
 #include "all_simulation_tests.h"
 
@@ -101,6 +102,8 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
 	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
 	tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
+
+	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
@@ -299,8 +302,13 @@ void run_tests_encoding( void )
 	bool tests_successful = true;
 
 	tests_successful *= test_enc::test_cube_input();
-	tests_successful *= test_cart_enc::test_sample_fourier_space();
+	// tests_successful *= CartesianEncodingTester::test_sample_fourier_space();
 	
+
+	// tests_successful *= RPETrajectoryPreparationTester::test_get_set_trajectory();
+	// tests_successful *= RPETrajectoryPreparationTester::test_get_result_container();
+
+	tests_successful *= RPETester::test_sample_fourier_space();
 
 	if ( !tests_successful )
 	{
@@ -340,7 +348,21 @@ void run_tests_dynsim_deformer( void )
 
 
 
+void run_tests_volume_orientator( void )
+{
+	bool tests_successful = true;
 
+	tests_successful *= sirf::aVolumeOrientatorTester::test_reorient_image();
 
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The volume orientator tests failed." );
+	}
+	else
+	{
+		std::cout<< "The volume orientator tests succeeded" << std::endl;
+	}
+
+}
 
 
