@@ -880,6 +880,12 @@ namespace sirf {
 	public:
 		void compute_trajectory( void );
 	};
+
+	class SFTrajectoryContainer: public RPETrajectoryContainer{
+
+	public:
+		void compute_trajectory( void );
+	};
 }
 
 #endif
