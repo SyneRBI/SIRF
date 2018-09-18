@@ -388,7 +388,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	dims.push_back(nc);
 
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
+
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
+
 
 
 	// #pragma omp parallel for
@@ -406,7 +408,6 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		}
 	}
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
-
 
 	ISMRMRD::NDArray< complex_float_t > k_data;
 	
@@ -440,6 +441,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 		
+		bool values_became_huge = false;
+
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
 				acq.data(s, c) = k_data(s, enc_step_1, enc_step_2, c);
@@ -448,7 +451,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 		this->sptr_traj_->set_acquisition_trajectory(acq);
 		acq.idx().contrast = img.getContrast();
-
+	
 		ac.append_acquisition(acq);
 
 	}
