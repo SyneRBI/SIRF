@@ -828,6 +828,9 @@ namespace sirf {
 		virtual void compute_trajectory()=0;
 	protected:
 
+		virtual TrajPrecision get_traj_max_abs( void )=0;
+		void norm_trajectory( void );
+
 		ISMRMRD::IsmrmrdHeader hdr_;
 
 		TrajVessel traj_;
@@ -845,7 +848,10 @@ namespace sirf {
 
 		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu){};
 		void compute_trajectory() {};
+	protected:
+		virtual TrajPrecision get_traj_max_abs( void ){ return 0;}
 	};
+
 
 	class RPETrajectoryContainer : public aTrajectoryContainer{
 
@@ -856,11 +862,24 @@ namespace sirf {
 		}
 		
 		void set_acquisition_trajectory(ISMRMRD::Acquisition& aqu);
-		void compute_trajectory();
-		
+		virtual void compute_trajectory( void );
+	
+	protected:
+		TrajPrecision get_traj_max_abs( void );	
 	
 	};
 
+	class RPEInterleavedTrajectoryContainer: public RPETrajectoryContainer{
+
+	public:
+		void compute_trajectory( void );
+	};
+
+	class RPEInterleavedGoldenCutTrajectoryContainer: public RPETrajectoryContainer{
+		
+	public:
+		void compute_trajectory( void );
+	};
 }
 
 #endif

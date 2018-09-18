@@ -1341,6 +1341,35 @@ std::string aTrajectoryContainer::get_traj_type( void )
 	return this->traj_type_;
 }
 
+void aTrajectoryContainer::norm_trajectory( void )
+{
+	TrajPrecision traj_max = this->get_traj_max_abs();
+	
+	for(int j=0; j<this->traj_.getNumberOfElements(); j++)
+		*(this->traj_.begin() + j) /= (2*traj_max); 
+
+}
+
+
+
+TrajPrecision RPETrajectoryContainer::get_traj_max_abs( void )
+{
+	auto traj_dims = this->traj_.getDims();	
+
+	TrajPrecision maximum_traj_value = 0;
+
+	for(int nr=0; nr<traj_dims[1]; nr++)
+	for(int na=0; na<traj_dims[0]; na++){
+
+		std::complex< TrajPrecision > x( this->traj_(na,nr,0), this->traj_(na,nr,1) );
+		TrajPrecision abs_x = std::abs(x);
+		if(abs_x  > maximum_traj_value)
+			maximum_traj_value = abs_x;
+	}
+
+	return maximum_traj_value;
+}
+
 
 void RPETrajectoryContainer::compute_trajectory()
 {
@@ -1372,12 +1401,14 @@ void RPETrajectoryContainer::compute_trajectory()
 		int const r_pos = nr - NRadial /2;
 		float const ang_pos = na*M_PI/ NAngles;
 			
-		float const nx = r_pos * cos( ang_pos )/ (NRadial);
-		float const ny = r_pos * sin( ang_pos )/ (NRadial);
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
 
 		this->traj_(na, nr, 0) = nx;
 		this->traj_(na, nr, 1) = ny;
 	}}
+
+	this->norm_trajectory();
 }
 
 void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& acq)
@@ -1410,6 +1441,89 @@ void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& ac
 }
 
 
+void RPEInterleavedTrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
+   	this->traj_.resize(traj_dims);
+
+   	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
+
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; na<NAngles; na++){
+	{
+
+		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float const ang_pos = na*M_PI/ NAngles;
+				
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
+
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
+
+	this->norm_trajectory();
+}
 
 
+#define GOLDENANGLE M_PI*(1 - sqrt(5.f))/2.f
 
+void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+
+   	this->traj_.resize(traj_dims);
+
+   	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
+
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; na<NAngles; na++){
+	{
+
+		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float const ang_pos = na*GOLDENANGLE;
+				
+		float const nx = r_pos * cos( ang_pos );
+		float const ny = r_pos * sin( ang_pos );
+
+		this->traj_(na, nr, 0) = nx;
+		this->traj_(na, nr, 1) = ny;
+	}}
+
+	this->norm_trajectory();
+}
