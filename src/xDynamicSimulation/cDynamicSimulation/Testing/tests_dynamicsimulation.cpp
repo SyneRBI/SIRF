@@ -264,18 +264,15 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 						
-		RPETrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
+		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		mr_dyn_sim.set_trajectory( sptr_traj );
 		
-		float const test_SNR = 15;
-		// mr_dyn_sim.set_SNR(test_SNR);
+		float const test_SNR = 150;
+		mr_dyn_sim.set_SNR(test_SNR);
 
-		float const test_noise_width = 0.0;
-		mr_dyn_sim.set_noise_width( test_noise_width );
-		
 		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 1;
+		int const num_simul_resp_states = 10;
 		
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
@@ -286,7 +283,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 	 	cardiac_dyn.set_dyn_signal( mock_sinus_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	resp_dyn.set_dyn_signal( mock_ramp_signal );
+	 	resp_dyn.set_dyn_signal( mock_sinus_signal );
 	 	resp_dyn.bin_mr_acquisitions( all_acquis );
 		
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -297,7 +294,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 
 		mr_dyn_sim.add_dynamic( cardiac_dyn );
-		// mr_dyn_sim.add_dynamic( resp_dyn );
+		mr_dyn_sim.add_dynamic( resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();
