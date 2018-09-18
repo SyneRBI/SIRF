@@ -24,7 +24,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "contrastgenerator.h"
 #include "dynamics.h"
 #include "dynsim_noisegenerator.h"
-
+#include "volume_orientator.h"
 
 
 
@@ -88,6 +88,7 @@ public:
 	MRDynamicSimulation( MRContrastGenerator mr_cont_gen) : mr_cont_gen_( mr_cont_gen ) 
 	{
 		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
+		this->vol_orientator_.set_readout_direction( sirf::ro_dir_z);
 	};
 	void write_simulation_results( std::string const filename_output_with_extension );
 
@@ -111,6 +112,7 @@ public:
 private:
 
 	GaussianNoiseGenerator noise_generator_;
+	sirf::aVolumeOrientator vol_orientator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
 

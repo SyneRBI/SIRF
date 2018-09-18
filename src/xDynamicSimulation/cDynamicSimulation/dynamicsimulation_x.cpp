@@ -393,8 +393,9 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 		std::cout << "Acquisition contrast " << i_contrast << std::endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
-		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
+		curr_cont = vol_orientator_.reorient_image(curr_cont);
 
+		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
 
 		AcquisitionsVector acq_vec;
 		acq_vec.copy_acquisitions_info( this->source_acquisitions_ );
