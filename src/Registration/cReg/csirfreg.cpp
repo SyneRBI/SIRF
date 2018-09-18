@@ -395,9 +395,9 @@ void* cSIRFReg_SIRFImageData_get_data(const void* ptr, size_t ptr_data)
         SIRFImageData copy = im.deep_copy();
         SIRFRegMisc::change_datatype<float>(copy);
         float* data = (float*)ptr_data;
-        size_t mem = im.get_raw_nifti_sptr()->nvox * size_t(im.get_raw_nifti_sptr()->nbyper);
+        size_t mem = copy.get_raw_nifti_sptr()->nvox * size_t(copy.get_raw_nifti_sptr()->nbyper);
         // Copy!
-        memcpy(data, im.get_raw_nifti_sptr()->data, mem);
+        memcpy(data, copy.get_raw_nifti_sptr()->data, mem);
         return new DataHandle;
     }
     CATCH;
