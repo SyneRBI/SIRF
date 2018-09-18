@@ -25,6 +25,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_dynamicsimulation.h"
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
+#include "tests_volume_orientator.h"
 
 #include "all_simulation_tests.h"
 
@@ -347,7 +348,21 @@ void run_tests_dynsim_deformer( void )
 
 
 
+void run_tests_volume_orientator( void )
+{
+	bool tests_successful = true;
 
+	tests_successful *= sirf::aVolumeOrientatorTester::test_reorient_image();
 
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The volume orientator tests failed." );
+	}
+	else
+	{
+		std::cout<< "The volume orientator tests succeeded" << std::endl;
+	}
+
+}
 
 

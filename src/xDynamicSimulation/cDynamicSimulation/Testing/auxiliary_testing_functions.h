@@ -40,8 +40,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #ifdef USE_64_CUBE_INPUT
 
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH "temp_folder_motion_dyn_0/motion_field_0.hdr"
 
@@ -84,7 +84,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define MOCK_FOV 256
 #define MOCK_DATA_MATRIX_SIZE 64
-#define MOCK_DATA_NUM_CHANNELS 1
+#define MOCK_DATA_NUM_CHANNELS 4
 #define MOCK_DATA_RO_OVERSAMPLING 1
 #define MOCK_IMAGE_TYPE 5 // from ismrmrd enum ISMRMRD_IMTYPE_COMPLEX   = 5
 #define MOCK_DATA_TYPE 7 // from ismrmrd enum ISMRMRD_CXFLOAT = 7
@@ -127,6 +127,7 @@ namespace aux_test
 
 	ISMRMRD::NDArray<complex_float_t> get_mock_ndarray_with_cube( void );
 	ISMRMRD::Image< complex_float_t > get_mock_ismrmrd_image_with_cube( void );
+	ISMRMRD::Image< float > get_mock_ismrmrd_image_with_gradients( void );
 
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
 	sirf::CoilDataAsCFImage get_mock_coildata_as_cfimage( void );

@@ -379,6 +379,24 @@ ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( vo
 	return mock_img;
 }
 
+ISMRMRD::Image< float > aux_test::get_mock_ismrmrd_image_with_gradients( void )
+{
+
+	
+
+	ISMRMRD::Image< float > mock_img(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_MATRIX_SIZE, MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS);
+	for(size_t c=0; c<MOCK_DATA_NUM_CHANNELS; c++)
+	for(size_t z=0; z<MOCK_DATA_MATRIX_SIZE; z++)	
+	for(size_t y=0; y<MOCK_DATA_MATRIX_SIZE; y++)	
+	for(size_t x=0; x<MOCK_DATA_MATRIX_SIZE; x++){
+
+		mock_img(x,y,z,c) =  (1*x + 10*y + 100*z) + c; 
+
+	}	
+	
+	return mock_img;
+}
+
 
 
 ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
