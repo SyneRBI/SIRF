@@ -53,8 +53,9 @@ More examples can be found in // Need to give path
 #include <vector>
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "SIRFImageData.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3D.h"
+#include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 
 namespace sirf {
 /// Base class for registration algorithms wrapped by SIRFReg
@@ -72,25 +73,25 @@ public:
     void set_parameter_file(const std::string parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const sirf::SIRFImageData &reference_image) { _reference_image = reference_image; }
+    void set_reference_image(const NiftiImage3D &reference_image) { _reference_image = reference_image; }
 
     /// Set floating image
-    void set_floating_image(const sirf::SIRFImageData &floating_image) { _floating_image = floating_image; }
+    void set_floating_image(const NiftiImage3D &floating_image) { _floating_image = floating_image; }
 
     /// Update
     virtual void update() = 0;
 
     /// Get registered image
-    sirf::SIRFImageData get_output() const { return _warped_image; }
+    NiftiImage3D get_output() const { return _warped_image; }
 
     /// Get forward deformation field image
-    SIRFImageDataDeformation get_deformation_field_fwrd()  const { return _def_image_fwrd; }
+    NiftiImage3DDeformation  get_deformation_field_fwrd()  const { return _def_image_fwrd; }
     /// Get backward deformation field image
-    SIRFImageDataDeformation get_deformation_field_back()   const { return _def_image_back; }
+    NiftiImage3DDeformation  get_deformation_field_back()  const { return _def_image_back; }
     /// Get forward displacement field image
-    SIRFImageDataDeformation get_displacement_field_fwrd() const { return _disp_image_fwrd; }
+    NiftiImage3DDisplacement get_displacement_field_fwrd() const { return _disp_image_fwrd; }
     /// Get backward displacement field image
-    SIRFImageDataDeformation get_displacement_field_back()  const { return _disp_image_back; }
+    NiftiImage3DDisplacement get_displacement_field_back() const { return _disp_image_back; }
 
 protected:
 
@@ -104,20 +105,20 @@ protected:
     boost::filesystem::path _parameter_filename;
 
     /// Reference image
-    SIRFImageData _reference_image;
+    NiftiImage3D _reference_image;
     /// Floating image
-    SIRFImageData _floating_image;
+    NiftiImage3D _floating_image;
     /// Warped image
-    SIRFImageData _warped_image;
+    NiftiImage3D _warped_image;
 
     /// Forward displacement field image
-    SIRFImageDataDeformation _disp_image_fwrd;
+    NiftiImage3DDisplacement _disp_image_fwrd;
     /// Backward displacement field image
-    SIRFImageDataDeformation _disp_image_back;
+    NiftiImage3DDisplacement _disp_image_back;
     /// Forward deformation field image
-    SIRFImageDataDeformation _def_image_fwrd;
+    NiftiImage3DDeformation _def_image_fwrd;
     /// Backward deformation field image
-    SIRFImageDataDeformation _def_image_back;
+    NiftiImage3DDeformation _def_image_back;
 };
 }
 

@@ -29,7 +29,7 @@ limitations under the License.
 
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegMisc.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3DTensor.h"
 #include <_reg_resampling.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>

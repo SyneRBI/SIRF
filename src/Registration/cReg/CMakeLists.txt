@@ -14,8 +14,12 @@
 #  See the License for the specific language governing permissions and
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFImageData.cpp" "SIRFImageDataDeformation.cpp" "SIRFRegTransformation.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"   "SIRFImageData.h"   "SIRFImageDataDeformation.h"    "SIRFRegTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegTransformation.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"    "SIRFRegTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+
+# Add in nifti_image wrappers
+SET(SOURCES ${SOURCES} "NiftiImage.cpp" "NiftiImage3D.cpp" "NiftiImage3DTensor.cpp")
+SET(HEADERS ${HEADERS}  "NiftiImage.h"   "NiftiImage3D.h"   "NiftiImage3DTensor.h"   "NiftiImage3DDisplacement.h"   "NiftiImage3DDeformation.h" )
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_SIRFREG_PYTHON OR BUILD_SIRFREG_MATLAB)

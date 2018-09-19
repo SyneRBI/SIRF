@@ -39,8 +39,8 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include "SIRFRegMisc.h"
-#include "SIRFImageData.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3D.h"
+#include "NiftiImage3DTensor.h"
 #include "SIRFRegTransformation.h"
 
 namespace sirf {
@@ -56,13 +56,13 @@ public:
     virtual ~SIRFRegNiftyResample() {}
 
     /// Set reference image
-    void set_reference_image(const SIRFImageData &reference_image)
+    void set_reference_image(const NiftiImage3D &reference_image)
     {
         _reference_image = reference_image;
     }
 
     /// Set floating image
-    void set_floating_image(const SIRFImageData &floating_image)
+    void set_floating_image(const NiftiImage3D &floating_image)
     {
         _floating_image = floating_image;
     }
@@ -103,7 +103,7 @@ public:
     void update();
 
     /// Get output
-    const SIRFImageData &get_output() const { return _output_image; }
+    const NiftiImage3D &get_output() const { return _output_image; }
 
 protected:
 
@@ -126,18 +126,18 @@ protected:
     void set_up_output_image();
 
     /// Reference image
-    SIRFImageData            _reference_image;
+    NiftiImage3D       _reference_image;
     /// Floating image
-    SIRFImageData            _floating_image;
+    NiftiImage3D       _floating_image;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
     std::vector<std::shared_ptr<SIRFRegTransformation> > _transformations;
 
     /// Interpolation type
-    InterpolationType        _interpolation_type;
+    InterpolationType  _interpolation_type;
 
     /// Output image
-    SIRFImageData            _output_image;
+    NiftiImage3D       _output_image;
 };
 }
 

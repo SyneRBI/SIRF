@@ -31,10 +31,10 @@ classdef TransformationDisplacement < mSIRFReg.Transformation
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSIRFReg.ImageDataDeformation')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation', src.handle_);
+            elseif isa(src, 'mSIRFReg.NiftiImage3DDisplacement')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement', src.handle_);
             else
-                error('ImageData accepts no args, filename or ImageDataDeformation.')
+                error('TransformationDisplacement accepts no args, filename or NiftiImage3DDisplacement.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end

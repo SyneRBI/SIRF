@@ -45,11 +45,11 @@ int main(int argc, char* argv[])
 
         // Vector of images
         int num_images = argc - 1;
-        std::vector<SIRFImageData> ims;
+        std::vector<NiftiImage> ims;
 
         // Read all the images
         for (int i=1; i<=num_images; ++i)
-            ims.push_back(SIRFImageData(argv[i]));
+            ims.push_back(NiftiImage(argv[i]));
 
         // Print info
         SIRFRegMisc::dump_nifti_info(ims);

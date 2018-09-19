@@ -27,9 +27,10 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFIMAGEDATA_H_
-#define _SIRFIMAGEDATA_H_
+#ifndef _NIFTIIMAGE3D_H_
+#define _NIFTIIMAGE3D_H_
 
+#include "NiftiImage.h"
 #include <nifti1_io.h>
 #include <string>
 #include <memory>
@@ -39,86 +40,52 @@ template <int num_dimensions>
 class VoxelisedGeometricalInfo;
 /// Typedef VoxelisedGeometricalInfo for 3D
 typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
-namespace sirf {
-class PETImageData;
-};
-class MRImageData;
 
 namespace sirf {
+
+class PETImageData;
+class MRImageData;
+
 /// SIRF image data
-class SIRFImageData
+class NiftiImage3D : public NiftiImage
 {
 public:
 
     /// Constructor
-    SIRFImageData() {}
+    NiftiImage3D() {}
 
-    /// Destructor
-    virtual ~SIRFImageData() {}
-
-    /// Assignment
-    virtual SIRFImageData operator=(const SIRFImageData& to_copy);
+    /// Construct 3D from general case
+    NiftiImage3D(const NiftiImage& general)
+        : NiftiImage(general) { check_dimensions(_3D); }
 
     /// Filename constructor
-    SIRFImageData(const std::string &filename);
+    NiftiImage3D(const std::string &filename)
+        : NiftiImage(filename)
+    { check_dimensions(_3D); }
 
     /// Nifti constructor
-    SIRFImageData(const nifti_image &image_nifti);
+    NiftiImage3D(const nifti_image &image_nifti)
+        : NiftiImage(image_nifti) { check_dimensions(_3D); }
 
     /// Nifti shared_ptr constructor
-    SIRFImageData(const std::shared_ptr<nifti_image> image_nifti);
+    NiftiImage3D(const std::shared_ptr<nifti_image> image_nifti)
+        : NiftiImage(image_nifti) { check_dimensions(_3D); }
 
     /// STIR constructor
-    SIRFImageData(const sirf::PETImageData &pet_image);
+    NiftiImage3D(const PETImageData &pet_image);
 
     /// Gadgetron constructor
-    SIRFImageData(const MRImageData &);
-
-    /// Addition operator
-    SIRFImageData operator+(const SIRFImageData&) const;
-
-    /// Subtraction operator
-    SIRFImageData operator-(const SIRFImageData&) const;
-
-    /// Is the image initialised? (Should unless default constructor was used.)
-    bool is_initialised() const { return (_nifti_image ? true : false); }
-
-    /// Get image as nifti
-    std::shared_ptr<nifti_image> get_raw_nifti_sptr() const;
+    NiftiImage3D(const MRImageData &);
 
     /// Copy data to PETImageData
-    void copy_data_to(sirf::PETImageData &pet_image) const;
+    void copy_data_to(PETImageData &pet_image) const;
 
     /// Copy data to MRImageData
     void copy_data_to(MRImageData &) const;
 
-    /// Save to file
-    void save_to_file(const std::string &filename) const;
-
-    /// Get max
-    float get_max() const;
-
-    /// Get min
-    float get_min() const;
-
-    /// Get element
-    float get_element(int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0) const;
-
-    /// Get sum
-    float get_sum() const;
-
-    /// Fill
-    void fill(const float &v);
-
     /// Deep copy
-    SIRFImageData deep_copy() const;
-
-    /// Get number of voxels
-    void get_dimensions(int dims[8]) const
-    {
-        for (int i=0; i<8; ++i)
-            dims[i] = _nifti_image->dim[i];
-    }
+    NiftiImage3D deep_copy() const
+    { return this->NiftiImage::deep_copy(); }
 
 protected:
 
@@ -127,9 +94,6 @@ protected:
 
     /// Check that images are aligned
     bool check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const;
-
-    /// Image data as a nifti object
-    std::shared_ptr<nifti_image>  _nifti_image;
 };
 }
 

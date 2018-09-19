@@ -41,12 +41,12 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mSIRFReg.ImageData'), 'NiftyResample::set_reference_image expects ImageData')
+            assert(isa(reference_image, 'mSIRFReg.NiftiImage3D'), 'NiftyResample::set_reference_image expects NiftiImage3D')
             mSIRFReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mSIRFReg.ImageData'), 'NiftyResample::set_floating_image expects ImageData')
+            assert(isa(floating_image, 'mSIRFReg.NiftiImage3D'), 'NiftyResample::set_floating_image expects NiftiImage3D')
             mSIRFReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation_affine(self, src)
@@ -94,7 +94,7 @@ classdef NiftyResample < handle
         end
         function output = get_output(self)
             %Get output.
-            output = mSIRFReg.ImageData();
+            output = mSIRFReg.NiftiImage3D();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)

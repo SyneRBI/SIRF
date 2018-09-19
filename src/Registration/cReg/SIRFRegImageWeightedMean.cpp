@@ -35,21 +35,18 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
-template<class ImType>
-SIRFRegImageWeightedMean<ImType>::SIRFRegImageWeightedMean()
+SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
 {
     _need_to_update = true;
 }
 
-template<class ImType>
-void SIRFRegImageWeightedMean<ImType>::add_image(const std::string &filename, const float weight)
+void SIRFRegImageWeightedMean::add_image(const std::string &filename, const float weight)
 {
     // Use other function to add image to list of vectors
-    this->add_image(ImType(filename), weight);
+    this->add_image(NiftiImage(filename), weight);
 }
 
-template<class ImType>
-void SIRFRegImageWeightedMean<ImType>::add_image(const ImType &image, const float weight)
+void SIRFRegImageWeightedMean::add_image(const NiftiImage &image, const float weight)
 {
     // Add image to vector
     _input_images.push_back(image.deep_copy());
@@ -58,8 +55,7 @@ void SIRFRegImageWeightedMean<ImType>::add_image(const ImType &image, const floa
     _need_to_update = true;
 }
 
-template<class ImType>
-void SIRFRegImageWeightedMean<ImType>::update()
+void SIRFRegImageWeightedMean::update()
 {
     // Only update if you need to
     if (!_need_to_update) return;
@@ -87,7 +83,7 @@ void SIRFRegImageWeightedMean<ImType>::update()
     for (unsigned i=0; i<_input_images.size(); i++) {
 
         // Create a temporary copy of the image so that we can change the datatype
-        ImType temp = _input_images[i].deep_copy();
+        NiftiImage temp = _input_images[i].deep_copy();
         SIRFRegMisc::change_datatype<double>(temp);
 
         // Get the data and cast it to float for the ith input image
@@ -114,8 +110,7 @@ void SIRFRegImageWeightedMean<ImType>::update()
     _need_to_update = false;
 }
 
-template<class ImType>
-void SIRFRegImageWeightedMean<ImType>::check_can_do_mean() const
+void SIRFRegImageWeightedMean::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error
     if (_input_images.size() == 0)
@@ -138,10 +133,4 @@ void SIRFRegImageWeightedMean<ImType>::check_can_do_mean() const
     }
 
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
-}
-
-namespace sirf {
-// Put the instantiations of the template class at the END of the file!
-template class SIRFRegImageWeightedMean<SIRFImageData>;
-template class SIRFRegImageWeightedMean<SIRFImageDataDeformation>;
 }

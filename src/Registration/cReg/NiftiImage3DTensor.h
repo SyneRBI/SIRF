@@ -27,42 +27,48 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFIMAGEDATADEFORMATION_H_
-#define _SIRFIMAGEDATADEFORMATION_H_
+#ifndef _NIFTIIMAGE3DTENSOR_H_
+#define _NIFTIIMAGE3DTENSOR_H_
 
-
-#include "SIRFImageData.h"
+#include "NiftiImage.h"
+#include <_reg_maths.h>
 
 namespace sirf {
+class NiftiImage3D;
+
 /// SIRF image data
-class SIRFImageDataDeformation : public SIRFImageData
+class NiftiImage3DTensor : public NiftiImage
 {
 public:
 
     /// Constructor
-    SIRFImageDataDeformation() {}
+    NiftiImage3DTensor() {}
+
+    /// Construct 3D from general case
+    NiftiImage3DTensor(const NiftiImage& general)
+        : NiftiImage(general) { check_dimensions(_3DTensor); }
 
     /// Filename constructor
-    SIRFImageDataDeformation(const std::string &filename);
+    NiftiImage3DTensor(const std::string &filename)
+        : NiftiImage(filename) { check_dimensions(_3DTensor); }
 
     /// Nifti constructor
-    SIRFImageDataDeformation(const nifti_image &image_nifti);
+    NiftiImage3DTensor(const nifti_image &image_nifti)
+        : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
 
     /// Nifti shared_ptr constructor
-    SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti);
+    NiftiImage3DTensor(const std::shared_ptr<nifti_image> image_nifti)
+        : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
 
-    /// Create from 3D image
-    void create_from_3D_image(const SIRFImageData &image);
+    /// Create from 3D image.
+    virtual void create_from_3D_image(const NiftiImage3D &image);
 
     /// Save to file
     void save_to_file_split_xyz_components(const std::string &filename) const;
 
     /// Deep copy
-    SIRFImageDataDeformation deep_copy() const;
-
-protected:
-
-
+    NiftiImage3DTensor deep_copy() const
+    { return this->NiftiImage::deep_copy(); }
 };
 }
 

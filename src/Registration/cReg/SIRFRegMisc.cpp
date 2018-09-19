@@ -28,8 +28,8 @@ limitations under the License.
 */
 
 #include "SIRFRegMisc.h"
-#include "SIRFImageData.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3D.h"
+#include "NiftiImage3DTensor.h"
 #include "SIRFRegTransformation.h"
 #include <_reg_tools.h>
 #if NIFTYREG_VER_1_5
@@ -52,7 +52,7 @@ namespace SIRFRegMisc {
 void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path filename)
 {
     // If no filename has been set, return
-    if (filename == "") {
+    if (filename.size() == 0) {
         throw runtime_error("Empty filename has been supplied, cannot open nifti image.");
     }
 
@@ -197,11 +197,14 @@ void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std
     // Copy!
     memcpy(output_image_sptr->data, image_to_copy_sptr->data, mem);
 
+    // Check everything is ok
+    reg_checkAndCorrectDimension(output_image_sptr.get());
+
     cout << "done.\n\n";
 }
 
 /// Flip multicomponent image along a given axis
-void flip_multicomponent_image(SIRFImageDataDeformation &im, int dim)
+void flip_multicomponent_image(NiftiImage3DTensor &im, int dim)
 {
     cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
 
@@ -272,7 +275,7 @@ void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, 
 }
 #endif
 /// Get def from cpp
-void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformation &cpp, const SIRFImageData &ref)
+void get_def_from_cpp(NiftiImage3DDeformation &def, const NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
 {
     def.create_from_3D_image(ref);
     
@@ -288,23 +291,27 @@ void get_def_from_cpp(SIRFImageDataDeformation &def, const SIRFImageDataDeformat
 }
 
 /// Convert from deformation to displacement field image
-void convert_from_def_to_disp(SIRFImageDataDeformation &im)
+void convert_from_def_to_disp(NiftiImage3DDisplacement &disp, const NiftiImage3DDeformation &def)
 {
     // Get the disp field from the def field
-    reg_getDisplacementFromDeformation(im.get_raw_nifti_sptr().get());
-    im.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
+    NiftiImage temp = def.deep_copy();
+    reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
+    temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
+    disp = temp;
 }
 
 /// Convert from displacement to deformation field image
-void convert_from_disp_to_def(SIRFImageDataDeformation &im)
+void convert_from_disp_to_def(NiftiImage3DDeformation &def, const NiftiImage3DDisplacement &disp)
 {
     // Get the def field from the disp field
-    reg_getDeformationFromDisplacement(im.get_raw_nifti_sptr().get());
-    im.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
+    NiftiImage3DTensor temp = disp.deep_copy();
+    reg_getDeformationFromDisplacement(temp.get_raw_nifti_sptr().get());
+    temp.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
+    def = temp.deep_copy();
 }
 
 /// Multiply image
-void multiply_image(SIRFImageData &output, const SIRFImageData &input, const float &value)
+void multiply_image(NiftiImage3D &output, const NiftiImage3D &input, const float &value)
 {
 #if NIFTYREG_VER_1_5
     reg_tools_multiplyValueToImage(input.get_raw_nifti_sptr().get(), output.get_raw_nifti_sptr().get(), value);
@@ -315,7 +322,7 @@ void multiply_image(SIRFImageData &output, const SIRFImageData &input, const flo
 }
 
 /// Do nifti image metadatas match?
-bool do_nifti_image_metadata_match(const SIRFImageData &im1, const SIRFImageData &im2)
+bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
 {
     const std::shared_ptr<nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
     const std::shared_ptr<nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
@@ -400,7 +407,7 @@ bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44
     return false;
 }
 
-bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, const float accuracy_percentage_of_max)
+bool do_nifti_images_match(const NiftiImage &im1, const NiftiImage &im2, const float accuracy_percentage_of_max)
 {
     if(!im1.is_initialised())
         throw runtime_error("do_nifti_images_match: Image 1 not initialised.");
@@ -436,20 +443,20 @@ bool do_nifti_images_match(const SIRFImageData &im1, const SIRFImageData &im2, c
 /// Dump info of nifti image
 void dump_nifti_info(const string &im_filename)
 {
-    SIRFImageData image(im_filename);
+    NiftiImage image(im_filename);
     SIRFRegMisc::dump_nifti_info(image);
 }
 
 /// Dump info of nifti image
-void dump_nifti_info(const SIRFImageData &im)
+void dump_nifti_info(const NiftiImage &im)
 {
-    vector<SIRFImageData> image;
+    vector<NiftiImage> image;
     image.push_back(im);
     dump_nifti_info(image);
 }
 
 /// Dump info of multiple nifti images
-void dump_nifti_info(const vector<SIRFImageData> &ims)
+void dump_nifti_info(const vector<NiftiImage> &ims)
 {
     cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
     dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
@@ -475,15 +482,15 @@ void dump_nifti_info(const vector<SIRFImageData> &ims)
     dump_nifti_element(ims, "nbyper",            &nifti_image::nbyper);
     dump_nifti_element(ims, "ndim",              &nifti_image::ndim);
     dump_nifti_element(ims, "nifti_type",        &nifti_image::nifti_type);
-    dump_nifti_element(ims, "nt",                &nifti_image::nt);
-    dump_nifti_element(ims, "nu",                &nifti_image::nu);
     dump_nifti_element(ims, "num_ext",           &nifti_image::num_ext);
-    dump_nifti_element(ims, "nv",                &nifti_image::nv);
     dump_nifti_element(ims, "nvox",              &nifti_image::nvox);
-    dump_nifti_element(ims, "nw",                &nifti_image::nw);
     dump_nifti_element(ims, "nx",                &nifti_image::nx);
     dump_nifti_element(ims, "ny",                &nifti_image::ny);
     dump_nifti_element(ims, "nz",                &nifti_image::nz);
+    dump_nifti_element(ims, "nt",                &nifti_image::nt);
+    dump_nifti_element(ims, "nu",                &nifti_image::nu);
+    dump_nifti_element(ims, "nv",                &nifti_image::nv);
+    dump_nifti_element(ims, "nw",                &nifti_image::nw);
     dump_nifti_element(ims, "phase_dim",         &nifti_image::phase_dim);
     dump_nifti_element(ims, "qfac",              &nifti_image::qfac);
     dump_nifti_element(ims, "qform_code",        &nifti_image::qform_code);
@@ -536,7 +543,7 @@ void dump_nifti_info(const vector<SIRFImageData> &ims)
 void save_transformation_matrix(const mat44 &transformation_matrix, const string &filename)
 {
     // Check that input isn't blank
-    if (filename == "")
+    if (filename.size() == 0)
         throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
     // Have to create copy as the following function isn't const
@@ -626,16 +633,16 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
 }
 
 /// Compose multiple transformations into single deformation field
-void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const SIRFImageData &ref)
+void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
 {
     if (transformations.size() == 0)
         throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation no transformations given.");
 
-    SIRFImageDataDeformation deformation = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
+    NiftiImage3DDeformation deformation = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
 
     for (unsigned i=1; i<transformations.size(); ++i) {
 
-        SIRFImageDataDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
+        NiftiImage3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
         reg_defField_compose(temp.get_raw_nifti_sptr().get(),deformation.get_raw_nifti_sptr().get(),nullptr);
     }
 
@@ -643,7 +650,7 @@ void compose_transformations_into_single_deformation(SIRFRegTransformationDeform
 }
 
 /// Compose multiple transformations into single deformation field
-void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const SIRFImageData &ref)
+void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
 {
     std::vector<SIRFRegTransformation*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)

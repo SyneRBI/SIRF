@@ -1,4 +1,4 @@
-classdef ImageData < handle
+classdef NiftiImage < handle
 % Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -24,21 +24,19 @@ classdef ImageData < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFImageData';
+            name = 'NiftiImage';
         end
     end
     methods
-        function self = ImageData(src)
+        function self = NiftiImage(src)
             narginchk(0,1)
-            self.name = 'SIRFImageData';
+            self.name = 'NiftiImage';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSTIR.ImageData')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_from_PETImageData', src.handle_);
             else
-                error('ImageData accepts no args, filename or mSTIR.ImageData.')
+                error('NiftiImage accepts no args or filename.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -51,59 +49,61 @@ classdef ImageData < handle
         function z = plus(self, other)
             % Overloads the addition operator
             mUtilities.assert_validities(self, other)
-            z = mSIRFReg.ImageData();
-            z.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_maths', self.handle_, other.handle_, 1);
-            mUtilities.check_status('ImageData:plus', z.handle_);
+            z = self.deep_copy();
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_maths', z.handle_, self.handle_, other.handle_, 1);
+            mUtilities.check_status('NiftiImage:plus', z.handle_);
         end
         function z = minus(self, other)
             % Overloads the subtraction operator
             mUtilities.assert_validities(self, other)
-            z = mSIRFReg.ImageData();
-            z.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_maths', self.handle_, other.handle_, -1);
-            mUtilities.check_status('ImageData:plus', z.handle_);
+            z = self.deep_copy();
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_maths', z.handle_, self.handle_, other.handle_, -1);
+            mUtilities.check_status('NiftiImage:plus', z.handle_);
         end
         function save_to_file(self, filename)
             %Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_save_to_file', self.handle_, filename);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_save_to_file', self.handle_, filename);
             mUtilities.check_status([self.name ':save_to_file'], h);
             mUtilities.delete(h)
         end
         function value = get_max(self)
             %Get max.
-            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'max', 'f');
+            value = mSIRFReg.parameter(self.handle_, 'NiftiImage', 'max', 'f');
         end
         function value = get_min(self)
             %Get min.
-            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'max', 'f');
+            value = mSIRFReg.parameter(self.handle_, 'NiftiImage', 'min', 'f');
         end
         function value = get_sum(self)
             %Get sum.
-            value = mSIRFReg.parameter(self.handle_, 'SIRFImageData', 'sum', 'f');
+            value = mSIRFReg.parameter(self.handle_, 'NiftiImage', 'sum', 'f');
         end
         function value = get_dimensions(self)
             %Get dimensions.
             ptr_i = libpointer('int32Ptr', zeros(1, 8));
-            calllib('msirfreg', 'mSIRFReg_SIRFImageData_get_dimensions', self.handle_, ptr_i);
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_get_dimensions', self.handle_, ptr_i);
             value = ptr_i.Value;
-        end
-        function copy_data_to(self, pet_image)
-            %Fill the STIRImageData with the values from SIRFImageData.
-            assert(isa(pet_image, 'mSTIR.ImageData'))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_copy_data_to', self.handle_, pet_image.handle_);
-            mUtilities.check_status([self.name ':copy_data_to'], h);
-            mUtilities.delete(h)            
         end
         function fill(self, val)
             %Fill image with single value.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageData_fill', self.handle_, val);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_fill', self.handle_, val);
             mUtilities.check_status([self.name ':fill'], h);
             mUtilities.delete(h)            
         end
         function output = deep_copy(self)
             %Deep copy image.
-            output = mSIRFReg.ImageData();
-            mUtilities.delete(output.handle_)
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFImageData_deep_copy', self.handle_);
+            if strcmp(self.name, 'NiftiImage')
+                output = mSIRFReg.NiftiImage();
+            elseif strcmp(self.name, 'NiftiImage3D')
+                output = mSIRFReg.NiftiImage3D();
+            elseif strcmp(self.name, 'NiftiImage3DTensor')
+                output = mSIRFReg.NiftiImage3DTensor();
+            elseif strcmp(self.name, 'NiftiImage3DDeformation')
+                output = mSIRFReg.NiftiImage3DDeformation();
+            elseif strcmp(self.name, 'NiftiImage3DDisplacement')
+                output = mSIRFReg.NiftiImage3DDisplacement();
+            end
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_deep_copy', output.handle_, self.handle_);
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
         function array = as_array(self)
@@ -111,13 +111,13 @@ classdef ImageData < handle
             dim = self.get_dimensions();
             dim = dim(2:dim(1)+1);
             ptr_v = libpointer('singlePtr', zeros(dim));
-            calllib('msirfreg', 'mSIRFReg_SIRFImageData_get_data', self.handle_, ptr_v);
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_get_data', self.handle_, ptr_v);
             array = reshape(ptr_v.Value,dim);
         end
     end
-    % If you put this in, the workspace in matlab shows the size (eg., 64x64x64 ImageData)
-    % Without it, jusrt 1x1 ImageData. However, with it, can't tell if we have an array of
-    % ImageData or if there is just one. TODO
+    % If you put this in, the workspace in matlab shows the size (eg., 64x64x64 NiftiImage)
+    % Without it, jusrt 1x1 NiftiImage. However, with it, can't tell if we have an array of
+    % NiftiImage or if there is just one. TODO
     %methods (Hidden = true)
     %     function dim = size(self)
     %         % size

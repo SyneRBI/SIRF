@@ -1,5 +1,5 @@
-classdef ImageDataDeformation < mSIRFReg.ImageData
-% Class for deformation/displacement image data.
+classdef NiftiImage3D < mSIRFReg.NiftiImage
+% Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,17 +20,21 @@ classdef ImageDataDeformation < mSIRFReg.ImageData
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFImageDataDeformation';
+            name = 'NiftiImage3D';
         end
     end
     methods
-        function self = ImageDataDeformation(filename)
+        function self = NiftiImage3D(src)
             narginchk(0,1)
-            self.name = 'SIRFImageDataDeformation';
+            self.name = 'NiftiImage3D';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
+            elseif ischar(src)
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
+            elseif isa(src, 'mSTIR.ImageData')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3D_from_PETImageData', src.handle_);
             else
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, filename);
+                error('NiftiImage3D accepts no args, filename or mSTIR.ImageData.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -40,18 +44,12 @@ classdef ImageDataDeformation < mSIRFReg.ImageData
                 self.handle_ = [];
             end
         end
-        function save_to_file_split_xyz_components(self, filename)
-            % Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components', self.handle_, filename);
-            mUtilities.check_status([self.name ':save_to_file'], h);
-            mUtilities.delete(h)
-        end
-        function create_from_3D_image(self, src)
-            %Create deformation/displacement field from 3D image.
-            assert(isa(src, 'mSIRFReg.ImageData'))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFImageDataDeformation_create_from_3D_image', self.handle_, src.handle_);
-            mUtilities.check_status([self.name ':create_from_3d_image'], h);
-            mUtilities.delete(h)
+        function copy_data_to(self, pet_image)
+            %Fill the STIRImageData with the values from NiftiImage3D.
+            assert(isa(pet_image, 'mSTIR.ImageData'))
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3D_copy_data_to', self.handle_, pet_image.handle_);
+            mUtilities.check_status([self.name ':copy_data_to'], h);
+            mUtilities.delete(h)            
         end
     end
 end

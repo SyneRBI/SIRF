@@ -1,5 +1,5 @@
-classdef TransformationDeformation < mSIRFReg.Transformation
-% Class for deformation transformations.
+classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor
+% Class for displacement image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,21 +20,17 @@ classdef TransformationDeformation < mSIRFReg.Transformation
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegTransformationDeformation';
+            name = 'NiftiImage3DDisplacement';
         end
     end
     methods
-        function self = TransformationDeformation(src)
+        function self = NiftiImage3DDisplacement(filename)
             narginchk(0,1)
-            self.name = 'SIRFRegTransformationDeformation';
+            self.name = 'NiftiImage3DDisplacement';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
-            elseif ischar(src)
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSIRFReg.NiftiImage3DDeformation')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation', src.handle_);
             else
-                error('TransformationDeformation accepts no args, filename or NiftiImage3DDeformation.')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, filename);
             end
             mUtilities.check_status(self.name, self.handle_)
         end

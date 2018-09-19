@@ -29,7 +29,8 @@ limitations under the License.
 
 #include <iostream>
 #include "SIRFRegMisc.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3DDisplacement.h"
+#include "NiftiImage3DDeformation.h"
 #if NIFTYREG_VER_1_5
 #include "_reg_globalTrans.h"
 #endif
@@ -147,24 +148,24 @@ int main(int argc, char* argv[])
         SIRFRegMisc::open_transformation_matrix(TM,TM_filename);
 
         // Create images
-        SIRFImageDataDeformation def, disp;
+        NiftiImage3DDeformation  def;
+        NiftiImage3DDisplacement disp;
 
         // Open reference image
-        SIRFImageData ref(ref_filename);
+        NiftiImage3D ref(ref_filename);
 
         // Get the deformation field image
 #if NIFTYREG_VER_1_5
         def.create_from_3D_image(ref);
         reg_affine_getDeformationField(&TM, def.get_raw_nifti_sptr().get());
 #elif NIFTYREG_VER_1_3
-        SIRFImageDataDeformation cpp;
-        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp, TM, ref_sptr);
+        NiftiImage3D cpp;
+        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM, ref_sptr);
         SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);
 #endif
 
         // Get the displacement fields from the def
-        disp = def;
-        SIRFRegMisc::convert_from_def_to_disp(disp);
+        SIRFRegMisc::convert_from_def_to_disp(disp, def);
 
         // If they want to save the deformation field images
         if (flag_def_4D != -1)

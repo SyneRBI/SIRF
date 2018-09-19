@@ -27,10 +27,10 @@ limitations under the License.
 namespace sirf {
 
     // ---------------------------------------------------------------------------- //
-    // SIRFImageData
+    // NiftiImage
     // ---------------------------------------------------------------------------- //
 	void*
-		cSIRFReg_SIRFImageDataParameter(const DataHandle* handle, const char* name);
+        cSIRFReg_NiftiImageParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFReg

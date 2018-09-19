@@ -36,7 +36,7 @@ classdef TransformationAffine < mSIRFReg.Transformation
                 ptr_v = libpointer('singlePtr', single(src));
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationAffine_construct_from_TM', ptr_v);
             else
-                error('ImageData accepts no args, filename or 4x4 array.')
+                error('TransformationAffine accepts no args, filename or 4x4 array.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end

@@ -30,15 +30,11 @@ limitations under the License.
 #ifndef _SIRFREGIMAGEWEIGHTEDMEAN_H_
 #define _SIRFREGIMAGEWEIGHTEDMEAN_H_
 
-#include <nifti1_io.h>
-#include <string>
 #include <vector>
-#include "SIRFImageData.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3D.h"
 
 namespace sirf {
 /// Calculate the weighted mean of a set of images
-template<class ImType>
 class SIRFRegImageWeightedMean
 {
 public:
@@ -52,14 +48,14 @@ public:
     /// Add an image (from filename) and its corresponding weight
     void add_image(const std::string &filename, const float weight);
 
-    /// Add an image (from SIRFImageData) and its corresponding weight
-    void add_image(const ImType &image, const float weight);
+    /// Add an image (from NiftImage) and its corresponding weight
+    void add_image(const NiftiImage &image, const float weight);
 
     /// Update
     void update();
 
     /// Get output
-    const ImType &get_output() const { return _output_image; }
+    const NiftiImage &get_output() const { return _output_image; }
 
 protected:
 
@@ -67,20 +63,15 @@ protected:
     void check_can_do_mean() const;
 
     /// Bool to check if update is necessary
-    bool                      _need_to_update;
+    bool                    _need_to_update;
     /// Vector of input images
-    std::vector<ImType> _input_images;
+    std::vector<NiftiImage> _input_images;
     /// Vector of weights
-    std::vector<float>        _weights;
+    std::vector<float>      _weights;
     /// Output image
-    ImType                    _output_image;
+    NiftiImage              _output_image;
 
 };
-
-/// Typedef for 3D
-typedef SIRFRegImageWeightedMean<SIRFImageData>            SIRFRegImageWeightedMean3D;
-/// Typedef for 4D
-typedef SIRFRegImageWeightedMean<SIRFImageDataDeformation> SIRFRegImageWeightedMean4D;
 }
 
 #endif

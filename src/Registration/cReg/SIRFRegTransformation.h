@@ -29,7 +29,8 @@ limitations under the License.
 #ifndef _SIRFREGTRANSFORMATION_H
 #define _SIRFREGTRANSFORMATION_H
 
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 #include "SIRFRegMisc.h"
 
 namespace sirf {
@@ -45,11 +46,11 @@ public:
     virtual ~SIRFRegTransformation() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const = 0;
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const = 0;
 
 protected:
     /// Check that the deformation field image matches the reference image.
-    void check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const;
+    void check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const;
 };
 
 /// Class for SIRFReg transformations with an affine transformation
@@ -73,7 +74,7 @@ public:
     virtual ~SIRFRegTransformationAffine() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationAffine deep_copy() const;
@@ -91,23 +92,23 @@ public:
     SIRFRegTransformationDisplacement() {}
 
     /// Constructor
-    SIRFRegTransformationDisplacement(const SIRFImageDataDeformation &disp) { _disp = disp.deep_copy(); }
+    SIRFRegTransformationDisplacement(const NiftiImage3DDisplacement &disp) { _disp = disp.deep_copy(); }
 
     /// Construct from file
-    SIRFRegTransformationDisplacement(const std::string &filename) { _disp = SIRFImageDataDeformation(filename).deep_copy(); }
+    SIRFRegTransformationDisplacement(const std::string &filename) { _disp = NiftiImage3DDisplacement(filename).deep_copy(); }
 
     /// Destructor
     virtual ~SIRFRegTransformationDisplacement() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationDisplacement deep_copy() const;
 
 
 protected:
-    SIRFImageDataDeformation _disp;
+    NiftiImage3DDisplacement _disp;
 };
 
 /// Class for SIRFReg transformations with a deformation field image
@@ -119,23 +120,23 @@ public:
     SIRFRegTransformationDeformation() {}
 
     /// Constructor
-    SIRFRegTransformationDeformation(const SIRFImageDataDeformation &def) { _def = def.deep_copy(); }
+    SIRFRegTransformationDeformation(const NiftiImage3DDeformation &def) { _def = def.deep_copy(); }
 
     /// Construct from file
-    SIRFRegTransformationDeformation(const std::string &filename) { _def = SIRFImageDataDeformation(filename).deep_copy(); }
+    SIRFRegTransformationDeformation(const std::string &filename) { _def = NiftiImage3DDeformation(filename).deep_copy(); }
 
     /// Destructor
     virtual ~SIRFRegTransformationDeformation() {}
 
     /// Get as deformation field
-    virtual SIRFImageDataDeformation get_as_deformation_field(const SIRFImageData &ref) const;
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
 
     /// Deep copy
     virtual SIRFRegTransformationDeformation deep_copy() const;
 
 
 protected:
-    SIRFImageDataDeformation _def;
+    NiftiImage3DDeformation _def;
 };
 }
 

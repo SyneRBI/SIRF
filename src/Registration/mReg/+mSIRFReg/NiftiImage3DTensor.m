@@ -1,5 +1,5 @@
-classdef TransformationDeformation < mSIRFReg.Transformation
-% Class for deformation transformations.
+classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
+% Class for tensor image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,21 +20,17 @@ classdef TransformationDeformation < mSIRFReg.Transformation
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegTransformationDeformation';
+            name = 'NiftiImage3DTensor';
         end
     end
     methods
-        function self = TransformationDeformation(src)
+        function self = NiftiImage3DTensor(filename)
             narginchk(0,1)
-            self.name = 'SIRFRegTransformationDeformation';
+            self.name = 'NiftiImage3DTensor';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
-            elseif ischar(src)
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
-            elseif isa(src, 'mSIRFReg.NiftiImage3DDeformation')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation', src.handle_);
             else
-                error('TransformationDeformation accepts no args, filename or NiftiImage3DDeformation.')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, filename);
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -43,6 +39,19 @@ classdef TransformationDeformation < mSIRFReg.Transformation
                 mUtilities.delete(self.handle_)
                 self.handle_ = [];
             end
+        end
+        function save_to_file_split_xyz_components(self, filename)
+            % Save to file.
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components', self.handle_, filename);
+            mUtilities.check_status([self.name ':save_to_file'], h);
+            mUtilities.delete(h)
+        end
+        function create_from_3D_image(self, src)
+            %Create deformation/displacement field from 3D image.
+            assert(isa(src, 'mSIRFReg.NiftiImage3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImage3D.'])
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_create_from_3D_image', self.handle_, src.handle_);
+            mUtilities.check_status([self.name ':create_from_3d_image'], h);
+            mUtilities.delete(h)
         end
     end
 end

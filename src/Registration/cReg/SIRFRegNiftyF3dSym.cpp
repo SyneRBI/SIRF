@@ -30,7 +30,7 @@ limitations under the License.
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3DTensor.h"
 #include <_reg_f3d_sym.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_base.h>
@@ -67,7 +67,7 @@ void SIRFRegNiftyF3dSym<T>::update()
 #endif
 
     // Get the warped image
-    _warped_image = SIRFImageData(**_registration_sptr->GetWarpedImage());
+    _warped_image = NiftiImage3D(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
@@ -75,18 +75,16 @@ void SIRFRegNiftyF3dSym<T>::update()
         _warped_image.get_raw_nifti_sptr()->pixdim[4] = _warped_image.get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
-    SIRFImageDataDeformation cpp_fwrd(*_registration_sptr->GetControlPointPositionImage());
-    SIRFImageDataDeformation cpp_back(*_registration_sptr->GetBackwardControlPointPositionImage());
+    NiftiImage3DTensor cpp_fwrd(*_registration_sptr->GetControlPointPositionImage());
+    NiftiImage3DTensor cpp_back(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
-    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd,cpp_fwrd.get_raw_nifti_sptr(), _reference_image);
-    SIRFRegMisc::get_def_from_cpp(_def_image_back,cpp_back.get_raw_nifti_sptr(), _reference_image);
+    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd, cpp_fwrd, _reference_image);
+    SIRFRegMisc::get_def_from_cpp(_def_image_back, cpp_back, _reference_image);
 
     // Get the displacement fields from the def
-    _disp_image_fwrd = _def_image_fwrd;
-    _disp_image_back = _def_image_back;
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd);
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd, _def_image_fwrd);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back, _def_image_back);
 
     cout << "\n\nRegistration finished!\n\n";
 }

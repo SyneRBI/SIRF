@@ -36,7 +36,6 @@ from pUtilities import *
 import pyiutilities as pyiutil
 import pysirfreg
 import pSTIR
-import pystir
 
 try:
     input = raw_input
@@ -199,8 +198,8 @@ class MessageRedirector:
 
 def do_nifti_images_match(im1, im2, accuracy_percentage_of_max):
     """Do nifti images match?"""
-    assert isinstance(im1, ImageData)
-    assert isinstance(im2, ImageData)
+    assert isinstance(im1, NiftiImage)
+    assert isinstance(im2, NiftiImage)
     handle = pysirfreg.cSIRFReg_do_nifti_images_match(im1.handle, im2.handle, accuracy_percentage_of_max)
     check_status(handle)
     r = pyiutil.intDataFromHandle(handle)
@@ -212,9 +211,9 @@ def dump_nifti_info(to_dump):
     """Dump metadata of one or multiple (up to 5) nifti images."""
     if isinstance(to_dump, str):
         try_calling(pysirfreg.cSIRFReg_dump_nifti_info_filename(to_dump))
-    elif isinstance(to_dump, ImageData):
+    elif isinstance(to_dump, NiftiImage):
         try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im1(to_dump.handle))
-    elif all(isinstance(n, ImageData) for n in to_dump):
+    elif all(isinstance(n, NiftiImage) for n in to_dump):
         if len(to_dump) == 1:
             try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im1(to_dump[0].handle))
         elif len(to_dump) == 2:
@@ -231,7 +230,7 @@ def dump_nifti_info(to_dump):
             raise error('dump_nifti_info only implemented for up to 5 images.')
 
     else:
-        raise error('dump_nifti_info requires filename, SIRFImageData or a list of SIRFImageData.')
+        raise error('dump_nifti_info requires filename, NiftiImage or a list of NiftiImage.')
 
 
 def get_matrix(filename=None):
@@ -246,7 +245,7 @@ def get_matrix(filename=None):
 
 def compose_transformations_into_single_deformation(trans, ref):
     """Compose up to transformations into single deformation."""
-    assert isinstance(ref, ImageData)
+    assert isinstance(ref, NiftiImage3D)
     assert all(isinstance(n, _Transformation) for n in trans)
     if len(trans) == 1:
         return trans[0]
@@ -269,22 +268,19 @@ def compose_transformations_into_single_deformation(trans, ref):
     return z
 
 
-class ImageData:
+class NiftiImage:
     """
-    Class for image data.
+    General class for nifti image.
     """
     def __init__(self, src=None):
         self.handle = None
-        self.name = 'SIRFImageData'
+        self.name = 'NiftiImage'
         if src is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
-        elif isinstance(src, pSTIR.ImageData):
-            # src is ImageData
-            self.handle = pysirfreg.cSIRFReg_SIRFImageData_from_PETImageData(src.handle)
         else:
-            raise error('Wrong source in ImageData constructor')
+            raise error('Wrong source in NiftiImage constructor')
         check_status(self.handle)
 
     def __del__(self):
@@ -293,65 +289,68 @@ class ImageData:
 
     def __add__(self, other):
         """
-        Overloads + for image data.
+        Overloads + operator.
         """
         assert_validities(self, other)
-        z = ImageData()
-        z.handle = pysirfreg.cSIRFReg_SIRFImageData_maths(self.handle, other.handle, 1)
+        z = self.deep_copy()
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_maths(z.handle, self.handle, other.handle, 1))
         check_status(z.handle)
         return z
 
     def __sub__(self, other):
         """
-        Overloads - for image data.
+        Overloads - operator.
         """
         assert_validities(self, other)
-        z = ImageData()
-        z.handle = pysirfreg.cSIRFReg_SIRFImageData_maths(self.handle, other.handle, -1)
+        z = self.deep_copy()
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_maths(z.handle, self.handle, other.handle, -1))
         check_status(z.handle)
         return z
 
     def save_to_file(self, filename):
         """Save to file."""
         assert self.handle is not None
-        try_calling(pysirfreg.cSIRFReg_SIRFImageData_save_to_file(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_save_to_file(self.handle, filename))
 
     def get_max(self):
         """Get max."""
-        return _float_par(self.handle, 'SIRFImageData', 'max')
+        return _float_par(self.handle, 'NiftiImage', 'max')
 
     def get_min(self):
         """Get min."""
-        return _float_par(self.handle, 'SIRFImageData', 'min')
+        return _float_par(self.handle, 'NiftiImage', 'min')
 
     def get_sum(self):
         """Get sum."""
-        return _float_par(self.handle, 'SIRFImageData', 'sum')
+        return _float_par(self.handle, 'NiftiImage', 'sum')
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
         i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,..."""
         assert self.handle is not None
         dim = numpy.ndarray((8,), dtype=numpy.int32)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageData_get_dimensions(self.handle, dim.ctypes.data))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_get_dimensions(self.handle, dim.ctypes.data))
         return dim
-
-    def copy_data_to(self, pet_image):
-        """Fill the STIRImageData with the values from SIRFImageData."""
-        assert self.handle is not None
-        assert isinstance(pet_image, pSTIR.ImageData)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageData_copy_data_to(self.handle, pet_image.handle))
 
     def fill(self, val):
         """Fill image with single value."""
         assert self.handle is not None
-        try_calling(pysirfreg.cSIRFReg_SIRFImageData_fill(self.handle, val))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_fill(self.handle, val))
 
     def deep_copy(self):
         """Deep copy image."""
         assert self.handle is not None
-        image = ImageData()
-        image.handle = pysirfreg.cSIRFReg_SIRFImageData_deep_copy(self.handle)
+        if self.name == 'NiftiImage':
+            image = NiftiImage()
+        elif self.name == 'NiftiImage3D':
+            image = NiftiImage3D()
+        elif self.name == 'NiftiImage3DTensor':
+            image = NiftiImage3DTensor()
+        elif self.name == 'NiftiImage3DDeformation':
+            image = NiftiImage3DDeformation()
+        elif self.name == 'NiftiImage3DDisplacement':
+            image = NiftiImage3DDisplacement()
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_deep_copy(image.handle, self.handle))
         return image
 
     def as_array(self):
@@ -360,23 +359,53 @@ class ImageData:
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
         array = numpy.ndarray(dim, dtype=numpy.float32)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageData_get_data(self.handle, array.ctypes.data))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_get_data(self.handle, array.ctypes.data))
         return array
 
 
-class ImageDataDeformation(ImageData):
+class NiftiImage3D(NiftiImage):
     """
-    Class for deformation/displacement image data.
+    3D nifti image.
     """
     def __init__(self, src=None):
         self.handle = None
-        self.name = 'SIRFImageDataDeformation'
+        self.name = 'NiftiImage3D'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src, pSTIR.ImageData):
+            # src is stir ImageData
+            self.handle = pysirfreg.cSIRFReg_NiftiImage3D_from_PETImageData(src.handle)
+        else:
+            raise error('Wrong source in NiftiImage3D constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+    def copy_data_to(self, pet_image):
+        """Fill the STIRImageData with the values from NiftiImage3D."""
+        assert self.handle is not None
+        assert isinstance(pet_image, pSTIR.ImageData)
+        assert pet_image.handle is not None
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3D_copy_data_to(self.handle, pet_image.handle))
+
+
+class NiftiImage3DTensor(NiftiImage):
+    """
+    3D tensor nifti image.
+    """
+    def __init__(self, src=None):
+        self.handle = None
+        self.name = 'NiftiImage3DTensor'
         if src is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
         else:
-            raise error('Wrong source in ImageDataDeformation constructor')
+            raise error('Wrong source in NiftiImage3DTensor constructor')
         check_status(self.handle)
 
     def __del__(self):
@@ -387,22 +416,55 @@ class ImageDataDeformation(ImageData):
         """Save to file."""
         assert self.handle is not None
         assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(self.handle, filename))
 
     def create_from_3D_image(self, src):
-        """Create deformation/displacement field from 3D image."""
-        assert self.handle is not None
+        """Create tensor/deformation/displacement field from 3D image."""
+        assert isinstance(src, NiftiImage3D)
         assert src.handle is not None
-        assert isinstance(src, ImageData)
-        try_calling(pysirfreg.cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(self.handle, src.handle))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_create_from_3D_image(self.handle, src.handle))
         check_status(self.handle)
 
-    def deep_copy(self):
-        """Deep copy image."""
-        assert self.handle is not None
-        image = ImageDataDeformation()
-        image.handle = pysirfreg.cSIRFReg_SIRFImageDataDeformation_deep_copy(self.handle)
-        return image
+
+class NiftiImage3DDisplacement(NiftiImage3DTensor):
+    """
+    3D tensor displacement nifti image.
+    """
+    def __init__(self, src=None):
+        self.handle = None
+        self.name = 'NiftiImage3DDisplacement'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        else:
+            raise error('Wrong source in NiftiImage3DDisplacement constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
+
+
+class NiftiImage3DDeformation(NiftiImage3DTensor):
+    """
+    3D tensor deformation nifti image.
+    """
+
+    def __init__(self, src=None):
+        self.handle = None
+        self.name = 'NiftiImage3DDeformation'
+        if src is None:
+            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        elif isinstance(src, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        else:
+            raise error('Wrong source in NiftiImage3DDeformation constructor')
+        check_status(self.handle)
+
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
 
 
 class _SIRFReg(ABC):
@@ -423,17 +485,17 @@ class _SIRFReg(ABC):
 
     def set_reference_image(self, src):
         """Sets the reference image."""
-        assert isinstance(src, ImageData)
+        assert isinstance(src, NiftiImage3D)
         _setParameter(self.handle, 'SIRFReg', 'reference_image', src.handle)
 
     def set_floating_image(self, src):
         """Sets the floating image."""
-        assert isinstance(src, ImageData)
+        assert isinstance(src, NiftiImage3D)
         _setParameter(self.handle, 'SIRFReg', 'floating_image', src.handle)
 
     def get_output(self):
         """Gets the registered image."""
-        output = ImageData()
+        output = NiftiImage3D()
         output.handle = pysirfreg.cSIRFReg_parameter(self.handle, 'SIRFReg', 'output')
         check_status(output.handle)
         return output
@@ -445,28 +507,28 @@ class _SIRFReg(ABC):
 
     def get_deformation_field_fwrd(self):
         """Gets the forward deformation field image."""
-        output = ImageDataDeformation()
+        output = NiftiImage3DDeformation()
         output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_deformation')
         check_status(output.handle)
         return output
 
     def get_deformation_field_back(self):
         """Gets the backwards deformation field image."""
-        output = ImageDataDeformation()
+        output = NiftiImage3DDeformation()
         output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_deformation')
         check_status(output.handle)
         return output
 
     def get_displacement_field_fwrd(self):
         """Gets the forward displacement field image."""
-        output = ImageDataDeformation()
+        output = NiftiImage3DDisplacement()
         output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_displacement')
         check_status(output.handle)
         return output
 
     def get_displacement_field_back(self):
         """Gets the backwards displacement field image."""
-        output = ImageDataDeformation()
+        output = NiftiImage3DDisplacement()
         output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_displacement')
         check_status(output.handle)
         return output
@@ -551,12 +613,12 @@ class NiftyResample:
 
     def set_reference_image(self, reference_image):
         """Set reference image."""
-        assert isinstance(reference_image, ImageData)
+        assert isinstance(reference_image, NiftiImage3D)
         _setParameter(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
-        assert isinstance(floating_image, ImageData)
+        assert isinstance(floating_image, NiftiImage3D)
         _setParameter(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation_affine(self, src):
@@ -604,19 +666,19 @@ class NiftyResample:
 
     def get_output(self):
         """Get output."""
-        image = ImageData()
+        image = NiftiImage3D()
         image.handle = _getParameterHandle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
 
-class ImageWeightedMean3D:
+class ImageWeightedMean:
     """
     Class for performing weighted mean of images.
     """
 
     def __init__(self):
-        self.name = 'SIRFRegImageWeightedMean3D'
+        self.name = 'SIRFRegImageWeightedMean'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         check_status(self.handle)
 
@@ -625,55 +687,21 @@ class ImageWeightedMean3D:
             pyiutil.deleteDataHandle(self.handle)
 
     def add_image(self, image, weight):
-        """Add an image (filename or SIRFImageData) and its corresponding weight."""
-        if isinstance(image, ImageData):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_add_image(self.handle, image.handle, weight))
+        """Add an image (filename or NiftiImage) and its corresponding weight."""
+        if isinstance(image, NiftiImage):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_add_image(self.handle, image.handle, weight))
         elif isinstance(image, str):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(self.handle, image, weight))
+            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(self.handle, image, weight))
         else:
-            raise error("pSIRFReg.ImageWeightedMean3D.add_image: image must be SIRFImageData or filename.")
+            raise error("pSIRFReg.ImageWeightedMean.add_image: image must be NiftiImage or filename.")
 
     def update(self):
         """Update."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean3D_update(self.handle))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_update(self.handle))
 
     def get_output(self):
         """Get output."""
-        image = ImageData()
-        image.handle = _getParameterHandle(self.handle, self.name, 'output')
-        check_status(image.handle)
-        return image
-
-
-class ImageWeightedMean4D:
-    """
-    Class for performing weighted mean of deformation/displacement field images.
-    """
-    def __init__(self):
-        self.name = 'SIRFRegImageWeightedMean4D'
-        self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        check_status(self.handle)
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-
-    def add_image(self, image, weight):
-        """Add an image (filename or SIRFImageDataDeformation) and its corresponding weight."""
-        if isinstance(image, ImageData):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_add_image(self.handle, image.handle, weight))
-        elif isinstance(image, str):
-            try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(self.handle, image, weight))
-        else:
-            raise error("pSIRFReg.ImageWeightedMean4D.add_image: image must be SIRFImageDataDeformation or filename.")
-
-    def update(self):
-        """Update."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean4D_update(self.handle))
-
-    def get_output(self):
-        """Get output."""
-        image = ImageData()
+        image = NiftiImage()
         image.handle = _getParameterHandle(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
@@ -695,8 +723,8 @@ class _Transformation(ABC):
         """Get any type of transformation as a deformation field.
         This is useful for joining them together. Require a reference
         image for converting transformation matrices to deformations."""
-        assert isinstance(ref, ImageData)
-        output = ImageDataDeformation()
+        assert isinstance(ref, NiftiImage3D)
+        output = NiftiImage3DDeformation()
         output.handle = pysirfreg.cSIRFReg_SIRFRegTransformation_get_as_deformation_field(self.handle, ref.handle)
         check_status(output.handle)
         return output
@@ -734,8 +762,8 @@ class TransformationDisplacement(_Transformation):
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
-        elif isinstance(src, ImageDataDeformation):
-            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation(
+        elif isinstance(src, NiftiImage3DDisplacement):
+            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(
                 src.handle)
         else:
             raise error('Wrong source in displacement transformation constructor')
@@ -756,8 +784,8 @@ class TransformationDeformation(_Transformation):
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
-        elif isinstance(src, ImageDataDeformation):
-            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDeformation_construct_from_SIRFImageDataDeformation(
+        elif isinstance(src, NiftiImage3DDeformation):
+            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(
                 src.handle)
         else:
             raise error('Wrong source in deformation transformation constructor')

@@ -62,7 +62,7 @@ void SIRFRegNiftyAladinSym<T>::update()
     _registration_sptr->Run();
 
     // Get the output
-    _warped_image = SIRFImageData(*_registration_sptr->GetFinalWarpedImage());
+    _warped_image = NiftiImage3D(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
@@ -86,9 +86,6 @@ void SIRFRegNiftyAladinSym<T>::update()
     reg_affine_getDeformationField(&_TM_fwrd, _def_image_fwrd.get_raw_nifti_sptr().get());
     reg_affine_getDeformationField(&_TM_back, _def_image_back.get_raw_nifti_sptr().get());
 
-    _disp_image_fwrd = _def_image_fwrd;
-    _disp_image_back = _def_image_back;
-
 #elif NIFTYREG_VER_1_3
     // Convert the forward and backward transformation matrices to cpp images
     std::shared_ptr<nifti_image> cpp_fwrd_sptr, cpp_back_sptr;
@@ -106,8 +103,8 @@ void SIRFRegNiftyAladinSym<T>::update()
 #endif
 
     // Get the displacement fields from the def
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd);
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd, _def_image_fwrd);
+    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back, _def_image_back);
 
     cout << "\n\nRegistration finished!\n\n";
 }

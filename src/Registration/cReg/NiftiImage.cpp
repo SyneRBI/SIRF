@@ -27,70 +27,57 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFImageData.h"
+#include "NiftiImage.h"
 #include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
 #include "stir_data_containers.h"
+#include "NiftiImage3DTensor.h"
+#include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 
 using namespace std;
 using namespace sirf;
 
-SIRFImageData SIRFImageData::operator=(const SIRFImageData& to_copy)
+NiftiImage NiftiImage::operator=(const NiftiImage& to_copy)
 {
     // Check for self-assignment
-    if (this != &to_copy)
-        SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
+    if (this != &to_copy) {
+        if (to_copy.is_initialised())
+            SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
+        else
+            throw runtime_error("trying to copy empty image");
+    }
 
     return *this;
 }
 
-SIRFImageData::SIRFImageData(const std::string &filename)
+NiftiImage::NiftiImage(const std::string &filename)
 {
     SIRFRegMisc::open_nifti_image(_nifti_image,filename);
 }
 
-SIRFImageData::SIRFImageData(const nifti_image &image_nifti)
+NiftiImage::NiftiImage(const nifti_image &image_nifti)
 {
     SIRFRegMisc::copy_nifti_image(_nifti_image,make_shared<nifti_image>(image_nifti));
     reg_checkAndCorrectDimension(_nifti_image.get());
 }
 
-SIRFImageData::SIRFImageData(const std::shared_ptr<nifti_image> image_nifti)
+NiftiImage::NiftiImage(const std::shared_ptr<nifti_image> image_nifti)
 {
     SIRFRegMisc::copy_nifti_image(_nifti_image,image_nifti);
     reg_checkAndCorrectDimension(_nifti_image.get());
 }
 
-SIRFImageData::SIRFImageData(const sirf::PETImageData &pet_image)
-{
-    cout << "Converting PET image to nifti image..." << flush;
-
-    // Set up the nifti
-    set_up_nifti(pet_image.get_patient_coord_geometrical_info());
-
-    // Copy the data. this cast is ok because PETImageData is always float.
-    float *data = static_cast<float*>(_nifti_image->data);
-    pet_image.get_data(data);
-
-    cout << "Done!\n";
-}
-
-SIRFImageData::SIRFImageData(const MRImageData &)
-{
-    cout << "\n\nTODO\n\n";
-    exit(0);
-}
-
-SIRFImageData SIRFImageData::operator+ (const SIRFImageData& c) const
+NiftiImage NiftiImage::operator+ (const NiftiImage& c) const
 {
     if (!this->is_initialised())
-        throw runtime_error("Can't add SIRFImageData as first image is not initialised.");
+        throw runtime_error("Can't add NiftImage as first image is not initialised.");
     if (!c.is_initialised())
-        throw runtime_error("Can't add SIRFImageData as second image is not initialised.");
+        throw runtime_error("Can't add NiftImage as second image is not initialised.");
 
     if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
-        throw runtime_error("Can't add SIRFImageData as metadata do not match.");
+        throw runtime_error("Can't add NiftImage as metadata do not match.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::sum_arrays<bool>              (*this,c);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::sum_arrays<signed char>       (*this,c);
@@ -106,22 +93,22 @@ SIRFImageData SIRFImageData::operator+ (const SIRFImageData& c) const
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::sum_arrays<long double>       (*this,c);
 
     stringstream ss;
-    ss << "SIRFImageData::operator+ not implemented for your data type: ";
+    ss << "NiftImage::operator+ not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-SIRFImageData SIRFImageData::operator- (const SIRFImageData& c) const
+NiftiImage NiftiImage::operator- (const NiftiImage& c) const
 {
     if (!this->is_initialised())
-        throw runtime_error("Can't subtract SIRFImageData as first image is not initialised.");
+        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
     if (!c.is_initialised())
-        throw runtime_error("Can't subtract SIRFImageData as second image is not initialised.");
+        throw runtime_error("Can't subtract NiftImage as second image is not initialised.");
 
     if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
-        throw runtime_error("Can't subtract SIRFImageData as metadata do not match.");
+        throw runtime_error("Can't subtract NiftImage as metadata do not match.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::sub_arrays<bool>              (*this,c);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::sub_arrays<signed char>       (*this,c);
@@ -137,205 +124,21 @@ SIRFImageData SIRFImageData::operator- (const SIRFImageData& c) const
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::sub_arrays<long double>       (*this,c);
 
     stringstream ss;
-    ss << "SIRFImageData::operator- not implemented for your data type: ";
+    ss << "NiftImage::operator- not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-void SIRFImageData::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
-{
-    typedef VoxelisedGeometricalInfo3D Info;
-    Info::Size            size    = info.get_size();
-    Info::Spacing         spacing = info.get_spacing();
-    Info::TransformMatrix tm      = info.calculate_index_to_physical_point_matrix();
-
-    _nifti_image = std::shared_ptr<nifti_image>(new nifti_image, nifti_image_free);
-    _nifti_image->dim[0]=_nifti_image->ndim=3;
-    // Size
-    _nifti_image->dim[1]=_nifti_image->nx=int(size[0]);
-    _nifti_image->dim[2]=_nifti_image->ny=int(size[1]);
-    _nifti_image->dim[3]=_nifti_image->nz=int(size[2]);
-    _nifti_image->dim[4]=_nifti_image->nt=1;
-    _nifti_image->dim[5]=_nifti_image->nu=1;
-    _nifti_image->dim[6]=_nifti_image->nv=1;
-    _nifti_image->dim[7]=_nifti_image->nw=1;
-    _nifti_image->nvox=unsigned(_nifti_image->nx*_nifti_image->ny*_nifti_image->nz*_nifti_image->nt*_nifti_image->nu);
-    // Spacing (extra dimensions are 0 by default)
-    _nifti_image->pixdim[1]=_nifti_image->dx=spacing[0];
-    _nifti_image->pixdim[2]=_nifti_image->dy=spacing[1];
-    _nifti_image->pixdim[3]=_nifti_image->dz=spacing[2];
-    // Data types
-    _nifti_image->datatype = DT_FLOAT32;
-    _nifti_image->nbyper = sizeof(float);
-    _nifti_image->swapsize = sizeof(float);
-    _nifti_image->intent_code = NIFTI_INTENT_NONE;
-    _nifti_image->xyz_units=2; // distances in mm
-    _nifti_image->nifti_type=1;
-    _nifti_image->byteorder=1;
-    _nifti_image->scl_inter=0.F;
-    _nifti_image->scl_slope=1.F;
-    _nifti_image->iname_offset=352;
-    // Set the transformation matrix information
-    _nifti_image->qform_code=1;
-    for (int i=0;i<4;++i)
-        for (int j=0;j<4;++j)
-            _nifti_image->qto_xyz.m[i][j]=tm[i][j];
-    _nifti_image->qto_ijk =
-            nifti_mat44_inverse(_nifti_image->qto_xyz);
-    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
-                            &_nifti_image->quatern_b,
-                            &_nifti_image->quatern_c,
-                            &_nifti_image->quatern_d,
-                            &_nifti_image->qoffset_x,
-                            &_nifti_image->qoffset_y,
-                            &_nifti_image->qoffset_z,
-                            nullptr,
-                            nullptr,
-                            nullptr,
-                            &_nifti_image->qfac );
-    // Null pointers for some stuff
-    _nifti_image->fname = nullptr;
-    _nifti_image->iname = nullptr;
-    _nifti_image->num_ext = 0;
-    _nifti_image->ext_list = nullptr;
-
-    // Check everything is ok
-    reg_checkAndCorrectDimension(_nifti_image.get());
-
-    // Allocate the data
-    _nifti_image->data = static_cast<void *>(calloc(_nifti_image->nvox, unsigned(_nifti_image->nbyper)));
-}
-
-std::shared_ptr<nifti_image> SIRFImageData::get_raw_nifti_sptr() const
+std::shared_ptr<nifti_image> NiftiImage::get_raw_nifti_sptr() const
 {
     if (!this->is_initialised())
         throw runtime_error("Warning, nifti has not been initialised.");
     return _nifti_image;
 }
 
-void SIRFImageData::copy_data_to(sirf::PETImageData &pet_image) const
-{
-    cout << "Filling PET image from nifti image..." << flush;
-
-    bool everything_ok =
-            check_images_are_aligned(
-                pet_image.get_patient_coord_geometrical_info());
-
-    if (!everything_ok)
-        throw std::runtime_error("Cannot copy data from SIRFImageData to STIRImageData as they are not aligned.");
-
-    // If datatype is already float
-    if (_nifti_image->datatype == DT_FLOAT32) {
-        float *nifti_data_ptr = static_cast<float *>(_nifti_image->data);
-        pet_image.set_data(nifti_data_ptr);
-    }
-    // If not, cast to it
-    else {
-        SIRFImageData temp = this->deep_copy();
-        SIRFRegMisc::change_datatype<float>(temp);
-        float *nifti_data_ptr = static_cast<float *>(temp.get_raw_nifti_sptr()->data);
-        pet_image.set_data(nifti_data_ptr);
-    }
-
-    cout << "Done!\n";
-}
-
-void SIRFImageData::copy_data_to(MRImageData &) const
-{
-    cout << "\n\nTODO\n\n";
-    exit(0);
-}
-
-bool SIRFImageData::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
-{
-    // Check the nifti exists
-    if (!_nifti_image) {
-        std::cout << "\nWarning: Nifti image not initialised, can't fill image.\n";
-        return false;
-    }
-
-    // Check the info all matches (they should have resampled first)
-    typedef VoxelisedGeometricalInfo3D Info;
-    Info::Size            size    = info.get_size();
-    Info::Spacing         spacing = info.get_spacing();
-    Info::TransformMatrix tm      = info.calculate_index_to_physical_point_matrix();
-
-    // Check size
-    bool ok_size = true;
-    if (_nifti_image->dim[0] != 3)                       ok_size = false;
-    if (_nifti_image->dim[1] != int(size[0]))            ok_size = false;
-    if (_nifti_image->dim[2] != int(size[1]))            ok_size = false;
-    if (_nifti_image->dim[3] != int(size[2]))            ok_size = false;
-    if (_nifti_image->dim[4] != 1)                       ok_size = false;
-    if (_nifti_image->dim[5] != 1)                       ok_size = false;
-    if (_nifti_image->dim[6] != 1)                       ok_size = false;
-    if (_nifti_image->dim[7] != 1)                       ok_size = false;
-    if (_nifti_image->nx     != int(size[0]))            ok_size = false;
-    if (_nifti_image->ny     != int(size[1]))            ok_size = false;
-    if (_nifti_image->nz     != int(size[2]))            ok_size = false;
-    if (_nifti_image->nt     != 1)                       ok_size = false;
-    if (_nifti_image->nu     != 1)                       ok_size = false;
-    if (_nifti_image->nv     != 1)                       ok_size = false;
-    if (_nifti_image->nw     != 1)                       ok_size = false;
-    if (_nifti_image->nvox   != size[0]*size[1]*size[2]) ok_size = false;
-    if (!ok_size)
-        std::cout << "\nWarning: Size does not match, can't fill image.\n";
-
-    // Check spacing
-    bool ok_spacing = true;
-    if (fabs(_nifti_image->pixdim[1] - spacing[0]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->pixdim[2] - spacing[1]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->pixdim[3] - spacing[2]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dx        - spacing[0]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dy        - spacing[1]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dz        - spacing[2]) > 1.e-7F) ok_spacing = false;
-    if (!ok_spacing)
-        std::cout << "\nWarning: Spacing does not match, can't fill image.\n";
-
-    // Check offsets
-    bool ok_offset = true;
-    if (fabs(tm[0][3] - _nifti_image->qoffset_x) > 1.e-7F) ok_offset = false;
-    if (fabs(tm[1][3] - _nifti_image->qoffset_y) > 1.e-7F) ok_offset = false;
-    if (fabs(tm[2][3] - _nifti_image->qoffset_z) > 1.e-7F) ok_offset = false;
-    if (!ok_offset)
-        std::cout << "\nWarning: qoffset does not match, can't fill image.\n";
-
-    // Check qto_xyz
-    bool ok_qto_xyz = true;
-    for (int i=0;i<4;++i)
-        for (int j=0;j<4;++j)
-            if (fabs(_nifti_image->qto_xyz.m[i][j] - tm[i][j]) > 1.e-7F)
-                ok_qto_xyz = false;
-    if (!ok_qto_xyz)
-        std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
-
-    // Check qto_ijk
-    bool ok_qto_ijk = true;
-    if (fabs( _nifti_image->qto_ijk.m[0][0] - 1.F/tm[0][0])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[1][1] - 1.F/tm[1][1])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[2][2] - 1.F/tm[2][2])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[0][3] - tm[0][3]/spacing[0]) > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[1][3] - tm[1][3]/spacing[1]) > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[2][3] - tm[2][3]/spacing[2]) > 1.e-7F) ok_qto_ijk = false;
-    if (!ok_qto_ijk)
-        std::cout << "\nWarning: qto_ijk does not match, can't fill image.\n";
-
-    // Check datatype float
-    bool ok_datatype = true;
-    if (_nifti_image->datatype != DT_FLOAT32   ) ok_datatype = false;
-    if ( _nifti_image->nbyper  != sizeof(float)) ok_datatype = false;
-    if (!ok_datatype)
-        std::cout << "\nWarning: datatype is not float, can't fill image.\n";
-
-    // Return if not everything is ok
-    if(ok_size && ok_spacing && ok_offset && ok_qto_xyz && ok_qto_ijk && ok_datatype)
-        return true;
-    return false;
-}
-
-void SIRFImageData::save_to_file(const std::string &filename) const
+void NiftiImage::save_to_file(const std::string &filename) const
 {
     if (!this->is_initialised())
         throw runtime_error("Cannot save image to file.");
@@ -357,10 +160,10 @@ void SIRFImageData::save_to_file(const std::string &filename) const
     cout << "done.\n\n";
 }
 
-float SIRFImageData::get_max() const
+float NiftiImage::get_max() const
 {
-    if(!_nifti_image)
-        throw runtime_error("Image not initialised.");
+    if(!this->is_initialised())
+        throw runtime_error("NiftiImage::get_max(): Image not initialised.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_max<bool>              (*this);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_max<signed char>       (*this);
@@ -376,17 +179,17 @@ float SIRFImageData::get_max() const
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_max<long double>       (*this);
 
     stringstream ss;
-    ss << "SIRFImageData::get_max not implemented for your data type: ";
+    ss << "NiftImage::get_max not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-float SIRFImageData::get_min() const
+float NiftiImage::get_min() const
 {
-    if(!_nifti_image)
-        throw runtime_error("Image not initialised.");
+    if(!this->is_initialised())
+        throw runtime_error("NiftiImage::get_min(): Image not initialised.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_min<bool>              (*this);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_min<signed char>       (*this);
@@ -402,17 +205,17 @@ float SIRFImageData::get_min() const
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_min<long double>       (*this);
 
     stringstream ss;
-    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << "NiftImage::get_min not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-float SIRFImageData::get_element(int x, int y, int z, int t, int u, int v, int w) const
+float NiftiImage::get_element(int x, int y, int z, int t, int u, int v, int w) const
 {
     if(!this->is_initialised())
-        throw runtime_error("Image not initialised.");
+        throw runtime_error("NiftiImage::get_element(): Image not initialised.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_element<bool>              (*this, x, y, z, t, u, v, w);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_element<signed char>       (*this, x, y, z, t, u, v, w);
@@ -428,17 +231,17 @@ float SIRFImageData::get_element(int x, int y, int z, int t, int u, int v, int w
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_element<long double>       (*this, x, y, z, t, u, v, w);
 
     stringstream ss;
-    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << "NiftImage::get_min not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-float SIRFImageData::get_sum() const
+float NiftiImage::get_sum() const
 {
-    if(!_nifti_image)
-        throw runtime_error("Image not initialised.");
+    if(!this->is_initialised())
+        throw runtime_error("NiftiImage::get_sum(): Image not initialised.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::get_array_sum<bool>              (*this);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::get_array_sum<signed char>       (*this);
@@ -454,17 +257,17 @@ float SIRFImageData::get_sum() const
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::get_array_sum<long double>       (*this);
 
     stringstream ss;
-    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << "NiftImage::get_min not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-void SIRFImageData::fill(const float &v)
+void NiftiImage::fill(const float &v)
 {
     if(!this->is_initialised())
-        throw runtime_error("Image not initialised.");
+        throw runtime_error("NiftiImage::fill(): Image not initialised.");
 
     if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::fill_array<bool>              (*this, v);
     if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::fill_array<signed char>       (*this, v);
@@ -480,16 +283,67 @@ void SIRFImageData::fill(const float &v)
     if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::fill_array<long double>       (*this, v);
 
     stringstream ss;
-    ss << "SIRFImageData::get_min not implemented for your data type: ";
+    ss << "NiftImage::get_min not implemented for your data type: ";
     ss << nifti_datatype_string(_nifti_image->datatype);
     ss << " (bytes per voxel: ";
     ss << _nifti_image->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
 
-SIRFImageData SIRFImageData::deep_copy() const
+NiftiImage NiftiImage::deep_copy() const
 {
-    SIRFImageData copy;
+    NiftiImage copy;
     copy = *this;
     return copy;
+}
+
+void NiftiImage::get_dimensions(int dims[8]) const
+{
+    for (int i=0; i<8; ++i)
+        dims[i] = _nifti_image->dim[i];
+}
+
+void NiftiImage::check_dimensions(const NiftiImageType image_type)
+{
+    if (!this->is_initialised())
+        throw runtime_error("NiftiImage::check_dimensions(): Image not initialised.");
+
+    int ndim, nt, nu, intent_code, intent_p1;
+    if        (image_type == _general)  { ndim=-1; nt=-1; nu=-1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
+    else   if (image_type == _3D)       { ndim= 3; nt= 1; nu= 1; intent_code = NIFTI_INTENT_NONE;   intent_p1=-1;         }
+    else   if (image_type == _3DTensor) { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=-1;         }
+    else   if (image_type == _3DDisp)   { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DISP_FIELD; }
+    else /*if (image_type == _3DDef)*/  { ndim= 5; nt= 1; nu= 3; intent_code = NIFTI_INTENT_VECTOR; intent_p1=DEF_FIELD;  }
+
+    // Check everthing is as it should be. -1 means we don't care about it
+    // (e.g., NiftiImage3D doesn't care about intent_p1, which is used by NiftyReg for Disp/Def fields)
+    bool everything_ok = true;
+    if (ndim         != -1 && ndim        != _nifti_image->ndim)        everything_ok = false;
+    if ( nu          != -1 && nu          != _nifti_image->nu  )        everything_ok = false;
+    if ( nt          != -1 && nt          != _nifti_image->nt  )        everything_ok = false;
+    if ( intent_code != -1 && intent_code != _nifti_image->intent_code) everything_ok = false;
+    if ( intent_p1   != -1 && intent_p1   != _nifti_image->intent_p1)   everything_ok = false;
+
+    if (everything_ok)
+        return;
+
+    // If not, throw an error.
+    stringstream ss;
+    ss << "Trying to construct a ";
+    if      (typeid(*this) == typeid(NiftiImage3D))             ss << "NiftiImage3D";
+    else if (typeid(*this) == typeid(NiftiImage3DTensor))       ss << "NiftiImage3DTensor";
+    else if (typeid(*this) == typeid(NiftiImage3DDisplacement)) ss << "NiftiImage3DDisplacement";
+    else if (typeid(*this) == typeid(NiftiImage3DDeformation))  ss << "NiftiImage3DDeformation";
+    ss << ".\n\t\tExpected params: ndim = " << ndim << ", nu = " << nu << ", nt = " << nt;
+    if      (intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
+    else if (intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
+    if      (intent_p1 == 0) ss << ", intent_p1 = Deformation";
+    else if (intent_p1 == 1) ss << ", intent_p1 = Displacement";
+    ss << "\n\t\tActual params:   ndim = " << _nifti_image->ndim << ", nu = " << _nifti_image->nu << ", nt = " << _nifti_image->nt;
+    if      (_nifti_image->intent_code == NIFTI_INTENT_NONE)   ss << ", intent_code = None";
+    else if (_nifti_image->intent_code == NIFTI_INTENT_VECTOR) ss << ", intent_code = Vector";
+    if      (intent_p1 != -1 && _nifti_image->intent_p1 == 0)  ss << ", intent_p1 = Deformation";
+    else if (intent_p1 != -1 && _nifti_image->intent_p1 == 1)  ss << ", intent_p1 = Displacement";
+    //std::cout << ss.str() << "\n";
+    throw std::runtime_error(ss.str());
 }

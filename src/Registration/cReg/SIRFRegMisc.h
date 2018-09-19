@@ -35,12 +35,14 @@ limitations under the License.
 #include <nifti1_io.h>
 #include <boost/filesystem.hpp>
 #include <_reg_tools.h>
-#include "SIRFImageData.h"
+#include "NiftiImage3D.h"
 
 namespace sirf {
+class NiftiImage3DTensor;
+class NiftiImage3DDisplacement;
+class NiftiImage3DDeformation;
 class SIRFRegTransformation;
 class SIRFRegTransformationDeformation;
-class SIRFImageDataDeformation;
 }
 
 namespace SIRFRegMisc {
@@ -68,26 +70,26 @@ namespace SIRFRegMisc {
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
     /// Flip multicomponent image along a given axis
-    void flip_multicomponent_image(sirf::SIRFImageDataDeformation &im, int dim);
+    void flip_multicomponent_image(sirf::NiftiImage3DTensor &im, int dim);
 
     /// Get cpp from transformation matrix
 #if NIFTYREG_VER_1_3
     void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
 #endif
     /// Get def from cpp
-    void get_def_from_cpp(sirf::SIRFImageDataDeformation &def, const sirf::SIRFImageDataDeformation &cpp, const sirf::SIRFImageData &ref);
+    void get_def_from_cpp(sirf::NiftiImage3DDeformation &def, const sirf::NiftiImage3DTensor &cpp, const sirf::NiftiImage3D &ref);
 
     /// Convert from deformation to displacement field image
-    void convert_from_def_to_disp(sirf::SIRFImageDataDeformation &im);
+    void convert_from_def_to_disp(sirf::NiftiImage3DDisplacement &disp, const sirf::NiftiImage3DDeformation &def);
 
     /// Convert from displacement to deformation field image
-    void convert_from_disp_to_def(sirf::SIRFImageDataDeformation &im);
+    void convert_from_disp_to_def(sirf::NiftiImage3DDeformation &def, const sirf::NiftiImage3DDisplacement &disp);
 
     /// Multiply image
-    void multiply_image(sirf::SIRFImageData &output, const sirf::SIRFImageData &input, const float &value);
+    void multiply_image(sirf::NiftiImage &output, const sirf::NiftiImage &input, const float &value);
 
     /// Do nifti image metadatas match?
-    bool do_nifti_image_metadata_match(const sirf::SIRFImageData &im1, const sirf::SIRFImageData &im2);
+    bool do_nifti_image_metadata_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
 
     /// Do nifti image metadata elements match?
     template<typename T>
@@ -103,11 +105,11 @@ namespace SIRFRegMisc {
     bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
 
     /// Do nifti images match?
-    bool do_nifti_images_match(const sirf::SIRFImageData &im1, const sirf::SIRFImageData &im2, const float accuracy_percentage_of_max/* = 0.F*/);
+    bool do_nifti_images_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2, const float accuracy_percentage_of_max/* = 0.F*/);
 
     /// Do arrays match?
     template<typename T>
-    bool do_arrays_match(const sirf::SIRFImageData &im1, const sirf::SIRFImageData &im2, const float accuracy_percentage_of_max)
+    bool do_arrays_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2, const float accuracy_percentage_of_max)
     {
         if(!im1.is_initialised())
             throw std::runtime_error("do_arrays_match: Image 1 not initialised.");
@@ -115,7 +117,7 @@ namespace SIRFRegMisc {
             throw std::runtime_error("do_arrays_match: Image 2 not initialised.");
 
         // Subtract images
-        sirf::SIRFImageData sub = im1 - im2;
+        sirf::NiftiImage sub = im1 - im2;
 
         // Get absolute of difference
         T *data = static_cast<T*>(sub.get_raw_nifti_sptr()->data);
@@ -150,7 +152,7 @@ namespace SIRFRegMisc {
 
     /// Get array max
     template<typename T>
-    float get_array_max(const sirf::SIRFImageData &im)
+    float get_array_max(const sirf::NiftiImage &im)
     {
         if(!im.is_initialised())
             throw std::runtime_error("get_array_max: Image not initialised.");
@@ -166,7 +168,7 @@ namespace SIRFRegMisc {
 
     /// Get array min
     template<typename T>
-    float get_array_min(const sirf::SIRFImageData &im)
+    float get_array_min(const sirf::NiftiImage &im)
     {
         if(!im.is_initialised())
             throw std::runtime_error("get_array_min: Image not initialised.");
@@ -182,7 +184,7 @@ namespace SIRFRegMisc {
 
     /// Get array sum
     template<typename T>
-    float get_array_sum(const sirf::SIRFImageData &im)
+    float get_array_sum(const sirf::NiftiImage &im)
     {
         if(!im.is_initialised())
             throw std::runtime_error("get_array_min: Image not initialised.");
@@ -201,14 +203,14 @@ namespace SIRFRegMisc {
 
     /// Get 3D array element
     template<typename T>
-    float get_array_element(const sirf::SIRFImageData &im, int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0)
+    float get_array_element(const sirf::NiftiImage3D &im, int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0)
     {
         if(!im.is_initialised())
             throw std::runtime_error("get_3D_array_element: Image not initialised.");
 
         // Check sizes
         if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-            throw std::runtime_error("get_array_element: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
+            throw std::runtime_error("get_3D_array_element: Datatype does not match desired cast type (" + std::to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
         // Check the point is in bounds
         const int &nx = im.get_raw_nifti_sptr()->nx;
@@ -243,7 +245,7 @@ namespace SIRFRegMisc {
 
     /// Sum arrays
     template<typename T>
-    sirf::SIRFImageData sum_arrays(const sirf::SIRFImageData &im1, const sirf::SIRFImageData &im2)
+    sirf::NiftiImage sum_arrays(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2)
     {
         if(!im1.is_initialised())
             throw std::runtime_error("sum_arrays: Image 1 not initialised.");
@@ -255,7 +257,7 @@ namespace SIRFRegMisc {
         if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
             throw std::runtime_error("sum_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
-        sirf::SIRFImageData result = im1.deep_copy();
+        sirf::NiftiImage result = im1.deep_copy();
 
         // Get data
         T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
@@ -269,7 +271,7 @@ namespace SIRFRegMisc {
 
     /// Subtract arrays
     template<typename T>
-    sirf::SIRFImageData sub_arrays(const sirf::SIRFImageData &im1, const sirf::SIRFImageData &im2)
+    sirf::NiftiImage sub_arrays(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2)
     {
         if(!im1.is_initialised())
             throw std::runtime_error("sub_arrays: Image 1 not initialised.");
@@ -281,7 +283,7 @@ namespace SIRFRegMisc {
         if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
             throw std::runtime_error("sub_arrays: Datatype of image 1 does not match desired cast type (" + std::to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + std::to_string(sizeof(T)) + ").");
 
-        sirf::SIRFImageData result = im1.deep_copy();
+        sirf::NiftiImage result = im1.deep_copy();
 
         // Get data
         T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
@@ -297,14 +299,14 @@ namespace SIRFRegMisc {
     void dump_nifti_info(const std::string &im_filename);
 
     /// Dump info of nifti image
-    void dump_nifti_info(const sirf::SIRFImageData &im);
+    void dump_nifti_info(const sirf::NiftiImage &im);
 
     /// Dump info of multiple nifti images
-    void dump_nifti_info(const std::vector<sirf::SIRFImageData> &ims);
+    void dump_nifti_info(const std::vector<sirf::NiftiImage> &ims);
 
     /// Dump nifti element
     template<typename T>
-    void dump_nifti_element(const std::vector<sirf::SIRFImageData> &ims, const std::string &name, const T &call_back)
+    void dump_nifti_element(const std::vector<sirf::NiftiImage> &ims, const std::string &name, const T &call_back)
     {
         std::string header = name + ": ";
         std::cout << "\t" << std::left << std::setw(19) << header;
@@ -315,7 +317,7 @@ namespace SIRFRegMisc {
 
     /// Dump nifti element
     template<typename T>
-    void dump_nifti_element(const std::vector<sirf::SIRFImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+    void dump_nifti_element(const std::vector<sirf::NiftiImage> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
     {
         for(int i=0; i<num_elems; i++) {
             std::string header = name + "[" + std::to_string(i) + "]: ";
@@ -346,14 +348,14 @@ namespace SIRFRegMisc {
 
     /// Convert type (performs deep copy)
     template<typename T>
-    void change_datatype(const sirf::SIRFImageData &image)
+    void change_datatype(const sirf::NiftiImage &image)
     {
         reg_tools_changeDatatype<T>(image.get_raw_nifti_sptr().get());
     }
 
     /// Fill array with single value.
     template<typename T>
-    void fill_array(const sirf::SIRFImageData &im, const float &v)
+    void fill_array(const sirf::NiftiImage &im, const float &v)
     {
         if(!im.is_initialised())
             throw std::runtime_error("fill_array: Image not initialised.");
@@ -368,10 +370,10 @@ namespace SIRFRegMisc {
     }
 
     /// Compose multiple transformations into single deformation field
-    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<sirf::SIRFRegTransformation*> &transformations, const sirf::SIRFImageData &ref);
+    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<sirf::SIRFRegTransformation*> &transformations, const sirf::NiftiImage3D &ref);
 
     /// Compose multiple transformations into single deformation field
-    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<sirf::SIRFRegTransformation> > &transformations, const sirf::SIRFImageData &ref);
+    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<sirf::SIRFRegTransformation> > &transformations, const sirf::NiftiImage3D &ref);
 
     /// Get identity matrix
     mat44 get_identity_matrix();

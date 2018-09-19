@@ -27,35 +27,18 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3DTensor.h"
 #include "SIRFRegMisc.h"
+#include <boost/format.hpp>
 
 using namespace std;
 using namespace sirf;
 
-SIRFImageDataDeformation::SIRFImageDataDeformation(const std::string &filename)
-    : SIRFImageData(filename)
+void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
 {
-    if (_nifti_image->ndim != 5)
-        throw runtime_error("A deformation/displacement field image should have ndim=5.");
-}
+    if (!image.is_initialised())
+        throw runtime_error("NiftiImage3DTensor::create_from_3D_image. Input image not initialised.");
 
-SIRFImageDataDeformation::SIRFImageDataDeformation(const nifti_image &image_nifti)
-    : SIRFImageData(image_nifti)
-{
-    if (_nifti_image->ndim != 5)
-        throw runtime_error("A deformation/displacement field image should have ndim=5.");
-}
-
-SIRFImageDataDeformation::SIRFImageDataDeformation(const std::shared_ptr<nifti_image> image_nifti)
-    : SIRFImageData(image_nifti)
-{
-    if (_nifti_image->ndim != 5)
-        throw runtime_error("A deformation/displacement field image should have ndim=5.");
-}
-
-void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
-{
     std::shared_ptr<nifti_image> image_sptr = image.get_raw_nifti_sptr();
 
     // Calculate deformation field image
@@ -80,26 +63,19 @@ void SIRFImageDataDeformation::create_from_3D_image(const SIRFImageData &image)
     _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 }
 
-void SIRFImageDataDeformation::save_to_file_split_xyz_components(const std::string &filename) const
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
-        throw std::runtime_error("Error, cannot save " + filename + " because image not initialised.");
+        throw std::runtime_error("Error, cannot write " + filename + " to file because it has not been initialised.");
 
     // Check that filename isn't blank
-    if (filename == "")
-        throw std::runtime_error("Error, cannot save " + filename + " because filename is blank.");
+    if (filename.size() == 0)
+        throw std::runtime_error("Error, cannot write " + filename + " to file because filename is blank.");
 
-    cout << "\nSaving image to file (" << filename << ")..." << flush;
+    cout << "\nSaving to file (" << filename << ")..." << flush;
 
     SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename);
 
     cout << "Done.\n";
-}
-
-SIRFImageDataDeformation SIRFImageDataDeformation::deep_copy() const
-{
-    SIRFImageDataDeformation copy;
-    copy = *this;
-    return copy;
 }

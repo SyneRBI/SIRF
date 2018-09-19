@@ -24,8 +24,8 @@ limitations under the License.
 #include "csirfreg.h"
 #include "csirfreg_p.h"
 #include "SIRFRegMisc.h"
-#include "SIRFImageData.h"
-#include "SIRFImageDataDeformation.h"
+#include "NiftiImage3D.h"
+#include "NiftiImage3DTensor.h"
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
@@ -55,20 +55,24 @@ extern "C"
 void* cSIRFReg_newObject(const char* name)
 {
 	try {
-		if (boost::iequals(name, "SIRFImageData"))
-			return newObjectHandle<SIRFImageData>();
-		if (boost::iequals(name, "SIRFImageDataDeformation"))
-			return newObjectHandle<SIRFImageDataDeformation>();
+        if (boost::iequals(name, "NiftiImage"))
+            return newObjectHandle<NiftiImage>();
+        if (boost::iequals(name, "NiftiImage3D"))
+            return newObjectHandle<NiftiImage3D>();
+        if (boost::iequals(name, "NiftiImage3DTensor"))
+            return newObjectHandle<NiftiImage3DTensor>();
+        if (boost::iequals(name, "NiftiImage3DDisplacement"))
+            return newObjectHandle<NiftiImage3DDisplacement>();
+        if (boost::iequals(name, "NiftiImage3DDeformation"))
+            return newObjectHandle<NiftiImage3DDeformation>();
         if (boost::iequals(name, "SIRFRegNiftyAladinSym"))
             return newObjectHandle<SIRFRegNiftyAladinSym<float> >();
         if (boost::iequals(name, "SIRFRegNiftyF3dSym"))
             return newObjectHandle<SIRFRegNiftyF3dSym<float> >();
         if (boost::iequals(name, "SIRFRegNiftyResample"))
             return newObjectHandle<SIRFRegNiftyResample>();
-        if (boost::iequals(name, "SIRFRegImageWeightedMean3D"))
-            return newObjectHandle<SIRFRegImageWeightedMean3D>();
-        if (boost::iequals(name, "SIRFRegImageWeightedMean4D"))
-            return newObjectHandle<SIRFRegImageWeightedMean4D>();
+        if (boost::iequals(name, "SIRFRegImageWeightedMean"))
+            return newObjectHandle<SIRFRegImageWeightedMean>();
         if (boost::iequals(name, "SIRFRegTransformationAffine"))
             return newObjectHandle<SIRFRegTransformationAffine>();
         if (boost::iequals(name, "SIRFRegTransformationDisplacement"))
@@ -105,16 +109,14 @@ void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
-        if (boost::iequals(obj, "SIRFImageData"))
-            return cSIRFReg_SIRFImageDataParameter(handle, name);
+        if (boost::iequals(obj, "NiftiImage"))
+            return cSIRFReg_NiftiImageParameter(handle, name);
         if (boost::iequals(obj, "SIRFReg"))
             return cSIRFReg_SIRFRegParameter(handle, name);
         if (boost::iequals(obj, "SIRFRegNiftyResample"))
             return cSIRFReg_SIRFRegNiftyResampleParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegImageWeightedMean3D"))
-            return cSIRFReg_SIRFRegImageWeightedMean3DParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegImageWeightedMean4D"))
-            return cSIRFReg_SIRFRegImageWeightedMean4DParameter(handle, name);
+        if (boost::iequals(obj, "SIRFRegImageWeightedMean"))
+            return cSIRFReg_SIRFRegImageWeightedMeanParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -125,16 +127,31 @@ extern "C"
 void* cSIRFReg_objectFromFile(const char* name, const char* filename)
 {
 	try {
-		if (boost::iequals(name, "SIRFImageData")) {
-			shared_ptr<SIRFImageData> 
-				sptr(new SIRFImageData(filename));
-			return newObjectHandle(sptr);
-		}
-		if (boost::iequals(name, "SIRFImageDataDeformation")) {
-			shared_ptr<SIRFImageDataDeformation> 
-				sptr(new SIRFImageDataDeformation(filename));
-			return newObjectHandle(sptr);
-		}
+        if (boost::iequals(name, "NiftiImage")) {
+            shared_ptr<NiftiImage>
+                sptr(new NiftiImage(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "NiftiImage3D")) {
+            shared_ptr<NiftiImage3D>
+                sptr(new NiftiImage3D(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "NiftiImage3DTensor")) {
+            shared_ptr<NiftiImage3DTensor>
+                sptr(new NiftiImage3DTensor(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "NiftiImage3DDisplacement")) {
+            shared_ptr<NiftiImage3DDisplacement>
+                sptr(new NiftiImage3DDisplacement(filename));
+            return newObjectHandle(sptr);
+        }
+        if (boost::iequals(name, "NiftiImage3DDeformation")) {
+            shared_ptr<NiftiImage3DDeformation>
+                sptr(new NiftiImage3DDeformation(filename));
+            return newObjectHandle(sptr);
+        }
         if (boost::iequals(name, "SIRFRegTransformationAffine")) {
             shared_ptr<SIRFRegTransformationAffine>
                 sptr(new SIRFRegTransformationAffine(filename));
@@ -162,8 +179,8 @@ extern "C"
 void* cSIRFReg_do_nifti_images_match(const void* im1, const void* im2, const float accuracy_percentage_of_max)
 {
     try {
-        SIRFImageData& img1 = objectFromHandle<SIRFImageData>(im1);
-        SIRFImageData& img2 = objectFromHandle<SIRFImageData>(im2);
+        NiftiImage& img1 = objectFromHandle<NiftiImage>(im1);
+        NiftiImage& img2 = objectFromHandle<NiftiImage>(im2);
         return dataHandle(SIRFRegMisc::do_nifti_images_match(img1,img2,accuracy_percentage_of_max));
     }
     CATCH;
@@ -181,7 +198,7 @@ extern "C"
 void* cSIRFReg_dump_nifti_info_im1(const void* im1)
 {
     try {
-        SIRFImageData& img1 = objectFromHandle<SIRFImageData>(im1);
+        NiftiImage& img1 = objectFromHandle<NiftiImage>(im1);
         SIRFRegMisc::dump_nifti_info(img1);
         return new DataHandle;
     }
@@ -191,9 +208,9 @@ extern "C"
 void* cSIRFReg_dump_nifti_info_im2(const void* im1, const void* im2)
 {
     try {
-        std::vector<SIRFImageData> vec;
-        vec.push_back(objectFromHandle<SIRFImageData>(im1));
-        vec.push_back(objectFromHandle<SIRFImageData>(im2));
+        std::vector<NiftiImage> vec;
+        vec.push_back(objectFromHandle<NiftiImage>(im1));
+        vec.push_back(objectFromHandle<NiftiImage>(im2));
         SIRFRegMisc::dump_nifti_info(vec);
         return new DataHandle;
     }
@@ -203,10 +220,10 @@ extern "C"
 void* cSIRFReg_dump_nifti_info_im3(const void* im1, const void* im2, const void* im3)
 {
     try {
-        std::vector<SIRFImageData> vec;
-        vec.push_back(objectFromHandle<SIRFImageData>(im1));
-        vec.push_back(objectFromHandle<SIRFImageData>(im2));
-        vec.push_back(objectFromHandle<SIRFImageData>(im3));
+        std::vector<NiftiImage> vec;
+        vec.push_back(objectFromHandle<NiftiImage>(im1));
+        vec.push_back(objectFromHandle<NiftiImage>(im2));
+        vec.push_back(objectFromHandle<NiftiImage>(im3));
         SIRFRegMisc::dump_nifti_info(vec);
         return new DataHandle;
     }
@@ -216,11 +233,11 @@ extern "C"
 void* cSIRFReg_dump_nifti_info_im4(const void* im1, const void* im2, const void* im3, const void* im4)
 {
     try {
-        std::vector<SIRFImageData> vec;
-        vec.push_back(objectFromHandle<SIRFImageData>(im1));
-        vec.push_back(objectFromHandle<SIRFImageData>(im2));
-        vec.push_back(objectFromHandle<SIRFImageData>(im3));
-        vec.push_back(objectFromHandle<SIRFImageData>(im4));
+        std::vector<NiftiImage> vec;
+        vec.push_back(objectFromHandle<NiftiImage>(im1));
+        vec.push_back(objectFromHandle<NiftiImage>(im2));
+        vec.push_back(objectFromHandle<NiftiImage>(im3));
+        vec.push_back(objectFromHandle<NiftiImage>(im4));
         SIRFRegMisc::dump_nifti_info(vec);
         return new DataHandle;
     }
@@ -230,12 +247,12 @@ extern "C"
 void* cSIRFReg_dump_nifti_info_im5(const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
 {
     try {
-        std::vector<SIRFImageData> vec;
-        vec.push_back(objectFromHandle<SIRFImageData>(im1));
-        vec.push_back(objectFromHandle<SIRFImageData>(im2));
-        vec.push_back(objectFromHandle<SIRFImageData>(im3));
-        vec.push_back(objectFromHandle<SIRFImageData>(im4));
-        vec.push_back(objectFromHandle<SIRFImageData>(im5));
+        std::vector<NiftiImage> vec;
+        vec.push_back(objectFromHandle<NiftiImage>(im1));
+        vec.push_back(objectFromHandle<NiftiImage>(im2));
+        vec.push_back(objectFromHandle<NiftiImage>(im3));
+        vec.push_back(objectFromHandle<NiftiImage>(im4));
+        vec.push_back(objectFromHandle<NiftiImage>(im5));
         SIRFRegMisc::dump_nifti_info(vec);
         return new DataHandle;
     }
@@ -260,7 +277,7 @@ void* cSIRFReg_SIRFReg_open_TM(const char* filename, size_t ptr_TM)
 void* cSIRFReg_compose_transformations_into_single_deformation2(const void* im, const void* trans1, const void* trans2)
 {
     try {
-        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
         shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
@@ -274,7 +291,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation2(const void* im, 
 void* cSIRFReg_compose_transformations_into_single_deformation3(const void* im, const void* trans1, const void* trans2, const void* trans3)
 {
     try {
-        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
         shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
@@ -289,7 +306,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation3(const void* im, 
 void* cSIRFReg_compose_transformations_into_single_deformation4(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4)
 {
     try {
-        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
         shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
@@ -306,7 +323,7 @@ extern "C"
 void* cSIRFReg_compose_transformations_into_single_deformation5(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5)
 {
     try {
-        SIRFImageData& ref = objectFromHandle<SIRFImageData>(im);
+        NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
         shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
@@ -321,66 +338,44 @@ void* cSIRFReg_compose_transformations_into_single_deformation5(const void* im, 
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFImageData
+//      NiftiImage
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFImageData_from_PETImageData(void* ptr)
+void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename)
 {
 	try {
-		sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(ptr);
-		shared_ptr<SIRFImageData> 
-			sptr(new SIRFImageData(pet_im));
-		return newObjectHandle(sptr);
-	}
-	CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFImageData_save_to_file(const void* ptr, const char* filename)
-{
-    try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
         im.save_to_file(filename);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageData_copy_data_to(const void* ptr, const void* obj)
+void* cSIRFReg_NiftiImage_fill(const void* ptr, const float val)
 {
     try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
-        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(obj);
-        im.copy_data_to(pet_im);
-        return new DataHandle;
-    }
-    CATCH;
-}
-
-extern "C"
-void* cSIRFReg_SIRFImageData_fill(const void* ptr, const float val)
-{
-    try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
         im.fill(val);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageData_deep_copy(const void* ptr)
+void* cSIRFReg_NiftiImage_deep_copy(const void* copy_ptr, const void* orig_ptr)
 {
     try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
-        shared_ptr<SIRFImageData> sptr(new SIRFImageData(im.deep_copy()));
-        return newObjectHandle(sptr);
+        NiftiImage& orig = objectFromHandle<NiftiImage>(orig_ptr);
+        NiftiImage& copy = objectFromHandle<NiftiImage>(copy_ptr);
+        copy = orig.deep_copy();
+        return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageData_get_dimensions(const void* ptr, size_t ptr_dim)
+void* cSIRFReg_NiftiImage_get_dimensions(const void* ptr, size_t ptr_dim)
 {
     try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
+        NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
         int* dim = (int*)ptr_dim;
         im.get_dimensions(dim);
         return new DataHandle;
@@ -388,11 +383,11 @@ void* cSIRFReg_SIRFImageData_get_dimensions(const void* ptr, size_t ptr_dim)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageData_get_data(const void* ptr, size_t ptr_data)
+void* cSIRFReg_NiftiImage_get_data(const void* ptr, size_t ptr_data)
 {
     try {
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(ptr);
-        SIRFImageData copy = im.deep_copy();
+        NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
+        NiftiImage copy = im.deep_copy();
         SIRFRegMisc::change_datatype<float>(copy);
         float* data = (float*)ptr_data;
         size_t mem = copy.get_raw_nifti_sptr()->nvox * size_t(copy.get_raw_nifti_sptr()->nbyper);
@@ -403,52 +398,69 @@ void* cSIRFReg_SIRFImageData_get_data(const void* ptr, size_t ptr_data)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageData_maths(const void* ptr, const void* obj, const int maths_type)
+void* cSIRFReg_NiftiImage_maths(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type)
 {
     try {
-        SIRFImageData& im1 = objectFromHandle<SIRFImageData>(ptr);
-        SIRFImageData& im2 = objectFromHandle<SIRFImageData>(obj);
-        SIRFImageData res;
-        if (maths_type == 1)
-            res = im1 + im2;
-        else if (maths_type == -1)
-            res = im1 - im2;
-        shared_ptr<SIRFImageData> sptr(new SIRFImageData(res));
-        return newObjectHandle(sptr);
+        if (abs(maths_type) != 1)
+            throw std::runtime_error("cSIRFReg_NiftiImage_maths: Bad maths type (1: addition, -1: subtraction.");
+
+        NiftiImage& res = objectFromHandle<NiftiImage>(res_ptr);
+        NiftiImage& im1 = objectFromHandle<NiftiImage>(im1_ptr);
+        NiftiImage& im2 = objectFromHandle<NiftiImage>(im2_ptr);
+
+        if (maths_type ==  1) res = im1 + im2;
+        if (maths_type == -1) res = im1 - im2;
+        return new DataHandle;
     }
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFImageDataDeformation
+//      NiftiImage3D
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFImageDataDeformation_save_to_file_split_xyz_components(const void *ptr, const char* filename)
+void* cSIRFReg_NiftiImage3D_from_PETImageData(void* ptr)
 {
 	try {
-		SIRFImageDataDeformation& im = objectFromHandle<SIRFImageDataDeformation>(ptr);
-                im.save_to_file_split_xyz_components(filename);
-		return new DataHandle;
-	}
+        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(ptr);
+        shared_ptr<NiftiImage3D>
+            sptr(new NiftiImage3D(pet_im));
+        return newObjectHandle(sptr);
+    }
 	CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFImageDataDeformation_create_from_3D_image(void* ptr, const void* obj)
-{
-	try {
-		SIRFImageDataDeformation& im = objectFromHandle<SIRFImageDataDeformation>(ptr);
-		SIRFImageData& im2 = objectFromHandle<SIRFImageData>(obj);
-		im.create_from_3D_image(im2);
-		return new DataHandle;
-	}
-	CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFImageDataDeformation_deep_copy(const void* ptr)
+void* cSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj)
 {
     try {
-        SIRFImageDataDeformation& im = objectFromHandle<SIRFImageDataDeformation>(ptr);
-        shared_ptr<SIRFImageDataDeformation> sptr(new SIRFImageDataDeformation(im.deep_copy()));
-        return newObjectHandle(sptr);
+        NiftiImage3D& im = objectFromHandle<NiftiImage3D>(ptr);
+        sirf::PETImageData& pet_im = objectFromHandle<sirf::PETImageData>(obj);
+        im.copy_data_to(pet_im);
+        return new DataHandle;
+    }
+    CATCH;
+}
+
+// -------------------------------------------------------------------------------- //
+//      NiftiImage3DTensor
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename)
+{
+	try {
+        NiftiImage3DTensor& im = objectFromHandle<NiftiImage3DTensor>(ptr);
+        im.save_to_file_split_xyz_components(filename);
+		return new DataHandle;
+	}
+	CATCH;
+}
+extern "C"
+void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void* ptr, const void* obj)
+{
+    try {
+        NiftiImage3DTensor& im = objectFromHandle<NiftiImage3DTensor>(ptr);
+        NiftiImage3D& im3d = objectFromHandle<NiftiImage3D>(obj);
+        im.create_from_3D_image(im3d);
+        return new DataHandle;
     }
     CATCH;
 }
@@ -466,22 +478,21 @@ void* cSIRFReg_SIRFReg_update(void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char* type)
+void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type)
 {
     try {
         SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
-        shared_ptr<SIRFImageDataDeformation> sptr;
-        if (strcmp(type,"fwrd_deformation") == 0)
-            sptr.reset(new SIRFImageDataDeformation(reg.get_deformation_field_fwrd()));
-        else if (strcmp(type,"back_deformation") == 0)
-            sptr.reset(new SIRFImageDataDeformation(reg.get_deformation_field_back()));
-        else if (strcmp(type,"fwrd_displacement") == 0)
-            sptr.reset(new SIRFImageDataDeformation(reg.get_displacement_field_fwrd()));
-        else if (strcmp(type,"back_displacement") == 0)
-            sptr.reset(new SIRFImageDataDeformation(reg.get_displacement_field_back()));
+        shared_ptr<NiftiImage3DDeformation> sptr;
+        if (strcmp(transform_type, "fwrd_deformation") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_fwrd())));
+        else if (strcmp(transform_type, "back_deformation") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_back())));
+        else if (strcmp(transform_type, "fwrd_displacement") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_fwrd())));
+        else if (strcmp(transform_type, "back_displacement") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_back())));
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
-        return newObjectHandle(sptr);
     }
     CATCH;
 }
@@ -489,13 +500,13 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
 //      SIRFRegNiftyAladinSym
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void *ptr, const char* filename, const char* dir)
+void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void *ptr, const char* filename, const char *dir)
 {
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
-        if (strcmp(dir,"fwrd") == 0)
+        if (strcmp(dir, "fwrd") == 0)
             reg.save_transformation_matrix_fwrd(filename);
-        else if (strcmp(dir,"back") == 0)
+        else if (strcmp(dir, "back") == 0)
             reg.save_transformation_matrix_fwrd(filename);
         else
             throw std::runtime_error("only accept fwrd or back as argument to dir for saving transformation matrix");
@@ -504,7 +515,7 @@ void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void *ptr,
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFReg_get_TM(const void* ptr, size_t ptr_TM, const char* dir)
+void* cSIRFReg_SIRFReg_get_TM(const void* ptr, size_t ptr_TM, const char *dir)
 {
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
@@ -558,74 +569,39 @@ void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr)
 }
 
 // -------------------------------------------------------------------------------- //
-//      SIRFRegImageWeightedMean3D
+//      SIRFRegImageWeightedMean
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image(void* ptr, const void *obj, const float weight)
+void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(obj);
+        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
+        NiftiImage& im = objectFromHandle<NiftiImage>(obj);
         im_weight.add_image(im,weight);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean3D_add_image_filename(void* ptr, const char* filename, const float weight)
+void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
+        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
         im_weight.add_image(filename,weight);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean3D_update(void* ptr)
+void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr)
 {
     try {
-        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
+        SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
         im_weight.update();
         return new DataHandle;
     }
     CATCH;
 }
-// -------------------------------------------------------------------------------- //
-//      SIRFRegImageWeightedMean3D
-// -------------------------------------------------------------------------------- //
-extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image(void* ptr, const void *obj, const float weight)
-{
-    try {
-        SIRFRegImageWeightedMean3D& im_weight = objectFromHandle<SIRFRegImageWeightedMean3D>(ptr);
-        SIRFImageData& im = objectFromHandle<SIRFImageData>(obj);
-        im_weight.add_image(im,weight);
-        return new DataHandle;
-    }
-    CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean4D_add_image_filename(void* ptr, const char* filename, const float weight)
-{
-    try {
-        SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
-        im_weight.add_image(filename,weight);
-        return new DataHandle;
-    }
-    CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean4D_update(void* ptr)
-{
-    try {
-        SIRFRegImageWeightedMean4D& im_weight = objectFromHandle<SIRFRegImageWeightedMean4D>(ptr);
-        im_weight.update();
-        return new DataHandle;
-    }
-    CATCH;
-}
-
 // -------------------------------------------------------------------------------- //
 //      SIRFRegTransformation
 // -------------------------------------------------------------------------------- //
@@ -634,9 +610,9 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
 {
     try {
         SIRFRegTransformation& trans = objectFromHandle<SIRFRegTransformation>(ptr);
-        SIRFImageData& ref_im = objectFromHandle<SIRFImageData>(ref);
-        SIRFImageDataDeformation res = trans.get_as_deformation_field(ref_im);
-        shared_ptr<SIRFImageData> sptr(new SIRFImageData(res));
+        NiftiImage& ref_im = objectFromHandle<NiftiImage>(ref);
+        NiftiImage3DDeformation res = trans.get_as_deformation_field(ref_im);
+        shared_ptr<NiftiImage> sptr(new NiftiImage(res));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -658,10 +634,10 @@ void* cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(size_t ptr_TM)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDeformation(const void* ptr)
+void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(const void* ptr)
 {
     try {
-        SIRFImageDataDeformation& disp = objectFromHandle<SIRFImageDataDeformation>(ptr);
+        NiftiImage3DDisplacement& disp = objectFromHandle<NiftiImage3DDisplacement>(ptr);
         SIRFRegTransformationDisplacement trans(disp);
         shared_ptr<SIRFRegTransformationDisplacement> sptr(new SIRFRegTransformationDisplacement(trans.deep_copy()));
         return newObjectHandle(sptr);
@@ -669,10 +645,10 @@ void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_SIRFImageDataDef
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegTransformationDeformation_construct_from_SIRFImageDataDeformation(const void* ptr)
+void* cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(const void* ptr)
 {
     try {
-        SIRFImageDataDeformation& def = objectFromHandle<SIRFImageDataDeformation>(ptr);
+        NiftiImage3DDeformation& def = objectFromHandle<NiftiImage3DDeformation>(ptr);
         SIRFRegTransformationDeformation trans(def);
         shared_ptr<SIRFRegTransformationDeformation> sptr(new SIRFRegTransformationDeformation(trans.deep_copy()));
         return newObjectHandle(sptr);

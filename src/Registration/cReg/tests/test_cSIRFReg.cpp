@@ -31,7 +31,7 @@ limitations under the License.
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
-#include "SIRFImageData.h"
+#include "NiftiImage3D.h"
 #include "SIRFRegImageWeightedMean.h"
 #include "stir_data_containers.h"
 #include <memory>
@@ -64,9 +64,16 @@ int main(int argc, char* argv[])
     string stir_nifti               = examples_path + "/nifti_created_by_stir.nii";
 
     // Output filenames
-    string img_data                 = output_path + "save_SIRFImageData";
-    string img_data_def_not_split   = output_path + "save_SIRFImageDataDeformation_not_split";
-    string img_data_def_split       = output_path + "save_SIRFImageDataDeformation_split";
+    string save_nifti_image                           = output_path   + "save_NiftiImage";
+    string save_nifti_image_3d                        = output_path   + "save_NiftiImage3D";
+    string save_nifti_image_3d_tensor_not_split       = output_path   + "save_NiftiImage3DTensor_not_split";
+    string save_nifti_image_3d_tensor_split           = output_path   + "save_NiftiImage3DTensor_split";
+    string save_nifti_image_3d_deformation_not_split  = output_path   + "save_NiftiImage3DDeformation_not_split";
+    string save_nifti_image_3d_deformation_split      = output_path   + "save_NiftiImage3DDeformation_split";
+    string save_nifti_image_3d_displacement_not_split = output_path   + "save_NiftiImage3DDisplacement_not_split";
+    string save_nifti_image_3d_displacement_split     = output_path   + "save_NiftiImage3DDisplacement_split";
+    string img_data_def_not_split   = output_path   + "save_NiftiImage3DDeformation_not_split";
+    string img_data_def_split       = output_path   + "save_NiftiImage3DDeformation_split";
     string aladin_warped            = output_path   + "aladin_warped";
     string f3d_warped               = output_path   + "f3d_warped";
     string TM_fwrd                  = output_path   + "TM_fwrd.txt";
@@ -87,17 +94,30 @@ int main(int argc, char* argv[])
 
     string output_stir_nifti        = output_path   + "stir_nifti.nii";
 
-    SIRFImageData ref_aladin( ref_aladin_filename );
-    SIRFImageData flo_aladin( flo_aladin_filename );
-    SIRFImageData ref_f3d   (   ref_f3d_filename  );
-    SIRFImageData flo_f3d   (   flo_f3d_filename  );
-    SIRFImageData nifti     (      stir_nifti     );
+    NiftiImage3D ref_aladin( ref_aladin_filename );
+    NiftiImage3D flo_aladin( flo_aladin_filename );
+    NiftiImage3D ref_f3d   (   ref_f3d_filename  );
+    NiftiImage3D flo_f3d   (   flo_f3d_filename  );
+    NiftiImage3D nifti     (      stir_nifti     );
+
+    NiftiImage3DTensor a;
+    a.create_from_3D_image(ref_aladin);
+    std::cerr << "\ntensor max = " <<  a.get_max() << "\n";
+    std::cerr << "\nref aladin max = " <<  ref_aladin.get_max() << "\n";
+
+    vector<NiftiImage> ims;
+    ims.push_back(ref_aladin);
+    ims.push_back(flo_aladin);
+    SIRFRegMisc::dump_nifti_info(ims);
 
     float required_percentage_accuracy = 1.F;
 
     bool try_misc_functions = true;
-    bool try_sirfimagedata = true;
-    bool try_sirfimagedatadeformation = true;
+    bool try_niftiimage = true;
+    bool try_niftiimage3d = true;
+    bool try_niftiimage3dtensor = true;
+    bool try_niftiimage3ddisplacement = true;
+    bool try_niftiimage3ddeformation = true;
     bool try_niftyaladin = true;
     bool try_niftyf3d = true;
     bool try_transformations = true;
@@ -119,16 +139,16 @@ int main(int argc, char* argv[])
 
         // dump from filename
         SIRFRegMisc::dump_nifti_info(ref_aladin_filename);
-        // dump from SIRFImageData
+        // dump from NiftiImage
         SIRFRegMisc::dump_nifti_info(ref_aladin);
         // dump from multiple images
-        std::vector<SIRFImageData> vec;
+        std::vector<NiftiImage> vec;
         vec.push_back(ref_aladin);
         vec.push_back(flo_aladin);
         vec.push_back(nifti);
         SIRFRegMisc::dump_nifti_info(vec);
-        // dump from SIRFImageDataDeformation
-        SIRFImageDataDeformation deform;
+        // dump from NiftiImage3DDeformation
+        NiftiImage3DDeformation deform;
         deform.create_from_3D_image(ref_aladin);
         SIRFRegMisc::dump_nifti_info(deform);
 
@@ -140,62 +160,120 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_sirfimagedata) {
+    if (try_niftiimage) {
         cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting SIRFImageData test...\n";
+        cout << "//                  Starting NiftiImage test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
 
-
         // default constructor
-        SIRFImageData a;
+        NiftiImage a;
 
         // Read from file
-        SIRFImageData b(ref_aladin_filename);
+        NiftiImage b(ref_aladin_filename);
+
+        // Save to file
+        b.save_to_file(save_nifti_image);
+
+        // Fill
+        b.fill(100);
+
+        // Get max
+        if (fabs(b.get_max() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage fill()/get_max() failed.");
+
+        // Get min
+        if (fabs(b.get_min() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage fill()/get_min() failed.");
+
+        // Deep copy
+        NiftiImage d = b.deep_copy();
+        if (&d == &b)
+            throw runtime_error("NiftiImage deep_copy failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(d, b, required_percentage_accuracy))
+            throw runtime_error("NiftiImage deep_copy failed.");
+
+        // Addition
+        NiftiImage3D e = d + d;
+        if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
+            throw runtime_error("NiftiImage __add__/get_max() failed.");
+
+        // Subtraction
+        e = d - d;
+        if (e.get_max() > 0.0001F)
+            throw runtime_error("NiftiImage __sub__/get_max() failed.");
+
+        // Sum
+        if (e.get_sum() > 0.0001F)
+            throw runtime_error("NiftiImage get_sum() failed.");
+
+        // Dimensions
+        int f[8];
+        int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
+        e.get_dimensions(f);
+        for (int i=0; i<8; ++i)
+            if (g[i] != f[i])
+                throw runtime_error("NiftiImage get_dimensions() failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished NiftiImage test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_niftiimage3d) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting NiftiImage3D test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        // default constructor
+        NiftiImage3D a;
+
+        // Read from file
+        NiftiImage3D b(ref_aladin_filename);
 
         // Construct from stir pSTIR.ImageData
         sirf::PETImageData stir(stir_nifti);
-        SIRFImageData c(stir);
+        NiftiImage3D c(stir);
 
         // Save to file
-        c.save_to_file(img_data);
+        c.save_to_file(save_nifti_image_3d);
 
         // Fill
         c.fill(100);
 
         // Get max
         if (fabs(c.get_max() - 100) > 1.e-5F)
-            throw runtime_error("SIRFImageData fill()/get_max() failed.");
+            throw runtime_error("NiftiImage3D fill()/get_max() failed.");
 
         // Get min
         if (fabs(c.get_min() - 100) > 1.e-5F)
-            throw runtime_error("SIRFImageData fill()/get_min() failed.");
+            throw runtime_error("NiftiImage3D fill()/get_min() failed.");
 
         // Copy data to pSTIRImageData
         stir.fill(3.);
         c.copy_data_to(stir);
         if (fabs(stir.data_sptr()->find_max() - 100) > 1.e-5F)
-            throw runtime_error("SIRFImageData copy_data_to stir ImageData failed.");
+            throw runtime_error("NiftiImage3D copy_data_to stir ImageData failed.");
 
         // Deep copy
-        SIRFImageData d = c.deep_copy();
+        NiftiImage3D d = c.deep_copy();
         if (&d == &c)
-            throw runtime_error("SIRFImageData deep_copy failed.");
+            throw runtime_error("NiftiImage3D deep_copy failed.");
         if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
-            throw runtime_error("SIRFImageData deep_copy failed.");
+            throw runtime_error("NiftiImage3D deep_copy failed.");
 
         // Addition
-        SIRFImageData e = d + d;
+        NiftiImage3D e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("SIRFImageData __add__/get_max() failed.");
+            throw runtime_error("NiftiImage3D __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("SIRFImageData __sub__/get_max() failed.");
+            throw runtime_error("NiftiImage3D __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("SIRFImageData get_sum() failed.");
+            throw runtime_error("NiftiImage3D get_sum() failed.");
 
         // Dimensions
         int f[8];
@@ -203,61 +281,61 @@ int main(int argc, char* argv[])
         e.get_dimensions(f);
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("SIRFImageData get_dimensions() failed.");
+                throw runtime_error("NiftiImage3D get_dimensions() failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished SIRFImageData test.\n";
+        cout << "//                  Finished NiftiImage3D test.\n";
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_sirfimagedatadeformation) {
+    if (try_niftiimage3dtensor) {
+
         cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting SIRFImageDataDeformation test...\n";
+        cout << "//                  Starting NiftiImage3DTensor test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
 
-
-        // Create SIRFImageDataDeformation from SIRFImageData
-        SIRFImageDataDeformation b;
+        // Create NiftiImage3DTensor from NiftiImage3D
+        NiftiImage3DTensor b;
         b.create_from_3D_image(ref_aladin);
 
         // Save to file
-        b.save_to_file(img_data_def_not_split);
-        b.save_to_file_split_xyz_components(img_data_def_split);
+        b.save_to_file(save_nifti_image_3d_tensor_not_split);
+        b.save_to_file_split_xyz_components(save_nifti_image_3d_tensor_split);
 
         // Constructor from file
-        SIRFImageDataDeformation c(img_data_def_not_split + ".nii");
+        NiftiImage3DTensor c(save_nifti_image_3d_tensor_not_split + ".nii");
 
         // Fill
         c.fill(100);
 
         // Get max
         if (fabs(c.get_max() - 100) > 1.e-5F)
-            throw runtime_error("SIRFImageDataDeformation fill()/get_max() failed.");
+            throw runtime_error("NiftiImage3DTensor fill()/get_max() failed.");
 
         // Get min
         if (fabs(c.get_min() - 100) > 1.e-5F)
-            throw runtime_error("SIRFImageDataDeformation fill()/get_min() failed.");
+            throw runtime_error("NiftiImage3DTensor fill()/get_min() failed.");
 
         // Deep copy
-        SIRFImageDataDeformation d = c.deep_copy();
+        NiftiImage3DTensor d = c.deep_copy();
         if (&d == &c)
-            throw runtime_error("SIRFImageDataDeformation deep_copy failed.");
+            throw runtime_error("NiftiImage3DTensor deep_copy failed.");
         if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
-            throw runtime_error("SIRFImageDataDeformation deep_copy failed.");
+            throw runtime_error("NiftiImage3DTensor deep_copy failed.");
 
         // Addition
-        SIRFImageData e = d + d;
+        NiftiImage3DTensor e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("SIRFImageDataDeformation __add__/get_max() failed.");
+            throw runtime_error("NiftiImage3DTensor __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("SIRFImageDataDeformation __sub__/get_max() failed.");
+            throw runtime_error("NiftiImage3DTensor __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("SIRFImageDataDeformation get_sum() failed.");
+            throw runtime_error("NiftiImage3DTensor get_sum() failed.");
 
         // Dimensions
         int f[8];
@@ -265,10 +343,148 @@ int main(int argc, char* argv[])
         e.get_dimensions(f);
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("SIRFImageDataDeformation get_dimensions() failed.");
+                throw runtime_error("NiftiImage3DTensor get_dimensions() failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished SIRFImageDataDeformation test.\n";
+        cout << "//                  Finished NiftiImage3DTensor test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_niftiimage3ddisplacement) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting NiftiImage3DDisplacement test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        // Create NiftiImage3DDisplacement from NiftiImage3D
+        NiftiImage3DDisplacement b;
+        b.create_from_3D_image(ref_aladin);
+
+        // Save to file
+        b.save_to_file(save_nifti_image_3d_displacement_not_split);
+        b.save_to_file_split_xyz_components(save_nifti_image_3d_displacement_split);
+
+        // Constructor from file
+        NiftiImage3DDisplacement c(save_nifti_image_3d_displacement_not_split + ".nii");
+
+        // Constructor from tensor
+        NiftiImage3DTensor x(save_nifti_image_3d_displacement_not_split + ".nii");
+        NiftiImage3DDisplacement y(x);
+
+        // Constructor from general
+        NiftiImage q(save_nifti_image_3d_displacement_not_split + ".nii");
+        NiftiImage3DDisplacement r(q);
+
+        // Fill
+        c.fill(100);
+
+        // Get max
+        if (fabs(c.get_max() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage3DDisplacement fill()/get_max() failed.");
+
+        // Get min
+        if (fabs(c.get_min() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage3DDisplacement fill()/get_min() failed.");
+
+        // Deep copy
+        NiftiImage3DDisplacement d = c.deep_copy();
+        if (&d == &c)
+            throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+            throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
+
+        // Addition
+        NiftiImage3DDisplacement e = d + d;
+        if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
+            throw runtime_error("NiftiImage3DDisplacement __add__/get_max() failed.");
+
+        // Subtraction
+        e = d - d;
+        if (e.get_max() > 0.0001F)
+            throw runtime_error("NiftiImage3DDisplacement __sub__/get_max() failed.");
+
+        // Sum
+        if (e.get_sum() > 0.0001F)
+            throw runtime_error("NiftiImage3DDisplacement get_sum() failed.");
+
+        // Dimensions
+        int f[8];
+        int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
+        e.get_dimensions(f);
+        for (int i=0; i<8; ++i)
+            if (g[i] != f[i])
+                throw runtime_error("NiftiImage3DDisplacement get_dimensions() failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished NiftiImage3DDisplacement test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_niftiimage3ddeformation) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting NiftiImage3DDeformation test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+
+        // Create NiftiImage3DDeformation from NiftiImage3D
+        NiftiImage3DDeformation b;
+        b.create_from_3D_image(ref_aladin);
+
+        // Save to file
+        b.save_to_file(save_nifti_image_3d_deformation_not_split);
+        b.save_to_file_split_xyz_components(save_nifti_image_3d_deformation_split);
+
+        // Constructor from file
+        NiftiImage3DDeformation c(save_nifti_image_3d_deformation_not_split + ".nii");
+
+        // Constructor from tensor
+        NiftiImage3DTensor x(save_nifti_image_3d_deformation_not_split + ".nii");
+        NiftiImage3DDeformation y(x);
+
+        // Constructor from general
+        NiftiImage q(save_nifti_image_3d_deformation_not_split + ".nii");
+        NiftiImage3DDeformation r(q);
+
+        // Fill
+        c.fill(100);
+
+        // Get max
+        if (fabs(c.get_max() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage3DDeformation fill()/get_max() failed.");
+
+        // Get min
+        if (fabs(c.get_min() - 100) > 1.e-5F)
+            throw runtime_error("NiftiImage3DDeformation fill()/get_min() failed.");
+
+        // Deep copy
+        NiftiImage3DDeformation d = c.deep_copy();
+        if (&d == &c)
+            throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
+        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+            throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
+
+        // Addition
+        NiftiImage3DDeformation e = d + d;
+        if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
+            throw runtime_error("NiftiImage3DDeformation __add__/get_max() failed.");
+
+        // Subtraction
+        e = d - d;
+        if (e.get_max() > 0.0001F)
+            throw runtime_error("NiftiImage3DDeformation __sub__/get_max() failed.");
+
+        // Sum
+        if (e.get_sum() > 0.0001F)
+            throw runtime_error("NiftiImage3DDeformation get_sum() failed.");
+
+        // Dimensions
+        int f[8];
+        int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
+        e.get_dimensions(f);
+        for (int i=0; i<8; ++i)
+            if (g[i] != f[i])
+                throw runtime_error("NiftiImage3DDeformation get_dimensions() failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished NiftiImage3DDeformation test.\n";
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
@@ -291,11 +507,11 @@ int main(int argc, char* argv[])
         NA.get_deformation_field_back().save_to_file_split_xyz_components(aladin_def_back);
 
         // Get outputs
-        SIRFImageData warped = NA.get_output();
-        SIRFImageDataDeformation def_fwrd  = NA.get_deformation_field_fwrd();
-        SIRFImageDataDeformation def_back  = NA.get_deformation_field_back();
-        SIRFImageDataDeformation disp_fwrd = NA.get_displacement_field_fwrd();
-        SIRFImageDataDeformation disp_back = NA.get_displacement_field_back();
+        NiftiImage3D warped = NA.get_output();
+        NiftiImage3DTensor def_fwrd  = NA.get_deformation_field_fwrd();
+        NiftiImage3DTensor def_back  = NA.get_deformation_field_back();
+        NiftiImage3DTensor disp_fwrd = NA.get_displacement_field_fwrd();
+        NiftiImage3DTensor disp_back = NA.get_displacement_field_back();
 
         // Fwrd TM
         mat44 fwrd_tm = NA.get_transformation_matrix_fwrd();
@@ -331,11 +547,11 @@ int main(int argc, char* argv[])
         NF.get_displacement_field_back().save_to_file_split_xyz_components(f3d_disp_back);
 
         // Get outputs
-        SIRFImageData warped = NF.get_output();
-        SIRFImageDataDeformation def_fwrd  = NF.get_deformation_field_fwrd();
-        SIRFImageDataDeformation def_back  = NF.get_deformation_field_back();
-        SIRFImageDataDeformation disp_fwrd = NF.get_displacement_field_fwrd();
-        SIRFImageDataDeformation disp_back = NF.get_displacement_field_back();
+        NiftiImage3D warped = NF.get_output();
+        NiftiImage3DTensor def_fwrd  = NF.get_deformation_field_fwrd();
+        NiftiImage3DTensor def_back  = NF.get_deformation_field_back();
+        NiftiImage3DTensor disp_fwrd = NF.get_displacement_field_fwrd();
+        NiftiImage3DTensor disp_back = NF.get_displacement_field_back();
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished Nifty f3d test.\n";
@@ -343,6 +559,8 @@ int main(int argc, char* argv[])
     }
 
     if (try_transformations) {
+        if (!try_niftyaladin)
+            throw runtime_error("This test requires you to have run aladin.");
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting transformations test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -366,15 +584,15 @@ int main(int argc, char* argv[])
         SIRFRegTransformationDeformation c3(NA.get_deformation_field_fwrd());
 
         // Get as deformations
-        SIRFImageDataDeformation a_def = a3.get_as_deformation_field(ref_aladin);
-        SIRFImageDataDeformation b_def = b3.get_as_deformation_field(ref_aladin);
-        SIRFImageDataDeformation c_def = c3.get_as_deformation_field(ref_aladin);
+        NiftiImage3DDeformation a_def = a3.get_as_deformation_field(ref_aladin);
+        NiftiImage3DDeformation b_def = b3.get_as_deformation_field(ref_aladin);
+        NiftiImage3DDeformation c_def = c3.get_as_deformation_field(ref_aladin);
         if (!SIRFRegMisc::do_nifti_images_match(a_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
             throw runtime_error("SIRFRegTransformationAffine::get_as_deformation_field failed.");
         if (!SIRFRegMisc::do_nifti_images_match(b_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
             throw runtime_error("SIRFRegTransformationDisplacement::get_as_deformation_field failed.");
         if (!SIRFRegMisc::do_nifti_images_match(c_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-            throw runtime_error("SIRFImageDataDeformation::get_as_deformation_field failed.");
+            throw runtime_error("SIRFRegTransformationDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
         mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
@@ -394,6 +612,8 @@ int main(int argc, char* argv[])
     }
 
     if (try_resample) {
+        if (!try_niftyaladin)
+            throw runtime_error("This test requires you to have run aladin.");
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting Nifty resample test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -444,16 +664,18 @@ int main(int argc, char* argv[])
     }
 
     if (try_weighted_mean) {
+        if (!try_niftyaladin)
+            throw runtime_error("This test requires you to have run aladin.");
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting weighted mean test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
 
         //  Do 3D
-        SIRFRegImageWeightedMean3D wm1;
-        SIRFImageData im1(stir_nifti);
-        SIRFImageData im2(stir_nifti);
-        SIRFImageData im3(stir_nifti);
-        SIRFImageData im4(stir_nifti);
+        SIRFRegImageWeightedMean wm1;
+        NiftiImage3D im1(stir_nifti);
+        NiftiImage3D im2(stir_nifti);
+        NiftiImage3D im3(stir_nifti);
+        NiftiImage3D im4(stir_nifti);
         im1.fill(1);
         im2.fill(4);
         im3.fill(7);
@@ -465,18 +687,18 @@ int main(int argc, char* argv[])
         wm1.update();
         wm1.get_output().save_to_file(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
-        SIRFImageData res(stir_nifti);
+        NiftiImage3D res(stir_nifti);
         res.fill(4.5F);
 
         if (!SIRFRegMisc::do_nifti_images_match(wm1.get_output(), res, required_percentage_accuracy))
             throw runtime_error("SIRFRegImageWeightedMean3D failed.");
 
         //  Do 4D
-        SIRFRegImageWeightedMean4D wm2;
-        SIRFImageDataDeformation im4D1 = NA.get_deformation_field_fwrd().deep_copy();
-        SIRFImageDataDeformation im4D2 = NA.get_deformation_field_fwrd().deep_copy();
-        SIRFImageDataDeformation im4D3 = NA.get_deformation_field_fwrd().deep_copy();
-        SIRFImageDataDeformation im4D4 = NA.get_deformation_field_fwrd().deep_copy();
+        SIRFRegImageWeightedMean wm2;
+        NiftiImage3DTensor im4D1 = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor im4D2 = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor im4D3 = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor im4D4 = NA.get_deformation_field_fwrd().deep_copy();
         im4D1.fill(1.F);
         im4D2.fill(4.F);
         im4D3.fill(7.F);
@@ -488,11 +710,11 @@ int main(int argc, char* argv[])
         wm2.update();
         wm2.get_output().save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
-        SIRFImageDataDeformation res4D = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor res4D = NA.get_deformation_field_fwrd().deep_copy();
         res4D.fill(4.5);
 
         if (!SIRFRegMisc::do_nifti_images_match(wm2.get_output(), res4D, required_percentage_accuracy))
-            throw runtime_error("SIRFRegImageWeightedMean4D failed.");
+            throw runtime_error("SIRFRegImageWeightedMean3DTensor failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished weighted mean test.\n";
@@ -506,10 +728,10 @@ int main(int argc, char* argv[])
 
             // Open stir image
             sirf::PETImageData pet_image_data(stir_nifti);
-            SIRFImageData image_data_from_stir(pet_image_data);
+            NiftiImage3D image_data_from_stir(pet_image_data);
 
             // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
-            SIRFImageData image_data_from_nifti(stir_nifti);
+            NiftiImage3D image_data_from_nifti(stir_nifti);
             SIRFRegMisc::do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
 
             // Now fill the stir and sirfreg images with 1 and 100, respectively
@@ -522,7 +744,7 @@ int main(int argc, char* argv[])
             // Fill the stir image with the sirfreg
             image_data_from_stir.copy_data_to(pet_image_data);
             if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
-                throw runtime_error("SIRFImageData::copy_data_to failed.");
+                throw runtime_error("NiftiImage3D::copy_data_to failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished STIR to SIRFReg test.\n";

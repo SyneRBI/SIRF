@@ -21,8 +21,8 @@ classdef Misc < handle
     methods(Static)
         function result = do_nifti_images_match(im1, im2, accuracy_percentage_of_max)
         	%Do nifti images match?
-            assert(isa(im1, 'mSIRFReg.ImageData'))
-            assert(isa(im2, 'mSIRFReg.ImageData'))
+            assert(isa(im1, 'mSIRFReg.NiftiImage'), 'im1 should be NiftiImage')
+            assert(isa(im2, 'mSIRFReg.NiftiImage'), 'im2 should be NiftiImage')
             h = calllib('msirfreg', 'mSIRFReg_do_nifti_images_match', im1.handle_, im2.handle_, accuracy_percentage_of_max);
             mUtilities.check_status('parameter', h)
             result = calllib('miutilities', 'mIntDataFromHandle', h);
@@ -31,7 +31,7 @@ classdef Misc < handle
 		    %Dump metadata of one or multiple (up to 5) nifti images.
 		    if ischar(to_dump)
 		        h = calllib('msirfreg', 'mSIRFReg_dump_nifti_info_filename', to_dump);
-		    elseif ismatrix(to_dump) && isa(to_dump, 'mSIRFReg.ImageData')
+		    elseif ismatrix(to_dump) && isa(to_dump, 'mSIRFReg.NiftiImage')
 		    	if size(to_dump,2) == 1
 		        	h = calllib('msirfreg', 'mSIRFReg_dump_nifti_info_im1', to_dump.handle_);
 		        elseif size(to_dump,2) == 2
@@ -46,7 +46,7 @@ classdef Misc < handle
 		        	error('dump_nifti_info only implemented for up to 5 images.')
 		        end
 		    else
-		    	error('dump_nifti_info requires filename, SIRFImageData or a list of SIRFImageData.')
+		    	error('dump_nifti_info requires filename, NiftiImage or a list of NiftiImage.')
 		    end
 		    mUtilities.check_status('parameter', h)
 		end
@@ -63,7 +63,7 @@ classdef Misc < handle
 		end
 		function z = compose_transformations_into_single_deformation(trans, ref)
 	    	%Compose up to transformations into single deformation.
-		    assert(isa(ref, 'mSIRFReg.ImageData'))
+		    assert(isa(ref, 'mSIRFReg.NiftiImage3D'))
 		    assert(isa(trans, 'mSIRFReg.Transformation'))
 		    if isrow(trans); trans=trans'; end
 		    assert(iscolumn(trans));

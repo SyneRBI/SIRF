@@ -41,7 +41,7 @@ using namespace sirf;
 void SIRFReg::check_parameters()
 {
     // If anything is missing
-    if (_parameter_filename == "") {
+    if (_parameter_filename.size() == 0) {
         throw std::runtime_error("Parameter file has not been set.");}
     if (!_floating_image.is_initialised()) {
         throw std::runtime_error("Floating image has not been set."); }

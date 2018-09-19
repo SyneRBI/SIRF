@@ -44,17 +44,17 @@ classdef (Abstract = true) SIRFReg < handle
         end
         function set_reference_image(self, input)
             %Sets the reference image.
-            assert(isa(input, 'mSIRFReg.ImageData'))
+            assert(isa(input, 'mSIRFReg.NiftiImage3D'))
             mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
             %Sets the floating image.
-            assert(isa(input, 'mSIRFReg.ImageData'))
+            assert(isa(input, 'mSIRFReg.NiftiImage3D'))
             mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'floating_image', input, 'h')
         end
         function output = get_output(self)
             %Gets the registered image.
-            output = mSIRFReg.ImageData();
+            output = mSIRFReg.NiftiImage3D();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, 'SIRFReg', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
@@ -68,25 +68,25 @@ classdef (Abstract = true) SIRFReg < handle
         end
         function output = get_deformation_field_fwrd(self)
             %Gets the forward deformation field image.
-            output = mSIRFReg.ImageDataDeformation();
+            output = mSIRFReg.NiftiImage3DDeformation();
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_deformation');
             mUtilities.check_status([self.name ':get_deformation_field_fwrd'], output.handle_);
         end
         function output = get_deformation_field_back(self)
             %Gets the backwards deformation field image.
-            output = mSIRFReg.ImageDataDeformation();
+            output = mSIRFReg.NiftiImage3DDeformation();
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_deformation');
             mUtilities.check_status([self.name ':get_deformation_field_back'], output.handle_);
         end
         function output = get_displacement_field_fwrd(self)
             %Gets the forward displacement field image.
-            output = mSIRFReg.ImageDataDeformation();
+            output = mSIRFReg.NiftiImage3DDisplacement();
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_displacement');
             mUtilities.check_status([self.name ':get_displacement_field_fwrd'], output.handle_);
         end
         function output = get_displacement_field_back(self)
             %Gets the backwards displacement field image.
-            output = mSIRFReg.ImageDataDeformation();
+            output = mSIRFReg.NiftiImage3DDisplacement();
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_displacement');
             mUtilities.check_status([self.name ':get_displacement_field_back'], output.handle_);
         end

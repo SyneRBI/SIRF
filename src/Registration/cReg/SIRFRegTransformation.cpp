@@ -35,7 +35,7 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
-void SIRFRegTransformation::check_ref_and_def(const SIRFImageData &ref, const SIRFImageDataDeformation &def) const
+void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const
 {
     // Check image size of ref matches def
     int ref_dims[8], def_dims[8];
@@ -58,9 +58,9 @@ void SIRFRegTransformation::check_ref_and_def(const SIRFImageData &ref, const SI
     }
 }
 
-SIRFImageDataDeformation SIRFRegTransformationAffine::get_as_deformation_field(const SIRFImageData &ref) const
+NiftiImage3DDeformation SIRFRegTransformationAffine::get_as_deformation_field(const NiftiImage3D &ref) const
 {
-    SIRFImageDataDeformation def;
+    NiftiImage3DDeformation def;
     def.create_from_3D_image(ref);
     mat44 temp = _tm; // Need temp as the following isn't marked const
     reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
@@ -68,17 +68,16 @@ SIRFImageDataDeformation SIRFRegTransformationAffine::get_as_deformation_field(c
     return def;
 }
 
-SIRFImageDataDeformation SIRFRegTransformationDisplacement::get_as_deformation_field(const SIRFImageData &ref) const
+NiftiImage3DDeformation SIRFRegTransformationDisplacement::get_as_deformation_field(const NiftiImage3D &ref) const
 {
-    SIRFImageDataDeformation def;
-    def = _disp.deep_copy();
-    SIRFRegMisc::convert_from_disp_to_def(def);
+    NiftiImage3DDeformation def;
+    SIRFRegMisc::convert_from_disp_to_def(def, _disp);
 
     check_ref_and_def(ref,def);
     return def;
 }
 
-SIRFImageDataDeformation SIRFRegTransformationDeformation::get_as_deformation_field(const SIRFImageData &ref) const
+NiftiImage3DDeformation SIRFRegTransformationDeformation::get_as_deformation_field(const NiftiImage3D &ref) const
 {
     check_ref_and_def(ref,_def);
     return _def;
