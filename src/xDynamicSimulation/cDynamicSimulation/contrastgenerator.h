@@ -82,7 +82,8 @@ std::vector < complex_float_t > map_flash_contrast( std::shared_ptr<TissueParame
 													ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
 
 
-
+std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par,
+													ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
 
 
 class PETContrastGenerator : public AbstractContrastGenerator {

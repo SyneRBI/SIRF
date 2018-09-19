@@ -10,6 +10,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include <stdexcept>
+#include <cmath>
 #include <math.h>
 #include <algorithm>
 #include <omp.h>
@@ -129,9 +130,17 @@ void MRContrastGenerator::map_contrast()
 	{
 		contrast_map_function = &map_flash_contrast;
 	}
+	else if (sequ_name.compare("Bssfp") == 0)
+	{
+		contrast_map_function = &map_bssfp_contrast;
+	}
 	else
 	{
-		throw std::runtime_error("The header you read in requires a contrast which has not been implemented yet. Please give another header or write the contrast map and add an else if to the map_contrast method.");
+		std::stringstream error_msg_stream;
+		error_msg_stream << "The header you read in requires a contrast which has not been implemented yet. ";
+		error_msg_stream << "The demanded sequence type is: " << sequ_name << ". ";
+		error_msg_stream << "Please give another rawdata header or write the contrast map yourself and add an else if to the map_contrast method.";
+		throw std::runtime_error( error_msg_stream.str() );
 	}
 
 
@@ -144,7 +153,7 @@ void MRContrastGenerator::map_contrast()
 	contrast_vector.resize(num_voxels);
 
 	
-	//#pragma omp parallel
+	// #pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
@@ -238,6 +247,78 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 	
 	return contrast;
 }
+
+
+std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par,
+												   ISMRMRD::IsmrmrdHeader ismrmrd_hdr)
+{
+	// Signal model based on Haacke/Brown - Magnetic Resonance Imaging, Ch. 18.2.1, Eq. 18.57 f
+	// Frequency response assumed to be of the form as described in  'Hargreaves et al. "Fat‐suppressed steady‐state free precession imaging using phase detection.", MRM(2003)' 
+
+	using namespace ISMRMRD;
+
+	SequenceParameters sequ_par = ismrmrd_hdr.sequenceParameters.get(); 
+	AcquisitionSystemInformation asi = ismrmrd_hdr.acquisitionSystemInformation.get();
+
+	SeqParamType TE = sequ_par.TE.get();
+	// SeqParamType TR = sequ_par.TR.get();
+
+	SeqParamType echo_spacing = sequ_par.echo_spacing.get();
+	float const TR = echo_spacing[0];
+	
+
+	SeqParamType flip_angle_deg = sequ_par.flipAngle_deg.get();
+	float const field_strength_t = asi.systemFieldStrength_T.get();
+
+	if (echo_spacing.size() > 1)
+		throw std::runtime_error(" More than one echo spacing was given. Please give only one in Flash contrast.");
+
+	if (flip_angle_deg.size() > 1)
+		throw std::runtime_error(" More than one flip angle was given. Please give only one in Flash contrast.");
+
+	size_t const num_echoes = TE.size();
+
+	float const spin_dens = ptr_to_tiss_par->mr_tissue_.spin_density_percentH2O_;
+	float const T1_ms = ptr_to_tiss_par->mr_tissue_.t1_miliseconds_;
+	float const T2_ms = ptr_to_tiss_par->mr_tissue_.t2_miliseconds_;
+	float const cs_ppm = ptr_to_tiss_par->mr_tissue_.cs_ppm_;
+
+	std::vector< complex_float_t > contrast;
+	contrast.resize( num_echoes );
+
+	complex_float_t const imag_unit(0,1);
+	float const gyro = 42.58;
+
+	float const E1 = exp( -1.f* TR/T1_ms );
+	float const E2 = exp( -1.f* TR/T2_ms );
+
+	float const sin_term = sin(M_PI/180.f*flip_angle_deg[0]);
+	float const cos_term = cos(M_PI/180.f*flip_angle_deg[0]);
+		
+
+	// assuming passband step function behavior for magnetization sign.
+	float const BSSFPPassbandWidth_Hz = 1000.f * 1.f/TR;	
+	float const off_resonance_Hz = TR * gyro/1000.f * field_strength_t * cs_ppm;
+    bool const even_band = ((int)std::floor( (off_resonance_Hz + BSSFPPassbandWidth_Hz/2.f) / BSSFPPassbandWidth_Hz ) % 2) ==0;
+    float const sign_bssfp = even_band? 1.f:-1.f;
+
+	// assuming on resonance (or for fat, outside the signal-response valley)
+	for( int i_echo = 0; i_echo<num_echoes; i_echo++)
+	{
+		contrast[i_echo] = sign_bssfp * spin_dens * sin_term * (1-E1) / ( 1-E1*cos_term - E2*(E1-cos_term) ) * (float)exp( -TE[i_echo]/T2_ms) * exp(imag_unit * TE[i_echo] * gyro/1000.f * field_strength_t * cs_ppm);
+	}
+	
+	return contrast;
+}
+
+
+
+
+
+
+
+
+
 
 
 
