@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include <math.h>
+#include <stdlib.h>     
 
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
@@ -1580,3 +1581,83 @@ void SFTrajectoryContainer::compute_trajectory()
 
 	this->norm_trajectory();
 }
+
+
+
+int GoldenAngleSFTrajectoryContainer::compare_angles( const void* ang_1, const void* ang_2 )
+{
+	return sgn<float>( (*(struct AngleListElem*)ang_1 ).angle_ - (*(struct AngleListElem*)ang_2 ).angle_ );
+}
+
+void GoldenAngleSFTrajectoryContainer::calc_ang_dep_shift( void )
+{
+	size_t const NAngles = this->angles_.size();
+
+	std::vector< AngleListElem > angle_list;
+	std::vector< size_t > resorted_index;
+	resorted_index.resize( NAngles );
+
+	for( size_t na=0; na<NAngles; na++)
+		angle_list.push_back( AngleListElem(na, this->angles_[na]) );
+
+	qsort(angle_list.data(), NAngles, sizeof(AngleListElem), compare_angles );
+
+	for (size_t na = 0; na < NAngles; na++)\
+		resorted_index[angle_list[na].index_] = na;
+
+	for (size_t na = 0; na < NAngles; na++)
+		this->ang_dep_shift_.push_back( 0.5 * (2*fmod(((float)resorted_index[ na ]) * GOLDENRATIO, 1.0) - 1) );
+}
+
+
+
+void GoldenAngleSFTrajectoryContainer::compute_trajectory()
+{
+	using namespace ISMRMRD;
+
+	std::cout << "Computing trajectory" << std::endl;
+
+	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
+
+	if( all_encodings.size() != 1 )
+		throw LocalisedException("Your header file contains zero or more than one encodings. Please pass one with only one encoding.", __FILE__, __LINE__);
+
+	Encoding enc = all_encodings[0];
+	EncodingSpace enc_space = enc.encodedSpace;
+	
+	MatrixSize encoding_mat_size = enc_space.matrixSize;
+
+	unsigned short NRadial = encoding_mat_size.y;
+	unsigned short NAngles = encoding_mat_size.z;
+	
+	for( unsigned na=0; na<NAngles; na++)
+	{
+		this->angles_.push_back( std::fmod(GOLDENANGLE * (float)na, M_PI) ); 		
+	}
+
+	this->calc_ang_dep_shift();
+
+	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+   	this->traj_.resize(traj_dims);
+	 
+	for( unsigned nr=0; nr<NRadial; nr++)
+	for( unsigned na=0; na<NAngles; na++){
+	
+			float r_pos = (float)nr - (float)NRadial/2.f + this->ang_dep_shift_[na];
+			r_pos = nr>0 ? r_pos : 0;
+					
+			float const nx = r_pos * cos( this->angles_[na] );
+			float const ny = r_pos * sin( this->angles_[na] );
+
+			this->traj_(na, nr, 0) = nx;
+			this->traj_(na, nr, 1) = ny;
+	}
+
+	this->norm_trajectory();
+}
+
+
+
+
+
+

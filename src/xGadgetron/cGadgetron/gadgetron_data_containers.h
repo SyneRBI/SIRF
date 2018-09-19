@@ -886,6 +886,40 @@ namespace sirf {
 	public:
 		void compute_trajectory( void );
 	};
+
+
+	struct AngleListElem{
+		
+		AngleListElem(size_t const idx, float const alpha): index_(idx), angle_(alpha){}	
+
+		size_t index_;
+		float angle_;	
+	};
+
+	class GoldenAngleSFTrajectoryContainer: public RPETrajectoryContainer{
+
+	public:
+		void compute_trajectory( void );
+	private:
+
+		std::vector< TrajPrecision> angles_;
+		std::vector< TrajPrecision> ang_dep_shift_;
+
+		void calc_ang_dep_shift();
+		static int compare_angles( const void* ang_1, const void* ang_2 );
+
+		template <typename T> 
+		static int sgn(T val) 
+		{
+	 	    return (T(0) < val) - (val < T(0));
+		};
+		
+	};
+
+
+	
+
+	
 }
 
 #endif
