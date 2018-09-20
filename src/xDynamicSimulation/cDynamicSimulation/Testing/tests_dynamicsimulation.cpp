@@ -182,59 +182,57 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_states_first_dyn = 10;
-		int const num_simul_states_second_dyn = 1;
+		int const num_simul_states_myocardium_dyn = 10;
+		int const num_simul_states_blood_dyn = 1;
 
 
-		ContrastDynamic first_cont_dyn(num_simul_states_first_dyn), second_cont_dyn(num_simul_states_second_dyn);
+		ContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_dyn), blood_cont_dyn(num_simul_states_blood_dyn);
 
-		std::vector<LabelType> first_dynamic_labels = {1, 3, 4};	
-		for(int i=0; i<first_dynamic_labels.size(); i++)
+		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
+		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << first_dynamic_labels[i] << " to first dynamic." << std::endl;
-			first_cont_dyn.add_dynamic_label(first_dynamic_labels[i]);
+			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to first dynamic." << std::endl;
+			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
 		}
 
-		std::vector<LabelType> second_dynamic_labels = {5, 6, 7, 8, 36, 37};	
-		for(int i=0; i<second_dynamic_labels.size(); i++)
+		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		for(int i=0; i<blood_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << second_dynamic_labels[i] << " to second dynamic." << std::endl;
-			second_cont_dyn.add_dynamic_label(second_dynamic_labels[i]);
+			std::cout << "Adding label " << blood_dynamic_labels[i] << " to second dynamic." << std::endl;
+			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
 		}
 
 
 		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		first_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+		myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
 
-		auto second_extremes_0 = extreme_tissue_params.first;
-		auto second_extremes_1 = extreme_tissue_params.second;
+		auto blood_extremes_0 = extreme_tissue_params.first;
+		auto blood_extremes_1 = extreme_tissue_params.second;
 
-		second_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
-		second_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
-		second_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+		blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+		blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+		blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
 		
-		second_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-		second_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
-		second_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+		blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+		blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+		blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
-		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
+		blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
 
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
-		SignalContainer mock_sinus_signal = aux_test::get_mock_sinus_signal(all_acquis);
-		SignalContainer mock_ramp_signal = aux_test::get_mock_contrast_signal(all_acquis);
+		SignalContainer mock_ramp_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 
+	 	myocardium_cont_dyn.set_dyn_signal( mock_ramp_signal );
+	 	blood_cont_dyn.set_dyn_signal( mock_ramp_signal );
 
-	 	first_cont_dyn.set_dyn_signal( mock_sinus_signal );
-	 	second_cont_dyn.set_dyn_signal( mock_ramp_signal );
+		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
+		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		first_cont_dyn.bin_mr_acquisitions( all_acquis );
-		second_cont_dyn.bin_mr_acquisitions( all_acquis );
-
-		mr_dyn_sim.add_dynamic( first_cont_dyn );
-		// mr_dyn_sim.add_dynamic( second_cont_dyn );
+		mr_dyn_sim.add_dynamic( myocardium_cont_dyn );
+		mr_dyn_sim.add_dynamic( blood_cont_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		mr_dyn_sim.simulate_dynamics();
@@ -263,11 +261,36 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-						
-		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
-		mr_dyn_sim.set_trajectory( sptr_traj );
-		
+
+
+		std::string const traj_name = "ITLGCRPE";
+
+		if( traj_name == "ITLGCRPE") 
+		{
+			RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+			auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
+			mr_dyn_sim.set_trajectory( sptr_traj );
+		}
+		else if (traj_name == "RPE")
+		{
+			RPETrajectoryContainer sf_traj;
+			auto sptr_traj = std::make_shared< RPETrajectoryContainer >( sf_traj );
+			mr_dyn_sim.set_trajectory( sptr_traj );
+		}
+		else if (traj_name == "SF")
+		{
+			SFTrajectoryContainer sf_traj;
+			auto sptr_traj = std::make_shared< SFTrajectoryContainer >( sf_traj );
+			mr_dyn_sim.set_trajectory( sptr_traj );
+		}
+		else if (traj_name == "GCSF")
+		{
+			GoldenAngleSFTrajectoryContainer gcsf_traj;
+			auto sptr_traj = std::make_shared< GoldenAngleSFTrajectoryContainer >( gcsf_traj );
+			mr_dyn_sim.set_trajectory( sptr_traj );
+		}
+
+
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 
@@ -277,13 +300,14 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-		SignalContainer mock_sinus_signal = aux_test::get_mock_sinus_signal(all_acquis);
-		SignalContainer mock_ramp_signal = aux_test::get_mock_contrast_signal(all_acquis);
 
-	 	cardiac_dyn.set_dyn_signal( mock_sinus_signal );
+		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
+		SignalContainer mock_respiratory_signal = aux_test::get_generic_respiratory_signal(all_acquis);
+
+	 	cardiac_dyn.set_dyn_signal( mock_cardiac_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	resp_dyn.set_dyn_signal( mock_sinus_signal );
+	 	resp_dyn.set_dyn_signal( mock_respiratory_signal );
 	 	resp_dyn.bin_mr_acquisitions( all_acquis );
 		
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -324,91 +348,93 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
 		
-		float const test_SNR = 15;
+		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_motion_dyn = 2;
+		int const num_simul_motion_dyn = 10;
 
-		RPETrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
-		mr_dyn_sim.set_trajectory( sptr_traj );
+		// RPETrajectoryContainer rpe_traj;
+		// auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
+		// mr_dyn_sim.set_trajectory( sptr_traj );
 		
-		MotionDynamic first_motion_dyn(num_simul_motion_dyn), second_motion_dyn( num_simul_motion_dyn );
+		MotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 
-		SignalContainer mock_motion_signal = aux_test::get_mock_sinus_signal(all_acquis);
+		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
+		SignalContainer mock_respiratory_signal = aux_test::get_generic_respiratory_signal(all_acquis);
 		
+
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	 	first_motion_dyn.set_dyn_signal( mock_motion_signal );
-	 	first_motion_dyn.bin_mr_acquisitions( all_acquis );
+	 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
+	 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
 		
-		second_motion_dyn.set_dyn_signal( mock_motion_signal );
-	 	second_motion_dyn.bin_mr_acquisitions( all_acquis );
+		respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
+	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
 		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		first_motion_dyn.set_displacement_fields( motion_fields, true );
+		cardiac_motion_dyn.set_displacement_fields( motion_fields, true );
 
 		motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		second_motion_dyn.set_displacement_fields( motion_fields, false );
+		respiratory_motion_dyn.set_displacement_fields( motion_fields, false );
 
-		mr_dyn_sim.add_dynamic( first_motion_dyn );
-		mr_dyn_sim.add_dynamic( second_motion_dyn );
+		mr_dyn_sim.add_dynamic( cardiac_motion_dyn );
+		mr_dyn_sim.add_dynamic( respiratory_motion_dyn );
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_first_contrast_dyn = 3;
-		int const num_simul_states_second_contrast_dyn = 3;
+		int const num_simul_states_myocardium_contrast_dyn = 10;
+		int const num_simul_states_blood_contrast_dyn = 10;
 
 
-		ContrastDynamic first_cont_dyn(num_simul_states_first_contrast_dyn), second_cont_dyn(num_simul_states_second_contrast_dyn);
+		ContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
 
-		std::vector<LabelType> first_dynamic_labels = {1, 3, 4};	
-		for(int i=0; i<first_dynamic_labels.size(); i++)
+		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
+		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << first_dynamic_labels[i] << " to first dynamic." << std::endl;
-			first_cont_dyn.add_dynamic_label(first_dynamic_labels[i]);
+			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to first dynamic." << std::endl;
+			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
 		}
 
-		std::vector<LabelType> second_dynamic_labels = {5, 6, 7, 8, 36, 37};	
-		for(int i=0; i<second_dynamic_labels.size(); i++)
+		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
+		for(int i=0; i<blood_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << second_dynamic_labels[i] << " to second dynamic." << std::endl;
-			second_cont_dyn.add_dynamic_label(second_dynamic_labels[i]);
+			std::cout << "Adding label " << blood_dynamic_labels[i] << " to second dynamic." << std::endl;
+			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
 		}
 
 
 		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		first_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+		myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
 
-		auto second_extremes_0 = extreme_tissue_params.first;
-		auto second_extremes_1 = extreme_tissue_params.second;
+		auto blood_extremes_0 = extreme_tissue_params.first;
+		auto blood_extremes_1 = extreme_tissue_params.second;
 
-		second_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
-		second_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
-		second_extremes_0.mr_tissue_.t2_miliseconds_= 100;
+		blood_extremes_0.mr_tissue_.spin_density_percentH2O_ = 95;
+		blood_extremes_0.mr_tissue_.t1_miliseconds_ = 1000;
+		blood_extremes_0.mr_tissue_.t2_miliseconds_= 100;
 		
-		second_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
-		second_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
-		second_extremes_1.mr_tissue_.t2_miliseconds_= 100;
+		blood_extremes_1.mr_tissue_.spin_density_percentH2O_ = 95;
+		blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
+		blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
-		second_cont_dyn.set_parameter_extremes(second_extremes_0, second_extremes_1);
+		blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
 
-		SignalContainer mock_contrast_signal = aux_test::get_mock_contrast_signal(all_acquis);
+		SignalContainer mock_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 
-		first_cont_dyn.set_dyn_signal( mock_contrast_signal );
-	 	second_cont_dyn.set_dyn_signal( mock_contrast_signal );
+		myocardium_cont_dyn.set_dyn_signal( mock_contrast_signal );
+	 	blood_cont_dyn.set_dyn_signal( mock_contrast_signal );
 
-		first_cont_dyn.bin_mr_acquisitions( all_acquis );
-		second_cont_dyn.bin_mr_acquisitions( all_acquis );
+		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
+		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( first_cont_dyn );
-		mr_dyn_sim.add_dynamic( second_cont_dyn );
+		mr_dyn_sim.add_dynamic( myocardium_cont_dyn );
+		mr_dyn_sim.add_dynamic( blood_cont_dyn );
 		
 		// ####################################################################################################
 

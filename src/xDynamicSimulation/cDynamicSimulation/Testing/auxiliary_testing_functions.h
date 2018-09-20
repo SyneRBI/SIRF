@@ -36,21 +36,27 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define USE_128_CUBE_INPUT
+#define USE_64_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH "temp_folder_motion_dyn_0/motion_field_0.hdr"
 
 #elif defined(USE_128_CUBE_INPUT)
 
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_3Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_3Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
+
+
+#elif defined(USE_192_CUBE_INPUT)
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/20180720-105656,SimulationDummy,CV_nav_192Cube_3Echo,2528,141_ismrmrd.h5" 
+	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/.h5"
 
 #endif
 
@@ -138,9 +144,20 @@ namespace aux_test
 	sirf::RPETrajectoryContainer get_mock_radial_trajectory(size_t const NRad, size_t const NAng);
 
 
+
+	SignalContainer get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec);
+	SignalContainer get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec);
+	SignalContainer get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec);
+
+
 	SignalContainer get_mock_motion_signal( void );
-	SignalContainer get_mock_sinus_signal( sirf::AcquisitionsVector acq_vec);
-	SignalContainer get_mock_contrast_signal( sirf::AcquisitionsVector acq_vec);
+
+	SignalContainer get_mock_sinus_signal( sirf::AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms);
+	SignalContainer get_mock_sawtooth_signal( sirf::AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms);
+
+	
+	
+	
 
 	
 

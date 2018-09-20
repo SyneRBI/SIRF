@@ -13,6 +13,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <omp.h>
 #include <sstream>
 #include <math.h>
+#include <cmath>
 
 using namespace sirf;
 
@@ -612,10 +613,8 @@ SignalContainer aux_test::get_mock_motion_signal()
 }
 
 
-SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
+SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
 {
-
-	#define PI 3.14159265
 
 	ISMRMRD::Acquisition acq;
 	
@@ -626,9 +625,8 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
 	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
 
 
-	unsigned const num_sampling_points = 30000;
-	TimeAxisType const frequ_miliseconds = 1000;
-
+	unsigned const num_sampling_points = acq_vec.number();
+	
 	TimeAxisType dt = float(t_fin - t_0)/ float(num_sampling_points);
 
 	SignalContainer signal;
@@ -638,35 +636,89 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
 		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
 		signal_point.first = t_0 + i * dt;
-		signal_point.second = (1 - cos(2*PI / frequ_miliseconds * i * dt))/2;
+		signal_point.second = (1 - cos(2*M_PI / period_duration_ms * i * dt))/2;
 		signal.push_back(signal_point);
 	}
 
 	return signal;
 }
 
-
-
-SignalContainer aux_test::get_mock_contrast_signal( AcquisitionsVector acq_vec)
+SignalContainer aux_test::get_mock_sawtooth_signal( AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms)
 {
-	SignalContainer signal;
-	
-	std::pair<TimeAxisType, SignalAxisType> signal_point;
-	
 	ISMRMRD::Acquisition acq;
 	
 	acq_vec.get_acquisition(0, acq);
-	signal_point.first = acq.getHead().acquisition_time_stamp;
-	signal_point.second = 0;
-
-	signal.push_back(signal_point);
-	
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
 	acq_vec.get_acquisition(acq_vec.items()-1, acq);
-	
-	signal_point.first = acq.getHead().acquisition_time_stamp;
-	signal_point.second = 1;
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
 
-	signal.push_back(signal_point);
 
-	return signal;
+	unsigned const num_sampling_points = acq_vec.number();
+	size_t const num_cycles_during_acquisition =  std::ceil( float(t_fin - t_0)/period_duration_ms );
+
+	SignalContainer signal;
+
+	for( unsigned i_cycle=0; i_cycle<num_cycles_during_acquisition; i_cycle++)
+	{
+		std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point;
+
+		one_signal_point.first = t_0 + i_cycle * period_duration_ms - 1;
+		one_signal_point.second = SignalAxisType(1);
+
+		signal.push_back(one_signal_point);
+
+		zero_signal_point.first =  t_0 + i_cycle * period_duration_ms;
+		zero_signal_point.second = SignalAxisType(0); 
+
+		signal.push_back(zero_signal_point);
+	}
+
+	return signal;	
 }
+
+SignalContainer aux_test::get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec)
+{
+	ISMRMRD::Acquisition acq;
+	
+	acq_vec.get_acquisition(0, acq);
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
+	acq_vec.get_acquisition(acq_vec.items()-1, acq);
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
+
+	SignalContainer signal;
+
+	std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point;
+
+	zero_signal_point.first =  t_0;
+	zero_signal_point.second = SignalAxisType(0); 
+
+	signal.push_back(zero_signal_point);
+
+	one_signal_point.first = t_fin;
+	one_signal_point.second = SignalAxisType(1);
+
+	signal.push_back(one_signal_point);
+
+	return signal;	
+}
+
+
+
+SignalContainer aux_test::get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec)
+{
+	TimeAxisType const period_duartion_ms = 3300;
+	return aux_test::get_mock_sinus_signal(acq_vec, period_duartion_ms );
+}
+
+
+SignalContainer aux_test::get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec)
+{
+	TimeAxisType const period_duartion_ms = 900;
+	return aux_test::get_mock_sawtooth_signal(acq_vec, period_duartion_ms );
+}
+
+
+
+
