@@ -366,17 +366,24 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	sptr_acqs_->get_acquisition(0, acq);
 
 	//int readout = e.encodedSpace.matrixSize.x;
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	unsigned int ny = e.reconSpace.matrixSize.y;
-	unsigned int nz = e.reconSpace.matrixSize.z;
+	
+
+	unsigned int nx = ptr_img->getMatrixSizeX();//e.reconSpace.matrixSize.x;
+	unsigned int ny = ptr_img->getMatrixSizeY();//e.reconSpace.matrixSize.y;
+	unsigned int nz = ptr_img->getMatrixSizeZ();//e.reconSpace.matrixSize.z;
+
+
 
 	if( img.getMatrixSizeX() != nx ) 
 		throw LocalisedException("Acquisition info contains nx not matching image dimension x", __FILE__, __LINE__);
-	if( img.getMatrixSizeY() != ny  )
-		throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
-	if( img.getMatrixSizeZ() != nz  )
-		throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
-	
+
+	if ( this->sptr_traj_->get_traj_type() == "Cartesian" )
+	{
+		if( img.getMatrixSizeY() != ny  )
+			throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
+		if( img.getMatrixSizeZ() != nz  )
+			throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
+	}
 	unsigned int nc = acq.active_channels();
 
 	unsigned int num_readout_pts = acq.number_of_samples();
@@ -390,6 +397,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
+
 
 
 
@@ -407,6 +415,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			}
 		}
 	}
+	
 	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
 	ISMRMRD::NDArray< complex_float_t > k_data;
@@ -415,13 +424,20 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	if( trajectory_type == "RPE" )
 	{
+		std::cout << "RPE Acquisition Process" << std::endl;
+
 		RadialPhaseEncodingFFT RPE_FFT;
 		
 		auto traj = this->sptr_traj_->get_trajectory();
+		
 		RPE_FFT.set_trajectory( traj );
+		
 		RPE_FFT.SampleFourierSpace( ci );
 		
+		std::cout << "sampling done" << std::endl;
+
 		k_data = RPE_FFT.get_k_data();
+
 	}
 	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
 	{
@@ -431,7 +447,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		
 		k_data = CartFFT.get_k_data();
 	}
-
+	
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
@@ -445,7 +461,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
-				acq.data(s, c) = k_data(s, enc_step_1, enc_step_2, c);
+				acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
 			}
 		}
 
