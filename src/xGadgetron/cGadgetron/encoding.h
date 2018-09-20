@@ -34,7 +34,7 @@ typedef ISMRMRD::NDArray<complex_float_t> MREncodingDataType;
 
 
 template <typename T>
-std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > data)
+std::vector<size_t> data_dims_from_ndarray(ISMRMRD::NDArray< T > &data)
 {
 	std::vector<size_t> data_dims( data.getDims(), data.getDims()+ISMRMRD::ISMRMRD_NDARRAY_MAXDIM );
 	for( int i=0; i<ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
@@ -112,7 +112,7 @@ public:
 
 	virtual MREncodingDataType get_k_data( void );
 
-	virtual void SampleFourierSpace( MREncodingDataType i_data ) = 0;
+	virtual void SampleFourierSpace( MREncodingDataType &i_data ) = 0;
 
 protected:
 
@@ -127,7 +127,7 @@ class FullySampledCartesianFFT: public aCartesianReadoutFFT{
 
 public:
 	FullySampledCartesianFFT();
-	void SampleFourierSpace( MREncodingDataType i_data);
+	void SampleFourierSpace( MREncodingDataType &i_data);
 
 };
 
@@ -139,7 +139,7 @@ public:
 	RadialPhaseEncodingFFT() {};
 
 	void set_trajectory(TrajVessel &traj);
-	void SampleFourierSpace( MREncodingDataType i_data );
+	void SampleFourierSpace( MREncodingDataType &i_data );
 
 private:
 
