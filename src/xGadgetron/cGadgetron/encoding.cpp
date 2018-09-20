@@ -44,13 +44,14 @@ void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
 
-	for( size_t na=0; na<traj_dims_[0]; na++){
 	for( size_t nr=0; nr<traj_dims_[1]; nr++)
+	for( size_t na=0; na<traj_dims_[0]; na++){
+	
 	{
 		TrajPrecision traj_x = trajectory(na, nr, 0);
 		TrajPrecision traj_y = trajectory(na, nr, 1);
 
-		size_t lin_index = na*traj_dims_[0] + nr;
+		size_t lin_index = nr*traj_dims_[0] + na;
 		*(this->traj_.begin() + lin_index) = TrajectoryType2D(traj_x, traj_y);
 	}}	
 }
@@ -68,7 +69,7 @@ aCartesianReadoutFFT()
 {
 }
 
-void FullySampledCartesianFFT::SampleFourierSpace( MREncodingDataType i_data)
+void FullySampledCartesianFFT::SampleFourierSpace( MREncodingDataType &i_data)
 {
 
 	size_t const num_elements = i_data.getNumberOfElements();
@@ -100,31 +101,28 @@ void RadialPhaseEncodingFFT::set_trajectory(TrajVessel &traj)
 }
 
 
-void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
+void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 {
 	
     #define epiph(x) #x << " = " << x
 
 	std::vector<size_t> data_dims = data_dims_from_ndarray< complex_float_t >(i_data);
-	
 
 	size_t num_slices = data_dims[0];
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 	size_t const num_coils = data_dims[3];
-	
 
 	auto traj_dims = this->traj_prep_.get_traj_dims();
+
 
 	std::vector<size_t> output_data_size;
 	output_data_size.push_back(num_slices);
 	output_data_size.push_back(traj_dims[0]);
 	output_data_size.push_back(traj_dims[1]);
 	output_data_size.push_back(num_coils);
-	
+
 	this->k_data_.resize(output_data_size);
-
-	
-
+		
 	hoNDArray< complex_float_t > data_to_be_fftd( data_dims );
 
 	size_t const num_elements = i_data.getNumberOfElements();
@@ -150,7 +148,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 
 	hoNFFT_plan<float, 2> nufft_operator( gridder_img_dimensions , (float)1, (float)kernel_size);// dont change the osf -> nfft instable wrt segfaults
 
-	
 
 	hoNDArray< TrajectoryType2D > trajectory = this->traj_prep_.get_formatted_trajectory();
 	
@@ -161,7 +158,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType i_data)
 	
 	nufft_operator.preprocess( trajectory );
 	bool found_bad_val = false;
-
 
 	for(size_t i_coil=0; i_coil<num_coils; i_coil++)
 	{
