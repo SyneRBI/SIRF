@@ -114,12 +114,36 @@ plt.close('all')
 # defaults to using MLEM, but we will modify it to OSEM
 
 import pCIL  # the code from this module needs to be imported somehow differently
-
+#from pCIL import ZeroFun
+from ccpi.optimisation.funcs import ZeroFun
+from ccpi.plugins.regularisers import FGP_TV
 data = acquired_data
 background = 0 * data.copy()
 
 f = [pCIL.KullbackLeibler(data, background)]
-g = pCIL.ZeroFun()
+
+#g = ZeroFun()
+
+
+# the FGP_TV will output a CCPi DataContainer not a SIRF one, so 
+# we will need to wrap it in something compatible
+
+class FGP_TV_SIRF(FGP_TV):
+    def prox(self, x, Lipshitz):
+       print("calling FGP")
+       out = super(FGP_TV, self).prox( x, Lipshitz)
+       y = x.copy()
+       y.fill(out.as_array())
+       return y
+
+lam_tv = 1.0
+g = FGP_TV_SIRF(lambdaReg = lam_tv,
+                 iterationsTV=5000,
+                 tolerance=1e-5,
+                 methodTV=0,
+                 nonnegativity=1,
+                 printing=0,
+                 device='cpu')
 
 init_image = 0 * image.copy()
 z = init_image.copy()
