@@ -57,7 +57,8 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 SET(SIRFREG_executables
     affine_to_disp
     dump_nifti_info
-    sirfreg_aladin)
+    sirfreg_aladin
+    tensor_split_join)
 
 FOREACH(elem ${SIRFREG_executables})
     ADD_EXECUTABLE(${elem} ${elem}.cpp)

@@ -245,6 +245,9 @@ def try_niftiimage3dtensor():
     # Constructor from file
     c = pSIRFReg.NiftiImage3DTensor(save_nifti_image_3d_tensor_not_split + ".nii")
 
+    # Constructor from 3x3D
+    d = pSIRFReg.NiftiImage3DTensor(ref_aladin, ref_aladin, ref_aladin)
+
     # Fill
     c.fill(100)
 
@@ -306,6 +309,9 @@ def try_niftiimage3ddisplacement():
     # Constructor from file
     c = pSIRFReg.NiftiImage3DDisplacement(save_nifti_image_3d_displacement_not_split + ".nii")
 
+    # Constructor from 3x3D
+    d = pSIRFReg.NiftiImage3DDisplacement(ref_aladin, ref_aladin, ref_aladin)
+
     # Fill
     c.fill(100)
 
@@ -366,6 +372,9 @@ def try_niftiimage3ddeformation():
 
     # Constructor from file
     c = pSIRFReg.NiftiImage3DDeformation(save_nifti_image_3d_deformation_not_split + ".nii")
+
+    # Constructor from 3x3D
+    d = pSIRFReg.NiftiImage3DDeformation(ref_aladin, ref_aladin, ref_aladin)
 
     # Fill
     c.fill(100)

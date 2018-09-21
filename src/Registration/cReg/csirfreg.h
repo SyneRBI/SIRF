@@ -68,6 +68,7 @@ extern "C" {
     // NiftiImage3DTensor
     void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename);
     void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj);
+    void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 
 	// SIRFReg
     void* cSIRFReg_SIRFReg_update(void* ptr);

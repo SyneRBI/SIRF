@@ -231,6 +231,9 @@ function try_niftiimage3dtensor(g)
     % Constructor from file
     c = mSIRFReg.NiftiImage3DTensor([g.save_nifti_image_3d_tensor_not_split '.nii']);
 
+    % Constructor from 3x3D
+    d = mSIRFReg.NiftiImage3DTensor(g.ref_aladin, g.ref_aladin, g.ref_aladin)
+
     % Fill
     c.fill(100)
 
@@ -287,6 +290,9 @@ function try_niftiimage3ddisplacement(g)
     % Constructor from file
     c = mSIRFReg.NiftiImage3DDisplacement([g.save_nifti_image_3d_displacement_not_split '.nii']);
 
+    % Constructor from 3x3D
+    h = mSIRFReg.NiftiImage3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin)
+
     % Fill
     c.fill(100)
 
@@ -342,6 +348,9 @@ function try_niftiimage3ddeformation(g)
 
     % Constructor from file
     c = mSIRFReg.NiftiImage3DDeformation([g.save_nifti_image_3d_deformation_not_split '.nii']);
+
+    % Constructor from 3x3D
+    h = mSIRFReg.NiftiImage3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin)
 
     % Fill
     c.fill(100)

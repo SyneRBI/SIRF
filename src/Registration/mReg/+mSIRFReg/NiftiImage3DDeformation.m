@@ -24,13 +24,15 @@ classdef NiftiImage3DDeformation < mSIRFReg.NiftiImage3DTensor
         end
     end
     methods
-        function self = NiftiImage3DDeformation(filename)
-            narginchk(0,1)
+        function self = NiftiImage3DDeformation(src1, src2, src3)
+            narginchk(0,3)
             self.name = 'NiftiImage3DDeformation';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
-            else
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, filename);
+            elseif ischar(src1)
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src1);
+            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImage3D') && isa(src2, 'mSIRFReg.NiftiImage3D') && isa(src3, 'mSIRFReg.NiftiImage3D')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);                
             end
             mUtilities.check_status(self.name, self.handle_)
         end

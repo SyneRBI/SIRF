@@ -34,6 +34,36 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
+NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
+{
+    // Check everything is intialised
+    if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
+        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
+
+    if (!SIRFRegMisc::do_nifti_image_metadata_match(x,y))
+        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and y components don't match.");
+    if (!SIRFRegMisc::do_nifti_image_metadata_match(x,z))
+        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and z components don't match.");
+
+    // Create a 4D from one of the components
+    this->create_from_3D_image(x);
+
+    vector<NiftiImage3D> ims;
+    ims.push_back(x);
+    ims.push_back(y);
+    ims.push_back(z);
+
+    // for nu=3, the tensor data is stored last.
+    //So memcpy x into first third, y into second third and z into last third
+    size_t mem = x.get_raw_nifti_sptr()->nvox*size_t(x.get_raw_nifti_sptr()->nbyper);
+    char *dest = static_cast<char*>(_nifti_image->data);
+    for (size_t i=0; i<3; ++i) {
+        size_t index = mem*i;
+        char *src  = static_cast<char*>(ims[i].get_raw_nifti_sptr()->data);
+        memcpy(dest+index, src, mem);
+    }
+}
+
 void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
 {
     if (!image.is_initialised())
@@ -76,6 +106,23 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
     cout << "\nSaving to file (" << filename << ")..." << flush;
 
     SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename);
+
+    cout << "Done.\n";
+}
+
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const
+{
+    // Check that the disp image exists
+    if (!this->is_initialised())
+        throw std::runtime_error("Error, cannot write to " + filename_x + ", " + filename_y + ", " + filename_z + " because it has not been initialised.");
+
+    // Check that filename isn't blank
+    if (filename_x.size() == 0 || filename_y.size() == 0 || filename_z.size() == 0)
+        throw std::runtime_error("Error, cannot write to " + filename_x + ", " + filename_y + ", " + filename_z + " because one or more filenames is blank.");
+
+    cout << "\nSaving to file (" << filename_x + ", " + filename_y + ", " + filename_z << ")..." << flush;
+
+    SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename_x,filename_y,filename_z);
 
     cout << "Done.\n";
 }

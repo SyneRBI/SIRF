@@ -59,6 +59,10 @@ public:
     NiftiImage3DDisplacement(const NiftiImage& tensor)
         : NiftiImage3DTensor(tensor) { check_dimensions(_3DDisp); }
 
+    /// Create from 3 individual components
+    NiftiImage3DDisplacement(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
+        : NiftiImage3DTensor(x,y,z) { _nifti_image->intent_p1 = 1; }
+
     /// Deep copy
     NiftiImage3DDisplacement deep_copy() const
     { return this->NiftiImage::deep_copy(); }

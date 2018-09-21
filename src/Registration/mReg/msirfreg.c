@@ -114,6 +114,9 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_c
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj) {
 	return cSIRFReg_NiftiImage3DTensor_create_from_3D_image(ptr, obj);
 }
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr) {
+	return cSIRFReg_NiftiImage3DTensor_construct_from_3_components(obj, x_ptr, y_ptr, z_ptr);
+}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr) {
 	return cSIRFReg_SIRFReg_update(ptr);
 }

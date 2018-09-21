@@ -75,9 +75,9 @@ void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesyst
 }
 
 /// Save nifti image
-void save_nifti_image(nifti_image *image, const string filename)
+void save_nifti_image(const NiftiImage &image, const string filename)
 {
-    if (!image)
+    if (!image.is_initialised())
         throw runtime_error("Cannot save image to file.");
 
     cout << "\nSaving image to file (" << filename << ")..." << flush;
@@ -92,42 +92,35 @@ void save_nifti_image(nifti_image *image, const string filename)
         }
     }
 
-    nifti_set_filenames(image, filename.c_str(), 0, 0);
-    nifti_image_write(image);
+    nifti_set_filenames(image.get_raw_nifti_sptr().get(), filename.c_str(), 0, 0);
+    nifti_image_write(image.get_raw_nifti_sptr().get());
     cout << "done.\n\n";
 }
 
-/// Save nifti image
-void save_nifti_image(std::shared_ptr<nifti_image> image, const string filename)
-{
-    save_nifti_image(image.get(), filename);
-}
-
 /// Split multi-component image
-vector<std::shared_ptr<nifti_image> >
-    split_multicomponent_nifti_image(std::shared_ptr<nifti_image> input_sptr)
+vector<NiftiImage3D>
+    split_multicomponent_nifti_image(const NiftiImage3DTensor &input)
 {
     // Only works for ndim==5
-    if (input_sptr->ndim != 5)
-        throw runtime_error("Splitting only currently works for ndim==5.");
+    if (input.get_raw_nifti_sptr()->ndim != 5 || input.get_raw_nifti_sptr()->nu != 3)
+        throw runtime_error("Splitting only currently works for ndim==5, nu==3.");
 
     // Create the vector to store the single component images
-    vector<std::shared_ptr<nifti_image> > output;
+    vector<NiftiImage3D> output;
 
     // Loop over all of the components
-    int num_components = input_sptr->dim[5];
-    for (int component=0; component<num_components; component++) {
+    for (int component=0; component<3; component++) {
 
         // Create new image
         nifti_image *image_ptr;
 
         // Copy the input image
-        image_ptr = nifti_copy_nim_info(input_sptr.get());
+        image_ptr = nifti_copy_nim_info(input.get_raw_nifti_sptr().get());
 
         // Alter the info to change the number of dimensions
         image_ptr->dim[0] = image_ptr->ndim = 3;
         image_ptr->dim[5] = image_ptr->nu   = 1;
-        image_ptr->nvox   = image_ptr->nvox / input_sptr->nu;
+        image_ptr->nvox   = image_ptr->nvox / 3;
 
         // How much memory do we need?
         size_t mem = image_ptr->nvox*image_ptr->nbyper;
@@ -139,42 +132,45 @@ vector<std::shared_ptr<nifti_image> >
         size_t index = mem*component;
 
         // Copy the data, assuming that the highest dimension are stored first.
-        char *src  = static_cast<char*>(input_sptr->data);
+        char *src  = static_cast<char*>(input.get_raw_nifti_sptr()->data);
         char *dest = static_cast<char*>(image_ptr->data);
         memcpy(dest, src+index, mem);
 
         // The code was vector. now set to none
         image_ptr->intent_code = NIFTI_INTENT_NONE;
 
+        // Create NiftiImage3D from this
+        NiftiImage3D im(*image_ptr);
+
         // Add to vector of single-component images
-        output.push_back(std::shared_ptr<nifti_image>(image_ptr, nifti_image_free));
+        output.push_back(im);
     }
 
     return output;
 }
 
 /// Save a multicomponent nifti image
-void save_multicomponent_nifti_image_split_xyz(std::shared_ptr<nifti_image> input_sptr, const string &filename)
+void save_multicomponent_nifti_image_split_xyz(const NiftiImage3DTensor &input, const string &filename)
 {
-    // Split into 3 separate images.
-    vector<std::shared_ptr<nifti_image> > components = split_multicomponent_nifti_image(input_sptr);
+    vector<string> filenames;
 
     // Loop over each component
-    for (int i=0; i<components.size(); i++) {
-
-        // Edit the filename
-        string appended_filename;
-
-        if (components.size() == 3) {
-            if      (i == 0) appended_filename = filename + "_x";
-            else if (i == 1) appended_filename = filename + "_y";
-            else if (i == 2) appended_filename = filename + "_z";
-        }
-        else appended_filename = filename + "_" + to_string(i+1);
-
-        // And save it
-        save_nifti_image(components[i],appended_filename);
+    for (unsigned i=0; i<3; ++i) {
+        if      (i == 0) filenames.push_back(filename + "_x");
+        else if (i == 1) filenames.push_back(filename + "_y");
+        else if (i == 2) filenames.push_back(filename + "_z");
     }
+    save_multicomponent_nifti_image_split_xyz(input,filenames[0],filenames[1],filenames[2]);
+}
+
+/// Save a multicomponent nifti image
+void save_multicomponent_nifti_image_split_xyz(const NiftiImage3DTensor &input, const string &filename_x, const string &filename_y, const string &filename_z)
+{
+    // Split into 3 separate images.
+    vector<NiftiImage3D> components = split_multicomponent_nifti_image(input);
+    save_nifti_image(components.at(0),filename_x);
+    save_nifti_image(components.at(1),filename_y);
+    save_nifti_image(components.at(2),filename_z);
 }
 
 /// Copy nifti image
@@ -394,7 +390,7 @@ bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
     return images_match;
 }
 
-bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2)
+bool do_nifti_image_metadata_elements_match(const string &name, const mat44 &elem1, const mat44 &elem2)
 {
     if(do_mat44_match(elem1, elem1))
         return true;

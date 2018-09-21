@@ -397,13 +397,16 @@ class NiftiImage3DTensor(NiftiImage):
     """
     3D tensor nifti image.
     """
-    def __init__(self, src=None):
+    def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
         self.name = 'NiftiImage3DTensor'
-        if src is None:
+        if src1 is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src1, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src1)
+        elif isinstance(src1, NiftiImage3D) and isinstance(src2, NiftiImage3D) and isinstance(src3, NiftiImage3D):
+            self.handle = pysirfreg.cSIRFReg_NiftiImage3DTensor_construct_from_3_components(self.name, src1.handle,
+                                                                                            src2.handle, src3.handle)
         else:
             raise error('Wrong source in NiftiImage3DTensor constructor')
         check_status(self.handle)
@@ -430,13 +433,16 @@ class NiftiImage3DDisplacement(NiftiImage3DTensor):
     """
     3D tensor displacement nifti image.
     """
-    def __init__(self, src=None):
+    def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
         self.name = 'NiftiImage3DDisplacement'
-        if src is None:
+        if src1 is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src1, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src1)
+        elif isinstance(src1, NiftiImage3D) and isinstance(src2, NiftiImage3D) and isinstance(src3, NiftiImage3D):
+            self.handle = pysirfreg.cSIRFReg_NiftiImage3DTensor_construct_from_3_components(self.name, src1.handle,
+                                                                                            src2.handle, src3.handle)
         else:
             raise error('Wrong source in NiftiImage3DDisplacement constructor')
         check_status(self.handle)
@@ -451,13 +457,16 @@ class NiftiImage3DDeformation(NiftiImage3DTensor):
     3D tensor deformation nifti image.
     """
 
-    def __init__(self, src=None):
+    def __init__(self, src1=None, src2=None, src3=None):
         self.handle = None
         self.name = 'NiftiImage3DDeformation'
-        if src is None:
+        if src1 is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
+        elif isinstance(src1, str):
+            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src1)
+        elif isinstance(src1, NiftiImage3D) and isinstance(src2, NiftiImage3D) and isinstance(src3, NiftiImage3D):
+            self.handle = pysirfreg.cSIRFReg_NiftiImage3DTensor_construct_from_3_components(self.name, src1.handle,
+                                                                                            src2.handle, src3.handle)
         else:
             raise error('Wrong source in NiftiImage3DDeformation constructor')
         check_status(self.handle)

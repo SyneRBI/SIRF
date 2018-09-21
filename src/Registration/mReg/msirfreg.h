@@ -61,6 +61,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_from_PETImageData(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void* ptr, const char* filename, const char* dir);

@@ -305,6 +305,9 @@ int main(int argc, char* argv[])
         // Constructor from file
         NiftiImage3DTensor c(save_nifti_image_3d_tensor_not_split + ".nii");
 
+        // Constructor from single components
+        NiftiImage3DTensor h(ref_aladin,ref_aladin,ref_aladin);
+
         // Fill
         c.fill(100);
 
@@ -374,6 +377,9 @@ int main(int argc, char* argv[])
         NiftiImage q(save_nifti_image_3d_displacement_not_split + ".nii");
         NiftiImage3DDisplacement r(q);
 
+        // Constructor from single components
+        NiftiImage3DDisplacement h(ref_aladin,ref_aladin,ref_aladin);
+
         // Fill
         c.fill(100);
 
@@ -442,6 +448,9 @@ int main(int argc, char* argv[])
         // Constructor from general
         NiftiImage q(save_nifti_image_3d_deformation_not_split + ".nii");
         NiftiImage3DDeformation r(q);
+
+        // Constructor from single components
+        NiftiImage3DDeformation h(ref_aladin,ref_aladin,ref_aladin);
 
         // Fill
         c.fill(100);

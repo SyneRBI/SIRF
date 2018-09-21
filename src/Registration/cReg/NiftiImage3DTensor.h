@@ -60,11 +60,17 @@ public:
     NiftiImage3DTensor(const std::shared_ptr<nifti_image> image_nifti)
         : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
 
+    /// Create from 3 individual components
+    NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z);
+
     /// Create from 3D image.
     virtual void create_from_3D_image(const NiftiImage3D &image);
 
-    /// Save to file
+    /// Save to file as x-, y-, z-components
     void save_to_file_split_xyz_components(const std::string &filename) const;
+
+    /// Save to file as x-, y-, z-components
+    void save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const;
 
     /// Deep copy
     NiftiImage3DTensor deep_copy() const

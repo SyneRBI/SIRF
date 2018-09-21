@@ -464,6 +464,25 @@ void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void* ptr, const vo
     }
     CATCH;
 }
+extern "C"
+void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr)
+{
+    try {
+        NiftiImage3D& x = objectFromHandle<NiftiImage3D>(x_ptr);
+        NiftiImage3D& y = objectFromHandle<NiftiImage3D>(y_ptr);
+        NiftiImage3D& z = objectFromHandle<NiftiImage3D>(z_ptr);
+
+        shared_ptr<NiftiImage3DTensor> sptr;
+        if (strcmp(obj,"NiftiImage3DTensor"))
+            sptr.reset(new NiftiImage3DTensor(x,y,z));
+        else if (strcmp(obj,"NiftiImage3DDisplacement"))
+            sptr.reset(new NiftiImage3DDisplacement(x,y,z));
+        else if (strcmp(obj,"NiftiImage3DDeformation"))
+            sptr.reset(new NiftiImage3DDeformation(x,y,z));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFReg
 // -------------------------------------------------------------------------------- //

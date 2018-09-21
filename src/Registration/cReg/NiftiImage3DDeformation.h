@@ -59,6 +59,10 @@ public:
     NiftiImage3DDeformation(const NiftiImage& tensor)
         : NiftiImage3DTensor(tensor) { check_dimensions(_3DDef); }
 
+    /// Create from 3 individual components
+    NiftiImage3DDeformation(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
+        : NiftiImage3DTensor(x,y,z) { check_dimensions(_3DDef); }
+
     /// Deep copy
     NiftiImage3DDeformation deep_copy() const
     { return this->NiftiImage3DTensor::deep_copy(); }
@@ -67,7 +71,7 @@ public:
     void create_from_3D_image(const NiftiImage3D &image)
     {
         this->NiftiImage3DTensor::create_from_3D_image(image);
-        _nifti_image->intent_p1 = 0;
+        //_nifti_image->intent_p1 = 0; not necessary. 0 by default
     }
 };
 }
