@@ -67,14 +67,18 @@ class spdhg():
 
         # Initialize variables
         self.z_relax = z.copy()
-
+        self.tmp = self.x.copy()
+        
     def update(self):
         # select block
         selected = self.fun_select(self.iter)
 
         # update primal variable
-        tmp = (self.x - self.tau * self.z_relax).as_array()
-        self.x.fill(self.g.prox(tmp, self.tau))
+        #tmp = (self.x - self.tau * self.z_relax).as_array()
+        #self.x.fill(self.g.prox(tmp, self.tau))
+        self.tmp = - self.tau * self.z_relax
+        self.tmp += self.x
+        self.x = self.g.prox(self.tmp, self.tau)
 
         # update dual variable and z, z_relax
         self.z_relax = self.z.clone()
