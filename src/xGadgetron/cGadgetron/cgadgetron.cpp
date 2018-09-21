@@ -24,6 +24,12 @@ limitations under the License.
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+using boost::asio::ip::tcp;
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
@@ -39,6 +45,7 @@ limitations under the License.
 #include "chain_lib.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 #define GRAB 1
 
@@ -97,6 +104,8 @@ void* cGT_newObject(const char* name)
 			return newObjectHandle<GTConnector>();
 		if (boost::iequals(name, "CoilImages"))
 			return newObjectHandle<CoilImagesVector>();
+		if (boost::iequals(name, "AcquisitionModel"))
+			return newObjectHandle<MRAcquisitionModel>();
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);
@@ -334,6 +343,61 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 
 extern "C"
 void*
+cGT_setUpAcquisitionModel
+(void* ptr_am, const void* ptr_acqs, const void* ptr_imgs)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+		shared_ptr<MRAcquisitionData> sptr_acqs =
+			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
+		shared_ptr<MRImageData> sptr_imgs =
+			objectSptrFromHandle<MRImageData>(h_imgs);
+		am.set_up(sptr_acqs, sptr_imgs);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setAcquisitionModelParameter
+(void* ptr_am, const char* name, const void* ptr)
+{
+	try {
+		CAST_PTR(DataHandle, h_am, ptr_am);
+		if (boost::iequals(name, "acquisition_template")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<MRAcquisitionData> sptr =
+				objectSptrFromHandle<MRAcquisitionData>(handle);
+			am.set_acquisition_template(sptr);
+		}
+		else if (boost::iequals(name, "image_template")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<MRImageData> sptr =
+				objectSptrFromHandle<MRImageData>(handle);
+			am.set_image_template(sptr);
+		}
+		else if (boost::iequals(name, "coil_sensitivity_maps")) {
+			CAST_PTR(DataHandle, handle, ptr);
+			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
+			shared_ptr<CoilSensitivitiesContainer> sptr =
+				objectSptrFromHandle<CoilSensitivitiesContainer>(handle);
+			am.setCSMs(sptr);
+		}
+		else
+			return unknownObject("parameter", name, __FILE__, __LINE__);
+		return (void*)new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 {
 	try {
@@ -454,6 +518,20 @@ cGT_processAcquisitions(void* ptr_proc, void* ptr_input)
 			objectFromHandle<MRAcquisitionData>(h_input);
 		proc.process(input);
 		shared_ptr<MRAcquisitionData> sptr_ac = proc.get_output();
+		return newObjectHandle<MRAcquisitionData>(sptr_ac);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_cloneAcquisitions(void* ptr_input)
+{
+	try {
+		CAST_PTR(DataHandle, h_input, ptr_input);
+		MRAcquisitionData& input =
+			objectFromHandle<MRAcquisitionData>(h_input);
+		shared_ptr<MRAcquisitionData> sptr_ac = input.clone();
 		return newObjectHandle<MRAcquisitionData>(sptr_ac);
 	}
 	CATCH;
@@ -699,6 +777,7 @@ cGT_imageParameter(void* ptr_im, const char* name)
 			return dataHandle((float*)head.slice_dir);
 		if (boost::iequals(name, "patient_table_position"))
 			return dataHandle((float*)head.patient_table_position);
+		return parameterNotFound(name, __FILE__, __LINE__);
 	}
 	CATCH;
 }
@@ -958,6 +1037,44 @@ float br, float bi, const void* ptr_y
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
 		sptr_z->axpby(a, x, b, y);
+		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_multiply(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer<complex_float_t>& x =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		shared_ptr<aDataContainer<complex_float_t> >
+			sptr_z(x.new_data_container());
+		sptr_z->multiply(x, y);
+		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_divide(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		CAST_PTR(DataHandle, h_y, ptr_y);
+		aDataContainer<complex_float_t>& x =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		aDataContainer<complex_float_t>& y =
+			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
+		shared_ptr<aDataContainer<complex_float_t> >
+			sptr_z(x.new_data_container());
+		sptr_z->divide(x, y);
 		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
 	}
 	CATCH;

@@ -27,9 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "gadgetron_data_containers.h"
 #include "cgadgetron_shared_ptr.h"
+#include "gadgetron_data_containers.h"
+
 using namespace gadgetron;
+using namespace sirf;
 
 std::string MRAcquisitionData::_storage_scheme;
 shared_ptr<MRAcquisitionData> MRAcquisitionData::acqs_templ_;
@@ -238,7 +240,32 @@ MRAcquisitionData::axpby
 	}
 }
 
-complex_float_t 
+void
+MRAcquisitionData::multiply
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+	complex_float_t* px;
+	complex_float_t* py;
+	for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		*py = complex_float_t(*px) * complex_float_t(*py);
+	}
+}
+
+void
+MRAcquisitionData::divide
+(const ISMRMRD::Acquisition& acq_x, ISMRMRD::Acquisition& acq_y)
+{
+	complex_float_t* px;
+	complex_float_t* py;
+	for (px = acq_x.data_begin(), py = acq_y.data_begin();
+		px != acq_x.data_end() && py != acq_y.data_end(); px++, py++) {
+		// TODO: check for zero denominator
+		*py = complex_float_t(*px) / complex_float_t(*py);
+	}
+}
+
+complex_float_t
 MRAcquisitionData::dot
 (const ISMRMRD::Acquisition& acq_a, const ISMRMRD::Acquisition& acq_b)
 {
@@ -296,7 +323,69 @@ MRAcquisitionData::axpby(
 	}
 }
 
-complex_float_t 
+void
+MRAcquisitionData::multiply(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	int m = x.number();
+	int n = y.number();
+	ISMRMRD::Acquisition ax;
+	ISMRMRD::Acquisition ay;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		y.get_acquisition(i, ay);
+		x.get_acquisition(j, ax);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << i << " ignored (ay)\n";
+			i++;
+			continue;
+		}
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << j << " ignored (ax)\n";
+			j++;
+			continue;
+		}
+		MRAcquisitionData::multiply(ax, ay);
+		append_acquisition(ay);
+		i++;
+		j++;
+	}
+}
+
+void
+MRAcquisitionData::divide(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+	int m = x.number();
+	int n = y.number();
+	ISMRMRD::Acquisition ax;
+	ISMRMRD::Acquisition ay;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		y.get_acquisition(i, ay);
+		x.get_acquisition(j, ax);
+		if (TO_BE_IGNORED(ay)) {
+			std::cout << i << " ignored (ay)\n";
+			i++;
+			continue;
+		}
+		if (TO_BE_IGNORED(ax)) {
+			std::cout << j << " ignored (ax)\n";
+			j++;
+			continue;
+		}
+		MRAcquisitionData::divide(ax, ay);
+		append_acquisition(ay);
+		i++;
+		j++;
+	}
+}
+
+complex_float_t
 MRAcquisitionData::dot(const aDataContainer<complex_float_t>& dc)
 {
 	MRAcquisitionData& other = (MRAcquisitionData&)dc;
@@ -338,6 +427,19 @@ MRAcquisitionData::norm()
 		r += s*s;
 	}
 	return sqrt(r);
+}
+
+gadgetron::shared_ptr<MRAcquisitionData> 
+MRAcquisitionData::clone()
+{
+	gadgetron::shared_ptr<MRAcquisitionData> sptr_ad =
+		new_acquisitions_container();
+	for (int i = 0; i < number(); i++) {
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+		sptr_ad->append_acquisition(acq);
+	}
+	return sptr_ad;
 }
 
 void
@@ -554,7 +656,35 @@ MRImageData::axpby(
 	}
 }
 
-complex_float_t 
+void
+MRImageData::multiply(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRImageData& x = (MRImageData&)a_x;
+	MRImageData& y = (MRImageData&)a_y;
+	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+		ImageWrap w(x.image_wrap(i));
+		w.multiply(y.image_wrap(i));
+		append(w);
+	}
+}
+
+void
+MRImageData::divide(
+const aDataContainer<complex_float_t>& a_x,
+const aDataContainer<complex_float_t>& a_y)
+{
+	MRImageData& x = (MRImageData&)a_x;
+	MRImageData& y = (MRImageData&)a_y;
+	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+		ImageWrap w(x.image_wrap(i));
+		w.divide(y.image_wrap(i));
+		append(w);
+	}
+}
+
+complex_float_t
 MRImageData::dot(const aDataContainer<complex_float_t>& dc)
 {
 	MRImageData& ic = (MRImageData&)dc;
@@ -580,43 +710,38 @@ MRImageData::norm()
 	return r;
 }
 
-ImagesVector::ImagesVector(const ImagesVector& list, const char* attr, const char* target)
+void
+MRImageData::order()
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
-	for (i = list.images_.begin(); i != list.images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		std::string atts = sptr_iw->attributes();
+	typedef std::array<int, 3> tuple;
+	int ni = number();
+	tuple t;
+	std::vector<tuple> vt;
+	for (int i = 0; i < ni; i++) {
+      ImageWrap& iw = image_wrap(i);
+      ISMRMRD::ImageHeader& head = iw.head();
+		t[0] = head.repetition;
+		t[1] = head.position[2];
+		t[2] = head.slice;
+		vt.push_back(t);
+	}
+	if (index_)
+		delete[] index_;
+	index_ = new int[ni];
+	Multisort::sort(vt, index_);
+}
+
+ImagesVector::ImagesVector(ImagesVector& list, const char* attr, const char* target)
+{
+	for (unsigned int i = 0; i < list.number(); i++) {
+		const ImageWrap& u = list.image_wrap(i);
+		std::string atts = u.attributes();
 		ISMRMRD::MetaContainer mc;
 		ISMRMRD::deserialize(atts.c_str(), mc);
 		std::string value = mc.as_str(attr);
 		if (boost::iequals(value, target))
-			append(*sptr_iw);
+			append(u);
 	}
-}
-
-ImagesVector::ImagesVector(const ImagesVector& list, unsigned int inc, unsigned int off)
-{
-	int n = 0;
-	unsigned int j = 0;
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
-	for (i = list.images_.begin(); i != list.images_.end() && j < off; i++, j++);
-
-	for (; i != list.images_.end(); i++, j++) {
-		if ((j - off) % inc)
-			continue;
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		append(*sptr_iw);
-		n++;
-	}
-	nimages_ = n;
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -713,30 +838,18 @@ ImagesVector::write(std::string filename, std::string groupname)
 	mtx.lock();
 	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
 	mtx.unlock();
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::iterator i;
-#endif
-	for (i = images_.begin(); i != images_.end(); i++) {
-		shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.write(dataset);
 	}
 }
 
 void
-ImagesVector::get_images_data_as_float_array(float* data) const
+ImagesVector::get_images_data_as_float_array(float* data)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.get_data(data);
 		iw.get_dim(dim);
 		size_t size = dim[0];
@@ -748,17 +861,11 @@ ImagesVector::get_images_data_as_float_array(float* data) const
 }
 
 void
-ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
+ImagesVector::get_images_data_as_complex_array(float* re, float* im)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::const_iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		const shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		iw.get_dim(dim);
 		size_t size = dim[0];
 		size *= dim[1];
@@ -780,15 +887,9 @@ ImagesVector::get_images_data_as_complex_array(float* re, float* im) const
 void
 ImagesVector::set_complex_images_data(const float* re, const float* im)
 {
-#ifdef _MSC_VER
-	std::vector<shared_ptr<ImageWrap> >::iterator i;
-#else
-	typename std::vector<shared_ptr<ImageWrap> >::iterator i;
-#endif
 	int dim[4];
-	for (i = images_.begin(); i != images_.end(); i++) {
-		shared_ptr<ImageWrap>& sptr_iw = *i;
-		ImageWrap& iw = *sptr_iw;
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
 		size_t n = iw.get_dim(dim);
 		iw.set_cmplx_data(re, im);
 		re += n;

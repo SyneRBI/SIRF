@@ -19,12 +19,16 @@ limitations under the License.
 
 */
 
-#include "stir_types.h"
-#include "stir_x.h"
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 
-using stir::shared_ptr;
+#include "stir_x.h"
+
+using namespace stir;
+using namespace ecat;
+using namespace sirf;
 
 void
 ListmodeToSinograms::compute_fan_sums_(bool prompt_fansum)

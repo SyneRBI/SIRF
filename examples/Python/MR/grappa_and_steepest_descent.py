@@ -99,7 +99,8 @@ def main():
     # try to improve the reconstruction by the steepest descent step
     grad = acq_model.backward(residual)
     w = acq_model.forward(grad)
-    tau = (grad*grad)/(w*w) # locally optimal steepest descent step
+    tau = (grad.dot(grad))/(w.dot(w)) # locally optimal steepest descent step
+##    tau = (grad*grad)/(w*w) # locally optimal steepest descent step
     refined_image_data = image_data - grad * tau # refined image
 
     image_array = image_data.as_array()

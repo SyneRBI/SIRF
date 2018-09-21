@@ -264,6 +264,28 @@ class DataContainer(ABC):
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r
+    def multiply(self, other):
+        '''
+        Returns the elementwise product of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
+        check_status(z.handle)
+        return z
+    def divide(self, other):
+        '''
+        Returns the elementwise ratio of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
+        check_status(z.handle)
+        return z
     def __add__(self, other):
         '''
         Overloads + for data containers.
@@ -296,17 +318,18 @@ class DataContainer(ABC):
         data container.
 
         Returns the product self*other if other is a scalar
-        or the dot product if it is DataContainer.
+        or the elementwise product if it is DataContainer.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
         if type(self) == type(other):
-            return self.dot(other)
+            return self.multiply(other)
         z = self.same_object()
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_mult(other, self.handle)
+            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
+##            z.handle = pystir.cSTIR_mult(other, self.handle)
             z.src = 'mult'
             check_status(z.handle)
             return z;
@@ -323,7 +346,28 @@ class DataContainer(ABC):
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_mult(other, self.handle)
+            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
+            check_status(z.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+    def __truediv__(self, other):
+        '''
+        Overloads / for data containers multiplication by a scalar or another
+        data container.
+
+        Returns the product self*other if other is a scalar
+        or the elementwise product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
+        '''
+        assert self.handle is not None
+        if type(self) == type(other):
+            return self.divide(other)
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_axpby(1/other, self.handle, 0.0, self.handle)
             check_status(z.handle)
             return z;
         else:

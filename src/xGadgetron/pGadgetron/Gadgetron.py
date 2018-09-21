@@ -251,6 +251,28 @@ class DataContainer(ABC):
         im = pyiutil.floatImDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return complex(re, im)
+    def multiply(self, other):
+        '''
+        Returns the elementwise product of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cGT_multiply(self.handle, other.handle)
+        check_status(z.handle)
+        return z
+    def divide(self, other):
+        '''
+        Returns the elementwise ratio of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cGT_divide(self.handle, other.handle)
+        check_status(z.handle)
+        return z
     def __add__(self, other):
         '''
         Overloads + for data containers.
@@ -283,12 +305,12 @@ class DataContainer(ABC):
         '''
         Overloads * for data containers multiplication by a scalar or another
         data container. Returns the product self*other if other is a scalar
-        or the dot product if it is DataContainer.
+        or the elementwise product if it is DataContainer.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
         if type(self) == type(other):
-            return self.dot(other)
+            return self.multiply(other)
         z = self.same_object()
         if type(other) == type(0):
             other = float(other)
@@ -322,6 +344,31 @@ class DataContainer(ABC):
             return z;
         else:
             raise error('wrong multiplier')
+    def __truediv__(self, other):
+        '''
+        Overloads * for data containers multiplication by a scalar or another
+        data container. Returns the product self*other if other is a scalar
+        or the elementwise product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
+        '''
+        assert self.handle is not None
+        if type(self) == type(other):
+            return self.divide(other)
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(complex(0,0)):
+            other = 1/other
+            z.handle = pygadgetron.cGT_axpby\
+                (other.real, other.imag, self.handle, 0, 0, self.handle)
+            return z;
+        elif type(other) == type(0.0):
+            z.handle = pygadgetron.cGT_axpby\
+                (1/other, 0, self.handle, 0, 0, self.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+
     @staticmethod
     def axpby(a, x, b, y):
         '''
@@ -998,8 +1045,12 @@ class AcquisitionData(DataContainer):
         '''
         Returns a copy of self.
         '''
-        ap = AcquisitionDataProcessor()
-        return ap.process(self)
+        ad = AcquisitionData()
+        ad.handle = pygadgetron.cGT_cloneAcquisitions(self.handle)
+        check_status(ad.handle)
+        return ad;
+##        ap = AcquisitionDataProcessor()
+##        return ap.process(self)
     def acquisition(self, num):
         '''
         Returns the specified acquisition.
@@ -1029,17 +1080,25 @@ class AcquisitionData(DataContainer):
         else:
             dim[2] = numpy.prod(dim[2:])
         return tuple(dim[2::-1])
-    def get_info(self, par):
+    def get_info(self, par, which = 'all'):
         '''
         Returns the array of values of the specified acquisition information 
         parameter.
         par: parameter name
         '''
         na, nc, ns = self.dimensions()
+        if which == 'all':
+            rng = range(na)
+        else:
+            rng = which
+            na = len(rng)
         info = numpy.empty((na,), dtype = object)
-        for a in range(na):
+        i = 0
+        for a in rng: #range(na):
             acq = self.acquisition(a)
-            info[a] = acq.info(par)
+            info[i] = acq.info(par)
+            i += 1
+##            info[a] = acq.info(par)
         return info
     def as_array(self, select = 'image'):
         '''
@@ -1085,18 +1144,26 @@ class AcquisitionModel:
     Class for MR acquisition model, an operator that maps images into
     simulated acquisitions.
     '''
-    def __init__(self, acqs, imgs):
+    def __init__(self, acqs = None, imgs = None):
+        self.handle = None
+        if acqs == None:
+            self.handle = pygadgetron.cGT_newObject('AcquisitionModel')
+        else:
 ##        assert isinstance(acqs, AcquisitionData)
 ##        assert isinstance(imgs, ImageData)
-        assert_validity(acqs, AcquisitionData)
-        assert_validity(imgs, ImageData)
-        self.handle = None
-        self.handle = \
-            pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
+            assert_validity(acqs, AcquisitionData)
+            assert_validity(imgs, ImageData)
+            self.handle = \
+                pygadgetron.cGT_AcquisitionModel(acqs.handle, imgs.handle)
         check_status(self.handle)
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+    def set_up(self, acqs, imgs):
+        assert_validity(acqs, AcquisitionData)
+        assert_validity(imgs, ImageData)
+        try_calling(pygadgetron.cGT_setUpAcquisitionModel \
+            (self.handle, acqs.handle, imgs.handle))
     def set_coil_sensitivity_maps(self, csm):
         '''
         Specifies the coil sensitivity maps to be used by the model.
@@ -1104,7 +1171,9 @@ class AcquisitionModel:
         '''
 ##        assert isinstance(csm, CoilSensitivityData)
         assert_validity(csm, CoilSensitivityData)
-        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
+        try_calling(pygadgetron.cGT_setAcquisitionModelParameter \
+            (self.handle, 'coil_sensitivity_maps', csm.handle))
+##        try_calling(pygadgetron.cGT_setCSMs(self.handle, csm.handle))
     def forward(self, image):
         '''
         Projects an image into (simulated) acquisitions space.
