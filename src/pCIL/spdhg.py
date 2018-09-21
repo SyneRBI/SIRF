@@ -74,7 +74,7 @@ class spdhg():
 
         # update primal variable
         tmp = (self.x - self.tau * self.z_relax).as_array()
-        self.x = self.g.prox(tmp, self.tau)
+        self.x.fill(self.g.prox(tmp, self.tau))
 
         # update dual variable and z, z_relax
         self.z_relax = self.z.clone()
