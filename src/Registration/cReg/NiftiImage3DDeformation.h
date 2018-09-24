@@ -31,13 +31,14 @@ limitations under the License.
 #define _NIFTIIMAGE3DDEFORMATION_H_
 
 #include "NiftiImage3DTensor.h"
+#include "SIRFRegTransformation.h"
 #include <_reg_maths.h>
 
 namespace sirf {
 class NiftiImage3D;
 
 /// SIRF nifti image data deformation field image
-class NiftiImage3DDeformation : public NiftiImage3DTensor
+class NiftiImage3DDeformation : public NiftiImage3DTensor, public SIRFRegTransformation
 {
 public:
     /// Constructor
@@ -72,6 +73,13 @@ public:
     {
         this->NiftiImage3DTensor::create_from_3D_image(image);
         //_nifti_image->intent_p1 = 0; not necessary. 0 by default
+    }
+
+    /// Get as deformation field
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const
+    {
+        check_ref_and_def(ref,*this);
+        return this->deep_copy();
     }
 };
 }

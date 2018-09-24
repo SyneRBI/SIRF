@@ -42,7 +42,6 @@ class NiftiImage3DTensor;
 class NiftiImage3DDisplacement;
 class NiftiImage3DDeformation;
 class SIRFRegTransformation;
-class SIRFRegTransformationDeformation;
 }
 
 namespace SIRFRegMisc {
@@ -369,10 +368,10 @@ namespace SIRFRegMisc {
     }
 
     /// Compose multiple transformations into single deformation field
-    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<sirf::SIRFRegTransformation*> &transformations, const sirf::NiftiImage3D &ref);
+    void compose_transformations_into_single_deformation(sirf::NiftiImage3DDeformation &def, const std::vector<sirf::SIRFRegTransformation*> &transformations, const sirf::NiftiImage3D &ref);
 
     /// Compose multiple transformations into single deformation field
-    void compose_transformations_into_single_deformation(sirf::SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<sirf::SIRFRegTransformation> > &transformations, const sirf::NiftiImage3D &ref);
+    void compose_transformations_into_single_deformation(sirf::NiftiImage3DDeformation &def, const std::vector<std::shared_ptr<sirf::SIRFRegTransformation> > &transformations, const sirf::NiftiImage3D &ref);
 
     /// Get identity matrix
     mat44 get_identity_matrix();

@@ -73,8 +73,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image_filename
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_update(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationAffine_construct_from_TM(PTR_FLOAT ptr_TM);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(const void* ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(const void* ptr);
 #ifndef CSIRFREG_FOR_MATLAB
 }
 #endif

@@ -57,13 +57,13 @@ classdef NiftyResample < handle
 
         function add_transformation_disp(self, src)
             %Set displacement field.
-            assert(isa(src, 'mSIRFReg.TransformationDisplacement'), 'NiftyResample::add_transformation_disp expects TransformationDisplacement.')
+            assert(isa(src, 'mSIRFReg.NiftiImage3DDisplacement'), 'NiftyResample::add_transformation_disp expects NiftiImage3DDisplacement.')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
         end
 
         function add_transformation_def(self, src)
             %Set deformation field.
-            assert(isa(src, 'mSIRFReg.TransformationDeformation'), 'NiftyResample::add_transformation_def expects TransformationDeformation.')
+            assert(isa(src, 'mSIRFReg.NiftiImage3DDeformation'), 'NiftyResample::add_transformation_def expects NiftiImage3DDeformation.')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
         end
         function set_interpolation_type(self, type)

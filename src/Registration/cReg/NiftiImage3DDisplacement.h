@@ -31,13 +31,15 @@ limitations under the License.
 #define _NIFTIIMAGE3DDISPLACEMENT_H_
 
 #include "NiftiImage3DTensor.h"
+#include "NiftiImage3DDeformation.h"
+#include "SIRFRegTransformation.h"
 #include <_reg_maths.h>
 
 namespace sirf {
 class NiftiImage3D;
 
 /// SIRF nifti image data displacement field image
-class NiftiImage3DDisplacement : public NiftiImage3DTensor
+class NiftiImage3DDisplacement : public NiftiImage3DTensor, public SIRFRegTransformation
 {
 public:
     /// Constructor
@@ -72,6 +74,15 @@ public:
     {
         this->NiftiImage3DTensor::create_from_3D_image(image);
         _nifti_image->intent_p1 = 1;
+    }
+
+    /// Get as deformation field
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const
+    {
+        NiftiImage3DDeformation def;
+        SIRFRegMisc::convert_from_disp_to_def(def, *this);
+        check_ref_and_def(ref,def);
+        return def;
     }
 };
 }

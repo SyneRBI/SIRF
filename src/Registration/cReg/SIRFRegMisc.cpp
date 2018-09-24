@@ -31,6 +31,8 @@ limitations under the License.
 #include "NiftiImage3D.h"
 #include "NiftiImage3DTensor.h"
 #include "SIRFRegTransformation.h"
+#include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 #include <_reg_tools.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
@@ -626,24 +628,22 @@ mat44 multiply_mat44(const mat44 &x, const mat44 &y)
 }
 
 /// Compose multiple transformations into single deformation field
-void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
+void compose_transformations_into_single_deformation(NiftiImage3DDeformation &def, const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
 {
     if (transformations.size() == 0)
         throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation no transformations given.");
 
-    NiftiImage3DDeformation deformation = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
+    def = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
 
     for (unsigned i=1; i<transformations.size(); ++i) {
 
         NiftiImage3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
-        reg_defField_compose(temp.get_raw_nifti_sptr().get(),deformation.get_raw_nifti_sptr().get(),nullptr);
+        reg_defField_compose(temp.get_raw_nifti_sptr().get(),def.get_raw_nifti_sptr().get(),nullptr);
     }
-
-    def = SIRFRegTransformationDeformation(deformation);
 }
 
 /// Compose multiple transformations into single deformation field
-void compose_transformations_into_single_deformation(SIRFRegTransformationDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
+void compose_transformations_into_single_deformation(NiftiImage3DDeformation &def, const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
 {
     std::vector<SIRFRegTransformation*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)

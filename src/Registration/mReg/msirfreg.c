@@ -150,12 +150,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_fi
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationAffine_construct_from_TM(PTR_FLOAT ptr_TM) {
 	return cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(ptr_TM);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(const void* ptr) {
-	return cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(ptr);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(const void* ptr) {
-	return cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(ptr);
-}
 #ifndef CSIRFREG_FOR_MATLAB
 }
 #endif

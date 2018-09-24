@@ -1,4 +1,4 @@
-classdef NiftiImage3DDeformation < mSIRFReg.NiftiImage3DTensor
+classdef NiftiImage3DDeformation < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Transformation
 % Class for deformation image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

@@ -1,4 +1,4 @@
-classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor
+classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Transformation
 % Class for displacement image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

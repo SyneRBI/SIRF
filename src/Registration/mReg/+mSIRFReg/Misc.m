@@ -71,7 +71,7 @@ classdef Misc < handle
 		    	z = trans(1);
 		        return
 		    end
-		    z = mSIRFReg.TransformationDeformation();
+		    z = mSIRFReg.NiftiImage3DDeformation();
 		    if size(trans,1) == 2
 		        z.handle_ = calllib('msirfreg', 'mSIRFReg_compose_transformations_into_single_deformation2',...
 		        	ref.handle_, trans(1).handle_, trans(2).handle_);

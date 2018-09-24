@@ -576,15 +576,11 @@ int main(int argc, char* argv[])
 
         // Displacement
         cout << "\nTesting displacement...\n";
-        SIRFRegTransformationDisplacement b1;
-        SIRFRegTransformationDisplacement b2(aladin_disp_fwrd + ".nii");
-        SIRFRegTransformationDisplacement b3(NA.get_displacement_field_fwrd());
+        NiftiImage3DDisplacement b3(NA.get_displacement_field_fwrd());
 
         // Deformation
         cout << "\nTesting deformation...\n";
-        SIRFRegTransformationDeformation c1;
-        SIRFRegTransformationDeformation c2(aladin_def_fwrd + ".nii");
-        SIRFRegTransformationDeformation c3(NA.get_deformation_field_fwrd());
+        NiftiImage3DDeformation c3(NA.get_deformation_field_fwrd());
 
         // Get as deformations
         NiftiImage3DDeformation a_def = a3.get_as_deformation_field(ref_aladin);
@@ -593,9 +589,9 @@ int main(int argc, char* argv[])
         if (!SIRFRegMisc::do_nifti_images_match(a_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
             throw runtime_error("SIRFRegTransformationAffine::get_as_deformation_field failed.");
         if (!SIRFRegMisc::do_nifti_images_match(b_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-            throw runtime_error("SIRFRegTransformationDisplacement::get_as_deformation_field failed.");
+            throw runtime_error("NiftiImage3DDisplacement::get_as_deformation_field failed.");
         if (!SIRFRegMisc::do_nifti_images_match(c_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-            throw runtime_error("SIRFRegTransformationDeformation::get_as_deformation_field failed.");
+            throw runtime_error("NiftiImage3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
         mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
@@ -603,8 +599,8 @@ int main(int argc, char* argv[])
         std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
         vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
         vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
-        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDeformation(c3)));
-        SIRFRegTransformationDeformation composed;
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDeformation(c3)));
+        NiftiImage3DDeformation composed;
         SIRFRegMisc::compose_transformations_into_single_deformation(composed, vec, ref_aladin);
         if (!SIRFRegMisc::do_nifti_images_match(composed.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
             throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
@@ -624,8 +620,8 @@ int main(int argc, char* argv[])
         mat44 tm_eye = SIRFRegMisc::get_identity_matrix();
         SIRFRegTransformationAffine tm_iden(tm_eye);
         SIRFRegTransformationAffine tm(NA.get_transformation_matrix_fwrd());
-        SIRFRegTransformationDisplacement disp(NA.get_displacement_field_fwrd());
-        SIRFRegTransformationDeformation deff(NA.get_deformation_field_fwrd());
+        NiftiImage3DDisplacement disp(NA.get_displacement_field_fwrd());
+        NiftiImage3DDeformation deff(NA.get_deformation_field_fwrd());
 
         cout << "Testing rigid resample...\n";
         SIRFRegNiftyResample nr1;

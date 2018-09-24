@@ -30,6 +30,8 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegMisc.h"
 #include "NiftiImage3DTensor.h"
+#include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 #include <_reg_resampling.h>
 #if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
@@ -45,14 +47,14 @@ void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegTransformation
     _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(affine.deep_copy())));
 }
 
-void SIRFRegNiftyResample::add_transformation_disp(const SIRFRegTransformationDisplacement &disp)
+void SIRFRegNiftyResample::add_transformation_disp(const NiftiImage3DDisplacement &disp)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDisplacement(disp.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDisplacement(disp.deep_copy())));
 }
 
-void SIRFRegNiftyResample::add_transformation_def(const SIRFRegTransformationDeformation &def)
+void SIRFRegNiftyResample::add_transformation_def(const NiftiImage3DDeformation &def)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationDeformation(def.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDeformation(def.deep_copy())));
 }
 
 void SIRFRegNiftyResample::update()
@@ -63,7 +65,7 @@ void SIRFRegNiftyResample::update()
     check_parameters();
 
     // Compose single transformation from multiple
-    SIRFRegTransformationDeformation transformation;
+    NiftiImage3DDeformation transformation;
     SIRFRegMisc::compose_transformations_into_single_deformation(transformation, _transformations, _reference_image);
 
     // Setup output image

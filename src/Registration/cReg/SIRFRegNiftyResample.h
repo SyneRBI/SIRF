@@ -71,10 +71,10 @@ public:
     void add_transformation_affine(const SIRFRegTransformationAffine &affine);
 
     /// Add displacement transformation
-    void add_transformation_disp(const SIRFRegTransformationDisplacement &disp);
+    void add_transformation_disp(const NiftiImage3DDisplacement &disp);
 
     /// Add deformation transformation
-    void add_transformation_def(const SIRFRegTransformationDeformation &def);
+    void add_transformation_def(const NiftiImage3DDeformation &def);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     void set_interpolation_type(const int type)

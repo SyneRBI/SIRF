@@ -249,7 +249,7 @@ def compose_transformations_into_single_deformation(trans, ref):
     assert all(isinstance(n, _Transformation) for n in trans)
     if len(trans) == 1:
         return trans[0]
-    z = TransformationDeformation()
+    z = NiftiImage3DDeformation()
     if len(trans) == 2:
         z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation2(
             ref.handle, trans[0].handle, trans[1].handle)
@@ -429,7 +429,7 @@ class NiftiImage3DTensor(NiftiImage):
         check_status(self.handle)
 
 
-class NiftiImage3DDisplacement(NiftiImage3DTensor):
+class NiftiImage3DDisplacement(NiftiImage3DTensor, _Transformation):
     """
     3D tensor displacement nifti image.
     """
@@ -452,7 +452,7 @@ class NiftiImage3DDisplacement(NiftiImage3DTensor):
             pyiutil.deleteDataHandle(self.handle)
 
 
-class NiftiImage3DDeformation(NiftiImage3DTensor):
+class NiftiImage3DDeformation(NiftiImage3DTensor, _Transformation):
     """
     3D tensor deformation nifti image.
     """
@@ -637,15 +637,12 @@ class NiftyResample:
 
     def add_transformation_disp(self, src):
         """Add displacement field."""
-        sys.stderr.write('\n\n\nim here1\n\n\n\n')
-        assert isinstance(src, TransformationDisplacement)
-        sys.stderr.write('\n\n\nim here2\n\n\n\n')
+        assert isinstance(src, NiftiImage3DDisplacement)
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
-        sys.stderr.write('\n\n\nim here3\n\n\n\n')
 
     def add_transformation_def(self, src):
         """Add deformation field."""
-        assert isinstance(src, TransformationDeformation)
+        assert isinstance(src, NiftiImage3DDeformation)
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
 
     def set_interpolation_type(self, type):
@@ -759,48 +756,3 @@ class TransformationAffine(_Transformation):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
-
-class TransformationDisplacement(_Transformation):
-    """
-    Class for displacement transformations.
-    """
-    def __init__(self, src=None):
-        self.name = 'SIRFRegTransformationDisplacement'
-        if src is None:
-            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
-        elif isinstance(src, NiftiImage3DDisplacement):
-            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(
-                src.handle)
-        else:
-            raise error('Wrong source in displacement transformation constructor')
-        check_status(self.handle)
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-
-
-class TransformationDeformation(_Transformation):
-    """
-    Class for deformation transformations.
-    """
-    def __init__(self, src=None):
-        self.name = 'SIRFRegTransformationDeformation'
-        if src is None:
-            self.handle = pysirfreg.cSIRFReg_newObject(self.name)
-        elif isinstance(src, str):
-            self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
-        elif isinstance(src, NiftiImage3DDeformation):
-            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(
-                src.handle)
-        else:
-            raise error('Wrong source in deformation transformation constructor')
-        check_status(self.handle)
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-

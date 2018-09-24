@@ -75,10 +75,6 @@ void* cSIRFReg_newObject(const char* name)
             return newObjectHandle<SIRFRegImageWeightedMean>();
         if (boost::iequals(name, "SIRFRegTransformationAffine"))
             return newObjectHandle<SIRFRegTransformationAffine>();
-        if (boost::iequals(name, "SIRFRegTransformationDisplacement"))
-            return newObjectHandle<SIRFRegTransformationDisplacement>();
-        if (boost::iequals(name, "SIRFRegTransformationDeformation"))
-            return newObjectHandle<SIRFRegTransformationDeformation>();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -155,16 +151,6 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
         if (boost::iequals(name, "SIRFRegTransformationAffine")) {
             shared_ptr<SIRFRegTransformationAffine>
                 sptr(new SIRFRegTransformationAffine(filename));
-            return newObjectHandle(sptr);
-        }
-        if (boost::iequals(name, "SIRFRegTransformationDisplacement")) {
-            shared_ptr<SIRFRegTransformationDisplacement>
-                sptr(new SIRFRegTransformationDisplacement(filename));
-            return newObjectHandle(sptr);
-        }
-        if (boost::iequals(name, "SIRFRegTransformationDeformation")) {
-            shared_ptr<SIRFRegTransformationDeformation>
-                sptr(new SIRFRegTransformationDeformation(filename));
             return newObjectHandle(sptr);
         }
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -278,7 +264,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation2(const void* im, 
 {
     try {
         NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
-        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        shared_ptr<NiftiImage3DDeformation> def_sptr(new NiftiImage3DDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
@@ -292,7 +278,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation3(const void* im, 
 {
     try {
         NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
-        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        shared_ptr<NiftiImage3DDeformation> def_sptr(new NiftiImage3DDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
@@ -307,7 +293,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation4(const void* im, 
 {
     try {
         NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
-        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        shared_ptr<NiftiImage3DDeformation> def_sptr(new NiftiImage3DDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
@@ -324,7 +310,7 @@ void* cSIRFReg_compose_transformations_into_single_deformation5(const void* im, 
 {
     try {
         NiftiImage3D& ref = objectFromHandle<NiftiImage3D>(im);
-        shared_ptr<SIRFRegTransformationDeformation> def_sptr(new SIRFRegTransformationDeformation());
+        shared_ptr<NiftiImage3DDeformation> def_sptr(new NiftiImage3DDeformation());
         std::vector<SIRFRegTransformation*> vec;
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans1));
         vec.push_back(&objectFromHandle<SIRFRegTransformation>(trans2));
@@ -567,9 +553,9 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
         if (strcmp(type, "affine") == 0)
             res.add_transformation_affine(objectFromHandle<SIRFRegTransformationAffine>(trans));
         else if (strcmp(type, "displacement") == 0)
-            res.add_transformation_disp(objectFromHandle<SIRFRegTransformationDisplacement>(trans));
+            res.add_transformation_disp(objectFromHandle<NiftiImage3DDisplacement>(trans));
         else if (strcmp(type, "deformation") == 0)
-            res.add_transformation_def(objectFromHandle<SIRFRegTransformationDeformation>(trans));
+            res.add_transformation_def(objectFromHandle<NiftiImage3DDeformation>(trans));
         else
             throw std::runtime_error("only accept 'affine', 'displacement' or 'deformation' as argument adding transformation matrix to resample.");
         return new DataHandle;
@@ -648,28 +634,6 @@ void* cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(size_t ptr_TM)
 
         SIRFRegTransformationAffine trans(trans_m);
         shared_ptr<SIRFRegTransformationAffine> sptr(new SIRFRegTransformationAffine(trans));
-        return newObjectHandle(sptr);
-    }
-    CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(const void* ptr)
-{
-    try {
-        NiftiImage3DDisplacement& disp = objectFromHandle<NiftiImage3DDisplacement>(ptr);
-        SIRFRegTransformationDisplacement trans(disp);
-        shared_ptr<SIRFRegTransformationDisplacement> sptr(new SIRFRegTransformationDisplacement(trans.deep_copy()));
-        return newObjectHandle(sptr);
-    }
-    CATCH;
-}
-extern "C"
-void* cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(const void* ptr)
-{
-    try {
-        NiftiImage3DDeformation& def = objectFromHandle<NiftiImage3DDeformation>(ptr);
-        SIRFRegTransformationDeformation trans(def);
-        shared_ptr<SIRFRegTransformationDeformation> sptr(new SIRFRegTransformationDeformation(trans.deep_copy()));
         return newObjectHandle(sptr);
     }
     CATCH;

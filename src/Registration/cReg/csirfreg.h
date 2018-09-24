@@ -90,8 +90,6 @@ extern "C" {
     // SIRFRegTransformation
     void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref);
     void* cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(PTR_FLOAT ptr_TM);
-    void* cSIRFReg_SIRFRegTransformationDisplacement_construct_from_NiftiImage3DDisplacement(const void* ptr);
-    void* cSIRFReg_SIRFRegTransformationDeformation_construct_from_NiftiImage3DDeformation(const void* ptr);
 
 #ifndef CSIRFREG_FOR_MATLAB
 }
