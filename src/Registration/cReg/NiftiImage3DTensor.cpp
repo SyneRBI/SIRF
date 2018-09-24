@@ -47,11 +47,7 @@ NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D
 
     // Create a 4D from one of the components
     this->create_from_3D_image(x);
-
-    vector<NiftiImage3D> ims;
-    ims.push_back(x);
-    ims.push_back(y);
-    ims.push_back(z);
+    vector<NiftiImage3D> ims{x, y, z};
 
     // for nu=3, the tensor data is stored last.
     //So memcpy x into first third, y into second third and z into last third

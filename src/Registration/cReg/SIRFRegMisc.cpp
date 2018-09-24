@@ -290,7 +290,7 @@ void get_def_from_cpp(NiftiImage3DDeformation &def, const NiftiImage3DTensor &cp
 void convert_from_def_to_disp(NiftiImage3DDisplacement &disp, const NiftiImage3DDeformation &def)
 {
     // Get the disp field from the def field
-    NiftiImage temp = def.deep_copy();
+    NiftiImage3DTensor temp = def.deep_copy();
     reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
     temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
     disp = temp;
@@ -395,10 +395,7 @@ bool do_nifti_image_metadata_elements_match(const string &name, const mat44 &ele
     if(do_mat44_match(elem1, elem1))
         return true;
     std::cout << "mismatch in " << name << "\n";
-    std::vector<mat44>vec;
-    vec.push_back(elem1);
-    vec.push_back(elem2);
-    print_mat44(vec);
+    print_mat44({elem1, elem2});
     std::cout << "\n";
     return false;
 }

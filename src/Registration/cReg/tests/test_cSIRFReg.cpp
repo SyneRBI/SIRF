@@ -105,9 +105,7 @@ int main(int argc, char* argv[])
     std::cerr << "\ntensor max = " <<  a.get_max() << "\n";
     std::cerr << "\nref aladin max = " <<  ref_aladin.get_max() << "\n";
 
-    vector<NiftiImage> ims;
-    ims.push_back(ref_aladin);
-    ims.push_back(flo_aladin);
+    vector<NiftiImage> ims{ref_aladin,flo_aladin};
     SIRFRegMisc::dump_nifti_info(ims);
 
     float required_percentage_accuracy = 1.F;
@@ -142,11 +140,7 @@ int main(int argc, char* argv[])
         // dump from NiftiImage
         SIRFRegMisc::dump_nifti_info(ref_aladin);
         // dump from multiple images
-        std::vector<NiftiImage> vec;
-        vec.push_back(ref_aladin);
-        vec.push_back(flo_aladin);
-        vec.push_back(nifti);
-        SIRFRegMisc::dump_nifti_info(vec);
+        SIRFRegMisc::dump_nifti_info({ref_aladin,flo_aladin,nifti});
         // dump from NiftiImage3DDeformation
         NiftiImage3DDeformation deform;
         deform.create_from_3D_image(ref_aladin);

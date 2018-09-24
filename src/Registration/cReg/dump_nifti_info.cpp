@@ -35,11 +35,9 @@ using namespace sirf;
 /// main
 int main(int argc, char* argv[])
 {
-
-    cout << "\nnum argin = " << argc << "\n";
     try {
         if (argc < 2) {
-            cout << "\ndump_nifti_info filename1 filename2 filename3...\n";
+            cout << "\ndump_nifti_info filename1 [filename2 [filename3 [...]]]\n";
             return EXIT_SUCCESS;
         }
 
