@@ -580,7 +580,7 @@ void print_mat44(const vector<mat44> &mats)
                   setprecision(3) << mats[j].m[i][1] << "," <<
                   setprecision(3) << mats[j].m[i][2] << "," <<
                   setprecision(3) << mats[j].m[i][3] << "] ";
-            cout << setw(19) << ss.str();
+            cout << left << setw(19) << ss.str();
         }
         cout << "\n";
     }
