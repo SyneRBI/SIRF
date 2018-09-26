@@ -77,7 +77,6 @@ void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
     _nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
 
     // Spacing
-    _nifti_image->pixdim[0]=0.F;
     _nifti_image->pixdim[1]=_nifti_image->dx=spacing[0];
     _nifti_image->pixdim[2]=_nifti_image->dy=spacing[1];
     _nifti_image->pixdim[3]=_nifti_image->dz=spacing[2];
@@ -105,6 +104,7 @@ void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
                             nullptr,
                             nullptr,
                             &_nifti_image->qfac );
+    _nifti_image->pixdim[0]=_nifti_image->qfac;
 
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());
