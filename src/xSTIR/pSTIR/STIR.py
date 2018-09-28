@@ -541,7 +541,7 @@ class ImageData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def show(self, im_num = None):
+    def show(self, slice = None):
         '''Displays xy-cross-sections of this image at z selected interactively.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
@@ -549,14 +549,14 @@ class ImageData(DataContainer):
             return
         data = self.as_array()
         nz = data.shape[0]
-        if im_num is not None:
-            if im_num < 1 or im_num > nz:
+        if slice is not None:
+            if slice < 0 or slice >= nz:
                 return
-            im_num -= 1
-            show_2D_array('slice %d' % im_num, data[im_num,:,:])
+#            slice -= 1
+            show_2D_array('slice %d' % slice, data[slice,:,:])
             return
-        print('Please enter slice numbers (e.g.: 1, 3-5)')
-        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
+        print('Please enter slice numbers (e.g.: 0, 3-5)')
+        print('(a value outside the range 0 to %d will stop this loop)' % (nz - 1))
         while True:
             s = str(input('slices to display: '))
             if len(s) < 1:
