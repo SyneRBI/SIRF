@@ -90,7 +90,7 @@ def show_3D_array\
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
     array     : 3D array
-    index     : z-slices index (1-based), either Python list or string of the form
+    index     : z-slices index, either Python list or string of the form
               : 'a, b-c, ...', where 'b-c' is decoded as 'b, b+1, ..., c';
               : out-of-range index value causes error (non-zero) return
     tile_shape: tuple (tile_rows, tile_columns);
