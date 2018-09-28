@@ -38,7 +38,7 @@ An example is given below:
         AdditiveMC :=
     end :=
 
-More examples can be found in // Need to give path
+More examples can be found in data/examples/Registration/paramFiles
 
 \author Richard Brown
 \author CCP PETMR

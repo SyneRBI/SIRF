@@ -5,7 +5,7 @@ if ~libisloaded('miutilities')
     try
         [notfound, warnings] = loadlibrary('miutilities');
     catch
-        error('mutilities library failed to load\n')
+        error('miutilities library failed to load\n')
     end
 end
 % load SIRFReg interface library
@@ -14,7 +14,7 @@ if ~libisloaded('msirfreg')
     try
         [notfound, warnings] = loadlibrary('msirfreg');
     catch
-        error('msirfreg  library failed to load\n')
+        error('msirfreg library failed to load\n')
     end
 end
 end
