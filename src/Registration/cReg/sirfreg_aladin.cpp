@@ -156,9 +156,9 @@ int main(int argc, char* argv[])
 
         // TMs
         if (flag_TM_fwrd != -1)
-            aladin.save_transformation_matrix_fwrd(argv[flag_TM_fwrd+1]);
+            aladin.get_transformation_matrix_fwrd().save_to_file(argv[flag_TM_fwrd+1]);
         if (flag_TM_back != -1)
-            aladin.save_transformation_matrix_back(argv[flag_TM_back+1]);
+            aladin.get_transformation_matrix_back().save_to_file(argv[flag_TM_back+1]);
 
         // Disp field images
         if (flag_disp_4D != -1)

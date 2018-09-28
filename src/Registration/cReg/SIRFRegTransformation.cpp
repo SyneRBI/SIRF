@@ -29,8 +29,6 @@ limitations under the License.
 
 #include "SIRFRegTransformation.h"
 #include "NiftiImage3DDeformation.h"
-#include "SIRFRegMisc.h"
-#include <_reg_globalTrans.h>
 #include <sstream>
 
 using namespace std;
@@ -57,20 +55,4 @@ void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const Nif
         for (int i=1; i<=3; ++i) ss << def_dims[i] << " ";
         throw std::runtime_error(ss.str());
     }
-}
-
-NiftiImage3DDeformation SIRFRegTransformationAffine::get_as_deformation_field(const NiftiImage3D &ref) const
-{
-    NiftiImage3DDeformation def;
-    def.create_from_3D_image(ref);
-    mat44 temp = _tm; // Need temp as the following isn't marked const
-    reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
-    def.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
-    return def;
-}
-
-SIRFRegTransformationAffine SIRFRegTransformationAffine::deep_copy() const
-{
-    SIRFRegTransformationAffine temp(_tm);
-    return temp;
 }

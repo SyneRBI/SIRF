@@ -71,20 +71,22 @@ void SIRFRegNiftyAladinSym<T>::update()
 
     // Get the forward and backward transformation matrices
     _TM_fwrd = *_registration_sptr->GetTransformationMatrix();
-    _TM_back = nifti_mat44_inverse(_TM_fwrd);
+    _TM_back = nifti_mat44_inverse(_TM_fwrd.get_raw_mat44());
 
     cout << "\nPrinting forwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(_TM_fwrd);
+    _TM_fwrd.print();
     cout << "\nPrinting backwards tranformation matrix:\n";
-    SIRFRegMisc::print_mat44(_TM_back);
+    _TM_back.print();
 
 #if NIFTYREG_VER_1_5
     // affine->def->disp
     _def_image_fwrd.create_from_3D_image(_reference_image);
     _def_image_back.create_from_3D_image(_reference_image);
 
-    reg_affine_getDeformationField(&_TM_fwrd, _def_image_fwrd.get_raw_nifti_sptr().get());
-    reg_affine_getDeformationField(&_TM_back, _def_image_back.get_raw_nifti_sptr().get());
+    mat44 temp_fwrd(_TM_fwrd.get_raw_mat44());
+    mat44 temp_back(_TM_back.get_raw_mat44());
+    reg_affine_getDeformationField(&temp_fwrd, _def_image_fwrd.get_raw_nifti_sptr().get());
+    reg_affine_getDeformationField(&temp_back, _def_image_back.get_raw_nifti_sptr().get());
 
 #elif NIFTYREG_VER_1_3
     // Convert the forward and backward transformation matrices to cpp images
@@ -148,18 +150,6 @@ void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
     parser.add_key      ( "setPlatformCode",                    &reg_aladin_sym<T>::setPlatformCode                     );
 #endif
     parser.parse();
-}
-
-template<class T>
-void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_fwrd(const std::string &filename) const
-{
-    SIRFRegMisc::save_transformation_matrix(_TM_fwrd,filename);
-}
-
-template<class T>
-void SIRFRegNiftyAladinSym<T>::save_transformation_matrix_back(const std::string &filename) const
-{
-    SIRFRegMisc::save_transformation_matrix(_TM_back,filename);
 }
 
 namespace sirf {

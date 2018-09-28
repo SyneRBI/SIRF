@@ -48,41 +48,8 @@ EXPORTED_FUNCTION 	void* mSIRFReg_setParameter (void* ptr, const char* obj, cons
 EXPORTED_FUNCTION 	void* mSIRFReg_parameter(const void* ptr, const char* obj, const char* name) {
 	return cSIRFReg_parameter(ptr, obj, name);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_do_nifti_images_match(const void* im1, const void* im2, const float accuracy_percentage_of_max) {
-	return cSIRFReg_do_nifti_images_match(im1, im2, accuracy_percentage_of_max);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_filename(const char* filename) {
-	return cSIRFReg_dump_nifti_info_filename(filename);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_im1(const void* im1) {
-	return cSIRFReg_dump_nifti_info_im1(im1);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_im2(const void* im1, const void* im2) {
-	return cSIRFReg_dump_nifti_info_im2(im1, im2);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_im3(const void* im1, const void* im2, const void* im3) {
-	return cSIRFReg_dump_nifti_info_im3(im1, im2, im3);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_im4(const void* im1, const void* im2, const void* im3, const void* im4) {
-	return cSIRFReg_dump_nifti_info_im4(im1, im2, im3, im4);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_dump_nifti_info_im5(const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
-	return cSIRFReg_dump_nifti_info_im5(im1, im2, im3, im4, im5);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_open_TM(const char* filename, PTR_FLOAT ptr_TM) {
-	return cSIRFReg_SIRFReg_open_TM(filename, ptr_TM);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_compose_transformations_into_single_deformation2(const void* im, const void* trans1, const void* trans2) {
-	return cSIRFReg_compose_transformations_into_single_deformation2(im, trans1, trans2);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_compose_transformations_into_single_deformation3(const void* im, const void* trans1, const void* trans2, const void* trans3) {
-	return cSIRFReg_compose_transformations_into_single_deformation3(im, trans1, trans2, trans3);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_compose_transformations_into_single_deformation4(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4) {
-	return cSIRFReg_compose_transformations_into_single_deformation4(im, trans1, trans2, trans3, trans4);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_compose_transformations_into_single_deformation5(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
-	return cSIRFReg_compose_transformations_into_single_deformation5(im, trans1, trans2, trans3, trans4, trans5);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
+	return cSIRFReg_NiftiImage_dump_headers(num_ims, im1, im2, im3, im4, im5);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename) {
 	return cSIRFReg_NiftiImage_save_to_file(ptr, filename);
@@ -99,8 +66,23 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_dimensions(const void* ptr, 
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_data(const void* ptr, PTR_FLOAT ptr_data) {
 	return cSIRFReg_NiftiImage_get_data(ptr, ptr_data);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_maths(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
-	return cSIRFReg_NiftiImage_maths(res_ptr, im1_ptr, im2_ptr, maths_type);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
+	return cSIRFReg_NiftiImage_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type) {
+	return cSIRFReg_NiftiImage_maths_num(res_ptr, im1_ptr, val, maths_type);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_equal(const void* im1_ptr, const void* im2_ptr) {
+	return cSIRFReg_NiftiImage_equal(im1_ptr, im2_ptr);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_norm(const void* im1_ptr, const void* im2_ptr) {
+	return cSIRFReg_NiftiImage_norm(im1_ptr, im2_ptr);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_datatype(const void* im_ptr) {
+	return cSIRFReg_NiftiImage_get_datatype(im_ptr);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_change_datatype(const void* im_ptr, const char* datatype) {
+	return cSIRFReg_NiftiImage_change_datatype(im_ptr, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_from_PETImageData(void* ptr) {
 	return cSIRFReg_NiftiImage3D_from_PETImageData(ptr);
@@ -117,17 +99,17 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_create_from_3D_image(con
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr) {
 	return cSIRFReg_NiftiImage3DTensor_construct_from_3_components(obj, x_ptr, y_ptr, z_ptr);
 }
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
+	return cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
+}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr) {
 	return cSIRFReg_SIRFReg_update(ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
 	return cSIRFReg_SIRFReg_get_deformation_displacement_image(ptr, transform_type);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void* ptr, const char* filename, const char* dir) {
-	return cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(ptr, filename, dir);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, PTR_FLOAT ptr_TM, const char* dir) {
-	return cSIRFReg_SIRFReg_get_TM(ptr, ptr_TM, dir);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir) {
+	return cSIRFReg_SIRFReg_get_TM(ptr, dir);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type) {
 	return cSIRFReg_SIRFRegNiftyResample_add_transformation(self, trans, type);
@@ -144,11 +126,32 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image_filename
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_update(void* ptr) {
 	return cSIRFReg_SIRFRegImageWeightedMean_update(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref) {
-	return cSIRFReg_SIRFRegTransformation_get_as_deformation_field(ptr, ref);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref) {
+	return cSIRFReg_SIRFRegTransformation_get_as_deformation_field(ptr, name, ref);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformationAffine_construct_from_TM(PTR_FLOAT ptr_TM) {
-	return cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(ptr_TM);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM) {
+	return cSIRFReg_SIRFRegMat44_construct_from_TM(ptr_TM);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_deep_copy(const void* ptr) {
+	return cSIRFReg_SIRFRegMat44_deep_copy(ptr);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename) {
+	return cSIRFReg_SIRFRegMat44_save_to_file(ptr, filename);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val) {
+	return cSIRFReg_SIRFRegMat44_fill(ptr, val);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM) {
+	return cSIRFReg_SIRFRegMat44_as_array(ptr, ptr_TM);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_get_identity() {
+	return cSIRFReg_SIRFRegMat44_get_identity();
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr) {
+	return cSIRFReg_SIRFRegMat44_mul(mat1_ptr, mat2_ptr);
+}
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_equal(const void* mat1_ptr, const void* mat2_ptr) {
+	return cSIRFReg_SIRFRegMat44_equal(mat1_ptr, mat2_ptr);
 }
 #ifndef CSIRFREG_FOR_MATLAB
 }

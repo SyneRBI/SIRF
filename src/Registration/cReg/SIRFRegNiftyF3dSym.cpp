@@ -51,8 +51,10 @@ void SIRFRegNiftyF3dSym<T>::update()
     _registration_sptr->SetReferenceImage(_reference_image.get_raw_nifti_sptr().get());
 
     // If there is an initial transformation matrix, set it
-    if (_use_initial_transformation)
-        _registration_sptr->SetAffineTransformation(&_initial_transformation);
+    if (_use_initial_transformation) {
+        mat44 init_tm = _initial_transformation.get_raw_mat44();
+        _registration_sptr->SetAffineTransformation(&init_tm);
+    }
 
     // Parse parameter file
     this->parse_parameter_file();

@@ -196,76 +196,28 @@ class MessageRedirector:
 ###########################################################
 
 
-def do_nifti_images_match(im1, im2, accuracy_percentage_of_max):
-    """Do nifti images match?"""
-    assert isinstance(im1, NiftiImage)
-    assert isinstance(im2, NiftiImage)
-    handle = pysirfreg.cSIRFReg_do_nifti_images_match(im1.handle, im2.handle, accuracy_percentage_of_max)
-    check_status(handle)
-    r = pyiutil.intDataFromHandle(handle)
-    pyiutil.deleteDataHandle(handle)
-    return r
+class _Transformation(ABC):
+    """
+    Abstract base class for transformations.
+    """
+    def __init__(self):
+        self.handle = None
+        self.name = 'SIRFRegTransformation'
 
+    def __del__(self):
+        if self.handle is not None:
+            pyiutil.deleteDataHandle(self.handle)
 
-def dump_nifti_info(to_dump):
-    """Dump metadata of one or multiple (up to 5) nifti images."""
-    if isinstance(to_dump, str):
-        try_calling(pysirfreg.cSIRFReg_dump_nifti_info_filename(to_dump))
-    elif isinstance(to_dump, NiftiImage):
-        try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im1(to_dump.handle))
-    elif all(isinstance(n, NiftiImage) for n in to_dump):
-        if len(to_dump) == 1:
-            try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im1(to_dump[0].handle))
-        elif len(to_dump) == 2:
-            try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im2(to_dump[0].handle, to_dump[1].handle))
-        elif len(to_dump) == 3:
-            try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im3(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle))
-        elif len(to_dump) == 4:
-            try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im4(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle,
-                                                               to_dump[3].handle))
-        elif len(to_dump) == 5:
-            try_calling(pysirfreg.cSIRFReg_dump_nifti_info_im5(to_dump[0].handle, to_dump[1].handle, to_dump[2].handle,
-                                                               to_dump[3].handle, to_dump[4].handle))
-        else:
-            raise error('dump_nifti_info only implemented for up to 5 images.')
-
-    else:
-        raise error('dump_nifti_info requires filename, NiftiImage or a list of NiftiImage.')
-
-
-def get_matrix(filename=None):
-    """Get 4x4 matrix. If str is given, read from file. Else, return identity."""
-    if filename is None:
-        return numpy.identity(4, dtype=numpy.float32)
-    assert isinstance(filename, str)
-    tm = numpy.ndarray((4, 4), dtype=numpy.float32)
-    try_calling(pysirfreg.cSIRFReg_SIRFReg_open_TM(filename, tm.ctypes.data))
-    return tm
-
-
-def compose_transformations_into_single_deformation(trans, ref):
-    """Compose up to transformations into single deformation."""
-    assert isinstance(ref, NiftiImage3D)
-    assert all(isinstance(n, _Transformation) for n in trans)
-    if len(trans) == 1:
-        return trans[0]
-    z = NiftiImage3DDeformation()
-    if len(trans) == 2:
-        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation2(
-            ref.handle, trans[0].handle, trans[1].handle)
-    elif len(trans) == 3:
-        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation3(
-            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle)
-    elif len(trans) == 4:
-        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation4(
-            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle)
-    elif len(trans) == 5:
-        z.handle = pysirfreg.cSIRFReg_compose_transformations_into_single_deformation5(
-            ref.handle, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
-    else:
-        raise error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
-    check_status(z.handle)
-    return z
+    def get_as_deformation_field(self, ref):
+        """Get any type of transformation as a deformation field.
+        This is useful for joining them together. Require a reference
+        image for converting transformation matrices to deformations."""
+        assert self is not None
+        assert isinstance(ref, NiftiImage3D)
+        output = NiftiImage3DDeformation()
+        output.handle = pysirfreg.cSIRFReg_SIRFRegTransformation_get_as_deformation_field(self.handle, self.name, ref.handle)
+        check_status(output.handle)
+        return output
 
 
 class NiftiImage:
@@ -288,24 +240,44 @@ class NiftiImage:
             pyiutil.deleteDataHandle(self.handle)
 
     def __add__(self, other):
-        """
-        Overloads + operator.
-        """
-        assert_validities(self, other)
+        """Overloads + operator."""
         z = self.deep_copy()
-        try_calling(pysirfreg.cSIRFReg_NiftiImage_maths(z.handle, self.handle, other.handle, 1))
+        if isinstance(other, NiftiImage):
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_maths_im(z.handle, self.handle, other.handle, 0))
+        else:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_maths_num(z.handle, self.handle, float(other), 0))
         check_status(z.handle)
         return z
 
     def __sub__(self, other):
-        """
-        Overloads - operator.
-        """
-        assert_validities(self, other)
+        """Overloads - operator."""
         z = self.deep_copy()
-        try_calling(pysirfreg.cSIRFReg_NiftiImage_maths(z.handle, self.handle, other.handle, -1))
+        if isinstance(other, NiftiImage):
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_maths_im(z.handle, self.handle, other.handle, 1))
+        else:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_maths_num(z.handle, self.handle, float(other), 1))
         check_status(z.handle)
         return z
+
+    def __mul__(self, other):
+        """Overloads * operator."""
+        z = self.deep_copy()
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_maths_num(z.handle, self.handle, float(other), 2))
+        check_status(z.handle)
+        return z
+
+    def __eq__(self, other):
+        """Overload comparison operator."""
+        assert isinstance(other, NiftiImage)
+        h = pysirfreg.cSIRFReg_NiftiImage_equal(self.handle, other.handle)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.intDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def __ne__(self, other):
+        """Overload comparison operator."""
+        return not self == other
 
     def save_to_file(self, filename):
         """Save to file."""
@@ -361,6 +333,46 @@ class NiftiImage:
         array = numpy.ndarray(dim, dtype=numpy.float32)
         try_calling(pysirfreg.cSIRFReg_NiftiImage_get_data(self.handle, array.ctypes.data))
         return array
+
+    def get_datatype(self):
+        """Get image datatype."""
+        assert self.handle is not None
+        handle = pysirfreg.cSIRFReg_NiftiImage_get_datatype(self.handle)
+        check_status(handle)
+        datatype = pyiutil.charDataFromHandle(handle)
+        pyiutil.deleteDataHandle(handle)
+        return datatype
+
+    def change_datatype(self, datatype):
+        """Change datatype."""
+        assert self.handle is not None
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_change_datatype(self.handle, datatype))
+
+    def dump_header(self):
+        """Dump nifti header metadata."""
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(1, self.handle, None, None, None, None))
+
+    @staticmethod
+    def dump_headers(to_dump):
+        """Dump nifti header metadata of one or multiple (up to 5) nifti images."""
+        assert all(isinstance(n, NiftiImage) for n in to_dump)
+        if len(to_dump) == 1:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
+                1, to_dump[0].handle, None, None, None, None))
+        elif len(to_dump) == 2:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
+                2, to_dump[0].handle, to_dump[1].handle, None, None, None))
+        elif len(to_dump) == 3:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
+                3, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, None, None))
+        elif len(to_dump) == 4:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
+                4, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, to_dump[3].handle, None))
+        elif len(to_dump) == 5:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
+                5, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, to_dump[3].handle, to_dump[4].handle))
+        else:
+            raise error('dump_nifti_info only implemented for up to 5 images.')
 
 
 class NiftiImage3D(NiftiImage):
@@ -475,6 +487,42 @@ class NiftiImage3DDeformation(NiftiImage3DTensor, _Transformation):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    @staticmethod
+    def compose_single_deformation(trans, ref):
+        """Compose up to transformations into single deformation."""
+        assert isinstance(ref, NiftiImage3D)
+        assert all(isinstance(n, _Transformation) for n in trans)
+        if len(trans) == 1:
+            return trans[0].get_as_deformation_field(ref)
+        # This is ugly. Store each type in a single string (need to do this because I can't get
+        # virtual methods to work for multiple inheritance (deformation/displacement are both
+        # nifti images and transformations).
+        types = ''
+        for n in trans:
+            if isinstance(n, Mat44):
+                types += '1'
+            elif isinstance(n, NiftiImage3DDisplacement):
+                types += '2'
+            elif isinstance(n, NiftiImage3DDeformation):
+                types += '3'
+        z = NiftiImage3DDeformation()
+        if len(trans) == 2:
+            z.handle = pysirfreg.cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(
+                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, None, None, None)
+        elif len(trans) == 3:
+            z.handle = pysirfreg.cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(
+                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, None, None)
+        elif len(trans) == 4:
+            z.handle = pysirfreg.cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(
+                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, None)
+        elif len(trans) == 5:
+            z.handle = pysirfreg.cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(
+                ref.handle, len(trans), types, trans[0].handle, trans[1].handle, trans[2].handle, trans[3].handle, trans[4].handle)
+        else:
+            raise error('compose_single_deformation only implemented for up to 5 transformations.')
+        check_status(z.handle)
+        return z
+
 
 class _SIRFReg(ABC):
     """
@@ -556,28 +604,18 @@ class NiftyAladinSym(_SIRFReg):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def save_transformation_matrix_fwrd(self, filename):
-        """Save forward transformation matrix."""
-        assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(self.handle, filename, 'fwrd'))
-
-    def save_transformation_matrix_back(self, filename):
-        """Save backward transformation matrix."""
-        assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(self.handle, filename, 'back'))
-
     def get_transformation_matrix_fwrd(self):
         """Get forward transformation matrix."""
         assert self.handle is not None
-        tm = numpy.ndarray((4, 4), dtype=numpy.float32)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, tm.ctypes.data, 'fwrd'))
+        tm = Mat44()
+        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'fwrd')
         return tm
 
     def get_transformation_matrix_back(self):
         """Get backwards transformation matrix."""
         assert self.handle is not None
-        tm = numpy.ndarray((4, 4), dtype=numpy.float32)
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, tm.ctypes.data, 'back'))
+        tm = Mat44()
+        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'back')
         return tm
 
 
@@ -602,9 +640,10 @@ class NiftyF3dSym(_SIRFReg):
         """Set reference time point."""
         _set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
 
-    def set_initial_affine_transformation(self, initial_affine_transformation):
+    def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
-        _set_char_par(self.handle, self.name, 'initial_affine_transformation', initial_affine_transformation)
+        assert isinstance(src, Mat44)
+        _setParameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
 
 class NiftyResample:
@@ -632,7 +671,7 @@ class NiftyResample:
 
     def add_transformation_affine(self, src):
         """Add affine transformation."""
-        assert isinstance(src, TransformationAffine)
+        assert isinstance(src, Mat44)
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
 
     def add_transformation_disp(self, src):
@@ -713,42 +752,20 @@ class ImageWeightedMean:
         return image
 
 
-class _Transformation(ABC):
-    """
-    Abstract base class for transformations.
-    """
-    def __init__(self):
-        self.handle = None
-        self.name = 'SIRFRegTransformation'
-
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-
-    def get_as_deformation_field(self, ref):
-        """Get any type of transformation as a deformation field.
-        This is useful for joining them together. Require a reference
-        image for converting transformation matrices to deformations."""
-        assert isinstance(ref, NiftiImage3D)
-        output = NiftiImage3DDeformation()
-        output.handle = pysirfreg.cSIRFReg_SIRFRegTransformation_get_as_deformation_field(self.handle, ref.handle)
-        check_status(output.handle)
-        return output
-
-
-class TransformationAffine(_Transformation):
+class Mat44(_Transformation):
     """
     Class for affine transformations.
     """
     def __init__(self, src=None):
-        self.name = 'SIRFRegTransformationAffine'
+        self.handle = None
+        self.name = 'SIRFRegMat44'
         if src is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
         elif isinstance(src, numpy.ndarray):
             assert(src.shape == (4, 4))
-            self.handle = pysirfreg.cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(src.ctypes.data)
+            self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
         else:
             raise error('Wrong source in affine transformation constructor')
         check_status(self.handle)
@@ -756,3 +773,64 @@ class TransformationAffine(_Transformation):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+    def __eq__(self, other):
+        """Overload comparison operator."""
+        assert isinstance(other, Mat44)
+        h = pysirfreg.cSIRFReg_SIRFRegMat44_equal(self.handle, other.handle)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.intDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
+
+    def __ne__(self, other):
+        """Overload comparison operator."""
+        return not self == other
+
+    def __mul__(self, other):
+        """Overload multiplication operator."""
+        assert isinstance(other, Mat44)
+        mat = Mat44()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_mul(self.handle, other.handle)
+        check_status(mat.handle)
+        return mat
+
+    def deep_copy(self):
+        """Deep copy."""
+        assert self.handle is not None
+        mat = Mat44()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_deep_copy(self.handle)
+        check_status(mat.handle)
+        return mat
+
+    def save_to_file(self, filename):
+        """Save to file."""
+        assert self.handle is not None
+        try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_save_to_file(self.handle, filename))
+
+    def fill(self, src):
+        """Fill."""
+        assert self.handle is not None
+        if isinstance(src, numpy.ndarray):
+            assert(src.shape == (4, 4))
+            self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
+        else:
+            try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_fill(self.handle, float(src)))
+
+    def get_determinant(self):
+        """Get determinant."""
+        return _float_par(self.handle, self.name, 'determinant')
+
+    def as_array(self):
+        """Get forward transformation matrix."""
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype=numpy.float32)
+        try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_as_array(self.handle, tm.ctypes.data))
+        return tm
+
+    @staticmethod
+    def get_identity():
+        """Get identity matrix."""
+        mat = Mat44()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_get_identity()
+        return mat

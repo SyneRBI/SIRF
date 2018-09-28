@@ -59,6 +59,12 @@ namespace sirf {
     // ---------------------------------------------------------------------------- //
     void*
         cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name);
+
+    // ---------------------------------------------------------------------------- //
+    // SIRFRegMat44
+    // ---------------------------------------------------------------------------- //
+    void*
+        cSIRFReg_SIRFRegMat44Parameter(const DataHandle* handle, const char* name);
 }
 
 #endif

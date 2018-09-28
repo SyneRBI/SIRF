@@ -31,6 +31,7 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 #include "NiftiImage3DDisplacement.h"
 #include "NiftiImage3DDeformation.h"
+#include "SIRFRegMat44.h"
 #if NIFTYREG_VER_1_5
 #include "_reg_globalTrans.h"
 #endif
@@ -144,8 +145,7 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         // Open the transformation matrix
-        mat44 TM;
-        SIRFRegMisc::open_transformation_matrix(TM,TM_filename);
+        SIRFRegMat44 TM(TM_filename);
 
         // Create images
         NiftiImage3DDeformation  def;
@@ -157,7 +157,8 @@ int main(int argc, char* argv[])
         // Get the deformation field image
 #if NIFTYREG_VER_1_5
         def.create_from_3D_image(ref);
-        reg_affine_getDeformationField(&TM, def.get_raw_nifti_sptr().get());
+        mat44 temp = TM.get_raw_mat44();
+        reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
 #elif NIFTYREG_VER_1_3
         NiftiImage3D cpp;
         SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM, ref_sptr);

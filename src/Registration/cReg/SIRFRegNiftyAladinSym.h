@@ -32,6 +32,7 @@ limitations under the License.
 
 
 #include "SIRFReg.h"
+#include "SIRFRegMat44.h"
 #if NIFTYREG_VER_1_5
 #include <_reg_aladin_sym.h>
 #elif NIFTYREG_VER_1_3
@@ -48,16 +49,10 @@ public:
     void update();
 
     /// Get forwards transformation matrix
-    const mat44 &get_transformation_matrix_fwrd() const { return _TM_fwrd; }
+    const SIRFRegMat44 &get_transformation_matrix_fwrd() const { return _TM_fwrd; }
 
     /// Get backwards transformation matrix
-    const mat44 &get_transformation_matrix_back() const { return _TM_back; }
-
-    /// Save forwards transformation matrix to file
-    void save_transformation_matrix_fwrd(const std::string &filename) const;
-
-    /// Save backwards transformation matrix to file
-    void save_transformation_matrix_back(const std::string &filename) const;
+    const SIRFRegMat44 &get_transformation_matrix_back() const { return _TM_back; }
 
 protected:
 
@@ -72,9 +67,9 @@ protected:
 #endif
 
     /// Forwards transformation matrix
-    mat44 _TM_fwrd;
+    SIRFRegMat44 _TM_fwrd;
     /// Backwards transformation matrix
-    mat44 _TM_back;
+    SIRFRegMat44 _TM_back;
 };
 }
 

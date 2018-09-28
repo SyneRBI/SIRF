@@ -60,11 +60,26 @@ public:
     /// Nifti shared_ptr constructor
     NiftiImage(const std::shared_ptr<nifti_image> image_nifti);
 
+    /// Equality operator
+    bool operator==(const NiftiImage &other) const;
+
+    /// Equality operator
+    bool operator!=(const NiftiImage &other) const;
+
     /// Addition operator
     NiftiImage operator+(const NiftiImage&) const;
 
     /// Subtraction operator
     NiftiImage operator-(const NiftiImage&) const;
+
+    /// Addition operator
+    NiftiImage operator+(const float&) const;
+
+    /// Subtraction operator
+    NiftiImage operator-(const float&) const;
+
+    /// Multiply image
+    NiftiImage operator*(const float &value) const;
 
     /// Is the image initialised? (Should unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image ? true : false); }
@@ -82,7 +97,7 @@ public:
     float get_min() const;
 
     /// Get element
-    float get_element(int x, int y=0, int z=0, int t=0, int u=0, int v=0, int w=0) const;
+    float get_element(const int idx[]) const;
 
     /// Get sum
     float get_sum() const;
@@ -90,11 +105,27 @@ public:
     /// Fill
     void fill(const float &v);
 
+    /// Get norm
+    float get_norm(const NiftiImage&) const;
+
     /// Deep copy
     NiftiImage deep_copy() const;
 
     /// Get number of voxels
     void get_dimensions(int dims[8]) const;
+
+    /// Change image datatype
+    template<typename newType>
+    void change_datatype();
+
+    /// Get datatype
+    std::string get_datatype() const;
+
+    /// Dump header info
+    void dump_header() const;
+
+    /// Dump multiple header info
+    static void dump_headers(const std::vector<sirf::NiftiImage> &ims);
 
 protected:
 

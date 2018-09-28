@@ -11,10 +11,8 @@ g.ref_aladin_filename      = [examples_path  '/test.nii.gz'];
 g.flo_aladin_filename      = [examples_path  '/test2.nii.gz'];
 g.ref_f3d_filename         = [examples_path  '/mouseFixed.nii.gz'];
 g.flo_f3d_filename         = [examples_path  '/mouseMoving.nii.gz'];
-g.parameter_file_aladin    = [examples_path  '/paramFiles/aladin.par'];
-g.parameter_file_f3d       = [examples_path  '/paramFiles/f3d.par'];
-g.matrix                   = [examples_path  '/transformation_matrix.txt'];
-g.stir_nifti               = [examples_path  '/nifti_created_by_stir.nii'];
+g.parameter_file_aladin    = [examples_path  '/paramFiles/niftyreg_aladin.par'];
+g.parameter_file_f3d       = [examples_path  '/paramFiles/niftyreg_f3d.par'];
 
 % Output filenames
 g.save_nifti_image                           = [output_path 'save_NiftiImage'];
@@ -50,11 +48,7 @@ g.ref_aladin = mSIRFReg.NiftiImage3D( g.ref_aladin_filename );
 g.flo_aladin = mSIRFReg.NiftiImage3D( g.flo_aladin_filename );
 g.ref_f3d    = mSIRFReg.NiftiImage3D(   g.ref_f3d_filename  );
 g.flo_f3d    = mSIRFReg.NiftiImage3D(   g.flo_f3d_filename  );
-g.nifti      = mSIRFReg.NiftiImage3D(        g.stir_nifti   );
 
-g.required_percentage_accuracy = single(1);
-
-try_misc_functions(g);
 try_niftiimage(g);
 try_niftiimage3d(g);
 try_niftiimage3dtensor(g);
@@ -66,35 +60,6 @@ try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
 try_stir_to_sirfreg(g);
-
-function try_misc_functions(g)
-	disp('% ----------------------------------------------------------------------- %')
-	disp('%                  Starting misc functions test...')
-	disp('%------------------------------------------------------------------------ %')
-
-    % do nifti images match?
-    assert(mSIRFReg.Misc.do_nifti_images_match(g.ref_aladin, g.ref_aladin, g.required_percentage_accuracy) == 1, "Images don't match, but they should.")
-    assert(mSIRFReg.Misc.do_nifti_images_match(g.ref_aladin, g.flo_aladin, g.required_percentage_accuracy) == 0, "Images match, but they shouldn't.")
-
-    % dump from filename
-    mSIRFReg.Misc.dump_nifti_info(g.ref_aladin_filename)
-    % dump from NiftiImage
-    mSIRFReg.Misc.dump_nifti_info(g.ref_aladin)
-    % dump from multiple images
-    mSIRFReg.Misc.dump_nifti_info([g.ref_aladin, g.flo_aladin, g.nifti])
-    % dump from NiftiImageD3DDeformation
-    deform = mSIRFReg.NiftiImage3DDeformation();
-    deform.create_from_3D_image(g.ref_aladin);
-    mSIRFReg.Misc.dump_nifti_info(deform)
-
-    % identity matrix
-    tm_iden = mSIRFReg.Misc.get_matrix();
-    disp(tm_iden)
-
-	disp('% ----------------------------------------------------------------------- %')
-	disp('%                  Finished misc functions test.')
-	disp('%------------------------------------------------------------------------ %')
-end
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -122,7 +87,7 @@ function try_niftiimage(g)
     % Deep copy
     d = b.deep_copy();
     assert(d.handle_ ~= b.handle_, 'NiftiImage deep_copy failed.');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, b, g.required_percentage_accuracy) == 1, 'NiftiImage deep_copy failed.');
+    assert(d == b, 'NiftiImage deep_copy failed.');
 
     % Addition
     e = d + d;
@@ -135,6 +100,18 @@ function try_niftiimage(g)
     % Sum
     assert(abs(e.get_sum()) < 0.0001, 'NiftiImage get_sum() failed.')
 
+    % Add num to image
+    q = e + 1;
+    assert(q.get_max() == e.get_max() + 1, 'NiftiImage __add__ val failed.');
+
+    % Subtract num from image
+    r = e - 1;
+    assert(r.get_max() == e.get_max() - 1, 'NiftiImage __sub__ val failed.');
+
+    % Multiply image by num
+    s = e * 10;
+    assert(s.get_max() == e.get_max() * 10, 'NiftiImage __mul__ val failed.');
+
     % Dimensions
     f = e.get_dimensions();
     assert(all(f == [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImage get_dimensions() failed.')
@@ -144,6 +121,24 @@ function try_niftiimage(g)
     assert(max(arr(:)) == 100, 'NiftiImage as_array().max() failed.')
     assert(ndims(arr) == 3, 'NiftiImage as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImage as_array().shape failed.')
+
+    % Test changing the datatypes
+    types = {};
+    types = [types; 'signed short'];
+    types = [types; 'signed int'];
+    types = [types; 'float'];
+    types = [types; 'double'];
+    types = [types; 'unsigned char'];
+    types = [types; 'unsigned short'];
+    types = [types; 'unsigned int'];
+    types = [types; 'signed long long'];
+    types = [types; 'unsigned long long'];
+    types = [types; 'long double'];
+    for i = 1:size(types)
+        aa = g.ref_aladin.deep_copy();
+        aa.change_datatype(types{i});
+        assert(aa.get_max() == 255, 'NiftiImage change datatype failed.')
+    end
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImage test.')
@@ -176,7 +171,7 @@ function try_niftiimage3d(g)
     % Deep copy
     d = b.deep_copy();
     assert(d.handle_ ~= b.handle_, 'NiftiImage3D deep_copy failed.');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, b, g.required_percentage_accuracy) == 1, 'NiftiImage3D deep_copy failed.');
+    assert(d == b, 'NiftiImage3D deep_copy failed.');
 
     % Addition
     e = d + d;
@@ -198,17 +193,6 @@ function try_niftiimage3d(g)
     assert(max(arr(:)) == 100, 'NiftiImage3D as_array().max() failed.')
     assert(ndims(arr) == 3, 'NiftiImage3D as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImage3D as_array().shape failed.')
-
-    % Construct from stir mSTIR.ImageData
-    stir = mSTIR.ImageData(g.stir_nifti);
-    c = mSIRFReg.NiftiImage3D(stir);
-    c.fill(100);
-
-    % Copy data to mSTIRImageData
-    stir.fill(3.);
-    c.copy_data_to(stir);
-    arr = stir.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage3D copy_data_to stir ImageData failed.');
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImage3D test.')
@@ -232,7 +216,7 @@ function try_niftiimage3dtensor(g)
     c = mSIRFReg.NiftiImage3DTensor([g.save_nifti_image_3d_tensor_not_split '.nii']);
 
     % Constructor from 3x3D
-    d = mSIRFReg.NiftiImage3DTensor(g.ref_aladin, g.ref_aladin, g.ref_aladin)
+    d = mSIRFReg.NiftiImage3DTensor(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
@@ -246,7 +230,7 @@ function try_niftiimage3dtensor(g)
     % Deep copy
     d = c.deep_copy();
     assert(d.handle_ ~= c.handle_, 'NiftiImage3DTensor deep_copy failed (they have the same handle).');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, c, g.required_percentage_accuracy) == 1, 'NiftiImage3DTensor deep_copy failed (values do not match).');
+    assert(d == c, 'NiftiImage3DTensor deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
@@ -291,7 +275,7 @@ function try_niftiimage3ddisplacement(g)
     c = mSIRFReg.NiftiImage3DDisplacement([g.save_nifti_image_3d_displacement_not_split '.nii']);
 
     % Constructor from 3x3D
-    h = mSIRFReg.NiftiImage3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin)
+    h = mSIRFReg.NiftiImage3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
@@ -305,7 +289,7 @@ function try_niftiimage3ddisplacement(g)
     % Deep copy
     d = c.deep_copy();
     assert(d.handle_ ~= c.handle_, 'NiftiImage3DDisplacement deep_copy failed (they have the same handle).');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, c, g.required_percentage_accuracy) == 1, 'NiftiImage3DDisplacement deep_copy failed (values do not match).');
+    assert(d == c, 'NiftiImage3DDisplacement deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
@@ -350,7 +334,7 @@ function try_niftiimage3ddeformation(g)
     c = mSIRFReg.NiftiImage3DDeformation([g.save_nifti_image_3d_deformation_not_split '.nii']);
 
     % Constructor from 3x3D
-    h = mSIRFReg.NiftiImage3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin)
+    h = mSIRFReg.NiftiImage3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
@@ -364,7 +348,7 @@ function try_niftiimage3ddeformation(g)
     % Deep copy
     d = c.deep_copy();
     assert(d.handle_ ~= c.handle_, 'NiftiImage3DDeformation deep_copy failed (they have the same handle).');
-    assert(mSIRFReg.Misc.do_nifti_images_match(d, c, g.required_percentage_accuracy) == 1, 'NiftiImage3DDeformation deep_copy failed (values do not match).');
+    assert(d == c, 'NiftiImage3DDeformation deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
@@ -412,18 +396,18 @@ function na =try_niftyaladin(g)
     disp_back = na.get_displacement_field_back();
 
     warped.save_to_file(g.aladin_warped);
-    na.save_transformation_matrix_fwrd(g.TM_fwrd);
-    na.save_transformation_matrix_back(g.TM_back);
+    na.get_transformation_matrix_fwrd().save_to_file(g.TM_fwrd);
+    na.get_transformation_matrix_back().save_to_file(g.TM_back);
     def_fwrd.save_to_file(g.aladin_def_fwrd);
     def_back.save_to_file_split_xyz_components(g.aladin_def_back);
     disp_fwrd.save_to_file(g.aladin_disp_fwrd);
     disp_back.save_to_file_split_xyz_components(g.aladin_disp_back);
 
     % Fwrd TM
-    fwrd_tm = na.get_transformation_matrix_fwrd()
+    fwrd_tm = na.get_transformation_matrix_fwrd().as_array()
 
     % Back TM
-    back_tm = na.get_transformation_matrix_back()
+    back_tm = na.get_transformation_matrix_back().as_array()
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -435,6 +419,9 @@ function try_niftyf3d(g)
 	disp('%                  Starting Nifty f3d test...')
 	disp('%------------------------------------------------------------------------ %')
 
+    % Get initial transformation
+    tm_init = mSIRFReg.Mat44(g.TM_fwrd);
+
 	% default constructor
     nf = mSIRFReg.NiftyF3dSym();
     nf.set_reference_image(g.ref_f3d);
@@ -442,7 +429,7 @@ function try_niftyf3d(g)
     nf.set_parameter_file(g.parameter_file_f3d);
     nf.set_reference_time_point(1);
     nf.set_floating_time_point(1);
-    nf.set_initial_affine_transformation(g.TM_fwrd);
+    nf.set_initial_affine_transformation(tm_init);
     nf.update();
 
     % Get outputs
@@ -469,38 +456,24 @@ function try_transformations(g,na)
 	disp('%------------------------------------------------------------------------ %')
 
 
-    % Affine
-    disp('Testing affine...')
-    a1 = mSIRFReg.TransformationAffine();
-    a2 = mSIRFReg.TransformationAffine(g.TM_fwrd);
-    a3 = mSIRFReg.TransformationAffine(na.get_transformation_matrix_fwrd());
-
-    % Displacement
-    disp('Testing displacement...')
-    b1 = mSIRFReg.TransformationDisplacement();
-    b2 = mSIRFReg.TransformationDisplacement([g.aladin_disp_fwrd '.nii']);
-    b3 = mSIRFReg.TransformationDisplacement(na.get_displacement_field_fwrd());
-
-    % Deformation
-    disp('Testing deformation...')
-    c1 = mSIRFReg.TransformationDeformation();
-    c2 = mSIRFReg.TransformationDeformation([g.aladin_def_fwrd '.nii']);
-    c3 = mSIRFReg.TransformationDeformation(na.get_deformation_field_fwrd());
+    % Get transformations
+    a3 = na.get_transformation_matrix_fwrd();
+    b3 = na.get_displacement_field_fwrd();
+    c3 = na.get_deformation_field_fwrd();
 
     % Get as deformations
     a_def = a3.get_as_deformation_field(g.ref_aladin);
     b_def = b3.get_as_deformation_field(g.ref_aladin);
     c_def = c3.get_as_deformation_field(g.ref_aladin);
-    assert(mSIRFReg.Misc.do_nifti_images_match(a_def, na.get_deformation_field_fwrd(), g.required_percentage_accuracy)==1, 'SIRFRegTransformationAffine get_as_deformation_field() failed.')
-    assert(mSIRFReg.Misc.do_nifti_images_match(b_def, na.get_deformation_field_fwrd(), g.required_percentage_accuracy)==1, 'SIRFRegTransformationDisplacement get_as_deformation_field() failed.')
-    assert(mSIRFReg.Misc.do_nifti_images_match(c_def, na.get_deformation_field_fwrd(), g.required_percentage_accuracy)==1, 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
+    assert(a_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationAffine get_as_deformation_field() failed.')
+    assert(b_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationDisplacement get_as_deformation_field() failed.')
+    assert(c_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
 
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-    tm_iden = mSIRFReg.Misc.get_matrix();
-    trans_aff_iden = mSIRFReg.TransformationAffine(tm_iden);
-    trans = [trans_aff_iden, trans_aff_iden, c3];
-    composed = mSIRFReg.Misc.compose_transformations_into_single_deformation(trans, g.ref_aladin);
-    assert(mSIRFReg.Misc.do_nifti_images_match(composed.get_as_deformation_field(g.ref_aladin), na.get_deformation_field_fwrd(), g.required_percentage_accuracy) == 1, 'compose_transformations_into_single_deformation failed.')
+    tm_iden = mSIRFReg.Mat44.get_identity();
+    trans = [tm_iden, tm_iden, c3];
+    composed = mSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, g.ref_aladin);
+    assert(composed == na.get_deformation_field_fwrd(), 'compose_single_deformation failed.')
 
 
 	disp('% ----------------------------------------------------------------------- %')
@@ -513,11 +486,10 @@ function try_resample(g,na)
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
 
-	tm_iden = mSIRFReg.Misc.get_matrix();
-	tm_iden = mSIRFReg.TransformationAffine(tm_iden);
-    tm   = mSIRFReg.TransformationAffine(na.get_transformation_matrix_fwrd());
-    displ = mSIRFReg.TransformationDisplacement(na.get_displacement_field_fwrd());
-    deff = mSIRFReg.TransformationDeformation(na.get_deformation_field_fwrd());
+	tm_iden = mSIRFReg.Mat44.get_identity();
+    tm      = na.get_transformation_matrix_fwrd();
+    displ   = na.get_displacement_field_fwrd();
+    deff    = na.get_deformation_field_fwrd();
 
     disp('Testing rigid resample...')
     nr1 = mSIRFReg.NiftyResample();
@@ -550,7 +522,7 @@ function try_resample(g,na)
     nr3.update()
     nr3.get_output().save_to_file(g.nonrigid_resample_def)
 
-    assert(mSIRFReg.Misc.do_nifti_images_match(na.get_output(), nr1.get_output(), g.required_percentage_accuracy) == 1, 'Rigid resampled output should match registration (aladin) output.')
+    assert(na.get_output() == nr1.get_output(), 'Rigid resampled output should match registration (aladin) output.')
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished Nifty resample test.')
@@ -564,11 +536,14 @@ function try_weighted_mean(g,na)
 
 		% Do 3D
 		wm1 = mSIRFReg.ImageWeightedMean();
-		im1 = mSIRFReg.NiftiImage3D(g.stir_nifti);
-		im2 = mSIRFReg.NiftiImage3D(g.stir_nifti);
-		im3 = mSIRFReg.NiftiImage3D(g.stir_nifti);
-		im4 = mSIRFReg.NiftiImage3D(g.stir_nifti);
-		im1.fill(1);
+        % Change to float to avoid rounding errors
+        ref_aladin_float = g.ref_aladin;
+        ref_aladin_float.change_datatype('float');
+        im1 = ref_aladin_float.deep_copy();
+        im2 = ref_aladin_float.deep_copy();
+        im3 = ref_aladin_float.deep_copy();
+        im4 = ref_aladin_float.deep_copy();
+        im1.fill(1);
 		im2.fill(4);
 		im3.fill(7);
 		im4.fill(6);
@@ -579,9 +554,9 @@ function try_weighted_mean(g,na)
 		wm1.update();
 		wm1.get_output().save_to_file(g.output_weighted_mean);
 		% Answer should be 4.5, so compare it to that!
-		res = mSIRFReg.NiftiImage3D(g.stir_nifti);
+        res = ref_aladin_float.deep_copy();
 		res.fill(4.5);
-		assert(mSIRFReg.Misc.do_nifti_images_match(wm1.get_output(), res, g.required_percentage_accuracy) == 1, '3D weighted mean test failed.')
+		assert(wm1.get_output() == res, '3D weighted mean test failed.')
 
 		% Do 4D
 		wm2 = mSIRFReg.ImageWeightedMean();
@@ -602,7 +577,7 @@ function try_weighted_mean(g,na)
 		% Answer should be 4.5, so compare it to that!
 		res = na.get_deformation_field_fwrd().deep_copy();
 		res.fill(4.5);
-		assert(mSIRFReg.Misc.do_nifti_images_match(wm2.get_output(), res, g.required_percentage_accuracy) == 1, '4D weighted mean test failed.')
+		assert(wm2.get_output() == res, '4D weighted mean test failed.')
 
 
     disp('% ----------------------------------------------------------------------- %')
@@ -616,12 +591,8 @@ function try_stir_to_sirfreg(g)
     disp('%------------------------------------------------------------------------ %')
 
 		% Open stir image
-		pet_image_data = mSTIR.ImageData(g.stir_nifti);
+                pet_image_data = mSTIR.ImageData(g.ref_aladin_filename);
 		image_data_from_stir = mSIRFReg.NiftiImage3D(pet_image_data);
-
-		% Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
-		image_data_from_nifti = mSIRFReg.NiftiImage3D(g.stir_nifti);
-		mSIRFReg.Misc.do_nifti_images_match(image_data_from_stir, image_data_from_nifti, g.required_percentage_accuracy);
 
 		% Now fill the stir and sirfreg images with 1 and 100, respectively
 		pet_image_data.fill(1.);
@@ -637,5 +608,32 @@ function try_stir_to_sirfreg(g)
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished STIR to SIRFReg test.')
+    disp('%------------------------------------------------------------------------ %')
+end
+
+function try_sirfregmat44(g,na)
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Starting SIRFRegMat44 test...')
+    disp('%------------------------------------------------------------------------ %')
+
+    % Construct from file
+    a = mSIRFReg.Mat44(TM_fwrd);
+
+    % Multiply fwrd and inverse, should equal identity
+    b = na.get_transformation_matrix_fwrd();
+    c = na.get_transformation_matrix_back();
+    d = b * c;
+    e = mSIRFReg.Mat44.get_identity();
+    assert(d == e, 'SIRFRegMat44::mult/comparison failed.');
+
+    d.fill(3);
+    f = d.as_array();
+    assert(np.all(f == 3), 'SIRFRegMat44::fill/operator[] failed.');
+
+    assert(d.get_determinant() < 1.e-7, 'SIRFRegMat44::get_determinant failed.');
+    assert(e.get_determinant() - 1. < 1.e-7, 'SIRFRegMat44::get_determinant failed.');
+
+    disp('% ----------------------------------------------------------------------- %')
+    disp('%                  Finished SIRFRegMat44 test.')
     disp('%------------------------------------------------------------------------ %')
 end

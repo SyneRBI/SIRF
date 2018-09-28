@@ -32,6 +32,7 @@ limitations under the License.
 
 #include "SIRFReg.h"
 #include "SIRFRegMisc.h"
+#include "SIRFRegMat44.h"
 
 template<class T> class reg_f3d_sym;
 
@@ -59,7 +60,7 @@ public:
     void set_reference_time_point(const int reference_time_point) { _reference_time_point = reference_time_point; }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(const mat44 &mat)
+    void set_initial_affine_transformation(const SIRFRegMat44 &mat)
     {
         _initial_transformation = mat;
         _use_initial_transformation = true;
@@ -68,7 +69,7 @@ public:
     /// Set initial affine transformation
     void set_initial_affine_transformation(const std::string &filename)
     {
-        SIRFRegMisc::open_transformation_matrix(_initial_transformation,filename);
+        _initial_transformation = SIRFRegMat44(filename);
         _use_initial_transformation = true;
     }
 
@@ -88,7 +89,7 @@ protected:
     /// Reference time point
     int _reference_time_point;
     /// Transformation matrix
-    mat44 _initial_transformation;
+    SIRFRegMat44 _initial_transformation;
     /// Bool to use transformation matrix
     bool _use_initial_transformation;
 };

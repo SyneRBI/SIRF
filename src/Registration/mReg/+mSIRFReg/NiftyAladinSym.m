@@ -35,33 +35,17 @@ classdef NiftyAladinSym < mSIRFReg.SIRFReg
                 self.handle_ = [];
             end
         end
-        function save_transformation_matrix_fwrd(self, filename)
-            %Save forward transformation matrix.
-            narginchk(2,2);
-            assert(ischar(filename))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix', self.handle_, filename, 'fwrd');
-            mUtilities.check_status([self.name ':save_transformation_matrix_fwrd'], h);
-            mUtilities.delete(h)
-        end
-        function save_transformation_matrix_back(self, filename)
-            %Save backward transformation matrix.
-            narginchk(2,2);
-            assert(ischar(filename))
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix', self.handle_, filename, 'back');
-            mUtilities.check_status([self.name ':save_transformation_matrix_back'], h);
-            mUtilities.delete(h)
-        end
         function tm = get_transformation_matrix_fwrd(self)
             %Get forward transformation matrix.
-            ptr_v = libpointer('singlePtr', zeros(4, 4));
-            calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, ptr_v, 'fwrd');
-            tm = ptr_v.Value;
+            tm = mSIRFReg.Mat44();
+            tm.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, 'fwrd');
+            mUtilities.check_status([self.name ':get_transformation_matrix_fwrd'], tm.handle_);
         end
         function tm = get_transformation_matrix_back(self)
             %Get backwards transformation matrix.
-            ptr_v = libpointer('singlePtr', zeros(4, 4));
-            calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, ptr_v, 'back');
-            tm = ptr_v.Value;
+            tm = mSIRFReg.Mat44();
+            tm.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, 'back');
+            mUtilities.check_status([self.name ':get_transformation_matrix_back'], tm.handle_);
         end
     end
 end

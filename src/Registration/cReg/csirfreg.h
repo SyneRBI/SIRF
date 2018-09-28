@@ -25,6 +25,7 @@ limitations under the License.
 #define PTR_INT size_t
 #define PTR_FLOAT size_t
 #define PTR_DOUBLE size_t
+
 extern "C" {
 #else
 #define PTR_INT int*
@@ -39,27 +40,19 @@ extern "C" {
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name);
 
-    // SIRFRegMisc
-    void* cSIRFReg_do_nifti_images_match(const void* im1, const void* im2, const float accuracy_percentage_of_max);
-    void* cSIRFReg_dump_nifti_info_filename(const char* filename);
-    void* cSIRFReg_dump_nifti_info_im1(const void* im1);
-    void* cSIRFReg_dump_nifti_info_im2(const void* im1, const void* im2);
-    void* cSIRFReg_dump_nifti_info_im3(const void* im1, const void* im2, const void* im3);
-    void* cSIRFReg_dump_nifti_info_im4(const void* im1, const void* im2, const void* im3, const void* im4);
-    void* cSIRFReg_dump_nifti_info_im5(const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
-    void* cSIRFReg_SIRFReg_open_TM(const char* filename, PTR_FLOAT ptr_TM);
-    void* cSIRFReg_compose_transformations_into_single_deformation2(const void* im, const void* trans1, const void* trans2);
-    void* cSIRFReg_compose_transformations_into_single_deformation3(const void* im, const void* trans1, const void* trans2, const void* trans3);
-    void* cSIRFReg_compose_transformations_into_single_deformation4(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4);
-    void* cSIRFReg_compose_transformations_into_single_deformation5(const void* im, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
-
     // NiftiImage
+    void* cSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
     void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename);
     void* cSIRFReg_NiftiImage_fill(const void* ptr, const float val);
     void* cSIRFReg_NiftiImage_deep_copy(const void* copy_ptr, const void *orig_ptr);
     void* cSIRFReg_NiftiImage_get_dimensions(const void* ptr, PTR_INT ptr_dim);
     void* cSIRFReg_NiftiImage_get_data(const void* ptr, PTR_FLOAT ptr_data);
-    void* cSIRFReg_NiftiImage_maths(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
+    void* cSIRFReg_NiftiImage_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
+    void* cSIRFReg_NiftiImage_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
+    void* cSIRFReg_NiftiImage_equal(const void* im1_ptr, const void* im2_ptr);
+    void* cSIRFReg_NiftiImage_norm(const void* im1_ptr, const void* im2_ptr);
+    void* cSIRFReg_NiftiImage_get_datatype(const void* im_ptr);
+    void* cSIRFReg_NiftiImage_change_datatype(const void* im_ptr, const char* datatype);
 
     // NiftiImage3D
     void* cSIRFReg_NiftiImage3D_from_PETImageData(void* ptr);
@@ -70,13 +63,15 @@ extern "C" {
     void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj);
     void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 
-	// SIRFReg
+    // NiftiImage3DDeformation
+    void* cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+
+    // SIRFReg
     void* cSIRFReg_SIRFReg_update(void* ptr);
     void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
 
     // SIRFRegAladin methods
-    void* cSIRFReg_SIRFRegNiftyAladinSym_save_transformation_matrix(const void* ptr, const char* filename, const char* dir);
-    void* cSIRFReg_SIRFReg_get_TM(const void* ptr, PTR_FLOAT ptr_TM, const char* dir);
+    void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir);
 
     // SIRFRegNiftyResample
     void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
@@ -88,8 +83,17 @@ extern "C" {
     void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr);
 
     // SIRFRegTransformation
-    void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const void* ref);
-    void* cSIRFReg_SIRFRegTransformationAffine_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
+
+    // SIRFRegMat44
+    void* cSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);
+    void* cSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename);
+    void* cSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val);
+    void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+    void* cSIRFReg_SIRFRegMat44_get_identity();
+    void* cSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr);
+    void* cSIRFReg_SIRFRegMat44_equal(const void* mat1_ptr, const void* mat2_ptr);
 
 #ifndef CSIRFREG_FOR_MATLAB
 }

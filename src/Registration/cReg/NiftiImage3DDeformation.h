@@ -81,6 +81,12 @@ public:
         check_ref_and_def(ref,*this);
         return this->deep_copy();
     }
+
+    /// Compose multiple transformations into single deformation field
+    static NiftiImage3DDeformation compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref);
+
+    /// Compose multiple transformations into single deformation field
+    static NiftiImage3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref);
 };
 }
 

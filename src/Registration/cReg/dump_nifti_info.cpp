@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
             ims.push_back(NiftiImage(argv[i]));
 
         // Print info
-        SIRFRegMisc::dump_nifti_info(ims);
+        NiftiImage::dump_headers(ims);
 
         for (int i=0; i<num_images; ++i) {
             std::cout << "\nPrinting min/max of image " << i << "\n";

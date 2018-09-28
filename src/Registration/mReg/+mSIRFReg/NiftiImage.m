@@ -48,17 +48,48 @@ classdef NiftiImage < handle
         end
         function z = plus(self, other)
             % Overloads the addition operator
-            mUtilities.assert_validities(self, other)
             z = self.deep_copy();
-            calllib('msirfreg', 'mSIRFReg_NiftiImage_maths', z.handle_, self.handle_, other.handle_, 1);
-            mUtilities.check_status('NiftiImage:plus', z.handle_);
+            if isa(other, 'mSIRFReg.NiftiImage')
+            	calllib('msirfreg', 'mSIRFReg_NiftiImage_maths_im', z.handle_, self.handle_, other.handle_, 0);
+            elseif isnumeric(other)
+            	calllib('msirfreg', 'mSIRFReg_NiftiImage_maths_num', z.handle_, self.handle_, other, 0);
+            else
+            	error('NiftiImage:plus should be image or number.')
+            end
+        	mUtilities.check_status('NiftiImage:plus', z.handle_);
         end
         function z = minus(self, other)
             % Overloads the subtraction operator
-            mUtilities.assert_validities(self, other)
             z = self.deep_copy();
-            calllib('msirfreg', 'mSIRFReg_NiftiImage_maths', z.handle_, self.handle_, other.handle_, -1);
-            mUtilities.check_status('NiftiImage:plus', z.handle_);
+            if isa(other, 'mSIRFReg.NiftiImage')
+            	calllib('msirfreg', 'mSIRFReg_NiftiImage_maths_im', z.handle_, self.handle_, other.handle_, 1);
+            elseif isnumeric(other)
+            	calllib('msirfreg', 'mSIRFReg_NiftiImage_maths_num', z.handle_, self.handle_, other, 1);
+            else
+            	error('NiftiImage:minus should be image or number.')
+            end
+            mUtilities.check_status('NiftiImage:minus', z.handle_);
+        end
+        function z = mtimes(self,other)
+            % Overloads the multiplication operator
+            if isnumeric(other)
+            	z = self.deep_copy();
+            	calllib('msirfreg', 'mSIRFReg_NiftiImage_maths_num', z.handle_, self.handle_, other, 2);
+            else
+            	error('NiftiImage:mtimes should be number.')
+            end
+            mUtilities.check_status('NiftiImage:mtimes', z.handle_);
+        end
+        function value = eq(self, other)
+        	% Overload equality operator
+        	assert(isa(other, 'mSIRFReg.NiftiImage'));
+    	    hv = calllib('msirfreg', 'mSIRFReg_NiftiImage_equal', self.handle_, other.handle_);
+			mUtilities.check_status('parameter', hv);
+    		value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
+        end
+        function value = ne(self, other)
+        	% Overload inequality operator
+        	value = ~(self==other);
         end
         function save_to_file(self, filename)
             %Save to file.
@@ -90,6 +121,13 @@ classdef NiftiImage < handle
             mUtilities.check_status([self.name ':fill'], h);
             mUtilities.delete(h)            
         end
+        function value = get_norm(self,other)
+            %Get norm.
+        	mUtilities.assert_validities(self,other)
+    	    hv = calllib('msirfreg', 'mSIRFReg_NiftiImage_norm', self.handle_, other.handle_);
+			mUtilities.check_status('parameter', hv)
+    		value = calllib('miutilities', 'mFloatDataFromHandle', hv);
+        end
         function output = deep_copy(self)
             %Deep copy image.
             if strcmp(self.name, 'NiftiImage')
@@ -113,6 +151,43 @@ classdef NiftiImage < handle
             ptr_v = libpointer('singlePtr', zeros(dim));
             calllib('msirfreg', 'mSIRFReg_NiftiImage_get_data', self.handle_, ptr_v);
             array = reshape(ptr_v.Value,dim);
+        end
+        function datatype = get_datatype(self)
+            %Get image datatype.
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_get_datatype', self.handle_);
+            mUtilities.check_status('NiftiImage', h);
+            datatype = calllib('miutilities', 'mCharDataFromHandle', h);
+            mUtilities.delete(h)
+        end
+        function change_datatype(self, datatype)
+            %Change datatype.
+            calllib('msirfreg', 'mSIRFReg_NiftiImage_change_datatype', self.handle_, datatype);
+        end
+        function dump_header(self)
+            %Dump metadata of nifti image.
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 1, self.handle_, [], [], [], []);
+            mUtilities.check_status('parameter', h)
+        end
+    end
+    methods(Static)
+        function dump_headers(to_dump)
+            %Dump metadata of one or multiple (up to 5) nifti images.
+            assert(ismatrix(to_dump) && isa(to_dump, 'mSIRFReg.NiftiImage'), 'NiftiImage.dump_headers: give list of NiftiImage.')
+            num_ims = size(to_dump,2);
+            if num_ims == 1
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 1, to_dump(1).handle_, [], [], [], []);
+            elseif num_ims == 2
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 2, to_dump(1).handle_, to_dump(2).handle_, [], [], []);
+            elseif num_ims == 3
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 3, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, [], []);
+            elseif num_ims == 4
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 4, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, to_dump(4).handle_, []);
+            elseif num_ims == 5
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 5, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, to_dump(4).handle_, to_dump(5).handle_);
+            else
+                error('dump_nifti_info only implemented for up to 5 images.')
+            end
+            mUtilities.check_status('parameter', h)
         end
     end
     % If you put this in, the workspace in matlab shows the size (eg., 64x64x64 NiftiImage)

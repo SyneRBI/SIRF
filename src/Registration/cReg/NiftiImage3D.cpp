@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include "NiftiImage3D.h"
+#include "SIRFRegMat44.h"
 #include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
@@ -129,7 +130,7 @@ void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
     // If not, cast to it
     else {
         NiftiImage3D temp = this->deep_copy();
-        SIRFRegMisc::change_datatype<float>(temp);
+        temp.change_datatype<float>();
         nifti_data_ptr = static_cast<float *>(temp.get_raw_nifti_sptr()->data);
     }
     pet_image.set_data(nifti_data_ptr);
@@ -159,73 +160,39 @@ bool NiftiImage3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &in
 
     // Check size
     bool ok_size = true;
-    if (_nifti_image->dim[0] != 3)                       ok_size = false;
-    if (_nifti_image->dim[1] != int(size[0]))            ok_size = false;
-    if (_nifti_image->dim[2] != int(size[1]))            ok_size = false;
-    if (_nifti_image->dim[3] != int(size[2]))            ok_size = false;
-    if (_nifti_image->dim[4] != 1)                       ok_size = false;
-    if (_nifti_image->dim[5] != 1)                       ok_size = false;
-    if (_nifti_image->dim[6] != 1)                       ok_size = false;
-    if (_nifti_image->dim[7] != 1)                       ok_size = false;
-    if (_nifti_image->nx     != int(size[0]))            ok_size = false;
-    if (_nifti_image->ny     != int(size[1]))            ok_size = false;
-    if (_nifti_image->nz     != int(size[2]))            ok_size = false;
-    if (_nifti_image->nt     != 1)                       ok_size = false;
-    if (_nifti_image->nu     != 1)                       ok_size = false;
-    if (_nifti_image->nv     != 1)                       ok_size = false;
-    if (_nifti_image->nw     != 1)                       ok_size = false;
-    if (_nifti_image->nvox   != size[0]*size[1]*size[2]) ok_size = false;
-    if (!ok_size)
+    if (_nifti_image->dim[1] != int(size[0])) ok_size = false;
+    if (_nifti_image->dim[2] != int(size[1])) ok_size = false;
+    if (_nifti_image->dim[3] != int(size[2])) ok_size = false;
+    if (!ok_size) {
         std::cout << "\nWarning: Size does not match, can't fill image.\n";
+        std::cout << "\tSTIR image   = (" << size[0]       << ", " << size[1]       << ", " << size[2]       << ")\n";
+        std::cout << "\tNiftiImage3D = (" << _nifti_image->dim[1] << ", " << _nifti_image->dim[2] << ", " << _nifti_image->dim[3] << ")\n";
+    }
 
     // Check spacing
     bool ok_spacing = true;
-    if (fabs(_nifti_image->pixdim[1] - spacing[0]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->pixdim[2] - spacing[1]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->pixdim[3] - spacing[2]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dx        - spacing[0]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dy        - spacing[1]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dz        - spacing[2]) > 1.e-7F) ok_spacing = false;
-    if (!ok_spacing)
+    if (fabs(_nifti_image->dx - spacing[0]) > 1.e-7F) ok_spacing = false;
+    if (fabs(_nifti_image->dy - spacing[1]) > 1.e-7F) ok_spacing = false;
+    if (fabs(_nifti_image->dz - spacing[2]) > 1.e-7F) ok_spacing = false;
+    if (!ok_spacing) {
         std::cout << "\nWarning: Spacing does not match, can't fill image.\n";
-
-    // Check offsets
-    bool ok_offset = true;
-    if (fabs(tm[0][3] - _nifti_image->qoffset_x) > 1.e-7F) ok_offset = false;
-    if (fabs(tm[1][3] - _nifti_image->qoffset_y) > 1.e-7F) ok_offset = false;
-    if (fabs(tm[2][3] - _nifti_image->qoffset_z) > 1.e-7F) ok_offset = false;
-    if (!ok_offset)
-        std::cout << "\nWarning: qoffset does not match, can't fill image.\n";
+        std::cout << "\tSTIR image   = (" << spacing[0]       << ", " << spacing[1]       << ", " << spacing[2]       << ")\n";
+        std::cout << "\tNiftiImage3D = (" << _nifti_image->dx << ", " << _nifti_image->dy << ", " << _nifti_image->dz << ")\n";
+    }
 
     // Check qto_xyz
-    bool ok_qto_xyz = true;
-    for (int i=0;i<4;++i)
-        for (int j=0;j<4;++j)
-            if (fabs(_nifti_image->qto_xyz.m[i][j] - tm[i][j]) > 1.e-7F)
-                ok_qto_xyz = false;
-    if (!ok_qto_xyz)
+    SIRFRegMat44 qto_xyz(_nifti_image->qto_xyz);
+    SIRFRegMat44 stir_qto_xyz;
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            stir_qto_xyz[i][j] = tm[i][j];
+    bool ok_qto_xyz = (stir_qto_xyz == qto_xyz);
+    if (!ok_qto_xyz) {
         std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
+        vector<SIRFRegMat44> mats = {stir_qto_xyz, qto_xyz};
+        SIRFRegMat44::print(mats);
+    }
 
-    // Check qto_ijk
-    bool ok_qto_ijk = true;
-    if (fabs( _nifti_image->qto_ijk.m[0][0] - 1.F/tm[0][0])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[1][1] - 1.F/tm[1][1])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[2][2] - 1.F/tm[2][2])        > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[0][3] - tm[0][3]/spacing[0]) > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[1][3] - tm[1][3]/spacing[1]) > 1.e-7F) ok_qto_ijk = false;
-    if (fabs( _nifti_image->qto_ijk.m[2][3] - tm[2][3]/spacing[2]) > 1.e-7F) ok_qto_ijk = false;
-    if (!ok_qto_ijk)
-        std::cout << "\nWarning: qto_ijk does not match, can't fill image.\n";
-
-    // Check datatype float
-    bool ok_datatype = true;
-    if (_nifti_image->datatype != DT_FLOAT32   ) ok_datatype = false;
-    if ( _nifti_image->nbyper  != sizeof(float)) ok_datatype = false;
-    if (!ok_datatype)
-        std::cout << "\nWarning: datatype is not float, can't fill image.\n";
-
-    // Return if not everything is ok
-    if(ok_size && ok_spacing && ok_offset && ok_qto_xyz && ok_qto_ijk && ok_datatype)
-        return true;
-    return false;
+    // Return if everything is ok or not.
+    return (ok_size && ok_spacing && ok_qto_xyz);
 }

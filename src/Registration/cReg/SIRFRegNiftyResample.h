@@ -68,7 +68,7 @@ public:
     }
 
     /// Add affine transformation
-    void add_transformation_affine(const SIRFRegTransformationAffine &affine);
+    void add_transformation_affine(const SIRFRegMat44 &affine);
 
     /// Add displacement transformation
     void add_transformation_disp(const NiftiImage3DDisplacement &disp);

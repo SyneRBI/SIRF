@@ -43,9 +43,10 @@ classdef NiftyF3dSym < mSIRFReg.SIRFReg
             %Set reference time point.
             mSIRFReg.setParameter(self.handle_, self.name, 'reference_time_point', reference_time_point, 'i')
         end
-        function set_initial_affine_transformation(self, initial_affine_transformation)
+        function set_initial_affine_transformation(self, src)
             %Set initial affine transformation.
-            mSIRFReg.setParameter(self.handle_, self.name, 'initial_affine_transformation', initial_affine_transformation)
+            assert(isa(src, 'mSIRFReg.Mat44'))
+            mSIRFReg.setParameter(self.handle_, self.name, 'initial_affine_transformation', src, 'h');
         end
     end
 end

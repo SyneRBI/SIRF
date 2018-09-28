@@ -43,4 +43,50 @@ classdef NiftiImage3DDeformation < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Transf
             end
         end
     end
+    methods(Static)
+        function z = compose_single_deformation(trans, ref)
+	    	%Compose up to transformations into single deformation.
+		    assert(isa(ref, 'mSIRFReg.NiftiImage3D'))
+		    assert(isa(trans, 'mSIRFReg.Transformation'))
+		    if isrow(trans)
+                trans=trans'; 
+            end
+		    assert(iscolumn(trans));
+            num_trans = size(trans,1);
+		    if num_trans == 1
+		    	z = trans(1).get_as_deformation_field(ref);
+		        return
+            end
+            % This is ugly. Store each type in a single string (need to do this because I can't get
+            % virtual methods to work for multiple inheritance (deformation/displacement are both
+            % nifti images and transformations).
+            types = '';
+            for n = 1:num_trans
+                if isa(trans(n),'mSIRFReg.Mat44')
+                    types = [types '1'];
+                elseif isa(trans(n),'mSIRFReg.NiftiImage3DDisplacement')
+                    types = [types '2'];
+                elseif isa(trans(n),'mSIRFReg.NiftiImage3DDeformation')
+                    types = [types '3'];
+                end
+            end
+		    z = mSIRFReg.NiftiImage3DDeformation();
+		    if num_trans == 2
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDeformation_compose_single_deformation',...
+		        	ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, [], [], []);
+		    elseif num_trans == 3
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDeformation_compose_single_deformation',...
+		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, [], []);
+		    elseif num_trans == 4
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDeformation_compose_single_deformation',...
+		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, []);
+		    elseif num_trans == 5
+		        z.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDeformation_compose_single_deformation',...
+		            ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, trans(3).handle_, trans(4).handle_, trans(5).handle_);
+		    else
+		        error('compose_transformations_into_single_deformation only implemented for up to 5 transformations.')
+		    end
+		    mUtilities.check_status('compose_transformations_into_single_deformation', z.handle_);
+		end
+    end
 end

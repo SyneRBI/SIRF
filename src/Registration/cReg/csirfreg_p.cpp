@@ -86,7 +86,7 @@ wrongFloatParameterValue
 void*
 sirf::cSIRFReg_NiftiImageParameter(const DataHandle* handle, const char* name)
 {
-        NiftiImage& s = objectFromHandle<NiftiImage>(handle);
+    NiftiImage& s = objectFromHandle<NiftiImage>(handle);
     if (boost::iequals(name, "max"))
         return dataHandle<float>(s.get_max());
     if (boost::iequals(name, "min"))
@@ -142,8 +142,10 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
         s.set_floating_time_point(intDataFromHandle(hv));
     else if (boost::iequals(name, "reference_time_point"))
         s.set_reference_time_point(intDataFromHandle(hv));
-    else if (boost::iequals(name, "initial_affine_transformation"))
-        s.set_initial_affine_transformation(charDataFromHandle(hv));
+    else if (boost::iequals(name, "initial_affine_transformation")) {
+        const SIRFRegMat44& mat = objectFromHandle<const SIRFRegMat44>(hv);
+        s.set_initial_affine_transformation(mat);
+    }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
@@ -189,6 +191,25 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
     SIRFRegImageWeightedMean& s = objectFromHandle<SIRFRegImageWeightedMean>(handle);
     if (boost::iequals(name, "output")) {
         shared_ptr<NiftiImage> sptr_id(new NiftiImage(s.get_output()));
+        return newObjectHandle(sptr_id);
+    }
+    else
+        return parameterNotFound(name, __FILE__, __LINE__);
+}
+
+// ------------------------------------------------------------------------------------ //
+//   SIRFRegMat44
+// ------------------------------------------------------------------------------------ //
+// get
+void*
+sirf::cSIRFReg_SIRFRegMat44Parameter(const DataHandle* handle, const char* name)
+{
+    SIRFRegMat44& s = objectFromHandle<SIRFRegMat44>(handle);
+    if (boost::iequals(name, "determinant")) {
+        return dataHandle<float>(s.get_determinant());
+    }
+    if (boost::iequals(name, "identity")) {
+        shared_ptr<SIRFRegMat44> sptr_id(new SIRFRegMat44(SIRFRegMat44::get_identity()));
         return newObjectHandle(sptr_id);
     }
     else

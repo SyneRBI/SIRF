@@ -50,36 +50,6 @@ protected:
     /// Check that the deformation field image matches the reference image.
     void check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const;
 };
-
-/// Class for SIRFReg transformations with an affine transformation
-class SIRFRegTransformationAffine : public SIRFRegTransformation
-{
-public:
-
-    /// Default constructor
-    SIRFRegTransformationAffine() {}
-
-    /// Constructor
-    SIRFRegTransformationAffine(const mat44 &tm) { _tm = tm; }
-
-    /// Construct from file
-    SIRFRegTransformationAffine(const std::string &filename)
-    {
-        SIRFRegMisc::open_transformation_matrix(_tm,filename);
-    }
-
-    /// Destructor
-    virtual ~SIRFRegTransformationAffine() {}
-
-    /// Get as deformation field
-    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
-
-    /// Deep copy
-    virtual SIRFRegTransformationAffine deep_copy() const;
-
-protected:
-    mat44 _tm;
-};
 }
 
 #endif

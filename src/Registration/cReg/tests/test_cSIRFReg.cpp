@@ -58,10 +58,8 @@ int main(int argc, char* argv[])
     string flo_aladin_filename      = examples_path + "/test2.nii.gz";
     string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
     string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
-    string parameter_file_aladin    = examples_path + "/paramFiles/aladin.par";
-    string parameter_file_f3d       = examples_path + "/paramFiles/f3d.par";
-    string matrix                   = examples_path + "/transformation_matrix.txt";
-    string stir_nifti               = examples_path + "/nifti_created_by_stir.nii";
+    string parameter_file_aladin    = examples_path + "/paramFiles/niftyreg_aladin.par";
+    string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
 
     // Output filenames
     string save_nifti_image                           = output_path   + "save_NiftiImage";
@@ -98,17 +96,6 @@ int main(int argc, char* argv[])
     NiftiImage3D flo_aladin( flo_aladin_filename );
     NiftiImage3D ref_f3d   (   ref_f3d_filename  );
     NiftiImage3D flo_f3d   (   flo_f3d_filename  );
-    NiftiImage3D nifti     (      stir_nifti     );
-
-    NiftiImage3DTensor a;
-    a.create_from_3D_image(ref_aladin);
-    std::cerr << "\ntensor max = " <<  a.get_max() << "\n";
-    std::cerr << "\nref aladin max = " <<  ref_aladin.get_max() << "\n";
-
-    vector<NiftiImage> ims{ref_aladin,flo_aladin};
-    SIRFRegMisc::dump_nifti_info(ims);
-
-    float required_percentage_accuracy = 1.F;
 
     bool try_misc_functions = true;
     bool try_niftiimage = true;
@@ -122,6 +109,7 @@ int main(int argc, char* argv[])
     bool try_resample = true;
     bool try_weighted_mean = true;
     bool try_stir_to_sirfreg = true;
+    bool try_sirfregmat44 = true;
 
     if (try_misc_functions) {
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -129,25 +117,23 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
 
         // do nifti images match?
-        if (!SIRFRegMisc::do_nifti_images_match(ref_aladin, ref_aladin, required_percentage_accuracy))
+        if (ref_aladin != ref_aladin)
             throw runtime_error("Images don't match, but they should.");
         cerr << "\nThe following images intentionally do not match.\n";
-        if (SIRFRegMisc::do_nifti_images_match(ref_aladin, flo_aladin, required_percentage_accuracy))
-            throw runtime_error("Images don't match, but they should.");
+        if (ref_aladin == flo_aladin)
+            throw runtime_error("Images match, but they shouldn't.");
 
-        // dump from filename
-        SIRFRegMisc::dump_nifti_info(ref_aladin_filename);
         // dump from NiftiImage
-        SIRFRegMisc::dump_nifti_info(ref_aladin);
+        ref_aladin.dump_header();
         // dump from multiple images
-        SIRFRegMisc::dump_nifti_info({ref_aladin,flo_aladin,nifti});
+        NiftiImage::dump_headers({ref_aladin,flo_aladin,ref_f3d,flo_f3d});
         // dump from NiftiImage3DDeformation
         NiftiImage3DDeformation deform;
         deform.create_from_3D_image(ref_aladin);
-        SIRFRegMisc::dump_nifti_info(deform);
+        deform.dump_header();
 
         // identity matrix
-        mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
+        SIRFRegMat44 tm_iden = SIRFRegMat44::get_identity();
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished misc functions test.\n";
@@ -183,7 +169,7 @@ int main(int argc, char* argv[])
         NiftiImage d = b.deep_copy();
         if (&d == &b)
             throw runtime_error("NiftiImage deep_copy failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(d, b, required_percentage_accuracy))
+        if (b != d)
             throw runtime_error("NiftiImage deep_copy failed.");
 
         // Addition
@@ -200,6 +186,22 @@ int main(int argc, char* argv[])
         if (e.get_sum() > 0.0001F)
             throw runtime_error("NiftiImage get_sum() failed.");
 
+        // Add num to image
+        NiftiImage3D q = e + 1;
+        std::cout << "\nq/e max = " << q.get_max() << "/" << e.get_max() << "\n";
+        if (fabs(q.get_max() - (e.get_max() + 1.F)) > 0.0001F)
+            throw runtime_error("NiftiImage __add__ val failed.");
+
+        // Subtract num from image
+        NiftiImage3D r = e - 1;
+        if (fabs(r.get_max() - (e.get_max() - 1.F)) > 0.0001F)
+            throw runtime_error("NiftiImage __sub__ val failed.");
+
+        // Multiply image by num
+        NiftiImage3D s = e * 10;
+        if (fabs(s.get_max() - e.get_max() * 10.F) > 0.0001F)
+            throw runtime_error("NiftiImage __mul__ val failed.");
+
         // Dimensions
         int f[8];
         int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
@@ -207,6 +209,54 @@ int main(int argc, char* argv[])
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage get_dimensions() failed.");
+
+        // Test get_element
+        int idx[3] = { 1, 2, 3 };
+        ref_aladin.get_element(idx);
+
+        // Test get_norm
+        if (ref_aladin.get_norm(flo_aladin) < 1.e-7F)
+            throw runtime_error("NiftiImage get_norm() failed.");
+
+        // Test get_datatype
+        if (strcmp(ref_aladin.get_datatype().c_str(),"NIFTI_TYPE_INT16") != 0)
+            throw runtime_error("NiftiImage get_datatype() failed.");
+
+        // Test casting to different datatypes
+        vector<string> nifti_types;
+        nifti_types.push_back("NIFTI_TYPE_INT16");
+        nifti_types.push_back("NIFTI_TYPE_INT32");
+        nifti_types.push_back("NIFTI_TYPE_FLOAT32");
+        nifti_types.push_back("NIFTI_TYPE_FLOAT64");
+        nifti_types.push_back("NIFTI_TYPE_UINT8");
+        nifti_types.push_back("NIFTI_TYPE_UINT16");
+        nifti_types.push_back("NIFTI_TYPE_UINT32");
+        nifti_types.push_back("NIFTI_TYPE_INT64");
+        nifti_types.push_back("NIFTI_TYPE_UINT64");
+        nifti_types.push_back("NIFTI_TYPE_FLOAT128");
+        NiftiImage aa;
+        for (int i=0; i<10; ++i) {
+            aa = ref_aladin.deep_copy();
+            if      (i==0) aa.change_datatype<signed short>();
+            else if (i==1) aa.change_datatype<signed int>();
+            else if (i==2) aa.change_datatype<float>();
+            else if (i==3) aa.change_datatype<double>();
+            else if (i==4) aa.change_datatype<unsigned char>();
+            else if (i==5) aa.change_datatype<unsigned short>();
+            else if (i==6) aa.change_datatype<unsigned int>();
+            else if (i==7) aa.change_datatype<signed long long>();
+            else if (i==8) aa.change_datatype<unsigned long long>();
+            else if (i==9) aa.change_datatype<long double>();
+
+            if (strcmp(aa.get_datatype().c_str(), nifti_types[i].c_str()) != 0)
+                throw runtime_error("SIRFRegMisc::change_datatype() failed.");
+            if (fabs(aa.get_max() - 255.F) > 1.e-7F)
+                throw runtime_error("SIRFRegMisc::change_datatype() failed.");
+        }
+
+        // Test dump methods
+        q.dump_header();
+        NiftiImage::dump_headers({q, s});
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished NiftiImage test.\n";
@@ -224,35 +274,25 @@ int main(int argc, char* argv[])
         // Read from file
         NiftiImage3D b(ref_aladin_filename);
 
-        // Construct from stir pSTIR.ImageData
-        sirf::PETImageData stir(stir_nifti);
-        NiftiImage3D c(stir);
-
         // Save to file
-        c.save_to_file(save_nifti_image_3d);
+        b.save_to_file(save_nifti_image_3d);
 
         // Fill
-        c.fill(100);
+        b.fill(100);
 
         // Get max
-        if (fabs(c.get_max() - 100) > 1.e-5F)
+        if (fabs(b.get_max() - 100) > 1.e-5F)
             throw runtime_error("NiftiImage3D fill()/get_max() failed.");
 
         // Get min
-        if (fabs(c.get_min() - 100) > 1.e-5F)
+        if (fabs(b.get_min() - 100) > 1.e-5F)
             throw runtime_error("NiftiImage3D fill()/get_min() failed.");
 
-        // Copy data to pSTIRImageData
-        stir.fill(3.);
-        c.copy_data_to(stir);
-        if (fabs(stir.data_sptr()->find_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3D copy_data_to stir ImageData failed.");
-
         // Deep copy
-        NiftiImage3D d = c.deep_copy();
-        if (&d == &c)
+        NiftiImage3D d = b.deep_copy();
+        if (&d == &b)
             throw runtime_error("NiftiImage3D deep_copy failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+        if (d != b)
             throw runtime_error("NiftiImage3D deep_copy failed.");
 
         // Addition
@@ -271,7 +311,7 @@ int main(int argc, char* argv[])
 
         // Dimensions
         int f[8];
-        int g[8] = {3, 285, 285, 127, 1, 1, 1, 1};
+        int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
         e.get_dimensions(f);
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
@@ -317,7 +357,7 @@ int main(int argc, char* argv[])
         NiftiImage3DTensor d = c.deep_copy();
         if (&d == &c)
             throw runtime_error("NiftiImage3DTensor deep_copy failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+        if (d != c)
             throw runtime_error("NiftiImage3DTensor deep_copy failed.");
 
         // Addition
@@ -389,7 +429,7 @@ int main(int argc, char* argv[])
         NiftiImage3DDisplacement d = c.deep_copy();
         if (&d == &c)
             throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+        if (d != c)
             throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
 
         // Addition
@@ -461,7 +501,7 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation d = c.deep_copy();
         if (&d == &c)
             throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(d, c, required_percentage_accuracy))
+        if (d != c)
             throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
 
         // Addition
@@ -502,8 +542,8 @@ int main(int argc, char* argv[])
         NA.set_parameter_file                (      parameter_file_aladin    );
         NA.update();
         NA.get_output().save_to_file         (         aladin_warped         );
-        NA.save_transformation_matrix_fwrd   (             TM_fwrd           );
-        NA.save_transformation_matrix_back   (             TM_back           );
+        NA.get_transformation_matrix_fwrd().save_to_file(       TM_fwrd      );
+        NA.get_transformation_matrix_back().save_to_file(       TM_back      );
         NA.get_displacement_field_fwrd().save_to_file(aladin_disp_fwrd);
         NA.get_displacement_field_back().save_to_file_split_xyz_components(aladin_disp_back);
         NA.get_deformation_field_fwrd().save_to_file(aladin_def_fwrd);
@@ -517,12 +557,12 @@ int main(int argc, char* argv[])
         NiftiImage3DTensor disp_back = NA.get_displacement_field_back();
 
         // Fwrd TM
-        mat44 fwrd_tm = NA.get_transformation_matrix_fwrd();
-        SIRFRegMisc::print_mat44(fwrd_tm);
+        SIRFRegMat44 fwrd_tm = NA.get_transformation_matrix_fwrd();
+        fwrd_tm.print();
 
         // Back TM
-        mat44 back_tm = NA.get_transformation_matrix_back();
-        SIRFRegMisc::print_mat44(back_tm);
+        SIRFRegMat44 back_tm = NA.get_transformation_matrix_back();
+        back_tm.print();
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished Nifty aladin test.\n";
@@ -570,9 +610,9 @@ int main(int argc, char* argv[])
 
         // Affine
         cout << "\nTesting affine...\n";
-        SIRFRegTransformationAffine a1;
-        SIRFRegTransformationAffine a2(TM_fwrd);
-        SIRFRegTransformationAffine a3(NA.get_transformation_matrix_fwrd());
+        SIRFRegMat44 a1;
+        SIRFRegMat44 a2(TM_fwrd);
+        SIRFRegMat44 a3(NA.get_transformation_matrix_fwrd());
 
         // Displacement
         cout << "\nTesting displacement...\n";
@@ -586,23 +626,23 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation a_def = a3.get_as_deformation_field(ref_aladin);
         NiftiImage3DDeformation b_def = b3.get_as_deformation_field(ref_aladin);
         NiftiImage3DDeformation c_def = c3.get_as_deformation_field(ref_aladin);
-        if (!SIRFRegMisc::do_nifti_images_match(a_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
-            throw runtime_error("SIRFRegTransformationAffine::get_as_deformation_field failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(b_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        if (a_def != NA.get_deformation_field_fwrd())
+            throw runtime_error("SIRFRegMat44::get_as_deformation_field failed.");
+        if (b_def != NA.get_deformation_field_fwrd())
             throw runtime_error("NiftiImage3DDisplacement::get_as_deformation_field failed.");
-        if (!SIRFRegMisc::do_nifti_images_match(c_def, NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        if (c_def != NA.get_deformation_field_fwrd())
             throw runtime_error("NiftiImage3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-        mat44 tm_iden = SIRFRegMisc::get_identity_matrix();
-        SIRFRegTransformationAffine trans_aff_iden(tm_iden);
+        SIRFRegMat44 tm_iden = SIRFRegMat44::get_identity();
+        SIRFRegMat44 trans_aff_iden(tm_iden);
         std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
-        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
-        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegTransformationAffine(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegMat44(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegMat44(trans_aff_iden)));
         vec.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDeformation(c3)));
-        NiftiImage3DDeformation composed;
-        SIRFRegMisc::compose_transformations_into_single_deformation(composed, vec, ref_aladin);
-        if (!SIRFRegMisc::do_nifti_images_match(composed.get_as_deformation_field(ref_aladin), NA.get_deformation_field_fwrd(), required_percentage_accuracy))
+        NiftiImage3DDeformation composed =
+                NiftiImage3DDeformation::compose_single_deformation(vec, ref_aladin);
+        if (composed.get_as_deformation_field(ref_aladin) != NA.get_deformation_field_fwrd())
             throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -617,9 +657,9 @@ int main(int argc, char* argv[])
         cout << "//                  Starting Nifty resample test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
 
-        mat44 tm_eye = SIRFRegMisc::get_identity_matrix();
-        SIRFRegTransformationAffine tm_iden(tm_eye);
-        SIRFRegTransformationAffine tm(NA.get_transformation_matrix_fwrd());
+        SIRFRegMat44 tm_eye = SIRFRegMat44::get_identity();
+        SIRFRegMat44 tm_iden(tm_eye);
+        SIRFRegMat44 tm(NA.get_transformation_matrix_fwrd());
         NiftiImage3DDisplacement disp(NA.get_displacement_field_fwrd());
         NiftiImage3DDeformation deff(NA.get_deformation_field_fwrd());
 
@@ -654,7 +694,7 @@ int main(int argc, char* argv[])
         nr3.update();
         nr3.get_output().save_to_file(nonrigid_resample_def);
 
-        if (!SIRFRegMisc::do_nifti_images_match(NA.get_output(), nr1.get_output(), required_percentage_accuracy))
+        if (NA.get_output() != nr1.get_output())
             throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -671,10 +711,13 @@ int main(int argc, char* argv[])
 
         //  Do 3D
         SIRFRegImageWeightedMean wm1;
-        NiftiImage3D im1(stir_nifti);
-        NiftiImage3D im2(stir_nifti);
-        NiftiImage3D im3(stir_nifti);
-        NiftiImage3D im4(stir_nifti);
+        // Change to float to avoid rounding errors
+        NiftiImage3D ref_aladin_float(ref_aladin);
+        ref_aladin_float.change_datatype<float>();
+        NiftiImage3D im1 = ref_aladin_float.deep_copy();
+        NiftiImage3D im2 = ref_aladin_float.deep_copy();
+        NiftiImage3D im3 = ref_aladin_float.deep_copy();
+        NiftiImage3D im4 = ref_aladin_float.deep_copy();
         im1.fill(1);
         im2.fill(4);
         im3.fill(7);
@@ -686,10 +729,10 @@ int main(int argc, char* argv[])
         wm1.update();
         wm1.get_output().save_to_file(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
-        NiftiImage3D res(stir_nifti);
+        NiftiImage3D res = ref_aladin_float;
         res.fill(4.5F);
 
-        if (!SIRFRegMisc::do_nifti_images_match(wm1.get_output(), res, required_percentage_accuracy))
+        if (wm1.get_output() != res)
             throw runtime_error("SIRFRegImageWeightedMean3D failed.");
 
         //  Do 4D
@@ -712,7 +755,7 @@ int main(int argc, char* argv[])
         NiftiImage3DTensor res4D = NA.get_deformation_field_fwrd().deep_copy();
         res4D.fill(4.5);
 
-        if (!SIRFRegMisc::do_nifti_images_match(wm2.get_output(), res4D, required_percentage_accuracy))
+        if (wm2.get_output() != res4D)
             throw runtime_error("SIRFRegImageWeightedMean3DTensor failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -726,12 +769,8 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
 
             // Open stir image
-            sirf::PETImageData pet_image_data(stir_nifti);
+            sirf::PETImageData pet_image_data(ref_aladin_filename);
             NiftiImage3D image_data_from_stir(pet_image_data);
-
-            // Compare to nifti IO (if they don't match, you'll see a message but don't throw an error for now)
-            NiftiImage3D image_data_from_nifti(stir_nifti);
-            SIRFRegMisc::do_nifti_images_match(image_data_from_stir, image_data_from_nifti, required_percentage_accuracy);
 
             // Now fill the stir and sirfreg images with 1 and 100, respectively
             pet_image_data.fill(1.F);
@@ -747,6 +786,40 @@ int main(int argc, char* argv[])
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished STIR to SIRFReg test.\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+    }
+
+    if (try_sirfregmat44) {
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Starting SIRFRegMat44 test...\n";
+        cout << "//------------------------------------------------------------------------ //\n";
+        if (!try_niftyaladin)
+            throw runtime_error("This test requires you to have run aladin.");
+
+        // Construct from file
+        SIRFRegMat44 a(TM_fwrd);
+
+        // Multiply fwrd and inverse, should equal identity
+        SIRFRegMat44 b = NA.get_transformation_matrix_fwrd();
+        SIRFRegMat44 c = NA.get_transformation_matrix_back();
+        SIRFRegMat44 d = b * c;
+        SIRFRegMat44 e = SIRFRegMat44::get_identity();
+        if (d != e)
+            throw runtime_error("SIRFRegMat44::mult/comparison failed.");
+
+        d.fill(3.F);
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                if ((d[i][j] - 3.F) > 1.e-7F)
+                    throw runtime_error("SIRFRegMat44::fill/operator[] failed.");
+
+        if (d.get_determinant() > 1.e-7F)
+            throw runtime_error("SIRFRegMat44::get_determinant failed.");
+        if (e.get_determinant() - 1.F > 1.e-7F)
+            throw runtime_error("SIRFRegMat44::get_determinant failed.");
+
+        cout << "// ----------------------------------------------------------------------- //\n";
+        cout << "//                  Finished SIRFRegMat44 test.\n";
         cout << "//------------------------------------------------------------------------ //\n";
     }
 

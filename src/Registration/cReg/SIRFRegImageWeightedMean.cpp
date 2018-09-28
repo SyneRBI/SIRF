@@ -73,7 +73,7 @@ void SIRFRegImageWeightedMean::update()
     _output_image = _input_images[0].deep_copy();
 
     // Change to double to minimise rounding errors. Get the data.
-    SIRFRegMisc::change_datatype<double>(_output_image);
+    _output_image.change_datatype<double>();
     double *output_data_ptr = static_cast<double*>(_output_image.get_raw_nifti_sptr()->data);
 
     // Set all of the output image's voxels to 0
@@ -84,7 +84,7 @@ void SIRFRegImageWeightedMean::update()
 
         // Create a temporary copy of the image so that we can change the datatype
         NiftiImage temp = _input_images[i].deep_copy();
-        SIRFRegMisc::change_datatype<double>(temp);
+        temp.change_datatype<double>();
 
         // Get the data and cast it to float for the ith input image
         double *input_data_ptr = static_cast<double*>(temp.get_raw_nifti_sptr()->data);
@@ -98,13 +98,13 @@ void SIRFRegImageWeightedMean::update()
     }
 
     // Put the output type back so that it matches the input type
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT16)   SIRFRegMisc::change_datatype<signed short>  (_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT32)   SIRFRegMisc::change_datatype<signed int>    (_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT32) SIRFRegMisc::change_datatype<float>         (_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT64) SIRFRegMisc::change_datatype<double>        (_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT8)   SIRFRegMisc::change_datatype<unsigned char> (_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT16)  SIRFRegMisc::change_datatype<unsigned short>(_output_image);
-    if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT32)  SIRFRegMisc::change_datatype<unsigned int>  (_output_image);
+    if      (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT16)   _output_image.change_datatype<signed short>  ();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT32)   _output_image.change_datatype<signed int>    ();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT32) _output_image.change_datatype<float>         ();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT64) _output_image.change_datatype<double>        ();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT8)   _output_image.change_datatype<unsigned char> ();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT16)  _output_image.change_datatype<unsigned short>();
+    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT32)  _output_image.change_datatype<unsigned int>  ();
 
     // Once the update is done, set the need_to_update flag to false
     _need_to_update = false;
