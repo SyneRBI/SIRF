@@ -7,35 +7,36 @@ Created on Fri Jul 27 11:08:29 2018
 """
 
 import numpy
+from ccpi.optimisation.funcs import Function
 
-class Function(object):
-    def __init__(self):
-        pass
-    
-    def __call__(self, x):
-        raise NotImplementedError
-
-    def grad(self, x):
-        raise NotImplementedError
-
-    def prox(self, x, tau, out=None):
-        raise NotImplementedError
-    
-    @property
-    def convex_conj():
-        raise NotImplementedError
+#class Function(object):
+#    def __init__(self):
+#        pass
+#    
+#    def __call__(self, x):
+#        raise NotImplementedError
+#
+#    def grad(self, x):
+#        raise NotImplementedError
+#
+#    def prox(self, x, tau, out=None):
+#        raise NotImplementedError
+#    
+#    @property
+#    def convex_conj():
+#        raise NotImplementedError
         
-
-class ZeroFun(Function):
-    
-    def __init__(self):
-        super(ZeroFun, self).__init__()
-    
-    def __call__(self, x):
-        return 0
-    
-    def prox(self, x, tau):
-        return x
+#from ccpi.optimisation.funcs import ZeroFun
+#class ZeroFun(Function):
+#    
+#    def __init__(self):
+#        super(ZeroFun, self).__init__()
+#    
+#    def __call__(self, x):
+#        return 0
+#    
+#    def prox(self, x, tau):
+#        return x
 
     
 class KullbackLeibler(Function):
