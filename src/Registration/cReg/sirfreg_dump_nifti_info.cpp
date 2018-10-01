@@ -27,7 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegMisc.h"
+#include "NiftiImage.h"
+#include "vector"
 
 using namespace std;
 using namespace sirf;
@@ -37,7 +38,7 @@ int main(int argc, char* argv[])
 {
     try {
         if (argc < 2) {
-            cout << "\ndump_nifti_info filename1 [filename2 [filename3 [...]]]\n";
+            cout << "\nsirfreg_dump_nifti_info filename1 [filename2 [filename3 [...]]]\n";
             return EXIT_SUCCESS;
         }
 
@@ -52,7 +53,7 @@ int main(int argc, char* argv[])
         // Print info
         NiftiImage::dump_headers(ims);
 
-        for (int i=0; i<num_images; ++i) {
+        for (unsigned i=0; i<unsigned(num_images); ++i) {
             std::cout << "\nPrinting min/max of image " << i << "\n";
             std::cout << "\tMin: " << ims.at(i).get_min() << "\n";
             std::cout << "\tMax: " << ims.at(i).get_max() << "\n";

@@ -55,10 +55,11 @@ INSTALL(TARGETS SIRFReg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 SET(SIRFREG_executables
-    affine_to_disp
-    dump_nifti_info
+    sirfreg_affine_to_disp
+    sirfreg_dump_nifti_info
     sirfreg_aladin
-    tensor_split_join
+    sirfreg_tensor_split_join
+    sirfreg_change_datatype
     sirfreg_crop_image
     )
 

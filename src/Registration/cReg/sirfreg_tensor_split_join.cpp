@@ -28,19 +28,15 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "SIRFRegMisc.h"
-#include "NiftiImage3DDisplacement.h"
-#include "NiftiImage3DDeformation.h"
-#if NIFTYREG_VER_1_5
-#include "_reg_globalTrans.h"
-#endif
+#include "NiftiImage3DTensor.h"
+#include "NiftiImage3D.h"
 
 using namespace std;
 using namespace sirf;
 
 void print_usage()
 {
-    cout << "\nUsage: tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
+    cout << "\nUsage: sirfreg_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
 }
 
 enum JoinOrSplit{join,split};

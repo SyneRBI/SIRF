@@ -57,7 +57,7 @@ void print_usage()
 /// find flag
 int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required=false)
 {
-    for (int i=0; i<unused_flags.size(); i++) {
+    for (unsigned i=0; i<unused_flags.size(); i++) {
         if (!strcmp(argv[unused_flags[i]], arg.c_str())) {
             int flag = unused_flags[i];
             unused_flags.erase(unused_flags.begin() + i);
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 
         if (unused_flags.size() > 0) {
             cout << "\n\nThe following unknown flags were supplied:\n";
-            for (int i=0; i<unused_flags.size(); i++)
+            for (unsigned i=0; i<unused_flags.size(); i++)
                 cout << "\t" << argv[unused_flags[i]] << "\n";
         }
         cout << "\n";

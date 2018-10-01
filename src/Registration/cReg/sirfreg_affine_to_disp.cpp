@@ -28,13 +28,9 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "SIRFRegMisc.h"
 #include "NiftiImage3DDisplacement.h"
 #include "NiftiImage3DDeformation.h"
 #include "SIRFRegMat44.h"
-#if NIFTYREG_VER_1_5
-#include "_reg_globalTrans.h"
-#endif
 
 using namespace std;
 using namespace sirf;
@@ -42,7 +38,7 @@ using namespace sirf;
 /// Print usage
 void print_usage()
 {
-    cout << "\n*** affine_to_disp usage ***\n";
+    cout << "\n*** sirfreg_affine_to_disp usage ***\n";
 
     // Required flags
     cout << "\n  Required flags:\n";
@@ -60,7 +56,7 @@ void print_usage()
 /// Find flag
 int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required=false)
 {
-    for (int i=0; i<unused_flags.size(); i++) {
+    for (unsigned i=0; i<unused_flags.size(); i++) {
         if (!strcmp(argv[unused_flags[i]], arg.c_str())) {
             int flag = unused_flags[i];
             unused_flags.erase(unused_flags.begin() + i);
@@ -134,7 +130,7 @@ int main(int argc, char* argv[])
 
         if (unused_flags.size() > 0) {
             cout << "\n\nThe following unknown flags were supplied:\n";
-            for (int i=0; i<unused_flags.size(); i++)
+            for (unsigned i=0; i<unused_flags.size(); i++)
                 cout << "\t" << argv[unused_flags[i]] << "\n";
         }
         cout << "\n";
@@ -148,24 +144,15 @@ int main(int argc, char* argv[])
         SIRFRegMat44 TM(TM_filename);
 
         // Create images
-        NiftiImage3DDeformation  def;
-        NiftiImage3DDisplacement disp;
 
         // Open reference image
         NiftiImage3D ref(ref_filename);
 
         // Get the deformation field image
-#if NIFTYREG_VER_1_5
-        def.create_from_3D_image(ref);
-        mat44 temp = TM.get_raw_mat44();
-        reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
-#elif NIFTYREG_VER_1_3
-        NiftiImage3D cpp;
-        SIRFRegMisc::get_cpp_from_transformation_matrix(cpp_sptr, TM, ref_sptr);
-        SIRFRegMisc::get_def_from_cpp(def_sptr,cpp_sptr, ref_sptr);
-#endif
+        NiftiImage3DDeformation def = TM.get_as_deformation_field(ref);
 
         // Get the displacement fields from the def
+        NiftiImage3DDisplacement  disp;
         SIRFRegMisc::convert_from_def_to_disp(disp, def);
 
         // If they want to save the deformation field images
