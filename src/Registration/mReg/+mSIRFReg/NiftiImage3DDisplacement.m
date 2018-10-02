@@ -42,5 +42,11 @@ classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Trans
                 self.handle_ = [];
             end
         end
+        function create_from_def(self, def)
+            assert(isa(def, 'mSIRFReg.NiftiImage3DDeformation'), 'Input should be NiftiImage3DDeformation')
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDisplacement_create_from_def', self.handle_, def.handle_);
+            mUtilities.check_status([self.name ':create_from_def'], h);
+            mUtilities.delete(h)
+        end
     end
 end

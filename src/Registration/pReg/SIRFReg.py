@@ -279,10 +279,10 @@ class NiftiImage:
         """Overload comparison operator."""
         return not self == other
 
-    def save_to_file(self, filename):
+    def save_to_file(self, filename, datatype=""):
         """Save to file."""
         assert self.handle is not None
-        try_calling(pysirfreg.cSIRFReg_NiftiImage_save_to_file(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_save_to_file(self.handle, filename, datatype))
 
     def get_max(self):
         """Get max."""
@@ -334,19 +334,22 @@ class NiftiImage:
         try_calling(pysirfreg.cSIRFReg_NiftiImage_get_data(self.handle, array.ctypes.data))
         return array
 
-    def get_datatype(self):
-        """Get image datatype."""
+    def get_original_datatype(self):
+        """Get original image datatype (internally everything is converted to float)."""
         assert self.handle is not None
-        handle = pysirfreg.cSIRFReg_NiftiImage_get_datatype(self.handle)
+        handle = pysirfreg.cSIRFReg_NiftiImage_get_original_datatype(self.handle)
         check_status(handle)
         datatype = pyiutil.charDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return datatype
 
-    def change_datatype(self, datatype):
-        """Change datatype."""
-        assert self.handle is not None
-        try_calling(pysirfreg.cSIRFReg_NiftiImage_change_datatype(self.handle, datatype))
+    def crop(self, min_, max_):
+        """Crop image. Give minimum and maximum indices."""
+        assert len(min_) == 7, "Min bounds should be a 1x7 array."
+        assert len(max_) == 7, "Max bounds should be a 1x7 array."
+        min_np = numpy.array(min_, dtype=numpy.int32)
+        max_np = numpy.array(max_, dtype=numpy.int32)
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_crop(self.handle, min_np.ctypes.data, max_np.ctypes.data))
 
     def dump_header(self):
         """Dump nifti header metadata."""
@@ -427,17 +430,23 @@ class NiftiImage3DTensor(NiftiImage):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def save_to_file_split_xyz_components(self, filename):
+    def save_to_file_split_xyz_components(self, filename, datatype=""):
         """Save to file."""
         assert self.handle is not None
         assert isinstance(filename, str)
-        try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(self.handle, filename, datatype))
 
     def create_from_3D_image(self, src):
         """Create tensor/deformation/displacement field from 3D image."""
         assert isinstance(src, NiftiImage3D)
         assert src.handle is not None
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_create_from_3D_image(self.handle, src.handle))
+        check_status(self.handle)
+
+    def flip_component(self, dim):
+        """Flip component of nu."""
+        assert 0 <= dim <= 2, "Dimension to flip should be between 0 and 2."
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_flip_component(self.handle, dim))
         check_status(self.handle)
 
 
@@ -463,6 +472,11 @@ class NiftiImage3DDisplacement(NiftiImage3DTensor, _Transformation):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
+    def create_from_def(self, deff):
+        assert isinstance(deff, NiftiImage3DDeformation)
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DDisplacement_create_from_def(self.handle, deff.handle))
+        check_status(self.handle)
+
 
 class NiftiImage3DDeformation(NiftiImage3DTensor, _Transformation):
     """
@@ -486,6 +500,11 @@ class NiftiImage3DDeformation(NiftiImage3DTensor, _Transformation):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
+
+    def create_from_disp(self, disp):
+        assert isinstance(disp, NiftiImage3DDisplacement)
+        try_calling(pysirfreg.cSIRFReg_NiftiImage3DDeformation_create_from_disp(self.handle, disp.handle))
+        check_status(self.handle)
 
     @staticmethod
     def compose_single_deformation(trans, ref):

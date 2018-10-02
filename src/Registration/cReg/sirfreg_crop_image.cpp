@@ -79,8 +79,7 @@ int main(int argc, char* argv[])
         NiftiImage im(input_filename);
 
         // Get the dims of the nifti image
-        int dims[7];
-        im.get_dimensions(dims);
+        const int *dims = im.get_dimensions();
 
         // Set the default values; if the user doesn't specify otherwise, the
         // image will be uncropped in that direction

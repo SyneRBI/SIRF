@@ -179,11 +179,11 @@ void* cSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename)
+void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const char* datatype)
 {
 	try {
         NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
-        im.save_to_file(filename);
+        im.save_to_file(filename,datatype);
         return new DataHandle;
     }
     CATCH;
@@ -215,7 +215,8 @@ void* cSIRFReg_NiftiImage_get_dimensions(const void* ptr, size_t ptr_dim)
     try {
         NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
         int* dim = (int*)ptr_dim;
-        im.get_dimensions(dim);
+        for (int i=0; i<8; ++i)
+            dim[i] = im.get_dimensions()[i];
         return new DataHandle;
     }
     CATCH;
@@ -226,7 +227,6 @@ void* cSIRFReg_NiftiImage_get_data(const void* ptr, size_t ptr_data)
     try {
         NiftiImage& im = objectFromHandle<NiftiImage>(ptr);
         NiftiImage copy = im.deep_copy();
-        copy.change_datatype<float>();
         float* data = (float*)ptr_data;
         size_t mem = copy.get_raw_nifti_sptr()->nvox * size_t(copy.get_raw_nifti_sptr()->nbyper);
         // Copy!
@@ -288,35 +288,27 @@ void* cSIRFReg_NiftiImage_norm(const void* im1_ptr, const void* im2_ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImage_get_datatype(const void* im_ptr)
+void* cSIRFReg_NiftiImage_get_original_datatype(const void* im_ptr)
 {
     try {
         NiftiImage& im = objectFromHandle<NiftiImage>(im_ptr);
-        return charDataHandleFromCharData(im.get_datatype().c_str());
+        return charDataHandleFromCharData(nifti_datatype_to_string(im.get_original_datatype()));
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImage_change_datatype(const void* im_ptr, const char* datatype)
+void* cSIRFReg_NiftiImage_crop(const void* im_ptr, size_t min_index_ptr, size_t max_index_ptr)
 {
     try {
         NiftiImage& im = objectFromHandle<NiftiImage>(im_ptr);
-        if      (strcmp(datatype, "signed short")       == 0) im.change_datatype<signed short>();
-        else if (strcmp(datatype, "signed int")         == 0) im.change_datatype<signed int>();
-        else if (strcmp(datatype, "float")              == 0) im.change_datatype<float>();
-        else if (strcmp(datatype, "double")             == 0) im.change_datatype<double>();
-        else if (strcmp(datatype, "unsigned char")      == 0) im.change_datatype<unsigned char>();
-        else if (strcmp(datatype, "unsigned short")     == 0) im.change_datatype<unsigned short>();
-        else if (strcmp(datatype, "unsigned int")       == 0) im.change_datatype<unsigned int>();
-        else if (strcmp(datatype, "signed long long")   == 0) im.change_datatype<signed long long>();
-        else if (strcmp(datatype, "unsigned long long") == 0) im.change_datatype<unsigned long long>();
-        else if (strcmp(datatype, "long double")        == 0) im.change_datatype<long double>();
-        else
-            throw std::runtime_error("cSIRFReg_NiftiImage_change_datatype: Bad datatype.");
+        int* min_index = (int*)min_index_ptr;
+        int* max_index = (int*)max_index_ptr;
+        im.crop(min_index,max_index);
         return new DataHandle;
     }
     CATCH;
 }
+
 // -------------------------------------------------------------------------------- //
 //      NiftiImage3D
 // -------------------------------------------------------------------------------- //
@@ -347,11 +339,11 @@ void* cSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj)
 //      NiftiImage3DTensor
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename)
+void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename, const char* datatype)
 {
 	try {
         NiftiImage3DTensor& im = objectFromHandle<NiftiImage3DTensor>(ptr);
-        im.save_to_file_split_xyz_components(filename);
+        im.save_to_file_split_xyz_components(filename, nifti_datatype_from_string(datatype));
 		return new DataHandle;
 	}
 	CATCH;
@@ -383,6 +375,16 @@ void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, c
         else if (strcmp(obj,"NiftiImage3DDeformation"))
             sptr.reset(new NiftiImage3DDeformation(x,y,z));
         return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
+void* cSIRFReg_NiftiImage3DTensor_flip_component(const void *ptr, const int dim)
+{
+    try {
+        NiftiImage3DTensor& im = objectFromHandle<NiftiImage3DTensor>(ptr);
+        im.flip_component(dim);
+        return new DataHandle;
     }
     CATCH;
 }
@@ -424,6 +426,32 @@ void* cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im
     }
     CATCH;
 }
+extern "C"
+void* cSIRFReg_NiftiImage3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr)
+{
+    try {
+        NiftiImage3DDeformation&  def  = objectFromHandle<NiftiImage3DDeformation>(ptr);
+        NiftiImage3DDisplacement& disp = objectFromHandle<NiftiImage3DDisplacement>(disp_ptr);
+        def.create_from_disp(disp);
+        return new DataHandle;
+    }
+    CATCH;
+}
+// -------------------------------------------------------------------------------- //
+//      NiftiImage3DDisplacement
+// -------------------------------------------------------------------------------- //
+extern "C"
+void* cSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr)
+{
+    try {
+        NiftiImage3DDisplacement& disp = objectFromHandle<NiftiImage3DDisplacement>(ptr);
+        NiftiImage3DDeformation&  def  = objectFromHandle<NiftiImage3DDeformation>(def_ptr);
+        disp.create_from_def(def);
+        return new DataHandle;
+    }
+    CATCH;
+}
+
 // -------------------------------------------------------------------------------- //
 //      SIRFReg
 // -------------------------------------------------------------------------------- //

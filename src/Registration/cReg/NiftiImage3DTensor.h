@@ -67,10 +67,13 @@ public:
     virtual void create_from_3D_image(const NiftiImage3D &image);
 
     /// Save to file as x-, y-, z-components
-    void save_to_file_split_xyz_components(const std::string &filename_pattern) const;
+    void save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
 
     /// Save to file as x-, y-, z-components
-    void save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const;
+    void save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype=-1) const;
+
+    /// Flip component of nu
+    void flip_component(const int dim);
 
     /// Deep copy
     NiftiImage3DTensor deep_copy() const

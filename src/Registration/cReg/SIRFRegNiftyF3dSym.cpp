@@ -81,12 +81,12 @@ void SIRFRegNiftyF3dSym<T>::update()
     NiftiImage3DTensor cpp_back(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
-    SIRFRegMisc::get_def_from_cpp(_def_image_fwrd, cpp_fwrd, _reference_image);
-    SIRFRegMisc::get_def_from_cpp(_def_image_back, cpp_back, _reference_image);
+    _def_image_fwrd.create_from_cpp(cpp_fwrd, _reference_image);
+    _def_image_back.create_from_cpp(cpp_back, _reference_image);
 
     // Get the displacement fields from the def
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd, _def_image_fwrd);
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back, _def_image_back);
+    _disp_image_fwrd.create_from_def(_def_image_fwrd);
+    _disp_image_back.create_from_def(_def_image_back);
 
     cout << "\n\nRegistration finished!\n\n";
 }

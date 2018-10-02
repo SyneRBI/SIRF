@@ -51,12 +51,12 @@ NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D
 
     // for nu=3, the tensor data is stored last.
     //So memcpy x into first third, y into second third and z into last third
-    size_t mem = x.get_raw_nifti_sptr()->nvox*size_t(x.get_raw_nifti_sptr()->nbyper);
-    char *dest = static_cast<char*>(_nifti_image->data);
+    size_t mem = x.get_raw_nifti_sptr()->nvox;
+
     for (size_t i=0; i<3; ++i) {
         size_t index = mem*i;
-        char *src  = static_cast<char*>(ims[i].get_raw_nifti_sptr()->data);
-        memcpy(dest+index, src, mem);
+        float *src  = static_cast<float*>(ims[i].get_raw_nifti_sptr()->data);
+        memcpy(_data+index, src, mem);
     }
 }
 
@@ -80,16 +80,18 @@ void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
     output_ptr->pixdim[5]=output_ptr->du=1.0;
     output_ptr->dim[6]=output_ptr->nv=1;output_ptr->pixdim[6]=output_ptr->dv=1.0;
     output_ptr->dim[7]=output_ptr->nw=1;output_ptr->pixdim[7]=output_ptr->dw=1.0;
-    output_ptr->nvox=output_ptr->nx*output_ptr->ny*output_ptr->nz*output_ptr->nt*output_ptr->nu;
+    output_ptr->nvox=unsigned(output_ptr->nx*output_ptr->ny*output_ptr->nz*output_ptr->nt*output_ptr->nu);
     output_ptr->datatype = DT_FLOAT32;
     output_ptr->nbyper = sizeof(float);
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
     output_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
     _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
+
+    set_up_data(image.get_original_datatype());
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filename_pattern) const
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filename_pattern, const int datatype) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
@@ -110,10 +112,10 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filenam
         throw runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + string(exc.what()));
     }
 
-    this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z);
+    this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z, datatype);
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
 {
     int min_index[7], max_index[7];
     for (int i=0; i<7; ++i) {
@@ -130,8 +132,26 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
         NiftiImage image = this->deep_copy();
         image.crop(min_index,max_index);
 
-        if      (i == 0) SIRFRegMisc::save_nifti_image(image,filename_x);
-        else if (i == 1) SIRFRegMisc::save_nifti_image(image,filename_y);
-        else if (i == 2) SIRFRegMisc::save_nifti_image(image,filename_z);
+        if      (i == 0) image.save_to_file(filename_x,datatype);
+        else if (i == 1) image.save_to_file(filename_y,datatype);
+        else if (i == 2) image.save_to_file(filename_z,datatype);
     }
+}
+
+void NiftiImage3DTensor::flip_component(const int dim)
+{
+    cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
+
+    // Check the dimension to flip, that dims==5 and nu==3
+    if (dim < 0 || dim > 2)
+        throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
+
+    // Data is ordered such that the multicomponent info is last.
+    // So, the first third of the data is the x-values, second third is y and last third is z.
+    // Start index is therefore = dim_number * num_voxels/3
+    int start_index =   dim   * int(_nifti_image->nvox/3);
+    int end_index   = (dim+1) * int(_nifti_image->nvox/3 - 1);
+
+    for (int i=start_index; i<=end_index; i++)
+        _data[i] = -_data[i];
 }

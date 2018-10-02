@@ -64,23 +64,21 @@ public:
     NiftiImage3DDeformation(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
         : NiftiImage3DTensor(x,y,z) { check_dimensions(_3DDef); }
 
+    /// Create from deformation field image
+    void create_from_disp(const NiftiImage3DDisplacement &im);
+
     /// Deep copy
     NiftiImage3DDeformation deep_copy() const
     { return this->NiftiImage3DTensor::deep_copy(); }
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImage3D &image)
-    {
-        this->NiftiImage3DTensor::create_from_3D_image(image);
-        //_nifti_image->intent_p1 = 0; not necessary. 0 by default
-    }
+    void create_from_3D_image(const NiftiImage3D &image);
+
+    /// Create from CPP image
+    void create_from_cpp(const NiftiImage3DTensor &cpp, const NiftiImage3D &ref);
 
     /// Get as deformation field
-    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const
-    {
-        check_ref_and_def(ref,*this);
-        return this->deep_copy();
-    }
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
 
     /// Compose multiple transformations into single deformation field
     static NiftiImage3DDeformation compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref);

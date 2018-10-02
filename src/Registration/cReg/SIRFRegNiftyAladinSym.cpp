@@ -105,8 +105,8 @@ void SIRFRegNiftyAladinSym<T>::update()
 #endif
 
     // Get the displacement fields from the def
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_fwrd, _def_image_fwrd);
-    SIRFRegMisc::convert_from_def_to_disp(_disp_image_back, _def_image_back);
+    _disp_image_fwrd.create_from_def(_def_image_fwrd);
+    _disp_image_back.create_from_def(_def_image_back);
 
     cout << "\n\nRegistration finished!\n\n";
 }

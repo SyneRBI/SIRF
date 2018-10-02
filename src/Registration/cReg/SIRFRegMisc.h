@@ -54,21 +54,10 @@ namespace SIRFRegMisc {
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
-    /// Flip multicomponent image along a given axis
-    void flip_multicomponent_image(sirf::NiftiImage3DTensor &im, int dim);
-
     /// Get cpp from transformation matrix
 #if NIFTYREG_VER_1_3
     void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
 #endif
-    /// Get def from cpp
-    void get_def_from_cpp(sirf::NiftiImage3DDeformation &def, const sirf::NiftiImage3DTensor &cpp, const sirf::NiftiImage3D &ref);
-
-    /// Convert from deformation to displacement field image
-    void convert_from_def_to_disp(sirf::NiftiImage3DDisplacement &disp, const sirf::NiftiImage3DDeformation &def);
-
-    /// Convert from displacement to deformation field image
-    void convert_from_disp_to_def(sirf::NiftiImage3DDeformation &def, const sirf::NiftiImage3DDisplacement &disp);
 
     /// Do nifti image metadatas match?
     bool do_nifti_image_metadata_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
@@ -79,40 +68,6 @@ namespace SIRFRegMisc {
 
     /// Do nifti image metadata elements match?
     bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
-
-    /// Do nifti images match?
-    bool do_nifti_images_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2, const float accuracy_percentage_of_max/* = 0.F*/);
-
-    /// Do arrays match?
-    template<typename T>
-    bool do_arrays_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2, const float &required_accuracy_compared_to_max);
-
-    /// Get array max
-    template<typename T>
-    float get_array_max(const sirf::NiftiImage &im);
-    /// Get array min
-    template<typename T>
-    float get_array_min(const sirf::NiftiImage &im);
-
-    /// Get array sum
-    template<typename T>
-    float get_array_sum(const sirf::NiftiImage &im);
-
-    /// Get 3D array element. idx can have up to 7 dims
-    template<typename T>
-    float get_array_element(const sirf::NiftiImage &im, const int idx[7]);
-
-    /// Sum arrays
-    template<typename T>
-    sirf::NiftiImage sum_arrays(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
-
-    /// Subtract arrays
-    template<typename T>
-    sirf::NiftiImage sub_arrays(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
-
-    /// Array norm
-    template<typename T>
-    float arrays_norm(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
 
     /// Dump info of multiple nifti images
     void dump_headers_actual(const std::vector<sirf::NiftiImage> &ims);
@@ -125,9 +80,13 @@ namespace SIRFRegMisc {
     template<typename T>
     void dump_nifti_element(const std::vector<sirf::NiftiImage> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
+    /// Change datatype. Templated for desired type. Figures out what current type is then calls doubley templated function below.
+    template<typename newType>
+    void change_datatype(sirf::NiftiImage &im);
+
     /// Convert type (performs deep copy)
     template<typename newType, typename oldType>
-    void change_datatype1(const sirf::NiftiImage &image)
+    void change_datatype(const sirf::NiftiImage &image)
     {
         // If the two types are equal, nothing to be done.
         if (typeid (newType) == typeid(oldType))
@@ -172,14 +131,6 @@ namespace SIRFRegMisc {
         free(originalArray);
         return;
     }
-
-    /// Fill array with single value.
-    template<typename T>
-    void fill_array(const sirf::NiftiImage &im, const float &v);
-
-    /// Crop image
-    template<typename T>
-    void crop_image(sirf::NiftiImage &image, const int min_index[7], const int max_index[7]);
 }
 
 #endif

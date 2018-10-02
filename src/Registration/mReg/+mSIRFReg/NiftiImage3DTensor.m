@@ -42,9 +42,12 @@ classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
                 self.handle_ = [];
             end
         end
-        function save_to_file_split_xyz_components(self, filename)
+        function save_to_file_split_xyz_components(self, filename, datatype)
             % Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components', self.handle_, filename);
+            if nargin < 3
+                datatype = '';
+            end
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components', self.handle_, filename, datatype);
             mUtilities.check_status([self.name ':save_to_file'], h);
             mUtilities.delete(h)
         end
@@ -53,6 +56,13 @@ classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
             assert(isa(src, 'mSIRFReg.NiftiImage3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImage3D.'])
             h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_create_from_3D_image', self.handle_, src.handle_);
             mUtilities.check_status([self.name ':create_from_3d_image'], h);
+            mUtilities.delete(h)
+        end
+        function flip_component(self, dim)
+            % Flip component of nu
+            assert(dim>=0 && dim<=2, 'Dimension to flip should be between 0 and 2.')
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_flip_component', self.handle_, dim);
+            mUtilities.check_status([self.name ':flip_component'], h);
             mUtilities.delete(h)
         end
     end

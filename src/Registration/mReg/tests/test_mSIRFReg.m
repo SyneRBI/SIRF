@@ -15,32 +15,33 @@ g.parameter_file_aladin                      = fullfile(examples_path, '/paramFi
 g.parameter_file_f3d                         = fullfile(examples_path, '/paramFiles/niftyreg_f3d.par');
 
 % Output filenames
-g.save_nifti_image                           = fullfile(output_prefix, 'save_NiftiImage');
-g.save_nifti_image_3d                        = fullfile(output_prefix, 'save_NiftiImage3D');
-g.save_nifti_image_3d_tensor_not_split       = fullfile(output_prefix, 'save_NiftiImage3DTensor_not_split');
-g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'save_NiftiImage3DTensor_split_%s');
-g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'save_NiftiImage3DDeformation_not_split');
-g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'save_NiftiImage3DDeformation_split_%s');
-g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_not_split');
-g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_split_%s');
-g.aladin_warped                              = fullfile(output_prefix, 'aladin_warped');
-g.f3d_warped                                 = fullfile(output_prefix, 'f3d_warped');
+g.save_nifti_image                           = fullfile(output_prefix, 'save_NiftiImage.nii');
+g.save_nifti_image_3d                        = fullfile(output_prefix, 'save_NiftiImage3D.nii');
+g.save_nifti_image_3d_tensor_not_split       = fullfile(output_prefix, 'save_NiftiImage3DTensor_not_split.nii');
+g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'save_NiftiImage3DTensor_split_%s.nii');
+g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'save_NiftiImage3DDeformation_not_split.nii');
+g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'save_NiftiImage3DDeformation_split_%s.nii');
+g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_not_split.nii');
+g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_split_%s.nii');
+g.aladin_warped                              = fullfile(output_prefix, 'aladin_warped.nii');
+g.f3d_warped                                 = fullfile(output_prefix, 'f3d_warped.nii');
 g.TM_fwrd				                     = fullfile(output_prefix, 'TM_fwrd.txt');
 g.TM_back				                     = fullfile(output_prefix, 'TM_back.txt');
-g.aladin_def_fwrd                            = fullfile(output_prefix, 'aladin_def_fwrd');
-g.aladin_def_back                            = fullfile(output_prefix, 'aladin_def_back_%s');
-g.aladin_disp_fwrd                           = fullfile(output_prefix, 'aladin_disp_fwrd');
-g.aladin_disp_back                           = fullfile(output_prefix, 'aladin_disp_back_%s');
-g.f3d_def_fwrd                               = fullfile(output_prefix, 'f3d_disp_fwrd');
-g.f3d_def_back                               = fullfile(output_prefix, 'f3d_disp_back_%s');
-g.f3d_disp_fwrd                              = fullfile(output_prefix, 'f3d_disp_fwrd');
-g.f3d_disp_back                              = fullfile(output_prefix, 'f3d_disp_back_%s');
+g.aladin_def_fwrd                            = fullfile(output_prefix, 'aladin_def_fwrd.nii');
+g.aladin_def_back                            = fullfile(output_prefix, 'aladin_def_back_%s.nii');
+g.aladin_disp_fwrd                           = fullfile(output_prefix, 'aladin_disp_fwrd.nii');
+g.aladin_disp_back                           = fullfile(output_prefix, 'aladin_disp_back_%s.nii');
+g.f3d_def_fwrd                               = fullfile(output_prefix, 'f3d_disp_fwrd.nii');
+g.f3d_def_back                               = fullfile(output_prefix, 'f3d_disp_back_%s.nii');
+g.f3d_disp_fwrd                              = fullfile(output_prefix, 'f3d_disp_fwrd.nii');
+g.f3d_disp_back                              = fullfile(output_prefix, 'f3d_disp_back_%s.nii');
 
-g.rigid_resample                             = fullfile(output_prefix, 'rigid_resample');
-g.nonrigid_resample_disp                     = fullfile(output_prefix, 'nonrigid_resample_disp');
-g.nonrigid_resample_def                      = fullfile(output_prefix, 'nonrigid_resample_def');
-g.output_weighted_mean                       = fullfile(output_prefix, 'weighted_mean');
-g.output_weighted_mean_def                   = fullfile(output_prefix, 'weighted_mean_def');
+g.rigid_resample                             = fullfile(output_prefix, 'rigid_resample.nii');
+g.nonrigid_resample_disp                     = fullfile(output_prefix, 'nonrigid_resample_disp.nii');
+g.nonrigid_resample_def                      = fullfile(output_prefix, 'nonrigid_resample_def.nii');
+g.output_weighted_mean                       = fullfile(output_prefix, 'weighted_mean.nii');
+g.output_weighted_mean_def                   = fullfile(output_prefix, 'weighted_mean_def.nii');
+g.output_float                               = fullfile(output_prefix, 'reg_aladin_float.nii');
 
 g.output_stir_nifti                          = fullfile(output_prefix, 'stir_nifti.nii');
 
@@ -122,23 +123,30 @@ function try_niftiimage(g)
     assert(ndims(arr) == 3, 'NiftiImage as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImage as_array().shape failed.')
 
-    % Test changing the datatypes
-    types = {};
-    types = [types; 'signed short'];
-    types = [types; 'signed int'];
-    types = [types; 'float'];
-    types = [types; 'double'];
-    types = [types; 'unsigned char'];
-    types = [types; 'unsigned short'];
-    types = [types; 'unsigned int'];
-    types = [types; 'signed long long'];
-    types = [types; 'unsigned long long'];
-    types = [types; 'long double'];
-    for i = 1:size(types)
-        aa = g.ref_aladin.deep_copy();
-        aa.change_datatype(types{i});
-        assert(aa.get_max() == 255, 'NiftiImage change datatype failed.')
+    % Test saving to datatype
+    g.ref_aladin.save_to_file(g.output_float,'NIFTI_TYPE_FLOAT32');
+    ref_aladin_float = mSIRFReg.NiftiImage3D(g.output_float);
+    arr1 = g.ref_aladin.as_array();
+    arr2 = ref_aladin_float.as_array();
+    assert(all(arr1(:)==arr2(:)), "SIRFRegMisc::save_to_file()/change_datatype() failed.");
+
+    % Test dump methods
+    q.dump_header();
+    mSIRFReg.NiftiImage.dump_headers([q s]);
+
+    % Crop image
+    min_ = [];
+    max_ = [];
+    for i=1:7
+        min_(i) = 0;
+        max_(i) = f(i+1) - 1;
     end
+    max_(3) = 62;
+    e = e;
+    s.crop(min_,max_);
+    size(s.as_array())
+    assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImage crop() failed.')
+
 
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImage test.')
@@ -213,10 +221,7 @@ function try_niftiimage3dtensor(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_tensor_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DTensor([g.save_nifti_image_3d_tensor_not_split '.nii']);
-
-    % Constructor from 3x3D
-    d = mSIRFReg.NiftiImage3DTensor(g.ref_aladin, g.ref_aladin, g.ref_aladin);
+    c = mSIRFReg.NiftiImage3DTensor(g.save_nifti_image_3d_tensor_not_split);
 
     % Fill
     c.fill(100)
@@ -253,6 +258,21 @@ function try_niftiimage3dtensor(g)
     assert(ndims(arr) == 5, 'NiftiImage3DTensor as_array() ndims failed.')
     assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImage3DTensor as_array().shape failed.')
 
+    % Constructor from single components
+    im1 = g.ref_aladin.deep_copy();
+    im2 = g.ref_aladin.deep_copy();
+    im3 = g.ref_aladin.deep_copy();
+    im1.fill(30);
+    im2.fill(20);
+    im3.fill(-10);
+    h = mSIRFReg.NiftiImage3DTensor(im1, im2, im3);
+
+    % Test flip components
+    h.flip_component(0);
+    assert(h.get_max() ==  20, "NiftiImage3DTensor flip_component() failed.");
+    assert(h.get_min() == -30, "NiftiImage3DTensor flip_component() failed.");
+
+
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Finished NiftiImage3DTensor test.')
     disp('%------------------------------------------------------------------------ %')
@@ -272,7 +292,7 @@ function try_niftiimage3ddisplacement(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_displacement_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DDisplacement([g.save_nifti_image_3d_displacement_not_split '.nii']);
+    c = mSIRFReg.NiftiImage3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
 
     % Constructor from 3x3D
     h = mSIRFReg.NiftiImage3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
@@ -331,7 +351,7 @@ function try_niftiimage3ddeformation(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_deformation_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DDeformation([g.save_nifti_image_3d_deformation_not_split '.nii']);
+    c = mSIRFReg.NiftiImage3DDeformation(g.save_nifti_image_3d_deformation_not_split);
 
     % Constructor from 3x3D
     h = mSIRFReg.NiftiImage3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
@@ -408,6 +428,16 @@ function na =try_niftyaladin(g)
 
     % Back TM
     back_tm = na.get_transformation_matrix_back().as_array()
+
+    % Test converting disp to def
+    a = mSIRFReg.NiftiImage3DDeformation();
+    a.create_from_disp(disp_fwrd);
+    assert(a == def_fwrd, "NiftiImage3DDeformation::create_from_disp() failed.");
+
+    % Test converting def to disp
+    b = mSIRFReg.NiftiImage3DDisplacement();
+    b.create_from_def(def_fwrd);
+    assert(b == disp_fwrd, "NiftiImage3DDisplacement::create_from_def() failed.");
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -537,12 +567,10 @@ function try_weighted_mean(g,na)
 		% Do 3D
 		wm1 = mSIRFReg.ImageWeightedMean();
         % Change to float to avoid rounding errors
-        ref_aladin_float = g.ref_aladin;
-        ref_aladin_float.change_datatype('float');
-        im1 = ref_aladin_float.deep_copy();
-        im2 = ref_aladin_float.deep_copy();
-        im3 = ref_aladin_float.deep_copy();
-        im4 = ref_aladin_float.deep_copy();
+        im1 = g.ref_aladin.deep_copy();
+        im2 = g.ref_aladin.deep_copy();
+        im3 = g.ref_aladin.deep_copy();
+        im4 = g.ref_aladin.deep_copy();
         im1.fill(1);
 		im2.fill(4);
 		im3.fill(7);
@@ -554,7 +582,7 @@ function try_weighted_mean(g,na)
 		wm1.update();
 		wm1.get_output().save_to_file(g.output_weighted_mean);
 		% Answer should be 4.5, so compare it to that!
-        res = ref_aladin_float.deep_copy();
+        res = g.ref_aladin.deep_copy();
 		res.fill(4.5);
 		assert(wm1.get_output() == res, '3D weighted mean test failed.')
 

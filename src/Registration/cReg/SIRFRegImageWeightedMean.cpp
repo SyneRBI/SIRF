@@ -72,39 +72,14 @@ void SIRFRegImageWeightedMean::update()
     // Create a copy of the first image to use as a template for the output
     _output_image = _input_images[0].deep_copy();
 
-    // Change to double to minimise rounding errors. Get the data.
-    _output_image.change_datatype<double>();
-    double *output_data_ptr = static_cast<double*>(_output_image.get_raw_nifti_sptr()->data);
-
     // Set all of the output image's voxels to 0
     _output_image.fill(0.F);
 
-    // Loop over each input image
-    for (unsigned i=0; i<_input_images.size(); i++) {
-
-        // Create a temporary copy of the image so that we can change the datatype
-        NiftiImage temp = _input_images[i].deep_copy();
-        temp.change_datatype<double>();
-
-        // Get the data and cast it to float for the ith input image
-        double *input_data_ptr = static_cast<double*>(temp.get_raw_nifti_sptr()->data);
-
-        // Loop over each voxel
-        for (unsigned j=0; j<_output_image.get_raw_nifti_sptr()->nvox; j++) {
-
+    // Loop over each input image and each voxel
+    for (unsigned i=0; i<_input_images.size(); i++)
+        for (int j=0; j<int(_output_image.get_raw_nifti_sptr()->nvox); j++)
             // Add in the weighted contribution of the jth voxel of the ith image
-            output_data_ptr[j] += input_data_ptr[j] * double(normalised_weights[i]);
-        }
-    }
-
-    // Put the output type back so that it matches the input type
-    if      (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT16)   _output_image.change_datatype<signed short>  ();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_INT32)   _output_image.change_datatype<signed int>    ();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT32) _output_image.change_datatype<float>         ();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_FLOAT64) _output_image.change_datatype<double>        ();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT8)   _output_image.change_datatype<unsigned char> ();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT16)  _output_image.change_datatype<unsigned short>();
-    else if (_input_images[0].get_raw_nifti_sptr()->datatype == DT_UINT32)  _output_image.change_datatype<unsigned int>  ();
+            _output_image(j) += _input_images[i](j) * normalised_weights[i];
 
     // Once the update is done, set the need_to_update flag to false
     _need_to_update = false;

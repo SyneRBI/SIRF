@@ -51,6 +51,8 @@ int main(int argc, char* argv[])
     try {
         // Supported datatypes
         vector<string> datatypes;
+        datatypes.push_back("bool");
+        datatypes.push_back("signed char");
         datatypes.push_back("signed short");
         datatypes.push_back("signed int");
         datatypes.push_back("float");
@@ -71,23 +73,22 @@ int main(int argc, char* argv[])
         NiftiImage im(argv[2]);
 
         // Change datatype
-        if      (strcmp(argv[3], "signed short")       == 0) im.change_datatype<signed short>();
-        else if (strcmp(argv[3], "signed int")         == 0) im.change_datatype<signed int>();
-        else if (strcmp(argv[3], "float")              == 0) im.change_datatype<float>();
-        else if (strcmp(argv[3], "double")             == 0) im.change_datatype<double>();
-        else if (strcmp(argv[3], "unsigned char")      == 0) im.change_datatype<unsigned char>();
-        else if (strcmp(argv[3], "unsigned short")     == 0) im.change_datatype<unsigned short>();
-        else if (strcmp(argv[3], "unsigned int")       == 0) im.change_datatype<unsigned int>();
-        else if (strcmp(argv[3], "signed long long")   == 0) im.change_datatype<signed long long>();
-        else if (strcmp(argv[3], "unsigned long long") == 0) im.change_datatype<unsigned long long>();
-        else if (strcmp(argv[3], "long double")        == 0) im.change_datatype<long double>();
+        if      (strcmp(argv[3], "bool")               == 0) im.save_to_file(argv[1], DT_BINARY);
+        else if (strcmp(argv[3], "signed char")        == 0) im.save_to_file(argv[1], DT_INT8);
+        else if (strcmp(argv[3], "signed short")       == 0) im.save_to_file(argv[1], DT_INT16);
+        else if (strcmp(argv[3], "signed int")         == 0) im.save_to_file(argv[1], DT_INT32);
+        else if (strcmp(argv[3], "float")              == 0) im.save_to_file(argv[1], DT_FLOAT32);
+        else if (strcmp(argv[3], "double")             == 0) im.save_to_file(argv[1], DT_FLOAT64);
+        else if (strcmp(argv[3], "unsigned char")      == 0) im.save_to_file(argv[1], DT_UINT8);
+        else if (strcmp(argv[3], "unsigned short")     == 0) im.save_to_file(argv[1], DT_UINT16);
+        else if (strcmp(argv[3], "unsigned int")       == 0) im.save_to_file(argv[1], DT_UINT32);
+        else if (strcmp(argv[3], "signed long long")   == 0) im.save_to_file(argv[1], DT_INT64);
+        else if (strcmp(argv[3], "unsigned long long") == 0) im.save_to_file(argv[1], DT_UINT64);
+        else if (strcmp(argv[3], "long double")        == 0) im.save_to_file(argv[1], DT_FLOAT128);
         else {
             print_usage(datatypes);
             return EXIT_SUCCESS;
         }
-
-        // Save output
-        im.save_to_file(argv[1]);
 
     // If there was an error
     } catch(const exception &error) {

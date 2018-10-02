@@ -81,14 +81,31 @@ public:
     /// Multiply image
     NiftiImage operator*(const float &value) const;
 
+    /// Access data element via 1D index (const)
+    float operator()(const int index) const;
+
+    /// Access data element via 1D index
+    float &operator()(const int index);
+
+    /// Access data element via 7D index (const)
+    float operator()(const int index[7]) const;
+
+    /// Access data element via 7D index
+    float &operator()(const int index[7]);
+
     /// Is the image initialised? (Should unless default constructor was used.)
-    bool is_initialised() const { return (_nifti_image ? true : false); }
+    bool is_initialised() const { return (_nifti_image && _data ? true : false); }
 
     /// Get image as nifti
     std::shared_ptr<nifti_image> get_raw_nifti_sptr() const;
 
-    /// Save to file
-    void save_to_file(const std::string &filename) const;
+    /// Save to file. Templated so the user can choose the datatype they save to. This defaults
+    /// to -1, which is the original datatype of that image (stored as _original_datatype).
+    void save_to_file(const std::string &filename, const int datatype = -1) const;
+
+    /// Save to file. Templated so the user can choose the datatype they save to. This defaults
+    /// to -1, which is the original datatype of that image (stored as _original_datatype).
+    void save_to_file(const std::string &filename, const char *datatype) const;
 
     /// Get max
     float get_max() const;
@@ -112,14 +129,7 @@ public:
     NiftiImage deep_copy() const;
 
     /// Get number of voxels
-    void get_dimensions(int dims[8]) const;
-
-    /// Change image datatype
-    template<typename newType>
-    void change_datatype();
-
-    /// Get datatype
-    std::string get_datatype() const;
+    const int* get_dimensions() const;
 
     /// Dump header info
     void dump_header() const;
@@ -133,6 +143,12 @@ public:
     /// get 1D index from ND index
     int get_1D_index(const int idx[7]) const;
 
+    /// Get original datatype
+    int get_original_datatype() const { return _original_datatype; }
+
+    /// Check if the norms of two images are equal to a given accuracy.
+    bool are_equal_to_given_accuracy(const NiftiImage &im2, const float required_accuracy_compared_to_max) const;
+
 protected:
 
     enum NiftiImageType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
@@ -140,8 +156,25 @@ protected:
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
 
+    /// Data
+    float *_data = NULL;
+
+    /// Original datatype
+    int _original_datatype = -1;
+
     /// Check dimensions. Don't require anything for this class.
     void check_dimensions(const enum NiftiImageType image_type = _general);
+
+    /// Set up datatype. Set to float if not already, store the original type.
+    void set_up_data(const int original_datatype);
+
+private:
+
+    /// Change image datatype with string
+    void change_datatype(const std::string &datatype);
+
+    /// Change image datatype with int
+    void change_datatype(const int datatype);
 };
 }
 

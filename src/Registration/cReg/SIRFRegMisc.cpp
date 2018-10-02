@@ -102,7 +102,9 @@ void save_nifti_image(const NiftiImage &image, const string &filename)
 /// Copy nifti image
 void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_ptr<nifti_image> &image_to_copy_sptr)
 {
+#ifndef NDEBUG
     cout << "\nPerforming hard copy of nifti image..." << flush;
+#endif
 
     // Copy the info
     nifti_image *output_ptr;
@@ -122,49 +124,9 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
     // Check everything is ok
     reg_checkAndCorrectDimension(output_image_sptr.get());
 
+#ifndef NDEBUG
     cout << "done.\n\n";
-}
-
-/// Flip multicomponent image along a given axis
-void flip_multicomponent_image(NiftiImage3DTensor &im, int dim)
-{
-    cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
-
-    shared_ptr<nifti_image> im_sptr = im.get_raw_nifti_sptr();
-
-    // Check the dimension to flip, that dims==5 and nu==3
-    if (dim < 0 || dim > 2)
-        throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
-    if (im_sptr->dim[0] != 5)
-        throw runtime_error("\n\tNifti image is not a multicomponent image.");
-    if (im_sptr->nu != 3)
-        throw runtime_error("\n\tMulticomponent aspect should contain three values (x,y,z).");
-
-    // Data is ordered such that the multicomponent info is last.
-    // So, the first third of the data is the x-values, second third is y and last third is z.
-    // Data is therefore = dim_number * num_voxels/3
-    int start_index =   dim   * int(im_sptr->nvox/3);
-    // End index is one before the start of the next dimension (thus the minus 1)
-    int end_index   = (dim+1) * int(im_sptr->nvox/3 - 1);
-
-    // Check whether single or double precision
-    if (im_sptr->datatype == DT_FLOAT32) {
-        // Get data
-        float *data_ptr = static_cast<float*>(im_sptr->data);
-        for (int i=start_index; i<=end_index; i++) {
-            data_ptr[i] = -data_ptr[i];
-        }
-    }
-    else if (im_sptr->datatype == DT_FLOAT64) {
-        // Get data
-        double *data_ptr = static_cast<double*>(im_sptr->data);
-        for (int i=start_index; i<=end_index; i++)
-            data_ptr[i] = -data_ptr[i];
-    }
-    else
-        throw runtime_error("\n\tOnly double and float images are supported at the moment. (This would be easy to change.)");
-
-    cout << "done.\n\n";
+#endif
 }
 
 #if NIFTYREG_VER_1_3
@@ -196,45 +158,14 @@ void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const
     cpp_sptr = shared_ptr<nifti_image>(cpp_ptr, nifti_image_free);
 }
 #endif
-/// Get def from cpp
-void get_def_from_cpp(NiftiImage3DDeformation &def, const NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
-{
-    def.create_from_3D_image(ref);
-    
-    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
-#if NIFTYREG_VER_1_3
-                                   ref.get_raw_nifti_sptr().get(),
-#endif
-                                   def.get_raw_nifti_sptr().get(),
-                                   NULL,
-                                   false, //composition
-                                   true // bspline
-                                   );
-}
-
-/// Convert from deformation to displacement field image
-void convert_from_def_to_disp(NiftiImage3DDisplacement &disp, const NiftiImage3DDeformation &def)
-{
-    // Get the disp field from the def field
-    NiftiImage3DTensor temp = def.deep_copy();
-    reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
-    temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
-    disp = temp;
-}
-
-/// Convert from displacement to deformation field image
-void convert_from_disp_to_def(NiftiImage3DDeformation &def, const NiftiImage3DDisplacement &disp)
-{
-    // Get the def field from the disp field
-    NiftiImage3DTensor temp = disp.deep_copy();
-    reg_getDeformationFromDisplacement(temp.get_raw_nifti_sptr().get());
-    temp.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
-    def = temp.deep_copy();
-}
 
 /// Do nifti image metadatas match?
 bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
 {
+#ifndef NDEBUG
+    cout << "\nChecking if metadata of two images match..." << flush;
+#endif
+
     const shared_ptr<nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
     const shared_ptr<nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
 
@@ -300,7 +231,9 @@ bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
         if (!do_nifti_image_metadata_elements_match("pixdim["+to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i])) images_match = false;
     }
 
+#ifndef NDEBUG
     if (images_match) cout << "\tOK!\n";
+#endif
 
     return images_match;
 }
@@ -324,305 +257,6 @@ bool do_nifti_image_metadata_elements_match(const string &name, const mat44 &ele
     cout << "\n";
     return false;
 }
-
-bool do_nifti_images_match(const NiftiImage &im1, const NiftiImage &im2, const float accuracy_percentage_of_max)
-{
-    if(!im1.is_initialised())
-        throw runtime_error("do_nifti_images_match: Image 1 not initialised.");
-    if(!im2.is_initialised())
-        throw runtime_error("do_nifti_images_match: Image 2 not initialised.");
-
-    if (!do_nifti_image_metadata_match(im1,im2)) {
-        cout << "\nImage metadata does not match.\n";
-        return false;
-    }
-
-    if (im1.get_raw_nifti_sptr()->datatype == DT_BINARY)   return do_arrays_match<bool>              (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_INT8)     return do_arrays_match<signed char>       (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_INT16)    return do_arrays_match<signed short>      (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_INT32)    return do_arrays_match<signed int>        (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT32)  return do_arrays_match<float>             (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT64)  return do_arrays_match<double>            (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT8)    return do_arrays_match<unsigned char>     (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT16)   return do_arrays_match<unsigned short>    (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT32)   return do_arrays_match<unsigned int>      (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_INT64)    return do_arrays_match<signed long long>  (im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_UINT64)   return do_arrays_match<unsigned long long>(im1, im2, accuracy_percentage_of_max);
-    if (im1.get_raw_nifti_sptr()->datatype == DT_FLOAT128) return do_arrays_match<long double>       (im1, im2, accuracy_percentage_of_max);
-
-    stringstream ss;
-    ss << "do_nifti_images_match not implemented for your data type: ";
-    ss << nifti_datatype_string(im1.get_raw_nifti_sptr()->datatype);
-    ss << " (bytes per voxel: ";
-    ss << im1.get_raw_nifti_sptr()->nbyper << ").";
-    throw runtime_error(ss.str());
-}
-
-template<typename T>
-bool do_arrays_match(const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max)
-{
-    if(!im1.is_initialised())
-        throw runtime_error("do_arrays_match: Image 1 not initialised.");
-    if(!im2.is_initialised())
-        throw runtime_error("do_arrays_match: Image 2 not initialised.");
-
-    // Get norm between two images
-    float norm = im1.get_norm(im2);
-    float epsilon = (im1.get_max()+im2.get_max())/2.F;
-    epsilon *= required_accuracy_compared_to_max;
-
-    if (norm > epsilon) {
-        cout << "\nImages are not equal (norm > epsilon).\n";
-        cout << "\tmax1                              = " << im1.get_max() << "\n";
-        cout << "\tmax2                              = " << im1.get_max() << "\n";
-        cout << "\tmin1                              = " << im1.get_min() << "\n";
-        cout << "\tmin2                              = " << im2.get_min() << "\n";
-        cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
-        cout << "\tepsilon                           = " << epsilon << "\n";
-        cout << "\tnorm                              = " << norm << "\n";
-        return false;
-    }
-    return true;
-}
-template bool do_arrays_match<bool>              (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<signed char>       (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<signed short>      (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<signed int>        (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<float>             (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<double>            (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<unsigned char>     (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<unsigned short>    (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<unsigned int>      (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<signed long long>  (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<unsigned long long>(const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-template bool do_arrays_match<long double>       (const NiftiImage &im1, const NiftiImage &im2, const float &required_accuracy_compared_to_max);
-
-template<typename T>
-float get_array_max(const NiftiImage &im)
-{
-    if(!im.is_initialised())
-        throw runtime_error("get_array_max: Image not initialised.");
-
-    // Check sizes
-    if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("get_array_max: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Get data
-    T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-    return *max_element(data, data + im.get_raw_nifti_sptr()->nvox);
-}
-template float get_array_max<bool>              (const NiftiImage &im);
-template float get_array_max<signed char>       (const NiftiImage &im);
-template float get_array_max<signed short>      (const NiftiImage &im);
-template float get_array_max<signed int>        (const NiftiImage &im);
-template float get_array_max<float>             (const NiftiImage &im);
-template float get_array_max<double>            (const NiftiImage &im);
-template float get_array_max<unsigned char>     (const NiftiImage &im);
-template float get_array_max<unsigned short>    (const NiftiImage &im);
-template float get_array_max<unsigned int>      (const NiftiImage &im);
-template float get_array_max<signed long long>  (const NiftiImage &im);
-template float get_array_max<unsigned long long>(const NiftiImage &im);
-template float get_array_max<long double>       (const NiftiImage &im);
-
-template<typename T>
-float get_array_min(const NiftiImage &im)
-{
-    if(!im.is_initialised())
-        throw runtime_error("get_array_min: Image not initialised.");
-
-    // Check sizes
-    if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("get_array_min: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Get data
-    T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-    return *min_element(data, data + im.get_raw_nifti_sptr()->nvox);
-}
-template float get_array_min<bool>              (const NiftiImage &im);
-template float get_array_min<signed char>       (const NiftiImage &im);
-template float get_array_min<signed short>      (const NiftiImage &im);
-template float get_array_min<signed int>        (const NiftiImage &im);
-template float get_array_min<float>             (const NiftiImage &im);
-template float get_array_min<double>            (const NiftiImage &im);
-template float get_array_min<unsigned char>     (const NiftiImage &im);
-template float get_array_min<unsigned short>    (const NiftiImage &im);
-template float get_array_min<unsigned int>      (const NiftiImage &im);
-template float get_array_min<signed long long>  (const NiftiImage &im);
-template float get_array_min<unsigned long long>(const NiftiImage &im);
-template float get_array_min<long double>       (const NiftiImage &im);
-
-template<typename T>
-float get_array_sum(const NiftiImage &im)
-{
-    if(!im.is_initialised())
-        throw runtime_error("get_array_min: Image not initialised.");
-
-    // Check sizes
-    if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("get_array_min: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Get data
-    T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-    float sum = 0.F;
-    for (unsigned i=0; i<im.get_raw_nifti_sptr()->nvox; ++i)
-        sum += float(data[i]);
-    return sum;
-}
-template float get_array_sum<bool>              (const NiftiImage &im);
-template float get_array_sum<signed char>       (const NiftiImage &im);
-template float get_array_sum<signed short>      (const NiftiImage &im);
-template float get_array_sum<signed int>        (const NiftiImage &im);
-template float get_array_sum<float>             (const NiftiImage &im);
-template float get_array_sum<double>            (const NiftiImage &im);
-template float get_array_sum<unsigned char>     (const NiftiImage &im);
-template float get_array_sum<unsigned short>    (const NiftiImage &im);
-template float get_array_sum<unsigned int>      (const NiftiImage &im);
-template float get_array_sum<signed long long>  (const NiftiImage &im);
-template float get_array_sum<unsigned long long>(const NiftiImage &im);
-template float get_array_sum<long double>       (const NiftiImage &im);
-
-template<typename T>
-float get_array_element(const NiftiImage &im, const int idx[7])
-{
-    if(!im.is_initialised())
-        throw runtime_error("get_3D_array_element: Image not initialised.");
-
-    // Check sizes
-    if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("get_3D_array_element: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    int idx_1d = im.get_1D_index(idx);
-
-    // Get data
-    T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-
-    return float(data[idx_1d]);
-}
-template float get_array_element<bool>              (const NiftiImage &im, const int idx[]);
-template float get_array_element<signed char>       (const NiftiImage &im, const int idx[]);
-template float get_array_element<signed short>      (const NiftiImage &im, const int idx[]);
-template float get_array_element<signed int>        (const NiftiImage &im, const int idx[]);
-template float get_array_element<float>             (const NiftiImage &im, const int idx[]);
-template float get_array_element<double>            (const NiftiImage &im, const int idx[]);
-template float get_array_element<unsigned char>     (const NiftiImage &im, const int idx[]);
-template float get_array_element<unsigned short>    (const NiftiImage &im, const int idx[]);
-template float get_array_element<unsigned int>      (const NiftiImage &im, const int idx[]);
-template float get_array_element<signed long long>  (const NiftiImage &im, const int idx[]);
-template float get_array_element<unsigned long long>(const NiftiImage &im, const int idx[]);
-template float get_array_element<long double>       (const NiftiImage &im, const int idx[]);
-
-template<typename T>
-NiftiImage sum_arrays(const NiftiImage &im1, const NiftiImage &im2)
-{
-    if(!im1.is_initialised())
-        throw runtime_error("sum_arrays: Image 1 not initialised.");
-    if(!im2.is_initialised())
-        throw runtime_error("sum_arrays: Image 2 not initialised.");
-    if(!do_nifti_image_metadata_match(im1,im2))
-        throw runtime_error("sum_arrays: Cannot add images as metadata does not match.");
-    // Check sizes
-    if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("sum_arrays: Datatype of image 1 does not match desired cast type (" + to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    NiftiImage result = im1.deep_copy();
-
-    // Get data
-    T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
-    T *res_data = static_cast<T*>(result.get_raw_nifti_sptr()->data);
-
-    for (unsigned i=0; i<im1.get_raw_nifti_sptr()->nvox; ++i) {
-        res_data[i] += im2_data[i];
-    }
-    return result;
-}
-template NiftiImage sum_arrays<bool>              (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<signed char>       (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<signed short>      (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<signed int>        (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<float>             (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<double>            (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<unsigned char>     (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<unsigned short>    (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<unsigned int>      (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<signed long long>  (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<unsigned long long>(const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sum_arrays<long double>       (const NiftiImage &im1, const NiftiImage &im2);
-
-template<typename T>
-NiftiImage sub_arrays(const NiftiImage &im1, const NiftiImage &im2)
-{
-    if(!im1.is_initialised())
-        throw runtime_error("sub_arrays: Image 1 not initialised.");
-    if(!im2.is_initialised())
-        throw runtime_error("sub_arrays: Image 2 not initialised.");
-    if(!do_nifti_image_metadata_match(im1,im2))
-        throw runtime_error("sub_arrays: Cannot subtract images as metadata does not match.");
-    // Check sizes
-    if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("sub_arrays: Datatype of image 1 does not match desired cast type (" + to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    NiftiImage result = im1.deep_copy();
-
-    // Get data
-    T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
-    T *res_data = static_cast<T*>(result.get_raw_nifti_sptr()->data);
-
-    for (unsigned i=0; i<im1.get_raw_nifti_sptr()->nvox; ++i) {
-        res_data[i] -= im2_data[i];
-    }
-    return result;
-}
-template NiftiImage sub_arrays<bool>              (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<signed char>       (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<signed short>      (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<signed int>        (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<float>             (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<double>            (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<unsigned char>     (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<unsigned short>    (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<unsigned int>      (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<signed long long>  (const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<unsigned long long>(const NiftiImage &im1, const NiftiImage &im2);
-template NiftiImage sub_arrays<long double>       (const NiftiImage &im1, const NiftiImage &im2);
-
-template<typename T>
-float arrays_norm(const NiftiImage &im1, const NiftiImage &im2)
-{
-    if(!im1.is_initialised())
-        throw runtime_error("sum_arrays: Image 1 not initialised.");
-    if(!im2.is_initialised())
-        throw runtime_error("sum_arrays: Image 2 not initialised.");
-    for (int i=0; i<8; ++i)
-        if (im1.get_raw_nifti_sptr()->dim[i] != im2.get_raw_nifti_sptr()->dim[i])
-            throw runtime_error("SIRFRegMisc::arrays_norm: dimensions do not match.");
-    // Check sizes
-    if (im1.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("arrays_norm: Datatype of image 1 does not match desired cast type (" + to_string(im1.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-    if (im2.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("arrays_norm: Datatype of image 1 does not match desired cast type (" + to_string(im2.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Get data
-    T *im1_data = static_cast<T*>(im1.get_raw_nifti_sptr()->data);
-    T *im2_data = static_cast<T*>(im2.get_raw_nifti_sptr()->data);
-
-    // Use double precision to minimise rounding errors
-    double result(0);
-    for (unsigned i=0; i<im1.get_raw_nifti_sptr()->nvox; ++i)
-        result += double(pow(im1_data[i] - im2_data[i], 2));
-    return float(sqrt(result));
-}
-template float arrays_norm<bool>              (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<signed char>       (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<signed short>      (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<signed int>        (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<float>             (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<double>            (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<unsigned char>     (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<unsigned short>    (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<unsigned int>      (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<signed long long>  (const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<unsigned long long>(const NiftiImage &im1, const NiftiImage &im2);
-template float arrays_norm<long double>       (const NiftiImage &im1, const NiftiImage &im2);
 
 /// Dump info of multiple nifti images
 void dump_headers_actual(const vector<NiftiImage> &ims)
@@ -730,140 +364,40 @@ void dump_nifti_element(const vector<NiftiImage> &ims, const string &name, const
     }
 }
 
-template<typename T>
-void fill_array(const NiftiImage &im, const float &v)
+template<typename newType>
+void change_datatype(NiftiImage &im)
 {
-    if(!im.is_initialised())
-        throw runtime_error("fill_array: Image not initialised.");
+    if (im.get_raw_nifti_sptr()->datatype == DT_BINARY)   return SIRFRegMisc::change_datatype<newType,bool>              (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_INT8)     return SIRFRegMisc::change_datatype<newType,signed char>       (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_INT16)    return SIRFRegMisc::change_datatype<newType,signed short>      (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_INT32)    return SIRFRegMisc::change_datatype<newType,signed int>        (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT32)  return SIRFRegMisc::change_datatype<newType,float>             (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT64)  return SIRFRegMisc::change_datatype<newType,double>            (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_UINT8)    return SIRFRegMisc::change_datatype<newType,unsigned char>     (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_UINT16)   return SIRFRegMisc::change_datatype<newType,unsigned short>    (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_UINT32)   return SIRFRegMisc::change_datatype<newType,unsigned int>      (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_INT64)    return SIRFRegMisc::change_datatype<newType,signed long long>  (im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_UINT64)   return SIRFRegMisc::change_datatype<newType,unsigned long long>(im);
+    if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT128) return SIRFRegMisc::change_datatype<newType,long double>       (im);
 
-    // Check sizes
-    if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
-        throw runtime_error("fill_array: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Get data
-    T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-    for (unsigned i=0; i<im.get_raw_nifti_sptr()->nvox; i++) data[i] = T(v);
+    stringstream ss;
+    ss << "NiftImage::get_max not implemented for your data type: ";
+    ss << nifti_datatype_string(im.get_raw_nifti_sptr()->datatype);
+    ss << " (bytes per voxel: ";
+    ss << im.get_raw_nifti_sptr()->nbyper << ").";
+    throw runtime_error(ss.str());
 }
-template void fill_array<bool>              (const NiftiImage &im, const float &v);
-template void fill_array<signed char>       (const NiftiImage &im, const float &v);
-template void fill_array<signed short>      (const NiftiImage &im, const float &v);
-template void fill_array<signed int>        (const NiftiImage &im, const float &v);
-template void fill_array<float>             (const NiftiImage &im, const float &v);
-template void fill_array<double>            (const NiftiImage &im, const float &v);
-template void fill_array<unsigned char>     (const NiftiImage &im, const float &v);
-template void fill_array<unsigned short>    (const NiftiImage &im, const float &v);
-template void fill_array<unsigned int>      (const NiftiImage &im, const float &v);
-template void fill_array<signed long long>  (const NiftiImage &im, const float &v);
-template void fill_array<unsigned long long>(const NiftiImage &im, const float &v);
-template void fill_array<long double>       (const NiftiImage &im, const float &v);
-
-template<typename T>
-void crop_image(sirf::NiftiImage &image, const int min_index[7], const int max_index[7])
-{
-    if(!image.is_initialised())
-        throw runtime_error("fill_array: Image not initialised.");
-
-    shared_ptr<nifti_image> im = image.get_raw_nifti_sptr();
-
-    bool bounds_ok = true;
-
-    // Check all the min. bounds are greater than 0
-    // Check that the minimum is always <= than the max
-    // Check that the max is less than the image size
-    for (int i=0; i<7; ++i) {
-        if (min_index[i] < 0)            bounds_ok = false;
-        if (min_index[i] > max_index[i]) bounds_ok = false;
-        if (max_index[i] > im->dim[i+1]) bounds_ok = false;
-    }
-    if (!bounds_ok) {
-        stringstream ss;
-        ss << "crop_image: Bounds not ok.\n";
-        ss << "\tImage dims              = (";
-        for (int i=1; i<8; ++i) ss << im->dim[i] << " ";
-        ss << ").\n\tMinimum requested index = (";
-        for (int i=0; i<7; ++i) ss << min_index[i] << " ";
-        ss << ").\n\tMaximum requested index = (";
-        for (int i=0; i<7; ++i) ss << max_index[i] << " ";
-        ss << ").\n";
-        throw runtime_error(ss.str());
-    }
-
-    // Check sizes
-    if (im->nbyper != sizeof(T))
-        throw runtime_error("crop_image: Datatype does not match desired cast type (" + to_string(im->nbyper) + " versus " + to_string(sizeof(T)) + ").");
-
-    // Copy the original array
-    const NiftiImage copy = image.deep_copy();
-
-    // Set the new number of voxels
-    im->dim[1] = im->nx = max_index[0] - min_index[0] + 1;
-    im->dim[2] = im->ny = max_index[1] - min_index[1] + 1;
-    im->dim[3] = im->nz = max_index[2] - min_index[2] + 1;
-    im->dim[4] = im->nt = max_index[3] - min_index[3] + 1;
-    im->dim[5] = im->nu = max_index[4] - min_index[4] + 1;
-    im->dim[6] = im->nv = max_index[5] - min_index[5] + 1;
-    im->dim[7] = im->nw = max_index[6] - min_index[6] + 1;
-    im->nvox = unsigned(im->nx * im->ny * im->nz * im->nt * im->nu * im->nv * im->nw);
-
-    // Set the number of dimensions (if it's been decreased)
-    if (im->dim[0] == 7 && im->nw == 1) im->dim[0] = im->ndim = 6;
-    if (im->dim[0] == 6 && im->nv == 1) im->dim[0] = im->ndim = 5;
-    if (im->dim[0] == 5 && im->nu == 1) im->dim[0] = im->ndim = 4;
-    if (im->dim[0] == 4 && im->nt == 1) im->dim[0] = im->ndim = 3;
-    if (im->dim[0] == 3 && im->nz == 1) im->dim[0] = im->ndim = 2;
-    if (im->dim[0] == 2 && im->ny == 1) im->dim[0] = im->ndim = 1;
-    if (im->dim[0] == 1 && im->nx == 1) im->dim[0] = im->ndim = 0;
-
-    // Reset the data to the correct num of voxels
-    free(im->data);
-    im->data = static_cast<void*>(calloc(im->nvox,size_t(im->nbyper)));
-
-    // Get the data
-    T *old_data = static_cast<T*>(copy.get_raw_nifti_sptr()->data);
-    T *new_data = static_cast<T*>(im->data);
-
-    int new_index[7], old_index[7];
-    int new_1d_idx, old_1d_idx;
-
-    // Fill the data
-    for (old_index[0]=min_index[0]; old_index[0]<=max_index[0]; ++old_index[0]) {
-        for (old_index[1]=min_index[1]; old_index[1]<=max_index[1]; ++old_index[1]) {
-            for (old_index[2]=min_index[2]; old_index[2]<=max_index[2]; ++old_index[2]) {
-                for (old_index[3]=min_index[3]; old_index[3]<=max_index[3]; ++old_index[3]) {
-                    for (old_index[4]=min_index[4]; old_index[4]<=max_index[4]; ++old_index[4]) {
-                        for (old_index[5]=min_index[5]; old_index[5]<=max_index[5]; ++old_index[5]) {
-                            for (old_index[6]=min_index[6]; old_index[6]<=max_index[6]; ++old_index[6]) {
-
-                                for (int i=0; i<7; ++i)
-                                    new_index[i] = old_index[i] - min_index[i];
-
-                                new_1d_idx = image.get_1D_index(new_index);
-                                old_1d_idx = copy.get_1D_index(old_index);
-
-                                assert(new_1d_idx>=0);
-                                assert(old_1d_idx>=0);
-                                assert(new_1d_idx <= int(im->nvox));
-                                assert(old_1d_idx <= int(copy.get_raw_nifti_sptr()->nvox));
-                                new_data[new_1d_idx] = old_data[old_1d_idx];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-template void crop_image<bool>              (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<signed char>       (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<signed short>      (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<signed int>        (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<float>             (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<double>            (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<unsigned char>     (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<unsigned short>    (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<unsigned int>      (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<signed long long>  (NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<unsigned long long>(NiftiImage &image, const int min_index[7], const int max_index[7]);
-template void crop_image<long double>       (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void change_datatype<bool>              (NiftiImage &im);
+template void change_datatype<signed char>       (NiftiImage &im);
+template void change_datatype<signed short>      (NiftiImage &im);
+template void change_datatype<signed int>        (NiftiImage &im);
+template void change_datatype<float>             (NiftiImage &im);
+template void change_datatype<double>            (NiftiImage &im);
+template void change_datatype<unsigned char>     (NiftiImage &im);
+template void change_datatype<unsigned short>    (NiftiImage &im);
+template void change_datatype<unsigned int>      (NiftiImage &im);
+template void change_datatype<signed long long>  (NiftiImage &im);
+template void change_datatype<unsigned long long>(NiftiImage &im);
+template void change_datatype<long double>       (NiftiImage &im);
 
 }

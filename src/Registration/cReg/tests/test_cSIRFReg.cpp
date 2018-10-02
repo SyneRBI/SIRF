@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
     else
         SIRF_PATH = argv[1];
     string examples_path = SIRF_PATH + "/data/examples/Registration";
-    string output_path   = "results/cplusplus_";
+    string output_prefix   = "results/cplusplus_";
 
     // Input filenames
     string ref_aladin_filename      = examples_path + "/test.nii.gz";
@@ -62,33 +62,34 @@ int main(int argc, char* argv[])
     string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
 
     // Output filenames
-    string save_nifti_image                           = output_path   + "save_NiftiImage";
-    string save_nifti_image_3d                        = output_path   + "save_NiftiImage3D";
-    string save_nifti_image_3d_tensor_not_split       = output_path   + "save_NiftiImage3DTensor_not_split";
-    string save_nifti_image_3d_tensor_split           = output_path   + "save_NiftiImage3DTensor_split_%s";
-    string save_nifti_image_3d_deformation_not_split  = output_path   + "save_NiftiImage3DDeformation_not_split";
-    string save_nifti_image_3d_deformation_split      = output_path   + "save_NiftiImage3DDeformation_split_%s";
-    string save_nifti_image_3d_displacement_not_split = output_path   + "save_NiftiImage3DDisplacement_not_split";
-    string save_nifti_image_3d_displacement_split     = output_path   + "save_NiftiImage3DDisplacement_split_%s";
-    string aladin_warped            = output_path   + "aladin_warped";
-    string f3d_warped               = output_path   + "f3d_warped";
-    string TM_fwrd                  = output_path   + "TM_fwrd.txt";
-    string TM_back                  = output_path   + "TM_back.txt";
-    string aladin_def_fwrd          = output_path   + "aladin_def_fwrd";
-    string aladin_def_back          = output_path   + "aladin_def_back_%s";
-    string aladin_disp_fwrd         = output_path   + "aladin_disp_fwrd";
-    string aladin_disp_back         = output_path   + "aladin_disp_back_%s";
-    string f3d_disp_fwrd            = output_path   + "f3d_disp_fwrd";
-    string f3d_disp_back            = output_path   + "f3d_disp_back_%s";
-    string f3d_def_fwrd             = output_path   + "f3d_def_fwrd";
-    string f3d_def_back             = output_path   + "f3d_def_back_%s";
-    string rigid_resample           = output_path   + "rigid_resample";
-    string nonrigid_resample_disp   = output_path   + "nonrigid_resample_disp";
-    string nonrigid_resample_def    = output_path   + "nonrigid_resample_def";
-    string output_weighted_mean     = output_path   + "weighted_mean";
-    string output_weighted_mean_def = output_path   + "weighted_mean_def";
+    string save_nifti_image                           = output_prefix   + "save_NiftiImage.nii";
+    string save_nifti_image_3d                        = output_prefix   + "save_NiftiImage3D.nii";
+    string save_nifti_image_3d_tensor_not_split       = output_prefix   + "save_NiftiImage3DTensor_not_split.nii";
+    string save_nifti_image_3d_tensor_split           = output_prefix   + "save_NiftiImage3DTensor_split_%s.nii";
+    string save_nifti_image_3d_deformation_not_split  = output_prefix   + "save_NiftiImage3DDeformation_not_split.nii";
+    string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImage3DDeformation_split_%s.nii";
+    string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImage3DDisplacement_not_split.nii";
+    string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
+    string aladin_warped            = output_prefix   + "aladin_warped.nii";
+    string f3d_warped               = output_prefix   + "f3d_warped.nii";
+    string TM_fwrd                  = output_prefix   + "TM_fwrd.txt";
+    string TM_back                  = output_prefix   + "TM_back.txt";
+    string aladin_def_fwrd          = output_prefix   + "aladin_def_fwrd.nii";
+    string aladin_def_back          = output_prefix   + "aladin_def_back_%s.nii";
+    string aladin_disp_fwrd         = output_prefix   + "aladin_disp_fwrd.nii";
+    string aladin_disp_back         = output_prefix   + "aladin_disp_back_%s.nii";
+    string f3d_disp_fwrd            = output_prefix   + "f3d_disp_fwrd.nii";
+    string f3d_disp_back            = output_prefix   + "f3d_disp_back_%s.nii";
+    string f3d_def_fwrd             = output_prefix   + "f3d_def_fwrd.nii";
+    string f3d_def_back             = output_prefix   + "f3d_def_back_%s.nii";
+    string rigid_resample           = output_prefix   + "rigid_resample.nii";
+    string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
+    string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
+    string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
+    string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
+    string output_float             = output_prefix   + "reg_aladin_float.nii";
 
-    string output_stir_nifti        = output_path   + "stir_nifti.nii";
+    string output_stir_nifti        = output_prefix   + "stir_nifti.nii";
 
     NiftiImage3D ref_aladin( ref_aladin_filename );
     NiftiImage3D flo_aladin( flo_aladin_filename );
@@ -186,7 +187,6 @@ int main(int argc, char* argv[])
 
         // Add num to image
         NiftiImage3D q = e + 1;
-        std::cout << "\nq/e max = " << q.get_max() << "/" << e.get_max() << "\n";
         if (fabs(q.get_max() - (e.get_max() + 1.F)) > 0.0001F)
             throw runtime_error("NiftiImage __add__ val failed.");
 
@@ -201,60 +201,50 @@ int main(int argc, char* argv[])
             throw runtime_error("NiftiImage __mul__ val failed.");
 
         // Dimensions
-        int f[8];
         int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
-        e.get_dimensions(f);
+        const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage get_dimensions() failed.");
 
         // Test get_element
-        int idx[3] = { 1, 2, 3 };
-        ref_aladin.get_element(idx);
+        int idx[7] = { 1, 2, 3, 0, 0, 0, 0 };
+        ref_aladin(idx);
 
         // Test get_norm
         if (ref_aladin.get_norm(flo_aladin) < 1.e-7F)
             throw runtime_error("NiftiImage get_norm() failed.");
 
-        // Test get_datatype
-        if (strcmp(ref_aladin.get_datatype().c_str(),"NIFTI_TYPE_INT16") != 0)
-            throw runtime_error("NiftiImage get_datatype() failed.");
-
-        // Test casting to different datatypes
-        vector<string> nifti_types;
-        nifti_types.push_back("NIFTI_TYPE_INT16");
-        nifti_types.push_back("NIFTI_TYPE_INT32");
-        nifti_types.push_back("NIFTI_TYPE_FLOAT32");
-        nifti_types.push_back("NIFTI_TYPE_FLOAT64");
-        nifti_types.push_back("NIFTI_TYPE_UINT8");
-        nifti_types.push_back("NIFTI_TYPE_UINT16");
-        nifti_types.push_back("NIFTI_TYPE_UINT32");
-        nifti_types.push_back("NIFTI_TYPE_INT64");
-        nifti_types.push_back("NIFTI_TYPE_UINT64");
-        nifti_types.push_back("NIFTI_TYPE_FLOAT128");
-        NiftiImage aa;
-        for (int i=0; i<10; ++i) {
-            aa = ref_aladin.deep_copy();
-            if      (i==0) aa.change_datatype<signed short>();
-            else if (i==1) aa.change_datatype<signed int>();
-            else if (i==2) aa.change_datatype<float>();
-            else if (i==3) aa.change_datatype<double>();
-            else if (i==4) aa.change_datatype<unsigned char>();
-            else if (i==5) aa.change_datatype<unsigned short>();
-            else if (i==6) aa.change_datatype<unsigned int>();
-            else if (i==7) aa.change_datatype<signed long long>();
-            else if (i==8) aa.change_datatype<unsigned long long>();
-            else if (i==9) aa.change_datatype<long double>();
-
-            if (strcmp(aa.get_datatype().c_str(), nifti_types[i].c_str()) != 0)
-                throw runtime_error("SIRFRegMisc::change_datatype() failed.");
-            if (fabs(aa.get_max() - 255.F) > 1.e-7F)
-                throw runtime_error("SIRFRegMisc::change_datatype() failed.");
-        }
+        // Test saving to datatype
+        ref_aladin.save_to_file(output_float,NIFTI_TYPE_FLOAT32);
+        NiftiImage3D ref_aladin_float(output_float);
+        for (int i=0; i<int(ref_aladin.get_raw_nifti_sptr()->nvox); ++i)
+            if (ref_aladin_float(i) - ref_aladin(i) > 1.e-7F)
+                throw runtime_error("NiftiImage3D::save_to_file()/change_datatype() failed.");
 
         // Test dump methods
         q.dump_header();
         NiftiImage::dump_headers({q, s});
+
+        // Crop image
+        int min[7], max[7];
+        for (int i=0; i<7; ++i) {
+            min[i] = 0;
+            max[i] = f[i+1] - 1;
+        }
+        max[2] = 62;
+        NiftiImage z = e.deep_copy();
+        z.crop(min, max);
+        const int *zz = z.get_dimensions();
+        if (zz[0] != 3 ||
+                zz[1] != 64 ||
+                zz[2] != 64 ||
+                zz[3] != 63 ||
+                zz[4] != 1 ||
+                zz[5] != 1 ||
+                zz[6] != 1)
+            throw runtime_error("NiftiImage3D::crop() failed.");
+
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished NiftiImage test.\n";
@@ -308,9 +298,8 @@ int main(int argc, char* argv[])
             throw runtime_error("NiftiImage3D get_sum() failed.");
 
         // Dimensions
-        int f[8];
         int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
-        e.get_dimensions(f);
+        const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage3D get_dimensions() failed.");
@@ -335,10 +324,7 @@ int main(int argc, char* argv[])
         b.save_to_file_split_xyz_components(save_nifti_image_3d_tensor_split);
 
         // Constructor from file
-        NiftiImage3DTensor c(save_nifti_image_3d_tensor_not_split + ".nii");
-
-        // Constructor from single components
-        NiftiImage3DTensor h(ref_aladin,ref_aladin,ref_aladin);
+        NiftiImage3DTensor c(save_nifti_image_3d_tensor_not_split);
 
         // Fill
         c.fill(100);
@@ -373,12 +359,27 @@ int main(int argc, char* argv[])
             throw runtime_error("NiftiImage3DTensor get_sum() failed.");
 
         // Dimensions
-        int f[8];
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
-        e.get_dimensions(f);
+        const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage3DTensor get_dimensions() failed.");
+
+        // Constructor from single components
+        NiftiImage3D im1 = ref_aladin.deep_copy();
+        NiftiImage3D im2 = ref_aladin.deep_copy();
+        NiftiImage3D im3 = ref_aladin.deep_copy();
+        im1.fill(30.F);
+        im2.fill(20.F);
+        im3.fill(-10.F);
+        NiftiImage3DTensor h(im1, im2, im3);
+
+        // Test flip components
+        h.flip_component(0);
+        if (fabs(h.get_max() - 20.F) > 1.e-7F )
+            throw runtime_error("NiftiImage3DTensor flip_component() failed.");
+        if (fabs(h.get_min() + 30.F) > 1.e-7F )
+            throw runtime_error("NiftiImage3DTensor flip_component() failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished NiftiImage3DTensor test.\n";
@@ -399,14 +400,14 @@ int main(int argc, char* argv[])
         b.save_to_file_split_xyz_components(save_nifti_image_3d_displacement_split);
 
         // Constructor from file
-        NiftiImage3DDisplacement c(save_nifti_image_3d_displacement_not_split + ".nii");
+        NiftiImage3DDisplacement c(save_nifti_image_3d_displacement_not_split);
 
         // Constructor from tensor
-        NiftiImage3DTensor x(save_nifti_image_3d_displacement_not_split + ".nii");
+        NiftiImage3DTensor x(save_nifti_image_3d_displacement_not_split);
         NiftiImage3DDisplacement y(x);
 
         // Constructor from general
-        NiftiImage q(save_nifti_image_3d_displacement_not_split + ".nii");
+        NiftiImage q(save_nifti_image_3d_displacement_not_split);
         NiftiImage3DDisplacement r(q);
 
         // Constructor from single components
@@ -445,12 +446,12 @@ int main(int argc, char* argv[])
             throw runtime_error("NiftiImage3DDisplacement get_sum() failed.");
 
         // Dimensions
-        int f[8];
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
-        e.get_dimensions(f);
+        const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage3DDisplacement get_dimensions() failed.");
+
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished NiftiImage3DDisplacement test.\n";
@@ -471,14 +472,14 @@ int main(int argc, char* argv[])
         b.save_to_file_split_xyz_components(save_nifti_image_3d_deformation_split);
 
         // Constructor from file
-        NiftiImage3DDeformation c(save_nifti_image_3d_deformation_not_split + ".nii");
+        NiftiImage3DDeformation c(save_nifti_image_3d_deformation_not_split);
 
         // Constructor from tensor
-        NiftiImage3DTensor x(save_nifti_image_3d_deformation_not_split + ".nii");
+        NiftiImage3DTensor x(save_nifti_image_3d_deformation_not_split);
         NiftiImage3DDeformation y(x);
 
         // Constructor from general
-        NiftiImage q(save_nifti_image_3d_deformation_not_split + ".nii");
+        NiftiImage q(save_nifti_image_3d_deformation_not_split);
         NiftiImage3DDeformation r(q);
 
         // Constructor from single components
@@ -517,9 +518,8 @@ int main(int argc, char* argv[])
             throw runtime_error("NiftiImage3DDeformation get_sum() failed.");
 
         // Dimensions
-        int f[8];
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
-        e.get_dimensions(f);
+        const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
                 throw runtime_error("NiftiImage3DDeformation get_dimensions() failed.");
@@ -561,6 +561,18 @@ int main(int argc, char* argv[])
         // Back TM
         SIRFRegMat44 back_tm = NA.get_transformation_matrix_back();
         back_tm.print();
+
+        // Test converting disp to def
+        NiftiImage3DDeformation a;
+        a.create_from_disp(disp_fwrd);
+        if (a != def_fwrd)
+            throw runtime_error("NiftiImage3DDeformation::create_from_disp() failed.");
+
+        // Test converting def to disp
+        NiftiImage3DDisplacement b;
+        b.create_from_def(def_fwrd);
+        if (b != disp_fwrd)
+            throw runtime_error("NiftiImage3DDisplacement::create_from_def() failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished Nifty aladin test.\n";
@@ -709,13 +721,10 @@ int main(int argc, char* argv[])
 
         //  Do 3D
         SIRFRegImageWeightedMean wm1;
-        // Change to float to avoid rounding errors
-        NiftiImage3D ref_aladin_float(ref_aladin);
-        ref_aladin_float.change_datatype<float>();
-        NiftiImage3D im1 = ref_aladin_float.deep_copy();
-        NiftiImage3D im2 = ref_aladin_float.deep_copy();
-        NiftiImage3D im3 = ref_aladin_float.deep_copy();
-        NiftiImage3D im4 = ref_aladin_float.deep_copy();
+        NiftiImage3D im1 = ref_aladin.deep_copy();
+        NiftiImage3D im2 = ref_aladin.deep_copy();
+        NiftiImage3D im3 = ref_aladin.deep_copy();
+        NiftiImage3D im4 = ref_aladin.deep_copy();
         im1.fill(1);
         im2.fill(4);
         im3.fill(7);
@@ -727,7 +736,7 @@ int main(int argc, char* argv[])
         wm1.update();
         wm1.get_output().save_to_file(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
-        NiftiImage3D res = ref_aladin_float;
+        NiftiImage3D res = ref_aladin;
         res.fill(4.5F);
 
         if (wm1.get_output() != res)

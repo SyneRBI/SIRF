@@ -29,6 +29,7 @@ limitations under the License.
 
 #include "SIRFRegTransformation.h"
 #include "NiftiImage3DDeformation.h"
+#include "NiftiImage3DDisplacement.h"
 #include "SIRFRegMisc.h"
 #include <_reg_globalTrans.h>
 #include <sstream>
@@ -37,7 +38,40 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
-/// Compose multiple transformations into single deformation field
+void NiftiImage3DDeformation::create_from_disp(const NiftiImage3DDisplacement &disp)
+{
+    // Get the def field from the disp field
+    NiftiImage3DTensor temp = disp.deep_copy();
+    reg_getDeformationFromDisplacement(temp.get_raw_nifti_sptr().get());
+    temp.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
+    *this = temp.deep_copy();
+}
+
+void NiftiImage3DDeformation::create_from_3D_image(const NiftiImage3D &image)
+{
+    this->NiftiImage3DTensor::create_from_3D_image(image);
+    //_nifti_image->intent_p1 = 0; not necessary. 0 by default
+}
+
+void NiftiImage3DDeformation::create_from_cpp(const NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
+{
+    this->create_from_3D_image(ref);
+
+    reg_spline_getDeformationField(cpp.get_raw_nifti_sptr().get(),
+                                   _nifti_image.get(),
+                                   NULL,
+                                   false, //composition
+                                   true // bspline
+                                   );
+}
+
+
+NiftiImage3DDeformation NiftiImage3DDeformation::get_as_deformation_field(const NiftiImage3D &ref) const
+{
+    check_ref_and_def(ref,*this);
+    return this->deep_copy();
+}
+
 NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
 {
     if (transformations.size() == 0)
@@ -52,7 +86,6 @@ NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(cons
     return def;
 }
 
-/// Compose multiple transformations into single deformation field
 NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const vector<shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
 {
     vector<SIRFRegTransformation*> vec;

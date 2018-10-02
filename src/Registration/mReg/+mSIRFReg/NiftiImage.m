@@ -91,9 +91,12 @@ classdef NiftiImage < handle
         	% Overload inequality operator
         	value = ~(self==other);
         end
-        function save_to_file(self, filename)
+        function save_to_file(self, filename, datatype)
             %Save to file.
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_save_to_file', self.handle_, filename);
+            if nargin < 3
+                datatype ='';
+            end
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_save_to_file', self.handle_, filename, datatype);
             mUtilities.check_status([self.name ':save_to_file'], h);
             mUtilities.delete(h)
         end
@@ -152,16 +155,20 @@ classdef NiftiImage < handle
             calllib('msirfreg', 'mSIRFReg_NiftiImage_get_data', self.handle_, ptr_v);
             array = reshape(ptr_v.Value,dim);
         end
-        function datatype = get_datatype(self)
-            %Get image datatype.
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_get_datatype', self.handle_);
+        function datatype = get_original_datatype(self)
+            %Get original image datatype (internally everything is converted to float).
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_get_original_datatype', self.handle_);
             mUtilities.check_status('NiftiImage', h);
             datatype = calllib('miutilities', 'mCharDataFromHandle', h);
             mUtilities.delete(h)
         end
-        function change_datatype(self, datatype)
-            %Change datatype.
-            calllib('msirfreg', 'mSIRFReg_NiftiImage_change_datatype', self.handle_, datatype);
+        function crop(self, min_, max_)
+            assert(all(size(min_) == [1 7]), 'Min bounds should be a 1x7 array')
+            assert(all(size(max_) == [1 7]), 'Max bounds should be a 1x7 array')
+            min_ptr = libpointer('int32Ptr', single(min_));
+            max_ptr = libpointer('int32Ptr', single(max_));
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_crop', self.handle_, min_ptr, max_ptr);
+            mUtilities.check_status('parameter', h)
         end
         function dump_header(self)
             %Dump metadata of nifti image.

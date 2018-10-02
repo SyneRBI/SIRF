@@ -42,6 +42,12 @@ classdef NiftiImage3DDeformation < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Transf
                 self.handle_ = [];
             end
         end
+        function create_from_disp(self, dispp)
+            assert(isa(dispp, 'mSIRFReg.NiftiImage3DDisplacement'), 'Input should be NiftiImage3DDisplacement')
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDeformation_create_from_disp', self.handle_, dispp.handle_);
+            mUtilities.check_status([self.name ':create_from_disp'], h);
+            mUtilities.delete(h)
+        end
     end
     methods(Static)
         function z = compose_single_deformation(trans, ref)

@@ -65,25 +65,18 @@ public:
     NiftiImage3DDisplacement(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
         : NiftiImage3DTensor(x,y,z) { _nifti_image->intent_p1 = 1; }
 
+    /// Create from deformation field image
+    void create_from_def(const NiftiImage3DDeformation &im);
+
     /// Deep copy
     NiftiImage3DDisplacement deep_copy() const
     { return this->NiftiImage::deep_copy(); }
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImage3D &image)
-    {
-        this->NiftiImage3DTensor::create_from_3D_image(image);
-        _nifti_image->intent_p1 = 1;
-    }
+    void create_from_3D_image(const NiftiImage3D &image);
 
     /// Get as deformation field
-    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const
-    {
-        NiftiImage3DDeformation def;
-        SIRFRegMisc::convert_from_disp_to_def(def, *this);
-        check_ref_and_def(ref,def);
-        return def;
-    }
+    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
 };
 }
 

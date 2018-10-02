@@ -44,9 +44,8 @@ NiftiImage3D::NiftiImage3D(const PETImageData &pet_image)
     // Set up the nifti
     set_up_nifti(pet_image.get_patient_coord_geometrical_info());
 
-    // Copy the data. this cast is ok because PETImageData is always float.
-    float *data = static_cast<float*>(_nifti_image->data);
-    pet_image.get_data(data);
+    // Copy the data (both datatypes are float)
+    pet_image.get_data(_data);
 
     cout << "Done!\n";
 }
@@ -109,31 +108,20 @@ void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 
     // Check everything is ok
     reg_checkAndCorrectDimension(_nifti_image.get());
+
+    // Always float
+    set_up_data(NIFTI_TYPE_FLOAT32);
 }
 
 void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
 {
     cout << "Filling PET image from nifti image..." << flush;
 
-    bool everything_ok =
-            check_images_are_aligned(
-                pet_image.get_patient_coord_geometrical_info());
-
-    if (!everything_ok)
+    if (!check_images_are_aligned(
+                pet_image.get_patient_coord_geometrical_info()))
         throw std::runtime_error("Cannot copy data from NiftImage to STIRImageData as they are not aligned.");
 
-    float *nifti_data_ptr;
-
-    // If datatype is already float
-    if (_nifti_image->datatype == DT_FLOAT32)
-        nifti_data_ptr = static_cast<float *>(_nifti_image->data);
-    // If not, cast to it
-    else {
-        NiftiImage3D temp = this->deep_copy();
-        temp.change_datatype<float>();
-        nifti_data_ptr = static_cast<float *>(temp.get_raw_nifti_sptr()->data);
-    }
-    pet_image.set_data(nifti_data_ptr);
+    pet_image.set_data(_data);
 
     cout << "Done!\n";
 }

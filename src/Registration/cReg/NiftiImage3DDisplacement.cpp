@@ -27,31 +27,31 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegTransformation.h"
-#include "NiftiImage3DDeformation.h"
-#include <sstream>
+#include "NiftiImage3DDisplacement.h"
+#include <_reg_localTrans.h>
 
 using namespace std;
 using namespace sirf;
 
-void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const
+void NiftiImage3DDisplacement::create_from_def(const NiftiImage3DDeformation &def)
 {
-    // Check image size of ref matches def
-    const int *ref_dims = ref.get_dimensions();
-    const int *def_dims = def.get_dimensions();
+    // Get the disp field from the def field
+    NiftiImage3DTensor temp = def.deep_copy();
+    reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
+    temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
+    *this = temp.deep_copy();
+}
 
-    bool all_ok = true;
-    for (int i=1; i<=3; ++i)
-        if (ref_dims[i] != def_dims[i])
-            all_ok = false;
+void NiftiImage3DDisplacement::create_from_3D_image(const NiftiImage3D &image)
+{
+    this->NiftiImage3DTensor::create_from_3D_image(image);
+    _nifti_image->intent_p1 = 1;
+}
 
-    if (!all_ok) {
-        stringstream ss;
-        ss << "Deformation field image should contain same number of x, y and z voxels.\n";
-        ss << "Reference: ";
-        for (int i=1; i<=3; ++i) ss << ref_dims[i] << " ";
-        ss << "\nDeformation: ";
-        for (int i=1; i<=3; ++i) ss << def_dims[i] << " ";
-        throw std::runtime_error(ss.str());
-    }
+NiftiImage3DDeformation NiftiImage3DDisplacement::get_as_deformation_field(const NiftiImage3D &ref) const
+{
+    NiftiImage3DDeformation def;
+    def.create_from_disp(*this);
+    check_ref_and_def(ref,def);
+    return def;
 }
