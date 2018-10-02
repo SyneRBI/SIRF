@@ -25,23 +25,23 @@ parameter_file_f3d = examples_path + "/paramFiles/niftyreg_f3d.par"
 save_nifti_image = output_path + "save_NiftiImage"
 save_nifti_image_3d = output_path + "save_NiftiImage3D"
 save_nifti_image_3d_tensor_not_split = output_path + "save_NiftiImage3DTensor_not_split"
-save_nifti_image_3d_tensor_split = output_path + "save_NiftiImage3DTensor_split"
+save_nifti_image_3d_tensor_split = output_path + "save_NiftiImage3DTensor_split_%s"
 save_nifti_image_3d_deformation_not_split = output_path + "save_NiftiImage3DDeformation_not_split"
-save_nifti_image_3d_deformation_split = output_path + "save_NiftiImage3DDeformation_split"
+save_nifti_image_3d_deformation_split = output_path + "save_NiftiImage3DDeformation_split_%s"
 save_nifti_image_3d_displacement_not_split = output_path + "save_NiftiImage3DDisplacement_not_split"
-save_nifti_image_3d_displacement_split = output_path + "save_NiftiImage3DDisplacement_split"
+save_nifti_image_3d_displacement_split = output_path + "save_NiftiImage3DDisplacement_split_%s"
 aladin_warped = output_path + "aladin_warped"
 f3d_warped = output_path + "f3d_warped"
 TM_fwrd = output_path + "TM_fwrd.txt"
 TM_back = output_path + "TM_back.txt"
 aladin_def_fwrd = output_path + "aladin_def_fwrd"
-aladin_def_back = output_path + "aladin_def_back"
+aladin_def_back = output_path + "aladin_def_back_%s"
 aladin_disp_fwrd = output_path + "aladin_disp_fwrd"
-aladin_disp_back = output_path + "aladin_disp_back"
+aladin_disp_back = output_path + "aladin_disp_back_%s"
 f3d_def_fwrd = output_path + "f3d_disp_fwrd"
-f3d_def_back = output_path + "f3d_disp_back"
+f3d_def_back = output_path + "f3d_disp_back_%s"
 f3d_disp_fwrd = output_path + "f3d_disp_fwrd"
-f3d_disp_back = output_path + "f3d_disp_back"
+f3d_disp_back = output_path + "f3d_disp_back_%s"
 
 rigid_resample = output_path + "rigid_resample"
 nonrigid_resample_disp = output_path + "nonrigid_resample_disp"
@@ -488,10 +488,10 @@ def try_niftyf3d():
     disp_back = nf.get_displacement_field_back()
 
     warped.save_to_file(f3d_warped)
-    def_fwrd.save_to_file_split_xyz_components(f3d_def_fwrd)
-    def_back.save_to_file(f3d_def_back)
-    disp_fwrd.save_to_file_split_xyz_components(f3d_disp_fwrd)
-    disp_back.save_to_file(f3d_disp_back)
+    def_fwrd.save_to_file(f3d_def_fwrd)
+    def_back.save_to_file_split_xyz_components(f3d_def_back)
+    disp_fwrd.save_to_file(f3d_disp_fwrd)
+    disp_back.save_to_file_split_xyz_components(f3d_disp_back)
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

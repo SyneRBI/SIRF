@@ -18,23 +18,23 @@ g.parameter_file_f3d                         = fullfile(examples_path, '/paramFi
 g.save_nifti_image                           = fullfile(output_prefix, 'save_NiftiImage');
 g.save_nifti_image_3d                        = fullfile(output_prefix, 'save_NiftiImage3D');
 g.save_nifti_image_3d_tensor_not_split       = fullfile(output_prefix, 'save_NiftiImage3DTensor_not_split');
-g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'save_NiftiImage3DTensor_split');
+g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'save_NiftiImage3DTensor_split_%s');
 g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'save_NiftiImage3DDeformation_not_split');
-g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'save_NiftiImage3DDeformation_split');
+g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'save_NiftiImage3DDeformation_split_%s');
 g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_not_split');
-g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_split');
+g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'save_NiftiImage3DDisplacement_split_%s');
 g.aladin_warped                              = fullfile(output_prefix, 'aladin_warped');
 g.f3d_warped                                 = fullfile(output_prefix, 'f3d_warped');
 g.TM_fwrd				                     = fullfile(output_prefix, 'TM_fwrd.txt');
 g.TM_back				                     = fullfile(output_prefix, 'TM_back.txt');
 g.aladin_def_fwrd                            = fullfile(output_prefix, 'aladin_def_fwrd');
-g.aladin_def_back                            = fullfile(output_prefix, 'aladin_def_back');
+g.aladin_def_back                            = fullfile(output_prefix, 'aladin_def_back_%s');
 g.aladin_disp_fwrd                           = fullfile(output_prefix, 'aladin_disp_fwrd');
-g.aladin_disp_back                           = fullfile(output_prefix, 'aladin_disp_back');
+g.aladin_disp_back                           = fullfile(output_prefix, 'aladin_disp_back_%s');
 g.f3d_def_fwrd                               = fullfile(output_prefix, 'f3d_disp_fwrd');
-g.f3d_def_back                               = fullfile(output_prefix, 'f3d_disp_back');
+g.f3d_def_back                               = fullfile(output_prefix, 'f3d_disp_back_%s');
 g.f3d_disp_fwrd                              = fullfile(output_prefix, 'f3d_disp_fwrd');
-g.f3d_disp_back                              = fullfile(output_prefix, 'f3d_disp_back');
+g.f3d_disp_back                              = fullfile(output_prefix, 'f3d_disp_back_%s');
 
 g.rigid_resample                             = fullfile(output_prefix, 'rigid_resample');
 g.nonrigid_resample_disp                     = fullfile(output_prefix, 'nonrigid_resample_disp');
@@ -440,10 +440,10 @@ function try_niftyf3d(g)
     disp_back = nf.get_displacement_field_back();
 
     warped.save_to_file(g.f3d_warped);
-    def_fwrd.save_to_file_split_xyz_components(g.f3d_def_fwrd);
-    def_back.save_to_file(g.f3d_def_back);
-    disp_fwrd.save_to_file_split_xyz_components(g.f3d_disp_fwrd);
-    disp_back.save_to_file(g.f3d_disp_back);
+    def_fwrd.save_to_file(g.f3d_def_fwrd);
+    def_back.save_to_file_split_xyz_components(g.f3d_def_back);
+    disp_fwrd.save_to_file(g.f3d_disp_fwrd);
+    disp_back.save_to_file_split_xyz_components(g.f3d_disp_back);
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')

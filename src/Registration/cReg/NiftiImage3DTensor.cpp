@@ -89,36 +89,49 @@ void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
     _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename) const
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filename_pattern) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
-        throw std::runtime_error("Error, cannot write " + filename + " to file because it has not been initialised.");
+        throw std::runtime_error("Error, cannot write " + filename_pattern + " to file because it has not been initialised.");
 
     // Check that filename isn't blank
-    if (filename.size() == 0)
-        throw std::runtime_error("Error, cannot write " + filename + " to file because filename is blank.");
+    if (filename_pattern.empty())
+        throw std::runtime_error("Error, cannot write " + filename_pattern + " to file because filename is blank.");
 
-    cout << "\nSaving to file (" << filename << ")..." << flush;
+    string filename_x, filename_y, filename_z;
 
-    SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename);
+    try{
+        filename_x = str(boost::format(filename_pattern) % "x");
+        filename_y = str(boost::format(filename_pattern) % "y");
+        filename_z = str(boost::format(filename_pattern) % "z");
+    }
+    catch (const std::exception &exc) {
+        throw runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + string(exc.what()));
+    }
 
-    cout << "Done.\n";
+    this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z);
 }
 
 void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const
 {
-    // Check that the disp image exists
-    if (!this->is_initialised())
-        throw std::runtime_error("Error, cannot write to " + filename_x + ", " + filename_y + ", " + filename_z + " because it has not been initialised.");
+    int min_index[7], max_index[7];
+    for (int i=0; i<7; ++i) {
+        min_index[i] = 0;
+        max_index[i] = _nifti_image->dim[i+1] - 1;
+    }
 
-    // Check that filename isn't blank
-    if (filename_x.size() == 0 || filename_y.size() == 0 || filename_z.size() == 0)
-        throw std::runtime_error("Error, cannot write to " + filename_x + ", " + filename_y + ", " + filename_z + " because one or more filenames is blank.");
+    for (int i=0; i<3; ++i) {
 
-    cout << "\nSaving to file (" << filename_x + ", " + filename_y + ", " + filename_z << ")..." << flush;
+        // Index 4 is nu (tensor component)
+        min_index[4] = max_index[4] = i;
 
-    SIRFRegMisc::save_multicomponent_nifti_image_split_xyz(_nifti_image,filename_x,filename_y,filename_z);
+        // Crop image
+        NiftiImage image = this->deep_copy();
+        image.crop(min_index,max_index);
 
-    cout << "Done.\n";
+        if      (i == 0) SIRFRegMisc::save_nifti_image(image,filename_x);
+        else if (i == 1) SIRFRegMisc::save_nifti_image(image,filename_y);
+        else if (i == 2) SIRFRegMisc::save_nifti_image(image,filename_z);
+    }
 }

@@ -51,18 +51,6 @@ namespace SIRFRegMisc {
     /// Save nifti image
     void save_nifti_image(const sirf::NiftiImage &image, const std::string &filename);
 
-    //! Split multi-component nifti image
-    /*! Assume that the multi-component aspect is in dim[5].
-        Split the image into that many single-component images
-    */
-    std::vector<sirf::NiftiImage3D> split_multicomponent_nifti_image(const sirf::NiftiImage3DTensor &input);
-
-    /// Save a multicomponent nifti image as x-, y-, z-components
-    void save_multicomponent_nifti_image_split_xyz(const sirf::NiftiImage3DTensor &input, const std::string &filename);
-
-    /// Save a multicomponent nifti image as x-, y-, z-components
-    void save_multicomponent_nifti_image_split_xyz(const sirf::NiftiImage3DTensor &input, const std::string &filename_x, const std::string &filename_y, const std::string &filename_z);
-
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 

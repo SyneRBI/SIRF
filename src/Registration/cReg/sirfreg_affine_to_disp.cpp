@@ -51,6 +51,8 @@ void print_usage()
     cout << "    -disp_3D:\t3D forward displacement field image\n";
     cout << "    -def_4D:\t4D forward deformation field image\n";
     cout << "    -def_3D:\t3D forward deformation field image\n";
+
+    cout << "If 3D format is required, use boost format for the filename (e.g., output_%s.nii).\n\n\n";
 }
 
 /// Find flag

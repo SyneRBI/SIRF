@@ -67,7 +67,7 @@ public:
     virtual void create_from_3D_image(const NiftiImage3D &image);
 
     /// Save to file as x-, y-, z-components
-    void save_to_file_split_xyz_components(const std::string &filename) const;
+    void save_to_file_split_xyz_components(const std::string &filename_pattern) const;
 
     /// Save to file as x-, y-, z-components
     void save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z) const;
