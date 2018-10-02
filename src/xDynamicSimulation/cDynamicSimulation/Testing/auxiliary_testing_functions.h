@@ -36,7 +36,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define USE_64_CUBE_INPUT
+#define USE_128_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
@@ -47,16 +47,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #elif defined(USE_128_CUBE_INPUT)
 
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_3Dyn.h5"
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_3Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"   
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_itl_golden.h5"  
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
-
 
 #elif defined(USE_192_CUBE_INPUT)
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/20180720-105656,SimulationDummy,CV_nav_192Cube_3Echo,2528,141_ismrmrd.h5" 
 	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/.h5"
+	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
 
 #endif
 
@@ -136,6 +137,7 @@ namespace aux_test
 	ISMRMRD::Image< float > get_mock_ismrmrd_image_with_gradients( void );
 
 	ISMRMRD::NDArray<complex_float_t> get_mock_csm( void );
+	ISMRMRD::Image<complex_float_t> get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils );
 	sirf::CoilDataAsCFImage get_mock_coildata_as_cfimage( void );
 
 	ISMRMRD::AcquisitionHeader get_mock_acquisition_header( void );	
@@ -156,12 +158,6 @@ namespace aux_test
 	SignalContainer get_mock_sawtooth_signal( sirf::AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms);
 
 	
-	
-	
-
-	
-
-
 
 	template <typename T> bool equal_array_content( ISMRMRD::NDArray<T> one_array, ISMRMRD::NDArray<T> other_array)
 	{

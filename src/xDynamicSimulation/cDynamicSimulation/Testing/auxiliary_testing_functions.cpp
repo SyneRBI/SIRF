@@ -14,6 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <sstream>
 #include <math.h>
 #include <cmath>
+#include <stdexcept>
 
 using namespace sirf;
 
@@ -439,6 +440,108 @@ ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
 	return csm;
 }
 
+ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
+{
+
+	if( std::floor(log2(num_coils)) != log2(num_coils) )
+		throw std::runtime_error("Give number of coils which is a power of two.");
+
+	std::vector<float> sensitivity_widths {vol_dims[0] /2.f, vol_dims[1] /2.f, vol_dims[2] /3.f };
+
+
+	std::vector<float> x_range, y_range, z_range;
+
+	for( size_t i=0; i<vol_dims[0]; i++)
+		x_range.push_back( i-(float)vol_dims[0]/2.f );
+
+	for( size_t i=0; i<vol_dims[0]; i++)
+		y_range.push_back( i-(float)vol_dims[1]/2.f );
+
+	for( size_t i=0; i<vol_dims[0]; i++)
+		z_range.push_back( i-(float)vol_dims[2]/2.f );
+
+	ISMRMRD::NDArray<float> x_grid(vol_dims), y_grid(vol_dims), z_grid(vol_dims);
+
+
+	for( size_t nz=0; nz<vol_dims[2]; nz++)
+	for( size_t ny=0; ny<vol_dims[1]; ny++)
+	for( size_t nx=0; nx<vol_dims[0]; nx++)
+	{
+		x_grid(nx,ny,nz) = x_range[nx];
+		y_grid(nx,ny,nz) = y_range[ny];
+		z_grid(nx,ny,nz) = z_range[nz];
+	}
+
+	ISMRMRD::Image<complex_float_t> csm( vol_dims[0], vol_dims[1], vol_dims[2], num_coils );
+
+	std::vector<size_t> center_container_size{(size_t)3, (size_t)num_coils};
+	ISMRMRD::NDArray< float > coil_centers( center_container_size );
+	if( num_coils == 1)
+	{
+		for(size_t i=0; i<csm.getNumberOfDataElements(); i++)
+			*(csm.begin() + i) = std::complex<float>(1);
+	}
+	else if (num_coils == 2)
+	{
+
+		coil_centers(0, 0) = x_range[ std::floor( x_range.size()/2) ];
+		coil_centers(1, 0) = y_range[0];
+		coil_centers(2, 0) = 0;
+
+
+		coil_centers(0, 1) = x_range[ std::floor( x_range.size()/2) ];;
+		coil_centers(1, 1) = y_range.back();
+		coil_centers(2, 1) = 0;
+
+	}
+	else
+	{
+		size_t const coils_per_side = num_coils / 4;
+		float const side_distances = 1.f/( coils_per_side + 1.f);
+
+		for(size_t j=0; j<coils_per_side;j++)
+		{
+			size_t const coil_access_index = j * coils_per_side;
+
+			coil_centers(0, coil_access_index + 0) = x_range[ std::floor( x_range.size() * float(j+1) * side_distances) ];
+			coil_centers(1, coil_access_index + 0) = y_range[0];
+			coil_centers(2, coil_access_index + 0) = 0;
+
+
+			coil_centers(0, coil_access_index + 1) = x_range[ std::floor( x_range.size() * float(j+1) * side_distances) ];
+			coil_centers(1, coil_access_index + 1) = y_range.back();
+			coil_centers(2, coil_access_index + 1) = 0;
+
+
+			coil_centers(0, coil_access_index + 2) = x_range[0];
+			coil_centers(1, coil_access_index + 2) = y_range[ std::floor( y_range.size() * float(j+1) * side_distances) ];
+			coil_centers(2, coil_access_index + 2) = 0;
+
+
+			coil_centers(0, coil_access_index + 3) = x_range.back();
+			coil_centers(1, coil_access_index + 3) = y_range[ std::floor( y_range.size() * float(j+1) * side_distances) ];
+			coil_centers(2, coil_access_index + 3) = 0;
+		}
+	}
+
+	for(size_t i_coil=0; i_coil<num_coils; i_coil++)
+	{
+		for( size_t nz=0; nz<vol_dims[2]; nz++)
+		for( size_t ny=0; ny<vol_dims[1]; ny++)
+		for( size_t nx=0; nx<vol_dims[0]; nx++)
+		{
+			float const dist_square_to_coil_center = (x_grid(nx,ny,nz) - coil_centers(0, i_coil)) * (x_grid(nx,ny,nz) - coil_centers(0, i_coil))/ (sensitivity_widths[0]*sensitivity_widths[0]) +
+											  (y_grid(nx,ny,nz) - coil_centers(1, i_coil)) * (y_grid(nx,ny,nz) - coil_centers(1, i_coil))/ (sensitivity_widths[1]*sensitivity_widths[1]) + 
+											  (z_grid(nx,ny,nz) - coil_centers(2, i_coil)) * (z_grid(nx,ny,nz) - coil_centers(2, i_coil))/ (sensitivity_widths[2]*sensitivity_widths[2]);
+
+			csm(nx, ny, nz, i_coil) = std::complex<float>( exp( - dist_square_to_coil_center ), 0);											  
+		}
+	}
+
+	return csm;
+}
+
+
 CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 {
 	ISMRMRD::NDArray<complex_float_t> mock_csm = get_mock_csm();
@@ -655,23 +758,19 @@ SignalContainer aux_test::get_mock_sawtooth_signal( AcquisitionsVector acq_vec, 
 
 
 	unsigned const num_sampling_points = acq_vec.number();
-	size_t const num_cycles_during_acquisition =  std::ceil( float(t_fin - t_0)/period_duration_ms );
+
+	TimeAxisType dt = float(t_fin - t_0)/ float(num_sampling_points);
 
 	SignalContainer signal;
 
-	for( unsigned i_cycle=0; i_cycle<num_cycles_during_acquisition; i_cycle++)
+	for( unsigned i=0; i<num_sampling_points; i++)
 	{
-		std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point;
+		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
-		one_signal_point.first = t_0 + i_cycle * period_duration_ms - 1;
-		one_signal_point.second = SignalAxisType(1);
+		signal_point.first = t_0 + i * dt;
 
-		signal.push_back(one_signal_point);
-
-		zero_signal_point.first =  t_0 + i_cycle * period_duration_ms;
-		zero_signal_point.second = SignalAxisType(0); 
-
-		signal.push_back(zero_signal_point);
+		signal_point.second = fmod(t_0 + i * dt, period_duration_ms) / period_duration_ms;
+		signal.push_back(signal_point);
 	}
 
 	return signal;	
