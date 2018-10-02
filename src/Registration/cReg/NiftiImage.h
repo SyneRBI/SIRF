@@ -97,7 +97,7 @@ public:
     float get_min() const;
 
     /// Get element
-    float get_element(const int idx[]) const;
+    float get_element(const int idx[7]) const;
 
     /// Get sum
     float get_sum() const;
@@ -126,6 +126,12 @@ public:
 
     /// Dump multiple header info
     static void dump_headers(const std::vector<sirf::NiftiImage> &ims);
+
+    /// Crop
+    void crop(const int min_index[7], const int max_index[7]);
+
+    /// get 1D index from ND index
+    int get_1D_index(const int idx[7]) const;
 
 protected:
 

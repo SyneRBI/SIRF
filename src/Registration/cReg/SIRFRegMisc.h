@@ -112,7 +112,7 @@ namespace SIRFRegMisc {
 
     /// Get 3D array element. idx can have up to 7 dims
     template<typename T>
-    float get_array_element(const sirf::NiftiImage &im, const int idx[]);
+    float get_array_element(const sirf::NiftiImage &im, const int idx[7]);
 
     /// Sum arrays
     template<typename T>
@@ -188,6 +188,10 @@ namespace SIRFRegMisc {
     /// Fill array with single value.
     template<typename T>
     void fill_array(const sirf::NiftiImage &im, const float &v);
+
+    /// Crop image
+    template<typename T>
+    void crop_image(sirf::NiftiImage &image, const int min_index[7], const int max_index[7]);
 }
 
 #endif

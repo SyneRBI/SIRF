@@ -242,7 +242,7 @@ float NiftiImage::get_min() const
     throw std::runtime_error(ss.str());
 }
 
-float NiftiImage::get_element(const int idx[]) const
+float NiftiImage::get_element(const int idx[7]) const
 {
     if(!this->is_initialised())
         throw runtime_error("NiftiImage::get_element(): Image not initialised.");
@@ -474,4 +474,58 @@ void NiftiImage::dump_header() const
 void NiftiImage::dump_headers(const std::vector<NiftiImage> &ims)
 {
     SIRFRegMisc::dump_headers_actual(ims);
+}
+
+void NiftiImage::crop(const int min_index[7], const int max_index[7])
+{
+    if (_nifti_image->datatype == DT_BINARY)   return SIRFRegMisc::crop_image<bool>              (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_INT8)     return SIRFRegMisc::crop_image<signed char>       (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_INT16)    return SIRFRegMisc::crop_image<signed short>      (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_INT32)    return SIRFRegMisc::crop_image<signed int>        (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_FLOAT32)  return SIRFRegMisc::crop_image<float>             (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_FLOAT64)  return SIRFRegMisc::crop_image<double>            (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_UINT8)    return SIRFRegMisc::crop_image<unsigned char>     (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_UINT16)   return SIRFRegMisc::crop_image<unsigned short>    (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_UINT32)   return SIRFRegMisc::crop_image<unsigned int>      (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_INT64)    return SIRFRegMisc::crop_image<signed long long>  (*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_UINT64)   return SIRFRegMisc::crop_image<unsigned long long>(*this, min_index, max_index);
+    if (_nifti_image->datatype == DT_FLOAT128) return SIRFRegMisc::crop_image<long double>       (*this, min_index, max_index);
+
+    stringstream ss;
+    ss << "NiftImage::get_max not implemented for your data type: ";
+    ss << nifti_datatype_string(_nifti_image->datatype);
+    ss << " (bytes per voxel: ";
+    ss << _nifti_image->nbyper << ").";
+    throw runtime_error(ss.str());
+}
+
+int NiftiImage::get_1D_index(const int idx[7]) const
+{
+    // Get dims and spacing
+    int *dim = _nifti_image->dim;
+
+    // Check it's in bounds
+    for (int i=0; i<7; ++i) {
+        if (idx[i]<0 || idx[i]>=dim[i+1]) {
+            stringstream ss;
+            ss << "NiftiImage::get_1D_index: Element out of bounds.\n";
+            ss << "\tRequested = ( ";
+            for (int i=0;i<7;++i) ss << idx[i] << " ";
+            ss << ")\n\tBounds    = ( ";
+            for (int i=0;i<7;++i) ss << dim[i+1] << " ";
+            ss << ")";
+            throw runtime_error(ss.str());
+        }
+    }
+
+    int idx_1d = 0;
+    idx_1d += idx[0];
+    idx_1d += idx[1] * dim[1];
+    idx_1d += idx[2] * dim[1] * dim[2];
+    idx_1d += idx[3] * dim[1] * dim[2] * dim[3];
+    idx_1d += idx[4] * dim[1] * dim[2] * dim[3] * dim[4];
+    idx_1d += idx[5] * dim[1] * dim[2] * dim[3] * dim[4] * dim[5];
+    idx_1d += idx[6] * dim[1] * dim[2] * dim[3] * dim[4] * dim[5] * dim[6];
+
+    return idx_1d;
 }

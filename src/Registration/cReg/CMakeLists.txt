@@ -58,7 +58,9 @@ SET(SIRFREG_executables
     affine_to_disp
     dump_nifti_info
     sirfreg_aladin
-    tensor_split_join)
+    tensor_split_join
+    sirfreg_crop_image
+    )
 
 FOREACH(elem ${SIRFREG_executables})
     ADD_EXECUTABLE(${elem} ${elem}.cpp)

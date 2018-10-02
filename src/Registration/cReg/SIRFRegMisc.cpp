@@ -558,7 +558,7 @@ template float get_array_sum<unsigned long long>(const NiftiImage &im);
 template float get_array_sum<long double>       (const NiftiImage &im);
 
 template<typename T>
-float get_array_element(const NiftiImage &im, const int idx[])
+float get_array_element(const NiftiImage &im, const int idx[7])
 {
     if(!im.is_initialised())
         throw runtime_error("get_3D_array_element: Image not initialised.");
@@ -567,32 +567,10 @@ float get_array_element(const NiftiImage &im, const int idx[])
     if (im.get_raw_nifti_sptr()->nbyper != sizeof(T))
         throw runtime_error("get_3D_array_element: Datatype does not match desired cast type (" + to_string(im.get_raw_nifti_sptr()->nbyper) + " versus " + to_string(sizeof(T)) + ").");
 
-    // Get dims and spacing
-    int   *dim    = im.get_raw_nifti_sptr()->dim;
-
-    // Check it's in bounds
-    for (int i=0; i<dim[0]; ++i) {
-        if (idx[i]<0 || idx[i]>=dim[i+1]) {
-            stringstream ss;
-            ss << "get_array_element: Element out of bounds.\n";
-            ss << "\tRequested = ( "; for (int i=0;i<dim[0];++i) ss << idx[i] << " ";
-            ss << ")\n\tBounds = ( "; for (int i=0;i<dim[0];++i) ss << dim[i+1] << " "; ss << " ).";
-            throw runtime_error(ss.str());
-        }
-    }
-
-    int idx_1d = 0;
-    for (int i=0; i<dim[0]; ++i) {
-        int component = idx[i];
-        for (int j=i+2; j<dim[0]+1; ++j)
-            component *= dim[j];
-        idx_1d += component;
-    }
+    int idx_1d = im.get_1D_index(idx);
 
     // Get data
     T *data = static_cast<T*>(im.get_raw_nifti_sptr()->data);
-
-    cout << "\nget_array_element: Be careful, I made this quickly for debugging and haven't thought about data order.\n";
 
     return float(data[idx_1d]);
 }
@@ -854,4 +832,114 @@ template void fill_array<unsigned int>      (const NiftiImage &im, const float &
 template void fill_array<signed long long>  (const NiftiImage &im, const float &v);
 template void fill_array<unsigned long long>(const NiftiImage &im, const float &v);
 template void fill_array<long double>       (const NiftiImage &im, const float &v);
+
+template<typename T>
+void crop_image(sirf::NiftiImage &image, const int min_index[7], const int max_index[7])
+{
+    if(!image.is_initialised())
+        throw runtime_error("fill_array: Image not initialised.");
+
+    shared_ptr<nifti_image> im = image.get_raw_nifti_sptr();
+
+    bool bounds_ok = true;
+
+    // Check all the min. bounds are greater than 0
+    // Check that the minimum is always <= than the max
+    // Check that the max is less than the image size
+    for (int i=0; i<7; ++i) {
+        if (min_index[i] < 0)            bounds_ok = false;
+        if (min_index[i] > max_index[i]) bounds_ok = false;
+        if (max_index[i] > im->dim[i+1]) bounds_ok = false;
+    }
+    if (!bounds_ok) {
+        stringstream ss;
+        ss << "crop_image: Bounds not ok.\n";
+        ss << "\tImage dims              = (";
+        for (int i=1; i<8; ++i) ss << im->dim[i] << " ";
+        ss << ").\n\tMinimum requested index = (";
+        for (int i=0; i<7; ++i) ss << min_index[i] << " ";
+        ss << ").\n\tMaximum requested index = (";
+        for (int i=0; i<7; ++i) ss << max_index[i] << " ";
+        ss << ").\n";
+        throw runtime_error(ss.str());
+    }
+
+    // Check sizes
+    if (im->nbyper != sizeof(T))
+        throw runtime_error("crop_image: Datatype does not match desired cast type (" + to_string(im->nbyper) + " versus " + to_string(sizeof(T)) + ").");
+
+    // Copy the original array
+    const NiftiImage copy = image.deep_copy();
+
+    // Set the new number of voxels
+    im->dim[1] = im->nx = max_index[0] - min_index[0] + 1;
+    im->dim[2] = im->ny = max_index[1] - min_index[1] + 1;
+    im->dim[3] = im->nz = max_index[2] - min_index[2] + 1;
+    im->dim[4] = im->nt = max_index[3] - min_index[3] + 1;
+    im->dim[5] = im->nu = max_index[4] - min_index[4] + 1;
+    im->dim[6] = im->nv = max_index[5] - min_index[5] + 1;
+    im->dim[7] = im->nw = max_index[6] - min_index[6] + 1;
+    im->nvox = unsigned(im->nx * im->ny * im->nz * im->nt * im->nu * im->nv * im->nw);
+
+    // Set the number of dimensions (if it's been decreased)
+    if (im->dim[0] == 7 && im->nw == 1) im->dim[0] = im->ndim = 6;
+    if (im->dim[0] == 6 && im->nv == 1) im->dim[0] = im->ndim = 5;
+    if (im->dim[0] == 5 && im->nu == 1) im->dim[0] = im->ndim = 4;
+    if (im->dim[0] == 4 && im->nt == 1) im->dim[0] = im->ndim = 3;
+    if (im->dim[0] == 3 && im->nz == 1) im->dim[0] = im->ndim = 2;
+    if (im->dim[0] == 2 && im->ny == 1) im->dim[0] = im->ndim = 1;
+    if (im->dim[0] == 1 && im->nx == 1) im->dim[0] = im->ndim = 0;
+
+    // Reset the data to the correct num of voxels
+    free(im->data);
+    im->data = static_cast<void*>(calloc(im->nvox,size_t(im->nbyper)));
+
+    // Get the data
+    T *old_data = static_cast<T*>(copy.get_raw_nifti_sptr()->data);
+    T *new_data = static_cast<T*>(im->data);
+
+    int new_index[7], old_index[7];
+    int new_1d_idx, old_1d_idx;
+
+    // Fill the data
+    for (old_index[0]=min_index[0]; old_index[0]<=max_index[0]; ++old_index[0]) {
+        for (old_index[1]=min_index[1]; old_index[1]<=max_index[1]; ++old_index[1]) {
+            for (old_index[2]=min_index[2]; old_index[2]<=max_index[2]; ++old_index[2]) {
+                for (old_index[3]=min_index[3]; old_index[3]<=max_index[3]; ++old_index[3]) {
+                    for (old_index[4]=min_index[4]; old_index[4]<=max_index[4]; ++old_index[4]) {
+                        for (old_index[5]=min_index[5]; old_index[5]<=max_index[5]; ++old_index[5]) {
+                            for (old_index[6]=min_index[6]; old_index[6]<=max_index[6]; ++old_index[6]) {
+
+                                for (int i=0; i<7; ++i)
+                                    new_index[i] = old_index[i] - min_index[i];
+
+                                new_1d_idx = image.get_1D_index(new_index);
+                                old_1d_idx = copy.get_1D_index(old_index);
+
+                                assert(new_1d_idx>=0);
+                                assert(old_1d_idx>=0);
+                                assert(new_1d_idx <= int(im->nvox));
+                                assert(old_1d_idx <= int(copy.get_raw_nifti_sptr()->nvox));
+                                new_data[new_1d_idx] = old_data[old_1d_idx];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+template void crop_image<bool>              (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<signed char>       (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<signed short>      (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<signed int>        (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<float>             (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<double>            (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<unsigned char>     (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<unsigned short>    (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<unsigned int>      (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<signed long long>  (NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<unsigned long long>(NiftiImage &image, const int min_index[7], const int max_index[7]);
+template void crop_image<long double>       (NiftiImage &image, const int min_index[7], const int max_index[7]);
+
 }
