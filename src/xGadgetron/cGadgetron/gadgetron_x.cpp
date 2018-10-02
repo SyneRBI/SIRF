@@ -384,7 +384,10 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if( img.getMatrixSizeZ() != nz  )
 			throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
 	}
-	unsigned int nc = acq.active_channels();
+	// unsigned int nc = acq.active_channels();
+	int coilmap_dims[4]; 
+	csm.get_dim(coilmap_dims);
+	unsigned int nc = coilmap_dims[3];
 
 	unsigned int num_readout_pts = acq.number_of_samples();
 
@@ -397,9 +400,6 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-
-
 
 	// #pragma omp parallel for
 	for (unsigned int c = 0; c < nc; c++) {
@@ -453,6 +453,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
 		sptr_acqs_->get_acquisition(i_acq, acq);
+		acq.resize(num_readout_pts, nc);
 
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
