@@ -266,7 +266,15 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
+	
 
+		auto data_dims = segmentation_labels.getDims();
+		
+		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
+		
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( csm );
 
 		std::string const traj_name = "SF";
 
@@ -299,8 +307,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 1;
-		int const num_simul_resp_states = 1;
+		int const num_simul_cardiac_states = 10;
+		int const num_simul_resp_states = 10;
 		
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
