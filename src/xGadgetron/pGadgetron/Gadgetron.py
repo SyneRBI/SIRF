@@ -264,7 +264,7 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cGT_multiply(self.handle, other.handle)
+        z.handle = pygadgetron.cGT_multiply(self.handle, other.handle)
         check_status(z.handle)
         return z
     def divide(self, other):
@@ -275,7 +275,7 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cGT_divide(self.handle, other.handle)
+        z.handle = pygadgetron.cGT_divide(self.handle, other.handle)
         check_status(z.handle)
         return z
     def __add__(self, other):
