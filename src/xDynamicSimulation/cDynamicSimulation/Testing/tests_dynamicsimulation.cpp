@@ -235,8 +235,13 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		mr_dyn_sim.add_dynamic( blood_cont_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
-		mr_dyn_sim.simulate_dynamics();
 
+		clock_t t;
+		t = clock();
+		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 		mr_dyn_sim.write_simulation_results( FILENAME_MR_CONTRAST_DYNSIM );
 
 		return true;
@@ -263,7 +268,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
 
-		std::string const traj_name = "ITLGCRPE";
+		std::string const traj_name = "SF";
 
 		if( traj_name == "ITLGCRPE") 
 		{
@@ -294,8 +299,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 10;
+		int const num_simul_cardiac_states = 1;
+		int const num_simul_resp_states = 1;
 		
 		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
@@ -321,7 +326,13 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		mr_dyn_sim.add_dynamic( resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+		
+		clock_t t;
+		t = clock();
 		mr_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
 		mr_dyn_sim.write_simulation_results( FILENAME_MR_MOTION_DYNSIM );
 
@@ -568,7 +579,12 @@ bool test_pet_dynsim::test_simulate_dynamics()
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		
+		clock_t t;
+		t = clock();
 		pet_dyn_sim.simulate_dynamics();
+		t = clock() - t;
+
+		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 		
 		pet_dyn_sim.write_simulation_results(FILENAME_DYNSIM_PET);
 
