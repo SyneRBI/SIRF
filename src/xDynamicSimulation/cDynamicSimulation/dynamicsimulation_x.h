@@ -106,7 +106,9 @@ public:
 	void extract_hdr_information( void );
 	void set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory);
 
-	
+	void set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps );
+
+
 	virtual void acquire_raw_data( void );
 
 private:
@@ -115,6 +117,7 @@ private:
 	sirf::aVolumeOrientator vol_orientator_;
 
 	ISMRMRD::IsmrmrdHeader hdr_;
+	ISMRMRD::Image< complex_float_t > coilmaps_;
 
 	MRDataContainerType all_source_acquisitions_;
 	MRDataContainerType source_acquisitions_;

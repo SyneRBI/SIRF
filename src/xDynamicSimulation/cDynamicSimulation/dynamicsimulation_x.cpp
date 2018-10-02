@@ -347,6 +347,10 @@ void MRDynamicSimulation::set_trajectory( std::shared_ptr<sirf::aTrajectoryConta
 
 }
 
+void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps )
+{
+	this->coilmaps_ = coilmaps;
+}
 
 void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquisitions )
 {
@@ -368,6 +372,9 @@ void MRDynamicSimulation::set_SNR(float const SNR)
 void MRDynamicSimulation::acquire_raw_data( void )
 {
 
+	if( this->coilmaps_.getNumberOfDataElements() == 0)
+		throw std::runtime_error("Please make sure to set the coilmaps prior to starting the simulation.");
+
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
 	size_t const num_contrasts = contrast_filled_volumes.size();
@@ -376,12 +383,9 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
 	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
 
-	size_t Nc = 4;
-	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , Nc);
-	std::vector< complex_float_t > mock_csm;
-	mock_csm.resize( Nx * Ny * Nz * Nc, std::complex<float>(1,0) );
-
-	csm_as_img.set_data( &mock_csm[0] );
+	auto csm = vol_orientator_.reorient_image(this->coilmaps_);
+	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , this->coilmaps_.getNumberOfChannels());
+	csm_as_img.image() = this->coilmaps_;
 
 	unsigned int offset = 0;
 
@@ -407,7 +411,6 @@ void MRDynamicSimulation::acquire_raw_data( void )
 			
 			if( acq_head.idx.contrast == i_contrast )
 				acq_vec.append_acquisition( acq );
-
 		}
 		
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
