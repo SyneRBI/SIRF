@@ -565,6 +565,7 @@ class ImageData(DataContainer):
             if len(s) < 1:
                 break
             err = show_3D_array(data, index = s, label = 'slice', \
+                                xlabel = 'x', ylabel = 'y', \
 				suptitle = title)
             if err != 0:
                 print('out-of-range slice numbers selected, quitting the loop')
@@ -893,7 +894,8 @@ class AcquisitionData(DataContainer):
             if len(s) < 1:
                 break
             err = show_3D_array(data, suptitle = title, \
-				index = s, label = 'sinogram')
+				index = s, label = 'sinogram', \
+                                xlabel = 'tang. pos.', ylabel = 'view')
             if err != 0:
                 print('out-of-range sinogram number(s) selected, quitting' + \
 					' the loop')

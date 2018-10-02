@@ -83,8 +83,10 @@ def main():
 
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
+    print('rebinned data dimensions: %d x %d x %d' % new_acq_data.dimensions())
+    new_acq_data.show(title = 'Rebinned acquisition data')
     #acq_array = new_acq_data.as_array()
-    print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
+    #print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
