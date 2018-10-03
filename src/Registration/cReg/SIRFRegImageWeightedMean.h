@@ -45,9 +45,6 @@ public:
     /// Destructor
     ~SIRFRegImageWeightedMean() {}
 
-    /// Add an image (from filename) and its corresponding weight
-    void add_image(const std::string &filename, const float weight);
-
     /// Add an image (from NiftImage) and its corresponding weight
     void add_image(const NiftiImage &image, const float weight);
 

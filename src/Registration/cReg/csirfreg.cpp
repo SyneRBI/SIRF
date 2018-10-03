@@ -553,7 +553,7 @@ void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char
 {
     try {
         SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
-        im_weight.add_image(filename,weight);
+        im_weight.add_image(NiftiImage(filename),weight);
         return new DataHandle;
     }
     CATCH;

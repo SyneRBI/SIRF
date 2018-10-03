@@ -225,7 +225,7 @@ bool do_nifti_image_metadata_elements_match(const string &name, const mat44 &ele
 }
 
 /// Dump info of multiple nifti images
-void dump_headers_actual(const vector<NiftiImage> &ims)
+void dump_headers(const vector<NiftiImage> &ims)
 {
     cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
     dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);

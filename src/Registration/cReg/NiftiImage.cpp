@@ -387,7 +387,7 @@ void NiftiImage::dump_header() const
 /// Dump multiple header info
 void NiftiImage::dump_headers(const std::vector<NiftiImage> &ims)
 {
-    SIRFRegMisc::dump_headers_actual(ims);
+    SIRFRegMisc::dump_headers(ims);
 }
 
 void NiftiImage::crop(const int min_index[7], const int max_index[7])

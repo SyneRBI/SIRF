@@ -66,13 +66,6 @@ public:
         _use_initial_transformation = true;
     }
 
-    /// Set initial affine transformation
-    void set_initial_affine_transformation(const std::string &filename)
-    {
-        _initial_transformation = SIRFRegMat44(filename);
-        _use_initial_transformation = true;
-    }
-
 protected:
 
     /// Check parameters

@@ -65,7 +65,7 @@ namespace SIRFRegMisc {
     bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
 
     /// Dump info of multiple nifti images
-    void dump_headers_actual(const std::vector<sirf::NiftiImage> &ims);
+    void dump_headers(const std::vector<sirf::NiftiImage> &ims);
 
     /// Dump nifti element
     template<typename T>

@@ -40,12 +40,6 @@ SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const std::string &filename, const float weight)
-{
-    // Use other function to add image to list of vectors
-    this->add_image(NiftiImage(filename), weight);
-}
-
 void SIRFRegImageWeightedMean::add_image(const NiftiImage &image, const float weight)
 {
     // Add image to vector
