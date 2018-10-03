@@ -48,9 +48,7 @@ nonrigid_resample_disp = output_prefix + "nonrigid_resample_disp.nii"
 nonrigid_resample_def = output_prefix + "nonrigid_resample_def.nii"
 output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
-output_float = output_prefix + "reg_aladin_float.nii";
-
-output_stir_nifti = output_prefix + "stir_nifti.nii"
+output_float = output_prefix + "reg_aladin_float.nii"
 
 ref_aladin = pSIRFReg.NiftiImage3D(ref_aladin_filename)
 flo_aladin = pSIRFReg.NiftiImage3D(flo_aladin_filename)
@@ -67,6 +65,8 @@ def try_niftiimage():
 
     # default constructor
     a = pSIRFReg.NiftiImage()
+    if a.handle is None:
+        raise AssertionError()
 
     # Read from file
     b = pSIRFReg.NiftiImage(ref_aladin_filename)
@@ -78,55 +78,70 @@ def try_niftiimage():
     b.fill(100)
 
     # Get max
-    assert b.get_max() == 100, 'NiftiImage fill()/get_max() failed.'
+    if b.get_max() != 100:
+        raise AssertionError('NiftiImage fill()/get_max() failed.')
 
     # Get min
-    assert b.get_min() == 100, 'NiftiImage fill()/get_min() failed.'
+    if b.get_min() != 100:
+        raise AssertionError('NiftiImage fill()/get_min() failed.')
 
     # Deep copy
     d = b.deep_copy()
-    assert d.handle != b.handle, 'NiftiImage deep_copy failed.'
-    assert d == b, "NiftiImage deep_copy failed."
+    if d.handle == b.handle:
+        raise AssertionError('NiftiImage deep_copy failed.')
+    if d != b:
+        raise AssertionError("NiftiImage deep_copy failed.")
 
     # Addition
     e = d + d
-    assert abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage __add__/get_max() failed.'
+    if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
-    assert abs(e.get_max()) < 0.0001, 'NiftiImage __sub__ failed.'
+    if abs(e.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage __sub__ failed.')
 
     # Sum
-    assert abs(e.get_sum()) < 0.0001, 'NiftiImage get_sum() failed.'
+    if abs(e.get_sum()) > 0.0001:
+        raise AssertionError('NiftiImage get_sum() failed.')
 
     # Add num to image
     q = e + 1
-    assert q.get_max() == e.get_max() + 1, 'NiftiImage __add__ val failed.'
+    if q.get_max() != e.get_max() + 1:
+        raise AssertionError('NiftiImage __add__ val failed.')
 
     # Subtract num from image
     r = e - 1
-    assert r.get_max() == e.get_max() - 1, 'NiftiImage __sub__ val failed.'
+    if r.get_max() != e.get_max() - 1:
+        raise AssertionError('NiftiImage __sub__ val failed.')
 
     # Multiply image by num
     s = e * 10
-    assert s.get_max() == e.get_max() * 10, 'NiftiImage __mul__ val failed.'
+    if s.get_max() != e.get_max() * 10:
+        raise AssertionError('NiftiImage __mul__ val failed.')
 
     # Dimensions
     f = e.get_dimensions()
-    assert np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImage get_dimensions() failed.'
+    if not np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]):
+        raise AssertionError('NiftiImage get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
-    assert arr.max() == 100, 'NiftiImage as_array().max() failed.'
-    assert arr.ndim == 3, 'NiftiImage as_array() ndims failed.'
-    assert arr.shape == (64, 64, 64), 'NiftiImage as_array().shape failed.'
+    if arr.max() != 100:
+        raise AssertionError('NiftiImage as_array().max() failed.')
+    if arr.ndim != 3:
+        raise AssertionError('NiftiImage as_array() ndims failed.')
+    if arr.shape != (64, 64, 64):
+        raise AssertionError('NiftiImage as_array().shape failed.')
 
     # Test saving to datatype
     ref_aladin.save_to_file(output_float,'NIFTI_TYPE_FLOAT32')
     ref_aladin_float = pSIRFReg.NiftiImage3D(output_float)
     arr1 = ref_aladin.as_array()
     arr2 = ref_aladin_float.as_array()
-    assert np.array_equal(arr1,arr2), "SIRFRegMisc::save_to_file()/change_datatype() failed."
+    if not np.array_equal(arr1,arr2):
+        raise AssertionError("SIRFRegMisc::save_to_file()/change_datatype() failed.")
 
     # Test dump methods
     q.dump_header()
@@ -141,7 +156,8 @@ def try_niftiimage():
     max_[2] = 62
     s = e
     s.crop(min_, max_)
-    assert s.as_array().shape == (64, 64, 63), "NiftiImage crop() failed."
+    if s.as_array().shape != (64, 64, 63):
+        raise AssertionError("NiftiImage crop() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -160,6 +176,8 @@ def try_niftiimage3d():
 
     # default constructor
     a = pSIRFReg.NiftiImage3D()
+    if a.handle is None:
+        raise AssertionError()
 
     # Read from file
     b = pSIRFReg.NiftiImage3D(ref_aladin_filename)
@@ -171,36 +189,47 @@ def try_niftiimage3d():
     b.fill(100)
 
     # Get max
-    assert b.get_max() == 100, 'NiftiImage3D fill()/get_max() failed.'
+    if b.get_max() != 100:
+        raise AssertionError('NiftiImage3D fill()/get_max() failed.')
 
     # Get min
-    assert b.get_min() == 100, 'NiftiImage3D fill()/get_min() failed.'
+    if b.get_min() != 100:
+        raise AssertionError('NiftiImage3D fill()/get_min() failed.')
 
     # Deep copy
     d = b.deep_copy()
-    assert d.handle != b.handle, 'NiftiImage3D deep_copy failed.'
-    assert d == b, "NiftiImage3D deep_copy failed."
+    if d.handle == b.handle:
+        raise AssertionError('NiftiImage3D deep_copy failed.')
+    if d != b:
+        raise AssertionError("NiftiImage3D deep_copy failed.")
 
     # Addition
     e = d + d
-    assert abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3D __add__/get_max() failed.'
+    if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3D __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
-    assert abs(e.get_max()) < 0.0001, 'NiftiImage3D __sub__ failed.'
+    if abs(e.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3D __sub__ failed.')
 
     # Sum
-    assert abs(e.get_sum()) < 0.0001, 'NiftiImage3D get_sum() failed.'
+    if abs(e.get_sum()) > 0.0001:
+        raise AssertionError('NiftiImage3D get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
-    assert np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImage3D get_dimensions() failed.'
+    if not np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]):
+        raise AssertionError('NiftiImage3D get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
-    assert arr.max() == 100, 'NiftiImage3D as_array().max() failed.'
-    assert arr.ndim == 3, 'NiftiImage3D as_array() ndims failed.'
-    assert arr.shape == (64, 64, 64), 'NiftiImage3D as_array().shape failed.'
+    if arr.max() != 100:
+        raise AssertionError('NiftiImage3D as_array().max() failed.')
+    if arr.ndim != 3:
+        raise AssertionError('NiftiImage3D as_array() ndims failed.')
+    if arr.shape != (64, 64, 64):
+        raise AssertionError('NiftiImage3D as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -232,36 +261,47 @@ def try_niftiimage3dtensor():
     c.fill(100)
 
     # Get max
-    assert c.get_max() == 100, 'NiftiImage3DTensor fill()/get_max() failed.'
+    if c.get_max() != 100:
+        raise AssertionError('NiftiImage3DTensor fill()/get_max() failed.')
 
     # Get min
-    assert c.get_min() == 100, 'NiftiImage3DTensor fill()/get_min() failed.'
+    if c.get_min() != 100:
+        raise AssertionError('NiftiImage3DTensor fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
-    assert d.handle != c.handle, 'NiftiImage3DTensor deep_copy failed.'
-    assert d == c, "NiftiImage3DTensor deep_copy failed."
+    if d.handle == c.handle:
+        raise AssertionError('NiftiImage3DTensor deep_copy failed.')
+    if d != c:
+        raise AssertionError("NiftiImage3DTensor deep_copy failed.")
 
     # Addition
     e = d + d
-    assert abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DTensor __add__/get_max() failed.'
+    if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DTensor __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
-    assert abs(e.get_max()) < 0.0001, 'NiftiImage3DTensor __sub__ failed.'
+    if abs(e.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DTensor __sub__ failed.')
 
     # Sum
-    assert abs(e.get_sum()) < 0.0001, 'NiftiImage3DTensor get_sum() failed.'
+    if abs(e.get_sum()) > 0.0001:
+        raise AssertionError('NiftiImage3DTensor get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
-    assert np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DTensor get_dimensions() failed.'
+    if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
+        raise AssertionError('NiftiImage3DTensor get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
-    assert arr.max() == 100, 'NiftiImage3DTensor as_array().max() failed.'
-    assert arr.ndim == 5, 'NiftiImage3DTensor as_array() ndims failed.'
-    assert arr.shape == (64, 64, 64, 1, 3), 'NiftiImage3DTensor as_array().shape failed.'
+    if arr.max() != 100:
+        raise AssertionError('NiftiImage3DTensor as_array().max() failed.')
+    if arr.ndim != 5:
+        raise AssertionError('NiftiImage3DTensor as_array() ndims failed.')
+    if arr.shape != (64, 64, 64, 1, 3):
+        raise AssertionError('NiftiImage3DTensor as_array().shape failed.')
 
     # Constructor from single components
     im1 = ref_aladin.deep_copy()
@@ -274,9 +314,11 @@ def try_niftiimage3dtensor():
 
     # Test flip components
     h.flip_component(0)
-    assert h.get_max() ==  20, "NiftiImage3DTensor flip_component() failed."
-    assert h.get_min() == -30, "NiftiImage3DTensor flip_component() failed."
-    
+    if h.get_max() != 20:
+        raise AssertionError("NiftiImage3DTensor flip_component() failed.")
+    if h.get_min() != -30:
+        raise AssertionError("NiftiImage3DTensor flip_component() failed.")
+
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -311,36 +353,47 @@ def try_niftiimage3ddisplacement():
     c.fill(100)
 
     # Get max
-    assert c.get_max() == 100, 'NiftiImage3DDisplacement fill()/get_max() failed.'
+    if c.get_max() != 100:
+        raise AssertionError('NiftiImage3DDisplacement fill()/get_max() failed.')
 
     # Get min
-    assert c.get_min() == 100, 'NiftiImage3DDisplacement fill()/get_min() failed.'
+    if c.get_min() != 100:
+        raise AssertionError('NiftiImage3DDisplacement fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
-    assert d.handle != c.handle, 'NiftiImage3DDisplacement deep_copy failed.'
-    assert d == c, "NiftiImage3DDisplacement deep_copy failed."
+    if d.handle == c.handle:
+        raise AssertionError('NiftiImage3DDisplacement deep_copy failed.')
+    if d != c:
+        raise AssertionError("NiftiImage3DDisplacement deep_copy failed.")
 
     # Addition
     e = d + d
-    assert abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DDisplacement __add__/get_max() failed.'
+    if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DDisplacement __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
-    assert abs(e.get_max()) < 0.0001, 'NiftiImage3DDisplacement __sub__ failed.'
+    if abs(e.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DDisplacement __sub__ failed.')
 
     # Sum
-    assert abs(e.get_sum()) < 0.0001, 'NiftiImage3DDisplacement get_sum() failed.'
+    if abs(e.get_sum()) > 0.0001:
+        raise AssertionError('NiftiImage3DDisplacement get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
-    assert np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DDisplacement get_dimensions() failed.'
+    if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
+        raise AssertionError('NiftiImage3DDisplacement get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
-    assert arr.max() == 100, 'NiftiImage3DDisplacement as_array().max() failed.'
-    assert arr.ndim == 5, 'NiftiImage3DDisplacement as_array() ndims failed.'
-    assert arr.shape == (64, 64, 64, 1, 3), 'NiftiImage3DDisplacement as_array().shape failed.'
+    if arr.max() != 100:
+        raise AssertionError('NiftiImage3DDisplacement as_array().max() failed.')
+    if arr.ndim != 5:
+        raise AssertionError('NiftiImage3DDisplacement as_array() ndims failed.')
+    if arr.shape != (64, 64, 64, 1, 3):
+        raise AssertionError('NiftiImage3DDisplacement as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -375,36 +428,47 @@ def try_niftiimage3ddeformation():
     c.fill(100)
 
     # Get max
-    assert c.get_max() == 100, 'NiftiImage3DDeformation fill()/get_max() failed.'
+    if c.get_max() != 100:
+        raise AssertionError('NiftiImage3DDeformation fill()/get_max() failed.')
 
     # Get min
-    assert c.get_min() == 100, 'NiftiImage3DDeformation fill()/get_min() failed.'
+    if c.get_min() != 100:
+        raise AssertionError('NiftiImage3DDeformation fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
-    assert d.handle != c.handle, 'NiftiImage3DDeformation deep_copy failed.'
-    assert d == c, "NiftiImage3DDeformation deep_copy failed."
+    if d.handle == c.handle:
+        raise AssertionError('NiftiImage3DDeformation deep_copy failed.')
+    if d != c:
+        raise AssertionError("NiftiImage3DDeformation deep_copy failed.")
 
     # Addition
     e = d + d
-    assert abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DDeformation __add__/get_max() failed.'
+    if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DDeformation __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
-    assert abs(e.get_max()) < 0.0001, 'NiftiImage3DDeformation __sub__ failed.'
+    if abs(e.get_max()) > 0.0001:
+        raise AssertionError('NiftiImage3DDeformation __sub__ failed.')
 
     # Sum
-    assert abs(e.get_sum()) < 0.0001, 'NiftiImage3DDeformation get_sum() failed.'
+    if abs(e.get_sum()) > 0.0001:
+        raise AssertionError('NiftiImage3DDeformation get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
-    assert np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DDeformation get_dimensions() failed.'
+    if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
+        raise AssertionError('NiftiImage3DDeformation get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
-    assert arr.max() == 100, 'NiftiImage3DDeformation as_array().max() failed.'
-    assert arr.ndim == 5, 'NiftiImage3DDeformation as_array() ndims failed.'
-    assert arr.shape == (64, 64, 64, 1, 3), 'NiftiImage3DDeformation as_array().shape failed.'
+    if arr.max() != 100:
+        raise AssertionError('NiftiImage3DDeformation as_array().max() failed.')
+    if arr.ndim != 5:
+        raise AssertionError('NiftiImage3DDeformation as_array() ndims failed.')
+    if arr.shape != (64, 64, 64, 1, 3):
+        raise AssertionError('NiftiImage3DDeformation as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -454,12 +518,14 @@ def try_niftyaladin():
     # Test converting disp to def
     a = pSIRFReg.NiftiImage3DDeformation()
     a.create_from_disp(disp_fwrd)
-    assert a == def_fwrd, "NiftiImage3DDeformation::create_from_disp() failed."
+    if a != def_fwrd:
+        raise AssertionError("NiftiImage3DDeformation::create_from_disp() failed.")
 
     # Test converting def to disp
     b = pSIRFReg.NiftiImage3DDisplacement()
     b.create_from_def(def_fwrd)
-    assert b == disp_fwrd, "NiftiImage3DDisplacement::create_from_def() failed."
+    if b != disp_fwrd:
+        raise AssertionError("NiftiImage3DDisplacement::create_from_def() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -528,15 +594,19 @@ def try_transformations(na):
     a_def = a3.get_as_deformation_field(ref_aladin)
     b_def = b3.get_as_deformation_field(ref_aladin)
     c_def = c3.get_as_deformation_field(ref_aladin)
-    assert a_def == na.get_deformation_field_fwrd()
-    assert b_def == na.get_deformation_field_fwrd()
-    assert c_def == na.get_deformation_field_fwrd()
+    if a_def != na.get_deformation_field_fwrd():
+        raise AssertionError()
+    if b_def != na.get_deformation_field_fwrd():
+        raise AssertionError()
+    if c_def != na.get_deformation_field_fwrd():
+        raise AssertionError()
 
     # Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = pSIRFReg.Mat44.get_identity()
     trans = [tm_iden, tm_iden, c3]
     composed = pSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, ref_aladin)
-    assert composed == na.get_deformation_field_fwrd()
+    if composed != na.get_deformation_field_fwrd():
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -589,7 +659,8 @@ def try_resample(na):
     nr3.update()
     nr3.get_output().save_to_file(nonrigid_resample_def)
 
-    assert na.get_output() == nr1.get_output()
+    if na.get_output() != nr1.get_output():
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -609,7 +680,6 @@ def try_weighted_mean(na):
     # Do 3D
     wm1 = pSIRFReg.ImageWeightedMean()
     # Change to float to avoid rounding errors
-    ref_aladin_float = ref_aladin
     im1 = ref_aladin.deep_copy()
     im2 = ref_aladin.deep_copy()
     im3 = ref_aladin.deep_copy()
@@ -627,7 +697,8 @@ def try_weighted_mean(na):
     # Answer should be 4.5, so compare it to that!
     res = ref_aladin.deep_copy()
     res.fill(4.5)
-    assert wm1.get_output() == res
+    if wm1.get_output() != res:
+        raise AssertionError()
 
     # Do 4D
     wm2 = pSIRFReg.ImageWeightedMean()
@@ -648,7 +719,8 @@ def try_weighted_mean(na):
     # Answer should be 4.5, so compare it to that!
     res = na.get_deformation_field_fwrd().deep_copy()
     res.fill(4.5)
-    assert wm2.get_output() == res
+    if wm2.get_output() != res:
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -672,11 +744,13 @@ def try_stir_to_sirfreg():
     # Now fill the stir and sirfreg images with 1 and 100, respectively
     pet_image_data.fill(1.)
     image_data_from_stir.fill(100)
-    assert(pet_image_data.as_array().max() != image_data_from_stir.get_max())
+    if pet_image_data.as_array().max() == image_data_from_stir.get_max():
+        raise AssertionError()
 
     # Fill the stir image with the sirfreg
     image_data_from_stir.copy_data_to(pet_image_data)
-    assert(pet_image_data.as_array().max() == image_data_from_stir.get_max())
+    if pet_image_data.as_array().max() != image_data_from_stir.get_max():
+        raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -695,20 +769,26 @@ def try_sirfregmat44(na):
 
     # Construct from file
     a = pSIRFReg.Mat44(TM_fwrd)
+    if a.handle is None:
+        raise AssertionError()
 
     # Multiply fwrd and inverse, should equal identity
     b = na.get_transformation_matrix_fwrd()
     c = na.get_transformation_matrix_back()
     d = b * c
     e = pSIRFReg.Mat44.get_identity()
-    assert d == e, 'SIRFRegMat44::mult/comparison failed.'
+    if d != e:
+        raise AssertionError('SIRFRegMat44::mult/comparison failed.')
 
     d.fill(3)
     f = d.as_array()
-    assert np.all(f == 3), 'SIRFRegMat44::fill/operator[] failed.'
+    if not np.all(f == 3):
+        raise AssertionError('SIRFRegMat44::fill/operator[] failed.')
 
-    assert d.get_determinant() < 1.e-7, 'SIRFRegMat44::get_determinant failed.'
-    assert e.get_determinant() - 1. < 1.e-7, 'SIRFRegMat44::get_determinant failed.'
+    if d.get_determinant() > 1.e-7:
+        raise AssertionError('SIRFRegMat44::get_determinant failed.')
+    if e.get_determinant() - 1. > 1.e-7:
+        raise AssertionError('SIRFRegMat44::get_determinant failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')

@@ -89,57 +89,12 @@ int main(int argc, char* argv[])
     string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
     string output_float             = output_prefix   + "reg_aladin_float.nii";
 
-    string output_stir_nifti        = output_prefix   + "stir_nifti.nii";
-
     NiftiImage3D ref_aladin( ref_aladin_filename );
     NiftiImage3D flo_aladin( flo_aladin_filename );
     NiftiImage3D ref_f3d   (   ref_f3d_filename  );
     NiftiImage3D flo_f3d   (   flo_f3d_filename  );
 
-    bool try_misc_functions = true;
-    bool try_niftiimage = true;
-    bool try_niftiimage3d = true;
-    bool try_niftiimage3dtensor = true;
-    bool try_niftiimage3ddisplacement = true;
-    bool try_niftiimage3ddeformation = true;
-    bool try_niftyaladin = true;
-    bool try_niftyf3d = true;
-    bool try_transformations = true;
-    bool try_resample = true;
-    bool try_weighted_mean = true;
-    bool try_stir_to_sirfreg = true;
-    bool try_sirfregmat44 = true;
-
-    if (try_misc_functions) {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting misc functions test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
-
-        // do nifti images match?
-        if (ref_aladin != ref_aladin)
-            throw runtime_error("Images don't match, but they should.");
-        cerr << "\nThe following images intentionally do not match.\n";
-        if (ref_aladin == flo_aladin)
-            throw runtime_error("Images match, but they shouldn't.");
-
-        // dump from NiftiImage
-        ref_aladin.dump_header();
-        // dump from multiple images
-        NiftiImage::dump_headers({ref_aladin,flo_aladin,ref_f3d,flo_f3d});
-        // dump from NiftiImage3DDeformation
-        NiftiImage3DDeformation deform;
-        deform.create_from_3D_image(ref_aladin);
-        deform.dump_header();
-
-        // identity matrix
-        SIRFRegMat44 tm_iden = SIRFRegMat44::get_identity();
-
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished misc functions test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
-    }
-
-    if (try_niftiimage) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting NiftiImage test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -251,7 +206,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_niftiimage3d) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting NiftiImage3D test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -309,7 +264,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_niftiimage3dtensor) {
+    {
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting NiftiImage3DTensor test...\n";
@@ -386,7 +341,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_niftiimage3ddisplacement) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting NiftiImage3DDisplacement test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -458,7 +413,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_niftiimage3ddeformation) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting NiftiImage3DDeformation test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -530,7 +485,7 @@ int main(int argc, char* argv[])
     }
 
     SIRFRegNiftyAladinSym<float> NA;
-    if (try_niftyaladin) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting Nifty aladin test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -580,7 +535,6 @@ int main(int argc, char* argv[])
     }
 
 
-    if (try_niftyf3d)
     {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting Nifty f3d test..\n";
@@ -611,9 +565,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_transformations) {
-        if (!try_niftyaladin)
-            throw runtime_error("This test requires you to have run aladin.");
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting transformations test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -660,9 +612,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_resample) {
-        if (!try_niftyaladin)
-            throw runtime_error("This test requires you to have run aladin.");
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting Nifty resample test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -712,9 +662,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_weighted_mean) {
-        if (!try_niftyaladin)
-            throw runtime_error("This test requires you to have run aladin.");
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting weighted mean test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -770,7 +718,7 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_stir_to_sirfreg) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting STIR to SIRFReg test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
@@ -796,12 +744,10 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    if (try_sirfregmat44) {
+    {
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Starting SIRFRegMat44 test...\n";
         cout << "//------------------------------------------------------------------------ //\n";
-        if (!try_niftyaladin)
-            throw runtime_error("This test requires you to have run aladin.");
 
         // Construct from file
         SIRFRegMat44 a(TM_fwrd);

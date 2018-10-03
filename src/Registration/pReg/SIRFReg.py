@@ -1,4 +1,4 @@
-""" 
+"""
 Object-Oriented wrap for the cSIRFReg-to-Python interface pysirfreg.py
 """
 
@@ -23,12 +23,6 @@ Object-Oriented wrap for the cSIRFReg-to-Python interface pysirfreg.py
 import abc
 import inspect
 import numpy
-import os
-try:
-    import pylab
-    HAVE_PYLAB = True
-except:
-    HAVE_PYLAB = False
 import sys
 import time
 
@@ -38,7 +32,7 @@ import pysirfreg
 import pSTIR
 
 try:
-    input = raw_input
+    input_ = raw_input
 except NameError:
     pass
 
@@ -56,59 +50,59 @@ ALL_CHANNELS = -1
 ############ Utilities for internal use only ##############
 
 
-def _setParameter(hs, set, par, hv, stack=None):
+def _setParameter_sirf(hs, set_, par, hv, stack=None):
     # try_calling(pysirfreg.cSIRFReg_setParameter(hs, set, par, hv))
     if stack is None:
         stack = inspect.stack()[1]
-    h = pysirfreg.cSIRFReg_setParameter(hs, set, par, hv)
+    h = pysirfreg.cSIRFReg_setParameter(hs, set_, par, hv)
     check_status(h, stack)
     pyiutil.deleteDataHandle(h)
 
 
-def _set_char_par(handle, set, par, value):
+def _set_char_par_sirf(handle, set_, par, value):
     h = pyiutil.charDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
+    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
 
-def _set_int_par(handle, set, par, value):
+def _set_int_par_sirf(handle, set_, par, value):
     h = pyiutil.intDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
+    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
 
-def _set_float_par(handle, set, par, value):
+def _set_float_par_sirf(handle, set_, par, value):
     h = pyiutil.floatDataHandle(value)
-    _setParameter(handle, set, par, h, inspect.stack()[1])
+    _setParameter_sirf(handle, set_, par, h, inspect.stack()[1])
     pyiutil.deleteDataHandle(h)
 
 
-def _char_par(handle, set, par):
-    h = pysirfreg.cSIRFReg_parameter(handle, set, par)
+def _char_par_sirf(handle, set_, par):
+    h = pysirfreg.cSIRFReg_parameter(handle, set_, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.charDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 
 
-def _int_par(handle, set, par):
-    h = pysirfreg.cSIRFReg_parameter(handle, set, par)
+def _int_par_sirf(handle, set_, par):
+    h = pysirfreg.cSIRFReg_parameter(handle, set_, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.intDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 
 
-def _float_par(handle, set, par):
-    h = pysirfreg.cSIRFReg_parameter(handle, set, par)
+def _float_par_sirf(handle, set_, par):
+    h = pysirfreg.cSIRFReg_parameter(handle, set_, par)
     check_status(h, inspect.stack()[1])
     value = pyiutil.floatDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
 
 
-def _float_pars(handle, set, par, n):
-    h = pysirfreg.cSIRFReg_parameter(handle, set, par)
+def _float_pars_sirf(handle, set_, par, n):
+    h = pysirfreg.cSIRFReg_parameter(handle, set_, par)
     check_status(h)
     value = ()
     for i in range(n):
@@ -117,8 +111,8 @@ def _float_pars(handle, set, par, n):
     return value
 
 
-def _getParameterHandle(hs, set, par):
-    handle = pysirfreg.cSIRFReg_parameter(hs, set, par)
+def _getParameterHandle_sirf(hs, set_, par):
+    handle = pysirfreg.cSIRFReg_parameter(hs, set_, par)
     check_status(handle, inspect.stack()[1])
     return handle
 
@@ -143,7 +137,7 @@ class MessageRedirector:
         """
         if info is None:
             info = ''
-        if type(info) is not type(' '):
+        if not isinstance(info, str):
             raise error('wrong info argument for MessageRedirector constructor')
         elif info in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.info = pysirfreg.newTextPrinter(info)
@@ -155,7 +149,7 @@ class MessageRedirector:
 
         if warn is None:
             warn = ''
-        if type(warn) is not type(' '):
+        if not isinstance(warn, str):
             raise error('wrong warn argument for MessageRedirector constructor')
         elif warn in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.warn = pysirfreg.newTextPrinter(warn)
@@ -167,7 +161,7 @@ class MessageRedirector:
 
         if errr is None:
             errr = ''
-        if type(errr) is not type(' '):
+        if not isinstance(errr, str):
             raise error('wrong errr argument for MessageRedirector constructor')
         elif errr in {'stdout', 'stderr', 'cout', 'cerr'}:
             self.errr = pysirfreg.newTextPrinter(errr)
@@ -212,8 +206,10 @@ class _Transformation(ABC):
         """Get any type of transformation as a deformation field.
         This is useful for joining them together. Require a reference
         image for converting transformation matrices to deformations."""
-        assert self is not None
-        assert isinstance(ref, NiftiImage3D)
+        if self.handle is None:
+            raise AssertionError()
+        if not isinstance(ref, NiftiImage3D):
+            raise AssertionError()
         output = NiftiImage3DDeformation()
         output.handle = pysirfreg.cSIRFReg_SIRFRegTransformation_get_as_deformation_field(self.handle, self.name, ref.handle)
         check_status(output.handle)
@@ -268,7 +264,8 @@ class NiftiImage:
 
     def __eq__(self, other):
         """Overload comparison operator."""
-        assert isinstance(other, NiftiImage)
+        if not isinstance(other, NiftiImage):
+            raise AssertionError()
         h = pysirfreg.cSIRFReg_NiftiImage_equal(self.handle, other.handle)
         check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
@@ -281,37 +278,41 @@ class NiftiImage:
 
     def save_to_file(self, filename, datatype=""):
         """Save to file."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage_save_to_file(self.handle, filename, datatype))
 
     def get_max(self):
         """Get max."""
-        return _float_par(self.handle, 'NiftiImage', 'max')
+        return _float_par_sirf(self.handle, 'NiftiImage', 'max')
 
     def get_min(self):
         """Get min."""
-        return _float_par(self.handle, 'NiftiImage', 'min')
+        return _float_par_sirf(self.handle, 'NiftiImage', 'min')
 
     def get_sum(self):
         """Get sum."""
-        return _float_par(self.handle, 'NiftiImage', 'sum')
+        return _float_par_sirf(self.handle, 'NiftiImage', 'sum')
 
     def get_dimensions(self):
         """Get dimensions. Returns nifti format.
         i.e., dim[0]=ndims, dim[1]=nx, dim[2]=ny,..."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         dim = numpy.ndarray((8,), dtype=numpy.int32)
         try_calling(pysirfreg.cSIRFReg_NiftiImage_get_dimensions(self.handle, dim.ctypes.data))
         return dim
 
     def fill(self, val):
         """Fill image with single value."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage_fill(self.handle, val))
 
     def deep_copy(self):
         """Deep copy image."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         if self.name == 'NiftiImage':
             image = NiftiImage()
         elif self.name == 'NiftiImage3D':
@@ -327,7 +328,8 @@ class NiftiImage:
 
     def as_array(self):
         """Get data as numpy array."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         dim = self.get_dimensions()
         dim = dim[1:dim[0]+1]
         array = numpy.ndarray(dim, dtype=numpy.float32)
@@ -336,7 +338,8 @@ class NiftiImage:
 
     def get_original_datatype(self):
         """Get original image datatype (internally everything is converted to float)."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         handle = pysirfreg.cSIRFReg_NiftiImage_get_original_datatype(self.handle)
         check_status(handle)
         datatype = pyiutil.charDataFromHandle(handle)
@@ -345,8 +348,10 @@ class NiftiImage:
 
     def crop(self, min_, max_):
         """Crop image. Give minimum and maximum indices."""
-        assert len(min_) == 7, "Min bounds should be a 1x7 array."
-        assert len(max_) == 7, "Max bounds should be a 1x7 array."
+        if len(min_) != 7:
+            raise AssertionError("Min bounds should be a 1x7 array.")
+        if len(max_) != 7:
+            raise AssertionError("Max bounds should be a 1x7 array.")
         min_np = numpy.array(min_, dtype=numpy.int32)
         max_np = numpy.array(max_, dtype=numpy.int32)
         try_calling(pysirfreg.cSIRFReg_NiftiImage_crop(self.handle, min_np.ctypes.data, max_np.ctypes.data))
@@ -358,7 +363,8 @@ class NiftiImage:
     @staticmethod
     def dump_headers(to_dump):
         """Dump nifti header metadata of one or multiple (up to 5) nifti images."""
-        assert all(isinstance(n, NiftiImage) for n in to_dump)
+        if not all(isinstance(n, NiftiImage) for n in to_dump):
+            raise AssertionError()
         if len(to_dump) == 1:
             try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
                 1, to_dump[0].handle, None, None, None, None))
@@ -402,9 +408,12 @@ class NiftiImage3D(NiftiImage):
 
     def copy_data_to(self, pet_image):
         """Fill the STIRImageData with the values from NiftiImage3D."""
-        assert self.handle is not None
-        assert isinstance(pet_image, pSTIR.ImageData)
-        assert pet_image.handle is not None
+        if self.handle is None:
+            raise AssertionError()
+        if not isinstance(pet_image, pSTIR.ImageData):
+            raise AssertionError()
+        if pet_image.handle is None:
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage3D_copy_data_to(self.handle, pet_image.handle))
 
 
@@ -432,20 +441,25 @@ class NiftiImage3DTensor(NiftiImage):
 
     def save_to_file_split_xyz_components(self, filename, datatype=""):
         """Save to file."""
-        assert self.handle is not None
-        assert isinstance(filename, str)
+        if self.handle is None:
+            raise AssertionError()
+        if not isinstance(filename, str):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(self.handle, filename, datatype))
 
     def create_from_3D_image(self, src):
         """Create tensor/deformation/displacement field from 3D image."""
-        assert isinstance(src, NiftiImage3D)
-        assert src.handle is not None
+        if not isinstance(src, NiftiImage3D):
+            raise AssertionError()
+        if src.handle is None:
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_create_from_3D_image(self.handle, src.handle))
         check_status(self.handle)
 
     def flip_component(self, dim):
         """Flip component of nu."""
-        assert 0 <= dim <= 2, "Dimension to flip should be between 0 and 2."
+        if 0 < dim or dim > 2:
+            raise AssertionError("Dimension to flip should be between 0 and 2.")
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DTensor_flip_component(self.handle, dim))
         check_status(self.handle)
 
@@ -473,7 +487,8 @@ class NiftiImage3DDisplacement(NiftiImage3DTensor, _Transformation):
             pyiutil.deleteDataHandle(self.handle)
 
     def create_from_def(self, deff):
-        assert isinstance(deff, NiftiImage3DDeformation)
+        if not isinstance(deff, NiftiImage3DDeformation):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DDisplacement_create_from_def(self.handle, deff.handle))
         check_status(self.handle)
 
@@ -502,15 +517,18 @@ class NiftiImage3DDeformation(NiftiImage3DTensor, _Transformation):
             pyiutil.deleteDataHandle(self.handle)
 
     def create_from_disp(self, disp):
-        assert isinstance(disp, NiftiImage3DDisplacement)
+        if not isinstance(disp, NiftiImage3DDisplacement):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage3DDeformation_create_from_disp(self.handle, disp.handle))
         check_status(self.handle)
 
     @staticmethod
     def compose_single_deformation(trans, ref):
         """Compose up to transformations into single deformation."""
-        assert isinstance(ref, NiftiImage3D)
-        assert all(isinstance(n, _Transformation) for n in trans)
+        if not isinstance(ref, NiftiImage3D):
+            raise AssertionError()
+        if not all(isinstance(n, _Transformation) for n in trans):
+            raise AssertionError()
         if len(trans) == 1:
             return trans[0].get_as_deformation_field(ref)
         # This is ugly. Store each type in a single string (need to do this because I can't get
@@ -557,17 +575,19 @@ class _SIRFReg(ABC):
 
     def set_parameter_file(self, filename):
         """Sets the parameter filename."""
-        _set_char_par(self.handle, 'SIRFReg', 'parameter_file', filename)
+        _set_char_par_sirf(self.handle, 'SIRFReg', 'parameter_file', filename)
 
     def set_reference_image(self, src):
         """Sets the reference image."""
-        assert isinstance(src, NiftiImage3D)
-        _setParameter(self.handle, 'SIRFReg', 'reference_image', src.handle)
+        if not isinstance(src, NiftiImage3D):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, 'SIRFReg', 'reference_image', src.handle)
 
     def set_floating_image(self, src):
         """Sets the floating image."""
-        assert isinstance(src, NiftiImage3D)
-        _setParameter(self.handle, 'SIRFReg', 'floating_image', src.handle)
+        if not isinstance(src, NiftiImage3D):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, 'SIRFReg', 'floating_image', src.handle)
 
     def get_output(self):
         """Gets the registered image."""
@@ -625,14 +645,16 @@ class NiftyAladinSym(_SIRFReg):
 
     def get_transformation_matrix_fwrd(self):
         """Get forward transformation matrix."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         tm = Mat44()
         tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'fwrd')
         return tm
 
     def get_transformation_matrix_back(self):
         """Get backwards transformation matrix."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         tm = Mat44()
         tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'back')
         return tm
@@ -653,16 +675,17 @@ class NiftyF3dSym(_SIRFReg):
 
     def set_floating_time_point(self, floating_time_point):
         """Set floating time point."""
-        _set_int_par(self.handle, self.name, 'floating_time_point', floating_time_point)
+        _set_int_par_sirf(self.handle, self.name, 'floating_time_point', floating_time_point)
 
     def set_reference_time_point(self, reference_time_point):
         """Set reference time point."""
-        _set_int_par(self.handle, self.name, 'reference_time_point', reference_time_point)
+        _set_int_par_sirf(self.handle, self.name, 'reference_time_point', reference_time_point)
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
-        assert isinstance(src, Mat44)
-        _setParameter(self.handle, self.name, 'initial_affine_transformation', src.handle)
+        if not isinstance(src, Mat44):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
 
 class NiftyResample:
@@ -680,49 +703,55 @@ class NiftyResample:
 
     def set_reference_image(self, reference_image):
         """Set reference image."""
-        assert isinstance(reference_image, NiftiImage3D)
-        _setParameter(self.handle, self.name, 'reference_image', reference_image.handle)
+        if not isinstance(reference_image, NiftiImage3D):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
-        assert isinstance(floating_image, NiftiImage3D)
-        _setParameter(self.handle, self.name, 'floating_image', floating_image.handle)
+        if not isinstance(floating_image, NiftiImage3D):
+            raise AssertionError()
+        _setParameter_sirf(self.handle, self.name, 'floating_image', floating_image.handle)
 
     def add_transformation_affine(self, src):
         """Add affine transformation."""
-        assert isinstance(src, Mat44)
+        if not isinstance(src, Mat44):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
 
     def add_transformation_disp(self, src):
         """Add displacement field."""
-        assert isinstance(src, NiftiImage3DDisplacement)
+        if not isinstance(src, NiftiImage3DDisplacement):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
 
     def add_transformation_def(self, src):
         """Add deformation field."""
-        assert isinstance(src, NiftiImage3DDeformation)
+        if not isinstance(src, NiftiImage3DDeformation):
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
 
-    def set_interpolation_type(self, type):
+    def set_interpolation_type(self, interp_type):
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""
-        assert isinstance(type, int)
-        _set_int_par(self.handle, self.name, 'interpolation_type', type)
+        if not isinstance(interp_type, int):
+            raise AssertionError()
+        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', interp_type)
 
     def set_interpolation_type_to_nearest_neighbour(self):
         """Set interpolation type to nearest neighbour."""
-        _set_int_par(self.handle, self.name, 'interpolation_type', 0)
+        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 0)
 
     def set_interpolation_type_to_linear(self):
         """Set interpolation type to linear."""
-        _set_int_par(self.handle, self.name, 'interpolation_type', 1)
+        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 1)
 
     def set_interpolation_type_to_cubic_spline(self):
         """Set interpolation type to cubic spline."""
-        _set_int_par(self.handle, self.name, 'interpolation_type', 3)
+        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 3)
 
     def set_interpolation_type_to_sinc(self):
         """Set interpolation type to sinc."""
-        _set_int_par(self.handle, self.name, 'interpolation_type', 4)
+        _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 4)
 
     def update(self):
         """Update."""
@@ -731,7 +760,7 @@ class NiftyResample:
     def get_output(self):
         """Get output."""
         image = NiftiImage3D()
-        image.handle = _getParameterHandle(self.handle, self.name, 'output')
+        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -766,7 +795,7 @@ class ImageWeightedMean:
     def get_output(self):
         """Get output."""
         image = NiftiImage()
-        image.handle = _getParameterHandle(self.handle, self.name, 'output')
+        image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
         check_status(image.handle)
         return image
 
@@ -783,7 +812,8 @@ class Mat44(_Transformation):
         elif isinstance(src, str):
             self.handle = pysirfreg.cSIRFReg_objectFromFile(self.name, src)
         elif isinstance(src, numpy.ndarray):
-            assert(src.shape == (4, 4))
+            if src.shape != (4, 4):
+                raise AssertionError()
             self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
         else:
             raise error('Wrong source in affine transformation constructor')
@@ -795,7 +825,8 @@ class Mat44(_Transformation):
 
     def __eq__(self, other):
         """Overload comparison operator."""
-        assert isinstance(other, Mat44)
+        if not isinstance(other, Mat44):
+            raise AssertionError()
         h = pysirfreg.cSIRFReg_SIRFRegMat44_equal(self.handle, other.handle)
         check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
@@ -808,7 +839,8 @@ class Mat44(_Transformation):
 
     def __mul__(self, other):
         """Overload multiplication operator."""
-        assert isinstance(other, Mat44)
+        if not isinstance(other, Mat44):
+            raise AssertionError()
         mat = Mat44()
         mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_mul(self.handle, other.handle)
         check_status(mat.handle)
@@ -816,7 +848,8 @@ class Mat44(_Transformation):
 
     def deep_copy(self):
         """Deep copy."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         mat = Mat44()
         mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_deep_copy(self.handle)
         check_status(mat.handle)
@@ -824,25 +857,29 @@ class Mat44(_Transformation):
 
     def save_to_file(self, filename):
         """Save to file."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_save_to_file(self.handle, filename))
 
     def fill(self, src):
         """Fill."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         if isinstance(src, numpy.ndarray):
-            assert(src.shape == (4, 4))
+            if src.shape != (4, 4):
+                raise AssertionError()
             self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
         else:
             try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_fill(self.handle, float(src)))
 
     def get_determinant(self):
         """Get determinant."""
-        return _float_par(self.handle, self.name, 'determinant')
+        return _float_par_sirf(self.handle, self.name, 'determinant')
 
     def as_array(self):
         """Get forward transformation matrix."""
-        assert self.handle is not None
+        if self.handle is None:
+            raise AssertionError()
         tm = numpy.ndarray((4, 4), dtype=numpy.float32)
         try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_as_array(self.handle, tm.ctypes.data))
         return tm

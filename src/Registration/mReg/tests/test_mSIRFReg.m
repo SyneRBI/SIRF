@@ -43,8 +43,6 @@ g.output_weighted_mean                       = fullfile(output_prefix, 'weighted
 g.output_weighted_mean_def                   = fullfile(output_prefix, 'weighted_mean_def.nii');
 g.output_float                               = fullfile(output_prefix, 'reg_aladin_float.nii');
 
-g.output_stir_nifti                          = fullfile(output_prefix, 'stir_nifti.nii');
-
 g.ref_aladin                                 = mSIRFReg.NiftiImage3D( g.ref_aladin_filename );
 g.flo_aladin                                 = mSIRFReg.NiftiImage3D( g.flo_aladin_filename );
 g.ref_f3d                                    = mSIRFReg.NiftiImage3D(   g.ref_f3d_filename  );

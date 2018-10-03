@@ -30,7 +30,7 @@ extern "C" {
 	}
 	void* deleteMexPrinter(void* ptr) {
     //mexPrintf("deleting mexTextPrinter...");
-		delete (mexTextPrinter*)ptr;
+		delete static_cast<mexTextPrinter*>(ptr);
     //mexPrintf("ok\n");
 		return new DataHandle;
 	}
