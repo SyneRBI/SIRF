@@ -58,11 +58,6 @@ string(REGEX REPLACE "\n$" "" NR_VERSION "${NR_VERSION}")
 MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.58, and cannot be guaranteed for other version numbers.\n"
     "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
     "If there is a version mismatch, the keys in the parser may need to be altered.\n")
-IF (NR_VERSION LESS "1.4")
-	add_definitions(-DNIFTYREG_VER_1_3)
-ELSEIF(NR_VERSION LESS "1.6")
-	add_definitions(-DNIFTYREG_VER_1_5)
-ENDIF()
 
 SET(NiftyReg_requiredLibs
     _reg_aladin
@@ -74,29 +69,11 @@ SET(NiftyReg_requiredLibs
     _reg_tools
     reg_nifti
     reg_png
+    _reg_femTrans
+    _reg_globalTrans
+    _reg_localTrans
+    _reg_measure
     )
-IF (NR_VERSION LESS 1.4)
-    SET(NiftyReg_requiredLibs
-        ${NiftyReg_requiredLibs}
-        _reg_KLdivergence
-        _reg_ReadWriteImage
-        _reg_femTransformation
-        _reg_globalTransformation
-        _reg_localTransformation
-        _reg_mutualinformation
-        _reg_ssd
-        _reg_thinPlateSpline
-        reg_nrrd
-    )
-ELSEIF(NR_VERSION LESS 1.6)
-    SET(NiftyReg_requiredLibs
-        ${NiftyReg_requiredLibs}
-        _reg_femTrans
-        _reg_globalTrans
-        _reg_localTrans
-        _reg_measure
-        )
-ENDIF()
  
 # Loop over each library, find it and add it. 
 # Do it twice to resolve linking errors depending on order

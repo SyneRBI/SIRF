@@ -54,11 +54,6 @@ namespace SIRFRegMisc {
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
-    /// Get cpp from transformation matrix
-#if NIFTYREG_VER_1_3
-    void get_cpp_from_transformation_matrix(std::shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const std::shared_ptr<nifti_image> &warped_sptr);
-#endif
-
     /// Do nifti image metadatas match?
     bool do_nifti_image_metadata_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
 

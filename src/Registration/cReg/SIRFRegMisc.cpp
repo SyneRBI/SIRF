@@ -35,12 +35,8 @@ limitations under the License.
 #include "NiftiImage3DDisplacement.h"
 #include "SIRFRegMat44.h"
 #include <_reg_tools.h>
-#if NIFTYREG_VER_1_5
 #include <_reg_globalTrans.h>
 #include <_reg_localTrans.h>
-#elif NIFTYREG_VER_1_3
-#include <_reg_localTransformation.h>
-#endif
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -128,36 +124,6 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
     cout << "done.\n\n";
 #endif
 }
-
-#if NIFTYREG_VER_1_3
-/// Get cpp from transformation matrix
-void get_cpp_from_transformation_matrix(shared_ptr<nifti_image> &cpp_sptr, const mat44 &TM_sptr, const shared_ptr<nifti_image> &warped_sptr)
-{
-    // Copy info from the reference image
-    nifti_image *cpp_ptr = cpp_sptr.get();
-    cpp_ptr = nifti_copy_nim_info(warped_sptr.get());
-
-    // Edit some of the information to make it a cpp image
-    cpp_ptr->dim[0]      = cpp_ptr->ndim = 5;
-    cpp_ptr->dim[5]      = cpp_ptr->nu   = 3;
-    cpp_ptr->datatype    = 16;
-    cpp_ptr->nbyper      = 4;
-    cpp_ptr->nvox       *= 3;
-    cpp_ptr->intent_code = NIFTI_INTENT_VECTOR;
-
-    // Allocate memory
-    cpp_ptr->data=static_cast<void *>(malloc(cpp_ptr->nvox*cpp_ptr->nbyper));
-
-    // Convert affine transformation to cpp
-    reg_bspline_initialiseControlPointGridWithAffine(TM_sptr.get(), cpp_ptr);
-
-    // Need to correct the control point position image (otherwise nv=0 and you can't read with matlab)
-    reg_checkAndCorrectDimension(cpp_ptr);
-
-    // Copy output
-    cpp_sptr = shared_ptr<nifti_image>(cpp_ptr, nifti_image_free);
-}
-#endif
 
 /// Do nifti image metadatas match?
 bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)

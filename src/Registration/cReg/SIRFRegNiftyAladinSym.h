@@ -33,11 +33,7 @@ limitations under the License.
 
 #include "SIRFReg.h"
 #include "SIRFRegMat44.h"
-#if NIFTYREG_VER_1_5
 #include <_reg_aladin_sym.h>
-#elif NIFTYREG_VER_1_3
-#include <_reg_aladin.h>
-#endif
 
 namespace sirf {
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
@@ -60,11 +56,7 @@ protected:
     virtual void parse_parameter_file();
 
     /// Register object
-#if NIFTYREG_VER_1_5
     std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
-#elif NIFTYREG_VER_1_3
-    std::shared_ptr<reg_aladin<T> > _registration_sptr;
-#endif
 
     /// Forwards transformation matrix
     SIRFRegMat44 _TM_fwrd;

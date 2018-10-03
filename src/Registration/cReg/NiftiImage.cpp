@@ -156,12 +156,8 @@ NiftiImage NiftiImage::operator*(const float &value) const
     NiftiImage   res = this->deep_copy();
     nifti_image *out = res.get_raw_nifti_sptr().get();
 
-#if NIFTYREG_VER_1_5
     reg_tools_multiplyValueToImage(im1, out, value);
-#elif NIFTYREG_VER_1_3
-    // for last argument: 0=add, 1=subtract, 2=multiply, 3=divide
-    reg_tools_addSubMulDivValue(input.get_raw_nifti_sptr().get(), output.get_raw_nifti_sptr().get(), value, 2);
-#endif
+
     return res;
 }
 
