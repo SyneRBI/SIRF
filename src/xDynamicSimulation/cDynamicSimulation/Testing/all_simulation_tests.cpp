@@ -35,13 +35,14 @@ void run_tests_auxiliary_testing_functions( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
-	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
-	tests_successful *= test_aux_test_funs::test_get_mock_csm();
-	tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
-	tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
-	tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
-
+	// tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
+	// tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+	// tests_successful *= test_aux_test_funs::test_get_mock_csm();
+	// tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
+	// tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
+	// tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
+	// tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
+	tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
 
 
 	if ( !tests_successful )
@@ -101,14 +102,14 @@ void run_tests_dynamic_simulation( void )
 	// tests_mr_dynsim::test_extract_hdr_information();
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
 	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
-	tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
+	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
 	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	// tests_successful *= test_pet_dynsim::test_simulate_dynamics();
+	tests_successful *= test_pet_dynsim::test_simulate_dynamics();
 
 	if ( !tests_successful )
 	{
@@ -128,8 +129,8 @@ void run_tests_noise_generator( void )
 
 	bool tests_successful = true;
 
-	// tests_successful *= test_noisegen::test_add_poisson_noise();
-	tests_successful *= test_noisegen::test_add_gaussian_noise();
+	tests_successful *= test_noisegen::test_add_poisson_noise();
+	// tests_successful *= test_noisegen::test_add_gaussian_noise();
 
 	if ( !tests_successful )
 	{

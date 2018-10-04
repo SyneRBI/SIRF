@@ -331,7 +331,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 
 		mr_dyn_sim.add_dynamic( cardiac_dyn );
-		mr_dyn_sim.add_dynamic( resp_dyn );
+		// mr_dyn_sim.add_dynamic( resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		

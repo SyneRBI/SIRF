@@ -16,6 +16,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <cmath>
 #include <stdexcept>
 
+#include <algorithm>
+#include <vector>
+
+
 using namespace sirf;
 
 TissueParameterList aux_test::get_mock_tissue_param_list( void )
@@ -446,7 +450,7 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 	if( std::floor(log2(num_coils)) != log2(num_coils) )
 		throw std::runtime_error("Give number of coils which is a power of two.");
 
-	std::vector<float> sensitivity_widths {vol_dims[0] /2.f, vol_dims[1] /2.f, vol_dims[2] /3.f };
+	std::vector<float> sensitivity_widths {vol_dims[0] /2.f, vol_dims[1] /2.f, vol_dims[2] /2.f };
 
 
 	std::vector<float> x_range, y_range, z_range;
@@ -719,18 +723,19 @@ SignalContainer aux_test::get_mock_motion_signal()
 SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
 {
 
-	ISMRMRD::Acquisition acq;
-	
-	acq_vec.get_acquisition(0, acq);
-	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
-			
-	acq_vec.get_acquisition(acq_vec.items()-1, acq);
-	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
-
-
 	unsigned const num_sampling_points = acq_vec.number();
+	std::vector< TimeAxisType > all_time_points;
+	for(size_t ia=0; ia<num_sampling_points; ia++)
+	{
+		ISMRMRD::Acquisition acq;
+		acq_vec.get_acquisition(ia, acq);
+
+		all_time_points.push_back(acq.getHead().acquisition_time_stamp); 	
+	}
+
+	auto minmax_it = std::minmax_element(std::begin(all_time_points), std::end(all_time_points));
 	
-	TimeAxisType dt = float(t_fin - t_0)/ float(num_sampling_points);
+	TimeAxisType t0 = *(minmax_it.first);
 
 	SignalContainer signal;
 
@@ -738,8 +743,8 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, Ti
 	{
 		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
-		signal_point.first = t_0 + i * dt;
-		signal_point.second = (1 - cos(2*M_PI / period_duration_ms * i * dt))/2;
+		signal_point.first = all_time_points[i];
+		signal_point.second = (1 - cos(2*M_PI / period_duration_ms * (all_time_points[i]-t0)))/2;
 		signal.push_back(signal_point);
 	}
 
