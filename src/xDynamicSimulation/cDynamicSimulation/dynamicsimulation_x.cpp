@@ -385,7 +385,7 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 	auto csm = vol_orientator_.reorient_image(this->coilmaps_);
 	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , this->coilmaps_.getNumberOfChannels());
-	csm_as_img.image() = this->coilmaps_;
+	csm_as_img.image() = csm;
 
 	unsigned int offset = 0;
 

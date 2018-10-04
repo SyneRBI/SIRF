@@ -1607,6 +1607,8 @@ void GoldenAngleSFTrajectoryContainer::calc_ang_dep_shift( void )
 
 	for (size_t na = 0; na < NAngles; na++)
 		this->ang_dep_shift_.push_back( 0.5 * (2*fmod(((float)resorted_index[ na ]) * GOLDENRATIO, 1.0) - 1) );
+		// this->ang_dep_shift_.push_back( 0.5 * (2*fmod(((float)resorted_index[ na ]) * sqrt(2), 1.0) - 1) );
+
 }
 
 
