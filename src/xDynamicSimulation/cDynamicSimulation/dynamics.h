@@ -57,22 +57,8 @@ public:
 	void set_num_simul_states(int const num_states);
 	void set_dyn_signal(SignalContainer signal);
 
-	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void )
-	{
-		return this->binned_mr_acquisitions_;
-	};
-
-	sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num)
-	{
-		if(bin_num >= this->num_simul_states_)
-			throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
-		
-		return this->binned_mr_acquisitions_[bin_num];
-	};
-
 	SignalAxisType linear_interpolate_signal(TimeAxisType time_point);
-	void bin_mr_acquisitions( sirf::AcquisitionsVector all_acquisitions );
-
+	
 protected:
 
 	int num_simul_states_;
@@ -87,13 +73,10 @@ protected:
 	std::vector< SignalBin > signal_bins_;
 	SignalContainer dyn_signal_; 
 
-	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
 };
 
 
-
-
-class ContrastDynamic : public aDynamic {
+class ContrastDynamic : virtual public aDynamic {
 
 public:
 	ContrastDynamic():aDynamic(){};
@@ -114,7 +97,7 @@ protected:
 };
 
 
-class MotionDynamic : public aDynamic {
+class MotionDynamic : virtual public aDynamic {
 
 public:
 	MotionDynamic();
@@ -157,4 +140,43 @@ protected:
 
 };
 
+class aMRDynamic : virtual public aDynamic{
 
+public:
+
+	aMRDynamic();
+	aMRDynamic(int const num_simul_states);
+
+	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
+	sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+	void bin_mr_acquisitions( sirf::AcquisitionsVector all_acquisitions );
+
+protected:
+
+	std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
+
+
+};
+
+
+class aPETDynamic : virtual public aDynamic{
+
+};
+
+
+
+class MRMotionDynamic : public aMRDynamic, public MotionDynamic {
+
+
+public:
+	MRMotionDynamic():aMRDynamic(), MotionDynamic() {};
+	MRMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+};
+
+class MRContrastDynamic: public aMRDynamic, public ContrastDynamic {
+
+
+public:
+	MRContrastDynamic():aMRDynamic(), ContrastDynamic() {};
+	MRContrastDynamic(int const num_simul_states): aMRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+};

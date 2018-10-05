@@ -180,7 +180,7 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		auto acq_vec = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
 
 		int const num_bins = 10;
-		aDynamic dyn(num_bins);
+		aMRDynamic dyn(num_bins);
 
 		SignalContainer mock_signal = aux_test::get_generic_cardiac_signal(acq_vec);
 		dyn.set_dyn_signal( mock_signal );
@@ -353,3 +353,34 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 		throw e;
 	}
 }
+
+
+
+bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
+{
+	try
+	{
+		bool test_succesful = true;
+
+		int const num_con_states = 3;
+		int const num_motion_states = 4;
+
+		MRContrastDynamic cont_dyn( num_con_states );
+		MRMotionDynamic motion_dyn( num_motion_states );
+
+		std::cout << epiph (cont_dyn.get_num_simul_states()) << std::endl;
+		std::cout << epiph (motion_dyn.get_num_simul_states()) << std::endl;
+
+		test_succesful *= (cont_dyn.get_num_simul_states() == num_con_states);
+		test_succesful *= (motion_dyn.get_num_simul_states() == num_motion_states);
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+

@@ -186,7 +186,8 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		int const num_simul_states_blood_dyn = 1;
 
 
-		ContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_dyn), blood_cont_dyn(num_simul_states_blood_dyn);
+
+		MRContrastDynamic myocardium_cont_dyn(num_simul_states_first_dyn), myocardium_cont_dyn(num_simul_states_second_dyn);
 
 		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
@@ -231,8 +232,12 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( myocardium_cont_dyn );
-		mr_dyn_sim.add_dynamic( blood_cont_dyn );
+
+		first_cont_dyn.bin_mr_acquisitions( all_acquis );
+		second_cont_dyn.bin_mr_acquisitions( all_acquis );
+
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
@@ -307,10 +312,10 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 10;
+		int const num_simul_cardiac_states = 2;
+		int const num_simul_resp_states = 6;
 		
-		MotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
+		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
@@ -329,9 +334,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
 
-
-		mr_dyn_sim.add_dynamic( cardiac_dyn );
-		// mr_dyn_sim.add_dynamic( resp_dyn );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (resp_dyn) );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		
@@ -376,7 +380,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		// auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
 		// mr_dyn_sim.set_trajectory( sptr_traj );
 		
-		MotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
+
+		MRMotionDynamic first_motion_dyn(num_simul_motion_dyn), second_motion_dyn( num_simul_motion_dyn );
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
@@ -400,8 +405,9 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		respiratory_motion_dyn.set_displacement_fields( motion_fields, false );
 
-		mr_dyn_sim.add_dynamic( cardiac_motion_dyn );
-		mr_dyn_sim.add_dynamic( respiratory_motion_dyn );
+
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (first_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (second_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
@@ -410,7 +416,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		int const num_simul_states_blood_contrast_dyn = 10;
 
 
-		ContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
+
+		MRContrastDynamic myocardium_cont_dyn(num_simul_states_first_contrast_dyn), blood_cont_dyn(num_simul_states_second_contrast_dyn);
 
 		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
@@ -452,8 +459,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( myocardium_cont_dyn );
-		mr_dyn_sim.add_dynamic( blood_cont_dyn );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
 

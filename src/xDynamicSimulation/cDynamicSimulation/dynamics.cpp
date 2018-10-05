@@ -209,7 +209,25 @@ SignalAxisType aDynamic::linear_interpolate_signal(TimeAxisType time_point)
 
 
 
-void aDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
+
+
+aMRDynamic::aMRDynamic(): aDynamic() {};
+aMRDynamic::aMRDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+
+std::vector<sirf::AcquisitionsVector> aMRDynamic::get_binned_mr_acquisitions( void )
+{
+	return this->binned_mr_acquisitions_;
+};
+
+sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_num )
+{
+	if(bin_num >= this->num_simul_states_)
+		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
+	
+	return this->binned_mr_acquisitions_[bin_num];
+};
+
+void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 {
 
 	if(this->dyn_signal_.size() == 0)
@@ -307,8 +325,11 @@ MotionDynamic::MotionDynamic():aDynamic()
 
 }
 
-MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic(num_simul_states)
+MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic()
 {
+	this->num_simul_states_ =num_simul_states;
+	this->set_bins(num_simul_states_);
+
 	this->which_motion_dynamic_am_i_ = num_total_motion_dynamics_;
 	this->num_total_motion_dynamics_ += 1;
 
@@ -480,8 +501,6 @@ void MotionDynamic::prep_displacements_fields()
 	{
 		for(int i=0; i<this->displacment_fields_.size(); i++)
 		{
-
-			// std::cout << "Writing MVF #: " << i <<  std::endl;
 			std::stringstream temp_filename_mvf;
 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
 
@@ -504,3 +523,6 @@ void MotionDynamic::prep_displacements_fields()
 
 	this->delete_temp_folder();
 }
+
+
+

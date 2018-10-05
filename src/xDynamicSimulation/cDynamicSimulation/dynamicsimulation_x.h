@@ -55,24 +55,10 @@ public:
 	virtual void simulate_dynamics( void ) = 0;
 	virtual void write_simulation_results( std::string const filename_output_with_extension ) = 0;
 
-	void add_dynamic( const MotionDynamic& motion_dyn) 
-	{
-		this->motion_dynamics_.push_back(motion_dyn);
-	};
-
-
-	void add_dynamic( const ContrastDynamic& cont_dyn) 
-	{
-		this->contrast_dynamics_.push_back(cont_dyn);
-	};
-
 	virtual void acquire_raw_data( void ) = 0;
 
 
 protected:
-
-	std::vector< MotionDynamic > motion_dynamics_;
-	std::vector< ContrastDynamic > contrast_dynamics_;
 
 	std::string filename_rawdata_;
 
@@ -92,6 +78,8 @@ public:
 	};
 	void write_simulation_results( std::string const filename_output_with_extension );
 
+	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn);
+	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn); 
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
@@ -111,7 +99,13 @@ public:
 
 	virtual void acquire_raw_data( void );
 
+
+	
+
 private:
+
+	std::vector< std::shared_ptr<MRMotionDynamic> > motion_dynamics_;
+	std::vector< std::shared_ptr<MRContrastDynamic> > contrast_dynamics_;
 
 	GaussianNoiseGenerator noise_generator_;
 	sirf::aVolumeOrientator vol_orientator_;
