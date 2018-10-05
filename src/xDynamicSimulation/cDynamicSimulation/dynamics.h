@@ -35,7 +35,7 @@ typedef float SignalAxisType;
 
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
-typedef std::vector< SignalPoints > SignalContainer;
+typedef std::vector< SignalPoint > SignalContainer;
 
 typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
 

@@ -30,5 +30,10 @@ bool test_motion_dynamic_prep_motion_fields( void );
 bool test_motion_dynamic_temp_interpolate_dvfs( void );
 
 bool test_mr_contrast_motion_dyn_get_num_simul_states( void );
+
+
+
+bool test_bin_pet_time_interval( void );
+
 	 
 }

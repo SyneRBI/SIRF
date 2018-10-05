@@ -545,6 +545,7 @@ SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBi
 	return intersected_set;
 }
 
+aPETDynamic::aPETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
 
 
 void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
@@ -555,39 +556,131 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 	size_t const num_bins = signal_bins_.size();
 	size_t const num_signal_supports = dyn_signal_.size();
 	
+	TimeAxisType leftmost_left_edge = std::min<TimeAxisType>( time_interval_total_dynamic_process.min_, dyn_signal_[0].first );
+	TimeAxisType rightmost_right_edge = std::max<TimeAxisType>( time_interval_total_dynamic_process.max_,  dyn_signal_[num_signal_supports-1].first );
+
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
+		std::cout << "BIN #: " << i_bin <<std::endl;
 		SignalBin bin = this->signal_bins_[i_bin];
 
 		auto bin_min = std::get<0>(bin);
 		auto bin_max = std::get<2>(bin);
+
+		std::cout << "bin_min= "<< bin_min <<std::endl;
+		std::cout << "bin_max= "<< bin_max <<std::endl;
 	
 		SetTimeBins time_intervals_for_bin;
 
-		std::vector< TimeAxisType > intersections_bin_min, intersections_bin_max;
+		std::vector< TimeAxisType > left_bin_edges, right_bin_edges;
 
 		for(size_t i_sig_pt=0; i_sig_pt<num_signal_supports-1; i_sig_pt++)
 		{	
 			SignalAxisType signal_this = dyn_signal_[i_sig_pt].second;
 			SignalAxisType signal_next = dyn_signal_[i_sig_pt+1].second;
 			
-			bool const min_is_between_points = (bin_min >= signal_this && bin_min < signal_next) || (bin_min < signal_this && bin_min >= signal_next);
-			bool const max_is_between_points = (bin_max >= signal_this && bin_max < signal_next) || (bin_max < signal_this && bin_max >= signal_next);
+			bool const min_is_between_points = (bin_min >= signal_this && bin_min <= signal_next) || (bin_min <= signal_this && bin_min >= signal_next);
+			bool const max_is_between_points = (bin_max >= signal_this && bin_max <= signal_next) || (bin_max <= signal_this && bin_max >= signal_next);
 			
+			TimeAxisType intersection_point;
+
 			if( min_is_between_points )
 			{
-				TimeAxisType intersection_point = get_time_from_between_two_signal_points(bin_min, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
-				intersections_bin_min.push_back( intersection_point);
+				intersection_point = get_time_from_between_two_signal_points(bin_min, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
+				SignalAxisType f0 = this->linear_interpolate_signal(intersection_point);
+				
+				TimeAxisType delta_time = 0.1;
+				SignalAxisType f_plus = this->linear_interpolate_signal( intersection_point + delta_time);
+				SignalAxisType f_minus = this->linear_interpolate_signal(intersection_point - delta_time);
+
+				if( f_plus > f0 && f_minus < f0)
+					left_bin_edges.push_back(intersection_point);
+				else if( f_plus < f0 && f_minus > f0)
+					right_bin_edges.push_back(intersection_point);	
+				
+
 			}
+					
 			if( max_is_between_points )
 			{
-				TimeAxisType intersection_point = get_time_from_between_two_signal_points(bin_max, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);	
-				intersections_bin_max.push_back( intersection_point);
+				intersection_point = get_time_from_between_two_signal_points(bin_max, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
+				SignalAxisType f0 = this->linear_interpolate_signal(intersection_point);
+				
+				TimeAxisType delta_time = 0.1;
+				SignalAxisType f_plus = this->linear_interpolate_signal( intersection_point + delta_time);
+				SignalAxisType f_minus = this->linear_interpolate_signal(intersection_point - delta_time);
+
+				if( f_plus > f0 && f_minus < f0)
+					right_bin_edges.push_back(intersection_point);
+				else if( f_plus < f0 && f_minus > f0)
+					left_bin_edges.push_back(intersection_point);	
 			}
+		}
+		std::sort( left_bin_edges.begin(), left_bin_edges.end() );
+		std::sort( right_bin_edges.begin(), right_bin_edges.end() );
+
+		for(size_t i=0; i<left_bin_edges.size(); i++)
+			std::cout << "LBE " << i << " " << left_bin_edges[i] <<std::endl;
+
+		for(size_t i=0; i<right_bin_edges.size(); i++)
+			std::cout << "RBE " << i << " " << right_bin_edges[i] <<std::endl;
+
+		size_t const num_left_edges = left_bin_edges.size();
+		size_t const num_right_edges = right_bin_edges.size();
+
+		if ( std::abs( num_left_edges - num_right_edges ) > 1 )
+			throw std::runtime_error( "You got yourself a very weird combination of signal and bin number in your simulation. Consider passing another dynamic signal please.");	
+
+
+		if( num_left_edges == num_right_edges )
+		{
+			if(left_bin_edges[0] < right_bin_edges[0])
+			{
+				for(size_t i=0; i<num_left_edges; i++)
+				{
+					TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i]);
+					time_intervals_for_bin.push_back(curr_bin);
+				}
+			}
+			else
+			{
+				for(size_t i=0; i<num_left_edges-1; i++)
+				{
+					TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i+1]);
+					time_intervals_for_bin.push_back(curr_bin);
+				}
+
+				TimeBin leftmost_bin( leftmost_left_edge , right_bin_edges[0]);
+				TimeBin rightmost_bin(left_bin_edges[num_left_edges-1], rightmost_right_edge);
+				
+				time_intervals_for_bin.push_back(leftmost_bin);
+				time_intervals_for_bin.push_back(rightmost_bin);
+
+			}
+		}
+		else if(num_left_edges > num_right_edges)	
+		{
+			for(size_t i=0; i<num_left_edges-1; i++)
+			{
+				TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i]);
+				time_intervals_for_bin.push_back(curr_bin);
+			}
+			TimeBin rightmost_bin( left_bin_edges[num_left_edges-1], rightmost_right_edge );
+			time_intervals_for_bin.push_back(rightmost_bin);
+		}
+		else if(num_right_edges > num_left_edges)
+		{
+			for(size_t i=0; i<num_right_edges-1; i++)
+			{
+				TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i+1]);
+				time_intervals_for_bin.push_back(curr_bin);
+			}
+			TimeBin leftmost_bin( right_bin_edges[0], leftmost_left_edge );
+			time_intervals_for_bin.push_back(leftmost_bin);
 
 		}
 
-		binned_time_intervals_.push_back( time_intervals_for_bin );
+		binned_time_intervals_.push_back(time_intervals_for_bin);
 	}
 }
 

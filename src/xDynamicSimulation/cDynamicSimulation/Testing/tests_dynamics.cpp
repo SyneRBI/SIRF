@@ -384,3 +384,40 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 	}
 }
 
+
+
+bool test_dynamic::test_bin_pet_time_interval( void )
+{
+	try
+	{
+		bool test_succesful = true;
+
+
+		SignalContainer signal_cont;
+
+		int const num_sig_pts = 4;
+		for(int i=0; i<num_sig_pts; i++)
+		{
+			SignalPoint sp;
+			sp.first = i*100;
+			sp.second = (SignalAxisType)(i%2);
+			signal_cont.push_back( sp );
+		}
+	
+		TimeBin total_time(0, 100);
+
+		int const num_simul_bins = 10;
+		aPETDynamic pet_dyn(num_simul_bins);
+		pet_dyn.set_dyn_signal( signal_cont );
+
+		pet_dyn.bin_total_time_interval( total_time );
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}

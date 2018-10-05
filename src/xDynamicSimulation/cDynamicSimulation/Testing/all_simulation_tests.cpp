@@ -77,7 +77,9 @@ void run_tests_dynamics( void )
 	// tests_successful *= test_dynamic::test_motion_dynamic_prep_motion_fields();
 	// tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
 
-	tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
+	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
+	
+	tests_successful *= test_dynamic::test_bin_pet_time_interval();
 
 
 	if ( !tests_successful )
