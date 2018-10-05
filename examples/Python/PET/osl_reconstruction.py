@@ -89,9 +89,7 @@ def main():
         prior.set_only_2D(True)
         print('using PLS prior...')
         aimage = prior.get_anatomical_image()
-        aimage.show(1)
-        kimage = prior.get_kappa()
-        kimage.show(1)
+        aimage.show()
         tf = prior.get_only_2D()
         print(tf)
     else:
@@ -135,7 +133,7 @@ def main():
     # (check the OSEM demo to learn how to display results during sub-iterations)
     print('reconstructing...')
     recon.reconstruct(image)
-    image.show(1)
+    image.show()
 
 ##    v = image.as_array()
 ##    nz, ny, nx = v.shape
