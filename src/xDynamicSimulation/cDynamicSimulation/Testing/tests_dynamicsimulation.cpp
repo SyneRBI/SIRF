@@ -187,19 +187,19 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 
 
 
-		MRContrastDynamic myocardium_cont_dyn(num_simul_states_first_dyn), myocardium_cont_dyn(num_simul_states_second_dyn);
+		MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_dyn), blood_cont_dyn(num_simul_states_blood_dyn);
 
 		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to first dynamic." << std::endl;
+			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
 			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
 		}
 
 		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
 		for(int i=0; i<blood_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << blood_dynamic_labels[i] << " to second dynamic." << std::endl;
+			std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
 			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
 		}
 
@@ -232,9 +232,6 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-
-		first_cont_dyn.bin_mr_acquisitions( all_acquis );
-		second_cont_dyn.bin_mr_acquisitions( all_acquis );
 
 		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
 		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
@@ -381,7 +378,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		// mr_dyn_sim.set_trajectory( sptr_traj );
 		
 
-		MRMotionDynamic first_motion_dyn(num_simul_motion_dyn), second_motion_dyn( num_simul_motion_dyn );
+		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
@@ -406,8 +403,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		respiratory_motion_dyn.set_displacement_fields( motion_fields, false );
 
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (first_motion_dyn ));
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (second_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
@@ -417,19 +414,19 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 
 
 
-		MRContrastDynamic myocardium_cont_dyn(num_simul_states_first_contrast_dyn), blood_cont_dyn(num_simul_states_second_contrast_dyn);
+		MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_contrast_dyn), blood_cont_dyn(num_simul_states_blood_contrast_dyn);
 
 		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to first dynamic." << std::endl;
+			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
 			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
 		}
 
 		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
 		for(int i=0; i<blood_dynamic_labels.size(); i++)
 		{
-			std::cout << "Adding label " << blood_dynamic_labels[i] << " to second dynamic." << std::endl;
+			std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
 			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
 		}
 
