@@ -454,13 +454,17 @@ PETImageData::get_data(float* data) const
 	Coordinate3D<int> max_indices;
 	if (!image.get_regular_range(min_indices, max_indices))
 		return -1;
-	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-				data[i] = image[z][y][x];
-			}
-		}
-	}
+	std::copy(image.begin_all(), image.end_all(), data);
+	//auto iter = image.begin_all();
+	//for (int i = 0; iter != image.end_all(); i++, iter++)
+	//	data[i] = *iter;
+	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+	//			data[i] = image[z][y][x];
+	//		}
+	//	}
+	//}
 	return 0;
 }
 
