@@ -526,3 +526,104 @@ void MotionDynamic::prep_displacements_fields()
 
 
 
+
+TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval)
+{
+	return intersect_intervals<TimeAxisType>(one_interval, other_interval);
+}
+
+SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBins& other_set)
+{
+	SetTimeBins intersected_set;
+	for(size_t i=0; i<one_set.size();i++ )
+	for(size_t j=0; j<other_set.size();j++ )
+	{
+		TimeBin temp_intersect = intersect_time_intervals(one_set[i], other_set[j]);
+		if( !temp_intersect.is_empty() )			
+			intersected_set.push_back( temp_intersect );
+	}
+	return intersected_set;
+}
+
+
+
+void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
+{
+	if(this->dyn_signal_.size() == 0)
+		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
+	
+	size_t const num_bins = signal_bins_.size();
+	size_t const num_signal_supports = dyn_signal_.size();
+	
+	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
+	{
+		SignalBin bin = this->signal_bins_[i_bin];
+
+		auto bin_min = std::get<0>(bin);
+		auto bin_max = std::get<2>(bin);
+	
+		SetTimeBins time_intervals_for_bin;
+
+		std::vector< TimeAxisType > intersections_bin_min, intersections_bin_max;
+
+		for(size_t i_sig_pt=0; i_sig_pt<num_signal_supports-1; i_sig_pt++)
+		{	
+			SignalAxisType signal_this = dyn_signal_[i_sig_pt].second;
+			SignalAxisType signal_next = dyn_signal_[i_sig_pt+1].second;
+			
+			bool const min_is_between_points = (bin_min >= signal_this && bin_min < signal_next) || (bin_min < signal_this && bin_min >= signal_next);
+			bool const max_is_between_points = (bin_max >= signal_this && bin_max < signal_next) || (bin_max < signal_this && bin_max >= signal_next);
+			
+			if( min_is_between_points )
+			{
+				TimeAxisType intersection_point = get_time_from_between_two_signal_points(bin_min, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
+				intersections_bin_min.push_back( intersection_point);
+			}
+			if( max_is_between_points )
+			{
+				TimeAxisType intersection_point = get_time_from_between_two_signal_points(bin_max, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);	
+				intersections_bin_max.push_back( intersection_point);
+			}
+
+		}
+
+		binned_time_intervals_.push_back( time_intervals_for_bin );
+	}
+}
+
+
+TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point)
+{
+	if(std::abs(right_point.second - left_point.second) < 1e-8)
+		return (right_point.first + left_point.first)/TimeAxisType(2);
+	else
+		return (signal-left_point.second) * (right_point.first - left_point.first) / (right_point.second - left_point.second) + left_point.first;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

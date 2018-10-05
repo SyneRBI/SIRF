@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 #include <ismrmrd/ismrmrd.h>
 
@@ -33,7 +34,8 @@ typedef float SignalAxisType;
 
 
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
-typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
+typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
+typedef std::vector< SignalPoints > SignalContainer;
 
 typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
 
@@ -159,11 +161,6 @@ protected:
 };
 
 
-class aPETDynamic : virtual public aDynamic{
-
-};
-
-
 
 class MRMotionDynamic : public aMRDynamic, public MotionDynamic {
 
@@ -179,4 +176,66 @@ class MRContrastDynamic: public aMRDynamic, public ContrastDynamic {
 public:
 	MRContrastDynamic():aMRDynamic(), ContrastDynamic() {};
 	MRContrastDynamic(int const num_simul_states): aMRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+};
+
+
+
+
+template <typename T>
+struct Interval{
+
+	Interval (): min_(0), max_(0) {}; 
+	Interval (T min, T max): min_(min), max_(max) 
+	{
+		if( min > max )
+			throw std::runtime_error("Please give an interval with smaller minimum than maximum.");
+	};
+
+	bool is_empty()
+	{
+		return std::abs(min_- max_) < 1e-8;
+	}
+
+	T min_;
+	T max_;
+};
+
+
+template< typename T> 
+Interval<T> intersect_intervals(const Interval<T>& one_interval, const Interval<T>& other_interval)
+{
+	Interval<T> intersection;
+
+	if( one_interval.min_ > other_interval.max_ || other_interval.min_ > one_interval.max_ )
+		return intersection;
+	else 
+	{
+		intersection.min_ = std::max(one_interval.min_, other_interval.min_);
+		intersection.max_ = std::min(one_interval.max_, other_interval.max_);
+
+		return intersection;
+	}
+}
+
+typedef Interval<TimeAxisType> TimeBin;
+typedef std::vector< TimeBin > SetTimeBins;
+
+TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval);
+SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBins& other_set);
+TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
+
+
+class aPETDynamic : virtual public aDynamic{
+
+public:
+
+	aPETDynamic();
+	aPETDynamic(int const num_simul_states);
+
+	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
+
+protected:
+
+	std::vector< SetTimeBins > binned_time_intervals_;
+
 };
