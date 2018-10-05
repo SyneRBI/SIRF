@@ -220,8 +220,10 @@ Interval<T> intersect_intervals(const Interval<T>& one_interval, const Interval<
 typedef Interval<TimeAxisType> TimeBin;
 typedef std::vector< TimeBin > SetTimeBins;
 
+
 TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval);
 SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBins& other_set);
+TimeAxisType get_total_time_in_set( SetTimeBins& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
 
@@ -233,6 +235,8 @@ public:
 	aPETDynamic(int const num_simul_states);
 
 	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
+
+	TimeAxisType get_time_spent_in_bin(unsigned int const which_state );
 
 protected:
 

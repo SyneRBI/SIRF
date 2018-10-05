@@ -545,6 +545,17 @@ SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBi
 	return intersected_set;
 }
 
+
+TimeAxisType get_total_time_in_set(SetTimeBins& set_of_bins )
+{
+	TimeAxisType t=0;
+	for(size_t i_bin=0; i_bin<set_of_bins.size(); i_bin++)	
+	{
+		t += (set_of_bins[i_bin].max_ - set_of_bins[i_bin].min_);
+	}
+	return t;
+}
+
 aPETDynamic::aPETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
 
 
@@ -558,6 +569,10 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 	
 	TimeAxisType leftmost_left_edge = std::min<TimeAxisType>( time_interval_total_dynamic_process.min_, dyn_signal_[0].first );
 	TimeAxisType rightmost_right_edge = std::max<TimeAxisType>( time_interval_total_dynamic_process.max_,  dyn_signal_[num_signal_supports-1].first );
+
+	SetTimeBins temp_set;
+	temp_set.push_back(time_interval_total_dynamic_process);
+
 
 	std::cout << "LLE = " << leftmost_left_edge <<std::endl;
 	std::cout << "RRE = " << rightmost_right_edge <<std::endl;
@@ -684,9 +699,10 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 			time_intervals_for_bin.push_back(leftmost_bin);
 
 		}
-
-		binned_time_intervals_.push_back(time_intervals_for_bin);
+		time_intervals_for_bin = intersect_set_time_bins(time_intervals_for_bin, temp_set);	
+		this->binned_time_intervals_.push_back(time_intervals_for_bin);
 	}
+
 }
 
 
@@ -700,7 +716,15 @@ TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, Sign
 
 
 
+TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
+{
+	if(which_state >= binned_time_intervals_.size())
+		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
 
+
+	return get_total_time_in_set( this->binned_time_intervals_[which_state] );
+
+}
 
 
 

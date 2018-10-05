@@ -404,13 +404,19 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 			signal_cont.push_back( sp );
 		}
 	
-		TimeBin total_time(0, 100);
+		TimeBin total_time(0, 1000);
 
 		int const num_simul_bins = 10;
 		aPETDynamic pet_dyn(num_simul_bins);
 		pet_dyn.set_dyn_signal( signal_cont );
 
 		pet_dyn.bin_total_time_interval( total_time );
+
+		for(int i=0; i<num_simul_bins; i++)
+			std::cout <<"Time spent in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i) <<std::endl;
+
+
+
 
 		return test_succesful;
 	}
