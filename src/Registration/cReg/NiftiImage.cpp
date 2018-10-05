@@ -364,18 +364,20 @@ void NiftiImage::change_datatype(const std::string &datatype)
 
 void NiftiImage::change_datatype(const int datatype)
 {
-    if (datatype == DT_BINARY)   SIRFRegMisc::change_datatype<bool>(*this);
-    if (datatype == DT_INT8)     SIRFRegMisc::change_datatype<signed char>(*this);
-    if (datatype == DT_INT16)    SIRFRegMisc::change_datatype<signed short>(*this);
-    if (datatype == DT_INT32)    SIRFRegMisc::change_datatype<signed int>(*this);
-    if (datatype == DT_FLOAT32)  SIRFRegMisc::change_datatype<float>(*this);
-    if (datatype == DT_FLOAT64)  SIRFRegMisc::change_datatype<double>(*this);
-    if (datatype == DT_UINT8)    SIRFRegMisc::change_datatype<unsigned char>(*this);
-    if (datatype == DT_UINT16)   SIRFRegMisc::change_datatype<unsigned short>(*this);
-    if (datatype == DT_UINT32)   SIRFRegMisc::change_datatype<unsigned int>(*this);
-    if (datatype == DT_INT64)    SIRFRegMisc::change_datatype<signed long long>(*this);
-    if (datatype == DT_UINT64)   SIRFRegMisc::change_datatype<unsigned long long>(*this);
-    if (datatype == DT_FLOAT128) SIRFRegMisc::change_datatype<long double>(*this);
+    if      (datatype == DT_BINARY)   SIRFRegMisc::change_datatype<bool>(*this);
+    else if (datatype == DT_INT8)     SIRFRegMisc::change_datatype<signed char>(*this);
+    else if (datatype == DT_INT16)    SIRFRegMisc::change_datatype<signed short>(*this);
+    else if (datatype == DT_INT32)    SIRFRegMisc::change_datatype<signed int>(*this);
+    else if (datatype == DT_FLOAT32)  SIRFRegMisc::change_datatype<float>(*this);
+    else if (datatype == DT_FLOAT64)  SIRFRegMisc::change_datatype<double>(*this);
+    else if (datatype == DT_UINT8)    SIRFRegMisc::change_datatype<unsigned char>(*this);
+    else if (datatype == DT_UINT16)   SIRFRegMisc::change_datatype<unsigned short>(*this);
+    else if (datatype == DT_UINT32)   SIRFRegMisc::change_datatype<unsigned int>(*this);
+    else if (datatype == DT_INT64)    SIRFRegMisc::change_datatype<signed long long>(*this);
+    else if (datatype == DT_UINT64)   SIRFRegMisc::change_datatype<unsigned long long>(*this);
+    else if (datatype == DT_FLOAT128) SIRFRegMisc::change_datatype<long double>(*this);
+    else
+        throw runtime_error("Trying to change to bad/unsupported datatype.");
 }
 
 /// Dump header info
@@ -402,9 +404,9 @@ void NiftiImage::crop(const int min_index[7], const int max_index[7])
     // Check that the max is less than the image size
     bool bounds_ok = true;
     for (int i=0; i<7; ++i) {
-        if (min_index[i] < 0)            bounds_ok = false;
-        if (min_index[i] > max_index[i]) bounds_ok = false;
-        if (max_index[i] > im->dim[i+1]) bounds_ok = false;
+        if (min_index[i] < 0)            { bounds_ok = false; break; }
+        if (min_index[i] > max_index[i]) { bounds_ok = false; break; }
+        if (max_index[i] > im->dim[i+1]) { bounds_ok = false; break; }
     }
     if (!bounds_ok) {
         stringstream ss;
@@ -546,16 +548,18 @@ bool NiftiImage::are_equal_to_given_accuracy(const NiftiImage &im2, const float 
     float epsilon = (im1.get_max()+im2.get_max())/2.F;
     epsilon *= required_accuracy_compared_to_max;
 
-    if (norm > epsilon) {
-        cout << "\nImages are not equal (norm > epsilon).\n";
-        cout << "\tmax1                              = " << im1.get_max() << "\n";
-        cout << "\tmax2                              = " << im1.get_max() << "\n";
-        cout << "\tmin1                              = " << im1.get_min() << "\n";
-        cout << "\tmin2                              = " << im2.get_min() << "\n";
-        cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
-        cout << "\tepsilon                           = " << epsilon << "\n";
-        cout << "\tnorm                              = " << norm << "\n";
-        return false;
-    }
-    return true;
+    if (norm < epsilon)
+        return true;
+
+#ifndef NDEBUG
+    cout << "\nImages are not equal (norm > epsilon).\n";
+    cout << "\tmax1                              = " << im1.get_max() << "\n";
+    cout << "\tmax2                              = " << im1.get_max() << "\n";
+    cout << "\tmin1                              = " << im1.get_min() << "\n";
+    cout << "\tmin2                              = " << im2.get_min() << "\n";
+    cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
+    cout << "\tepsilon                           = " << epsilon << "\n";
+    cout << "\tnorm                              = " << norm << "\n";
+#endif
+    return false;
 }
