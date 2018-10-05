@@ -490,6 +490,9 @@ def try_niftyaladin():
     na.set_reference_image(ref_aladin)
     na.set_floating_image(flo_aladin)
     na.set_parameter_file(parameter_file_aladin)
+    na.set_parameter("SetInterpolationToCubic")
+    na.set_parameter("SetLevelsToPerform", "1")
+    na.set_parameter("SetMaxIterations", "5")
     na.update()
 
     # Get outputs

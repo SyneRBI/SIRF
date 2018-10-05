@@ -55,6 +55,9 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
+    /// Set extra parameters.
+    void set_parameters();
+
     /// Register object
     std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
 

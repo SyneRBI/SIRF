@@ -90,5 +90,14 @@ classdef (Abstract = true) SIRFReg < handle
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_displacement');
             mUtilities.check_status([self.name ':get_displacement_field_back'], output.handle_);
         end
+        function set_parameter(self, par, arg1, arg2)
+            %Set string parameter. Check if any set methods match the method given by par.
+            %If so, set the value given by arg. Convert to float/int etc., as necessary.
+            %Up to 2 arguments, leave blank if unneeded. These are applied after parsing
+            %the parameter file.
+            if nargin < 3; arg1 = ''; end
+            if nargin < 4; arg2 = ''; end
+            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_set_parameter', self.handle_, par, arg1, arg2);
+        end
     end
 end

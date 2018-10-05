@@ -74,6 +74,9 @@ protected:
     /// Parse parameter file
     virtual void parse_parameter_file();
 
+    /// Set extra parameters.
+    void set_parameters();
+
     /// Registration object
     std::shared_ptr<reg_f3d_sym<T> > _registration_sptr;
 

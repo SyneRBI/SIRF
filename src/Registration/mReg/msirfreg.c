@@ -117,6 +117,9 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr) {
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
 	return cSIRFReg_SIRFReg_get_deformation_displacement_image(ptr, transform_type);
 }
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
+	return cSIRFReg_SIRFReg_set_parameter(ptr, par, arg1, arg2);
+}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir) {
 	return cSIRFReg_SIRFReg_get_TM(ptr, dir);
 }

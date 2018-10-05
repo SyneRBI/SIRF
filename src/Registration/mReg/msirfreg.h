@@ -62,6 +62,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_create_from_disp(co
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_update(void* ptr);

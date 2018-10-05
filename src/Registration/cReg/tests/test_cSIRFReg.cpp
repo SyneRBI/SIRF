@@ -493,6 +493,9 @@ int main(int argc, char* argv[])
         NA.set_reference_image               (           ref_aladin          );
         NA.set_floating_image                (           flo_aladin          );
         NA.set_parameter_file                (      parameter_file_aladin    );
+        NA.set_parameter("SetInterpolationToCubic");
+        NA.set_parameter("SetLevelsToPerform","1");
+        NA.set_parameter("SetMaxIterations","5");
         NA.update();
         NA.get_output().save_to_file         (         aladin_warped         );
         NA.get_transformation_matrix_fwrd().save_to_file(       TM_fwrd      );

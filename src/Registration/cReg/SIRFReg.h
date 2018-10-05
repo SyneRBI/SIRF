@@ -93,6 +93,12 @@ public:
     /// Get backward displacement field image
     NiftiImage3DDisplacement get_displacement_field_back() const { return _disp_image_back; }
 
+    /// Set string parameter. Check if any set methods match the method given by par.
+    /// If so, set the value given by arg. Convert to float/int etc., as necessary.
+    /// Up to 2 arguments, leave blank if unneeded. These are applied after parsing
+    /// the parameter file.
+    void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
+
 protected:
 
     /// Parse parameter file
@@ -100,6 +106,12 @@ protected:
 
     /// Check parameters
     virtual void check_parameters();
+
+    /// Set any extra parameters
+    virtual void set_parameters() = 0;
+
+    /// Store extra parameters. Only apply them after parsing.
+    std::vector<std::string> _extra_params;
 
     /// Parameter filename
     boost::filesystem::path _parameter_filename;

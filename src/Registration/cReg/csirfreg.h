@@ -74,6 +74,7 @@ extern "C" {
     // SIRFReg
     void* cSIRFReg_SIRFReg_update(void* ptr);
     void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+    void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 
     // SIRFRegAladin methods
     void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir);

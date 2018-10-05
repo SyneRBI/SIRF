@@ -484,6 +484,16 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
     }
     CATCH;
 }
+extern "C"
+void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
+{
+    try {
+        SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
+        reg.set_parameter(par, arg1, arg2);
+        return new DataHandle;
+    }
+    CATCH;
+}
 // -------------------------------------------------------------------------------- //
 //      SIRFRegNiftyAladinSym
 // -------------------------------------------------------------------------------- //

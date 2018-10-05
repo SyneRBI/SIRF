@@ -50,6 +50,9 @@ void SIRFRegNiftyAladinSym<T>::update()
     // Parse parameter file
     this->parse_parameter_file();
 
+    // Set any extra parameters
+    this->set_parameters();
+
     cout << "\n\nStarting registration...\n\n";
 
     // Run
@@ -122,6 +125,56 @@ void SIRFRegNiftyAladinSym<T>::parse_parameter_file()
     parser.add_key      ( "setGpuIdx",                          &reg_aladin_sym<T>::setGpuIdx                       );
     parser.add_key      ( "setPlatformCode",                    &reg_aladin_sym<T>::setPlatformCode                 );
     parser.parse();
+}
+
+template<class T>
+void SIRFRegNiftyAladinSym<T>::set_parameters()
+{
+    for (size_t i=0; i<_extra_params.size(); i+=3) {
+
+        string par  = _extra_params[ i ];
+        string arg1 = _extra_params[i+1];
+        string arg2 = _extra_params[i+2];
+
+        // Void
+        if      (strcmp(par.c_str(),"SetInterpolationToCubic")           == 0) _registration_sptr->SetInterpolationToCubic();
+        else if (strcmp(par.c_str(),"SetInterpolationToNearestNeighbor") == 0) _registration_sptr->SetInterpolationToNearestNeighbor();
+        else if (strcmp(par.c_str(),"SetInterpolationToTrilinear")       == 0) _registration_sptr->SetInterpolationToTrilinear();
+
+        // String
+        else if (strcmp(par.c_str(),"SetAlignCentre")                    == 0) _registration_sptr->SetAlignCentre(arg1.c_str());
+        else if (strcmp(par.c_str(),"SetInputTransform")                 == 0) _registration_sptr->SetInputTransform(arg1.c_str());
+        else if (strcmp(par.c_str(),"SetPerformAffine")                  == 0) _registration_sptr->SetPerformAffine(arg1.c_str());
+        else if (strcmp(par.c_str(),"SetPerformRigid")                   == 0) _registration_sptr->SetPerformRigid(arg1.c_str());
+        else if (strcmp(par.c_str(),"SetAlignCentreGravity")             == 0) _registration_sptr->SetAlignCentreGravity(arg1.c_str());
+        else if (strcmp(par.c_str(),"SetVerbose")                        == 0) _registration_sptr->SetVerbose(arg1.c_str());
+
+        // Int
+        else if (strcmp(par.c_str(),"SetBlockPercentage")                == 0) _registration_sptr->SetBlockPercentage(stoi(arg1));
+        else if (strcmp(par.c_str(),"SetInterpolation")                  == 0) _registration_sptr->SetInterpolation(stoi(arg1));
+        else if (strcmp(par.c_str(),"SetBlockStepSize")                  == 0) _registration_sptr->SetBlockStepSize(stoi(arg1));
+        else if (strcmp(par.c_str(),"setCaptureRangeVox")                == 0) _registration_sptr->setCaptureRangeVox(stoi(arg1));
+        else if (strcmp(par.c_str(),"setPlatformCode")                   == 0) _registration_sptr->setPlatformCode(stoi(arg1));
+
+        // Unsigned
+        else if (strcmp(par.c_str(),"SetLevelsToPerform")                == 0) _registration_sptr->SetLevelsToPerform(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetMaxIterations")                  == 0) _registration_sptr->SetMaxIterations(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetNumberOfLevels")                 == 0) _registration_sptr->SetNumberOfLevels(unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"setGpuIdx")                         == 0) _registration_sptr->setGpuIdx(unsigned(stoi(arg1)));
+
+        // Float
+        else if (strcmp(par.c_str(),"SetFloatingSigma")                  == 0) _registration_sptr->SetFloatingSigma(stof(arg1));
+        else if (strcmp(par.c_str(),"SetInlierLts")                      == 0) _registration_sptr->SetInlierLts(stof(arg1));
+        else if (strcmp(par.c_str(),"SetReferenceSigma")                 == 0) _registration_sptr->SetReferenceSigma(stof(arg1));
+        else if (strcmp(par.c_str(),"SetFloatingLowerThreshold")         == 0) _registration_sptr->SetFloatingLowerThreshold(stof(arg1));
+        else if (strcmp(par.c_str(),"SetFloatingUpperThreshold")         == 0) _registration_sptr->SetFloatingUpperThreshold(stof(arg1));
+        else if (strcmp(par.c_str(),"SetReferenceLowerThreshold")        == 0) _registration_sptr->SetReferenceLowerThreshold(stof(arg1));
+        else if (strcmp(par.c_str(),"SetReferenceUpperThreshold")        == 0) _registration_sptr->SetReferenceUpperThreshold(stof(arg1));
+        else if (strcmp(par.c_str(),"SetWarpedPaddingValue")             == 0) _registration_sptr->SetWarpedPaddingValue(stof(arg1));
+
+        else
+            throw runtime_error("\nUnknown argument: " + par);
+    }
 }
 
 namespace sirf {

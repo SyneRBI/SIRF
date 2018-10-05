@@ -57,6 +57,9 @@ void SIRFRegNiftyF3dSym<T>::update()
     // Parse parameter file
     this->parse_parameter_file();
 
+    // Set any extra parameters
+    this->set_parameters();
+
     cout << "\n\nStarting registration...\n\n";
 
     // Run
@@ -128,6 +131,46 @@ void SIRFRegNiftyF3dSym<T>::parse_parameter_file()
     parser.add_key      ( "SetPerturbationNumber",          &reg_f3d_sym<T>::SetPerturbationNumber          );
     parser.add_key      ( "SetSSDWeight",                   &reg_f3d_sym<T>::SetSSDWeight                   );
     parser.parse();
+}
+template<class T>
+void SIRFRegNiftyF3dSym<T>::set_parameters()
+{
+    for (size_t i=0; i<_extra_params.size(); i+=3) {
+
+        string par  = _extra_params[ i ];
+        string arg1 = _extra_params[i+1];
+        string arg2 = _extra_params[i+2];
+
+        // 1 argument
+        if      (strcmp(par.c_str(),"SetBendingEnergyWeight")       == 0) _registration_sptr->SetBendingEnergyWeight        (stof(arg1));
+        else if (strcmp(par.c_str(),"SetCompositionStepNumber")     == 0) _registration_sptr->SetCompositionStepNumber      (stoi(arg1));
+        else if (strcmp(par.c_str(),"SetFloatingSmoothingSigma")    == 0) _registration_sptr->SetFloatingSmoothingSigma     (stof(arg1));
+        else if (strcmp(par.c_str(),"SetGradientSmoothingSigma")    == 0) _registration_sptr->SetGradientSmoothingSigma     (stof(arg1));
+        else if (strcmp(par.c_str(),"SetInverseConsistencyWeight")  == 0) _registration_sptr->SetInverseConsistencyWeight   (stof(arg1));
+        else if (strcmp(par.c_str(),"SetJacobianLogWeight")         == 0) _registration_sptr->SetJacobianLogWeight          (stof(arg1));
+        else if (strcmp(par.c_str(),"SetReferenceSmoothingSigma")   == 0) _registration_sptr->SetReferenceSmoothingSigma    (stof(arg1));
+        else if (strcmp(par.c_str(),"SetWarpedPaddingValue")        == 0) _registration_sptr->SetWarpedPaddingValue         (stof(arg1));
+        else if (strcmp(par.c_str(),"SetLinearEnergyWeight")        == 0) _registration_sptr->SetLinearEnergyWeight         (stof(arg1));
+        else if (strcmp(par.c_str(),"SetLNCCKernelType")            == 0) _registration_sptr->SetLNCCKernelType             (stoi(arg1));
+        else if (strcmp(par.c_str(),"SetLevelNumber")               == 0) _registration_sptr->SetLevelNumber                (unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetLevelToPerform")            == 0) _registration_sptr->SetLevelToPerform             (unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetMaximalIterationNumber")    == 0) _registration_sptr->SetMaximalIterationNumber     (unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetPerturbationNumber")        == 0) _registration_sptr->SetPerturbationNumber         (unsigned(stoi(arg1)));
+
+        // 2 arguments
+        else if (strcmp(par.c_str(),"SetSSDWeight")                 == 0) _registration_sptr->SetSSDWeight                  (stoi(arg1), stoi(arg2));
+        else if (strcmp(par.c_str(),"SetLNCCWeight")                == 0) _registration_sptr->SetLNCCWeight                 (stoi(arg1), stod(arg1));
+        else if (strcmp(par.c_str(),"SetNMIWeight")                 == 0) _registration_sptr->SetNMIWeight                  (stoi(arg1), stod(arg2));
+        else if (strcmp(par.c_str(),"SetKLDWeight")                 == 0) _registration_sptr->SetKLDWeight                  (stoi(arg1), unsigned(stoi(arg1)));
+        else if (strcmp(par.c_str(),"SetFloatingThresholdUp")       == 0) _registration_sptr->SetFloatingThresholdUp        (unsigned(stoi(arg1)), stof(arg2));
+        else if (strcmp(par.c_str(),"SetFloatingThresholdLow")      == 0) _registration_sptr->SetFloatingThresholdLow       (unsigned(stoi(arg1)), stoi(arg2));
+        else if (strcmp(par.c_str(),"SetReferenceThresholdLow")     == 0) _registration_sptr->SetReferenceThresholdLow      (unsigned(stoi(arg1)), stof(arg2));
+        else if (strcmp(par.c_str(),"SetReferenceThresholdUp")      == 0) _registration_sptr->SetReferenceThresholdUp       (unsigned(stoi(arg1)), stof(arg2));
+        else if (strcmp(par.c_str(),"SetSpacing")                   == 0) _registration_sptr->SetSpacing                    (unsigned(stoi(arg1)), stof(arg2));
+
+        else
+            throw runtime_error("\nUnknown argument: " + par);
+    }
 }
 
 namespace sirf {

@@ -404,6 +404,9 @@ function na =try_niftyaladin(g)
     na.set_reference_image(g.ref_aladin);
     na.set_floating_image(g.flo_aladin);
     na.set_parameter_file(g.parameter_file_aladin);
+    na.set_parameter('SetInterpolationToCubic');
+    na.set_parameter('SetLevelsToPerform', '1');
+    na.set_parameter('SetMaxIterations', '5');
     na.update();
 
     % Get outputs

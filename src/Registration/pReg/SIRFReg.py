@@ -596,7 +596,6 @@ class _SIRFReg(ABC):
         check_status(output.handle)
         return output
 
-
     def update(self):
         """Run the registration"""
         try_calling(pysirfreg.cSIRFReg_SIRFReg_update(self.handle))
@@ -628,6 +627,13 @@ class _SIRFReg(ABC):
         output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_displacement')
         check_status(output.handle)
         return output
+
+    def set_parameter(self, par, arg1="", arg2=""):
+        """Set string parameter. Check if any set methods match the method given by par.
+        If so, set the value given by arg. Convert to float/int etc., as necessary.
+        Up to 2 arguments, leave blank if unneeded. These are applied after parsing
+        the parameter file."""
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_set_parameter(self.handle, par, arg1, arg2))
 
 
 class NiftyAladinSym(_SIRFReg):
