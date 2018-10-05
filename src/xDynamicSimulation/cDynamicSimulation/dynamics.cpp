@@ -6,7 +6,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-
+#include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include <deque>
@@ -559,6 +559,9 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 	TimeAxisType leftmost_left_edge = std::min<TimeAxisType>( time_interval_total_dynamic_process.min_, dyn_signal_[0].first );
 	TimeAxisType rightmost_right_edge = std::max<TimeAxisType>( time_interval_total_dynamic_process.max_,  dyn_signal_[num_signal_supports-1].first );
 
+	std::cout << "LLE = " << leftmost_left_edge <<std::endl;
+	std::cout << "RRE = " << rightmost_right_edge <<std::endl;
+
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
 		std::cout << "BIN #: " << i_bin <<std::endl;
@@ -628,9 +631,9 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 		size_t const num_left_edges = left_bin_edges.size();
 		size_t const num_right_edges = right_bin_edges.size();
 
-		if ( std::abs( num_left_edges - num_right_edges ) > 1 )
+		if (  std::abs( (float)num_left_edges - (float)num_right_edges )  > 1 )
 			throw std::runtime_error( "You got yourself a very weird combination of signal and bin number in your simulation. Consider passing another dynamic signal please.");	
-
+		
 
 		if( num_left_edges == num_right_edges )
 		{
@@ -672,10 +675,12 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 		{
 			for(size_t i=0; i<num_right_edges-1; i++)
 			{
+
 				TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i+1]);
 				time_intervals_for_bin.push_back(curr_bin);
 			}
-			TimeBin leftmost_bin( right_bin_edges[0], leftmost_left_edge );
+
+			TimeBin leftmost_bin( leftmost_left_edge, right_bin_edges[0]);
 			time_intervals_for_bin.push_back(leftmost_bin);
 
 		}
