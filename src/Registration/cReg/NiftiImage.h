@@ -168,6 +168,12 @@ protected:
     /// Set up datatype. Set to float if not already, store the original type.
     void set_up_data(const int original_datatype);
 
+    /// Point is in bounds?
+    bool is_in_bounds(const int index[7]) const;
+
+    /// Point is in bounds?
+    bool is_in_bounds(const int index) const;
+
 private:
 
     /// Change image datatype with string

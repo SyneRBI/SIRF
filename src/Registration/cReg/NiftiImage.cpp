@@ -163,39 +163,27 @@ NiftiImage NiftiImage::operator*(const float &value) const
 
 float NiftiImage::operator()(const int index) const
 {
-    assert(index>=0 && index<int(_nifti_image->nvox));
+    assert(this->is_in_bounds(index));
     return _data[index];
 }
 
 float &NiftiImage::operator()(const int index)
 {
-    assert(index>=0 && index<int(_nifti_image->nvox));
+    assert(this->is_in_bounds(index));
     return _data[index];
 }
 
 float NiftiImage::operator()(const int index[7]) const
 {
-    assert(index[0]>=0 && index[0]<_nifti_image->dim[1]);
-    assert(index[1]>=0 && index[1]<_nifti_image->dim[2]);
-    assert(index[2]>=0 && index[2]<_nifti_image->dim[3]);
-    assert(index[3]>=0 && index[3]<_nifti_image->dim[4]);
-    assert(index[4]>=0 && index[4]<_nifti_image->dim[5]);
-    assert(index[5]>=0 && index[5]<_nifti_image->dim[6]);
-    assert(index[6]>=0 && index[6]<_nifti_image->dim[7]);
-    int index_1d = this->get_1D_index(index);
+    assert(this->is_in_bounds(index));
+    const int &index_1d = this->get_1D_index(index);
     return _data[index_1d];
 }
 
 float &NiftiImage::operator()(const int index[7])
 {
-    assert(index[0]>=0 && index[0]<_nifti_image->dim[1]);
-    assert(index[1]>=0 && index[1]<_nifti_image->dim[2]);
-    assert(index[2]>=0 && index[2]<_nifti_image->dim[3]);
-    assert(index[3]>=0 && index[3]<_nifti_image->dim[4]);
-    assert(index[4]>=0 && index[4]<_nifti_image->dim[5]);
-    assert(index[5]>=0 && index[5]<_nifti_image->dim[6]);
-    assert(index[6]>=0 && index[6]<_nifti_image->dim[7]);
-    int index_1d = this->get_1D_index(index);
+    assert(this->is_in_bounds(index));
+    const int &index_1d = this->get_1D_index(index);
     return _data[index_1d];
 }
 
@@ -399,15 +387,13 @@ void NiftiImage::crop(const int min_index[7], const int max_index[7])
 
     shared_ptr<nifti_image> im = _nifti_image;
 
-    // Check all the min. bounds are greater than 0
-    // Check that the minimum is always <= than the max
-    // Check that the max is less than the image size
+    // Check the min. and max. indices are in bounds.
+    // Check the max. is less than the min.
     bool bounds_ok = true;
-    for (int i=0; i<7; ++i) {
-        if (min_index[i] < 0)            { bounds_ok = false; break; }
-        if (min_index[i] > max_index[i]) { bounds_ok = false; break; }
-        if (max_index[i] > im->dim[i+1]) { bounds_ok = false; break; }
-    }
+    if (!this->is_in_bounds(min_index))  bounds_ok = false;
+    if (!this->is_in_bounds(max_index))  bounds_ok = false;
+    for (int i=0; i<7; ++i)
+        if (max_index[i] > im->dim[i+1]) bounds_ok = false;
     if (!bounds_ok) {
         stringstream ss;
         ss << "crop_image: Bounds not ok.\n";
@@ -469,11 +455,6 @@ void NiftiImage::crop(const int min_index[7], const int max_index[7])
 
                                 new_1d_idx = this->get_1D_index(new_index);
                                 old_1d_idx = copy.get_1D_index(old_index);
-
-                                assert(new_1d_idx>=0);
-                                assert(old_1d_idx>=0);
-                                assert(new_1d_idx <= int(im->nvox));
-                                assert(old_1d_idx <= int(copy.get_raw_nifti_sptr()->nvox));
                                 new_data[new_1d_idx] = old_data[old_1d_idx];
                             }
                         }
@@ -532,6 +513,19 @@ void NiftiImage::set_up_data(const int original_datatype)
 
     _nifti_image->nbyper = sizeof(float);
     this->_data = static_cast<float*>(_nifti_image->data);
+}
+
+bool NiftiImage::is_in_bounds(const int index[7]) const
+{
+    for (int i=0; i<7; ++i)
+        if (index[i]<0 || index[0]>=_nifti_image->dim[1])
+            return false;
+    return true;
+}
+
+bool NiftiImage::is_in_bounds(const int index) const
+{
+    return (index>=0 && index<int(_nifti_image->nvox));
 }
 
 bool NiftiImage::are_equal_to_given_accuracy(const NiftiImage &im2, const float required_accuracy_compared_to_max) const
