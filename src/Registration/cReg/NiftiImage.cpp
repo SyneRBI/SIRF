@@ -42,14 +42,8 @@ using namespace sirf;
 
 NiftiImage NiftiImage::operator=(const NiftiImage& to_copy)
 {
-    // Check for self-assignment
-    if (this != &to_copy) {
-        if (to_copy.is_initialised())
-            SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
-        else
-            throw runtime_error("trying to copy empty image");
-    }
 
+    SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
     set_up_data(to_copy._original_datatype);
     return *this;
 }
