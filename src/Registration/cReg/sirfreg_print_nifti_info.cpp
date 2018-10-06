@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 {
     try {
         if (argc < 2) {
-            cout << "\nsirfreg_dump_nifti_info filename1 [filename2 [filename3 [...]]]\n";
+            cout << "\nsirfreg_print_nifti_info filename1 [filename2 [filename3 [...]]]\n";
             return EXIT_SUCCESS;
         }
 
@@ -52,13 +52,6 @@ int main(int argc, char* argv[])
 
         // Print info
         NiftiImage::print_headers(ims);
-
-        for (unsigned i=0; i<unsigned(num_images); ++i) {
-            std::cout << "\nPrinting min/max of image " << i << "\n";
-            std::cout << "\tMin: " << ims.at(i).get_min() << "\n";
-            std::cout << "\tMax: " << ims.at(i).get_max() << "\n";
-        }
-
 
     // If there was an error
     } catch(const exception &error) {

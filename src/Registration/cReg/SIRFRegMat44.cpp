@@ -39,7 +39,7 @@ using namespace sirf;
 void SIRFRegMat44::print(const vector<SIRFRegMat44> &mats)
 {
     for(int i=0;i<4;i++) {
-        cout << "\t\t\t   ";
+        cout << "\t" << left << setw(19) << "";
         for(unsigned j=0;j<mats.size();j++) {
             ostringstream ss;
             ss << "[" <<

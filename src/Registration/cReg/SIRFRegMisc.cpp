@@ -305,7 +305,18 @@ void dump_headers(const vector<NiftiImage> &ims)
     cout << "\t" << left << setw(19) << "sto_xyz:" << "\n";
     SIRFRegMat44::print(sto_xyz_vec);
 
-    cout << "\n";
+    // Print min
+    string min_header = "min: ";
+    cout << "\t" << left << setw(19) << min_header;
+    for(unsigned i=0; i<ims.size(); i++)
+        cout << setw(19) << ims[i].get_min();
+
+    // Print max
+    cout << "\n\t" << left << setw(19) << "max: ";
+    for(unsigned i=0; i<ims.size(); i++)
+        cout << setw(19) << ims[i].get_max();
+
+    cout << "\n\n";
 }
 
 template<typename T>

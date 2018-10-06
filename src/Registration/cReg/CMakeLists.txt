@@ -56,7 +56,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 SET(SIRFREG_executables
     sirfreg_affine_to_disp
-    sirfreg_dump_nifti_info
+    sirfreg_print_nifti_info
     sirfreg_aladin
     sirfreg_tensor_split_join
     sirfreg_change_datatype
