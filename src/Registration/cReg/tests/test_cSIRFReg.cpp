@@ -177,9 +177,9 @@ int main(int argc, char* argv[])
             if (ref_aladin_float(i) - ref_aladin(i) > 1.e-7F)
                 throw runtime_error("NiftiImage3D::save_to_file()/change_datatype() failed.");
 
-        // Test dump methods
-        q.dump_header();
-        NiftiImage::dump_headers({q, s});
+        // Test print methods
+        q.print_header();
+        NiftiImage::print_headers({q, s});
 
         // Crop image
         int min[7], max[7];

@@ -143,9 +143,9 @@ def try_niftiimage():
     if not np.array_equal(arr1,arr2):
         raise AssertionError("SIRFRegMisc::save_to_file()/change_datatype() failed.")
 
-    # Test dump methods
-    q.dump_header()
-    pSIRFReg.NiftiImage.dump_headers([q, s])
+    # Test print methods
+    q.print_header()
+    pSIRFReg.NiftiImage.print_headers([q, s])
 
     # Crop image
     min_ = []

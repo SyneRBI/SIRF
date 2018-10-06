@@ -170,29 +170,29 @@ classdef NiftiImage < handle
             h = calllib('msirfreg', 'mSIRFReg_NiftiImage_crop', self.handle_, min_ptr, max_ptr);
             mUtilities.check_status('parameter', h)
         end
-        function dump_header(self)
-            %Dump metadata of nifti image.
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 1, self.handle_, [], [], [], []);
+        function print_header(self)
+            %Print metadata of nifti image.
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 1, self.handle_, [], [], [], []);
             mUtilities.check_status('parameter', h)
         end
     end
     methods(Static)
-        function dump_headers(to_dump)
-            %Dump metadata of one or multiple (up to 5) nifti images.
-            assert(ismatrix(to_dump) && isa(to_dump, 'mSIRFReg.NiftiImage'), 'NiftiImage.dump_headers: give list of NiftiImage.')
-            num_ims = size(to_dump,2);
+        function print_headers(to_print)
+            %Print metadata of one or multiple (up to 5) nifti images.
+            assert(ismatrix(to_print) && isa(to_print, 'mSIRFReg.NiftiImage'), 'NiftiImage.print_headers: give list of NiftiImage.')
+            num_ims = size(to_print,2);
             if num_ims == 1
-                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 1, to_dump(1).handle_, [], [], [], []);
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 1, to_print(1).handle_, [], [], [], []);
             elseif num_ims == 2
-                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 2, to_dump(1).handle_, to_dump(2).handle_, [], [], []);
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 2, to_print(1).handle_, to_print(2).handle_, [], [], []);
             elseif num_ims == 3
-                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 3, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, [], []);
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 3, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, [], []);
             elseif num_ims == 4
-                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 4, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, to_dump(4).handle_, []);
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 4, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, []);
             elseif num_ims == 5
-                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_dump_headers', 5, to_dump(1).handle_, to_dump(2).handle_, to_dump(3).handle_, to_dump(4).handle_, to_dump(5).handle_);
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImage_print_headers', 5, to_print(1).handle_, to_print(2).handle_, to_print(3).handle_, to_print(4).handle_, to_print(5).handle_);
             else
-                error('dump_nifti_info only implemented for up to 5 images.')
+                error('print_headers only implemented for up to 5 images.')
             end
             mUtilities.check_status('parameter', h)
         end

@@ -128,9 +128,9 @@ function try_niftiimage(g)
     arr2 = ref_aladin_float.as_array();
     assert(all(arr1(:)==arr2(:)), "SIRFRegMisc::save_to_file()/change_datatype() failed.");
 
-    % Test dump methods
-    q.dump_header();
-    mSIRFReg.NiftiImage.dump_headers([q s]);
+    % Test print methods
+    q.print_header();
+    mSIRFReg.NiftiImage.print_headers([q s]);
 
     % Crop image
     min_ = [];

@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
             ims.push_back(NiftiImage(argv[i]));
 
         // Print info
-        NiftiImage::dump_headers(ims);
+        NiftiImage::print_headers(ims);
 
         for (unsigned i=0; i<unsigned(num_images); ++i) {
             std::cout << "\nPrinting min/max of image " << i << "\n";

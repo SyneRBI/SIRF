@@ -356,32 +356,32 @@ class NiftiImage:
         max_np = numpy.array(max_, dtype=numpy.int32)
         try_calling(pysirfreg.cSIRFReg_NiftiImage_crop(self.handle, min_np.ctypes.data, max_np.ctypes.data))
 
-    def dump_header(self):
-        """Dump nifti header metadata."""
-        try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(1, self.handle, None, None, None, None))
+    def print_header(self):
+        """Print nifti header metadata."""
+        try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(1, self.handle, None, None, None, None))
 
     @staticmethod
-    def dump_headers(to_dump):
-        """Dump nifti header metadata of one or multiple (up to 5) nifti images."""
-        if not all(isinstance(n, NiftiImage) for n in to_dump):
+    def print_headers(to_print):
+        """Print nifti header metadata of one or multiple (up to 5) nifti images."""
+        if not all(isinstance(n, NiftiImage) for n in to_print):
             raise AssertionError()
-        if len(to_dump) == 1:
-            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
-                1, to_dump[0].handle, None, None, None, None))
-        elif len(to_dump) == 2:
-            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
-                2, to_dump[0].handle, to_dump[1].handle, None, None, None))
-        elif len(to_dump) == 3:
-            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
-                3, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, None, None))
-        elif len(to_dump) == 4:
-            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
-                4, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, to_dump[3].handle, None))
-        elif len(to_dump) == 5:
-            try_calling(pysirfreg.cSIRFReg_NiftiImage_dump_headers(
-                5, to_dump[0].handle, to_dump[1].handle, to_dump[2].handle, to_dump[3].handle, to_dump[4].handle))
+        if len(to_print) == 1:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(
+                1, to_print[0].handle, None, None, None, None))
+        elif len(to_print) == 2:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(
+                2, to_print[0].handle, to_print[1].handle, None, None, None))
+        elif len(to_print) == 3:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(
+                3, to_print[0].handle, to_print[1].handle, to_print[2].handle, None, None))
+        elif len(to_print) == 4:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(
+                4, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, None))
+        elif len(to_print) == 5:
+            try_calling(pysirfreg.cSIRFReg_NiftiImage_print_headers(
+                5, to_print[0].handle, to_print[1].handle, to_print[2].handle, to_print[3].handle, to_print[4].handle))
         else:
-            raise error('dump_nifti_info only implemented for up to 5 images.')
+            raise error('print_headers only implemented for up to 5 images.')
 
 
 class NiftiImage3D(NiftiImage):

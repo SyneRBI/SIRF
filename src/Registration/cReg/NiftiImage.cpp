@@ -370,13 +370,13 @@ void NiftiImage::change_datatype(const int datatype)
 }
 
 /// Dump header info
-void NiftiImage::dump_header() const
+void NiftiImage::print_header() const
 {
-    NiftiImage::dump_headers({*this});
+    NiftiImage::print_headers({*this});
 }
 
 /// Dump multiple header info
-void NiftiImage::dump_headers(const std::vector<NiftiImage> &ims)
+void NiftiImage::print_headers(const std::vector<NiftiImage> &ims)
 {
     SIRFRegMisc::dump_headers(ims);
 }

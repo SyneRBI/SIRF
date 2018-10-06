@@ -164,7 +164,7 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
 //      NiftiImage
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
+void* cSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5)
 {
     try {
         std::vector<NiftiImage> vec;
@@ -173,7 +173,7 @@ void* cSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const
         if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImage>(im3));
         if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImage>(im4));
         if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImage>(im5));
-        NiftiImage::dump_headers(vec);
+        NiftiImage::print_headers(vec);
         return new DataHandle;
     }
     CATCH;

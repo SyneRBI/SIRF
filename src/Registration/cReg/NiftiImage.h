@@ -131,11 +131,11 @@ public:
     /// Get number of voxels
     const int* get_dimensions() const;
 
-    /// Dump header info
-    void dump_header() const;
+    /// Print header info
+    void print_header() const;
 
-    /// Dump multiple header info
-    static void dump_headers(const std::vector<sirf::NiftiImage> &ims);
+    /// Print multiple header info
+    static void print_headers(const std::vector<sirf::NiftiImage> &ims);
 
     /// Crop
     void crop(const int min_index[7], const int max_index[7]);

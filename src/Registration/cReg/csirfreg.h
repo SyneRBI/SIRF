@@ -41,7 +41,7 @@ extern "C" {
 	void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name);
 
     // NiftiImage
-    void* cSIRFReg_NiftiImage_dump_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
     void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const char* datatype);
     void* cSIRFReg_NiftiImage_fill(const void* ptr, const float val);
     void* cSIRFReg_NiftiImage_deep_copy(const void* copy_ptr, const void *orig_ptr);
