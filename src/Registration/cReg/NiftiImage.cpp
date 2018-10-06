@@ -277,8 +277,15 @@ float NiftiImage::get_norm(const NiftiImage& other) const
 
     // Use double precision to minimise rounding errors
     double result(0);
-    for (int i=0; i<int(_nifti_image->nvox); ++i)
-        result += double(pow( (*this)(i) - other(i), 2));
+    for (int i=0; i<int(_nifti_image->nvox); ++i) {
+        const float &val1 = this->operator()(i);
+        const float &val2 = other(i);
+        // If either value is nan, skip
+        if (!isnan(val1+val2))
+            result += double(pow( this->operator()(i) - other(i), 2));
+        else
+            cout << "\none of the voxels is nan. Skipping...\n";
+    }
     return float(sqrt(result));
 }
 
