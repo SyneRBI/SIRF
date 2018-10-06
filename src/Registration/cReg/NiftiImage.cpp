@@ -91,11 +91,9 @@ NiftiImage NiftiImage::operator+ (const NiftiImage& c) const
     if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
         throw runtime_error("Can't subtract NiftImage as metadata do not match.");
 
-    nifti_image *im1 = this->get_raw_nifti_sptr().get();
-    nifti_image *im2 = c.get_raw_nifti_sptr().get();
-    NiftiImage   res = this->deep_copy();
-    nifti_image *out = res.get_raw_nifti_sptr().get();
-    reg_tools_addImageToImage(im1,im2,out);
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
+        res(i) += c(i);
     return res;
 }
 
@@ -109,11 +107,9 @@ NiftiImage NiftiImage::operator- (const NiftiImage& c) const
     if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
         throw runtime_error("Can't subtract NiftImage as metadata do not match.");
 
-    nifti_image *im1 = this->get_raw_nifti_sptr().get();
-    nifti_image *im2 = c.get_raw_nifti_sptr().get();
-    NiftiImage   res = this->deep_copy();
-    nifti_image *out = res.get_raw_nifti_sptr().get();
-    reg_tools_substractImageToImage(im1,im2,out);
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
+        res(i) -= c(i);
     return res;
 }
 
@@ -122,10 +118,9 @@ NiftiImage NiftiImage::operator+(const float& val) const
     if (!this->is_initialised())
         throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
 
-    nifti_image *im1 = this->get_raw_nifti_sptr().get();
-    NiftiImage   res = this->deep_copy();
-    nifti_image *out = res.get_raw_nifti_sptr().get();
-    reg_tools_addValueToImage(im1,out,val);
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
+        res(i) += val;
     return res;
 }
 
@@ -134,10 +129,9 @@ NiftiImage NiftiImage::operator-(const float& val) const
     if (!this->is_initialised())
         throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
 
-    nifti_image *im1 = this->get_raw_nifti_sptr().get();
-    NiftiImage   res = this->deep_copy();
-    nifti_image *out = res.get_raw_nifti_sptr().get();
-    reg_tools_substractValueToImage(im1,out,val);
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
+        res(i) -= val;
     return res;
 }
 
@@ -146,12 +140,9 @@ NiftiImage NiftiImage::operator*(const float &value) const
     if (!this->is_initialised())
         throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
 
-    nifti_image *im1 = this->get_raw_nifti_sptr().get();
-    NiftiImage   res = this->deep_copy();
-    nifti_image *out = res.get_raw_nifti_sptr().get();
-
-    reg_tools_multiplyValueToImage(im1, out, value);
-
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
+        res(i) *= value;
     return res;
 }
 
