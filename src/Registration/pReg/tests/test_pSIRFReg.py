@@ -136,7 +136,7 @@ def try_niftiimage():
         raise AssertionError('NiftiImage as_array().shape failed.')
 
     # Test saving to datatype
-    ref_aladin.save_to_file(output_float,'NIFTI_TYPE_FLOAT32')
+    ref_aladin.save_to_file(output_float, 16) # float
     ref_aladin_float = pSIRFReg.NiftiImage3D(output_float)
     arr1 = ref_aladin.as_array()
     arr2 = ref_aladin_float.as_array()

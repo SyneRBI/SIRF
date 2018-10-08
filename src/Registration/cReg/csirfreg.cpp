@@ -339,11 +339,11 @@ void* cSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj)
 //      NiftiImage3DTensor
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename, const char* datatype)
+void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImage3DTensor& im = objectFromHandle<NiftiImage3DTensor>(ptr);
-        im.save_to_file_split_xyz_components(filename, nifti_datatype_from_string(datatype));
+        im.save_to_file_split_xyz_components(filename, datatype);
 		return new DataHandle;
 	}
 	CATCH;

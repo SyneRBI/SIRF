@@ -59,7 +59,7 @@ extern "C" {
     void* cSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj);
 
     // NiftiImage3DTensor
-    void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const char* datatype);
+    void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
     void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj);
     void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
     void* cSIRFReg_NiftiImage3DTensor_flip_component(const void *ptr, const int dim);

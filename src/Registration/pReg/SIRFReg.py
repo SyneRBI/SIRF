@@ -276,8 +276,9 @@ class NiftiImage:
         """Overload comparison operator."""
         return not self == other
 
-    def save_to_file(self, filename, datatype=""):
-        """Save to file."""
+    def save_to_file(self, filename, datatype=-1):
+        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16). 
+        Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImage_save_to_file(self.handle, filename, datatype))
@@ -439,8 +440,9 @@ class NiftiImage3DTensor(NiftiImage):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def save_to_file_split_xyz_components(self, filename, datatype=""):
-        """Save to file."""
+    def save_to_file_split_xyz_components(self, filename, datatype=-1):
+        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16). 
+        Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()
         if not isinstance(filename, str):

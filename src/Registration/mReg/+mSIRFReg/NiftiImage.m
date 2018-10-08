@@ -92,9 +92,10 @@ classdef NiftiImage < handle
         	value = ~(self==other);
         end
         function save_to_file(self, filename, datatype)
-            %Save to file.
+            %Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16)
+            % Image's original datatpye is used by default.
             if nargin < 3
-                datatype ='';
+                datatype = -1;
             end
             h = calllib('msirfreg', 'mSIRFReg_NiftiImage_save_to_file', self.handle_, filename, datatype);
             mUtilities.check_status([self.name ':save_to_file'], h);

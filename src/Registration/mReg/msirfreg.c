@@ -90,7 +90,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_from_PETImageData(void* ptr) {
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj) {
 	return cSIRFReg_NiftiImage3D_copy_data_to(ptr, obj);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const char* datatype) {
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
 	return cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj) {
