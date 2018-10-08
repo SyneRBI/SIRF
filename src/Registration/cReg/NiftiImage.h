@@ -115,6 +115,9 @@ public:
     /// Get min
     float get_min() const;
 
+    /// Get mean
+    float get_mean() const;
+
     /// Get element
     float get_element(const int idx[7]) const;
 

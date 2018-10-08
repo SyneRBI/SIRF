@@ -206,6 +206,24 @@ float NiftiImage::get_min() const
     return *min_element(_data, _data + _nifti_image->nvox);
 }
 
+
+float NiftiImage::get_mean() const
+{
+    if(!this->is_initialised())
+        throw runtime_error("NiftiImage::get_min(): Image not initialised.");
+
+    float sum = 0.F;
+    int nan_count = 0;
+    for (int i=0; i<int(_nifti_image->nvox); ++i)
+        if (!isnan(_data[i])) {
+            sum += _data[i];
+            ++nan_count;
+        }
+
+    // Get data
+    return sum / float(nan_count);
+}
+
 float NiftiImage::get_sum() const
 {
     if(!this->is_initialised())

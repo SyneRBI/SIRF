@@ -316,6 +316,11 @@ void dump_headers(const vector<NiftiImage> &ims)
     for(unsigned i=0; i<ims.size(); i++)
         cout << setw(19) << ims[i].get_max();
 
+    // Print mean
+    cout << "\n\t" << left << setw(19) << "mean: ";
+    for(unsigned i=0; i<ims.size(); i++)
+        cout << setw(19) << ims[i].get_mean();
+
     cout << "\n\n";
 }
 
