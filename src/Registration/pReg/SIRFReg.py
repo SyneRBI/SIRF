@@ -277,7 +277,7 @@ class NiftiImage:
         return not self == other
 
     def save_to_file(self, filename, datatype=-1):
-        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16). 
+        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()
@@ -441,7 +441,7 @@ class NiftiImage3DTensor(NiftiImage):
             pyiutil.deleteDataHandle(self.handle)
 
     def save_to_file_split_xyz_components(self, filename, datatype=-1):
-        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16). 
+        """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()

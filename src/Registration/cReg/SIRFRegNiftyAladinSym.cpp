@@ -134,7 +134,7 @@ void SIRFRegNiftyAladinSym<T>::set_parameters()
 
         string par  = _extra_params[ i ];
         string arg1 = _extra_params[i+1];
-        string arg2 = _extra_params[i+2];
+        // string arg2 = _extra_params[i+2]; No aladin methods need 2 args (but f3d does)
 
         // Void
         if      (strcmp(par.c_str(),"SetInterpolationToCubic")           == 0) _registration_sptr->SetInterpolationToCubic();
