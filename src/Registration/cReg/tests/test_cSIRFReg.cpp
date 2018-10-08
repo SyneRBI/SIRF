@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation composed =
                 NiftiImage3DDeformation::compose_single_deformation(vec, ref_aladin);
         if (composed.get_as_deformation_field(ref_aladin) != NA.get_deformation_field_fwrd())
-            throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");
+            throw runtime_error("NiftiImage3DDeformation::compose_single_deformation failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished transformations test.\n";

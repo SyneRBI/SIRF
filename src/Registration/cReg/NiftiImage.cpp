@@ -161,14 +161,14 @@ float &NiftiImage::operator()(const int index)
 float NiftiImage::operator()(const int index[7]) const
 {
     assert(this->is_in_bounds(index));
-    const int &index_1d = this->get_1D_index(index);
+    const int index_1d = this->get_1D_index(index);
     return _data[index_1d];
 }
 
 float &NiftiImage::operator()(const int index[7])
 {
     assert(this->is_in_bounds(index));
-    const int &index_1d = this->get_1D_index(index);
+    const int index_1d = this->get_1D_index(index);
     return _data[index_1d];
 }
 
@@ -211,11 +211,6 @@ void NiftiImage::save_to_file(const string &filename, const int datatype) const
     nifti_set_filenames(copy._nifti_image.get(), filename.c_str(), 0, 0);
     nifti_image_write(copy._nifti_image.get());
     cout << "done.\n\n";
-}
-
-void NiftiImage::save_to_file(const string &filename, const char* datatype) const
-{
-    this->save_to_file(filename,nifti_datatype_from_string(datatype));
 }
 
 float NiftiImage::get_max() const
@@ -274,8 +269,6 @@ float NiftiImage::get_norm(const NiftiImage& other) const
         // If either value is nan, skip
         if (!isnan(val1+val2))
             result += double(pow( this->operator()(i) - other(i), 2));
-        else
-            cout << "\none of the voxels is nan. Skipping...\n";
     }
     return float(sqrt(result));
 }
@@ -337,11 +330,6 @@ void NiftiImage::check_dimensions(const NiftiImageType image_type)
     throw std::runtime_error(ss.str());
 }
 
-void NiftiImage::change_datatype(const std::string &datatype)
-{
-    change_datatype(nifti_datatype_from_string(datatype.c_str()));
-}
-
 void NiftiImage::change_datatype(const int datatype)
 {
     if      (datatype == DT_BINARY)   SIRFRegMisc::change_datatype<bool>(*this);
@@ -357,7 +345,7 @@ void NiftiImage::change_datatype(const int datatype)
     else if (datatype == DT_UINT64)   SIRFRegMisc::change_datatype<unsigned long long>(*this);
     else if (datatype == DT_FLOAT128) SIRFRegMisc::change_datatype<long double>(*this);
     else
-        throw runtime_error("Trying to change to bad/unsupported datatype.");
+        throw runtime_error("Trying to change to bad/unsupported datatype (" + std::to_string(datatype) + " / " + nifti_datatype_to_string(datatype) + ").");
 }
 
 /// Dump header info
@@ -537,7 +525,6 @@ bool NiftiImage::are_equal_to_given_accuracy(const NiftiImage &im2, const float 
     if (norm < epsilon)
         return true;
 
-#ifndef NDEBUG
     cout << "\nImages are not equal (norm > epsilon).\n";
     cout << "\tmax1                              = " << im1.get_max() << "\n";
     cout << "\tmax2                              = " << im1.get_max() << "\n";
@@ -546,6 +533,5 @@ bool NiftiImage::are_equal_to_given_accuracy(const NiftiImage &im2, const float 
     cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
     cout << "\tepsilon                           = " << epsilon << "\n";
     cout << "\tnorm                              = " << norm << "\n";
-#endif
     return false;
 }

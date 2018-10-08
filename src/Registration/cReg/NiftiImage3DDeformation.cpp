@@ -75,7 +75,7 @@ NiftiImage3DDeformation NiftiImage3DDeformation::get_as_deformation_field(const 
 NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
 {
     if (transformations.size() == 0)
-        throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation no transformations given.");
+        throw runtime_error("NiftiImage3DDeformation::compose_single_deformation no transformations given.");
 
     NiftiImage3DDeformation def = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
 

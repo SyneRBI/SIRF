@@ -179,7 +179,7 @@ void* cSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, cons
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const char* datatype)
+void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImage& im = objectFromHandle<NiftiImage>(ptr);

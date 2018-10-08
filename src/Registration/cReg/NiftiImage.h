@@ -94,7 +94,7 @@ public:
     float &operator()(const int index[7]);
 
     /// Is the image initialised? (Should unless default constructor was used.)
-    bool is_initialised() const { return (_nifti_image && _data ? true : false); }
+    bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
 
     /// Get image as nifti
     std::shared_ptr<nifti_image> get_raw_nifti_sptr() const;
@@ -102,10 +102,6 @@ public:
     /// Save to file. Templated so the user can choose the datatype they save to. This defaults
     /// to -1, which is the original datatype of that image (stored as _original_datatype).
     void save_to_file(const std::string &filename, const int datatype = -1) const;
-
-    /// Save to file. Templated so the user can choose the datatype they save to. This defaults
-    /// to -1, which is the original datatype of that image (stored as _original_datatype).
-    void save_to_file(const std::string &filename, const char *datatype) const;
 
     /// Get max
     float get_max() const;
@@ -175,9 +171,6 @@ protected:
     bool is_in_bounds(const int index) const;
 
 private:
-
-    /// Change image datatype with string
-    void change_datatype(const std::string &datatype);
 
     /// Change image datatype with int
     void change_datatype(const int datatype);

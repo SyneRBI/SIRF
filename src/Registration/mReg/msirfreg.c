@@ -51,7 +51,7 @@ EXPORTED_FUNCTION 	void* mSIRFReg_parameter(const void* ptr, const char* obj, co
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
 	return cSIRFReg_NiftiImage_print_headers(num_ims, im1, im2, im3, im4, im5);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const char* datatype) {
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const int datatype) {
 	return cSIRFReg_NiftiImage_save_to_file(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_fill(const void* ptr, const float val) {
