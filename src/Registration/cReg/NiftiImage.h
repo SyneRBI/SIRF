@@ -82,7 +82,7 @@ public:
     NiftiImage operator-(const float&) const;
 
     /// Multiply image
-    NiftiImage operator*(const float &value) const;
+    NiftiImage operator*(const float&) const;
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -148,9 +148,20 @@ public:
     /// Check if the norms of two images are equal to a given accuracy.
     bool are_equal_to_given_accuracy(const NiftiImage &im2, const float required_accuracy_compared_to_max) const;
 
+    /// Point is in bounds?
+    bool is_in_bounds(const int index[7]) const;
+
+    /// Point is in bounds?
+    bool is_in_bounds(const int index) const;
+
+    /// Images are same size
+    bool is_same_size(const NiftiImage &im) const;
+
 protected:
 
     enum NiftiImageType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
+
+    enum MathsType { add, sub, mul };
 
     /// Image data as a nifti object
     std::shared_ptr<nifti_image>  _nifti_image;
@@ -167,11 +178,11 @@ protected:
     /// Set up datatype. Set to float if not already, store the original type.
     void set_up_data(const int original_datatype);
 
-    /// Point is in bounds?
-    bool is_in_bounds(const int index[7]) const;
+    /// Add, subract image from another
+    NiftiImage maths(const NiftiImage& c, const MathsType type) const;
 
-    /// Point is in bounds?
-    bool is_in_bounds(const int index) const;
+    /// Add, subract, multiply value to image
+    NiftiImage maths(const float val, const MathsType type) const;
 
 private:
 

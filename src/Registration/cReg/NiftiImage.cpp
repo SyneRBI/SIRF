@@ -89,69 +89,29 @@ bool NiftiImage::operator!=(const NiftiImage &other) const
     return !(*this == other);
 }
 
-NiftiImage NiftiImage::operator+ (const NiftiImage& c) const
+NiftiImage NiftiImage::operator+(const NiftiImage& c) const
 {
-    if (!this->is_initialised())
-        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
-    if (!c.is_initialised())
-        throw runtime_error("Can't subtract NiftImage as second image is not initialised.");
-
-    if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
-        throw runtime_error("Can't subtract NiftImage as metadata do not match.");
-
-    NiftiImage res = this->deep_copy();
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
-        res(i) += c(i);
-    return res;
+    return maths(c, add);
 }
 
-NiftiImage NiftiImage::operator- (const NiftiImage& c) const
+NiftiImage NiftiImage::operator-(const NiftiImage& c) const
 {
-    if (!this->is_initialised())
-        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
-    if (!c.is_initialised())
-        throw runtime_error("Can't subtract NiftImage as second image is not initialised.");
-
-    if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
-        throw runtime_error("Can't subtract NiftImage as metadata do not match.");
-
-    NiftiImage res = this->deep_copy();
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
-        res(i) -= c(i);
-    return res;
+    return maths(c, sub);
 }
 
 NiftiImage NiftiImage::operator+(const float& val) const
 {
-    if (!this->is_initialised())
-        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
-
-    NiftiImage res = this->deep_copy();
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
-        res(i) += val;
-    return res;
+    return maths(val,add);
 }
 
 NiftiImage NiftiImage::operator-(const float& val) const
 {
-    if (!this->is_initialised())
-        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
-
-    NiftiImage res = this->deep_copy();
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
-        res(i) -= val;
-    return res;
+    return maths(val,sub);
 }
 
-NiftiImage NiftiImage::operator*(const float &value) const
+NiftiImage NiftiImage::operator*(const float& val) const
 {
-    if (!this->is_initialised())
-        throw runtime_error("Can't subtract NiftImage as first image is not initialised.");
-
-    NiftiImage res = this->deep_copy();
-    for (int i=0; i<int(this->_nifti_image->nvox); ++i)
-        res(i) *= value;
-    return res;
+    return maths(val,mul);
 }
 
 float NiftiImage::operator()(const int index) const
@@ -338,6 +298,41 @@ void NiftiImage::check_dimensions(const NiftiImageType image_type)
     throw std::runtime_error(ss.str());
 }
 
+NiftiImage NiftiImage::maths(const NiftiImage& c, const MathsType type) const
+{
+    if (!this->is_initialised() || !c.is_initialised())
+        throw runtime_error("NiftiImage::maths_image_image: at least one image is not initialised.");
+    if (!SIRFRegMisc::do_nifti_image_metadata_match(*this, c))
+        throw runtime_error("NiftiImage::maths_image_image: metadata do not match.");
+    if (type != add && type != sub)
+        throw runtime_error("NiftiImage::maths_image_image: only implemented for add and subtract.");
+
+    NiftiImage res = this->deep_copy();
+
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
+        if (type == add) res(i) += c(i);
+        else             res(i) -= c(i);
+    }
+
+    return res;
+}
+
+NiftiImage NiftiImage::maths(const float val, const MathsType type) const
+{
+    if (!this->is_initialised())
+        throw runtime_error("NiftiImage::maths_image_val: image is not initialised.");
+    if (type != add && type != sub && type != mul)
+        throw runtime_error("NiftiImage::maths_image_val: only implemented for add, subtract and multiply.");
+
+    NiftiImage res = this->deep_copy();
+    for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
+        if      (type == add) res(i) += val;
+        else if (type == sub) res(i) -= val;
+        else                  res(i) *= val;
+    }
+    return res;
+}
+
 void NiftiImage::change_datatype(const int datatype)
 {
     if      (datatype == DT_BINARY)   SIRFRegMisc::change_datatype<bool>(*this);
@@ -514,6 +509,14 @@ bool NiftiImage::is_in_bounds(const int index[7]) const
 bool NiftiImage::is_in_bounds(const int index) const
 {
     return (index>=0 && index<int(_nifti_image->nvox));
+}
+
+bool NiftiImage::is_same_size(const NiftiImage &im) const
+{
+    for (int i=0; i<8; ++i)
+        if (_nifti_image->dim[i] != im._nifti_image->dim[i])
+            return false;
+    return true;
 }
 
 bool NiftiImage::are_equal_to_given_accuracy(const NiftiImage &im2, const float required_accuracy_compared_to_max) const
