@@ -117,11 +117,14 @@ namespace SIRFRegMisc {
             throw std::runtime_error(ss.str());
         }
 
-        im->nbyper = sizeof(newType);
+        // Set the nbyper and swap size from the datatype
+        nifti_datatype_sizes(im->datatype, &im->nbyper, &im->swapsize);
+
+        // Copy data
         im->data = static_cast<void*>(calloc(im->nvox,sizeof(newType)));
         newType *dataPtr = static_cast<newType*>(im->data);
         for (size_t i = 0; i < im->nvox; i++)
-           dataPtr[i] = static_cast<newType>(originalArray[i]);
+           dataPtr[i] = newType(originalArray[i]);
 
         free(originalArray);
         return;
