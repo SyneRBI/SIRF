@@ -121,7 +121,8 @@ int main(int argc, char* argv[])
 
         // Deep copy
         NiftiImage d = b.deep_copy();
-        if (&d == &b)
+        std::cout << "\ndone.\n";
+        if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
             throw runtime_error("NiftiImage deep_copy failed.");
         if (b != d)
             throw runtime_error("NiftiImage deep_copy failed.");
@@ -233,7 +234,7 @@ int main(int argc, char* argv[])
 
         // Deep copy
         NiftiImage3D d = b.deep_copy();
-        if (&d == &b)
+        if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
             throw runtime_error("NiftiImage3D deep_copy failed.");
         if (d != b)
             throw runtime_error("NiftiImage3D deep_copy failed.");
@@ -294,7 +295,7 @@ int main(int argc, char* argv[])
 
         // Deep copy
         NiftiImage3DTensor d = c.deep_copy();
-        if (&d == &c)
+        if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw runtime_error("NiftiImage3DTensor deep_copy failed.");
         if (d != c)
             throw runtime_error("NiftiImage3DTensor deep_copy failed.");
@@ -381,7 +382,7 @@ int main(int argc, char* argv[])
 
         // Deep copy
         NiftiImage3DDisplacement d = c.deep_copy();
-        if (&d == &c)
+        if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
         if (d != c)
             throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
@@ -453,7 +454,7 @@ int main(int argc, char* argv[])
 
         // Deep copy
         NiftiImage3DDeformation d = c.deep_copy();
-        if (&d == &c)
+        if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
         if (d != c)
             throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
