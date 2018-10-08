@@ -48,8 +48,11 @@ public:
     /// Destructor
     virtual ~NiftiImage() {}
 
+    /// Copy constructor
+    NiftiImage(const NiftiImage& to_copy);
+
     /// Assignment
-    NiftiImage operator=(const NiftiImage& to_copy);
+    NiftiImage& operator=(const NiftiImage& to_copy);
 
     /// Filename constructor
     NiftiImage(const std::string &filename);

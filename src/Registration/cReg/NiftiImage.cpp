@@ -40,11 +40,19 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
-NiftiImage NiftiImage::operator=(const NiftiImage& to_copy)
+NiftiImage::NiftiImage(const NiftiImage& to_copy)
 {
-
     SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
     set_up_data(to_copy._original_datatype);
+}
+
+NiftiImage& NiftiImage::operator=(const NiftiImage& to_copy)
+{
+    // check for self-assignment
+    if (this != &to_copy) {
+        SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
+        set_up_data(to_copy._original_datatype);
+    }
     return *this;
 }
 
