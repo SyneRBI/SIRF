@@ -75,7 +75,7 @@ public:
     void create_from_3D_image(const NiftiImage3D &image);
 
     /// Create from CPP image
-    void create_from_cpp(const NiftiImage3DTensor &cpp, const NiftiImage3D &ref);
+    void create_from_cpp(NiftiImage3DTensor &cpp, const NiftiImage3D &ref);
 
     /// Get as deformation field
     virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;

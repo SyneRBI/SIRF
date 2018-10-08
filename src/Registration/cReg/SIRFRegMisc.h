@@ -48,8 +48,8 @@ namespace SIRFRegMisc {
     /// Open nifti image
     void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename);
 
-    /// Save nifti image
-    void save_nifti_image(const sirf::NiftiImage &image, const std::string &filename);
+    /// Save nifti image. image is not const because filename gets set during the process.
+    void save_nifti_image(sirf::NiftiImage &image, const std::string &filename);
 
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
@@ -81,7 +81,7 @@ namespace SIRFRegMisc {
 
     /// Convert type (performs deep copy)
     template<typename newType, typename oldType>
-    void change_datatype(const sirf::NiftiImage &image)
+    void change_datatype(sirf::NiftiImage &image)
     {
         // If the two types are equal, nothing to be done.
         if (typeid (newType) == typeid(oldType))

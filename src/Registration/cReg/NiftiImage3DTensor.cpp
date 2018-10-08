@@ -65,7 +65,7 @@ void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
     if (!image.is_initialised())
         throw runtime_error("NiftiImage3DTensor::create_from_3D_image. Input image not initialised.");
 
-    std::shared_ptr<nifti_image> image_sptr = image.get_raw_nifti_sptr();
+    std::shared_ptr<const nifti_image> image_sptr = image.get_raw_nifti_sptr();
 
     // Calculate deformation field image
     nifti_image *output_ptr;

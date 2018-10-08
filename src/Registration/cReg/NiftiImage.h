@@ -99,8 +99,11 @@ public:
     /// Is the image initialised? (Should unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
 
+    /// Get image as nifti as const
+    std::shared_ptr<const nifti_image> get_raw_nifti_sptr() const;
+
     /// Get image as nifti
-    std::shared_ptr<nifti_image> get_raw_nifti_sptr() const;
+    std::shared_ptr<nifti_image> get_raw_nifti_sptr();
 
     /// Save to file. Templated so the user can choose the datatype they save to. This defaults
     /// to -1, which is the original datatype of that image (stored as _original_datatype).

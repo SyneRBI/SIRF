@@ -50,49 +50,49 @@ int main(int argc, char* argv[])
         SIRF_PATH = getenv("SIRF_PATH");
     else
         SIRF_PATH = argv[1];
-    string examples_path = SIRF_PATH + "/data/examples/Registration";
-    string output_prefix   = "results/cplusplus_";
+    const string examples_path = SIRF_PATH + "/data/examples/Registration";
+    const string output_prefix   = "results/cplusplus_";
 
     // Input filenames
-    string ref_aladin_filename      = examples_path + "/test.nii.gz";
-    string flo_aladin_filename      = examples_path + "/test2.nii.gz";
-    string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
-    string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
-    string parameter_file_aladin    = examples_path + "/paramFiles/niftyreg_aladin.par";
-    string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
+    const string ref_aladin_filename      = examples_path + "/test.nii.gz";
+    const string flo_aladin_filename      = examples_path + "/test2.nii.gz";
+    const string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
+    const string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
+    const string parameter_file_aladin    = examples_path + "/paramFiles/niftyreg_aladin.par";
+    const string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
 
     // Output filenames
-    string save_nifti_image                           = output_prefix   + "save_NiftiImage.nii";
-    string save_nifti_image_3d                        = output_prefix   + "save_NiftiImage3D.nii";
-    string save_nifti_image_3d_tensor_not_split       = output_prefix   + "save_NiftiImage3DTensor_not_split.nii";
-    string save_nifti_image_3d_tensor_split           = output_prefix   + "save_NiftiImage3DTensor_split_%s.nii";
-    string save_nifti_image_3d_deformation_not_split  = output_prefix   + "save_NiftiImage3DDeformation_not_split.nii";
-    string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImage3DDeformation_split_%s.nii";
-    string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImage3DDisplacement_not_split.nii";
-    string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
-    string aladin_warped            = output_prefix   + "aladin_warped.nii";
-    string f3d_warped               = output_prefix   + "f3d_warped.nii";
-    string TM_fwrd                  = output_prefix   + "TM_fwrd.txt";
-    string TM_back                  = output_prefix   + "TM_back.txt";
-    string aladin_def_fwrd          = output_prefix   + "aladin_def_fwrd.nii";
-    string aladin_def_back          = output_prefix   + "aladin_def_back_%s.nii";
-    string aladin_disp_fwrd         = output_prefix   + "aladin_disp_fwrd.nii";
-    string aladin_disp_back         = output_prefix   + "aladin_disp_back_%s.nii";
-    string f3d_disp_fwrd            = output_prefix   + "f3d_disp_fwrd.nii";
-    string f3d_disp_back            = output_prefix   + "f3d_disp_back_%s.nii";
-    string f3d_def_fwrd             = output_prefix   + "f3d_def_fwrd.nii";
-    string f3d_def_back             = output_prefix   + "f3d_def_back_%s.nii";
-    string rigid_resample           = output_prefix   + "rigid_resample.nii";
-    string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
-    string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
-    string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
-    string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
-    string output_float             = output_prefix   + "reg_aladin_float.nii";
+    const string save_nifti_image                           = output_prefix   + "save_NiftiImage.nii";
+    const string save_nifti_image_3d                        = output_prefix   + "save_NiftiImage3D.nii";
+    const string save_nifti_image_3d_tensor_not_split       = output_prefix   + "save_NiftiImage3DTensor_not_split.nii";
+    const string save_nifti_image_3d_tensor_split           = output_prefix   + "save_NiftiImage3DTensor_split_%s.nii";
+    const string save_nifti_image_3d_deformation_not_split  = output_prefix   + "save_NiftiImage3DDeformation_not_split.nii";
+    const string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImage3DDeformation_split_%s.nii";
+    const string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImage3DDisplacement_not_split.nii";
+    const string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
+    const string aladin_warped            = output_prefix   + "aladin_warped.nii";
+    const string f3d_warped               = output_prefix   + "f3d_warped.nii";
+    const string TM_fwrd                  = output_prefix   + "TM_fwrd.txt";
+    const string TM_back                  = output_prefix   + "TM_back.txt";
+    const string aladin_def_fwrd          = output_prefix   + "aladin_def_fwrd.nii";
+    const string aladin_def_back          = output_prefix   + "aladin_def_back_%s.nii";
+    const string aladin_disp_fwrd         = output_prefix   + "aladin_disp_fwrd.nii";
+    const string aladin_disp_back         = output_prefix   + "aladin_disp_back_%s.nii";
+    const string f3d_disp_fwrd            = output_prefix   + "f3d_disp_fwrd.nii";
+    const string f3d_disp_back            = output_prefix   + "f3d_disp_back_%s.nii";
+    const string f3d_def_fwrd             = output_prefix   + "f3d_def_fwrd.nii";
+    const string f3d_def_back             = output_prefix   + "f3d_def_back_%s.nii";
+    const string rigid_resample           = output_prefix   + "rigid_resample.nii";
+    const string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
+    const string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
+    const string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
+    const string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
+    const string output_float             = output_prefix   + "reg_aladin_float.nii";
 
-    NiftiImage3D ref_aladin( ref_aladin_filename );
-    NiftiImage3D flo_aladin( flo_aladin_filename );
-    NiftiImage3D ref_f3d   (   ref_f3d_filename  );
-    NiftiImage3D flo_f3d   (   flo_f3d_filename  );
+    const NiftiImage3D ref_aladin( ref_aladin_filename );
+    const NiftiImage3D flo_aladin( flo_aladin_filename );
+    const NiftiImage3D ref_f3d   (   ref_f3d_filename  );
+    const NiftiImage3D flo_f3d   (   flo_f3d_filename  );
 
     {
         cout << "// ----------------------------------------------------------------------- //\n";

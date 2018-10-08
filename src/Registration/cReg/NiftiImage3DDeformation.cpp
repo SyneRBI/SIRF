@@ -53,7 +53,7 @@ void NiftiImage3DDeformation::create_from_3D_image(const NiftiImage3D &image)
     //_nifti_image->intent_p1 = 0; not necessary. 0 by default
 }
 
-void NiftiImage3DDeformation::create_from_cpp(const NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
+void NiftiImage3DDeformation::create_from_cpp(NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
 {
     this->create_from_3D_image(ref);
 

@@ -96,8 +96,8 @@ void SIRFRegNiftyResample::set_up_output_image()
 {
     _output_image = _reference_image;
 
-    nifti_image *output_ptr   = _output_image.get_raw_nifti_sptr().get();
-    nifti_image *floating_ptr = _floating_image.get_raw_nifti_sptr().get();
+    const nifti_image *floating_ptr = _floating_image.get_raw_nifti_sptr().get();
+    nifti_image       *output_ptr   = _output_image.get_raw_nifti_sptr().get();
 
     output_ptr->cal_min                   = floating_ptr->cal_min;
     output_ptr->cal_max                   = floating_ptr->cal_max;

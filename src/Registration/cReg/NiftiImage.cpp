@@ -140,7 +140,14 @@ float &NiftiImage::operator()(const int index[7])
     return _data[index_1d];
 }
 
-std::shared_ptr<nifti_image> NiftiImage::get_raw_nifti_sptr() const
+std::shared_ptr<const nifti_image> NiftiImage::get_raw_nifti_sptr() const
+{
+    if (!_nifti_image)
+        throw runtime_error("Warning, nifti has not been initialised.");
+    return _nifti_image;
+}
+
+std::shared_ptr<nifti_image> NiftiImage::get_raw_nifti_sptr()
 {
     if (!_nifti_image)
         throw runtime_error("Warning, nifti has not been initialised.");

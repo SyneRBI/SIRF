@@ -73,7 +73,7 @@ void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::p
 }
 
 /// Save nifti image
-void save_nifti_image(const NiftiImage &image, const string &filename)
+void save_nifti_image(NiftiImage &image, const string &filename)
 {
     if (!image.is_initialised())
         throw runtime_error("Cannot save image to file.");
@@ -132,8 +132,8 @@ bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
     cout << "\nChecking if metadata of two images match..." << flush;
 #endif
 
-    const shared_ptr<nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
-    const shared_ptr<nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
+    shared_ptr<const nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
+    shared_ptr<const nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
 
     bool images_match =
             do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient) &&
@@ -284,7 +284,7 @@ void dump_headers(const vector<NiftiImage> &ims)
     dump_nifti_element(ims, "dim",               &nifti_image::dim,    8);
     dump_nifti_element(ims, "pixdim",            &nifti_image::pixdim, 8);
 
-    vector<shared_ptr<nifti_image> > images;
+    vector<shared_ptr<const nifti_image> > images;
     for(unsigned i=0;i<ims.size();i++)
         images.push_back(ims[i].get_raw_nifti_sptr());
 
