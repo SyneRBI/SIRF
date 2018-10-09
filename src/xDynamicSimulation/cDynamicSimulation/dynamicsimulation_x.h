@@ -150,6 +150,7 @@ private:
 	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
 
 	PETContrastGenerator pet_cont_gen_;
+	
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;
 
 	sirf::PETAcquisitionDataInFile source_acquisitions_;

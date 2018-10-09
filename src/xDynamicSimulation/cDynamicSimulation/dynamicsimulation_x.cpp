@@ -451,7 +451,7 @@ void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETContrastDynamic> sptr
 
 void PETDynamicSimulation::simulate_statics()
 {
-	this->pet_cont_gen_.map_contrast();
+	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
 }
@@ -459,7 +459,7 @@ void PETDynamicSimulation::simulate_statics()
 
 void PETDynamicSimulation::simulate_dynamics()
 {
-	this->pet_cont_gen_.map_contrast();
+	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
 }
@@ -474,39 +474,33 @@ void PETDynamicSimulation::set_template_acquisition_data(void)
 void PETDynamicSimulation::acquire_raw_data( void )
 {
 	std::vector< sirf::PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
-	size_t num_contrast = contrast_filled_volumes.size();
-
-	if( num_contrast != 1)
-		throw std::runtime_error("Please give only one contrast for the time being."); // POSSIBLY REMOVE LATER!
-
+	
 	auto dims = pet_cont_gen_.get_dimensions();
 	auto vxsizes = pet_cont_gen_.get_voxel_sizes();
 
-	for( size_t i_vol=0; i_vol<num_contrast; i_vol++)
-	{
+	sirf::PETImageData curr_img = contrast_filled_volumes[0];
+	sirf::PETImageData attenaution_map = contrast_filled_volumes[1];
+	sirf::PETImageData template_img(curr_img);
 
-		sirf::PETImageData curr_img = contrast_filled_volumes[i_vol];
-		sirf::PETImageData template_img(curr_img);
+	sirf::Image3DF& image = curr_img.data();
+	stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
+	stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
 
-		// sirf::Image3DF& image = curr_img.data();
-		// stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
-		// stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
+	format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
+	cout << "Finished Writing image in memory" << endl;
+	
+	stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new sirf::RayTracingMatrix() );
 
-		// format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
-		// cout << "Finished Writing image in memory" << endl;
+	this->acq_model_.set_matrix( sptr_ray_matrix );		
+
+	auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
+	 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
+
+	if( succeeded == stir::Succeeded::no )
+		throw std::runtime_error("Setup of acquisition model failed");
+
 		
-		stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new sirf::RayTracingMatrix() );
+	this->target_acquisitions_ = this->acq_model_.forward(curr_img);
 
-		this->acq_model_.set_matrix( sptr_ray_matrix );		
-
-		auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
-		 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
-
-		if( succeeded == stir::Succeeded::no )
-			throw std::runtime_error("Setup of acquisition model failed");
-
-			
-		this->target_acquisitions_ = this->acq_model_.forward(curr_img);
-
-	 }
+	
 }
