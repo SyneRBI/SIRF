@@ -293,6 +293,11 @@ std::vector< float > PETContrastGenerator::get_voxel_sizes( void )
 	}
 }
 
+void PETContrastGenerator::map_tissue()
+{
+	this->map_contrast();
+	this->map_attenuation();
+}
 
 void PETContrastGenerator::map_contrast()
 {
