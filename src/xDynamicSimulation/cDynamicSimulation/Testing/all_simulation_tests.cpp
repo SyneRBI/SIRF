@@ -255,15 +255,15 @@ void run_tests_contrastgenerator(void)
 
 	// test_contgen::test_match_output_dims_to_headerinfo();
 	// test_contgen::test_mr_map_contrast_application_to_xcat();
-	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
+	// test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 
 	// // pet contgen tests
-	// tests_successful *=	test_contgen::test_pet_constructor();
-	// tests_successful *= test_contgen::test_pet_map_contrast();
-	// tests_successful *= test_contgen::test_pet_map_attenuation(); 
-	// tests_successful *= test_contgen::test_set_template_image_from_file();
+	tests_successful *=	test_contgen::test_pet_constructor();
+	tests_successful *= test_contgen::test_pet_map_contrast();
+	tests_successful *= test_contgen::test_pet_map_attenuation(); 
+	tests_successful *= test_contgen::test_set_template_image_from_file();
 
-	// test_contgen::test_pet_map_contrast_application_to_xcat();
+	test_contgen::test_pet_map_contrast_application_to_xcat();
 
 
 	if ( !tests_successful )
