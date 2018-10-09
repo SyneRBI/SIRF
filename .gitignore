@@ -264,12 +264,3 @@ output.txt
 coverage.xml
 
 *_out.txt
-\.idea/misc\.xml
-
-\.idea/modules\.xml
-
-\.idea/Source\.iml
-
-\.idea/vcs\.xml
-
-\.idea/workspace\.xml
