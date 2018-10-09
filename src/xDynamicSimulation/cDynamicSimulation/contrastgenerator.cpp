@@ -347,12 +347,10 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
 		}
 	
-		contrast_img = this->get_template_based_volume_subset(contrast_img, data_dims);
+		PETImageData pet_img_dat( template_pet_image_data_ );
+		pet_img_dat.set_data( &contrast_img[0] );
 
-		PETImageData contrast_img_right_dims(template_pet_image_data_);
-		contrast_img_right_dims.set_data(&contrast_img[0]);
-
-		this->contrast_filled_volumes_.push_back( contrast_img_right_dims );
+		this->contrast_filled_volumes_.push_back( pet_img_dat );
 	}
 	else
 		throw std::runtime_error("To get dimensions of output correct please set image from file as template first using the dedicated method.");

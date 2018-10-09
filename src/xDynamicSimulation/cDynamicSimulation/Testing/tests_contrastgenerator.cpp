@@ -325,7 +325,7 @@ bool test_contgen::test_pet_map_contrast( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (label_arr, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 		pet_contgen.map_contrast();
 
@@ -349,7 +349,7 @@ bool test_contgen::test_pet_map_attenuation( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 		pet_contgen.map_attenuation();
 
@@ -371,7 +371,7 @@ bool test_contgen::test_set_template_image_from_file( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 
 		auto voxel_sizes = pet_contgen.get_voxel_sizes();
@@ -403,7 +403,7 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 		LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (segmentation_labels, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 		pet_contgen.map_contrast();
 		auto volume_container = pet_contgen.get_contrast_filled_volumes();
