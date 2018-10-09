@@ -532,9 +532,9 @@ TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& ot
 	return intersect_intervals<TimeAxisType>(one_interval, other_interval);
 }
 
-SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBins& other_set)
+TimeBinSet intersect_set_time_bins( const TimeBinSet& one_set, const TimeBinSet& other_set)
 {
-	SetTimeBins intersected_set;
+	TimeBinSet intersected_set;
 	for(size_t i=0; i<one_set.size();i++ )
 	for(size_t j=0; j<other_set.size();j++ )
 	{
@@ -546,7 +546,7 @@ SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBi
 }
 
 
-TimeAxisType get_total_time_in_set(SetTimeBins& set_of_bins )
+TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
 {
 	TimeAxisType t=0;
 	for(size_t i_bin=0; i_bin<set_of_bins.size(); i_bin++)	
@@ -570,25 +570,17 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 	TimeAxisType leftmost_left_edge = std::min<TimeAxisType>( time_interval_total_dynamic_process.min_, dyn_signal_[0].first );
 	TimeAxisType rightmost_right_edge = std::max<TimeAxisType>( time_interval_total_dynamic_process.max_,  dyn_signal_[num_signal_supports-1].first );
 
-	SetTimeBins temp_set;
+	TimeBinSet temp_set;
 	temp_set.push_back(time_interval_total_dynamic_process);
-
-
-	std::cout << "LLE = " << leftmost_left_edge <<std::endl;
-	std::cout << "RRE = " << rightmost_right_edge <<std::endl;
 
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
-		std::cout << "BIN #: " << i_bin <<std::endl;
 		SignalBin bin = this->signal_bins_[i_bin];
 
 		auto bin_min = std::get<0>(bin);
 		auto bin_max = std::get<2>(bin);
 
-		std::cout << "bin_min= "<< bin_min <<std::endl;
-		std::cout << "bin_max= "<< bin_max <<std::endl;
-	
-		SetTimeBins time_intervals_for_bin;
+		TimeBinSet time_intervals_for_bin;
 
 		std::vector< TimeAxisType > left_bin_edges, right_bin_edges;
 
@@ -636,12 +628,6 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 		}
 		std::sort( left_bin_edges.begin(), left_bin_edges.end() );
 		std::sort( right_bin_edges.begin(), right_bin_edges.end() );
-
-		for(size_t i=0; i<left_bin_edges.size(); i++)
-			std::cout << "LBE " << i << " " << left_bin_edges[i] <<std::endl;
-
-		for(size_t i=0; i<right_bin_edges.size(); i++)
-			std::cout << "RBE " << i << " " << right_bin_edges[i] <<std::endl;
 
 		size_t const num_left_edges = left_bin_edges.size();
 		size_t const num_right_edges = right_bin_edges.size();

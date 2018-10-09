@@ -218,12 +218,12 @@ Interval<T> intersect_intervals(const Interval<T>& one_interval, const Interval<
 }
 
 typedef Interval<TimeAxisType> TimeBin;
-typedef std::vector< TimeBin > SetTimeBins;
+typedef std::vector< TimeBin > TimeBinSet;
 
 
 TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval);
-SetTimeBins intersect_set_time_bins( const SetTimeBins& one_set, const SetTimeBins& other_set);
-TimeAxisType get_total_time_in_set( SetTimeBins& set_of_bins );
+TimeBinSet intersect_set_time_bins( const TimeBinSet& one_set, const TimeBinSet& other_set);
+TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
 
@@ -240,7 +240,7 @@ public:
 
 protected:
 
-	std::vector< SetTimeBins > binned_time_intervals_;
+	std::vector< TimeBinSet > binned_time_intervals_;
 
 };
 
@@ -248,13 +248,13 @@ protected:
 class PETMotionDynamic: public aPETDynamic, public MotionDynamic{
 
 public:
-	PETMotionDynamic():aMRDynamic(), MotionDynamic() {};
-	PETMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+	PETMotionDynamic():aPETDynamic(), MotionDynamic() {};
+	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 };
 
 class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {
 
 public:
-	PETContrastDynamic():aMRDynamic(), ContrastDynamic() {};
+	PETContrastDynamic():aPETDynamic(), ContrastDynamic() {};
 	PETContrastDynamic(int const num_simul_states): aPETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 };
