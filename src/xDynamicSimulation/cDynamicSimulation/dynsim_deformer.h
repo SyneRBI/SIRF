@@ -19,17 +19,16 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "auxiliary_input_output.h" // this header (rather the Gadgetron Base IO including Nifti) must not be included after the SIRFImageData.h headers. DONT put it into the cpp!
 
 #include "SIRFImageDataDeformation.h"
-
+#include "stir_data_containers.h"
 
 class DynamicSimulationDeformer
 {
 
 public:
 
-	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, SIRFImageDataDeformation& displacement_field);
+	
 	static void deform_contrast_generator(MRContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields);
 
-	static void deform_contrast_generator(PETContrastGenerator& pet_cont_gen,  SIRFImageDataDeformation& displacement_field);
 	static void deform_contrast_generator(PETContrastGenerator& pet_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields);
 
 
@@ -41,8 +40,8 @@ protected:
 	static const std::string temp_folder_name_;
 
 	static void deform_ismrmrd_image(ISMRMRD::Image< float >& img, std::vector<SIRFImageDataDeformation> &vec_displacement_fields);
-
-
+	static void deform_pet_image( sirf::PETImageData& img, std::vector<SIRFImageDataDeformation> &vec_displacement_fields);
+	
 	static ISMRMRD::Image< float > extract_complex_subpart( ISMRMRD::Image< complex_float_t >& img, bool const extract_real_part );
 
 };
