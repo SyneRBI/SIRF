@@ -146,7 +146,7 @@ PETContrastGenerator aux_test::get_mock_pet_contrast_generator( void )
 	LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 	PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
-	pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+	pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 	return pet_cont_gen;
 }

@@ -56,7 +56,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 
-#define PET_TEMPLATE_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input.hv"
+#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input_contgen.hv"
+#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_image_input_acquisition.hv"
+
 #define PET_TEMPLATE_ACQUISITION_DATA_PATH SHARED_FOLDER_PATH "pet_source_files/template_acquisition_input.hs"
 
 
