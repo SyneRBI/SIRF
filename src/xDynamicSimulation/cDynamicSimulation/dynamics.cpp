@@ -532,7 +532,7 @@ TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& ot
 	return intersect_intervals<TimeAxisType>(one_interval, other_interval);
 }
 
-TimeBinSet intersect_set_time_bins( const TimeBinSet& one_set, const TimeBinSet& other_set)
+TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set)
 {
 	TimeBinSet intersected_set;
 	for(size_t i=0; i<one_set.size();i++ )
@@ -685,7 +685,7 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 			time_intervals_for_bin.push_back(leftmost_bin);
 
 		}
-		time_intervals_for_bin = intersect_set_time_bins(time_intervals_for_bin, temp_set);	
+		time_intervals_for_bin = intersect_time_bin_sets(time_intervals_for_bin, temp_set);	
 		this->binned_time_intervals_.push_back(time_intervals_for_bin);
 	}
 
@@ -700,7 +700,14 @@ TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, Sign
 		return (signal-left_point.second) * (right_point.first - left_point.first) / (right_point.second - left_point.second) + left_point.first;
 }
 
+TimeBinSet aPETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
+{
+	if(which_state >= binned_time_intervals_.size())
+		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
 
+
+	return this->binned_time_intervals_[which_state];	
+}
 
 TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 {

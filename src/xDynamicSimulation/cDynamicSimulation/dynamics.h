@@ -222,7 +222,7 @@ typedef std::vector< TimeBin > TimeBinSet;
 
 
 TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval);
-TimeBinSet intersect_set_time_bins( const TimeBinSet& one_set, const TimeBinSet& other_set);
+TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set);
 TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
 TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
 
@@ -236,6 +236,7 @@ public:
 
 	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
 
+	TimeBinSet get_time_bin_set_for_state(unsigned int const which_state);
 	TimeAxisType get_time_spent_in_bin(unsigned int const which_state );
 
 protected:
