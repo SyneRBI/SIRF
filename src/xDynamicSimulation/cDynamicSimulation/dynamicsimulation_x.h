@@ -132,21 +132,28 @@ public:
 	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ):aDynamicSimulation(), pet_cont_gen_(pet_cont_gen){};
 		
 	void simulate_statics( void );
+	
 	void simulate_dynamics( void );
+	void simulate_dynamics( size_t const total_scan_time );
 
 	void set_template_acquisition_data( void );
 	void set_template_image_data( std::string const filename_header_with_ext );
 
-	virtual void acquire_raw_data( void );
-
-	void write_simulation_results( std::string const filename_output_with_extension );
+	void set_output_filename_prefix( const std::string& output_filename_prefix_);
 
 	void add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn);
 	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn); 
 
+	virtual void acquire_raw_data( void );
+	void add_noise( void );
+	void write_simulation_results( std::string const filename_output_with_extension );
+
 private:
 
-	
+
+	std::string output_filename_prefix_;
+
+	void simulate_motion_dynamics(size_t const total_scan_time );	
 
 	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;

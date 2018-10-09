@@ -455,16 +455,102 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
-	this->noise_generator_.add_noise( *target_acquisitions_, *target_acquisitions_ );
+	this->add_noise();
+	
 
 }
-		
 
-void PETDynamicSimulation::simulate_dynamics()
+void PETDynamicSimulation::add_noise( void )
 {
+	this->noise_generator_.add_noise( *target_acquisitions_, *target_acquisitions_ );
+}	
+
+void PETDynamicSimulation::simulate_dynamics( void )
+{
+	throw std::runtime_error( "Please give an acquisition time to simulate pet dynamics." );
+}
+
+void PETDynamicSimulation::simulate_dynamics( size_t const total_scan_time )
+{
+	if( motion_dynamics_.size() > 0)
+		this->simulate_motion_dynamics( total_scan_time );		
+	else
+		throw std::runtime_error( "Please only use motion dynamics with PET for the moment." );
+}
+
+void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time )
+{
+	cout << "Simulating PET motion dynamics... " <<endl;
+
+	TimeBin total_time( 0, total_scan_time );
+	TimeBinSet tot_time_interval{total_time};
+
 	this->pet_cont_gen_.map_tissue();
-	this->set_template_acquisition_data();
-	this->acquire_raw_data();
+
+	size_t const num_motion_dynamics = this->motion_dynamics_.size();
+
+	std::vector< int > all_num_dyn_states;
+	for(size_t i=0; i<num_motion_dynamics; i++)
+	{	
+		cout << motion_dynamics_[i]->get_num_simul_states() <<endl;
+		all_num_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
+		motion_dynamics_[i]->prep_displacements_fields();
+	}
+
+	LinearCombiGenerator lcg(all_num_dyn_states);
+	
+	size_t const num_total_dyn_states = lcg.get_num_total_combinations();
+	std::vector< DimensionsType >  all_dyn_state_combos = lcg.get_all_combinations();
+	
+	std::stringstream output_name_stream;
+	output_name_stream << this->output_filename_prefix_;
+
+	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
+	{
+		cout << "Acquisition motion state #" << i_dyn_state+1 << "/" << num_total_dyn_states << endl;
+
+		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
+
+		TimeBinSet acquisition_time_bins_for_this_state = tot_time_interval;
+		for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
+		{
+			output_name_stream << "_dynamic_" << i_motion_dyn << "_state_" << current_combination[i_motion_dyn];	
+
+			auto sptr_motion_dyn = this->motion_dynamics_[i_motion_dyn];
+							
+			TimeBinSet acquisition_times_in_bin = sptr_motion_dyn->get_time_bin_set_for_state( current_combination[i_motion_dyn] );
+			acquisition_time_bins_for_this_state = intersect_time_bin_sets(acquisition_time_bins_for_this_state, acquisition_times_in_bin);
+
+		}
+
+		TimeAxisType time_in_dynamic_state = get_total_time_in_set(acquisition_time_bins_for_this_state);
+		cout << "time spent in this motion state: " << time_in_dynamic_state << endl;
+
+
+		if( time_in_dynamic_state > 0)
+		{
+			std::vector<SIRFImageDataDeformation> all_motion_fields;
+			
+			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
+			{
+				cout << i_motion_dyn << endl;
+
+				auto sptr_motion_dyn = this->motion_dynamics_[i_motion_dyn];
+				std::vector< SignalBin > signal_bins = sptr_motion_dyn->get_bins();
+
+				SignalBin bin = signal_bins[ current_combination[i_motion_dyn] ];	
+
+				all_motion_fields.push_back( sptr_motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
+
+			}
+
+			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
+			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
+			this->acquire_raw_data();	
+			output_name_stream << ".hs";
+			this->write_simulation_results( output_name_stream.str() );
+		}
+	}
 }
 		
 
@@ -478,6 +564,10 @@ void PETDynamicSimulation::set_template_image_data( std::string const filename_h
 	this->template_image_data_ = PETImageData(filename_header_with_ext);
 }
 
+void PETDynamicSimulation::set_output_filename_prefix( const std::string& output_filename_prefix)
+{
+	this->output_filename_prefix_ = output_filename_prefix;
+}
 
 void PETDynamicSimulation::acquire_raw_data( void )
 {
@@ -504,8 +594,8 @@ void PETDynamicSimulation::acquire_raw_data( void )
 
 	this->acq_model_.set_matrix( sptr_ray_matrix );		
 
-	PETAttenuationModel att_mod(attenuation_map, this->acq_model_);
-	this->acq_model_.set_asm( std::make_shared<PETAttenuationModel>(att_mod)); 
+	// PETAttenuationModel att_mod(attenuation_map, this->acq_model_);
+	// this->acq_model_.set_asm( std::make_shared<PETAttenuationModel>(att_mod)); 
 
 	auto succeeded = this->acq_model_.set_up( stir::shared_ptr<PETAcquisitionDataInFile>(new PETAcquisitionDataInFile(source_acquisitions_)),
 	 			       stir::shared_ptr<PETImageData>(new PETImageData(template_img) ) );	
@@ -513,7 +603,6 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	if( succeeded == stir::Succeeded::no )
 		throw std::runtime_error("Setup of acquisition model failed");
 
-	
 
 	this->target_acquisitions_ = this->acq_model_.forward(activity_img);
 
