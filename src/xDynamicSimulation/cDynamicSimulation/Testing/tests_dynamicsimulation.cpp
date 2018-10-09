@@ -530,7 +530,7 @@ bool test_pet_dynsim::set_template_acquisition_data()
 }
 
 
-bool test_pet_dynsim::test_simulate_dynamics()
+bool test_pet_dynsim::test_simulate_statics()
 {
 
 	try
@@ -541,7 +541,7 @@ bool test_pet_dynsim::test_simulate_dynamics()
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		
-		pet_dyn_sim.simulate_dynamics();
+		pet_dyn_sim.simulate_statics();
 		
 		pet_dyn_sim.write_simulation_results(FILENAME_DYNSIM_PET);
 

@@ -131,17 +131,23 @@ class PETDynamicSimulation : public aDynamicSimulation{
 public:
 	PETDynamicSimulation( PETContrastGenerator pet_cont_gen ):aDynamicSimulation(), pet_cont_gen_(pet_cont_gen){};
 		
+	void simulate_statics( void );
 	void simulate_dynamics( void );
 
 	void set_template_acquisition_data( void );
+
 
 	virtual void acquire_raw_data( void );
 
 	void write_simulation_results( std::string const filename_output_with_extension );
 
-	
+	void add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn);
+	void add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn); 
 
 private:
+
+	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
+	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
 
 	PETContrastGenerator pet_cont_gen_;
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;

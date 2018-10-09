@@ -78,7 +78,7 @@ void run_tests_dynamics( void )
 	// tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
 
 	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
-	
+
 	tests_successful *= test_dynamic::test_bin_pet_time_interval();
 
 
@@ -105,7 +105,7 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= tests_mr_dynsim::test_constructor();
 	// tests_mr_dynsim::test_extract_hdr_information();
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
-	tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
+	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
 	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
 	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
@@ -113,7 +113,7 @@ void run_tests_dynamic_simulation( void )
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	// tests_successful *= test_pet_dynsim::test_simulate_dynamics();
+	tests_successful *= test_pet_dynsim::test_simulate_statics();
 
 	if ( !tests_successful )
 	{

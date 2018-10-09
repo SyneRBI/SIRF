@@ -438,8 +438,24 @@ void PETDynamicSimulation::write_simulation_results( std::string const filename_
 	this->target_acquisitions_->write( filename_output_with_extension.c_str() );
 }
 
+void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn)
+{
+	this->motion_dynamics_.push_back( sptr_motion_dyn );
+
+}
+void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETContrastDynamic> sptr_contrast_dyn)
+{
+	this->contrast_dynamics_.push_back( sptr_contrast_dyn );
+} 
 
 
+void PETDynamicSimulation::simulate_statics()
+{
+	this->pet_cont_gen_.map_contrast();
+	this->set_template_acquisition_data();
+	this->acquire_raw_data();
+}
+		
 
 void PETDynamicSimulation::simulate_dynamics()
 {
@@ -448,6 +464,7 @@ void PETDynamicSimulation::simulate_dynamics()
 	this->acquire_raw_data();
 }
 		
+
 void PETDynamicSimulation::set_template_acquisition_data(void)
 {
 	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
