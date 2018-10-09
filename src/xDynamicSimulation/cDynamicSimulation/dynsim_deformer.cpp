@@ -137,3 +137,9 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 		*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
 
 }
+
+
+void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields)
+{
+
+}
