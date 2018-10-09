@@ -135,7 +135,7 @@ public:
 	void simulate_dynamics( void );
 
 	void set_template_acquisition_data( void );
-
+	void set_template_image_data( std::string const filename_header_with_ext );
 
 	virtual void acquire_raw_data( void );
 
@@ -146,11 +146,14 @@ public:
 
 private:
 
+	sirf::PETImageData get_reduced_pet_img_in_template_format( const sirf::PETImageData& full_size_img );
+
 	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
 
 	PETContrastGenerator pet_cont_gen_;
-	
+	sirf::PETImageData template_image_data_;
+
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;
 
 	sirf::PETAcquisitionDataInFile source_acquisitions_;

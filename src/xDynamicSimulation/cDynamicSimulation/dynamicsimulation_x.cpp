@@ -454,6 +454,8 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
+
+	target_acquisitions_
 }
 		
 
@@ -470,19 +472,25 @@ void PETDynamicSimulation::set_template_acquisition_data(void)
 	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
 }
 
+void PETDynamicSimulation::set_template_image_data( std::string const filename_header_with_ext )
+{
+	this->template_image_data_ = sirf::PETImageData(filename_header_with_ext);
+}
+
 
 void PETDynamicSimulation::acquire_raw_data( void )
 {
 	std::vector< sirf::PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
-	
-	auto dims = pet_cont_gen_.get_dimensions();
-	auto vxsizes = pet_cont_gen_.get_voxel_sizes();
 
-	sirf::PETImageData curr_img = contrast_filled_volumes[0];
+	sirf::PETImageData activity_img = contrast_filled_volumes[0];
 	sirf::PETImageData attenaution_map = contrast_filled_volumes[1];
-	sirf::PETImageData template_img(curr_img);
 
-	sirf::Image3DF& image = curr_img.data();
+	activity_img = this->get_reduced_pet_img_in_template_format( activity_img );	
+	attenaution_map = this->get_reduced_pet_img_in_template_format( attenaution_map );	
+
+	sirf::PETImageData template_img(activity_img);
+
+	sirf::Image3DF& image = activity_img.data();
 	stir::shared_ptr< stir::OutputFileFormat<sirf::Image3DF >> format_sptr =
 	stir::OutputFileFormat<sirf::Image3DF>::default_sptr();
 
@@ -500,7 +508,64 @@ void PETDynamicSimulation::acquire_raw_data( void )
 		throw std::runtime_error("Setup of acquisition model failed");
 
 		
-	this->target_acquisitions_ = this->acq_model_.forward(curr_img);
+	this->target_acquisitions_ = this->acq_model_.forward(activity_img);
 
 	
+}
+
+sirf::PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const sirf::PETImageData& full_size_img)
+{
+	std::vector< int > input_dims;
+	input_dims.resize(3,0);
+	full_size_img.get_dimensions(&input_dims[0]);
+
+	size_t Nz = input_dims[2];
+	size_t Ny = input_dims[1];
+	size_t Nx = input_dims[0];
+	
+	size_t const num_voxels = Nx*Ny*Nz;
+
+  	std::vector < float > vol_data;
+  	vol_data.resize(num_voxels, 0);
+  	full_size_img.get_data(&vol_data[0]);
+
+
+	std::vector< int > template_dims;
+	template_dims.resize(3,0);
+
+	auto works = this->template_image_data_.get_dimensions(&template_dims[0]);
+
+	if(works == -1)
+		throw std::runtime_error("Irregular range of dimensions in PET image data.");
+
+	std::reverse( template_dims.begin(), template_dims.end() );
+
+	std::vector< float > reduced_data;
+	reduced_data.resize(template_dims[0]*template_dims[1]*template_dims[2],0);
+
+	std::vector< size_t > offsets;
+	for(int i = 0; i<3; i++)
+	{
+		if(input_dims[i] >= template_dims[i])
+			offsets.push_back(input_dims[i]/2 - template_dims[i]/2);
+		else
+			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
+	}
+
+	for(size_t nz = 0; nz<template_dims[2]; nz++)
+	for(size_t ny = 0; ny<template_dims[1]; ny++)
+	for(size_t nx = 0; nx<template_dims[0]; nx++)
+	{
+		
+		size_t const linear_index_vol_data = ( (nz+offsets[2]) * input_dims[1] + (ny+offsets[1]) ) * input_dims[0] + (nx+offsets[0]);
+		size_t const linear_index_subset = (nz*template_dims[1] + ny)*template_dims[0] + nx;
+		
+		reduced_data[linear_index_subset] = vol_data[linear_index_vol_data];
+	}	
+
+	PETImageData out( this-> template_image_data_ );
+	out.set_data(&reduced_data[0]);
+
+	return out;
+
 }
