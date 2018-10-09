@@ -179,7 +179,7 @@ public:
 };
 
 
-
+// PET Dynamics and auxiliary methods
 
 template <typename T>
 struct Interval{
@@ -242,4 +242,19 @@ protected:
 
 	std::vector< SetTimeBins > binned_time_intervals_;
 
+};
+
+
+class PETMotionDynamic: public aPETDynamic, public MotionDynamic{
+
+public:
+	PETMotionDynamic():aMRDynamic(), MotionDynamic() {};
+	PETMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+};
+
+class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {
+
+public:
+	PETContrastDynamic():aMRDynamic(), ContrastDynamic() {};
+	PETContrastDynamic(int const num_simul_states): aPETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 };
