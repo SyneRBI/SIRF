@@ -146,10 +146,14 @@ public:
 
 private:
 
-	sirf::PETImageData get_reduced_pet_img_in_template_format( const sirf::PETImageData& full_size_img );
+	
 
 	std::vector< std::shared_ptr<PETMotionDynamic> > motion_dynamics_;
 	std::vector< std::shared_ptr<PETContrastDynamic> > contrast_dynamics_;
+
+	PoissonNoiseGenerator noise_generator_;
+
+	sirf::PETImageData get_reduced_pet_img_in_template_format( const sirf::PETImageData& full_size_img );
 
 	PETContrastGenerator pet_cont_gen_;
 	sirf::PETImageData template_image_data_;
