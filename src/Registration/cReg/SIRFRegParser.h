@@ -51,7 +51,7 @@ public:
     void set_filename(boost::filesystem::path filename) { _filename = filename; }
 
     /// Add key with 0 arguments
-    void add_key(const std::string keyword, void (Z::*function)())
+    void add_key(const std::string &keyword, void (Z::*function)())
     {
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
@@ -66,7 +66,7 @@ public:
 
     /// Add key with 1 argument - we need to template Y in case Z is the derived class and Y is a parent class
     template<class Y, class A>
-    void add_key(const std::string keyword, void (Y::*function)(A))
+    void add_key(const std::string &keyword, void (Y::*function)(A))
     {
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
@@ -81,7 +81,7 @@ public:
 
     /// Add key with 2 arguments - we need to template Y in case Z is the derived class and Y is a parent class
     template<class Y, class A, class B>
-    void add_key(const std::string keyword, void (Y::*function)(A, B))
+    void add_key(const std::string &keyword, void (Y::*function)(A, B))
     {
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 

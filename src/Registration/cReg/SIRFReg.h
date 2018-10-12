@@ -70,7 +70,7 @@ public:
     virtual ~SIRFReg() {}
 
     /// Set parameter file
-    void set_parameter_file(const std::string parameter_filename) { _parameter_filename = parameter_filename; }
+    void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
     void set_reference_image(const NiftiImage3D &reference_image) { _reference_image = reference_image; }
