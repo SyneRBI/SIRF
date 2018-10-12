@@ -139,7 +139,7 @@ SIRFRegMat44 SIRFRegMat44::deep_copy() const
 void SIRFRegMat44::save_to_file(const string &filename) const
 {
     // Check that input isn't blank
-    if (filename.size() == 0)
+    if (filename.empty())
         throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
     // Need to copy the tm, since the function is not marked const
     mat44 temp = _tm;

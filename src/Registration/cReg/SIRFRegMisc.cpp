@@ -50,7 +50,7 @@ namespace SIRFRegMisc {
 void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::path &filename)
 {
     // If no filename has been set, return
-    if (filename.size() == 0) {
+    if (filename.empty()) {
         throw runtime_error("Empty filename has been supplied, cannot open nifti image.");
     }
 
