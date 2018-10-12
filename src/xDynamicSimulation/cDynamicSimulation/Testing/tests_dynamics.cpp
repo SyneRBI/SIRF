@@ -13,6 +13,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 
+using std::cout;
+using std::endl;
+
 bool test_dynamic::test_is_in_bin( void )
 {
 
@@ -88,8 +91,8 @@ bool test_dynamic::test_intersect_mr_acquisition_data( void )
 
 	bool test_succesful = (num_overlap == intersec_vec.items());
 	
-	std::cout << epiph(num_overlap) << std::endl;
-	std::cout << epiph(intersec_vec.items()) << std::endl;
+	cout << epiph(num_overlap) << endl;
+	cout << epiph(intersec_vec.items()) << endl;
 
 
 	return test_succesful;
@@ -117,22 +120,22 @@ bool test_dynamic::test_linear_interpolate_signal( )
 		TimeAxisType time_point = 0.55;
 		SignalAxisType interpol_signal = dyn.linear_interpolate_signal( time_point );
 
-		std::cout << epiph ( interpol_signal ) <<std::endl; 
+		cout << epiph ( interpol_signal ) <<endl; 
 
 		time_point = -1;
 		interpol_signal = dyn.linear_interpolate_signal( time_point );
-		std::cout << epiph ( interpol_signal ) <<std::endl;
+		cout << epiph ( interpol_signal ) <<endl;
 
 		time_point = 15;
 		interpol_signal = dyn.linear_interpolate_signal( time_point );
-		std::cout << epiph ( interpol_signal ) <<std::endl;	
+		cout << epiph ( interpol_signal ) <<endl;	
 
 		return true;
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
@@ -152,9 +155,9 @@ bool test_dynamic::test_get_set_bins()
 
 		for( int i=0; i<all_bins.size(); i++ )
 		{
-			std::cout << epiph(std::get<0> (all_bins[i] )) << std::endl;
-			std::cout << epiph(std::get<1> (all_bins[i] )) << std::endl;
-			std::cout << epiph(std::get<2> (all_bins[i] )) << std::endl;
+			cout << epiph(std::get<0> (all_bins[i] )) << endl;
+			cout << epiph(std::get<1> (all_bins[i] )) << endl;
+			cout << epiph(std::get<2> (all_bins[i] )) << endl;
 		}
 
 		test_succesful = ( all_bins.size() == num_bins );
@@ -163,8 +166,8 @@ bool test_dynamic::test_get_set_bins()
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
@@ -194,19 +197,19 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		for( int i=0; i<num_bins; i++)
 		{
 			num_tot_acquis += binned_acquis[i].items();
-			std::cout << epiph( binned_acquis[i].items() ) << std::endl;
+			cout << epiph( binned_acquis[i].items() ) << endl;
 		}
 
-		std::cout << epiph(num_tot_acquis) <<std::endl;
-		std::cout << epiph(acq_vec.items()) <<std::endl;
+		cout << epiph(num_tot_acquis) <<endl;
+		cout << epiph(acq_vec.items()) <<endl;
 
 
 		return test_succesful;
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 
@@ -229,10 +232,10 @@ bool test_dynamic::test_motion_dynamic_counter()
 
 		int const total_counter = first_dyn.get_num_total_motion_dynamics();
 
-		std::cout << epiph(first_counter) << std::endl;
-		std::cout << epiph(second_counter) << std::endl;
-		std::cout << epiph(third_counter) << std::endl;
-		std::cout << epiph(total_counter) << std::endl;
+		cout << epiph(first_counter) << endl;
+		cout << epiph(second_counter) << endl;
+		cout << epiph(third_counter) << endl;
+		cout << epiph(total_counter) << endl;
 
 		test_succesful *= (first_counter == 0);
 		test_succesful *= (second_counter == 1);
@@ -243,8 +246,8 @@ bool test_dynamic::test_motion_dynamic_counter()
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
@@ -260,7 +263,7 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 		bool test_succesful = true;
 
 		MotionDynamic first_dyn;
-		std::cout << epiph( first_dyn.get_temp_folder_name() )<< std::endl;
+		cout << epiph( first_dyn.get_temp_folder_name() )<< endl;
 		// test_succesful *= first_dyn.make_temp_folder();
 		// test_succesful *= first_dyn.delete_temp_folder();
 
@@ -270,8 +273,8 @@ bool test_dynamic::test_motion_dynamic_temp_folder_setup( )
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 
@@ -293,13 +296,127 @@ try
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 
 }
 
+bool test_dynamic::test_mvf_vs_pet_img_quarternions( void )
+{
+	try
+	{
+		bool test_succesful = true;
+
+		auto pet_img = PETImageData(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH);
+		SIRFImageData pet_sirf_img( pet_img );
+		auto pet_img_data = pet_sirf_img.get_image_as_nifti();
+
+		float const img_off_x = pet_img_data->qoffset_x;
+		float const img_off_y = pet_img_data->qoffset_y;
+		float const img_off_z = pet_img_data->qoffset_z;
+		 
+
+		float const img_quart_b = pet_img_data->quatern_b;
+		float const img_quart_c = pet_img_data->quatern_c;
+		float const img_quart_d = pet_img_data->quatern_d;
+		float const img_quart_ac = pet_img_data->qfac;
+
+		float const img_slope = pet_img_data->scl_slope;
+		float const img_inter = pet_img_data->scl_inter;
+
+		float const img_dx = pet_img_data->dx;
+	    float const img_dy = pet_img_data->dy;
+	    float const img_dz = pet_img_data->dz;
+	    float const img_dt = pet_img_data->dt;
+	    float const img_du = pet_img_data->du;
+	    float const img_dv = pet_img_data->dv;
+	    float const img_dw = pet_img_data->dw;
+
+		cout << epiph( img_off_x )<< endl;
+		cout << epiph( img_off_y )<< endl;
+		cout << epiph( img_off_z )<< endl;
+
+		cout << epiph( img_quart_b ) << endl;
+		cout << epiph( img_quart_c ) << endl;
+		cout << epiph( img_quart_d ) << endl;
+		cout << epiph( img_quart_ac) << endl;
+        cout << epiph( img_slope ) << endl;
+		cout << epiph( img_inter ) << endl;
+
+
+		cout << epiph( img_dx ) << endl;
+		cout << epiph( img_dy ) << endl;
+		cout << epiph( img_dz ) << endl;
+		cout << epiph( img_dt ) << endl;
+		cout << epiph( img_du ) << endl;
+		cout << epiph( img_dv ) << endl;
+		cout << epiph( img_dw ) << endl;
+
+		auto resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+
+		int const num_simul_bins = 1;
+		PETMotionDynamic motion_dyn(num_simul_bins);
+		motion_dyn.set_displacement_fields(resp_mvfs);
+		motion_dyn.prep_displacements_fields();
+		motion_dyn.align_motion_fields_with_image(pet_img);
+
+
+		auto some_mvf = motion_dyn.get_interpolated_displacement_field( 0.f );
+		auto mvf_img_data = some_mvf.get_image_as_nifti();
+
+		float const mvf_off_x = mvf_img_data->qoffset_x;
+		float const mvf_off_y = mvf_img_data->qoffset_y;
+		float const mvf_off_z = mvf_img_data->qoffset_z;
+
+		float const mvf_quart_b = mvf_img_data->quatern_b;
+		float const mvf_quart_c = mvf_img_data->quatern_c;
+		float const mvf_quart_d = mvf_img_data->quatern_d;
+		float const mvf_quart_ac = mvf_img_data->qfac;
+
+		float const mvf_slope = mvf_img_data->scl_slope;
+		float const mvf_inter = mvf_img_data->scl_inter;
+
+		float const mvf_dx = mvf_img_data->dx;
+	    float const mvf_dy = mvf_img_data->dy;
+	    float const mvf_dz = mvf_img_data->dz;
+	    float const mvf_dt = mvf_img_data->dt;
+	    float const mvf_du = mvf_img_data->du;
+	    float const mvf_dv = mvf_img_data->dv;
+	    float const mvf_dw = mvf_img_data->dw;
+
+		cout << epiph( mvf_off_x)<< endl;
+		cout << epiph( mvf_off_y)<< endl;
+		cout << epiph( mvf_off_z)<< endl;
+
+		cout << epiph(mvf_quart_b ) << endl;
+		cout << epiph(mvf_quart_c ) << endl;
+		cout << epiph(mvf_quart_d ) << endl;
+		cout << epiph(mvf_quart_ac) << endl;
+
+		cout << epiph( mvf_slope ) << endl;
+		cout << epiph( mvf_inter ) << endl;
+		
+		cout << epiph( mvf_dx ) << endl;
+		cout << epiph( mvf_dy ) << endl;
+		cout << epiph( mvf_dz ) << endl;
+		cout << epiph( mvf_dt ) << endl;
+		cout << epiph( mvf_du ) << endl;
+		cout << epiph( mvf_dv ) << endl;
+		cout << epiph( mvf_dw ) << endl;
+
+		return test_succesful;
+	}
+	catch( std::runtime_error const &e)
+	{
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
+		throw e;
+	}
+
+
+}
 
 bool test_dynamic::test_motion_dynamic_prep_motion_fields()
 {
@@ -318,8 +435,8 @@ try
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 
@@ -348,8 +465,8 @@ bool test_dynamic::test_motion_dynamic_temp_interpolate_dvfs( void )
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
@@ -368,8 +485,8 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 		MRContrastDynamic cont_dyn( num_con_states );
 		MRMotionDynamic motion_dyn( num_motion_states );
 
-		std::cout << epiph (cont_dyn.get_num_simul_states()) << std::endl;
-		std::cout << epiph (motion_dyn.get_num_simul_states()) << std::endl;
+		cout << epiph (cont_dyn.get_num_simul_states()) << endl;
+		cout << epiph (motion_dyn.get_num_simul_states()) << endl;
 
 		test_succesful *= (cont_dyn.get_num_simul_states() == num_con_states);
 		test_succesful *= (motion_dyn.get_num_simul_states() == num_motion_states);
@@ -378,8 +495,8 @@ bool test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states( void )
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
@@ -406,14 +523,14 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 	
 		TimeBin total_time(0, 1000);
 
-		int const num_simul_bins = 10;
+		int const num_simul_bins = 1;
 		aPETDynamic pet_dyn(num_simul_bins);
 		pet_dyn.set_dyn_signal( signal_cont );
 
 		pet_dyn.bin_total_time_interval( total_time );
 
 		for(int i=0; i<num_simul_bins; i++)
-			std::cout <<"Time spent in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i) <<std::endl;
+			cout <<"Time spent in bin " <<i << " = " << pet_dyn.get_time_spent_in_bin(i) <<endl;
 
 
 
@@ -422,8 +539,8 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 	}
 	catch( std::runtime_error const &e)
 	{
-		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
-		std::cout << e.what() << std::endl;
+		cout << "Exception caught " <<__FUNCTION__ <<" .!" <<endl;
+		cout << e.what() << endl;
 		throw e;
 	}
 }
