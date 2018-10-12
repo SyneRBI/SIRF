@@ -38,7 +38,7 @@ limitations under the License.
 using namespace std;
 using namespace sirf;
 
-void SIRFReg::check_parameters()
+void SIRFReg::check_parameters() const
 {
     // If anything is missing
     if (_parameter_filename.size() == 0)

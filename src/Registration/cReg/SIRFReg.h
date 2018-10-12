@@ -105,7 +105,7 @@ protected:
     virtual void parse_parameter_file() = 0;
 
     /// Check parameters
-    virtual void check_parameters();
+    virtual void check_parameters() const;
 
     /// Set any extra parameters
     virtual void set_parameters() = 0;
