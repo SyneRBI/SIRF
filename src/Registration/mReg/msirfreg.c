@@ -111,8 +111,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_create_from_disp(co
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr) {
 	return cSIRFReg_NiftiImage3DDisplacement_create_from_def(ptr, def_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr) {
-	return cSIRFReg_SIRFReg_update(ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_process(void* ptr) {
+	return cSIRFReg_SIRFReg_process(ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
 	return cSIRFReg_SIRFReg_get_deformation_displacement_image(ptr, transform_type);
@@ -126,8 +126,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, const char*
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type) {
 	return cSIRFReg_SIRFRegNiftyResample_add_transformation(self, trans, type);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_update(void* ptr) {
-	return cSIRFReg_SIRFRegNiftyResample_update(ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_process(void* ptr) {
+	return cSIRFReg_SIRFRegNiftyResample_process(ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight) {
 	return cSIRFReg_SIRFRegImageWeightedMean_add_image(ptr, obj, weight);
@@ -135,8 +135,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image(void* pt
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight) {
 	return cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(ptr, filename, weight);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_update(void* ptr) {
-	return cSIRFReg_SIRFRegImageWeightedMean_update(ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_process(void* ptr) {
+	return cSIRFReg_SIRFRegImageWeightedMean_process(ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref) {
 	return cSIRFReg_SIRFRegTransformation_get_as_deformation_field(ptr, name, ref);

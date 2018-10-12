@@ -72,7 +72,7 @@ extern "C" {
     void* cSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
 
     // SIRFReg
-    void* cSIRFReg_SIRFReg_update(void* ptr);
+    void* cSIRFReg_SIRFReg_process(void* ptr);
     void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
     void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 
@@ -81,12 +81,12 @@ extern "C" {
 
     // SIRFRegNiftyResample
     void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
-    void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr);
+    void* cSIRFReg_SIRFRegNiftyResample_process(void* ptr);
 
     // SIRFRegImageWeightedMean
     void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
-    void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr);
+    void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr);
 
     // SIRFRegTransformation
     void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);

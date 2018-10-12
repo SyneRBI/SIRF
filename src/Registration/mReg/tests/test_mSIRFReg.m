@@ -407,7 +407,7 @@ function na =try_niftyaladin(g)
     na.set_parameter('SetInterpolationToCubic');
     na.set_parameter('SetLevelsToPerform', '1');
     na.set_parameter('SetMaxIterations', '5');
-    na.update();
+    na.process();
 
     % Get outputs
     warped = na.get_output();
@@ -461,7 +461,7 @@ function try_niftyf3d(g)
     nf.set_reference_time_point(1);
     nf.set_floating_time_point(1);
     nf.set_initial_affine_transformation(tm_init);
-    nf.update();
+    nf.process();
 
     % Get outputs
     warped = nf.get_output();
@@ -530,7 +530,7 @@ function try_resample(g,na)
     nr1.set_interpolation_type(3);  % try different interpolations (cubic)
     nr1.add_transformation_affine(tm_iden);
 		nr1.add_transformation_affine(tm);
-    nr1.update();
+    nr1.process();
     nr1.get_output().save_to_file(g.rigid_resample);
 
     disp('Testing non-rigid displacement...')
@@ -540,7 +540,7 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation_disp(displ);
-    nr2.update();
+    nr2.process();
     nr2.get_output().save_to_file(g.nonrigid_resample_disp);
 
     disp('Testing non-rigid deformation...')
@@ -550,7 +550,7 @@ function try_resample(g,na)
     nr3.set_interpolation_type_to_nearest_neighbour()  % try different interpolations
     nr3.add_transformation_def(deff);
     nr3.set_interpolation_type_to_linear()
-    nr3.update()
+    nr3.process()
     nr3.get_output().save_to_file(g.nonrigid_resample_def)
 
     assert(na.get_output() == nr1.get_output(), 'Rigid resampled output should match registration (aladin) output.')
@@ -580,7 +580,7 @@ function try_weighted_mean(g,na)
 		wm1.add_image(im2, 4);
 		wm1.add_image(im3, 3);
 		wm1.add_image(im4, 1);
-		wm1.update();
+                wm1.process();
 		wm1.get_output().save_to_file(g.output_weighted_mean);
 		% Answer should be 4.5, so compare it to that!
         res = g.ref_aladin.deep_copy();
@@ -601,7 +601,7 @@ function try_weighted_mean(g,na)
 		wm2.add_image(im2, 4);
 		wm2.add_image(im3, 3);
 		wm2.add_image(im4, 1);
-		wm2.update();
+                wm2.process();
 		wm2.get_output().save_to_file(g.output_weighted_mean_def);
 		% Answer should be 4.5, so compare it to that!
 		res = na.get_deformation_field_fwrd().deep_copy();

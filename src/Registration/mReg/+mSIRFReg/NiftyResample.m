@@ -86,10 +86,10 @@ classdef NiftyResample < handle
             %Set interpolation type to sinc.
             mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
         end
-        function update(self)
-            %Update.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_update', self.handle_);
-            mUtilities.check_status([self.name ':update'], h);
+        function process(self)
+            %Process.
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_process', self.handle_);
+            mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
         function output = get_output(self)

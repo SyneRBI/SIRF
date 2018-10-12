@@ -60,15 +60,15 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_flip_component(const voi
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_update(void* ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_process(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_update(void* ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegNiftyResample_process(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_update(void* ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_process(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);

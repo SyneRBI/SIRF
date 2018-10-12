@@ -52,10 +52,10 @@ classdef ImageWeightedMean < handle
             mUtilities.check_status([self.name ':add_image'], h);
             mUtilities.delete(h)
         end
-        function update(self)
-            %Update.
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_update', self.handle_);
-            mUtilities.check_status([self.name ':update'], h);
+        function process(self)
+            %Process.
+            h = calllib('msirfreg', 'mSIRFReg_SIRFRegImageWeightedMean_process', self.handle_);
+            mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
         function output = get_output(self)

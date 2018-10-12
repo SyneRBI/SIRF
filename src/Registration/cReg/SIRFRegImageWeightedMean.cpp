@@ -49,9 +49,9 @@ void SIRFRegImageWeightedMean::add_image(const NiftiImage &image, const float we
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::update()
+void SIRFRegImageWeightedMean::process()
 {
-    // Only update if you need to
+    // Only process if you need to
     if (!_need_to_update) return;
 
     // Do all the various checks before performing average
@@ -75,7 +75,7 @@ void SIRFRegImageWeightedMean::update()
             // Add in the weighted contribution of the jth voxel of the ith image
             _output_image(j) += _input_images[i](j) * normalised_weights[i];
 
-    // Once the update is done, set the need_to_update flag to false
+    // Once the processing is done, set the need_to_update flag to false
     _need_to_update = false;
 }
 

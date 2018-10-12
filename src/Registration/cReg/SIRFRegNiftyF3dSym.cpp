@@ -38,7 +38,7 @@ using namespace std;
 using namespace sirf;
 
 template<class T>
-void SIRFRegNiftyF3dSym<T>::update()
+void SIRFRegNiftyF3dSym<T>::process()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();

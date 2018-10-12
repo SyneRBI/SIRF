@@ -59,11 +59,11 @@ classdef (Abstract = true) SIRFReg < handle
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, 'SIRFReg', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
-        function update(self)
+        function process(self)
             %Run the registration.
-            assert(~isempty(self.handle_), 'SIRFReg.update: Registration object is empty.')
-            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_update', self.handle_);
-            mUtilities.check_status([self.name ':update'], h);
+            assert(~isempty(self.handle_), 'SIRFReg.process: Registration object is empty.')
+            h = calllib('msirfreg', 'mSIRFReg_SIRFReg_process', self.handle_);
+            mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
         function output = get_deformation_field_fwrd(self)

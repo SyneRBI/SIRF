@@ -56,7 +56,7 @@ void SIRFRegNiftyResample::add_transformation_def(const NiftiImage3DDeformation 
     _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDeformation(def.deep_copy())));
 }
 
-void SIRFRegNiftyResample::update()
+void SIRFRegNiftyResample::process()
 {
     cout << "\n\nStarting resampling...\n\n";
 

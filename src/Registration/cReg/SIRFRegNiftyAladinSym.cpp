@@ -37,7 +37,7 @@ using namespace std;
 using namespace sirf;
 
 template<class T>
-void SIRFRegNiftyAladinSym<T>::update()
+void SIRFRegNiftyAladinSym<T>::process()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();

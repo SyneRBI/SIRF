@@ -99,8 +99,8 @@ public:
     /// Set interpolation type to sinc
     void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
 
-    /// Update
-    void update();
+    /// Process
+    void process();
 
     /// Get output
     const NiftiImage3D &get_output() const { return _output_image; }

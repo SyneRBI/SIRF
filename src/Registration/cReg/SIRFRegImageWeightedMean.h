@@ -48,8 +48,8 @@ public:
     /// Add an image (from NiftImage) and its corresponding weight
     void add_image(const NiftiImage &image, const float weight);
 
-    /// Update
-    void update();
+    /// Process
+    void process();
 
     /// Get output
     const NiftiImage &get_output() const { return _output_image; }

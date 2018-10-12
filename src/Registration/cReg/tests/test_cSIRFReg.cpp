@@ -497,7 +497,7 @@ int main(int argc, char* argv[])
         NA.set_parameter("SetInterpolationToCubic");
         NA.set_parameter("SetLevelsToPerform","1");
         NA.set_parameter("SetMaxIterations","5");
-        NA.update();
+        NA.process();
         NA.get_output().save_to_file         (         aladin_warped         );
         NA.get_transformation_matrix_fwrd().save_to_file(       TM_fwrd      );
         NA.get_transformation_matrix_back().save_to_file(       TM_back      );
@@ -550,7 +550,7 @@ int main(int argc, char* argv[])
         NF.set_parameter_file                (     parameter_file_f3d     );
         NF.set_reference_time_point          (             1              );
         NF.set_floating_time_point           (             1              );
-        NF.update();
+        NF.process();
         NF.get_output().save_to_file         (         f3d_warped         );
         NF.get_deformation_field_fwrd().save_to_file (f3d_def_fwrd);
         NF.get_deformation_field_back().save_to_file_split_xyz_components(f3d_def_back);
@@ -635,7 +635,7 @@ int main(int argc, char* argv[])
         nr1.set_interpolation_type(3); // try different interpolations (cubic)
         nr1.add_transformation_affine(tm_iden);
         nr1.add_transformation_affine(tm);
-        nr1.update();
+        nr1.process();
         nr1.get_output().save_to_file(rigid_resample);
 
         cout << "Testing non-rigid displacement...\n";
@@ -645,7 +645,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_sinc(); // try different interpolations
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation_disp(disp);
-        nr2.update();
+        nr2.process();
         nr2.get_output().save_to_file(nonrigid_resample_disp);
 
         cout << "Testing non-rigid deformation...\n";
@@ -655,7 +655,7 @@ int main(int argc, char* argv[])
         nr3.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
         nr3.add_transformation_def(deff);
         nr3.set_interpolation_type_to_linear();
-        nr3.update();
+        nr3.process();
         nr3.get_output().save_to_file(nonrigid_resample_def);
 
         if (NA.get_output() != nr1.get_output())
@@ -685,7 +685,7 @@ int main(int argc, char* argv[])
         wm1.add_image(im2, 4.F);
         wm1.add_image(im3, 3.F);
         wm1.add_image(im4, 1.F);
-        wm1.update();
+        wm1.process();
         wm1.get_output().save_to_file(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
         NiftiImage3D res = ref_aladin;
@@ -708,7 +708,7 @@ int main(int argc, char* argv[])
         wm2.add_image(im4D2, 4.F);
         wm2.add_image(im4D3, 3.F);
         wm2.add_image(im4D4, 1.F);
-        wm2.update();
+        wm2.process();
         wm2.get_output().save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
         NiftiImage3DTensor res4D = NA.get_deformation_field_fwrd().deep_copy();

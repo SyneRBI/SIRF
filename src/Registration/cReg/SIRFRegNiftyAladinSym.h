@@ -41,8 +41,8 @@ template<class T> class SIRFRegNiftyAladinSym : public SIRFReg
 {
 public:
 
-    /// Update
-    void update();
+    /// Process
+    void process();
 
     /// Get forwards transformation matrix
     const SIRFRegMat44 &get_transformation_matrix_fwrd() const { return _TM_fwrd; }

@@ -78,8 +78,8 @@ public:
     /// Set floating image
     void set_floating_image(const NiftiImage3D &floating_image) { _floating_image = floating_image; }
 
-    /// Update
-    virtual void update() = 0;
+    /// Process
+    virtual void process() = 0;
 
     /// Get registered image
     const NiftiImage3D &get_output() const { return _warped_image; }

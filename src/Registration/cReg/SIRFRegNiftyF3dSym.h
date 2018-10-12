@@ -50,8 +50,8 @@ public:
         _use_initial_transformation = false;
     }
 
-    /// Update
-    void update();
+    /// Process
+    void process();
 
     /// Set floating time point
     void set_floating_time_point(const int floating_time_point) { _floating_time_point = floating_time_point; }

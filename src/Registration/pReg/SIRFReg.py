@@ -598,9 +598,9 @@ class _SIRFReg(ABC):
         check_status(output.handle)
         return output
 
-    def update(self):
+    def process(self):
         """Run the registration"""
-        try_calling(pysirfreg.cSIRFReg_SIRFReg_update(self.handle))
+        try_calling(pysirfreg.cSIRFReg_SIRFReg_process(self.handle))
 
     def get_deformation_field_fwrd(self):
         """Gets the forward deformation field image."""
@@ -761,9 +761,9 @@ class NiftyResample:
         """Set interpolation type to sinc."""
         _set_int_par_sirf(self.handle, self.name, 'interpolation_type', 4)
 
-    def update(self):
-        """Update."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_update(self.handle))
+    def process(self):
+        """Process."""
+        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_process(self.handle))
 
     def get_output(self):
         """Get output."""
@@ -796,9 +796,9 @@ class ImageWeightedMean:
         else:
             raise error("pSIRFReg.ImageWeightedMean.add_image: image must be NiftiImage or filename.")
 
-    def update(self):
-        """Update."""
-        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_update(self.handle))
+    def process(self):
+        """Process."""
+        try_calling(pysirfreg.cSIRFReg_SIRFRegImageWeightedMean_process(self.handle))
 
     def get_output(self):
         """Get output."""

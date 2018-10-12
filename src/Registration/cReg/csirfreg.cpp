@@ -456,11 +456,11 @@ void* cSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const v
 //      SIRFReg
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFReg_update(void* ptr)
+void* cSIRFReg_SIRFReg_process(void* ptr)
 {
     try {
         SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
-        reg.update();
+        reg.process();
         return new DataHandle;
     }
     CATCH;
@@ -534,11 +534,11 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegNiftyResample_update(void* ptr)
+void* cSIRFReg_SIRFRegNiftyResample_process(void* ptr)
 {
     try {
         SIRFRegNiftyResample& res = objectFromHandle<SIRFRegNiftyResample>(ptr);
-        res.update();
+        res.process();
         return new DataHandle;
     }
     CATCH;
@@ -569,11 +569,11 @@ void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegImageWeightedMean_update(void* ptr)
+void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr)
 {
     try {
         SIRFRegImageWeightedMean& im_weight = objectFromHandle<SIRFRegImageWeightedMean>(ptr);
-        im_weight.update();
+        im_weight.process();
         return new DataHandle;
     }
     CATCH;
