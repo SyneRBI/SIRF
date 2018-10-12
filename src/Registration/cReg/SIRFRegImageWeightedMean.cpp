@@ -85,20 +85,14 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
     if (_input_images.size() == 0)
         throw std::runtime_error("Need to add images to be able to do weighted mean.");
 
-    bool can_do_mean = true;
-
     // Check each of the images against all the other images
     for (unsigned i=0; i<_input_images.size(); i++) {
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j])) can_do_mean = false;
+            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
+                throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
         }
-    }
-
-    // if there were any errors, throw them
-    if (!can_do_mean) {
-        throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
     }
 
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
