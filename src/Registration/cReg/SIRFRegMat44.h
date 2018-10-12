@@ -79,7 +79,7 @@ public:
     virtual SIRFRegMat44 deep_copy() const;
 
     /// Save to file
-    void save_to_file(const std::string &filename) const;
+    virtual void save_to_file(const std::string &filename) const;
 
     /// Get determinant
     float get_determinant() const;
