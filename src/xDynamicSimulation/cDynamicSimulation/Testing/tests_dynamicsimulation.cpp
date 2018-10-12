@@ -574,7 +574,7 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
-		int const num_simul_cardiac_states = 10;
+		int const num_simul_cardiac_states = 3;
 		PETMotionDynamic  cardiac_dyn(num_simul_cardiac_states);
 
 		TimeAxisType acquis_time_ms = 60 * 1000;
@@ -594,8 +594,6 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (cardiac_dyn) );
 		
 		pet_dyn_sim.simulate_dynamics( acquis_time_ms );
-
-		// pet_dyn_sim.write_simulation_results(FILENAME_DYNSIM_PET);
 
 		return true;
 
