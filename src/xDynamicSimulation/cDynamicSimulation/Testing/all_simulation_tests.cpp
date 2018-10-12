@@ -76,6 +76,8 @@ void run_tests_dynamics( void )
 	// tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
 	// tests_successful *= test_dynamic::test_motion_dynamic_prep_motion_fields();
 	// tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
+	// tests_successful *= test_dynamic::test_mvf_vs_pet_img_quarternions();
+
 
 	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
 
@@ -113,7 +115,9 @@ void run_tests_dynamic_simulation( void )
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	tests_successful *= test_pet_dynsim::test_simulate_statics();
+	// tests_successful *= test_pet_dynsim::test_simulate_statics();
+	tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
+
 
 	if ( !tests_successful )
 	{
