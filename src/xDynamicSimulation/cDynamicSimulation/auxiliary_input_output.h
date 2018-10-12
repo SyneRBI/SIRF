@@ -75,10 +75,18 @@ namespace data_io{
 		img_dims.push_back( 1 );
 		img_dims.push_back( img.getNumberOfChannels() );
 
-		float const pix_size_X = 1.f;//img.getFieldOfViewX() / (float)img_dims[0];
-		float const pix_size_Y = 1.f;//img.getFieldOfViewY() / (float)img_dims[1];
-		float const pix_size_Z = 1.f;//img.getFieldOfViewZ() / (float)img_dims[2];
-		float const pix_size_U = 1.f;
+		float const pix_size_X = 2.f;//img.getFieldOfViewX() / (float)img_dims[0];
+		float const pix_size_Y = 2.f;//img.getFieldOfViewY() / (float)img_dims[1];
+		float const pix_size_Z = 2.f;//img.getFieldOfViewZ() / (float)img_dims[2];
+		// float const pix_size_X = (float)img.getFieldOfViewX() / (float)img_dims[0];
+		// float const pix_size_Y = (float)img.getFieldOfViewY() / (float)img_dims[1];
+		// float const pix_size_Z = (float)img.getFieldOfViewZ() / (float)img_dims[2];
+		// std::cout << "########################" << std::endl;
+		// std::cout << img.getFieldOfViewX() << std::endl;
+		// std::cout << img.getFieldOfViewY() << std::endl;
+		// std::cout << img.getFieldOfViewZ() << std::endl;
+		// std::cout << "########################" << std::endl;
+		float const pix_size_U = 0.f;
 		float const pix_size_Vec = 1.f;
 
 
