@@ -352,7 +352,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
-	if( this->temp_displacement_fields_.size() == 0)
+	if( this->sirf_displacement_fields_.size() == 0)
 		throw std::runtime_error("Please use prep_displacements_fields() before calling get_interpolated_displacement_field");
 	
 
@@ -375,8 +375,8 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	  /// Constructor
     SIRFRegImageWeightedMean4D dvf_interpolator;
     
-    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
-    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_ceil], linear_interpolation_weight);
+    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_ceil], linear_interpolation_weight);
 
     dvf_interpolator.update();
     
@@ -518,7 +518,7 @@ void MotionDynamic::prep_displacements_fields()
 	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
 	{
 		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
-		temp_displacement_fields_.push_back( temp_deformation );
+		this->sirf_displacement_fields_.push_back( temp_deformation );
 	}
 
 	this->delete_temp_folder();
@@ -572,7 +572,6 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 
 	TimeBinSet temp_set;
 	temp_set.push_back(time_interval_total_dynamic_process);
-
 	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
 	{
 		SignalBin bin = this->signal_bins_[i_bin];
@@ -626,6 +625,7 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 					left_bin_edges.push_back(intersection_point);	
 			}
 		}
+
 		std::sort( left_bin_edges.begin(), left_bin_edges.end() );
 		std::sort( right_bin_edges.begin(), right_bin_edges.end() );
 
@@ -635,8 +635,12 @@ void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_pr
 		if (  std::abs( (float)num_left_edges - (float)num_right_edges )  > 1 )
 			throw std::runtime_error( "You got yourself a very weird combination of signal and bin number in your simulation. Consider passing another dynamic signal please.");	
 		
-
-		if( num_left_edges == num_right_edges )
+		if( num_left_edges ==0 && num_right_edges == 0)
+		{
+			TimeBin curr_bin(leftmost_left_edge, rightmost_right_edge);
+			time_intervals_for_bin.push_back(curr_bin);
+		}
+		else if( num_left_edges == num_right_edges )
 		{
 			if(left_bin_edges[0] < right_bin_edges[0])
 			{
@@ -721,6 +725,71 @@ TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 
 
 
+void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData& img )
+{
+
+	size_t const num_disp_fields = this->sirf_displacement_fields_.size();
+
+	if( num_disp_fields ==0 )
+		throw std::runtime_error("Please call prep_displacements_fields() first.");
+
+	SIRFImageData sirf_img = SIRFImageData( img ); 
+	auto sptr_pet_nifti = sirf_img.get_image_as_nifti();
+
+	float const img_off_x = sptr_pet_nifti->qoffset_x;
+	float const img_off_y = sptr_pet_nifti->qoffset_y;
+	float const img_off_z = sptr_pet_nifti->qoffset_z;
+	 
+	float const img_quart_b = sptr_pet_nifti->quatern_b;
+	float const img_quart_c = sptr_pet_nifti->quatern_c;
+	float const img_quart_d = sptr_pet_nifti->quatern_d;
+	float const img_quart_ac = sptr_pet_nifti->qfac;
+
+
+	float const img_dx = sptr_pet_nifti->dx;
+    float const img_dy = sptr_pet_nifti->dy;
+    float const img_dz = sptr_pet_nifti->dz;
+    float const img_dt = sptr_pet_nifti->dt;
+    float const img_du = sptr_pet_nifti->du;
+    float const img_dv = sptr_pet_nifti->dv;
+    float const img_dw = sptr_pet_nifti->dw;
+
+
+
+	for(size_t i=0; i<num_disp_fields; i++)
+	{
+
+		auto sptr_mvf_nifti = this->sirf_displacement_fields_[i].get_image_as_nifti();
+
+		sptr_mvf_nifti->qoffset_x = img_off_x;
+		sptr_mvf_nifti->qoffset_y = img_off_y;
+		sptr_mvf_nifti->qoffset_z = img_off_z;
+
+		sptr_mvf_nifti->quatern_b = img_quart_b ;
+		sptr_mvf_nifti->quatern_c = img_quart_c ;
+		sptr_mvf_nifti->quatern_d = img_quart_d ;
+		sptr_mvf_nifti->qfac	  = img_quart_ac;
+
+		// sptr_mvf_nifti->dx = (float)img_dx;
+		// sptr_mvf_nifti->dy = (float)img_dy;
+		// sptr_mvf_nifti->dz = (float)img_dz;
+		// sptr_mvf_nifti->dt = (float)0;
+		// sptr_mvf_nifti->du = (float)0;
+		// sptr_mvf_nifti->dv = (float)0;
+		// sptr_mvf_nifti->dw = (float)0;
+		
+		// sptr_mvf_nifti->pixdim[1] = img_dx;
+		// sptr_mvf_nifti->pixdim[2] = img_dy;
+		// sptr_mvf_nifti->pixdim[3] = img_dz;
+		// sptr_mvf_nifti->pixdim[4] = img_dt;
+		// sptr_mvf_nifti->pixdim[5] = img_du;
+		// sptr_mvf_nifti->pixdim[6] = img_dv;
+		// sptr_mvf_nifti->pixdim[7] = img_dw;
+
+		this->sirf_displacement_fields_[i] = SIRFImageDataDeformation(sptr_mvf_nifti);
+
+	}
+}
 
 
 

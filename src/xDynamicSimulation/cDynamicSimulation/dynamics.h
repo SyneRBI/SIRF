@@ -138,7 +138,7 @@ protected:
 	int which_motion_dynamic_am_i_;
 
 	MotionFieldContainer displacment_fields_;
-	std::vector< SIRFImageDataDeformation > temp_displacement_fields_; 
+	std::vector< SIRFImageDataDeformation > sirf_displacement_fields_; 
 
 };
 
@@ -251,6 +251,9 @@ class PETMotionDynamic: public aPETDynamic, public MotionDynamic{
 public:
 	PETMotionDynamic():aPETDynamic(), MotionDynamic() {};
 	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+
+	void align_motion_fields_with_image( const sirf::PETImageData& img);
+
 };
 
 class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {
