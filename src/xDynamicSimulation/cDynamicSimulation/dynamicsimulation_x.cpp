@@ -496,6 +496,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 		cout << "Number simulated states for motion dynamic #" << i << ": " << motion_dynamics_[i]->get_num_simul_states() <<endl;
 		all_num_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
 		motion_dynamics_[i]->prep_displacements_fields();
+		motion_dynamics_[i]->align_motion_fields_with_image( this->template_image_data_);
 	}
 
 	LinearCombiGenerator lcg(all_num_dyn_states);
@@ -509,7 +510,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 	{
 		std::stringstream output_name_stream;
 		output_name_stream << this->output_filename_prefix_;
-		
+
 		cout << "Acquisition motion state #" << i_dyn_state+1 << "/" << num_total_dyn_states << endl;
 
 		DimensionsType current_combination = all_dyn_state_combos[i_dyn_state];
@@ -550,6 +551,7 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
 			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
 			this->acquire_raw_data();	
+			this->add_noise();
 
 			output_name_stream << ".hs";
 			this->write_simulation_results( output_name_stream.str() );
@@ -565,7 +567,7 @@ void PETDynamicSimulation::set_template_acquisition_data(void)
 
 void PETDynamicSimulation::set_template_image_data( std::string const filename_header_with_ext )
 {
-	this->template_image_data_ = PETImageData(filename_header_with_ext);
+	this->template_image_data_ = PETImageData(filename_header_with_ext);	
 }
 
 void PETDynamicSimulation::set_output_filename_prefix( const std::string& output_filename_prefix)
@@ -586,12 +588,12 @@ void PETDynamicSimulation::acquire_raw_data( void )
 
 	PETImageData template_img(activity_img);
 
-	// Image3DF& image = activity_img.data();
-	// stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
-	// stir::OutputFileFormat<Image3DF>::default_sptr();
+	Image3DF& image = activity_img.data();
+	stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
+	stir::OutputFileFormat<Image3DF>::default_sptr();
 
-	// format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
-	// cout << "Finished Writing image in memory" << endl;
+	format_sptr->write_to_file( "/media/sf_SharedFolder/CCPPETMR/imageInMemory.hv" , image);
+	cout << "Finished Writing image in memory" << endl;
 	
 	stir::shared_ptr<stir::ProjMatrixByBin> sptr_ray_matrix (new RayTracingMatrix() );
 
