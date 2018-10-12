@@ -81,15 +81,6 @@ classdef Mat44 < mSIRFReg.Transformation
             %Save to file.
             calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_save_to_file', self.handle_, filename);
         end
-        function fill(self, src)
-            %Fill.
-            if all(size(src)==[4, 4])
-                ptr_v = libpointer('singlePtr', single(src));
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_construct_from_TM', ptr_v);
-            else
-                calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_fill', self.handle_, filename);
-            end
-        end
         function value = get_determinant(self)
             %Get determinant.
             value = mSTIR.parameter(self.handle_, self.name, 'determinant', 'f');

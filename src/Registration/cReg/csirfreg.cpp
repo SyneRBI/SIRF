@@ -644,16 +644,6 @@ void* cSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val)
-{
-    try {
-        SIRFRegMat44& mat = objectFromHandle<SIRFRegMat44>(ptr);
-        mat.fill(val);
-        return new DataHandle;
-    }
-    CATCH;
-}
-extern "C"
 void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, size_t ptr_TM)
 {
     try {

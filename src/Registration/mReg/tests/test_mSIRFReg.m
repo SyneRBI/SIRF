@@ -28,13 +28,13 @@ g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
 g.TM_inverse		                     = fullfile(output_prefix, 'matlab_TM_inverse.txt');
 g.aladin_def_forward                         = fullfile(output_prefix, 'matlab_aladin_def_forward.nii');
-g.aladin_def_inverse                            = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_def_inverse                         = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
 g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
-g.aladin_disp_inverse                           = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
+g.aladin_disp_inverse                        = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
 g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
-g.f3d_def_inverse                               = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
+g.f3d_def_inverse                            = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
 g.f3d_disp_forward                           = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
-g.f3d_disp_inverse                              = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
+g.f3d_disp_inverse                           = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
 
 g.rigid_resample                             = fullfile(output_prefix, 'matlab_rigid_resample.nii');
 g.nonrigid_resample_disp                     = fullfile(output_prefix, 'matlab_nonrigid_resample_disp.nii');
@@ -655,11 +655,6 @@ function try_sirfregmat44(g,na)
     e = mSIRFReg.Mat44.get_identity();
     assert(d == e, 'SIRFRegMat44::mult/comparison failed.');
 
-    d.fill(3);
-    f = d.as_array();
-    assert(np.all(f == 3), 'SIRFRegMat44::fill/operator[] failed.');
-
-    assert(d.get_determinant() < 1.e-7, 'SIRFRegMat44::get_determinant failed.');
     assert(e.get_determinant() - 1. < 1.e-7, 'SIRFRegMat44::get_determinant failed.');
 
     disp('% ----------------------------------------------------------------------- %')

@@ -150,9 +150,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_deep_copy(const void* ptr) {
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename) {
 	return cSIRFReg_SIRFRegMat44_save_to_file(ptr, filename);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val) {
-	return cSIRFReg_SIRFRegMat44_fill(ptr, val);
-}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM) {
 	return cSIRFReg_SIRFRegMat44_as_array(ptr, ptr_TM);
 }

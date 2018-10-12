@@ -81,9 +81,6 @@ public:
     /// Save to file
     void save_to_file(const std::string &filename) const;
 
-    /// Fill
-    void fill(const float &val);
-
     /// Get determinant
     float get_determinant() const;
 

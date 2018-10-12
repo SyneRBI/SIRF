@@ -63,7 +63,9 @@ SIRFRegMat44 SIRFRegMat44::get_identity()
 
 SIRFRegMat44::SIRFRegMat44()
 {
-    this->fill(0.F);
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            (*this)[i][j] = 0.F;
 }
 
 SIRFRegMat44::SIRFRegMat44(const string &filename)
@@ -144,13 +146,6 @@ void SIRFRegMat44::save_to_file(const string &filename) const
     // Need to copy the tm, since the function is not marked const
     mat44 temp = _tm;
     reg_tool_WriteAffineFile(&temp, filename.c_str());
-}
-
-void SIRFRegMat44::fill(const float &val)
-{
-    for (int i=0; i<4; ++i)
-        for (int j=0; j<4; ++j)
-            _tm.m[i][j]=val;
 }
 
 float SIRFRegMat44::get_determinant() const

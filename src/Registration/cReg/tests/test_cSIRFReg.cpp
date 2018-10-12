@@ -766,14 +766,6 @@ int main(int argc, char* argv[])
         if (d != e)
             throw runtime_error("SIRFRegMat44::mult/comparison failed.");
 
-        d.fill(3.F);
-        for (int i=0; i<4; ++i)
-            for (int j=0; j<4; ++j)
-                if ((d[i][j] - 3.F) > 1.e-7F)
-                    throw runtime_error("SIRFRegMat44::fill/operator[] failed.");
-
-        if (d.get_determinant() > 1.e-7F)
-            throw runtime_error("SIRFRegMat44::get_determinant failed.");
         if (e.get_determinant() - 1.F > 1.e-7F)
             throw runtime_error("SIRFRegMat44::get_determinant failed.");
 

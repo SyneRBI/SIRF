@@ -73,7 +73,6 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_fi
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_get_identity();
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr);

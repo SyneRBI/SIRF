@@ -869,17 +869,6 @@ class Mat44(_Transformation):
             raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_save_to_file(self.handle, filename))
 
-    def fill(self, src):
-        """Fill."""
-        if self.handle is None:
-            raise AssertionError()
-        if isinstance(src, numpy.ndarray):
-            if src.shape != (4, 4):
-                raise AssertionError()
-            self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
-        else:
-            try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_fill(self.handle, float(src)))
-
     def get_determinant(self):
         """Get determinant."""
         return _float_par_sirf(self.handle, self.name, 'determinant')

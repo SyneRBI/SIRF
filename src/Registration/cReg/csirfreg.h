@@ -95,7 +95,6 @@ extern "C" {
     void* cSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);
     void* cSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename);
-    void* cSIRFReg_SIRFRegMat44_fill(const void* ptr, const float val);
     void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegMat44_get_identity();
     void* cSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr);

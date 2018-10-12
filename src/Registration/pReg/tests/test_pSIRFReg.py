@@ -783,13 +783,6 @@ def try_sirfregmat44(na):
     if d != e:
         raise AssertionError('SIRFRegMat44::mult/comparison failed.')
 
-    d.fill(3)
-    f = d.as_array()
-    if not np.all(f == 3):
-        raise AssertionError('SIRFRegMat44::fill/operator[] failed.')
-
-    if d.get_determinant() > 1.e-7:
-        raise AssertionError('SIRFRegMat44::get_determinant failed.')
     if e.get_determinant() - 1. > 1.e-7:
         raise AssertionError('SIRFRegMat44::get_determinant failed.')
 
