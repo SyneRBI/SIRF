@@ -85,13 +85,13 @@ public:
     const NiftiImage3D &get_output() const { return _warped_image; }
 
     /// Get forward deformation field image
-    const NiftiImage3DDeformation  &get_deformation_field_fwrd()  const { return _def_image_fwrd; }
-    /// Get backward deformation field image
-    const NiftiImage3DDeformation  &get_deformation_field_back()  const { return _def_image_back; }
+    const NiftiImage3DDeformation  &get_deformation_field_forward()  const { return _def_image_forward; }
+    /// Get inverse deformation field image
+    const NiftiImage3DDeformation  &get_deformation_field_inverse()  const { return _def_image_inverse; }
     /// Get forward displacement field image
-    const NiftiImage3DDisplacement &get_displacement_field_fwrd() const { return _disp_image_fwrd; }
-    /// Get backward displacement field image
-    const NiftiImage3DDisplacement &get_displacement_field_back() const { return _disp_image_back; }
+    const NiftiImage3DDisplacement &get_displacement_field_forward() const { return _disp_image_forward; }
+    /// Get inverse displacement field image
+    const NiftiImage3DDisplacement &get_displacement_field_inverse() const { return _disp_image_inverse; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -124,13 +124,13 @@ protected:
     NiftiImage3D _warped_image;
 
     /// Forward displacement field image
-    NiftiImage3DDisplacement _disp_image_fwrd;
-    /// Backward displacement field image
-    NiftiImage3DDisplacement _disp_image_back;
+    NiftiImage3DDisplacement _disp_image_forward;
+    /// Inverse displacement field image
+    NiftiImage3DDisplacement _disp_image_inverse;
     /// Forward deformation field image
-    NiftiImage3DDeformation _def_image_fwrd;
-    /// Backward deformation field image
-    NiftiImage3DDeformation _def_image_back;
+    NiftiImage3DDeformation _def_image_forward;
+    /// Inverse deformation field image
+    NiftiImage3DDeformation _def_image_inverse;
 };
 }
 

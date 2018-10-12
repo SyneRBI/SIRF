@@ -32,16 +32,16 @@ save_nifti_image_3d_displacement_not_split = output_prefix + "save_NiftiImage3DD
 save_nifti_image_3d_displacement_split = output_prefix + "save_NiftiImage3DDisplacement_split_%s.nii"
 aladin_warped = output_prefix + "aladin_warped.nii"
 f3d_warped = output_prefix + "f3d_warped.nii"
-TM_fwrd = output_prefix + "TM_fwrd.txt"
-TM_back = output_prefix + "TM_back.txt"
-aladin_def_fwrd = output_prefix + "aladin_def_fwrd.nii"
-aladin_def_back = output_prefix + "aladin_def_back_%s.nii"
-aladin_disp_fwrd = output_prefix + "aladin_disp_fwrd.nii"
-aladin_disp_back = output_prefix + "aladin_disp_back_%s.nii"
-f3d_def_fwrd = output_prefix + "f3d_disp_fwrd.nii"
-f3d_def_back = output_prefix + "f3d_disp_back_%s.nii"
-f3d_disp_fwrd = output_prefix + "f3d_disp_fwrd.nii"
-f3d_disp_back = output_prefix + "f3d_disp_back_%s.nii"
+TM_forward = output_prefix + "TM_forward.txt"
+TM_inverse = output_prefix + "TM_inverse.txt"
+aladin_def_forward = output_prefix + "aladin_def_forward.nii"
+aladin_def_inverse = output_prefix + "aladin_def_inverse_%s.nii"
+aladin_disp_forward = output_prefix + "aladin_disp_forward.nii"
+aladin_disp_inverse = output_prefix + "aladin_disp_inverse_%s.nii"
+f3d_def_forward = output_prefix + "f3d_disp_forward.nii"
+f3d_def_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
+f3d_disp_forward = output_prefix + "f3d_disp_forward.nii"
+f3d_disp_inverse = output_prefix + "f3d_disp_inverse_%s.nii"
 
 rigid_resample = output_prefix + "rigid_resample.nii"
 nonrigid_resample_disp = output_prefix + "nonrigid_resample_disp.nii"
@@ -497,37 +497,37 @@ def try_niftyaladin():
 
     # Get outputs
     warped = na.get_output()
-    def_fwrd = na.get_deformation_field_fwrd()
-    def_back = na.get_deformation_field_back()
-    disp_fwrd = na.get_displacement_field_fwrd()
-    disp_back = na.get_displacement_field_back()
+    def_forward = na.get_deformation_field_forward()
+    def_inverse = na.get_deformation_field_inverse()
+    disp_forward = na.get_displacement_field_forward()
+    disp_inverse = na.get_displacement_field_inverse()
 
     warped.save_to_file(aladin_warped)
-    na.get_transformation_matrix_fwrd().save_to_file(TM_fwrd)
-    na.get_transformation_matrix_back().save_to_file(TM_back)
-    def_fwrd.save_to_file(aladin_def_fwrd)
-    def_back.save_to_file_split_xyz_components(aladin_def_back)
-    disp_fwrd.save_to_file(aladin_disp_fwrd)
-    disp_back.save_to_file_split_xyz_components(aladin_disp_back)
+    na.get_transformation_matrix_forward().save_to_file(TM_forward)
+    na.get_transformation_matrix_inverse().save_to_file(TM_inverse)
+    def_forward.save_to_file(aladin_def_forward)
+    def_inverse.save_to_file_split_xyz_components(aladin_def_inverse)
+    disp_forward.save_to_file(aladin_disp_forward)
+    disp_inverse.save_to_file_split_xyz_components(aladin_disp_inverse)
 
-    # Fwrd TM
-    fwrd_tm = na.get_transformation_matrix_fwrd()
-    sys.stderr.write('\nFwrd tm:\n%s\n\n' % fwrd_tm.as_array())
+    # forward TM
+    forward_tm = na.get_transformation_matrix_forward()
+    sys.stderr.write('\nforward tm:\n%s\n\n' % forward_tm.as_array())
 
-    # Back TM
-    back_tm = na.get_transformation_matrix_back()
-    sys.stderr.write('\nBack tm:\n%s\n\n' % back_tm.as_array())
+    # Inverse TM
+    inverse_tm = na.get_transformation_matrix_inverse()
+    sys.stderr.write('\nInverse tm:\n%s\n\n' % inverse_tm.as_array())
 
     # Test converting disp to def
     a = pSIRFReg.NiftiImage3DDeformation()
-    a.create_from_disp(disp_fwrd)
-    if a != def_fwrd:
+    a.create_from_disp(disp_forward)
+    if a != def_forward:
         raise AssertionError("NiftiImage3DDeformation::create_from_disp() failed.")
 
     # Test converting def to disp
     b = pSIRFReg.NiftiImage3DDisplacement()
-    b.create_from_def(def_fwrd)
-    if b != disp_fwrd:
+    b.create_from_def(def_forward)
+    if b != disp_forward:
         raise AssertionError("NiftiImage3DDisplacement::create_from_def() failed.")
 
     time.sleep(0.5)
@@ -548,7 +548,7 @@ def try_niftyf3d():
     time.sleep(0.5)
 
     # Get initial transformation
-    tm_init = pSIRFReg.Mat44(TM_fwrd)
+    tm_init = pSIRFReg.Mat44(TM_forward)
 
     # default constructor
     nf = pSIRFReg.NiftyF3dSym()
@@ -562,16 +562,16 @@ def try_niftyf3d():
 
     # Get outputs
     warped = nf.get_output()
-    def_fwrd = nf.get_deformation_field_fwrd()
-    def_back = nf.get_deformation_field_back()
-    disp_fwrd = nf.get_displacement_field_fwrd()
-    disp_back = nf.get_displacement_field_back()
+    def_forward = nf.get_deformation_field_forward()
+    def_inverse = nf.get_deformation_field_inverse()
+    disp_forward = nf.get_displacement_field_forward()
+    disp_inverse = nf.get_displacement_field_inverse()
 
     warped.save_to_file(f3d_warped)
-    def_fwrd.save_to_file(f3d_def_fwrd)
-    def_back.save_to_file_split_xyz_components(f3d_def_back)
-    disp_fwrd.save_to_file(f3d_disp_fwrd)
-    disp_back.save_to_file_split_xyz_components(f3d_disp_back)
+    def_forward.save_to_file(f3d_def_forward)
+    def_inverse.save_to_file_split_xyz_components(f3d_def_inverse)
+    disp_forward.save_to_file(f3d_disp_forward)
+    disp_inverse.save_to_file_split_xyz_components(f3d_disp_inverse)
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -589,26 +589,26 @@ def try_transformations(na):
     time.sleep(0.5)
 
     # Get transformations
-    a3 = na.get_transformation_matrix_fwrd()
-    b3 = na.get_displacement_field_fwrd()
-    c3 = na.get_deformation_field_fwrd()
+    a3 = na.get_transformation_matrix_forward()
+    b3 = na.get_displacement_field_forward()
+    c3 = na.get_deformation_field_forward()
 
     # Get as deformations
     a_def = a3.get_as_deformation_field(ref_aladin)
     b_def = b3.get_as_deformation_field(ref_aladin)
     c_def = c3.get_as_deformation_field(ref_aladin)
-    if a_def != na.get_deformation_field_fwrd():
+    if a_def != na.get_deformation_field_forward():
         raise AssertionError()
-    if b_def != na.get_deformation_field_fwrd():
+    if b_def != na.get_deformation_field_forward():
         raise AssertionError()
-    if c_def != na.get_deformation_field_fwrd():
+    if c_def != na.get_deformation_field_forward():
         raise AssertionError()
 
     # Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = pSIRFReg.Mat44.get_identity()
     trans = [tm_iden, tm_iden, c3]
     composed = pSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, ref_aladin)
-    if composed != na.get_deformation_field_fwrd():
+    if composed != na.get_deformation_field_forward():
         raise AssertionError()
 
     time.sleep(0.5)
@@ -627,9 +627,9 @@ def try_resample(na):
     time.sleep(0.5)
 
     tm_iden = pSIRFReg.Mat44.get_identity()
-    tm      = na.get_transformation_matrix_fwrd()
-    disp    = na.get_displacement_field_fwrd()
-    deff    = na.get_deformation_field_fwrd()
+    tm      = na.get_transformation_matrix_forward()
+    disp    = na.get_displacement_field_forward()
+    deff    = na.get_deformation_field_forward()
 
     sys.stderr.write('Testing rigid resample...\n')
     nr1 = pSIRFReg.NiftyResample()
@@ -705,10 +705,10 @@ def try_weighted_mean(na):
 
     # Do 4D
     wm2 = pSIRFReg.ImageWeightedMean()
-    im1 = na.get_deformation_field_fwrd().deep_copy()
-    im2 = na.get_deformation_field_fwrd().deep_copy()
-    im3 = na.get_deformation_field_fwrd().deep_copy()
-    im4 = na.get_deformation_field_fwrd().deep_copy()
+    im1 = na.get_deformation_field_forward().deep_copy()
+    im2 = na.get_deformation_field_forward().deep_copy()
+    im3 = na.get_deformation_field_forward().deep_copy()
+    im4 = na.get_deformation_field_forward().deep_copy()
     im1.fill(1)
     im2.fill(4)
     im3.fill(7)
@@ -720,7 +720,7 @@ def try_weighted_mean(na):
     wm2.process()
     wm2.get_output().save_to_file(output_weighted_mean_def)
     # Answer should be 4.5, so compare it to that!
-    res = na.get_deformation_field_fwrd().deep_copy()
+    res = na.get_deformation_field_forward().deep_copy()
     res.fill(4.5)
     if wm2.get_output() != res:
         raise AssertionError()
@@ -771,13 +771,13 @@ def try_sirfregmat44(na):
     time.sleep(0.5)
 
     # Construct from file
-    a = pSIRFReg.Mat44(TM_fwrd)
+    a = pSIRFReg.Mat44(TM_forward)
     if a.handle is None:
         raise AssertionError()
 
-    # Multiply fwrd and inverse, should equal identity
-    b = na.get_transformation_matrix_fwrd()
-    c = na.get_transformation_matrix_back()
+    # Multiply forward and inverse, should equal identity
+    b = na.get_transformation_matrix_forward()
+    c = na.get_transformation_matrix_inverse()
     d = b * c
     e = pSIRFReg.Mat44.get_identity()
     if d != e:

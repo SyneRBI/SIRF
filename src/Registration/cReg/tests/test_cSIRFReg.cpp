@@ -72,16 +72,16 @@ int main(int argc, char* argv[])
     const string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
     const string aladin_warped            = output_prefix   + "aladin_warped.nii";
     const string f3d_warped               = output_prefix   + "f3d_warped.nii";
-    const string TM_fwrd                  = output_prefix   + "TM_fwrd.txt";
-    const string TM_back                  = output_prefix   + "TM_back.txt";
-    const string aladin_def_fwrd          = output_prefix   + "aladin_def_fwrd.nii";
-    const string aladin_def_back          = output_prefix   + "aladin_def_back_%s.nii";
-    const string aladin_disp_fwrd         = output_prefix   + "aladin_disp_fwrd.nii";
-    const string aladin_disp_back         = output_prefix   + "aladin_disp_back_%s.nii";
-    const string f3d_disp_fwrd            = output_prefix   + "f3d_disp_fwrd.nii";
-    const string f3d_disp_back            = output_prefix   + "f3d_disp_back_%s.nii";
-    const string f3d_def_fwrd             = output_prefix   + "f3d_def_fwrd.nii";
-    const string f3d_def_back             = output_prefix   + "f3d_def_back_%s.nii";
+    const string TM_forward               = output_prefix   + "TM_forward.txt";
+    const string TM_inverse               = output_prefix   + "TM_inverse.txt";
+    const string aladin_def_forward       = output_prefix   + "aladin_def_forward.nii";
+    const string aladin_def_inverse       = output_prefix   + "aladin_def_inverse_%s.nii";
+    const string aladin_disp_forward      = output_prefix   + "aladin_disp_forward.nii";
+    const string aladin_disp_inverse      = output_prefix   + "aladin_disp_inverse_%s.nii";
+    const string f3d_disp_forward         = output_prefix   + "f3d_disp_forward.nii";
+    const string f3d_disp_inverse         = output_prefix   + "f3d_disp_inverse_%s.nii";
+    const string f3d_def_forward          = output_prefix   + "f3d_def_forward.nii";
+    const string f3d_def_inverse          = output_prefix   + "f3d_def_inverse_%s.nii";
     const string rigid_resample           = output_prefix   + "rigid_resample.nii";
     const string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
     const string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
@@ -499,38 +499,38 @@ int main(int argc, char* argv[])
         NA.set_parameter("SetMaxIterations","5");
         NA.process();
         NA.get_output().save_to_file         (         aladin_warped         );
-        NA.get_transformation_matrix_fwrd().save_to_file(       TM_fwrd      );
-        NA.get_transformation_matrix_back().save_to_file(       TM_back      );
-        NA.get_displacement_field_fwrd().save_to_file(aladin_disp_fwrd);
-        NA.get_displacement_field_back().save_to_file_split_xyz_components(aladin_disp_back);
-        NA.get_deformation_field_fwrd().save_to_file(aladin_def_fwrd);
-        NA.get_deformation_field_back().save_to_file_split_xyz_components(aladin_def_back);
+        NA.get_transformation_matrix_forward().save_to_file(       TM_forward      );
+        NA.get_transformation_matrix_inverse().save_to_file(       TM_inverse      );
+        NA.get_displacement_field_forward().save_to_file(aladin_disp_forward);
+        NA.get_displacement_field_inverse().save_to_file_split_xyz_components(aladin_disp_inverse);
+        NA.get_deformation_field_forward().save_to_file(aladin_def_forward);
+        NA.get_deformation_field_inverse().save_to_file_split_xyz_components(aladin_def_inverse);
 
         // Get outputs
         NiftiImage3D warped = NA.get_output();
-        NiftiImage3DTensor def_fwrd  = NA.get_deformation_field_fwrd();
-        NiftiImage3DTensor def_back  = NA.get_deformation_field_back();
-        NiftiImage3DTensor disp_fwrd = NA.get_displacement_field_fwrd();
-        NiftiImage3DTensor disp_back = NA.get_displacement_field_back();
+        NiftiImage3DTensor def_forward  = NA.get_deformation_field_forward();
+        NiftiImage3DTensor def_inverse  = NA.get_deformation_field_inverse();
+        NiftiImage3DTensor disp_forward = NA.get_displacement_field_forward();
+        NiftiImage3DTensor disp_inverse = NA.get_displacement_field_inverse();
 
-        // Fwrd TM
-        SIRFRegMat44 fwrd_tm = NA.get_transformation_matrix_fwrd();
-        fwrd_tm.print();
+        // forward TM
+        SIRFRegMat44 forward_tm = NA.get_transformation_matrix_forward();
+        forward_tm.print();
 
-        // Back TM
-        SIRFRegMat44 back_tm = NA.get_transformation_matrix_back();
-        back_tm.print();
+        // Inverse TM
+        SIRFRegMat44 inverse_tm = NA.get_transformation_matrix_inverse();
+        inverse_tm.print();
 
         // Test converting disp to def
         NiftiImage3DDeformation a;
-        a.create_from_disp(disp_fwrd);
-        if (a != def_fwrd)
+        a.create_from_disp(disp_forward);
+        if (a != def_forward)
             throw runtime_error("NiftiImage3DDeformation::create_from_disp() failed.");
 
         // Test converting def to disp
         NiftiImage3DDisplacement b;
-        b.create_from_def(def_fwrd);
-        if (b != disp_fwrd)
+        b.create_from_def(def_forward);
+        if (b != disp_forward)
             throw runtime_error("NiftiImage3DDisplacement::create_from_def() failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -552,17 +552,17 @@ int main(int argc, char* argv[])
         NF.set_floating_time_point           (             1              );
         NF.process();
         NF.get_output().save_to_file         (         f3d_warped         );
-        NF.get_deformation_field_fwrd().save_to_file (f3d_def_fwrd);
-        NF.get_deformation_field_back().save_to_file_split_xyz_components(f3d_def_back);
-        NF.get_displacement_field_fwrd().save_to_file(f3d_disp_fwrd);
-        NF.get_displacement_field_back().save_to_file_split_xyz_components(f3d_disp_back);
+        NF.get_deformation_field_forward().save_to_file (f3d_def_forward);
+        NF.get_deformation_field_inverse().save_to_file_split_xyz_components(f3d_def_inverse);
+        NF.get_displacement_field_forward().save_to_file(f3d_disp_forward);
+        NF.get_displacement_field_inverse().save_to_file_split_xyz_components(f3d_disp_inverse);
 
         // Get outputs
         NiftiImage3D warped = NF.get_output();
-        NiftiImage3DTensor def_fwrd  = NF.get_deformation_field_fwrd();
-        NiftiImage3DTensor def_back  = NF.get_deformation_field_back();
-        NiftiImage3DTensor disp_fwrd = NF.get_displacement_field_fwrd();
-        NiftiImage3DTensor disp_back = NF.get_displacement_field_back();
+        NiftiImage3DTensor def_forward  = NF.get_deformation_field_forward();
+        NiftiImage3DTensor def_inverse  = NF.get_deformation_field_inverse();
+        NiftiImage3DTensor disp_forward = NF.get_displacement_field_forward();
+        NiftiImage3DTensor disp_inverse = NF.get_displacement_field_inverse();
 
         cout << "// ----------------------------------------------------------------------- //\n";
         cout << "//                  Finished Nifty f3d test.\n";
@@ -577,26 +577,26 @@ int main(int argc, char* argv[])
         // Affine
         cout << "\nTesting affine...\n";
         SIRFRegMat44 a1;
-        SIRFRegMat44 a2(TM_fwrd);
-        SIRFRegMat44 a3(NA.get_transformation_matrix_fwrd());
+        SIRFRegMat44 a2(TM_forward);
+        SIRFRegMat44 a3(NA.get_transformation_matrix_forward());
 
         // Displacement
         cout << "\nTesting displacement...\n";
-        NiftiImage3DDisplacement b3(NA.get_displacement_field_fwrd());
+        NiftiImage3DDisplacement b3(NA.get_displacement_field_forward());
 
         // Deformation
         cout << "\nTesting deformation...\n";
-        NiftiImage3DDeformation c3(NA.get_deformation_field_fwrd());
+        NiftiImage3DDeformation c3(NA.get_deformation_field_forward());
 
         // Get as deformations
         NiftiImage3DDeformation a_def = a3.get_as_deformation_field(ref_aladin);
         NiftiImage3DDeformation b_def = b3.get_as_deformation_field(ref_aladin);
         NiftiImage3DDeformation c_def = c3.get_as_deformation_field(ref_aladin);
-        if (a_def != NA.get_deformation_field_fwrd())
+        if (a_def != NA.get_deformation_field_forward())
             throw runtime_error("SIRFRegMat44::get_as_deformation_field failed.");
-        if (b_def != NA.get_deformation_field_fwrd())
+        if (b_def != NA.get_deformation_field_forward())
             throw runtime_error("NiftiImage3DDisplacement::get_as_deformation_field failed.");
-        if (c_def != NA.get_deformation_field_fwrd())
+        if (c_def != NA.get_deformation_field_forward())
             throw runtime_error("NiftiImage3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
         vec.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImage3DDeformation(c3)));
         NiftiImage3DDeformation composed =
                 NiftiImage3DDeformation::compose_single_deformation(vec, ref_aladin);
-        if (composed.get_as_deformation_field(ref_aladin) != NA.get_deformation_field_fwrd())
+        if (composed.get_as_deformation_field(ref_aladin) != NA.get_deformation_field_forward())
             throw runtime_error("NiftiImage3DDeformation::compose_single_deformation failed.");
 
         cout << "// ----------------------------------------------------------------------- //\n";
@@ -623,9 +623,9 @@ int main(int argc, char* argv[])
 
         SIRFRegMat44 tm_eye = SIRFRegMat44::get_identity();
         SIRFRegMat44 tm_iden(tm_eye);
-        SIRFRegMat44 tm(NA.get_transformation_matrix_fwrd());
-        NiftiImage3DDisplacement disp(NA.get_displacement_field_fwrd());
-        NiftiImage3DDeformation deff(NA.get_deformation_field_fwrd());
+        SIRFRegMat44 tm(NA.get_transformation_matrix_forward());
+        NiftiImage3DDisplacement disp(NA.get_displacement_field_forward());
+        NiftiImage3DDeformation deff(NA.get_deformation_field_forward());
 
         cout << "Testing rigid resample...\n";
         SIRFRegNiftyResample nr1;
@@ -696,10 +696,10 @@ int main(int argc, char* argv[])
 
         //  Do 4D
         SIRFRegImageWeightedMean wm2;
-        NiftiImage3DTensor im4D1 = NA.get_deformation_field_fwrd().deep_copy();
-        NiftiImage3DTensor im4D2 = NA.get_deformation_field_fwrd().deep_copy();
-        NiftiImage3DTensor im4D3 = NA.get_deformation_field_fwrd().deep_copy();
-        NiftiImage3DTensor im4D4 = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor im4D1 = NA.get_deformation_field_forward().deep_copy();
+        NiftiImage3DTensor im4D2 = NA.get_deformation_field_forward().deep_copy();
+        NiftiImage3DTensor im4D3 = NA.get_deformation_field_forward().deep_copy();
+        NiftiImage3DTensor im4D4 = NA.get_deformation_field_forward().deep_copy();
         im4D1.fill(1.F);
         im4D2.fill(4.F);
         im4D3.fill(7.F);
@@ -711,7 +711,7 @@ int main(int argc, char* argv[])
         wm2.process();
         wm2.get_output().save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
-        NiftiImage3DTensor res4D = NA.get_deformation_field_fwrd().deep_copy();
+        NiftiImage3DTensor res4D = NA.get_deformation_field_forward().deep_copy();
         res4D.fill(4.5);
 
         if (wm2.get_output() != res4D)
@@ -754,11 +754,11 @@ int main(int argc, char* argv[])
         cout << "//------------------------------------------------------------------------ //\n";
 
         // Construct from file
-        SIRFRegMat44 a(TM_fwrd);
+        SIRFRegMat44 a(TM_forward);
 
-        // Multiply fwrd and inverse, should equal identity
-        SIRFRegMat44 b = NA.get_transformation_matrix_fwrd();
-        SIRFRegMat44 c = NA.get_transformation_matrix_back();
+        // Multiply forward and inverse, should equal identity
+        SIRFRegMat44 b = NA.get_transformation_matrix_forward();
+        SIRFRegMat44 c = NA.get_transformation_matrix_inverse();
         SIRFRegMat44 d = b * c;
         SIRFRegMat44 e = SIRFRegMat44::get_identity();
         if (d != e)

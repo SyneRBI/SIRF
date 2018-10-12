@@ -66,29 +66,29 @@ classdef (Abstract = true) SIRFReg < handle
             mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
-        function output = get_deformation_field_fwrd(self)
+        function output = get_deformation_field_forward(self)
             %Gets the forward deformation field image.
             output = mSIRFReg.NiftiImage3DDeformation();
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_deformation');
-            mUtilities.check_status([self.name ':get_deformation_field_fwrd'], output.handle_);
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'forward_deformation');
+            mUtilities.check_status([self.name ':get_deformation_field_forward'], output.handle_);
         end
-        function output = get_deformation_field_back(self)
-            %Gets the backwards deformation field image.
+        function output = get_deformation_field_inverse(self)
+            %Gets the inverse deformation field image.
             output = mSIRFReg.NiftiImage3DDeformation();
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_deformation');
-            mUtilities.check_status([self.name ':get_deformation_field_back'], output.handle_);
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'inverse_deformation');
+            mUtilities.check_status([self.name ':get_deformation_field_inverse'], output.handle_);
         end
-        function output = get_displacement_field_fwrd(self)
+        function output = get_displacement_field_forward(self)
             %Gets the forward displacement field image.
             output = mSIRFReg.NiftiImage3DDisplacement();
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'fwrd_displacement');
-            mUtilities.check_status([self.name ':get_displacement_field_fwrd'], output.handle_);
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'forward_displacement');
+            mUtilities.check_status([self.name ':get_displacement_field_forward'], output.handle_);
         end
-        function output = get_displacement_field_back(self)
-            %Gets the backwards displacement field image.
+        function output = get_displacement_field_inverse(self)
+            %Gets the inverse displacement field image.
             output = mSIRFReg.NiftiImage3DDisplacement();
-            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'back_displacement');
-            mUtilities.check_status([self.name ':get_displacement_field_back'], output.handle_);
+            output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_deformation_displacement_image', self.handle_, 'inverse_displacement');
+            mUtilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
         end
         function set_parameter(self, par, arg1, arg2)
             %Set string parameter. Check if any set methods match the method given by par.

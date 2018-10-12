@@ -45,10 +45,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const SIRFRegMat44 &get_transformation_matrix_fwrd() const { return _TM_fwrd; }
+    const SIRFRegMat44 &get_transformation_matrix_forward() const { return _TM_forward; }
 
-    /// Get backwards transformation matrix
-    const SIRFRegMat44 &get_transformation_matrix_back() const { return _TM_back; }
+    /// Get inverse transformation matrix
+    const SIRFRegMat44 &get_transformation_matrix_inverse() const { return _TM_inverse; }
 
 protected:
 
@@ -62,9 +62,9 @@ protected:
     std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
 
     /// Forwards transformation matrix
-    SIRFRegMat44 _TM_fwrd;
-    /// Backwards transformation matrix
-    SIRFRegMat44 _TM_back;
+    SIRFRegMat44 _TM_forward;
+    /// Inverse transformation matrix
+    SIRFRegMat44 _TM_inverse;
 };
 }
 

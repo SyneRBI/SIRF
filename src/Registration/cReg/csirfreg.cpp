@@ -471,14 +471,14 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
     try {
         SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
         shared_ptr<NiftiImage3DDeformation> sptr;
-        if (strcmp(transform_type, "fwrd_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_fwrd())));
-        else if (strcmp(transform_type, "back_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_back())));
-        else if (strcmp(transform_type, "fwrd_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_fwrd())));
-        else if (strcmp(transform_type, "back_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_back())));
+        if (strcmp(transform_type, "forward_deformation") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_forward())));
+        else if (strcmp(transform_type, "inverse_deformation") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDeformation>(new NiftiImage3DDeformation(reg.get_deformation_field_inverse())));
+        else if (strcmp(transform_type, "forward_displacement") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_forward())));
+        else if (strcmp(transform_type, "inverse_displacement") == 0)
+            return newObjectHandle(shared_ptr<NiftiImage3DDisplacement>(new NiftiImage3DDisplacement(reg.get_displacement_field_inverse())));
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }
@@ -503,12 +503,12 @@ void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
         shared_ptr<SIRFRegMat44> sptr;
-        if (strcmp(dir, "fwrd") == 0)
-            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_fwrd().deep_copy()));
-        else if (strcmp(dir, "back") == 0)
-            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_back().deep_copy()));
+        if (strcmp(dir, "forward") == 0)
+            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_forward().deep_copy()));
+        else if (strcmp(dir, "inverse") == 0)
+            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_inverse().deep_copy()));
         else
-            throw std::runtime_error("only accept fwrd or back as argument to dir for saving transformation matrix");
+            throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
         return newObjectHandle(sptr);
     }
     CATCH;

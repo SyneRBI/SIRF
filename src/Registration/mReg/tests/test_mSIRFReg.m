@@ -25,16 +25,16 @@ g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'matlab_s
 g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'matlab_save_NiftiImage3DDisplacement_split_%s.nii');
 g.aladin_warped                              = fullfile(output_prefix, 'matlab_aladin_warped.nii');
 g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f3d_warped.nii');
-g.TM_fwrd				                     = fullfile(output_prefix, 'matlab_TM_fwrd.txt');
-g.TM_back				                     = fullfile(output_prefix, 'matlab_TM_back.txt');
-g.aladin_def_fwrd                            = fullfile(output_prefix, 'matlab_aladin_def_fwrd.nii');
-g.aladin_def_back                            = fullfile(output_prefix, 'matlab_aladin_def_back_%s.nii');
-g.aladin_disp_fwrd                           = fullfile(output_prefix, 'matlab_aladin_disp_fwrd.nii');
-g.aladin_disp_back                           = fullfile(output_prefix, 'matlab_aladin_disp_back_%s.nii');
-g.f3d_def_fwrd                               = fullfile(output_prefix, 'matlab_f3d_disp_fwrd.nii');
-g.f3d_def_back                               = fullfile(output_prefix, 'matlab_f3d_disp_back_%s.nii');
-g.f3d_disp_fwrd                              = fullfile(output_prefix, 'matlab_f3d_disp_fwrd.nii');
-g.f3d_disp_back                              = fullfile(output_prefix, 'matlab_f3d_disp_back_%s.nii');
+g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
+g.TM_inverse		                     = fullfile(output_prefix, 'matlab_TM_inverse.txt');
+g.aladin_def_forward                         = fullfile(output_prefix, 'matlab_aladin_def_forward.nii');
+g.aladin_def_inverse                            = fullfile(output_prefix, 'matlab_aladin_def_inverse_%s.nii');
+g.aladin_disp_forward                        = fullfile(output_prefix, 'matlab_aladin_disp_forward.nii');
+g.aladin_disp_inverse                           = fullfile(output_prefix, 'matlab_aladin_disp_inverse_%s.nii');
+g.f3d_def_forward                            = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
+g.f3d_def_inverse                               = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
+g.f3d_disp_forward                           = fullfile(output_prefix, 'matlab_f3d_disp_forward.nii');
+g.f3d_disp_inverse                              = fullfile(output_prefix, 'matlab_f3d_disp_inverse_%s.nii');
 
 g.rigid_resample                             = fullfile(output_prefix, 'matlab_rigid_resample.nii');
 g.nonrigid_resample_disp                     = fullfile(output_prefix, 'matlab_nonrigid_resample_disp.nii');
@@ -411,34 +411,34 @@ function na =try_niftyaladin(g)
 
     % Get outputs
     warped = na.get_output();
-    def_fwrd = na.get_deformation_field_fwrd();
-    def_back = na.get_deformation_field_back();
-    disp_fwrd = na.get_displacement_field_fwrd();
-    disp_back = na.get_displacement_field_back();
+    def_forward = na.get_deformation_field_forward();
+    def_inverse = na.get_deformation_field_inverse();
+    disp_forward = na.get_displacement_field_forward();
+    disp_inverse = na.get_displacement_field_inverse();
 
     warped.save_to_file(g.aladin_warped);
-    na.get_transformation_matrix_fwrd().save_to_file(g.TM_fwrd);
-    na.get_transformation_matrix_back().save_to_file(g.TM_back);
-    def_fwrd.save_to_file(g.aladin_def_fwrd);
-    def_back.save_to_file_split_xyz_components(g.aladin_def_back);
-    disp_fwrd.save_to_file(g.aladin_disp_fwrd);
-    disp_back.save_to_file_split_xyz_components(g.aladin_disp_back);
+    na.get_transformation_matrix_forward().save_to_file(g.TM_forward);
+    na.get_transformation_matrix_inverse().save_to_file(g.TM_inverse);
+    def_forward.save_to_file(g.aladin_def_forward);
+    def_inverse.save_to_file_split_xyz_components(g.aladin_def_inverse);
+    disp_forward.save_to_file(g.aladin_disp_forward);
+    disp_inverse.save_to_file_split_xyz_components(g.aladin_disp_inverse);
 
-    % Fwrd TM
-    fwrd_tm = na.get_transformation_matrix_fwrd().as_array()
+    % forward TM
+    forward_tm = na.get_transformation_matrix_forward().as_array()
 
-    % Back TM
-    back_tm = na.get_transformation_matrix_back().as_array()
+    % Inverse TM
+    inverse_tm = na.get_transformation_matrix_inverse().as_array()
 
     % Test converting disp to def
     a = mSIRFReg.NiftiImage3DDeformation();
-    a.create_from_disp(disp_fwrd);
-    assert(a == def_fwrd, "NiftiImage3DDeformation::create_from_disp() failed.");
+    a.create_from_disp(disp_forward);
+    assert(a == def_forward, "NiftiImage3DDeformation::create_from_disp() failed.");
 
     % Test converting def to disp
     b = mSIRFReg.NiftiImage3DDisplacement();
-    b.create_from_def(def_fwrd);
-    assert(b == disp_fwrd, "NiftiImage3DDisplacement::create_from_def() failed.");
+    b.create_from_def(def_forward);
+    assert(b == disp_forward, "NiftiImage3DDisplacement::create_from_def() failed.");
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -451,7 +451,7 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 
     % Get initial transformation
-    tm_init = mSIRFReg.Mat44(g.TM_fwrd);
+    tm_init = mSIRFReg.Mat44(g.TM_forward);
 
 	% default constructor
     nf = mSIRFReg.NiftyF3dSym();
@@ -465,16 +465,16 @@ function try_niftyf3d(g)
 
     % Get outputs
     warped = nf.get_output();
-    def_fwrd = nf.get_deformation_field_fwrd();
-    def_back = nf.get_deformation_field_back();
-    disp_fwrd = nf.get_displacement_field_fwrd();
-    disp_back = nf.get_displacement_field_back();
+    def_forward = nf.get_deformation_field_forward();
+    def_inverse = nf.get_deformation_field_inverse();
+    disp_forward = nf.get_displacement_field_forward();
+    disp_inverse = nf.get_displacement_field_inverse();
 
     warped.save_to_file(g.f3d_warped);
-    def_fwrd.save_to_file(g.f3d_def_fwrd);
-    def_back.save_to_file_split_xyz_components(g.f3d_def_back);
-    disp_fwrd.save_to_file(g.f3d_disp_fwrd);
-    disp_back.save_to_file_split_xyz_components(g.f3d_disp_back);
+    def_forward.save_to_file(g.f3d_def_forward);
+    def_inverse.save_to_file_split_xyz_components(g.f3d_def_inverse);
+    disp_forward.save_to_file(g.f3d_disp_forward);
+    disp_inverse.save_to_file_split_xyz_components(g.f3d_disp_inverse);
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')
@@ -488,23 +488,23 @@ function try_transformations(g,na)
 
 
     % Get transformations
-    a3 = na.get_transformation_matrix_fwrd();
-    b3 = na.get_displacement_field_fwrd();
-    c3 = na.get_deformation_field_fwrd();
+    a3 = na.get_transformation_matrix_forward();
+    b3 = na.get_displacement_field_forward();
+    c3 = na.get_deformation_field_forward();
 
     % Get as deformations
     a_def = a3.get_as_deformation_field(g.ref_aladin);
     b_def = b3.get_as_deformation_field(g.ref_aladin);
     c_def = c3.get_as_deformation_field(g.ref_aladin);
-    assert(a_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationAffine get_as_deformation_field() failed.')
-    assert(b_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationDisplacement get_as_deformation_field() failed.')
-    assert(c_def == na.get_deformation_field_fwrd(), 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
+    assert(a_def == na.get_deformation_field_forward(), 'SIRFRegTransformationAffine get_as_deformation_field() failed.')
+    assert(b_def == na.get_deformation_field_forward(), 'SIRFRegTransformationDisplacement get_as_deformation_field() failed.')
+    assert(c_def == na.get_deformation_field_forward(), 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
 
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = mSIRFReg.Mat44.get_identity();
     trans = [tm_iden, tm_iden, c3];
     composed = mSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, g.ref_aladin);
-    assert(composed == na.get_deformation_field_fwrd(), 'compose_single_deformation failed.')
+    assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
 
 
 	disp('% ----------------------------------------------------------------------- %')
@@ -518,9 +518,9 @@ function try_resample(g,na)
     disp('%------------------------------------------------------------------------ %')
 
 	tm_iden = mSIRFReg.Mat44.get_identity();
-    tm      = na.get_transformation_matrix_fwrd();
-    displ   = na.get_displacement_field_fwrd();
-    deff    = na.get_deformation_field_fwrd();
+    tm      = na.get_transformation_matrix_forward();
+    displ   = na.get_displacement_field_forward();
+    deff    = na.get_deformation_field_forward();
 
     disp('Testing rigid resample...')
     nr1 = mSIRFReg.NiftyResample();
@@ -589,10 +589,10 @@ function try_weighted_mean(g,na)
 
 		% Do 4D
 		wm2 = mSIRFReg.ImageWeightedMean();
-		im1 = na.get_deformation_field_fwrd().deep_copy();
-		im2 = na.get_deformation_field_fwrd().deep_copy();
-		im3 = na.get_deformation_field_fwrd().deep_copy();
-		im4 = na.get_deformation_field_fwrd().deep_copy();
+		im1 = na.get_deformation_field_forward().deep_copy();
+		im2 = na.get_deformation_field_forward().deep_copy();
+		im3 = na.get_deformation_field_forward().deep_copy();
+		im4 = na.get_deformation_field_forward().deep_copy();
 		im1.fill(1);
 		im2.fill(4);
 		im3.fill(7);
@@ -604,7 +604,7 @@ function try_weighted_mean(g,na)
                 wm2.process();
 		wm2.get_output().save_to_file(g.output_weighted_mean_def);
 		% Answer should be 4.5, so compare it to that!
-		res = na.get_deformation_field_fwrd().deep_copy();
+		res = na.get_deformation_field_forward().deep_copy();
 		res.fill(4.5);
 		assert(wm2.get_output() == res, '4D weighted mean test failed.')
 
@@ -646,11 +646,11 @@ function try_sirfregmat44(g,na)
     disp('%------------------------------------------------------------------------ %')
 
     % Construct from file
-    a = mSIRFReg.Mat44(TM_fwrd);
+    a = mSIRFReg.Mat44(TM_forward);
 
-    % Multiply fwrd and inverse, should equal identity
-    b = na.get_transformation_matrix_fwrd();
-    c = na.get_transformation_matrix_back();
+    % Multiply forward and inverse, should equal identity
+    b = na.get_transformation_matrix_forward();
+    c = na.get_transformation_matrix_inverse();
     d = b * c;
     e = mSIRFReg.Mat44.get_identity();
     assert(d == e, 'SIRFRegMat44::mult/comparison failed.');

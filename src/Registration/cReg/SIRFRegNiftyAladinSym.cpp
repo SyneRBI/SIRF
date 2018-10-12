@@ -66,27 +66,27 @@ void SIRFRegNiftyAladinSym<T>::process()
             _reference_image.get_raw_nifti_sptr()->dt < 1.e-7F)
         _warped_image.get_raw_nifti_sptr()->pixdim[4] = _warped_image.get_raw_nifti_sptr()->dt = 0.F;
 
-    // Get the forward and backward transformation matrices
-    _TM_fwrd = *_registration_sptr->GetTransformationMatrix();
-    _TM_back = nifti_mat44_inverse(_TM_fwrd.get_raw_mat44());
+    // Get the forward and inverse transformation matrices
+    _TM_forward = *_registration_sptr->GetTransformationMatrix();
+    _TM_inverse = nifti_mat44_inverse(_TM_forward.get_raw_mat44());
 
     cout << "\nPrinting forwards tranformation matrix:\n";
-    _TM_fwrd.print();
-    cout << "\nPrinting backwards tranformation matrix:\n";
-    _TM_back.print();
+    _TM_forward.print();
+    cout << "\nPrinting inverse tranformation matrix:\n";
+    _TM_inverse.print();
 
     // affine->def->disp
-    _def_image_fwrd.create_from_3D_image(_reference_image);
-    _def_image_back.create_from_3D_image(_reference_image);
+    _def_image_forward.create_from_3D_image(_reference_image);
+    _def_image_inverse.create_from_3D_image(_reference_image);
 
-    mat44 temp_fwrd(_TM_fwrd.get_raw_mat44());
-    mat44 temp_back(_TM_back.get_raw_mat44());
-    reg_affine_getDeformationField(&temp_fwrd, _def_image_fwrd.get_raw_nifti_sptr().get());
-    reg_affine_getDeformationField(&temp_back, _def_image_back.get_raw_nifti_sptr().get());
+    mat44 temp_forward(_TM_forward.get_raw_mat44());
+    mat44 temp_inverse(_TM_inverse.get_raw_mat44());
+    reg_affine_getDeformationField(&temp_forward, _def_image_forward.get_raw_nifti_sptr().get());
+    reg_affine_getDeformationField(&temp_inverse, _def_image_inverse.get_raw_nifti_sptr().get());
 
     // Get the displacement fields from the def
-    _disp_image_fwrd.create_from_def(_def_image_fwrd);
-    _disp_image_back.create_from_def(_def_image_back);
+    _disp_image_forward.create_from_def(_def_image_forward);
+    _disp_image_inverse.create_from_def(_def_image_inverse);
 
     cout << "\n\nRegistration finished!\n\n";
 }

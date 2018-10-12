@@ -602,31 +602,31 @@ class _SIRFReg(ABC):
         """Run the registration"""
         try_calling(pysirfreg.cSIRFReg_SIRFReg_process(self.handle))
 
-    def get_deformation_field_fwrd(self):
+    def get_deformation_field_forward(self):
         """Gets the forward deformation field image."""
         output = NiftiImage3DDeformation()
-        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_deformation')
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'forward_deformation')
         check_status(output.handle)
         return output
 
-    def get_deformation_field_back(self):
-        """Gets the backwards deformation field image."""
+    def get_deformation_field_inverse(self):
+        """Gets the inverse deformation field image."""
         output = NiftiImage3DDeformation()
-        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_deformation')
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'inverse_deformation')
         check_status(output.handle)
         return output
 
-    def get_displacement_field_fwrd(self):
+    def get_displacement_field_forward(self):
         """Gets the forward displacement field image."""
         output = NiftiImage3DDisplacement()
-        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'fwrd_displacement')
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'forward_displacement')
         check_status(output.handle)
         return output
 
-    def get_displacement_field_back(self):
-        """Gets the backwards displacement field image."""
+    def get_displacement_field_inverse(self):
+        """Gets the inverse displacement field image."""
         output = NiftiImage3DDisplacement()
-        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'back_displacement')
+        output.handle = pysirfreg.cSIRFReg_SIRFReg_get_deformation_displacement_image(self.handle, 'inverse_displacement')
         check_status(output.handle)
         return output
 
@@ -651,20 +651,20 @@ class NiftyAladinSym(_SIRFReg):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def get_transformation_matrix_fwrd(self):
+    def get_transformation_matrix_forward(self):
         """Get forward transformation matrix."""
         if self.handle is None:
             raise AssertionError()
         tm = Mat44()
-        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'fwrd')
+        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'forward')
         return tm
 
-    def get_transformation_matrix_back(self):
-        """Get backwards transformation matrix."""
+    def get_transformation_matrix_inverse(self):
+        """Get inverse transformation matrix."""
         if self.handle is None:
             raise AssertionError()
         tm = Mat44()
-        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'back')
+        tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'inverse')
         return tm
 
 

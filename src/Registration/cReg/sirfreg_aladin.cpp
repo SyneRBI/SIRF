@@ -46,8 +46,8 @@ void print_usage()
     // Optional flags
     cout << "\n  Optional flags:\n";
     cout << "    -warped:\twarped image filename\n";
-    cout << "    -TM_fwrd:\tforward transformation matrix\n";
-    cout << "    -TM_back:\tbackwards transformation matrix\n";
+    cout << "    -TM_forward:\tforward transformation matrix\n";
+    cout << "    -TM_inverse:\tinverse transformation matrix\n";
     cout << "    -disp_4D:\t4D forward displacement field image\n";
     cout << "    -disp_3D:\t3D forward displacement field image\n";
     cout << "    -def_4D:\t4D forward deformation field image\n";
@@ -115,8 +115,8 @@ int main(int argc, char* argv[])
         int flag_warped   = find_flag(unused_flags,argv,"-warped");
 
         // TMs
-        int flag_TM_fwrd  = find_flag(unused_flags,argv,"-TM_fwrd");
-        int flag_TM_back  = find_flag(unused_flags,argv,"-TM_back");
+        int flag_TM_forward  = find_flag(unused_flags,argv,"-TM_forward");
+        int flag_TM_inverse  = find_flag(unused_flags,argv,"-TM_inverse");
 
         // Disp field images
         int flag_disp_4D = find_flag(unused_flags,argv,"-disp_4D");
@@ -155,22 +155,22 @@ int main(int argc, char* argv[])
             aladin.get_output().save_to_file(argv[flag_warped+1]);
 
         // TMs
-        if (flag_TM_fwrd != -1)
-            aladin.get_transformation_matrix_fwrd().save_to_file(argv[flag_TM_fwrd+1]);
-        if (flag_TM_back != -1)
-            aladin.get_transformation_matrix_back().save_to_file(argv[flag_TM_back+1]);
+        if (flag_TM_forward != -1)
+            aladin.get_transformation_matrix_forward().save_to_file(argv[flag_TM_forward+1]);
+        if (flag_TM_inverse != -1)
+            aladin.get_transformation_matrix_inverse().save_to_file(argv[flag_TM_inverse+1]);
 
         // Disp field images
         if (flag_disp_4D != -1)
-            aladin.get_displacement_field_fwrd().save_to_file(argv[flag_disp_4D+1]);
+            aladin.get_displacement_field_forward().save_to_file(argv[flag_disp_4D+1]);
         if (flag_disp_3D != -1)
-            aladin.get_displacement_field_fwrd().save_to_file_split_xyz_components(argv[flag_disp_3D+1]);
+            aladin.get_displacement_field_forward().save_to_file_split_xyz_components(argv[flag_disp_3D+1]);
 
         // Def field images
         if (flag_def_4D != -1)
-            aladin.get_deformation_field_fwrd().save_to_file(argv[flag_def_4D+1]);
+            aladin.get_deformation_field_forward().save_to_file(argv[flag_def_4D+1]);
         if (flag_def_3D != -1)
-            aladin.get_deformation_field_fwrd().save_to_file_split_xyz_components(argv[flag_def_3D+1]);
+            aladin.get_deformation_field_forward().save_to_file_split_xyz_components(argv[flag_def_3D+1]);
     }
 
     // If there was an error
