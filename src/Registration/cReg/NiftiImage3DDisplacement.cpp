@@ -30,7 +30,6 @@ limitations under the License.
 #include "NiftiImage3DDisplacement.h"
 #include <_reg_localTrans.h>
 
-using namespace std;
 using namespace sirf;
 
 void NiftiImage3DDisplacement::create_from_def(const NiftiImage3DDeformation &def)

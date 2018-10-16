@@ -33,23 +33,22 @@ limitations under the License.
 #include <_reg_globalTrans.h>
 #include <iomanip>
 
-using namespace std;
 using namespace sirf;
 
-void SIRFRegMat44::print(const vector<SIRFRegMat44> &mats)
+void SIRFRegMat44::print(const std::vector<SIRFRegMat44> &mats)
 {
     for(int i=0;i<4;i++) {
-        cout << "\t" << left << setw(19) << "";
+        std::cout << "\t" << std::left << std::setw(19) << "";
         for(unsigned j=0;j<mats.size();j++) {
-            ostringstream ss;
+            std::ostringstream ss;
             ss << "[" <<
-                  setprecision(3) << mats[j][i][0] << "," <<
-                  setprecision(3) << mats[j][i][1] << "," <<
-                  setprecision(3) << mats[j][i][2] << "," <<
-                  setprecision(3) << mats[j][i][3] << "] ";
-            cout << left << setw(19) << ss.str();
+                  std::setprecision(3) << mats[j][i][0] << "," <<
+                  std::setprecision(3) << mats[j][i][1] << "," <<
+                  std::setprecision(3) << mats[j][i][2] << "," <<
+                  std::setprecision(3) << mats[j][i][3] << "] ";
+            std::cout << std::left << std::setw(19) << ss.str();
         }
-        cout << "\n";
+        std::cout << "\n";
     }
 }
 
@@ -68,15 +67,15 @@ SIRFRegMat44::SIRFRegMat44()
             (*this)[i][j] = 0.F;
 }
 
-SIRFRegMat44::SIRFRegMat44(const string &filename)
+SIRFRegMat44::SIRFRegMat44(const std::string &filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename))
-        throw runtime_error("Cannot find the file: " + filename + ".");
+        throw std::runtime_error("Cannot find the file: " + filename + ".");
 
-    cout << "\n\nReading transformation matrix from file...\n\n";
+    std::cout << "\n\nReading transformation matrix from file...\n\n";
     reg_tool_ReadAffineFile(&_tm, const_cast<char*>(filename.c_str()));
-    cout << "\n\nSuccessfully read transformation matrix from file:\n";
+    std::cout << "\n\nSuccessfully read transformation matrix from file:\n";
 
     this->print();
 }
@@ -102,10 +101,10 @@ bool SIRFRegMat44::operator!=(const SIRFRegMat44 &other) const
 SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
 {
     // Print info
-    cout << "\nMultiplying two matrices...\n";
-    cout << "Matrix 1:\n";
+    std::cout << "\nMultiplying two matrices...\n";
+    std::cout << "Matrix 1:\n";
     this->print();
-    cout << "Matrix 2:\n";
+    std::cout << "Matrix 2:\n";
     other.print();
 
     // Create result, set to zero
@@ -115,7 +114,7 @@ SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
             for (int k=0;k<4;k++)
                 res[i][j] += (*this)[i][k] * other[k][j];
 
-    cout << "Result:\n";
+    std::cout << "Result:\n";
     res.print();
 
     return res;
@@ -138,11 +137,11 @@ SIRFRegMat44 SIRFRegMat44::deep_copy() const
 }
 
 /// Save transformation matrix to file
-void SIRFRegMat44::save_to_file(const string &filename) const
+void SIRFRegMat44::save_to_file(const std::string &filename) const
 {
     // Check that input isn't blank
     if (filename.empty())
-        throw runtime_error("Error, cannot write transformation matrix to file because filename is blank");
+        throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
     // Need to copy the tm, since the function is not marked const
     mat44 temp = _tm;
     reg_tool_WriteAffineFile(&temp, filename.c_str());

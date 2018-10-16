@@ -30,7 +30,6 @@ limitations under the License.
 #include "NiftiImage.h"
 #include "vector"
 
-using namespace std;
 using namespace sirf;
 
 /// main
@@ -38,7 +37,7 @@ int main(int argc, char* argv[])
 {
     try {
         if (argc < 2) {
-            cout << "\nsirfreg_print_nifti_info filename1 [filename2 [filename3 [...]]]\n";
+            std::cout << "\nsirfreg_print_nifti_info filename1 [filename2 [filename3 [...]]]\n";
             return EXIT_SUCCESS;
         }
 
@@ -54,8 +53,8 @@ int main(int argc, char* argv[])
         NiftiImage::print_headers(ims);
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

@@ -35,7 +35,6 @@ limitations under the License.
 #include <algorithm>
 #include <boost/filesystem.hpp>
 
-using namespace std;
 using namespace sirf;
 
 void SIRFReg::check_parameters() const

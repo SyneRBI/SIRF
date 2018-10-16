@@ -29,33 +29,32 @@ limitations under the License.
 
 #include "SIRFRegNiftyAladinSym.h"
 
-using namespace std;
 using namespace sirf;
 
 /// print usage
 void print_usage()
 {
-    cout << "\n*** sirfreg_aladin usage ***\n";
+    std::cout << "\n*** sirfreg_aladin usage ***\n";
 
     // Required flags
-    cout << "\n  Required flags:\n";
-    cout << "    -ref:\treference image\n";
-    cout << "    -flo:\tfloating image\n";
-    cout << "    -par:\tparameter file\n";
+    std::cout << "\n  Required flags:\n";
+    std::cout << "    -ref:\treference image\n";
+    std::cout << "    -flo:\tfloating image\n";
+    std::cout << "    -par:\tparameter file\n";
 
     // Optional flags
-    cout << "\n  Optional flags:\n";
-    cout << "    -warped:\twarped image filename\n";
-    cout << "    -TM_forward:\tforward transformation matrix\n";
-    cout << "    -TM_inverse:\tinverse transformation matrix\n";
-    cout << "    -disp_4D:\t4D forward displacement field image\n";
-    cout << "    -disp_3D:\t3D forward displacement field image\n";
-    cout << "    -def_4D:\t4D forward deformation field image\n";
-    cout << "    -def_3D:\t3D forward deformation field image\n";
+    std::cout << "\n  Optional flags:\n";
+    std::cout << "    -warped:\twarped image filename\n";
+    std::cout << "    -TM_forward:\tforward transformation matrix\n";
+    std::cout << "    -TM_inverse:\tinverse transformation matrix\n";
+    std::cout << "    -disp_4D:\t4D forward displacement field image\n";
+    std::cout << "    -disp_3D:\t3D forward displacement field image\n";
+    std::cout << "    -def_4D:\t4D forward deformation field image\n";
+    std::cout << "    -def_3D:\t3D forward deformation field image\n";
 }
 
 /// find flag
-int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required=false)
+int find_flag(std::vector<int> &unused_flags, char* argv[], std::string arg, bool required=false)
 {
     for (unsigned i=0; i<unused_flags.size(); i++) {
         if (!strcmp(argv[unused_flags[i]], arg.c_str())) {
@@ -68,7 +67,7 @@ int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required
     if (!required)
         return -1;
 
-    cout << "\nRequired flag \"" << arg << "\" not found. Exiting...\n";
+    std::cout << "\nRequired flag \"" << arg << "\" not found. Exiting...\n";
     print_usage();
     exit(EXIT_FAILURE);
 }
@@ -78,7 +77,7 @@ int main(int argc, char* argv[])
 {
     try {
         // Create a list of all unused flags
-        vector<int> unused_flags;
+        std::vector<int> unused_flags;
         for (int i=1; i<argc; i+=2)
             unused_flags.push_back(i);
 
@@ -132,11 +131,11 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         if (unused_flags.size() > 0) {
-            cout << "\n\nThe following unknown flags were supplied:\n";
+            std::cout << "\n\nThe following unknown flags were supplied:\n";
             for (unsigned i=0; i<unused_flags.size(); i++)
-                cout << "\t" << argv[unused_flags[i]] << "\n";
+                std::cout << "\t" << argv[unused_flags[i]] << "\n";
         }
-        cout << "\n";
+        std::cout << "\n";
 
 
         // ------------------------------------------------ //
@@ -174,8 +173,8 @@ int main(int argc, char* argv[])
     }
 
     // If there was an error
-    catch(const exception &error) {
-        cerr << "\nError encountered:\n\t" << error.what() << "\n\n";
+    catch(const std::exception &error) {
+        std::cerr << "\nError encountered:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

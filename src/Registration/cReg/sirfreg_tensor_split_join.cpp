@@ -31,12 +31,11 @@ limitations under the License.
 #include "NiftiImage3DTensor.h"
 #include "NiftiImage3D.h"
 
-using namespace std;
 using namespace sirf;
 
 void print_usage()
 {
-    cout << "\nUsage: sirfreg_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
+    std::cout << "\nUsage: sirfreg_tensor_split_join --join/split filename_4D filename_x filename_y filename z\n";
 }
 
 enum JoinOrSplit{join,split};
@@ -62,10 +61,10 @@ int main(int argc, char* argv[])
         }
 
         // Get filenames
-        string filename_4D = argv[2];
-        string filename_x  = argv[3];
-        string filename_y  = argv[4];
-        string filename_z  = argv[5];
+        std::string filename_4D = argv[2];
+        std::string filename_x  = argv[3];
+        std::string filename_y  = argv[4];
+        std::string filename_z  = argv[5];
 
         // If we're joining images
         if (mode == join) {
@@ -84,8 +83,8 @@ int main(int argc, char* argv[])
         }
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

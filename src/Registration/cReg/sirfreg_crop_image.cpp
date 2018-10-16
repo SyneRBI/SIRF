@@ -31,29 +31,28 @@ limitations under the License.
 #include <vector>
 #include <NiftiImage.h>
 
-using namespace std;
 using namespace sirf;
 
 /// Print usage
 void print_usage()
 {
-    cout << "\n\n\n*** Usage: sirfreg_crop_image output_filename input_filename [at least one optional parameter] ***\n\n";
-    cout << "Where optional parameters are:\n";
-    cout << "\t[--x_min <val>]\n";
-    cout << "\t[--x_max <val>]\n";
-    cout << "\t[--y_min <val>]\n";
-    cout << "\t[--y_max <val>]\n";
-    cout << "\t[--z_min <val>]\n";
-    cout << "\t[--z_max <val>]\n";
-    cout << "\t[--t_min <val>]\n";
-    cout << "\t[--t_max <val>]\n";
-    cout << "\t[--u_min <val>]\n";
-    cout << "\t[--u_max <val>]\n";
-    cout << "\t[--v_min <val>]\n";
-    cout << "\t[--v_max <val>]\n";
-    cout << "\t[--w_min <val>]\n";
-    cout << "\t[--w_max <val>]\n";
-    cout << "When optional parameters are not supplied, the image will remain unchanged for that aspect.\n\n";
+    std::cout << "\n\n\n*** Usage: sirfreg_crop_image output_filename input_filename [at least one optional parameter] ***\n\n";
+    std::cout << "Where optional parameters are:\n";
+    std::cout << "\t[--x_min <val>]\n";
+    std::cout << "\t[--x_max <val>]\n";
+    std::cout << "\t[--y_min <val>]\n";
+    std::cout << "\t[--y_max <val>]\n";
+    std::cout << "\t[--z_min <val>]\n";
+    std::cout << "\t[--z_max <val>]\n";
+    std::cout << "\t[--t_min <val>]\n";
+    std::cout << "\t[--t_max <val>]\n";
+    std::cout << "\t[--u_min <val>]\n";
+    std::cout << "\t[--u_max <val>]\n";
+    std::cout << "\t[--v_min <val>]\n";
+    std::cout << "\t[--v_max <val>]\n";
+    std::cout << "\t[--w_min <val>]\n";
+    std::cout << "\t[--w_max <val>]\n";
+    std::cout << "When optional parameters are not supplied, the image will remain unchanged for that aspect.\n\n";
 }
 
 /// main
@@ -68,8 +67,8 @@ int main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
 
-        const string input_filename  = argv[2];
-        const string output_filename = argv[1];
+        const std::string input_filename  = argv[2];
+        const std::string output_filename = argv[1];
 
         // Ignore first 3 arguments
         argv+=3;
@@ -136,7 +135,7 @@ int main(int argc, char* argv[])
 
             // Unknown
             else {
-                cerr << "Unknown option '" << argv[0] <<"'\n";
+                std::cerr << "Unknown option '" << argv[0] <<"'\n";
                 return EXIT_FAILURE;
             }
 
@@ -144,16 +143,16 @@ int main(int argc, char* argv[])
             argv+=2;
         }
 
-        cout << "\nDimensions of input image = ( ";
+        std::cout << "\nDimensions of input image = ( ";
         for (int i=1; i<8; ++i)
-            cout << dims[i] << " ";
-        cout << ")\nDesired minimum index     = ( ";
+            std::cout << dims[i] << " ";
+        std::cout << ")\nDesired minimum index     = ( ";
         for (int i=0; i<7; ++i)
-            cout << min_index[i] << " ";
-        cout << ")\nDesired maximum index     = ( ";
+            std::cout << min_index[i] << " ";
+        std::cout << ")\nDesired maximum index     = ( ";
         for (int i=0; i<7; ++i)
-            cout << max_index[i] << " ";
-        cout << ")\n\n";
+            std::cout << max_index[i] << " ";
+        std::cout << ")\n\n";
 
         // Crop
         im.crop(min_index,max_index);
@@ -162,8 +161,8 @@ int main(int argc, char* argv[])
         im.save_to_file(output_filename);
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

@@ -60,7 +60,7 @@ public:
     /// Nifti constructor
     NiftiImage(const nifti_image &image_nifti);
 
-    /// Nifti shared_ptr constructor
+    /// Nifti std::shared_ptr constructor
     NiftiImage(const std::shared_ptr<nifti_image> image_nifti);
 
     /// Equality operator

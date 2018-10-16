@@ -33,7 +33,6 @@ limitations under the License.
 #include <_reg_localTrans.h>
 #include <_reg_tools.h>
 
-using namespace std;
 using namespace sirf;
 
 template<class T>
@@ -43,7 +42,7 @@ void SIRFRegNiftyAladinSym<T>::process()
     this->check_parameters();
 
     // Create the registration object
-    _registration_sptr = make_shared<reg_aladin_sym<T> >();
+    _registration_sptr = std::make_shared<reg_aladin_sym<T> >();
     _registration_sptr->SetInputReference(_reference_image.get_raw_nifti_sptr().get());
     _registration_sptr->SetInputFloating(_floating_image.get_raw_nifti_sptr().get());
 
@@ -53,7 +52,7 @@ void SIRFRegNiftyAladinSym<T>::process()
     // Set any extra parameters
     this->set_parameters();
 
-    cout << "\n\nStarting registration...\n\n";
+    std::cout << "\n\nStarting registration...\n\n";
 
     // Run
     _registration_sptr->Run();
@@ -70,9 +69,9 @@ void SIRFRegNiftyAladinSym<T>::process()
     _TM_forward = *_registration_sptr->GetTransformationMatrix();
     _TM_inverse = nifti_mat44_inverse(_TM_forward.get_raw_mat44());
 
-    cout << "\nPrinting forwards tranformation matrix:\n";
+    std::cout << "\nPrinting forwards tranformation matrix:\n";
     _TM_forward.print();
-    cout << "\nPrinting inverse tranformation matrix:\n";
+    std::cout << "\nPrinting inverse tranformation matrix:\n";
     _TM_inverse.print();
 
     // affine->def->disp
@@ -88,7 +87,7 @@ void SIRFRegNiftyAladinSym<T>::process()
     _disp_image_forward.create_from_def(_def_image_forward);
     _disp_image_inverse.create_from_def(_def_image_inverse);
 
-    cout << "\n\nRegistration finished!\n\n";
+    std::cout << "\n\nRegistration finished!\n\n";
 }
 
 template<class T>
@@ -132,9 +131,9 @@ void SIRFRegNiftyAladinSym<T>::set_parameters()
 {
     for (size_t i=0; i<_extra_params.size(); i+=3) {
 
-        string par  = _extra_params[ i ];
-        string arg1 = _extra_params[i+1];
-        // string arg2 = _extra_params[i+2]; No aladin methods need 2 args (but f3d does)
+        std::string par  = _extra_params[ i ];
+        std::string arg1 = _extra_params[i+1];
+        // std::string arg2 = _extra_params[i+2]; No aladin methods need 2 args (but f3d does)
 
         // Void
         if      (strcmp(par.c_str(),"SetInterpolationToCubic")           == 0) _registration_sptr->SetInterpolationToCubic();
@@ -173,7 +172,7 @@ void SIRFRegNiftyAladinSym<T>::set_parameters()
         else if (strcmp(par.c_str(),"SetWarpedPaddingValue")             == 0) _registration_sptr->SetWarpedPaddingValue(stof(arg1));
 
         else
-            throw runtime_error("\nUnknown argument: " + par);
+            throw std::runtime_error("\nUnknown argument: " + par);
     }
 }
 

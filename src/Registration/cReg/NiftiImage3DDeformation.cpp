@@ -35,7 +35,6 @@ limitations under the License.
 #include <sstream>
 #include <_reg_localTrans.h>
 
-using namespace std;
 using namespace sirf;
 
 void NiftiImage3DDeformation::create_from_disp(const NiftiImage3DDisplacement &disp)
@@ -72,10 +71,10 @@ NiftiImage3DDeformation NiftiImage3DDeformation::get_as_deformation_field(const 
     return this->deep_copy();
 }
 
-NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
+NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
 {
     if (transformations.size() == 0)
-        throw runtime_error("NiftiImage3DDeformation::compose_single_deformation no transformations given.");
+        throw std::runtime_error("NiftiImage3DDeformation::compose_single_deformation no transformations given.");
 
     NiftiImage3DDeformation def = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
 
@@ -86,9 +85,9 @@ NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(cons
     return def;
 }
 
-NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const vector<shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
+NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
 {
-    vector<SIRFRegTransformation*> vec;
+    std::vector<SIRFRegTransformation*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)
         vec.push_back(transformations.at(i).get());
     return compose_single_deformation(vec, ref);

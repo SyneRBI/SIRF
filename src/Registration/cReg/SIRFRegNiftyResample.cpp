@@ -38,7 +38,6 @@ limitations under the License.
 #include <_reg_tools.h>
 #include <memory>
 
-using namespace std;
 using namespace sirf;
 
 void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegMat44 &affine)
@@ -58,7 +57,7 @@ void SIRFRegNiftyResample::add_transformation_def(const NiftiImage3DDeformation 
 
 void SIRFRegNiftyResample::process()
 {
-    cout << "\n\nStarting resampling...\n\n";
+    std::cout << "\n\nStarting resampling...\n\n";
 
     // Check that all the required information has been entered
     check_parameters();
@@ -77,7 +76,7 @@ void SIRFRegNiftyResample::process()
                       _interpolation_type,
                       0);
 
-    cout << "\n\nResampling finished!\n\n";
+    std::cout << "\n\nResampling finished!\n\n";
 }
 
 void SIRFRegNiftyResample::check_parameters()

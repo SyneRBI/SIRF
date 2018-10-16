@@ -56,7 +56,7 @@ public:
     NiftiImage3DTensor(const nifti_image &image_nifti)
         : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
 
-    /// Nifti shared_ptr constructor
+    /// Nifti std::shared_ptr constructor
     NiftiImage3DTensor(const std::shared_ptr<nifti_image> image_nifti)
         : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
 

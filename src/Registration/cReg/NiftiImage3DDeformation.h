@@ -52,7 +52,7 @@ public:
     NiftiImage3DDeformation(const nifti_image &image_nifti)
         : NiftiImage3DTensor(image_nifti) { check_dimensions(_3DDef); }
 
-    /// Nifti shared_ptr constructor
+    /// Nifti std::shared_ptr constructor
     NiftiImage3DDeformation(const std::shared_ptr<nifti_image> image_nifti)
         : NiftiImage3DTensor(image_nifti) { check_dimensions(_3DDef); }
 

@@ -41,72 +41,71 @@ limitations under the License.
 #include <iomanip>
 #include <sstream>
 
-using namespace std;
 using namespace sirf;
 
 namespace SIRFRegMisc {
 
 /// Open nifti image
-void open_nifti_image(shared_ptr<nifti_image> &image, const boost::filesystem::path &filename)
+void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename)
 {
     // If no filename has been set, return
     if (filename.empty()) {
-        throw runtime_error("Empty filename has been supplied, cannot open nifti image.");
+        throw std::runtime_error("Empty filename has been supplied, cannot open nifti image.");
     }
 
     // Check that the file exists
     if (!boost::filesystem::exists(filename)) {
-        throw runtime_error("Cannot find the file: " + filename.string() + ".");
+        throw std::runtime_error("Cannot find the file: " + filename.string() + ".");
     }
 
     // Check that file is nifti
     if (is_nifti_file(filename.c_str()) == -1) {
-        throw runtime_error("Attempting to open a file that is not a NIFTI image.\n\tFilename: " + filename.string());
+        throw std::runtime_error("Attempting to open a file that is not a NIFTI image.\n\tFilename: " + filename.string());
     }
 
     // Open file
     nifti_image *im = nifti_image_read(filename.c_str(), 1);
-    image = shared_ptr<nifti_image>(im, nifti_image_free);
+    image = std::shared_ptr<nifti_image>(im, nifti_image_free);
 
     // Ensure the image has all the values correctly set
     reg_checkAndCorrectDimension(image.get());
 }
 
 /// Save nifti image
-void save_nifti_image(NiftiImage &image, const string &filename)
+void save_nifti_image(NiftiImage &image, const std::string &filename)
 {
     if (!image.is_initialised())
-        throw runtime_error("Cannot save image to file.");
+        throw std::runtime_error("Cannot save image to file.");
 
-    cout << "\nSaving image to file (" << filename << ")..." << flush;
+    std::cout << "\nSaving image to file (" << filename << ")..." << std::flush;
 
     boost::filesystem::path filename_boost(filename);
 
     // If the folder doesn't exist, create it
     if (!boost::filesystem::exists(filename_boost.parent_path())) {
         if (filename_boost.parent_path().string() != "") {
-            cout << "\n\tCreating folder: \"" << filename_boost.parent_path().string() << "\"\n" << flush;
+            std::cout << "\n\tCreating folder: \"" << filename_boost.parent_path().string() << "\"\n" << std::flush;
             boost::filesystem::create_directory(filename_boost.parent_path());
         }
     }
 
     nifti_set_filenames(image.get_raw_nifti_sptr().get(), filename.c_str(), 0, 0);
     nifti_image_write(image.get_raw_nifti_sptr().get());
-    cout << "done.\n\n";
+    std::cout << "done.\n\n";
 }
 
 /// Copy nifti image
-void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_ptr<nifti_image> &image_to_copy_sptr)
+void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr)
 {
 #ifndef NDEBUG
-    cout << "\nPerforming hard copy of nifti image..." << flush;
+    std::cout << "\nPerforming hard copy of nifti image..." << std::flush;
 #endif
 
     // Copy the info
     nifti_image *output_ptr;
 
     output_ptr = nifti_copy_nim_info(image_to_copy_sptr.get());
-    output_image_sptr = shared_ptr<nifti_image>(output_ptr, nifti_image_free);
+    output_image_sptr = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
     // How much memory do we need to copy?
     size_t mem = output_image_sptr->nvox * unsigned(output_image_sptr->nbyper);
@@ -121,7 +120,7 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
     reg_checkAndCorrectDimension(output_image_sptr.get());
 
 #ifndef NDEBUG
-    cout << "done.\n\n";
+    std::cout << "done.\n\n";
 #endif
 }
 
@@ -129,11 +128,11 @@ void copy_nifti_image(shared_ptr<nifti_image> &output_image_sptr, const shared_p
 bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
 {
 #ifndef NDEBUG
-    cout << "\nChecking if metadata of two images match..." << flush;
+    std::cout << "\nChecking if metadata of two images match..." << std::flush;
 #endif
 
-    shared_ptr<const nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
-    shared_ptr<const nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
+    std::shared_ptr<const nifti_image> im1_sptr = im1.get_raw_nifti_sptr();
+    std::shared_ptr<const nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
 
     bool images_match =
             do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient) &&
@@ -193,41 +192,41 @@ bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
             do_nifti_image_metadata_elements_match("sto_xyz",         im1_sptr->sto_xyz,         im2_sptr->sto_xyz         );
 
     for (int i=0; i<8; i++) {
-        if (!do_nifti_image_metadata_elements_match("dim["+to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i] ))   images_match = false;
-        if (!do_nifti_image_metadata_elements_match("pixdim["+to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i])) images_match = false;
+        if (!do_nifti_image_metadata_elements_match("dim["+std::to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i] ))   images_match = false;
+        if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i])) images_match = false;
     }
 
 #ifndef NDEBUG
-    if (images_match) cout << "\tOK!\n";
+    if (images_match) std::cout << "\tOK!\n";
 #endif
 
     return images_match;
 }
 
 template<typename T>
-bool do_nifti_image_metadata_elements_match(const string &name, const T &elem1, const T &elem2)
+bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2)
 {
     if(float(fabs(elem1-elem2)) < 1.e-7F)
         return true;
-    cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
+    std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
     return false;
 }
-template bool do_nifti_image_metadata_elements_match<float> (const string &name, const float &elem1, const float &elem2);
+template bool do_nifti_image_metadata_elements_match<float> (const std::string &name, const float &elem1, const float &elem2);
 
-bool do_nifti_image_metadata_elements_match(const string &name, const mat44 &elem1, const mat44 &elem2)
+bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2)
 {
     if(SIRFRegMat44(elem1)==SIRFRegMat44(elem2))
         return true;
-    cout << "mismatch in " << name << "\n";
+    std::cout << "mismatch in " << name << "\n";
     SIRFRegMat44::print({elem1, elem2});
-    cout << "\n";
+    std::cout << "\n";
     return false;
 }
 
 /// Dump info of multiple nifti images
-void dump_headers(const vector<NiftiImage> &ims)
+void dump_headers(const std::vector<NiftiImage> &ims)
 {
-    cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
+    std::cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
     dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
     dump_nifti_element(ims, "analyze75_orient",  &nifti_image::analyze75_orient);
     dump_nifti_element(ims, "byteorder",         &nifti_image::byteorder);
@@ -284,65 +283,65 @@ void dump_headers(const vector<NiftiImage> &ims)
     dump_nifti_element(ims, "dim",               &nifti_image::dim,    8);
     dump_nifti_element(ims, "pixdim",            &nifti_image::pixdim, 8);
 
-    vector<shared_ptr<const nifti_image> > images;
+    std::vector<std::shared_ptr<const nifti_image> > images;
     for(unsigned i=0;i<ims.size();i++)
         images.push_back(ims[i].get_raw_nifti_sptr());
 
     // Print transformation matrices
-    vector<SIRFRegMat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    std::vector<SIRFRegMat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
     for(unsigned j=0; j<images.size(); j++) {
         qto_ijk_vec.push_back(images[j]->qto_ijk);
         qto_xyz_vec.push_back(images[j]->qto_xyz);
         sto_ijk_vec.push_back(images[j]->sto_ijk);
         sto_xyz_vec.push_back(images[j]->sto_xyz);
     }
-    cout << "\t" << left << setw(19) << "qto_ijk:" << "\n";
+    std::cout << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
     SIRFRegMat44::print(qto_ijk_vec);
-    cout << "\t" << left << setw(19) << "qto_xyz:" << "\n";
+    std::cout << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
     SIRFRegMat44::print(qto_xyz_vec);
-    cout << "\t" << left << setw(19) << "sto_ijk:" << "\n";
+    std::cout << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
     SIRFRegMat44::print(sto_ijk_vec);
-    cout << "\t" << left << setw(19) << "sto_xyz:" << "\n";
+    std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
     SIRFRegMat44::print(sto_xyz_vec);
 
     // Print min
-    string min_header = "min: ";
-    cout << "\t" << left << setw(19) << min_header;
+    std::string min_header = "min: ";
+    std::cout << "\t" << std::left << std::setw(19) << min_header;
     for(unsigned i=0; i<ims.size(); i++)
-        cout << setw(19) << ims[i].get_min();
+        std::cout << std::setw(19) << ims[i].get_min();
 
     // Print max
-    cout << "\n\t" << left << setw(19) << "max: ";
+    std::cout << "\n\t" << std::left << std::setw(19) << "max: ";
     for(unsigned i=0; i<ims.size(); i++)
-        cout << setw(19) << ims[i].get_max();
+        std::cout << std::setw(19) << ims[i].get_max();
 
     // Print mean
-    cout << "\n\t" << left << setw(19) << "mean: ";
+    std::cout << "\n\t" << std::left << std::setw(19) << "mean: ";
     for(unsigned i=0; i<ims.size(); i++)
-        cout << setw(19) << ims[i].get_mean();
+        std::cout << std::setw(19) << ims[i].get_mean();
 
-    cout << "\n\n";
+    std::cout << "\n\n";
 }
 
 template<typename T>
-void dump_nifti_element(const vector<NiftiImage> &ims, const string &name, const T &call_back)
+void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &name, const T &call_back)
 {
-    string header = name + ": ";
-    cout << "\t" << left << setw(19) << header;
+    std::string header = name + ": ";
+    std::cout << "\t" << std::left << std::setw(19) << header;
     for(unsigned i=0; i<ims.size(); i++)
-        cout << setw(19) << ims[i].get_raw_nifti_sptr().get()->*call_back;
-    cout << "\n";
+        std::cout << std::setw(19) << ims[i].get_raw_nifti_sptr().get()->*call_back;
+    std::cout << "\n";
 }
 
 template<typename T>
-void dump_nifti_element(const vector<NiftiImage> &ims, const string &name, const T &call_back, const unsigned num_elems)
+void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
 {
     for(unsigned i=0; i<num_elems; i++) {
-        string header = name + "[" + to_string(i) + "]: ";
-        cout << "\t" << left << setw(19) << header;
+        std::string header = name + "[" + std::to_string(i) + "]: ";
+        std::cout << "\t" << std::left << std::setw(19) << header;
         for(unsigned j=0; j<ims.size(); j++)
-            cout << setw(19) << (ims[j].get_raw_nifti_sptr().get()->*call_back)[i];
-        cout << "\n";
+            std::cout << std::setw(19) << (ims[j].get_raw_nifti_sptr().get()->*call_back)[i];
+        std::cout << "\n";
     }
 }
 
@@ -362,12 +361,12 @@ void change_datatype(NiftiImage &im)
     if (im.get_raw_nifti_sptr()->datatype == DT_UINT64)   return SIRFRegMisc::change_datatype<newType,unsigned long long>(im);
     if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT128) return SIRFRegMisc::change_datatype<newType,long double>       (im);
 
-    stringstream ss;
+    std::stringstream ss;
     ss << "NiftImage::get_max not implemented for your data type: ";
     ss << nifti_datatype_string(im.get_raw_nifti_sptr()->datatype);
     ss << " (bytes per voxel: ";
     ss << im.get_raw_nifti_sptr()->nbyper << ").";
-    throw runtime_error(ss.str());
+    throw std::runtime_error(ss.str());
 }
 template void change_datatype<bool>              (NiftiImage &im);
 template void change_datatype<signed char>       (NiftiImage &im);

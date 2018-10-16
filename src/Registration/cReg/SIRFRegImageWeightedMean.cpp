@@ -32,7 +32,6 @@ limitations under the License.
 #include <boost/filesystem.hpp>
 #include <iostream>
 
-using namespace std;
 using namespace sirf;
 
 SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
@@ -59,7 +58,7 @@ void SIRFRegImageWeightedMean::process()
 
     // Need to normalise the weights so that sum = 1
     float sum_of_weights = 0.;
-    vector<float> normalised_weights = _weights;
+    std::vector<float> normalised_weights = _weights;
     for (unsigned i=0; i<_weights.size(); i++) sum_of_weights += _weights[i];
     for (unsigned i=0; i<_weights.size(); i++) normalised_weights[i] /= sum_of_weights;
 

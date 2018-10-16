@@ -36,7 +36,6 @@ limitations under the License.
 #include "stir_data_containers.h"
 #include <memory>
 
-using namespace std;
 using namespace sirf;
 
 int main(int argc, char* argv[])
@@ -45,49 +44,49 @@ int main(int argc, char* argv[])
     try {
 
     // Paths
-    string SIRF_PATH;
+    std::string SIRF_PATH;
     if (argc==1)
         SIRF_PATH = getenv("SIRF_PATH");
     else
         SIRF_PATH = argv[1];
-    const string examples_path = SIRF_PATH + "/data/examples/Registration";
-    const string output_prefix   = "results/cplusplus_";
+    const std::string examples_path = SIRF_PATH + "/data/examples/Registration";
+    const std::string output_prefix   = "results/cplusplus_";
 
     // Input filenames
-    const string ref_aladin_filename      = examples_path + "/test.nii.gz";
-    const string flo_aladin_filename      = examples_path + "/test2.nii.gz";
-    const string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
-    const string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
-    const string parameter_file_aladin    = examples_path + "/paramFiles/niftyreg_aladin.par";
-    const string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
+    const std::string ref_aladin_filename      = examples_path + "/test.nii.gz";
+    const std::string flo_aladin_filename      = examples_path + "/test2.nii.gz";
+    const std::string ref_f3d_filename         = examples_path + "/mouseFixed.nii.gz";
+    const std::string flo_f3d_filename         = examples_path + "/mouseMoving.nii.gz";
+    const std::string parameter_file_aladin    = examples_path + "/paramFiles/niftyreg_aladin.par";
+    const std::string parameter_file_f3d       = examples_path + "/paramFiles/niftyreg_f3d.par";
 
     // Output filenames
-    const string save_nifti_image                           = output_prefix   + "save_NiftiImage.nii";
-    const string save_nifti_image_3d                        = output_prefix   + "save_NiftiImage3D.nii";
-    const string save_nifti_image_3d_tensor_not_split       = output_prefix   + "save_NiftiImage3DTensor_not_split.nii";
-    const string save_nifti_image_3d_tensor_split           = output_prefix   + "save_NiftiImage3DTensor_split_%s.nii";
-    const string save_nifti_image_3d_deformation_not_split  = output_prefix   + "save_NiftiImage3DDeformation_not_split.nii";
-    const string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImage3DDeformation_split_%s.nii";
-    const string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImage3DDisplacement_not_split.nii";
-    const string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
-    const string aladin_warped            = output_prefix   + "aladin_warped.nii";
-    const string f3d_warped               = output_prefix   + "f3d_warped.nii";
-    const string TM_forward               = output_prefix   + "TM_forward.txt";
-    const string TM_inverse               = output_prefix   + "TM_inverse.txt";
-    const string aladin_def_forward       = output_prefix   + "aladin_def_forward.nii";
-    const string aladin_def_inverse       = output_prefix   + "aladin_def_inverse_%s.nii";
-    const string aladin_disp_forward      = output_prefix   + "aladin_disp_forward.nii";
-    const string aladin_disp_inverse      = output_prefix   + "aladin_disp_inverse_%s.nii";
-    const string f3d_disp_forward         = output_prefix   + "f3d_disp_forward.nii";
-    const string f3d_disp_inverse         = output_prefix   + "f3d_disp_inverse_%s.nii";
-    const string f3d_def_forward          = output_prefix   + "f3d_def_forward.nii";
-    const string f3d_def_inverse          = output_prefix   + "f3d_def_inverse_%s.nii";
-    const string rigid_resample           = output_prefix   + "rigid_resample.nii";
-    const string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
-    const string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
-    const string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
-    const string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
-    const string output_float             = output_prefix   + "reg_aladin_float.nii";
+    const std::string save_nifti_image                           = output_prefix   + "save_NiftiImage.nii";
+    const std::string save_nifti_image_3d                        = output_prefix   + "save_NiftiImage3D.nii";
+    const std::string save_nifti_image_3d_tensor_not_split       = output_prefix   + "save_NiftiImage3DTensor_not_split.nii";
+    const std::string save_nifti_image_3d_tensor_split           = output_prefix   + "save_NiftiImage3DTensor_split_%s.nii";
+    const std::string save_nifti_image_3d_deformation_not_split  = output_prefix   + "save_NiftiImage3DDeformation_not_split.nii";
+    const std::string save_nifti_image_3d_deformation_split      = output_prefix   + "save_NiftiImage3DDeformation_split_%s.nii";
+    const std::string save_nifti_image_3d_displacement_not_split = output_prefix   + "save_NiftiImage3DDisplacement_not_split.nii";
+    const std::string save_nifti_image_3d_displacement_split     = output_prefix   + "save_NiftiImage3DDisplacement_split_%s.nii";
+    const std::string aladin_warped            = output_prefix   + "aladin_warped.nii";
+    const std::string f3d_warped               = output_prefix   + "f3d_warped.nii";
+    const std::string TM_forward               = output_prefix   + "TM_forward.txt";
+    const std::string TM_inverse               = output_prefix   + "TM_inverse.txt";
+    const std::string aladin_def_forward       = output_prefix   + "aladin_def_forward.nii";
+    const std::string aladin_def_inverse       = output_prefix   + "aladin_def_inverse_%s.nii";
+    const std::string aladin_disp_forward      = output_prefix   + "aladin_disp_forward.nii";
+    const std::string aladin_disp_inverse      = output_prefix   + "aladin_disp_inverse_%s.nii";
+    const std::string f3d_disp_forward         = output_prefix   + "f3d_disp_forward.nii";
+    const std::string f3d_disp_inverse         = output_prefix   + "f3d_disp_inverse_%s.nii";
+    const std::string f3d_def_forward          = output_prefix   + "f3d_def_forward.nii";
+    const std::string f3d_def_inverse          = output_prefix   + "f3d_def_inverse_%s.nii";
+    const std::string rigid_resample           = output_prefix   + "rigid_resample.nii";
+    const std::string nonrigid_resample_disp   = output_prefix   + "nonrigid_resample_disp.nii";
+    const std::string nonrigid_resample_def    = output_prefix   + "nonrigid_resample_def.nii";
+    const std::string output_weighted_mean     = output_prefix   + "weighted_mean.nii";
+    const std::string output_weighted_mean_def = output_prefix   + "weighted_mean_def.nii";
+    const std::string output_float             = output_prefix   + "reg_aladin_float.nii";
 
     const NiftiImage3D ref_aladin( ref_aladin_filename );
     const NiftiImage3D flo_aladin( flo_aladin_filename );
@@ -95,9 +94,9 @@ int main(int argc, char* argv[])
     const NiftiImage3D flo_f3d   (   flo_f3d_filename  );
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting NiftiImage test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting NiftiImage test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // default constructor
         NiftiImage a;
@@ -113,55 +112,55 @@ int main(int argc, char* argv[])
 
         // Get max
         if (fabs(b.get_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage fill()/get_max() failed.");
+            throw std::runtime_error("NiftiImage fill()/get_max() failed.");
 
         // Get min
         if (fabs(b.get_min() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage fill()/get_min() failed.");
+            throw std::runtime_error("NiftiImage fill()/get_min() failed.");
 
         // Deep copy
         NiftiImage d = b.deep_copy();
         std::cout << "\ndone.\n";
         if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
-            throw runtime_error("NiftiImage deep_copy failed.");
+            throw std::runtime_error("NiftiImage deep_copy failed.");
         if (b != d)
-            throw runtime_error("NiftiImage deep_copy failed.");
+            throw std::runtime_error("NiftiImage deep_copy failed.");
 
         // Addition
         NiftiImage3D e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("NiftiImage __add__/get_max() failed.");
+            throw std::runtime_error("NiftiImage __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("NiftiImage __sub__/get_max() failed.");
+            throw std::runtime_error("NiftiImage __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("NiftiImage get_sum() failed.");
+            throw std::runtime_error("NiftiImage get_sum() failed.");
 
         // Add num to image
         NiftiImage3D q = e + 1;
         if (fabs(q.get_max() - (e.get_max() + 1.F)) > 0.0001F)
-            throw runtime_error("NiftiImage __add__ val failed.");
+            throw std::runtime_error("NiftiImage __add__ val failed.");
 
         // Subtract num from image
         NiftiImage3D r = e - 1;
         if (fabs(r.get_max() - (e.get_max() - 1.F)) > 0.0001F)
-            throw runtime_error("NiftiImage __sub__ val failed.");
+            throw std::runtime_error("NiftiImage __sub__ val failed.");
 
         // Multiply image by num
         NiftiImage3D s = e * 10;
         if (fabs(s.get_max() - e.get_max() * 10.F) > 0.0001F)
-            throw runtime_error("NiftiImage __mul__ val failed.");
+            throw std::runtime_error("NiftiImage __mul__ val failed.");
 
         // Dimensions
         int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
         const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("NiftiImage get_dimensions() failed.");
+                throw std::runtime_error("NiftiImage get_dimensions() failed.");
 
         // Test get_element
         int idx[7] = { 1, 2, 3, 0, 0, 0, 0 };
@@ -169,14 +168,14 @@ int main(int argc, char* argv[])
 
         // Test get_norm
         if (ref_aladin.get_norm(flo_aladin) < 1.e-7F)
-            throw runtime_error("NiftiImage get_norm() failed.");
+            throw std::runtime_error("NiftiImage get_norm() failed.");
 
         // Test saving to datatype
         ref_aladin.save_to_file(output_float,NIFTI_TYPE_FLOAT32);
         NiftiImage3D ref_aladin_float(output_float);
         for (int i=0; i<int(ref_aladin.get_raw_nifti_sptr()->nvox); ++i)
             if (ref_aladin_float(i) - ref_aladin(i) > 1.e-7F)
-                throw runtime_error("NiftiImage3D::save_to_file()/change_datatype() failed.");
+                throw std::runtime_error("NiftiImage3D::save_to_file()/change_datatype() failed.");
 
         // Test print methods
         q.print_header();
@@ -199,18 +198,18 @@ int main(int argc, char* argv[])
                 zz[4] != 1 ||
                 zz[5] != 1 ||
                 zz[6] != 1)
-            throw runtime_error("NiftiImage3D::crop() failed.");
+            throw std::runtime_error("NiftiImage3D::crop() failed.");
 
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished NiftiImage test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished NiftiImage test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting NiftiImage3D test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting NiftiImage3D test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // default constructor
         NiftiImage3D a;
@@ -226,50 +225,50 @@ int main(int argc, char* argv[])
 
         // Get max
         if (fabs(b.get_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3D fill()/get_max() failed.");
+            throw std::runtime_error("NiftiImage3D fill()/get_max() failed.");
 
         // Get min
         if (fabs(b.get_min() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3D fill()/get_min() failed.");
+            throw std::runtime_error("NiftiImage3D fill()/get_min() failed.");
 
         // Deep copy
         NiftiImage3D d = b.deep_copy();
         if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
-            throw runtime_error("NiftiImage3D deep_copy failed.");
+            throw std::runtime_error("NiftiImage3D deep_copy failed.");
         if (d != b)
-            throw runtime_error("NiftiImage3D deep_copy failed.");
+            throw std::runtime_error("NiftiImage3D deep_copy failed.");
 
         // Addition
         NiftiImage3D e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("NiftiImage3D __add__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3D __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("NiftiImage3D __sub__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3D __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("NiftiImage3D get_sum() failed.");
+            throw std::runtime_error("NiftiImage3D get_sum() failed.");
 
         // Dimensions
         int g[8] = {3, 64, 64, 64, 1, 1, 1, 1};
         const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("NiftiImage3D get_dimensions() failed.");
+                throw std::runtime_error("NiftiImage3D get_dimensions() failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished NiftiImage3D test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished NiftiImage3D test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting NiftiImage3DTensor test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting NiftiImage3DTensor test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Create NiftiImage3DTensor from NiftiImage3D
         NiftiImage3DTensor b;
@@ -287,39 +286,39 @@ int main(int argc, char* argv[])
 
         // Get max
         if (fabs(c.get_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DTensor fill()/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DTensor fill()/get_max() failed.");
 
         // Get min
         if (fabs(c.get_min() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DTensor fill()/get_min() failed.");
+            throw std::runtime_error("NiftiImage3DTensor fill()/get_min() failed.");
 
         // Deep copy
         NiftiImage3DTensor d = c.deep_copy();
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
-            throw runtime_error("NiftiImage3DTensor deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DTensor deep_copy failed.");
         if (d != c)
-            throw runtime_error("NiftiImage3DTensor deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DTensor deep_copy failed.");
 
         // Addition
         NiftiImage3DTensor e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("NiftiImage3DTensor __add__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DTensor __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("NiftiImage3DTensor __sub__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DTensor __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("NiftiImage3DTensor get_sum() failed.");
+            throw std::runtime_error("NiftiImage3DTensor get_sum() failed.");
 
         // Dimensions
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
         const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("NiftiImage3DTensor get_dimensions() failed.");
+                throw std::runtime_error("NiftiImage3DTensor get_dimensions() failed.");
 
         // Constructor from single components
         NiftiImage3D im1 = ref_aladin.deep_copy();
@@ -333,19 +332,19 @@ int main(int argc, char* argv[])
         // Test flip components
         h.flip_component(0);
         if (fabs(h.get_max() - 20.F) > 1.e-7F )
-            throw runtime_error("NiftiImage3DTensor flip_component() failed.");
+            throw std::runtime_error("NiftiImage3DTensor flip_component() failed.");
         if (fabs(h.get_min() + 30.F) > 1.e-7F )
-            throw runtime_error("NiftiImage3DTensor flip_component() failed.");
+            throw std::runtime_error("NiftiImage3DTensor flip_component() failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished NiftiImage3DTensor test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished NiftiImage3DTensor test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting NiftiImage3DDisplacement test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting NiftiImage3DDisplacement test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Create NiftiImage3DDisplacement from NiftiImage3D
         NiftiImage3DDisplacement b;
@@ -374,50 +373,50 @@ int main(int argc, char* argv[])
 
         // Get max
         if (fabs(c.get_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DDisplacement fill()/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement fill()/get_max() failed.");
 
         // Get min
         if (fabs(c.get_min() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DDisplacement fill()/get_min() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement fill()/get_min() failed.");
 
         // Deep copy
         NiftiImage3DDisplacement d = c.deep_copy();
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
-            throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement deep_copy failed.");
         if (d != c)
-            throw runtime_error("NiftiImage3DDisplacement deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement deep_copy failed.");
 
         // Addition
         NiftiImage3DDisplacement e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("NiftiImage3DDisplacement __add__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("NiftiImage3DDisplacement __sub__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("NiftiImage3DDisplacement get_sum() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement get_sum() failed.");
 
         // Dimensions
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
         const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("NiftiImage3DDisplacement get_dimensions() failed.");
+                throw std::runtime_error("NiftiImage3DDisplacement get_dimensions() failed.");
 
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished NiftiImage3DDisplacement test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished NiftiImage3DDisplacement test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting NiftiImage3DDeformation test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting NiftiImage3DDeformation test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Create NiftiImage3DDeformation from NiftiImage3D
         NiftiImage3DDeformation b;
@@ -446,50 +445,50 @@ int main(int argc, char* argv[])
 
         // Get max
         if (fabs(c.get_max() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DDeformation fill()/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation fill()/get_max() failed.");
 
         // Get min
         if (fabs(c.get_min() - 100) > 1.e-5F)
-            throw runtime_error("NiftiImage3DDeformation fill()/get_min() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation fill()/get_min() failed.");
 
         // Deep copy
         NiftiImage3DDeformation d = c.deep_copy();
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
-            throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DDeformation deep_copy failed.");
         if (d != c)
-            throw runtime_error("NiftiImage3DDeformation deep_copy failed.");
+            throw std::runtime_error("NiftiImage3DDeformation deep_copy failed.");
 
         // Addition
         NiftiImage3DDeformation e = d + d;
         if (fabs(e.get_max() - 2 * d.get_max()) > 0.0001F)
-            throw runtime_error("NiftiImage3DDeformation __add__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation __add__/get_max() failed.");
 
         // Subtraction
         e = d - d;
         if (e.get_max() > 0.0001F)
-            throw runtime_error("NiftiImage3DDeformation __sub__/get_max() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation __sub__/get_max() failed.");
 
         // Sum
         if (e.get_sum() > 0.0001F)
-            throw runtime_error("NiftiImage3DDeformation get_sum() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation get_sum() failed.");
 
         // Dimensions
         int g[8] = {5, 64, 64, 64, 1, 3, 1, 1};
         const int *f = e.get_dimensions();
         for (int i=0; i<8; ++i)
             if (g[i] != f[i])
-                throw runtime_error("NiftiImage3DDeformation get_dimensions() failed.");
+                throw std::runtime_error("NiftiImage3DDeformation get_dimensions() failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished NiftiImage3DDeformation test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished NiftiImage3DDeformation test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     SIRFRegNiftyAladinSym<float> NA;
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting Nifty aladin test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting Nifty aladin test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         NA.set_reference_image               (           ref_aladin          );
         NA.set_floating_image                (           flo_aladin          );
@@ -525,24 +524,24 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation a;
         a.create_from_disp(disp_forward);
         if (a != def_forward)
-            throw runtime_error("NiftiImage3DDeformation::create_from_disp() failed.");
+            throw std::runtime_error("NiftiImage3DDeformation::create_from_disp() failed.");
 
         // Test converting def to disp
         NiftiImage3DDisplacement b;
         b.create_from_def(def_forward);
         if (b != disp_forward)
-            throw runtime_error("NiftiImage3DDisplacement::create_from_def() failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement::create_from_def() failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished Nifty aladin test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished Nifty aladin test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting Nifty f3d test..\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting Nifty f3d test..\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         SIRFRegNiftyF3dSym<float> NF;
         NF.set_reference_image               (          ref_f3d           );
@@ -564,28 +563,28 @@ int main(int argc, char* argv[])
         NiftiImage3DTensor disp_forward = NF.get_displacement_field_forward();
         NiftiImage3DTensor disp_inverse = NF.get_displacement_field_inverse();
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished Nifty f3d test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished Nifty f3d test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting transformations test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting transformations test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Affine
-        cout << "\nTesting affine...\n";
+        std::cout << "\nTesting affine...\n";
         SIRFRegMat44 a1;
         SIRFRegMat44 a2(TM_forward);
         SIRFRegMat44 a3(NA.get_transformation_matrix_forward());
 
         // Displacement
-        cout << "\nTesting displacement...\n";
+        std::cout << "\nTesting displacement...\n";
         NiftiImage3DDisplacement b3(NA.get_displacement_field_forward());
 
         // Deformation
-        cout << "\nTesting deformation...\n";
+        std::cout << "\nTesting deformation...\n";
         NiftiImage3DDeformation c3(NA.get_deformation_field_forward());
 
         // Get as deformations
@@ -593,11 +592,11 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation b_def = b3.get_as_deformation_field(ref_aladin);
         NiftiImage3DDeformation c_def = c3.get_as_deformation_field(ref_aladin);
         if (a_def != NA.get_deformation_field_forward())
-            throw runtime_error("SIRFRegMat44::get_as_deformation_field failed.");
+            throw std::runtime_error("SIRFRegMat44::get_as_deformation_field failed.");
         if (b_def != NA.get_deformation_field_forward())
-            throw runtime_error("NiftiImage3DDisplacement::get_as_deformation_field failed.");
+            throw std::runtime_error("NiftiImage3DDisplacement::get_as_deformation_field failed.");
         if (c_def != NA.get_deformation_field_forward())
-            throw runtime_error("NiftiImage3DDeformation::get_as_deformation_field failed.");
+            throw std::runtime_error("NiftiImage3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
         SIRFRegMat44 tm_iden = SIRFRegMat44::get_identity();
@@ -609,17 +608,17 @@ int main(int argc, char* argv[])
         NiftiImage3DDeformation composed =
                 NiftiImage3DDeformation::compose_single_deformation(vec, ref_aladin);
         if (composed.get_as_deformation_field(ref_aladin) != NA.get_deformation_field_forward())
-            throw runtime_error("NiftiImage3DDeformation::compose_single_deformation failed.");
+            throw std::runtime_error("NiftiImage3DDeformation::compose_single_deformation failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished transformations test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished transformations test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting Nifty resample test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting Nifty resample test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         SIRFRegMat44 tm_eye = SIRFRegMat44::get_identity();
         SIRFRegMat44 tm_iden(tm_eye);
@@ -627,7 +626,7 @@ int main(int argc, char* argv[])
         NiftiImage3DDisplacement disp(NA.get_displacement_field_forward());
         NiftiImage3DDeformation deff(NA.get_deformation_field_forward());
 
-        cout << "Testing rigid resample...\n";
+        std::cout << "Testing rigid resample...\n";
         SIRFRegNiftyResample nr1;
         nr1.set_reference_image(ref_aladin);
         nr1.set_floating_image(flo_aladin);
@@ -638,7 +637,7 @@ int main(int argc, char* argv[])
         nr1.process();
         nr1.get_output().save_to_file(rigid_resample);
 
-        cout << "Testing non-rigid displacement...\n";
+        std::cout << "Testing non-rigid displacement...\n";
         SIRFRegNiftyResample nr2;
         nr2.set_reference_image(ref_aladin);
         nr2.set_floating_image(flo_aladin);
@@ -648,7 +647,7 @@ int main(int argc, char* argv[])
         nr2.process();
         nr2.get_output().save_to_file(nonrigid_resample_disp);
 
-        cout << "Testing non-rigid deformation...\n";
+        std::cout << "Testing non-rigid deformation...\n";
         SIRFRegNiftyResample nr3;
         nr3.set_reference_image(ref_aladin);
         nr3.set_floating_image(flo_aladin);
@@ -661,17 +660,17 @@ int main(int argc, char* argv[])
         // TODO This isn't working on my machine. But it's not working with NiftyReg executables either, so I don't think it's my code
         // i.e., reg_aladin != reg_resample when reg_resample uses the transformation matrix from reg_aladin
         /*if (NA.get_output() != nr1.get_output())
-            throw runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");*/
+            throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");*/
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished Nifty resample test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished Nifty resample test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting weighted mean test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting weighted mean test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         //  Do 3D
         SIRFRegImageWeightedMean wm1;
@@ -694,7 +693,7 @@ int main(int argc, char* argv[])
         res.fill(4.5F);
 
         if (wm1.get_output() != res)
-            throw runtime_error("SIRFRegImageWeightedMean3D failed.");
+            throw std::runtime_error("SIRFRegImageWeightedMean3D failed.");
 
         //  Do 4D
         SIRFRegImageWeightedMean wm2;
@@ -717,17 +716,17 @@ int main(int argc, char* argv[])
         res4D.fill(4.5);
 
         if (wm2.get_output() != res4D)
-            throw runtime_error("SIRFRegImageWeightedMean3DTensor failed.");
+            throw std::runtime_error("SIRFRegImageWeightedMean3DTensor failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished weighted mean test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished weighted mean test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting STIR to SIRFReg test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting STIR to SIRFReg test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
             // Open stir image
             sirf::PETImageData pet_image_data(ref_aladin_filename);
@@ -738,22 +737,22 @@ int main(int argc, char* argv[])
             image_data_from_stir.fill(100.F);
 
             if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) < 1.e-5F)
-                throw runtime_error("STIR & SIRFReg seem to share the same data pointers (their values should be different, but they're the same).");
+                throw std::runtime_error("STIR & SIRFReg seem to share the same data pointers (their values should be different, but they're the same).");
 
             // Fill the stir image with the sirfreg
             image_data_from_stir.copy_data_to(pet_image_data);
             if (fabs(pet_image_data.data_sptr()->find_max() - image_data_from_stir.get_max()) > 1.e-5F)
-                throw runtime_error("NiftiImage3D::copy_data_to failed.");
+                throw std::runtime_error("NiftiImage3D::copy_data_to failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished STIR to SIRFReg test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished STIR to SIRFReg test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     {
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Starting SIRFRegMat44 test...\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Starting SIRFRegMat44 test...\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Construct from file
         SIRFRegMat44 a(TM_forward);
@@ -764,19 +763,19 @@ int main(int argc, char* argv[])
         SIRFRegMat44 d = b * c;
         SIRFRegMat44 e = SIRFRegMat44::get_identity();
         if (d != e)
-            throw runtime_error("SIRFRegMat44::mult/comparison failed.");
+            throw std::runtime_error("SIRFRegMat44::mult/comparison failed.");
 
         if (e.get_determinant() - 1.F > 1.e-7F)
-            throw runtime_error("SIRFRegMat44::get_determinant failed.");
+            throw std::runtime_error("SIRFRegMat44::get_determinant failed.");
 
-        cout << "// ----------------------------------------------------------------------- //\n";
-        cout << "//                  Finished SIRFRegMat44 test.\n";
-        cout << "//------------------------------------------------------------------------ //\n";
+        std::cout << "// ----------------------------------------------------------------------- //\n";
+        std::cout << "//                  Finished SIRFRegMat44 test.\n";
+        std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
     // Error handling
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

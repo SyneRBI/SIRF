@@ -32,31 +32,30 @@ limitations under the License.
 #include "NiftiImage3DDeformation.h"
 #include "SIRFRegMat44.h"
 
-using namespace std;
 using namespace sirf;
 
 /// Print usage
 void print_usage()
 {
-    cout << "\n*** sirfreg_affine_to_disp usage ***\n";
+    std::cout << "\n*** sirfreg_affine_to_disp usage ***\n";
 
     // Required flags
-    cout << "\n  Required flags:\n";
-    cout << "    -TM:\taffine transformation matrix\n";
-    cout << "    -ref:\treference image\n";
+    std::cout << "\n  Required flags:\n";
+    std::cout << "    -TM:\taffine transformation matrix\n";
+    std::cout << "    -ref:\treference image\n";
 
     // Optional flags
-    cout << "\n  Optional flags (but at least one is required):\n";
-    cout << "    -disp_4D:\t4D forward displacement field image\n";
-    cout << "    -disp_3D:\t3D forward displacement field image\n";
-    cout << "    -def_4D:\t4D forward deformation field image\n";
-    cout << "    -def_3D:\t3D forward deformation field image\n";
+    std::cout << "\n  Optional flags (but at least one is required):\n";
+    std::cout << "    -disp_4D:\t4D forward displacement field image\n";
+    std::cout << "    -disp_3D:\t3D forward displacement field image\n";
+    std::cout << "    -def_4D:\t4D forward deformation field image\n";
+    std::cout << "    -def_3D:\t3D forward deformation field image\n";
 
-    cout << "If 3D format is required, use boost format for the filename (e.g., output_%s.nii).\n\n\n";
+    std::cout << "If 3D format is required, use boost format for the filename (e.g., output_%s.nii).\n\n\n";
 }
 
 /// Find flag
-int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required=false)
+int find_flag(std::vector<int> &unused_flags, char* argv[], std::string arg, bool required=false)
 {
     for (unsigned i=0; i<unused_flags.size(); i++) {
         if (!strcmp(argv[unused_flags[i]], arg.c_str())) {
@@ -69,7 +68,7 @@ int find_flag(vector<int> &unused_flags, char* argv[], string arg, bool required
     if (!required)
         return -1;
 
-    cout << "\nRequired flag \"" << arg << "\" not found. Exiting...\n";
+    std::cout << "\nRequired flag \"" << arg << "\" not found. Exiting...\n";
     print_usage();
     exit(EXIT_FAILURE);
 }
@@ -80,7 +79,7 @@ int main(int argc, char* argv[])
 
     try {
         // Create a list of all unused flags
-        vector<int> unused_flags;
+        std::vector<int> unused_flags;
         for (int i=1; i<argc; i+=2)
             unused_flags.push_back(i);
 
@@ -97,10 +96,10 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         int flag_TM = find_flag(unused_flags,argv,"-TM",true);
-        string TM_filename = argv[flag_TM+1];
+        std::string TM_filename = argv[flag_TM+1];
 
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        string ref_filename = argv[flag_ref+1];
+        std::string ref_filename = argv[flag_ref+1];
 
 
         // ------------------------------------------------ //
@@ -120,7 +119,7 @@ int main(int argc, char* argv[])
                 flag_def_4D  == -1 &&
                 flag_disp_3D == -1 &&
                 flag_disp_4D == -1) {
-            cout << "\nRequired at least one output type. Exiting...\n";
+            std::cout << "\nRequired at least one output type. Exiting...\n";
             print_usage();
             return EXIT_FAILURE;
         }
@@ -131,11 +130,11 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         if (unused_flags.size() > 0) {
-            cout << "\n\nThe following unknown flags were supplied:\n";
+            std::cout << "\n\nThe following unknown flags were supplied:\n";
             for (unsigned i=0; i<unused_flags.size(); i++)
-                cout << "\t" << argv[unused_flags[i]] << "\n";
+                std::cout << "\t" << argv[unused_flags[i]] << "\n";
         }
-        cout << "\n";
+        std::cout << "\n";
 
 
         // ------------------------------------------------ //
@@ -170,8 +169,8 @@ int main(int argc, char* argv[])
 
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

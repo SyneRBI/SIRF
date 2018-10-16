@@ -34,7 +34,6 @@ limitations under the License.
 #include <_reg_f3d_sym.h>
 #include <_reg_base.h>
 
-using namespace std;
 using namespace sirf;
 
 template<class T>
@@ -60,7 +59,7 @@ void SIRFRegNiftyF3dSym<T>::process()
     // Set any extra parameters
     this->set_parameters();
 
-    cout << "\n\nStarting registration...\n\n";
+    std::cout << "\n\nStarting registration...\n\n";
 
     // Run
     _registration_sptr->Run();
@@ -85,7 +84,7 @@ void SIRFRegNiftyF3dSym<T>::process()
     _disp_image_forward.create_from_def(_def_image_forward);
     _disp_image_inverse.create_from_def(_def_image_inverse);
 
-    cout << "\n\nRegistration finished!\n\n";
+    std::cout << "\n\nRegistration finished!\n\n";
 }
 
 template<class T>
@@ -95,9 +94,9 @@ void SIRFRegNiftyF3dSym<T>::check_parameters()
 
     // If anything is missing
     if (_floating_time_point == -1) {
-        throw runtime_error("Floating time point has not been set."); }
+        throw std::runtime_error("Floating time point has not been set."); }
     if (_reference_time_point == -1) {
-        throw runtime_error("Reference time point has not been set."); }
+        throw std::runtime_error("Reference time point has not been set."); }
 }
 
 template<class T>
@@ -137,9 +136,9 @@ void SIRFRegNiftyF3dSym<T>::set_parameters()
 {
     for (size_t i=0; i<_extra_params.size(); i+=3) {
 
-        string par  = _extra_params[ i ];
-        string arg1 = _extra_params[i+1];
-        string arg2 = _extra_params[i+2];
+        std::string par  = _extra_params[ i ];
+        std::string arg1 = _extra_params[i+1];
+        std::string arg2 = _extra_params[i+2];
 
         // 1 argument
         if      (strcmp(par.c_str(),"SetBendingEnergyWeight")       == 0) _registration_sptr->SetBendingEnergyWeight        (stof(arg1));
@@ -169,7 +168,7 @@ void SIRFRegNiftyF3dSym<T>::set_parameters()
         else if (strcmp(par.c_str(),"SetSpacing")                   == 0) _registration_sptr->SetSpacing                    (unsigned(stoi(arg1)), stof(arg2));
 
         else
-            throw runtime_error("\nUnknown argument: " + par);
+            throw std::runtime_error("\nUnknown argument: " + par);
     }
 }
 

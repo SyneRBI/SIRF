@@ -31,23 +31,22 @@ limitations under the License.
 #include "SIRFRegMisc.h"
 #include <boost/format.hpp>
 
-using namespace std;
 using namespace sirf;
 
 NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
 {
     // Check everything is intialised
     if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
-        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
+        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
 
     if (!SIRFRegMisc::do_nifti_image_metadata_match(x,y))
-        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and y components don't match.");
+        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and y components don't match.");
     if (!SIRFRegMisc::do_nifti_image_metadata_match(x,z))
-        throw runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and z components don't match.");
+        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and z components don't match.");
 
     // Create a 4D from one of the components
     this->create_from_3D_image(x);
-    vector<NiftiImage3D> ims{x, y, z};
+    std::vector<NiftiImage3D> ims{x, y, z};
 
     // for nu=3, the tensor data is stored last.
     //So memcpy x into first third, y into second third and z into last third
@@ -63,7 +62,7 @@ NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D
 void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
 {
     if (!image.is_initialised())
-        throw runtime_error("NiftiImage3DTensor::create_from_3D_image. Input image not initialised.");
+        throw std::runtime_error("NiftiImage3DTensor::create_from_3D_image. Input image not initialised.");
 
     std::shared_ptr<const nifti_image> image_sptr = image.get_raw_nifti_sptr();
 
@@ -91,7 +90,7 @@ void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
     set_up_data(image.get_original_datatype());
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filename_pattern, const int datatype) const
+void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
@@ -101,7 +100,7 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filenam
     if (filename_pattern.empty())
         throw std::runtime_error("Error, cannot write " + filename_pattern + " to file because filename is blank.");
 
-    string filename_x, filename_y, filename_z;
+    std::string filename_x, filename_y, filename_z;
 
     try{
         filename_x = str(boost::format(filename_pattern) % "x");
@@ -109,7 +108,7 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const string &filenam
         filename_z = str(boost::format(filename_pattern) % "z");
     }
     catch (const std::exception &exc) {
-        throw runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + string(exc.what()));
+        throw std::runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + std::string(exc.what()));
     }
 
     this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z, datatype);
@@ -140,11 +139,11 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
 
 void NiftiImage3DTensor::flip_component(const int dim)
 {
-    cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << flush;
+    std::cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << std::flush;
 
     // Check the dimension to flip, that dims==5 and nu==3
     if (dim < 0 || dim > 2)
-        throw runtime_error("\n\tDimension to flip should be between 0 and 2.");
+        throw std::runtime_error("\n\tDimension to flip should be between 0 and 2.");
 
     // Data is ordered such that the multicomponent info is last.
     // So, the first third of the data is the x-values, second third is y and last third is z.

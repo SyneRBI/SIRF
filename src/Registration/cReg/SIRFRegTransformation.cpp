@@ -31,7 +31,6 @@ limitations under the License.
 #include "NiftiImage3DDeformation.h"
 #include <sstream>
 
-using namespace std;
 using namespace sirf;
 
 void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const
@@ -46,7 +45,7 @@ void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const Nif
             all_ok = false;
 
     if (!all_ok) {
-        stringstream ss;
+        std::stringstream ss;
         ss << "Deformation field image should contain same number of x, y and z voxels.\n";
         ss << "Reference: ";
         for (int i=1; i<=3; ++i) ss << ref_dims[i] << " ";

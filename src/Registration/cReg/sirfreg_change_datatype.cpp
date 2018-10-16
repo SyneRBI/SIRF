@@ -31,17 +31,16 @@ limitations under the License.
 #include <vector>
 #include <NiftiImage.h>
 
-using namespace std;
 using namespace sirf;
 
 /// Print usage
-void print_usage(const vector<string> &datatypes)
+void print_usage(const std::vector<std::string> &datatypes)
 {
-    cout << "\n\n\n*** Usage: sirfreg_change_datatype output_filename input_filename desired_datatype ***\n\n";
-    cout << "Supported datatypes:\n";
+    std::cout << "\n\n\n*** Usage: sirfreg_change_datatype output_filename input_filename desired_datatype ***\n\n";
+    std::cout << "Supported datatypes:\n";
     for (unsigned i=0; i<datatypes.size(); ++i)
-        cout << "\t" << datatypes[i] << "\n";
-    cout << "\n\n";
+        std::cout << "\t" << datatypes[i] << "\n";
+    std::cout << "\n\n";
 }
 
 /// main
@@ -50,7 +49,7 @@ int main(int argc, char* argv[])
 
     try {
         // Supported datatypes
-        vector<string> datatypes;
+        std::vector<std::string> datatypes;
         datatypes.push_back("bool");
         datatypes.push_back("signed char");
         datatypes.push_back("signed short");
@@ -91,8 +90,8 @@ int main(int argc, char* argv[])
         }
 
     // If there was an error
-    } catch(const exception &error) {
-        cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
+    } catch(const std::exception &error) {
+        std::cerr << "\nHere's the error:\n\t" << error.what() << "\n\n";
         return EXIT_FAILURE;
     }
 

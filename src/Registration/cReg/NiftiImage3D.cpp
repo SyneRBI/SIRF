@@ -34,12 +34,11 @@ limitations under the License.
 #include <_reg_tools.h>
 #include "stir_data_containers.h"
 
-using namespace std;
 using namespace sirf;
 
 NiftiImage3D::NiftiImage3D(const PETImageData &pet_image)
 {
-    cout << "Converting PET image to nifti image..." << flush;
+    std::cout << "Converting PET image to nifti image..." << std::flush;
 
     // Set up the nifti
     set_up_nifti(pet_image.get_patient_coord_geometrical_info());
@@ -47,12 +46,12 @@ NiftiImage3D::NiftiImage3D(const PETImageData &pet_image)
     // Copy the data (both datatypes are float)
     pet_image.get_data(_data);
 
-    cout << "Done!\n";
+    std::cout << "Done!\n";
 }
 
 NiftiImage3D::NiftiImage3D(const MRImageData &)
 {
-    cout << "\n\nTODO\n\n";
+    std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
@@ -115,7 +114,7 @@ void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 
 void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
 {
-    cout << "Filling PET image from nifti image..." << flush;
+    std::cout << "Filling PET image from nifti image..." << std::flush;
 
     if (!check_images_are_aligned(
                 pet_image.get_patient_coord_geometrical_info()))
@@ -123,12 +122,12 @@ void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
 
     pet_image.set_data(_data);
 
-    cout << "Done!\n";
+    std::cout << "Done!\n";
 }
 
 void NiftiImage3D::copy_data_to(MRImageData &) const
 {
-    cout << "\n\nTODO\n\n";
+    std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
@@ -177,7 +176,7 @@ bool NiftiImage3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &in
     bool ok_qto_xyz = (stir_qto_xyz == qto_xyz);
     if (!ok_qto_xyz) {
         std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
-        vector<SIRFRegMat44> mats = {stir_qto_xyz, qto_xyz};
+        std::vector<SIRFRegMat44> mats = {stir_qto_xyz, qto_xyz};
         SIRFRegMat44::print(mats);
     }
 
