@@ -127,7 +127,7 @@ ADD_SUBDIRECTORY(src/common)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Optional registration
-option(USE_SIRFREG "Build the SIRF registration package" OFF)
-if (USE_SIRFREG)
+option(SIRFREG_ENABLE "Build the SIRF registration package" OFF)
+if (SIRFREG_ENABLE)
   ADD_SUBDIRECTORY(src/Registration)
 endif()
