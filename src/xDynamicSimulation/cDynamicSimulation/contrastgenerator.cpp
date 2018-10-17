@@ -336,18 +336,24 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 	  	std::vector < float > contrast_img;
 	  	contrast_img.resize(num_voxels, 0);
 
+
+		PETImageData pet_img_dat( template_pet_image_data_ );
+		std::vector< float > voxel_sizes(3,0.f);
+		pet_img_dat.get_voxel_sizes(&voxel_sizes[0]);
+		float const voxel_volume_mm3 = voxel_sizes[0] * voxel_sizes[1] * voxel_sizes[2];
+
+
 		// #pragma omp parallel
 		for( size_t i_vox=0; i_vox<num_voxels; i_vox++)
 		{
 			TissueParameter param_in_voxel = *(tissue_params[i_vox]);
 
 			if(case_map==CASE_MAP_PET_CONTRAST)
-				contrast_img[i_vox] = param_in_voxel.pet_tissue_.activity_kBq_ml_;						
+				contrast_img[i_vox] = (param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_mm3 / 1000.f);						
 			else if(case_map == CASE_MAP_PET_ATTENUATION)
 				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;						
 		}
 	
-		PETImageData pet_img_dat( template_pet_image_data_ );
 		pet_img_dat.set_data( &contrast_img[0] );
 
 		this->contrast_filled_volumes_.push_back( pet_img_dat );

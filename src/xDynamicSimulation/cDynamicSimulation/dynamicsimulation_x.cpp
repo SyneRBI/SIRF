@@ -530,7 +530,6 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 		TimeAxisType time_in_dynamic_state = get_total_time_in_set(acquisition_time_bins_for_this_state);
 		cout << "Time spent in this motion state: " << time_in_dynamic_state << endl;
 
-
 		if( time_in_dynamic_state > 0)
 		{
 			std::vector<SIRFImageDataDeformation> all_motion_fields;
