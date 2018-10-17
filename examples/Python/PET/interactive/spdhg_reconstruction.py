@@ -1,22 +1,35 @@
 # -*- coding: utf-8 -*-
 ###
-# TBC!!!
-# Demonstration of PET reconstruction with CCP PET-MR Software
+# Demonstration of advanced PET reconstruction with CCP PET-MR Software
+# and randomized algorithms
 #
-# This demonstration shows how to use OSEM and implement a
-# (simplistic) gradient-descent algorithm using SIRF.
+# This demonstration shows how to use the stochastic primal-dual hybrid 
+# gradient algorithm (SPDHG) for regularized PET reconstruction.
+#
+#    [CERS2018] A. Chambolle, M. J. Ehrhardt, P. Richtarik and C.-B. Schoenlieb,
+#    *Stochastic Primal-Dual Hybrid Gradient Algorithm with Arbitrary Sampling
+#    and Imaging Applications*. SIAM Journal on Optimization, 28(4), 2783–2808
+#    (2018) http://doi.org/10.1007/s10851-010-0251-1 
+#
+#    [E+2017] M. J. Ehrhardt, P. J. Markiewicz, P. Richtarik, J. Schott,
+#    A. Chambolle and C.-B. Schoenlieb, *Faster PET reconstruction with a
+#    stochastic primal-dual hybrid gradient method*. Wavelets and Sparsity XVII,
+#    58 (2017) http://doi.org/10.1117/12.2272946.
+#    
+#    [EMS2018] M. J. Ehrhardt, P. J. Markiewicz and C.-B. Schoenlieb, *Faster 
+#    PET Reconstruction with Non-Smooth Priors by Randomization and 
+#    Preconditioning*. (2018) ArXiv: http://arxiv.org/abs/1808.07150
 #
 # This demo is a 'script', i.e. intended to be run step by step in a
 # Python IDE such as spyder. It is organised in 'cells'. spyder displays these
 # cells nicely and allows you to run each cell on its own.
 #
-# First version: 8th of September 2016
-# Author: Kris Thielemans
+# First version: 8th of September 2018
+# Author: Matthias J Ehrhardt, Edoardo Pasca
 #
-
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London.
+## Copyright 2015 - 2018 Rutherford Appleton Laboratory STFC
+## Copyright 2015 - 2018 University College London.
 ##
 ## This is software developed for the Collaborative Computational
 ## Project in Positron Emission Tomography and Magnetic Resonance imaging
@@ -43,27 +56,30 @@ import pSTIR as pet
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 # some handy function definitions
-def imshow(image, limits, title=''):
+
+def imshow3(image, slice=None, **kwargs):
+    im = image.as_array()
+    
+    if slice is None:
+        slice = im.shape[0]/2
+        
+    imshow(im[slice, :, :], **kwargs)   
+    
+def imshow(image, newfig=True, limits=None, title=''):
     """Usage: imshow(image, [min,max], title)"""
+    if newfig:
+        plt.figure()
+
     plt.title(title)
+
     bitmap=plt.imshow(image)
-    if len(limits)==0:
+    if limits is None:
         limits=[image.min(),image.max()]
                 
     plt.clim(limits[0], limits[1])
     plt.colorbar(shrink=.6)
     plt.axis('off');
     return bitmap
-
-def make_positive(image_array):
-    """truncate any negatives to zero"""
-    image_array[image_array<0] = 0;
-    return image_array;
-
-def make_cylindrical_FOV(image):
-    """truncate to cylindrical FOV"""
-    filter = pet.TruncateToCylinderProcessor()
-    filter.apply(image)
 
 # go to directory with input files
 # adapt this path to your situation (or start everything in the relevant directory)
@@ -84,10 +100,7 @@ mu_map_array=mu_map.as_array();
 # bitmap display of images
 slice=image_array.shape[0]/2;
 plt.figure();
-#plt.subplot(1,2,1);
-imshow(image_array[slice,:,:,], [], 'emission image');
-#plt.subplot(1,2,2);
-#imshow(mu_map_array[slice,:,:,], [], 'attenuation image');
+imshow(image_array[slice,:,:,], title='emission image');
 
 # save max for future displays
 cmax = image_array.max()*.6
@@ -103,7 +116,7 @@ acquisition_array = acquired_data.as_array()
 
 # Display bitmaps of a middle sinogram
 plt.figure()
-imshow(acquisition_array[0,:,:,], [], 'Forward projection');
+imshow(acquisition_array[0,:,:,], title='Forward projection')
 
 # close all plots
 plt.close('all')
@@ -115,70 +128,158 @@ plt.close('all')
 
 import pCIL  # the code from this module needs to be imported somehow differently
 #from pCIL import ZeroFun
-from ccpi.optimisation.funcs import ZeroFun
-from ccpi.plugins.regularisers import FGP_TV
+from ccpi.optimisation.funcs import ZeroFun, IndicatorBox
+from plugins.regularisers import FGP_TV
+#from ccpi.filters.regularisers import FGP_TV
+
 data = acquired_data
-background = 0 * data.copy()
+background = data.copy()
+background.fill(5)
 
-f = [pCIL.KullbackLeibler(data, background)]
+array = data.as_array() + background.as_array()
+noisy_array = numpy.random.poisson(array.astype('float64'))
+max_counts = noisy_array.max()
+print(' Maximum counts in the data: {}'.format(noisy_array.max()))
+noisy_data = data.clone()
+noisy_data.fill(noisy_array);
 
-#g = ZeroFun()
-
+g_noreg = ZeroFun()
 
 # the FGP_TV will output a CCPi DataContainer not a SIRF one, so 
 # we will need to wrap it in something compatible
 
 class FGP_TV_SIRF(FGP_TV):
-    def prox(self, x, Lipshitz):
+    def prox(self, x, sigma):
        print("calling FGP")
-       out = super(FGP_TV, self).prox( x, Lipshitz)
+       out = super(FGP_TV, self).prox(x, sigma)
        y = x.copy()
        y.fill(out.as_array())
        return y
 
-lam_tv = 1.0
-g = FGP_TV_SIRF(lambdaReg = lam_tv,
-                 iterationsTV=5000,
-                 tolerance=1e-5,
-                 methodTV=0,
-                 nonnegativity=1,
-                 printing=0,
-                 device='cpu')
+g_reg = FGP_TV_SIRF(lambdaReg=.1,
+                iterationsTV=1000,
+                tolerance=1e-5,
+                methodTV=0,
+                nonnegativity=1,
+                printing=0,
+                device='cpu')
 
-init_image = 0 * image.copy()
-z = init_image.copy()
-y = [0 * data.copy()]
-A = [am]
+g = FGP_TV(lambdaReg=.1,
+                iterationsTV=1000,
+                tolerance=1e-5,
+                methodTV=0,
+                nonnegativity=1,
+                printing=0,
+                device='cpu')
 
-niter = 10
+g_reg = IndicatorBox(lower=0,upper=1)               
+        
 
-L = pCIL.PowerMethodNonsquare(A[0], 10, x0=image.copy())
+class OperatorInd():
+    
+    def __init__(self, op, subset_num, num_subsets):
+        self.__op__ = op
+        self.__subset_num__ = subset_num
+        self.__num_subsets__ = num_subsets
+        
+        x = op.img_templ.copy()
+        x.fill(1)
+        y = self.forward_sirf(x).as_array()
+        self.ind = numpy.nonzero(y.flatten())[0]
+    
+    def forward_sirf(self, x):
+        return self.__op__.forward(x, subset_num=self.__subset_num__, 
+                                   num_subsets=self.__num_subsets__)
 
-L *= 1.05
-tau = 1 / L
-sigma = [1 / L]
-   
-# Selection function
-def fun_select(k):
-    n = len(A)
-    return [int(numpy.random.choice(n, 1, p=[1./n] * n))]
+    def __call__(self, x):
+        y = self.__op__.forward(x, subset_num=self.__subset_num__, 
+                                   num_subsets=self.__num_subsets__)
+        return self.sirf2sub(y)
 
-init_image = 0 * image.copy()   
-recon = pCIL.spdhg(init_image, y, z, f, g, A, tau, sigma, fun_select)
+    def direct(self, x):
+        return self(x)
+    
+    def forward(self, x):
+        return self(x)
+           
+    def adjoint(self, x):
+        x = self.sub2sirf(x)
+        return self.__op__.backward(x, subset_num=self.__subset_num__, 
+                                    num_subsets=self.__num_subsets__)
+        
+    def allocate_direct(self, x=None):
+        y = self.__op__.img_templ.copy()
+        if x is not None:
+            y.fill(x)
+        return y
+    
+    def allocate_adjoint(self, x=None):
+        y = pet.AcquisitionData(self.__op__.acq_templ)
+        if x is not None:
+            y.fill(x)
+        return self.sirf2sub(y)
+        
+    def sub2sirf(self, x):
+        y = pet.AcquisitionData(self.__op__.acq_templ)
+        y.fill(0)
+        y_array = y.as_array().flatten()
+        y_array[self.ind] = x
+        y.fill(y_array)
+        return y
+                
+    def sirf2sub(self, x):
+        #y = numpy.zeros(len(self.ind))
+        return x.as_array().flatten()[self.ind]
+            
+#class SubsetOperator():
+#    
+#    def __init__(self, op, nsubsets):
+#        self.__op__ = op
+#        self.__nsubsets__ = nsubsets
+#        
+#    def __len__(self):
+#        return self.__nsubsets__
+#    
+#    def __call__(self, x):
+#        return self.__op__.forward(x)
+#    
+#    def adjoint(self, x):
+#        return self.__op__.backward(x)
+#    
+#    def __ind__(self, i):
+#        return OperatorInd(self.__op__, i, len(self))
+    
+
+def SubsetOperator(op, nsubsets):
+    return [OperatorInd(op, ind, nsubsets) for ind in range(nsubsets)]
+        
+niter = 20
+
+A = SubsetOperator(am, 14)
+A_norms = [pCIL.PowerMethodNonsquare(Ai, 10, x0=image.copy()) for Ai in A]
+
+# increase the norms to allow for inaccuracies in their computation
+Ls = [1.05 * L for L in A_norms]
+
+f = [pCIL.KullbackLeibler(op.sirf2sub(noisy_data), op.sirf2sub(background)) 
+     for op in A]
+
+#%%
+recon_noreg = pCIL.spdhg(f, g_noreg, A, A_norms=Ls)
 
 # %%
-for i in range(niter):
-    print(i)
-    recon.update()
+for i in range(3):
+    print(recon_noreg.iter)
+    recon_noreg.update()
 
-# a = am.forward(x, subset_num=0, num_subsets=10)
-# b = am.forward(x)
-# b.as_array().shape
-#%%  create initial image
-# we could just use a uniform image but here we will create a disk with a different
-# initial value (this will help the display later on)
-idata = recon.x.as_array()
-slice=idata.shape[0]/2;
-plt.figure()
-imshow(idata[slice,:,:],[0,cmax], 'initial image');
-  
+#%% does currently not work!
+#recon_reg = pCIL.spdhg(f, g_reg, A, A_norms=Ls)
+
+# %%
+#for i in range(niter):
+ #   print(recon_reg)
+  #  recon_reg.update()
+
+#%%  show result      
+imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
+#imshow3(recon_reg.x, limits=[-0.3,cmax], title='recon reg')
