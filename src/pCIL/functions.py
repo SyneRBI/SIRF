@@ -152,20 +152,36 @@ class KullbackLeiblerConvexConjugate(Function):
             out = x.copy()
 
         # define short variable names
-        y = self.data.as_array()
-        r = self.background.as_array()
-        x = x.as_array()
+        try: # this should be standard SIRF mode
+            y = self.data.as_array()
+            r = self.background.as_array()
+            x = x.as_array()
+            
+            try:
+                taua = tau.as_array()
+            except:
+                taua = tau
+    
+            z = x + tau * r
+                        
+            out.fill(0.5 * (z + 1 - numpy.sqrt((z - 1) ** 2 + 4 * taua * y)))
+            
+            return out
+            
+        except: # e.g. for NumPy
+            y = self.data
+            r = self.background
 
-        try:
-            taua = tau.as_array()
-        except:
-            taua = tau
-
-        z = x + tau * r
-                    
-        out.fill(0.5 * (z + 1 - numpy.sqrt((z - 1) ** 2 + 4 * taua * y)))
-        
-        return out 
+            try:
+                taua = tau.as_array()
+            except:
+                taua = tau
+    
+            z = x + tau * r
+                        
+            out[:] = 0.5 * (z + 1 - numpy.sqrt((z - 1) ** 2 + 4 * taua * y))
+            
+            return out 
    
     @property
     def convex_conj(self):
