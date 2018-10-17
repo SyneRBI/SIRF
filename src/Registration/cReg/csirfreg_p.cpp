@@ -163,7 +163,7 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
     else if (boost::iequals(name, "floating_image"))
         s.set_floating_image(objectFromHandle<NiftiImage3D>(hv));
     else if (boost::iequals(name, "interpolation_type"))
-        s.set_interpolation_type(intDataFromHandle(hv));
+        s.set_interpolation_type(static_cast<SIRFRegNiftyResample::InterpolationType>(intDataFromHandle(hv)));
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;

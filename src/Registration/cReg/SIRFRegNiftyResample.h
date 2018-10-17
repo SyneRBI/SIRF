@@ -49,6 +49,15 @@ class SIRFRegNiftyResample
 {
 public:
 
+    /// Interpolation type
+    enum InterpolationType {
+        NOTSET           = -1,
+        NEARESTNEIGHBOUR =  0,
+        LINEAR           =  1,
+        CUBICSPLINE      =  3,
+        SINC             =  4
+    };
+
     /// Constructor
     SIRFRegNiftyResample() { _interpolation_type = NOTSET; }
 
@@ -77,14 +86,9 @@ public:
     void add_transformation_def(const NiftiImage3DDeformation &def);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
-    void set_interpolation_type(const int type)
+    void set_interpolation_type(const enum InterpolationType type)
     {
-        if      (type == 0) _interpolation_type = NEARESTNEIGHBOUR;
-        else if (type == 1) _interpolation_type = LINEAR;
-        else if (type == 3) _interpolation_type = CUBICSPLINE;
-        else if (type == 4) _interpolation_type = SINC;
-        else
-            throw std::runtime_error("Invalid interpolation type");
+        _interpolation_type = type;
     }
 
     /// Set interpolation type to nearest neighbour
@@ -106,15 +110,6 @@ public:
     const NiftiImage3D &get_output() const { return _output_image; }
 
 protected:
-
-    /// Interpolation type
-    enum InterpolationType {
-        NOTSET           = -1,
-        NEARESTNEIGHBOUR =  0,
-        LINEAR           =  1,
-        CUBICSPLINE      =  3,
-        SINC             =  4
-    };
 
     /// Check parameters
     virtual void check_parameters();

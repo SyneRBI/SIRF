@@ -631,7 +631,7 @@ int main(int argc, char* argv[])
         nr1.set_reference_image(ref_aladin);
         nr1.set_floating_image(flo_aladin);
         nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
-        nr1.set_interpolation_type(3); // try different interpolations (cubic)
+        nr1.set_interpolation_type(SIRFRegNiftyResample::CUBICSPLINE); // try different interpolations (cubic)
         nr1.add_transformation_affine(tm_iden);
         nr1.add_transformation_affine(tm);
         nr1.process();
