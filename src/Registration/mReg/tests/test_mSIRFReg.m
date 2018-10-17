@@ -15,14 +15,14 @@ g.parameter_file_aladin                      = fullfile(examples_path, '/paramFi
 g.parameter_file_f3d                         = fullfile(examples_path, '/paramFiles/niftyreg_f3d.par');
 
 % Output filenames
-g.save_nifti_image                           = fullfile(output_prefix, 'matlab_save_NiftiImage.nii');
-g.save_nifti_image_3d                        = fullfile(output_prefix, 'matlab_save_NiftiImage3D.nii');
-g.save_nifti_image_3d_tensor_not_split       = fullfile(output_prefix, 'matlab_save_NiftiImage3DTensor_not_split.nii');
-g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'matlab_save_NiftiImage3DTensor_split_%s.nii');
-g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'matlab_save_NiftiImage3DDeformation_not_split.nii');
-g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'matlab_save_NiftiImage3DDeformation_split_%s.nii');
-g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'matlab_save_NiftiImage3DDisplacement_not_split.nii');
-g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'matlab_save_NiftiImage3DDisplacement_split_%s.nii');
+g.save_nifti_image                           = fullfile(output_prefix, 'matlab_save_NiftiImageData.nii');
+g.save_nifti_image_3d                        = fullfile(output_prefix, 'matlab_save_NiftiImageData3D.nii');
+g.save_nifti_image_3d_tensor_not_split       = fullfile(output_prefix, 'matlab_save_NiftiImageData3DTensor_not_split.nii');
+g.save_nifti_image_3d_tensor_split           = fullfile(output_prefix, 'matlab_save_NiftiImageData3DTensor_split_%s.nii');
+g.save_nifti_image_3d_deformation_not_split  = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDeformation_not_split.nii');
+g.save_nifti_image_3d_deformation_split      = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDeformation_split_%s.nii');
+g.save_nifti_image_3d_displacement_not_split = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_not_split.nii');
+g.save_nifti_image_3d_displacement_split     = fullfile(output_prefix, 'matlab_save_NiftiImageData3DDisplacement_split_%s.nii');
 g.aladin_warped                              = fullfile(output_prefix, 'matlab_aladin_warped.nii');
 g.f3d_warped                                 = fullfile(output_prefix, 'matlab_f3d_warped.nii');
 g.TM_forward		                     = fullfile(output_prefix, 'matlab_TM_forward.txt');
@@ -43,10 +43,10 @@ g.output_weighted_mean                       = fullfile(output_prefix, 'matlab_w
 g.output_weighted_mean_def                   = fullfile(output_prefix, 'matlab_weighted_mean_def.nii');
 g.output_float                               = fullfile(output_prefix, 'matlab_reg_aladin_float.nii');
 
-g.ref_aladin                                 = mSIRFReg.NiftiImage3D( g.ref_aladin_filename );
-g.flo_aladin                                 = mSIRFReg.NiftiImage3D( g.flo_aladin_filename );
-g.ref_f3d                                    = mSIRFReg.NiftiImage3D(   g.ref_f3d_filename  );
-g.flo_f3d                                    = mSIRFReg.NiftiImage3D(   g.flo_f3d_filename  );
+g.ref_aladin                                 = mSIRFReg.NiftiImageData3D( g.ref_aladin_filename );
+g.flo_aladin                                 = mSIRFReg.NiftiImageData3D( g.flo_aladin_filename );
+g.ref_f3d                                    = mSIRFReg.NiftiImageData3D(   g.ref_f3d_filename  );
+g.flo_f3d                                    = mSIRFReg.NiftiImageData3D(   g.flo_f3d_filename  );
 
 try_niftiimage(g);
 try_niftiimage3d(g);
@@ -62,14 +62,14 @@ try_stir_to_sirfreg(g);
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
-	disp('%                  Starting NiftiImage test...')
+	disp('%                  Starting NiftiImageData test...')
 	disp('%------------------------------------------------------------------------ %')
 
     % default constructor
-    a = mSIRFReg.NiftiImage();
+    a = mSIRFReg.NiftiImageData();
 
     % Read from file
-    b = mSIRFReg.NiftiImage(g.ref_aladin_filename);
+    b = mSIRFReg.NiftiImageData(g.ref_aladin_filename);
 
     % Save to file
     b.save_to_file(g.save_nifti_image);
@@ -78,59 +78,59 @@ function try_niftiimage(g)
     b.fill(100);
 
     % Get max
-    assert(b.get_max() == 100, 'NiftiImage fill()/get_max() failed.');
+    assert(b.get_max() == 100, 'NiftiImageData fill()/get_max() failed.');
 
     % Get min
-    assert(b.get_min() == 100, 'NiftiImage fill()/get_min() failed.');
+    assert(b.get_min() == 100, 'NiftiImageData fill()/get_min() failed.');
 
     % Deep copy
     d = b.deep_copy();
-    assert(d.handle_ ~= b.handle_, 'NiftiImage deep_copy failed.');
-    assert(d == b, 'NiftiImage deep_copy failed.');
+    assert(d.handle_ ~= b.handle_, 'NiftiImageData deep_copy failed.');
+    assert(d == b, 'NiftiImageData deep_copy failed.');
 
     % Addition
     e = d + d;
-    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage __add__/get_max() failed.')
+    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImageData __add__/get_max() failed.')
 
     % Subtraction
     e = d - d;
-    assert(abs(e.get_max()) < 0.0001, 'NiftiImage __sub__ failed.')
+    assert(abs(e.get_max()) < 0.0001, 'NiftiImageData __sub__ failed.')
 
     % Sum
-    assert(abs(e.get_sum()) < 0.0001, 'NiftiImage get_sum() failed.')
+    assert(abs(e.get_sum()) < 0.0001, 'NiftiImageData get_sum() failed.')
 
     % Add num to image
     q = e + 1;
-    assert(q.get_max() == e.get_max() + 1, 'NiftiImage __add__ val failed.');
+    assert(q.get_max() == e.get_max() + 1, 'NiftiImageData __add__ val failed.');
 
     % Subtract num from image
     r = e - 1;
-    assert(r.get_max() == e.get_max() - 1, 'NiftiImage __sub__ val failed.');
+    assert(r.get_max() == e.get_max() - 1, 'NiftiImageData __sub__ val failed.');
 
     % Multiply image by num
     s = e * 10;
-    assert(s.get_max() == e.get_max() * 10, 'NiftiImage __mul__ val failed.');
+    assert(s.get_max() == e.get_max() * 10, 'NiftiImageData __mul__ val failed.');
 
     % Dimensions
     f = e.get_dimensions();
-    assert(all(f == [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImage get_dimensions() failed.')
+    assert(all(f == [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImageData get_dimensions() failed.')
 
     % Get as array
     arr = d.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage as_array().max() failed.')
-    assert(ndims(arr) == 3, 'NiftiImage as_array() ndims failed.')
-    assert(all(size(arr) == [64, 64, 64]), 'NiftiImage as_array().shape failed.')
+    assert(max(arr(:)) == 100, 'NiftiImageData as_array().max() failed.')
+    assert(ndims(arr) == 3, 'NiftiImageData as_array() ndims failed.')
+    assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData as_array().shape failed.')
 
     % Test saving to datatype
     g.ref_aladin.save_to_file(g.output_float,16); % save to float
-    ref_aladin_float = mSIRFReg.NiftiImage3D(g.output_float);
+    ref_aladin_float = mSIRFReg.NiftiImageData3D(g.output_float);
     arr1 = g.ref_aladin.as_array();
     arr2 = ref_aladin_float.as_array();
     assert(all(arr1(:)==arr2(:)), "SIRFRegMisc::save_to_file()/change_datatype() failed.");
 
     % Test print methods
     q.print_header();
-    mSIRFReg.NiftiImage.print_headers([q s]);
+    mSIRFReg.NiftiImageData.print_headers([q s]);
 
     % Crop image
     min_ = [];
@@ -143,24 +143,24 @@ function try_niftiimage(g)
     e = e;
     s.crop(min_,max_);
     size(s.as_array())
-    assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImage crop() failed.')
+    assert(all(size(s.as_array()) == [64, 64, 63]), 'NiftiImageData crop() failed.')
 
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished NiftiImage test.')
+    disp('%                  Finished NiftiImageData test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
 function try_niftiimage3d(g)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting NiftiImage3D test...')
+    disp('%                  Starting NiftiImageData3D test...')
     disp('%------------------------------------------------------------------------ %')
 
     % default constructor
-    a = mSIRFReg.NiftiImage3D();
+    a = mSIRFReg.NiftiImageData3D();
 
     % Read from file
-    b = mSIRFReg.NiftiImage3D(g.ref_aladin_filename);
+    b = mSIRFReg.NiftiImageData3D(g.ref_aladin_filename);
 
     % Save to file
     b.save_to_file(g.save_nifti_image_3d);
@@ -169,49 +169,49 @@ function try_niftiimage3d(g)
     b.fill(100);
 
     % Get max
-    assert(b.get_max() == 100, 'NiftiImage3D fill()/get_max() failed.');
+    assert(b.get_max() == 100, 'NiftiImageData3D fill()/get_max() failed.');
 
     % Get min
-    assert(b.get_min() == 100, 'NiftiImage3D fill()/get_min() failed.');
+    assert(b.get_min() == 100, 'NiftiImageData3D fill()/get_min() failed.');
 
     % Deep copy
     d = b.deep_copy();
-    assert(d.handle_ ~= b.handle_, 'NiftiImage3D deep_copy failed.');
-    assert(d == b, 'NiftiImage3D deep_copy failed.');
+    assert(d.handle_ ~= b.handle_, 'NiftiImageData3D deep_copy failed.');
+    assert(d == b, 'NiftiImageData3D deep_copy failed.');
 
     % Addition
     e = d + d;
-    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3D __add__/get_max() failed.')
+    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImageData3D __add__/get_max() failed.')
 
     % Subtraction
     e = d - d;
-    assert(abs(e.get_max()) < 0.0001, 'NiftiImage3D __sub__ failed.')
+    assert(abs(e.get_max()) < 0.0001, 'NiftiImageData3D __sub__ failed.')
 
     % Sum
-    assert(abs(e.get_sum()) < 0.0001, 'NiftiImage3D get_sum() failed.')
+    assert(abs(e.get_sum()) < 0.0001, 'NiftiImageData3D get_sum() failed.')
 
     % Dimensions
     f = e.get_dimensions();
-    assert(all(f == [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImage3D get_dimensions() failed.')
+    assert(all(f == [3, 64, 64, 64, 1, 1, 1, 1]), 'NiftiImageData3D get_dimensions() failed.')
 
     % Get as array
     arr = d.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage3D as_array().max() failed.')
-    assert(ndims(arr) == 3, 'NiftiImage3D as_array() ndims failed.')
-    assert(all(size(arr) == [64, 64, 64]), 'NiftiImage3D as_array().shape failed.')
+    assert(max(arr(:)) == 100, 'NiftiImageData3D as_array().max() failed.')
+    assert(ndims(arr) == 3, 'NiftiImageData3D as_array() ndims failed.')
+    assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData3D as_array().shape failed.')
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished NiftiImage3D test.')
+    disp('%                  Finished NiftiImageData3D test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
 function try_niftiimage3dtensor(g)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting NiftiImage3DTensor test...')
+    disp('%                  Starting NiftiImageData3DTensor test...')
     disp('%------------------------------------------------------------------------ %')
 
-    % Create NiftiImage3DTensor from NiftiImage3D
-    b = mSIRFReg.NiftiImage3DTensor();
+    % Create NiftiImageData3DTensor from NiftiImageData3D
+    b = mSIRFReg.NiftiImageData3DTensor();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -219,42 +219,42 @@ function try_niftiimage3dtensor(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_tensor_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DTensor(g.save_nifti_image_3d_tensor_not_split);
+    c = mSIRFReg.NiftiImageData3DTensor(g.save_nifti_image_3d_tensor_not_split);
 
     % Fill
     c.fill(100)
 
     % Get max
-    assert(c.get_max() == 100, 'NiftiImage3DTensor fill()/get_max() failed.');
+    assert(c.get_max() == 100, 'NiftiImageData3DTensor fill()/get_max() failed.');
 
     % Get min
-    assert(c.get_min() == 100, 'NiftiImage3DTensor fill()/get_min() failed.');
+    assert(c.get_min() == 100, 'NiftiImageData3DTensor fill()/get_min() failed.');
 
     % Deep copy
     d = c.deep_copy();
-    assert(d.handle_ ~= c.handle_, 'NiftiImage3DTensor deep_copy failed (they have the same handle).');
-    assert(d == c, 'NiftiImage3DTensor deep_copy failed (values do not match).');
+    assert(d.handle_ ~= c.handle_, 'NiftiImageData3DTensor deep_copy failed (they have the same handle).');
+    assert(d == c, 'NiftiImageData3DTensor deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
-    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DTensor __add__/get_max() failed.')
+    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImageData3DTensor __add__/get_max() failed.')
 
     % Subtraction
     e = d - d;
-    assert(abs(e.get_max()) < 0.0001, 'NiftiImage3DTensor __sub__ failed.')
+    assert(abs(e.get_max()) < 0.0001, 'NiftiImageData3DTensor __sub__ failed.')
 
     % Sum
-    assert(abs(e.get_sum()) < 0.0001, 'NiftiImage3DTensor get_sum() failed.')
+    assert(abs(e.get_sum()) < 0.0001, 'NiftiImageData3DTensor get_sum() failed.')
 
     % Dimensions
     f = e.get_dimensions();
-    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DTensor get_dimensions() failed.')
+    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImageData3DTensor get_dimensions() failed.')
 
     % Get as array
     arr = d.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage3DTensor as_array().max() failed.')
-    assert(ndims(arr) == 5, 'NiftiImage3DTensor as_array() ndims failed.')
-    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImage3DTensor as_array().shape failed.')
+    assert(max(arr(:)) == 100, 'NiftiImageData3DTensor as_array().max() failed.')
+    assert(ndims(arr) == 5, 'NiftiImageData3DTensor as_array() ndims failed.')
+    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImageData3DTensor as_array().shape failed.')
 
     % Constructor from single components
     im1 = g.ref_aladin.deep_copy();
@@ -263,26 +263,26 @@ function try_niftiimage3dtensor(g)
     im1.fill(30);
     im2.fill(20);
     im3.fill(-10);
-    h = mSIRFReg.NiftiImage3DTensor(im1, im2, im3);
+    h = mSIRFReg.NiftiImageData3DTensor(im1, im2, im3);
 
     % Test flip components
     h.flip_component(0);
-    assert(h.get_max() ==  20, "NiftiImage3DTensor flip_component() failed.");
-    assert(h.get_min() == -30, "NiftiImage3DTensor flip_component() failed.");
+    assert(h.get_max() ==  20, "NiftiImageData3DTensor flip_component() failed.");
+    assert(h.get_min() == -30, "NiftiImageData3DTensor flip_component() failed.");
 
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished NiftiImage3DTensor test.')
+    disp('%                  Finished NiftiImageData3DTensor test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
 function try_niftiimage3ddisplacement(g)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting NiftiImage3DDisplacement test...')
+    disp('%                  Starting NiftiImageData3DDisplacement test...')
     disp('%------------------------------------------------------------------------ %')
 
-    % Create NiftiImage3DDisplacement from NiftiImage3D
-    b = mSIRFReg.NiftiImage3DDisplacement();
+    % Create NiftiImageData3DDisplacement from NiftiImageData3D
+    b = mSIRFReg.NiftiImageData3DDisplacement();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -290,58 +290,58 @@ function try_niftiimage3ddisplacement(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_displacement_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
+    c = mSIRFReg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
 
     % Constructor from 3x3D
-    h = mSIRFReg.NiftiImage3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
+    h = mSIRFReg.NiftiImageData3DDisplacement(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
 
     % Get max
-    assert(c.get_max() == 100, 'NiftiImage3DDisplacement fill()/get_max() failed.');
+    assert(c.get_max() == 100, 'NiftiImageData3DDisplacement fill()/get_max() failed.');
 
     % Get min
-    assert(c.get_min() == 100, 'NiftiImage3DDisplacement fill()/get_min() failed.');
+    assert(c.get_min() == 100, 'NiftiImageData3DDisplacement fill()/get_min() failed.');
 
     % Deep copy
     d = c.deep_copy();
-    assert(d.handle_ ~= c.handle_, 'NiftiImage3DDisplacement deep_copy failed (they have the same handle).');
-    assert(d == c, 'NiftiImage3DDisplacement deep_copy failed (values do not match).');
+    assert(d.handle_ ~= c.handle_, 'NiftiImageData3DDisplacement deep_copy failed (they have the same handle).');
+    assert(d == c, 'NiftiImageData3DDisplacement deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
-    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DDisplacement __add__/get_max() failed.')
+    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImageData3DDisplacement __add__/get_max() failed.')
 
     % Subtraction
     e = d - d;
-    assert(abs(e.get_max()) < 0.0001, 'NiftiImage3DDisplacement __sub__ failed.')
+    assert(abs(e.get_max()) < 0.0001, 'NiftiImageData3DDisplacement __sub__ failed.')
 
     % Sum
-    assert(abs(e.get_sum()) < 0.0001, 'NiftiImage3DDisplacement get_sum() failed.')
+    assert(abs(e.get_sum()) < 0.0001, 'NiftiImageData3DDisplacement get_sum() failed.')
 
     % Dimensions
     f = e.get_dimensions();
-    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DDisplacement get_dimensions() failed.')
+    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImageData3DDisplacement get_dimensions() failed.')
 
     % Get as array
     arr = d.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage3DDisplacement as_array().max() failed.')
-    assert(ndims(arr) == 5, 'NiftiImage3DDisplacement as_array() ndims failed.')
-    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImage3DDisplacement as_array().shape failed.')
+    assert(max(arr(:)) == 100, 'NiftiImageData3DDisplacement as_array().max() failed.')
+    assert(ndims(arr) == 5, 'NiftiImageData3DDisplacement as_array() ndims failed.')
+    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImageData3DDisplacement as_array().shape failed.')
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished NiftiImage3DDisplacement test.')
+    disp('%                  Finished NiftiImageData3DDisplacement test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
 function try_niftiimage3ddeformation(g)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting NiftiImage3DDeformation test...')
+    disp('%                  Starting NiftiImageData3DDeformation test...')
     disp('%------------------------------------------------------------------------ %')
 
-    % Create NiftiImage3DDeformation from NiftiImage3D
-    b = mSIRFReg.NiftiImage3DDeformation();
+    % Create NiftiImageData3DDeformation from NiftiImageData3D
+    b = mSIRFReg.NiftiImageData3DDeformation();
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
@@ -349,48 +349,48 @@ function try_niftiimage3ddeformation(g)
     b.save_to_file_split_xyz_components(g.save_nifti_image_3d_deformation_split);
 
     % Constructor from file
-    c = mSIRFReg.NiftiImage3DDeformation(g.save_nifti_image_3d_deformation_not_split);
+    c = mSIRFReg.NiftiImageData3DDeformation(g.save_nifti_image_3d_deformation_not_split);
 
     % Constructor from 3x3D
-    h = mSIRFReg.NiftiImage3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
+    h = mSIRFReg.NiftiImageData3DDeformation(g.ref_aladin, g.ref_aladin, g.ref_aladin);
 
     % Fill
     c.fill(100)
 
     % Get max
-    assert(c.get_max() == 100, 'NiftiImage3DDeformation fill()/get_max() failed.');
+    assert(c.get_max() == 100, 'NiftiImageData3DDeformation fill()/get_max() failed.');
 
     % Get min
-    assert(c.get_min() == 100, 'NiftiImage3DDeformation fill()/get_min() failed.');
+    assert(c.get_min() == 100, 'NiftiImageData3DDeformation fill()/get_min() failed.');
 
     % Deep copy
     d = c.deep_copy();
-    assert(d.handle_ ~= c.handle_, 'NiftiImage3DDeformation deep_copy failed (they have the same handle).');
-    assert(d == c, 'NiftiImage3DDeformation deep_copy failed (values do not match).');
+    assert(d.handle_ ~= c.handle_, 'NiftiImageData3DDeformation deep_copy failed (they have the same handle).');
+    assert(d == c, 'NiftiImageData3DDeformation deep_copy failed (values do not match).');
 
     % Addition
     e = d + d;
-    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImage3DDeformation __add__/get_max() failed.')
+    assert(abs(e.get_max() - 2 * d.get_max()) < 0.0001, 'NiftiImageData3DDeformation __add__/get_max() failed.')
 
     % Subtraction
     e = d - d;
-    assert(abs(e.get_max()) < 0.0001, 'NiftiImage3DDeformation __sub__ failed.')
+    assert(abs(e.get_max()) < 0.0001, 'NiftiImageData3DDeformation __sub__ failed.')
 
     % Sum
-    assert(abs(e.get_sum()) < 0.0001, 'NiftiImage3DDeformation get_sum() failed.')
+    assert(abs(e.get_sum()) < 0.0001, 'NiftiImageData3DDeformation get_sum() failed.')
 
     % Dimensions
     f = e.get_dimensions();
-    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImage3DDeformation get_dimensions() failed.')
+    assert(all(f == [5, 64, 64, 64, 1, 3, 1, 1]), 'NiftiImageData3DDeformation get_dimensions() failed.')
 
     % Get as array
     arr = d.as_array();
-    assert(max(arr(:)) == 100, 'NiftiImage3DDeformation as_array().max() failed.')
-    assert(ndims(arr) == 5, 'NiftiImage3DDeformation as_array() ndims failed.')
-    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImage3DDeformation as_array().shape failed.')
+    assert(max(arr(:)) == 100, 'NiftiImageData3DDeformation as_array().max() failed.')
+    assert(ndims(arr) == 5, 'NiftiImageData3DDeformation as_array() ndims failed.')
+    assert(all(size(arr) == [64, 64, 64, 1, 3]), 'NiftiImageData3DDeformation as_array().shape failed.')
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished NiftiImage3DDeformation test.')
+    disp('%                  Finished NiftiImageData3DDeformation test.')
     disp('%------------------------------------------------------------------------ %')
 end
 
@@ -431,14 +431,14 @@ function na =try_niftyaladin(g)
     inverse_tm = na.get_transformation_matrix_inverse().as_array()
 
     % Test converting disp to def
-    a = mSIRFReg.NiftiImage3DDeformation();
+    a = mSIRFReg.NiftiImageData3DDeformation();
     a.create_from_disp(disp_forward);
-    assert(a == def_forward, "NiftiImage3DDeformation::create_from_disp() failed.");
+    assert(a == def_forward, "NiftiImageData3DDeformation::create_from_disp() failed.");
 
     % Test converting def to disp
-    b = mSIRFReg.NiftiImage3DDisplacement();
+    b = mSIRFReg.NiftiImageData3DDisplacement();
     b.create_from_def(def_forward);
-    assert(b == disp_forward, "NiftiImage3DDisplacement::create_from_def() failed.");
+    assert(b == disp_forward, "NiftiImageData3DDisplacement::create_from_def() failed.");
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
@@ -503,7 +503,7 @@ function try_transformations(g,na)
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = mSIRFReg.Mat44.get_identity();
     trans = [tm_iden, tm_iden, c3];
-    composed = mSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, g.ref_aladin);
+    composed = mSIRFReg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
     assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
 
 
@@ -621,7 +621,7 @@ function try_stir_to_sirfreg(g)
 
 		% Open stir image
                 pet_image_data = mSTIR.ImageData(g.ref_aladin_filename);
-		image_data_from_stir = mSIRFReg.NiftiImage3D(pet_image_data);
+		image_data_from_stir = mSIRFReg.NiftiImageData3D(pet_image_data);
 
 		% Now fill the stir and sirfreg images with 1 and 100, respectively
 		pet_image_data.fill(1.);

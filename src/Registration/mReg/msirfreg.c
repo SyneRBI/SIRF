@@ -48,68 +48,68 @@ EXPORTED_FUNCTION 	void* mSIRFReg_setParameter (void* ptr, const char* obj, cons
 EXPORTED_FUNCTION 	void* mSIRFReg_parameter(const void* ptr, const char* obj, const char* name) {
 	return cSIRFReg_parameter(ptr, obj, name);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
-	return cSIRFReg_NiftiImage_print_headers(num_ims, im1, im2, im3, im4, im5);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
+	return cSIRFReg_NiftiImageData_print_headers(num_ims, im1, im2, im3, im4, im5);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const int datatype) {
-	return cSIRFReg_NiftiImage_save_to_file(ptr, filename, datatype);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype) {
+	return cSIRFReg_NiftiImageData_save_to_file(ptr, filename, datatype);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_fill(const void* ptr, const float val) {
-	return cSIRFReg_NiftiImage_fill(ptr, val);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill(const void* ptr, const float val) {
+	return cSIRFReg_NiftiImageData_fill(ptr, val);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_deep_copy(const void* copy_ptr, const void *orig_ptr) {
-	return cSIRFReg_NiftiImage_deep_copy(copy_ptr, orig_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr) {
+	return cSIRFReg_NiftiImageData_deep_copy(copy_ptr, orig_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_dimensions(const void* ptr, PTR_INT ptr_dim) {
-	return cSIRFReg_NiftiImage_get_dimensions(ptr, ptr_dim);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim) {
+	return cSIRFReg_NiftiImageData_get_dimensions(ptr, ptr_dim);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_data(const void* ptr, PTR_FLOAT ptr_data) {
-	return cSIRFReg_NiftiImage_get_data(ptr, ptr_data);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data) {
+	return cSIRFReg_NiftiImageData_get_data(ptr, ptr_data);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
-	return cSIRFReg_NiftiImage_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type) {
+	return cSIRFReg_NiftiImageData_maths_im(res_ptr, im1_ptr, im2_ptr, maths_type);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type) {
-	return cSIRFReg_NiftiImage_maths_num(res_ptr, im1_ptr, val, maths_type);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type) {
+	return cSIRFReg_NiftiImageData_maths_num(res_ptr, im1_ptr, val, maths_type);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_equal(const void* im1_ptr, const void* im2_ptr) {
-	return cSIRFReg_NiftiImage_equal(im1_ptr, im2_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr) {
+	return cSIRFReg_NiftiImageData_equal(im1_ptr, im2_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_norm(const void* im1_ptr, const void* im2_ptr) {
-	return cSIRFReg_NiftiImage_norm(im1_ptr, im2_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr) {
+	return cSIRFReg_NiftiImageData_norm(im1_ptr, im2_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_get_original_datatype(const void* im_ptr) {
-	return cSIRFReg_NiftiImage_get_original_datatype(im_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_get_original_datatype(const void* im_ptr) {
+	return cSIRFReg_NiftiImageData_get_original_datatype(im_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
-	return cSIRFReg_NiftiImage_crop(im_ptr, min_index_ptr, max_index_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
+	return cSIRFReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_from_PETImageData(void* ptr) {
-	return cSIRFReg_NiftiImage3D_from_PETImageData(ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr) {
+	return cSIRFReg_NiftiImageData3D_from_PETImageData(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj) {
-	return cSIRFReg_NiftiImage3D_copy_data_to(ptr, obj);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj) {
+	return cSIRFReg_NiftiImageData3D_copy_data_to(ptr, obj);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
-	return cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(ptr, filename, datatype);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
+	return cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(ptr, filename, datatype);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj) {
-	return cSIRFReg_NiftiImage3DTensor_create_from_3D_image(ptr, obj);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj) {
+	return cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(ptr, obj);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr) {
-	return cSIRFReg_NiftiImage3DTensor_construct_from_3_components(obj, x_ptr, y_ptr, z_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr) {
+	return cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(obj, x_ptr, y_ptr, z_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DTensor_flip_component(const void *ptr, const int dim) {
-	return cSIRFReg_NiftiImage3DTensor_flip_component(ptr, dim);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim) {
+	return cSIRFReg_NiftiImageData3DTensor_flip_component(ptr, dim);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
-	return cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
+	return cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr) {
-	return cSIRFReg_NiftiImage3DDeformation_create_from_disp(ptr, disp_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr) {
+	return cSIRFReg_NiftiImageData3DDeformation_create_from_disp(ptr, disp_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr) {
-	return cSIRFReg_NiftiImage3DDisplacement_create_from_def(ptr, def_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr) {
+	return cSIRFReg_NiftiImageData3DDisplacement_create_from_def(ptr, def_ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_process(void* ptr) {
 	return cSIRFReg_SIRFReg_process(ptr);

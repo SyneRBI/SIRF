@@ -22,14 +22,14 @@ parameter_file_aladin = examples_path + "/paramFiles/niftyreg_aladin.par"
 parameter_file_f3d = examples_path + "/paramFiles/niftyreg_f3d.par"
 
 # Output filenames
-save_nifti_image = output_prefix + "save_NiftiImage.nii"
-save_nifti_image_3d = output_prefix + "save_NiftiImage3D.nii"
-save_nifti_image_3d_tensor_not_split = output_prefix + "save_NiftiImage3DTensor_not_split.nii"
-save_nifti_image_3d_tensor_split = output_prefix + "save_NiftiImage3DTensor_split_%s.nii"
-save_nifti_image_3d_deformation_not_split = output_prefix + "save_NiftiImage3DDeformation_not_split.nii"
-save_nifti_image_3d_deformation_split = output_prefix + "save_NiftiImage3DDeformation_split_%s.nii"
-save_nifti_image_3d_displacement_not_split = output_prefix + "save_NiftiImage3DDisplacement_not_split.nii"
-save_nifti_image_3d_displacement_split = output_prefix + "save_NiftiImage3DDisplacement_split_%s.nii"
+save_nifti_image = output_prefix + "save_NiftiImageData.nii"
+save_nifti_image_3d = output_prefix + "save_NiftiImageData3D.nii"
+save_nifti_image_3d_tensor_not_split = output_prefix + "save_NiftiImageData3DTensor_not_split.nii"
+save_nifti_image_3d_tensor_split = output_prefix + "save_NiftiImageData3DTensor_split_%s.nii"
+save_nifti_image_3d_deformation_not_split = output_prefix + "save_NiftiImageData3DDeformation_not_split.nii"
+save_nifti_image_3d_deformation_split = output_prefix + "save_NiftiImageData3DDeformation_split_%s.nii"
+save_nifti_image_3d_displacement_not_split = output_prefix + "save_NiftiImageData3DDisplacement_not_split.nii"
+save_nifti_image_3d_displacement_split = output_prefix + "save_NiftiImageData3DDisplacement_split_%s.nii"
 aladin_warped = output_prefix + "aladin_warped.nii"
 f3d_warped = output_prefix + "f3d_warped.nii"
 TM_forward = output_prefix + "TM_forward.txt"
@@ -50,26 +50,26 @@ output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
 
-ref_aladin = pSIRFReg.NiftiImage3D(ref_aladin_filename)
-flo_aladin = pSIRFReg.NiftiImage3D(flo_aladin_filename)
-ref_f3d = pSIRFReg.NiftiImage3D(ref_f3d_filename)
-flo_f3d = pSIRFReg.NiftiImage3D(flo_f3d_filename)
+ref_aladin = pSIRFReg.NiftiImageData3D(ref_aladin_filename)
+flo_aladin = pSIRFReg.NiftiImageData3D(flo_aladin_filename)
+ref_f3d = pSIRFReg.NiftiImageData3D(ref_f3d_filename)
+flo_f3d = pSIRFReg.NiftiImageData3D(flo_f3d_filename)
 
-# NiftiImage
+# NiftiImageData
 def try_niftiimage():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting NiftiImage test...\n')
+    sys.stderr.write('#                             Starting NiftiImageData test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
     # default constructor
-    a = pSIRFReg.NiftiImage()
+    a = pSIRFReg.NiftiImageData()
     if a.handle is None:
         raise AssertionError()
 
     # Read from file
-    b = pSIRFReg.NiftiImage(ref_aladin_filename)
+    b = pSIRFReg.NiftiImageData(ref_aladin_filename)
 
     # Save to file
     b.save_to_file(save_nifti_image)
@@ -79,65 +79,65 @@ def try_niftiimage():
 
     # Get max
     if b.get_max() != 100:
-        raise AssertionError('NiftiImage fill()/get_max() failed.')
+        raise AssertionError('NiftiImageData fill()/get_max() failed.')
 
     # Get min
     if b.get_min() != 100:
-        raise AssertionError('NiftiImage fill()/get_min() failed.')
+        raise AssertionError('NiftiImageData fill()/get_min() failed.')
 
     # Deep copy
     d = b.deep_copy()
     if d.handle == b.handle:
-        raise AssertionError('NiftiImage deep_copy failed.')
+        raise AssertionError('NiftiImageData deep_copy failed.')
     if d != b:
-        raise AssertionError("NiftiImage deep_copy failed.")
+        raise AssertionError("NiftiImageData deep_copy failed.")
 
     # Addition
     e = d + d
     if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage __add__/get_max() failed.')
+        raise AssertionError('NiftiImageData __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
     if abs(e.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage __sub__ failed.')
+        raise AssertionError('NiftiImageData __sub__ failed.')
 
     # Sum
     if abs(e.get_sum()) > 0.0001:
-        raise AssertionError('NiftiImage get_sum() failed.')
+        raise AssertionError('NiftiImageData get_sum() failed.')
 
     # Add num to image
     q = e + 1
     if q.get_max() != e.get_max() + 1:
-        raise AssertionError('NiftiImage __add__ val failed.')
+        raise AssertionError('NiftiImageData __add__ val failed.')
 
     # Subtract num from image
     r = e - 1
     if r.get_max() != e.get_max() - 1:
-        raise AssertionError('NiftiImage __sub__ val failed.')
+        raise AssertionError('NiftiImageData __sub__ val failed.')
 
     # Multiply image by num
     s = e * 10
     if s.get_max() != e.get_max() * 10:
-        raise AssertionError('NiftiImage __mul__ val failed.')
+        raise AssertionError('NiftiImageData __mul__ val failed.')
 
     # Dimensions
     f = e.get_dimensions()
     if not np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]):
-        raise AssertionError('NiftiImage get_dimensions() failed.')
+        raise AssertionError('NiftiImageData get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
     if arr.max() != 100:
-        raise AssertionError('NiftiImage as_array().max() failed.')
+        raise AssertionError('NiftiImageData as_array().max() failed.')
     if arr.ndim != 3:
-        raise AssertionError('NiftiImage as_array() ndims failed.')
+        raise AssertionError('NiftiImageData as_array() ndims failed.')
     if arr.shape != (64, 64, 64):
-        raise AssertionError('NiftiImage as_array().shape failed.')
+        raise AssertionError('NiftiImageData as_array().shape failed.')
 
     # Test saving to datatype
     ref_aladin.save_to_file(output_float, 16) # float
-    ref_aladin_float = pSIRFReg.NiftiImage3D(output_float)
+    ref_aladin_float = pSIRFReg.NiftiImageData3D(output_float)
     arr1 = ref_aladin.as_array()
     arr2 = ref_aladin_float.as_array()
     if not np.array_equal(arr1,arr2):
@@ -145,7 +145,7 @@ def try_niftiimage():
 
     # Test print methods
     q.print_header()
-    pSIRFReg.NiftiImage.print_headers([q, s])
+    pSIRFReg.NiftiImageData.print_headers([q, s])
 
     # Crop image
     min_ = []
@@ -157,30 +157,30 @@ def try_niftiimage():
     s = e
     s.crop(min_, max_)
     if s.as_array().shape != (64, 64, 63):
-        raise AssertionError("NiftiImage crop() failed.")
+        raise AssertionError("NiftiImageData crop() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished NiftiImage test.\n')
+    sys.stderr.write('#                             Finished NiftiImageData test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
 
-# NiftiImage3D
+# NiftiImageData3D
 def try_niftiimage3d():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting NiftiImage3D test...\n')
+    sys.stderr.write('#                             Starting NiftiImageData3D test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
     # default constructor
-    a = pSIRFReg.NiftiImage3D()
+    a = pSIRFReg.NiftiImageData3D()
     if a.handle is None:
         raise AssertionError()
 
     # Read from file
-    b = pSIRFReg.NiftiImage3D(ref_aladin_filename)
+    b = pSIRFReg.NiftiImageData3D(ref_aladin_filename)
 
     # Save to file
     b.save_to_file(save_nifti_image_3d)
@@ -190,64 +190,64 @@ def try_niftiimage3d():
 
     # Get max
     if b.get_max() != 100:
-        raise AssertionError('NiftiImage3D fill()/get_max() failed.')
+        raise AssertionError('NiftiImageData3D fill()/get_max() failed.')
 
     # Get min
     if b.get_min() != 100:
-        raise AssertionError('NiftiImage3D fill()/get_min() failed.')
+        raise AssertionError('NiftiImageData3D fill()/get_min() failed.')
 
     # Deep copy
     d = b.deep_copy()
     if d.handle == b.handle:
-        raise AssertionError('NiftiImage3D deep_copy failed.')
+        raise AssertionError('NiftiImageData3D deep_copy failed.')
     if d != b:
-        raise AssertionError("NiftiImage3D deep_copy failed.")
+        raise AssertionError("NiftiImageData3D deep_copy failed.")
 
     # Addition
     e = d + d
     if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3D __add__/get_max() failed.')
+        raise AssertionError('NiftiImageData3D __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
     if abs(e.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3D __sub__ failed.')
+        raise AssertionError('NiftiImageData3D __sub__ failed.')
 
     # Sum
     if abs(e.get_sum()) > 0.0001:
-        raise AssertionError('NiftiImage3D get_sum() failed.')
+        raise AssertionError('NiftiImageData3D get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
     if not np.array_equal(f, [3, 64, 64, 64, 1, 1, 1, 1]):
-        raise AssertionError('NiftiImage3D get_dimensions() failed.')
+        raise AssertionError('NiftiImageData3D get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
     if arr.max() != 100:
-        raise AssertionError('NiftiImage3D as_array().max() failed.')
+        raise AssertionError('NiftiImageData3D as_array().max() failed.')
     if arr.ndim != 3:
-        raise AssertionError('NiftiImage3D as_array() ndims failed.')
+        raise AssertionError('NiftiImageData3D as_array() ndims failed.')
     if arr.shape != (64, 64, 64):
-        raise AssertionError('NiftiImage3D as_array().shape failed.')
+        raise AssertionError('NiftiImageData3D as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished NiftiImage3D test.\n')
+    sys.stderr.write('#                             Finished NiftiImageData3D test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
 
-# NiftiImage3DTensor
+# NiftiImageData3DTensor
 def try_niftiimage3dtensor():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting NiftiImage3DTensor test...\n')
+    sys.stderr.write('#                             Starting NiftiImageData3DTensor test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    # Create NiftiImage3DTensor from NiftiImage3D
-    b = pSIRFReg.NiftiImage3DTensor()
+    # Create NiftiImageData3DTensor from NiftiImageData3D
+    b = pSIRFReg.NiftiImageData3DTensor()
     b.create_from_3D_image(ref_aladin)
 
     # # Save to file
@@ -255,53 +255,53 @@ def try_niftiimage3dtensor():
     b.save_to_file_split_xyz_components(save_nifti_image_3d_tensor_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImage3DTensor(save_nifti_image_3d_tensor_not_split)
+    c = pSIRFReg.NiftiImageData3DTensor(save_nifti_image_3d_tensor_not_split)
 
     # Fill
     c.fill(100)
 
     # Get max
     if c.get_max() != 100:
-        raise AssertionError('NiftiImage3DTensor fill()/get_max() failed.')
+        raise AssertionError('NiftiImageData3DTensor fill()/get_max() failed.')
 
     # Get min
     if c.get_min() != 100:
-        raise AssertionError('NiftiImage3DTensor fill()/get_min() failed.')
+        raise AssertionError('NiftiImageData3DTensor fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
     if d.handle == c.handle:
-        raise AssertionError('NiftiImage3DTensor deep_copy failed.')
+        raise AssertionError('NiftiImageData3DTensor deep_copy failed.')
     if d != c:
-        raise AssertionError("NiftiImage3DTensor deep_copy failed.")
+        raise AssertionError("NiftiImageData3DTensor deep_copy failed.")
 
     # Addition
     e = d + d
     if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DTensor __add__/get_max() failed.')
+        raise AssertionError('NiftiImageData3DTensor __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
     if abs(e.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DTensor __sub__ failed.')
+        raise AssertionError('NiftiImageData3DTensor __sub__ failed.')
 
     # Sum
     if abs(e.get_sum()) > 0.0001:
-        raise AssertionError('NiftiImage3DTensor get_sum() failed.')
+        raise AssertionError('NiftiImageData3DTensor get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
     if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
-        raise AssertionError('NiftiImage3DTensor get_dimensions() failed.')
+        raise AssertionError('NiftiImageData3DTensor get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
     if arr.max() != 100:
-        raise AssertionError('NiftiImage3DTensor as_array().max() failed.')
+        raise AssertionError('NiftiImageData3DTensor as_array().max() failed.')
     if arr.ndim != 5:
-        raise AssertionError('NiftiImage3DTensor as_array() ndims failed.')
+        raise AssertionError('NiftiImageData3DTensor as_array() ndims failed.')
     if arr.shape != (64, 64, 64, 1, 3):
-        raise AssertionError('NiftiImage3DTensor as_array().shape failed.')
+        raise AssertionError('NiftiImageData3DTensor as_array().shape failed.')
 
     # Constructor from single components
     im1 = ref_aladin.deep_copy()
@@ -310,33 +310,33 @@ def try_niftiimage3dtensor():
     im1.fill(30)
     im2.fill(20)
     im3.fill(-10)
-    h = pSIRFReg.NiftiImage3DTensor(im1, im2, im3)
+    h = pSIRFReg.NiftiImageData3DTensor(im1, im2, im3)
 
     # Test flip components
     h.flip_component(0)
     if h.get_max() != 20:
-        raise AssertionError("NiftiImage3DTensor flip_component() failed.")
+        raise AssertionError("NiftiImageData3DTensor flip_component() failed.")
     if h.get_min() != -30:
-        raise AssertionError("NiftiImage3DTensor flip_component() failed.")
+        raise AssertionError("NiftiImageData3DTensor flip_component() failed.")
 
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished NiftiImage3DTensor test.\n')
+    sys.stderr.write('#                             Finished NiftiImageData3DTensor test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
 
-# NiftiImage3DDisplacement
+# NiftiImageData3DDisplacement
 def try_niftiimage3ddisplacement():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting NiftiImage3DDisplacement test...\n')
+    sys.stderr.write('#                             Starting NiftiImageData3DDisplacement test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    # Create NiftiImage3DDisplacement from NiftiImage3D
-    b = pSIRFReg.NiftiImage3DDisplacement()
+    # Create NiftiImageData3DDisplacement from NiftiImageData3D
+    b = pSIRFReg.NiftiImageData3DDisplacement()
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
@@ -344,74 +344,74 @@ def try_niftiimage3ddisplacement():
     b.save_to_file_split_xyz_components(save_nifti_image_3d_displacement_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImage3DDisplacement(save_nifti_image_3d_displacement_not_split)
+    c = pSIRFReg.NiftiImageData3DDisplacement(save_nifti_image_3d_displacement_not_split)
 
     # Constructor from 3x3D
-    d = pSIRFReg.NiftiImage3DDisplacement(ref_aladin, ref_aladin, ref_aladin)
+    d = pSIRFReg.NiftiImageData3DDisplacement(ref_aladin, ref_aladin, ref_aladin)
 
     # Fill
     c.fill(100)
 
     # Get max
     if c.get_max() != 100:
-        raise AssertionError('NiftiImage3DDisplacement fill()/get_max() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement fill()/get_max() failed.')
 
     # Get min
     if c.get_min() != 100:
-        raise AssertionError('NiftiImage3DDisplacement fill()/get_min() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
     if d.handle == c.handle:
-        raise AssertionError('NiftiImage3DDisplacement deep_copy failed.')
+        raise AssertionError('NiftiImageData3DDisplacement deep_copy failed.')
     if d != c:
-        raise AssertionError("NiftiImage3DDisplacement deep_copy failed.")
+        raise AssertionError("NiftiImageData3DDisplacement deep_copy failed.")
 
     # Addition
     e = d + d
     if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DDisplacement __add__/get_max() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
     if abs(e.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DDisplacement __sub__ failed.')
+        raise AssertionError('NiftiImageData3DDisplacement __sub__ failed.')
 
     # Sum
     if abs(e.get_sum()) > 0.0001:
-        raise AssertionError('NiftiImage3DDisplacement get_sum() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
     if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
-        raise AssertionError('NiftiImage3DDisplacement get_dimensions() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
     if arr.max() != 100:
-        raise AssertionError('NiftiImage3DDisplacement as_array().max() failed.')
+        raise AssertionError('NiftiImageData3DDisplacement as_array().max() failed.')
     if arr.ndim != 5:
-        raise AssertionError('NiftiImage3DDisplacement as_array() ndims failed.')
+        raise AssertionError('NiftiImageData3DDisplacement as_array() ndims failed.')
     if arr.shape != (64, 64, 64, 1, 3):
-        raise AssertionError('NiftiImage3DDisplacement as_array().shape failed.')
+        raise AssertionError('NiftiImageData3DDisplacement as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished NiftiImage3DDisplacement test.\n')
+    sys.stderr.write('#                             Finished NiftiImageData3DDisplacement test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
 
-# NiftiImage3DDeformation
+# NiftiImageData3DDeformation
 def try_niftiimage3ddeformation():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting NiftiImage3DDeformation test...\n')
+    sys.stderr.write('#                             Starting NiftiImageData3DDeformation test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    # Create NiftiImage3DDeformation from NiftiImage3D
-    b = pSIRFReg.NiftiImage3DDeformation()
+    # Create NiftiImageData3DDeformation from NiftiImageData3D
+    b = pSIRFReg.NiftiImageData3DDeformation()
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
@@ -419,60 +419,60 @@ def try_niftiimage3ddeformation():
     b.save_to_file_split_xyz_components(save_nifti_image_3d_deformation_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImage3DDeformation(save_nifti_image_3d_deformation_not_split)
+    c = pSIRFReg.NiftiImageData3DDeformation(save_nifti_image_3d_deformation_not_split)
 
     # Constructor from 3x3D
-    d = pSIRFReg.NiftiImage3DDeformation(ref_aladin, ref_aladin, ref_aladin)
+    d = pSIRFReg.NiftiImageData3DDeformation(ref_aladin, ref_aladin, ref_aladin)
 
     # Fill
     c.fill(100)
 
     # Get max
     if c.get_max() != 100:
-        raise AssertionError('NiftiImage3DDeformation fill()/get_max() failed.')
+        raise AssertionError('NiftiImageData3DDeformation fill()/get_max() failed.')
 
     # Get min
     if c.get_min() != 100:
-        raise AssertionError('NiftiImage3DDeformation fill()/get_min() failed.')
+        raise AssertionError('NiftiImageData3DDeformation fill()/get_min() failed.')
 
     # Deep copy
     d = c.deep_copy()
     if d.handle == c.handle:
-        raise AssertionError('NiftiImage3DDeformation deep_copy failed.')
+        raise AssertionError('NiftiImageData3DDeformation deep_copy failed.')
     if d != c:
-        raise AssertionError("NiftiImage3DDeformation deep_copy failed.")
+        raise AssertionError("NiftiImageData3DDeformation deep_copy failed.")
 
     # Addition
     e = d + d
     if abs(e.get_max() - 2 * d.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DDeformation __add__/get_max() failed.')
+        raise AssertionError('NiftiImageData3DDeformation __add__/get_max() failed.')
 
     # Subtraction
     e = d - d
     if abs(e.get_max()) > 0.0001:
-        raise AssertionError('NiftiImage3DDeformation __sub__ failed.')
+        raise AssertionError('NiftiImageData3DDeformation __sub__ failed.')
 
     # Sum
     if abs(e.get_sum()) > 0.0001:
-        raise AssertionError('NiftiImage3DDeformation get_sum() failed.')
+        raise AssertionError('NiftiImageData3DDeformation get_sum() failed.')
 
     # Dimensions
     f = e.get_dimensions()
     if not np.array_equal(f, [5, 64, 64, 64, 1, 3, 1, 1]):
-        raise AssertionError('NiftiImage3DDeformation get_dimensions() failed.')
+        raise AssertionError('NiftiImageData3DDeformation get_dimensions() failed.')
 
     # Get as array
     arr = d.as_array()
     if arr.max() != 100:
-        raise AssertionError('NiftiImage3DDeformation as_array().max() failed.')
+        raise AssertionError('NiftiImageData3DDeformation as_array().max() failed.')
     if arr.ndim != 5:
-        raise AssertionError('NiftiImage3DDeformation as_array() ndims failed.')
+        raise AssertionError('NiftiImageData3DDeformation as_array() ndims failed.')
     if arr.shape != (64, 64, 64, 1, 3):
-        raise AssertionError('NiftiImage3DDeformation as_array().shape failed.')
+        raise AssertionError('NiftiImageData3DDeformation as_array().shape failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished NiftiImage3DDeformation test.\n')
+    sys.stderr.write('#                             Finished NiftiImageData3DDeformation test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
@@ -519,16 +519,16 @@ def try_niftyaladin():
     sys.stderr.write('\nInverse tm:\n%s\n\n' % inverse_tm.as_array())
 
     # Test converting disp to def
-    a = pSIRFReg.NiftiImage3DDeformation()
+    a = pSIRFReg.NiftiImageData3DDeformation()
     a.create_from_disp(disp_forward)
     if a != def_forward:
-        raise AssertionError("NiftiImage3DDeformation::create_from_disp() failed.")
+        raise AssertionError("NiftiImageData3DDeformation::create_from_disp() failed.")
 
     # Test converting def to disp
-    b = pSIRFReg.NiftiImage3DDisplacement()
+    b = pSIRFReg.NiftiImageData3DDisplacement()
     b.create_from_def(def_forward)
     if b != disp_forward:
-        raise AssertionError("NiftiImage3DDisplacement::create_from_def() failed.")
+        raise AssertionError("NiftiImageData3DDisplacement::create_from_def() failed.")
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -607,7 +607,7 @@ def try_transformations(na):
     # Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = pSIRFReg.Mat44.get_identity()
     trans = [tm_iden, tm_iden, c3]
-    composed = pSIRFReg.NiftiImage3DDeformation.compose_single_deformation(trans, ref_aladin)
+    composed = pSIRFReg.NiftiImageData3DDeformation.compose_single_deformation(trans, ref_aladin)
     if composed != na.get_deformation_field_forward():
         raise AssertionError()
 
@@ -742,7 +742,7 @@ def try_stir_to_sirfreg():
 
     # Open stir image
     pet_image_data = pSTIR.ImageData(ref_aladin_filename)
-    image_data_from_stir = pSIRFReg.NiftiImage3D(pet_image_data)
+    image_data_from_stir = pSIRFReg.NiftiImageData3D(pet_image_data)
 
     # Now fill the stir and sirfreg images with 1 and 100, respectively
     pet_image_data.fill(1.)

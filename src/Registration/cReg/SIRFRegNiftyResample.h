@@ -39,8 +39,8 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include "SIRFRegMisc.h"
-#include "NiftiImage3D.h"
-#include "NiftiImage3DTensor.h"
+#include "NiftiImageData3D.h"
+#include "NiftiImageData3DTensor.h"
 #include "SIRFRegTransformation.h"
 
 namespace sirf {
@@ -65,13 +65,13 @@ public:
     virtual ~SIRFRegNiftyResample() {}
 
     /// Set reference image
-    void set_reference_image(const NiftiImage3D &reference_image)
+    void set_reference_image(const NiftiImageData3D &reference_image)
     {
         _reference_image = reference_image;
     }
 
     /// Set floating image
-    void set_floating_image(const NiftiImage3D &floating_image)
+    void set_floating_image(const NiftiImageData3D &floating_image)
     {
         _floating_image = floating_image;
     }
@@ -80,10 +80,10 @@ public:
     void add_transformation_affine(const SIRFRegMat44 &affine);
 
     /// Add displacement transformation
-    void add_transformation_disp(const NiftiImage3DDisplacement &disp);
+    void add_transformation_disp(const NiftiImageData3DDisplacement &disp);
 
     /// Add deformation transformation
-    void add_transformation_def(const NiftiImage3DDeformation &def);
+    void add_transformation_def(const NiftiImageData3DDeformation &def);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     void set_interpolation_type(const enum InterpolationType type)
@@ -107,7 +107,7 @@ public:
     void process();
 
     /// Get output
-    const NiftiImage3D &get_output() const { return _output_image; }
+    const NiftiImageData3D &get_output() const { return _output_image; }
 
 protected:
 
@@ -121,9 +121,9 @@ protected:
     void set_up_output_image();
 
     /// Reference image
-    NiftiImage3D       _reference_image;
+    NiftiImageData3D       _reference_image;
     /// Floating image
-    NiftiImage3D       _floating_image;
+    NiftiImageData3D       _floating_image;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
     std::vector<std::shared_ptr<SIRFRegTransformation> > _transformations;
@@ -132,7 +132,7 @@ protected:
     InterpolationType  _interpolation_type;
 
     /// Output image
-    NiftiImage3D       _output_image;
+    NiftiImageData3D       _output_image;
 };
 }
 

@@ -33,12 +33,12 @@ limitations under the License.
 #include <boost/filesystem.hpp>
 #include <nifti1_io.h>
 #include <sstream>
-#include "NiftiImage3D.h"
+#include "NiftiImageData3D.h"
 
 namespace sirf {
-class NiftiImage3DTensor;
-class NiftiImage3DDisplacement;
-class NiftiImage3DDeformation;
+class NiftiImageData3DTensor;
+class NiftiImageData3DDisplacement;
+class NiftiImageData3DDeformation;
 class SIRFRegTransformation;
 class SIRFRegMat44;
 }
@@ -49,13 +49,13 @@ namespace SIRFRegMisc {
     void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename);
 
     /// Save nifti image. image is not const because filename gets set during the process.
-    void save_nifti_image(sirf::NiftiImage &image, const std::string &filename);
+    void save_nifti_image(sirf::NiftiImageData &image, const std::string &filename);
 
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
     /// Do nifti image metadatas match?
-    bool do_nifti_image_metadata_match(const sirf::NiftiImage &im1, const sirf::NiftiImage &im2);
+    bool do_nifti_image_metadata_match(const sirf::NiftiImageData &im1, const sirf::NiftiImageData &im2);
 
     /// Do nifti image metadata elements match?
     template<typename T>
@@ -65,23 +65,23 @@ namespace SIRFRegMisc {
     bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
 
     /// Dump info of multiple nifti images
-    void dump_headers(const std::vector<sirf::NiftiImage> &ims);
+    void dump_headers(const std::vector<sirf::NiftiImageData> &ims);
 
     /// Dump nifti element
     template<typename T>
-    void dump_nifti_element(const std::vector<sirf::NiftiImage> &ims, const std::string &name, const T &call_back);
+    void dump_nifti_element(const std::vector<sirf::NiftiImageData> &ims, const std::string &name, const T &call_back);
 
     /// Dump nifti element
     template<typename T>
-    void dump_nifti_element(const std::vector<sirf::NiftiImage> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+    void dump_nifti_element(const std::vector<sirf::NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
     /// Change datatype. Templated for desired type. Figures out what current type is then calls doubley templated function below.
     template<typename newType>
-    void change_datatype(sirf::NiftiImage &im);
+    void change_datatype(sirf::NiftiImageData &im);
 
     /// Convert type (performs deep copy)
     template<typename newType, typename oldType>
-    void change_datatype(sirf::NiftiImage &image)
+    void change_datatype(sirf::NiftiImageData &image)
     {
         // If the two types are equal, nothing to be done.
         if (typeid (newType) == typeid(oldType))

@@ -38,8 +38,8 @@ classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
             %Get any type of transformation as a deformation field.
             %This is useful for joining them together. Require a reference
             %image for converting transformation matrices to deformations.
-            assert(isa(ref, 'mSIRFReg.NiftiImage3D'))
-            output = mSIRFReg.NiftiImage3DDeformation();
+            assert(isa(ref, 'mSIRFReg.NiftiImageData3D'))
+            output = mSIRFReg.NiftiImageData3DDeformation();
             output.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegTransformation_get_as_deformation_field', self.handle_, self.name, ref.handle_);
             mUtilities.check_status([self.name ':get_as_deformation_field'], output.handle_);
         end

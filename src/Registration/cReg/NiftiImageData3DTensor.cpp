@@ -27,26 +27,26 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImage3DTensor.h"
+#include "NiftiImageData3DTensor.h"
 #include "SIRFRegMisc.h"
 #include <boost/format.hpp>
 
 using namespace sirf;
 
-NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z)
+NiftiImageData3DTensor::NiftiImageData3DTensor(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z)
 {
     // Check everything is intialised
     if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
-        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
+        throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
 
     if (!SIRFRegMisc::do_nifti_image_metadata_match(x,y))
-        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and y components don't match.");
+        throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and y components don't match.");
     if (!SIRFRegMisc::do_nifti_image_metadata_match(x,z))
-        throw std::runtime_error("NiftiImage3DTensor: x,y,z->tensor: x and z components don't match.");
+        throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and z components don't match.");
 
     // Create a 4D from one of the components
     this->create_from_3D_image(x);
-    std::vector<NiftiImage3D> ims{x, y, z};
+    std::vector<NiftiImageData3D> ims{x, y, z};
 
     // for nu=3, the tensor data is stored last.
     //So memcpy x into first third, y into second third and z into last third
@@ -59,10 +59,10 @@ NiftiImage3DTensor::NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D
     }
 }
 
-void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
+void NiftiImageData3DTensor::create_from_3D_image(const NiftiImageData3D &image)
 {
     if (!image.is_initialised())
-        throw std::runtime_error("NiftiImage3DTensor::create_from_3D_image. Input image not initialised.");
+        throw std::runtime_error("NiftiImageData3DTensor::create_from_3D_image. Input image not initialised.");
 
     std::shared_ptr<const nifti_image> image_sptr = image.get_raw_nifti_sptr();
 
@@ -90,7 +90,7 @@ void NiftiImage3DTensor::create_from_3D_image(const NiftiImage3D &image)
     set_up_data(image.get_original_datatype());
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
+void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
@@ -114,7 +114,7 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
     this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z, datatype);
 }
 
-void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
+void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
 {
     int min_index[7], max_index[7];
     for (int i=0; i<7; ++i) {
@@ -128,7 +128,7 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
         min_index[4] = max_index[4] = i;
 
         // Crop image
-        NiftiImage image = this->deep_copy();
+        NiftiImageData image = this->deep_copy();
         image.crop(min_index,max_index);
 
         if      (i == 0) image.save_to_file(filename_x,datatype);
@@ -137,7 +137,7 @@ void NiftiImage3DTensor::save_to_file_split_xyz_components(const std::string &fi
     }
 }
 
-void NiftiImage3DTensor::flip_component(const int dim)
+void NiftiImageData3DTensor::flip_component(const int dim)
 {
     std::cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << std::flush;
 

@@ -21,7 +21,7 @@ limitations under the License.
 #include "stir_x.h"
 #include "data_handle.h"
 #include "csirfreg_p.h"
-#include "NiftiImage3D.h"
+#include "NiftiImageData3D.h"
 #include "SIRFReg.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
@@ -81,12 +81,12 @@ wrongFloatParameterValue
 }
 
 // ------------------------------------------------------------------------------------ //
-//   NiftiImage
+//   NiftiImageData
 // ------------------------------------------------------------------------------------ //
 void*
-sirf::cSIRFReg_NiftiImageParameter(const DataHandle* handle, const char* name)
+sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
 {
-    NiftiImage& s = objectFromHandle<NiftiImage>(handle);
+    NiftiImageData& s = objectFromHandle<NiftiImageData>(handle);
     if (boost::iequals(name, "max"))
         return dataHandle<float>(s.get_max());
     if (boost::iequals(name, "min"))
@@ -107,11 +107,11 @@ sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 	if (boost::iequals(name, "parameter_file"))
 		s.set_parameter_file(charDataFromHandle(hv));
 	else if (boost::iequals(name, "reference_image")) {
-		const NiftiImage3D& im = objectFromHandle<const NiftiImage3D>(hv);
+        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
 		s.set_reference_image(im);
 	}
 	else if (boost::iequals(name, "floating_image")) {
-		const NiftiImage3D& im = objectFromHandle<const NiftiImage3D>(hv);
+        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
 		s.set_floating_image(im);
 	}
 	else
@@ -124,7 +124,7 @@ sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
 	SIRFReg& s = objectFromHandle<SIRFReg>(handle);
 	if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImage3D> sptr_id(new NiftiImage3D(s.get_output()));
+        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output()));
         return newObjectHandle(sptr_id);
 	}
 	else
@@ -159,9 +159,9 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
 {
     SIRFRegNiftyResample& s = objectFromHandle<SIRFRegNiftyResample>(hp);
     if (boost::iequals(name, "reference_image"))
-        s.set_reference_image(objectFromHandle<NiftiImage3D>(hv));
+        s.set_reference_image(objectFromHandle<NiftiImageData3D>(hv));
     else if (boost::iequals(name, "floating_image"))
-        s.set_floating_image(objectFromHandle<NiftiImage3D>(hv));
+        s.set_floating_image(objectFromHandle<NiftiImageData3D>(hv));
     else if (boost::iequals(name, "interpolation_type"))
         s.set_interpolation_type(static_cast<SIRFRegNiftyResample::InterpolationType>(intDataFromHandle(hv)));
     else
@@ -174,7 +174,7 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 {
     SIRFRegNiftyResample& s = objectFromHandle<SIRFRegNiftyResample>(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImage3D> sptr_id(new NiftiImage3D(s.get_output()));
+        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output()));
         return newObjectHandle(sptr_id);
     }
     else
@@ -190,7 +190,7 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 {
     SIRFRegImageWeightedMean& s = objectFromHandle<SIRFRegImageWeightedMean>(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImage> sptr_id(new NiftiImage(s.get_output()));
+        shared_ptr<NiftiImageData> sptr_id(new NiftiImageData(s.get_output()));
         return newObjectHandle(sptr_id);
     }
     else

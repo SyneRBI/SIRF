@@ -28,12 +28,12 @@ limitations under the License.
 */
 
 #include "SIRFRegTransformation.h"
-#include "NiftiImage3DDeformation.h"
+#include "NiftiImageData3DDeformation.h"
 #include <sstream>
 
 using namespace sirf;
 
-void SIRFRegTransformation::check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const
+void SIRFRegTransformation::check_ref_and_def(const NiftiImageData3D &ref, const NiftiImageData3DDeformation &def) const
 {
     // Check image size of ref matches def
     const int *ref_dims = ref.get_dimensions();

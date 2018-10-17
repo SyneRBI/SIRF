@@ -73,7 +73,7 @@ public:
     virtual ~SIRFRegMat44() {}
 
     /// Get as deformation field
-    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const;
+    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const;
 
     /// Deep copy
     virtual SIRFRegMat44 deep_copy() const;

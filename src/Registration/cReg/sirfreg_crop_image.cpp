@@ -29,7 +29,7 @@ limitations under the License.
 
 #include <iostream>
 #include <vector>
-#include <NiftiImage.h>
+#include <NiftiImageData.h>
 
 using namespace sirf;
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
         argc-=3;
 
         // Open the image
-        NiftiImage im(input_filename);
+        NiftiImageData im(input_filename);
 
         // Get the dims of the nifti image
         const int *dims = im.get_dimensions();

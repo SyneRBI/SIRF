@@ -27,10 +27,10 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _NIFTIIMAGE3D_H_
-#define _NIFTIIMAGE3D_H_
+#ifndef _NIFTIIMAGEDATA3D_H_
+#define _NIFTIIMAGEDATA3D_H_
 
-#include "NiftiImage.h"
+#include "NiftiImageData.h"
 #include <nifti1_io.h>
 #include <string>
 #include <memory>
@@ -47,35 +47,35 @@ class PETImageData;
 class MRImageData;
 
 /// SIRF image data
-class NiftiImage3D : public NiftiImage
+class NiftiImageData3D : public NiftiImageData
 {
 public:
 
     /// Constructor
-    NiftiImage3D() {}
+    NiftiImageData3D() {}
 
     /// Construct 3D from general case
-    NiftiImage3D(const NiftiImage& general)
-        : NiftiImage(general) { check_dimensions(_3D); }
+    NiftiImageData3D(const NiftiImageData& general)
+        : NiftiImageData(general) { check_dimensions(_3D); }
 
     /// Filename constructor
-    NiftiImage3D(const std::string &filename)
-        : NiftiImage(filename)
+    NiftiImageData3D(const std::string &filename)
+        : NiftiImageData(filename)
     { check_dimensions(_3D); }
 
     /// Nifti constructor
-    NiftiImage3D(const nifti_image &image_nifti)
-        : NiftiImage(image_nifti) { check_dimensions(_3D); }
+    NiftiImageData3D(const nifti_image &image_nifti)
+        : NiftiImageData(image_nifti) { check_dimensions(_3D); }
 
     /// Nifti std::shared_ptr constructor
-    NiftiImage3D(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImage(image_nifti) { check_dimensions(_3D); }
+    NiftiImageData3D(const std::shared_ptr<nifti_image> image_nifti)
+        : NiftiImageData(image_nifti) { check_dimensions(_3D); }
 
     /// STIR constructor
-    NiftiImage3D(const PETImageData &pet_image);
+    NiftiImageData3D(const PETImageData &pet_image);
 
     /// Gadgetron constructor
-    NiftiImage3D(const MRImageData &);
+    NiftiImageData3D(const MRImageData &);
 
     /// Copy data to PETImageData
     void copy_data_to(PETImageData &pet_image) const;
@@ -84,8 +84,8 @@ public:
     void copy_data_to(MRImageData &) const;
 
     /// Deep copy
-    NiftiImage3D deep_copy() const
-    { return this->NiftiImage::deep_copy(); }
+    NiftiImageData3D deep_copy() const
+    { return this->NiftiImageData::deep_copy(); }
 
 protected:
 

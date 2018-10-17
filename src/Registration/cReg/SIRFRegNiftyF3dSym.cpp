@@ -30,7 +30,7 @@ limitations under the License.
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
-#include "NiftiImage3DTensor.h"
+#include "NiftiImageData3DTensor.h"
 #include <_reg_f3d_sym.h>
 #include <_reg_base.h>
 
@@ -65,7 +65,7 @@ void SIRFRegNiftyF3dSym<T>::process()
     _registration_sptr->Run();
 
     // Get the warped image
-    _warped_image = NiftiImage3D(**_registration_sptr->GetWarpedImage());
+    _warped_image = NiftiImageData3D(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
@@ -73,8 +73,8 @@ void SIRFRegNiftyF3dSym<T>::process()
         _warped_image.get_raw_nifti_sptr()->pixdim[4] = _warped_image.get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
-    NiftiImage3DTensor cpp_forward(*_registration_sptr->GetControlPointPositionImage());
-    NiftiImage3DTensor cpp_inverse(*_registration_sptr->GetBackwardControlPointPositionImage());
+    NiftiImageData3DTensor cpp_forward(*_registration_sptr->GetControlPointPositionImage());
+    NiftiImageData3DTensor cpp_inverse(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
     _def_image_forward.create_from_cpp(cpp_forward, _reference_image);

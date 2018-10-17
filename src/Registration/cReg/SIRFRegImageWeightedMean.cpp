@@ -39,7 +39,7 @@ SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const NiftiImage &image, const float weight)
+void SIRFRegImageWeightedMean::add_image(const NiftiImageData &image, const float weight)
 {
     // Add image to vector
     _input_images.push_back(image.deep_copy());

@@ -27,8 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _NIFTIIMAGE_H_
-#define _NIFTIIMAGE_H_
+#ifndef _NIFTIIMAGEDATA_H_
+#define _NIFTIIMAGEDATA_H_
 
 #include <nifti1_io.h>
 #include <string>
@@ -38,51 +38,51 @@ limitations under the License.
 namespace sirf {
 
 /// SIRF image data
-class NiftiImage
+class NiftiImageData
 {
 public:
 
     /// Constructor
-    NiftiImage() {}
+    NiftiImageData() {}
 
     /// Destructor
-    virtual ~NiftiImage() {}
+    virtual ~NiftiImageData() {}
 
     /// Copy constructor
-    NiftiImage(const NiftiImage& to_copy);
+    NiftiImageData(const NiftiImageData& to_copy);
 
     /// Assignment
-    NiftiImage& operator=(const NiftiImage& to_copy);
+    NiftiImageData& operator=(const NiftiImageData& to_copy);
 
     /// Filename constructor
-    NiftiImage(const std::string &filename);
+    NiftiImageData(const std::string &filename);
 
     /// Nifti constructor
-    NiftiImage(const nifti_image &image_nifti);
+    NiftiImageData(const nifti_image &image_nifti);
 
     /// Nifti std::shared_ptr constructor
-    NiftiImage(const std::shared_ptr<nifti_image> image_nifti);
+    NiftiImageData(const std::shared_ptr<nifti_image> image_nifti);
 
     /// Equality operator
-    bool operator==(const NiftiImage &other) const;
+    bool operator==(const NiftiImageData &other) const;
 
     /// Equality operator
-    bool operator!=(const NiftiImage &other) const;
+    bool operator!=(const NiftiImageData &other) const;
 
     /// Addition operator
-    NiftiImage operator+(const NiftiImage&) const;
+    NiftiImageData operator+(const NiftiImageData&) const;
 
     /// Subtraction operator
-    NiftiImage operator-(const NiftiImage&) const;
+    NiftiImageData operator-(const NiftiImageData&) const;
 
     /// Addition operator
-    NiftiImage operator+(const float&) const;
+    NiftiImageData operator+(const float&) const;
 
     /// Subtraction operator
-    NiftiImage operator-(const float&) const;
+    NiftiImageData operator-(const float&) const;
 
     /// Multiply image
-    NiftiImage operator*(const float&) const;
+    NiftiImageData operator*(const float&) const;
 
     /// Access data element via 1D index (const)
     float operator()(const int index) const;
@@ -128,10 +128,10 @@ public:
     void fill(const float &v);
 
     /// Get norm
-    float get_norm(const NiftiImage&) const;
+    float get_norm(const NiftiImageData&) const;
 
     /// Deep copy
-    NiftiImage deep_copy() const;
+    NiftiImageData deep_copy() const;
 
     /// Get number of voxels
     const int* get_dimensions() const;
@@ -140,7 +140,7 @@ public:
     void print_header() const;
 
     /// Print multiple header info
-    static void print_headers(const std::vector<sirf::NiftiImage> &ims);
+    static void print_headers(const std::vector<sirf::NiftiImageData> &ims);
 
     /// Crop
     void crop(const int min_index[7], const int max_index[7]);
@@ -152,7 +152,7 @@ public:
     int get_original_datatype() const { return _original_datatype; }
 
     /// Check if the norms of two images are equal to a given accuracy.
-    bool are_equal_to_given_accuracy(const NiftiImage &im2, const float required_accuracy_compared_to_max) const;
+    bool are_equal_to_given_accuracy(const NiftiImageData &im2, const float required_accuracy_compared_to_max) const;
 
     /// Point is in bounds?
     bool is_in_bounds(const int index[7]) const;
@@ -161,11 +161,11 @@ public:
     bool is_in_bounds(const int index) const;
 
     /// Images are same size
-    bool is_same_size(const NiftiImage &im) const;
+    bool is_same_size(const NiftiImageData &im) const;
 
 protected:
 
-    enum NiftiImageType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
+    enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
 
     enum MathsType { add, sub, mul };
 
@@ -179,16 +179,16 @@ protected:
     int _original_datatype = -1;
 
     /// Check dimensions. Don't require anything for this class.
-    void check_dimensions(const enum NiftiImageType image_type = _general);
+    void check_dimensions(const enum NiftiImageDataType image_type = _general);
 
     /// Set up datatype. Set to float if not already, store the original type.
     void set_up_data(const int original_datatype);
 
     /// Add, subract image from another
-    NiftiImage maths(const NiftiImage& c, const MathsType type) const;
+    NiftiImageData maths(const NiftiImageData& c, const MathsType type) const;
 
     /// Add, subract, multiply value to image
-    NiftiImage maths(const float val, const MathsType type) const;
+    NiftiImageData maths(const float val, const MathsType type) const;
 
 private:
 

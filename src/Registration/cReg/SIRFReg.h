@@ -53,9 +53,9 @@ More examples can be found in data/examples/Registration/paramFiles
 #include <vector>
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "NiftiImage3D.h"
-#include "NiftiImage3DDeformation.h"
-#include "NiftiImage3DDisplacement.h"
+#include "NiftiImageData3D.h"
+#include "NiftiImageData3DDeformation.h"
+#include "NiftiImageData3DDisplacement.h"
 
 namespace sirf {
 /// Base class for registration algorithms wrapped by SIRFReg
@@ -73,25 +73,25 @@ public:
     void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const NiftiImage3D &reference_image) { _reference_image = reference_image; }
+    void set_reference_image(const NiftiImageData3D &reference_image) { _reference_image = reference_image; }
 
     /// Set floating image
-    void set_floating_image(const NiftiImage3D &floating_image) { _floating_image = floating_image; }
+    void set_floating_image(const NiftiImageData3D &floating_image) { _floating_image = floating_image; }
 
     /// Process
     virtual void process() = 0;
 
     /// Get registered image
-    const NiftiImage3D &get_output() const { return _warped_image; }
+    const NiftiImageData3D &get_output() const { return _warped_image; }
 
     /// Get forward deformation field image
-    const NiftiImage3DDeformation  &get_deformation_field_forward()  const { return _def_image_forward; }
+    const NiftiImageData3DDeformation  &get_deformation_field_forward()  const { return _def_image_forward; }
     /// Get inverse deformation field image
-    const NiftiImage3DDeformation  &get_deformation_field_inverse()  const { return _def_image_inverse; }
+    const NiftiImageData3DDeformation  &get_deformation_field_inverse()  const { return _def_image_inverse; }
     /// Get forward displacement field image
-    const NiftiImage3DDisplacement &get_displacement_field_forward() const { return _disp_image_forward; }
+    const NiftiImageData3DDisplacement &get_displacement_field_forward() const { return _disp_image_forward; }
     /// Get inverse displacement field image
-    const NiftiImage3DDisplacement &get_displacement_field_inverse() const { return _disp_image_inverse; }
+    const NiftiImageData3DDisplacement &get_displacement_field_inverse() const { return _disp_image_inverse; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -117,20 +117,20 @@ protected:
     boost::filesystem::path _parameter_filename;
 
     /// Reference image
-    NiftiImage3D _reference_image;
+    NiftiImageData3D _reference_image;
     /// Floating image
-    NiftiImage3D _floating_image;
+    NiftiImageData3D _floating_image;
     /// Warped image
-    NiftiImage3D _warped_image;
+    NiftiImageData3D _warped_image;
 
     /// Forward displacement field image
-    NiftiImage3DDisplacement _disp_image_forward;
+    NiftiImageData3DDisplacement _disp_image_forward;
     /// Inverse displacement field image
-    NiftiImage3DDisplacement _disp_image_inverse;
+    NiftiImageData3DDisplacement _disp_image_inverse;
     /// Forward deformation field image
-    NiftiImage3DDeformation _def_image_forward;
+    NiftiImageData3DDeformation _def_image_forward;
     /// Inverse deformation field image
-    NiftiImage3DDeformation _def_image_inverse;
+    NiftiImageData3DDeformation _def_image_inverse;
 };
 }
 

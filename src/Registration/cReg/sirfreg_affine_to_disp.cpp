@@ -28,8 +28,8 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "NiftiImage3DDisplacement.h"
-#include "NiftiImage3DDeformation.h"
+#include "NiftiImageData3DDisplacement.h"
+#include "NiftiImageData3DDeformation.h"
 #include "SIRFRegMat44.h"
 
 using namespace sirf;
@@ -147,13 +147,13 @@ int main(int argc, char* argv[])
         // Create images
 
         // Open reference image
-        NiftiImage3D ref(ref_filename);
+        NiftiImageData3D ref(ref_filename);
 
         // Get the deformation field image
-        NiftiImage3DDeformation def = TM.get_as_deformation_field(ref);
+        NiftiImageData3DDeformation def = TM.get_as_deformation_field(ref);
 
         // Get the displacement fields from the def
-        NiftiImage3DDisplacement disp;
+        NiftiImageData3DDisplacement disp;
         disp.create_from_def(def);
 
         // If they want to save the deformation field images

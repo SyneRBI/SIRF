@@ -1,4 +1,4 @@
-classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
+classdef NiftiImageData3DTensor < mSIRFReg.NiftiImageData
 % Class for tensor image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,19 +20,19 @@ classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
 
     methods(Static)
         function name = class_name()
-            name = 'NiftiImage3DTensor';
+            name = 'NiftiImageData3DTensor';
         end
     end
     methods
-        function self = NiftiImage3DTensor(src1, src2, src3)
+        function self = NiftiImageData3DTensor(src1, src2, src3)
             narginchk(0,3)
-            self.name = 'NiftiImage3DTensor';
+            self.name = 'NiftiImageData3DTensor';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImage3D') && isa(src2, 'mSIRFReg.NiftiImage3D') && isa(src3, 'mSIRFReg.NiftiImage3D')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
+            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImageData3D') && isa(src2, 'mSIRFReg.NiftiImageData3D') && isa(src3, 'mSIRFReg.NiftiImageData3D')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -48,21 +48,21 @@ classdef NiftiImage3DTensor < mSIRFReg.NiftiImage
             if nargin < 3
                 datatype = -1;
             end
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components', self.handle_, filename, datatype);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components', self.handle_, filename, datatype);
             mUtilities.check_status([self.name ':save_to_file'], h);
             mUtilities.delete(h)
         end
         function create_from_3D_image(self, src)
             %Create deformation/displacement field from 3D image.
-            assert(isa(src, 'mSIRFReg.NiftiImage3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImage3D.'])
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_create_from_3D_image', self.handle_, src.handle_);
+            assert(isa(src, 'mSIRFReg.NiftiImageData3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImageData3D.'])
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_create_from_3D_image', self.handle_, src.handle_);
             mUtilities.check_status([self.name ':create_from_3d_image'], h);
             mUtilities.delete(h)
         end
         function flip_component(self, dim)
             % Flip component of nu
             assert(dim>=0 && dim<=2, 'Dimension to flip should be between 0 and 2.')
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_flip_component', self.handle_, dim);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_flip_component', self.handle_, dim);
             mUtilities.check_status([self.name ':flip_component'], h);
             mUtilities.delete(h)
         end

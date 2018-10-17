@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "SIRFRegMat44.h"
-#include "NiftiImage3DDeformation.h"
+#include "NiftiImageData3DDeformation.h"
 #include <_reg_ReadWriteMatrix.h>
 #include <_reg_globalTrans.h>
 #include <iomanip>
@@ -120,9 +120,9 @@ SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
     return res;
 }
 
-NiftiImage3DDeformation SIRFRegMat44::get_as_deformation_field(const NiftiImage3D &ref) const
+NiftiImageData3DDeformation SIRFRegMat44::get_as_deformation_field(const NiftiImageData3D &ref) const
 {
-    NiftiImage3DDeformation def;
+    NiftiImageData3DDeformation def;
     def.create_from_3D_image(ref);
     mat44 temp = _tm; // Need temp as the following isn't marked const
     reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());

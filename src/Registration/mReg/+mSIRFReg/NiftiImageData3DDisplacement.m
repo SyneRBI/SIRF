@@ -1,4 +1,4 @@
-classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Transformation
+classdef NiftiImageData3DDisplacement < mSIRFReg.NiftiImageData3DTensor & mSIRFReg.Transformation
 % Class for displacement image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,19 +20,19 @@ classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Trans
 
     methods(Static)
         function name = class_name()
-            name = 'NiftiImage3DDisplacement';
+            name = 'NiftiImageData3DDisplacement';
         end
     end
     methods
-        function self = NiftiImage3DDisplacement(src1, src2, src3)
+        function self = NiftiImageData3DDisplacement(src1, src2, src3)
             narginchk(0,3)
-            self.name = 'NiftiImage3DDisplacement';
+            self.name = 'NiftiImageData3DDisplacement';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImage3D') && isa(src2, 'mSIRFReg.NiftiImage3D') && isa(src3, 'mSIRFReg.NiftiImage3D')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
+            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImageData3D') && isa(src2, 'mSIRFReg.NiftiImageData3D') && isa(src3, 'mSIRFReg.NiftiImageData3D')
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -43,8 +43,8 @@ classdef NiftiImage3DDisplacement < mSIRFReg.NiftiImage3DTensor & mSIRFReg.Trans
             end
         end
         function create_from_def(self, def)
-            assert(isa(def, 'mSIRFReg.NiftiImage3DDeformation'), 'Input should be NiftiImage3DDeformation')
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3DDisplacement_create_from_def', self.handle_, def.handle_);
+            assert(isa(def, 'mSIRFReg.NiftiImageData3DDeformation'), 'Input should be NiftiImageData3DDeformation')
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DDisplacement_create_from_def', self.handle_, def.handle_);
             mUtilities.check_status([self.name ':create_from_def'], h);
             mUtilities.delete(h)
         end

@@ -40,36 +40,36 @@ extern "C" {
 		(void* ptr, const char* obj, const char* name, const void* value);
 	void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name);
 
-    // NiftiImage
-    void* cSIRFReg_NiftiImage_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
-    void* cSIRFReg_NiftiImage_save_to_file(const void* ptr, const char* filename, const int datatype);
-    void* cSIRFReg_NiftiImage_fill(const void* ptr, const float val);
-    void* cSIRFReg_NiftiImage_deep_copy(const void* copy_ptr, const void *orig_ptr);
-    void* cSIRFReg_NiftiImage_get_dimensions(const void* ptr, PTR_INT ptr_dim);
-    void* cSIRFReg_NiftiImage_get_data(const void* ptr, PTR_FLOAT ptr_data);
-    void* cSIRFReg_NiftiImage_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
-    void* cSIRFReg_NiftiImage_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
-    void* cSIRFReg_NiftiImage_equal(const void* im1_ptr, const void* im2_ptr);
-    void* cSIRFReg_NiftiImage_norm(const void* im1_ptr, const void* im2_ptr);
-    void* cSIRFReg_NiftiImage_get_original_datatype(const void* im_ptr);
-    void* cSIRFReg_NiftiImage_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
+    // NiftiImageData
+    void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
+    void* cSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype);
+    void* cSIRFReg_NiftiImageData_fill(const void* ptr, const float val);
+    void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
+    void* cSIRFReg_NiftiImageData_get_dimensions(const void* ptr, PTR_INT ptr_dim);
+    void* cSIRFReg_NiftiImageData_get_data(const void* ptr, PTR_FLOAT ptr_data);
+    void* cSIRFReg_NiftiImageData_maths_im(const void *res_ptr, const void* im1_ptr, const void* im2_ptr, const int maths_type);
+    void* cSIRFReg_NiftiImageData_maths_num(const void *res_ptr, const void* im1_ptr, const float val, const int maths_type);
+    void* cSIRFReg_NiftiImageData_equal(const void* im1_ptr, const void* im2_ptr);
+    void* cSIRFReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
+    void* cSIRFReg_NiftiImageData_get_original_datatype(const void* im_ptr);
+    void* cSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
 
-    // NiftiImage3D
-    void* cSIRFReg_NiftiImage3D_from_PETImageData(void* ptr);
-    void* cSIRFReg_NiftiImage3D_copy_data_to(const void* ptr, const void* obj);
+    // NiftiImageData3D
+    void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr);
+    void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
 
-    // NiftiImage3DTensor
-    void* cSIRFReg_NiftiImage3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
-    void* cSIRFReg_NiftiImage3DTensor_create_from_3D_image(const void *ptr, const void* obj);
-    void* cSIRFReg_NiftiImage3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
-    void* cSIRFReg_NiftiImage3DTensor_flip_component(const void *ptr, const int dim);
+    // NiftiImageData3DTensor
+    void* cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
+    void* cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
+    void* cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
+    void* cSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 
-    // NiftiImage3DDeformation
-    void* cSIRFReg_NiftiImage3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
-    void* cSIRFReg_NiftiImage3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr);
+    // NiftiImageData3DDeformation
+    void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
+    void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr);
 
-    // NiftiImage3DDisplacement
-    void* cSIRFReg_NiftiImage3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
+    // NiftiImageData3DDisplacement
+    void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
 
     // SIRFReg
     void* cSIRFReg_SIRFReg_process(void* ptr);

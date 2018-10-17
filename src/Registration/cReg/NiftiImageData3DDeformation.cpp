@@ -28,8 +28,8 @@ limitations under the License.
 */
 
 #include "SIRFRegTransformation.h"
-#include "NiftiImage3DDeformation.h"
-#include "NiftiImage3DDisplacement.h"
+#include "NiftiImageData3DDeformation.h"
+#include "NiftiImageData3DDisplacement.h"
 #include "SIRFRegMisc.h"
 #include <_reg_globalTrans.h>
 #include <sstream>
@@ -37,22 +37,22 @@ limitations under the License.
 
 using namespace sirf;
 
-void NiftiImage3DDeformation::create_from_disp(const NiftiImage3DDisplacement &disp)
+void NiftiImageData3DDeformation::create_from_disp(const NiftiImageData3DDisplacement &disp)
 {
     // Get the def field from the disp field
-    NiftiImage3DTensor temp = disp.deep_copy();
+    NiftiImageData3DTensor temp = disp.deep_copy();
     reg_getDeformationFromDisplacement(temp.get_raw_nifti_sptr().get());
     temp.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
     *this = temp.deep_copy();
 }
 
-void NiftiImage3DDeformation::create_from_3D_image(const NiftiImage3D &image)
+void NiftiImageData3DDeformation::create_from_3D_image(const NiftiImageData3D &image)
 {
-    this->NiftiImage3DTensor::create_from_3D_image(image);
+    this->NiftiImageData3DTensor::create_from_3D_image(image);
     //_nifti_image->intent_p1 = 0; not necessary. 0 by default
 }
 
-void NiftiImage3DDeformation::create_from_cpp(NiftiImage3DTensor &cpp, const NiftiImage3D &ref)
+void NiftiImageData3DDeformation::create_from_cpp(NiftiImageData3DTensor &cpp, const NiftiImageData3D &ref)
 {
     this->create_from_3D_image(ref);
 
@@ -65,27 +65,27 @@ void NiftiImage3DDeformation::create_from_cpp(NiftiImage3DTensor &cpp, const Nif
 }
 
 
-NiftiImage3DDeformation NiftiImage3DDeformation::get_as_deformation_field(const NiftiImage3D &ref) const
+NiftiImageData3DDeformation NiftiImageData3DDeformation::get_as_deformation_field(const NiftiImageData3D &ref) const
 {
     check_ref_and_def(ref,*this);
     return this->deep_copy();
 }
 
-NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImage3D &ref)
+NiftiImageData3DDeformation NiftiImageData3DDeformation::compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImageData3D &ref)
 {
     if (transformations.size() == 0)
-        throw std::runtime_error("NiftiImage3DDeformation::compose_single_deformation no transformations given.");
+        throw std::runtime_error("NiftiImageData3DDeformation::compose_single_deformation no transformations given.");
 
-    NiftiImage3DDeformation def = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
+    NiftiImageData3DDeformation def = transformations.at(0)->get_as_deformation_field(ref).deep_copy();
 
     for (unsigned i=1; i<transformations.size(); ++i) {
-        NiftiImage3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
+        NiftiImageData3DDeformation temp = transformations.at(i)->get_as_deformation_field(ref);
         reg_defField_compose(temp.get_raw_nifti_sptr().get(),def.get_raw_nifti_sptr().get(),nullptr);
     }
     return def;
 }
 
-NiftiImage3DDeformation NiftiImage3DDeformation::compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImage3D &ref)
+NiftiImageData3DDeformation NiftiImageData3DDeformation::compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImageData3D &ref)
 {
     std::vector<SIRFRegTransformation*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)

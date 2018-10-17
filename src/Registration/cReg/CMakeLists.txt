@@ -18,8 +18,8 @@ SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "
 SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"    "SIRFRegTransformation.h"   "SIRFRegMat44.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Add in nifti_image wrappers
-SET(SOURCES ${SOURCES} "NiftiImage.cpp" "NiftiImage3D.cpp" "NiftiImage3DTensor.cpp" "NiftiImage3DDeformation.cpp" "NiftiImage3DDisplacement.cpp")
-SET(HEADERS ${HEADERS}  "NiftiImage.h"   "NiftiImage3D.h"   "NiftiImage3DTensor.h"   "NiftiImage3DDeformation.h"   "NiftiImage3DDisplacement.h")
+SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
+SET(HEADERS ${HEADERS}  "NiftiImageData.h"   "NiftiImageData3D.h"   "NiftiImageData3DTensor.h"   "NiftiImageData3DDeformation.h"   "NiftiImageData3DDisplacement.h")
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(SIRFREG_BUILD_PYTHON OR SIRFREG_BUILD_MATLAB)

@@ -1,4 +1,4 @@
-classdef NiftiImage3D < mSIRFReg.NiftiImage
+classdef NiftiImageData3D < mSIRFReg.NiftiImageData
 % Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -20,21 +20,21 @@ classdef NiftiImage3D < mSIRFReg.NiftiImage
 
     methods(Static)
         function name = class_name()
-            name = 'NiftiImage3D';
+            name = 'NiftiImageData3D';
         end
     end
     methods
-        function self = NiftiImage3D(src)
+        function self = NiftiImageData3D(src)
             narginchk(0,1)
-            self.name = 'NiftiImage3D';
+            self.name = 'NiftiImageData3D';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src)
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_objectFromFile', self.name, src);
             elseif isa(src, 'mSTIR.ImageData')
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImage3D_from_PETImageData', src.handle_);
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_NiftiImageData3D_from_PETImageData', src.handle_);
             else
-                error('NiftiImage3D accepts no args, filename or mSTIR.ImageData.')
+                error('NiftiImageData3D accepts no args, filename or mSTIR.ImageData.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -45,9 +45,9 @@ classdef NiftiImage3D < mSIRFReg.NiftiImage
             end
         end
         function copy_data_to(self, pet_image)
-            %Fill the STIRImageData with the values from NiftiImage3D.
+            %Fill the STIRImageData with the values from NiftiImageData3D.
             assert(isa(pet_image, 'mSTIR.ImageData'))
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImage3D_copy_data_to', self.handle_, pet_image.handle_);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3D_copy_data_to', self.handle_, pet_image.handle_);
             mUtilities.check_status([self.name ':copy_data_to'], h);
             mUtilities.delete(h)            
         end

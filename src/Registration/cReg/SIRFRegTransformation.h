@@ -44,11 +44,11 @@ public:
     virtual ~SIRFRegTransformation() {}
 
     /// Get as deformation field
-    virtual NiftiImage3DDeformation get_as_deformation_field(const NiftiImage3D &ref) const = 0;
+    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const = 0;
 
 protected:
     /// Check that the deformation field image matches the reference image.
-    void check_ref_and_def(const NiftiImage3D &ref, const NiftiImage3DDeformation &def) const;
+    void check_ref_and_def(const NiftiImageData3D &ref, const NiftiImageData3DDeformation &def) const;
 };
 }
 

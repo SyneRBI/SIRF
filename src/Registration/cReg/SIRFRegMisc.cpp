@@ -28,11 +28,11 @@ limitations under the License.
 */
 
 #include "SIRFRegMisc.h"
-#include "NiftiImage3D.h"
-#include "NiftiImage3DTensor.h"
+#include "NiftiImageData3D.h"
+#include "NiftiImageData3DTensor.h"
 #include "SIRFRegTransformation.h"
-#include "NiftiImage3DDeformation.h"
-#include "NiftiImage3DDisplacement.h"
+#include "NiftiImageData3DDeformation.h"
+#include "NiftiImageData3DDisplacement.h"
 #include "SIRFRegMat44.h"
 #include <_reg_tools.h>
 #include <_reg_globalTrans.h>
@@ -72,7 +72,7 @@ void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesyst
 }
 
 /// Save nifti image
-void save_nifti_image(NiftiImage &image, const std::string &filename)
+void save_nifti_image(NiftiImageData &image, const std::string &filename)
 {
     if (!image.is_initialised())
         throw std::runtime_error("Cannot save image to file.");
@@ -125,7 +125,7 @@ void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std
 }
 
 /// Do nifti image metadatas match?
-bool do_nifti_image_metadata_match(const NiftiImage &im1, const NiftiImage &im2)
+bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2)
 {
 #ifndef NDEBUG
     std::cout << "\nChecking if metadata of two images match..." << std::flush;
@@ -224,7 +224,7 @@ bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44
 }
 
 /// Dump info of multiple nifti images
-void dump_headers(const std::vector<NiftiImage> &ims)
+void dump_headers(const std::vector<NiftiImageData> &ims)
 {
     std::cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
     dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
@@ -324,7 +324,7 @@ void dump_headers(const std::vector<NiftiImage> &ims)
 }
 
 template<typename T>
-void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &name, const T &call_back)
+void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back)
 {
     std::string header = name + ": ";
     std::cout << "\t" << std::left << std::setw(19) << header;
@@ -334,7 +334,7 @@ void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &n
 }
 
 template<typename T>
-void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
 {
     for(unsigned i=0; i<num_elems; i++) {
         std::string header = name + "[" + std::to_string(i) + "]: ";
@@ -346,7 +346,7 @@ void dump_nifti_element(const std::vector<NiftiImage> &ims, const std::string &n
 }
 
 template<typename newType>
-void change_datatype(NiftiImage &im)
+void change_datatype(NiftiImageData &im)
 {
     if (im.get_raw_nifti_sptr()->datatype == DT_BINARY)   return SIRFRegMisc::change_datatype<newType,bool>              (im);
     if (im.get_raw_nifti_sptr()->datatype == DT_INT8)     return SIRFRegMisc::change_datatype<newType,signed char>       (im);
@@ -368,17 +368,17 @@ void change_datatype(NiftiImage &im)
     ss << im.get_raw_nifti_sptr()->nbyper << ").";
     throw std::runtime_error(ss.str());
 }
-template void change_datatype<bool>              (NiftiImage &im);
-template void change_datatype<signed char>       (NiftiImage &im);
-template void change_datatype<signed short>      (NiftiImage &im);
-template void change_datatype<signed int>        (NiftiImage &im);
-template void change_datatype<float>             (NiftiImage &im);
-template void change_datatype<double>            (NiftiImage &im);
-template void change_datatype<unsigned char>     (NiftiImage &im);
-template void change_datatype<unsigned short>    (NiftiImage &im);
-template void change_datatype<unsigned int>      (NiftiImage &im);
-template void change_datatype<signed long long>  (NiftiImage &im);
-template void change_datatype<unsigned long long>(NiftiImage &im);
-template void change_datatype<long double>       (NiftiImage &im);
+template void change_datatype<bool>              (NiftiImageData &im);
+template void change_datatype<signed char>       (NiftiImageData &im);
+template void change_datatype<signed short>      (NiftiImageData &im);
+template void change_datatype<signed int>        (NiftiImageData &im);
+template void change_datatype<float>             (NiftiImageData &im);
+template void change_datatype<double>            (NiftiImageData &im);
+template void change_datatype<unsigned char>     (NiftiImageData &im);
+template void change_datatype<unsigned short>    (NiftiImageData &im);
+template void change_datatype<unsigned int>      (NiftiImageData &im);
+template void change_datatype<signed long long>  (NiftiImageData &im);
+template void change_datatype<unsigned long long>(NiftiImageData &im);
+template void change_datatype<long double>       (NiftiImageData &im);
 
 }

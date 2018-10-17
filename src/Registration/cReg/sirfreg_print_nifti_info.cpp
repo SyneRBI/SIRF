@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImage.h"
+#include "NiftiImageData.h"
 #include "vector"
 
 using namespace sirf;
@@ -43,14 +43,14 @@ int main(int argc, char* argv[])
 
         // Vector of images
         int num_images = argc - 1;
-        std::vector<NiftiImage> ims;
+        std::vector<NiftiImageData> ims;
 
         // Read all the images
         for (int i=1; i<=num_images; ++i)
-            ims.push_back(NiftiImage(argv[i]));
+            ims.push_back(NiftiImageData(argv[i]));
 
         // Print info
-        NiftiImage::print_headers(ims);
+        NiftiImageData::print_headers(ims);
 
     // If there was an error
     } catch(const std::exception &error) {

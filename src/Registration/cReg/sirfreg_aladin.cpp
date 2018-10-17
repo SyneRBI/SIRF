@@ -95,11 +95,11 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        NiftiImage3D reference(argv[flag_ref+1]);
+        NiftiImageData3D reference(argv[flag_ref+1]);
         aladin.set_reference_image(reference);
 
         int flag_flo = find_flag(unused_flags,argv,"-flo",true);
-        NiftiImage3D floating(argv[flag_flo+1]);
+        NiftiImageData3D floating(argv[flag_flo+1]);
         aladin.set_floating_image(floating);
 
         int flag_par = find_flag(unused_flags,argv,"-par",true);

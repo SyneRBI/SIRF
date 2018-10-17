@@ -27,44 +27,44 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _NIFTIIMAGE3DTENSOR_H_
-#define _NIFTIIMAGE3DTENSOR_H_
+#ifndef _NIFTIIMAGEDATA3DTENSOR_H_
+#define _NIFTIIMAGEDATA3DTENSOR_H_
 
-#include "NiftiImage.h"
+#include "NiftiImageData.h"
 #include <_reg_maths.h>
 
 namespace sirf {
-class NiftiImage3D;
+class NiftiImageData3D;
 
 /// SIRF image data
-class NiftiImage3DTensor : public NiftiImage
+class NiftiImageData3DTensor : public NiftiImageData
 {
 public:
 
     /// Constructor
-    NiftiImage3DTensor() {}
+    NiftiImageData3DTensor() {}
 
     /// Construct 3D from general case
-    NiftiImage3DTensor(const NiftiImage& general)
-        : NiftiImage(general) { check_dimensions(_3DTensor); }
+    NiftiImageData3DTensor(const NiftiImageData& general)
+        : NiftiImageData(general) { check_dimensions(_3DTensor); }
 
     /// Filename constructor
-    NiftiImage3DTensor(const std::string &filename)
-        : NiftiImage(filename) { check_dimensions(_3DTensor); }
+    NiftiImageData3DTensor(const std::string &filename)
+        : NiftiImageData(filename) { check_dimensions(_3DTensor); }
 
     /// Nifti constructor
-    NiftiImage3DTensor(const nifti_image &image_nifti)
-        : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
+    NiftiImageData3DTensor(const nifti_image &image_nifti)
+        : NiftiImageData(image_nifti) { check_dimensions(_3DTensor); }
 
     /// Nifti std::shared_ptr constructor
-    NiftiImage3DTensor(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImage(image_nifti) { check_dimensions(_3DTensor); }
+    NiftiImageData3DTensor(const std::shared_ptr<nifti_image> image_nifti)
+        : NiftiImageData(image_nifti) { check_dimensions(_3DTensor); }
 
     /// Create from 3 individual components
-    NiftiImage3DTensor(const NiftiImage3D &x, const NiftiImage3D &y, const NiftiImage3D &z);
+    NiftiImageData3DTensor(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z);
 
     /// Create from 3D image.
-    virtual void create_from_3D_image(const NiftiImage3D &image);
+    virtual void create_from_3D_image(const NiftiImageData3D &image);
 
     /// Save to file as x-, y-, z-components
     void save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
@@ -76,8 +76,8 @@ public:
     void flip_component(const int dim);
 
     /// Deep copy
-    NiftiImage3DTensor deep_copy() const
-    { return this->NiftiImage::deep_copy(); }
+    NiftiImageData3DTensor deep_copy() const
+    { return this->NiftiImageData::deep_copy(); }
 };
 }
 

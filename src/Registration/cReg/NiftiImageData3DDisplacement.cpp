@@ -27,29 +27,29 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImage3DDisplacement.h"
+#include "NiftiImageData3DDisplacement.h"
 #include <_reg_localTrans.h>
 
 using namespace sirf;
 
-void NiftiImage3DDisplacement::create_from_def(const NiftiImage3DDeformation &def)
+void NiftiImageData3DDisplacement::create_from_def(const NiftiImageData3DDeformation &def)
 {
     // Get the disp field from the def field
-    NiftiImage3DTensor temp = def.deep_copy();
+    NiftiImageData3DTensor temp = def.deep_copy();
     reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
     temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
     *this = temp.deep_copy();
 }
 
-void NiftiImage3DDisplacement::create_from_3D_image(const NiftiImage3D &image)
+void NiftiImageData3DDisplacement::create_from_3D_image(const NiftiImageData3D &image)
 {
-    this->NiftiImage3DTensor::create_from_3D_image(image);
+    this->NiftiImageData3DTensor::create_from_3D_image(image);
     _nifti_image->intent_p1 = 1;
 }
 
-NiftiImage3DDeformation NiftiImage3DDisplacement::get_as_deformation_field(const NiftiImage3D &ref) const
+NiftiImageData3DDeformation NiftiImageData3DDisplacement::get_as_deformation_field(const NiftiImageData3D &ref) const
 {
-    NiftiImage3DDeformation def;
+    NiftiImageData3DDeformation def;
     def.create_from_disp(*this);
     check_ref_and_def(ref,def);
     return def;

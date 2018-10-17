@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImage3D.h"
+#include "NiftiImageData3D.h"
 #include "SIRFRegMat44.h"
 #include "SIRFRegMisc.h"
 #include <nifti1_io.h>
@@ -36,7 +36,7 @@ limitations under the License.
 
 using namespace sirf;
 
-NiftiImage3D::NiftiImage3D(const PETImageData &pet_image)
+NiftiImageData3D::NiftiImageData3D(const PETImageData &pet_image)
 {
     std::cout << "Converting PET image to nifti image..." << std::flush;
 
@@ -49,13 +49,13 @@ NiftiImage3D::NiftiImage3D(const PETImageData &pet_image)
     std::cout << "Done!\n";
 }
 
-NiftiImage3D::NiftiImage3D(const MRImageData &)
+NiftiImageData3D::NiftiImageData3D(const MRImageData &)
 {
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
-void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
+void NiftiImageData3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = info.get_size();
@@ -112,7 +112,7 @@ void NiftiImage3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
     set_up_data(NIFTI_TYPE_FLOAT32);
 }
 
-void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
+void NiftiImageData3D::copy_data_to(PETImageData &pet_image) const
 {
     std::cout << "Filling PET image from nifti image..." << std::flush;
 
@@ -125,13 +125,13 @@ void NiftiImage3D::copy_data_to(PETImageData &pet_image) const
     std::cout << "Done!\n";
 }
 
-void NiftiImage3D::copy_data_to(MRImageData &) const
+void NiftiImageData3D::copy_data_to(MRImageData &) const
 {
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
-bool NiftiImage3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
+bool NiftiImageData3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
 {
     // Check the nifti exists
     if (!this->is_initialised()) {
@@ -153,7 +153,7 @@ bool NiftiImage3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &in
     if (!ok_size) {
         std::cout << "\nWarning: Size does not match, can't fill image.\n";
         std::cout << "\tSTIR image   = (" << size[0]       << ", " << size[1]       << ", " << size[2]       << ")\n";
-        std::cout << "\tNiftiImage3D = (" << _nifti_image->dim[1] << ", " << _nifti_image->dim[2] << ", " << _nifti_image->dim[3] << ")\n";
+        std::cout << "\tNiftiImageData3D = (" << _nifti_image->dim[1] << ", " << _nifti_image->dim[2] << ", " << _nifti_image->dim[3] << ")\n";
     }
 
     // Check spacing
@@ -164,7 +164,7 @@ bool NiftiImage3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &in
     if (!ok_spacing) {
         std::cout << "\nWarning: Spacing does not match, can't fill image.\n";
         std::cout << "\tSTIR image   = (" << spacing[0]       << ", " << spacing[1]       << ", " << spacing[2]       << ")\n";
-        std::cout << "\tNiftiImage3D = (" << _nifti_image->dx << ", " << _nifti_image->dy << ", " << _nifti_image->dz << ")\n";
+        std::cout << "\tNiftiImageData3D = (" << _nifti_image->dx << ", " << _nifti_image->dy << ", " << _nifti_image->dz << ")\n";
     }
 
     // Check qto_xyz

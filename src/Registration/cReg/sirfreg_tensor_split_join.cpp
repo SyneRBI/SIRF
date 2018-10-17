@@ -28,8 +28,8 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "NiftiImage3DTensor.h"
-#include "NiftiImage3D.h"
+#include "NiftiImageData3DTensor.h"
+#include "NiftiImageData3D.h"
 
 using namespace sirf;
 
@@ -69,16 +69,16 @@ int main(int argc, char* argv[])
         // If we're joining images
         if (mode == join) {
             std::cout << "\nDoing join.\n";
-            NiftiImage3D x(filename_x);
-            NiftiImage3D y(filename_x);
-            NiftiImage3D z(filename_x);
-            NiftiImage3DTensor tensor(x,y,z);
+            NiftiImageData3D x(filename_x);
+            NiftiImageData3D y(filename_x);
+            NiftiImageData3D z(filename_x);
+            NiftiImageData3DTensor tensor(x,y,z);
             tensor.save_to_file(filename_4D);
         }
         // If we're splitting
         else {
             std::cout << "\nDoing split.\n";
-            NiftiImage3DTensor tensor(filename_4D);
+            NiftiImageData3DTensor tensor(filename_4D);
             tensor.save_to_file_split_xyz_components(filename_x,filename_y,filename_z);
         }
 

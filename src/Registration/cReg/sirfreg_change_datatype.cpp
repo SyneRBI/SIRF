@@ -29,7 +29,7 @@ limitations under the License.
 
 #include <iostream>
 #include <vector>
-#include <NiftiImage.h>
+#include <NiftiImageData.h>
 
 using namespace sirf;
 
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         }
 
         // Read image
-        NiftiImage im(argv[2]);
+        NiftiImageData im(argv[2]);
 
         // Change datatype
         if      (strcmp(argv[3], "bool")               == 0) im.save_to_file(argv[1], DT_BINARY);

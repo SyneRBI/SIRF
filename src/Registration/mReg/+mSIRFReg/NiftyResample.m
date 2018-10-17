@@ -41,12 +41,12 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mSIRFReg.NiftiImage3D'), 'NiftyResample::set_reference_image expects NiftiImage3D')
+            assert(isa(reference_image, 'mSIRFReg.NiftiImageData3D'), 'NiftyResample::set_reference_image expects NiftiImageData3D')
             mSIRFReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mSIRFReg.NiftiImage3D'), 'NiftyResample::set_floating_image expects NiftiImage3D')
+            assert(isa(floating_image, 'mSIRFReg.NiftiImageData3D'), 'NiftyResample::set_floating_image expects NiftiImageData3D')
             mSIRFReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation_affine(self, src)
@@ -57,13 +57,13 @@ classdef NiftyResample < handle
 
         function add_transformation_disp(self, src)
             %Set displacement field.
-            assert(isa(src, 'mSIRFReg.NiftiImage3DDisplacement'), 'NiftyResample::add_transformation_disp expects NiftiImage3DDisplacement.')
+            assert(isa(src, 'mSIRFReg.NiftiImageData3DDisplacement'), 'NiftyResample::add_transformation_disp expects NiftiImageData3DDisplacement.')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
         end
 
         function add_transformation_def(self, src)
             %Set deformation field.
-            assert(isa(src, 'mSIRFReg.NiftiImage3DDeformation'), 'NiftyResample::add_transformation_def expects NiftiImage3DDeformation.')
+            assert(isa(src, 'mSIRFReg.NiftiImageData3DDeformation'), 'NiftyResample::add_transformation_def expects NiftiImageData3DDeformation.')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
         end
         function set_interpolation_type(self, type)
@@ -94,7 +94,7 @@ classdef NiftyResample < handle
         end
         function output = get_output(self)
             %Get output.
-            output = mSIRFReg.NiftiImage3D();
+            output = mSIRFReg.NiftiImageData3D();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mSIRFReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)

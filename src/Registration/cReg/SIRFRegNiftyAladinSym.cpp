@@ -58,7 +58,7 @@ void SIRFRegNiftyAladinSym<T>::process()
     _registration_sptr->Run();
 
     // Get the output
-    _warped_image = NiftiImage3D(*_registration_sptr->GetFinalWarpedImage());
+    _warped_image = NiftiImageData3D(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
     if (_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
