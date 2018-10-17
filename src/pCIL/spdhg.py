@@ -40,17 +40,52 @@ class spdhg():
 
     References
     ----------
-    [CERS2017] A. Chambolle, M. J. Ehrhardt, P. Richtarik and C.-B. Schoenlieb,
+    [CERS2018] A. Chambolle, M. J. Ehrhardt, P. Richtarik and C.-B. Schoenlieb,
     *Stochastic Primal-Dual Hybrid Gradient Algorithm with Arbitrary Sampling
-    and Imaging Applications*. ArXiv: http://arxiv.org/abs/1706.04957 (2017).
+    and Imaging Applications*. SIAM Journal on Optimization, 28(4), 2783-2808
+    (2018) http://doi.org/10.1007/s10851-010-0251-1 
 
     [E+2017] M. J. Ehrhardt, P. J. Markiewicz, P. Richtarik, J. Schott,
     A. Chambolle and C.-B. Schoenlieb, *Faster PET reconstruction with a
     stochastic primal-dual hybrid gradient method*. Wavelets and Sparsity XVII,
     58 (2017) http://doi.org/10.1117/12.2272946.
+    
+    [EMS2018] M. J. Ehrhardt, P. J. Markiewicz and C.-B. Schoenlieb, *Faster 
+    PET Reconstruction with Non-Smooth Priors by Randomization and 
+    Preconditioning*. (2018) ArXiv: http://arxiv.org/abs/1808.07150 
     """
     
-    def __init__(self, x, y, z, f, g, A, tau, sigma, fun_select):
+    def __init__(self, x, y, z, f, g, A, tau=None, sigma=None, prob=None, 
+                 A_norms=None, fun_select=None):
+        
+        # either A_norms or (tau, sigma, prob) must be given
+        # if the former is chosen, then the other parameters are chosen by 
+        # default
+        # fun_select is optional and by default performs serial sampling
+                               
+        if A_norms is not None:
+            if tau is not None or sigma is not None or prob is not None:
+                raise ValueError('TBC')
+                # error
+                
+            tau = 1 / sum(A_norms)
+            sigma = [1 / nA for nA in A_norms]
+            prob = [nA / sum(A_norms) for nA in A_norms]
+
+            #uniform prob, needs different sigma and tau
+            #n = len(A)
+            #prob = [1./n] * n
+                        
+        if fun_select is None:
+            if prob is None:
+                raise ValueError('TBC')
+                # error
+                
+            import numpy
+            
+            def fun_select(k):
+                return [int(numpy.random.choice(len(A), 1, p=prob))]
+
         self.iter = 0
         self.x = x
         
@@ -63,6 +98,7 @@ class spdhg():
         self.A = A
         self.tau = tau
         self.sigma = sigma
+        self.prob = prob
         self.fun_select = fun_select
 
         # Initialize variables
@@ -95,6 +131,6 @@ class spdhg():
             self.z += dz
 
             # compute extrapolation
-            self.z_relax += 2 * dz
+            self.z_relax += (1 + 1 / self.prob[i]) * dz
 
         self.iter += 1            
