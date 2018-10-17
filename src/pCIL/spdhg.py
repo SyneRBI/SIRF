@@ -11,32 +11,39 @@ class spdhg():
 
     Parameters
     ----------
-    x : primal variable
-        This vag.proximalriable is both input and output of the method.
-    y : dual variable, optional
-        Dual variable is part of a product space. By default equals 0.
-    z : variable, optional
-        Adjoint of dual variable, z = A^* y. By default equals 0 if y = 0.
-    f : functions
+    f : list of functions
         Functionals Y[i] -> IR_infty that all have a convex conjugate with a
         proximal operator, i.e.
-        f[i].convex_conj.proximal(sigma[i]) : Y[i] -> Y[i].
+        f[i].convex_conj.prox(sigma[i]) : Y[i] -> Y[i].
     g : function
         Functional X -> IR_infty that has a proximal operator, i.e.
-        g.proximal(tau) : X -> X.
-    A : functions
+        g.prox(tau) : X -> X.
+    A : list of functions
         Operators A[i] : X -> Y[i] that possess adjoints: A[i].adjoint
-    tau : scalar / vector / matrix
+    x : primal variable, optional
+        By default equals 0.
+    y : dual variable, optional
+        Part of a product space. By default equals 0.
+    z : variable, optional
+        Adjoint of dual variable, z = A^* y. By default equals 0 if y = 0.
+    tau : scalar / vector / matrix, optional
         Step size for primal variable. Note that the proximal operator of g
         has to be well-defined for this input.
-    sigma : scalar
+    sigma : scalar, optional
         Scalar / vector / matrix used as step size for dual variable. Note that
         the proximal operator related to f (see above) has to be well-defined
         for this input.
-    fun_select : function
+    prob : list of scalars, optional
+        Probabilities prob[i] that a subset i is selected in each iteration.
+        If fun_select is not given, then the sum of all probabilities must
+        equal 1.
+    A_norms : list of scalars, optional
+        Norms of the operators in A. Can be used to determine the step sizes
+        tau and sigma and the probabilities prob.
+    fun_select : function, optional
         Function that selects blocks at every iteration IN -> {1,...,n}. By
-        default this is serial uniform sampling, fun_select(k) selects an index
-        i \in {1,...,n} with probability 1/n.
+        default this is serial sampling, fun_select(k) selects an index
+        i \in {1,...,n} with probability prob[i].
 
     References
     ----------
@@ -55,18 +62,32 @@ class spdhg():
     Preconditioning*. (2018) ArXiv: http://arxiv.org/abs/1808.07150 
     """
     
-    def __init__(self, x, y, z, f, g, A, tau=None, sigma=None, prob=None, 
-                 A_norms=None, fun_select=None):
-        
-        # either A_norms or (tau, sigma, prob) must be given
-        # if the former is chosen, then the other parameters are chosen by 
-        # default
+    def __init__(self, f, g, A, x=None, y=None, z=None, tau=None, sigma=None, 
+                 prob=None, A_norms=None, fun_select=None):
         # fun_select is optional and by default performs serial sampling
-                               
+                
+        if x is None:
+            x = A[0].img_templ.copy()
+            x.fill(0)
+            
+        if y is None:
+            if z is not None:
+                raise ValueError('y and z have to be defaulted together')
+             
+            import pSTIR as pet
+            
+            y = [Ai.sirf2sub(0 * pet.AcquisitionData(Ai.__op__.acq_templ)) 
+                 for Ai in A]
+            z = 0 * x.copy()
+            
+        else:
+            if z is None:
+                raise ValueError('y and z have to be defaulted together')
+                            
         if A_norms is not None:
             if tau is not None or sigma is not None or prob is not None:
-                raise ValueError('TBC')
-                # error
+                raise ValueError('Either A_norms or (tau, sigma, prob) must '
+                                 'be given')
                 
             tau = 1 / sum(A_norms)
             sigma = [1 / nA for nA in A_norms]
@@ -78,8 +99,7 @@ class spdhg():
                         
         if fun_select is None:
             if prob is None:
-                raise ValueError('TBC')
-                # error
+                raise ValueError('prob was not determined')
                 
             import numpy
             
@@ -89,7 +109,6 @@ class spdhg():
         self.iter = 0
         self.x = x
         
-        # I would make y and z optional and default them with 0
         self.y = y
         self.z = z
         
