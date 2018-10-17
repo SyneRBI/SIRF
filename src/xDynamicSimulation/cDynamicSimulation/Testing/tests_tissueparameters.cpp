@@ -27,8 +27,8 @@ bool test_allocate_MRTissueParameter_successful(void)
 bool test_allocate_PETTissueParameter_successful(void)
 {
 	PETTissueParameter pet_tissue_pars;
-	pet_tissue_pars.attenuation_1_by_mm_ = 0.01;
-	pet_tissue_pars.suv_ = 15;
+	pet_tissue_pars.attenuation_1_by_cm_ = 0.01;
+	pet_tissue_pars.activity_kBq_ml_ = 15;
 
 	return true;
 }
@@ -61,8 +61,8 @@ bool test_TissueParameter_algebra( void )
 	first_param.mr_tissue_.cs_ppm_ = 0.f;
 
 
-	first_param.pet_tissue_.attenuation_1_by_mm_ = 0.f;
-	first_param.pet_tissue_.suv_ = 0.f;
+	first_param.pet_tissue_.attenuation_1_by_cm_ = 0.f;
+	first_param.pet_tissue_.activity_kBq_ml_ = 0.f;
 
 
 	second_param.label_ = 1;
@@ -74,8 +74,8 @@ bool test_TissueParameter_algebra( void )
 	second_param.mr_tissue_.cs_ppm_ = 1.f;
 
 
-	second_param.pet_tissue_.attenuation_1_by_mm_ = 1.f;
-	second_param.pet_tissue_.suv_ = 1.f;
+	second_param.pet_tissue_.attenuation_1_by_cm_ = 1.f;
+	second_param.pet_tissue_.activity_kBq_ml_ = 1.f;
 
 	float interpol_weight = 0.3;
 
@@ -90,8 +90,8 @@ bool test_TissueParameter_algebra( void )
 	std::cout<<epiph(interpol_param.mr_tissue_.cs_ppm_)<< std::endl;
 
 
-	std::cout<<epiph(interpol_param.pet_tissue_.attenuation_1_by_mm_)<< std::endl; 
-	std::cout<<epiph(interpol_param.pet_tissue_.suv_ )<< std::endl;
+	std::cout<<epiph(interpol_param.pet_tissue_.attenuation_1_by_cm_)<< std::endl; 
+	std::cout<<epiph(interpol_param.pet_tissue_.activity_kBq_ml_ )<< std::endl;
 
 	return true;
 
@@ -156,8 +156,8 @@ bool test_get_PETTissueParameter_from_ptree()
 		}
 	}
 
-	bool parameter_set_correct = (pet_tiss.attenuation_1_by_mm_ == input_attenuation);
-	parameter_set_correct *= (pet_tiss.suv_ == input_SUV);
+	bool parameter_set_correct = (pet_tiss.attenuation_1_by_cm_ == input_attenuation);
+	parameter_set_correct *= (pet_tiss.activity_kBq_ml_ == input_SUV);
 	
 	return (parameter_set_correct);
 }
@@ -219,8 +219,8 @@ bool test_read_TissueParameter_label_from_xml( std::string const xml_filepath )
 	parameter_set_correct *= (input_t2 == firstParam.mr_tissue_.t2_miliseconds_);
 	parameter_set_correct *= (input_cs == firstParam.mr_tissue_.cs_ppm_);
 
-	parameter_set_correct *= (input_attenuation == firstParam.pet_tissue_.attenuation_1_by_mm_);
-	parameter_set_correct *= (input_SUV == firstParam.pet_tissue_.suv_);	
+	parameter_set_correct *= (input_attenuation == firstParam.pet_tissue_.attenuation_1_by_cm_);
+	parameter_set_correct *= (input_SUV == firstParam.pet_tissue_.activity_kBq_ml_);	
 
 	return parameter_set_correct;
 }

@@ -28,8 +28,8 @@ MRTissueParameter operator* (float  const x, const MRTissueParameter& a_mr)
 PETTissueParameter operator* (float const x, const PETTissueParameter& a_pet) 
 {
 	PETTissueParameter pet_tiss;
-	pet_tiss.attenuation_1_by_mm_ = x * a_pet.attenuation_1_by_mm_;
-	pet_tiss.suv_ = x * a_pet.suv_;
+	pet_tiss.attenuation_1_by_cm_ = x * a_pet.attenuation_1_by_cm_;
+	pet_tiss.activity_kBq_ml_ = x * a_pet.activity_kBq_ml_;
 	
 	return pet_tiss;
 }
@@ -158,8 +158,8 @@ PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree
 	try
 	{
 		ptree pet_tissue_tree = pt.get_child("PETTissueParameter");
-		pet_tiss.attenuation_1_by_mm_ = pet_tissue_tree.get <float> ("attenuation_1_by_mm");
-		pet_tiss.suv_ = pet_tissue_tree.get <float> ("SUV");
+		pet_tiss.attenuation_1_by_cm_ = pet_tissue_tree.get <float> ("attenuation_1_by_cm");
+		pet_tiss.activity_kBq_ml_ = pet_tissue_tree.get <float> ("activity_kBq_ml");
 	}
 	catch( const boost::property_tree::ptree_bad_path &e) 
 	{	

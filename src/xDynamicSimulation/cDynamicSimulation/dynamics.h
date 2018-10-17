@@ -12,6 +12,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 #include <ismrmrd/ismrmrd.h>
 
@@ -33,7 +34,8 @@ typedef float SignalAxisType;
 
 
 typedef std::tuple<SignalAxisType,SignalAxisType,SignalAxisType> SignalBin;
-typedef std::vector< std::pair<TimeAxisType, SignalAxisType> > SignalContainer;
+typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
+typedef std::vector< SignalPoint > SignalContainer;
 
 typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContainer;
 
@@ -136,7 +138,7 @@ protected:
 	int which_motion_dynamic_am_i_;
 
 	MotionFieldContainer displacment_fields_;
-	std::vector< SIRFImageDataDeformation > temp_displacement_fields_; 
+	std::vector< SIRFImageDataDeformation > sirf_displacement_fields_; 
 
 };
 
@@ -159,11 +161,6 @@ protected:
 };
 
 
-class aPETDynamic : virtual public aDynamic{
-
-};
-
-
 
 class MRMotionDynamic : public aMRDynamic, public MotionDynamic {
 
@@ -179,4 +176,89 @@ class MRContrastDynamic: public aMRDynamic, public ContrastDynamic {
 public:
 	MRContrastDynamic():aMRDynamic(), ContrastDynamic() {};
 	MRContrastDynamic(int const num_simul_states): aMRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
+};
+
+
+// PET Dynamics and auxiliary methods
+
+template <typename T>
+struct Interval{
+
+	Interval (): min_(0), max_(0) {}; 
+	Interval (T min, T max): min_(min), max_(max) 
+	{
+		if( min > max )
+			throw std::runtime_error("Please give an interval with smaller minimum than maximum.");
+	};
+
+	bool is_empty()
+	{
+		return std::abs(min_- max_) < 1e-8;
+	}
+
+	T min_;
+	T max_;
+};
+
+
+template< typename T> 
+Interval<T> intersect_intervals(const Interval<T>& one_interval, const Interval<T>& other_interval)
+{
+	Interval<T> intersection;
+
+	if( one_interval.min_ > other_interval.max_ || other_interval.min_ > one_interval.max_ )
+		return intersection;
+	else 
+	{
+		intersection.min_ = std::max(one_interval.min_, other_interval.min_);
+		intersection.max_ = std::min(one_interval.max_, other_interval.max_);
+
+		return intersection;
+	}
+}
+
+typedef Interval<TimeAxisType> TimeBin;
+typedef std::vector< TimeBin > TimeBinSet;
+
+
+TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval);
+TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set);
+TimeAxisType get_total_time_in_set( TimeBinSet& set_of_bins );
+TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point);
+
+
+class aPETDynamic : virtual public aDynamic{
+
+public:
+
+	aPETDynamic();
+	aPETDynamic(int const num_simul_states);
+
+	void bin_total_time_interval(TimeBin time_interval_total_dynamic_process);
+
+	TimeBinSet get_time_bin_set_for_state(unsigned int const which_state);
+	TimeAxisType get_time_spent_in_bin(unsigned int const which_state );
+
+protected:
+
+	std::vector< TimeBinSet > binned_time_intervals_;
+
+};
+
+
+class PETMotionDynamic: public aPETDynamic, public MotionDynamic{
+
+public:
+	PETMotionDynamic():aPETDynamic(), MotionDynamic() {};
+	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+
+	void align_motion_fields_with_image( const sirf::PETImageData& img);
+
+};
+
+class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {
+
+public:
+	PETContrastDynamic():aPETDynamic(), ContrastDynamic() {};
+	PETContrastDynamic(int const num_simul_states): aPETDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 };

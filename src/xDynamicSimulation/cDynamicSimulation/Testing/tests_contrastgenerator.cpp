@@ -325,7 +325,7 @@ bool test_contgen::test_pet_map_contrast( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (label_arr, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 		pet_contgen.map_contrast();
 
@@ -349,7 +349,7 @@ bool test_contgen::test_pet_map_attenuation( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 		pet_contgen.map_attenuation();
 
@@ -371,7 +371,7 @@ bool test_contgen::test_set_template_image_from_file( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 		PETContrastGenerator pet_contgen( label_arr, XML_XCAT_PATH ); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
 
 
 		auto voxel_sizes = pet_contgen.get_voxel_sizes();
@@ -403,7 +403,7 @@ void test_contgen::test_pet_map_contrast_application_to_xcat( void )
 		LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (segmentation_labels, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 		pet_contgen.map_contrast();
 		auto volume_container = pet_contgen.get_contrast_filled_volumes();
@@ -574,8 +574,8 @@ bool test_tlm::test_replace_petmr_tissue_parameters( void )
 		tiss_par_to_substitute.mr_tissue_.cs_ppm_ = 1.03;
 		tiss_par_to_substitute.mr_tissue_.spin_density_percentH2O_ = 1.04;
 
-		tiss_par_to_substitute.pet_tissue_.attenuation_1_by_mm_= 1.05;
-		tiss_par_to_substitute.pet_tissue_.suv_= 1.06;
+		tiss_par_to_substitute.pet_tissue_.attenuation_1_by_cm_= 1.05;
+		tiss_par_to_substitute.pet_tissue_.activity_kBq_ml_= 1.06;
 
 		tlm.replace_petmr_tissue_parameters(label_to_replace, tiss_par_to_substitute);
 

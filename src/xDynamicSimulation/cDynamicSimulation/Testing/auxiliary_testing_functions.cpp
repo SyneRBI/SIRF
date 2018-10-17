@@ -90,8 +90,8 @@ MRTissueParameter aux_test::get_mock_MR_tissue_parameter(void)
 PETTissueParameter aux_test::get_mock_PET_tissue_parameter(void)
 {
 	PETTissueParameter pet_tissue_pars;
-	pet_tissue_pars.attenuation_1_by_mm_ = 0.01;
-	pet_tissue_pars.suv_ = 15;
+	pet_tissue_pars.attenuation_1_by_cm_ = 0.01;
+	pet_tissue_pars.activity_kBq_ml_ = 15;
 
 
 	return pet_tissue_pars;
@@ -112,8 +112,8 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 	tiss_at_0.mr_tissue_.t2_miliseconds_ = 44;
 	tiss_at_0.mr_tissue_.cs_ppm_ = 0;
 	
-	tiss_at_0.pet_tissue_.attenuation_1_by_mm_= 0;
-	tiss_at_0.pet_tissue_.suv_= 0;
+	tiss_at_0.pet_tissue_.attenuation_1_by_cm_= 0;
+	tiss_at_0.pet_tissue_.activity_kBq_ml_= 0;
 
 	output.first = tiss_at_0;
 
@@ -125,8 +125,8 @@ std::pair< TissueParameter, TissueParameter> aux_test::get_mock_contrast_signal_
 	tiss_at_1.mr_tissue_.t2_miliseconds_ = 44;
 	tiss_at_1.mr_tissue_.cs_ppm_ = 0;
 	
-	tiss_at_1.pet_tissue_.attenuation_1_by_mm_= 0;
-	tiss_at_1.pet_tissue_.suv_= 0;
+	tiss_at_1.pet_tissue_.attenuation_1_by_cm_= 0;
+	tiss_at_1.pet_tissue_.activity_kBq_ml_= 0;
 
 	output.second = tiss_at_1;
 
@@ -152,7 +152,7 @@ PETContrastGenerator aux_test::get_mock_pet_contrast_generator( void )
 	LabelArray segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 	PETContrastGenerator pet_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
-	pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+	pet_cont_gen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 	return pet_cont_gen;
 }

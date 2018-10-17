@@ -6,7 +6,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-
+#include <cmath>
 #include <sstream>
 #include <stdexcept>
 #include <deque>
@@ -352,7 +352,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
-	if( this->temp_displacement_fields_.size() == 0)
+	if( this->sirf_displacement_fields_.size() == 0)
 		throw std::runtime_error("Please use prep_displacements_fields() before calling get_interpolated_displacement_field");
 	
 
@@ -375,8 +375,8 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	  /// Constructor
     SIRFRegImageWeightedMean4D dvf_interpolator;
     
-    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
-    dvf_interpolator.add_image( this->temp_displacement_fields_[bin_ceil], linear_interpolation_weight);
+    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_ceil], linear_interpolation_weight);
 
     dvf_interpolator.update();
     
@@ -518,11 +518,296 @@ void MotionDynamic::prep_displacements_fields()
 	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
 	{
 		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
-		temp_displacement_fields_.push_back( temp_deformation );
+		this->sirf_displacement_fields_.push_back( temp_deformation );
 	}
 
 	this->delete_temp_folder();
 }
+
+
+
+
+TimeBin intersect_time_intervals( const TimeBin& one_interval, const TimeBin& other_interval)
+{
+	return intersect_intervals<TimeAxisType>(one_interval, other_interval);
+}
+
+TimeBinSet intersect_time_bin_sets( const TimeBinSet& one_set, const TimeBinSet& other_set)
+{
+	TimeBinSet intersected_set;
+	for(size_t i=0; i<one_set.size();i++ )
+	for(size_t j=0; j<other_set.size();j++ )
+	{
+		TimeBin temp_intersect = intersect_time_intervals(one_set[i], other_set[j]);
+		if( !temp_intersect.is_empty() )			
+			intersected_set.push_back( temp_intersect );
+	}
+	return intersected_set;
+}
+
+
+TimeAxisType get_total_time_in_set(TimeBinSet& set_of_bins )
+{
+	TimeAxisType t=0;
+	for(size_t i_bin=0; i_bin<set_of_bins.size(); i_bin++)	
+	{
+		t += (set_of_bins[i_bin].max_ - set_of_bins[i_bin].min_);
+	}
+	return t;
+}
+
+aPETDynamic::aPETDynamic(int const num_simul_states): aDynamic(num_simul_states){}
+
+
+void aPETDynamic::bin_total_time_interval(TimeBin time_interval_total_dynamic_process)
+{
+	if(this->dyn_signal_.size() == 0)
+		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
+	
+	size_t const num_bins = signal_bins_.size();
+	size_t const num_signal_supports = dyn_signal_.size();
+	
+	TimeAxisType leftmost_left_edge = std::min<TimeAxisType>( time_interval_total_dynamic_process.min_, dyn_signal_[0].first );
+	TimeAxisType rightmost_right_edge = std::max<TimeAxisType>( time_interval_total_dynamic_process.max_,  dyn_signal_[num_signal_supports-1].first );
+
+	TimeBinSet temp_set;
+	temp_set.push_back(time_interval_total_dynamic_process);
+	for( size_t i_bin=0; i_bin<num_bins; i_bin++)
+	{
+		SignalBin bin = this->signal_bins_[i_bin];
+
+		auto bin_min = std::get<0>(bin);
+		auto bin_max = std::get<2>(bin);
+
+		TimeBinSet time_intervals_for_bin;
+
+		std::vector< TimeAxisType > left_bin_edges, right_bin_edges;
+
+		for(size_t i_sig_pt=0; i_sig_pt<num_signal_supports-1; i_sig_pt++)
+		{	
+			SignalAxisType signal_this = dyn_signal_[i_sig_pt].second;
+			SignalAxisType signal_next = dyn_signal_[i_sig_pt+1].second;
+			
+			bool const min_is_between_points = (bin_min >= signal_this && bin_min <= signal_next) || (bin_min <= signal_this && bin_min >= signal_next);
+			bool const max_is_between_points = (bin_max >= signal_this && bin_max <= signal_next) || (bin_max <= signal_this && bin_max >= signal_next);
+			
+			TimeAxisType intersection_point;
+
+			if( min_is_between_points )
+			{
+				intersection_point = get_time_from_between_two_signal_points(bin_min, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
+				SignalAxisType f0 = this->linear_interpolate_signal(intersection_point);
+				
+				TimeAxisType delta_time = 0.1;
+				SignalAxisType f_plus = this->linear_interpolate_signal( intersection_point + delta_time);
+				SignalAxisType f_minus = this->linear_interpolate_signal(intersection_point - delta_time);
+
+				if( f_plus > f0 && f_minus < f0)
+					left_bin_edges.push_back(intersection_point);
+				else if( f_plus < f0 && f_minus > f0)
+					right_bin_edges.push_back(intersection_point);	
+				
+
+			}
+					
+			if( max_is_between_points )
+			{
+				intersection_point = get_time_from_between_two_signal_points(bin_max, dyn_signal_[i_sig_pt], dyn_signal_[i_sig_pt+1]);
+				SignalAxisType f0 = this->linear_interpolate_signal(intersection_point);
+				
+				TimeAxisType delta_time = 0.1;
+				SignalAxisType f_plus = this->linear_interpolate_signal( intersection_point + delta_time);
+				SignalAxisType f_minus = this->linear_interpolate_signal(intersection_point - delta_time);
+
+				if( f_plus > f0 && f_minus < f0)
+					right_bin_edges.push_back(intersection_point);
+				else if( f_plus < f0 && f_minus > f0)
+					left_bin_edges.push_back(intersection_point);	
+			}
+		}
+
+		std::sort( left_bin_edges.begin(), left_bin_edges.end() );
+		std::sort( right_bin_edges.begin(), right_bin_edges.end() );
+
+		size_t const num_left_edges = left_bin_edges.size();
+		size_t const num_right_edges = right_bin_edges.size();
+
+		if (  std::abs( (float)num_left_edges - (float)num_right_edges )  > 1 )
+			throw std::runtime_error( "You got yourself a very weird combination of signal and bin number in your simulation. Consider passing another dynamic signal please.");	
+		
+		if( num_left_edges ==0 && num_right_edges == 0)
+		{
+			TimeBin curr_bin(leftmost_left_edge, rightmost_right_edge);
+			time_intervals_for_bin.push_back(curr_bin);
+		}
+		else if( num_left_edges == num_right_edges )
+		{
+			if(left_bin_edges[0] < right_bin_edges[0])
+			{
+				for(size_t i=0; i<num_left_edges; i++)
+				{
+					TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i]);
+					time_intervals_for_bin.push_back(curr_bin);
+				}
+			}
+			else
+			{
+				for(size_t i=0; i<num_left_edges-1; i++)
+				{
+					TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i+1]);
+					time_intervals_for_bin.push_back(curr_bin);
+				}
+
+				TimeBin leftmost_bin( leftmost_left_edge , right_bin_edges[0]);
+				TimeBin rightmost_bin(left_bin_edges[num_left_edges-1], rightmost_right_edge);
+				
+				time_intervals_for_bin.push_back(leftmost_bin);
+				time_intervals_for_bin.push_back(rightmost_bin);
+
+			}
+		}
+		else if(num_left_edges > num_right_edges)	
+		{
+			for(size_t i=0; i<num_left_edges-1; i++)
+			{
+				TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i]);
+				time_intervals_for_bin.push_back(curr_bin);
+			}
+			TimeBin rightmost_bin( left_bin_edges[num_left_edges-1], rightmost_right_edge );
+			time_intervals_for_bin.push_back(rightmost_bin);
+		}
+		else if(num_right_edges > num_left_edges)
+		{
+			for(size_t i=0; i<num_right_edges-1; i++)
+			{
+
+				TimeBin curr_bin(left_bin_edges[i], right_bin_edges[i+1]);
+				time_intervals_for_bin.push_back(curr_bin);
+			}
+
+			TimeBin leftmost_bin( leftmost_left_edge, right_bin_edges[0]);
+			time_intervals_for_bin.push_back(leftmost_bin);
+
+		}
+		time_intervals_for_bin = intersect_time_bin_sets(time_intervals_for_bin, temp_set);	
+		this->binned_time_intervals_.push_back(time_intervals_for_bin);
+	}
+
+}
+
+
+TimeAxisType get_time_from_between_two_signal_points(SignalAxisType signal, SignalPoint left_point, SignalPoint right_point)
+{
+	if(std::abs(right_point.second - left_point.second) < 1e-8)
+		return (right_point.first + left_point.first)/TimeAxisType(2);
+	else
+		return (signal-left_point.second) * (right_point.first - left_point.first) / (right_point.second - left_point.second) + left_point.first;
+}
+
+TimeBinSet aPETDynamic::get_time_bin_set_for_state( unsigned int const which_state )
+{
+	if(which_state >= binned_time_intervals_.size())
+		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
+
+
+	return this->binned_time_intervals_[which_state];	
+}
+
+TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
+{
+	if(which_state >= binned_time_intervals_.size())
+		throw std::runtime_error( " Please give a number not larger than the number of dynamic states-1");
+
+
+	return get_total_time_in_set( this->binned_time_intervals_[which_state] );
+
+}
+
+
+
+void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData& img )
+{
+
+	size_t const num_disp_fields = this->sirf_displacement_fields_.size();
+
+	if( num_disp_fields ==0 )
+		throw std::runtime_error("Please call prep_displacements_fields() first.");
+
+	SIRFImageData sirf_img = SIRFImageData( img ); 
+	auto sptr_pet_nifti = sirf_img.get_image_as_nifti();
+
+	float const img_off_x = sptr_pet_nifti->qoffset_x;
+	float const img_off_y = sptr_pet_nifti->qoffset_y;
+	float const img_off_z = sptr_pet_nifti->qoffset_z;
+	 
+	float const img_quart_b = sptr_pet_nifti->quatern_b;
+	float const img_quart_c = sptr_pet_nifti->quatern_c;
+	float const img_quart_d = sptr_pet_nifti->quatern_d;
+	float const img_quart_ac = sptr_pet_nifti->qfac;
+
+
+	float const img_dx = sptr_pet_nifti->dx;
+    float const img_dy = sptr_pet_nifti->dy;
+    float const img_dz = sptr_pet_nifti->dz;
+    float const img_dt = sptr_pet_nifti->dt;
+    float const img_du = sptr_pet_nifti->du;
+    float const img_dv = sptr_pet_nifti->dv;
+    float const img_dw = sptr_pet_nifti->dw;
+
+
+
+	for(size_t i=0; i<num_disp_fields; i++)
+	{
+
+		auto sptr_mvf_nifti = this->sirf_displacement_fields_[i].get_image_as_nifti();
+
+		sptr_mvf_nifti->qoffset_x = img_off_x;
+		sptr_mvf_nifti->qoffset_y = img_off_y;
+		sptr_mvf_nifti->qoffset_z = img_off_z;
+
+		sptr_mvf_nifti->quatern_b = img_quart_b ;
+		sptr_mvf_nifti->quatern_c = img_quart_c ;
+		sptr_mvf_nifti->quatern_d = img_quart_d ;
+		sptr_mvf_nifti->qfac	  = img_quart_ac;
+
+		// sptr_mvf_nifti->dx = (float)img_dx;
+		// sptr_mvf_nifti->dy = (float)img_dy;
+		// sptr_mvf_nifti->dz = (float)img_dz;
+		// sptr_mvf_nifti->dt = (float)0;
+		// sptr_mvf_nifti->du = (float)0;
+		// sptr_mvf_nifti->dv = (float)0;
+		// sptr_mvf_nifti->dw = (float)0;
+		
+		// sptr_mvf_nifti->pixdim[1] = img_dx;
+		// sptr_mvf_nifti->pixdim[2] = img_dy;
+		// sptr_mvf_nifti->pixdim[3] = img_dz;
+		// sptr_mvf_nifti->pixdim[4] = img_dt;
+		// sptr_mvf_nifti->pixdim[5] = img_du;
+		// sptr_mvf_nifti->pixdim[6] = img_dv;
+		// sptr_mvf_nifti->pixdim[7] = img_dw;
+
+		this->sirf_displacement_fields_[i] = SIRFImageDataDeformation(sptr_mvf_nifti);
+
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -580,7 +580,7 @@ bool test_pet_dynsim::set_template_acquisition_data()
 }
 
 
-bool test_pet_dynsim::test_simulate_dynamics()
+bool test_pet_dynsim::test_simulate_statics()
 {
 
 	try
@@ -590,15 +590,67 @@ bool test_pet_dynsim::test_simulate_dynamics()
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
-		
+		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
+
 		clock_t t;
 		t = clock();
-		pet_dyn_sim.simulate_dynamics();
+		pet_dyn_sim.simulate_statics();
 		t = clock() - t;
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
+
 		
 		pet_dyn_sim.write_simulation_results(FILENAME_DYNSIM_PET);
+
+		return true;
+
+
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
+}
+
+
+
+bool test_pet_dynsim::test_simulate_motion_dynamics()
+{
+
+	try
+	{
+		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+
+		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/output_dyn_pet_simul/test_pet_dynamic");
+		
+		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
+		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
+		
+		int const num_simul_cardiac_states = 3;
+		PETMotionDynamic  cardiac_dyn(num_simul_cardiac_states);
+
+		TimeAxisType acquis_time_ms = 60 * 1000;
+		SignalPoint signal_0(0.f, 0.f); 
+		SignalPoint signal_1(acquis_time_ms, 1.f); 
+
+		SignalContainer mock_ramp_signal;
+		mock_ramp_signal.push_back( signal_0 );
+		mock_ramp_signal.push_back( signal_1 );
+
+	 	cardiac_dyn.set_dyn_signal( mock_ramp_signal );
+	 	cardiac_dyn.bin_total_time_interval( TimeBin(0.f, acquis_time_ms) );
+		
+		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
+
+		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (cardiac_dyn) );
+		
+		pet_dyn_sim.simulate_dynamics( acquis_time_ms );
 
 		return true;
 

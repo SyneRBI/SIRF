@@ -18,6 +18,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "SIRFRegNiftyResample.h"
 
+using namespace sirf;
+
 std::string const DynamicSimulationDeformer::temp_folder_name_ = "/tmp/tmp_img_data_to_deform";
 
 
@@ -135,5 +137,43 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 
 	for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
 		*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
+
+}
+
+
+void DynamicSimulationDeformer::deform_contrast_generator(PETContrastGenerator& mr_cont_gen, std::vector<SIRFImageDataDeformation>& vec_displacement_fields)
+{
+	std::vector< PETImageData >&  vect_img_data = mr_cont_gen.get_contrast_filled_volumes();
+
+	if( vect_img_data.size() != 2)
+		throw std::runtime_error(" Please call map_tissue before the deformation of the contrast generator. You need both activity and attenaution in the correct motion state.");
+	
+	for(size_t i_cont=0; i_cont<vect_img_data.size(); i_cont++)
+	{
+		PETImageData &curr_img = vect_img_data[i_cont];
+		deform_pet_image( curr_img, vec_displacement_fields );
+	}
+}
+
+void DynamicSimulationDeformer::deform_pet_image(PETImageData& img, std::vector<SIRFImageDataDeformation>& vec_displacement_fields)
+{
+	SIRFImageData img_to_deform(img);
+
+    SIRFRegNiftyResample resampler; 
+
+    resampler.set_interpolation_type_to_cubic_spline();
+	resampler.set_reference_image(img_to_deform);
+	resampler.set_floating_image(img_to_deform);
+
+	for( size_t i_disp=0; i_disp<vec_displacement_fields.size(); i_disp++)
+	{
+		SIRFRegTransformationDisplacement disp_trafo( vec_displacement_fields[i_disp] );
+		resampler.add_transformation_disp(disp_trafo);
+	}
+
+	resampler.update();
+
+	SIRFImageData deformed_img = resampler.get_output();
+	deformed_img.copy_data_to( img );
 
 }

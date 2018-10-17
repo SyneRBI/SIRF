@@ -215,7 +215,7 @@ bool test_aux_test_funs::test_get_mock_pet_contrast_generator( void )
 	try
 	{
 		PETContrastGenerator pet_contgen = aux_test::get_mock_pet_contrast_generator();
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_IMAGE_DATA_PATH );
+		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );
 
 		pet_contgen.map_contrast();
 

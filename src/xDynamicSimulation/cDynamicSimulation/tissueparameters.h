@@ -48,15 +48,15 @@ struct MRTissueParameter {
 
 struct PETTissueParameter {
 
-	float attenuation_1_by_mm_;
-	float suv_;
+	float attenuation_1_by_cm_;
+	float activity_kBq_ml_;
 	~PETTissueParameter(){};
 
 	PETTissueParameter operator+ (const PETTissueParameter& pet_to_add) const
 	{
 		PETTissueParameter pet_tiss;
-		pet_tiss.attenuation_1_by_mm_ = this->attenuation_1_by_mm_ + pet_to_add.attenuation_1_by_mm_;
-		pet_tiss.suv_ = this->suv_ + pet_to_add.suv_;
+		pet_tiss.attenuation_1_by_cm_ = this->attenuation_1_by_cm_ + pet_to_add.attenuation_1_by_cm_;
+		pet_tiss.activity_kBq_ml_ = this->activity_kBq_ml_ + pet_to_add.activity_kBq_ml_;
 		return pet_tiss;
 	}
 
