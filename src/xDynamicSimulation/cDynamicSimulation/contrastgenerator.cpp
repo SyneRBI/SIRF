@@ -342,9 +342,9 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 			TissueParameter param_in_voxel = *(tissue_params[i_vox]);
 
 			if(case_map==CASE_MAP_PET_CONTRAST)
-				contrast_img[i_vox] = param_in_voxel.pet_tissue_.suv_;						
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.activity_kBq_ml_;						
 			else if(case_map == CASE_MAP_PET_ATTENUATION)
-				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_mm_;						
+				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;						
 		}
 	
 		PETImageData pet_img_dat( template_pet_image_data_ );

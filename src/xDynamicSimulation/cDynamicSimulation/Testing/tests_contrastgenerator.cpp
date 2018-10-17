@@ -574,8 +574,8 @@ bool test_tlm::test_replace_petmr_tissue_parameters( void )
 		tiss_par_to_substitute.mr_tissue_.cs_ppm_ = 1.03;
 		tiss_par_to_substitute.mr_tissue_.spin_density_percentH2O_ = 1.04;
 
-		tiss_par_to_substitute.pet_tissue_.attenuation_1_by_mm_= 1.05;
-		tiss_par_to_substitute.pet_tissue_.suv_= 1.06;
+		tiss_par_to_substitute.pet_tissue_.attenuation_1_by_cm_= 1.05;
+		tiss_par_to_substitute.pet_tissue_.activity_kBq_ml_= 1.06;
 
 		tlm.replace_petmr_tissue_parameters(label_to_replace, tiss_par_to_substitute);
 
