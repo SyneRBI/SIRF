@@ -67,17 +67,13 @@ class spdhg():
         # fun_select is optional and by default performs serial sampling
                 
         if x is None:
-            x = A[0].img_templ.copy()
-            x.fill(0)
+            x = A[0].allocate_direct(0)
             
         if y is None:
             if z is not None:
                 raise ValueError('y and z have to be defaulted together')
-             
-            import pSTIR as pet
-            
-            y = [Ai.sirf2sub(0 * pet.AcquisitionData(Ai.__op__.acq_templ)) 
-                 for Ai in A]
+                       
+            y = [Ai.allocate_adjoint(0) for Ai in A]
             z = 0 * x.copy()
             
         else:
