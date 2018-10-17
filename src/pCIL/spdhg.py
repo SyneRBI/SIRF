@@ -81,10 +81,10 @@ class spdhg():
         self.x = self.g.prox(self.tmp, self.tau)
 
         # update dual variable and z, z_relax
-        self.z_relax = self.z.clone()
+        self.z_relax = self.z.copy()
         for i in selected:
             # save old yi
-            y_old = self.y[i].clone()
+            y_old = self.y[i].copy()
 
             # y[i]= prox(tmp)
             tmp = y_old + self.sigma[i] * self.A[i].direct(self.x)

@@ -149,7 +149,7 @@ class KullbackLeiblerConvexConjugate(Function):
         # Currently it needs 3 extra copies of memory.
 
         if out is None:
-            out = x.clone()
+            out = x.copy()
 
         # define short variable names
         y = self.data.as_array()
