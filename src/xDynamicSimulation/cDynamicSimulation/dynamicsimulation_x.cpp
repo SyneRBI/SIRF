@@ -436,7 +436,34 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 void PETDynamicSimulation::write_simulation_results( std::string const filename_output_with_extension )
 {
+	
+	std::cout << "Writing PET rawdata ... ";
 	this->target_acquisitions_->write( filename_output_with_extension.c_str() );
+	std::cout << "... finished." << std::endl;
+
+	this->pet_cont_gen_.map_tissue();
+
+	std::vector< PETImageData > contrast_filled_volumes = this->pet_cont_gen_.get_contrast_filled_volumes();
+
+	PETImageData attenuation_map = contrast_filled_volumes[1];
+
+	attenuation_map = this->get_reduced_pet_img_in_template_format( attenuation_map );	
+
+	Image3DF& attenuation_image = attenuation_map.data();
+
+	stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
+	stir::OutputFileFormat<Image3DF>::default_sptr();
+
+
+	std::stringstream stream_filename_attenuation_map; 
+	stream_filename_attenuation_map << filename_output_with_extension.substr(0, filename_output_with_extension.length()-3);
+	stream_filename_attenuation_map << "_attenuation_map.hv";
+
+	std::cout << "Writing PET attenuation map ... ";
+	format_sptr->write_to_file( stream_filename_attenuation_map.str() , attenuation_image);
+	std::cout << "... finished." << std::endl;
+
+
 }
 
 void PETDynamicSimulation::add_dynamic( std::shared_ptr<PETMotionDynamic> sptr_motion_dyn)
