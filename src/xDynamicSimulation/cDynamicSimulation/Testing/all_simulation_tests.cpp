@@ -115,8 +115,8 @@ void run_tests_dynamic_simulation( void )
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	// tests_successful *= test_pet_dynsim::test_simulate_statics();
-	tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
+	tests_successful *= test_pet_dynsim::test_simulate_statics();
+	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
 
 
 	if ( !tests_successful )
