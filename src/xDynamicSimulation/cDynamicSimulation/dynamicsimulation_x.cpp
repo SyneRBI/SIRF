@@ -60,8 +60,6 @@ void MRDynamicSimulation::simulate_statics( void )
 {
 	cout << "Simulating static data acquisition... " <<endl;
 
-
-
 	this->extract_hdr_information();
 
 	this->acq_model_.setTraj( this->sptr_trajectory_ );
@@ -442,8 +440,8 @@ void PETDynamicSimulation::write_simulation_results( std::string const filename_
 {
 	
 	std::cout << "Writing PET rawdata ... ";
-	this->target_acquisitions_->write( filename_output_with_extension.c_str() );
-	std::cout << "... finished." << std::endl;
+	this->sptr_target_acquisitions_->write( filename_output_with_extension.c_str() );
+	std::cout << "finished." << std::endl;
 
 	this->pet_cont_gen_.map_tissue();
 
@@ -486,6 +484,9 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
+	float const scale_factor = 1000;
+	sptr_target_acquisitions_->axpby(1.0f * scale_factor, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+
 	this->add_noise();
 	
 
@@ -493,7 +494,7 @@ void PETDynamicSimulation::simulate_statics()
 
 void PETDynamicSimulation::add_noise( void )
 {
-	this->noise_generator_.add_noise( *target_acquisitions_, *target_acquisitions_ );
+	this->noise_generator_.add_noise( *sptr_target_acquisitions_, *sptr_target_acquisitions_ );
 }	
 
 void PETDynamicSimulation::simulate_dynamics( void )
@@ -581,6 +582,9 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			this->pet_cont_gen_.map_tissue();//crucial call, as the deformation results in deformed contrast generator data
 			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
 			this->acquire_raw_data();	
+
+			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+
 			this->add_noise();
 
 			output_name_stream << ".hs";
@@ -638,7 +642,7 @@ void PETDynamicSimulation::acquire_raw_data( void )
 	if( succeeded == stir::Succeeded::no )
 		throw std::runtime_error("Setup of acquisition model failed");
 
-	this->target_acquisitions_ = this->acq_model_.forward(activity_img);
+	this->sptr_target_acquisitions_ = this->acq_model_.forward(activity_img);
 
 	
 }
@@ -653,6 +657,8 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 	size_t Ny = input_dims[1];
 	size_t Nx = input_dims[0];
 	
+	
+
 	size_t const num_voxels = Nx*Ny*Nz;
 
   	std::vector < float > vol_data;
@@ -665,9 +671,14 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 
 	auto works = this->template_image_data_.get_dimensions(&template_dims[0]);
 
+	std::cout << "input dims: ( "<< input_dims[0] << ","  << input_dims[1] << "," << input_dims[2] << ")" <<std::endl;
+	std::cout << "template dims ( "<< template_dims[0] << ","  << template_dims[1] << "," << template_dims[2] << ")" <<std::endl;
+
+
 	if(works == -1)
 		throw std::runtime_error("Irregular range of dimensions in PET image data.");
 
+	std::reverse( input_dims.begin(), input_dims.end() );
 	std::reverse( template_dims.begin(), template_dims.end() );
 
 	std::vector< float > reduced_data;
@@ -677,10 +688,18 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 	for(int i = 0; i<3; i++)
 	{
 		if(input_dims[i] >= template_dims[i])
-			offsets.push_back(input_dims[i]/2 - template_dims[i]/2);
+		{
+			
+			std::cout << "input_dims " << i << " = " << input_dims[i] << std::endl;
+			std::cout << "template_dims " << i << " = " << template_dims[i] << std::endl;
+			offsets.push_back( size_t(float(input_dims[i]- template_dims[i])/2.f));
+
+		}
 		else
 			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
 	}
+	std::cout << "offsets: ( "<< offsets[0] << ","  << offsets[1] << "," << offsets[2] << ")" <<std::endl;
+
 
 	for(size_t nz = 0; nz<template_dims[2]; nz++)
 	for(size_t ny = 0; ny<template_dims[1]; ny++)

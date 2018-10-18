@@ -171,7 +171,7 @@ private:
 	sirf::PETAcquisitionModelUsingMatrix acq_model_;
 
 	sirf::PETAcquisitionDataInFile source_acquisitions_;
-	std::shared_ptr<sirf::PETAcquisitionData> target_acquisitions_;
+	std::shared_ptr<sirf::PETAcquisitionData> sptr_target_acquisitions_;
 	
 };
 
