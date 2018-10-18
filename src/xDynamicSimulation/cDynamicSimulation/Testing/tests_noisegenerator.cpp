@@ -21,7 +21,7 @@ bool test_noisegen::test_add_poisson_noise( void )
 	try
 	{
 			
-		PETAcquisitionDataInFile noise_free_acq(FILENAME_DYNSIM_PET);
+		PETAcquisitionDataInFile noise_free_acq(FILENAME_STATICSIM_PET);
 		PETAcquisitionDataInMemory noisy_acq(noise_free_acq);
 
 		PoissonNoiseGenerator png;

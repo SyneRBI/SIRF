@@ -432,7 +432,9 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 			if(case_map==CASE_MAP_PET_CONTRAST)
 				contrast_img[i_vox] = (param_in_voxel.pet_tissue_.activity_kBq_ml_ * voxel_volume_mm3 / 1000.f);						
 			else if(case_map == CASE_MAP_PET_ATTENUATION)
-				contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;						
+				{
+					contrast_img[i_vox] = param_in_voxel.pet_tissue_.attenuation_1_by_cm_;						
+				}
 		}
 	
 		pet_img_dat.set_data( &contrast_img[0] );
