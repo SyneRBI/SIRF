@@ -671,10 +671,6 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 
 	auto works = this->template_image_data_.get_dimensions(&template_dims[0]);
 
-	std::cout << "input dims: ( "<< input_dims[0] << ","  << input_dims[1] << "," << input_dims[2] << ")" <<std::endl;
-	std::cout << "template dims ( "<< template_dims[0] << ","  << template_dims[1] << "," << template_dims[2] << ")" <<std::endl;
-
-
 	if(works == -1)
 		throw std::runtime_error("Irregular range of dimensions in PET image data.");
 
@@ -688,18 +684,13 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 	for(int i = 0; i<3; i++)
 	{
 		if(input_dims[i] >= template_dims[i])
-		{
-			
-			std::cout << "input_dims " << i << " = " << input_dims[i] << std::endl;
-			std::cout << "template_dims " << i << " = " << template_dims[i] << std::endl;
 			offsets.push_back( size_t(float(input_dims[i]- template_dims[i])/2.f));
-
-		}
+	
 		else
 			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
 	}
-	std::cout << "offsets: ( "<< offsets[0] << ","  << offsets[1] << "," << offsets[2] << ")" <<std::endl;
 
+	offsets[2] = input_dims[2] - template_dims[2];
 
 	for(size_t nz = 0; nz<template_dims[2]; nz++)
 	for(size_t ny = 0; ny<template_dims[1]; ny++)
