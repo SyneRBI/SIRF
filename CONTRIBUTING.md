@@ -75,34 +75,31 @@ using [a phrase such that github auto-closes the issue when merged to master](ht
 > [...] A submodule is a repository embedded inside another repository. The
 > submodule has its own history [...]
 
-This project uses [submodules] to point to external libraries or frequently
-changed/large datasets.
+This project uses [submodules] to point to infrequently changed/large datasets.
 
-1. how to pull updates to SIRF
+1. How to pull updates to SIRF
 ```bash
 # first time
 SIRF$ git clone https://github.com/CCPPETMR/SIRF --recursive
 # subsequently
 SIRF$ git pull
 SIRF$ git submodule update --init --recursive
+# or
+SIRF$ git pull --recurse-submodules
 ```
-2. how to push updates to the submodule in SIRF
+2. How to push updates to the data submodule in SIRF
 ```bash
+SIRF$ cd data
+SIRF/data$ # create/change some files
 SIRF/data$ git commit -m "add some data" && git push && cd ..
 SIRF$ git add data && git commit -m "update submodule" && git push
 ```
-3. what happens when switching branches
-    + submodules not touched when there are conflicts/unstaged changes
-    + have to manually update (which is why `git add --all` is bad practice)
-
-### Caveats
-
-If you have made local modifications to a submodule *and committed them in the
-submodule* (first command of item (2) above) but do not want to update the link
-in SIRF, beware of:
-
-```bash
-SIRF$ git add --all # BEWARE OF THIS AND SIMILAR
-```
+3. What happens when switching branches
+    + When switching branches in SIRF, the data submodule will not be touched.
+      `git submodule update` needs to be manually run in order to ensure the
+      correct submodule commit is also checked out
+	+ WARNING: This is why `git add --all` is bad practice (if you forget to
+	  update submodules when needed, then committing all modifications will
+	  include the current wrong submodule commit)
 
 [submodules]: https://git-scm.com/docs/gitsubmodules
