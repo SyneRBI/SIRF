@@ -14,8 +14,8 @@
 #  See the License for the specific language governing permissions and
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegTransformation.cpp" "SIRFRegMat44.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"  "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"    "SIRFRegTransformation.h"   "SIRFRegMat44.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegTransformation.cpp" "SIRFRegAffineTransformation.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"    "SIRFRegTransformation.h"   "SIRFRegAffineTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")

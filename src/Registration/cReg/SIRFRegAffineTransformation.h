@@ -26,57 +26,63 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGMAT44_H_
-#define _SIRFREGMAT44_H_
+#ifndef _SIRFREGAFFINETRANSFORMATION_H_
+#define _SIRFREGAFFINETRANSFORMATION_H_
 
 #include "SIRFRegTransformation.h"
 
 namespace sirf {
-/// Class for SIRFReg transformations with an affine transformation(mat44)
-class SIRFRegMat44 : public SIRFRegTransformation
+/// Class for SIRFReg transformations with an affine transformation
+class SIRFRegAffineTransformation : public SIRFRegTransformation
 {
 public:
-    /// Print multiple SIRFRegMat44
-    static void print(const std::vector<sirf::SIRFRegMat44> &mats);
+    /// Print multiple SIRFRegAffineTransformation
+    static void print(const std::vector<sirf::SIRFRegAffineTransformation> &mats);
 
     /// Get as identity matrix
-    static SIRFRegMat44 get_identity();
+    static SIRFRegAffineTransformation get_identity();
 
     /// Default constructor
-    SIRFRegMat44();
+    SIRFRegAffineTransformation();
 
     /// Constructor
-    SIRFRegMat44(const mat44 &tm) { _tm = tm; }
+    SIRFRegAffineTransformation(const float tm[4][4]);
 
     /// Construct from file
-    SIRFRegMat44(const std::string &filename);
+    SIRFRegAffineTransformation(const std::string &filename);
+
+    /// Copy constructor
+    SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy);
+
+    /// Assignment
+    SIRFRegAffineTransformation& operator=(const SIRFRegAffineTransformation& to_copy);
 
     /// Equality operator
-    bool operator==(const SIRFRegMat44 &other) const;
+    bool operator==(const SIRFRegAffineTransformation &other) const;
 
     /// Equality operator
-    bool operator!=(const SIRFRegMat44 &other) const;
+    bool operator!=(const SIRFRegAffineTransformation &other) const;
 
     /// Multiplication operator
-    SIRFRegMat44 operator* (const SIRFRegMat44 &other) const;
+    SIRFRegAffineTransformation operator* (const SIRFRegAffineTransformation &other) const;
 
     /// Overload [] operator (const)
-    float const *operator [](int i) const { return _tm.m[i]; }
+    float const *operator [](int i) const { return _tm[i]; }
 
     /// Overload [] operator
-    float *operator [](int i) { return _tm.m[i]; }
+    float *operator [](int i) { return _tm[i]; }
 
     /// Get raw mat44
-    const mat44 &get_raw_mat44() const { return _tm; }
+    mat44 get_as_mat44() const;
 
     /// Destructor
-    virtual ~SIRFRegMat44() {}
+    virtual ~SIRFRegAffineTransformation() {}
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const;
 
     /// Deep copy
-    virtual SIRFRegMat44 deep_copy() const;
+    virtual SIRFRegAffineTransformation deep_copy() const;
 
     /// Save to file
     virtual void save_to_file(const std::string &filename) const;
@@ -88,7 +94,7 @@ public:
     void print() const;
 
 protected:
-    mat44 _tm;
+    float _tm[4][4];
 };
 }
 

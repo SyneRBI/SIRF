@@ -68,7 +68,7 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
             % nifti images and transformations).
             types = '';
             for n = 1:num_trans
-                if isa(trans(n),'mSIRFReg.Mat44')
+                if isa(trans(n),'mSIRFReg.AffineTransformation')
                     types = [types '1'];
                 elseif isa(trans(n),'mSIRFReg.NiftiImageData3DDisplacement')
                     types = [types '2'];

@@ -513,11 +513,11 @@ int main(int argc, char* argv[])
         NiftiImageData3DTensor disp_inverse = NA.get_displacement_field_inverse();
 
         // forward TM
-        SIRFRegMat44 forward_tm = NA.get_transformation_matrix_forward();
+        SIRFRegAffineTransformation forward_tm = NA.get_transformation_matrix_forward();
         forward_tm.print();
 
         // Inverse TM
-        SIRFRegMat44 inverse_tm = NA.get_transformation_matrix_inverse();
+        SIRFRegAffineTransformation inverse_tm = NA.get_transformation_matrix_inverse();
         inverse_tm.print();
 
         // Test converting disp to def
@@ -575,9 +575,9 @@ int main(int argc, char* argv[])
 
         // Affine
         std::cout << "\nTesting affine...\n";
-        SIRFRegMat44 a1;
-        SIRFRegMat44 a2(TM_forward);
-        SIRFRegMat44 a3(NA.get_transformation_matrix_forward());
+        SIRFRegAffineTransformation a1;
+        SIRFRegAffineTransformation a2(TM_forward);
+        SIRFRegAffineTransformation a3(NA.get_transformation_matrix_forward());
 
         // Displacement
         std::cout << "\nTesting displacement...\n";
@@ -592,18 +592,18 @@ int main(int argc, char* argv[])
         NiftiImageData3DDeformation b_def = b3.get_as_deformation_field(ref_aladin);
         NiftiImageData3DDeformation c_def = c3.get_as_deformation_field(ref_aladin);
         if (a_def != NA.get_deformation_field_forward())
-            throw std::runtime_error("SIRFRegMat44::get_as_deformation_field failed.");
+            throw std::runtime_error("SIRFRegAffineTransformation::get_as_deformation_field failed.");
         if (b_def != NA.get_deformation_field_forward())
             throw std::runtime_error("NiftiImageData3DDisplacement::get_as_deformation_field failed.");
         if (c_def != NA.get_deformation_field_forward())
             throw std::runtime_error("NiftiImageData3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-        SIRFRegMat44 tm_iden = SIRFRegMat44::get_identity();
-        SIRFRegMat44 trans_aff_iden(tm_iden);
+        SIRFRegAffineTransformation tm_iden = SIRFRegAffineTransformation::get_identity();
+        SIRFRegAffineTransformation trans_aff_iden(tm_iden);
         std::vector<std::shared_ptr<SIRFRegTransformation> > vec;
-        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegMat44(trans_aff_iden)));
-        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegMat44(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegAffineTransformation(trans_aff_iden)));
+        vec.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegAffineTransformation(trans_aff_iden)));
         vec.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImageData3DDeformation(c3)));
         NiftiImageData3DDeformation composed =
                 NiftiImageData3DDeformation::compose_single_deformation(vec, ref_aladin);
@@ -620,9 +620,9 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty resample test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        SIRFRegMat44 tm_eye = SIRFRegMat44::get_identity();
-        SIRFRegMat44 tm_iden(tm_eye);
-        SIRFRegMat44 tm(NA.get_transformation_matrix_forward());
+        SIRFRegAffineTransformation tm_eye = SIRFRegAffineTransformation::get_identity();
+        SIRFRegAffineTransformation tm_iden(tm_eye);
+        SIRFRegAffineTransformation tm(NA.get_transformation_matrix_forward());
         NiftiImageData3DDisplacement disp(NA.get_displacement_field_forward());
         NiftiImageData3DDeformation deff(NA.get_deformation_field_forward());
 
@@ -751,25 +751,25 @@ int main(int argc, char* argv[])
 
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting SIRFRegMat44 test...\n";
+        std::cout << "//                  Starting SIRFRegAffineTransformation test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Construct from file
-        SIRFRegMat44 a(TM_forward);
+        SIRFRegAffineTransformation a(TM_forward);
 
         // Multiply forward and inverse, should equal identity
-        SIRFRegMat44 b = NA.get_transformation_matrix_forward();
-        SIRFRegMat44 c = NA.get_transformation_matrix_inverse();
-        SIRFRegMat44 d = b * c;
-        SIRFRegMat44 e = SIRFRegMat44::get_identity();
+        SIRFRegAffineTransformation b = NA.get_transformation_matrix_forward();
+        SIRFRegAffineTransformation c = NA.get_transformation_matrix_inverse();
+        SIRFRegAffineTransformation d = b * c;
+        SIRFRegAffineTransformation e = SIRFRegAffineTransformation::get_identity();
         if (d != e)
-            throw std::runtime_error("SIRFRegMat44::mult/comparison failed.");
+            throw std::runtime_error("SIRFRegAffineTransformation::mult/comparison failed.");
 
         if (e.get_determinant() - 1.F > 1.e-7F)
-            throw std::runtime_error("SIRFRegMat44::get_determinant failed.");
+            throw std::runtime_error("SIRFRegAffineTransformation::get_determinant failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished SIRFRegMat44 test.\n";
+        std::cout << "//                  Finished SIRFRegAffineTransformation test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

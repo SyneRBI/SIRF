@@ -33,7 +33,7 @@ limitations under the License.
 #include "SIRFRegTransformation.h"
 #include "NiftiImageData3DDeformation.h"
 #include "NiftiImageData3DDisplacement.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include <_reg_tools.h>
 #include <_reg_globalTrans.h>
 #include <_reg_localTrans.h>
@@ -215,10 +215,11 @@ template bool do_nifti_image_metadata_elements_match<float> (const std::string &
 
 bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2)
 {
-    if(SIRFRegMat44(elem1)==SIRFRegMat44(elem2))
+    SIRFRegAffineTransformation e1(elem1.m), e2(elem2.m);
+    if(e1 == e2)
         return true;
     std::cout << "mismatch in " << name << "\n";
-    SIRFRegMat44::print({elem1, elem2});
+    SIRFRegAffineTransformation::print({e1, e2});
     std::cout << "\n";
     return false;
 }
@@ -288,21 +289,21 @@ void dump_headers(const std::vector<NiftiImageData> &ims)
         images.push_back(ims[i].get_raw_nifti_sptr());
 
     // Print transformation matrices
-    std::vector<SIRFRegMat44> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    std::vector<SIRFRegAffineTransformation> qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
     for(unsigned j=0; j<images.size(); j++) {
-        qto_ijk_vec.push_back(images[j]->qto_ijk);
-        qto_xyz_vec.push_back(images[j]->qto_xyz);
-        sto_ijk_vec.push_back(images[j]->sto_ijk);
-        sto_xyz_vec.push_back(images[j]->sto_xyz);
+        qto_ijk_vec.push_back(images[j]->qto_ijk.m);
+        qto_xyz_vec.push_back(images[j]->qto_xyz.m);
+        sto_ijk_vec.push_back(images[j]->sto_ijk.m);
+        sto_xyz_vec.push_back(images[j]->sto_xyz.m);
     }
     std::cout << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
-    SIRFRegMat44::print(qto_ijk_vec);
+    SIRFRegAffineTransformation::print(qto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
-    SIRFRegMat44::print(qto_xyz_vec);
+    SIRFRegAffineTransformation::print(qto_xyz_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
-    SIRFRegMat44::print(sto_ijk_vec);
+    SIRFRegAffineTransformation::print(sto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
-    SIRFRegMat44::print(sto_xyz_vec);
+    SIRFRegAffineTransformation::print(sto_xyz_vec);
 
     // Print min
     std::string min_header = "min: ";

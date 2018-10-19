@@ -70,13 +70,13 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image(void* pt
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_process(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_get_identity();
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegMat44_equal(const void* mat1_ptr, const void* mat2_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_identity();
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 #ifndef CSIRFREG_FOR_MATLAB
 }
 #endif

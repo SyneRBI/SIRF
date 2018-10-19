@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "NiftiImageData3D.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
@@ -168,16 +168,16 @@ bool NiftiImageData3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D
     }
 
     // Check qto_xyz
-    SIRFRegMat44 qto_xyz(_nifti_image->qto_xyz);
-    SIRFRegMat44 stir_qto_xyz;
+    SIRFRegAffineTransformation qto_xyz(_nifti_image->qto_xyz.m);
+    SIRFRegAffineTransformation stir_qto_xyz;
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             stir_qto_xyz[i][j] = tm[i][j];
     bool ok_qto_xyz = (stir_qto_xyz == qto_xyz);
     if (!ok_qto_xyz) {
         std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
-        std::vector<SIRFRegMat44> mats = {stir_qto_xyz, qto_xyz};
-        SIRFRegMat44::print(mats);
+        std::vector<SIRFRegAffineTransformation> mats = {stir_qto_xyz, qto_xyz};
+        SIRFRegAffineTransformation::print(mats);
     }
 
     // Return if everything is ok or not.

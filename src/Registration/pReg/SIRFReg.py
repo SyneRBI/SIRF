@@ -538,7 +538,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         # nifti images and transformations).
         types = ''
         for n in trans:
-            if isinstance(n, Mat44):
+            if isinstance(n, AffineTransformation):
                 types += '1'
             elif isinstance(n, NiftiImageData3DDisplacement):
                 types += '2'
@@ -655,7 +655,7 @@ class NiftyAladinSym(_SIRFReg):
         """Get forward transformation matrix."""
         if self.handle is None:
             raise AssertionError()
-        tm = Mat44()
+        tm = AffineTransformation()
         tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'forward')
         return tm
 
@@ -663,7 +663,7 @@ class NiftyAladinSym(_SIRFReg):
         """Get inverse transformation matrix."""
         if self.handle is None:
             raise AssertionError()
-        tm = Mat44()
+        tm = AffineTransformation()
         tm.handle = pysirfreg.cSIRFReg_SIRFReg_get_TM(self.handle, 'inverse')
         return tm
 
@@ -691,7 +691,7 @@ class NiftyF3dSym(_SIRFReg):
 
     def set_initial_affine_transformation(self, src):
         """Set initial affine transformation."""
-        if not isinstance(src, Mat44):
+        if not isinstance(src, AffineTransformation):
             raise AssertionError()
         _setParameter_sirf(self.handle, self.name, 'initial_affine_transformation', src.handle)
 
@@ -723,7 +723,7 @@ class NiftyResample:
 
     def add_transformation_affine(self, src):
         """Add affine transformation."""
-        if not isinstance(src, Mat44):
+        if not isinstance(src, AffineTransformation):
             raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
 
@@ -808,13 +808,13 @@ class ImageWeightedMean:
         return image
 
 
-class Mat44(_Transformation):
+class AffineTransformation(_Transformation):
     """
     Class for affine transformations.
     """
     def __init__(self, src=None):
         self.handle = None
-        self.name = 'SIRFRegMat44'
+        self.name = 'SIRFRegAffineTransformation'
         if src is None:
             self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         elif isinstance(src, str):
@@ -822,7 +822,7 @@ class Mat44(_Transformation):
         elif isinstance(src, numpy.ndarray):
             if src.shape != (4, 4):
                 raise AssertionError()
-            self.handle = pysirfreg.cSIRFReg_SIRFRegMat44_construct_from_TM(src.ctypes.data)
+            self.handle = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(src.ctypes.data)
         else:
             raise error('Wrong source in affine transformation constructor')
         check_status(self.handle)
@@ -833,9 +833,9 @@ class Mat44(_Transformation):
 
     def __eq__(self, other):
         """Overload comparison operator."""
-        if not isinstance(other, Mat44):
+        if not isinstance(other, AffineTransformation):
             raise AssertionError()
-        h = pysirfreg.cSIRFReg_SIRFRegMat44_equal(self.handle, other.handle)
+        h = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_equal(self.handle, other.handle)
         check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
@@ -847,10 +847,10 @@ class Mat44(_Transformation):
 
     def __mul__(self, other):
         """Overload multiplication operator."""
-        if not isinstance(other, Mat44):
+        if not isinstance(other, AffineTransformation):
             raise AssertionError()
-        mat = Mat44()
-        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_mul(self.handle, other.handle)
+        mat = AffineTransformation()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_mul(self.handle, other.handle)
         check_status(mat.handle)
         return mat
 
@@ -858,8 +858,8 @@ class Mat44(_Transformation):
         """Deep copy."""
         if self.handle is None:
             raise AssertionError()
-        mat = Mat44()
-        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_deep_copy(self.handle)
+        mat = AffineTransformation()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_deep_copy(self.handle)
         check_status(mat.handle)
         return mat
 
@@ -867,7 +867,7 @@ class Mat44(_Transformation):
         """Save to file."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_save_to_file(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegAffineTransformation_save_to_file(self.handle, filename))
 
     def get_determinant(self):
         """Get determinant."""
@@ -878,12 +878,12 @@ class Mat44(_Transformation):
         if self.handle is None:
             raise AssertionError()
         tm = numpy.ndarray((4, 4), dtype=numpy.float32)
-        try_calling(pysirfreg.cSIRFReg_SIRFRegMat44_as_array(self.handle, tm.ctypes.data))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegAffineTransformation_as_array(self.handle, tm.ctypes.data))
         return tm
 
     @staticmethod
     def get_identity():
         """Get identity matrix."""
-        mat = Mat44()
-        mat.handle = pysirfreg.cSIRFReg_SIRFRegMat44_get_identity()
+        mat = AffineTransformation()
+        mat.handle = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_get_identity()
         return mat

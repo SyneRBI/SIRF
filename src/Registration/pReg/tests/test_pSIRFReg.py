@@ -548,7 +548,7 @@ def try_niftyf3d():
     time.sleep(0.5)
 
     # Get initial transformation
-    tm_init = pSIRFReg.Mat44(TM_forward)
+    tm_init = pSIRFReg.AffineTransformation(TM_forward)
 
     # default constructor
     nf = pSIRFReg.NiftyF3dSym()
@@ -605,7 +605,7 @@ def try_transformations(na):
         raise AssertionError()
 
     # Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-    tm_iden = pSIRFReg.Mat44.get_identity()
+    tm_iden = pSIRFReg.AffineTransformation.get_identity()
     trans = [tm_iden, tm_iden, c3]
     composed = pSIRFReg.NiftiImageData3DDeformation.compose_single_deformation(trans, ref_aladin)
     if composed != na.get_deformation_field_forward():
@@ -626,7 +626,7 @@ def try_resample(na):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    tm_iden = pSIRFReg.Mat44.get_identity()
+    tm_iden = pSIRFReg.AffineTransformation.get_identity()
     tm      = na.get_transformation_matrix_forward()
     disp    = na.get_displacement_field_forward()
     deff    = na.get_deformation_field_forward()
@@ -762,16 +762,16 @@ def try_stir_to_sirfreg():
     time.sleep(0.5)
 
 
-# SIRFRegMat44
-def try_sirfregmat44(na):
+# SIRFRegAffineTransformation
+def try_sirfregAffineTransformation(na):
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting SIRFRegMat44 test...\n')
+    sys.stderr.write('#                             Starting SIRFRegAffineTransformation test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
     # Construct from file
-    a = pSIRFReg.Mat44(TM_forward)
+    a = pSIRFReg.AffineTransformation(TM_forward)
     if a.handle is None:
         raise AssertionError()
 
@@ -779,16 +779,16 @@ def try_sirfregmat44(na):
     b = na.get_transformation_matrix_forward()
     c = na.get_transformation_matrix_inverse()
     d = b * c
-    e = pSIRFReg.Mat44.get_identity()
+    e = pSIRFReg.AffineTransformation.get_identity()
     if d != e:
-        raise AssertionError('SIRFRegMat44::mult/comparison failed.')
+        raise AssertionError('SIRFRegAffineTransformation::mult/comparison failed.')
 
     if e.get_determinant() - 1. > 1.e-7:
-        raise AssertionError('SIRFRegMat44::get_determinant failed.')
+        raise AssertionError('SIRFRegAffineTransformation::get_determinant failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished SIRFRegMat44 test.\n')
+    sys.stderr.write('#                             Finished SIRFRegAffineTransformation test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
@@ -805,7 +805,7 @@ def test():
     try_resample(na)
     try_weighted_mean(na)
     try_stir_to_sirfreg()
-    try_sirfregmat44(na)
+    try_sirfregAffineTransformation(na)
 
 
 if __name__ == "__main__":

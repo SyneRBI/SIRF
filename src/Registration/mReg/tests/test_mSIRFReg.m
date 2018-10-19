@@ -451,7 +451,7 @@ function try_niftyf3d(g)
 	disp('%------------------------------------------------------------------------ %')
 
     % Get initial transformation
-    tm_init = mSIRFReg.Mat44(g.TM_forward);
+    tm_init = mSIRFReg.AffineTransformation(g.TM_forward);
 
 	% default constructor
     nf = mSIRFReg.NiftyF3dSym();
@@ -501,7 +501,7 @@ function try_transformations(g,na)
     assert(c_def == na.get_deformation_field_forward(), 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
 
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-    tm_iden = mSIRFReg.Mat44.get_identity();
+    tm_iden = mSIRFReg.AffineTransformation.get_identity();
     trans = [tm_iden, tm_iden, c3];
     composed = mSIRFReg.NiftiImageData3DDeformation.compose_single_deformation(trans, g.ref_aladin);
     assert(composed == na.get_deformation_field_forward(), 'compose_single_deformation failed.')
@@ -517,7 +517,7 @@ function try_resample(g,na)
     disp('%                  Starting Nifty resample test...')
     disp('%------------------------------------------------------------------------ %')
 
-	tm_iden = mSIRFReg.Mat44.get_identity();
+	tm_iden = mSIRFReg.AffineTransformation.get_identity();
     tm      = na.get_transformation_matrix_forward();
     displ   = na.get_displacement_field_forward();
     deff    = na.get_deformation_field_forward();
@@ -640,24 +640,24 @@ function try_stir_to_sirfreg(g)
     disp('%------------------------------------------------------------------------ %')
 end
 
-function try_sirfregmat44(g,na)
+function try_sirfregAffineTransformation(g,na)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting SIRFRegMat44 test...')
+    disp('%                  Starting SIRFRegAffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
 
     % Construct from file
-    a = mSIRFReg.Mat44(TM_forward);
+    a = mSIRFReg.AffineTransformation(TM_forward);
 
     % Multiply forward and inverse, should equal identity
     b = na.get_transformation_matrix_forward();
     c = na.get_transformation_matrix_inverse();
     d = b * c;
-    e = mSIRFReg.Mat44.get_identity();
-    assert(d == e, 'SIRFRegMat44::mult/comparison failed.');
+    e = mSIRFReg.AffineTransformation.get_identity();
+    assert(d == e, 'SIRFRegAffineTransformation::mult/comparison failed.');
 
-    assert(e.get_determinant() - 1. < 1.e-7, 'SIRFRegMat44::get_determinant failed.');
+    assert(e.get_determinant() - 1. < 1.e-7, 'SIRFRegAffineTransformation::get_determinant failed.');
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished SIRFRegMat44 test.')
+    disp('%                  Finished SIRFRegAffineTransformation test.')
     disp('%------------------------------------------------------------------------ %')
 end

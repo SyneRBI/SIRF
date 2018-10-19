@@ -1,4 +1,4 @@
-classdef Mat44 < mSIRFReg.Transformation
+classdef AffineTransformation < mSIRFReg.Transformation
 % Class for affine transformations.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -24,13 +24,13 @@ classdef Mat44 < mSIRFReg.Transformation
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegMat44';
+            name = 'SIRFRegAffineTransformation';
         end
     end
     methods
-        function self = Mat44(src)
+        function self = AffineTransformation(src)
             narginchk(0,1)
-            self.name = 'SIRFRegMat44';
+            self.name = 'SIRFRegAffineTransformation';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mSIRFReg_newObject', self.name);
             elseif ischar(src)
@@ -38,9 +38,9 @@ classdef Mat44 < mSIRFReg.Transformation
             elseif isnumeric(src)
                 assert(all(size(src)==[4, 4]))
                 ptr_v = libpointer('singlePtr', single(src));
-                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_construct_from_TM', ptr_v);
+                self.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_construct_from_TM', ptr_v);
             else
-                error('Mat44 accepts no args, filename or 4x4 array.')
+                error('AffineTransformation accepts no args, filename or 4x4 array.')
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -52,9 +52,9 @@ classdef Mat44 < mSIRFReg.Transformation
         end
         function value = eq(self, other)
             %Overload comparison operator.
-            assert(isa(other, 'mSIRFReg.Mat44'))
-            handle = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_equal', self.handle_, other.handle_);
-            mUtilities.check_status('SIRFRegMat44:eq', handle);
+            assert(isa(other, 'mSIRFReg.AffineTransformation'))
+            handle = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_equal', self.handle_, other.handle_);
+            mUtilities.check_status('SIRFRegAffineTransformation:eq', handle);
             value = logical(calllib('miutilities', 'mIntDataFromHandle', handle));
             mUtilities.delete(handle)
         end
@@ -64,22 +64,22 @@ classdef Mat44 < mSIRFReg.Transformation
         end
         function mat = mtimes(self, other)
             %Overload multiplication operator.
-            assert(isa(other, 'mSIRFReg.Mat44'))
-            mat = mSIRFReg.Mat44();
-            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_equal', self.handle_, other.handle_);
-            mUtilities.check_status('SIRFRegMat44:mtimes', mat);
+            assert(isa(other, 'mSIRFReg.AffineTransformation'))
+            mat = mSIRFReg.AffineTransformation();
+            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_equal', self.handle_, other.handle_);
+            mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
         end
 
         function mat = deep_copy(self)
             %Deep copy.
-            mat = mSIRFReg.Mat44();
-            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_deep_copy', self.handle_);
-            mUtilities.check_status('SIRFRegMat44:mtimes', mat);
+            mat = mSIRFReg.AffineTransformation();
+            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_deep_copy', self.handle_);
+            mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
         end
 
         function save_to_file(self, filename)
             %Save to file.
-            calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_save_to_file', self.handle_, filename);
+            calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_save_to_file', self.handle_, filename);
         end
         function value = get_determinant(self)
             %Get determinant.
@@ -88,15 +88,15 @@ classdef Mat44 < mSIRFReg.Transformation
         function tm = as_array(self)
             %Get forward transformation matrix.
             ptr_v = libpointer('singlePtr', zeros(4, 4));
-            calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_as_array', self.handle_, ptr_v);
+            calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_as_array', self.handle_, ptr_v);
             tm = ptr_v.Value;
         end    
     end
     methods(Static)
         function mat = get_identity()
             %Get identity matrix.
-            mat = mSIRFReg.Mat44();
-            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegMat44_get_identity');
+            mat = mSIRFReg.AffineTransformation();
+            mat.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_get_identity');
         end
     end
 end

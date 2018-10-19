@@ -30,7 +30,7 @@ limitations under the License.
 #include <iostream>
 #include "NiftiImageData3DDisplacement.h"
 #include "NiftiImageData3DDeformation.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 
 using namespace sirf;
 
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         // Open the transformation matrix
-        SIRFRegMat44 TM(TM_filename);
+        SIRFRegAffineTransformation TM(TM_filename);
 
         // Create images
 

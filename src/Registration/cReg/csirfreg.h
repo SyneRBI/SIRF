@@ -91,14 +91,14 @@ extern "C" {
     // SIRFRegTransformation
     void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 
-    // SIRFRegMat44
-    void* cSIRFReg_SIRFRegMat44_construct_from_TM(PTR_FLOAT ptr_TM);
-    void* cSIRFReg_SIRFRegMat44_deep_copy(const void* ptr);
-    void* cSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename);
-    void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, PTR_FLOAT ptr_TM);
-    void* cSIRFReg_SIRFRegMat44_get_identity();
-    void* cSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr);
-    void* cSIRFReg_SIRFRegMat44_equal(const void* mat1_ptr, const void* mat2_ptr);
+    // SIRFRegAffineTransformation
+    void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
+    void* cSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
+    void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+    void* cSIRFReg_SIRFRegAffineTransformation_get_identity();
+    void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
+    void* cSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 
 #ifndef CSIRFREG_FOR_MATLAB
 }

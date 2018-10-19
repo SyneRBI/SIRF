@@ -27,15 +27,39 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include "NiftiImageData3DDeformation.h"
-#include <_reg_ReadWriteMatrix.h>
 #include <_reg_globalTrans.h>
 #include <iomanip>
 
 using namespace sirf;
 
-void SIRFRegMat44::print(const std::vector<SIRFRegMat44> &mats)
+SIRFRegAffineTransformation::SIRFRegAffineTransformation(const float tm[4][4])
+{
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            _tm[i][j] = tm[i][j];
+}
+
+SIRFRegAffineTransformation::SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy)
+{
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            _tm[i][j] = to_copy._tm[i][j];
+}
+
+SIRFRegAffineTransformation& SIRFRegAffineTransformation::operator=(const SIRFRegAffineTransformation& to_copy)
+{
+    // check for self-assignment
+    if (this != &to_copy) {
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                _tm[i][j] = to_copy._tm[i][j];
+    }
+    return *this;
+}
+
+void SIRFRegAffineTransformation::print(const std::vector<SIRFRegAffineTransformation> &mats)
 {
     for(int i=0;i<4;i++) {
         std::cout << "\t" << std::left << std::setw(19) << "";
@@ -52,53 +76,63 @@ void SIRFRegMat44::print(const std::vector<SIRFRegMat44> &mats)
     }
 }
 
-SIRFRegMat44 SIRFRegMat44::get_identity()
+SIRFRegAffineTransformation SIRFRegAffineTransformation::get_identity()
 {
-    SIRFRegMat44 res;
+    SIRFRegAffineTransformation res;
     for (int i=0; i<4; ++i)
         res[i][i] = 1.F;
     return res;
 }
 
-SIRFRegMat44::SIRFRegMat44()
+SIRFRegAffineTransformation::SIRFRegAffineTransformation()
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             (*this)[i][j] = 0.F;
 }
 
-SIRFRegMat44::SIRFRegMat44(const std::string &filename)
+SIRFRegAffineTransformation::SIRFRegAffineTransformation(const std::string &filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename))
         throw std::runtime_error("Cannot find the file: " + filename + ".");
 
     std::cout << "\n\nReading transformation matrix from file...\n\n";
-    reg_tool_ReadAffineFile(&_tm, const_cast<char*>(filename.c_str()));
+
+    try{
+        std::ifstream file(filename);
+        for (int i=0; i<4; ++i)
+            for (int j=0; j<4; ++j)
+                file >> _tm[i][j];
+    }
+    catch (...) {
+        throw std::runtime_error("Failed reading affine matrix (" + filename + ").\n\t");
+    }
+
     std::cout << "\n\nSuccessfully read transformation matrix from file:\n";
 
     this->print();
 }
 
-bool SIRFRegMat44::operator==(const SIRFRegMat44 &other) const
+bool SIRFRegAffineTransformation::operator==(const SIRFRegAffineTransformation &other) const
 {
     if (this == &other)
         return true;
     for (int i=0; i<4; i++)
         for (int j=0; j<4; j++)
-            if( fabs(_tm.m[j][i] - other._tm.m[j][i]) > 1.e-5F )
+            if( fabs(_tm[j][i] - other._tm[j][i]) > 1.e-5F )
                 return false;
     return true;
 }
 
 /// Equality operator
-bool SIRFRegMat44::operator!=(const SIRFRegMat44 &other) const
+bool SIRFRegAffineTransformation::operator!=(const SIRFRegAffineTransformation &other) const
 {
     return !(*this == other);
 }
 
-/// Mat44 multiplier
-SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
+/// Multiply matrices
+SIRFRegAffineTransformation SIRFRegAffineTransformation::operator* (const SIRFRegAffineTransformation &other) const
 {
     // Print info
     std::cout << "\nMultiplying two matrices...\n";
@@ -108,7 +142,7 @@ SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
     other.print();
 
     // Create result, set to zero
-    SIRFRegMat44 res;
+    SIRFRegAffineTransformation res;
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++)
             for (int k=0;k<4;k++)
@@ -120,41 +154,56 @@ SIRFRegMat44 SIRFRegMat44::operator* (const SIRFRegMat44 &other) const
     return res;
 }
 
-NiftiImageData3DDeformation SIRFRegMat44::get_as_deformation_field(const NiftiImageData3D &ref) const
+mat44 SIRFRegAffineTransformation::get_as_mat44() const
+{
+    mat44 tm;
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            tm.m[i][j] = _tm[i][j];
+    return tm;
+}
+
+NiftiImageData3DDeformation SIRFRegAffineTransformation::get_as_deformation_field(const NiftiImageData3D &ref) const
 {
     NiftiImageData3DDeformation def;
     def.create_from_3D_image(ref);
-    mat44 temp = _tm; // Need temp as the following isn't marked const
-    reg_affine_getDeformationField(&temp, def.get_raw_nifti_sptr().get());
+    mat44 mat = this->get_as_mat44();
+    reg_affine_getDeformationField(&mat, def.get_raw_nifti_sptr().get());
     def.get_raw_nifti_sptr()->intent_p1 = DEF_FIELD;
     return def;
 }
 
-SIRFRegMat44 SIRFRegMat44::deep_copy() const
+SIRFRegAffineTransformation SIRFRegAffineTransformation::deep_copy() const
 {
-    SIRFRegMat44 temp(_tm);
+    SIRFRegAffineTransformation temp;
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            temp[i][j] = _tm[i][j];
     return temp;
 }
 
 /// Save transformation matrix to file
-void SIRFRegMat44::save_to_file(const std::string &filename) const
+void SIRFRegAffineTransformation::save_to_file(const std::string &filename) const
 {
     // Check that input isn't blank
     if (filename.empty())
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
-    // Need to copy the tm, since the function is not marked const
-    mat44 temp = _tm;
-    reg_tool_WriteAffineFile(&temp, filename.c_str());
+
+    FILE *file;
+    file=fopen(filename.c_str(), "w");
+    for(int i=0; i<4; i++)
+        fprintf(file, "%.7F %.7F %.7F %.7F\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
+    fclose(file);
 }
 
-float SIRFRegMat44::get_determinant() const
+float SIRFRegAffineTransformation::get_determinant() const
 {
-    return  _tm.m[0][0]*(_tm.m[1][1]*_tm.m[2][2] - _tm.m[2][1]*_tm.m[1][2]) -
-            _tm.m[0][1]*(_tm.m[1][0]*_tm.m[2][2] - _tm.m[2][0]*_tm.m[1][2]) +
-            _tm.m[0][2]*(_tm.m[1][0]*_tm.m[2][1] - _tm.m[2][0]*_tm.m[1][1]);
+    return  _tm[0][0]*(_tm[1][1]*_tm[2][2] - _tm[2][1]*_tm[1][2]) -
+            _tm[0][1]*(_tm[1][0]*_tm[2][2] - _tm[2][0]*_tm[1][2]) +
+            _tm[0][2]*(_tm[1][0]*_tm[2][1] - _tm[2][0]*_tm[1][1]);
 }
 
-void SIRFRegMat44::print() const
+void SIRFRegAffineTransformation::print() const
 {
-    SIRFRegMat44::print({*this});
+    SIRFRegAffineTransformation::print({*this});
 }

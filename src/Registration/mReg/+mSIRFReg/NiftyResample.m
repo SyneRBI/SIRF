@@ -51,7 +51,7 @@ classdef NiftyResample < handle
         end
         function add_transformation_affine(self, src)
             %Set transformation matrix.
-            assert(isa(src, 'mSIRFReg.Mat44'), 'NiftyResample::add_transformation_affine expects Mat44.')
+            assert(isa(src, 'mSIRFReg.AffineTransformation'), 'NiftyResample::add_transformation_affine expects AffineTransformation.')
             h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
         end
 

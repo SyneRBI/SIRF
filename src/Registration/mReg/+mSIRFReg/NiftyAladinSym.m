@@ -37,13 +37,13 @@ classdef NiftyAladinSym < mSIRFReg.SIRFReg
         end
         function tm = get_transformation_matrix_forward(self)
             %Get forward transformation matrix.
-            tm = mSIRFReg.Mat44();
+            tm = mSIRFReg.AffineTransformation();
             tm.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, 'forward');
             mUtilities.check_status([self.name ':get_transformation_matrix_forward'], tm.handle_);
         end
         function tm = get_transformation_matrix_inverse(self)
             %Get inverse transformation matrix.
-            tm = mSIRFReg.Mat44();
+            tm = mSIRFReg.AffineTransformation();
             tm.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFReg_get_TM', self.handle_, 'inverse');
             mUtilities.check_status([self.name ':get_transformation_matrix_inverse'], tm.handle_);
         end

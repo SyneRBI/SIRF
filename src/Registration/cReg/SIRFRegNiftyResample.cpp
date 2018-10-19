@@ -32,7 +32,7 @@ limitations under the License.
 #include "NiftiImageData3DTensor.h"
 #include "NiftiImageData3DDeformation.h"
 #include "NiftiImageData3DDisplacement.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include <_reg_resampling.h>
 #include <_reg_globalTrans.h>
 #include <_reg_tools.h>
@@ -40,9 +40,9 @@ limitations under the License.
 
 using namespace sirf;
 
-void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegMat44 &affine)
+void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegAffineTransformation &affine)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegMat44(affine.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegAffineTransformation(affine.deep_copy())));
 }
 
 void SIRFRegNiftyResample::add_transformation_disp(const NiftiImageData3DDisplacement &disp)

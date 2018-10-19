@@ -45,7 +45,7 @@ classdef NiftyF3dSym < mSIRFReg.SIRFReg
         end
         function set_initial_affine_transformation(self, src)
             %Set initial affine transformation.
-            assert(isa(src, 'mSIRFReg.Mat44'))
+            assert(isa(src, 'mSIRFReg.AffineTransformation'))
             mSIRFReg.setParameter(self.handle_, self.name, 'initial_affine_transformation', src, 'h');
         end
     end

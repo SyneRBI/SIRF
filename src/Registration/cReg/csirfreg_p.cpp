@@ -143,7 +143,7 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
     else if (boost::iequals(name, "reference_time_point"))
         s.set_reference_time_point(intDataFromHandle(hv));
     else if (boost::iequals(name, "initial_affine_transformation")) {
-        const SIRFRegMat44& mat = objectFromHandle<const SIRFRegMat44>(hv);
+        const SIRFRegAffineTransformation& mat = objectFromHandle<const SIRFRegAffineTransformation>(hv);
         s.set_initial_affine_transformation(mat);
     }
     else
@@ -198,18 +198,18 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 }
 
 // ------------------------------------------------------------------------------------ //
-//   SIRFRegMat44
+//   SIRFRegAffineTransformation
 // ------------------------------------------------------------------------------------ //
 // get
 void*
-sirf::cSIRFReg_SIRFRegMat44Parameter(const DataHandle* handle, const char* name)
+sirf::cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name)
 {
-    SIRFRegMat44& s = objectFromHandle<SIRFRegMat44>(handle);
+    SIRFRegAffineTransformation& s = objectFromHandle<SIRFRegAffineTransformation>(handle);
     if (boost::iequals(name, "determinant")) {
         return dataHandle<float>(s.get_determinant());
     }
     if (boost::iequals(name, "identity")) {
-        shared_ptr<SIRFRegMat44> sptr_id(new SIRFRegMat44(SIRFRegMat44::get_identity()));
+        shared_ptr<SIRFRegAffineTransformation> sptr_id(new SIRFRegAffineTransformation(SIRFRegAffineTransformation::get_identity()));
         return newObjectHandle(sptr_id);
     }
     else

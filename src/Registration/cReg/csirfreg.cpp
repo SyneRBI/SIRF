@@ -31,7 +31,7 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
 #include "SIRFRegTransformation.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include "stir_data_containers.h"
 
 using namespace stir;
@@ -74,8 +74,8 @@ void* cSIRFReg_newObject(const char* name)
             return newObjectHandle<SIRFRegNiftyResample>();
         if (boost::iequals(name, "SIRFRegImageWeightedMean"))
             return newObjectHandle<SIRFRegImageWeightedMean>();
-        if (boost::iequals(name, "SIRFRegMat44"))
-            return newObjectHandle<SIRFRegMat44>();
+        if (boost::iequals(name, "SIRFRegAffineTransformation"))
+            return newObjectHandle<SIRFRegAffineTransformation>();
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -114,8 +114,8 @@ void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name)
             return cSIRFReg_SIRFRegNiftyResampleParameter(handle, name);
         if (boost::iequals(obj, "SIRFRegImageWeightedMean"))
             return cSIRFReg_SIRFRegImageWeightedMeanParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegMat44"))
-            return cSIRFReg_SIRFRegMat44Parameter(handle, name);
+        if (boost::iequals(obj, "SIRFRegAffineTransformation"))
+            return cSIRFReg_SIRFRegAffineTransformationParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -151,9 +151,9 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
                 sptr(new NiftiImageData3DDeformation(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "SIRFRegMat44")) {
-            shared_ptr<SIRFRegMat44>
-                sptr(new SIRFRegMat44(filename));
+        if (boost::iequals(name, "SIRFRegAffineTransformation")) {
+            shared_ptr<SIRFRegAffineTransformation>
+                sptr(new SIRFRegAffineTransformation(filename));
             return newObjectHandle(sptr);
         }
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -413,7 +413,7 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
         std::vector<SIRFRegTransformation*> trans_vec;
         for (int i=0; i<num_elements; ++i)
             if      (types[i] == '1')
-                trans_vec.push_back(&objectFromHandle<SIRFRegMat44>(vec.at(i)));
+                trans_vec.push_back(&objectFromHandle<SIRFRegAffineTransformation>(vec.at(i)));
             else if (types[i] == '2')
                 trans_vec.push_back(&objectFromHandle<NiftiImageData3DDisplacement>(vec.at(i)));
             else if (types[i] == '3')
@@ -502,11 +502,11 @@ void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
 {
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
-        shared_ptr<SIRFRegMat44> sptr;
+        shared_ptr<SIRFRegAffineTransformation> sptr;
         if (strcmp(dir, "forward") == 0)
-            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_forward().deep_copy()));
+            sptr.reset(new SIRFRegAffineTransformation(reg.get_transformation_matrix_forward().deep_copy()));
         else if (strcmp(dir, "inverse") == 0)
-            sptr.reset(new SIRFRegMat44(reg.get_transformation_matrix_inverse().deep_copy()));
+            sptr.reset(new SIRFRegAffineTransformation(reg.get_transformation_matrix_inverse().deep_copy()));
         else
             throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
         return newObjectHandle(sptr);
@@ -522,7 +522,7 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
     try {
         SIRFRegNiftyResample& res = objectFromHandle<SIRFRegNiftyResample>(self);
         if (strcmp(type, "affine") == 0)
-            res.add_transformation_affine(objectFromHandle<SIRFRegMat44>(trans));
+            res.add_transformation_affine(objectFromHandle<SIRFRegAffineTransformation>(trans));
         else if (strcmp(type, "displacement") == 0)
             res.add_transformation_disp(objectFromHandle<NiftiImageData3DDisplacement>(trans));
         else if (strcmp(type, "deformation") == 0)
@@ -587,8 +587,8 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
     try {
         SIRFRegTransformation *trans;
 
-        if (strcmp(name,"SIRFRegMat44") == 0)
-            trans = &objectFromHandle<SIRFRegMat44>(ptr);
+        if (strcmp(name,"SIRFRegAffineTransformation") == 0)
+            trans = &objectFromHandle<SIRFRegAffineTransformation>(ptr);
         else if (strcmp(name,"NiftiImageData3DDisplacement") == 0)
             trans = &objectFromHandle<NiftiImageData3DDisplacement>(ptr);
         else if (strcmp(name,"NiftiImageData3DDeformation") == 0)
@@ -605,49 +605,49 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFRegMat44
+//      SIRFRegAffineTransformation
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_SIRFRegMat44_construct_from_TM(size_t ptr_TM)
+void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
 {
     try {
         float* TM = (float*)ptr_TM;
-        mat44 trans_m;
+
+        SIRFRegAffineTransformation trans;
         for (int i=0; i<4; ++i)
             for (int j=0; j<4; ++j)
-                trans_m.m[i][j] = TM[i+j*4];
+                trans[i][j] = TM[i+j*4];
 
-        SIRFRegMat44 trans(trans_m);
-        shared_ptr<SIRFRegMat44> sptr(new SIRFRegMat44(trans));
+        shared_ptr<SIRFRegAffineTransformation> sptr(new SIRFRegAffineTransformation(trans));
         return newObjectHandle(sptr);
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_deep_copy(const void* ptr)
+void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
 {
     try {
-        SIRFRegMat44& mat = objectFromHandle<SIRFRegMat44>(ptr);
-        shared_ptr<SIRFRegMat44> sptr(new SIRFRegMat44(mat.deep_copy()));
+        SIRFRegAffineTransformation& mat = objectFromHandle<SIRFRegAffineTransformation>(ptr);
+        shared_ptr<SIRFRegAffineTransformation> sptr(new SIRFRegAffineTransformation(mat.deep_copy()));
         return newObjectHandle(sptr);
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_save_to_file(const void* ptr, const char* filename)
+void* cSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename)
 {
     try {
-        SIRFRegMat44& mat = objectFromHandle<SIRFRegMat44>(ptr);
+        SIRFRegAffineTransformation& mat = objectFromHandle<SIRFRegAffineTransformation>(ptr);
         mat.save_to_file(filename);
         return new DataHandle;
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, size_t ptr_TM)
+void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, size_t ptr_TM)
 {
     try {
-        SIRFRegMat44& tm = objectFromHandle<SIRFRegMat44>(ptr);
+        SIRFRegAffineTransformation& tm = objectFromHandle<SIRFRegAffineTransformation>(ptr);
         float* TM = (float*)ptr_TM;
         for (int i=0; i<4; ++i)
             for (int j=0; j<4; ++j)
@@ -657,32 +657,32 @@ void* cSIRFReg_SIRFRegMat44_as_array(const void* ptr, size_t ptr_TM)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_get_identity()
+void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
 {
     try {
-        shared_ptr<SIRFRegMat44> sptr(new SIRFRegMat44(SIRFRegMat44::get_identity()));
+        shared_ptr<SIRFRegAffineTransformation> sptr(new SIRFRegAffineTransformation(SIRFRegAffineTransformation::get_identity()));
         return newObjectHandle(sptr);
     }
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegMat44_mul(const void* mat1_ptr, const void* mat2_ptr)
+void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
-        SIRFRegMat44& mat1 = objectFromHandle<SIRFRegMat44>(mat1_ptr);
-        SIRFRegMat44& mat2 = objectFromHandle<SIRFRegMat44>(mat2_ptr);
-        shared_ptr<SIRFRegMat44> sptr(new SIRFRegMat44(mat1*mat2));
+        SIRFRegAffineTransformation& mat1 = objectFromHandle<SIRFRegAffineTransformation>(mat1_ptr);
+        SIRFRegAffineTransformation& mat2 = objectFromHandle<SIRFRegAffineTransformation>(mat2_ptr);
+        shared_ptr<SIRFRegAffineTransformation> sptr(new SIRFRegAffineTransformation(mat1*mat2));
         return newObjectHandle(sptr);
     }
     CATCH;
 }
 
 extern "C"
-void* cSIRFReg_SIRFRegMat44_equal(const void* mat1_ptr, const void* mat2_ptr)
+void* cSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
-        SIRFRegMat44& mat1 = objectFromHandle<SIRFRegMat44>(mat1_ptr);
-        SIRFRegMat44& mat2 = objectFromHandle<SIRFRegMat44>(mat2_ptr);
+        SIRFRegAffineTransformation& mat1 = objectFromHandle<SIRFRegAffineTransformation>(mat1_ptr);
+        SIRFRegAffineTransformation& mat2 = objectFromHandle<SIRFRegAffineTransformation>(mat2_ptr);
         return dataHandle<int>(mat1 == mat2);
     }
     CATCH;

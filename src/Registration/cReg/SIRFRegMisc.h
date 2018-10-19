@@ -40,7 +40,7 @@ class NiftiImageData3DTensor;
 class NiftiImageData3DDisplacement;
 class NiftiImageData3DDeformation;
 class SIRFRegTransformation;
-class SIRFRegMat44;
+class SIRFRegAffineTransformation;
 }
 
 namespace SIRFRegMisc {

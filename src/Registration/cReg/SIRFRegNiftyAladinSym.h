@@ -32,7 +32,7 @@ limitations under the License.
 
 
 #include "SIRFReg.h"
-#include "SIRFRegMat44.h"
+#include "SIRFRegAffineTransformation.h"
 #include <_reg_aladin_sym.h>
 
 namespace sirf {
@@ -45,10 +45,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const SIRFRegMat44 &get_transformation_matrix_forward() const { return _TM_forward; }
+    const SIRFRegAffineTransformation &get_transformation_matrix_forward() const { return _TM_forward; }
 
     /// Get inverse transformation matrix
-    const SIRFRegMat44 &get_transformation_matrix_inverse() const { return _TM_inverse; }
+    const SIRFRegAffineTransformation &get_transformation_matrix_inverse() const { return _TM_inverse; }
 
 protected:
 
@@ -62,9 +62,9 @@ protected:
     std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
 
     /// Forwards transformation matrix
-    SIRFRegMat44 _TM_forward;
+    SIRFRegAffineTransformation _TM_forward;
     /// Inverse transformation matrix
-    SIRFRegMat44 _TM_inverse;
+    SIRFRegAffineTransformation _TM_inverse;
 };
 }
 
