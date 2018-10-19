@@ -499,6 +499,17 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		
 		mr_dyn_sim.set_trajectory( sptr_traj );
 
+		auto data_dims = segmentation_labels.getDims();
+		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
+		
+		std::cout << epiph( data_dims[0] ) <<std::endl;
+		std::cout << epiph( data_dims[1] ) <<std::endl;
+		std::cout << epiph( data_dims[2] ) <<std::endl;
+
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( csm );
+
 		float const test_SNR = 15;
 		mr_dyn_sim.set_SNR(test_SNR);
 
