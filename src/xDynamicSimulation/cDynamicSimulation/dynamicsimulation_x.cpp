@@ -61,13 +61,10 @@ void MRDynamicSimulation::simulate_statics( void )
 	cout << "Simulating static data acquisition... " <<endl;
 
 	this->extract_hdr_information();
-
 	this->acq_model_.setTraj( this->sptr_trajectory_ );
-
 	this->mr_cont_gen_.map_contrast();
 	this->source_acquisitions_ = this->all_source_acquisitions_;
 	this->acquire_raw_data();
-
 }
 
 void MRDynamicSimulation::simulate_dynamics( void )
@@ -347,8 +344,7 @@ void MRDynamicSimulation::extract_hdr_information( void )
 
 	this->acq_model_.setISMRMRDHeader( this->hdr_ );
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-
-
+	
 }
 
 
@@ -484,7 +480,7 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
-	float const scale_factor = 1000;
+	float const scale_factor = 25;
 	sptr_target_acquisitions_->axpby(1.0f * scale_factor, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
 
 	this->add_noise();
