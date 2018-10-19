@@ -368,9 +368,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	//int readout = e.encodedSpace.matrixSize.x;
 	
 
-	unsigned int nx = ptr_img->getMatrixSizeX();//e.reconSpace.matrixSize.x;
-	unsigned int ny = ptr_img->getMatrixSizeY();//e.reconSpace.matrixSize.y;
-	unsigned int nz = ptr_img->getMatrixSizeZ();//e.reconSpace.matrixSize.z;
+	unsigned int nx =img.getMatrixSizeX();//e.reconSpace.matrixSize.x;
+	unsigned int ny =img.getMatrixSizeY();//e.reconSpace.matrixSize.y;
+	unsigned int nz =img.getMatrixSizeZ();//e.reconSpace.matrixSize.z;
 
 
 
@@ -396,7 +396,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	dims.push_back(ny);
 	dims.push_back(nz);
 	dims.push_back(nc);
-
+	
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
@@ -427,13 +427,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		std::cout << "RPE Acquisition Process" << std::endl;
 
 		RadialPhaseEncodingFFT RPE_FFT;
-		
 		auto traj = this->sptr_traj_->get_trajectory();
-		
 		RPE_FFT.set_trajectory( traj );
-		
 		RPE_FFT.SampleFourierSpace( ci );
-		
 		std::cout << "sampling done" << std::endl;
 
 		k_data = RPE_FFT.get_k_data();
