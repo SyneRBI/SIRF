@@ -90,8 +90,11 @@ protected:
 		std::vector<T> shuffled_idxs;
 		for(int i=0; i<3; i++)
 		{
-			shuffled_idxs.push_back( indices[ (i +  this->readout_direction_wrt_input_)%3]);
+			if( i != this->readout_direction_wrt_input_ )
+				shuffled_idxs.push_back( indices[ i ]);
 		}
+		shuffled_idxs.push_back(indices[ this->readout_direction_wrt_input_ ] );
+
 		return shuffled_idxs;
 	}
 };
