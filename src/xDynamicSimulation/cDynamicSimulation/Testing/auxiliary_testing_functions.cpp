@@ -387,14 +387,17 @@ ISMRMRD::Image< complex_float_t > aux_test::get_mock_ismrmrd_image_with_cube( vo
 
 ISMRMRD::Image< float > aux_test::get_mock_ismrmrd_image_with_gradients( void )
 {
+	size_t const Nx = MOCK_DATA_MATRIX_SIZE/2;
+	size_t const Ny = MOCK_DATA_MATRIX_SIZE/2;
+	size_t const Nz = MOCK_DATA_MATRIX_SIZE;
+	size_t const Nc = MOCK_DATA_NUM_CHANNELS;
 
-	
 
-	ISMRMRD::Image< float > mock_img(MOCK_DATA_MATRIX_SIZE, MOCK_DATA_MATRIX_SIZE, MOCK_DATA_MATRIX_SIZE, MOCK_DATA_NUM_CHANNELS);
-	for(size_t c=0; c<MOCK_DATA_NUM_CHANNELS; c++)
-	for(size_t z=0; z<MOCK_DATA_MATRIX_SIZE; z++)	
-	for(size_t y=0; y<MOCK_DATA_MATRIX_SIZE; y++)	
-	for(size_t x=0; x<MOCK_DATA_MATRIX_SIZE; x++){
+	ISMRMRD::Image< float > mock_img(Nx, Ny, Nz, Nc);
+	for(size_t c=0; c<Nc; c++)
+	for(size_t z=0; z<Nz; z++)	
+	for(size_t y=0; y<Ny; y++)	
+	for(size_t x=0; x<Nx; x++){
 
 		mock_img(x,y,z,c) =  (1*x + 10*y + 100*z) + c; 
 
