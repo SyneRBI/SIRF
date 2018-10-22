@@ -3,13 +3,17 @@
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-USING_NAMESPACE_STIR
-USING_NAMESPACE_ECAT
+//USING_NAMESPACE_STIR
+//USING_NAMESPACE_ECAT
 
 #include "object.h"
 //#include "stir_types.h"
 #include "stir_x.h"
 //#include "SIRF/common/envar.h"
+
+using namespace stir;
+using namespace ecat;
+using namespace sirf;
 
 bool file_exists(std::string filename)
 {
@@ -47,10 +51,24 @@ int test1()
 		if (file_exists(filename)) {
 			ptr_ei = new PETImageData(filename);
 			ptr_ei->get_dimensions(dim);
-			std::cout << "image dimensions: " 
-				<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
-		}
+			int nx = dim[2];
+			int ny = dim[1];
+			int nz = dim[0];
+			std::cout << "image dimensions: "
+				<< nx << 'x' << ny << 'x' << nz << '\n';
+			PETImageData& image = *ptr_ei;
+			float* ptr_data = new float[nx*ny*nz];
+			image.get_data(ptr_data);
+			int k = nx*ny*nz / 2;
+			for (int i = k; i < k + 4; i++)
+				std::cout << ptr_data[i] << '\n';
+			auto iter = image.data().begin_all();
+			for (int i = 0; i < k; i++, iter++);
+			for (int i = k; i < k + 4; i++, iter++)
+				std::cout << *iter << '\n';
 
+		}
+		return 0;
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
