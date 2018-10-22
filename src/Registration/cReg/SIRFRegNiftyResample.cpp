@@ -76,7 +76,16 @@ void SIRFRegNiftyResample::process()
                       _interpolation_type,
                       0);
 
+    is_finished = true;
+
     std::cout << "\n\nResampling finished!\n\n";
+}
+
+const NiftiImageData3D &SIRFRegNiftyResample::get_output() const
+{
+    if (!is_finished)
+        throw std::runtime_error("Cannot return output image until resampling has been performed.");
+    return _output_image;
 }
 
 void SIRFRegNiftyResample::check_parameters()

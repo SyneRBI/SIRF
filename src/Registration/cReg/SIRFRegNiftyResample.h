@@ -107,9 +107,11 @@ public:
     void process();
 
     /// Get output
-    const NiftiImageData3D &get_output() const { return _output_image; }
+    const NiftiImageData3D &get_output() const;
 
 protected:
+
+    bool is_finished = false;
 
     /// Check parameters
     virtual void check_parameters();
