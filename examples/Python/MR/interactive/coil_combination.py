@@ -81,7 +81,7 @@ for c in range(k_array.shape[1]):
 image_array = numpy.zeros(k_array.shape, numpy.complex128)
 for c in range(k_array.shape[1]):
     image_array[:,c,:] = numpy.fft.fftshift(numpy.fft.ifft2(numpy.fft.ifftshift(k_array[:,c,:])))
-image_array = image_array/image_array.max()
+image_array /= abs(image_array).max()
    
 fig = plt.figure(2)   
 plt.set_cmap('gray')
@@ -139,7 +139,7 @@ ax.set_title('Weighted sum (WS)')
 ax.axis('off')
 
 ax = fig.add_subplot(1,3,3)
-ax.imshow(abs(image_array_sos-image_array_ws), vmin=-0, vmax=0.1)
+ax.imshow(abs(image_array_sos-image_array_ws), vmin=0, vmax=0.1)
 ax.set_title('SOS - WS')
 ax.axis('off')
 
