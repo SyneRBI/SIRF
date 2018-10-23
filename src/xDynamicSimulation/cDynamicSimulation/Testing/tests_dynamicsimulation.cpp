@@ -488,6 +488,9 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 	try
 	{	
 		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+	
+		data_io::write_raw( std::string(SHARED_FOLDER_PATH) + "seg_in_sim", segmentation_labels.begin(), segmentation_labels.getNumberOfElements() );
+
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
