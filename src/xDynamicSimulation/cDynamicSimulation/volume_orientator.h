@@ -88,13 +88,12 @@ protected:
 			throw LocalisedException("Please give only readout directions 0 for x, 1 for y or 2 for z..", __FILE__, __LINE__);
 
 		std::vector<T> shuffled_idxs;
+		shuffled_idxs.resize(3,0);
 		for(int i=0; i<3; i++)
 		{
-			if( i != this->readout_direction_wrt_input_ )
-				shuffled_idxs.push_back( indices[ i ]);
+			shuffled_idxs[(i+1)%3] = indices[i];
 		}
-		shuffled_idxs.push_back(indices[ this->readout_direction_wrt_input_ ] );
-
+		
 		return shuffled_idxs;
 	}
 };
