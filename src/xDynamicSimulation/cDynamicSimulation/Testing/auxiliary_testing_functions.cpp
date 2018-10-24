@@ -450,8 +450,7 @@ ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
 ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
 {
 
-	if( std::floor(log2(num_coils)) != log2(num_coils) )
-		throw std::runtime_error("Give number of coils which is a power of two.");
+	int const num_non_zero_coils = std::floor( log2( num_coils ) );
 
 	std::vector<float> sensitivity_widths {vol_dims[0] /2.f, vol_dims[1] /2.f, vol_dims[2] /2.f };
 
@@ -481,14 +480,18 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 
 	ISMRMRD::Image<complex_float_t> csm( vol_dims[0], vol_dims[1], vol_dims[2], num_coils );
 
+	for( size_t i=0; i<csm.getNumberOfDataElements(); i++)
+		*(csm.begin() +i) = std::complex<float> (0,0);
+
+
 	std::vector<size_t> center_container_size{(size_t)3, (size_t)num_coils};
 	ISMRMRD::NDArray< float > coil_centers( center_container_size );
-	if( num_coils == 1)
+	if( num_non_zero_coils == 1)
 	{
 		for(size_t i=0; i<csm.getNumberOfDataElements(); i++)
 			*(csm.begin() + i) = std::complex<float>(1);
 	}
-	else if (num_coils == 2)
+	else if (num_non_zero_coils == 2)
 	{
 
 		coil_centers(0, 0) = x_range[ std::floor( x_range.size()/2) ];
@@ -503,7 +506,7 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 	}
 	else
 	{
-		size_t const coils_per_side = num_coils / 4;
+		size_t const coils_per_side = num_non_zero_coils / 4;
 		float const side_distances = 1.f/( coils_per_side + 1.f);
 
 		for(size_t j=0; j<coils_per_side;j++)
@@ -531,7 +534,7 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 		}
 	}
 
-	for(size_t i_coil=0; i_coil<num_coils; i_coil++)
+	for(size_t i_coil=0; i_coil<num_non_zero_coils; i_coil++)
 	{
 		for( size_t nz=0; nz<vol_dims[2]; nz++)
 		for( size_t ny=0; ny<vol_dims[1]; ny++)

@@ -509,7 +509,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		std::cout << epiph( data_dims[1] ) <<std::endl;
 		std::cout << epiph( data_dims[2] ) <<std::endl;
 
-		size_t num_coils = 4;
+		size_t num_coils = 20;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
