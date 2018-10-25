@@ -49,17 +49,18 @@ AcquisitionsVector mr_io::read_ismrmrd_acquisitions( std::string path_ismrmrd_h5
 	for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 	{
 		ISMRMRD::Acquisition acq;
+		
+		if ((i_acqu%1000) == 0 )
+			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
+
+		d.readAcquisition( i_acqu, acq);
+
 		if( (acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT) )
 		{
 			std::cout << "Ignoring acquisition # " << i_acqu <<" due to it being noise calibration.";
 			continue;
 		}
-
-
-		if ((i_acqu%1000) == 0 )
-			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
-
-		d.readAcquisition( i_acqu, acq);
+		
 		acq_vec.append_acquisition( acq );
 
 	}
