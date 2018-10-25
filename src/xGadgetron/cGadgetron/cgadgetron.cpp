@@ -818,7 +818,7 @@ void*
 cGT_readImages(const char* file)
 {
 	try {
-		shared_ptr<GadgetronImageData> sptr_img(new ImagesVector);
+		shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(file);
 		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}

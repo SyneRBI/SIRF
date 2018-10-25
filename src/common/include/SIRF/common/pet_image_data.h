@@ -1,12 +1,11 @@
 #pragma once
 
-#include "sirf_image_data.h"
+#include "image_data.h"
 
 namespace sirf {
 	template <typename T>
-	class PETImageData : public SIRFImageData<T>
+	class PETImageData : public ImageData<T>
 	{
 	public:
-		virtual ~PETImageData() {}
 	};
 }

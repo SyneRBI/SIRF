@@ -731,7 +731,7 @@ GadgetronImageData::order()
 	Multisort::sort(vt, index_);
 }
 
-ImagesVector::ImagesVector(ImagesVector& list, const char* attr, const char* target)
+GadgetronImagesVector::GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target)
 {
 	for (unsigned int i = 0; i < list.number(); i++) {
 		const ImageWrap& u = list.image_wrap(i);
@@ -787,7 +787,7 @@ group_names_sptr(const char* filename)
 }
 
 int
-ImagesVector::read(std::string filename) 
+GadgetronImagesVector::read(std::string filename) 
 {
 	std::shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
@@ -830,7 +830,7 @@ ImagesVector::read(std::string filename)
 }
 
 void
-ImagesVector::write(std::string filename, std::string groupname)
+GadgetronImagesVector::write(std::string filename, std::string groupname)
 {
 	if (images_.size() < 1)
 		return;
@@ -845,7 +845,7 @@ ImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-ImagesVector::get_images_data_as_float_array(float* data)
+GadgetronImagesVector::get_images_data_as_float_array(float* data)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -861,7 +861,7 @@ ImagesVector::get_images_data_as_float_array(float* data)
 }
 
 void
-ImagesVector::get_images_data_as_complex_array(float* re, float* im)
+GadgetronImagesVector::get_images_data_as_complex_array(float* re, float* im)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -885,7 +885,7 @@ ImagesVector::get_images_data_as_complex_array(float* re, float* im)
 }
 
 void
-ImagesVector::set_complex_images_data(const float* re, const float* im)
+GadgetronImagesVector::set_complex_images_data(const float* re, const float* im)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {

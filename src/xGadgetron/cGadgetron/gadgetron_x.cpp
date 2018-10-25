@@ -164,7 +164,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	ISMRMRD::Acquisition acq_tmp;
 
 	GTConnector conn;
-	sptr_images_.reset(new ImagesVector);
+	sptr_images_.reset(new GadgetronImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
@@ -224,7 +224,7 @@ ImagesProcessor::check_connection()
 {
 	std::string config = xml();
 	GTConnector conn;
-	shared_ptr<GadgetronImageData> sptr_images(new ImagesVector);
+	shared_ptr<GadgetronImageData> sptr_images(new GadgetronImagesVector);
 	GadgetronImageData& images = *sptr_images_;
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>

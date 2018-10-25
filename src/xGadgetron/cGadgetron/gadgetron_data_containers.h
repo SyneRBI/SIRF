@@ -420,10 +420,10 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class ImagesVector : public GadgetronImageData {
+	class GadgetronImagesVector : public GadgetronImageData {
 	public:
-		ImagesVector() : images_(), nimages_(0) {}
-		ImagesVector(ImagesVector& list, const char* attr, const char* target);
+		GadgetronImagesVector() : images_(), nimages_(0) {}
+		GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target);
 		virtual unsigned int items() { return (unsigned int)images_.size(); }
 		virtual unsigned int number() { return (unsigned int)images_.size(); }
 		virtual int types()
@@ -489,16 +489,16 @@ namespace sirf {
 		virtual void set_complex_images_data(const float* re, const float* im);
 		virtual aDataContainer<complex_float_t>* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new ImagesVector();
+			return (aDataContainer<complex_float_t>*)new GadgetronImagesVector();
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>((GadgetronImageData*)new ImagesVector());
+			return gadgetron::shared_ptr<GadgetronImageData>((GadgetronImageData*)new GadgetronImagesVector());
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>(new ImagesVector(*this, attr, target));
+			return gadgetron::shared_ptr<GadgetronImageData>(new GadgetronImagesVector(*this, attr, target));
 		}
 
 	private:
