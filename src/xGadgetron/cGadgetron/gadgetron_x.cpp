@@ -441,11 +441,11 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 		
-		bool values_became_huge = false;
+		int const is_inverted_readout = (acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) ? 1:0;
 
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
-				acq.data(s, c) = k_data(s, enc_step_1, enc_step_2, c);
+				acq.data(s, c) = k_data( is_inverted_readout * (num_readout_pts-1) - (2*is_inverted_readout - 1) * s, enc_step_1, enc_step_2, c);
 			}
 		}
 
