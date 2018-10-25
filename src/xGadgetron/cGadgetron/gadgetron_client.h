@@ -131,7 +131,7 @@ namespace sirf {
 		public GadgetronClientMessageReader {
 	public:
 		GadgetronClientImageMessageCollector
-			(gadgetron::shared_ptr<MRImageData> ptr_images) : ptr_images_(ptr_images) {}
+			(gadgetron::shared_ptr<GadgetronImageData> ptr_images) : ptr_images_(ptr_images) {}
 		virtual ~GadgetronClientImageMessageCollector() {}
 
 		template <typename T>
@@ -164,7 +164,7 @@ namespace sirf {
 		virtual void read(boost::asio::ip::tcp::socket* stream);
 
 	private:
-		gadgetron::shared_ptr<MRImageData> ptr_images_;
+		gadgetron::shared_ptr<GadgetronImageData> ptr_images_;
 	};
 
 	/**

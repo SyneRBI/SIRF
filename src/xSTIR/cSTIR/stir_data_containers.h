@@ -39,6 +39,7 @@ limitations under the License.
 #include "data_handle.h"
 #include "stir_types.h"
 #include "SIRF/common/data_container.h"
+#include "SIRF/common/pet_image_data.h"
 
 namespace sirf {
 
@@ -465,46 +466,47 @@ namespace sirf {
 	abstract base class aDatacontainer.
 	*/
 
-	class PETImageData : public aDataContainer < float > {
+	//class STIRImageData : public aDataContainer < float > {
+	class STIRImageData : public PETImageData < float > {
 	public:
-		PETImageData(){}
-		PETImageData(const PETImageData& image)
+		STIRImageData(){}
+		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
 		}
-		PETImageData(const PETAcquisitionData& ad)
+		STIRImageData(const PETAcquisitionData& ad)
 		{
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
 		}
-		PETImageData(const Image3DF& image)
+		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
 		}
-		PETImageData(const Voxels3DF& v)
+		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
 		}
-		PETImageData(const stir::ProjDataInfo& pdi)
+		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
 		}
-		PETImageData(stir::shared_ptr<Image3DF> ptr)
+		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
 		}
-		PETImageData(std::string filename)
+		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
 		}
-		PETImageData* same_image_data()
+		STIRImageData* same_image_data()
 		{
-			PETImageData* ptr_image = new PETImageData;
+			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
 			return ptr_image;
 		}
-		stir::shared_ptr<PETImageData> new_image_data()
+		stir::shared_ptr<STIRImageData> new_image_data()
 		{
-			return stir::shared_ptr<PETImageData>(same_image_data());
+			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
 		aDataContainer<float>* new_data_container()
 		{

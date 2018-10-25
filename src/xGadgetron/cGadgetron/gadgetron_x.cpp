@@ -191,7 +191,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 }
 
 void 
-ImagesProcessor::process(MRImageData& images)
+ImagesProcessor::process(GadgetronImageData& images)
 {
 	std::string config = xml();
 	GTConnector conn;
@@ -224,8 +224,8 @@ ImagesProcessor::check_connection()
 {
 	std::string config = xml();
 	GTConnector conn;
-	shared_ptr<MRImageData> sptr_images(new ImagesVector);
-	MRImageData& images = *sptr_images_;
+	shared_ptr<GadgetronImageData> sptr_images(new ImagesVector);
+	GadgetronImageData& images = *sptr_images_;
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images)));
@@ -240,7 +240,7 @@ ImagesProcessor::check_connection()
 }
 
 void
-MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
@@ -254,7 +254,7 @@ MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
 }
 
 void 
-MRAcquisitionModel::bwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)

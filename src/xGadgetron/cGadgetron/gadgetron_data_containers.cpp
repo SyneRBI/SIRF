@@ -638,12 +638,12 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-MRImageData::axpby(
+GadgetronImageData::axpby(
 	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
 	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
 	complex_float_t zero(0.0, 0.0);
 	complex_float_t one(1.0, 0.0);
@@ -657,12 +657,12 @@ MRImageData::axpby(
 }
 
 void
-MRImageData::multiply(
+GadgetronImageData::multiply(
 const aDataContainer<complex_float_t>& a_x,
 const aDataContainer<complex_float_t>& a_y)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.multiply(y.image_wrap(i));
@@ -671,12 +671,12 @@ const aDataContainer<complex_float_t>& a_y)
 }
 
 void
-MRImageData::divide(
+GadgetronImageData::divide(
 const aDataContainer<complex_float_t>& a_x,
 const aDataContainer<complex_float_t>& a_y)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.divide(y.image_wrap(i));
@@ -685,9 +685,9 @@ const aDataContainer<complex_float_t>& a_y)
 }
 
 complex_float_t
-MRImageData::dot(const aDataContainer<complex_float_t>& dc)
+GadgetronImageData::dot(const aDataContainer<complex_float_t>& dc)
 {
-	MRImageData& ic = (MRImageData&)dc;
+	GadgetronImageData& ic = (GadgetronImageData&)dc;
 	complex_float_t z = 0;
 	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
 		const ImageWrap& u = image_wrap(i);
@@ -698,7 +698,7 @@ MRImageData::dot(const aDataContainer<complex_float_t>& dc)
 }
 
 float 
-MRImageData::norm()
+GadgetronImageData::norm()
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
@@ -711,7 +711,7 @@ MRImageData::norm()
 }
 
 void
-MRImageData::order()
+GadgetronImageData::order()
 {
 	typedef std::array<int, 3> tuple;
 	int ni = number();

@@ -422,7 +422,7 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 }
 
 PETAttenuationModel::PETAttenuationModel
-(PETImageData& id, PETAcquisitionModel& am)
+(STIRImageData& id, PETAcquisitionModel& am)
 {
 	sptr_forw_projector_ = am.projectors_sptr()->get_forward_projector_sptr();
         if (is_null_ptr(sptr_forw_projector_))
@@ -467,7 +467,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 Succeeded 
 PETAcquisitionModel::set_up(
 	shared_ptr<PETAcquisitionData> sptr_acq,
-	shared_ptr<PETImageData> sptr_image)
+	shared_ptr<STIRImageData> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
@@ -484,7 +484,7 @@ PETAcquisitionModel::set_up(
 }
 
 void 
-PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
+PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	int subset_num, int num_subsets, bool zero)
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
@@ -518,7 +518,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
 }
 
 shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const PETImageData& image, 
+PETAcquisitionModel::forward(const STIRImageData& image, 
 	int subset_num, int num_subsets)
 {
 	shared_ptr<PETAcquisitionData> sptr_ad;
@@ -562,11 +562,11 @@ PETAcquisitionModel::forward(const PETImageData& image,
 	return sptr_ad;
 }
 
-shared_ptr<PETImageData> 
+shared_ptr<STIRImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad, 
 	int subset_num, int num_subsets)
 {
-	shared_ptr<PETImageData> sptr_id;
+	shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
 

@@ -253,7 +253,7 @@ namespace sirf {
 		}
 
 		void process(MRAcquisitionData& acquisitions);
-		gadgetron::shared_ptr<MRImageData> get_output()
+		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
@@ -263,7 +263,7 @@ namespace sirf {
 		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdAcqMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-		gadgetron::shared_ptr<MRImageData> sptr_images_;
+		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
 	/*!
@@ -292,8 +292,8 @@ namespace sirf {
 		}
 
 		void check_connection();
-		void process(MRImageData& images);
-		gadgetron::shared_ptr<MRImageData> get_output()
+		void process(GadgetronImageData& images);
+		gadgetron::shared_ptr<GadgetronImageData> get_output()
 		{
 			return sptr_images_;
 		}
@@ -303,7 +303,7 @@ namespace sirf {
 		std::string port_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgReader> reader_;
 		gadgetron::shared_ptr<IsmrmrdImgMsgWriter> writer_;
-		gadgetron::shared_ptr<MRImageData> sptr_images_;
+		gadgetron::shared_ptr<GadgetronImageData> sptr_images_;
 	};
 
 	/*!
@@ -344,7 +344,7 @@ namespace sirf {
 		*/
 		MRAcquisitionModel(
 			gadgetron::shared_ptr<MRAcquisitionData> sptr_ac,
-			gadgetron::shared_ptr<MRImageData> sptr_ic
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic
 			) : sptr_acqs_(sptr_ac), sptr_imgs_(sptr_ic)
 		{
 		}
@@ -357,7 +357,7 @@ namespace sirf {
 		}
 		// Records the image template to be used. 
 		void set_image_template
-			(gadgetron::shared_ptr<MRImageData> sptr_ic)
+			(gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
 			sptr_imgs_ = sptr_ic;
 		}
@@ -370,7 +370,7 @@ namespace sirf {
 		// Records templates
 		void set_up
 			(gadgetron::shared_ptr<MRAcquisitionData> sptr_ac, 
-			gadgetron::shared_ptr<MRImageData> sptr_ic)
+			gadgetron::shared_ptr<GadgetronImageData> sptr_ic)
 		{
 			sptr_acqs_ = sptr_ac;
 			sptr_imgs_ = sptr_ic;
@@ -399,17 +399,17 @@ namespace sirf {
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps in the second argument.
-		void fwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
+		void fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 			MRAcquisitionData& ac);
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps in the second argument.
-		void bwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
+		void bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc,
 			MRAcquisitionData& ac);
 
 		// Forward projects the whole ImageContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<MRAcquisitionData> fwd(MRImageData& ic)
+		gadgetron::shared_ptr<MRAcquisitionData> fwd(GadgetronImageData& ic)
 		{
 			if (!sptr_acqs_.get())
 				throw LocalisedException
@@ -426,7 +426,7 @@ namespace sirf {
 
 		// Backprojects the whole AcquisitionContainer using
 		// coil sensitivity maps referred to by sptr_csms_.
-		gadgetron::shared_ptr<MRImageData> bwd(MRAcquisitionData& ac)
+		gadgetron::shared_ptr<GadgetronImageData> bwd(MRAcquisitionData& ac)
 		{
 			if (!sptr_imgs_.get())
 				throw LocalisedException
@@ -434,7 +434,7 @@ namespace sirf {
 			if (!sptr_csms_.get() || sptr_csms_->items() < 1)
 				throw LocalisedException
 				("coil sensitivity maps not found", __FILE__, __LINE__);
-			gadgetron::shared_ptr<MRImageData> sptr_imgs =
+			gadgetron::shared_ptr<GadgetronImageData> sptr_imgs =
 				sptr_imgs_->new_images_container();
 			bwd(*sptr_imgs, *sptr_csms_, ac);
 			return sptr_imgs;
@@ -443,7 +443,7 @@ namespace sirf {
 	private:
 		std::string acqs_info_;
 		gadgetron::shared_ptr<MRAcquisitionData> sptr_acqs_;
-		gadgetron::shared_ptr<MRImageData> sptr_imgs_;
+		gadgetron::shared_ptr<GadgetronImageData> sptr_imgs_;
 		gadgetron::shared_ptr<CoilSensitivitiesContainer> sptr_csms_;
 
 		template< typename T>

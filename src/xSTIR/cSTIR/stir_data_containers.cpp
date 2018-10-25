@@ -271,7 +271,7 @@ const aDataContainer<float>& a_y
 }
 
 float
-PETImageData::norm()
+STIRImageData::norm()
 {
 #ifdef _MSC_VER
 	//Array<3, float>::const_full_iterator iter;
@@ -290,9 +290,9 @@ PETImageData::norm()
 }
 
 float
-PETImageData::dot(const aDataContainer<float>& a_x)
+STIRImageData::dot(const aDataContainer<float>& a_x)
 {
-	PETImageData& x = (PETImageData&)a_x;
+	STIRImageData& x = (STIRImageData&)a_x;
 #ifdef _MSC_VER
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -311,9 +311,9 @@ PETImageData::dot(const aDataContainer<float>& a_x)
 }
 
 //void
-//PETImageData::mult(float a, const aDataContainer<float>& a_x)
+//STIRImageData::mult(float a, const aDataContainer<float>& a_x)
 //{
-//	PETImageData& x = (PETImageData&)a_x;
+//	STIRImageData& x = (STIRImageData&)a_x;
 //#ifdef _MSC_VER
 //	Image3DF::full_iterator iter;
 //	Image3DF::const_full_iterator iter_x;
@@ -328,12 +328,12 @@ PETImageData::dot(const aDataContainer<float>& a_x)
 //}
 
 void
-PETImageData::multiply(
+STIRImageData::multiply(
 const aDataContainer<float>& a_x,
 const aDataContainer<float>& a_y)
 {
-	PETImageData& x = (PETImageData&)a_x;
-	PETImageData& y = (PETImageData&)a_y;
+	STIRImageData& x = (STIRImageData&)a_x;
+	STIRImageData& y = (STIRImageData&)a_y;
 #ifdef _MSC_VER
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -353,12 +353,12 @@ const aDataContainer<float>& a_y)
 }
 
 void
-PETImageData::divide(
+STIRImageData::divide(
 const aDataContainer<float>& a_x,
 const aDataContainer<float>& a_y)
 {
-	PETImageData& x = (PETImageData&)a_x;
-	PETImageData& y = (PETImageData&)a_y;
+	STIRImageData& x = (STIRImageData&)a_x;
+	STIRImageData& y = (STIRImageData&)a_y;
 #ifdef _MSC_VER
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -380,7 +380,7 @@ const aDataContainer<float>& a_y)
 	}
 	float vmin = 1e-6*vmax;
 	if (vmin == 0.0)
-		THROW("division by zero in PETImageData::divide");
+		THROW("division by zero in STIRImageData::divide");
 
 	for (iter = data().begin_all(),
 		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
@@ -397,12 +397,12 @@ const aDataContainer<float>& a_y)
 }
 
 void
-PETImageData::axpby(
+STIRImageData::axpby(
 float a, const aDataContainer<float>& a_x,
 float b, const aDataContainer<float>& a_y)
 {
-	PETImageData& x = (PETImageData&)a_x;
-	PETImageData& y = (PETImageData&)a_y;
+	STIRImageData& x = (STIRImageData&)a_x;
+	STIRImageData& y = (STIRImageData&)a_y;
 #ifdef _MSC_VER
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
@@ -422,7 +422,7 @@ float b, const aDataContainer<float>& a_y)
 }
 
 int
-PETImageData::get_dimensions(int* dim) const
+STIRImageData::get_dimensions(int* dim) const
 {
 	const Image3DF& image = *_data;
 	dim[0] = 0;
@@ -438,7 +438,7 @@ PETImageData::get_dimensions(int* dim) const
 }
 
 void
-PETImageData::get_voxel_sizes(float* vsize) const
+STIRImageData::get_voxel_sizes(float* vsize) const
 {
 	const Voxels3DF& voxels = (const Voxels3DF&)*_data;
 	CartesianCoordinate3D<float> vs = voxels.get_voxel_size();
@@ -447,7 +447,7 @@ PETImageData::get_voxel_sizes(float* vsize) const
 }
 
 int
-PETImageData::get_data(float* data) const
+STIRImageData::get_data(float* data) const
 {
 	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
@@ -469,7 +469,7 @@ PETImageData::get_data(float* data) const
 }
 
 int
-PETImageData::set_data(const float* data)
+STIRImageData::set_data(const float* data)
 {
 	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;

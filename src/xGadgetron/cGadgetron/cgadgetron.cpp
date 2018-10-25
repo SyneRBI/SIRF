@@ -333,8 +333,8 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		shared_ptr<MRAcquisitionData> acqs =
 			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<MRImageData> imgs =
-			objectSptrFromHandle<MRImageData>(h_imgs);
+		shared_ptr<GadgetronImageData> imgs =
+			objectSptrFromHandle<GadgetronImageData>(h_imgs);
 		shared_ptr<MRAcquisitionModel> am(new MRAcquisitionModel(acqs, imgs));
 		return newObjectHandle<MRAcquisitionModel>(am);
 	}
@@ -353,8 +353,8 @@ cGT_setUpAcquisitionModel
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 		shared_ptr<MRAcquisitionData> sptr_acqs =
 			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<MRImageData> sptr_imgs =
-			objectSptrFromHandle<MRImageData>(h_imgs);
+		shared_ptr<GadgetronImageData> sptr_imgs =
+			objectSptrFromHandle<GadgetronImageData>(h_imgs);
 		am.set_up(sptr_acqs, sptr_imgs);
 		return (void*)new DataHandle;
 	}
@@ -378,8 +378,8 @@ cGT_setAcquisitionModelParameter
 		else if (boost::iequals(name, "image_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<MRImageData> sptr =
-				objectSptrFromHandle<MRImageData>(handle);
+			shared_ptr<GadgetronImageData> sptr =
+				objectSptrFromHandle<GadgetronImageData>(handle);
 			am.set_image_template(sptr);
 		}
 		else if (boost::iequals(name, "coil_sensitivity_maps")) {
@@ -420,7 +420,7 @@ cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs)
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		MRImageData& imgs = objectFromHandle<MRImageData>(h_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
 		shared_ptr<MRAcquisitionData> sptr_acqs = am.fwd(imgs);
 		return newObjectHandle<MRAcquisitionData>(sptr_acqs);
 	}
@@ -437,8 +437,8 @@ cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs)
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<MRImageData> sptr_imgs = am.bwd(acqs);
-		return newObjectHandle<MRImageData>(sptr_imgs);
+		shared_ptr<GadgetronImageData> sptr_imgs = am.bwd(acqs);
+		return newObjectHandle<GadgetronImageData>(sptr_imgs);
 	}
 	CATCH;
 }
@@ -792,8 +792,8 @@ cGT_reconstructImages(void* ptr_recon, void* ptr_input)
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
 		MRAcquisitionData& input = objectFromHandle<MRAcquisitionData>(h_input);
 		recon.process(input);
-		shared_ptr<MRImageData> sptr_img = recon.get_output();
-		return newObjectHandle<MRImageData>(sptr_img);
+		shared_ptr<GadgetronImageData> sptr_img = recon.get_output();
+		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}
 	CATCH;
 
@@ -806,8 +806,8 @@ cGT_reconstructedImages(void* ptr_recon)
 	try {
 		CAST_PTR(DataHandle, h_recon, ptr_recon);
 		ImagesReconstructor& recon = objectFromHandle<ImagesReconstructor>(h_recon);
-		shared_ptr<MRImageData> sptr_img = recon.get_output();
-		return newObjectHandle<MRImageData>(sptr_img);
+		shared_ptr<GadgetronImageData> sptr_img = recon.get_output();
+		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}
 	CATCH;
 
@@ -818,9 +818,9 @@ void*
 cGT_readImages(const char* file)
 {
 	try {
-		shared_ptr<MRImageData> sptr_img(new ImagesVector);
+		shared_ptr<GadgetronImageData> sptr_img(new ImagesVector);
 		sptr_img->read(file);
-		return newObjectHandle<MRImageData>(sptr_img);
+		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}
 	CATCH;
 }
@@ -833,10 +833,10 @@ cGT_processImages(void* ptr_proc, void* ptr_input)
 		CAST_PTR(DataHandle, h_proc, ptr_proc);
 		CAST_PTR(DataHandle, h_input, ptr_input);
 		ImagesProcessor& proc = objectFromHandle<ImagesProcessor>(h_proc);
-		MRImageData& input = objectFromHandle<MRImageData>(h_input);
+		GadgetronImageData& input = objectFromHandle<GadgetronImageData>(h_input);
 		proc.process(input);
-		shared_ptr<MRImageData> sptr_img = proc.get_output();
-		return newObjectHandle<MRImageData>(sptr_img);
+		shared_ptr<GadgetronImageData> sptr_img = proc.get_output();
+		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}
 	CATCH;
 
@@ -848,9 +848,9 @@ cGT_selectImages(void* ptr_input, const char* attr, const char* target)
 {
 	try {
 		CAST_PTR(DataHandle, h_input, ptr_input);
-		MRImageData& input = objectFromHandle<MRImageData>(h_input);
-		shared_ptr<MRImageData> sptr_img = input.clone(attr, target);
-		return newObjectHandle<MRImageData>(sptr_img);
+		GadgetronImageData& input = objectFromHandle<GadgetronImageData>(h_input);
+		shared_ptr<GadgetronImageData> sptr_img = input.clone(attr, target);
+		return newObjectHandle<GadgetronImageData>(sptr_img);
 	}
 	CATCH;
 }
@@ -861,7 +861,7 @@ cGT_writeImages(void* ptr_imgs, const char* out_file, const char* out_group)
 {
 	try {
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		MRImageData& list = objectFromHandle<MRImageData>(h_imgs);
+		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
 		list.write(out_file, out_group);
 	}
 	CATCH;
@@ -874,7 +874,7 @@ void*
 cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num)
 {
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	MRImageData& images = objectFromHandle<MRImageData>(h_imgs);
+	GadgetronImageData& images = objectFromHandle<GadgetronImageData>(h_imgs);
 	return newObjectHandle<ImageWrap>(images.sptr_image_wrap(img_num));
 }
 
@@ -922,10 +922,10 @@ void
 cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 {
 	int* dim = (int*)ptr_dim;
-	MRImageData& images = objectFromHandle<MRImageData>(ptr_imgs);
+	GadgetronImageData& images = objectFromHandle<GadgetronImageData>(ptr_imgs);
 	images.sptr_image_wrap(img_num)->get_dim(dim);
 	//CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	//MRImageData& list = objectFromHandle<MRImageData>(h_imgs);
+	//GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
 	//list.get_image_dimensions(img_num, dim);
 }
 
@@ -935,7 +935,7 @@ cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	float* data = (float*)ptr_data;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	MRImageData& list = objectFromHandle<MRImageData>(h_imgs);
+	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
 	list.get_images_data_as_float_array(data);
 }
 
@@ -946,7 +946,7 @@ cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	float* re = (float*)ptr_re;
 	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	MRImageData& list = objectFromHandle<MRImageData>(h_imgs);
+	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
 	list.get_images_data_as_complex_array(re, im);
 }
 
@@ -958,7 +958,7 @@ cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 		float* re = (float*)ptr_re;
 		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		MRImageData& list = objectFromHandle<MRImageData>(h_imgs);
+		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
 		list.set_complex_images_data(re, im);
 	}
 	CATCH;
@@ -971,7 +971,7 @@ cGT_imageDataType(const void* ptr_x, int im_num)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		MRImageData& x = objectFromHandle<MRImageData>(h_x);
+		GadgetronImageData& x = objectFromHandle<GadgetronImageData>(h_x);
 		return dataHandle(x.image_data_type(im_num));
 	}
 	CATCH;
@@ -1227,8 +1227,8 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 		CAST_PTR(DataHandle, h_img, ptr_img);
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		shared_ptr<MRImageData> sptr_images =
-			objectSptrFromHandle<MRImageData>(h_img);
+		shared_ptr<GadgetronImageData> sptr_images =
+			objectSptrFromHandle<GadgetronImageData>(h_img);
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images)));
@@ -1364,7 +1364,7 @@ cGT_sendImages(void* ptr_con, void* ptr_img)
 
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		MRImageData& images = objectFromHandle<MRImageData>(h_img);
+		GadgetronImageData& images = objectFromHandle<GadgetronImageData>(h_img);
 		for (unsigned int i = 0; i < images.number(); i++) {
 			ImageWrap& iw = images.image_wrap(i);
 			con.send_wrapped_image(iw);

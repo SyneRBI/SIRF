@@ -41,6 +41,7 @@ limitations under the License.
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_image_wrap.h"
 #include "SIRF/common/data_container.h"
+#include "SIRF/common/mr_image_data.h"
 #include "SIRF/common/multisort.h"
 
 /*!
@@ -341,10 +342,11 @@ namespace sirf {
 	\brief Abstract MR image data container class.
 
 	*/
-	class MRImageData : public aDataContainer < complex_float_t > {
+	//class GadgetronImageData : public aDataContainer < complex_float_t > {
+	class GadgetronImageData : public MRImageData < complex_float_t > {
 	public:
-		MRImageData() : ordered_(false), index_(0) {}
-		virtual ~MRImageData()
+		GadgetronImageData() : ordered_(false), index_(0) {}
+		virtual ~GadgetronImageData()
 		{
 			if (index_)
 				delete[] index_;
@@ -367,8 +369,8 @@ namespace sirf {
 		(const float* re, const float* im) = 0;
 		virtual int read(std::string filename) = 0;
 		virtual void write(std::string filename, std::string groupname) = 0;
-		virtual gadgetron::shared_ptr<MRImageData> new_images_container() = 0;
-		virtual gadgetron::shared_ptr<MRImageData>
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() = 0;
+		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
 		{
@@ -418,7 +420,7 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class ImagesVector : public MRImageData {
+	class ImagesVector : public GadgetronImageData {
 	public:
 		ImagesVector() : images_(), nimages_(0) {}
 		ImagesVector(ImagesVector& list, const char* attr, const char* target);
@@ -489,14 +491,14 @@ namespace sirf {
 		{
 			return (aDataContainer<complex_float_t>*)new ImagesVector();
 		}
-		virtual gadgetron::shared_ptr<MRImageData> new_images_container()
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
-			return gadgetron::shared_ptr<MRImageData>((MRImageData*)new ImagesVector());
+			return gadgetron::shared_ptr<GadgetronImageData>((GadgetronImageData*)new ImagesVector());
 		}
-		virtual gadgetron::shared_ptr<MRImageData>
+		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
 		{
-			return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
+			return gadgetron::shared_ptr<GadgetronImageData>(new ImagesVector(*this, attr, target));
 		}
 
 	private:
