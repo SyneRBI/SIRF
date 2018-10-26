@@ -53,6 +53,13 @@ AcquisitionsVector mr_io::read_ismrmrd_acquisitions( std::string path_ismrmrd_h5
 			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
 
 		d.readAcquisition( i_acqu, acq);
+
+
+		if( acq.isFlagSet( ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT ))
+		{
+			std::cout << "Acquisition # " << i_acqu <<" omitted due to it being a noise sample." <<std::endl;
+		}
+
 		acq_vec.append_acquisition( acq );
 
 	}
