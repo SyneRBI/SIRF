@@ -389,21 +389,15 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	size_t Nx = contrast_filled_volumes[0].getMatrixSizeX();
 	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
 	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
-	size_t Nc = this->coilmaps_.getNumberOfChannels();
+	
 
-
-<<<<<<< Updated upstream
 	size_t Nc = 4;
 	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , Nc);
 	std::vector< complex_float_t > mock_csm;
 	mock_csm.resize( Nx * Ny * Nz * Nc, std::complex<float>(1,0) );
 
 	csm_as_img.set_data( &mock_csm[0] );
-=======
-	auto csm = vol_orientator_.reorient_image(this->coilmaps_);
-	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , Nc);
-	csm_as_img.image() = csm;
->>>>>>> Stashed changes
+
 
 	unsigned int offset = 0;
 
@@ -415,14 +409,6 @@ void MRDynamicSimulation::acquire_raw_data( void )
 		cout << "Acquisition contrast " << i_contrast << endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		curr_cont = vol_orientator_.reorient_image(curr_cont);
-<<<<<<< Updated upstream
-=======
-		
-		ISMRMRD::Image< float > abs_img(Nx, Ny, Nz, Nc);
-		for( size_t i=0; i<curr_cont.getNumberOfDataElements(); i++)
-			*(abs_img.begin() + i) = std::abs ( *(curr_cont.begin() + i) );
-		data_io::write_ISMRMRD_Image_to_Analyze<float>( "/media/sf_SharedFolder/CCPPETMR/reoriented_volume_in_acqu_raw", abs_img );
->>>>>>> Stashed changes
 
 		ImageWrap curr_img_wrap(IMG_DATA_TYPE, new ISMRMRD::Image< complex_float_t >(curr_cont));		
 
