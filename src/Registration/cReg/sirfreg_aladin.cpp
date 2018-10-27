@@ -38,19 +38,23 @@ void print_usage()
 
     // Required flags
     std::cout << "\n  Required flags:\n";
-    std::cout << "    -ref:\treference image\n";
-    std::cout << "    -flo:\tfloating image\n";
-    std::cout << "    -par:\tparameter file\n";
+    std::cout << "    -ref:\t\treference image\n";
+    std::cout << "    -flo:\t\tfloating image\n";
+    std::cout << "    -par:\t\tparameter file\n";
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
-    std::cout << "    -warped:\twarped image filename\n";
+    std::cout << "    -warped:\t\twarped image filename\n";
     std::cout << "    -TM_forward:\tforward transformation matrix\n";
     std::cout << "    -TM_inverse:\tinverse transformation matrix\n";
-    std::cout << "    -disp_4D:\t4D forward displacement field image\n";
-    std::cout << "    -disp_3D:\t3D forward displacement field image\n";
-    std::cout << "    -def_4D:\t4D forward deformation field image\n";
-    std::cout << "    -def_3D:\t3D forward deformation field image\n";
+    std::cout << "    -disp_fwd_4D:\t4D forward displacement field image\n";
+    std::cout << "    -disp_fwd_3D:\t3D forward displacement field image\n";
+    std::cout << "    -def_fwd_4D:\t4D forward deformation field image\n";
+    std::cout << "    -def_fwd_3D:\t3D forward deformation field image\n";
+    std::cout << "    -disp_inv_4D:\t4D inverse displacement field image\n";
+    std::cout << "    -disp_inv_3D:\t3D inverse displacement field image\n";
+    std::cout << "    -def_inv_4D:\t4D inverse deformation field image\n";
+    std::cout << "    -def_inv_3D:\t3D inverse deformation field image\n";
 }
 
 /// find flag
@@ -117,13 +121,21 @@ int main(int argc, char* argv[])
         int flag_TM_forward  = find_flag(unused_flags,argv,"-TM_forward");
         int flag_TM_inverse  = find_flag(unused_flags,argv,"-TM_inverse");
 
-        // Disp field images
-        int flag_disp_4D = find_flag(unused_flags,argv,"-disp_4D");
-        int flag_disp_3D = find_flag(unused_flags,argv,"-disp_3D");
+        // Forward disp field images
+        int flag_disp_fwd_4D = find_flag(unused_flags,argv,"-disp_fwd_4D");
+        int flag_disp_fwd_3D = find_flag(unused_flags,argv,"-disp_fwd_3D");
 
-        // Def field images
-        int flag_def_4D  = find_flag(unused_flags,argv,"-def_4D");
-        int flag_def_3D  = find_flag(unused_flags,argv,"-def_3D");
+        // Forward def field images
+        int flag_def_fwd_4D  = find_flag(unused_flags,argv,"-def_fwd_4D");
+        int flag_def_fwd_3D  = find_flag(unused_flags,argv,"-def_fwd_3D");
+
+        // Inverse disp field images
+        int flag_disp_inv_4D = find_flag(unused_flags,argv,"-disp_inv_4D");
+        int flag_disp_inv_3D = find_flag(unused_flags,argv,"-disp_inv_3D");
+
+        // Inverse def field images
+        int flag_def_inv_4D  = find_flag(unused_flags,argv,"-def_inv_4D");
+        int flag_def_inv_3D  = find_flag(unused_flags,argv,"-def_inv_3D");
 
 
         // ------------------------------------------------ //
@@ -134,8 +146,9 @@ int main(int argc, char* argv[])
             std::cout << "\n\nThe following unknown flags were supplied:\n";
             for (unsigned i=0; i<unused_flags.size(); i++)
                 std::cout << "\t" << argv[unused_flags[i]] << "\n";
+            print_usage();
+            return EXIT_FAILURE;
         }
-        std::cout << "\n";
 
 
         // ------------------------------------------------ //
@@ -159,17 +172,29 @@ int main(int argc, char* argv[])
         if (flag_TM_inverse != -1)
             aladin.get_transformation_matrix_inverse().save_to_file(argv[flag_TM_inverse+1]);
 
-        // Disp field images
-        if (flag_disp_4D != -1)
-            aladin.get_displacement_field_forward().save_to_file(argv[flag_disp_4D+1]);
-        if (flag_disp_3D != -1)
-            aladin.get_displacement_field_forward().save_to_file_split_xyz_components(argv[flag_disp_3D+1]);
+        // Forward disp field images
+        if (flag_disp_fwd_4D != -1)
+            aladin.get_displacement_field_forward().save_to_file(argv[flag_disp_fwd_4D+1]);
+        if (flag_disp_fwd_3D != -1)
+            aladin.get_displacement_field_forward().save_to_file_split_xyz_components(argv[flag_disp_fwd_3D+1]);
 
-        // Def field images
-        if (flag_def_4D != -1)
-            aladin.get_deformation_field_forward().save_to_file(argv[flag_def_4D+1]);
-        if (flag_def_3D != -1)
-            aladin.get_deformation_field_forward().save_to_file_split_xyz_components(argv[flag_def_3D+1]);
+        // Forward def field images
+        if (flag_def_fwd_4D != -1)
+            aladin.get_deformation_field_forward().save_to_file(argv[flag_def_fwd_4D+1]);
+        if (flag_def_fwd_3D != -1)
+            aladin.get_deformation_field_forward().save_to_file_split_xyz_components(argv[flag_def_fwd_3D+1]);
+
+        // Inverse disp field images
+        if (flag_disp_inv_4D != -1)
+            aladin.get_displacement_field_inverse().save_to_file(argv[flag_disp_inv_4D+1]);
+        if (flag_disp_inv_3D != -1)
+            aladin.get_displacement_field_inverse().save_to_file_split_xyz_components(argv[flag_disp_inv_3D+1]);
+
+        // Inverse def field images
+        if (flag_def_inv_4D != -1)
+            aladin.get_deformation_field_inverse().save_to_file(argv[flag_def_inv_4D+1]);
+        if (flag_def_inv_3D != -1)
+            aladin.get_deformation_field_inverse().save_to_file_split_xyz_components(argv[flag_def_inv_3D+1]);
     }
 
     // If there was an error
