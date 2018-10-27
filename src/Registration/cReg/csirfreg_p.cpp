@@ -124,7 +124,7 @@ sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
 	SIRFReg& s = objectFromHandle<SIRFReg>(handle);
 	if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output()));
+        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
 	}
 	else
@@ -174,7 +174,7 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 {
     SIRFRegNiftyResample& s = objectFromHandle<SIRFRegNiftyResample>(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output()));
+        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else
@@ -190,7 +190,7 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 {
     SIRFRegImageWeightedMean& s = objectFromHandle<SIRFRegImageWeightedMean>(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData> sptr_id(new NiftiImageData(s.get_output()));
+        shared_ptr<NiftiImageData> sptr_id(new NiftiImageData(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else

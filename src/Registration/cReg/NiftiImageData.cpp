@@ -47,8 +47,12 @@ NiftiImageData::NiftiImageData(const NiftiImageData& to_copy)
 
 NiftiImageData& NiftiImageData::operator=(const NiftiImageData& to_copy)
 {
-    // check for self-assignment
+    // Check for self-assignment
     if (this != &to_copy) {
+        // Check the image is copyable
+        if (!to_copy.is_initialised())
+            throw std::runtime_error("Trying to copy an uninitialised image.");
+        // Copy
         SIRFRegMisc::copy_nifti_image(_nifti_image,to_copy._nifti_image);
         set_up_data(to_copy._original_datatype);
     }

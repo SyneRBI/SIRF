@@ -472,13 +472,13 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
         SIRFReg& reg = objectFromHandle<SIRFReg>(ptr);
         shared_ptr<NiftiImageData3DDeformation> sptr;
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation>(new NiftiImageData3DDeformation(reg.get_deformation_field_forward())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation>(new NiftiImageData3DDeformation(reg.get_deformation_field_forward().deep_copy())));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation>(new NiftiImageData3DDeformation(reg.get_deformation_field_inverse())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation>(new NiftiImageData3DDeformation(reg.get_deformation_field_inverse().deep_copy())));
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement>(new NiftiImageData3DDisplacement(reg.get_displacement_field_forward())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement>(new NiftiImageData3DDisplacement(reg.get_displacement_field_forward().deep_copy())));
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement>(new NiftiImageData3DDisplacement(reg.get_displacement_field_inverse())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement>(new NiftiImageData3DDisplacement(reg.get_displacement_field_inverse().deep_copy())));
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }

@@ -82,16 +82,16 @@ public:
     virtual void process() = 0;
 
     /// Get registered image
-    const NiftiImageData3D &get_output() const { return _warped_image; }
+    const NiftiImageData3D &get_output() const { std::cout << "\nGetting warped image. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _warped_image; }
 
     /// Get forward deformation field image
-    const NiftiImageData3DDeformation  &get_deformation_field_forward()  const { return _def_image_forward; }
+    const NiftiImageData3DDeformation  &get_deformation_field_forward()  const { std::cout << "\nGetting get_deformation_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_forward; }
     /// Get inverse deformation field image
-    const NiftiImageData3DDeformation  &get_deformation_field_inverse()  const { return _def_image_inverse; }
+    const NiftiImageData3DDeformation  &get_deformation_field_inverse()  const { std::cout << "\nGetting get_deformation_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_inverse; }
     /// Get forward displacement field image
-    const NiftiImageData3DDisplacement &get_displacement_field_forward() const { return _disp_image_forward; }
+    const NiftiImageData3DDisplacement &get_displacement_field_forward() const { std::cout << "\nGetting get_displacement_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_forward; }
     /// Get inverse displacement field image
-    const NiftiImageData3DDisplacement &get_displacement_field_inverse() const { return _disp_image_inverse; }
+    const NiftiImageData3DDisplacement &get_displacement_field_inverse() const { std::cout << "\nGetting get_displacement_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_inverse; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
