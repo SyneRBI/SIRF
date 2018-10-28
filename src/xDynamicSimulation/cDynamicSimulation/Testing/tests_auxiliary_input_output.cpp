@@ -43,7 +43,7 @@ void test_aux_io::test_write_ndarray_to_raw( void )
 
 
 	std::stringstream name_stream;
-	name_stream << "/media/sf_SharedFiles/test_binary_writer_" << Nx << "x" << Ny << "x" << Nz;
+	name_stream << SHARED_FOLDER_PATH << "test_binary_writer_" << Nx << "x" << Ny << "x" << Nz;
 
 	data_io::write_raw<complex_float_t>(name_stream.str(), dummy_data.begin(), dummy_data.getNumberOfElements());
 
@@ -84,6 +84,34 @@ void test_aux_io::test_write_ismrmrd_image_to_analyze( void )
 
 
 
+bool test_aux_io::test_read_single_column_txt( void )
+{
+	try
+	{	
+		bool test_successful = true;
+
+		std::string const filename_input = std::string(SHARED_FOLDER_PATH) + "testdata_inputoutput/testfile";
+
+
+		std::vector< float > input = data_io::read_single_column_txt<float>(filename_input);
+
+		std::cout << epiph( input.size() ) << std::endl;
+
+		for( size_t i=0; i<input.size(); i++)
+		{
+			std::cout << epiph( input[i] ) <<std::endl;
+		}
+
+		return  test_successful;
+	}
+	catch(...)
+	{
+		std::cout << "An unknown exception was caught" << std::endl;
+		return false;
+	}
+
+
+}
 
 
 

@@ -21,6 +21,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
 
 #include <ismrmrd/xml.h>
 #include <gadgetron/ImageIOAnalyze.h>
@@ -33,7 +34,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-
+typedef float TimeAxisType;
+typedef float SignalAxisType;
+typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
+typedef std::vector< SignalPoint > SignalContainer;
 
 namespace data_io{
 
@@ -103,6 +107,32 @@ namespace data_io{
 
 		std::cout << "Finished writing "  << output_name_without_ext << std::endl;		
 	};
+
+	template <typename T>
+	std::vector< T > read_single_column_txt( const std::string& filename_txt_without_ext )
+	{
+		std::string const filename_with_ext = filename_txt_without_ext + ".txt";
+		std::vector <T> output;
+		std::string line; 
+		std::ifstream myfile (filename_with_ext);
+		if (myfile.is_open())
+		  {
+		  	while ( getline (myfile,line) )
+		    {
+		      T val;
+		      myfile >> val;
+		      output.push_back(val);
+		    }
+		    myfile.close();
+		  }
+
+		 else
+			 throw std::runtime_error( "Unable to open file "+filename_with_ext);
+
+		return output;
+	}
+
+	SignalContainer read_surrogate_signal( const std::string& filename_time_axis, const std::string& filename_signal );
 
 }
 
