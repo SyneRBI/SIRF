@@ -14,6 +14,33 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 
+// ++++++++++++++++++ data_IO ++++++++++++++++
+
+SignalContainer data_io::read_surrogate_signal( const std::string& filename_time_axis, const std::string& filename_signal )
+{
+	std::vector< TimeAxisType > time_points = read_single_column_txt<TimeAxisType>(filename_time_axis);
+	std::vector< SignalAxisType > signal_points = read_single_column_txt<SignalAxisType>(filename_signal);
+  	
+	SignalContainer signal;
+
+  	if( time_points.size() == signal_points.size())
+  	{
+  		for( size_t i=0; i<time_points.size(); i++)
+  		{
+	  		SignalPoint sp (time_points[i], signal_points[i]);
+	  		signal.push_back( sp );
+	  	}
+
+  	}
+  	else
+  		throw std::runtime_error( "The two files given dont have the same number of data points in them." );
+
+  	return signal;
+
+}
+
+
+
 // ++++++++++++++++++ mr_IO ++++++++++++++++++
 
 ISMRMRD::IsmrmrdHeader mr_io::read_ismrmrd_header( std::string path_ismrmrd_h5_file_with_ext)
