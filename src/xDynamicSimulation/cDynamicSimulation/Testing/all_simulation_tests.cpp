@@ -82,7 +82,7 @@ void run_tests_dynamics( void )
 
 	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
 
-	tests_successful *= test_dynamic::test_bin_pet_time_interval();
+	// tests_successful *= test_dynamic::test_bin_pet_time_interval();
 
 
 	if ( !tests_successful )
@@ -290,7 +290,7 @@ void run_tests_phantom_input( void )
 	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);
 	// tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);
 	
-	test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
+	// test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
 	tests_successful *= test_read_h5_motionfields();
 
 	
