@@ -497,9 +497,9 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 
 		 
-		RPETrajectoryContainer rpe_traj;
-		auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
-		
+
+		RPEInterleavedGoldenCutTrajectoryContainer rpe_traj;
+		auto sptr_traj = std::make_shared< RPEInterleavedGoldenCutTrajectoryContainer >( rpe_traj );
 		mr_dyn_sim.set_trajectory( sptr_traj );
 
 		auto data_dims = segmentation_labels.getDims();
