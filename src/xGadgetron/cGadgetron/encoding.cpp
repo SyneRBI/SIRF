@@ -109,7 +109,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 	std::vector<size_t> data_dims = data_dims_from_ndarray< complex_float_t >(i_data);
 
 	size_t num_slices = data_dims[0];
-	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 	size_t const num_coils = data_dims[3];
 
 	auto traj_dims = this->traj_prep_.get_traj_dims();
@@ -134,16 +133,36 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
 
+	
+
 
 	size_t const oversampling_factor = 2;
 	size_t const kernel_size = 2;	//must keep integers! nfft instable with floats
 
+	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
+
+	size_t const Nr = traj_dims[0];
+	std::vector<size_t> cropped_slice_dims {Nr, Nr}; 
+	std::vector<size_t> crop_offset_idx{data_dims[1]/2 - Nr/2, data_dims[2]/2 - Nr/2};
+
+	Gadgetron::uint64d2 cropped_slice_dimension = from_std_vector< size_t, 2>(cropped_slice_dims);
+	Gadgetron::uint64d2 crop_offset = from_std_vector< size_t, 2>(crop_offset_idx);
+
+	if ( Nr > data_dims[1] || Nr > data_dims[2] )
+		throw std::runtime_error( "You passed a volume with less voxels than radial encoding points in your MR template file."); 
+
+	// std::vector<size_t> oversampled_slice_dims;
+	// for (auto i = slice_dims.begin(); i != slice_dims.end(); ++i)
+	// {
+	// 	oversampled_slice_dims.push_back( oversampling_factor * (*i) );
+	// }
+	
 	std::vector<size_t> oversampled_slice_dims;
-	for (auto i = slice_dims.begin(); i != slice_dims.end(); ++i)
+	for (auto i = cropped_slice_dims.begin(); i != cropped_slice_dims.end(); ++i)
 	{
 		oversampled_slice_dims.push_back( oversampling_factor * (*i) );
 	}
-	
+
 	Gadgetron::uint64d2 gridder_img_dimensions = from_std_vector<size_t, 2>(oversampled_slice_dims);
 
 	hoNFFT_plan<float, 2> nufft_operator( gridder_img_dimensions , (float)1, (float)kernel_size);// dont change the osf -> nfft instable wrt segfaults
@@ -153,7 +172,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 	
 	std::vector<size_t> traj_dims_check;	
 	trajectory.get_dimensions(traj_dims_check);
-	
+		
 	size_t const num_traj_elem = trajectory.get_number_of_elements();
 	
 	nufft_operator.preprocess( trajectory );
@@ -175,8 +194,12 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 				}
 			}
 
+			ho2DArray< complex_float_t > cropped_subslice( &cropped_slice_dims );
+			Gadgetron::crop<complex_float_t, 2>(crop_offset, cropped_slice_dimension, &sub_slice, &cropped_subslice);
+
+
 		    ho2DArray<complex_float_t> padded_sub_slice;
-		    Gadgetron::pad<complex_float_t,  2>(gridder_img_dimensions, &sub_slice, &padded_sub_slice, true, 0.f);
+		    Gadgetron::pad<complex_float_t,  2>(gridder_img_dimensions, &cropped_subslice, &padded_sub_slice, true, 0.f);
 
 			Gadgetron::hoNDArray< complex_float_t > result = this->traj_prep_.get_formatted_output_container< complex_float_t >();
 			Gadgetron::hoNDArray< float > identitiy_DCF = this->traj_prep_.get_formatted_identity_dcf< float >();
