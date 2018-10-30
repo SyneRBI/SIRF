@@ -141,7 +141,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	size_t const Nr = traj_dims[0];
+	size_t const Nr = traj_dims[1];
 	std::vector<size_t> cropped_slice_dims {Nr, Nr}; 
 	std::vector<size_t> crop_offset_idx{data_dims[1]/2 - Nr/2, data_dims[2]/2 - Nr/2};
 
@@ -149,7 +149,11 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 	Gadgetron::uint64d2 crop_offset = from_std_vector< size_t, 2>(crop_offset_idx);
 
 	if ( Nr > data_dims[1] || Nr > data_dims[2] )
+	{
+		std::cout << "Nr = " << Nr << std::endl;
+		std::cout << "data_dims[1,2] = " << data_dims[1] << "," << data_dims[2] << std::endl;
 		throw std::runtime_error( "You passed a volume with less voxels than radial encoding points in your MR template file."); 
+	}
 
 	// std::vector<size_t> oversampled_slice_dims;
 	// for (auto i = slice_dims.begin(); i != slice_dims.end(); ++i)
