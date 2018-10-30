@@ -278,7 +278,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
-		std::string const traj_name = "SF";
+		std::string const traj_name = "Cartesian";
 
 		if( traj_name == "ITLGCRPE") 
 		{
@@ -309,15 +309,15 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 2;
-		int const num_simul_resp_states = 6;
+		int const num_simul_cardiac_states = 10;
+		int const num_simul_resp_states = 10;
 		
 		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
-		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
-		SignalContainer mock_respiratory_signal = aux_test::get_generic_respiratory_signal(all_acquis);
+		SignalContainer mock_cardiac_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
+		SignalContainer mock_respiratory_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 
 	 	cardiac_dyn.set_dyn_signal( mock_cardiac_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
@@ -640,31 +640,52 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/output_dyn_pet_simul/test_pet_dynamic");
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRMSim/Output/DynamicPET/4DResp/pet_dyn_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
-		int const num_simul_cardiac_states = 3;
-		PETMotionDynamic  cardiac_dyn(num_simul_cardiac_states);
+		int const num_simul_cardiac_states = 10;
+		PETMotionDynamic  resp_dyn(num_simul_cardiac_states);
 
-		TimeAxisType acquis_time_ms = 60 * 1000;
-		SignalPoint signal_0(0.f, 0.f); 
-		SignalPoint signal_1(acquis_time_ms, 1.f); 
 
-		SignalContainer mock_ramp_signal;
-		mock_ramp_signal.push_back( signal_0 );
-		mock_ramp_signal.push_back( signal_1 );
-
-	 	cardiac_dyn.set_dyn_signal( mock_ramp_signal );
-	 	cardiac_dyn.bin_total_time_interval( TimeBin(0.f, acquis_time_ms) );
+		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_PATH), std::string(RESP_SIGNAL_PATH));
 		
-		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
+		auto first_pt = resp_sig[0];
+		auto last_pt = resp_sig[ resp_sig.size()-1 ];
 
-		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (cardiac_dyn) );
+		float min_time_ms = first_pt.first;
+		float tot_time_ms = last_pt.first - first_pt.first;
+
+		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+
+		for( size_t i=0; i<resp_sig.size(); i++)
+		{
+			auto curr_sig_pt = resp_sig[i];	
+			curr_sig_pt.first = 25 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
+			resp_sig[i] = curr_sig_pt;
+		}
+
+	 	first_pt = resp_sig[0];
+		last_pt = resp_sig[ resp_sig.size()-1 ];
+
+		min_time_ms = first_pt.first;
+		tot_time_ms = last_pt.first - first_pt.first;
+
+		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+	 	resp_dyn.set_dyn_signal( resp_sig );
+
+	 	resp_dyn.bin_total_time_interval( TimeBin(min_time_ms,tot_time_ms) );
+		TimeBin total_time(0, 25);
+
+		resp_dyn.bin_total_time_interval( total_time );
 		
-		pet_dyn_sim.simulate_dynamics( acquis_time_ms );
+
+		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		
+		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
+		pet_dyn_sim.simulate_dynamics( tot_time_ms );
 
 		return true;
 

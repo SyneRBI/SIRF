@@ -508,24 +508,48 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 	try
 	{
 		bool test_succesful = true;
+		// int const num_sig_pts = 4;
+		// for(int i=0; i<num_sig_pts; i++)
+		// {
+		// 	SignalPoint sp;
+		// 	sp.first = i*100 + i*i*sqrt(2);
+		// 	sp.second = (SignalAxisType)(i%2);
+		// 	signal_cont.push_back( sp );
+		// }
 
-
-		SignalContainer signal_cont;
-
-		int const num_sig_pts = 4;
-		for(int i=0; i<num_sig_pts; i++)
-		{
-			SignalPoint sp;
-			sp.first = i*100;
-			sp.second = (SignalAxisType)(i%2);
-			signal_cont.push_back( sp );
-		}
-	
-		TimeBin total_time(0, 1000);
-
-		int const num_simul_bins = 1;
+		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_PATH), std::string(CARDIAC_SIGNAL_PATH));
+		
+		int const num_simul_bins = 10;
 		aPETDynamic pet_dyn(num_simul_bins);
-		pet_dyn.set_dyn_signal( signal_cont );
+
+	
+		auto first_pt = card_sig[0];
+		auto last_pt = card_sig[ card_sig.size()-1 ];
+
+		float min_time_ms = first_pt.first;
+		float tot_time_ms = last_pt.first - first_pt.first;
+
+		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+
+		for( size_t i=0; i<card_sig.size(); i++)
+		{
+			auto curr_sig_pt = card_sig[i];	
+			curr_sig_pt.first = 25 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
+			std::cout << curr_sig_pt.first <<std::endl;
+			card_sig[i] = curr_sig_pt;
+		}
+
+	 	first_pt = card_sig[0];
+		last_pt = card_sig[ card_sig.size()-1 ];
+
+		min_time_ms = first_pt.first;
+		tot_time_ms = last_pt.first - first_pt.first;
+
+		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+	 	pet_dyn.set_dyn_signal( card_sig );
+
+	 	pet_dyn.bin_total_time_interval( TimeBin(min_time_ms,tot_time_ms) );
+		TimeBin total_time(0, 25);
 
 		pet_dyn.bin_total_time_interval( total_time );
 
