@@ -36,14 +36,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define USE_64_CUBE_INPUT
+#define USE_208_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
-	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_32x32x64.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
+	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_32x32x64.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH "temp_folder_motion_dyn_0/motion_field_0.hdr"
 
 	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH ""
@@ -71,11 +71,11 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
 
 #elif defined(USE_208_CUBE_INPUT)
-	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128x128x208.h5"
+	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128x128x208.h5"
+	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_208_cubed.h5"
 
 	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "ISMRMSimInput/MR/meas_MID00241_FID69145_Tho_T1_fast_ismrmrd.h5" 
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH ""
-
 
 	#define PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH SHARED_FOLDER_PATH "ISMRMSimInput/PET/template_image_input_contgen.hv"
 	#define PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH SHARED_FOLDER_PATH "ISMRMSimInput/PET/template_image_input_acquisition.hv"
@@ -83,8 +83,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #endif
 
-
-
+#define TIME_POINTS_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_time"
+#define CARDIAC_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/card_signal"
+#define RESP_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_signal"
 
 
 #define XML_TEST_PATH SHARED_FOLDER_PATH "XMLTestData/test_TissueParameters_XML.xml" 
