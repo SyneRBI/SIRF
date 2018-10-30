@@ -460,10 +460,10 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 	for( size_t i=0; i<vol_dims[0]; i++)
 		x_range.push_back( i-(float)vol_dims[0]/2.f );
 
-	for( size_t i=0; i<vol_dims[0]; i++)
+	for( size_t i=0; i<vol_dims[1]; i++)
 		y_range.push_back( i-(float)vol_dims[1]/2.f );
 
-	for( size_t i=0; i<vol_dims[0]; i++)
+	for( size_t i=0; i<vol_dims[2]; i++)
 		z_range.push_back( i-(float)vol_dims[2]/2.f );
 
 	ISMRMRD::NDArray<float> x_grid(vol_dims), y_grid(vol_dims), z_grid(vol_dims);
