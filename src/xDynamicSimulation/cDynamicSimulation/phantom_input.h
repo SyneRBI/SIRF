@@ -58,21 +58,20 @@ ISMRMRD::NDArray< T > read_dataset(std::string const h5_filename_with_suffix, st
 		hsize_t unsorted_dimensions_input[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM];
         hsize_t ndims = dataspace.getSimpleExtentDims( unsorted_dimensions_input, NULL);
 
-        for( int i = ndims; i < ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
-        	unsorted_dimensions_input[i] = 1;
+        hsize_t dimensions_input[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM];
+		
 
-      	hsize_t dimensions_input[ISMRMRD::ISMRMRD_NDARRAY_MAXDIM];
-
-        for( int i = 0; i < ndims; i++)
-			dimensions_input[i] = unsorted_dimensions_input[2-i];	        
-
+        for( int i=0 ; i < ndims; i++)
+       		dimensions_input[i] = unsorted_dimensions_input[i];
+   
 		for( int i = ndims; i < ISMRMRD::ISMRMRD_NDARRAY_MAXDIM; i++)
-        	dimensions_input[i] = 1;
-        
-        for( int i = 0; i < 7; i++)
-			std::cout << dimensions_input[i] <<std::endl;
+		   	dimensions_input[i] = 1;
 
-        std::vector < size_t > const input_dimensions (dimensions_input, dimensions_input + ISMRMRD::ISMRMRD_NDARRAY_MAXDIM);
+		dimensions_input[ndims-1-2] = unsorted_dimensions_input[ndims-1-0];
+		dimensions_input[ndims-1-1] = unsorted_dimensions_input[ndims-1-1];
+		dimensions_input[ndims-1-0] = unsorted_dimensions_input[ndims-1-2];
+
+		std::vector < size_t > const input_dimensions (dimensions_input, dimensions_input + ISMRMRD::ISMRMRD_NDARRAY_MAXDIM);
 	
 		ISMRMRD::NDArray< T > output( input_dimensions );
 
