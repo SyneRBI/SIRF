@@ -814,6 +814,39 @@ SignalContainer aux_test::get_generic_contrast_inflow_signal( sirf::Acquisitions
 	return signal;	
 }
 
+SignalContainer aux_test::get_generic_contrast_in_and_outflow_signal( sirf::AcquisitionsVector &acq_vec )
+{
+	ISMRMRD::Acquisition acq;
+	
+	acq_vec.get_acquisition(0, acq);
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
+	acq_vec.get_acquisition(acq_vec.items()-1, acq);
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
+
+	TimeAxisType t_half = (t_fin + t_0)/ (TimeAxisType)2;
+
+	SignalContainer signal;
+
+	std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point, final_signal_point;
+
+	zero_signal_point.first =  t_0;
+	zero_signal_point.second = SignalAxisType(0); 
+
+	signal.push_back(zero_signal_point);
+
+	one_signal_point.first = t_half;
+	one_signal_point.second = SignalAxisType(1);
+
+	signal.push_back(one_signal_point);
+
+	final_signal_point.first = t_fin;
+	final_signal_point.second = SignalAxisType(0);
+
+	signal.push_back(final_signal_point);
+
+	return signal;	
+}
 
 
 SignalContainer aux_test::get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec)

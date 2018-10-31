@@ -174,6 +174,8 @@ namespace aux_test
 	SignalContainer get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec);
 	SignalContainer get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec);
+	SignalContainer get_generic_contrast_in_and_outflow_signal( sirf::AcquisitionsVector &acq_vec);
+
 
 
 	SignalContainer get_mock_motion_signal( void );
