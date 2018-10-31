@@ -83,8 +83,10 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #endif
 
-#define TIME_POINTS_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_time"
+#define TIME_POINTS_CARDIAC_PATH SHARED_FOLDER_PATH "ISMRMSimInput/card_time"
 #define CARDIAC_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/card_signal"
+
+#define TIME_POINTS_RESP_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_time"
 #define RESP_SIGNAL_PATH SHARED_FOLDER_PATH "ISMRMSimInput/resp_signal"
 
 
