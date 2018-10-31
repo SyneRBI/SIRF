@@ -274,11 +274,11 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
 		
-		size_t num_coils = 4;
+		size_t num_coils = 20;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
-		std::string const traj_name = "Cartesian";
+		std::string const traj_name = "ITLGCRPE";
 
 		if( traj_name == "ITLGCRPE") 
 		{
@@ -306,7 +306,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		}
 
 
-		float const test_SNR = 150;
+		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);
 
 		int const num_simul_cardiac_states = 10;
@@ -318,6 +318,9 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 		SignalContainer mock_cardiac_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 		SignalContainer mock_respiratory_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
+
+		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 
 	 	cardiac_dyn.set_dyn_signal( mock_cardiac_signal );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
@@ -331,7 +334,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_dyn) );
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (resp_dyn) );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
