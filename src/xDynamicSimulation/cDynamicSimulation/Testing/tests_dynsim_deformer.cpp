@@ -6,11 +6,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
+
+
+#include <sstream>
+
+#include "tests_dynsim_deformer.h"
+
 #include "auxiliary_testing_functions.h"
+#include "auxiliary_input_output.h"
 
 #include "SIRFImageDataDeformation.h"
 
-#include "tests_dynsim_deformer.h"
 
 
 using namespace sirf;
@@ -20,37 +26,57 @@ bool DynSimDeformerTester::test_deform_contrast_generator( void )
 	
 try
 	{
-		bool test_succesful = true;
 
 		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
-
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
 		ISMRMRD::IsmrmrdHeader hdr = mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 		mr_cont_gen.set_rawdata_header(hdr);
 
+
+
+		int const num_simul_cardiac_states = 10;
+		MRMotionDynamic  motion_dyn(num_simul_cardiac_states);
+
+		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		// motion_dyn.set_displacement_fields( motion_fields, false );
+		
+		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		motion_dyn.set_displacement_fields( motion_fields, true );
+		
+		motion_dyn.prep_displacements_fields();
+
 		mr_cont_gen.map_contrast();
+		auto static_state = mr_cont_gen.get_contrast_filled_volumes();
 
-		SIRFImageDataDeformation img_dat_deform( DISPLACEMENT_FIELD_PATH );
+		std::string filename_static = std::string(SHARED_FOLDER_PATH) + "mr_contrast_map_static";
+		data_io::write_ISMRMRD_Image_to_Analyze(filename_static, static_state[0]);
 
-		std::vector< SIRFImageDataDeformation > all_img_deforms;
-		all_img_deforms.push_back(img_dat_deform);
 
-		auto sptr_mvf_as_nifti = img_dat_deform.get_image_as_nifti();
-		nifti_image mvf_as_nifti = *sptr_mvf_as_nifti;
 
-		DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, all_img_deforms);
-
-		auto cont_filled_vols = mr_cont_gen.get_contrast_filled_volumes();
-
-		for(int i=0; i<cont_filled_vols.size(); i++)
+		for( size_t i_motion=0; i_motion<num_simul_cardiac_states; i_motion++)
 		{
-			std::stringstream output_name;
-			output_name << FILENAME_MR_DEFORM_TEST << "_" << i;
-			data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (output_name.str(), cont_filled_vols[i]);
+			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
+
+			std::cout << "Getting mvf for signal = " << signal << std::endl;
+			SIRFImageDataDeformation curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+
+			std::vector< SIRFImageDataDeformation > vec_mvfs;
+			vec_mvfs.push_back( curr_mvf );
+
+			mr_cont_gen.map_contrast();
+			DynamicSimulationDeformer::deform_contrast_generator(mr_cont_gen, vec_mvfs);
+			
+			auto curr_motion_state = mr_cont_gen.get_contrast_filled_volumes();
+			
+			std::stringstream filename_stream;
+			filename_stream << SHARED_FOLDER_PATH << "mr_contrast_map_state_" << i_motion; 		
+			
+			data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (filename_stream.str(), curr_motion_state[0]);
 		}
 
-		return test_succesful;
+		return true;
+		
 	}
 	catch( std::runtime_error const &e)
 	{
@@ -59,6 +85,68 @@ try
 		throw e;
 	}
 }
+
+bool DynSimDeformerTester::test_deform_pet_contrast_generator( void ) 
+{
+
+	try{
+		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
+
+			
+		int const num_simul_cardiac_states = 10;
+		PETMotionDynamic  motion_dyn(num_simul_cardiac_states);
+
+		// auto motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		// motion_dyn.set_displacement_fields( motion_fields, false );
+		
+		auto motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		motion_dyn.set_displacement_fields( motion_fields, true );
+		
+		motion_dyn.prep_displacements_fields();
+
+		PETImageData template_img( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH ); 
+		motion_dyn.align_motion_fields_with_image( template_img );
+
+		pet_cont_gen.map_tissue();
+		std::vector< sirf::PETImageData > static_state = pet_cont_gen.get_contrast_filled_volumes();
+
+		std::string filename_static = std::string(SHARED_FOLDER_PATH) + "/pet_activity_map_static";
+		data_io::write_PET_image_to_hv(filename_static, static_state[0]);
+
+
+
+		for( size_t i_motion=0; i_motion<num_simul_cardiac_states; i_motion++)
+		{
+			float const signal = (float)i_motion/(float)num_simul_cardiac_states;
+
+			std::cout << "Getting mvf for signal = " << signal << std::endl;
+			SIRFImageDataDeformation curr_mvf = motion_dyn.get_interpolated_displacement_field( signal );
+
+			std::vector< SIRFImageDataDeformation > vec_mvfs;
+			vec_mvfs.push_back( curr_mvf );
+
+			pet_cont_gen.map_tissue();
+			DynamicSimulationDeformer::deform_contrast_generator(pet_cont_gen, vec_mvfs);
+			
+			std::vector< sirf::PETImageData > curr_motion_state = pet_cont_gen.get_contrast_filled_volumes();
+			
+			std::stringstream filename_stream;
+			filename_stream << SHARED_FOLDER_PATH << "pet_activity_map_state_" << i_motion; 		
+			data_io::write_PET_image_to_hv(filename_stream.str(), curr_motion_state[0]);
+		
+		}
+
+		return true;
+	}
+
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}
+
 
 
 bool DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior()

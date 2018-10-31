@@ -116,7 +116,7 @@ public:
 
 	void set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFields >& motion_fields, bool const motion_fields_are_cyclic = false);
 	     
-	void prep_displacements_fields( void );
+	virtual void prep_displacements_fields( void );
 
 	bool delete_temp_folder();
 
@@ -168,6 +168,8 @@ class MRMotionDynamic : public aMRDynamic, public MotionDynamic {
 public:
 	MRMotionDynamic():aMRDynamic(), MotionDynamic() {};
 	MRMotionDynamic(int const num_simul_states): aMRDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
+
+	void prep_displacements_fields( void );
 };
 
 class MRContrastDynamic: public aMRDynamic, public ContrastDynamic {
@@ -253,7 +255,7 @@ public:
 	PETMotionDynamic(int const num_simul_states): aPETDynamic(num_simul_states), MotionDynamic(num_simul_states) {};
 
 	void align_motion_fields_with_image( const sirf::PETImageData& img);
-
+	void prep_displacements_fields( void );
 };
 
 class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {

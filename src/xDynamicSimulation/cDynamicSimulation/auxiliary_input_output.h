@@ -26,7 +26,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/xml.h>
 #include <gadgetron/ImageIOAnalyze.h>
 
-
+#include "stir_data_containers.h"
 #include "gadgetron_data_containers.h"
 
 #define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
@@ -34,10 +34,18 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
+
+#define PIX_SIZE_X 3.2f
+#define PIX_SIZE_Y 3.2f
+#define PIX_SIZE_Z 1.92f
+
+
+
 typedef float TimeAxisType;
 typedef float SignalAxisType;
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
 typedef std::vector< SignalPoint > SignalContainer;
+
 
 namespace data_io{
 
@@ -79,20 +87,13 @@ namespace data_io{
 		img_dims.push_back( 1 );
 		img_dims.push_back( img.getNumberOfChannels() );
 
-		float const pix_size_X = 2.f;//img.getFieldOfViewX() / (float)img_dims[0];
-		float const pix_size_Y = 2.f;//img.getFieldOfViewY() / (float)img_dims[1];
-		float const pix_size_Z = 2.f;//img.getFieldOfViewZ() / (float)img_dims[2];
+		
 		// float const pix_size_X = (float)img.getFieldOfViewX() / (float)img_dims[0];
 		// float const pix_size_Y = (float)img.getFieldOfViewY() / (float)img_dims[1];
 		// float const pix_size_Z = (float)img.getFieldOfViewZ() / (float)img_dims[2];
-		// std::cout << "########################" << std::endl;
-		// std::cout << img.getFieldOfViewX() << std::endl;
-		// std::cout << img.getFieldOfViewY() << std::endl;
-		// std::cout << img.getFieldOfViewZ() << std::endl;
-		// std::cout << "########################" << std::endl;
+
 		float const pix_size_U = 0.f;
 		float const pix_size_Vec = 1.f;
-
 
 		Gadgetron::hoNDArray< T > data_to_be_written( img_dims );
 		size_t const num_elements = img.getNumberOfDataElements();
@@ -101,12 +102,70 @@ namespace data_io{
 			*(data_to_be_written.begin() + i) = *(img.begin() + i);
 	
 
-		Gadgetron::ImageIOAnalyze analyze_io( pix_size_X, pix_size_Y, pix_size_Z, pix_size_U, pix_size_Vec);
+		Gadgetron::ImageIOAnalyze analyze_io( PIX_SIZE_X, PIX_SIZE_Y, PIX_SIZE_Z, pix_size_U, pix_size_Vec);
 
 		analyze_io.export_array(data_to_be_written, output_name_without_ext);
 
 		std::cout << "Finished writing "  << output_name_without_ext << std::endl;		
 	};
+
+	template <typename T>
+	void write_MVF_from_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> mvf)
+	{
+
+		if(mvf.getNumberOfChannels() != 3)
+			throw std::runtime_error("Please pass a 3d vector field to write out.");
+
+		size_t const Nx = mvf.getMatrixSizeX();
+		size_t const Ny = mvf.getMatrixSizeY();
+		size_t const Nz = mvf.getMatrixSizeZ();
+		
+		std::cout << "Rescaling motion fields to milimeters." <<std::endl;
+
+		for(size_t nz=0; nz<Nz; nz++)
+		for(size_t ny=0; ny<Ny; ny++)
+		for(size_t nx=0; nx<Nx; nx++)
+		{
+			mvf(nx, ny, nz, 0) *= PIX_SIZE_Z;
+			mvf(nx, ny, nz, 1) *= PIX_SIZE_Y;
+			mvf(nx, ny, nz, 2) *= PIX_SIZE_X;
+		}
+
+		write_ISMRMRD_Image_to_Analyze<T> (output_name_without_ext, mvf);
+	
+	}
+
+	template <typename T>
+	void write_MVF_from_ISMRMRD_Image_to_Analyze_In_PET_Geometry(std::string const output_name_without_ext, ISMRMRD::Image<T> mvf)
+	{
+
+		if(mvf.getNumberOfChannels() != 3)
+			throw std::runtime_error("Please pass a 3d vector field to write out.");
+
+		size_t const Nx = mvf.getMatrixSizeX();
+		size_t const Ny = mvf.getMatrixSizeY();
+		size_t const Nz = mvf.getMatrixSizeZ();
+		
+		std::cout << "Rescaling motion fields to milimeters." <<std::endl;
+
+		for(size_t nz=0; nz<Nz; nz++)
+		for(size_t ny=0; ny<Ny; ny++)
+		for(size_t nx=0; nx<Nx; nx++)
+		{
+			mvf(nx, ny, nz, 0) *= -PIX_SIZE_X;
+			mvf(nx, ny, nz, 1) *= -PIX_SIZE_Y;
+			mvf(nx, ny, nz, 2) *= PIX_SIZE_Z;
+		}
+
+		write_ISMRMRD_Image_to_Analyze<T> (output_name_without_ext, mvf);
+	
+	}
+
+
+
+
+	void write_PET_image_to_hv( const std::string& filename_without_ext,const sirf::PETImageData& img);
+
 
 	template <typename T>
 	std::vector< T > read_single_column_txt( const std::string& filename_txt_without_ext )
