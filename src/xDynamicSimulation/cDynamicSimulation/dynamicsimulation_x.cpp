@@ -577,7 +577,8 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
 			this->acquire_raw_data();	
 
-			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+			float const ms_per_second = 1000.f;
+			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state/ms_per_second, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
 
 			this->add_noise();
 

@@ -640,52 +640,69 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRMSim/Output/DynamicPET/4DResp/pet_dyn_simul");
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRM/Output/DynamicPET/4DCard/pet_dyn_4Dcard_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
 		
-		int const num_simul_cardiac_states = 10;
-		PETMotionDynamic  resp_dyn(num_simul_cardiac_states);
+		int const num_simul_resp_states = 10;
+		int const num_simul_card_states = 10;
+
+		PETMotionDynamic  resp_dyn(num_simul_resp_states);
+		PETMotionDynamic  card_dyn(num_simul_card_states);
 
 
-		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_PATH), std::string(RESP_SIGNAL_PATH));
+		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		
-		auto first_pt = resp_sig[0];
-		auto last_pt = resp_sig[ resp_sig.size()-1 ];
+		auto first_resp_pt = resp_sig[0];
+		auto last_resp_pt = resp_sig[ resp_sig.size()-1 ];
 
-		float min_time_ms = first_pt.first;
-		float tot_time_ms = last_pt.first - first_pt.first;
-
-		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+		float min_time_resp_ms = first_resp_pt.first;
+		float tot_time_resp_ms = last_resp_pt.first - first_resp_pt.first;
 
 		for( size_t i=0; i<resp_sig.size(); i++)
 		{
 			auto curr_sig_pt = resp_sig[i];	
-			curr_sig_pt.first = 25 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
+			curr_sig_pt.first = 25000 * (curr_sig_pt.first - min_time_resp_ms)/tot_time_resp_ms;
 			resp_sig[i] = curr_sig_pt;
 		}
 
-	 	first_pt = resp_sig[0];
-		last_pt = resp_sig[ resp_sig.size()-1 ];
 
-		min_time_ms = first_pt.first;
-		tot_time_ms = last_pt.first - first_pt.first;
+		auto first_card_pt = card_sig[0];
+		auto last_card_pt = card_sig[ card_sig.size()-1 ];
 
-		std::cout << "total time ms: " << tot_time_ms <<std::endl;
+		float min_time_card_ms = first_card_pt.first;
+		float tot_time_card_ms = last_card_pt.first - first_card_pt.first;
+
+
+		for( size_t i=0; i<card_sig.size(); i++)
+		{
+			auto curr_sig_pt = card_sig[i];	
+			curr_sig_pt.first = 25000 * (curr_sig_pt.first - min_time_card_ms)/tot_time_card_ms;
+			card_sig[i] = curr_sig_pt;
+		}
+
 	 	resp_dyn.set_dyn_signal( resp_sig );
+	 	card_dyn.set_dyn_signal( card_sig );
 
-	 	resp_dyn.bin_total_time_interval( TimeBin(min_time_ms,tot_time_ms) );
-		TimeBin total_time(0, 25);
+	 	TimeBin total_time(0, 25000);
 
-		resp_dyn.bin_total_time_interval( total_time );
+	 	resp_dyn.bin_total_time_interval( total_time );
+	 	card_dyn.bin_total_time_interval( total_time );
 		
 
 		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		auto card_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
-		pet_dyn_sim.simulate_dynamics( tot_time_ms );
+		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		card_dyn.set_displacement_fields( card_motion_fields, true );
+		
+		// pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
+		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (card_dyn) );
+		
+
+		pet_dyn_sim.simulate_dynamics( 25000 );
 
 		return true;
 
