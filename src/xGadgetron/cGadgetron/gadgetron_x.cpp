@@ -464,7 +464,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
 				size_t const readout_access = is_reverse * (num_readout_pts - 1 - s) + (1-is_reverse)*s;
 				// acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
-				acq.data(s, c) = k_data(is_reverse, enc_step_2, enc_step_1, c);
+				acq.data(s, c) = k_data(readout_access, enc_step_2, enc_step_1, c);
 			}
 		}
 
