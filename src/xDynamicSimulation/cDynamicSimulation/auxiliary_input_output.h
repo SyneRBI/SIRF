@@ -35,9 +35,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
 
-#define PIX_SIZE_X 3.2f
-#define PIX_SIZE_Y 3.2f
-#define PIX_SIZE_Z 1.92f
+// #define PIX_SIZE_X 3.20f
+// #define PIX_SIZE_Y 3.20f
+// #define PIX_SIZE_Z 1.92f
+
+#define PIX_SIZE_X 2.0f
+#define PIX_SIZE_Y 2.0f
+#define PIX_SIZE_Z 2.0f
 
 
 

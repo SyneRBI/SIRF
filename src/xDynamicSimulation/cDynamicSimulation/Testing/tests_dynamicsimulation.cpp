@@ -373,19 +373,15 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		
 		int const num_simul_motion_dyn = 10;
 
-		// RPETrajectoryContainer rpe_traj;
-		// auto sptr_traj = std::make_shared< RPETrajectoryContainer >( rpe_traj );
-		// mr_dyn_sim.set_trajectory( sptr_traj );
 		
-
 		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 
-		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
-		SignalContainer mock_respiratory_signal = aux_test::get_generic_respiratory_signal(all_acquis);
+		SignalContainer mock_cardiac_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
+		SignalContainer mock_respiratory_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 		
 
 		// SETTING UP MOTION DYNAMICS ########################################################################
