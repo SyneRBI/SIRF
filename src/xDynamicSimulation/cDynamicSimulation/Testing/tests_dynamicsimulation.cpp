@@ -367,7 +367,17 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
 		
+			
+		auto data_dims = segmentation_labels.getDims();
 		
+		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
+		
+		size_t num_coils = 4;
+		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
+		mr_dyn_sim.set_coilmaps( csm );
+
+
+
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
