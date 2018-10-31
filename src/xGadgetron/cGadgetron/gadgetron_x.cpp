@@ -457,7 +457,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		bool values_became_huge = false;
 
 		
-		size_t const is_reverse = acq.isFlagSet(ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
+		size_t const is_reverse = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
 
 
 		for (unsigned int c = 0; c < nc; c++) {
