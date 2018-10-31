@@ -82,7 +82,7 @@ void run_tests_dynamics( void )
 
 	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
 
-	// tests_successful *= test_dynamic::test_bin_pet_time_interval();
+	tests_successful *= test_dynamic::test_bin_pet_time_interval();
 
 
 	if ( !tests_successful )
@@ -111,13 +111,13 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
 	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
-	tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
+	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
 
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
 	// tests_successful *= test_pet_dynsim::test_simulate_statics();
-	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
+	tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
 
 
 	if ( !tests_successful )
@@ -341,8 +341,8 @@ void run_tests_dynsim_deformer( void )
 	bool tests_successful = true;
 
 	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
-	tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
-
+	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
+	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	if ( !tests_successful )
 	{

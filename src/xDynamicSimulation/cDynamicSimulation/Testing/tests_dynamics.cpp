@@ -517,7 +517,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		// 	signal_cont.push_back( sp );
 		// }
 
-		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_PATH), std::string(CARDIAC_SIGNAL_PATH));
+		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		
 		int const num_simul_bins = 10;
 		aPETDynamic pet_dyn(num_simul_bins);
@@ -534,7 +534,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		for( size_t i=0; i<card_sig.size(); i++)
 		{
 			auto curr_sig_pt = card_sig[i];	
-			curr_sig_pt.first = 25 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
+			curr_sig_pt.first = 25000 * (curr_sig_pt.first - min_time_ms)/tot_time_ms;
 			std::cout << curr_sig_pt.first <<std::endl;
 			card_sig[i] = curr_sig_pt;
 		}
@@ -548,7 +548,7 @@ bool test_dynamic::test_bin_pet_time_interval( void )
 		std::cout << "total time ms: " << tot_time_ms <<std::endl;
 	 	pet_dyn.set_dyn_signal( card_sig );
 
-	 	pet_dyn.bin_total_time_interval( TimeBin(min_time_ms,tot_time_ms) );
+	 	pet_dyn.bin_total_time_interval( TimeBin(0,tot_time_ms) );
 		TimeBin total_time(0, 25);
 
 		pet_dyn.bin_total_time_interval( total_time );
