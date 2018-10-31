@@ -456,9 +456,15 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		
 		bool values_became_huge = false;
 
+		
+		size_t const is_reverse = acq.isFlagSet(ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
+
+
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_readout_pts; s++) {
-				acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
+				size_t const readout_access = is_reverse * (num_readout_pts - 1 - s) + (1-is_reverse)*s;
+				// acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
+				acq.data(s, c) = k_data(is_reverse, enc_step_2, enc_step_1, c);
 			}
 		}
 
