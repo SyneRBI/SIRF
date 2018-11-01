@@ -36,7 +36,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/test_data_ismrmrd.h5"
 // #define ISMRMRD_H5_TEST_PATH "/media/sf_SharedFolder/CCPPETMR/testdata_rpe128_ismrmrd.h5"
 
-#define USE_208_CUBE_INPUT
+#define USE_128_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
