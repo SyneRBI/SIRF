@@ -97,6 +97,7 @@ extern "C" {
     void* cSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
     void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegAffineTransformation_get_identity();
+    void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);
     void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 

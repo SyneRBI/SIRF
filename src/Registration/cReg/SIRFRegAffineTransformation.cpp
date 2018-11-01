@@ -207,3 +207,9 @@ void SIRFRegAffineTransformation::print() const
 {
     SIRFRegAffineTransformation::print({*this});
 }
+
+SIRFRegAffineTransformation SIRFRegAffineTransformation::get_inverse() const
+{
+    mat44 res = nifti_mat44_inverse(this->get_as_mat44());
+    return SIRFRegAffineTransformation(res.m);
+}

@@ -91,6 +91,12 @@ classdef AffineTransformation < mSIRFReg.Transformation
             calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_as_array', self.handle_, ptr_v);
             tm = ptr_v.Value;
         end    
+        function tm = get_inverse(self)
+            %Get forward transformation matrix.
+            tm = mSIRFReg.AffineTransformation();
+            tm.handle_ = calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_get_inverse', self.handle_);
+            mUtilities.check_status('SIRFRegAffineTransformation:get_inverse', tm);
+        end
     end
     methods(Static)
         function mat = get_identity()

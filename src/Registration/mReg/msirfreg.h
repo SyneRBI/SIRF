@@ -75,6 +75,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_deep_copy(const
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_identity();
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 #ifndef CSIRFREG_FOR_MATLAB

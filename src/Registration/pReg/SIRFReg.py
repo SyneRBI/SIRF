@@ -881,6 +881,13 @@ class AffineTransformation(_Transformation):
         try_calling(pysirfreg.cSIRFReg_SIRFRegAffineTransformation_as_array(self.handle, tm.ctypes.data))
         return tm
 
+    def get_inverse(self):
+        """Get inverse matrix."""
+        tm = AffineTransformation()
+        tm.handle = pysirfreg.cSIRFReg_SIRFRegAffineTransformation_get_inverse(self.handle)
+        check_status(tm.handle)
+        return tm
+
     @staticmethod
     def get_identity():
         """Get identity matrix."""

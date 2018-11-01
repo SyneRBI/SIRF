@@ -93,6 +93,9 @@ public:
     /// Print
     void print() const;
 
+    /// Get inverse
+    SIRFRegAffineTransformation get_inverse() const;
+
 protected:
     float _tm[4][4];
 };

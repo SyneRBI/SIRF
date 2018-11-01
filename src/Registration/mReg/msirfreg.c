@@ -156,6 +156,9 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_as_array(const 
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_identity() {
 	return cSIRFReg_SIRFRegAffineTransformation_get_identity();
 }
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr) {
+	return cSIRFReg_SIRFRegAffineTransformation_get_inverse(ptr);
+}
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
 	return cSIRFReg_SIRFRegAffineTransformation_mul(mat1_ptr, mat2_ptr);
 }

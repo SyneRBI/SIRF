@@ -666,6 +666,16 @@ void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
     CATCH;
 }
 extern "C"
+void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr)
+{
+    try {
+        SIRFRegAffineTransformation& tm = objectFromHandle<SIRFRegAffineTransformation>(ptr);
+        shared_ptr<SIRFRegAffineTransformation> sptr(new SIRFRegAffineTransformation(tm.get_inverse()));
+        return newObjectHandle(sptr);
+    }
+    CATCH;
+}
+extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
