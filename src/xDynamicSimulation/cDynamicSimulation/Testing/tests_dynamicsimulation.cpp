@@ -316,16 +316,13 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
 
-		SignalContainer mock_cardiac_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
-		SignalContainer mock_respiratory_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
-
-		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
+		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
-	 	cardiac_dyn.set_dyn_signal( mock_cardiac_signal );
+	 	cardiac_dyn.set_dyn_signal( card_sig );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	resp_dyn.set_dyn_signal( mock_respiratory_signal );
+	 	resp_dyn.set_dyn_signal( resp_sig );
 	 	resp_dyn.bin_mr_acquisitions( all_acquis );
 		
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -343,6 +340,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		t = clock();
 		mr_dyn_sim.simulate_dynamics();
 		t = clock() - t;
+
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
@@ -649,7 +647,7 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
 
-		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRM/Output/DynamicPET/4DCard/pet_dyn_4Dcard_simul");
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRMSim/Output/DynamicPET/5DCardResp/pet_dyn_5D_motion_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
@@ -707,7 +705,7 @@ bool test_pet_dynsim::test_simulate_motion_dynamics()
 		resp_dyn.set_displacement_fields( resp_motion_fields, false );
 		card_dyn.set_displacement_fields( card_motion_fields, true );
 		
-		// pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
+		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (resp_dyn) );
 		pet_dyn_sim.add_dynamic( std::make_shared<PETMotionDynamic> (card_dyn) );
 		
 
