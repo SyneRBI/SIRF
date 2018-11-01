@@ -108,7 +108,7 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= tests_mr_dynsim::test_constructor();
 	// tests_mr_dynsim::test_extract_hdr_information();
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
-	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
+	tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
 	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
 	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
@@ -117,7 +117,7 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
 	// tests_successful *= test_pet_dynsim::test_simulate_statics();
-	tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
+	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
 
 
 	if ( !tests_successful )
@@ -259,16 +259,16 @@ void run_tests_contrastgenerator(void)
 
 
 	// test_contgen::test_match_output_dims_to_headerinfo();
-	// test_contgen::test_mr_map_contrast_application_to_xcat();
+	test_contgen::test_mr_map_contrast_application_to_xcat();
 	// test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 
 	// // pet contgen tests
-	tests_successful *=	test_contgen::test_pet_constructor();
-	tests_successful *= test_contgen::test_pet_map_contrast();
-	tests_successful *= test_contgen::test_pet_map_attenuation(); 
-	tests_successful *= test_contgen::test_set_template_image_from_file();
+	// tests_successful *=	test_contgen::test_pet_constructor();
+	// tests_successful *= test_contgen::test_pet_map_contrast();
+	// tests_successful *= test_contgen::test_pet_map_attenuation(); 
+	// tests_successful *= test_contgen::test_set_template_image_from_file();
 
-	test_contgen::test_pet_map_contrast_application_to_xcat();
+	// test_contgen::test_pet_map_contrast_application_to_xcat();
 
 
 	if ( !tests_successful )

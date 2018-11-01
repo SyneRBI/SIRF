@@ -263,6 +263,9 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 {
 	try
 	{
+		clock_t t;
+		t = clock();
+		
 		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 		MRContrastGenerator mr_cont_gen( segmentation_labels, XML_XCAT_PATH);
 
@@ -309,8 +312,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 10;
+		int const num_simul_cardiac_states = 1;
+		int const num_simul_resp_states = 1;
 		
 		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
@@ -336,11 +339,10 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		
-		clock_t t;
-		t = clock();
+		
 		mr_dyn_sim.simulate_dynamics();
+		
 		t = clock() - t;
-
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
 
