@@ -211,8 +211,22 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 	
 	SeqParamType TE = sequ_par.TE.get();
 	
-	SeqParamType TR = sequ_par.TR.get();
-	// SeqParamType echo_spacing = sequ_par.echo_spacing.get();
+	SeqParamType TR;
+	
+	try
+	{	
+		TR = sequ_par.echo_spacing.get();
+
+	}
+	catch(const std::runtime_error &e)
+	{
+		std::cout << "Caught exception in map_flash_contrast." << std::endl;
+		std::cout << e.what() <<std::endl;
+		std::cout << "Echo spacing was not set in header file, taking TR value instead." <<std::endl;
+		TR = sequ_par.TR.get();
+	}
+
+
 
 	if ( TR.size() > 1 )
 		throw std::runtime_error(" More than one echo spacing was given. Please give only one in Flash contrast.");

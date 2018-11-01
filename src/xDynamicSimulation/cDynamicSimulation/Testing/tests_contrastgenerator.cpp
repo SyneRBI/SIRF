@@ -158,16 +158,15 @@ void test_contgen::test_match_output_dims_to_headerinfo( void )
 
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
-
+	std::cout << "Reading segmentation ... " <<std::endl;
 	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
-
-	std::string name_output_segmentation =  std::string( SHARED_FOLDER_PATH ) +"tissue_seg_xcat_test_192x192x192";
-	data_io::write_raw<unsigned int>(name_output_segmentation, segmentation_labels.begin(), segmentation_labels.getNumberOfElements());
-
+	std::cout << "... finished. " <<std::endl;
+	
 	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
 	ISMRMRD::IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
 	mr_contgen.set_rawdata_header(hdr);
 
+	
 	mr_contgen.map_contrast();
 	
 	std::vector< ISMRMRD::Image< complex_float_t> >	mr_contrasts = mr_contgen.get_contrast_filled_volumes();	
@@ -177,33 +176,12 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	std::cout << epiph(num_elements) << std::endl;
 	std::cout << epiph(num_contrasts) << std::endl;
 
-	// check data sizes
-	std::vector< size_t > contrast_dims;
-
-	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeX() );
-	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeY() );
-	contrast_dims.push_back( mr_contrasts[0].getMatrixSizeZ() );
-	contrast_dims.push_back( num_contrasts );
-	
-	ISMRMRD::NDArray< float > mr_contrast_abs, mr_contrast_arg; 
-	mr_contrast_abs.resize( contrast_dims );
-	mr_contrast_arg.resize( contrast_dims );
-
 	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
 	{	
-		size_t contrast_offset = i_contrast * num_elements;
-		for( size_t i=0; i<num_elements; i++ )
-		{
-			*(mr_contrast_abs.begin() + i + contrast_offset) = std::abs( *(mr_contrasts[i_contrast].begin() + i) );
-			*(mr_contrast_arg.begin() + i + contrast_offset) = std::arg( *(mr_contrasts[i_contrast].begin() + i) );
-
-		}
+		std::stringstream name_stream;
+		name_stream << SHARED_FOLDER_PATH << "testoutput_mr_cont_gent_contrast_" << i_contrast;
+		data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > ( name_stream.str(), mr_contrasts[i_contrast]);
 	}			
-	std::string name_output_contrast  =  std::string(SHARED_FOLDER_PATH) + "flash_contrast_xcat_test_";
-
-	data_io::write_raw<float>(name_output_contrast + "abs_192x192x192" , mr_contrast_abs.begin(), mr_contrast_abs.getNumberOfElements());
-	data_io::write_raw<float>(name_output_contrast + "arg_192x192x192" , mr_contrast_arg.begin(), mr_contrast_arg.getNumberOfElements());
-	
 }
 
 
