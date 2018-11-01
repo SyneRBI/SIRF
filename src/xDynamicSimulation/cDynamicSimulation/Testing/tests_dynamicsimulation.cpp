@@ -328,7 +328,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 	 	auto card_binned_aqcs = cardiac_dyn.get_binned_mr_acquisitions();
 	 	for(size_t i=0; i<card_binned_aqcs.size(); i++)
 	 	{
-	 		std::cout << "#acq in card bin " << i << "=" << card_binned_aqcs[i].items();
+	 		std::cout << "#acq in card bin " << i << "=" << card_binned_aqcs[i].items()<<std::endl;
 	 	}
 
 
@@ -338,7 +338,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 	 	auto resp_binned_aqcs = resp_dyn.get_binned_mr_acquisitions();
 	 	for(size_t i=0; i<resp_binned_aqcs.size(); i++)
 	 	{
-	 		std::cout << "#acq in resp bin " << i << "=" << resp_binned_aqcs[i].items();
+	 		std::cout << "#acq in resp bin " << i << "=" << resp_binned_aqcs[i].items() <<std::endl;
 	 	}
 
 
