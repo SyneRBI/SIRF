@@ -328,24 +328,11 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 	 	cardiac_dyn.set_dyn_signal( card_sig );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	auto card_binned_aqcs = cardiac_dyn.get_binned_mr_acquisitions();
-	 	for(size_t i=0; i<card_binned_aqcs.size(); i++)
-	 	{
-	 		std::cout << "#acq in card bin " << i << "=" << card_binned_aqcs[i].items()<<std::endl;
-	 	}
-
-
+	 	
 	 	resp_dyn.set_dyn_signal( resp_sig );
 	 	resp_dyn.bin_mr_acquisitions( all_acquis );
 
-	 	auto resp_binned_aqcs = resp_dyn.get_binned_mr_acquisitions();
-	 	for(size_t i=0; i<resp_binned_aqcs.size(); i++)
-	 	{
-	 		std::cout << "#acq in resp bin " << i << "=" << resp_binned_aqcs[i].items() <<std::endl;
-	 	}
-
-
-		
+	 			
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
