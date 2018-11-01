@@ -322,6 +322,9 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
+		card_sig = aux_test::get_generic_cardiac_signal(all_acquis);
+		resp_sig = aux_test::get_generic_respiratory_signal(all_acquis);
+
 	 	cardiac_dyn.set_dyn_signal( card_sig );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
