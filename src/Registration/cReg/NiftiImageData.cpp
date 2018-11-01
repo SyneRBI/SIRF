@@ -398,22 +398,29 @@ void NiftiImageData::crop(const int min_index[7], const int max_index[7])
 
     std::shared_ptr<nifti_image> im = _nifti_image;
 
+    // If any min values are -1, set them to 0. If any max values are -1, set them to dim[i]-1
+    int min_idx[7], max_idx[7];
+    for (int i=0; i<7; ++i) {
+        (min_index[i] > -1) ? min_idx[i] = min_index[i] : min_idx[i] = 0;
+        (max_index[i] > -1) ? max_idx[i] = max_index[i] : max_idx[i] = im->dim[i+1]-1;
+    }
+
     // Check the min. and max. indices are in bounds.
     // Check the max. is less than the min.
     bool bounds_ok = true;
-    if (!this->is_in_bounds(min_index))  bounds_ok = false;
-    if (!this->is_in_bounds(max_index))  bounds_ok = false;
+    if (!this->is_in_bounds(min_idx))  bounds_ok = false;
+    if (!this->is_in_bounds(max_idx))  bounds_ok = false;
     for (int i=0; i<7; ++i)
-        if (max_index[i] > im->dim[i+1]) bounds_ok = false;
+        if (max_idx[i] > im->dim[i+1]) bounds_ok = false;
     if (!bounds_ok) {
         std::stringstream ss;
         ss << "crop_image: Bounds not ok.\n";
         ss << "\tImage dims              = (";
         for (int i=1; i<8; ++i) ss << im->dim[i] << " ";
         ss << ").\n\tMinimum requested index = (";
-        for (int i=0; i<7; ++i) ss << min_index[i] << " ";
+        for (int i=0; i<7; ++i) ss << min_idx[i] << " ";
         ss << ").\n\tMaximum requested index = (";
-        for (int i=0; i<7; ++i) ss << max_index[i] << " ";
+        for (int i=0; i<7; ++i) ss << max_idx[i] << " ";
         ss << ").\n";
         throw std::runtime_error(ss.str());
     }
@@ -422,13 +429,13 @@ void NiftiImageData::crop(const int min_index[7], const int max_index[7])
     const NiftiImageData copy = this->deep_copy();
 
     // Set the new number of voxels
-    im->dim[1] = im->nx = max_index[0] - min_index[0] + 1;
-    im->dim[2] = im->ny = max_index[1] - min_index[1] + 1;
-    im->dim[3] = im->nz = max_index[2] - min_index[2] + 1;
-    im->dim[4] = im->nt = max_index[3] - min_index[3] + 1;
-    im->dim[5] = im->nu = max_index[4] - min_index[4] + 1;
-    im->dim[6] = im->nv = max_index[5] - min_index[5] + 1;
-    im->dim[7] = im->nw = max_index[6] - min_index[6] + 1;
+    im->dim[1] = im->nx = max_idx[0] - min_idx[0] + 1;
+    im->dim[2] = im->ny = max_idx[1] - min_idx[1] + 1;
+    im->dim[3] = im->nz = max_idx[2] - min_idx[2] + 1;
+    im->dim[4] = im->nt = max_idx[3] - min_idx[3] + 1;
+    im->dim[5] = im->nu = max_idx[4] - min_idx[4] + 1;
+    im->dim[6] = im->nv = max_idx[5] - min_idx[5] + 1;
+    im->dim[7] = im->nw = max_idx[6] - min_idx[6] + 1;
     im->nvox = unsigned(im->nx * im->ny * im->nz * im->nt * im->nu * im->nv * im->nw);
 
     // Set the number of dimensions (if it's been decreased)
@@ -453,16 +460,16 @@ void NiftiImageData::crop(const int min_index[7], const int max_index[7])
     int new_1d_idx, old_1d_idx;
 
     // Fill the data
-    for (old_index[6]=min_index[6]; old_index[6]<=max_index[6]; ++old_index[6]) {
-        for (old_index[5]=min_index[5]; old_index[5]<=max_index[5]; ++old_index[5]) {
-            for (old_index[4]=min_index[4]; old_index[4]<=max_index[4]; ++old_index[4]) {
-                for (old_index[3]=min_index[3]; old_index[3]<=max_index[3]; ++old_index[3]) {
-                    for (old_index[2]=min_index[2]; old_index[2]<=max_index[2]; ++old_index[2]) {
-                        for (old_index[1]=min_index[1]; old_index[1]<=max_index[1]; ++old_index[1]) {
-                            for (old_index[0]=min_index[0]; old_index[0]<=max_index[0]; ++old_index[0]) {
+    for (old_index[6]=min_idx[6]; old_index[6]<=max_idx[6]; ++old_index[6]) {
+        for (old_index[5]=min_idx[5]; old_index[5]<=max_idx[5]; ++old_index[5]) {
+            for (old_index[4]=min_idx[4]; old_index[4]<=max_idx[4]; ++old_index[4]) {
+                for (old_index[3]=min_idx[3]; old_index[3]<=max_idx[3]; ++old_index[3]) {
+                    for (old_index[2]=min_idx[2]; old_index[2]<=max_idx[2]; ++old_index[2]) {
+                        for (old_index[1]=min_idx[1]; old_index[1]<=max_idx[1]; ++old_index[1]) {
+                            for (old_index[0]=min_idx[0]; old_index[0]<=max_idx[0]; ++old_index[0]) {
 
                                 for (int i=0; i<7; ++i)
-                                    new_index[i] = old_index[i] - min_index[i];
+                                    new_index[i] = old_index[i] - min_idx[i];
 
                                 new_1d_idx = this->get_1D_index(new_index);
                                 old_1d_idx = copy.get_1D_index(old_index);
@@ -474,6 +481,24 @@ void NiftiImageData::crop(const int min_index[7], const int max_index[7])
             }
         }
     }
+
+    // If the minimum has been changed, need to alter the origin.
+    for (int i=0; i<3; ++i)
+        _nifti_image->qto_ijk.m[i][3] -= min_idx[i];
+    _nifti_image->qto_xyz =
+            nifti_mat44_inverse(_nifti_image->qto_ijk);
+    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
+                            &_nifti_image->quatern_b,
+                            &_nifti_image->quatern_c,
+                            &_nifti_image->quatern_d,
+                            &_nifti_image->qoffset_x,
+                            &_nifti_image->qoffset_y,
+                            &_nifti_image->qoffset_z,
+                            nullptr,
+                            nullptr,
+                            nullptr,
+                            &_nifti_image->qfac );
+    _nifti_image->pixdim[0]=_nifti_image->qfac;
 }
 
 int NiftiImageData::get_1D_index(const int idx[7]) const

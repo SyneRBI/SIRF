@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     try {
 
         // We should always more than 3 inputs, and always odd number
-        if (argc < 4 && argc % 2 == 1) {
+        if (argc < 4 || argc % 2 != 1) {
             print_usage();
             return EXIT_SUCCESS;
         }

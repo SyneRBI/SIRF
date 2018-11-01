@@ -142,7 +142,7 @@ public:
     /// Print multiple header info
     static void print_headers(const std::vector<sirf::NiftiImageData> &ims);
 
-    /// Crop
+    /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
 
     /// get 1D index from ND index
