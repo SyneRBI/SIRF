@@ -312,8 +312,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 10;
-		int const num_simul_resp_states = 10;
+		int const num_simul_cardiac_states = 5;
+		int const num_simul_resp_states = 5;
 		
 		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
