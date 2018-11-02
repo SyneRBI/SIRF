@@ -38,8 +38,8 @@ limitations under the License.
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
-#include "SIRF/common/data_container.h"
-#include "SIRF/common/pet_image_data.h"
+#include "sirf/common/data_container.h"
+#include "sirf/common/pet_image_data.h"
 
 namespace sirf {
 
