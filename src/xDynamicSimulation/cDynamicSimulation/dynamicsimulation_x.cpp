@@ -478,7 +478,7 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
-	float const scale_factor = 25;
+	float const scale_factor = 25000;
 	sptr_target_acquisitions_->axpby(1.0f * scale_factor, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
 
 	this->add_noise();

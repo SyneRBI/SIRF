@@ -322,10 +322,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
-		card_sig = aux_test::get_generic_cardiac_signal(all_acquis);
-		resp_sig = aux_test::get_generic_respiratory_signal(all_acquis);
-
-	 	cardiac_dyn.set_dyn_signal( card_sig );
+		cardiac_dyn.set_dyn_signal( card_sig );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
 
 	 	
@@ -616,6 +613,7 @@ bool test_pet_dynsim::test_simulate_statics()
 		PETContrastGenerator pet_cont_gen = aux_test::get_mock_pet_contrast_generator();
 
 		PETDynamicSimulation pet_dyn_sim( pet_cont_gen );
+		pet_dyn_sim.set_output_filename_prefix("/media/sf_SharedFolder/CCPPETMR/ISMRMSim/Output/StaticPET/MeasTime25s_myo_act_4/pet_stat_simul");
 		
 		pet_dyn_sim.set_filename_rawdata( PET_TEMPLATE_ACQUISITION_DATA_PATH );
 		pet_dyn_sim.set_template_image_data( PET_TEMPLATE_ACQUISITION_IMAGE_DATA_PATH );
