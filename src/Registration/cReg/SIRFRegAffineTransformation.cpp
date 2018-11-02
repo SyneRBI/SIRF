@@ -195,7 +195,7 @@ void SIRFRegAffineTransformation::save_to_file(const std::string &filename) cons
     FILE *file;
     file=fopen(filename.c_str(), "w");
     for(int i=0; i<4; ++i)
-        fprintf(file, "%.7F %.7F %.7F %.7F\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
+        fprintf(file, "%e %e %e %e\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
     fclose(file);
 }
 
