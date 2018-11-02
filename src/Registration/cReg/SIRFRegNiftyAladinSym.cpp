@@ -46,6 +46,12 @@ void SIRFRegNiftyAladinSym<T>::process()
     _registration_sptr->SetInputReference(_reference_image.get_raw_nifti_sptr().get());
     _registration_sptr->SetInputFloating(_floating_image.get_raw_nifti_sptr().get());
 
+    // Set masks
+    if (_reference_mask.is_initialised())
+        _registration_sptr->SetInputMask(_reference_mask.get_raw_nifti_sptr().get());
+    if (_floating_mask.is_initialised())
+        _registration_sptr->SetInputMask(_floating_mask.get_raw_nifti_sptr().get());
+
     // Parse parameter file
     this->parse_parameter_file();
 

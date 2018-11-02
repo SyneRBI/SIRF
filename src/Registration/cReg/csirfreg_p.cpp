@@ -114,6 +114,14 @@ sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
         const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
 		s.set_floating_image(im);
 	}
+    else if (boost::iequals(name, "reference_mask")) {
+        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        s.set_reference_mask(im);
+    }
+    else if (boost::iequals(name, "floating_mask")) {
+        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        s.set_floating_mask(im);
+    }
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;

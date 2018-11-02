@@ -53,6 +53,12 @@ void SIRFRegNiftyF3dSym<T>::process()
         _registration_sptr->SetAffineTransformation(&init_tm);
     }
 
+    // Set masks
+    if (_reference_mask.is_initialised())
+        _registration_sptr->SetReferenceMask(_reference_mask.get_raw_nifti_sptr().get());
+    if (_floating_mask.is_initialised())
+        _registration_sptr->SetFloatingMask(_floating_mask.get_raw_nifti_sptr().get());
+
     // Parse parameter file
     this->parse_parameter_file();
 

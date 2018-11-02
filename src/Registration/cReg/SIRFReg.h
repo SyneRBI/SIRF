@@ -99,6 +99,12 @@ public:
     /// the parameter file.
     void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
+    /// Set reference mask
+    void set_reference_mask(const NiftiImageData3D &reference_mask) { _reference_mask = reference_mask; }
+
+    /// Set floating mask
+    void set_floating_mask(const NiftiImageData3D &floating_mask)   {  _floating_mask = floating_mask;  }
+
 protected:
 
     /// Parse parameter file
@@ -131,6 +137,11 @@ protected:
     NiftiImageData3DDeformation _def_image_forward;
     /// Inverse deformation field image
     NiftiImageData3DDeformation _def_image_inverse;
+
+    /// Floating mask
+    NiftiImageData3D _floating_mask;
+    /// Reference mask
+    NiftiImageData3D _reference_mask;
 };
 }
 

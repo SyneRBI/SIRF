@@ -99,5 +99,15 @@ classdef (Abstract = true) SIRFReg < handle
             if nargin < 4; arg2 = ''; end
             h = calllib('msirfreg', 'mSIRFReg_SIRFReg_set_parameter', self.handle_, par, arg1, arg2);
         end
+        function set_reference_mask(self, im)
+            %Set mask of reference image.
+            assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
+            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'reference_mask', im, 'h')
+        end
+        function set_floating_mask(self, im)
+            %Set mask of floating image.
+            assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
+            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'floating_mask', im, 'h')
+        end
     end
 end

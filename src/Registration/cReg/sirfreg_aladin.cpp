@@ -44,6 +44,8 @@ void print_usage()
 
     // Optional flags
     std::cout << "\n  Optional flags:\n";
+    std::cout << "    -rmask:\t\tmask of reference image\n";
+    std::cout << "    -fmask:\t\tmask of floating image\n";
     std::cout << "    -warped:\t\twarped image filename\n";
     std::cout << "    -TM_forward:\tforward transformation matrix\n";
     std::cout << "    -TM_inverse:\tinverse transformation matrix\n";
@@ -114,8 +116,16 @@ int main(int argc, char* argv[])
         // Optional flags
         // ------------------------------------------------ //
 
+        // Masks
+        int r_mask           = find_flag(unused_flags,argv,"-rmask");
+        if (r_mask != -1)
+            aladin.set_reference_mask(NiftiImageData3D(argv[r_mask+1]));
+        int f_mask           = find_flag(unused_flags,argv,"-fmask");
+        if (f_mask != -1)
+            aladin.set_floating_mask(NiftiImageData3D(argv[f_mask+1]));
+
         // Warped image
-        int flag_warped   = find_flag(unused_flags,argv,"-warped");
+        int flag_warped      = find_flag(unused_flags,argv,"-warped");
 
         // TMs
         int flag_TM_forward  = find_flag(unused_flags,argv,"-TM_forward");
