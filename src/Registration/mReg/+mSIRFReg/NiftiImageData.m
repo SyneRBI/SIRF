@@ -121,7 +121,17 @@ classdef NiftiImageData < handle
         end
         function fill(self, val)
             %Fill image with single value.
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData_fill', self.handle_, val);
+            if numel(val) == 1
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImageData_fill', self.handle_, single(val));
+            else
+                if isa(val, 'single')
+                    ptr_v = libpointer('singlePtr', val);
+                else
+                    ptr_v = libpointer('singlePtr', single(val));
+                end
+                assert(all(size(val) == size(self.as_array)),[self.name ':fill. Dimensions do not match.'])
+                h = calllib('msirfreg', 'mSIRFReg_NiftiImageData_fill_arr', self.handle_, ptr_v);
+            end
             mUtilities.check_status([self.name ':fill'], h);
             mUtilities.delete(h)            
         end

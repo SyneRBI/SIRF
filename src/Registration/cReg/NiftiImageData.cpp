@@ -238,7 +238,7 @@ float NiftiImageData::get_sum() const
     return sum;
 }
 
-void NiftiImageData::fill(const float &v)
+void NiftiImageData::fill(const float v)
 {
     if(!this->is_initialised())
         throw std::runtime_error("NiftiImageData::fill(): Image not initialised.");

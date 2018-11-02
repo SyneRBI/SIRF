@@ -125,7 +125,7 @@ public:
     float get_sum() const;
 
     /// Fill
-    void fill(const float &v);
+    void fill(const float v);
 
     /// Get norm
     float get_norm(const NiftiImageData&) const;

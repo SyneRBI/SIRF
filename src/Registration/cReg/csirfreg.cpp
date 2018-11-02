@@ -199,6 +199,18 @@ void* cSIRFReg_NiftiImageData_fill(const void* ptr, const float val)
     CATCH;
 }
 extern "C"
+void* cSIRFReg_NiftiImageData_fill_arr(const void* ptr, size_t ptr_data)
+{
+    try {
+        NiftiImageData& im = objectFromHandle<NiftiImageData>(ptr);
+        float* data = (float*)ptr_data;
+        for (int i=0; i<int(im.get_raw_nifti_sptr()->nvox); ++i)
+            im(i) = data[i];
+        return new DataHandle;
+    }
+    CATCH;
+}
+extern "C"
 void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void* orig_ptr)
 {
     try {

@@ -57,6 +57,9 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_save_to_file(const void* ptr
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill(const void* ptr, const float val) {
 	return cSIRFReg_NiftiImageData_fill(ptr, val);
 }
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val) {
+	return cSIRFReg_NiftiImageData_fill_arr(ptr, val);
+}
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr) {
 	return cSIRFReg_NiftiImageData_deep_copy(copy_ptr, orig_ptr);
 }
