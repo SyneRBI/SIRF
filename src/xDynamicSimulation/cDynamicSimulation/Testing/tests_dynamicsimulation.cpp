@@ -277,7 +277,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
 		
-		size_t num_coils = 4;
+		size_t num_coils = 20;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
