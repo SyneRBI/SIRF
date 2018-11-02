@@ -54,6 +54,9 @@ namespace SIRFRegMisc {
     /// Copy nifti image
     void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
+    /// Get path from filename, create folder if it doesn't already exist
+    void check_folder_exists(const std::string &path);
+
     /// Do nifti image metadatas match?
     bool do_nifti_image_metadata_match(const sirf::NiftiImageData &im1, const sirf::NiftiImageData &im2);
 

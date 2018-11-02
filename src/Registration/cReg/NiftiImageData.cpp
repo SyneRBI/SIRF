@@ -164,15 +164,7 @@ void NiftiImageData::save_to_file(const std::string &filename, const int datatyp
 
     std::cout << "\nSaving image to file (" << filename << ")..." << std::flush;
 
-    boost::filesystem::path filename_boost(filename);
-
-    // If the folder doesn't exist, create it
-    if (!boost::filesystem::exists(filename_boost.parent_path())) {
-        if (filename_boost.parent_path().string() != "") {
-            std::cout << "\n\tCreating folder: \"" << filename_boost.parent_path().string() << "\"\n" << std::flush;
-            boost::filesystem::create_directory(filename_boost.parent_path());
-        }
-    }
+    SIRFRegMisc::check_folder_exists(filename);
 
     if (_original_datatype == -1)
         throw std::runtime_error("Original datatype was not set.");

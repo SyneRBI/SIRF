@@ -189,9 +189,12 @@ void SIRFRegAffineTransformation::save_to_file(const std::string &filename) cons
     if (filename.empty())
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
+    // If the folder doesn't exist, create it
+    SIRFRegMisc::check_folder_exists(filename);
+
     FILE *file;
     file=fopen(filename.c_str(), "w");
-    for(int i=0; i<4; i++)
+    for(int i=0; i<4; ++i)
         fprintf(file, "%.7F %.7F %.7F %.7F\n", _tm[i][0], _tm[i][1], _tm[i][2], _tm[i][3]);
     fclose(file);
 }

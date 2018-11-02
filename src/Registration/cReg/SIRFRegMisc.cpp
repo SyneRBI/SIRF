@@ -124,6 +124,19 @@ void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std
 #endif
 }
 
+/// Get path from filename, create folder if it doesn't already exist
+void check_folder_exists(const std::string &path)
+{
+    // If the folder doesn't exist, create it
+    boost::filesystem::path path_boost(path);
+    if (!boost::filesystem::exists(path_boost.parent_path())) {
+        if (path_boost.parent_path().string() != "") {
+            std::cout << "\n\tCreating folder: \"" << path_boost.parent_path().string() << "\"\n" << std::flush;
+            boost::filesystem::create_directory(path_boost.parent_path());
+        }
+    }
+}
+
 /// Do nifti image metadatas match?
 bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2)
 {
