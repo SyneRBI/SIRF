@@ -88,7 +88,7 @@ SIRFRegAffineTransformation::SIRFRegAffineTransformation()
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
-            (*this)[i][j] = 0.F;
+            _tm[i][j] = 0.F;
 }
 
 SIRFRegAffineTransformation::SIRFRegAffineTransformation(const std::string &filename)
