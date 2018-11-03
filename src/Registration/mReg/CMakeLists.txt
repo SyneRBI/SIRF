@@ -16,7 +16,7 @@
 #
 #=========================================================================
 
-if(SIRFREG_BUILD_MATLAB)
+if(BUILD_MATLAB)
 
   set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
@@ -37,4 +37,4 @@ if(SIRFREG_BUILD_MATLAB)
 
   ADD_SUBDIRECTORY(gmi)
   ADD_SUBDIRECTORY(tests)
-endif(SIRFREG_BUILD_MATLAB)
+endif(BUILD_MATLAB)
