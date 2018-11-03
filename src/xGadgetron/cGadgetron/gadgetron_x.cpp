@@ -452,7 +452,6 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if( num_sampled_readout_pts < acq.number_of_samples() )			
 			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension.", __FILE__, __LINE__);
 			
-
 		acq.resize(num_sampled_readout_pts, nc);
 		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
@@ -461,9 +460,11 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		
 		size_t const is_reverse = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
 
+		size_t const sampling_start = readout_size/2 - acq.center_sample;
+
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_sampled_readout_pts; s++) {
-				size_t const readout_access = is_reverse * (readout_size - 1 - s) + (1-is_reverse)*s;
+				size_t const readout_access = is_reverse * (readout_size - 1 - s - sampling_start) + (1-is_reverse)*( s  + sampling_start );
 				// acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
 				acq.data(s, c) = k_data(readout_access, enc_step_2, enc_step_1, c);
 			}
