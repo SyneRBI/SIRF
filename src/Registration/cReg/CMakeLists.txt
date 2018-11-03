@@ -22,7 +22,7 @@ SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageDa
 SET(HEADERS ${HEADERS}  "NiftiImageData.h"   "NiftiImageData3D.h"   "NiftiImageData3DTensor.h"   "NiftiImageData3DDeformation.h"   "NiftiImageData3DDisplacement.h")
 
 # If we're also wrapping to python or matlab, include the c-files
-IF(SIRFREG_BUILD_PYTHON OR SIRFREG_BUILD_MATLAB)
+IF(BUILD_PYTHON OR BUILD_MATLAB)
 	SET(SOURCES ${SOURCES} "csirfreg.cpp" "csirfreg_p.cpp")
 	SET(HEADERS ${HEADERS}  "csirfreg.h"   "csirfreg_p.h" )
 ENDIF()
