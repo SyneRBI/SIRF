@@ -31,7 +31,7 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
   SET(SWIG_MODULE_pysirfreg_EXTRA_DEPS "${cSIRFREG_INCLUDE_DIR}/csirfreg.h")
   SWIG_ADD_MODULE(pysirfreg python pysirfreg.i)
-  SWIG_LINK_LIBRARIES(pysirfreg SIRFReg ${PYTHON_LIBRARIES})
+  SWIG_LINK_LIBRARIES(pysirfreg SIRFReg ${PYTHON_LIBRARIES} ${STIR_LIBRARIES})
 
   include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
