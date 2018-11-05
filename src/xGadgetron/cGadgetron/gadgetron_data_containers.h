@@ -174,6 +174,7 @@ namespace sirf {
 		int get_acquisitions_dimensions(size_t ptr_dim);
 		void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
+		virtual void MRAcquisitionData::get_data(complex_float_t* z);
 
 		void order();
 		bool ordered() const { return ordered_; }

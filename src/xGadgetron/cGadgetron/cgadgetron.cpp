@@ -604,6 +604,38 @@ cGT_getAcquisitionsData
 
 extern "C"
 void*
+cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z)
+{
+	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
+		//z[0] = complex_float_t(1, 2);
+		//z[1] = complex_float_t(3, -4);
+		//z[2] = complex_float_t(-5, 6);
+		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+		MRAcquisitionData& acqs =
+			objectFromHandle<MRAcquisitionData>(h_acqs);
+		acqs.get_data(z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z)
+{
+	std::ofstream out;
+	out.open("tmp.txt");
+	complex_float_t* z = (complex_float_t*)ptr_z;
+	for (int i = 0; i < 3; i++) {
+		out << z[i].real() << " + i" << z[i].imag() << '\n';
+	}
+	out.close();
+	return new DataHandle;
+}
+
+extern "C"
+void*
 cGT_setAcquisitionsData
 (void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
 size_t ptr_re, size_t ptr_im)

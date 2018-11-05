@@ -199,6 +199,50 @@ classdef AcquisitionData < mGadgetron.DataContainer
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end
+        function data = new_as_array(self, select)
+%***SIRF*** as_array(select) returns an array with this object's data 
+%         (a 3D complex array).
+%         The dimensions are those returned by dimensions(select).
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            if nargin < 2
+                select = 'all';
+            end
+            [ns, nc, ma] = self.dimensions(select);
+            na = self.number();
+            if strcmp(select, 'all')
+                n = na;
+                ma = na;
+            else
+                n = na + 1;
+            end
+            m = ns*nc*ma;
+            ptr_z = libpointer('singlePtr', zeros(2, m));
+            calllib...
+                ('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
+                self.handle_, ptr_z);
+            data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
+                ns, nc, ma);
+        end
+        function new_fill(self, data)
+%***SIRF*** Changes acquisition data to that in 3D complex array argument.
+            if isempty(self.handle_)
+                error('AcquisitionData:empty_object', ...
+                    'cannot handle empty object')
+            end
+            z = [real(data(:))'; imag(data(:))'];
+            if isa(z, 'single')
+                ptr_z = libpointer('singlePtr', z);
+            else
+                ptr_z = libpointer('singlePtr', single(z));
+            end
+            h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
+                self.handle_, ptr_z);
+            mUtilities.check_status('AcquisitionData', h);
+            mUtilities.delete(h)
+        end
         function write(self, file)
 %         Writes self's acquisitions to an hdf5 file.
 %         file : the file name (Matlab string)

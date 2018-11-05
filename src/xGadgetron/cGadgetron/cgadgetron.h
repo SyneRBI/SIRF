@@ -78,6 +78,8 @@ extern "C" {
 		(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
+	void* cGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z);
+	void* cGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z);
 
 	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);

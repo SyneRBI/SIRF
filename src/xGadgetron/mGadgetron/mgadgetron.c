@@ -104,6 +104,9 @@ EXPORTED_FUNCTION 	void* mGT_processAcquisitions(void* ptr_proc, void* ptr_input
 EXPORTED_FUNCTION 	void* mGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num) {
 	return cGT_acquisitionFromContainer(ptr_acqs, acq_num);
 }
+EXPORTED_FUNCTION 	void* mGT_cloneAcquisitions(void* ptr_input) {
+	return cGT_cloneAcquisitions(ptr_input);
+}
 EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
 	return cGT_orderAcquisitions(ptr_acqs);
 }
@@ -121,6 +124,12 @@ EXPORTED_FUNCTION 	void* mGT_setAcquisitionsData (void* ptr_acqs, unsigned int n
 }
 EXPORTED_FUNCTION 	void*	mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
 	return cGT_writeAcquisitions(ptr_acqs, filename);
+}
+EXPORTED_FUNCTION 	void* mGT_fillAcquisitionsData(void* ptr_acqs, PTR_FLOAT ptr_z) {
+	return cGT_fillAcquisitionsData(ptr_acqs, ptr_z);
+}
+EXPORTED_FUNCTION 	void* mGT_acquisitionsDataAsArray(void* ptr_acqs, PTR_FLOAT ptr_z) {
+	return cGT_acquisitionsDataAsArray(ptr_acqs, ptr_z);
 }
 EXPORTED_FUNCTION 	void* mGT_reconstructImages(void* ptr_recon, void* ptr_input) {
 	return cGT_reconstructImages(ptr_recon, ptr_input);

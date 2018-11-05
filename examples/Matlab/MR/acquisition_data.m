@@ -82,7 +82,11 @@ end
 
 % Data returned as complex array
 acq_array0 = acq_data.as_array();
-
+% acq_array0(1 : 3, 1, 1)
+% acq_array0(ns - 2 : ns, nc, na)
+% acq_array = acq_data.new_as_array();
+% acq_array(1 : 3, 1, 1)
+% acq_array(ns - 2 : ns, nc, na)
 is = ns/2;
 ic = nc/2;
 ia = na/2;
@@ -90,6 +94,10 @@ fprintf('Value of one array element: %f\n', acq_array0(is, ic, ia))
 
 acq_array0(is, ic, ia) = acq_array0(is, ic, ia)*10;
 
+%acq_array0(1 : 3, 1, 1)
+%acq_data.new_fill(acq_array0);
+%acq_array = acq_data.new_as_array();
+%acq_array(1 : 3, 1, 1)
 % Data can be replaced using fill method
 acq_data.fill(acq_array0);
 

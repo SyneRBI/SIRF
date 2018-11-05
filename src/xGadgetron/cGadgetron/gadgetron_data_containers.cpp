@@ -167,6 +167,29 @@ MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
 	}
 }
 
+void
+MRAcquisitionData::get_data(complex_float_t* z)
+{
+	ISMRMRD::Acquisition acq;
+	unsigned int na = number();
+	unsigned int n = 0;
+	for (unsigned int a = 0, i = 0; a < na; a++) {
+		get_acquisition(a, acq);
+		//if (TO_BE_IGNORED(acq)) {
+		//	std::cout << "ignoring acquisition " << a << '\n';
+		//	continue;
+		//}
+		n++;
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < ns; s++, i++) {
+				z[i] = acq.data(s, c);
+			}
+		}
+	}
+}
+
 unsigned int 
 MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im)
 {
