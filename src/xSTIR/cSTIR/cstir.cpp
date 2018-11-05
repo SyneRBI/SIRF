@@ -907,24 +907,8 @@ void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 	try {
 		shared_ptr<PETAcquisitionData>& sptr_ad =
 			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		PETImageData id(*sptr_ad);
-		int dim[3];
-		float vs[3];
-		float is[3];
-		id.get_dimensions(dim);
-		id.get_voxel_sizes(vs);
-		for (int i = 0; i < 3; i++)
-			is[i] = dim[i] * vs[i];
-		int nz = dim[0];
-		float vx = is[2] / nx;
-		float vy = is[1] / ny;
-		float vz = vs[0];
-		shared_ptr<Voxels3DF> sptr_v(new Voxels3DF(IndexRange3D(0, nz - 1,
-			-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-			Coord3DF(0, 0, 0),
-			Coord3DF(vz, vy, vx)));
-		shared_ptr<PETImageData> sptr(new PETImageData(*sptr_v));
-		sptr->fill(0.0);
+		shared_ptr<PETImageData> sptr(
+			new PETImageData(*sptr_ad, nx, ny));
 		return newObjectHandle(sptr);
 	}
 	CATCH;
