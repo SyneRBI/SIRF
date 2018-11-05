@@ -154,28 +154,15 @@ VoxelisedGeometricalInfo<num_dimensions>::
 calculate_index_to_physical_point_matrix() const
 {
 	TransformMatrix index_to_physical_point_matrix;
-	for (unsigned int j = 0; j<num_dimensions; j++) {
-		for (unsigned int i = 0; i<num_dimensions; i++) {
-			// set cosines
-			index_to_physical_point_matrix[j][i] =
-				direction[j][i] * spacing[j];
-			//std::cout << direction[j][i] << ' ' << spacing[j] << '\n';
+	for (unsigned int dim = 0; dim<num_dimensions; dim++) {
+		for (unsigned int axis = 0; axis<num_dimensions; axis++) {
+			index_to_physical_point_matrix[dim][axis] =
+				direction[dim][axis] * spacing[dim];
 		}
-		// set translations
-        // TODO This will only work for diagonal matrices i.e.,:
-        // 1 0 0     0 1 0
-        // 0 1 0 not 1 0 0 or similar
-        // 0 0 1     0 0 1
-        index_to_physical_point_matrix[j][num_dimensions] = offset[j] * direction[j][j];
-		index_to_physical_point_matrix[num_dimensions][j] = 0;
+		index_to_physical_point_matrix[dim][num_dimensions] = offset[dim];
+		index_to_physical_point_matrix[num_dimensions][dim] = 0;
 	}
 	index_to_physical_point_matrix[num_dimensions][num_dimensions] = 1;
-	//for (unsigned int j = 0; j <= num_dimensions; j++) {
-	//	for (unsigned int i = 0; i <= num_dimensions; i++) {
-	//		std::cout << index_to_physical_point_matrix[j][i] << ' ';
-	//	}
-	//	std::cout << '\n';
-	//}
 	return index_to_physical_point_matrix;
 }
 
