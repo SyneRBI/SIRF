@@ -568,21 +568,21 @@ namespace sirf {
 					= vox_image->get_min_indices();
 				const Coord3DF first_vox_coord
 					= vox_image->get_LPS_coordinates_for_indices(first_vox);
-				offset(0) = first_vox_coord.x();
-				offset(1) = first_vox_coord.y();
-				offset(2) = first_vox_coord.z();
+				offset[0] = first_vox_coord.x();
+				offset[1] = first_vox_coord.y();
+				offset[2] = first_vox_coord.z();
 
 				// SIRF and STIR share size definition
 				VoxelisedGeometricalInfo3D::Size size;
-				size(0) = vox_image->get_x_size();
-				size(1) = vox_image->get_y_size();
-				size(2) = vox_image->get_z_size();
+				size[0] = vox_image->get_x_size();
+				size[1] = vox_image->get_y_size();
+				size[2] = vox_image->get_z_size();
 
 				// SIRF's spacing is STIR's voxel size
 				VoxelisedGeometricalInfo3D::Spacing spacing;
-				spacing(0) = vox_image->get_voxel_size()[3];
-				spacing(1) = vox_image->get_voxel_size()[2];
-				spacing(2) = vox_image->get_voxel_size()[1];
+				spacing[0] = vox_image->get_voxel_size()[3];
+				spacing[1] = vox_image->get_voxel_size()[2];
+				spacing[2] = vox_image->get_voxel_size()[1];
 
 				// Find axes direction as the normalised vector between voxels
 				// in each direction
@@ -596,7 +596,7 @@ namespace sirf {
 						= next_vox_along_axis_coord - first_vox_coord;
 					axis_direction /= stir::norm(axis_direction);
 					for (int dim = 0; dim < 3; dim++)
-						direction(dim, axis) = axis_direction[3 - dim];
+						direction[dim][axis] = axis_direction[3 - dim];
 				}
 				return VoxelisedGeometricalInfo3D(offset, spacing, size, direction);
 

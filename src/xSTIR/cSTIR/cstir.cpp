@@ -999,7 +999,7 @@ void* cSTIR_getImageTransformMatrix(const void* ptr_im, size_t ptr_md)
 		TransformMatrix3D mx = id.calculate_index_to_physical_point_matrix();
 		for (int j = 0; j < 4; j++)
 			for (int i = 0; i < 4; i++)
-				data[i + 4 * j] = mx(j, i);
+				data[i + 4 * j] = mx[j][i];
 		return new DataHandle;
 	}
 	CATCH;
