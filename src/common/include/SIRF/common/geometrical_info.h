@@ -21,27 +21,20 @@
 #ifndef SIRF_GEOMETRICAL_INFO_TYPE
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
-template <int num_dimensions, typename T>
-class tVector {
-private:
-	typedef T _vectT[num_dimensions];
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
-public:
-	inline T& operator[](const int d)
-		{ return vect[d]; }
-	inline T operator[](const int d) const
-		{ return vect[d]; }
+template<typename T, int N>
+using Vector = boost::numeric::ublas::c_vector<T, N>;
 
-private:
-	_vectT vect;
-};
-
+template<typename T, int M, int N>
+using Matrix = boost::numeric::ublas::c_matrix<T, M, N>;
 
 template <int num_physical_dimensions, int num_index_dimensions>
 class GeometricalInfo {
 public:
-	typedef tVector<num_physical_dimensions, float>     Coordinate;
-	typedef tVector<num_index_dimensions, unsigned int> Index;
+	using Coordinate = Vector<float, num_physical_dimensions>;
+	using Index = Vector<unsigned int, num_index_dimensions>;
 	// Eventually something here like
 	// Coordinate transform_index_to_physical_point(Index)
 	// Index transform_physical_point_to_index(Coordinate)
@@ -52,37 +45,36 @@ template <int num_dimensions>
 class VoxelisedGeometricalInfo :
 	public GeometricalInfo<num_dimensions, num_dimensions> {
 private:
-	typedef GeometricalInfo<num_dimensions, num_dimensions> BaseType;
+	using BaseType = GeometricalInfo<num_dimensions, num_dimensions>;
 
 public:
 	// TODO: Why to I have to define these again?
-	typedef typename BaseType::Coordinate Coordinate;
-	typedef typename BaseType::Index Index;
+	using Coordinate = typename BaseType::Coordinate;
+	using Index = typename BaseType::Index;
 
 	/*!
 	   Offset is the coordinate of the center of the first voxel in physical
 	   space.
 	*/
-	typedef Coordinate Offset;
+	using Offset = Coordinate;
 	/*!
 	   Spacing is the physical distance between voxels in each dimensions.
 	*/
-	typedef Coordinate Spacing;
+	using Spacing = Coordinate;
 	/*!
 	   Size is the number of voxels in each dimension.
 	*/
-	typedef Index Size;
+	using Size = Index;
 	/*!
-	   Each vector in Direction tells the direction of the axis in LPS
+	   Each column vector in Direction tells the direction of the axis in LPS
 	   physical space.
 	*/
-	typedef tVector<num_dimensions, Coordinate> DirectionMatrix;
+	using DirectionMatrix = Matrix<float, num_dimensions, num_dimensions>;
 	/*!
-	   Each vector in Direction tells the direction of the axis in LPS
-	   physical space.
+	  The transform matrix multiplied by a voxel's index appended with 1 will
+	  give the location of the center of the voxel.
 	*/
-	typedef tVector<num_dimensions+1, tVector<num_dimensions+1, float> >
-		TransformMatrix;
+	using TransformMatrix = Matrix<float, num_dimensions+1, num_dimensions+1>;
 
 
 	VoxelisedGeometricalInfo(
@@ -156,13 +148,13 @@ calculate_index_to_physical_point_matrix() const
 	TransformMatrix index_to_physical_point_matrix;
 	for (unsigned int dim = 0; dim<num_dimensions; dim++) {
 		for (unsigned int axis = 0; axis<num_dimensions; axis++) {
-			index_to_physical_point_matrix[dim][axis] =
-				direction[dim][axis] * spacing[dim];
+			index_to_physical_point_matrix(dim, axis) =
+				direction(dim, axis) * spacing(dim);
 		}
-		index_to_physical_point_matrix[dim][num_dimensions] = offset[dim];
-		index_to_physical_point_matrix[num_dimensions][dim] = 0;
+		index_to_physical_point_matrix(dim, num_dimensions) = offset(dim);
+		index_to_physical_point_matrix(num_dimensions, dim) = 0;
 	}
-	index_to_physical_point_matrix[num_dimensions][num_dimensions] = 1;
+	index_to_physical_point_matrix(num_dimensions, num_dimensions) = 1;
 	return index_to_physical_point_matrix;
 }
 
