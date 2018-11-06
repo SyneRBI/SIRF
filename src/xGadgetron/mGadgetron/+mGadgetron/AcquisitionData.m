@@ -149,7 +149,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             a.handle_ = calllib('mgadgetron', ...
                 'mGT_acquisitionFromContainer', self.handle_, num - 1);
         end
-        function data = as_array(self, select)
+        function data = old_as_array(self, select)
 %***SIRF*** as_array(select) returns an array with this object's data 
 %         (a 3D complex array).
 %         The dimensions are those returned by dimensions(select).
@@ -178,7 +178,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             im = reshape(ptr_im.Value, ns, nc, ma);
             data = re + 1i*im;
         end
-        function fill(self, data)
+        function old_fill(self, data)
 %***SIRF*** Changes acquisition data to that in 3D complex array argument.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
@@ -199,7 +199,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end
-        function data = new_as_array(self, select)
+        function data = as_array(self, select)
 %***SIRF*** as_array(select) returns an array with this object's data 
 %         (a 3D complex array).
 %         The dimensions are those returned by dimensions(select).
@@ -210,23 +210,22 @@ classdef AcquisitionData < mGadgetron.DataContainer
             if nargin < 2
                 select = 'all';
             end
-            [ns, nc, ma] = self.dimensions(select);
-            na = self.number();
+            [ns, nc, na] = self.dimensions(select);
+            %na = self.number();
             if strcmp(select, 'all')
-                n = na;
-                ma = na;
+                all = 1;
             else
-                n = na + 1;
+                all = 0;
             end
-            m = ns*nc*ma;
-            ptr_z = libpointer('singlePtr', zeros(2, m));
+            n = ns*nc*na;
+            ptr_z = libpointer('singlePtr', zeros(2, n));
             calllib...
                 ('mgadgetron', 'mGT_acquisitionsDataAsArray', ...
-                self.handle_, ptr_z);
+                self.handle_, ptr_z, all);
             data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
-                ns, nc, ma);
+                ns, nc, na);
         end
-        function new_fill(self, data)
+        function fill(self, data)
 %***SIRF*** Changes acquisition data to that in 3D complex array argument.
             if isempty(self.handle_)
                 error('AcquisitionData:empty_object', ...
@@ -239,7 +238,7 @@ classdef AcquisitionData < mGadgetron.DataContainer
                 ptr_z = libpointer('singlePtr', single(z));
             end
             h = calllib('mgadgetron', 'mGT_fillAcquisitionsData', ...
-                self.handle_, ptr_z);
+                self.handle_, ptr_z, 1);
             mUtilities.check_status('AcquisitionData', h);
             mUtilities.delete(h)
         end

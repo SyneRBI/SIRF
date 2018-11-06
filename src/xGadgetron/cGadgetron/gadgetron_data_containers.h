@@ -146,6 +146,8 @@ namespace sirf {
 		virtual MRAcquisitionData*
 			same_acquisitions_container(AcquisitionsInfo info) = 0;
 
+		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
+
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -172,9 +174,10 @@ namespace sirf {
 
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim);
-		void get_acquisitions_flags(unsigned int n, int* flags);
+		//void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
-		virtual void MRAcquisitionData::get_data(complex_float_t* z);
+	
+		virtual void MRAcquisitionData::get_data(complex_float_t* z, int all = 1);
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -240,6 +243,7 @@ namespace sirf {
 
 		// implementations of abstract methods
 
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual unsigned int items();
@@ -316,6 +320,7 @@ namespace sirf {
 		{
 			acqs_info_ = ac.acquisitions_info();
 		}
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info)

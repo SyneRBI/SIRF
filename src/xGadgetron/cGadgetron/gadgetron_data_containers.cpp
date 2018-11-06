@@ -152,33 +152,33 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
 	//return not_reg;
 }
 
-void 
-MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
-{
-	ISMRMRD::Acquisition acq;
-	unsigned int na = number();
-	for (unsigned int a = 0, i = 0; a < na; a++) {
-		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq) && n < na) {
-			std::cout << "ignoring acquisition " << a << '\n';
-			continue;
-		}
-		flags[i++] = (int)acq.flags();
-	}
-}
+//void 
+//MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
+//{
+//	ISMRMRD::Acquisition acq;
+//	unsigned int na = number();
+//	for (unsigned int a = 0, i = 0; a < na; a++) {
+//		get_acquisition(a, acq);
+//		if (TO_BE_IGNORED(acq) && n < na) {
+//			std::cout << "ignoring acquisition " << a << '\n';
+//			continue;
+//		}
+//		flags[i++] = (int)acq.flags();
+//	}
+//}
 
 void
-MRAcquisitionData::get_data(complex_float_t* z)
+MRAcquisitionData::get_data(complex_float_t* z, int all)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
 	unsigned int n = 0;
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		get_acquisition(a, acq);
-		//if (TO_BE_IGNORED(acq)) {
-		//	std::cout << "ignoring acquisition " << a << '\n';
-		//	continue;
-		//}
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
 		n++;
 		unsigned int nc = acq.active_channels();
 		unsigned int ns = acq.number_of_samples();
@@ -638,7 +638,52 @@ AcquisitionsFile::set_acquisition_data
 	return 0;
 }
 
-int 
+void
+AcquisitionsFile::set_data(const complex_float_t* z, int all)
+{
+	shared_ptr<MRAcquisitionData> sptr_ac =
+		this->new_acquisitions_container();
+	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
+	ptr_ac->set_acquisitions_info(acqs_info_);
+	ptr_ac->write_acquisitions_info();
+	ptr_ac->set_ordered(true);
+	ISMRMRD::Acquisition acq;
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		get_acquisition(a, acq);
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+		sptr_ac->append_acquisition(acq);
+	}
+	take_over(*sptr_ac);
+}
+
+void
+AcquisitionsVector::set_data(const complex_float_t* z, int all)
+{
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		ISMRMRD::Acquisition& acq = *acqs_[a];
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+	}
+}
+
+int
 AcquisitionsVector::set_acquisition_data
 (int na, int nc, int ns, const float* re, const float* im)
 {

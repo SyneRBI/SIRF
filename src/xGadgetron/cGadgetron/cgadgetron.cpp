@@ -569,21 +569,21 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 	CATCH;
 }
 
-extern "C"
-void*
-cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
-{
-	try {
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<ISMRMRD::Acquisition>
-			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisitions_flags(n, (int*)ptr_f);
-		return new DataHandle;
-	}
-	CATCH;
-}
+//extern "C"
+//void*
+//cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
+//{
+//	try {
+//		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+//		MRAcquisitionData& acqs =
+//			objectFromHandle<MRAcquisitionData>(h_acqs);
+//		shared_ptr<ISMRMRD::Acquisition>
+//			sptr_acq(new ISMRMRD::Acquisition);
+//		acqs.get_acquisitions_flags(n, (int*)ptr_f);
+//		return new DataHandle;
+//	}
+//	CATCH;
+//}
 
 extern "C"
 void*
@@ -604,7 +604,7 @@ cGT_getAcquisitionsData
 
 extern "C"
 void*
-cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z)
+cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
@@ -614,7 +614,7 @@ cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z)
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		acqs.get_data(z);
+		acqs.get_data(z, all);
 		return new DataHandle;
 	}
 	CATCH;
@@ -622,15 +622,19 @@ cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z)
 
 extern "C"
 void*
-cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z)
+cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 {
-	std::ofstream out;
-	out.open("tmp.txt");
 	complex_float_t* z = (complex_float_t*)ptr_z;
-	for (int i = 0; i < 3; i++) {
-		out << z[i].real() << " + i" << z[i].imag() << '\n';
-	}
-	out.close();
+	CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+	MRAcquisitionData& acqs =
+		objectFromHandle<MRAcquisitionData>(h_acqs);
+	acqs.set_data(z, all);
+	//std::ofstream out;
+	//out.open("tmp.txt");
+	//for (int i = 0; i < 3; i++) {
+	//	out << z[i].real() << " + i" << z[i].imag() << '\n';
+	//}
+	//out.close();
 	return new DataHandle;
 }
 
