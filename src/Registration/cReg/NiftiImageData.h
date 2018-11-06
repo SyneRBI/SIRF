@@ -31,6 +31,7 @@ limitations under the License.
 #define _NIFTIIMAGEDATA_H_
 
 #include <nifti1_io.h>
+#include <vector>
 #include <string>
 #include <memory>
 #include <iostream>
