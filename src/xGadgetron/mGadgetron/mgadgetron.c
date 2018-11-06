@@ -164,11 +164,17 @@ EXPORTED_FUNCTION 	void mGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT pt
 EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
 	cGT_getImageDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim) {
-	cGT_getImageDimensions(ptr_imgs, img_num, ptr_dim);
+EXPORTED_FUNCTION 	void* mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
+	return cGT_getImagesDataAsFloatArray(ptr_imgs, ptr_data);
 }
-EXPORTED_FUNCTION 	void mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
-	cGT_getImagesDataAsFloatArray(ptr_imgs, ptr_data);
+EXPORTED_FUNCTION 	void* mGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
+	return cGT_setImagesDataAsFloatArray(ptr_imgs, ptr_data);
+}
+EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
+	return cGT_getImagesDataAsCmplxArray(ptr_imgs, ptr_z);
+}
+EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
+	return cGT_setImagesDataAsCmplxArray(ptr_imgs, ptr_z);
 }
 EXPORTED_FUNCTION 	void mGT_getImagesDataAsComplexArray (void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
 	cGT_getImagesDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);

@@ -966,13 +966,60 @@ cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
 }
 
 extern "C"
-void
+void*
 cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
-	float* data = (float*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-	list.get_images_data_as_float_array(data);
+	try {
+		float* data = (float*)ptr_data;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.get_real_data(data);
+		//imgs.get_images_data_as_float_array(data);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
+{
+	try {
+		float* data = (float*)ptr_data;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.set_real_data(data);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+{
+	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.get_data(z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+{
+	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.set_data(z);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
@@ -982,8 +1029,8 @@ cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 	float* re = (float*)ptr_re;
 	float* im = (float*)ptr_im;
 	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-	list.get_images_data_as_complex_array(re, im);
+	GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+	imgs.get_images_data_as_complex_array(re, im);
 }
 
 extern "C"
@@ -994,8 +1041,8 @@ cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
 		float* re = (float*)ptr_re;
 		float* im = (float*)ptr_im;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-		list.set_complex_images_data(re, im);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.set_complex_images_data(re, im);
 	}
 	CATCH;
 	return (void*)new DataHandle;

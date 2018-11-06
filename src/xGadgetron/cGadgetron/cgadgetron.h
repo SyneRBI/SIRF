@@ -97,8 +97,11 @@ extern "C" {
 	void cGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT ptr_data);
 	void cGT_getImageDataAsComplexArray
 		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
-	void cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+	//void cGT_getImageDimensions(void* ptr_imgs, int img_num, PTR_INT ptr_dim);
+	void* cGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+	void* cGT_setImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data);
+	void* cGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
+	void* cGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void cGT_getImagesDataAsComplexArray
 		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void* cGT_setComplexImagesData

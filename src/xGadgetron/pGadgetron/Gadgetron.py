@@ -820,6 +820,56 @@ class ImageData(DataContainer):
             image = self.image(i)
             info[i] = image.info(par)
         return info
+##    def old_as_array(self):
+##        '''
+##        Returns all self's images as a 3D Numpy ndarray.
+##        '''
+##        assert self.handle is not None
+##        if self.number() < 1:
+##            return numpy.ndarray((0,0,0), dtype = numpy.float32)
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        image = Image(self)
+##        pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
+####        pygadgetron.cGT_getImageDimensions\
+####            (self.handle, 0, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        nz = nz*nc*self.number()
+##        if self.is_real():
+##            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            pygadgetron.cGT_getImagesDataAsFloatArray\
+##                (self.handle, array.ctypes.data)
+##            return array
+##        else:
+##            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            pygadgetron.cGT_getImagesDataAsComplexArray\
+##                (self.handle, re.ctypes.data, im.ctypes.data)
+##            return re + 1j*im
+##    def old_fill(self, data):
+##        '''
+##        Fills self's image data with specified values.
+##        data: Python Numpy array
+##        '''
+##        assert self.handle is not None
+##        re = numpy.real(data).astype(numpy.float32)
+##        im = numpy.imag(data).astype(numpy.float32)
+##        try_calling(pygadgetron.cGT_setComplexImagesData\
+##            (self.handle, re.ctypes.data, im.ctypes.data))
+    def fill(self, data):
+        '''
+        Fills self's image data with specified values.
+        data: Python Numpy array
+        '''
+        assert self.handle is not None
+        if self.is_real():
+            try_calling(pygadgetron.cGT_setImagesDataAsFloatArray\
+                (self.handle, data.ctypes.data))
+        else:
+            try_calling(pygadgetron.cGT_setImagesDataAsCmplxArray\
+                (self.handle, data.ctypes.data))
     def as_array(self):
         '''
         Returns all self's images as a 3D Numpy ndarray.
@@ -830,8 +880,6 @@ class ImageData(DataContainer):
         dim = numpy.ndarray((4,), dtype = numpy.int32)
         image = Image(self)
         pygadgetron.cGT_getImageDim(image.handle, dim.ctypes.data)
-##        pygadgetron.cGT_getImageDimensions\
-##            (self.handle, 0, dim.ctypes.data)
         nx = dim[0]
         ny = dim[1]
         nz = dim[2]
@@ -839,25 +887,14 @@ class ImageData(DataContainer):
         nz = nz*nc*self.number()
         if self.is_real():
             array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImagesDataAsFloatArray\
-                (self.handle, array.ctypes.data)
+            try_calling(pygadgetron.cGT_getImagesDataAsFloatArray\
+                (self.handle, array.ctypes.data))
             return array
         else:
-            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImagesDataAsComplexArray\
-                (self.handle, re.ctypes.data, im.ctypes.data)
-            return re + 1j*im
-    def fill(self, data):
-        '''
-        Fills self's image data with specified values.
-        data: Python Numpy array
-        '''
-        assert self.handle is not None
-        re = numpy.real(data).astype(numpy.float32)
-        im = numpy.imag(data).astype(numpy.float32)
-        try_calling(pygadgetron.cGT_setComplexImagesData\
-            (self.handle, re.ctypes.data, im.ctypes.data))
+            z = numpy.ndarray((nz, ny, nx), dtype = numpy.complex64)
+            try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
+                (self.handle, z.ctypes.data))
+            return z
 
 DataContainer.register(ImageData)
 

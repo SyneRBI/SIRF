@@ -781,7 +781,7 @@ GadgetronImageData::norm()
 void
 GadgetronImageData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<float, 3> tuple;
 	int ni = number();
 	tuple t;
 	std::vector<tuple> vt;
@@ -909,6 +909,54 @@ GadgetronImagesVector::write(std::string filename, std::string groupname)
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
 		iw.write(dataset);
+	}
+}
+
+void
+GadgetronImagesVector::get_data(complex_float_t* data)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.get_complex_data(data);
+		data += n;
+	}
+}
+
+void
+GadgetronImagesVector::set_data(const complex_float_t* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_complex_data(z);
+		z += n;
+	}
+}
+
+void
+GadgetronImagesVector::get_real_data(float* data)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.get_data(data);
+		data += n;
+	}
+}
+
+void
+GadgetronImagesVector::set_real_data(const float* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_data(z);
+		z += n;
 	}
 }
 

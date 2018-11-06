@@ -369,6 +369,10 @@ namespace sirf {
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
+		virtual void get_data(complex_float_t* data) = 0;
+		virtual void set_data(const complex_float_t* data) = 0;
+		virtual void get_real_data(float* data) = 0;
+		virtual void set_real_data(const float* data) = 0;
 		virtual void get_images_data_as_float_array(float* data) = 0;
 		virtual void get_images_data_as_complex_array(float* re, float* im) = 0;
 		virtual void set_complex_images_data
@@ -490,6 +494,10 @@ namespace sirf {
 			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 			//std::cout << attr << '\n';
 		}
+		virtual void get_data(complex_float_t* data);
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data);
+		virtual void set_real_data(const float* data);
 		virtual void get_images_data_as_float_array(float* data);
 		virtual void get_images_data_as_complex_array(float* re, float* im);
 		virtual void set_complex_images_data(const float* re, const float* im);
