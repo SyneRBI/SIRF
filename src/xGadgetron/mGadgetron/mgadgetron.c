@@ -113,12 +113,6 @@ EXPORTED_FUNCTION 	void* mGT_orderAcquisitions(void* ptr_acqs) {
 EXPORTED_FUNCTION 	void* mGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim) {
 	return cGT_getAcquisitionsDimensions(ptr_acqs, ptr_dim);
 }
-EXPORTED_FUNCTION 	void* mGT_getAcquisitionsData (void* ptr_acqs, unsigned int slice, PTR_FLOAT ptr_r, PTR_FLOAT ptr_i) {
-	return cGT_getAcquisitionsData (ptr_acqs, slice, ptr_r, ptr_i);
-}
-EXPORTED_FUNCTION 	void* mGT_setAcquisitionsData (void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
-	return cGT_setAcquisitionsData (ptr_acqs, na, nc, ns, ptr_re, ptr_im);
-}
 EXPORTED_FUNCTION 	void*	mGT_writeAcquisitions(void* ptr_acqs, const char* filename) {
 	return cGT_writeAcquisitions(ptr_acqs, filename);
 }
@@ -158,12 +152,6 @@ EXPORTED_FUNCTION 	void mGT_getImageDim(void* ptr_img, PTR_INT ptr_dim) {
 EXPORTED_FUNCTION 	void* mGT_imageType(const void* ptr_img) {
 	return cGT_imageType(ptr_img);
 }
-EXPORTED_FUNCTION 	void mGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT ptr_data) {
-	cGT_getImageDataAsFloatArray(ptr_img, ptr_data);
-}
-EXPORTED_FUNCTION 	void mGT_getImageDataAsComplexArray (void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
-	cGT_getImageDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);
-}
 EXPORTED_FUNCTION 	void* mGT_getImagesDataAsFloatArray(void* ptr_imgs, PTR_FLOAT ptr_data) {
 	return cGT_getImagesDataAsFloatArray(ptr_imgs, ptr_data);
 }
@@ -175,12 +163,6 @@ EXPORTED_FUNCTION 	void* mGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT
 }
 EXPORTED_FUNCTION 	void* mGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z) {
 	return cGT_setImagesDataAsCmplxArray(ptr_imgs, ptr_z);
-}
-EXPORTED_FUNCTION 	void mGT_getImagesDataAsComplexArray (void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
-	cGT_getImagesDataAsComplexArray (ptr_imgs, ptr_re, ptr_im);
-}
-EXPORTED_FUNCTION 	void* mGT_setComplexImagesData (void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im) {
-	return cGT_setComplexImagesData (ptr_imgs, ptr_re, ptr_im);
 }
 EXPORTED_FUNCTION 	void* mGT_dataItems(const void* ptr_x) {
 	return cGT_dataItems(ptr_x);

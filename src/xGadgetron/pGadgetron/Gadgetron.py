@@ -593,29 +593,29 @@ class Image:
         assert self.handle is not None
         t = self.data_type()
         return t is not ISMRMRD_CXFLOAT and t is not ISMRMRD_CXDOUBLE
-    def as_array(self):
-        '''
-        Returns image data as a 3D Numpy ndarray.
-        '''
-        assert self.handle is not None
-        dim = numpy.ndarray((4,), dtype = numpy.int32)
-        pygadgetron.cGT_getImageDim(self.handle, dim.ctypes.data)
-        nx = dim[0]
-        ny = dim[1]
-        nz = dim[2]
-        nc = dim[3]
-        nz = nz*nc
-        if self.is_real():
-            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImageDataAsFloatArray\
-                (self.handle, array.ctypes.data)
-            return array
-        else:
-            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
-            pygadgetron.cGT_getImageDataAsComplexArray\
-                (self.handle, re.ctypes.data, im.ctypes.data)
-            return re + 1j*im
+##    def as_array(self):
+##        '''
+##        Returns image data as a 3D Numpy ndarray.
+##        '''
+##        assert self.handle is not None
+##        dim = numpy.ndarray((4,), dtype = numpy.int32)
+##        pygadgetron.cGT_getImageDim(self.handle, dim.ctypes.data)
+##        nx = dim[0]
+##        ny = dim[1]
+##        nz = dim[2]
+##        nc = dim[3]
+##        nz = nz*nc
+##        if self.is_real():
+##            array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            pygadgetron.cGT_getImageDataAsFloatArray\
+##                (self.handle, array.ctypes.data)
+##            return array
+##        else:
+##            re = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            im = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
+##            pygadgetron.cGT_getImageDataAsComplexArray\
+##                (self.handle, re.ctypes.data, im.ctypes.data)
+##            return re + 1j*im
     def version(self):
         assert self.handle is not None
         return _int_par(self.handle, 'image', 'version')
