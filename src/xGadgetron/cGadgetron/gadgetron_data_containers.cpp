@@ -913,7 +913,7 @@ GadgetronImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-GadgetronImagesVector::get_data(complex_float_t* data)
+GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {

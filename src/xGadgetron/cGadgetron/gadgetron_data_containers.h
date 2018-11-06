@@ -358,7 +358,7 @@ namespace sirf {
 				delete[] index_;
 		}
 
-		virtual unsigned int number() = 0;
+		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
 		virtual void count(int i) = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
@@ -433,7 +433,7 @@ namespace sirf {
 		GadgetronImagesVector() : images_(), nimages_(0) {}
 		GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target);
 		virtual unsigned int items() { return (unsigned int)images_.size(); }
-		virtual unsigned int number() { return (unsigned int)images_.size(); }
+		virtual unsigned int number() const { return (unsigned int)images_.size(); }
 		virtual int types()
 		{
 			if (nimages_ > 0)
@@ -492,7 +492,7 @@ namespace sirf {
 			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 			//std::cout << attr << '\n';
 		}
-		virtual void get_data(complex_float_t* data);
+		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data);
 		virtual void set_real_data(const float* data);
