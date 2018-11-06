@@ -349,7 +349,7 @@ namespace sirf {
 
 	*/
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
-	class GadgetronImageData : public MRImageData < complex_float_t > {
+	class GadgetronImageData : public MRImageData { //< complex_float_t > {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
 		virtual ~GadgetronImageData()
@@ -369,8 +369,6 @@ namespace sirf {
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		virtual void get_data(complex_float_t* data) = 0;
-		virtual void set_data(const complex_float_t* data) = 0;
 		virtual void get_real_data(float* data) = 0;
 		virtual void set_real_data(const float* data) = 0;
 		virtual void get_images_data_as_float_array(float* data) = 0;
