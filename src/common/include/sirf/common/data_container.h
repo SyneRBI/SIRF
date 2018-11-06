@@ -18,8 +18,8 @@ limitations under the License.
 
 */
 
-#ifndef SIRF_DATA_CONTAINER_TYPE
-#define SIRF_DATA_CONTAINER_TYPE
+#ifndef SIRF_ABSTRACT_DATA_CONTAINER_TYPE
+#define SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 
 /*
 \ingroup Data Container

@@ -1,13 +1,14 @@
 #pragma once
 
+#ifndef SIRF_ABSTRACT_PET_IMAGE_DATA_TYPE
+#define SIRF_ABSTRACT_PET_IMAGE_DATA_TYPE
+
 #include "image_data.h"
 
 namespace sirf {
-	//template <typename T>
-	class PETImageData : public ImageData<float>
-	{
+	class PETImageData : public ImageData<float> {
 	public:
-		virtual void get_data(float* data) const = 0;
-		virtual void set_data(const float* data) = 0;
 	};
 }
+
+#endif
