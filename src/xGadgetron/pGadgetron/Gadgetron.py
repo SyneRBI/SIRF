@@ -1101,6 +1101,42 @@ class AcquisitionData(DataContainer):
             i += 1
 ##            info[a] = acq.info(par)
         return info
+##    def old_as_array(self, select = 'image'):
+##        '''
+##        Returns selected self's acquisitions as a 3D Numpy ndarray.
+##        '''
+##        assert self.handle is not None
+##        na = self.number()
+##        ny, nc, ns = self.dimensions(select)
+##        if select == 'all': # return all
+##            n = na
+##        else: # return only image-related
+##            n = na + 1
+##        re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+##        im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
+##        hv = pygadgetron.cGT_getAcquisitionsData\
+##            (self.handle, n, re.ctypes.data, im.ctypes.data)
+##        pyiutil.deleteDataHandle(hv)
+##        return re + 1j*im
+##    def old_fill(self, data):
+##        '''
+##        Fills self's acquisitions with specified values.
+##        data: Python Numpy array
+##        '''
+##        assert self.handle is not None
+##        na, nc, ns = data.shape
+##        re = numpy.real(data).astype(numpy.float32)
+##        im = numpy.imag(data).astype(numpy.float32)
+##        try_calling(pygadgetron.cGT_setAcquisitionsData\
+##            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+    def fill(self, data):
+        '''
+        Fills self's acquisitions with specified values.
+        data: Python Numpy array
+        '''
+        assert self.handle is not None
+        try_calling(pygadgetron.cGT_fillAcquisitionsData\
+            (self.handle, data.ctypes.data, 1))
     def as_array(self, select = 'image'):
         '''
         Returns selected self's acquisitions as a 3D Numpy ndarray.
@@ -1109,26 +1145,13 @@ class AcquisitionData(DataContainer):
         na = self.number()
         ny, nc, ns = self.dimensions(select)
         if select == 'all': # return all
-            n = na
+            return_all = 1
         else: # return only image-related
-            n = na + 1
-        re = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-        im = numpy.ndarray((ny, nc, ns), dtype = numpy.float32)
-        hv = pygadgetron.cGT_getAcquisitionsData\
-            (self.handle, n, re.ctypes.data, im.ctypes.data)
-        pyiutil.deleteDataHandle(hv)
-        return re + 1j*im
-    def fill(self, data):
-        '''
-        Fills self's acquisitions with specified values.
-        data: Python Numpy array
-        '''
-        assert self.handle is not None
-        na, nc, ns = data.shape
-        re = numpy.real(data).astype(numpy.float32)
-        im = numpy.imag(data).astype(numpy.float32)
-        try_calling(pygadgetron.cGT_setAcquisitionsData\
-            (self.handle, na, nc, ns, re.ctypes.data, im.ctypes.data))
+            return_all = 0
+        z = numpy.ndarray((ny, nc, ns), dtype = numpy.complex64)
+        try_calling(pygadgetron.cGT_acquisitionsDataAsArray\
+            (self.handle, z.ctypes.data, return_all))
+        return z
     def write(self, out_file):
         '''
         Writes self's acquisitions to an hdf5 file.
