@@ -1016,7 +1016,8 @@ cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
 	try {
 		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		//GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		MRImageData& imgs = objectFromHandle<MRImageData>(h_imgs);
 		imgs.set_data(z);
 		return new DataHandle;
 	}
