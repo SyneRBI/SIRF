@@ -201,9 +201,9 @@ Eliminates the need for the image processing switch in the rest of the code.
 			return s;
 		}
 
-		void get_cmplx_data(float* re, float* im) const;
+		//void get_cmplx_data(float* re, float* im) const;
 
-		void set_cmplx_data(const float* re, const float* im) const;
+		//void set_cmplx_data(const float* re, const float* im) const;
 
 	private:
 		int type_;

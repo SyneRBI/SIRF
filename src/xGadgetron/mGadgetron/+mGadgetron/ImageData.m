@@ -119,8 +119,6 @@ classdef ImageData < mGadgetron.DataContainer
             if self.number() > 0
                 img = self.image(1);
                 calllib('mgadgetron', 'mGT_getImageDim', img.handle_, ptr_i);
-%                 calllib('mgadgetron', 'mGT_getImageDimensions', ...
-%                     self.handle_, 0, ptr_i);
             else
                 data = [];
                 return
@@ -140,14 +138,6 @@ classdef ImageData < mGadgetron.DataContainer
                     self.handle_, ptr_z);
                 data = reshape(ptr_z.Value(1:2:end) + 1i*ptr_z.Value(2:2:end), ...
                     dim(1), dim(2), nz);
-%                 ptr_re = libpointer('singlePtr', zeros(n, 1));
-%                 ptr_im = libpointer('singlePtr', zeros(n, 1));
-%                 calllib...
-%                     ('mgadgetron', 'mGT_getImagesDataAsComplexArray', ...
-%                     self.handle_, ptr_re, ptr_im)
-%                 re = reshape(ptr_re.Value, dim(1), dim(2), nz);
-%                 im = reshape(ptr_im.Value, dim(1), dim(2), nz);
-%                 data = re + 1j*im;
             end
             mUtilities.check_status('ImageData', h);
             mUtilities.delete(h)
@@ -170,17 +160,6 @@ classdef ImageData < mGadgetron.DataContainer
                 h = calllib('mgadgetron', 'mGT_setImagesDataAsCmplxArray', ...
                     self.handle_, ptr_z);
             end
-%             re = real(data);
-%             im = imag(data);
-%             if isa(re, 'single')
-%                 ptr_re = libpointer('singlePtr', re);
-%                 ptr_im = libpointer('singlePtr', im);
-%             else
-%                 ptr_re = libpointer('singlePtr', single(re));
-%                 ptr_im = libpointer('singlePtr', single(im));
-%             end
-%             h = calllib('mgadgetron', 'mGT_setComplexImagesData', ...
-%                 self.handle_, ptr_re, ptr_im);
             mUtilities.check_status('ImageData', h);
             mUtilities.delete(h)
             %calllib('mutilities', 'mDeleteDataHandle', h)

@@ -145,27 +145,7 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
 	}
 	dim[nrd] = nrr / reg_size;
 	return nrd;
-	//dim[0] = acq.number_of_samples();
-	//dim[1] = acq.active_channels();
-	//dim[2] = my; // e.reconSpace.matrixSize.y;
-	//dim[3] = slice;
-	//return not_reg;
 }
-
-//void 
-//MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
-//{
-//	ISMRMRD::Acquisition acq;
-//	unsigned int na = number();
-//	for (unsigned int a = 0, i = 0; a < na; a++) {
-//		get_acquisition(a, acq);
-//		if (TO_BE_IGNORED(acq) && n < na) {
-//			std::cout << "ignoring acquisition " << a << '\n';
-//			continue;
-//		}
-//		flags[i++] = (int)acq.flags();
-//	}
-//}
 
 void
 MRAcquisitionData::get_data(complex_float_t* z, int all)
@@ -961,59 +941,6 @@ GadgetronImagesVector::set_real_data(const float* z)
 }
 
 void
-GadgetronImagesVector::get_images_data_as_float_array(float* data)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_data(data);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		data += size;
-	}
-}
-
-void
-GadgetronImagesVector::get_images_data_as_complex_array(float* re, float* im)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		int type = iw.type();
-		if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			iw.get_cmplx_data(re, im);
-		else {
-			iw.get_data(re);
-			for (int i = 0; i < size; i++)
-				im[i] = 0;
-		}
-		re += size;
-		im += size;
-	}
-}
-
-void
-GadgetronImagesVector::set_complex_images_data(const float* re, const float* im)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		size_t n = iw.get_dim(dim);
-		iw.set_cmplx_data(re, im);
-		re += n;
-		im += n;
-	}
-}
-
-void
 CoilDataAsCFImage::get_data(float* re, float* im) const
 {
 	size_t n = img_.getNumberOfDataElements();
@@ -1063,16 +990,6 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	unsigned int ny = e.reconSpace.matrixSize.y;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
-
-	//std::cout << nx << ' ' << ny << ' ' << nc << ' ' << readout << '\n';
-	//if (e.parallelImaging.is_present()) {
-	//	std::cout << "parallel imaging present\n";
-	//	std::cout << "acceleration factors: " 
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_1 << ' '
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_2 << '\n';
-	//}
-	//else
-	//	std::cout << "parallel imaging not present\n";
 
 	int nmap = 0;
 	std::cout << "map ";
