@@ -467,7 +467,7 @@ namespace sirf {
 	*/
 
 	//class STIRImageData : public aDataContainer < float > {
-	class STIRImageData : public PETImageData < float > {
+	class STIRImageData : public PETImageData { //< float > {
 	public:
 		STIRImageData(){}
 		STIRImageData(const STIRImageData& image)
@@ -555,8 +555,8 @@ namespace sirf {
 		}
 		int get_dimensions(int* dim) const;
 		void get_voxel_sizes(float* vsizes) const;
-		int get_data(float* data) const;
-		int set_data(const float* data);
+		virtual void get_data(float* data) const;
+		virtual void set_data(const float* data);
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;

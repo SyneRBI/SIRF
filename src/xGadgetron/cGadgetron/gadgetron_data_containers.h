@@ -146,6 +146,8 @@ namespace sirf {
 		virtual MRAcquisitionData*
 			same_acquisitions_container(AcquisitionsInfo info) = 0;
 
+		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
+
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im) = 0;
 
@@ -172,8 +174,10 @@ namespace sirf {
 
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim);
-		void get_acquisitions_flags(unsigned int n, int* flags);
+		//void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
+	
+		virtual void get_data(complex_float_t* z, int all = 1);
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -239,6 +243,7 @@ namespace sirf {
 
 		// implementations of abstract methods
 
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual unsigned int items();
@@ -315,6 +320,7 @@ namespace sirf {
 		{
 			acqs_info_ = ac.acquisitions_info();
 		}
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info)
@@ -343,7 +349,7 @@ namespace sirf {
 
 	*/
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
-	class GadgetronImageData : public MRImageData < complex_float_t > {
+	class GadgetronImageData : public MRImageData { //< complex_float_t > {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
 		virtual ~GadgetronImageData()
@@ -352,7 +358,7 @@ namespace sirf {
 				delete[] index_;
 		}
 
-		virtual unsigned int number() = 0;
+		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
 		virtual void count(int i) = 0;
 		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
@@ -363,10 +369,8 @@ namespace sirf {
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
 		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		virtual void get_images_data_as_float_array(float* data) = 0;
-		virtual void get_images_data_as_complex_array(float* re, float* im) = 0;
-		virtual void set_complex_images_data
-		(const float* re, const float* im) = 0;
+		virtual void get_real_data(float* data) = 0;
+		virtual void set_real_data(const float* data) = 0;
 		virtual int read(std::string filename) = 0;
 		virtual void write(std::string filename, std::string groupname) = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() = 0;
@@ -388,13 +392,6 @@ namespace sirf {
 			const aDataContainer<complex_float_t>& a_y);
 		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 		virtual float norm();
-
-		void get_image_data_as_cmplx_array
-			(unsigned int im_num, float* re, float* im)
-		{
-			ImageWrap& iw = image_wrap(im_num);
-			iw.get_cmplx_data(re, im);
-		}
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -425,7 +422,7 @@ namespace sirf {
 		GadgetronImagesVector() : images_(), nimages_(0) {}
 		GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target);
 		virtual unsigned int items() { return (unsigned int)images_.size(); }
-		virtual unsigned int number() { return (unsigned int)images_.size(); }
+		virtual unsigned int number() const { return (unsigned int)images_.size(); }
 		virtual int types()
 		{
 			if (nimages_ > 0)
@@ -484,9 +481,10 @@ namespace sirf {
 			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
 			//std::cout << attr << '\n';
 		}
-		virtual void get_images_data_as_float_array(float* data);
-		virtual void get_images_data_as_complex_array(float* re, float* im);
-		virtual void set_complex_images_data(const float* re, const float* im);
+		virtual void get_data(complex_float_t* data) const;
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data);
+		virtual void set_real_data(const float* data);
 		virtual aDataContainer<complex_float_t>* new_data_container()
 		{
 			return (aDataContainer<complex_float_t>*)new GadgetronImagesVector();

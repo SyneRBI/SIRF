@@ -446,14 +446,15 @@ STIRImageData::get_voxel_sizes(float* vsize) const
 		vsize[i] = vs[i + 1];
 }
 
-int
+void
 STIRImageData::get_data(float* data) const
 {
 	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
 	if (!image.get_regular_range(min_indices, max_indices))
-		return -1;
+		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
+		//return -1;
 	std::copy(image.begin_all(), image.end_all(), data);
 	//auto iter = image.begin_all();
 	//for (int i = 0; iter != image.end_all(); i++, iter++)
@@ -465,23 +466,28 @@ STIRImageData::get_data(float* data) const
 	//		}
 	//	}
 	//}
-	return 0;
+	//return 0;
 }
 
-int
+void
 STIRImageData::set_data(const float* data)
 {
 	Image3DF& image = *_data;
 	Coordinate3D<int> min_indices;
 	Coordinate3D<int> max_indices;
 	if (!image.get_regular_range(min_indices, max_indices))
-		return -1;
-	for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
-		for (int y = min_indices[2]; y <= max_indices[2]; y++) {
-			for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
-				image[z][y][x] = data[i];
-			}
-		}
-	}
-	return 0;
+		throw LocalisedException("irregular STIR image", __FILE__, __LINE__);
+	//return -1;
+	size_t n = 1;
+	for (int i = 0; i < 3; i++)
+		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
+	std::copy(data, data + n, image.begin_all());
+	//for (int z = min_indices[1], i = 0; z <= max_indices[1]; z++) {
+	//	for (int y = min_indices[2]; y <= max_indices[2]; y++) {
+	//		for (int x = min_indices[3]; x <= max_indices[3]; x++, i++) {
+	//			image[z][y][x] = data[i];
+	//		}
+	//	}
+	//}
+	//return 0;
 }

@@ -150,6 +150,18 @@ Eliminates the need for the image processing switch in the rest of the code.
 		{
 			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
 		}
+		void set_data(const float* data) const
+		{
+			IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
+		}
+		void get_complex_data(complex_float_t* data) const
+		{
+			IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
+		}
+		void set_complex_data(const complex_float_t* data) const
+		{
+			IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
+		}
 		void write(ISMRMRD::Dataset& dataset) const
 		{
 			IMAGE_PROCESSING_SWITCH_CONST(type_, write_, ptr_, dataset);
@@ -189,9 +201,9 @@ Eliminates the need for the image processing switch in the rest of the code.
 			return s;
 		}
 
-		void get_cmplx_data(float* re, float* im) const;
+		//void get_cmplx_data(float* re, float* im) const;
 
-		void set_cmplx_data(const float* re, const float* im) const;
+		//void set_cmplx_data(const float* re, const float* im) const;
 
 	private:
 		int type_;
@@ -283,6 +295,45 @@ Eliminates the need for the image processing switch in the rest of the code.
 			size_t n = im.getNumberOfDataElements();
 			for (size_t i = 0; i < n; i++)
 				data[i] = std::real(ptr[i]);
+		}
+
+		template<typename T>
+		void set_data_(ISMRMRD::Image<T>* ptr_im, const float* data) const
+		{
+			ISMRMRD::Image<T>& im = *ptr_im;
+			T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			for (size_t i = 0; i < n; i++)
+				ptr[i] = (T)data[i];
+		}
+
+		template<typename T>
+		void get_complex_data_
+			(const ISMRMRD::Image<T>* ptr_im, complex_float_t* data) const
+		{
+			const ISMRMRD::Image<T>& im = *ptr_im;
+			const T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			for (size_t i = 0; i < n; i++)
+				data[i] = complex_float_t(ptr[i]);
+		}
+
+		template<typename T>
+		void set_complex_data_
+			(ISMRMRD::Image<T>* ptr_im, const complex_float_t* data) const
+		{
+			ISMRMRD::Image<T>& im = *ptr_im;
+			ISMRMRD::ISMRMRD_DataTypes type = im.getDataType();
+			T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
+				for (size_t i = 0; i < n; i++)
+					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
+			//ptr[i] = data[i];
+			else
+				for (size_t i = 0; i < n; i++)
+					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
+					//ptr[i] = std::real(data[i]);
 		}
 
 		template<typename T>

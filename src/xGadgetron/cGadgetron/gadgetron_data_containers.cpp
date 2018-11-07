@@ -145,25 +145,28 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
 	}
 	dim[nrd] = nrr / reg_size;
 	return nrd;
-	//dim[0] = acq.number_of_samples();
-	//dim[1] = acq.active_channels();
-	//dim[2] = my; // e.reconSpace.matrixSize.y;
-	//dim[3] = slice;
-	//return not_reg;
 }
 
-void 
-MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
+void
+MRAcquisitionData::get_data(complex_float_t* z, int all)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
+	unsigned int n = 0;
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq) && n < na) {
+		if (!all && TO_BE_IGNORED(acq)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
-		flags[i++] = (int)acq.flags();
+		n++;
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < ns; s++, i++) {
+				z[i] = acq.data(s, c);
+			}
+		}
 	}
 }
 
@@ -615,7 +618,52 @@ AcquisitionsFile::set_acquisition_data
 	return 0;
 }
 
-int 
+void
+AcquisitionsFile::set_data(const complex_float_t* z, int all)
+{
+	shared_ptr<MRAcquisitionData> sptr_ac =
+		this->new_acquisitions_container();
+	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
+	ptr_ac->set_acquisitions_info(acqs_info_);
+	ptr_ac->write_acquisitions_info();
+	ptr_ac->set_ordered(true);
+	ISMRMRD::Acquisition acq;
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		get_acquisition(a, acq);
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+		sptr_ac->append_acquisition(acq);
+	}
+	take_over(*sptr_ac);
+}
+
+void
+AcquisitionsVector::set_data(const complex_float_t* z, int all)
+{
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		ISMRMRD::Acquisition& acq = *acqs_[a];
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+	}
+}
+
+int
 AcquisitionsVector::set_acquisition_data
 (int na, int nc, int ns, const float* re, const float* im)
 {
@@ -713,7 +761,7 @@ GadgetronImageData::norm()
 void
 GadgetronImageData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<float, 3> tuple;
 	int ni = number();
 	tuple t;
 	std::vector<tuple> vt;
@@ -845,55 +893,50 @@ GadgetronImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-GadgetronImagesVector::get_images_data_as_float_array(float* data)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_data(data);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		data += size;
-	}
-}
-
-void
-GadgetronImagesVector::get_images_data_as_complex_array(float* re, float* im)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		int type = iw.type();
-		if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			iw.get_cmplx_data(re, im);
-		else {
-			iw.get_data(re);
-			for (int i = 0; i < size; i++)
-				im[i] = 0;
-		}
-		re += size;
-		im += size;
-	}
-}
-
-void
-GadgetronImagesVector::set_complex_images_data(const float* re, const float* im)
+GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
 		size_t n = iw.get_dim(dim);
-		iw.set_cmplx_data(re, im);
-		re += n;
-		im += n;
+		iw.get_complex_data(data);
+		data += n;
+	}
+}
+
+void
+GadgetronImagesVector::set_data(const complex_float_t* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_complex_data(z);
+		z += n;
+	}
+}
+
+void
+GadgetronImagesVector::get_real_data(float* data)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.get_data(data);
+		data += n;
+	}
+}
+
+void
+GadgetronImagesVector::set_real_data(const float* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_data(z);
+		z += n;
 	}
 }
 
@@ -947,16 +990,6 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	unsigned int ny = e.reconSpace.matrixSize.y;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
-
-	//std::cout << nx << ' ' << ny << ' ' << nc << ' ' << readout << '\n';
-	//if (e.parallelImaging.is_present()) {
-	//	std::cout << "parallel imaging present\n";
-	//	std::cout << "acceleration factors: " 
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_1 << ' '
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_2 << '\n';
-	//}
-	//else
-	//	std::cout << "parallel imaging not present\n";
 
 	int nmap = 0;
 	std::cout << "map ";

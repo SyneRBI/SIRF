@@ -571,15 +571,14 @@ cGT_getAcquisitionsDimensions(void* ptr_acqs, size_t ptr_dim)
 
 extern "C"
 void*
-cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
+cGT_acquisitionsDataAsArray(void* ptr_acqs, size_t ptr_z, int all)
 {
 	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		MRAcquisitionData& acqs =
 			objectFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<ISMRMRD::Acquisition>
-			sptr_acq(new ISMRMRD::Acquisition);
-		acqs.get_acquisitions_flags(n, (int*)ptr_f);
+		acqs.get_data(z, all);
 		return new DataHandle;
 	}
 	CATCH;
@@ -587,41 +586,14 @@ cGT_getAcquisitionsFlags(void* ptr_acqs, unsigned int n, size_t ptr_f)
 
 extern "C"
 void*
-cGT_getAcquisitionsData
-(void* ptr_acqs, unsigned int slice, size_t ptr_re, size_t ptr_im)
+cGT_fillAcquisitionsData(void* ptr_acqs, size_t ptr_z, int all)
 {
-	try {
-		float* re = (float*)ptr_re;
-		float* im = (float*)ptr_im;
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(h_acqs);
-		int n = acqs.get_acquisitions_data(slice, re, im);
-		return dataHandle(n);
-	}
-	CATCH;
-}
-
-extern "C"
-void*
-cGT_setAcquisitionsData
-(void* ptr_acqs, unsigned int na, unsigned int nc, unsigned int ns,
-size_t ptr_re, size_t ptr_im)
-{
-	try {
-		float* re = (float*)ptr_re;
-		float* im = (float*)ptr_im;
-		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
-		MRAcquisitionData& acqs =
-			objectFromHandle<MRAcquisitionData>(h_acqs);
-		int err = acqs.set_acquisition_data(na, nc, ns, re, im);
-		DataHandle* handle = new DataHandle;
-		if (err)
-			handle->set_status("Mismatching acquisition dimensions", 
-				__FILE__, __LINE__);
-		return (void*)handle;
-	}
-	CATCH;
+	complex_float_t* z = (complex_float_t*)ptr_z;
+	CAST_PTR(DataHandle, h_acqs, ptr_acqs);
+	MRAcquisitionData& acqs =
+		objectFromHandle<MRAcquisitionData>(h_acqs);
+	acqs.set_data(z, all);
+	return new DataHandle;
 }
 
 extern "C"
@@ -899,70 +871,61 @@ cGT_imageType(const void* ptr_img)
 }
 
 extern "C"
-void
-cGT_getImageDataAsFloatArray(void* ptr_img, size_t ptr_data)
-{
-	float* data = (float*)ptr_data;
-	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
-	image.get_data(data);
-}
-
-extern "C"
-void
-cGT_getImageDataAsComplexArray(void* ptr_img, size_t ptr_re, size_t ptr_im)
-{
-	float* re = (float*)ptr_re;
-	float* im = (float*)ptr_im;
-	ImageWrap& image = objectFromHandle<ImageWrap>(ptr_img);
-	image.get_cmplx_data(re, im);
-}
-
-extern "C"
-void
-cGT_getImageDimensions(void* ptr_imgs, int img_num, size_t ptr_dim)
-{
-	int* dim = (int*)ptr_dim;
-	GadgetronImageData& images = objectFromHandle<GadgetronImageData>(ptr_imgs);
-	images.sptr_image_wrap(img_num)->get_dim(dim);
-	//CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	//GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-	//list.get_image_dimensions(img_num, dim);
-}
-
-extern "C"
-void
+void*
 cGT_getImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
-	float* data = (float*)ptr_data;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-	list.get_images_data_as_float_array(data);
-}
-
-extern "C"
-void
-cGT_getImagesDataAsComplexArray(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
-{
-	float* re = (float*)ptr_re;
-	float* im = (float*)ptr_im;
-	CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-	GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-	list.get_images_data_as_complex_array(re, im);
+	try {
+		float* data = (float*)ptr_data;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.get_real_data(data);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
 void*
-cGT_setComplexImagesData(void* ptr_imgs, size_t ptr_re, size_t ptr_im)
+cGT_setImagesDataAsFloatArray(void* ptr_imgs, size_t ptr_data)
 {
 	try {
-		float* re = (float*)ptr_re;
-		float* im = (float*)ptr_im;
+		float* data = (float*)ptr_data;
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		GadgetronImageData& list = objectFromHandle<GadgetronImageData>(h_imgs);
-		list.set_complex_images_data(re, im);
+		GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		imgs.set_real_data(data);
+		return new DataHandle;
 	}
 	CATCH;
-	return (void*)new DataHandle;
+}
+
+extern "C"
+void*
+cGT_getImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+{
+	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		//GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		MRImageData& imgs = objectFromHandle<MRImageData>(h_imgs);
+		imgs.get_data(z);
+		return new DataHandle;
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cGT_setImagesDataAsCmplxArray(void* ptr_imgs, size_t ptr_z)
+{
+	try {
+		complex_float_t* z = (complex_float_t*)ptr_z;
+		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
+		//GadgetronImageData& imgs = objectFromHandle<GadgetronImageData>(h_imgs);
+		MRImageData& imgs = objectFromHandle<MRImageData>(h_imgs);
+		imgs.set_data(z);
+		return new DataHandle;
+	}
+	CATCH;
 }
 
 extern "C"
