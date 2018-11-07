@@ -177,7 +177,7 @@ namespace sirf {
 		//void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
 	
-		virtual void MRAcquisitionData::get_data(complex_float_t* z, int all = 1);
+		virtual void get_data(complex_float_t* z, int all = 1);
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -371,10 +371,6 @@ namespace sirf {
 		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
 		virtual void get_real_data(float* data) = 0;
 		virtual void set_real_data(const float* data) = 0;
-		//virtual void get_images_data_as_float_array(float* data) = 0;
-		//virtual void get_images_data_as_complex_array(float* re, float* im) = 0;
-		//virtual void set_complex_images_data
-		//(const float* re, const float* im) = 0;
 		virtual int read(std::string filename) = 0;
 		virtual void write(std::string filename, std::string groupname) = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() = 0;
@@ -396,13 +392,6 @@ namespace sirf {
 			const aDataContainer<complex_float_t>& a_y);
 		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
 		virtual float norm();
-
-		//void get_image_data_as_cmplx_array
-		//	(unsigned int im_num, float* re, float* im)
-		//{
-		//	ImageWrap& iw = image_wrap(im_num);
-		//	iw.get_cmplx_data(re, im);
-		//}
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -496,9 +485,6 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data);
 		virtual void set_real_data(const float* data);
-		//virtual void get_images_data_as_float_array(float* data);
-		//virtual void get_images_data_as_complex_array(float* re, float* im);
-		//virtual void set_complex_images_data(const float* re, const float* im);
 		virtual aDataContainer<complex_float_t>* new_data_container()
 		{
 			return (aDataContainer<complex_float_t>*)new GadgetronImagesVector();
