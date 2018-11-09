@@ -368,11 +368,30 @@ namespace sirf {
 		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
-		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		virtual void get_real_data(float* data) = 0;
-		virtual void set_real_data(const float* data) = 0;
-		virtual int read(std::string filename) = 0;
-		virtual void write(std::string filename, std::string groupname) = 0;
+		//virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
+		//virtual void get_real_data(float* data) = 0;
+		//virtual void set_real_data(const float* data) = 0;
+		virtual void get_data(complex_float_t* data) const;
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data);
+		virtual void set_real_data(const float* data);
+		virtual int read(std::string filename);
+		virtual void write(std::string filename, std::string groupname);
+		virtual void get_image_dimensions(unsigned int im_num, int* dim)
+		{
+			//if (im_num >= images_.size())
+			if (im_num >= number())
+				dim[0] = dim[1] = dim[2] = dim[3] = 0;
+			ImageWrap& iw = image_wrap(im_num);
+			iw.get_dim(dim);
+			//std::string attr = iw.attributes();
+			//ISMRMRD::MetaContainer mc;
+			//ISMRMRD::deserialize(attr.c_str(), mc);
+			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
+			//std::cout << attr << '\n';
+		}
+		//virtual int read(std::string filename) = 0;
+		//virtual void write(std::string filename, std::string groupname) = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target) = 0;
@@ -467,24 +486,6 @@ namespace sirf {
 			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-		virtual int read(std::string filename);
-		virtual void write(std::string filename, std::string groupname);
-		virtual void get_image_dimensions(unsigned int im_num, int* dim)
-		{
-			if (im_num >= images_.size())
-				dim[0] = dim[1] = dim[2] = dim[3] = 0;
-			ImageWrap& iw = image_wrap(im_num);
-			iw.get_dim(dim);
-			//std::string attr = iw.attributes();
-			//ISMRMRD::MetaContainer mc;
-			//ISMRMRD::deserialize(attr.c_str(), mc);
-			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
-			//std::cout << attr << '\n';
-		}
-		virtual void get_data(complex_float_t* data) const;
-		virtual void set_data(const complex_float_t* data);
-		virtual void get_real_data(float* data);
-		virtual void set_real_data(const float* data);
 		virtual aDataContainer<complex_float_t>* new_data_container()
 		{
 			return (aDataContainer<complex_float_t>*)new GadgetronImagesVector();

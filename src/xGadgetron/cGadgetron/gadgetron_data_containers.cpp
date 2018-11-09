@@ -835,7 +835,7 @@ group_names_sptr(const char* filename)
 }
 
 int
-GadgetronImagesVector::read(std::string filename) 
+GadgetronImageData::read(std::string filename) 
 {
 	std::shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
@@ -867,7 +867,8 @@ GadgetronImagesVector::read(std::string filename)
 		for (int i = 0; i < num_im; i++) {
 			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type));
 			sptr_iw->read(*sptr_dataset, var, i);
-			images_.push_back(sptr_iw);
+			append(*sptr_iw);
+			//images_.push_back(sptr_iw);
 		}
 		//int dim[3];
 		//sptr_iw->get_dim(dim);
@@ -878,9 +879,10 @@ GadgetronImagesVector::read(std::string filename)
 }
 
 void
-GadgetronImagesVector::write(std::string filename, std::string groupname)
+GadgetronImageData::write(std::string filename, std::string groupname)
 {
-	if (images_.size() < 1)
+	//if (images_.size() < 1)
+	if (number() < 1)
 		return;
 	Mutex mtx;
 	mtx.lock();
@@ -893,7 +895,7 @@ GadgetronImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-GadgetronImagesVector::get_data(complex_float_t* data) const
+GadgetronImageData::get_data(complex_float_t* data) const
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -905,7 +907,7 @@ GadgetronImagesVector::get_data(complex_float_t* data) const
 }
 
 void
-GadgetronImagesVector::set_data(const complex_float_t* z)
+GadgetronImageData::set_data(const complex_float_t* z)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -917,7 +919,7 @@ GadgetronImagesVector::set_data(const complex_float_t* z)
 }
 
 void
-GadgetronImagesVector::get_real_data(float* data)
+GadgetronImageData::get_real_data(float* data)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -929,7 +931,7 @@ GadgetronImagesVector::get_real_data(float* data)
 }
 
 void
-GadgetronImagesVector::set_real_data(const float* z)
+GadgetronImageData::set_real_data(const float* z)
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
