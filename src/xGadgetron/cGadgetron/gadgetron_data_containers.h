@@ -323,7 +323,8 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
-		virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info)
+		virtual MRAcquisitionData* same_acquisitions_container
+			(AcquisitionsInfo info)
 		{
 			return new AcquisitionsVector(info);
 		}
@@ -332,7 +333,8 @@ namespace sirf {
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
+		virtual gadgetron::shared_ptr<MRAcquisitionData> 
+			new_acquisitions_container()
 		{
 			AcquisitionsFile::init();
 			return gadgetron::shared_ptr<MRAcquisitionData>
@@ -349,9 +351,11 @@ namespace sirf {
 
 	*/
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
-	class GadgetronImageData : public MRImageData { //< complex_float_t > {
+	class GadgetronImageData : public MRImageData {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
+		//GadgetronImageData(GadgetronImageData& id, const char* attr, 
+		//const char* target); //does not build, have to be in the derived class
 		virtual ~GadgetronImageData()
 		{
 			if (index_)
@@ -361,7 +365,8 @@ namespace sirf {
 		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
 		virtual void count(int i) = 0;
-		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
+		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
+			(unsigned int im_num) = 0;
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const = 0;
 		virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
@@ -392,7 +397,8 @@ namespace sirf {
 		}
 		//virtual int read(std::string filename) = 0;
 		//virtual void write(std::string filename, std::string groupname) = 0;
-		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container() = 0;
+		virtual gadgetron::shared_ptr<GadgetronImageData> 
+			new_images_container() = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
@@ -439,9 +445,17 @@ namespace sirf {
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
 		GadgetronImagesVector() : images_(), nimages_(0) {}
-		GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target);
-		virtual unsigned int items() { return (unsigned int)images_.size(); }
-		virtual unsigned int number() const { return (unsigned int)images_.size(); }
+		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
+			const char* target);
+		//: GadgetronImageData(images, attr, target) {} // does not build
+		virtual unsigned int items() 
+		{ 
+			return (unsigned int)images_.size(); 
+		}
+		virtual unsigned int number() const 
+		{ 
+			return (unsigned int)images_.size(); 
+		}
 		virtual int types()
 		{
 			if (nimages_ > 0)
@@ -463,18 +477,17 @@ namespace sirf {
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
-		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
+		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
+			(unsigned int im_num)
 		{
 			int i = index(im_num);
 			return images_[i];
-//			return images_[im_num];
 		}
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const
 		{
 			int i = index(im_num);
 			return images_[i];
-//			return images_[im_num];
 		}
 		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{
@@ -483,7 +496,8 @@ namespace sirf {
 		}
 		virtual const ImageWrap& image_wrap(unsigned int im_num) const
 		{
-			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
+			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = 
+				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
 		virtual aDataContainer<complex_float_t>* new_data_container()
@@ -492,12 +506,14 @@ namespace sirf {
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>((GadgetronImageData*)new GadgetronImagesVector());
+			return gadgetron::shared_ptr<GadgetronImageData>
+				((GadgetronImageData*)new GadgetronImagesVector());
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
 		{
-			return gadgetron::shared_ptr<GadgetronImageData>(new GadgetronImagesVector(*this, attr, target));
+			return gadgetron::shared_ptr<GadgetronImageData>
+				(new GadgetronImagesVector(*this, attr, target));
 		}
 
 	private:

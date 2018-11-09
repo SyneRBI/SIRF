@@ -779,19 +779,6 @@ GadgetronImageData::order()
 	Multisort::sort(vt, index_);
 }
 
-GadgetronImagesVector::GadgetronImagesVector(GadgetronImagesVector& list, const char* attr, const char* target)
-{
-	for (unsigned int i = 0; i < list.number(); i++) {
-		const ImageWrap& u = list.image_wrap(i);
-		std::string atts = u.attributes();
-		ISMRMRD::MetaContainer mc;
-		ISMRMRD::deserialize(atts.c_str(), mc);
-		std::string value = mc.as_str(attr);
-		if (boost::iequals(value, target))
-			append(u);
-	}
-}
-
 std::shared_ptr<std::vector<std::string> >
 group_names_sptr(const char* filename)
 {
@@ -939,6 +926,20 @@ GadgetronImageData::set_real_data(const float* z)
 		size_t n = iw.get_dim(dim);
 		iw.set_data(z);
 		z += n;
+	}
+}
+
+GadgetronImagesVector::GadgetronImagesVector
+(GadgetronImagesVector& images, const char* attr, const char* target)
+{
+	for (unsigned int i = 0; i < images.number(); i++) {
+		const ImageWrap& u = images.image_wrap(i);
+		std::string atts = u.attributes();
+		ISMRMRD::MetaContainer mc;
+		ISMRMRD::deserialize(atts.c_str(), mc);
+		std::string value = mc.as_str(attr);
+		if (boost::iequals(value, target))
+			append(u);
 	}
 }
 
