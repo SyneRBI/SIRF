@@ -91,10 +91,16 @@ Eliminates the need for the image processing switch in the rest of the code.
 */
 	class ImageWrap {
 	public:
-		ImageWrap(uint16_t type = 0, void* ptr_im = 0)
+		ImageWrap(uint16_t type, void* ptr_im)
 		{
 			type_ = type;
 			ptr_ = ptr_im;
+			IMAGE_PROCESSING_SWITCH(type_, set_data_parameters_, ptr_);
+		}
+		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
+		{
+			type_ = type;
+			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, index, &ptr_);
 		}
 		ImageWrap(const ImageWrap& iw)
 		{
@@ -208,12 +214,33 @@ Eliminates the need for the image processing switch in the rest of the code.
 	private:
 		int type_;
 		void* ptr_;
+		char* data_;
+		unsigned int dsize_;
+		size_t n_;
 
 		ImageWrap& operator=(const ImageWrap& iw)
 		{
-			type_ = iw.type();
-			IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
+			//type_ = iw.type();
+			//IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 			return *this;
+		}
+
+		template<typename T>
+		void set_data_parameters_(const ISMRMRD::Image<T>* ptr_im)
+		{
+			const ISMRMRD::Image<T>& im = *(const ISMRMRD::Image<T>*)ptr_im;
+			unsigned int dim[4];
+			dim[0] = im.getMatrixSizeX();
+			dim[1] = im.getMatrixSizeY();
+			dim[2] = im.getMatrixSizeZ();
+			dim[3] = im.getNumberOfChannels();
+			data_ = (char*)im.getDataPtr();
+			dsize_ = sizeof(T);
+			n_ = dim[0];
+			n_ *= dim[1];
+			n_ *= dim[2];
+			n_ *= dim[3];
+			//n_ = ptr_im->getDataSize()/dsize_;
 		}
 
 		template<typename T>
@@ -221,6 +248,7 @@ Eliminates the need for the image processing switch in the rest of the code.
 		{
 			type_ = ptr_im->getDataType();
 			ptr_ = (void*)new ISMRMRD::Image<T>(*ptr_im);
+			set_data_parameters_(ptr_im);
 		}
 
 		template<typename T>
@@ -274,6 +302,7 @@ Eliminates the need for the image processing switch in the rest of the code.
 			*ptr_ptr = (void*)ptr_im;
 			ISMRMRD::Image<T>& im = *ptr_im;
 			dataset.readImage(var, index, im);
+			set_data_parameters_(ptr_im);
 			//int status = ismrmrd_read_image(&dataset, var, (uint32_t)index, &(im.im));
 		}
 

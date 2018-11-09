@@ -852,8 +852,8 @@ GadgetronImageData::read(std::string filename)
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
 		for (int i = 0; i < num_im; i++) {
-			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type));
-			sptr_iw->read(*sptr_dataset, var, i);
+			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
+			//sptr_iw->read(*sptr_dataset, var, i);
 			append(*sptr_iw);
 			//images_.push_back(sptr_iw);
 		}
