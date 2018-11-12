@@ -90,10 +90,11 @@ AcquisitionsVector mr_io::read_ismrmrd_acquisitions( std::string path_ismrmrd_h5
 	uint32_t num_acquis = d.getNumberOfAcquisitions();
 
 	AcquisitionsVector acq_vec(out.str());
-	ISMRMRD::Acquisition acq;
 
 	for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 	{
+		ISMRMRD::Acquisition acq;
+
 		if ((i_acqu%1000) == 0 )
 			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
 
