@@ -60,9 +60,40 @@ MRAcquisitionData::write(const char* filename)
 }
 
 void
-MRAcquisitionData::read( void )
+MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 {
 	
+	bool const verbose = true;
+
+	if( verbose )
+		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+
+
+	ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
+
+	std::string xml;
+	d.readHeader(xml);
+	this->acqs_info_ = xml;
+
+	uint32_t num_acquis = d.getNumberOfAcquisitions();
+	for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
+	{
+		if( verbose )
+		{
+			if( i_acqu%( num_acquis/10 ) == 0 )
+				std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
+		}
+
+		ISMRMRD::Acquisition acq;
+		d.readAcquisition( i_acqu, acq);
+
+		if( TO_BE_IGNORED(acq) )
+			continue;
+		
+		this->append_acquisition( acq );
+	}
+	if( verbose )
+		std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
 }
 
 bool

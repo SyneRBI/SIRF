@@ -187,7 +187,7 @@ namespace sirf {
 				return i;
 		}
 
-		void read( void );
+		void read( const std::string& filename_ismrmrd_with_ext );
 		void write(const char* filename);
 
 	protected:
