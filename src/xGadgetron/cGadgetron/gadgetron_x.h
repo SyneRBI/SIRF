@@ -49,6 +49,8 @@ limitations under the License.
 #include "ismrmrd_fftw.h"
 #include "localised_exception.h"
 
+#include "encoding.h"
+
 #define N_TRIALS 5
 
 /*!

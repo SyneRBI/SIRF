@@ -50,7 +50,7 @@ bool test_enc::test_cube_input()
 
 bool CartesianEncodingTester::test_sample_fourier_space()
 {
-	FullySampledCartesianFFT cart_fft;
+	sirf::FullySampledCartesianFFT cart_fft;
 
 	NDArray<complex_float_t> i_dat = aux_test::get_mock_ndarray_with_cube();
 	
@@ -93,7 +93,7 @@ bool RPETester::test_sample_fourier_space( void )
 
 		auto radial_traj = rpe_traj.get_trajectory();
 
-		RadialPhaseEncodingFFT rpe_fft;
+		sirf::RadialPhaseEncodingFFT rpe_fft;
 		
 		rpe_fft.set_trajectory( radial_traj );
 		
@@ -140,7 +140,7 @@ try
 		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 		auto radial_traj = rpe_traj.get_trajectory();
 
-		RPETrajectoryPreparation traj_prep;
+		sirf::RPETrajectoryPreparation traj_prep;
 		traj_prep.set_and_check_trajectory( radial_traj);
 
 		auto formatted_traj = traj_prep.get_formatted_trajectory();
@@ -167,7 +167,7 @@ try
 		sirf::RPETrajectoryContainer rpe_traj = aux_test::get_mock_radial_trajectory(NRad, NAng);
 		auto radial_traj = rpe_traj.get_trajectory();
 
-		RPETrajectoryPreparation traj_prep;
+		sirf::RPETrajectoryPreparation traj_prep;
 		traj_prep.set_and_check_trajectory( radial_traj);
 
 		auto formatted_output = traj_prep.get_formatted_output_container< complex_float_t >();
