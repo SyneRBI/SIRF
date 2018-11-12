@@ -1,0 +1,4 @@
+src/xDynamicSimulation/cDynamicSimulation/Testing/tests_dynamicsimulation.h merge=ours
+src/xDynamicSimulation/cDynamicSimulation/Testing/tests_dynamicsimulation.cpp merge=ours
+src/xGadgetron/cGadgetron/gadgetron_data_containers.h merge=ours
+src/xGadgetron/cGadgetron/gadgetron_data_containers.cpp merge=ours
