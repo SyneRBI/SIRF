@@ -641,6 +641,61 @@ bool test_pet_dynsim::test_simulate_statics()
 
 }
 
+bool test_pet_dynsim::get_ground_truth_motion_fields()
+{
+
+try
+	{
+
+		int const num_simul_card_states = 10;
+
+		PETMotionDynamic card_dyn(num_simul_card_states);
+		
+		std::vector< SignalBin > bins =  card_dyn.get_bins();
+
+
+		auto card_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		card_dyn.set_displacement_fields( card_motion_fields, true );
+		card_dyn.prep_displacements_fields();
+
+		
+
+		for(size_t i=0; i<bins.size(); i++)
+		{
+			std::stringstream name_stream_output;
+			name_stream_output << SHARED_FOLDER_PATH << "ISMRMSim/Output/DynamicPET/4DCard/GT_mvfs/ground_truth_mvf_state_";
+
+			auto curr_signal = std::get<1>( bins[i] );
+			std::cout << "Getting GT MVF for state " << curr_signal << std::endl;
+			auto curr_gt_mvf = card_dyn.get_interpolated_displacement_field( curr_signal );
+			
+
+			name_stream_output << curr_signal;
+			std::string output_name = name_stream_output.str();
+
+	    	std::replace( output_name.begin(), output_name.end(), '.', 'c'); // replace all 'x' to 'y'
+	    	std::cout<<"potential name = " << output_name <<std::endl;
+		
+		    curr_gt_mvf.save_to_file(output_name);
+		    
+
+		}
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{
+			std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+			std::cout << e.what() << std::endl;
+			throw e;
+	}
+
+
+
+
+}
+
+
 
 
 bool test_pet_dynsim::test_simulate_motion_dynamics()
