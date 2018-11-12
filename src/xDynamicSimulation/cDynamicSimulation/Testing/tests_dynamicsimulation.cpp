@@ -295,19 +295,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 			auto sptr_traj = std::make_shared< RPETrajectoryContainer >( sf_traj );
 			mr_dyn_sim.set_trajectory( sptr_traj );
 		}
-		else if (traj_name == "SF")
-		{
-			SFTrajectoryContainer sf_traj;
-			auto sptr_traj = std::make_shared< SFTrajectoryContainer >( sf_traj );
-			mr_dyn_sim.set_trajectory( sptr_traj );
-		}
-		else if (traj_name == "GCSF")
-		{
-			GoldenAngleSFTrajectoryContainer gcsf_traj;
-			auto sptr_traj = std::make_shared< GoldenAngleSFTrajectoryContainer >( gcsf_traj );
-			mr_dyn_sim.set_trajectory( sptr_traj );
-		}
-
+	
 
 		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);

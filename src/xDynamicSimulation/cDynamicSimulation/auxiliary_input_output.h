@@ -34,8 +34,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-<<<<<<< HEAD
-=======
 
 #define PIX_SIZE_X 3.20f
 #define PIX_SIZE_Y 3.20f
@@ -46,16 +44,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 // #define PIX_SIZE_Z 2.0f
 
 
-
->>>>>>> revert_to_working_mri
 typedef float TimeAxisType;
 typedef float SignalAxisType;
 typedef std::pair<TimeAxisType, SignalAxisType> SignalPoint;
 typedef std::vector< SignalPoint > SignalContainer;
-<<<<<<< HEAD
-=======
 
->>>>>>> revert_to_working_mri
+
 
 namespace data_io{
 
@@ -120,8 +114,6 @@ namespace data_io{
 	};
 
 	template <typename T>
-<<<<<<< HEAD
-=======
 	void write_MVF_from_ISMRMRD_Image_to_Analyze(std::string const output_name_without_ext, ISMRMRD::Image<T> mvf)
 	{
 
@@ -180,7 +172,6 @@ namespace data_io{
 
 
 	template <typename T>
->>>>>>> revert_to_working_mri
 	std::vector< T > read_single_column_txt( const std::string& filename_txt_without_ext )
 	{
 		std::string const filename_with_ext = filename_txt_without_ext + ".txt";
