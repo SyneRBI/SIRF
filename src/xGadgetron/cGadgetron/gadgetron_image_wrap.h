@@ -36,6 +36,7 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "cgadgetron_shared_ptr.h"
+#include "number_ref.h"
 #include "xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
@@ -84,18 +85,72 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 
 namespace sirf {
 
-	/**
-\brief Wrapper for ISMRMRD::Image.
+	class ImageWrapIterator {
+	public:
+		ImageWrapIterator(int type, void* data, unsigned int dsize, size_t n) :
+			type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+		{}
+		bool operator!=(const ImageWrapIterator& i) const
+		{
+			return ptr_ != i.ptr_;
+		}
+		bool operator==(const ImageWrapIterator& i) const
+		{
+			return ptr_ == i.ptr_;
+		}
+		ImageWrapIterator operator++()
+		{
+			if (i_ >= n_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			i_++;
+			ptr_ += dsize_;
+			return *this;
+		}
+		ImageWrapIterator operator++(int)
+		{
+			if (i_ >= n_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			ImageWrapIterator old(*this);
+			i_++;
+			ptr_ += dsize_;
+			return old;
+		}
+		ImageWrapIterator operator+=(int m)
+		{
+			if (i_ + m > n_)
+				m = n_ - i_;
+			i_ += m;
+			ptr_ += m*dsize_;
+			return *this;
+		}
+		NumberRef operator*()
+		{
+			if (i_ >= n_)
+				throw std::out_of_range
+				("cannot dereference out-of-range iterator");
+			return NumberRef(ptr_, type_);
+		}
 
-Eliminates the need for the image processing switch in the rest of the code.
-*/
+	private:
+		int type_;
+		char* ptr_;
+		unsigned int dsize_;
+		size_t n_;
+		size_t i_;
+	};
+
+	/**
+	\brief Wrapper for ISMRMRD::Image.
+
+	Eliminates the need for the image processing switch in the rest of the code.
+	*/
 	class ImageWrap {
+		friend class ImageWrapIterator;
 	public:
 		ImageWrap(uint16_t type, void* ptr_im)
 		{
 			type_ = type;
 			ptr_ = ptr_im;
-			IMAGE_PROCESSING_SWITCH(type_, set_data_parameters_, ptr_);
 		}
 		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
 		{
@@ -122,6 +177,42 @@ Eliminates the need for the image processing switch in the rest of the code.
 		const void* ptr_image() const
 		{
 			return ptr_;
+		}
+		ImageWrapIterator begin()
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH
+				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			return ImageWrapIterator(type_, ptr, dsize, n);
+		}
+		ImageWrapIterator begin() const
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH_CONST
+				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			return ImageWrapIterator(type_, ptr, dsize, n);
+		}
+		ImageWrapIterator end()
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH
+				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			return ImageWrapIterator(type_, ptr + n*dsize, dsize, n);
+		}
+		ImageWrapIterator end() const
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH_CONST
+				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			return ImageWrapIterator(type_, ptr + n*dsize, dsize, n);
 		}
 		size_t size() const
 		{
@@ -154,19 +245,33 @@ Eliminates the need for the image processing switch in the rest of the code.
 		}
 		void get_data(float* data) const
 		{
-			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
+			//std::cout << "in get_data\n";
+			std::copy(begin(), end(), data);
+			//for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
+			//	*data = *i;
+			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
 		}
-		void set_data(const float* data) const
+		void set_data(const float* data)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
+			//std::cout << "in set_data\n";
+			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
+				*i = *data;
+			//IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
 		}
 		void get_complex_data(complex_float_t* data) const
 		{
-			IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
+			//std::cout << "in get_complex_data\n";
+			//std::copy(begin(), end(), data); // does not compile - ambiguous =
+			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
+				*data = (complex_float_t)*i;
+			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
-		void set_complex_data(const complex_float_t* data) const
+		void set_complex_data(const complex_float_t* data)
 		{
-			IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
+			//std::cout << "in set_complex_data\n";
+			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
+				*i = *data;
+			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
 		void write(ISMRMRD::Dataset& dataset) const
 		{
@@ -207,16 +312,9 @@ Eliminates the need for the image processing switch in the rest of the code.
 			return s;
 		}
 
-		//void get_cmplx_data(float* re, float* im) const;
-
-		//void set_cmplx_data(const float* re, const float* im) const;
-
 	private:
 		int type_;
 		void* ptr_;
-		char* data_;
-		unsigned int dsize_;
-		size_t n_;
 
 		ImageWrap& operator=(const ImageWrap& iw)
 		{
@@ -226,7 +324,9 @@ Eliminates the need for the image processing switch in the rest of the code.
 		}
 
 		template<typename T>
-		void set_data_parameters_(const ISMRMRD::Image<T>* ptr_im)
+		void get_data_parameters_
+			(const ISMRMRD::Image<T>* ptr_im, size_t *n, unsigned int *dsize,
+			char** data) const
 		{
 			const ISMRMRD::Image<T>& im = *(const ISMRMRD::Image<T>*)ptr_im;
 			unsigned int dim[4];
@@ -234,13 +334,13 @@ Eliminates the need for the image processing switch in the rest of the code.
 			dim[1] = im.getMatrixSizeY();
 			dim[2] = im.getMatrixSizeZ();
 			dim[3] = im.getNumberOfChannels();
-			data_ = (char*)im.getDataPtr();
-			dsize_ = sizeof(T);
-			n_ = dim[0];
-			n_ *= dim[1];
-			n_ *= dim[2];
-			n_ *= dim[3];
-			//n_ = ptr_im->getDataSize()/dsize_;
+			*data = (char*)im.getDataPtr();
+			*dsize = sizeof(T);
+			*n = dim[0];
+			*n *= dim[1];
+			*n *= dim[2];
+			*n *= dim[3];
+			//*n = ptr_im->getDataSize()/(*dsize);
 		}
 
 		template<typename T>
@@ -248,7 +348,6 @@ Eliminates the need for the image processing switch in the rest of the code.
 		{
 			type_ = ptr_im->getDataType();
 			ptr_ = (void*)new ISMRMRD::Image<T>(*ptr_im);
-			set_data_parameters_(ptr_im);
 		}
 
 		template<typename T>
@@ -302,7 +401,6 @@ Eliminates the need for the image processing switch in the rest of the code.
 			*ptr_ptr = (void*)ptr_im;
 			ISMRMRD::Image<T>& im = *ptr_im;
 			dataset.readImage(var, index, im);
-			set_data_parameters_(ptr_im);
 			//int status = ismrmrd_read_image(&dataset, var, (uint32_t)index, &(im.im));
 		}
 
@@ -327,7 +425,7 @@ Eliminates the need for the image processing switch in the rest of the code.
 		}
 
 		template<typename T>
-		void set_data_(ISMRMRD::Image<T>* ptr_im, const float* data) const
+		void set_data_(ISMRMRD::Image<T>* ptr_im, const float* data)
 		{
 			ISMRMRD::Image<T>& im = *ptr_im;
 			T* ptr = im.getDataPtr();
@@ -349,7 +447,7 @@ Eliminates the need for the image processing switch in the rest of the code.
 
 		template<typename T>
 		void set_complex_data_
-			(ISMRMRD::Image<T>* ptr_im, const complex_float_t* data) const
+			(ISMRMRD::Image<T>* ptr_im, const complex_float_t* data)
 		{
 			ISMRMRD::Image<T>& im = *ptr_im;
 			ISMRMRD::ISMRMRD_DataTypes type = im.getDataType();
@@ -358,11 +456,9 @@ Eliminates the need for the image processing switch in the rest of the code.
 			if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
 				for (size_t i = 0; i < n; i++)
 					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
-			//ptr[i] = data[i];
 			else
 				for (size_t i = 0; i < n; i++)
 					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
-					//ptr[i] = std::real(data[i]);
 		}
 
 		template<typename T>
@@ -470,7 +566,6 @@ Eliminates the need for the image processing switch in the rest of the code.
 			}
 		}
 	};
-
 }
 
 #endif
