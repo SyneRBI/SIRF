@@ -187,6 +187,7 @@ namespace sirf {
 				return i;
 		}
 
+		void read( void );
 		void write(const char* filename);
 
 	protected:

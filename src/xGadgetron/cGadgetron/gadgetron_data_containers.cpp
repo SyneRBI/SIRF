@@ -59,6 +59,12 @@ MRAcquisitionData::write(const char* filename)
 	}
 }
 
+void
+MRAcquisitionData::read( void )
+{
+	
+}
+
 bool
 MRAcquisitionData::undersampled() const
 {
