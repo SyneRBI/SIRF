@@ -30,6 +30,9 @@ limitations under the License.
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
+#include <string>
+#include <vector>
+
 #include <boost/algorithm/string.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -347,7 +350,7 @@ namespace sirf {
 
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief Abstract MR image data container class.
+	\brief Abstract Gadgetron image data container class.
 
 	*/
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
@@ -442,6 +445,144 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
+	class GadgetronImageVectorIterator {
+	public:
+		GadgetronImageVectorIterator
+			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
+			bool end = false) :
+			iw_(images.begin()),
+			iter_((**iw_).begin()),
+			end_((**iw_).end())
+		{
+			n_ = images.size();
+			if (end) {
+				i_ = n_ - 1;
+				iter_ = end_;
+			}
+			else
+				i_ = 0;
+		}
+		bool operator==(const GadgetronImageVectorIterator& i) const
+		{
+			return iter_ == i.iter_;
+		}
+		bool operator!=(const GadgetronImageVectorIterator& i) const
+		{
+			return iter_ != i.iter_;
+		}
+		GadgetronImageVectorIterator operator++()
+		{
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			if (iter_ == end_) {
+				++i_;
+				++iw_;
+				iter_ = (**iw_).begin();
+				end_ = (**iw_).end();
+			}
+			else
+				++iter_;
+			return *this;
+		}
+		GadgetronImageVectorIterator operator++(int)
+		{
+			GadgetronImageVectorIterator old(*this);
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			if (iter_ == end_) {
+				++i_;
+				++iw_;
+				iter_ = (**iw_).begin();
+				end_ = (**iw_).end();
+			}
+			else
+				++iter_;
+			return old;
+		}
+		NumberRef operator*()
+		{
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range
+				("cannot dereference out-of-range iterator");
+			return *iter_;
+		}
+	private:
+		std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator iw_;
+		int n_;
+		int i_;
+		ImageWrapIterator iter_;
+		ImageWrapIterator end_;
+	};
+
+	class GadgetronImageVectorIterator_const {
+	public:
+		GadgetronImageVectorIterator_const
+			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
+			bool end = false) :
+			iw_(images.begin()),
+			iter_((**iw_).begin()),
+			end_((**iw_).end())
+		{
+			n_ = images.size();
+			if (end) {
+				i_ = n_ - 1;
+				iter_ = end_;
+			}
+			else
+				i_ = 0;
+		}
+		bool operator==(const GadgetronImageVectorIterator_const& i) const
+		{
+			return iter_ == i.iter_;
+		}
+		bool operator!=(const GadgetronImageVectorIterator_const& i) const
+		{
+			return iter_ != i.iter_;
+		}
+		GadgetronImageVectorIterator_const operator++()
+		{
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			if (iter_ == end_) {
+				++i_;
+				++iw_;
+				iter_ = (**iw_).begin();
+				end_ = (**iw_).end();
+			}
+			else
+				++iter_;
+			return *this;
+		}
+		GadgetronImageVectorIterator_const operator++(int)
+		{
+			GadgetronImageVectorIterator_const old(*this);
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range("cannot advance out-of-range iterator");
+			if (iter_ == end_) {
+				++i_;
+				++iw_;
+				iter_ = (**iw_).begin();
+				end_ = (**iw_).end();
+			}
+			else
+				++iter_;
+			return old;
+		}
+		NumberRef operator*()
+		{
+			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+				throw std::out_of_range
+				("cannot dereference out-of-range iterator");
+			return *iter_;
+		}
+	private:
+		std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator iw_;
+		int n_;
+		int i_;
+		ImageWrapIterator iter_;
+		ImageWrapIterator end_;
+	};
+
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
 		GadgetronImagesVector() : images_(), nimages_(0) {}
@@ -514,6 +655,14 @@ namespace sirf {
 		{
 			return gadgetron::shared_ptr<GadgetronImageData>
 				(new GadgetronImagesVector(*this, attr, target));
+		}
+		virtual GadgetronImageVectorIterator begin()
+		{
+			return GadgetronImageVectorIterator(images_);
+		}
+		virtual GadgetronImageVectorIterator end()
+		{
+			return GadgetronImageVectorIterator(images_, true);
 		}
 
 	private:
