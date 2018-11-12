@@ -92,7 +92,8 @@ SIRF$ git pull --recurse-submodules
 SIRF$ cd data
 SIRF/data$ # create/change some files
 SIRF/data$ git commit -m "add some data" && git push && cd ..
-SIRF$ git add data && git commit -m "update submodule" && git push
+SIRF$ git add --force data  # force required for safety (see 4 below)
+SIRF$ git commit -m "update submodule" && git push
 ```
 3. What happens when switching branches
     + When switching branches in SIRF, the data submodule will not be touched.
@@ -101,5 +102,15 @@ SIRF$ git add data && git commit -m "update submodule" && git push
 	+ WARNING: This is why `git add --all` is bad practice (if you forget to
 	  update submodules when needed, then committing all modifications will
 	  include the current wrong submodule commit)
+4. What happens if upstream changes conflict
+    + The `data` submodule may be force-pushed to by maintainers
+      to reduce its size (removing unneeded data from git history).
+      Consequentially `SIRF$ git status` may indicate changes in the `data`
+      submodule despite a user not having touched it.
+      In order to overwrite the local outdated submodule:
+```bash
+SIRF$ cd data
+SIRF/data$ git fetch origin && git reset --hard origin/master && cd ..
+```
 
 [submodules]: https://git-scm.com/docs/gitsubmodules
