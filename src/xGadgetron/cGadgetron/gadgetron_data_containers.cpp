@@ -26,6 +26,7 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
 */
+#include <cmath>
 
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
@@ -82,7 +83,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			if( verbose )
 			{
 				if( i_acqu%( num_acquis/10 ) == 0 )
-					std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
+					std::cout << std::ceil( float(i_acqu)/num_acquis*100 )<< " % " << " done."<< std::endl;
 			}
 
 			ISMRMRD::Acquisition acq;
@@ -90,8 +91,8 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 
 			if( TO_BE_IGNORED(acq) )
 				continue;
-			
-			this->append_acquisition( acq );
+			else
+				this->append_acquisition( acq );
 		}
 		if( verbose )
 			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
