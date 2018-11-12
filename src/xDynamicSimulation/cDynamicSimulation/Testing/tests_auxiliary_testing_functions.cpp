@@ -10,12 +10,14 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 #include "sstream"
+#include <fstream>
 
 #include <ismrmrd/ismrmrd.h>
 #include "gadgetron_data_containers.h" 
 
 #include "auxiliary_input_output.h"
 
+#include "dynamics.h"
 
 using namespace sirf;
 
@@ -91,6 +93,31 @@ try
 	}
 	return true;
 
+}
+
+bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
+{
+	try
+	{
+		
+		std::vector<size_t> vol_size {128,128,128};
+
+		int const num_coils = 4;
+		ISMRMRD::Image<complex_float_t> mock_csm = aux_test::get_mock_gaussian_csm(vol_size, num_coils);
+		
+		std::stringstream name_stream;
+		name_stream << "/media/sf_SharedFolder/CCPPETMR/test_mock_gaussian_csm_";
+		
+		data_io::write_ISMRMRD_Image_to_Analyze< complex_float_t > (name_stream.str(), mock_csm);
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+	return true;
 }
 
 bool test_aux_test_funs::test_get_mock_coildata_as_cfimage( void )
@@ -202,3 +229,41 @@ bool test_aux_test_funs::test_get_mock_pet_contrast_generator( void )
 
 	return true;	
 }
+
+
+
+bool test_aux_test_funs::test_get_mock_sawtooth_signal( void )
+{
+	try
+	{
+		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
+
+		SignalContainer mock_cardiac_signal = aux_test::get_generic_cardiac_signal(all_acquis);
+
+		std::stringstream output_name;
+		output_name << SHARED_FOLDER_PATH << "ecg_file.txt";
+
+
+		std::ofstream ecg_file;
+		ecg_file.open(output_name.str());
+ 		ecg_file << std::setprecision(10) << std::endl;
+		for( size_t i=0; i<mock_cardiac_signal.size(); i++)
+		{	
+			ecg_file << mock_cardiac_signal[i].first << "," << mock_cardiac_signal[i].second << "\n";
+		}
+
+		ecg_file.close();
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{
+		std::cout << "Exception caught in " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+	return true;	
+}
+

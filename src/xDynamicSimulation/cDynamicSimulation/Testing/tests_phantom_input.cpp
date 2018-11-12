@@ -60,6 +60,11 @@ try
 		ISMRMRD::NDArray< DataTypeMotionFields > resp_mvfs = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		ISMRMRD::NDArray< DataTypeMotionFields > card_mvfs = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
+		auto resp_dims = resp_mvfs.getDims();
+
+		for(int i=0; i<7; i++)
+			std::cout << resp_dims[i] << std::endl;
+
 		return true;
 	}
 	catch( std::runtime_error const &e)

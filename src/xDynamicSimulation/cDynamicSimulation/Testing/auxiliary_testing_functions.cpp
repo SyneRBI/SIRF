@@ -13,6 +13,12 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <omp.h>
 #include <sstream>
 #include <math.h>
+#include <cmath>
+#include <stdexcept>
+
+#include <algorithm>
+#include <vector>
+
 
 using namespace sirf;
 
@@ -441,6 +447,111 @@ ISMRMRD::NDArray< complex_float_t > aux_test::get_mock_csm( void )
 	return csm;
 }
 
+ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<size_t> vol_dims, int const num_coils )
+{
+
+	int const num_non_zero_coils = std::floor( log2( num_coils ) );
+
+	std::vector<float> sensitivity_widths {vol_dims[0] /2.f, vol_dims[1] /2.f, vol_dims[2] /2.f };
+
+
+	std::vector<float> x_range, y_range, z_range;
+
+	for( size_t i=0; i<vol_dims[0]; i++)
+		x_range.push_back( i-(float)vol_dims[0]/2.f );
+
+	for( size_t i=0; i<vol_dims[1]; i++)
+		y_range.push_back( i-(float)vol_dims[1]/2.f );
+
+	for( size_t i=0; i<vol_dims[2]; i++)
+		z_range.push_back( i-(float)vol_dims[2]/2.f );
+
+	ISMRMRD::NDArray<float> x_grid(vol_dims), y_grid(vol_dims), z_grid(vol_dims);
+
+
+	for( size_t nz=0; nz<vol_dims[2]; nz++)
+	for( size_t ny=0; ny<vol_dims[1]; ny++)
+	for( size_t nx=0; nx<vol_dims[0]; nx++)
+	{
+		x_grid(nx,ny,nz) = x_range[nx];
+		y_grid(nx,ny,nz) = y_range[ny];
+		z_grid(nx,ny,nz) = z_range[nz];
+	}
+
+	ISMRMRD::Image<complex_float_t> csm( vol_dims[0], vol_dims[1], vol_dims[2], num_coils );
+
+	for( size_t i=0; i<csm.getNumberOfDataElements(); i++)
+		*(csm.begin() +i) = std::complex<float> (0,0);
+
+
+	std::vector<size_t> center_container_size{(size_t)3, (size_t)num_coils};
+	ISMRMRD::NDArray< float > coil_centers( center_container_size );
+	if( num_non_zero_coils == 1)
+	{
+		for(size_t i=0; i<csm.getNumberOfDataElements(); i++)
+			*(csm.begin() + i) = std::complex<float>(1);
+	}
+	else if (num_non_zero_coils == 2)
+	{
+
+		coil_centers(0, 0) = x_range[ std::floor( x_range.size()/2) ];
+		coil_centers(1, 0) = y_range[0];
+		coil_centers(2, 0) = 0;
+
+
+		coil_centers(0, 1) = x_range[ std::floor( x_range.size()/2) ];;
+		coil_centers(1, 1) = y_range.back();
+		coil_centers(2, 1) = 0;
+
+	}
+	else
+	{
+		size_t const coils_per_side = num_non_zero_coils / 4;
+		float const side_distances = 1.f/( coils_per_side + 1.f);
+
+		for(size_t j=0; j<coils_per_side;j++)
+		{
+			size_t const coil_access_index = j * coils_per_side;
+
+			coil_centers(0, coil_access_index + 0) = x_range[ std::floor( x_range.size() * float(j+1) * side_distances) ];
+			coil_centers(1, coil_access_index + 0) = y_range[0];
+			coil_centers(2, coil_access_index + 0) = 0;
+
+
+			coil_centers(0, coil_access_index + 1) = x_range[ std::floor( x_range.size() * float(j+1) * side_distances) ];
+			coil_centers(1, coil_access_index + 1) = y_range.back();
+			coil_centers(2, coil_access_index + 1) = 0;
+
+
+			coil_centers(0, coil_access_index + 2) = x_range[0];
+			coil_centers(1, coil_access_index + 2) = y_range[ std::floor( y_range.size() * float(j+1) * side_distances) ];
+			coil_centers(2, coil_access_index + 2) = 0;
+
+
+			coil_centers(0, coil_access_index + 3) = x_range.back();
+			coil_centers(1, coil_access_index + 3) = y_range[ std::floor( y_range.size() * float(j+1) * side_distances) ];
+			coil_centers(2, coil_access_index + 3) = 0;
+		}
+	}
+
+	for(size_t i_coil=0; i_coil<num_non_zero_coils; i_coil++)
+	{
+		for( size_t nz=0; nz<vol_dims[2]; nz++)
+		for( size_t ny=0; ny<vol_dims[1]; ny++)
+		for( size_t nx=0; nx<vol_dims[0]; nx++)
+		{
+			float const dist_square_to_coil_center = (x_grid(nx,ny,nz) - coil_centers(0, i_coil)) * (x_grid(nx,ny,nz) - coil_centers(0, i_coil))/ (sensitivity_widths[0]*sensitivity_widths[0]) +
+											  (y_grid(nx,ny,nz) - coil_centers(1, i_coil)) * (y_grid(nx,ny,nz) - coil_centers(1, i_coil))/ (sensitivity_widths[1]*sensitivity_widths[1]) + 
+											  (z_grid(nx,ny,nz) - coil_centers(2, i_coil)) * (z_grid(nx,ny,nz) - coil_centers(2, i_coil))/ (sensitivity_widths[2]*sensitivity_widths[2]);
+
+			csm(nx, ny, nz, i_coil) = std::complex<float>( exp( - dist_square_to_coil_center ), 0);											  
+		}
+	}
+
+	return csm;
+}
+
+
 CoilDataAsCFImage aux_test::get_mock_coildata_as_cfimage( void )
 {
 	ISMRMRD::NDArray<complex_float_t> mock_csm = get_mock_csm();
@@ -615,11 +726,39 @@ SignalContainer aux_test::get_mock_motion_signal()
 }
 
 
-SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
+SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector &acq_vec, TimeAxisType const period_duration_ms)
 {
 
-	#define PI 3.14159265
+	unsigned const num_sampling_points = acq_vec.number();
+	std::vector< TimeAxisType > all_time_points;
+	for(size_t ia=0; ia<num_sampling_points; ia++)
+	{
+		ISMRMRD::Acquisition acq;
+		acq_vec.get_acquisition(ia, acq);
 
+		all_time_points.push_back(acq.getHead().acquisition_time_stamp); 	
+	}
+
+	auto minmax_it = std::minmax_element(std::begin(all_time_points), std::end(all_time_points));
+	
+	TimeAxisType t0 = *(minmax_it.first);
+
+	SignalContainer signal;
+
+	for( unsigned i=0; i<num_sampling_points; i++)
+	{
+		std::pair<TimeAxisType, SignalAxisType> signal_point;
+
+		signal_point.first = all_time_points[i];
+		signal_point.second = (1 - cos(2*M_PI / period_duration_ms * (all_time_points[i]-t0)))/2;
+		signal.push_back(signal_point);
+	}
+
+	return signal;
+}
+
+SignalContainer aux_test::get_mock_sawtooth_signal( AcquisitionsVector acq_vec, TimeAxisType const period_duration_ms)
+{
 	ISMRMRD::Acquisition acq;
 	
 	acq_vec.get_acquisition(0, acq);
@@ -629,8 +768,7 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
 	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
 
 
-	unsigned const num_sampling_points = 30000;
-	TimeAxisType const frequ_miliseconds = 1000;
+	unsigned const num_sampling_points = acq_vec.number();
 
 	TimeAxisType dt = float(t_fin - t_0)/ float(num_sampling_points);
 
@@ -641,35 +779,89 @@ SignalContainer aux_test::get_mock_sinus_signal( AcquisitionsVector acq_vec)
 		std::pair<TimeAxisType, SignalAxisType> signal_point;
 
 		signal_point.first = t_0 + i * dt;
-		signal_point.second = (1 - cos(2*PI / frequ_miliseconds * i * dt))/2;
+
+		signal_point.second = fmod(t_0 + i * dt, period_duration_ms) / period_duration_ms;
 		signal.push_back(signal_point);
 	}
 
-	return signal;
+	return signal;	
 }
 
-
-
-SignalContainer aux_test::get_mock_contrast_signal( AcquisitionsVector acq_vec)
+SignalContainer aux_test::get_generic_contrast_inflow_signal( sirf::AcquisitionsVector &acq_vec)
 {
-	SignalContainer signal;
-	
-	std::pair<TimeAxisType, SignalAxisType> signal_point;
-	
 	ISMRMRD::Acquisition acq;
 	
 	acq_vec.get_acquisition(0, acq);
-	signal_point.first = acq.getHead().acquisition_time_stamp;
-	signal_point.second = 0;
-
-	signal.push_back(signal_point);
-	
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
 	acq_vec.get_acquisition(acq_vec.items()-1, acq);
-	
-	signal_point.first = acq.getHead().acquisition_time_stamp;
-	signal_point.second = 1;
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
 
-	signal.push_back(signal_point);
+	SignalContainer signal;
 
-	return signal;
+	std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point;
+
+	zero_signal_point.first =  t_0;
+	zero_signal_point.second = SignalAxisType(0); 
+
+	signal.push_back(zero_signal_point);
+
+	one_signal_point.first = t_fin;
+	one_signal_point.second = SignalAxisType(1);
+
+	signal.push_back(one_signal_point);
+
+	return signal;	
 }
+
+SignalContainer aux_test::get_generic_contrast_in_and_outflow_signal( sirf::AcquisitionsVector &acq_vec )
+{
+	ISMRMRD::Acquisition acq;
+	
+	acq_vec.get_acquisition(0, acq);
+	TimeAxisType t_0 = acq.getHead().acquisition_time_stamp;
+			
+	acq_vec.get_acquisition(acq_vec.items()-1, acq);
+	TimeAxisType t_fin = acq.getHead().acquisition_time_stamp;
+
+	TimeAxisType t_half = (t_fin + t_0)/ (TimeAxisType)2;
+
+	SignalContainer signal;
+
+	std::pair<TimeAxisType, SignalAxisType> zero_signal_point, one_signal_point, final_signal_point;
+
+	zero_signal_point.first =  t_0;
+	zero_signal_point.second = SignalAxisType(0); 
+
+	signal.push_back(zero_signal_point);
+
+	one_signal_point.first = t_half;
+	one_signal_point.second = SignalAxisType(1);
+
+	signal.push_back(one_signal_point);
+
+	final_signal_point.first = t_fin;
+	final_signal_point.second = SignalAxisType(0);
+
+	signal.push_back(final_signal_point);
+
+	return signal;	
+}
+
+
+SignalContainer aux_test::get_generic_respiratory_signal( sirf::AcquisitionsVector &acq_vec)
+{
+	TimeAxisType const period_duartion_ms = 3300;
+	return aux_test::get_mock_sinus_signal(acq_vec, period_duartion_ms );
+}
+
+
+SignalContainer aux_test::get_generic_cardiac_signal( sirf::AcquisitionsVector &acq_vec)
+{
+	TimeAxisType const period_duartion_ms = 900;
+	return aux_test::get_mock_sawtooth_signal(acq_vec, period_duartion_ms );
+}
+
+
+
+

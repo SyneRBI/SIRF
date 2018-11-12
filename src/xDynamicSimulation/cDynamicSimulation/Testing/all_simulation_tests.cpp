@@ -35,13 +35,14 @@ void run_tests_auxiliary_testing_functions( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
-	tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
-	tests_successful *= test_aux_test_funs::test_get_mock_csm();
-	tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
-	tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
-	tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
-
+	// tests_successful *= test_aux_test_funs::test_get_serialized_ismrmrd_header();
+	// tests_successful *= test_aux_test_funs::test_get_mock_acquisition_vector();
+	// tests_successful *= test_aux_test_funs::test_get_mock_csm();
+	// tests_successful *= test_aux_test_funs::test_get_mock_coildata_as_cfimage();
+	// tests_successful *= test_aux_test_funs::test_get_mock_ismrmrd_image_with_cube();
+	// tests_successful *= test_aux_test_funs::test_get_mock_pet_contrast_generator();
+	// tests_successful *= test_aux_test_funs::test_get_mock_sawtooth_signal();
+	tests_successful *= test_aux_test_funs::test_get_mock_gaussian_csm();
 
 
 	if ( !tests_successful )
@@ -115,8 +116,9 @@ void run_tests_dynamic_simulation( void )
 
 	// tests_successful *= test_pet_dynsim::test_constructor();
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
-	tests_successful *= test_pet_dynsim::test_simulate_statics();
+	// tests_successful *= test_pet_dynsim::test_simulate_statics();
 	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
+	tests_successful *= test_pet_dynsim::get_ground_truth_motion_fields();
 
 
 	if ( !tests_successful )
@@ -137,8 +139,8 @@ void run_tests_noise_generator( void )
 
 	bool tests_successful = true;
 
-	// tests_successful *= test_noisegen::test_add_poisson_noise();
-	tests_successful *= test_noisegen::test_add_gaussian_noise();
+	tests_successful *= test_noisegen::test_add_poisson_noise();
+	// tests_successful *= test_noisegen::test_add_gaussian_noise();
 
 	if ( !tests_successful )
 	{
@@ -182,10 +184,10 @@ void run_tests_auxiliary_input_output( void )
 	bool tests_successful = true;
 
 	// test_aux_io::test_write_ndarray_to_raw();
-	test_aux_io::test_write_ismrmrd_image_to_analyze();
+	// test_aux_io::test_write_ismrmrd_image_to_analyze();
 
 	// tests_successful *= test_aux_io::test_read_acquisitions_vector_number_consistency();	
-
+	tests_successful *= test_aux_io::test_read_single_column_txt();
 
 	if ( !tests_successful )
 	{
@@ -258,16 +260,16 @@ void run_tests_contrastgenerator(void)
 
 
 	// test_contgen::test_match_output_dims_to_headerinfo();
-	// test_contgen::test_mr_map_contrast_application_to_xcat();
+	test_contgen::test_mr_map_contrast_application_to_xcat();
 	// test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 
 	// // pet contgen tests
-	tests_successful *=	test_contgen::test_pet_constructor();
-	tests_successful *= test_contgen::test_pet_map_contrast();
-	tests_successful *= test_contgen::test_pet_map_attenuation(); 
-	tests_successful *= test_contgen::test_set_template_image_from_file();
+	// tests_successful *=	test_contgen::test_pet_constructor();
+	// tests_successful *= test_contgen::test_pet_map_contrast();
+	// tests_successful *= test_contgen::test_pet_map_attenuation(); 
+	// tests_successful *= test_contgen::test_set_template_image_from_file();
 
-	test_contgen::test_pet_map_contrast_application_to_xcat();
+	// test_contgen::test_pet_map_contrast_application_to_xcat();
 
 
 	if ( !tests_successful )
@@ -289,7 +291,7 @@ void run_tests_phantom_input( void )
 	// tests_successful *= test_read_h5_segmentation_correct_dims(H5_PHANTOM_TEST_PATH);
 	// tests_successful *= test_read_h5_segmentation_correct_content(H5_PHANTOM_TEST_PATH);
 	
-	test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
+	// test_read_h5_segmentation_for_xcat_input_check(H5_XCAT_PHANTOM_PATH);
 	tests_successful *= test_read_h5_motionfields();
 
 	
@@ -340,8 +342,8 @@ void run_tests_dynsim_deformer( void )
 	bool tests_successful = true;
 
 	// tests_successful *=	DynSimDeformerTester::test_deform_contrast_generator();
-	tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
-
+	// tests_successful *= DynSimDeformerTester::test_SIRFImageDataDeformation_memory_behavior();
+	tests_successful *= DynSimDeformerTester::test_deform_pet_contrast_generator();
 
 	if ( !tests_successful )
 	{

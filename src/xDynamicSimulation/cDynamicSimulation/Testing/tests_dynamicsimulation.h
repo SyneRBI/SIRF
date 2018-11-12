@@ -41,5 +41,6 @@ bool test_constructor( void );
 bool set_template_acquisition_data( void );
 bool test_simulate_statics( void );
 bool test_simulate_motion_dynamics( void );
+bool get_ground_truth_motion_fields( void );
 
 }

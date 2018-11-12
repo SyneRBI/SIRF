@@ -504,7 +504,7 @@ void MotionDynamic::prep_displacements_fields()
 			std::stringstream temp_filename_mvf;
 			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
 
-			data_io::write_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
 			temp_filename_mvf << ".hdr";
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
@@ -523,6 +523,42 @@ void MotionDynamic::prep_displacements_fields()
 
 	this->delete_temp_folder();
 }
+
+
+void MRMotionDynamic::prep_displacements_fields()
+{
+	if(this->displacment_fields_.size() == 0)
+		throw std::runtime_error("Please call set_displacements_fields() first.");
+
+	bool const temp_folder_creation_successful = this->make_temp_folder();
+
+	if( temp_folder_creation_successful )
+	{
+		for(int i=0; i<this->displacment_fields_.size(); i++)
+		{
+			std::stringstream temp_filename_mvf;
+			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
+
+			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+			temp_filename_mvf << ".hdr";
+			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
+		}
+
+		if( this-> keep_motion_fields_in_memory_ == false)
+			this->displacment_fields_ = MotionFieldContainer();
+	}
+	else
+		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
+
+	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
+	{
+		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+		this->sirf_displacement_fields_.push_back( temp_deformation );
+	}
+
+	this->delete_temp_folder();
+}
+
 
 
 
@@ -725,6 +761,41 @@ TimeAxisType aPETDynamic::get_time_spent_in_bin(unsigned int const which_state )
 
 
 
+
+void PETMotionDynamic::prep_displacements_fields( void )
+{
+	if(this->displacment_fields_.size() == 0)
+		throw std::runtime_error("Please call set_displacements_fields() first.");
+
+	bool const temp_folder_creation_successful = this->make_temp_folder();
+
+	if( temp_folder_creation_successful )
+	{
+		for(int i=0; i<this->displacment_fields_.size(); i++)
+		{
+			std::stringstream temp_filename_mvf;
+			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
+
+			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze_In_PET_Geometry<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
+			temp_filename_mvf << ".hdr";
+			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
+		}
+
+		if( this-> keep_motion_fields_in_memory_ == false)
+			this->displacment_fields_ = MotionFieldContainer();
+	}
+	else
+		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
+
+	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
+	{
+		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+		this->sirf_displacement_fields_.push_back( temp_deformation );
+	}
+
+	this->delete_temp_folder();
+}
+
 void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData& img )
 {
 
@@ -769,22 +840,6 @@ void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData&
 		sptr_mvf_nifti->quatern_c = img_quart_c ;
 		sptr_mvf_nifti->quatern_d = img_quart_d ;
 		sptr_mvf_nifti->qfac	  = img_quart_ac;
-
-		// sptr_mvf_nifti->dx = (float)img_dx;
-		// sptr_mvf_nifti->dy = (float)img_dy;
-		// sptr_mvf_nifti->dz = (float)img_dz;
-		// sptr_mvf_nifti->dt = (float)0;
-		// sptr_mvf_nifti->du = (float)0;
-		// sptr_mvf_nifti->dv = (float)0;
-		// sptr_mvf_nifti->dw = (float)0;
-		
-		// sptr_mvf_nifti->pixdim[1] = img_dx;
-		// sptr_mvf_nifti->pixdim[2] = img_dy;
-		// sptr_mvf_nifti->pixdim[3] = img_dz;
-		// sptr_mvf_nifti->pixdim[4] = img_dt;
-		// sptr_mvf_nifti->pixdim[5] = img_du;
-		// sptr_mvf_nifti->pixdim[6] = img_dv;
-		// sptr_mvf_nifti->pixdim[7] = img_dw;
 
 		this->sirf_displacement_fields_[i] = SIRFImageDataDeformation(sptr_mvf_nifti);
 

@@ -11,7 +11,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "dynsim_deformer.h"
 
 
-
 class DynSimDeformerTester {
 
 private:
@@ -20,5 +19,6 @@ private:
 public:
 	static bool test_deform_contrast_generator( void );
 	static bool test_SIRFImageDataDeformation_memory_behavior( void );
-
+	static bool test_deform_pet_contrast_generator( void ) ;
 };
+

@@ -61,13 +61,10 @@ void MRDynamicSimulation::simulate_statics( void )
 	cout << "Simulating static data acquisition... " <<endl;
 
 	this->extract_hdr_information();
-
 	this->acq_model_.setTraj( this->sptr_trajectory_ );
-
 	this->mr_cont_gen_.map_contrast();
 	this->source_acquisitions_ = this->all_source_acquisitions_;
 	this->acquire_raw_data();
-
 }
 
 void MRDynamicSimulation::simulate_dynamics( void )
@@ -347,8 +344,7 @@ void MRDynamicSimulation::extract_hdr_information( void )
 
 	this->acq_model_.setISMRMRDHeader( this->hdr_ );
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
-
-
+	
 }
 
 
@@ -361,6 +357,10 @@ void MRDynamicSimulation::set_trajectory( std::shared_ptr<aTrajectoryContainer> 
 
 }
 
+void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps )
+{
+	this->coilmaps_ = coilmaps;
+}
 
 void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquisitions )
 {
@@ -382,22 +382,22 @@ void MRDynamicSimulation::set_SNR(float const SNR)
 void MRDynamicSimulation::acquire_raw_data( void )
 {
 
+	if( this->coilmaps_.getNumberOfDataElements() == 0)
+		throw std::runtime_error("Please make sure to set the coilmaps prior to starting the simulation.");
+
 	std::vector< ISMRMRD::Image< complex_float_t> > contrast_filled_volumes = this->mr_cont_gen_.get_contrast_filled_volumes();
 
 	size_t const num_contrasts = contrast_filled_volumes.size();
 
+
 	size_t Nx = contrast_filled_volumes[0].getMatrixSizeX();
 	size_t Ny = contrast_filled_volumes[0].getMatrixSizeY();
 	size_t Nz = contrast_filled_volumes[0].getMatrixSizeZ();
-	
+	size_t Nc = this->coilmaps_.getNumberOfChannels();
 
-	size_t Nc = 4;
-	CoilDataAsCFImage csm_as_img( Nx, Ny, Nz , Nc);
-	std::vector< complex_float_t > mock_csm;
-	mock_csm.resize( Nx * Ny * Nz * Nc, std::complex<float>(1,0) );
-
-	csm_as_img.set_data( &mock_csm[0] );
-
+	auto csm = vol_orientator_.reorient_image(this->coilmaps_);
+	CoilDataAsCFImage csm_as_img( csm.getMatrixSizeX(), csm.getMatrixSizeY(), csm.getMatrixSizeZ() , Nc);
+	csm_as_img.image() = csm;
 
 	unsigned int offset = 0;
 
@@ -422,7 +422,6 @@ void MRDynamicSimulation::acquire_raw_data( void )
 			
 			if( acq_head.idx.contrast == i_contrast )
 				acq_vec.append_acquisition( acq );
-
 		}
 		
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
@@ -482,8 +481,9 @@ void PETDynamicSimulation::simulate_statics()
 	this->pet_cont_gen_.map_tissue();
 	this->set_template_acquisition_data();
 	this->acquire_raw_data();
-	float const scale_factor = 1000;
-	sptr_target_acquisitions_->axpby(1.0f * scale_factor, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+	float const scale_factor = 25000.f;
+	float const ms_per_second = 1000.f;
+	sptr_target_acquisitions_->axpby(1.0f * scale_factor/ms_per_second, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
 
 	this->add_noise();
 	
@@ -581,7 +581,8 @@ void PETDynamicSimulation::simulate_motion_dynamics(size_t const total_scan_time
 			DynamicSimulationDeformer::deform_contrast_generator(this->pet_cont_gen_, all_motion_fields);
 			this->acquire_raw_data();	
 
-			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
+			float const ms_per_second = 1000.f;
+			sptr_target_acquisitions_->axpby(1.0f * time_in_dynamic_state/ms_per_second, *sptr_target_acquisitions_, 0.f, *sptr_target_acquisitions_ );
 
 			this->add_noise();
 
@@ -669,10 +670,6 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 
 	auto works = this->template_image_data_.get_dimensions(&template_dims[0]);
 
-	std::cout << "input dims: ( "<< input_dims[0] << ","  << input_dims[1] << "," << input_dims[2] << ")" <<std::endl;
-	std::cout << "template dims ( "<< template_dims[0] << ","  << template_dims[1] << "," << template_dims[2] << ")" <<std::endl;
-
-
 	if(works == -1)
 		throw std::runtime_error("Irregular range of dimensions in PET image data.");
 
@@ -686,18 +683,13 @@ PETImageData PETDynamicSimulation::get_reduced_pet_img_in_template_format( const
 	for(int i = 0; i<3; i++)
 	{
 		if(input_dims[i] >= template_dims[i])
-		{
-			
-			std::cout << "input_dims " << i << " = " << input_dims[i] << std::endl;
-			std::cout << "template_dims " << i << " = " << template_dims[i] << std::endl;
 			offsets.push_back( size_t(float(input_dims[i]- template_dims[i])/2.f));
-
-		}
+	
 		else
 			throw std::runtime_error("Please give only data which has equal or larger data dimensions than the template image.");
 	}
-	std::cout << "offsets: ( "<< offsets[0] << ","  << offsets[1] << "," << offsets[2] << ")" <<std::endl;
 
+	offsets[2] = input_dims[2] - template_dims[2];
 
 	for(size_t nz = 0; nz<template_dims[2]; nz++)
 	for(size_t ny = 0; ny<template_dims[1]; ny++)

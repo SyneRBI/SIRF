@@ -362,36 +362,39 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 
 	ISMRMRD::Encoding e = header.encoding[0];
-	ISMRMRD::Acquisition acq; // (acq_);
-	sptr_acqs_->get_acquisition(0, acq);
 
-	//int readout = e.encodedSpace.matrixSize.x;
-	unsigned int nx = e.reconSpace.matrixSize.x;
-	unsigned int ny = e.reconSpace.matrixSize.y;
-	unsigned int nz = e.reconSpace.matrixSize.z;
-
-	if( img.getMatrixSizeX() != nx ) 
-		throw LocalisedException("Acquisition info contains nx not matching image dimension x", __FILE__, __LINE__);
-	if( img.getMatrixSizeY() != ny  )
-		throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
-	if( img.getMatrixSizeZ() != nz  )
-		throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
+	int readout_size = e.encodedSpace.matrixSize.x;
 	
-	unsigned int nc = acq.active_channels();
+	unsigned int nx =img.getMatrixSizeX();//e.reconSpace.matrixSize.x;
+	unsigned int ny =img.getMatrixSizeY();//e.reconSpace.matrixSize.y;
+	unsigned int nz =img.getMatrixSizeZ();//e.reconSpace.matrixSize.z;
 
-	unsigned int num_readout_pts = acq.number_of_samples();
+
+
+	if(  2 * img.getMatrixSizeX() != readout_size ) 
+		throw LocalisedException("The image dimensions passed to the simulation are not half the size of the encoded space in the header. Readout os 2 is assumed.", __FILE__, __LINE__);
+
+	if ( this->sptr_traj_->get_traj_type() == "Cartesian" )
+	{
+		if( img.getMatrixSizeY() != ny  )
+			throw LocalisedException("Acquisition info contains ny not matching image dimension y", __FILE__, __LINE__);
+		if( img.getMatrixSizeZ() != nz  )
+			throw LocalisedException("Acquisition info contains nz not matching image dimension z", __FILE__, __LINE__);
+	}
+	// unsigned int nc = acq.active_channels();
+	int coilmap_dims[4]; 
+	csm.get_dim(coilmap_dims);
+	unsigned int nc = coilmap_dims[3];
+
 
 	std::vector<size_t> dims;
-	dims.push_back(num_readout_pts);
+	dims.push_back(readout_size);
 	dims.push_back(ny);
 	dims.push_back(nz);
 	dims.push_back(nc);
-
+	
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
-
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
-
-
 
 	// #pragma omp parallel for
 	for (unsigned int c = 0; c < nc; c++) {
@@ -399,7 +402,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			for (unsigned int y = 0; y < ny; y++) {
 				for (unsigned int x = 0; x < nx; x++) {
 
-					uint16_t xout = x + (num_readout_pts - nx) / 2;
+					uint16_t xout = x + (readout_size - nx) / 2;
 					complex_float_t zi = (complex_float_t)img(x, y, z);
 					complex_float_t zc = csm(x, y, z, c);
 					ci(xout, y, z, c) = zi * zc;
@@ -407,7 +410,8 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 			}
 		}
 	}
-	memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+
+
 
 	ISMRMRD::NDArray< complex_float_t > k_data;
 	
@@ -415,13 +419,16 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 
 	if( trajectory_type == "RPE" )
 	{
+		std::cout << "RPE Acquisition Process" << std::endl;
+
 		RadialPhaseEncodingFFT RPE_FFT;
-		
 		auto traj = this->sptr_traj_->get_trajectory();
 		RPE_FFT.set_trajectory( traj );
 		RPE_FFT.SampleFourierSpace( ci );
-		
+		std::cout << "sampling done" << std::endl;
+
 		k_data = RPE_FFT.get_k_data();
+
 	}
 	else if( trajectory_type == "" || trajectory_type == "Cartesian" ) 
 	{
@@ -431,27 +438,47 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		
 		k_data = CartFFT.get_k_data();
 	}
-
+	
 	unsigned int const num_acq = sptr_acqs_->items(); 
+
 
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
+		ISMRMRD::Acquisition acq; 
 		sptr_acqs_->get_acquisition(i_acq, acq);
+
+		unsigned int num_sampled_readout_pts = acq.number_of_samples();
+
+		if( num_sampled_readout_pts < acq.number_of_samples() )			
+			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension.", __FILE__, __LINE__);
+			
+		acq.resize(num_sampled_readout_pts, nc);
+		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
 
 		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 		
-		int const is_inverted_readout = (acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) ? 1:0;
+
+		size_t const is_reverse = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
+
+		size_t const sampling_start = readout_size/2 - acq.center_sample();
 
 		for (unsigned int c = 0; c < nc; c++) {
-			for (unsigned int s = 0; s < num_readout_pts; s++) {
-				acq.data(s, c) = k_data( is_inverted_readout * (num_readout_pts-1) - (2*is_inverted_readout - 1) * s, enc_step_1, enc_step_2, c);
+			for (unsigned int s = 0; s < num_sampled_readout_pts; s++) {
+				size_t const readout_access = is_reverse * (readout_size - 1 - s) + (1-is_reverse)*( s  + sampling_start );
+				size_t const sorting_in_index = is_reverse * (num_sampled_readout_pts - 1 - s) + (1-is_reverse)*( s );
+				// acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
+				acq.data(sorting_in_index, c) = k_data(readout_access, enc_step_2, enc_step_1, c);
+
 			}
 		}
 
 		this->sptr_traj_->set_acquisition_trajectory(acq);
 		acq.idx().contrast = img.getContrast();
 	
+		if( is_reverse == 1)
+			acq.clearFlag( ISMRMRD::ISMRMRD_ACQ_IS_REVERSE );
+
 		ac.append_acquisition(acq);
 
 	}

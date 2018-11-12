@@ -12,6 +12,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/ismrmrd.h>
 
+#include "stir_types.h"
+
 using namespace sirf;
 
 // ++++++++++++++++++ data_IO ++++++++++++++++
@@ -25,6 +27,8 @@ SignalContainer data_io::read_surrogate_signal( const std::string& filename_time
 
   	if( time_points.size() == signal_points.size())
   	{
+
+  		std::cout << time_points.size() << " signal points read from file." <<std::endl;
   		for( size_t i=0; i<time_points.size(); i++)
   		{
 	  		SignalPoint sp (time_points[i], signal_points[i]);
@@ -37,6 +41,22 @@ SignalContainer data_io::read_surrogate_signal( const std::string& filename_time
 
   	return signal;
 
+}
+
+void data_io::write_PET_image_to_hv( const std::string& filename_without_ext,const sirf::PETImageData& img)
+{
+	const Image3DF& image = img.data();
+
+	stir::shared_ptr< stir::OutputFileFormat<Image3DF >> format_sptr =
+	stir::OutputFileFormat<Image3DF>::default_sptr();
+
+
+	std::stringstream stream_filename; 
+	stream_filename << filename_without_ext << ".hv";
+	
+	std::cout << "Writing PET image ... ";
+	format_sptr->write_to_file( stream_filename.str() , image);
+	std::cout << "... finished." << std::endl;
 }
 
 
@@ -76,18 +96,19 @@ AcquisitionsVector mr_io::read_ismrmrd_acquisitions( std::string path_ismrmrd_h5
 	for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 	{
 		ISMRMRD::Acquisition acq;
-		
+
 		if ((i_acqu%1000) == 0 )
 			std::cout << float(i_acqu)/num_acquis*100.f << " % " << std::endl;
 
 		d.readAcquisition( i_acqu, acq);
 
-		if( (acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT) )
+
+		if( acq.isFlagSet( ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT ))
 		{
-			std::cout << "Ignoring acquisition # " << i_acqu <<" due to it being noise calibration.";
+			std::cout << "Acquisition # " << i_acqu <<" omitted due to it being a noise sample." <<std::endl;
 			continue;
 		}
-		
+
 		acq_vec.append_acquisition( acq );
 
 	}
