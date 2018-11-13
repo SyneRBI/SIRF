@@ -34,6 +34,7 @@ limitations under the License.
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/range/const_iterator.hpp>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
@@ -381,7 +382,7 @@ namespace sirf {
 		//virtual void set_real_data(const float* data) = 0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
-		virtual void get_real_data(float* data);
+		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename);
 		virtual void write(std::string filename, std::string groupname);
@@ -445,10 +446,10 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class GadgetronImageVectorIterator : 
-		public std::iterator<std::forward_iterator_tag, NumberRef> {
+	class GadgetronImagesVectorIterator : 
+		public std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator {
 	public:
-		GadgetronImageVectorIterator
+		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
 			bool end = false) :
 			iw_(images.begin()),
@@ -457,47 +458,46 @@ namespace sirf {
 		{
 			n_ = images.size();
 			if (end) {
-				i_ = n_ - 1;
-				iter_ = end_;
+				for (i_ = 0; i_ < n_ - 1; ++i_)
+					++iw_;
+				iter_ = (**iw_).end();
 			}
 			else
 				i_ = 0;
 		}
-		bool operator==(const GadgetronImageVectorIterator& i) const
+		bool operator==(const GadgetronImagesVectorIterator& i) const
 		{
 			return iter_ == i.iter_;
 		}
-		bool operator!=(const GadgetronImageVectorIterator& i) const
+		bool operator!=(const GadgetronImagesVectorIterator& i) const
 		{
 			return iter_ != i.iter_;
 		}
-		GadgetronImageVectorIterator operator++()
+		GadgetronImagesVectorIterator operator++()
 		{
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range("cannot advance out-of-range iterator");
-			if (iter_ == end_) {
+			++iter_;
+			if (iter_ == end_ && i_ < n_ - 1) {
 				++i_;
 				++iw_;
 				iter_ = (**iw_).begin();
 				end_ = (**iw_).end();
 			}
-			else
-				++iter_;
 			return *this;
 		}
-		GadgetronImageVectorIterator operator++(int)
+		GadgetronImagesVectorIterator operator++(int)
 		{
-			GadgetronImageVectorIterator old(*this);
+			GadgetronImagesVectorIterator old(*this);
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range("cannot advance out-of-range iterator");
-			if (iter_ == end_) {
+			++iter_;
+			if (iter_ == end_ && i_ < n_ - 1) {
 				++i_;
 				++iw_;
 				iter_ = (**iw_).begin();
 				end_ = (**iw_).end();
 			}
-			else
-				++iter_;
 			return old;
 		}
 		NumberRef operator*()
@@ -515,9 +515,10 @@ namespace sirf {
 		ImageWrapIterator end_;
 	};
 
-	class GadgetronImageVectorIterator_const {
+	class GadgetronImagesVectorIterator_const : 
+		public std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator {
 	public:
-		GadgetronImageVectorIterator_const
+		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
 			bool end = false) :
 			iw_(images.begin()),
@@ -526,47 +527,46 @@ namespace sirf {
 		{
 			n_ = images.size();
 			if (end) {
-				i_ = n_ - 1;
-				iter_ = end_;
+				for (i_ = 0; i_ < n_ - 1; ++i_)
+					++iw_;
+				iter_ = (**iw_).end();
 			}
 			else
 				i_ = 0;
 		}
-		bool operator==(const GadgetronImageVectorIterator_const& i) const
+		bool operator==(const GadgetronImagesVectorIterator_const& i) const
 		{
 			return iter_ == i.iter_;
 		}
-		bool operator!=(const GadgetronImageVectorIterator_const& i) const
+		bool operator!=(const GadgetronImagesVectorIterator_const& i) const
 		{
 			return iter_ != i.iter_;
 		}
-		GadgetronImageVectorIterator_const operator++()
+		GadgetronImagesVectorIterator_const operator++()
 		{
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range("cannot advance out-of-range iterator");
-			if (iter_ == end_) {
+			++iter_;
+			if (iter_ == end_ && i_ < n_ - 1) {
 				++i_;
 				++iw_;
 				iter_ = (**iw_).begin();
 				end_ = (**iw_).end();
 			}
-			else
-				++iter_;
 			return *this;
 		}
-		GadgetronImageVectorIterator_const operator++(int)
+		GadgetronImagesVectorIterator_const operator++(int)
 		{
-			GadgetronImageVectorIterator_const old(*this);
+			GadgetronImagesVectorIterator_const old(*this);
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range("cannot advance out-of-range iterator");
-			if (iter_ == end_) {
+			++iter_;
+			if (iter_ == end_ && i_ < n_ - 1) {
 				++i_;
 				++iw_;
 				iter_ = (**iw_).begin();
 				end_ = (**iw_).end();
 			}
-			else
-				++iter_;
 			return old;
 		}
 		NumberRef operator*()
@@ -657,14 +657,26 @@ namespace sirf {
 			return gadgetron::shared_ptr<GadgetronImageData>
 				(new GadgetronImagesVector(*this, attr, target));
 		}
-		virtual GadgetronImageVectorIterator begin()
+		virtual GadgetronImagesVectorIterator begin()
 		{
-			return GadgetronImageVectorIterator(images_);
+			return GadgetronImagesVectorIterator(images_);
 		}
-		virtual GadgetronImageVectorIterator end()
+		virtual GadgetronImagesVectorIterator_const begin() const
 		{
-			return GadgetronImageVectorIterator(images_, true);
+			return GadgetronImagesVectorIterator_const(images_);
 		}
+		virtual GadgetronImagesVectorIterator end()
+		{
+			return GadgetronImagesVectorIterator(images_, true);
+		}
+		virtual GadgetronImagesVectorIterator_const end() const
+		{
+			return GadgetronImagesVectorIterator_const(images_, true);
+		}
+		virtual void get_data(complex_float_t* data) const;
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data) const;
+		virtual void set_real_data(const float* data);
 
 	private:
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;

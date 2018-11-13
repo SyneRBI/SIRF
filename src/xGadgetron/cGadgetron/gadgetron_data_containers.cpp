@@ -906,7 +906,7 @@ GadgetronImageData::set_data(const complex_float_t* z)
 }
 
 void
-GadgetronImageData::get_real_data(float* data)
+GadgetronImageData::get_real_data(float* data) const
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
@@ -941,6 +941,43 @@ GadgetronImagesVector::GadgetronImagesVector
 		if (boost::iequals(value, target))
 			append(u);
 	}
+}
+
+void
+GadgetronImagesVector::get_data(complex_float_t* data) const
+{
+	GadgetronImagesVectorIterator_const stop = end();
+	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; 
+		++iter, ++data)
+		*data = *iter;
+}
+
+void
+GadgetronImagesVector::set_data(const complex_float_t* data)
+{
+	GadgetronImagesVectorIterator stop = end();
+	for (GadgetronImagesVectorIterator iter = begin(); iter != stop; 
+		++iter, ++data)
+		*iter = *data;
+}
+
+void
+GadgetronImagesVector::get_real_data(float* data) const
+{
+	//std::cout << "in get_real_data...\n";
+	GadgetronImagesVectorIterator_const stop = end();
+	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; 
+		++iter, ++data)
+		*data = *iter;
+}
+
+void
+GadgetronImagesVector::set_real_data(const float* data)
+{
+	GadgetronImagesVectorIterator stop = end();
+	for (GadgetronImagesVectorIterator iter = begin(); iter != stop; 
+		++iter, ++data)
+		*iter = *data;
 }
 
 void
