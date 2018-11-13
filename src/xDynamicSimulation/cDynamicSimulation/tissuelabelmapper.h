@@ -24,7 +24,6 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tissueparameters.h"
 
 
-typedef unsigned int LabelType;
 typedef std::vector< std::shared_ptr<TissueParameter> > TissueVector;
 typedef ISMRMRD::NDArray<LabelType> LabelArray;
 
@@ -32,7 +31,7 @@ class TissueLabelMapper{
 
 public:
 	TissueLabelMapper();
-	TissueLabelMapper(LabelArray const label_array, std::string const xml_path);
+	TissueLabelMapper(const LabelArray& label_array, const std::string& xml_path);
 
 	inline TissueVector get_segmentation_tissues (void)
 	{
@@ -66,4 +65,4 @@ public:
 
 
 // public methods for the class
-TissueVector assign_tissue_parameters_to_labels( TissueParameterList &tiss_list, LabelArray label_list );				
+TissueVector assign_tissue_parameters_to_labels( const TissueParameterList& tiss_list, const LabelArray& label_volume );				

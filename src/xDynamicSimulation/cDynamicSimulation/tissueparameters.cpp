@@ -175,17 +175,17 @@ bool check_label_uniqueness( const TissueParameterList&  tiss_list)
 
 	size_t const num_tissue_params = tiss_list.size();
 
-	std::vector <int> all_labels;
+	std::vector <LabelType> all_labels;
 	all_labels.resize(num_tissue_params);
 	
-	for (int i=0; i<num_tissue_params; i++)
+	for (size_t i=0; i<num_tissue_params; i++)
 		all_labels[i] = tiss_list[i].label_;
 
-	std::vector<int>::iterator it;
+	std::vector<LabelType>::iterator it;
 
-	for (int i=0; i<num_tissue_params-1; i++)
+	for (size_t i=0; i<num_tissue_params-1; i++)
 	{
-		int val_to_find = all_labels[i];
+		LabelType val_to_find = all_labels[i];
 		auto start_iterator = std::next(all_labels.begin(), i+1);
 
 		it = find(start_iterator, all_labels.end(), val_to_find);		

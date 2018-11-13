@@ -22,6 +22,7 @@ institute	PTB Berlin
 #include <boost/property_tree/ptree.hpp>
 
 
+typedef unsigned int LabelType;
 
 struct MRTissueParameter {
 
@@ -67,7 +68,7 @@ struct PETTissueParameter {
 
 struct TissueParameter {
 
-	int label_;
+	LabelType label_;
 	std::string name_;
 
 	MRTissueParameter mr_tissue_;
