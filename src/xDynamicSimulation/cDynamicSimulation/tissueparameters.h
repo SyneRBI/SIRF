@@ -98,10 +98,10 @@ TissueParameter operator* (float const x, const TissueParameter& a_tiss);
 typedef std::vector< TissueParameter > TissueParameterList;
 
 
-TissueParameterList read_TissueParameters_from_xml(std::string const xml_filepath);
+TissueParameterList read_TissueParameters_from_xml(const std::string& xml_filepath);
 
 MRTissueParameter get_mrtissueparameter_from_ptree(boost::property_tree::ptree const pt);
 PETTissueParameter get_pettissueparameter_from_ptree(boost::property_tree::ptree const pt);
 
 
-bool check_label_uniqueness( TissueParameterList const tiss_list);
+bool check_label_uniqueness( const TissueParameterList& tiss_list);
