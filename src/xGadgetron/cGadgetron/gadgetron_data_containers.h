@@ -354,8 +354,11 @@ namespace sirf {
 	\brief Abstract Gadgetron image data container class.
 
 	*/
+
+	typedef std::iterator<std::forward_iterator_tag, NumberRef> ImageDataIterator;
+
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
-	class GadgetronImageData : public MRImageData {
+	class GadgetronImageData : public MRImageData<ImageDataIterator> {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
 		//GadgetronImageData(GadgetronImageData& id, const char* attr, 
@@ -442,12 +445,13 @@ namespace sirf {
 
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief A vector implementation of the abstract MR image data container class.
+	\brief A vector implementation of the abstract Gadgetron image data 
+	container class.
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class GadgetronImagesVectorIterator : 
-		public std::iterator<std::forward_iterator_tag, NumberRef> { 
+	class GadgetronImagesVectorIterator : public ImageDataIterator {
+		//public std::iterator<std::forward_iterator_tag, NumberRef> { 
 	public:
 		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
@@ -515,8 +519,8 @@ namespace sirf {
 		ImageWrapIterator end_;
 	};
 
-	class GadgetronImagesVectorIterator_const : 
-		public std::iterator<std::forward_iterator_tag, NumberRef> { 
+	class GadgetronImagesVectorIterator_const : public ImageDataIterator {
+		//public std::iterator<std::forward_iterator_tag, NumberRef> { 
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
@@ -586,7 +590,8 @@ namespace sirf {
 
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
-		GadgetronImagesVector() : images_(), nimages_(0) {}
+		GadgetronImagesVector() : images_(), nimages_(0)
+		{}
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
 		//: GadgetronImageData(images, attr, target) {} // does not build
@@ -657,22 +662,42 @@ namespace sirf {
 			return gadgetron::shared_ptr<GadgetronImageData>
 				(new GadgetronImagesVector(*this, attr, target));
 		}
-		virtual GadgetronImagesVectorIterator begin()
+		virtual GadgetronImagesVectorIterator& begin()
 		{
-			return GadgetronImagesVectorIterator(images_);
+			begin_.reset(new GadgetronImagesVectorIterator(images_));
+			return *begin_;
 		}
-		virtual GadgetronImagesVectorIterator_const begin() const
+		virtual GadgetronImagesVectorIterator_const& begin() const
 		{
-			return GadgetronImagesVectorIterator_const(images_);
+			begin_const_.reset(new GadgetronImagesVectorIterator_const(images_));
+			return *begin_const_;
 		}
-		virtual GadgetronImagesVectorIterator end()
+		virtual GadgetronImagesVectorIterator& end()
 		{
-			return GadgetronImagesVectorIterator(images_, true);
+			end_.reset(new GadgetronImagesVectorIterator(images_, true));
+			return *end_;
 		}
-		virtual GadgetronImagesVectorIterator_const end() const
+		virtual GadgetronImagesVectorIterator_const& end() const
 		{
-			return GadgetronImagesVectorIterator_const(images_, true);
+			end_const_.reset(new GadgetronImagesVectorIterator_const(images_, true));
+			return *end_const_;
 		}
+		//virtual GadgetronImagesVectorIterator begin()
+		//{
+		//	return GadgetronImagesVectorIterator(images_);
+		//}
+		//virtual GadgetronImagesVectorIterator_const begin() const
+		//{
+		//	return GadgetronImagesVectorIterator_const(images_);
+		//}
+		//virtual GadgetronImagesVectorIterator end()
+		//{
+		//	return GadgetronImagesVectorIterator(images_, true);
+		//}
+		//virtual GadgetronImagesVectorIterator_const end() const
+		//{
+		//	return GadgetronImagesVectorIterator_const(images_, true);
+		//}
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -681,7 +706,10 @@ namespace sirf {
 	private:
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
 		int nimages_;
-
+		mutable gadgetron::shared_ptr<GadgetronImagesVectorIterator> begin_;
+		mutable gadgetron::shared_ptr<GadgetronImagesVectorIterator> end_;
+		mutable gadgetron::shared_ptr<GadgetronImagesVectorIterator_const> begin_const_;
+		mutable gadgetron::shared_ptr<GadgetronImagesVectorIterator_const> end_const_;
 	};
 
 	/*!
