@@ -20,7 +20,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 using namespace stir;
 using namespace sirf;
 
-AbstractContrastGenerator::AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml)
+AbstractContrastGenerator::AbstractContrastGenerator(const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml)
 {
 	this->tlm_ = TissueLabelMapper( tissue_labels, filename_tissue_parameter_xml );
 	tlm_.map_labels_to_tissue_from_xml();
@@ -33,7 +33,7 @@ void AbstractContrastGenerator::replace_petmr_tissue_parameters(LabelType label,
 }
 
 
-MRContrastGenerator::MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
+MRContrastGenerator::MRContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }
@@ -202,7 +202,7 @@ void MRContrastGenerator::map_contrast()
 }
 
 
-std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, ISMRMRD::IsmrmrdHeader ismrmrd_hdr)
+std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr)
 {
 	using namespace ISMRMRD;
 	
@@ -266,7 +266,7 @@ std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParamet
 
 
 std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par,
-												   ISMRMRD::IsmrmrdHeader ismrmrd_hdr)
+												   const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr)
 {
 	// Signal model based on Haacke/Brown - Magnetic Resonance Imaging, Ch. 18.2.1, Eq. 18.57 f
 	// Frequency response assumed to be of the form as described in  'Hargreaves et al. "Fat‐suppressed steady‐state free precession imaging using phase detection.", MRM(2003)' 
@@ -277,10 +277,20 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 	AcquisitionSystemInformation asi = ismrmrd_hdr.acquisitionSystemInformation.get();
 
 	SeqParamType TE = sequ_par.TE.get();
-	// SeqParamType TR = sequ_par.TR.get();
+	SeqParamType TR;
 
-	SeqParamType echo_spacing = sequ_par.echo_spacing.get();
-	float const TR = echo_spacing[0];
+	try
+	{	
+		TR = sequ_par.echo_spacing.get();
+
+	}
+	catch(const std::runtime_error &e)
+	{
+		std::cout << "Caught exception in map_flash_contrast." << std::endl;
+		std::cout << e.what() <<std::endl;
+		std::cout << "Echo spacing was not set in header file, taking TR value instead." <<std::endl;
+		TR = sequ_par.TR.get();
+	}
 	
 
 	SeqParamType flip_angle_deg = sequ_par.flipAngle_deg.get();
@@ -338,7 +348,7 @@ std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParamet
 
 
 
-PETContrastGenerator::PETContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml) :
+PETContrastGenerator::PETContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml) :
 AbstractContrastGenerator(tissue_labels, filename_tissue_parameter_xml)
 {
 }

@@ -42,7 +42,7 @@ class AbstractContrastGenerator {
 
 public:
 	AbstractContrastGenerator(){};
-	AbstractContrastGenerator(LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
+	AbstractContrastGenerator(const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml);
 	
 
 	// pure virtual since formats are very diff for pet and mri and ct
@@ -61,7 +61,7 @@ class MRContrastGenerator : public AbstractContrastGenerator {
 
 public:
 	
-	MRContrastGenerator (LabelArray tissue_labels, std::string const filename_tissue_parameter_xml);
+	MRContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml);
 
 	void set_rawdata_header(IsmrmrdHeader hdr);
 	void map_contrast();
@@ -79,11 +79,11 @@ private:
 
 
 std::vector < complex_float_t > map_flash_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par, 
-													ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
+													const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
 
 
 std::vector <complex_float_t > map_bssfp_contrast( std::shared_ptr<TissueParameter> const ptr_to_tiss_par,
-													ISMRMRD::IsmrmrdHeader ismrmrd_hdr);
+													const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
 
 
 class PETContrastGenerator : public AbstractContrastGenerator {
@@ -92,7 +92,7 @@ public:
 
 	PETContrastGenerator():AbstractContrastGenerator() {};
 
-	PETContrastGenerator( LabelArray tissue_labels, std::string const filename_tissue_parameter_xml );
+	PETContrastGenerator(const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml);
 
 
 	void set_template_image_from_file ( std::string const filename_header_with_ext ) 
