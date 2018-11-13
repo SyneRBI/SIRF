@@ -28,17 +28,17 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 typedef unsigned int DataTypeSegmentation;
 typedef float DataTypeMotionFields;
 
-ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( std::string const h5_filename_with_suffix);
-ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( std::string const h5_filename_with_suffix, std::string const name_motion_field_dataset);
+ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::string& h5_filename_with_suffix );
+ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_motion_field_dataset );
 
-ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5(std::string const h5_filename_with_suffix);
-ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5(std::string const h5_filename_with_suffix);
+ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5( const std::string& h5_filename_with_suffix );
+ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5( const std::string& h5_filename_with_suffix );
 
 
 
 
 template< typename T > 
-ISMRMRD::NDArray< T > read_dataset(std::string const h5_filename_with_suffix, std::string const name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader)
+ISMRMRD::NDArray< T > read_dataset( const std::string& h5_filename_with_suffix, const std::string& name_dataset, H5T_class_t data_type_dataset, H5::PredType data_type_reader )
 {
 	using namespace H5;
 

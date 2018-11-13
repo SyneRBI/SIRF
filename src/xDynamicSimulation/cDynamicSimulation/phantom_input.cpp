@@ -14,7 +14,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 using namespace H5;
 
 
-ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( std::string const h5_filename_with_suffix)
+ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::string& h5_filename_with_suffix)
 {
 	std::string const name_dataset = "segmentation";
 
@@ -25,7 +25,7 @@ ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( std::string 
  
  }
 
-ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( std::string const h5_filename_with_suffix, std::string const name_motion_field_dataset)
+ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_motion_field_dataset )
 {
 	std::string const name_dataset =  "/motionfields/" + name_motion_field_dataset;
 
@@ -38,14 +38,14 @@ ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( std::string c
 
 
 
-ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5(std::string const h5_filename_with_suffix)
+ISMRMRD::NDArray< DataTypeMotionFields > read_cardiac_motionfield_from_h5( const std::string& h5_filename_with_suffix )
 {
 	std::string const name_motion_field_dataset = "cardiac";
 	return read_motionfield_from_h5( h5_filename_with_suffix, name_motion_field_dataset);
 
 }
 
-ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5(std::string const h5_filename_with_suffix)
+ISMRMRD::NDArray< DataTypeMotionFields > read_respiratory_motionfield_from_h5( const std::string& h5_filename_with_suffix )
 {
 	std::string const name_motion_field_dataset = "respiratory";
 	return read_motionfield_from_h5( h5_filename_with_suffix, name_motion_field_dataset);
