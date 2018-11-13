@@ -85,7 +85,8 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 
 namespace sirf {
 
-	class ImageWrapIterator {
+	class ImageWrapIterator : 
+		public std::iterator<std::forward_iterator_tag, NumberRef> {
 	public:
 		ImageWrapIterator(int type, void* data, unsigned int dsize, size_t n) :
 			type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)

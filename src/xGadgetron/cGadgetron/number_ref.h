@@ -47,7 +47,6 @@ namespace sirf {
 
 	class NumberRef {
 	public:
-		//NumberRef(void* ptr, ISMRMRD::ISMRMRD_DataTypes type) :
 		NumberRef(void* ptr, int type) :
 			ptr_(ptr), abs_(true), type_(type)
 		{}
@@ -62,7 +61,38 @@ namespace sirf {
 		{
 			return type_;
 		}
-		operator complex_float_t() const
+		complex_double_t complex_double() const
+		{
+			//std::cout << "casting to complex_float_t...\n";
+			complex_double_t z;
+			switch (type_) {
+			case ISMRMRD::ISMRMRD_CXDOUBLE:
+				z = *(complex_double_t*)ptr_;
+				break;
+			case ISMRMRD::ISMRMRD_CXFLOAT:
+				z = *(complex_float_t*)ptr_;
+				break;
+			case ISMRMRD::ISMRMRD_DOUBLE:
+				z = float(*(double*)ptr_);
+				break;
+			case ISMRMRD::ISMRMRD_FLOAT:
+				z = *(float*)ptr_;
+				break;
+			case ISMRMRD::ISMRMRD_INT:
+				z = complex_float_t(float(*(int*)ptr_));
+				break;
+			case ISMRMRD::ISMRMRD_UINT:
+				z = complex_float_t(float(*(unsigned int*)ptr_));
+				break;
+			case ISMRMRD::ISMRMRD_SHORT:
+				z = complex_float_t(float(*(short*)ptr_));
+				break;
+			case ISMRMRD::ISMRMRD_USHORT:
+				z = complex_float_t(float(*(unsigned short*)ptr_));
+			}
+			return z;
+		}
+		complex_float_t complex_float() const
 		{
 			//std::cout << "casting to complex_float_t...\n";
 			complex_float_t z;
@@ -133,10 +163,10 @@ namespace sirf {
 			//std::cout << "assigning ref...\n";
 			switch (type_) {
 			case ISMRMRD::ISMRMRD_CXDOUBLE:
-				*(complex_double_t*)ptr_ = complex_double_t(ref);
+				*(complex_double_t*)ptr_ = ref.complex_double();
 				break;
 			case ISMRMRD::ISMRMRD_CXFLOAT:
-				*(complex_float_t*)ptr_ = complex_float_t(ref);
+				*(complex_float_t*)ptr_ = ref.complex_float();
 				break;
 			case ISMRMRD::ISMRMRD_DOUBLE:
 				*(double*)ptr_ = double(ref);
