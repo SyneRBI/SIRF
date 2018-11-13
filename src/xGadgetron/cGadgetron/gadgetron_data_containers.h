@@ -446,7 +446,8 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class GadgetronImagesVectorIterator { 
+	class GadgetronImagesVectorIterator : 
+		public std::iterator<std::forward_iterator_tag, NumberRef> { 
 	public:
 		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
@@ -514,7 +515,8 @@ namespace sirf {
 		ImageWrapIterator end_;
 	};
 
-	class GadgetronImagesVectorIterator_const { 
+	class GadgetronImagesVectorIterator_const : 
+		public std::iterator<std::forward_iterator_tag, NumberRef> { 
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,

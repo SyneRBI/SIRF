@@ -946,19 +946,28 @@ GadgetronImagesVector::GadgetronImagesVector
 void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
-	GadgetronImagesVectorIterator_const stop = end();
+	std::copy(begin(), end(), data);
+/*	GadgetronImagesVectorIterator_const stop = end();
 	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; 
 		++iter, ++data)
-		*data = *iter;
+		*data = *iter;*/
 }
 
 void
 GadgetronImagesVector::set_data(const complex_float_t* data)
 {
-	GadgetronImagesVectorIterator stop = end();
+	int dim[4];
+	size_t n = number();
+	get_image_dimensions(0, dim);
+	n *= dim[0];
+	n *= dim[1];
+	n *= dim[2];
+	n *= dim[3];
+	std::copy(data, data + n, begin());
+/*	GadgetronImagesVectorIterator stop = end();
 	for (GadgetronImagesVectorIterator iter = begin(); iter != stop; 
 		++iter, ++data)
-		*iter = *data;
+		*iter = *data;*/
 }
 
 void
