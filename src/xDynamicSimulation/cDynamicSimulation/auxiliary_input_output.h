@@ -28,12 +28,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "stir_data_containers.h"
 #include "gadgetron_data_containers.h"
-
-#define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
-
-
-#define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
-
+ 
+#include "test_input_filenames.h"
 
 #define PIX_SIZE_X 3.20f
 #define PIX_SIZE_Y 3.20f
