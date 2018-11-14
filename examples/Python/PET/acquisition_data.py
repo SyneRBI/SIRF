@@ -120,10 +120,8 @@ def main():
     print('norm of image.clone() - image: %f' % diff.norm())
     
     # test clone vs copy
-    
-    new_acq_data_copy = acq_data.copy()
-    acq_array_copy = new_acq_data_copy.as_array()
-    show_2D_array('Copied acquisition data', acq_array_copy[z,:,:])
+    diff = acq_data.copy() - acq_data.clone()
+    print('norm of acq_data.copy() - acq_data.clone(): %e' % diff.norm()    
 
 try:
     main()
