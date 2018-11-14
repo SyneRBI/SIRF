@@ -119,7 +119,7 @@ plt.figure()
 imshow(acquisition_array[0,:,:,], title='Forward projection')
 
 # close all plots
-plt.close('all')
+#plt.close('all')
 
 #%% create OSMAPOSL reconstructor
 # This implements the Ordered Subsets Maximum A-Posteriori One Step Late
@@ -128,13 +128,41 @@ plt.close('all')
 
 #import pCIL  # the code from this module needs to be imported somehow differently
 #from pCIL import ZeroFun
-from ccpi.optimisation.ops import PowerMethodNonSquare
-from ccpi.framework.optimisation.algs import spdhg
-from ccpi.framework.optimisation.spdhg import KullbackLeibler
-from ccpi.framework.optimisation.spdhg import KullbackLeiblerConvexConjugate
+#from ccpi.optimisation.ops import PowerMethodNonsquare
+def PowerMethodNonsquare(op, numiters, x0=None):
+    # Initialise random
+    # Jakob's
+    #inputsize = op.size()[1]
+    #x0 = ImageContainer(numpy.random.randn(*inputsize)
+    # Edo's
+    #vg = ImageGeometry(voxel_num_x=inputsize[0],
+    #                   voxel_num_y=inputsize[1], 
+    #                   voxel_num_z=inputsize[2])
+    #
+    #x0 = ImageData(geometry = vg, dimension_labels=['vertical','horizontal_y','horizontal_x'])
+    #print (x0)
+    #x0.fill(numpy.random.randn(*x0.shape))
+    
+    if x0 is None:
+        x0 = op.create_image_data()
+    
+    #s = numpy.zeros(numiters)
+    # Loop
+    for it in numpy.arange(numiters):
+        x1 = op.adjoint(op.direct(x0))
+        x1norm = numpy.sqrt(x1.dot(x1))
+        #print ("x0 **********" ,x0)
+        #print ("x1 **********" ,x1)
+        #s[it] = x1.dot(x0) / x0.dot(x0)
+        x0 = (1.0/x1norm)*x1
+    return numpy.sqrt(x1norm)
+
+
+from ccpi.optimisation.spdhg import spdhg
+from ccpi.optimisation.spdhg import KullbackLeibler
+from ccpi.optimisation.spdhg import KullbackLeiblerConvexConjugate
 from ccpi.optimisation.funcs import ZeroFun, IndicatorBox
-from plugins.regularisers import FGP_TV
-#from ccpi.filters.regularisers import FGP_TV
+from ccpi.plugins.regularisers import FGP_TV
 
 data = acquired_data
 background = data.copy()
@@ -155,7 +183,7 @@ g_noreg = ZeroFun()
 class FGP_TV_SIRF(FGP_TV):
     def prox(self, x, sigma):
        print("calling FGP")
-       out = super(FGP_TV, self).prox(x, sigma)
+       out = super(FGP_TV_SIRF, self).prox(x, sigma)
        y = x.copy()
        y.fill(out.as_array())
        return y
@@ -176,7 +204,7 @@ g = FGP_TV(lambdaReg=.1,
                 printing=0,
                 device='cpu')
 
-g_reg = IndicatorBox(lower=0,upper=1)               
+#g_reg = IndicatorBox(lower=0,upper=1)               
         
 
 class OperatorInd():
@@ -277,13 +305,14 @@ for i in range(3):
     recon_noreg.update()
 
 #%% does currently not work!
-#recon_reg = pCIL.spdhg(f, g_reg, A, A_norms=Ls)
+recon_reg = spdhg(f, g_reg, A, A_norms=Ls)
 
 # %%
-#for i in range(niter):
- #   print(recon_reg)
-  #  recon_reg.update()
+for i in range(niter):
+    print(recon_reg.iter)
+    recon_reg.update()
 
 #%%  show result      
-imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
-#imshow3(recon_reg.x, limits=[-0.3,cmax], title='recon reg')
+#imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
+imshow3(recon_reg.x, limits=[-0.3,cmax], title='recon reg')
+
