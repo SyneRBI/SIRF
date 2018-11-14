@@ -35,8 +35,8 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/num_ref.h"
 #include "cgadgetron_shared_ptr.h"
-#include "num_ref.h"
 #include "xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\

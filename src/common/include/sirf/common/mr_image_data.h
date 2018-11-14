@@ -16,6 +16,14 @@ namespace sirf {
 		virtual ImageDataIterator& end() = 0;
 		virtual ImageDataIterator& end() const = 0;
 	};
+	typedef std::iterator<std::forward_iterator_tag, NumRef> 
+		ISMRMRDImageDataIterator;
+	class ISMRMRDImageData : public MRImageData < ISMRMRDImageDataIterator > {
+	};
+	typedef std::iterator<std::forward_iterator_tag, std::complex<float> > 
+		ComplexImageDataIterator;
+	class ComplexImageData : public MRImageData < ComplexImageDataIterator > {
+	};
 }
 
 #endif

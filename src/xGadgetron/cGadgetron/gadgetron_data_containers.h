@@ -355,9 +355,7 @@ namespace sirf {
 
 	*/
 
-	typedef std::iterator<std::forward_iterator_tag, NumRef> ImageDataIterator;
-
-	class GadgetronImageData : public MRImageData<ImageDataIterator> {
+	class GadgetronImageData : public ISMRMRDImageData {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
 		//GadgetronImageData(GadgetronImageData& id, const char* attr, 
@@ -438,7 +436,7 @@ namespace sirf {
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class GadgetronImagesVectorIterator : public ImageDataIterator {
+	class GadgetronImagesVectorIterator : public ISMRMRDImageDataIterator {
 	public:
 		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
@@ -506,7 +504,7 @@ namespace sirf {
 		ImageWrapIterator end_;
 	};
 
-	class GadgetronImagesVectorIterator_const : public ImageDataIterator {
+	class GadgetronImagesVectorIterator_const : public ISMRMRDImageDataIterator {
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
