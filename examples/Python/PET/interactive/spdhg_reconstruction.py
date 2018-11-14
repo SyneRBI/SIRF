@@ -126,8 +126,12 @@ plt.close('all')
 # Since we are not using a penalty, or prior in this example, it
 # defaults to using MLEM, but we will modify it to OSEM
 
-import pCIL  # the code from this module needs to be imported somehow differently
+#import pCIL  # the code from this module needs to be imported somehow differently
 #from pCIL import ZeroFun
+from ccpi.optimisation.ops import PowerMethodNonSquare
+from ccpi.framework.optimisation.algs import spdhg
+from ccpi.framework.optimisation.spdhg import KullbackLeibler
+from ccpi.framework.optimisation.spdhg import KullbackLeiblerConvexConjugate
 from ccpi.optimisation.funcs import ZeroFun, IndicatorBox
 from plugins.regularisers import FGP_TV
 #from ccpi.filters.regularisers import FGP_TV
@@ -256,16 +260,16 @@ def SubsetOperator(op, nsubsets):
 niter = 20
 
 A = SubsetOperator(am, 14)
-A_norms = [pCIL.PowerMethodNonsquare(Ai, 10, x0=image.copy()) for Ai in A]
+A_norms = [PowerMethodNonsquare(Ai, 10, x0=image.copy()) for Ai in A]
 
 # increase the norms to allow for inaccuracies in their computation
 Ls = [1.05 * L for L in A_norms]
 
-f = [pCIL.KullbackLeibler(op.sirf2sub(noisy_data), op.sirf2sub(background)) 
+f = [KullbackLeibler(op.sirf2sub(noisy_data), op.sirf2sub(background)) 
      for op in A]
 
 #%%
-recon_noreg = pCIL.spdhg(f, g_noreg, A, A_norms=Ls)
+recon_noreg = spdhg(f, g_noreg, A, A_norms=Ls)
 
 # %%
 for i in range(3):
