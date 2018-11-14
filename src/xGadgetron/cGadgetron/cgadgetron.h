@@ -30,11 +30,13 @@ extern "C" {
 #define PTR_FLOAT float*
 #define PTR_DOUBLE double*
 #endif
+	// common Object methods
 	void* cGT_newObject(const char* name);
 	void* cGT_parameter(void* ptr, const char* obj, const char* name);
 	void* cGT_setParameter
 		(void* ptr, const char* obj, const char* par, const void* val);
 
+	// coil data methods
 	void*	cGT_computeCoilImages(void* ptr_cis, void* ptr_acqs);
 	void*	cGT_computeCSMsFromCIs(void* ptr_csms, void* ptr_cis);
 	void* cGT_CoilSensitivities(const char* file);
@@ -42,18 +44,30 @@ extern "C" {
 	void* cGT_appendCSM
 		(void* ptr_csms, int nx, int ny, int nz, int nc, 
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void cGT_getCoilDataDimensions
+		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
+	void cGT_getCoilData
+		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
+	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
 
+	// acquisition model methods
 	void* cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs);
+	void* cGT_setUpAcquisitionModel
+		(void* ptr_am, const void* ptr_acqs, const void* ptr_imgs);
+	void* cGT_setAcquisitionModelParameter
+		(void* ptr_am, const char* name, const void* ptr);
 	void* cGT_setCSMs(void* ptr_am, const void* ptr_csms);
 	void* cGT_AcquisitionModelForward(void* ptr_am, const void* ptr_imgs);
 	void* cGT_AcquisitionModelBackward(void* ptr_am, const void* ptr_acqs);
 
+	// acquisition data methods
 	void* cGT_setAcquisitionsStorageScheme(const char* scheme);
 	void* cGT_getAcquisitionsStorageScheme();
 	void* cGT_ISMRMRDAcquisitionsFromFile(const char* file);
 	void* cGT_ISMRMRDAcquisitionsFile(const char* file);
 	void* cGT_processAcquisitions(void* ptr_proc, void* ptr_input);
 	void* cGT_acquisitionFromContainer(void* ptr_acqs, unsigned int acq_num);
+	void* cGT_cloneAcquisitions(void* ptr_input);
 	void* cGT_orderAcquisitions(void* ptr_acqs);
 	void* cGT_getAcquisitionsDimensions(void* ptr_acqs, PTR_INT ptr_dim);
 	void* cGT_getAcquisitionsFlags
@@ -65,6 +79,7 @@ extern "C" {
 		PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 	void*	cGT_writeAcquisitions(void* ptr_acqs, const char* filename);
 
+	// image methods
 	void* cGT_reconstructImages(void* ptr_recon, void* ptr_input);
 	void* cGT_reconstructedImages(void* ptr_recon);
 	void*	cGT_readImages(const char* file);
@@ -75,12 +90,6 @@ extern "C" {
 		(void* ptr_imgs, const char* out_file, const char* out_group);
 	void* cGT_imageWrapFromContainer(void* ptr_imgs, unsigned int img_num);
 	void* cGT_imageDataType(const void* ptr_x, int im_num);
-
-	void cGT_getCoilDataDimensions
-		(void* ptr_csms, int csm_num, PTR_INT ptr_dim);
-	void cGT_getCoilData
-		(void* ptr_csms, int csm_num, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
-	void cGT_getCoilDataAbs(void* ptr_csms, int csm_num, PTR_FLOAT ptr);
 	void cGT_getImageDim(void* ptr_img, PTR_INT ptr_dim);
 	void* cGT_imageType(const void* ptr_img);
 	void cGT_getImageDataAsFloatArray(void* ptr_img, PTR_FLOAT ptr_data);
@@ -93,13 +102,17 @@ extern "C" {
 	void* cGT_setComplexImagesData
 		(void* ptr_imgs, PTR_FLOAT ptr_re, PTR_FLOAT ptr_im);
 
+	// Data container methods
 	void* cGT_dataItems(const void* ptr_x);
 	void* cGT_norm(const void* ptr_x);
 	void* cGT_dot(const void* ptr_x, const void* ptr_y);
 	void* cGT_axpby(
 		float ar, float ai, const void* ptr_x,
 		float br, float bi, const void* ptr_y);
+	void* cGT_multiply(const void* ptr_x, const void* ptr_y);
+	void* cGT_divide(const void* ptr_x, const void* ptr_y);
 
+	// gadget chain methods
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_r);
@@ -108,6 +121,7 @@ extern "C" {
 	void* cGT_configGadgetChain(void* ptr_con, void* ptr_gc);
 	void* cGT_registerImagesReceiver(void* ptr_con, void* ptr_img);
 
+	// gadgetron client methods
 	void* cGT_setConnectionTimeout(void* ptr_con, unsigned int timeout_ms);
 	void* cGT_connect(void* ptr_con, const char* host, const char* port);
 	void* cGT_sendConfigScript(void* ptr_con, const char* config);

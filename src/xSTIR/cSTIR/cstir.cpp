@@ -19,14 +19,15 @@ limitations under the License.
 
 */
 
+#include "stir/common.h"
+
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "cstir_p.h"
-#include "stir_types.h"
 #include "stir_x.h"
-#include "stir_data_containers.h"
 
-using stir::shared_ptr;
+using namespace stir;
+using namespace sirf;
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -1077,6 +1078,38 @@ cSTIR_axpby(
 			objectFromHandle<aDataContainer<float> >(ptr_y);
 		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
 		sptr_z->axpby(a, x, b, y);
+		return newObjectHandle<aDataContainer<float> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_multiply(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		aDataContainer<float>& x =
+			objectFromHandle<aDataContainer<float> >(ptr_x);
+		aDataContainer<float>& y =
+			objectFromHandle<aDataContainer<float> >(ptr_y);
+		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
+		sptr_z->multiply(x, y);
+		return newObjectHandle<aDataContainer<float> >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSTIR_divide(const void* ptr_x, const void* ptr_y)
+{
+	try {
+		aDataContainer<float>& x =
+			objectFromHandle<aDataContainer<float> >(ptr_x);
+		aDataContainer<float>& y =
+			objectFromHandle<aDataContainer<float> >(ptr_y);
+		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
+		sptr_z->divide(x, y);
 		return newObjectHandle<aDataContainer<float> >(sptr_z);
 	}
 	CATCH;

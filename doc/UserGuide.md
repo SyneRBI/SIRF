@@ -472,14 +472,14 @@ where G' is the transpose of G.
 ###### Methods: 
 
     AcquisitionModel (PET/MR) Constructor. Creates an acquisition model 
-                              (PET: empty, MR: based on the image and 
+                              (PET: empty, MR: empty or based on the image and 
                               acquisition data templates specified by the 
                               arguments). 
     forward          (PET/MR) Returns F(x) for the image data x specified 
                               by the argument. 
     backward         (PET/MR) Returns B(y) for the acquisition data y specified 
                               by the argument. 
-    set_up              (PET) Sets up the model based on acquisition and image data  
+    set_up           (PET/MR) Sets up the model based on acquisition and image data  
                               templates provided by the arguments. 
     set_additive_term   (PET) Sets term a in (F). 
     set_acquisition_sensitivity   

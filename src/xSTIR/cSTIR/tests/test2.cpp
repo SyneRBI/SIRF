@@ -1,9 +1,18 @@
 #include <string>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+//USING_NAMESPACE_STIR
+//USING_NAMESPACE_ECAT
+
 #include "cstir.h"
 #include "handle.h"
 #include "stir_types.h"
-#include "SIRF/common/envar.h"
+//#include "SIRF/common/envar.h"
+
+using namespace stir;
+using namespace ecat;
+using namespace sirf;
 
 void* TMP_HANDLE;
 
@@ -39,7 +48,8 @@ int test2()
 	void* sm = 0;
 	void* ai = 0;
 
-	std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+	std::string SIRF_path = std::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;

@@ -34,7 +34,7 @@ limitations under the License.
 using namespace std;
 
 // EnvironmentVariable function definition
-#include "SIRF/common/envar.h"
+//#include "SIRF/common/envar.h"
 
 // Matlab interface generator prototype - see src/common/mig.cpp
 int generate_matlab_interface(
@@ -53,8 +53,9 @@ int main()
 	string path_in;
 	string path_out;
 	string SIRF_path;
-	string name("SIRF_PATH");
-	SIRF_path = EnvironmentVariable(name.c_str());
+	//string name("SIRF_PATH");
+	//SIRF_path = EnvironmentVariable(name.c_str());
+	SIRF_path = std::getenv("SIRF_PATH");
 	if (SIRF_path.length() < 1) {
 		cout << "SIRF_PATH not defined, cannot find cstir library" << endl;
 		return 1;

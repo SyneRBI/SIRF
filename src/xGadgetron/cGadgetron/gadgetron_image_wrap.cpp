@@ -27,7 +27,11 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include "cgadgetron_shared_ptr.h"
 #include "gadgetron_image_wrap.h"
+
+using namespace gadgetron;
+using namespace sirf;
 
 void
 ImageWrap::get_cmplx_data(float* re, float* im) const

@@ -81,7 +81,7 @@ def main():
     where = range(first, last + 1)
 
     # retrieve readouts flags
-    flags = acq_data.get_info('flags')
+    flags = acq_data.get_info('flags', where)
 
     # inspect the first readout flag
     if flags[0] & IMAGE_DATA_MASK:
@@ -92,27 +92,27 @@ def main():
         
     # display flags
     print('Flags'),
-    print(flags[where])
+    print(flags) #[where])
     
     # inspect some kspace_encode_step_1 counters
-    encode_step_1 = acq_data.get_info('kspace_encode_step_1')
+    encode_step_1 = acq_data.get_info('kspace_encode_step_1', where)
     print('Ky/PE - encoding'),
-    print(encode_step_1[where])
+    print(encode_step_1) #[where])
     
     # inspect some slice counters
-    slice = acq_data.get_info('slice')
+    slice = acq_data.get_info('slice', where)
     print('Slices'),
-    print(slice[where])
+    print(slice) #[where])
     
     # inspect some repetition counters
-    repetition = acq_data.get_info('repetition')
+    repetition = acq_data.get_info('repetition', where)
     print('Repetitions'),
-    print(repetition[where])
+    print(repetition) #[where])
 
     # inspect some physiology time stamps
-    pts = acq_data.get_info('physiology_time_stamp')
+    pts = acq_data.get_info('physiology_time_stamp', where)
     print('Physiology time stamps'),
-    print(pts[where])
+    print(pts) #[where])
 
     # copy raw data into python array and determine its size
     # in the case of the provided dataset 'simulated_MR_2D_cartesian.h5' the 
@@ -122,16 +122,17 @@ def main():
     acq_shape = acq_array.shape
     print('input data dimensions: %dx%dx%d' % acq_shape)
 
-    # cap the number of readouts to display
-    ns = (slice[ni - 1] + 1)*(repetition[ni - 1] + 1)
-    print('total number of slices: %d' % ns)
-    nr = ni//ns
-    print('readouts per slice: %d' % nr)
-    if ns > slcs:
-        print('too many slices, showing %d only' % slcs)
-        ny = slcs*nr # display this many only
-    else:
-        ny = ni # display all
+    ny = ni
+##    # cap the number of readouts to display
+##    ns = (slice[ni - 1] + 1)*(repetition[ni - 1] + 1)
+##    print('total number of slices: %d' % ns)
+##    nr = ni//ns
+##    print('readouts per slice: %d' % nr)
+##    if ns > slcs:
+##        print('too many slices, showing %d only' % slcs)
+##        ny = slcs*nr # display this many only
+##    else:
+##        ny = ni # display all
 
     acq_array = numpy.transpose(acq_array,(1,0,2))
     acq_array = acq_array[:,:ny,:]

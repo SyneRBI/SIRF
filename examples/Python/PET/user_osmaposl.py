@@ -70,29 +70,13 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
         # get gradient of prior as ImageData
         prior_grad_image = prior.get_gradient(image)
 
-        # copy to Python arrays
-        image_array = image.as_array()
-        sens_array = sens_image.as_array()
-        grad_array = grad_image.as_array()
-        prior_grad_array = prior_grad_image.as_array()
-
         # update image data
-        denom = sens_array + prior_grad_array/num_subsets
-        delta = 1e-6*abs(denom).max()
-        denom[denom < delta] = delta # avoid division by zero
-        update = grad_array/denom
-        image_array = image_array*update
-
-        # fill current image with new values
-        image.fill(image_array)
+        denom = sens_image + prior_grad_image/num_subsets
+        update = grad_image/denom
+        image = image*update
 
         # apply filter
         filter.apply(image)
-
-##        # show current image at z = 20
-##        image_array = image.as_array()
-##        show_2D_array\
-##            ('Image at z = 20, sub-iteration %d' % iter, image_array[20,:,:])
 
     return image
 
@@ -130,7 +114,9 @@ def main():
     obj_fun.set_num_subsets(num_subsets)
     obj_fun.set_up(image)
 
-    image = my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations)
+    # reconstruct using your own SIRF-based implementation of OSMAPOSL
+    image = my_osmaposl \
+        (image, obj_fun, prior, filter, num_subsets, num_subiterations)
 
     # show reconstructed image at z = 20
     image_array = image.as_array()

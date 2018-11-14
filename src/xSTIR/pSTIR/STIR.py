@@ -264,6 +264,28 @@ class DataContainer(ABC):
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
         return r
+    def multiply(self, other):
+        '''
+        Returns the elementwise product of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
+        check_status(z.handle)
+        return z
+    def divide(self, other):
+        '''
+        Returns the elementwise ratio of this and another container 
+        data viewed as vectors.
+        other: DataContainer
+        '''
+        assert_validities(self, other)
+        z = self.same_object()
+        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
+        check_status(z.handle)
+        return z
     def __add__(self, other):
         '''
         Overloads + for data containers.
@@ -296,17 +318,18 @@ class DataContainer(ABC):
         data container.
 
         Returns the product self*other if other is a scalar
-        or the dot product if it is DataContainer.
+        or the elementwise product if it is DataContainer.
         other: DataContainer or a (real or complex) scalar
         '''
         assert self.handle is not None
         if type(self) == type(other):
-            return self.dot(other)
+            return self.multiply(other)
         z = self.same_object()
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_mult(other, self.handle)
+            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
+##            z.handle = pystir.cSTIR_mult(other, self.handle)
             z.src = 'mult'
             check_status(z.handle)
             return z;
@@ -323,7 +346,28 @@ class DataContainer(ABC):
         if type(other) == type(0):
             other = float(other)
         if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_mult(other, self.handle)
+            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
+            check_status(z.handle)
+            return z;
+        else:
+            raise error('wrong multiplier')
+    def __truediv__(self, other):
+        '''
+        Overloads / for data containers multiplication by a scalar or another
+        data container.
+
+        Returns the product self*other if other is a scalar
+        or the elementwise product if it is DataContainer.
+        other: DataContainer or a (real or complex) scalar
+        '''
+        assert self.handle is not None
+        if type(self) == type(other):
+            return self.divide(other)
+        z = self.same_object()
+        if type(other) == type(0):
+            other = float(other)
+        if type(other) == type(0.0):
+            z.handle = pystir.cSTIR_axpby(1/other, self.handle, 0.0, self.handle)
             check_status(z.handle)
             return z;
         else:
@@ -500,27 +544,32 @@ class ImageData(DataContainer):
         array = numpy.ndarray((nz, ny, nx), dtype = numpy.float32)
         try_calling(pystir.cSTIR_getImageData(self.handle, array.ctypes.data))
         return array
-    def show(self, im_num = None):
-        '''Displays xy-cross-sections of this image at z selected interactively.'''
+    def show(self, slice = None, title = None):
+        '''Displays xy-cross-section(s) of this image.'''
         assert self.handle is not None
         if not HAVE_PYLAB:
             print('pylab not found')
             return
         data = self.as_array()
         nz = data.shape[0]
-        if im_num is not None:
-            if im_num < 1 or im_num > nz:
+        if slice is not None:
+            if slice < 0 or slice >= nz:
                 return
-            im_num -= 1
-            show_2D_array('slice %d' % im_num, data[im_num,:,:])
+#            slice -= 1
+            show_2D_array('slice %d' % slice, data[slice,:,:])
             return
-        print('Please enter slice numbers (e.g.: 1, 3-5)')
-        print('(a value outside the range [1 : %d] will stop this loop)' % nz)
+        print('Please enter slice numbers (e.g.: 0, 3-5)')
+        print('(a value outside the range 0 to %d will stop this loop)' % \
+			(nz - 1))
+        if title is None:
+            title = 'Selected images'
         while True:
             s = str(input('slices to display: '))
             if len(s) < 1:
                 break
-            err = show_3D_array(data, index = s, label = 'slice')
+            err = show_3D_array(data, index = s, label = 'slice', \
+                                xlabel = 'x', ylabel = 'y', \
+				suptitle = title)
             if err != 0:
                 print('out-of-range slice numbers selected, quitting the loop')
                 break
@@ -830,6 +879,30 @@ class AcquisitionData(DataContainer):
             max_in_segment_num_to_process)
         check_status(ad.handle)
         return ad
+    def show(self, title = None):
+        '''Displays interactively selected sinograms.'''
+        assert self.handle is not None
+        if not HAVE_PYLAB:
+            print('pylab not found')
+            return
+        data = self.as_array()
+        nz = data.shape[0]
+        print('Please enter sinogram numbers (e.g.: 0, 3-5)')
+        print('(a value outside the range 0 to %d will stop this loop)' % \
+			(nz - 1))
+        if title is None:
+            title = 'Selected sinograms'
+        while True:
+            s = str(input('sinograms to display: '))
+            if len(s) < 1:
+                break
+            err = show_3D_array(data, suptitle = title, \
+				index = s, label = 'sinogram', \
+                                xlabel = 'tang. pos.', ylabel = 'view')
+            if err != 0:
+                print('out-of-range sinogram number(s) selected, quitting' + \
+					' the loop')
+                break
 
 DataContainer.register(AcquisitionData)
 

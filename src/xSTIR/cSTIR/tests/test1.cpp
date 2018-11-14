@@ -1,10 +1,19 @@
 #include <fstream>
 #include <string>
 
+#include "stir/common.h"
+#include "stir/IO/stir_ecat_common.h"
+//USING_NAMESPACE_STIR
+//USING_NAMESPACE_ECAT
+
 #include "object.h"
-#include "stir_types.h"
+//#include "stir_types.h"
 #include "stir_x.h"
-#include "SIRF/common/envar.h"
+//#include "SIRF/common/envar.h"
+
+using namespace stir;
+using namespace ecat;
+using namespace sirf;
 
 bool file_exists(std::string filename)
 {
@@ -24,7 +33,8 @@ int test1()
 		TextWriterHandle h;
 		h.set_information_channel(&w);
 
-		std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+		//std::string SIRF_path = EnvironmentVariable("SIRF_PATH");
+		std::string SIRF_path = std::getenv("SIRF_PATH");
 		if (SIRF_path.length() < 1) {
 			std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 			return 1;
@@ -41,10 +51,24 @@ int test1()
 		if (file_exists(filename)) {
 			ptr_ei = new PETImageData(filename);
 			ptr_ei->get_dimensions(dim);
-			std::cout << "image dimensions: " 
-				<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
-		}
+			int nx = dim[2];
+			int ny = dim[1];
+			int nz = dim[0];
+			std::cout << "image dimensions: "
+				<< nx << 'x' << ny << 'x' << nz << '\n';
+			PETImageData& image = *ptr_ei;
+			float* ptr_data = new float[nx*ny*nz];
+			image.get_data(ptr_data);
+			int k = nx*ny*nz / 2;
+			for (int i = k; i < k + 4; i++)
+				std::cout << ptr_data[i] << '\n';
+			auto iter = image.data().begin_all();
+			for (int i = 0; i < k; i++, iter++);
+			for (int i = k; i < k + 4; i++, iter++)
+				std::cout << *iter << '\n';
 
+		}
+		return 0;
 		// locate acquisition data
 		//filename = SIRF_path + "/data/examples/PET/Utahscat600k_ca_seg4.hs";
 		filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";

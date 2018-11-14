@@ -15,12 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include "stir/common.h"
+
+using namespace stir;
+
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "printer.h"
-
-USING_NAMESPACE_STIR
-//using namespace SPTR_NAMESPACE;
 
 extern "C" {
 	void* newMexPrinter() {

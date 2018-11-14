@@ -27,11 +27,19 @@ limitations under the License.
 \author CCP PETMR
 */
 
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+
+using boost::asio::ip::tcp;
+
 #include "cgadgetron_shared_ptr.h"
 #include "data_handle.h"
 #include "gadgetron_x.h"
 
 using namespace gadgetron;
+using namespace sirf;
 
 static bool
 connection_failed(int nt)
@@ -179,6 +187,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 		}
 	}
 	check_gadgetron_connection(host_, port_);
+	sptr_images_->order();
 }
 
 void 
