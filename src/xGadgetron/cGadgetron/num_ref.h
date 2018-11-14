@@ -5,20 +5,6 @@
 
 #include <ismrmrd/ismrmrd.h>
 
-//typedef std::complex<float> complex_float_t;
-//typedef std::complex<double> complex_double_t;
-
-//enum ISMRMRD_DataTypes {
-//	ISMRMRD_USHORT = 1, /**< corresponds to uint16_t */
-//	ISMRMRD_SHORT = 2, /**< corresponds to int16_t */
-//	ISMRMRD_UINT = 3, /**< corresponds to uint32_t */
-//	ISMRMRD_INT = 4, /**< corresponds to int32_t */
-//	ISMRMRD_FLOAT = 5, /**< corresponds to float */
-//	ISMRMRD_DOUBLE = 6, /**< corresponds to double */
-//	ISMRMRD_CXFLOAT = 7, /**< corresponds to complex float */
-//	ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
-//};
-
 namespace sirf {
 
 	template <typename Type>
@@ -253,7 +239,6 @@ namespace sirf {
 	private:
 		bool abs_;
 		int type_;
-		//ISMRMRD::ISMRMRD_DataTypes type_;
 		void* ptr_;
 	};
 

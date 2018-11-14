@@ -357,7 +357,6 @@ namespace sirf {
 
 	typedef std::iterator<std::forward_iterator_tag, NumRef> ImageDataIterator;
 
-	//class GadgetronImageData : public aDataContainer < complex_float_t > {
 	class GadgetronImageData : public MRImageData<ImageDataIterator> {
 	public:
 		GadgetronImageData() : ordered_(false), index_(0) {}
@@ -380,9 +379,6 @@ namespace sirf {
 		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
-		//virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		//virtual void get_real_data(float* data) = 0;
-		//virtual void set_real_data(const float* data) = 0;
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
@@ -391,19 +387,11 @@ namespace sirf {
 		virtual void write(std::string filename, std::string groupname);
 		virtual void get_image_dimensions(unsigned int im_num, int* dim)
 		{
-			//if (im_num >= images_.size())
 			if (im_num >= number())
 				dim[0] = dim[1] = dim[2] = dim[3] = 0;
 			ImageWrap& iw = image_wrap(im_num);
 			iw.get_dim(dim);
-			//std::string attr = iw.attributes();
-			//ISMRMRD::MetaContainer mc;
-			//ISMRMRD::deserialize(attr.c_str(), mc);
-			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
-			//std::cout << attr << '\n';
 		}
-		//virtual int read(std::string filename) = 0;
-		//virtual void write(std::string filename, std::string groupname) = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData> 
 			new_images_container() = 0;
 		virtual gadgetron::shared_ptr<GadgetronImageData>
@@ -432,7 +420,7 @@ namespace sirf {
 		const int* index() const { return index_; }
 		int index(int i) const
 		{
-			if (index_) // && i >= 0 && i < (int)number())
+			if (index_)
 				return index_[i];
 			else
 				return i;
@@ -451,7 +439,6 @@ namespace sirf {
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
 	class GadgetronImagesVectorIterator : public ImageDataIterator {
-		//public std::iterator<std::forward_iterator_tag, NumRef> { 
 	public:
 		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
@@ -520,7 +507,6 @@ namespace sirf {
 	};
 
 	class GadgetronImagesVectorIterator_const : public ImageDataIterator {
-		//public std::iterator<std::forward_iterator_tag, NumRef> { 
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
@@ -594,7 +580,6 @@ namespace sirf {
 		{}
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
-		//: GadgetronImageData(images, attr, target) {} // does not build
 		virtual unsigned int items() 
 		{ 
 			return (unsigned int)images_.size(); 
@@ -682,22 +667,6 @@ namespace sirf {
 			end_const_.reset(new GadgetronImagesVectorIterator_const(images_, true));
 			return *end_const_;
 		}
-		//virtual GadgetronImagesVectorIterator begin()
-		//{
-		//	return GadgetronImagesVectorIterator(images_);
-		//}
-		//virtual GadgetronImagesVectorIterator_const begin() const
-		//{
-		//	return GadgetronImagesVectorIterator_const(images_);
-		//}
-		//virtual GadgetronImagesVectorIterator end()
-		//{
-		//	return GadgetronImagesVectorIterator(images_, true);
-		//}
-		//virtual GadgetronImagesVectorIterator_const end() const
-		//{
-		//	return GadgetronImagesVectorIterator_const(images_, true);
-		//}
 		virtual void get_data(complex_float_t* data) const;
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
