@@ -355,7 +355,7 @@ namespace sirf {
 
 	*/
 
-	typedef std::iterator<std::forward_iterator_tag, NumberRef> ImageDataIterator;
+	typedef std::iterator<std::forward_iterator_tag, NumRef> ImageDataIterator;
 
 	//class GadgetronImageData : public aDataContainer < complex_float_t > {
 	class GadgetronImageData : public MRImageData<ImageDataIterator> {
@@ -451,7 +451,7 @@ namespace sirf {
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
 	class GadgetronImagesVectorIterator : public ImageDataIterator {
-		//public std::iterator<std::forward_iterator_tag, NumberRef> { 
+		//public std::iterator<std::forward_iterator_tag, NumRef> { 
 	public:
 		GadgetronImagesVectorIterator
 			(std::vector<gadgetron::shared_ptr<ImageWrap> >& images, 
@@ -504,7 +504,7 @@ namespace sirf {
 			}
 			return old;
 		}
-		NumberRef operator*()
+		NumRef operator*()
 		{
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range
@@ -520,7 +520,7 @@ namespace sirf {
 	};
 
 	class GadgetronImagesVectorIterator_const : public ImageDataIterator {
-		//public std::iterator<std::forward_iterator_tag, NumberRef> { 
+		//public std::iterator<std::forward_iterator_tag, NumRef> { 
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
@@ -573,7 +573,7 @@ namespace sirf {
 			}
 			return old;
 		}
-		NumberRef operator*()
+		NumRef operator*()
 		{
 			if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
 				throw std::out_of_range

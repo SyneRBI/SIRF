@@ -45,12 +45,12 @@ namespace sirf {
 			(std::string("unsupported numeric type ") + typeid(Type).name());
 	}
 
-	class NumberRef {
+	class NumRef {
 	public:
-		NumberRef(void* ptr, int type) :
+		NumRef(void* ptr, int type) :
 			ptr_(ptr), abs_(true), type_(type)
 		{}
-		NumberRef(const NumberRef& ref) :
+		NumRef(const NumRef& ref) :
 			ptr_(ref.ptr_), abs_(ref.abs_), type_(ref.type_)
 		{}
 		void set_complex_to_real_mode(char m)
@@ -158,7 +158,7 @@ namespace sirf {
 			}
 			return v;
 		}
-		NumberRef& operator=(const NumberRef& ref)
+		NumRef& operator=(const NumRef& ref)
 		{
 			//std::cout << "assigning ref...\n";
 			switch (type_) {
@@ -189,7 +189,7 @@ namespace sirf {
 			return *this;
 		}
 		template <typename T>
-		NumberRef& operator=(std::complex<T> v)
+		NumRef& operator=(std::complex<T> v)
 		{
 			switch (type_) {
 			case ISMRMRD::ISMRMRD_CXDOUBLE:
@@ -219,7 +219,7 @@ namespace sirf {
 			return *this;
 		}
 		template <typename T>
-		NumberRef& operator=(T v)
+		NumRef& operator=(T v)
 		{
 			//std::cout << "assigning...\n";
 			switch (type_) {

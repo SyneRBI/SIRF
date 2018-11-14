@@ -36,7 +36,7 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "cgadgetron_shared_ptr.h"
-#include "number_ref.h"
+#include "num_ref.h"
 #include "xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
@@ -86,7 +86,7 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 namespace sirf {
 
 	class ImageWrapIterator : 
-		public std::iterator<std::forward_iterator_tag, NumberRef> {
+		public std::iterator<std::forward_iterator_tag, NumRef> {
 	public:
 		ImageWrapIterator(int type, void* data, unsigned int dsize, size_t n) :
 			type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
@@ -124,12 +124,12 @@ namespace sirf {
 			ptr_ += m*dsize_;
 			return *this;
 		}
-		NumberRef operator*()
+		NumRef operator*()
 		{
 			if (i_ >= n_)
 				throw std::out_of_range
 				("cannot dereference out-of-range iterator");
-			return NumberRef(ptr_, type_);
+			return NumRef(ptr_, type_);
 		}
 
 	private:
