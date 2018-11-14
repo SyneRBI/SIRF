@@ -466,8 +466,11 @@ namespace sirf {
 	abstract base class aDatacontainer.
 	*/
 
+	typedef Image3DF::full_iterator Iterator;
+	typedef Image3DF::const_full_iterator Iterator_const;
+
 	//class STIRImageData : public aDataContainer < float > {
-	class STIRImageData : public PETImageData { //< float > {
+	class STIRImageData : public PETImageData<Iterator, Iterator_const> {
 	public:
 		STIRImageData(){}
 		STIRImageData(const STIRImageData& image)
@@ -557,9 +560,33 @@ namespace sirf {
 		void get_voxel_sizes(float* vsizes) const;
 		virtual void get_data(float* data) const;
 		virtual void set_data(const float* data);
+		virtual Iterator& begin()
+		{
+			_begin.reset(new Iterator(data().begin_all()));
+			return *_begin;
+		}
+		virtual Iterator_const& begin() const
+		{
+			_begin_const.reset(new Iterator_const(data().begin_all()));
+			return *_begin_const;
+		}
+		virtual Iterator& end()
+		{
+			_end.reset(new Iterator(data().end_all()));
+			return *_end;
+		}
+		virtual Iterator_const& end() const
+		{
+			_end_const.reset(new Iterator_const(data().end_all()));
+			return *_end_const;
+		}
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;
+		mutable stir::shared_ptr<Iterator> _begin;
+		mutable stir::shared_ptr<Iterator> _end;
+		mutable stir::shared_ptr<Iterator_const> _begin_const;
+		mutable stir::shared_ptr<Iterator_const> _end_const;
 	};
 
 }

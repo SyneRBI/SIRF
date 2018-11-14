@@ -8,21 +8,27 @@
 #include "image_data.h"
 
 namespace sirf {
-	template<typename ImageDataIterator>
+	template<typename Iterator, typename Iterator_const>
 	class MRImageData : public ImageData<complex_float_t> {
 	public:
-		virtual ImageDataIterator& begin() = 0;
-		virtual ImageDataIterator& begin() const = 0;
-		virtual ImageDataIterator& end() = 0;
-		virtual ImageDataIterator& end() const = 0;
+		virtual Iterator& begin() = 0;
+		virtual Iterator_const& begin() const = 0;
+		virtual Iterator& end() = 0;
+		virtual Iterator_const& end() const = 0;
 	};
 	typedef std::iterator<std::forward_iterator_tag, NumRef> 
 		ISMRMRDImageDataIterator;
-	class ISMRMRDImageData : public MRImageData < ISMRMRDImageDataIterator > {
+	typedef std::iterator<std::forward_iterator_tag, NumRef const>
+		ISMRMRDImageDataIterator_const;
+	class ISMRMRDImageData : public MRImageData 
+		< ISMRMRDImageDataIterator, ISMRMRDImageDataIterator_const > {
 	};
-	typedef std::iterator<std::forward_iterator_tag, std::complex<float> > 
+	typedef std::iterator<std::forward_iterator_tag, std::complex<float> >
 		ComplexImageDataIterator;
-	class ComplexImageData : public MRImageData < ComplexImageDataIterator > {
+	typedef std::iterator<std::forward_iterator_tag, std::complex<float> const >
+		ComplexImageDataIterator_const;
+	class ComplexImageData : public MRImageData 
+		< ComplexImageDataIterator, ComplexImageDataIterator_const > {
 	};
 }
 

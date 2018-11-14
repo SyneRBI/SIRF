@@ -504,7 +504,8 @@ namespace sirf {
 		ImageWrapIterator end_;
 	};
 
-	class GadgetronImagesVectorIterator_const : public ISMRMRDImageDataIterator {
+	class GadgetronImagesVectorIterator_const : 
+		public ISMRMRDImageDataIterator_const {
 	public:
 		GadgetronImagesVectorIterator_const
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
