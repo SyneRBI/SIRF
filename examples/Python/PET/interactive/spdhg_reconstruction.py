@@ -50,9 +50,9 @@ import numpy
 import matplotlib.pyplot as plt
 import os
 import shutil
-#import scipy
-#from scipy import optimize
 import pSTIR as pet
+from sphdgutils import PowerMethodNonsquare
+
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
 # some handy function definitions
@@ -119,16 +119,14 @@ plt.figure()
 imshow(acquisition_array[0,:,:,], title='Forward projection')
 
 # close all plots
-#plt.close('all')
+plt.close('all')
 
 #%% create OSMAPOSL reconstructor
 # This implements the Ordered Subsets Maximum A-Posteriori One Step Late
 # Since we are not using a penalty, or prior in this example, it
 # defaults to using MLEM, but we will modify it to OSEM
 
-#import pCIL  # the code from this module needs to be imported somehow differently
-#from pCIL import ZeroFun
-#from ccpi.optimisation.ops import PowerMethodNonsquare
+
 def PowerMethodNonsquare(op, numiters, x0=None):
     # Initialise random
     # Jakob's
@@ -184,6 +182,7 @@ class FGP_TV_SIRF(FGP_TV):
     def prox(self, x, sigma):
        print("calling FGP")
        out = super(FGP_TV_SIRF, self).prox(x, sigma)
+       print("done")
        y = x.copy()
        y.fill(out.as_array())
        return y
@@ -214,6 +213,7 @@ class OperatorInd():
         self.__subset_num__ = subset_num
         self.__num_subsets__ = num_subsets
         
+        # FIXME: this may be known to STIR
         x = op.img_templ.copy()
         x.fill(1)
         y = self.forward_sirf(x).as_array()
@@ -300,7 +300,7 @@ f = [KullbackLeibler(op.sirf2sub(noisy_data), op.sirf2sub(background))
 recon_noreg = spdhg(f, g_noreg, A, A_norms=Ls)
 
 # %%
-for i in range(3):
+for i in range(niter):
     print(recon_noreg.iter)
     recon_noreg.update()
 
@@ -313,6 +313,6 @@ for i in range(niter):
     recon_reg.update()
 
 #%%  show result      
-#imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
+imshow3(recon_noreg.x, limits=[-0.3,cmax], title='recon noreg')
 imshow3(recon_reg.x, limits=[-0.3,cmax], title='recon reg')
 
