@@ -51,7 +51,14 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 import pSTIR as pet
-from sphdgutils import PowerMethodNonsquare
+from ccpi.optimisation.spdhg import spdhg
+from ccpi.optimisation.spdhg import KullbackLeibler
+from ccpi.optimisation.spdhg import KullbackLeiblerConvexConjugate
+from ccpi.optimisation.funcs import ZeroFun
+from ccpi.optimisation.funcs import IndicatorBox
+from spdhgutils import PowerMethodNonsquare
+from spdhgutils import FGP_TV_SIRF
+from spdhgutils import SubsetOperator
 
 # plotting settings
 plt.ion() # interactive 'on' such that plots appear during loops
@@ -121,47 +128,6 @@ imshow(acquisition_array[0,:,:,], title='Forward projection')
 # close all plots
 plt.close('all')
 
-#%% create OSMAPOSL reconstructor
-# This implements the Ordered Subsets Maximum A-Posteriori One Step Late
-# Since we are not using a penalty, or prior in this example, it
-# defaults to using MLEM, but we will modify it to OSEM
-
-
-def PowerMethodNonsquare(op, numiters, x0=None):
-    # Initialise random
-    # Jakob's
-    #inputsize = op.size()[1]
-    #x0 = ImageContainer(numpy.random.randn(*inputsize)
-    # Edo's
-    #vg = ImageGeometry(voxel_num_x=inputsize[0],
-    #                   voxel_num_y=inputsize[1], 
-    #                   voxel_num_z=inputsize[2])
-    #
-    #x0 = ImageData(geometry = vg, dimension_labels=['vertical','horizontal_y','horizontal_x'])
-    #print (x0)
-    #x0.fill(numpy.random.randn(*x0.shape))
-    
-    if x0 is None:
-        x0 = op.create_image_data()
-    
-    #s = numpy.zeros(numiters)
-    # Loop
-    for it in numpy.arange(numiters):
-        x1 = op.adjoint(op.direct(x0))
-        x1norm = numpy.sqrt(x1.dot(x1))
-        #print ("x0 **********" ,x0)
-        #print ("x1 **********" ,x1)
-        #s[it] = x1.dot(x0) / x0.dot(x0)
-        x0 = (1.0/x1norm)*x1
-    return numpy.sqrt(x1norm)
-
-
-from ccpi.optimisation.spdhg import spdhg
-from ccpi.optimisation.spdhg import KullbackLeibler
-from ccpi.optimisation.spdhg import KullbackLeiblerConvexConjugate
-from ccpi.optimisation.funcs import ZeroFun, IndicatorBox
-from ccpi.plugins.regularisers import FGP_TV
-
 data = acquired_data
 background = data.copy()
 background.fill(5)
@@ -175,19 +141,8 @@ noisy_data.fill(noisy_array);
 
 g_noreg = ZeroFun()
 
-# the FGP_TV will output a CCPi DataContainer not a SIRF one, so 
-# we will need to wrap it in something compatible
 
-class FGP_TV_SIRF(FGP_TV):
-    def prox(self, x, sigma):
-       print("calling FGP")
-       out = super(FGP_TV_SIRF, self).prox(x, sigma)
-       print("done")
-       y = x.copy()
-       y.fill(out.as_array())
-       return y
-
-g_reg = FGP_TV_SIRF(lambdaReg=.1,
+g_reg = FGP_TV_SIRF(lambdaReg=.3,
                 iterationsTV=1000,
                 tolerance=1e-5,
                 methodTV=0,
@@ -195,96 +150,11 @@ g_reg = FGP_TV_SIRF(lambdaReg=.1,
                 printing=0,
                 device='cpu')
 
-g = FGP_TV(lambdaReg=.1,
-                iterationsTV=1000,
-                tolerance=1e-5,
-                methodTV=0,
-                nonnegativity=1,
-                printing=0,
-                device='cpu')
 
 #g_reg = IndicatorBox(lower=0,upper=1)               
         
 
-class OperatorInd():
-    
-    def __init__(self, op, subset_num, num_subsets):
-        self.__op__ = op
-        self.__subset_num__ = subset_num
-        self.__num_subsets__ = num_subsets
-        
-        # FIXME: this may be known to STIR
-        x = op.img_templ.copy()
-        x.fill(1)
-        y = self.forward_sirf(x).as_array()
-        self.ind = numpy.nonzero(y.flatten())[0]
-    
-    def forward_sirf(self, x):
-        return self.__op__.forward(x, subset_num=self.__subset_num__, 
-                                   num_subsets=self.__num_subsets__)
-
-    def __call__(self, x):
-        y = self.__op__.forward(x, subset_num=self.__subset_num__, 
-                                   num_subsets=self.__num_subsets__)
-        return self.sirf2sub(y)
-
-    def direct(self, x):
-        return self(x)
-    
-    def forward(self, x):
-        return self(x)
-           
-    def adjoint(self, x):
-        x = self.sub2sirf(x)
-        return self.__op__.backward(x, subset_num=self.__subset_num__, 
-                                    num_subsets=self.__num_subsets__)
-        
-    def allocate_direct(self, x=None):
-        y = self.__op__.img_templ.copy()
-        if x is not None:
-            y.fill(x)
-        return y
-    
-    def allocate_adjoint(self, x=None):
-        y = pet.AcquisitionData(self.__op__.acq_templ)
-        if x is not None:
-            y.fill(x)
-        return self.sirf2sub(y)
-        
-    def sub2sirf(self, x):
-        y = pet.AcquisitionData(self.__op__.acq_templ)
-        y.fill(0)
-        y_array = y.as_array().flatten()
-        y_array[self.ind] = x
-        y.fill(y_array)
-        return y
-                
-    def sirf2sub(self, x):
-        #y = numpy.zeros(len(self.ind))
-        return x.as_array().flatten()[self.ind]
-            
-#class SubsetOperator():
-#    
-#    def __init__(self, op, nsubsets):
-#        self.__op__ = op
-#        self.__nsubsets__ = nsubsets
-#        
-#    def __len__(self):
-#        return self.__nsubsets__
-#    
-#    def __call__(self, x):
-#        return self.__op__.forward(x)
-#    
-#    def adjoint(self, x):
-#        return self.__op__.backward(x)
-#    
-#    def __ind__(self, i):
-#        return OperatorInd(self.__op__, i, len(self))
-    
-
-def SubsetOperator(op, nsubsets):
-    return [OperatorInd(op, ind, nsubsets) for ind in range(nsubsets)]
-        
+       
 niter = 20
 
 A = SubsetOperator(am, 14)
