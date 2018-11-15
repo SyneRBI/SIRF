@@ -73,22 +73,27 @@ def main():
     acq_data = AcquisitionData(raw_data_file)
 
     # copy the acquisition data into a Python array and display
+    print('data dimensions: %d x %d x %d' % acq_data.dimensions())
+    acq_data.show()
     acq_array = acq_data.as_array()
-    print('data dimensions: %d x %d x %d' % acq_array.shape)
-    acq_dim = acq_array.shape
-    z = acq_dim[0]//2
-    show_2D_array('Acquisition data', acq_array[z,:,:])
+    # print('data dimensions: %d x %d x %d' % acq_array.shape)
+    # acq_dim = acq_array.shape
+    # z = acq_dim[0]//2
+    # show_2D_array('Acquisition data', acq_array[z,:,:])
 
     # rebin the acquisition data
     new_acq_data = acq_data.rebin(3)
-    acq_array = new_acq_data.as_array()
-    print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
+    print('rebinned data dimensions: %d x %d x %d' % new_acq_data.dimensions())
+    new_acq_data.show(title = 'Rebinned acquisition data')
+    #acq_array = new_acq_data.as_array()
+    #print('rebinned data dimensions: %d x %d x %d' % acq_array.shape)
 
     # clone the acquisition data
     new_acq_data = acq_data.clone()
     # display the cloned data
-    acq_array = new_acq_data.as_array()
-    show_2D_array('Cloned acquisition data', acq_array[z,:,:])
+    new_acq_data.show(title = 'Cloned acquisition data')
+    # acq_array = new_acq_data.as_array()
+    # show_2D_array('Cloned acquisition data', acq_array[z,:,:])
 
     print('Checking acquisition data algebra:')
     s = acq_data.norm()
@@ -105,8 +110,9 @@ def main():
     print('norm of acq_data*10: %f' % new_acq_data.norm())
 
     # display the scaled data
-    acq_array = new_acq_data.as_array()
-    show_2D_array('Scaled acquisition data', acq_array[z,:,:])
+    new_acq_data.show(title = 'Scaled acquisition data')
+    # acq_array = new_acq_data.as_array()
+    # show_2D_array('Scaled acquisition data', acq_array[z,:,:])
 
     print('Checking images algebra:')
     image = acq_data.create_uniform_image(10.0)

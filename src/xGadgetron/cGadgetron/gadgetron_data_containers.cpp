@@ -50,9 +50,9 @@ MRAcquisitionData::write(const char* filename)
 	for (int i = 0; i < n; i++) {
 		get_acquisition(i, a);
 		//std::cout << i << ' ' << a.idx().repetition << '\n';
-		if (TO_BE_IGNORED(a)) {
-			continue;
-		}
+		//if (TO_BE_IGNORED(a)) {
+		//	continue;
+		//}
 		mtx.lock();
 		dataset->appendAcquisition(a);
 		mtx.unlock();

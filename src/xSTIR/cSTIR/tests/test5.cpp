@@ -2,8 +2,8 @@
 
 #include "stir/common.h"
 #include "stir/IO/stir_ecat_common.h"
-USING_NAMESPACE_STIR
-USING_NAMESPACE_ECAT
+//USING_NAMESPACE_STIR
+//USING_NAMESPACE_ECAT
 
 #define CREATE_OBJ(Obj, X, sptr_X, Par) \
 	stir::shared_ptr< Obj > sptr_X(new Obj(Par)); \
@@ -16,10 +16,14 @@ USING_NAMESPACE_ECAT
 #include "stir_x.h"
 //#include "SIRF/common/envar.h"
 
+using namespace stir;
+using namespace ecat;
+using namespace sirf;
+
 int test_a(shared_ptr<ProjData> sptr_data, shared_ptr<Image3DF>& sptr_image);
 int test_b(const PETAcquisitionData& acq_data, PETImageData& image);
 
-int main()
+int test5()
 {
 	std::string filename;
 	int status;
