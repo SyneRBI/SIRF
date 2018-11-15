@@ -1213,7 +1213,7 @@ class AcquisitionModel(object):
     def adjoint(self, ad, subset_num = 0, num_subsets = 1):
         return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
-
+        
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse

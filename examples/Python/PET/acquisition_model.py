@@ -150,11 +150,8 @@ def main():
 
     back_projected_image_as_array = back_projected_image.as_array()
     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
-    
+
     acq_model.direct(image, 0, 4, simulated_data)
-#    simulated_data = acq_model.forward(image, 0, 4)
-    if output_file is not None:
-        simulated_data.write(output_file)
 
     # show simulated acquisition data
     simulated_data_as_array_direct = simulated_data.as_array()
