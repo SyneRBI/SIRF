@@ -126,7 +126,7 @@ function try_niftiimage(g)
     ref_aladin_float = mSIRFReg.NiftiImageData3D(g.output_float);
     arr1 = g.ref_aladin.as_array();
     arr2 = ref_aladin_float.as_array();
-    assert(all(arr1(:)==arr2(:)), "SIRFRegMisc::save_to_file()/change_datatype() failed.");
+    assert(all(arr1(:)==arr2(:)), 'SIRFRegMisc::save_to_file()/change_datatype() failed.');
 
     % Test print methods
     q.print_header();
@@ -267,8 +267,8 @@ function try_niftiimage3dtensor(g)
 
     % Test flip components
     h.flip_component(0);
-    assert(h.get_max() ==  20, "NiftiImageData3DTensor flip_component() failed.");
-    assert(h.get_min() == -30, "NiftiImageData3DTensor flip_component() failed.");
+    assert(h.get_max() ==  20, 'NiftiImageData3DTensor flip_component() failed.');
+    assert(h.get_min() == -30, 'NiftiImageData3DTensor flip_component() failed.');
 
 
     disp('% ----------------------------------------------------------------------- %')
@@ -433,12 +433,12 @@ function na =try_niftyaladin(g)
     % Test converting disp to def
     a = mSIRFReg.NiftiImageData3DDeformation();
     a.create_from_disp(disp_forward);
-    assert(a == def_forward, "NiftiImageData3DDeformation::create_from_disp() failed.");
+    assert(a == def_forward, 'NiftiImageData3DDeformation::create_from_disp() failed.');
 
     % Test converting def to disp
     b = mSIRFReg.NiftiImageData3DDisplacement();
     b.create_from_def(def_forward);
-    assert(b == disp_forward, "NiftiImageData3DDisplacement::create_from_def() failed.");
+    assert(b == disp_forward, 'NiftiImageData3DDisplacement::create_from_def() failed.');
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty aladin test.')
