@@ -515,9 +515,12 @@ namespace sirf {
 			end_((**iw_).end())
 		{
 			n_ = images.size();
+			//std::cout << n_ << '\n';
 			if (end) {
-				for (i_ = 0; i_ < n_ - 1; ++i_)
+				for (i_ = 0; i_ < n_ - 1; ++i_) {
+					//std::cout << i_ << '\n';
 					++iw_;
+				}
 				iter_ = (**iw_).end();
 			}
 			else
@@ -537,6 +540,7 @@ namespace sirf {
 				throw std::out_of_range("cannot advance out-of-range iterator");
 			++iter_;
 			if (iter_ == end_ && i_ < n_ - 1) {
+				std::cout << "moving to next wrap...\n";
 				++i_;
 				++iw_;
 				iter_ = (**iw_).begin();

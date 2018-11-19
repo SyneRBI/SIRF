@@ -93,7 +93,7 @@ namespace sirf {
 
 	class NumRef : public aNumRef {
 	public:
-		NumRef(void* ptr, int type) :
+		NumRef(void* ptr = 0, int type = (int)ISMRMRD::ISMRMRD_FLOAT) :
 			ptr_(ptr), abs_(true), type_(type)
 		{}
 		NumRef(const NumRef& ref) :

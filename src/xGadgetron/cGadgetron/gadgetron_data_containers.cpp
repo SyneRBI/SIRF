@@ -947,11 +947,15 @@ images_(), nimages_(0)
 void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
-	std::copy(begin(), end(), data);
-/*	GadgetronImagesVectorIterator_const stop = end();
-	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; 
-		++iter, ++data)
-		*data = *iter;*/
+	//std::copy(begin(), end(), data);
+	GadgetronImagesVectorIterator_const stop = end();
+	//std::cout << "trying new image wrap iterator...\n";
+	int i = 0;
+	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop;
+		++iter, ++data, ++i) {
+		//std::cout << i << '\n';
+		*data = *iter;
+	}
 }
 
 void
