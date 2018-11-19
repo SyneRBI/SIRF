@@ -7,6 +7,66 @@
 
 namespace sirf {
 
+	class aNumRef {
+	public:
+		virtual complex_double_t complex_double() const = 0;
+		virtual complex_float_t complex_float() const = 0;
+		virtual operator float() const = 0;
+		virtual void assign(const aNumRef& ref) = 0;
+		aNumRef& operator=(const aNumRef& ref)
+		{
+			assign(ref);
+			return *this;
+		}
+		virtual void set_ptr(void* ptr) = 0;
+		virtual void copy(const aNumRef& ref) = 0;
+	};
+
+	class FloatRef : public aNumRef {
+	public:
+		FloatRef(float* ptr = 0, int dummy = 0) : ptr_(ptr)
+		{}
+		virtual complex_double_t complex_double() const
+		{
+			return complex_double_t(*ptr_);
+		}
+		virtual complex_float_t complex_float() const
+		{
+			return complex_float_t(*ptr_);
+		}
+		virtual operator float() const
+		{
+			return *ptr_;
+		}
+		template<typename T>
+		FloatRef& operator=(T v)
+		{
+			*ptr_ = v;
+			return *this;
+		}
+		virtual void assign(const aNumRef& a_ref)
+		{
+			const FloatRef& ref = (const FloatRef&)a_ref;
+			*ptr_ = float(ref);
+		}
+		aNumRef& operator=(const aNumRef& ref)
+		{
+			assign(ref);
+			return *this;
+		}
+		void set_ptr(void* ptr)
+		{
+			ptr_ = (float*)ptr;
+		}
+		void copy(const aNumRef& a_ref)
+		{
+			const FloatRef& ref = (const FloatRef&)a_ref;
+			ptr_ = ref.ptr_;
+		}
+	private:
+		float* ptr_;
+	};
+
 	template <typename Type>
 	ISMRMRD::ISMRMRD_DataTypes TypeID(Type t)
 	{
@@ -31,7 +91,7 @@ namespace sirf {
 			(std::string("unsupported numeric type ") + typeid(Type).name());
 	}
 
-	class NumRef {
+	class NumRef : public aNumRef {
 	public:
 		NumRef(void* ptr, int type) :
 			ptr_(ptr), abs_(true), type_(type)
@@ -46,6 +106,18 @@ namespace sirf {
 		char type() const
 		{
 			return type_;
+		}
+		virtual void set_ptr(void* ptr)
+		{
+			//std::cout << (size_t)ptr << '\n';
+			ptr_ = ptr;
+		}
+		virtual void copy(const aNumRef& a_ref)
+		{
+			const NumRef& ref = (const NumRef&)a_ref;
+			ptr_ = ref.ptr_;
+			abs_ = ref.abs_;
+			type_ = ref.type_;
 		}
 		complex_double_t complex_double() const
 		{
@@ -78,7 +150,7 @@ namespace sirf {
 			}
 			return z;
 		}
-		complex_float_t complex_float() const
+		virtual complex_float_t complex_float() const
 		{
 			//std::cout << "casting to complex_float_t...\n";
 			complex_float_t z;
@@ -109,7 +181,7 @@ namespace sirf {
 			}
 			return z;
 		}
-		operator float() const
+		virtual operator float() const
 		{
 			//std::cout << "casting to float...\n";
 			float v;
@@ -146,6 +218,12 @@ namespace sirf {
 		}
 		NumRef& operator=(const NumRef& ref)
 		{
+			assign(ref);
+			return *this;
+		}
+		virtual void assign(const aNumRef& a_ref)
+		{
+			const NumRef& ref = (const NumRef&)a_ref;
 			//std::cout << "assigning ref...\n";
 			switch (type_) {
 			case ISMRMRD::ISMRMRD_CXDOUBLE:
@@ -172,7 +250,7 @@ namespace sirf {
 			case ISMRMRD::ISMRMRD_USHORT:
 				*(unsigned short*)ptr_ = (unsigned short)ref;
 			}
-			return *this;
+			//return *this;
 		}
 		template <typename T>
 		NumRef& operator=(std::complex<T> v)
