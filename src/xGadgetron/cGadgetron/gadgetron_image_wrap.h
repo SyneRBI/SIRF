@@ -85,74 +85,28 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 
 namespace sirf {
 
-	class ImageWrapIterator : 
-		public std::iterator<std::forward_iterator_tag, NumRef> {
-	public:
-		ImageWrapIterator(int type, void* data, unsigned int dsize, size_t n) :
-			type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
-		{}
-		bool operator!=(const ImageWrapIterator& i) const
-		{
-			return ptr_ != i.ptr_;
-		}
-		bool operator==(const ImageWrapIterator& i) const
-		{
-			return ptr_ == i.ptr_;
-		}
-		ImageWrapIterator operator++()
-		{
-			if (i_ >= n_)
-				throw std::out_of_range("cannot advance out-of-range iterator");
-			i_++;
-			ptr_ += dsize_;
-			return *this;
-		}
-		ImageWrapIterator operator++(int)
-		{
-			if (i_ >= n_)
-				throw std::out_of_range("cannot advance out-of-range iterator");
-			ImageWrapIterator old(*this);
-			i_++;
-			ptr_ += dsize_;
-			return old;
-		}
-		ImageWrapIterator operator+=(int m)
-		{
-			if (i_ + m > n_)
-				m = n_ - i_;
-			i_ += m;
-			ptr_ += m*dsize_;
-			return *this;
-		}
-		NumRef operator*()
-		{
-			if (i_ >= n_)
-				throw std::out_of_range
-				("cannot dereference out-of-range iterator");
-			return NumRef(ptr_, type_);
-		}
-
-	private:
-		int type_;
-		char* ptr_;
-		unsigned int dsize_;
-		size_t n_;
-		size_t i_;
-	};
-
 	/**
 	\brief Wrapper for ISMRMRD::Image.
 
 	Eliminates the need for the image processing switch in the rest of the code.
 	*/
 	class ImageWrap {
-		friend class ImageWrapIterator;
 	public:
 		class Iterator {
 		public:
 			Iterator(int type, void* data, unsigned int dsize, size_t n) :
 				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
 			{}
+			Iterator(const Iterator& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+			}
 			bool operator!=(const Iterator& i) const
 			{
 				return ptr_ != i.ptr_;
@@ -171,7 +125,7 @@ namespace sirf {
 			}
 			virtual Iterator& operator++(int)
 			{
-				sptr_iter_.reset(new Iterator(type_, ptr_, n_, i_));
+				sptr_iter_.reset(new Iterator(type_, ptr_, dsize_, n_));
 				if (i_ >= n_)
 					throw std::out_of_range("cannot advance out-of-range iterator");
 				i_++;
@@ -190,8 +144,11 @@ namespace sirf {
 			{
 				type_ = iter.type_;
 				ptr_ = iter.ptr_;
-				ref_.copy(iter.ref_);
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
 				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
 				return *this;
 			}
 		private:
@@ -202,6 +159,76 @@ namespace sirf {
 			size_t i_;
 			gadgetron::shared_ptr<Iterator> sptr_iter_;
 			NumRef ref_;
+		};
+		class Iterator_const {
+		public:
+			Iterator_const(int type, void* data, unsigned int dsize, size_t n) :
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+			{}
+			Iterator_const(const Iterator_const& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+			}
+			bool operator!=(const Iterator_const& i) const
+			{
+				return ptr_ != i.ptr_;
+			}
+			bool operator==(const Iterator_const& i) const
+			{
+				return ptr_ == i.ptr_;
+			}
+			Iterator_const& operator++()
+			{
+				if (i_ >= n_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				i_++;
+				ptr_ += dsize_;
+				return *this;
+			}
+			virtual Iterator_const& operator++(int)
+			{
+				sptr_iter_.reset(new Iterator_const(type_, ptr_, dsize_, n_));
+				if (i_ >= n_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				i_++;
+				ptr_ += dsize_;
+				return *sptr_iter_;
+			}
+			const NumRef& operator*() const
+			{
+				if (i_ >= n_) {
+					std::cout << i_ << ' ' << n_ << '\n';
+					throw std::out_of_range
+						("cannot dereference out-of-range iterator");
+				}
+				ref_.set_ptr(ptr_);
+				return ref_;
+			}
+			Iterator_const& operator=(const Iterator_const& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+				return *this;
+			}
+		private:
+			int type_;
+			char* ptr_;
+			unsigned int dsize_;
+			size_t n_;
+			size_t i_;
+			gadgetron::shared_ptr<Iterator_const> sptr_iter_;
+			mutable NumRef ref_;
 		};
 		ImageWrap(uint16_t type, void* ptr_im)
 		{
@@ -234,7 +261,7 @@ namespace sirf {
 		{
 			return ptr_;
 		}
-		Iterator& begin_new()
+		Iterator& begin()
 		{
 			size_t n;
 			unsigned int dsize;
@@ -244,17 +271,17 @@ namespace sirf {
 			begin_.reset(new Iterator(type_, ptr, dsize, n));
 			return *begin_;
 		}
-		Iterator& begin_new() const
+		Iterator_const& begin_const() const
 		{
 			size_t n;
 			unsigned int dsize;
 			char* ptr;
 			IMAGE_PROCESSING_SWITCH_CONST
 			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			begin_const_.reset(new Iterator(type_, ptr, dsize, n));
+			begin_const_.reset(new Iterator_const(type_, ptr, dsize, n));
 			return *begin_const_;
 		}
-		Iterator& end_new()
+		Iterator& end()
 		{
 			size_t n;
 			unsigned int dsize;
@@ -264,51 +291,16 @@ namespace sirf {
 			end_.reset(new Iterator(type_, ptr + n*dsize, dsize, n));
 			return *end_;
 		}
-		Iterator& end_new() const
+		Iterator_const& end_const() const
 		{
 			size_t n;
 			unsigned int dsize;
 			char* ptr;
 			IMAGE_PROCESSING_SWITCH_CONST
 			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			end_const_.reset(new Iterator(type_, ptr + n*dsize, dsize, n));
+			end_const_.reset(new Iterator_const(type_, ptr + n*dsize, dsize, n));
+			//std::cout << type_ << ' ' << n << ' ' << dsize << '\n';
 			return *end_const_;
-		}
-		ImageWrapIterator begin()
-		{
-			size_t n;
-			unsigned int dsize;
-			char* ptr;
-			IMAGE_PROCESSING_SWITCH
-				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			return ImageWrapIterator(type_, ptr, dsize, n);
-		}
-		ImageWrapIterator begin() const
-		{
-			size_t n;
-			unsigned int dsize;
-			char* ptr;
-			IMAGE_PROCESSING_SWITCH_CONST
-				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			return ImageWrapIterator(type_, ptr, dsize, n);
-		}
-		ImageWrapIterator end()
-		{
-			size_t n;
-			unsigned int dsize;
-			char* ptr;
-			IMAGE_PROCESSING_SWITCH
-				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			return ImageWrapIterator(type_, ptr + n*dsize, dsize, n);
-		}
-		ImageWrapIterator end() const
-		{
-			size_t n;
-			unsigned int dsize;
-			char* ptr;
-			IMAGE_PROCESSING_SWITCH_CONST
-				(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
-			return ImageWrapIterator(type_, ptr + n*dsize, dsize, n);
 		}
 		size_t size() const
 		{
@@ -342,31 +334,41 @@ namespace sirf {
 		void get_data(float* data) const
 		{
 			//std::cout << "in get_data\n";
-			std::copy(begin(), end(), data);
-			//for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
-			//	*data = *i;
+			std::cout << "trying new image wrap iterator...\n";
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			for (; i != stop;) {
+				*data++ = *i++;
+			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
 		}
 		void set_data(const float* data)
 		{
 			//std::cout << "in set_data\n";
-			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
+			for (ImageWrap::Iterator i = begin(); i != end(); ++i, ++data)
 				*i = *data;
 			//IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
 		}
 		void get_complex_data(complex_float_t* data) const
 		{
 			//std::cout << "in get_complex_data\n";
-			//std::copy(begin(), end(), data); // does not compile - ambiguous =
-			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
-				*data = (complex_float_t)*i;
+			std::cout << "trying new const image wrap iterator...\n";
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			for (; i != stop;) {
+				*data++ = *i++;
+			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
 		void set_complex_data(const complex_float_t* data)
 		{
 			//std::cout << "in set_complex_data\n";
-			for (ImageWrapIterator i = begin(); i != end(); ++i, ++data)
-				*i = *data;
+			std::cout << "trying new image wrap iterator...\n";
+			ImageWrap::Iterator i = begin();
+			ImageWrap::Iterator stop = end();
+			for (; i != stop;) {
+				*i++ = *data++;
+			}
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
 		void write(ISMRMRD::Dataset& dataset) const
@@ -413,8 +415,8 @@ namespace sirf {
 		void* ptr_;
 		mutable gadgetron::shared_ptr<Iterator> begin_;
 		mutable gadgetron::shared_ptr<Iterator> end_;
-		mutable gadgetron::shared_ptr<Iterator> begin_const_;
-		mutable gadgetron::shared_ptr<Iterator> end_const_;
+		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
+		mutable gadgetron::shared_ptr<Iterator_const> end_const_;
 
 		ImageWrap& operator=(const ImageWrap& iw)
 		{

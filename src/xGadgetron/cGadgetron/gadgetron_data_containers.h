@@ -500,8 +500,8 @@ namespace sirf {
 		std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator iw_;
 		int n_;
 		int i_;
-		ImageWrapIterator iter_;
-		ImageWrapIterator end_;
+		ImageWrap::Iterator iter_;
+		ImageWrap::Iterator end_;
 	};
 
 	class GadgetronImagesVectorIterator_const : 
@@ -511,8 +511,10 @@ namespace sirf {
 			(const std::vector<gadgetron::shared_ptr<ImageWrap> >& images,
 			bool end = false) :
 			iw_(images.begin()),
-			iter_((**iw_).begin()),
-			end_((**iw_).end())
+			iter_((**iw_).begin_const()),
+			end_((**iw_).end_const())
+			//iter_((**iw_).begin()),
+			//end_((**iw_).end())
 		{
 			n_ = images.size();
 			//std::cout << n_ << '\n';
@@ -521,10 +523,12 @@ namespace sirf {
 					//std::cout << i_ << '\n';
 					++iw_;
 				}
-				iter_ = (**iw_).end();
+				iter_ = (**iw_).end_const();
+				//iter_ = (**iw_).end();
 			}
 			else
 				i_ = 0;
+			//std::cout << i_ << '\n';
 		}
 		bool operator==(const GadgetronImagesVectorIterator_const& i) const
 		{
@@ -540,11 +544,13 @@ namespace sirf {
 				throw std::out_of_range("cannot advance out-of-range iterator");
 			++iter_;
 			if (iter_ == end_ && i_ < n_ - 1) {
-				std::cout << "moving to next wrap...\n";
+				//std::cout << "moving to next wrap...\n";
 				++i_;
 				++iw_;
-				iter_ = (**iw_).begin();
-				end_ = (**iw_).end();
+				iter_ = (**iw_).begin_const();
+				end_ = (**iw_).end_const();
+				//iter_ = (**iw_).begin();
+				//end_ = (**iw_).end();
 			}
 			return *this;
 		}
@@ -557,8 +563,10 @@ namespace sirf {
 			if (iter_ == end_ && i_ < n_ - 1) {
 				++i_;
 				++iw_;
-				iter_ = (**iw_).begin();
-				end_ = (**iw_).end();
+				iter_ = (**iw_).begin_const();
+				end_ = (**iw_).end_const();
+				//iter_ = (**iw_).begin();
+				//end_ = (**iw_).end();
 			}
 			return old;
 		}
@@ -573,8 +581,10 @@ namespace sirf {
 		std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator iw_;
 		int n_;
 		int i_;
-		ImageWrapIterator iter_;
-		ImageWrapIterator end_;
+		ImageWrap::Iterator_const iter_;
+		ImageWrap::Iterator_const end_;
+		//ImageWrapIterator iter_;
+		//ImageWrapIterator end_;
 	};
 
 	class GadgetronImagesVector : public GadgetronImageData {
