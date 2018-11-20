@@ -394,10 +394,12 @@ class DataContainer(ABC):
     def conjugate(self):
         '''Returns the complex conjugate of the data '''
         if self.handle is not None:
-            array = self.as_array()
-            self.fill(array.conjugate())
-            return self
-        
+            out = self.clone()
+            out.fill(self.as_array().conjugate())
+            return out
+        else:
+            raise error("Empty object cannot be conjugated") 
+            
 class CoilImageData(DataContainer):
     '''
     Class for a coil images container.
