@@ -99,8 +99,8 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 	}
 	catch( std::runtime_error& e)
 	{
-		std::cout << "An exception was caught reading " << filename_ismrmrd_with_ext << std::endl;
-		std::cout << e.what() <<std::endl;
+		std::cerr << "An exception was caught reading " << filename_ismrmrd_with_ext << std::endl;
+		std::cerr << e.what() <<std::endl;
 		throw;
 	}
 }
