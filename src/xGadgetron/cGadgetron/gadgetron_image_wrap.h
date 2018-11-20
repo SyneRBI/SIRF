@@ -123,15 +123,17 @@ namespace sirf {
 				ptr_ += dsize_;
 				return *this;
 			}
-			virtual Iterator& operator++(int)
-			{
-				sptr_iter_.reset(new Iterator(type_, ptr_, dsize_, n_));
-				if (i_ >= n_)
-					throw std::out_of_range("cannot advance out-of-range iterator");
-				i_++;
-				ptr_ += dsize_;
-				return *sptr_iter_;
-			}
+			// too inefficient
+			//virtual Iterator& operator++(int)
+			//{
+			//	//sptr_iter_.reset(new Iterator(type_, ptr_, dsize_, n_));
+			//	sptr_iter_.reset(new Iterator(*this));
+			//	if (i_ >= n_)
+			//		throw std::out_of_range("cannot advance out-of-range iterator");
+			//	i_++;
+			//	ptr_ += dsize_;
+			//	return *sptr_iter_;
+			//}
 			NumRef& operator*()
 			{
 				if (i_ >= n_)
@@ -191,15 +193,16 @@ namespace sirf {
 				ptr_ += dsize_;
 				return *this;
 			}
-			virtual Iterator_const& operator++(int)
-			{
-				sptr_iter_.reset(new Iterator_const(type_, ptr_, dsize_, n_));
-				if (i_ >= n_)
-					throw std::out_of_range("cannot advance out-of-range iterator");
-				i_++;
-				ptr_ += dsize_;
-				return *sptr_iter_;
-			}
+			//virtual Iterator_const& operator++(int)
+			//{
+			//	//sptr_iter_.reset(new Iterator_const(type_, ptr_, dsize_, n_));
+			//	sptr_iter_.reset(new Iterator_const(*this));
+			//	if (i_ >= n_)
+			//		throw std::out_of_range("cannot advance out-of-range iterator");
+			//	i_++;
+			//	ptr_ += dsize_;
+			//	return *sptr_iter_;
+			//}
 			const NumRef& operator*() const
 			{
 				if (i_ >= n_) {
@@ -337,8 +340,8 @@ namespace sirf {
 			std::cout << "trying new image wrap iterator...\n";
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
-			for (; i != stop;) {
-				*data++ = *i++;
+			for (; i != stop; ++data, ++i) {
+				*data = *i;
 			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
 		}
@@ -355,8 +358,8 @@ namespace sirf {
 			std::cout << "trying new const image wrap iterator...\n";
 			ImageWrap::Iterator_const i = begin_const();
 			ImageWrap::Iterator_const stop = end_const();
-			for (; i != stop;) {
-				*data++ = *i++;
+			for (; i != stop; ++data, ++i) {
+				*data = *i;
 			}
 			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
 		}
@@ -366,8 +369,8 @@ namespace sirf {
 			std::cout << "trying new image wrap iterator...\n";
 			ImageWrap::Iterator i = begin();
 			ImageWrap::Iterator stop = end();
-			for (; i != stop;) {
-				*i++ = *data++;
+			for (; i != stop; ++i, ++data) {
+				*i = *data;
 			}
 			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}

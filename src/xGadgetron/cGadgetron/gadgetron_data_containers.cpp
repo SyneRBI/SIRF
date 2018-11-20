@@ -948,13 +948,11 @@ void
 GadgetronImagesVector::get_data(complex_float_t* data) const
 {
 	//std::copy(begin(), end(), data);
-	GadgetronImagesVectorIterator_const stop = end();
 	std::cout << "trying new const image wrap iterator...\n";
-	//int i = 0;
-	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; ) {
-		//++iter, ++data, ++i) {
-		*data++ = *iter++;
-	}
+	GadgetronImagesVector::Iterator_const stop = end();
+	GadgetronImagesVector::Iterator_const iter = begin();
+	for (; iter != stop; ++iter, ++data)
+		*data = *iter;
 }
 
 void
@@ -969,9 +967,11 @@ GadgetronImagesVector::set_data(const complex_float_t* data)
 	//n *= dim[3];
 	//std::copy(data, data + n, begin());
 	std::cout << "trying new image wrap iterator...\n";
-	GadgetronImagesVectorIterator stop = end();
-	for (GadgetronImagesVectorIterator iter = begin(); iter != stop; 
-		++iter, ++data)
+	GadgetronImagesVector::Iterator stop = end();
+	GadgetronImagesVector::Iterator iter = begin();
+	//GadgetronImagesVectorIterator stop = end();
+	//GadgetronImagesVectorIterator iter = begin();
+	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
 }
 
@@ -979,18 +979,22 @@ void
 GadgetronImagesVector::get_real_data(float* data) const
 {
 	//std::cout << "in get_real_data...\n";
-	GadgetronImagesVectorIterator_const stop = end();
-	for (GadgetronImagesVectorIterator_const iter = begin(); iter != stop; 
-		++iter, ++data)
+	GadgetronImagesVector::Iterator_const stop = end();
+	GadgetronImagesVector::Iterator_const iter = begin();
+	//GadgetronImagesVectorIterator_const stop = end();
+	//GadgetronImagesVectorIterator_const iter = begin();
+	for (; iter != stop; ++iter, ++data)
 		*data = *iter;
 }
 
 void
 GadgetronImagesVector::set_real_data(const float* data)
 {
-	GadgetronImagesVectorIterator stop = end();
-	for (GadgetronImagesVectorIterator iter = begin(); iter != stop; 
-		++iter, ++data)
+	GadgetronImagesVector::Iterator stop = end();
+	GadgetronImagesVector::Iterator iter = begin();
+	//GadgetronImagesVectorIterator stop = end();
+	//GadgetronImagesVectorIterator iter = begin();
+	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
 }
 
