@@ -467,46 +467,46 @@ namespace sirf {
 	abstract base class aDatacontainer.
 	*/
 
-	typedef Image3DF::full_iterator Iterator;
-	typedef Image3DF::const_full_iterator Iterator_const;
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
 
 	//class STIRImageData : public aDataContainer < float > {
 	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
 	public:
-		//typedef PETImageData<Iterator, Iterator_const>::Iter base_iter;
-		//typedef PETImageData<Iterator, Iterator_const>::Iter_const base_iter_const;
-		typedef PETImageData::Iter base_iter;
-		typedef PETImageData::Iter_const base_iter_const;
-		class Iter : public base_iter {
+		//typedef PETImageData<Iterator, Iterator_const>::Iter BaseIter;
+		//typedef PETImageData<Iterator, Iterator_const>::Iter_const BaseIter_const;
+		typedef ImageData::Iterator BaseIter;
+		typedef ImageData::Iterator_const BaseIter_const;
+		class Iterator : public BaseIter {
 		public:
-			Iter(const Iterator& iter) : _iter(iter) 
+			Iterator(const Image3DFIterator& iter) : _iter(iter)
 			{}
-			Iter& operator=(const Iter& iter)
+			Iterator& operator=(const Iterator& iter)
 			{
 				_iter = iter._iter;
 				_ref.copy(iter._ref);
 				_sptr_iter = iter._sptr_iter;
 				return *this;
 			}
-			virtual Iter& operator++()
+			virtual Iterator& operator++()
 			{
 				++_iter;
 				return *this;
 			}
-			virtual Iter& operator++(int)
+			//virtual Iterator& operator++(int)
+			//{
+			//	_sptr_iter.reset(new Iterator(_iter));
+			//	++_iter;
+			//	return *_sptr_iter;
+			//}
+			virtual bool operator==(const BaseIter& an_iter) const
 			{
-				_sptr_iter.reset(new Iter(_iter));
-				++_iter;
-				return *_sptr_iter;
-			}
-			virtual bool operator==(const base_iter& an_iter) const
-			{
-				const Iter& iter = (const Iter&)an_iter;
+				const Iterator& iter = (const Iterator&)an_iter;
 				return _iter == iter._iter;
 			}
-			virtual bool operator!=(const base_iter& an_iter) const
+			virtual bool operator!=(const BaseIter& an_iter) const
 			{
-				const Iter& iter = (const Iter&)an_iter;
+				const Iterator& iter = (const Iterator&)an_iter;
 				return _iter != iter._iter;
 			}
 			virtual FloatRef& operator*()
@@ -516,40 +516,40 @@ namespace sirf {
 				return _ref;
 			}
 		private:
-			Iterator _iter;
+			Image3DFIterator _iter;
 			FloatRef _ref;
-			std::shared_ptr<Iter> _sptr_iter;
+			std::shared_ptr<Iterator> _sptr_iter;
 		};
-		class Iter_const : public base_iter_const {
+		class Iterator_const : public BaseIter_const {
 		public:
-			Iter_const(const Iterator_const& iter) : _iter(iter)
+			Iterator_const(const Image3DFIterator_const& iter) : _iter(iter)
 			{}
-			Iter_const& operator=(const Iter_const& iter)
+			Iterator_const& operator=(const Iterator_const& iter)
 			{
 				_iter = iter._iter;
 				_ref.copy(iter._ref);
 				_sptr_iter = iter._sptr_iter;
 				return *this;
 			}
-			virtual Iter_const& operator++()
+			virtual Iterator_const& operator++()
 			{
 				++_iter;
 				return *this;
 			}
-			virtual Iter_const& operator++(int)
+			//virtual Iterator_const& operator++(int)
+			//{
+			//	_sptr_iter.reset(new Iterator_const(_iter));
+			//	++_iter;
+			//	return *_sptr_iter;
+			//}
+			virtual bool operator==(const BaseIter_const& an_iter) const
 			{
-				_sptr_iter.reset(new Iter_const(_iter));
-				++_iter;
-				return *_sptr_iter;
-			}
-			virtual bool operator==(const base_iter_const& an_iter) const
-			{
-				const Iter_const& iter = (const Iter_const&)an_iter;
+				const Iterator_const& iter = (const Iterator_const&)an_iter;
 				return _iter == iter._iter;
 			}
-			virtual bool operator!=(const base_iter_const& an_iter) const
+			virtual bool operator!=(const BaseIter_const& an_iter) const
 			{
-				const Iter_const& iter = (const Iter_const&)an_iter;
+				const Iterator_const& iter = (const Iterator_const&)an_iter;
 				return _iter != iter._iter;
 			}
 			virtual const FloatRef& operator*() const
@@ -559,9 +559,9 @@ namespace sirf {
 				return _ref;
 			}
 		private:
-			Iterator_const _iter;
+			Image3DFIterator_const _iter;
 			mutable FloatRef _ref;
-			std::shared_ptr<Iter_const> _sptr_iter;
+			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
 		STIRImageData(){}
 		STIRImageData(const STIRImageData& image)
@@ -651,57 +651,37 @@ namespace sirf {
 		void get_voxel_sizes(float* vsizes) const;
 		virtual void get_data(float* data) const;
 		virtual void set_data(const float* data);
-		virtual Iter& begin_new()
+		virtual Iterator& begin()
 		{
-			_begin_new.reset(new Iter(data().begin_all()));
-			return *_begin_new;
+			_begin.reset(new Iterator(data().begin_all()));
+			return *_begin;
 		}
-		virtual Iter_const& begin_new() const
+		virtual Iterator_const& begin() const
 		{
-			_begin_const_new.reset(new Iter_const(data().begin_all()));
-			return *_begin_const_new;
+			_begin_const.reset(new Iterator_const(data().begin_all()));
+			return *_begin_const;
 		}
-		virtual Iter& end_new()
+		virtual Iterator& end()
 		{
-			_end_new.reset(new Iter(data().end_all()));
-			return *_end_new;
+			_end.reset(new Iterator(data().end_all()));
+			return *_end;
 		}
-		virtual Iter_const& end_new() const
+		virtual Iterator_const& end() const
 		{
-			_end_const_new.reset(new Iter_const(data().end_all()));
-			return *_end_const_new;
+			_end_const.reset(new Iterator_const(data().end_all()));
+			return *_end_const;
 		}
-		//virtual Iterator& begin()
-		//{
-		//	_begin.reset(new Iterator(data().begin_all()));
-		//	return *_begin;
-		//}
-		//virtual Iterator_const& begin() const
-		//{
-		//	_begin_const.reset(new Iterator_const(data().begin_all()));
-		//	return *_begin_const;
-		//}
-		//virtual Iterator& end()
-		//{
-		//	_end.reset(new Iterator(data().end_all()));
-		//	return *_end;
-		//}
-		//virtual Iterator_const& end() const
-		//{
-		//	_end_const.reset(new Iterator_const(data().end_all()));
-		//	return *_end_const;
-		//}
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;
-		mutable stir::shared_ptr<Iter> _begin_new;
-		mutable stir::shared_ptr<Iter> _end_new;
-		mutable stir::shared_ptr<Iter_const> _begin_const_new;
-		mutable stir::shared_ptr<Iter_const> _end_const_new;
 		mutable stir::shared_ptr<Iterator> _begin;
 		mutable stir::shared_ptr<Iterator> _end;
 		mutable stir::shared_ptr<Iterator_const> _begin_const;
 		mutable stir::shared_ptr<Iterator_const> _end_const;
+		//mutable stir::shared_ptr<Iterator> _begin;
+		//mutable stir::shared_ptr<Iterator> _end;
+		//mutable stir::shared_ptr<Iterator_const> _begin_const;
+		//mutable stir::shared_ptr<Iterator_const> _end_const;
 	};
 
 }

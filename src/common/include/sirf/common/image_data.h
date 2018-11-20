@@ -16,8 +16,28 @@ namespace sirf {
 	{
 	public:
 		virtual ~ImageData() {}
-		virtual void get_data(T* data) const = 0;
-		virtual void set_data(const T* data) = 0;
+		//virtual void get_data(T* data) const = 0;
+		//virtual void set_data(const T* data) = 0;
+		class Iterator {
+		public:
+			virtual ~Iterator() {}
+			virtual Iterator& operator++() = 0;
+			virtual aNumRef& operator*() = 0;
+			virtual bool operator==(const Iterator&) const = 0;
+			virtual bool operator!=(const Iterator&) const = 0;
+		};
+		class Iterator_const {
+		public:
+			virtual ~Iterator_const() {}
+			virtual Iterator_const& operator++() = 0;
+			virtual const aNumRef& operator*() const = 0;
+			virtual bool operator==(const Iterator_const&) const = 0;
+			virtual bool operator!=(const Iterator_const&) const = 0;
+		};
+		virtual Iterator& begin() = 0;
+		virtual Iterator_const& begin() const = 0;
+		virtual Iterator& end() = 0;
+		virtual Iterator_const& end() const = 0;
 	};
 }
 

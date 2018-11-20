@@ -439,8 +439,8 @@ namespace sirf {
 
 	class GadgetronImagesVector : public GadgetronImageData {
 	public:
-		typedef MRImageData::Iterator BaseIter;
-		typedef MRImageData::Iterator_const BaseIter_const;
+		typedef ImageData::Iterator BaseIter;
+		typedef ImageData::Iterator_const BaseIter_const;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator
 			ImageWrapIter;
 		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator 
