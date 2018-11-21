@@ -9,7 +9,7 @@
 #include "num_ref.h"
 
 namespace sirf {
-	class MRImageData : public ImageData<complex_float_t> {
+	class MRImageData : public ImageData { //<int> { //complex_float_t> {
 	public:
 	};
 }

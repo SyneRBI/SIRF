@@ -11,8 +11,8 @@
 
 */
 namespace sirf {
-	template<typename T>
-	class ImageData : public aDataContainer<T>
+	//template<typename T>
+	class ImageData : public aDataContainer //<int> //T>
 	{
 	public:
 		virtual ~ImageData() {}

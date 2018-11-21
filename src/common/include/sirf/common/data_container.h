@@ -31,10 +31,11 @@ Has vector features: norm, dot product, linear combination,
 which rely on the same features of the items.
 */
 
-template <typename T>
+//template <typename T>
 class aDataContainer {
 public:
-	typedef aDataContainer<T> DataContainer;
+	typedef aDataContainer //<T> 
+		DataContainer;
 	virtual ~aDataContainer() {}
 	virtual DataContainer* new_data_container() = 0;
 	virtual unsigned int items() = 0;

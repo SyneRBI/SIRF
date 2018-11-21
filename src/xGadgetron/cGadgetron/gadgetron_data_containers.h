@@ -69,8 +69,9 @@ Some acquisitions do not participate directly in the reconstruction process
 
 namespace sirf {
 
-	typedef aDataContainer<complex_float_t> DataContainer;
-	//typedef aDataContainer DataContainer;
+	//typedef aDataContainer<complex_float_t> DataContainer;
+	typedef aDataContainer DataContainer;
+	//typedef aDataContainer<int> DataContainer;
 
 	class AcquisitionsInfo {
 	public:

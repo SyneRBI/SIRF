@@ -44,8 +44,9 @@ limitations under the License.
 
 namespace sirf {
 
-	typedef aDataContainer<float> DataContainer;
-	//typedef aDataContainer DataContainer;
+	//typedef aDataContainer<int> DataContainer;
+	//typedef aDataContainer<float> DataContainer;
+	typedef aDataContainer DataContainer;
 
 	class SIRFUtilities {
 	public:

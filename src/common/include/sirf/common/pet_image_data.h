@@ -7,7 +7,7 @@
 #include "num_ref.h"
 
 namespace sirf {
-	class PETImageData : public ImageData<float> {
+	class PETImageData : public ImageData { //<int> {
 	public:
 	};
 }
