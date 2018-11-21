@@ -946,8 +946,8 @@ cGT_dataItems(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer<complex_float_t>& x = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		DataContainer& x = 
+			objectFromHandle<DataContainer >(h_x);
 		return dataHandle(x.items());
 	}
 	CATCH;
@@ -959,8 +959,8 @@ cGT_norm(const void* ptr_x)
 {
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
-		aDataContainer<complex_float_t>& x = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
+		DataContainer& x = 
+			objectFromHandle<DataContainer >(h_x);
 		return dataHandle(x.norm());
 	}
 	CATCH;
@@ -973,11 +973,14 @@ cGT_dot(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_float_t>& x = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		aDataContainer<complex_float_t>& y = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		return dataHandle(x.dot(y));
+		DataContainer& x = 
+			objectFromHandle<DataContainer >(h_x);
+		DataContainer& y = 
+			objectFromHandle<DataContainer >(h_y);
+		complex_float_t z;
+		x.dot(y, &z);
+		return dataHandle(z);
+		//return dataHandle(x.dot(y));
 	}
 	CATCH;
 }
@@ -991,16 +994,17 @@ float br, float bi, const void* ptr_y
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_float_t>& x = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		aDataContainer<complex_float_t>& y = 
-			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		shared_ptr<aDataContainer<complex_float_t> > 
+		DataContainer& x = 
+			objectFromHandle<DataContainer >(h_x);
+		DataContainer& y = 
+			objectFromHandle<DataContainer >(h_y);
+		shared_ptr<DataContainer > 
 			sptr_z(x.new_data_container());
 		complex_float_t a(ar, ai);
 		complex_float_t b(br, bi);
-		sptr_z->axpby(a, x, b, y);
-		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+		sptr_z->axpby(&a, x, &b, y);
+		//sptr_z->axpby(a, x, b, y);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -1012,14 +1016,14 @@ cGT_multiply(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_float_t>& x =
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		aDataContainer<complex_float_t>& y =
-			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		shared_ptr<aDataContainer<complex_float_t> >
+		DataContainer& x =
+			objectFromHandle<DataContainer >(h_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(h_y);
+		shared_ptr<DataContainer >
 			sptr_z(x.new_data_container());
 		sptr_z->multiply(x, y);
-		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -1031,14 +1035,14 @@ cGT_divide(const void* ptr_x, const void* ptr_y)
 	try {
 		CAST_PTR(DataHandle, h_x, ptr_x);
 		CAST_PTR(DataHandle, h_y, ptr_y);
-		aDataContainer<complex_float_t>& x =
-			objectFromHandle<aDataContainer<complex_float_t> >(h_x);
-		aDataContainer<complex_float_t>& y =
-			objectFromHandle<aDataContainer<complex_float_t> >(h_y);
-		shared_ptr<aDataContainer<complex_float_t> >
+		DataContainer& x =
+			objectFromHandle<DataContainer >(h_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(h_y);
+		shared_ptr<DataContainer >
 			sptr_z(x.new_data_container());
 		sptr_z->divide(x, y);
-		return newObjectHandle<aDataContainer<complex_float_t> >(sptr_z);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }

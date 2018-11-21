@@ -69,6 +69,9 @@ Some acquisitions do not participate directly in the reconstruction process
 
 namespace sirf {
 
+	typedef aDataContainer<complex_float_t> DataContainer;
+	//typedef aDataContainer DataContainer;
+
 	class AcquisitionsInfo {
 	public:
 		AcquisitionsInfo(std::string data = "") : data_(data) {}
@@ -90,7 +93,7 @@ namespace sirf {
 	\brief Abstract MR acquisition data container class.
 
 	*/
-	class MRAcquisitionData : public aDataContainer < complex_float_t > {
+	class MRAcquisitionData : public DataContainer {
 	public:
 		MRAcquisitionData() : ordered_(false), index_(0) {}
 		virtual ~MRAcquisitionData()
@@ -156,16 +159,21 @@ namespace sirf {
 			(int na, int nc, int ns, const float* re, const float* im) = 0;
 
 		// acquisition data algebra
+		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+			void* ptr_a, const DataContainer& a_x,
+			void* ptr_b, const DataContainer& a_y);
+
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y);
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
+		//virtual complex_float_t dot(const DataContainer& dc);
 		virtual float norm();
 		//float diff(MRAcquisitionData& other);
 
@@ -264,7 +272,7 @@ namespace sirf {
 		{
 			return (MRAcquisitionData*) new AcquisitionsFile(info);
 		}
-		virtual aDataContainer<complex_float_t>*
+		virtual DataContainer*
 			new_data_container()
 		{
 			init();
@@ -332,7 +340,7 @@ namespace sirf {
 		{
 			return new AcquisitionsVector(info);
 		}
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
@@ -399,16 +407,20 @@ namespace sirf {
 			return image_wrap(im_num).type();
 		}
 
+		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+			void* ptr_a, const DataContainer& a_x,
+			void* ptr_b, const DataContainer& a_y);
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y);
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
+		//virtual complex_float_t dot(const DataContainer& dc);
 		virtual float norm();
 
 		void order();
@@ -649,9 +661,9 @@ namespace sirf {
 				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new GadgetronImagesVector();
+			return (DataContainer*)new GadgetronImagesVector();
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
@@ -780,33 +792,37 @@ namespace sirf {
 	\brief Abstract coil data container class.
 
 	*/
-	class CoilDataContainer : public aDataContainer < complex_float_t > {
+	class CoilDataContainer : public DataContainer {
 	public:
 		virtual float norm()
 		{
 			return 0.0;
 		}
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc)
-		{
-			return complex_float_t(0.0, 0.0);
-		}
+		virtual void dot(const DataContainer& dc, void* ptr)
+		{}
+		//virtual complex_float_t dot(const DataContainer& dc)
+		//{
+		//	return complex_float_t(0.0, 0.0);
+		//}
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+			void* ptr_a, const DataContainer& a_x,
+			void* ptr_b, const DataContainer& a_y)
 		{
-			return;
 		}
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y)
+		//{
+		//}
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y)
+			const DataContainer& a_x,
+			const DataContainer& a_y)
 		{
-			return;
 		}
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y)
+			const DataContainer& a_x,
+			const DataContainer& a_y)
 		{
-			return;
 		}
 		void get_dim(int slice, int* dim) //const
 		{
@@ -891,9 +907,9 @@ namespace sirf {
 	*/
 	class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 	public:
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new CoilImagesVector();
+			return (DataContainer*)new CoilImagesVector();
 		}
 		virtual unsigned int items()
 		{
@@ -979,9 +995,9 @@ namespace sirf {
 		}
 		CoilSensitivitiesAsImages(const char* file);
 
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages();
+			return (DataContainer*)new CoilSensitivitiesAsImages();
 		}
 
 		virtual unsigned int items()

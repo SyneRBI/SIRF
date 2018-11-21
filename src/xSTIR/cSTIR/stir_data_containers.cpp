@@ -50,7 +50,7 @@ PETAcquisitionData::norm()
 }
 
 //void
-//PETAcquisitionData::mult(float a, const aDataContainer<float>& a_x)
+//PETAcquisitionData::mult(float a, const DataContainer& a_x)
 //{
 //	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
 //	int n = get_max_segment_num();
@@ -79,8 +79,8 @@ PETAcquisitionData::norm()
 //	}
 //}
 
-float
-PETAcquisitionData::dot(const aDataContainer<float>& a_x)
+void
+PETAcquisitionData::dot(const DataContainer& a_x, void* ptr)
 {
 	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
 	int n = get_max_segment_num();
@@ -106,47 +106,18 @@ PETAcquisitionData::dot(const aDataContainer<float>& a_x)
 				t += (*seg_iter++)*double(*sx_iter++);
 		}
 	}
-	return (float)t;
-}
-
-void
-PETAcquisitionData::inv(float amin, const aDataContainer<float>& a_x)
-{
-	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
-	int n = get_max_segment_num();
-	int nx = x.get_max_segment_num();
-	for (int s = 0; s <= n && s <= nx; ++s)
-	{
-		//std::cout << "processing segment " << s << std::endl;
-		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
-		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
-		SegmentBySinogram<float>::full_iterator seg_iter;
-		SegmentBySinogram<float>::full_iterator sx_iter;
-		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-			seg_iter != seg.end_all() && sx_iter != sx.end_all();
-			/*empty*/)
-			*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
-		set_segment(seg);
-		if (s != 0) {
-			//std::cout << "processing segment " << -s << std::endl;
-			seg = get_empty_segment_by_sinogram(-s);
-			sx = x.get_segment_by_sinogram(-s);
-			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
-				seg_iter != seg.end_all() && sx_iter != sx.end_all();
-				/*empty*/) {
-				*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
-			}
-			set_segment(seg);
-		}
-	}
+	float* ptr_t = (float*)ptr;
+	*ptr_t = (float)t;
 }
 
 void
 PETAcquisitionData::axpby(
-float a, const aDataContainer<float>& a_x,
-float b, const aDataContainer<float>& a_y
+void* ptr_a, const DataContainer& a_x,
+void* ptr_b, const DataContainer& a_y
 )
 {
+	float a = *(float*)ptr_a;
+	float b = *(float*)ptr_b;
 	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
 	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
 	int n = get_max_segment_num();
@@ -184,10 +155,115 @@ float b, const aDataContainer<float>& a_y
 	}
 }
 
+//float
+//PETAcquisitionData::dot(const DataContainer& a_x)
+//{
+//	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+//	int n = get_max_segment_num();
+//	int nx = x.get_max_segment_num();
+//	double t = 0;
+//	for (int s = 0; s <= n && s <= nx; ++s)
+//	{
+//		SegmentBySinogram<float> seg = get_segment_by_sinogram(s);
+//		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+//		SegmentBySinogram<float>::full_iterator seg_iter;
+//		SegmentBySinogram<float>::full_iterator sx_iter;
+//		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+//			seg_iter != seg.end_all() && sx_iter != sx.end_all();
+//			/*empty*/) {
+//			t += (*seg_iter++)*double(*sx_iter++);
+//		}
+//		if (s != 0) {
+//			seg = get_segment_by_sinogram(-s);
+//			sx = x.get_segment_by_sinogram(-s);
+//			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+//				seg_iter != seg.end_all() && sx_iter != sx.end_all();
+//				/*empty*/)
+//				t += (*seg_iter++)*double(*sx_iter++);
+//		}
+//	}
+//	return (float)t;
+//}
+
+void
+PETAcquisitionData::inv(float amin, const DataContainer& a_x)
+{
+	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+	int n = get_max_segment_num();
+	int nx = x.get_max_segment_num();
+	for (int s = 0; s <= n && s <= nx; ++s)
+	{
+		//std::cout << "processing segment " << s << std::endl;
+		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+		SegmentBySinogram<float>::full_iterator seg_iter;
+		SegmentBySinogram<float>::full_iterator sx_iter;
+		for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+			seg_iter != seg.end_all() && sx_iter != sx.end_all();
+			/*empty*/)
+			*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
+		set_segment(seg);
+		if (s != 0) {
+			//std::cout << "processing segment " << -s << std::endl;
+			seg = get_empty_segment_by_sinogram(-s);
+			sx = x.get_segment_by_sinogram(-s);
+			for (seg_iter = seg.begin_all(), sx_iter = sx.begin_all();
+				seg_iter != seg.end_all() && sx_iter != sx.end_all();
+				/*empty*/) {
+				*seg_iter++ = float(1.0 / std::max(amin, *sx_iter++));
+			}
+			set_segment(seg);
+		}
+	}
+}
+
+//void
+//PETAcquisitionData::axpby(
+//float a, const DataContainer& a_x,
+//float b, const DataContainer& a_y
+//)
+//{
+//	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
+//	PETAcquisitionData& y = (PETAcquisitionData&)a_y;
+//	int n = get_max_segment_num();
+//	int nx = x.get_max_segment_num();
+//	int ny = y.get_max_segment_num();
+//	for (int s = 0; s <= n && s <= nx && s <= ny; ++s)
+//	{
+//		SegmentBySinogram<float> seg = get_empty_segment_by_sinogram(s);
+//		SegmentBySinogram<float> sx = x.get_segment_by_sinogram(s);
+//		SegmentBySinogram<float> sy = y.get_segment_by_sinogram(s);
+//		SegmentBySinogram<float>::full_iterator seg_iter;
+//		SegmentBySinogram<float>::full_iterator sx_iter;
+//		SegmentBySinogram<float>::full_iterator sy_iter;
+//		for (seg_iter = seg.begin_all(),
+//			sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
+//			seg_iter != seg.end_all() &&
+//			sx_iter != sx.end_all() && sy_iter != sy.end_all();
+//		/*empty*/) {
+//			*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
+//		}
+//		set_segment(seg);
+//		if (s != 0) {
+//			seg = get_empty_segment_by_sinogram(-s);
+//			sx = x.get_segment_by_sinogram(-s);
+//			sy = y.get_segment_by_sinogram(-s);
+//			for (seg_iter = seg.begin_all(),
+//				sx_iter = sx.begin_all(), sy_iter = sy.begin_all();
+//				seg_iter != seg.end_all() &&
+//				sx_iter != sx.end_all() && sy_iter != sy.end_all();
+//			/*empty*/) {
+//				*seg_iter++ = float(a*double(*sx_iter++) + b*double(*sy_iter++));
+//			}
+//			set_segment(seg);
+//		}
+//	}
+//}
+
 void
 PETAcquisitionData::multiply(
-const aDataContainer<float>& a_x,
-const aDataContainer<float>& a_y
+const DataContainer& a_x,
+const DataContainer& a_y
 )
 {
 	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
@@ -229,8 +305,8 @@ const aDataContainer<float>& a_y
 
 void
 PETAcquisitionData::divide(
-const aDataContainer<float>& a_x,
-const aDataContainer<float>& a_y
+const DataContainer& a_x,
+const DataContainer& a_y
 )
 {
 	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
@@ -270,6 +346,56 @@ const aDataContainer<float>& a_y
 	}
 }
 
+void
+STIRImageData::dot(const DataContainer& a_x, void* ptr)
+{
+	STIRImageData& x = (STIRImageData&)a_x;
+#ifdef _MSC_VER
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+#endif
+
+	double s = 0.0;
+	for (iter = data().begin_all(), iter_x = x.data().begin_all();
+		iter != data().end_all() && iter_x != x.data().end_all(); 
+		iter++, iter_x++) {
+		double t = *iter;
+		s += t * (*iter_x);
+	}
+	float* ptr_s = (float*)ptr;
+	*ptr_s = (float)s;
+}
+
+void
+STIRImageData::axpby(
+void* ptr_a, const DataContainer& a_x,
+void* ptr_b, const DataContainer& a_y)
+{
+	float a = *(float*)ptr_a;
+	float b = *(float*)ptr_b;
+	STIRImageData& x = (STIRImageData&)a_x;
+	STIRImageData& y = (STIRImageData&)a_y;
+#ifdef _MSC_VER
+	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter_x;
+	Image3DF::const_full_iterator iter_y;
+#else
+	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter_x;
+	typename Array<3, float>::const_full_iterator iter_y;
+#endif
+
+	for (iter = data().begin_all(),
+		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+		iter != data().end_all() &&
+		iter_x != x.data().end_all() && iter_y != y.data().end_all();
+	iter++, iter_x++, iter_y++)
+		*iter = a * (*iter_x) + b * (*iter_y);
+}
+
 float
 STIRImageData::norm()
 {
@@ -289,29 +415,29 @@ STIRImageData::norm()
 	return (float)sqrt(s);
 }
 
-float
-STIRImageData::dot(const aDataContainer<float>& a_x)
-{
-	STIRImageData& x = (STIRImageData&)a_x;
-#ifdef _MSC_VER
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-#endif
-
-	double s = 0.0;
-	for (iter = data().begin_all(), iter_x = x.data().begin_all();
-		iter != data().end_all() && iter_x != x.data().end_all(); iter++, iter_x++) {
-		double t = *iter;
-		s += t * (*iter_x);
-	}
-	return (float)s;
-}
+//float
+//STIRImageData::dot(const DataContainer& a_x)
+//{
+//	STIRImageData& x = (STIRImageData&)a_x;
+//#ifdef _MSC_VER
+//	Image3DF::full_iterator iter;
+//	Image3DF::const_full_iterator iter_x;
+//#else
+//	typename Array<3, float>::full_iterator iter;
+//	typename Array<3, float>::const_full_iterator iter_x;
+//#endif
+//
+//	double s = 0.0;
+//	for (iter = data().begin_all(), iter_x = x.data().begin_all();
+//		iter != data().end_all() && iter_x != x.data().end_all(); iter++, iter_x++) {
+//		double t = *iter;
+//		s += t * (*iter_x);
+//	}
+//	return (float)s;
+//}
 
 //void
-//STIRImageData::mult(float a, const aDataContainer<float>& a_x)
+//STIRImageData::mult(float a, const DataContainer& a_x)
 //{
 //	STIRImageData& x = (STIRImageData&)a_x;
 //#ifdef _MSC_VER
@@ -329,8 +455,8 @@ STIRImageData::dot(const aDataContainer<float>& a_x)
 
 void
 STIRImageData::multiply(
-const aDataContainer<float>& a_x,
-const aDataContainer<float>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 	STIRImageData& y = (STIRImageData&)a_y;
@@ -354,8 +480,8 @@ const aDataContainer<float>& a_y)
 
 void
 STIRImageData::divide(
-const aDataContainer<float>& a_x,
-const aDataContainer<float>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 	STIRImageData& y = (STIRImageData&)a_y;
@@ -396,30 +522,30 @@ const aDataContainer<float>& a_y)
 	}
 }
 
-void
-STIRImageData::axpby(
-float a, const aDataContainer<float>& a_x,
-float b, const aDataContainer<float>& a_y)
-{
-	STIRImageData& x = (STIRImageData&)a_x;
-	STIRImageData& y = (STIRImageData&)a_y;
-#ifdef _MSC_VER
-	Image3DF::full_iterator iter;
-	Image3DF::const_full_iterator iter_x;
-	Image3DF::const_full_iterator iter_y;
-#else
-	typename Array<3, float>::full_iterator iter;
-	typename Array<3, float>::const_full_iterator iter_x;
-	typename Array<3, float>::const_full_iterator iter_y;
-#endif
-
-	for (iter = data().begin_all(),
-		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
-		iter != data().end_all() &&
-		iter_x != x.data().end_all() && iter_y != y.data().end_all();
-	iter++, iter_x++, iter_y++)
-		*iter = a * (*iter_x) + b * (*iter_y);
-}
+//void
+//STIRImageData::axpby(
+//float a, const DataContainer& a_x,
+//float b, const DataContainer& a_y)
+//{
+//	STIRImageData& x = (STIRImageData&)a_x;
+//	STIRImageData& y = (STIRImageData&)a_y;
+//#ifdef _MSC_VER
+//	Image3DF::full_iterator iter;
+//	Image3DF::const_full_iterator iter_x;
+//	Image3DF::const_full_iterator iter_y;
+//#else
+//	typename Array<3, float>::full_iterator iter;
+//	typename Array<3, float>::const_full_iterator iter_x;
+//	typename Array<3, float>::const_full_iterator iter_y;
+//#endif
+//
+//	for (iter = data().begin_all(),
+//		iter_x = x.data().begin_all(), iter_y = y.data().begin_all();
+//		iter != data().end_all() &&
+//		iter_x != x.data().end_all() && iter_y != y.data().end_all();
+//	iter++, iter_x++, iter_y++)
+//		*iter = a * (*iter_x) + b * (*iter_y);
+//}
 
 int
 STIRImageData::get_dimensions(int* dim) const

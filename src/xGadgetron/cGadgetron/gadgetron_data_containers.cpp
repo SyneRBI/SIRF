@@ -295,11 +295,41 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 	return r;
 }
 
-void 
-MRAcquisitionData::axpby(
-	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+void
+MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
 {
+	MRAcquisitionData& other = (MRAcquisitionData&)dc;
+	int n = number();
+	int m = other.number();
+	complex_float_t z = 0;
+	ISMRMRD::Acquisition a;
+	ISMRMRD::Acquisition b;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		get_acquisition(i, a);
+		if (TO_BE_IGNORED(a)) {
+			i++;
+			continue;
+		}
+		other.get_acquisition(j, b);
+		if (TO_BE_IGNORED(b)) {
+			j++;
+			continue;
+		}
+		z += MRAcquisitionData::dot(a, b);
+		i++;
+		j++;
+	}
+	complex_float_t* ptr_z = (complex_float_t*)ptr;
+	*ptr_z = z;
+}
+
+void
+MRAcquisitionData::axpby(
+void* ptr_a, const DataContainer& a_x,
+void* ptr_b, const DataContainer& a_y)
+{
+	complex_float_t a = *(complex_float_t*)ptr_a;
+	complex_float_t b = *(complex_float_t*)ptr_b;
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
@@ -326,10 +356,41 @@ MRAcquisitionData::axpby(
 	}
 }
 
+//void
+//MRAcquisitionData::axpby(
+//	complex_float_t a, const DataContainer& a_x,
+//	complex_float_t b, const DataContainer& a_y)
+//{
+//	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+//	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+//	int m = x.number();
+//	int n = y.number();
+//	ISMRMRD::Acquisition ax;
+//	ISMRMRD::Acquisition ay;
+//	for (int i = 0, j = 0; i < n && j < m;) {
+//		y.get_acquisition(i, ay);
+//		x.get_acquisition(j, ax);
+//		if (TO_BE_IGNORED(ay)) {
+//			std::cout << i << " ignored (ay)\n";
+//			i++;
+//			continue;
+//		}
+//		if (TO_BE_IGNORED(ax)) {
+//			std::cout << j << " ignored (ax)\n";
+//			j++;
+//			continue;
+//		}
+//		MRAcquisitionData::axpby(a, ax, b, ay);
+//		append_acquisition(ay);
+//		i++;
+//		j++;
+//	}
+//}
+
 void
 MRAcquisitionData::multiply(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
@@ -359,8 +420,8 @@ const aDataContainer<complex_float_t>& a_y)
 
 void
 MRAcquisitionData::divide(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
@@ -388,32 +449,32 @@ const aDataContainer<complex_float_t>& a_y)
 	}
 }
 
-complex_float_t
-MRAcquisitionData::dot(const aDataContainer<complex_float_t>& dc)
-{
-	MRAcquisitionData& other = (MRAcquisitionData&)dc;
-	int n = number();
-	int m = other.number();
-	complex_float_t z = 0;
-	ISMRMRD::Acquisition a;
-	ISMRMRD::Acquisition b;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		get_acquisition(i, a);
-		if (TO_BE_IGNORED(a)) {
-			i++;
-			continue;
-		}
-		other.get_acquisition(j, b);
-		if (TO_BE_IGNORED(b)) {
-			j++;
-			continue;
-		}
-		z += MRAcquisitionData::dot(a, b);
-		i++;
-		j++;
-	}
-	return z;
-}
+//complex_float_t
+//MRAcquisitionData::dot(const DataContainer& dc)
+//{
+//	MRAcquisitionData& other = (MRAcquisitionData&)dc;
+//	int n = number();
+//	int m = other.number();
+//	complex_float_t z = 0;
+//	ISMRMRD::Acquisition a;
+//	ISMRMRD::Acquisition b;
+//	for (int i = 0, j = 0; i < n && j < m;) {
+//		get_acquisition(i, a);
+//		if (TO_BE_IGNORED(a)) {
+//			i++;
+//			continue;
+//		}
+//		other.get_acquisition(j, b);
+//		if (TO_BE_IGNORED(b)) {
+//			j++;
+//			continue;
+//		}
+//		z += MRAcquisitionData::dot(a, b);
+//		i++;
+//		j++;
+//	}
+//	return z;
+//}
 
 float 
 MRAcquisitionData::norm()
@@ -686,10 +747,26 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-GadgetronImageData::axpby(
-	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+GadgetronImageData::dot(const DataContainer& dc, void* ptr)
 {
+	GadgetronImageData& ic = (GadgetronImageData&)dc;
+	complex_float_t z = 0;
+	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
+		const ImageWrap& u = image_wrap(i);
+		const ImageWrap& v = ic.image_wrap(i);
+		z += u.dot(v);
+	}
+	complex_float_t* ptr_z = (complex_float_t*)ptr;
+	*ptr_z = z;
+}
+
+void
+GadgetronImageData::axpby(
+void* ptr_a, const DataContainer& a_x,
+void* ptr_b, const DataContainer& a_y)
+{
+	complex_float_t a = *(complex_float_t*)ptr_a;
+	complex_float_t b = *(complex_float_t*)ptr_b;
 	GadgetronImageData& x = (GadgetronImageData&)a_x;
 	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
@@ -704,10 +781,29 @@ GadgetronImageData::axpby(
 	}
 }
 
+//void
+//GadgetronImageData::axpby(
+//	complex_float_t a, const DataContainer& a_x,
+//	complex_float_t b, const DataContainer& a_y)
+//{
+//	GadgetronImageData& x = (GadgetronImageData&)a_x;
+//	GadgetronImageData& y = (GadgetronImageData&)a_y;
+//	ImageWrap w(x.image_wrap(0));
+//	complex_float_t zero(0.0, 0.0);
+//	complex_float_t one(1.0, 0.0);
+//	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+//		const ImageWrap& u = x.image_wrap(i);
+//		const ImageWrap& v = y.image_wrap(i);
+//		w.axpby(a, u, zero);
+//		w.axpby(b, v, one);
+//		append(w);
+//	}
+//}
+
 void
 GadgetronImageData::multiply(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	GadgetronImageData& x = (GadgetronImageData&)a_x;
 	GadgetronImageData& y = (GadgetronImageData&)a_y;
@@ -720,8 +816,8 @@ const aDataContainer<complex_float_t>& a_y)
 
 void
 GadgetronImageData::divide(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	GadgetronImageData& x = (GadgetronImageData&)a_x;
 	GadgetronImageData& y = (GadgetronImageData&)a_y;
@@ -732,18 +828,18 @@ const aDataContainer<complex_float_t>& a_y)
 	}
 }
 
-complex_float_t
-GadgetronImageData::dot(const aDataContainer<complex_float_t>& dc)
-{
-	GadgetronImageData& ic = (GadgetronImageData&)dc;
-	complex_float_t z = 0;
-	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
-		const ImageWrap& u = image_wrap(i);
-		const ImageWrap& v = ic.image_wrap(i);
-		z += u.dot(v);
-	}
-	return z;
-}
+//complex_float_t
+//GadgetronImageData::dot(const DataContainer& dc)
+//{
+//	GadgetronImageData& ic = (GadgetronImageData&)dc;
+//	complex_float_t z = 0;
+//	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
+//		const ImageWrap& u = image_wrap(i);
+//		const ImageWrap& v = ic.image_wrap(i);
+//		z += u.dot(v);
+//	}
+//	return z;
+//}
 
 float 
 GadgetronImageData::norm()

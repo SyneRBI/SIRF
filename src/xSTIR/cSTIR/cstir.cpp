@@ -29,6 +29,8 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
+//typedef aDataContainer<float> DataContainer;
+
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
 {
@@ -1033,23 +1035,40 @@ void*
 cSTIR_norm(const void* ptr_x)
 {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
 		return dataHandle(x.norm());
 	}
 	CATCH;
 }
+
+//extern "C"
+//void*
+//cSTIR_dot(const void* ptr_x, const void* ptr_y)
+//{
+//	try {
+//		DataContainer& x =
+//			objectFromHandle<DataContainer >(ptr_x);
+//		DataContainer& y =
+//			objectFromHandle<DataContainer >(ptr_y);
+//		return dataHandle(x.dot(y));
+//	}
+//	CATCH;
+//}
 
 extern "C"
 void*
 cSTIR_dot(const void* ptr_x, const void* ptr_y)
 {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
-		aDataContainer<float>& y =
-			objectFromHandle<aDataContainer<float> >(ptr_y);
-		return dataHandle(x.dot(y));
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		float s;
+		x.dot(y, &s);
+		return dataHandle(s);
+		//return dataHandle(x.dot(y));
 	}
 	CATCH;
 }
@@ -1059,30 +1078,49 @@ void*
 cSTIR_mult(float a, const void* ptr_x)
 {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
-		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		shared_ptr<DataContainer > sptr_z(x.new_data_container());
 		//sptr_z->mult(a, x);
-		sptr_z->axpby(a, x, 0, x);
-		return newObjectHandle<aDataContainer<float> >(sptr_z);
+		float zero = 0.0;
+		sptr_z->axpby(&a, x, &zero, x);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
 
+//extern "C"
+//void*
+//cSTIR_axpby(
+//	float a, const void* ptr_x,
+//	float b, const void* ptr_y
+//) {
+//	try {
+//		DataContainer& x =
+//			objectFromHandle<DataContainer >(ptr_x);
+//		DataContainer& y =
+//			objectFromHandle<DataContainer >(ptr_y);
+//		shared_ptr<DataContainer > sptr_z(x.new_data_container());
+//		sptr_z->axpby(a, x, b, y);
+//		return newObjectHandle<DataContainer >(sptr_z);
+//	}
+//	CATCH;
+//}
+
 extern "C"
 void*
 cSTIR_axpby(
-	float a, const void* ptr_x,
-	float b, const void* ptr_y
+float a, const void* ptr_x,
+float b, const void* ptr_y
 ) {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
-		aDataContainer<float>& y =
-			objectFromHandle<aDataContainer<float> >(ptr_y);
-		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
-		sptr_z->axpby(a, x, b, y);
-		return newObjectHandle<aDataContainer<float> >(sptr_z);
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		shared_ptr<DataContainer > sptr_z(x.new_data_container());
+		sptr_z->axpby(&a, x, &b, y);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -1092,13 +1130,13 @@ void*
 cSTIR_multiply(const void* ptr_x, const void* ptr_y)
 {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
-		aDataContainer<float>& y =
-			objectFromHandle<aDataContainer<float> >(ptr_y);
-		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		shared_ptr<DataContainer > sptr_z(x.new_data_container());
 		sptr_z->multiply(x, y);
-		return newObjectHandle<aDataContainer<float> >(sptr_z);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -1108,13 +1146,13 @@ void*
 cSTIR_divide(const void* ptr_x, const void* ptr_y)
 {
 	try {
-		aDataContainer<float>& x =
-			objectFromHandle<aDataContainer<float> >(ptr_x);
-		aDataContainer<float>& y =
-			objectFromHandle<aDataContainer<float> >(ptr_y);
-		shared_ptr<aDataContainer<float> > sptr_z(x.new_data_container());
+		DataContainer& x =
+			objectFromHandle<DataContainer >(ptr_x);
+		DataContainer& y =
+			objectFromHandle<DataContainer >(ptr_y);
+		shared_ptr<DataContainer > sptr_z(x.new_data_container());
 		sptr_z->divide(x, y);
-		return newObjectHandle<aDataContainer<float> >(sptr_z);
+		return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
