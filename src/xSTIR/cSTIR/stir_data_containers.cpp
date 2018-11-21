@@ -457,7 +457,7 @@ STIRImageData::get_data(float* data) const
 		//return -1;
 	std::cout << "trying new const iterator...\n";
 	STIRImageData::Iterator_const iter(begin());
-	for (int i = 0; iter != end(); i++, iter++)
+	for (int i = 0; iter != end(); ++i, ++iter)
 		data[i] = *iter;
 	//std::copy(begin(), end(), data);
 	//std::copy(image.begin_all(), image.end_all(), data);
@@ -488,7 +488,7 @@ STIRImageData::set_data(const float* data)
 		n *= (max_indices[i + 1] - min_indices[i + 1] + 1);
 	std::cout << "trying new iterator...\n";
 	STIRImageData::Iterator iter(begin());
-	for (int i = 0; iter != end(); i++, iter++)
+	for (int i = 0; iter != end(); ++i, ++iter)
 		*iter = data[i];
 	//std::copy(data, data + n, begin());
 	//std::copy(data, data + n, image.begin_all());
