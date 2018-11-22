@@ -569,7 +569,26 @@ namespace sirf {
 			mutable FloatRef _ref;
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
-		STIRImageData(){}
+		STIRImageData() {}
+		STIRImageData(const ImageData& id)
+		{
+			Dimensions dim = id.dimensions();
+			int nx = dim["x"];
+			int ny = dim["y"];
+			int nz = 1;
+			Dimensions::iterator it = dim.begin();
+			while (it != dim.end()) {
+				if (it->first != "x" && it->first != "y")
+					nz *= it->second;
+				++it;
+			}
+			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
+				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
+				Coord3DF(0, 0, 0),
+				Coord3DF(1, 1, 1));
+			_data.reset(voxels.clone());
+			copy(id.begin(), begin(), end());
+		}
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
@@ -658,6 +677,15 @@ namespace sirf {
 		void fill(float v)
 		{
 			_data->fill(v);
+		}
+		virtual Dimensions dimensions() const
+		{
+			Dimensions dim;
+			int d[4];
+			get_dimensions(d);
+			dim["z"] = d[0];
+			dim["y"] = d[1];
+			dim["x"] = d[2];
 		}
 		int get_dimensions(int* dim) const;
 		void get_voxel_sizes(float* vsizes) const;

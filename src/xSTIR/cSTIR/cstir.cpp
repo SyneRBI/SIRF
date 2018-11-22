@@ -864,6 +864,17 @@ void* cSTIR_imageFromVoxels(void* ptr_v)
 }
 
 extern "C"
+void* cSTIR_imageFromImageData(void* ptr_v)
+{
+	try {
+		ImageData& id = objectFromHandle<ImageData>(ptr_v);
+		shared_ptr<STIRImageData> sptr(new STIRImageData(id));
+		return (void*)newObjectHandle(sptr);
+	}
+	CATCH;
+}
+
+extern "C"
 void* cSTIR_imageFromImage(void* ptr_i)
 {
 	try {

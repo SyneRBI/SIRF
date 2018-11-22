@@ -388,6 +388,18 @@ namespace sirf {
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename);
 		virtual void write(std::string filename, std::string groupname);
+		virtual Dimensions dimensions() const 
+		{
+			Dimensions dim;
+			const ImageWrap& iw = image_wrap(0);
+			int d[4];
+			iw.get_dim(d);
+			dim["x"] = d[0];
+			dim["y"] = d[1];
+			dim["z"] = d[2];
+			dim["c"] = d[3];
+			dim["n"] = number();
+		}
 		virtual void get_image_dimensions(unsigned int im_num, int* dim)
 		{
 			if (im_num >= number())

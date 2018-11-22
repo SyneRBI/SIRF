@@ -31,20 +31,25 @@ Has vector features: norm, dot product, linear combination,
 which rely on the same features of the items.
 */
 
-class DataContainer {
-public:
-	virtual ~DataContainer() {}
-	virtual DataContainer* new_data_container() = 0;
-	virtual unsigned int items() = 0;
-	virtual float norm() = 0;
-	virtual void dot(const DataContainer& dc, void* ptr) = 0;
-	virtual void multiply
+namespace sirf {
+
+	typedef std::map<std::string, int> Dimensions;
+
+	class DataContainer {
+	public:
+		virtual ~DataContainer() {}
+		virtual DataContainer* new_data_container() = 0;
+		virtual unsigned int items() = 0;
+		virtual float norm() = 0;
+		virtual void dot(const DataContainer& dc, void* ptr) = 0;
+		virtual void multiply
 		(const DataContainer& x, const DataContainer& y) = 0;
-	virtual void divide
+		virtual void divide
 		(const DataContainer& x, const DataContainer& y) = 0;
-	virtual void axpby(
-		void* ptr_a, const DataContainer& x,
-		void* ptr_b, const DataContainer& y) = 0;
-};
+		virtual void axpby(
+			void* ptr_a, const DataContainer& x,
+			void* ptr_b, const DataContainer& y) = 0;
+	};
+}
 
 #endif

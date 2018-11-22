@@ -15,6 +15,7 @@ namespace sirf {
 	{
 	public:
 		virtual ~ImageData() {}
+		virtual Dimensions dimensions() const = 0; // to go to DataContainer eventually
 		//virtual void get_data(void* data) const = 0;
 		//virtual void set_data(const void* data) = 0;
 		class Iterator {
@@ -37,6 +38,11 @@ namespace sirf {
 		virtual Iterator_const& begin() const = 0;
 		virtual Iterator& end() = 0;
 		virtual Iterator_const& end() const = 0;
+		void copy(Iterator_const& src, Iterator& dst, Iterator& end)
+		{
+			for (; dst != end; ++dst, ++src)
+				*dst = *src;
+		}
 	};
 }
 
