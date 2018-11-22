@@ -31,17 +31,13 @@ Has vector features: norm, dot product, linear combination,
 which rely on the same features of the items.
 */
 
-//template <typename T>
-class aDataContainer {
+class DataContainer {
 public:
-	typedef aDataContainer //<T> 
-		DataContainer;
-	virtual ~aDataContainer() {}
+	virtual ~DataContainer() {}
 	virtual DataContainer* new_data_container() = 0;
 	virtual unsigned int items() = 0;
 	virtual float norm() = 0;
 	virtual void dot(const DataContainer& dc, void* ptr) = 0;
-	//virtual T dot(const DataContainer& dc) = 0;
 	virtual void multiply
 		(const DataContainer& x, const DataContainer& y) = 0;
 	virtual void divide
@@ -49,9 +45,6 @@ public:
 	virtual void axpby(
 		void* ptr_a, const DataContainer& x,
 		void* ptr_b, const DataContainer& y) = 0;
-	//virtual void axpby(
-	//	T a, const DataContainer& x,
-	//	T b, const DataContainer& y) = 0;
 };
 
 #endif

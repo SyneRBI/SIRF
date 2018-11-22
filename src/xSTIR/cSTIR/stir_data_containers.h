@@ -44,10 +44,6 @@ limitations under the License.
 
 namespace sirf {
 
-	//typedef aDataContainer<int> DataContainer;
-	//typedef aDataContainer<float> DataContainer;
-	typedef aDataContainer DataContainer;
-
 	class SIRFUtilities {
 	public:
 		static long long milliseconds()

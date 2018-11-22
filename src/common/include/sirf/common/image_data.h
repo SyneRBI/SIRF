@@ -11,13 +11,12 @@
 
 */
 namespace sirf {
-	//template<typename T>
-	class ImageData : public aDataContainer //<int> //T>
+	class ImageData : public DataContainer
 	{
 	public:
 		virtual ~ImageData() {}
-		//virtual void get_data(T* data) const = 0;
-		//virtual void set_data(const T* data) = 0;
+		//virtual void get_data(void* data) const = 0;
+		//virtual void set_data(const void* data) = 0;
 		class Iterator {
 		public:
 			virtual ~Iterator() {}
