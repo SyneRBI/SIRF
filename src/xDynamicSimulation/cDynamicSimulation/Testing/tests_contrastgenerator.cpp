@@ -68,8 +68,6 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 {
 
 
- 	//using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
-
 	LabelArray label_arr = aux_test::get_mock_label_array();
 	MRContrastGenerator mr_contgen (label_arr, XML_TEST_PATH);  	
 
@@ -82,8 +80,7 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 
 	std::vector< ISMRMRD::Image< complex_float_t> > contrasts = mr_contgen.get_contrast_filled_volumes();	
 
-
-	int const num_echoes = 3;
+	size_t const num_echoes = ((hdr.sequenceParameters.get()).TE.get()).size();;
 	size_t input_dims[ISMRMRD_NDARRAY_MAXDIM] = {2,2,2,num_echoes,1,1,1};
 
 	std::vector< size_t > contrast_dims;
@@ -101,8 +98,7 @@ bool test_contgen::test_mr_map_contrast_dim_check( void )
 	bool dims_are_correct = true; 
 	for( int i=0; i< 4; i++)
 		dims_are_correct *= (contrast_dims[i] == input_dims[i]);
-
-	
+		
 	return dims_are_correct;
 }
 
@@ -270,9 +266,9 @@ bool test_contgen::test_map_flash_contrast( void )
 	(float)(1-exp(-TR/t1)) / (float)(1- exp(-TR/t1)*cos(angle)) * (float)exp(-TE/t2);	
 	complex_float_t mock_contrast = flash_contrast[0];
 
-	float const epsilon = 0.0000001;
+	float const epsilon = 0.00001;
 
-	bool equal_contrast = (input_contrast_echo1.real() - mock_contrast.real() < epsilon );
+	bool equal_contrast = (input_contrast_echo1.real() - mock_contrast.real() ) < epsilon ;
 	equal_contrast *= (input_contrast_echo1.imag() - mock_contrast.imag() < epsilon );
 
 	return equal_contrast;
