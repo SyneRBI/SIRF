@@ -63,7 +63,7 @@ public:
 	
 	MRContrastGenerator (const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml);
 
-	void set_rawdata_header(IsmrmrdHeader hdr);
+	void set_rawdata_header(const IsmrmrdHeader& hdr);
 	void map_contrast();
 
 	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes();
@@ -95,12 +95,7 @@ public:
 	PETContrastGenerator(const LabelArray& tissue_labels, const std::string& filename_tissue_parameter_xml);
 
 
-	void set_template_image_from_file ( std::string const filename_header_with_ext ) 
-	{
-	 	 this->template_pet_image_data_ = sirf::PETImageData(filename_header_with_ext);
-	 	 this->template_img_is_set_ = true;
-	 	 
-	};
+	void set_template_image_from_file( const std::string& filename_header_with_ext ); 
 
 	std::vector< int > get_dimensions( void );
 	std::vector< float > get_voxel_sizes( void );
