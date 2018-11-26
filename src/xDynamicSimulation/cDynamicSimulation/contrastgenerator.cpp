@@ -206,10 +206,6 @@ void MRContrastGenerator::map_contrast()
 
 std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr)
 {
-	// SequenceParameters const sequ_par = ismrmrd_hdr.sequenceParameters.get(); 
-	// AcquisitionSystemInformation const asi = ismrmrd_hdr.acquisitionSystemInformation.get();
-	
-	// SeqParamType const TE = sequ_par.TE.get();
 	
 	SequenceParameters const sequ_par = *(ismrmrd_hdr.sequenceParameters); 
 	AcquisitionSystemInformation const asi = *(ismrmrd_hdr.acquisitionSystemInformation);

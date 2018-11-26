@@ -238,39 +238,59 @@ void run_tests_tissueparameters(void)
 void run_tests_contrastgenerator(void)
 {
 	bool tests_successful = true;
+	std::vector< bool > tlm_tests, mr_contgen_tests, pet_contgen_tests;
 
 	// // tlm tests
-	// tests_successful *= test_tlm::test_get_filepath_tissue_parameter_xml();
-	// tests_successful *= test_tlm::test_get_labels_array();
-	// tests_successful *=	test_tlm::test_get_segmentation_dimensions();
+	tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
+	tlm_tests.push_back( test_tlm::test_get_labels_array() );
+	tlm_tests.push_back( test_tlm::test_get_segmentation_dimensions() );
+	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_found() );
+	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_not_found() );
+	tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
+	tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
 
-	// tests_successful *=	test_tlm::test_assign_tissue_parameters_label_found();
-	// tests_successful *= test_tlm::test_assign_tissue_parameters_label_not_found();
+	std::cout << "tlm test results = ";
+	for( size_t i=0; i<tlm_tests.size(); i++)
+	{
+		std::cout << tlm_tests[i] << " / ";
+		tests_successful *= tlm_tests[i];
+	}
+	std::cout << std::endl;
 
-	// tests_successful *= test_tlm::test_map_labels_to_tissue_from_xml();
-	// tests_successful *= test_tlm::test_replace_petmr_tissue_parameters();
+	// mr contgen tests
+	mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
+	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
+	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
+	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
 
 
-	// // mr contgen tests
-	// tests_successful *= test_contgen::test_mr_constructor();
-	// tests_successful *= test_contgen::test_mr_set_rawdata_header();
-
-	// tests_successful *=	test_contgen::test_map_flash_contrast();
-	// tests_successful *=	test_contgen::test_mr_map_contrast_dim_check();
-
-
-	// test_contgen::test_match_output_dims_to_headerinfo();
+	test_contgen::test_match_output_dims_to_headerinfo();
 	test_contgen::test_mr_map_contrast_application_to_xcat();
-	// test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
+	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
 
-	// // pet contgen tests
-	// tests_successful *=	test_contgen::test_pet_constructor();
-	// tests_successful *= test_contgen::test_pet_map_contrast();
-	// tests_successful *= test_contgen::test_pet_map_attenuation(); 
-	// tests_successful *= test_contgen::test_set_template_image_from_file();
+	std::cout << "mr contgen test results = ";
+	for( size_t i=0; i<mr_contgen_tests.size(); i++)
+	{
+		std::cout << mr_contgen_tests[i] << " / ";
+		tests_successful *= mr_contgen_tests[i];
+	}
+	std::cout << std::endl;
 
-	// test_contgen::test_pet_map_contrast_application_to_xcat();
+	// pet contgen tests
+	pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
+	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
+	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
+	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
 
+	test_contgen::test_pet_map_contrast_application_to_xcat();
+
+	std::cout << "pet contgen test results = ";
+	for( size_t i=0; i<pet_contgen_tests.size(); i++)
+	{
+		std::cout << pet_contgen_tests[i] << " / ";
+		tests_successful *= pet_contgen_tests[i];
+	}
+	std::cout << std::endl;
 
 	if ( !tests_successful )
 	{
