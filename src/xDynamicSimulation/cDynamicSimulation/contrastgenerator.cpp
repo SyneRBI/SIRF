@@ -478,7 +478,7 @@ void PETContrastGenerator::map_tissueparams_member(int const case_map)
 }
 
 
-std::vector< float > PETContrastGenerator::get_template_based_volume_subset(std::vector<float> vol_data, std::vector<size_t> data_dims)
+std::vector< float > PETContrastGenerator::get_template_based_volume_subset(const std::vector<float>& vol_data, const std::vector<size_t>& data_dims)
 {
 	std::vector< int > template_dims = this->get_dimensions();
 

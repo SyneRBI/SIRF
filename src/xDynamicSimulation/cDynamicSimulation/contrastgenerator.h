@@ -102,7 +102,7 @@ public:
 
 	std::vector< sirf::PETImageData >& get_contrast_filled_volumes();
 
-	std::vector< float > get_template_based_volume_subset(std::vector<float> vol_data, std::vector<size_t> data_dims);
+	std::vector< float > get_template_based_volume_subset(const std::vector<float>& vol_data, const std::vector<size_t>& data_dims);
 
 	void map_tissue();
 	void map_contrast();
