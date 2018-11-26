@@ -477,7 +477,7 @@ namespace sirf {
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
 		}
 		PETImageData
-		(const PETAcquisitionData& ad, const int nx, const int ny, const float zoom=1.)
+		(const PETAcquisitionData& ad, const int nx, const int ny, const float zoom=1.F)
 		{
 			const Coord3DF origin(0, 0, 0);
 			const Coord3DI sizes(-1, ny, nx);
