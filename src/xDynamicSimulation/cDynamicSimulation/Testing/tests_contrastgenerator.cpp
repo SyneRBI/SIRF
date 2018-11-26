@@ -303,7 +303,7 @@ bool test_contgen::test_pet_map_contrast( void )
 		LabelArray label_arr = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 
 		PETContrastGenerator pet_contgen (label_arr, XML_XCAT_PATH); 
-		pet_contgen.set_template_image_from_file( PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH );						
+		pet_contgen.set_template_image_from_file( std::string(PET_TEMPLATE_CONTRAST_IMAGE_DATA_PATH) );						
 
 		pet_contgen.map_contrast();
 
