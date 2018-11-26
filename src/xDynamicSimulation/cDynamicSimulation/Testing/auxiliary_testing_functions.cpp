@@ -221,7 +221,7 @@ ISMRMRD::SequenceParameters aux_test::get_mock_sequence_parameters( void )
 	ParType TI = {1};
 	ParType flipAngle_deg = {90};
 	std::string sequ_type = {"Flash"};
-	ParType dE = {0};
+	ParType dE = {2};
 
 	seq_pars.TR = Optional< ParType >(TR);
 	seq_pars.TE = Optional< ParType >(TE);
