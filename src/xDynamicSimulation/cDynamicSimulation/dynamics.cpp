@@ -53,18 +53,16 @@ AcquisitionsVector intersect_mr_acquisition_data(AcquisitionsVector one_dat, Acq
 
 	for( size_t i=0; i<one_dat.items(); i++)
 	{
-		ISMRMRD::Acquisition acq;
-
-		one_dat.get_acquisition(i, acq);
-		one_counters.push_back(acq.getHead().scan_counter);
+		auto sptr_acq = one_dat.get_sptr_acquisition( i );
+		one_counters.push_back(sptr_acq->getHead().scan_counter);
 	}
 
 	for( size_t i=0; i<other_dat.items(); i++)
 	{
 		ISMRMRD::Acquisition acq;
 
-		other_dat.get_acquisition(i, acq);
-		other_counters.push_back(acq.getHead().scan_counter);
+		auto sptr_acq = other_dat.get_sptr_acquisition( i );
+		other_counters.push_back(sptr_acq->getHead().scan_counter);
 	}
 	
 	std::sort(one_counters.begin(), one_counters.end() );
@@ -89,13 +87,11 @@ AcquisitionsVector intersect_mr_acquisition_data(AcquisitionsVector one_dat, Acq
 
 	for( size_t i=0; i<smaller_data_container.items(); i++)
 	{
-		ISMRMRD::Acquisition acq;
-
-		smaller_data_container.get_acquisition(i, acq);
-		uint32_t acquis_counter = acq.getHead().scan_counter;
+		auto sptr_acq = smaller_data_container.get_sptr_acquisition( i );
+		uint32_t acquis_counter = sptr_acq->getHead().scan_counter;
 		if(std::find(intersected_counters.begin(), intersected_counters.end(), acquis_counter) != intersected_counters.end()) 
 		{
-			intersection.append_acquisition(acq);
+			intersection.append_sptr_acquisition(sptr_acq);
     	} 
 	}
 

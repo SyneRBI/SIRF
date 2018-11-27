@@ -180,7 +180,8 @@ bool test_dynamic::test_bin_mr_acquisitions()
 	{
 		bool test_succesful = true;
 
-		auto acq_vec = mr_io::read_ismrmrd_acquisitions( ISMRMRD_H5_TEST_PATH );
+		sirf::AcquisitionsVector acq_vec;
+		acq_vec.read( std::string(ISMRMRD_H5_TEST_PATH ));
 
 		int const num_bins = 10;
 		aMRDynamic dyn(num_bins);

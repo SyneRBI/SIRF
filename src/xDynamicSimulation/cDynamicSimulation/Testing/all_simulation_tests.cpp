@@ -61,30 +61,32 @@ void run_tests_auxiliary_testing_functions( void )
 void run_tests_dynamics( void )
 {
 	
+
 	bool tests_successful = true;
+	std::vector< bool > dyn_tests;
+	
 
+	dyn_tests.push_back(test_dynamic::test_is_in_bin());
+	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
+	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());
+	dyn_tests.push_back(test_dynamic::test_get_set_bins());
+	dyn_tests.push_back(test_dynamic::test_bin_mr_acquisitions());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_counter());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_folder_setup());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_set_motion_fields());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_prep_motion_fields());
+	dyn_tests.push_back(test_dynamic::test_motion_dynamic_temp_interpolate_dvfs());
+	dyn_tests.push_back(test_dynamic::test_mvf_vs_pet_img_quarternions());
+	dyn_tests.push_back(test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states());
+	dyn_tests.push_back(test_dynamic::test_bin_pet_time_interval());
 
-	// tests_successful *= test_dynamic::test_is_in_bin();
-	// tests_successful *= test_dynamic::test_intersect_mr_acquisition_data();
-
-	// tests_successful *= test_dynamic::test_linear_interpolate_signal();
-	// tests_successful *= test_dynamic::test_get_set_bins();
-
-	// tests_successful *= test_dynamic::test_bin_mr_acquisitions();
-
-	// tests_successful *= test_dynamic::test_motion_dynamic_counter();
-
-	// tests_successful *= test_dynamic::test_motion_dynamic_temp_folder_setup();
-	// tests_successful *= test_dynamic::test_motion_dynamic_set_motion_fields();
-	// tests_successful *= test_dynamic::test_motion_dynamic_prep_motion_fields();
-	// tests_successful *= test_dynamic::test_motion_dynamic_temp_interpolate_dvfs();
-	// tests_successful *= test_dynamic::test_mvf_vs_pet_img_quarternions();
-
-
-	// tests_successful *= test_dynamic::test_mr_contrast_motion_dyn_get_num_simul_states();
-
-	tests_successful *= test_dynamic::test_bin_pet_time_interval();
-
+	std::cout << "dynamics test results = ";
+	for( size_t i=0; i<dyn_tests.size(); i++)
+	{
+		std::cout << dyn_tests[i] << " / ";
+		tests_successful *= dyn_tests[i];
+	}
+	std::cout << std::endl;
 
 	if ( !tests_successful )
 	{
