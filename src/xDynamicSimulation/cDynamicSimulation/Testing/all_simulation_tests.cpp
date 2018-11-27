@@ -402,7 +402,8 @@ void run_tests_memory_usage( void )
 {
 	bool tests_successful = true;
 
-	tests_memory::test_acquisition_memory();
+	// tests_memory::test_acquisition_memory();
+	tests_successful *= tests_memory::test_acquisition_vector_memory( );
 
 	if ( !tests_successful )
 	{
