@@ -132,7 +132,7 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-	class PETAcquisitionData : public aDataContainer < float > {
+	class PETAcquisitionData : public DataContainer {
 	public:
 		virtual ~PETAcquisitionData() {}
 
@@ -145,7 +145,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-		virtual aDataContainer<float>* new_data_container() = 0;
+		virtual DataContainer* new_data_container() = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
@@ -208,13 +208,19 @@ namespace sirf {
 
 		// data container methods
 		unsigned int items() { return 1; }
-		float norm();
-		float dot(const aDataContainer<float>& x);
-		void multiply(const aDataContainer<float>& x, const aDataContainer<float>& y);
-		void divide(const aDataContainer<float>& x, const aDataContainer<float>& y);
-		void inv(float a, const aDataContainer<float>& x);
-		void axpby(float a, const aDataContainer<float>& x,
-			float b, const aDataContainer<float>& y);
+		virtual void dot(const DataContainer& a_x, void* ptr);
+		virtual void axpby(
+			void* ptr_a, const DataContainer& a_x,
+			void* ptr_b, const DataContainer& a_y);
+		virtual float norm();
+		//virtual float dot(const DataContainer& x);
+		virtual void multiply
+			(const DataContainer& x, const DataContainer& y);
+		virtual void divide
+			(const DataContainer& x, const DataContainer& y);
+		virtual void inv(float a, const DataContainer& x);
+		//virtual void axpby(float a, const DataContainer& x,
+		//	float b, const DataContainer& y);
 
 		// ProjData methods
 		int get_num_tangential_poss()
@@ -371,10 +377,10 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual aDataContainer<float>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			init();
-			return (aDataContainer<float>*)_template->same_acquisition_data(*data());
+			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
 
 	private:
@@ -450,7 +456,7 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual aDataContainer<float>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			init();
 			return _template->same_acquisition_data(*data());
@@ -563,7 +569,26 @@ namespace sirf {
 			mutable FloatRef _ref;
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
-		STIRImageData(){}
+		STIRImageData() {}
+		STIRImageData(const ImageData& id)
+		{
+			Dimensions dim = id.dimensions();
+			int nx = dim["x"];
+			int ny = dim["y"];
+			int nz = 1;
+			Dimensions::iterator it = dim.begin();
+			while (it != dim.end()) {
+				if (it->first != "x" && it->first != "y")
+					nz *= it->second;
+				++it;
+			}
+			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
+				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
+				Coord3DF(0, 0, 0),
+				Coord3DF(3, 3, 3.375));
+			_data.reset(voxels.clone());
+			copy(id.begin(), begin(), end());
+		}
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
@@ -602,23 +627,29 @@ namespace sirf {
 		{
 			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
-		aDataContainer<float>* new_data_container()
+		DataContainer* new_data_container()
 		{
-			return (aDataContainer<float>*)same_image_data();
+			return (DataContainer*)same_image_data();
 		}
 		unsigned int items()
 		{
 			return 1;
 		}
-		float norm();
-		float dot(const aDataContainer<float>& other);
-		//void mult(float a, const aDataContainer<float>& x);
-		void multiply(const aDataContainer<float>& x,
-			const aDataContainer<float>& y);
-		void divide(const aDataContainer<float>& x,
-			const aDataContainer<float>& y);
-		void axpby(float a, const aDataContainer<float>& x,
-			float b, const aDataContainer<float>& y);
+
+		virtual void dot(const DataContainer& a_x, void* ptr);
+		virtual void axpby(
+			void* ptr_a, const DataContainer& a_x,
+			void* ptr_b, const DataContainer& a_y);
+		virtual float norm();
+		//virtual float dot(const DataContainer& other);
+		//void mult(float a, const DataContainer& x);
+		virtual void multiply(const DataContainer& x,
+			const DataContainer& y);
+		virtual void divide(const DataContainer& x,
+			const DataContainer& y);
+		//virtual void axpby(float a, const DataContainer& x,
+		//	float b, const DataContainer& y);
+
 		Image3DF& data()
 		{
 			return *_data;
@@ -646,6 +677,16 @@ namespace sirf {
 		void fill(float v)
 		{
 			_data->fill(v);
+		}
+		virtual Dimensions dimensions() const
+		{
+			Dimensions dim;
+			int d[4];
+			get_dimensions(d);
+			dim["z"] = d[0];
+			dim["y"] = d[1];
+			dim["x"] = d[2];
+			return dim;
 		}
 		int get_dimensions(int* dim) const;
 		void get_voxel_sizes(float* vsizes) const;

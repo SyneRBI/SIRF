@@ -491,9 +491,12 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image.data(), subset_num, num_subsets, zero);
 
+	float one = 1.0;
+
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
-		ad.axpby(1.0, ad, 1.0, *sptr_add_);
+		ad.axpby(&one, ad, &one, *sptr_add_);
+		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
 		std::cout << "ok\n";
 	}
 	else
@@ -510,7 +513,8 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 
 	if (sptr_background_.get()) {
 		std::cout << "background term added...";
-		ad.axpby(1.0, ad, 1.0, *sptr_background_);
+		ad.axpby(&one, ad, &one, *sptr_background_);
+		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
 		std::cout << "ok\n";
 	}
 	else
