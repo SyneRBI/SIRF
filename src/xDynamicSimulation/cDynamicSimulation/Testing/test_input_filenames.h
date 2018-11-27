@@ -16,13 +16,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-#define USE_128_CUBE_INPUT
+#define USE_64_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_64Cube_1Echo_10Dyn.h5"
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_3Echo.h5" 
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_1Echo.h5"
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_64Cube_3Echo.h5" 
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_64_cubed.h5"
 	// #define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_32x32x64.h5"
 	#define DISPLACEMENT_FIELD_PATH SHARED_FOLDER_PATH "temp_folder_motion_dyn_0/motion_field_0.hdr"
@@ -35,8 +35,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 	#define H5_XCAT_PHANTOM_PATH  SHARED_FOLDER_PATH "h5_phantom_input/xcat_phantom_128_cubed.h5"
 
-	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_10Dyn.h5"
-	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"   
+	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_SR_128Cube_1Echo_10Dyn.h5"
+	#define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_cart_128Cube_1Echo.h5"   
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_itl_golden.h5"  
 	// #define ISMRMRD_H5_TEST_PATH  SHARED_FOLDER_PATH "h5_source_files/CV_nav_128_rpe_sfl_gc_usos8.h5" 
 

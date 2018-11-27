@@ -37,3 +37,5 @@ void run_tests_noise_generator( void );
 void run_tests_dynsim_deformer( void );
 
 void run_tests_volume_orientator( void );
+
+void run_tests_memory_usage( void );

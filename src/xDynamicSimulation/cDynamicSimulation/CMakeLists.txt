@@ -40,6 +40,7 @@ set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynamics.cpp Testing/tests_dyn
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynsim_noisegenerator.cpp Testing/tests_noisegenerator.cpp)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} dynsim_deformer.cpp Testing/tests_dynsim_deformer.cpp)
 set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} volume_orientator.cpp Testing/tests_volume_orientator.cpp)
+set( SRC_FILES_TO_COMPILE ${SRC_FILES_TO_COMPILE} Testing/tests_memory_usage.cpp)
 
 
 add_library( cdynamicsimulation ${SRC_FILES_TO_COMPILE})

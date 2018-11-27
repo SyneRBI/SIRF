@@ -26,6 +26,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "tests_noisegenerator.h"
 #include "tests_dynsim_deformer.h"
 #include "tests_volume_orientator.h"
+#include "tests_memory_usage.h" 
 
 #include "all_simulation_tests.h"
 
@@ -397,3 +398,21 @@ void run_tests_volume_orientator( void )
 }
 
 
+void run_tests_memory_usage( void )
+{
+	bool tests_successful = true;
+
+	tests_memory::test_acquisition_memory();
+
+	if ( !tests_successful )
+	{
+		throw std::runtime_error( "The memory usage tests failed." );
+	}
+	else
+	{
+		std::cout<< "The memory usage tests succeeded" << std::endl;
+	}
+
+
+
+}

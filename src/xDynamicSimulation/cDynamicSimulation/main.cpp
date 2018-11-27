@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 		// run_tests_auxiliary_testing_functions();
 		// run_tests_auxiliary_input_output();
 		// run_tests_tissueparameters();
-		run_tests_contrastgenerator();
+		// run_tests_contrastgenerator();
 		// run_tests_phantom_input();
 		// run_tests_encoding();
 		// run_tests_mr_acquisition_model();
@@ -42,6 +42,7 @@ int main( int argc, char *argv[] )
 		// run_tests_noise_generator();
 		// run_tests_dynsim_deformer();
 		// run_tests_volume_orientator();
+		run_tests_memory_usage();
 		
 		return 0;
 	}
