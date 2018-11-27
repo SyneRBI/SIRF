@@ -26,13 +26,10 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
 */
-
-#include <math.h>
+#include <cmath>
 
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
-
-#include "localised_exception.h"
 
 using namespace gadgetron;
 using namespace sirf;
@@ -54,12 +51,57 @@ MRAcquisitionData::write(const char* filename)
 	for (int i = 0; i < n; i++) {
 		get_acquisition(i, a);
 		//std::cout << i << ' ' << a.idx().repetition << '\n';
-		// if (TO_BE_IGNORED(a)) {
-		// 	continue;
-		// }
+		//if (TO_BE_IGNORED(a)) {
+		//	continue;
+		//}
 		mtx.lock();
 		dataset->appendAcquisition(a);
 		mtx.unlock();
+	}
+}
+
+void
+MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
+{
+	
+	bool const verbose = true;
+
+	if( verbose )
+		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+	try
+	{
+
+		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
+
+		std::string xml;
+		d.readHeader(xml);
+		this->acqs_info_ = xml;
+
+		uint32_t num_acquis = d.getNumberOfAcquisitions();
+		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
+		{
+			if( verbose )
+			{
+				if( i_acqu%( num_acquis/10 ) == 0 )
+					std::cout << std::ceil( float(i_acqu)/num_acquis*100 )<< " % " << " done."<< std::endl;
+			}
+
+			ISMRMRD::Acquisition acq;
+			d.readAcquisition( i_acqu, acq);
+
+			if( TO_BE_IGNORED(acq) )
+				continue;
+			else
+				this->append_acquisition( acq );
+		}
+		if( verbose )
+			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+	}
+	catch( std::runtime_error& e)
+	{
+		std::cerr << "An exception was caught reading " << filename_ismrmrd_with_ext << std::endl;
+		std::cerr << e.what() <<std::endl;
+		throw;
 	}
 }
 
@@ -1285,4 +1327,3 @@ CoilSensitivitiesAsImages::CoilSensitivitiesAsImages(const char* file)
 	}
 	csm_smoothness_ = 0;
 }
-

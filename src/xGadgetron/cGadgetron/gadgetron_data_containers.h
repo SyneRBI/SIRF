@@ -42,6 +42,7 @@ limitations under the License.
 #include "gadgetron_image_wrap.h"
 #include "SIRF/common/data_container.h"
 #include "SIRF/common/multisort.h"
+#include "localised_exception.h"
 
 /*!
 \ingroup Gadgetron Data Containers
@@ -54,6 +55,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
@@ -181,12 +183,29 @@ namespace sirf {
 		const int* index() const { return index_; }
 		int index(int i)
 		{
-			if (index_ && i >= 0 && i < (int)number())
-				return index_[i];
+			if(i >= 0 && i < (int)number())
+			{
+				if (index_) 
+					return index_[i];
+				else
+					return i;
+			}
 			else
-				return i;
+			{
+				throw LocalisedException("Trying to access out of range acquisition.", __FILE__, __LINE__);
+			}
 		}
 
+    	/*! 
+    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
+      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
+      		* 
+      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
+      		* displays the message and throws it again.
+			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
+			* to exclude potentially incompatible input. 
+    	*/
+		void read( const std::string& filename_ismrmrd_with_ext );
 		void write(const char* filename);
 
 	protected:
@@ -300,11 +319,21 @@ namespace sirf {
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 				(new ISMRMRD::Acquisition(acq)));
 		}
+		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)
+		{
+			acqs_.push_back( sptr_acqu );
+		}
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
 		}
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num)
+		{
+			int ind = index(num);
+			return acqs_[ind];
+		}
+
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
 			int ind = index(num);
@@ -793,9 +822,6 @@ namespace sirf {
 		}
 
 	};
-
-
-	
 }
 
 #endif
