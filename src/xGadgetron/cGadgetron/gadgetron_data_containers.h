@@ -399,6 +399,7 @@ namespace sirf {
 			dim["z"] = d[2];
 			dim["c"] = d[3];
 			dim["n"] = number();
+			return dim;
 		}
 		virtual void get_image_dimensions(unsigned int im_num, int* dim)
 		{

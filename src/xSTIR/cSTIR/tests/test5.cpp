@@ -5,6 +5,7 @@
 
 #include "object.h"
 #include "stir_x.h"
+#include "gadgetron_data_containers.h"
 
 using namespace stir;
 using namespace ecat;
@@ -18,7 +19,7 @@ int test5()
 {
 	std::string filename;
 	int status;
-	int dim[3];
+	int dim[4];
 	size_t sinos, views, tangs;
 	float im_norm;
 
@@ -27,6 +28,7 @@ int test5()
 		std::cout << "SIRF_PATH not defined, cannot find data" << std::endl;
 		return 1;
 	}
+
 	filename = SIRF_path + "/data/examples/PET/my_forward_projection.hs";
 
 	CREATE_OBJECT(PETAcquisitionData, PETAcquisitionDataInFile,
@@ -61,7 +63,19 @@ int test5()
 	im_norm = image.norm();
 	std::cout << "image norm: " << im_norm << '\n';
 
+	std::cout << "\ntesting conversion from PET data...\n";
 	status = test_c(image);
+	if (status)
+		return status;
+
+	std::cout << "\ntesting conversion from MR data...\n";
+	GadgetronImagesVector mr_image;
+	mr_image.read(SIRF_path + "/examples/Python/MR/Gadgetron/output.h5");
+	mr_image.get_image_dimensions(0, dim);
+	int ni = mr_image.number();
+	std::cout << ni << " MR images of dimensions nx = "
+		<< dim[0] << ", ny = " << dim[1] << ", nz = " << dim[2] << ", nc = " << dim[3] << '\n';
+	status = test_c(mr_image);
 	if (status)
 		return status;
 
@@ -116,6 +130,17 @@ int test_c(const ImageData& image)
 			<< dim[0] << 'x' << dim[1] << 'x' << dim[2] << '\n';
 		im_norm = img.norm();
 		std::cout << "image norm: " << im_norm << '\n';
+	}
+	catch (...) {
+		std::cout << "exception thrown\n";
+		return 1;
+	}
+	return 0;
+}
+
+int test_d()
+{
+	try {
 	}
 	catch (...) {
 		std::cout << "exception thrown\n";
