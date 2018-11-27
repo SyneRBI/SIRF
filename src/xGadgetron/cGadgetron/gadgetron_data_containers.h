@@ -300,6 +300,10 @@ namespace sirf {
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 				(new ISMRMRD::Acquisition(acq)));
 		}
+		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)
+		{
+			acqs_.push_back( sptr_acqu );
+		}
 		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
 			int ind = index(num);
