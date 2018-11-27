@@ -42,6 +42,7 @@ limitations under the License.
 #include "gadgetron_image_wrap.h"
 #include "SIRF/common/data_container.h"
 #include "SIRF/common/multisort.h"
+#include "localised_exception.h"
 
 /*!
 \ingroup Gadgetron Data Containers
@@ -181,10 +182,17 @@ namespace sirf {
 		const int* index() const { return index_; }
 		int index(int i)
 		{
-			if (index_ && i >= 0 && i < (int)number())
-				return index_[i];
+			if(i >= 0 && i < (int)number())
+			{
+				if (index_) 
+					return index_[i];
+				else
+					return i;
+			}
 			else
-				return i;
+			{
+				throw LocalisedException("Trying to access out of range acquisition.", __FILE__, __LINE__);
+			}
 		}
 
 		void write(const char* filename);
