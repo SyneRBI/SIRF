@@ -85,7 +85,8 @@ def _int_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
     for i in range(n):
-        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
+        value += (pyiutil.intDataItemFromHandle(h, i),)
+#        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint16_pars(handle, set, par, n):
@@ -95,7 +96,8 @@ def _uint16_pars(handle, set, par, n):
     #for i in range(1, n):
     value = ()
     for i in range(n):
-        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
+        value += (pyiutil.uint16DataItemFromHandle(h, i),)
+#        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint32_pars(handle, set, par, n):
@@ -103,7 +105,8 @@ def _uint32_pars(handle, set, par, n):
     check_status(h)
     value = ()
     for i in range(n):
-        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
+        value += (pyiutil.uint32DataItemFromHandle(h, i),)
+#        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint64_pars(handle, set, par, n):
@@ -111,7 +114,8 @@ def _uint64_pars(handle, set, par, n):
     check_status(h)
     value = ()
     for i in range(n):
-        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
+        value += (pyiutil.uint64DataItemFromHandle(h, i),)
+#        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _char_par(handle, set, par):
@@ -131,7 +135,8 @@ def _float_pars(handle, set, par, n):
     check_status(h)
     value = ()
     for i in range(n):
-        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
+        value += (pyiutil.floatDataItemFromHandle(h, i),)
+#        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -259,7 +264,7 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cGT_multiply(self.handle, other.handle)
+        z.handle = pygadgetron.cGT_multiply(self.handle, other.handle)
         check_status(z.handle)
         return z
     def divide(self, other):
@@ -270,7 +275,7 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cGT_divide(self.handle, other.handle)
+        z.handle = pygadgetron.cGT_divide(self.handle, other.handle)
         check_status(z.handle)
         return z
     def __add__(self, other):
@@ -661,7 +666,7 @@ class Image:
         return _int_par(self.handle, 'image', 'attribute_string_len')
     def matrix_size(self):
         assert self.handle is not None
-        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)
+        return _uint16_pars(self.handle, 'image', 'matrix_size', 3)[::-1]
     def physiology_time_stamp(self):
         assert self.handle is not None
         return _uint32_pars(self.handle, 'image', 'physiology_time_stamp', 3)

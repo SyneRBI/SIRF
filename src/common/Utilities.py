@@ -90,7 +90,7 @@ def show_3D_array\
     Displays a 3D array as a set of z-slice tiles.
     On successful completion returns 0.
     array     : 3D array
-    index     : z-slices index (1-based), either Python list or string of the form
+    index     : z-slices index, either Python list or string of the form
               : 'a, b-c, ...', where 'b-c' is decoded as 'b, b+1, ..., c';
               : out-of-range index value causes error (non-zero) return
     tile_shape: tuple (tile_rows, tile_columns);
@@ -122,18 +122,20 @@ def show_3D_array\
     nz = array.shape[0]
     if index is None:
         n = nz
-        index = range(1, n + 1)
+        index = range(n)
+#        index = range(1, n + 1)
     else:
         if type(index) == type(' '):
             try:
                 index = str_to_int_list(index)
             except:
-                print('incorrect input')
-                return 0
+#                print('incorrect input')
+                return 1
         n = len(index)
         for k in range(n):
             z = index[k]
-            if z < 1 or z > nz:
+#            if z < 1 or z > nz:
+            if z < 0 or z >= nz:
                 return k + 1
     if tile_shape is None:
         ny = array.shape[1]
@@ -164,11 +166,12 @@ def show_3D_array\
         else:
             fig.suptitle(suptitle, fontsize = title_size)
     for k in range(n):
-        z = index[k] - 1
+        z = index[k] #- 1
         ax = fig.add_subplot(rows, cols, k + 1)
         if titles is None:
             if label is not None and nz > 1:
-                ax.set_title(label + (' %d' % (z + 1)))
+                ax.set_title(label + (' %d' % z))
+                # ax.set_title(label + (' %d' % (z + 1)))
         else:
             ax.set_title(titles[k])
         row = k//cols
@@ -179,10 +182,12 @@ def show_3D_array\
             ax.set_axis_on()
             if xlabel is not None:
                 plt.xlabel(xlabel)
-                plt.xticks([0, nx - 1], [1, nx])
+                plt.xticks([0, nx - 1], [0, nx - 1])
+#                plt.xticks([0, nx - 1], [1, nx])
             if ylabel is not None:
                 plt.ylabel(ylabel)
-                plt.yticks([0, ny - 1], [1, ny])
+                plt.yticks([0, ny - 1], [0, ny - 1])
+#                plt.yticks([0, ny - 1], [1, ny])
         if power is None:
             imgplot = ax.imshow(array[z,:,:], cmap, vmin = vmin, vmax = vmax)
         else:
