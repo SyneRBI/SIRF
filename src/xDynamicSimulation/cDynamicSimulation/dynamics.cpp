@@ -223,7 +223,7 @@ sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_n
 	return this->binned_mr_acquisitions_[bin_num];
 };
 
-void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
+void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
 {
 
 	if(this->dyn_signal_.size() == 0)
@@ -246,7 +246,6 @@ void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 		AcquisitionsVector curr_acq_vector;
 		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
 		
-		ISMRMRD::Acquisition acq;
 		acq_not_binned.clear();
 
 		while( relevant_acq_numbers.size() > 0 )	
@@ -254,9 +253,8 @@ void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 			auto curr_pos = relevant_acq_numbers[0];
 			relevant_acq_numbers.pop_front();	
 			
-			all_acquisitions.get_acquisition(curr_pos, acq);
-			
-			auto acq_hdr = acq.getHead();
+			auto sptr_acq = all_acquisitions.get_sptr_acquisition( curr_pos );
+			auto acq_hdr = sptr_acq->getHead();
 			
 			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
 			
@@ -264,7 +262,7 @@ void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector all_acquisitions )
 			
 			if( is_in_bin(signal_of_acq, bin) )
 			{
-				curr_acq_vector.append_acquisition(acq);
+				curr_acq_vector.append_sptr_acquisition(sptr_acq);
 			}
 			else
 			{
