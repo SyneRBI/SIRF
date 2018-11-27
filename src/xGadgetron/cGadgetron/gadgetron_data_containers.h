@@ -305,6 +305,12 @@ namespace sirf {
 			int ind = index(num);
 			acq = *acqs_[ind];
 		}
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num)
+		{
+			int ind = index(num);
+			return acqs_[ind];
+		}
+
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
 			int ind = index(num);
