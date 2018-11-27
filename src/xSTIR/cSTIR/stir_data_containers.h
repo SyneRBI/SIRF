@@ -585,7 +585,7 @@ namespace sirf {
 			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
 				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
 				Coord3DF(0, 0, 0),
-				Coord3DF(1, 1, 1));
+				Coord3DF(3, 3, 3.375));
 			_data.reset(voxels.clone());
 			copy(id.begin(), begin(), end());
 		}
@@ -686,6 +686,7 @@ namespace sirf {
 			dim["z"] = d[0];
 			dim["y"] = d[1];
 			dim["x"] = d[2];
+			return dim;
 		}
 		int get_dimensions(int* dim) const;
 		void get_voxel_sizes(float* vsizes) const;
