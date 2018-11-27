@@ -41,7 +41,7 @@ bool is_in_bin( SignalAxisType const signal, SignalBin const bin)
 
 
  
-AcquisitionsVector intersect_mr_acquisition_data(AcquisitionsVector one_dat, AcquisitionsVector other_dat)
+AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, AcquisitionsVector& other_dat)
 {
 
 	bool one_dat_is_smaller = ( one_dat.items() >= other_dat.items() );

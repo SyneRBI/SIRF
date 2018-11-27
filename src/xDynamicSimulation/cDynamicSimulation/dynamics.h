@@ -44,7 +44,7 @@ typedef std::vector< ISMRMRD::Image< DataTypeMotionFields > > MotionFieldContain
 bool is_in_bin( SignalAxisType const signal, SignalBin const bin);
 
 typedef sirf::AcquisitionsVector MRDataType;
-MRDataType intersect_mr_acquisition_data(MRDataType one_dat, MRDataType other_dat);
+MRDataType intersect_mr_acquisition_data( MRDataType& one_dat, MRDataType& other_dat);
 
 class aDynamic {
 
