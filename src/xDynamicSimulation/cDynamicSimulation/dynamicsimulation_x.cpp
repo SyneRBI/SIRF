@@ -404,9 +404,7 @@ void MRDynamicSimulation::acquire_raw_data( void )
 
 	for( size_t i_contrast=0; i_contrast<num_contrasts; i_contrast++)
 	{
-		ISMRMRD::Acquisition acq;
-
-		cout << "Acquisition contrast " << i_contrast << endl;
+		cout << "Acquisition of contrast " << i_contrast << endl;
 		ISMRMRD::Image<complex_float_t> curr_cont = contrast_filled_volumes[i_contrast];
 		curr_cont = vol_orientator_.reorient_image(curr_cont);
 
@@ -417,11 +415,11 @@ void MRDynamicSimulation::acquire_raw_data( void )
 		
 		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
 		{
-			this->source_acquisitions_.get_acquisition(i_acqu, acq);
-			ISMRMRD::AcquisitionHeader acq_head = acq.getHead();
+			auto sptr_acq = this->source_acquisitions_.get_sptr_acquisition(i_acqu);
+			ISMRMRD::AcquisitionHeader acq_head = sptr_acq->getHead();
 			
 			if( acq_head.idx.contrast == i_contrast )
-				acq_vec.append_acquisition( acq );
+				acq_vec.append_sptr_acquisition( sptr_acq );
 		}
 		
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
