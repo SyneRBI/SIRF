@@ -441,45 +441,43 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	
 	unsigned int const num_acq = sptr_acqs_->items(); 
 
-
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
-		ISMRMRD::Acquisition acq; 
-		sptr_acqs_->get_acquisition(i_acq, acq);
+	
+		auto sptr_curr_acq = sptr_acqs_->get_sptr_acquisition( i_acq );
 
-		unsigned int num_sampled_readout_pts = acq.number_of_samples();
+		unsigned int num_sampled_readout_pts = sptr_curr_acq->number_of_samples();
 
-		if( num_sampled_readout_pts < acq.number_of_samples() )			
-			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension.", __FILE__, __LINE__);
+		if( readout_size < num_sampled_readout_pts )			
+			throw LocalisedException("The number of samples you try to acquire is larger than the volume dimension in readout direction.", __FILE__, __LINE__);
 			
-		acq.resize(num_sampled_readout_pts, nc);
-		memset((void*)acq.getDataPtr(), 0, acq.getDataSize());
+		sptr_curr_acq->resize(num_sampled_readout_pts, nc);
+		memset((void*)sptr_curr_acq->getDataPtr(), 0, sptr_curr_acq->getDataSize());
 
-		uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
-		uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
+		uint16_t const enc_step_1 = sptr_curr_acq->getHead().idx.kspace_encode_step_1;
+		uint16_t const enc_step_2 = sptr_curr_acq->getHead().idx.kspace_encode_step_2;
 		
+		size_t const is_reverse = sptr_curr_acq->isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
 
-		size_t const is_reverse = acq.isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE)? 1: 0;
-
-		size_t const sampling_start = readout_size/2 - acq.center_sample();
+		size_t const sampling_start = readout_size/2 - sptr_curr_acq->center_sample();
 
 		for (unsigned int c = 0; c < nc; c++) {
 			for (unsigned int s = 0; s < num_sampled_readout_pts; s++) {
 				size_t const readout_access = is_reverse * (readout_size - 1 - s) + (1-is_reverse)*( s  + sampling_start );
 				size_t const sorting_in_index = is_reverse * (num_sampled_readout_pts - 1 - s) + (1-is_reverse)*( s );
 				// acq.data(s, c) = k_data(s, enc_step_2, enc_step_1, c);
-				acq.data(sorting_in_index, c) = k_data(readout_access, enc_step_2, enc_step_1, c);
+				sptr_curr_acq->data(sorting_in_index, c) = k_data(readout_access, enc_step_2, enc_step_1, c);
 
 			}
 		}
 
-		this->sptr_traj_->set_acquisition_trajectory(acq);
-		acq.idx().contrast = img.getContrast();
+		this->sptr_traj_->set_acquisition_trajectory(*sptr_curr_acq);
+		sptr_curr_acq->idx().contrast = img.getContrast();
 	
 		if( is_reverse == 1)
-			acq.clearFlag( ISMRMRD::ISMRMRD_ACQ_IS_REVERSE );
+			sptr_curr_acq->clearFlag( ISMRMRD::ISMRMRD_ACQ_IS_REVERSE );
 
-		ac.append_acquisition(acq);
+		ac.append_sptr_acquisition(sptr_curr_acq);
 
 	}
 }
