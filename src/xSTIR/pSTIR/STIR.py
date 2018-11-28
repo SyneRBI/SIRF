@@ -33,6 +33,7 @@ import sys
 import time
 
 from pUtilities import *
+from sirf import SIRF
 from sirf.SIRF import DataContainer
 import pyiutilities as pyiutil
 import pystir
@@ -223,7 +224,8 @@ class EllipticCylinder(Shape):
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
 
-class ImageData(DataContainer):
+#class ImageData(DataContainer):
+class ImageData(SIRF.ImageData):
     '''Class for PET image data objects.
 
     ImageData objects contains both geometric data and the actual voxel
@@ -249,6 +251,10 @@ class ImageData(DataContainer):
         elif isinstance(arg, AcquisitionData):
             assert arg.handle is not None
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            check_status(self.handle)
+        elif isinstance(arg, SIRF.ImageData):
+            assert arg.handle is not None
+            self.handle = pystir.cSTIR_imageFromImageData(arg.handle)
             check_status(self.handle)
         elif arg is not None:
             raise error\

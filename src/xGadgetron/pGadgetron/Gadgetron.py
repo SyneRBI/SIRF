@@ -31,6 +31,7 @@ import sys
 import time
 
 from pUtilities import *
+from sirf import SIRF
 from sirf.SIRF import DataContainer
 import pyiutilities as pyiutil
 import pygadgetron
@@ -474,7 +475,8 @@ class Image:
     def info(self, method):
         return eval('self.' + method + '()')
 
-class ImageData(DataContainer):
+#class ImageData(DataContainer):
+class ImageData(SIRF.ImageData):
     '''
     Class for an MR images container.
     Each item in the container is a 3D complex or float array of the image 

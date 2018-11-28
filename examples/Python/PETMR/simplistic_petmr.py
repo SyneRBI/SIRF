@@ -66,10 +66,7 @@ def main():
 
 # PET
     # convert MR image into PET image
-    image_arr = abs(complex_image.as_array()) # image as Python array
-    image = PET.ImageData()                   # empty PET ImageData object
-    image.initialise(image_arr.shape[::-1])   # set image shape
-    image.fill(image_arr)                     # fill image with values
+    image = PET.ImageData(complex_image)
     print(image.norm())
     print(image.dot(image))
     # apply filter that zeroes the image outside a cylinder of the same

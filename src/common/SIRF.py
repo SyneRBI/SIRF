@@ -212,3 +212,5 @@ class DataContainer(ABC):
         except:
             raise error('wrong multiplier')
 
+class ImageData(DataContainer):
+    pass
