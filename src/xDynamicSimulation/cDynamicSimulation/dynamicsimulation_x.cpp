@@ -362,7 +362,7 @@ void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilm
 	this->coilmaps_ = coilmaps;
 }
 
-void MRDynamicSimulation::set_all_source_acquisitions(MRDataContainerType acquisitions )
+void MRDynamicSimulation::set_all_source_acquisitions(MRDataType& acquisitions )
 {
 	this->all_source_acquisitions_ = acquisitions;
 	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );

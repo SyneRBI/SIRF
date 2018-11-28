@@ -65,7 +65,6 @@ protected:
 };
 
 
-typedef sirf::AcquisitionsVector MRDataContainerType;
 
 class MRDynamicSimulation : public aDynamicSimulation {
 
@@ -83,7 +82,7 @@ public:
 
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
-	void set_all_source_acquisitions(MRDataContainerType acquisitions );
+	void set_all_source_acquisitions(MRDataType& acquisitions );
 	void set_noise_width(float const sigma);
 	void set_SNR(float const SNR);
 
@@ -113,9 +112,9 @@ private:
 	ISMRMRD::IsmrmrdHeader hdr_;
 	ISMRMRD::Image< complex_float_t > coilmaps_;
 
-	MRDataContainerType all_source_acquisitions_;
-	MRDataContainerType source_acquisitions_;
-	MRDataContainerType target_acquisitions_;
+	MRDataType all_source_acquisitions_;
+	MRDataType source_acquisitions_;
+	MRDataType target_acquisitions_;
 	
 	MRContrastGenerator mr_cont_gen_;
 	sirf::MRAcquisitionModel acq_model_;
