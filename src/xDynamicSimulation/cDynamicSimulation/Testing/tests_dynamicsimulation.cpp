@@ -187,26 +187,27 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 
 
 
-		MRContrastDynamic myocardium_cont_dyn(num_simul_states_myocardium_dyn), blood_cont_dyn(num_simul_states_blood_dyn);
+		auto sptr_myocardium_cont_dyn = std::make_shared<MRContrastDynamic>(num_simul_states_myocardium_dyn);
+		auto sptr_blood_cont_dyn = std::make_shared<MRContrastDynamic>(num_simul_states_blood_dyn);
 
 		std::vector<LabelType> myocardium_dynamic_labels = {1, 3, 4};	
 		for(int i=0; i<myocardium_dynamic_labels.size(); i++)
 		{
 			std::cout << "Adding label " << myocardium_dynamic_labels[i] << " to myocardium dynamic." << std::endl;
-			myocardium_cont_dyn.add_dynamic_label(myocardium_dynamic_labels[i]);
+			sptr_myocardium_cont_dyn->add_dynamic_label(myocardium_dynamic_labels[i]);
 		}
 
 		std::vector<LabelType> blood_dynamic_labels = {5, 6, 7, 8, 36, 37};	
 		for(int i=0; i<blood_dynamic_labels.size(); i++)
 		{
 			std::cout << "Adding label " << blood_dynamic_labels[i] << " to vascular dynamic." << std::endl;
-			blood_cont_dyn.add_dynamic_label(blood_dynamic_labels[i]);
+			sptr_blood_cont_dyn->add_dynamic_label(blood_dynamic_labels[i]);
 		}
 
 
 		auto extreme_tissue_params = aux_test::get_mock_contrast_signal_extremes();
 
-		myocardium_cont_dyn.set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
+		sptr_myocardium_cont_dyn->set_parameter_extremes(extreme_tissue_params.first, extreme_tissue_params.second);
 
 		auto blood_extremes_0 = extreme_tissue_params.first;
 		auto blood_extremes_1 = extreme_tissue_params.second;
@@ -219,22 +220,22 @@ bool tests_mr_dynsim::test_simulate_contrast_dynamics( void )
 		blood_extremes_1.mr_tissue_.t1_miliseconds_ = 500;
 		blood_extremes_1.mr_tissue_.t2_miliseconds_= 100;
 
-		blood_cont_dyn.set_parameter_extremes(blood_extremes_0, blood_extremes_1);
+		sptr_blood_cont_dyn->set_parameter_extremes(blood_extremes_0, blood_extremes_1);
 
 
-		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-
+		AcquisitionsVector all_acquis; 
+		all_acquis.read(mr_dyn_sim.get_filename_rawdata());
 		SignalContainer mock_ramp_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 
-	 	myocardium_cont_dyn.set_dyn_signal( mock_ramp_signal );
-	 	blood_cont_dyn.set_dyn_signal( mock_ramp_signal );
+	 	sptr_myocardium_cont_dyn->set_dyn_signal( mock_ramp_signal );
+	 	sptr_blood_cont_dyn->set_dyn_signal( mock_ramp_signal );
 
-		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
-		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
+		sptr_myocardium_cont_dyn->bin_mr_acquisitions( all_acquis );
+		sptr_blood_cont_dyn->bin_mr_acquisitions( all_acquis );
 
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+		mr_dyn_sim.add_dynamic( sptr_myocardium_cont_dyn );
+		mr_dyn_sim.add_dynamic( sptr_blood_cont_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
@@ -277,7 +278,7 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
 		
-		size_t num_coils = 20;
+		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
@@ -303,31 +304,31 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		int const num_simul_cardiac_states = 1;
 		int const num_simul_resp_states = 1;
 		
-		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
+		auto sptr_cardiac_dyn = std::make_shared<MRMotionDynamic>(num_simul_cardiac_states);
+		// auto sptr_resp_dyn = std::make_shared<MRMotionDynamic>(num_simul_resp_states);
 
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
-		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		// SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 	
 
-		cardiac_dyn.set_dyn_signal( card_sig );
-	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );
+		sptr_cardiac_dyn->set_dyn_signal( card_sig );
+	 	sptr_cardiac_dyn->bin_mr_acquisitions( all_acquis );
 
 	 	
-	 	resp_dyn.set_dyn_signal( resp_sig );
-	 	resp_dyn.bin_mr_acquisitions( all_acquis );
-
+	 	// sptr_resp_dyn->set_dyn_signal( resp_sig );
+	 	// sptr_resp_dyn->bin_mr_acquisitions( all_acquis );
 	 			
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		// auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		cardiac_dyn.set_displacement_fields( cardiac_motion_fields, true );
-		resp_dyn.set_displacement_fields( resp_motion_fields, false );
+		sptr_cardiac_dyn->set_displacement_fields( cardiac_motion_fields, true );
+		// sptr_resp_dyn->set_displacement_fields( resp_motion_fields, false );
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_dyn) );
-		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (resp_dyn) );
+		mr_dyn_sim.add_dynamic( sptr_cardiac_dyn );
+		// mr_dyn_sim.add_dynamic( sptr_resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 		
