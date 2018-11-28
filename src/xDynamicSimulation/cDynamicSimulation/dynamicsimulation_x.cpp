@@ -22,7 +22,7 @@ using namespace sirf;
 using std::cout;
 using std::endl;
 
-void MRDynamicSimulation::write_simulation_results( std::string const filename_output_with_h5_extension ) 
+void MRDynamicSimulation::write_simulation_results( const std::string& filename_output_with_h5_extension ) 
 {	
 	try	
 	{
@@ -433,7 +433,7 @@ void MRDynamicSimulation::acquire_raw_data( void )
 	}
 }
 
-void PETDynamicSimulation::write_simulation_results( std::string const filename_output_with_extension )
+void PETDynamicSimulation::write_simulation_results( const std::string& filename_output_with_extension )
 {
 	
 	std::cout << "Writing PET rawdata ... ";
@@ -598,7 +598,7 @@ void PETDynamicSimulation::set_template_acquisition_data(void)
 	this->source_acquisitions_ = PETAcquisitionDataInFile( this->filename_rawdata_.c_str() );
 }
 
-void PETDynamicSimulation::set_template_image_data( std::string const filename_header_with_ext )
+void PETDynamicSimulation::set_template_image_data( const std::string& filename_header_with_ext )
 {
 	this->template_image_data_ = PETImageData(filename_header_with_ext);	
 }

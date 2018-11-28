@@ -53,7 +53,7 @@ public:
 	}
 
 	virtual void simulate_dynamics( void ) = 0;
-	virtual void write_simulation_results( std::string const filename_output_with_extension ) = 0;
+	virtual void write_simulation_results( const std::string& filename_output_with_extension ) = 0;
 
 	virtual void acquire_raw_data( void ) = 0;
 
@@ -75,7 +75,7 @@ public:
 		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
 		this->vol_orientator_.set_readout_direction( sirf::ro_dir_z);
 	};
-	void write_simulation_results( std::string const filename_output_with_extension );
+	void write_simulation_results( const std::string& filename_output_with_extension );
 
 	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn);
 	void add_dynamic( std::shared_ptr<MRContrastDynamic> sptr_contrast_dyn); 
@@ -93,7 +93,7 @@ public:
 	void extract_hdr_information( void );
 	void set_trajectory( std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory);
 
-	void set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps );
+	void set_coilmaps( ISMRMRD::Image< complex_float_t >& coilmaps );
 
 
 	virtual void acquire_raw_data( void );
@@ -139,7 +139,7 @@ public:
 	void simulate_dynamics( size_t const total_scan_time );
 
 	void set_template_acquisition_data( void );
-	void set_template_image_data( std::string const filename_header_with_ext );
+	void set_template_image_data( const std::string& filename_header_with_ext );
 
 	void set_output_filename_prefix( const std::string& output_filename_prefix_);
 
@@ -148,7 +148,7 @@ public:
 
 	virtual void acquire_raw_data( void );
 	void add_noise( void );
-	void write_simulation_results( std::string const filename_output_with_extension );
+	void write_simulation_results( const std::string& filename_output_with_extension );
 
 private:
 
