@@ -112,8 +112,8 @@ PETAcquisitionData::dot(const DataContainer& a_x, void* ptr)
 
 void
 PETAcquisitionData::axpby(
-void* ptr_a, const DataContainer& a_x,
-void* ptr_b, const DataContainer& a_y
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y
 )
 {
 	float a = *(float*)ptr_a;
@@ -371,8 +371,8 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr)
 
 void
 STIRImageData::axpby(
-void* ptr_a, const DataContainer& a_x,
-void* ptr_b, const DataContainer& a_y)
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y)
 {
 	float a = *(float*)ptr_a;
 	float b = *(float*)ptr_b;

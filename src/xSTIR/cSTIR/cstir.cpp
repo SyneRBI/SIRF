@@ -1077,28 +1077,31 @@ cSTIR_dot(const void* ptr_x, const void* ptr_y)
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
 		float s;
-		x.dot(y, &s);
+		//x.dot(y, &s);
+		complex_float_t z(0.0, 0.0);
+		x.dot(y, &z);
+		s = z.real();
 		return dataHandle(s);
 		//return dataHandle(x.dot(y));
 	}
 	CATCH;
 }
 
-extern "C"
-void*
-cSTIR_mult(float a, const void* ptr_x)
-{
-	try {
-		DataContainer& x =
-			objectFromHandle<DataContainer >(ptr_x);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		//sptr_z->mult(a, x);
-		float zero = 0.0;
-		sptr_z->axpby(&a, x, &zero, x);
-		return newObjectHandle<DataContainer >(sptr_z);
-	}
-	CATCH;
-}
+//extern "C"
+//void*
+//cSTIR_mult(float a, const void* ptr_x)
+//{
+//	try {
+//		DataContainer& x =
+//			objectFromHandle<DataContainer >(ptr_x);
+//		shared_ptr<DataContainer > sptr_z(x.new_data_container());
+//		//sptr_z->mult(a, x);
+//		float zero = 0.0;
+//		sptr_z->axpby(&a, x, &zero, x);
+//		return newObjectHandle<DataContainer >(sptr_z);
+//	}
+//	CATCH;
+//}
 
 //extern "C"
 //void*

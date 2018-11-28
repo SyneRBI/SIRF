@@ -158,8 +158,8 @@ namespace sirf {
 		// acquisition data algebra
 		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			void* ptr_a, const DataContainer& a_x,
-			void* ptr_b, const DataContainer& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
 
 		//virtual void axpby(
 		//	complex_float_t a, const DataContainer& a_x,
@@ -419,8 +419,8 @@ namespace sirf {
 
 		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			void* ptr_a, const DataContainer& a_x,
-			void* ptr_b, const DataContainer& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
 		//virtual void axpby(
 		//	complex_float_t a, const DataContainer& a_x,
 		//	complex_float_t b, const DataContainer& a_y);
@@ -815,8 +815,8 @@ namespace sirf {
 		//	return complex_float_t(0.0, 0.0);
 		//}
 		virtual void axpby(
-			void* ptr_a, const DataContainer& a_x,
-			void* ptr_b, const DataContainer& a_y)
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y)
 		{
 		}
 		//virtual void axpby(

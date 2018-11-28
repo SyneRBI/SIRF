@@ -71,7 +71,7 @@ def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
         prior_grad_image = prior.get_gradient(image)
 
         # update image data
-        denom = sens_image + prior_grad_image/num_subsets
+        denom = sens_image - prior_grad_image/(-num_subsets)
         update = grad_image/denom
         image = image*update
 

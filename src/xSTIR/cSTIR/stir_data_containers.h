@@ -210,8 +210,8 @@ namespace sirf {
 		unsigned int items() { return 1; }
 		virtual void dot(const DataContainer& a_x, void* ptr);
 		virtual void axpby(
-			void* ptr_a, const DataContainer& a_x,
-			void* ptr_b, const DataContainer& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
 		virtual float norm();
 		//virtual float dot(const DataContainer& x);
 		virtual void multiply
@@ -638,8 +638,8 @@ namespace sirf {
 
 		virtual void dot(const DataContainer& a_x, void* ptr);
 		virtual void axpby(
-			void* ptr_a, const DataContainer& a_x,
-			void* ptr_b, const DataContainer& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
 		virtual float norm();
 		//virtual float dot(const DataContainer& other);
 		//void mult(float a, const DataContainer& x);

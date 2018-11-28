@@ -35,6 +35,7 @@ import time
 from pUtilities import *
 import pyiutilities as pyiutil
 import pystir
+import sirf.pysirf as pysirf
 
 try:
     input = raw_input
@@ -247,7 +248,8 @@ class DataContainer(ABC):
         Returns the 2-norm of the container data viewed as a vector.
         '''
         assert self.handle is not None
-        handle = pystir.cSTIR_norm(self.handle)
+        handle = pysirf.cSIRF_norm(self.handle)
+##        handle = pystir.cSTIR_norm(self.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -259,7 +261,8 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert_validities(self, other)
-        handle = pystir.cSTIR_dot(self.handle, other.handle)
+        #handle = pystir.cSTIR_dot(self.handle, other.handle)
+        handle = pysirf.cSIRF_dot(self.handle, other.handle)
         check_status(handle)
         r = pyiutil.floatDataFromHandle(handle)
         pyiutil.deleteDataHandle(handle)
@@ -272,7 +275,8 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
+        z.handle = pysirf.cSIRF_multiply(self.handle, other.handle)
+##        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
         check_status(z.handle)
         return z
     def divide(self, other):
@@ -283,7 +287,8 @@ class DataContainer(ABC):
         '''
         assert_validities(self, other)
         z = self.same_object()
-        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
+        z.handle = pysirf.cSIRF_divide(self.handle, other.handle)
+##        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
         check_status(z.handle)
         return z
     def __add__(self, other):
@@ -295,8 +300,10 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert_validities(self, other)
+        one = numpy.asarray([1.0, 0.0], dtype = numpy.float32).ctypes.data
         z = self.same_object()
-        z.handle = pystir.cSTIR_axpby(1.0, self.handle, 1.0, other.handle)
+        z.handle = pysirf.cSIRF_axpby(one, self.handle, one, other.handle)
+##        z.handle = pystir.cSTIR_axpby(1.0, self.handle, 1.0, other.handle)
         check_status(z.handle)
         return z;
     def __sub__(self, other):
@@ -308,7 +315,10 @@ class DataContainer(ABC):
         other: DataContainer
         '''
         assert_validities(self, other)
+        pl_one = numpy.asarray([1.0, 0.0], dtype = numpy.float32).ctypes.data
+        mn_one = numpy.asarray([-1.0, 0.0], dtype = numpy.float32).ctypes.data
         z = self.same_object()
+##        z.handle = pysirf.cSIRF_axpby(pl_one, self.handle, mn_one, other.handle)
         z.handle = pystir.cSTIR_axpby(1.0, self.handle, -1.0, other.handle)
         check_status(z.handle)
         return z;

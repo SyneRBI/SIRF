@@ -325,8 +325,8 @@ MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
 
 void
 MRAcquisitionData::axpby(
-void* ptr_a, const DataContainer& a_x,
-void* ptr_b, const DataContainer& a_y)
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;
@@ -762,8 +762,8 @@ GadgetronImageData::dot(const DataContainer& dc, void* ptr)
 
 void
 GadgetronImageData::axpby(
-void* ptr_a, const DataContainer& a_x,
-void* ptr_b, const DataContainer& a_y)
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y)
 {
 	complex_float_t a = *(complex_float_t*)ptr_a;
 	complex_float_t b = *(complex_float_t*)ptr_b;

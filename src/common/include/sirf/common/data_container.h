@@ -21,6 +21,8 @@ limitations under the License.
 #ifndef SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 #define SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 
+#include <map>
+
 /*
 \ingroup Data Container
 \brief Abstract data container.
@@ -47,8 +49,8 @@ namespace sirf {
 		virtual void divide
 		(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void axpby(
-			void* ptr_a, const DataContainer& x,
-			void* ptr_b, const DataContainer& y) = 0;
+			const void* ptr_a, const DataContainer& x,
+			const void* ptr_b, const DataContainer& y) = 0;
 	};
 }
 
