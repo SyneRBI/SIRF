@@ -140,6 +140,10 @@ namespace sirf {
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
+		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)=0;
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num)=0;
+
+
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
 
 		// 'export' constructors: workaround for creating 'ABC' objects
@@ -267,6 +271,10 @@ namespace sirf {
 			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
+
+		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
+
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
 			same_acquisitions_container(AcquisitionsInfo info)
