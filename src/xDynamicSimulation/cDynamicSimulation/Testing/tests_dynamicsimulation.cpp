@@ -305,10 +305,12 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		
 		MRMotionDynamic cardiac_dyn(num_simul_cardiac_states), resp_dyn(num_simul_resp_states);
 
-		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
-
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
 		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+
+		AcquisitionsVector all_acquis;
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
+	
 
 		cardiac_dyn.set_dyn_signal( card_sig );
 	 	cardiac_dyn.bin_mr_acquisitions( all_acquis );

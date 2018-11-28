@@ -16,7 +16,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #define SHARED_FOLDER_PATH "/media/sf_SharedFolder/CCPPETMR/"
 #define ANALYZE_OUTPUT_TESTPATH SHARED_FOLDER_PATH "analyze_test_output"
 
-#define USE_128_CUBE_INPUT
+#define USE_208_CUBE_INPUT
 
 #ifdef USE_64_CUBE_INPUT
 
