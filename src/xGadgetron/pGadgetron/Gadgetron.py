@@ -2,22 +2,22 @@
 Object-Oriented wrap for the cGadgetron-to-Python interface pygadgetron.py
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+#
+# This is software developed for the Collaborative Computational
+# Project in Positron Emission Tomography and Magnetic Resonance imaging
+# (http://www.ccppetmr.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import abc
 import numpy
@@ -29,16 +29,12 @@ except:
     HAVE_PYLAB = False
 import sys
 import time
-##try:
-##    from ismrmrdtools import coils
-##    HAVE_ISMRMRDTOOLS = True
-##except:
-##    print('ismrmrd-python-tools not installed')
-##    HAVE_ISMRMRDTOOLS = False
 
 from pUtilities import *
+from sirf.SIRF import DataContainer
 import pyiutilities as pyiutil
 import pygadgetron
+import sirf.pysirf as pysirf
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
     ABC = abc.ABC
@@ -86,18 +82,14 @@ def _int_pars(handle, set, par, n):
     check_status(h)
     for i in range(n):
         value += (pyiutil.intDataItemFromHandle(h, i),)
-#        value += (pyiutil.intDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint16_pars(handle, set, par, n):
     h = pygadgetron.cGT_parameter(handle, set, par)
     check_status(h)
-    #value = (pyiutil.uint16DataItemFromHandle(h, 0),)
-    #for i in range(1, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint16DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint16DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint32_pars(handle, set, par, n):
@@ -106,7 +98,6 @@ def _uint32_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint32DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint32DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _uint64_pars(handle, set, par, n):
@@ -115,7 +106,6 @@ def _uint64_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.uint64DataItemFromHandle(h, i),)
-#        value += (pyiutil.uint64DataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _char_par(handle, set, par):
@@ -136,7 +126,6 @@ def _float_pars(handle, set, par, n):
     value = ()
     for i in range(n):
         value += (pyiutil.floatDataItemFromHandle(h, i),)
-#        value += (pyiutil.floatDataItemFromHandle(h, n - 1 - i),)
     pyiutil.deleteDataHandle(h)
     return value
 def _parameterHandle(hs, set, par):
@@ -204,182 +193,6 @@ def raw_data_path():
 ##        handle = pygadgetron.cGT_sendImages(self.handle, img.handle)
 ##        check_status(handle)
 ##        pyiutil.deleteDataHandle(handle)
-
-# base class for complex data container classes
-class DataContainer(ABC):
-    '''
-    Class for an abstract data container.
-    '''
-    def __init__(self):
-        self.handle = None
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
-    def same_object(self):
-        '''
-        Returns an object of the same type as self.
-        '''
-        pass
-    def number(self):
-        '''
-        Returns the number of items in the container.
-        '''
-        assert self.handle is not None
-        handle = pygadgetron.cGT_dataItems(self.handle)
-        check_status(handle)
-        n = pyiutil.intDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return n
-    def norm(self):
-        '''
-        Returns the 2-norm of the container data viewed as a vector.
-        '''
-        assert self.handle is not None
-        handle = pygadgetron.cGT_norm(self.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r;
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        handle = pygadgetron.cGT_dot(self.handle, other.handle)
-        check_status(handle)
-        re = pyiutil.floatReDataFromHandle(handle)
-        im = pyiutil.floatImDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return complex(re, im)
-    def multiply(self, other):
-        '''
-        Returns the elementwise product of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_multiply(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def divide(self, other):
-        '''
-        Returns the elementwise ratio of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_divide(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def __add__(self, other):
-        '''
-        Overloads + for data containers.
-        Returns the sum of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (1.0, 0.0, self.handle, 1.0, 0.0, other.handle)
-        return z;
-    def __sub__(self, other):
-        '''
-        Overloads - for data containers.
-        Returns the difference of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (1.0, 0.0, self.handle, -1.0, 0.0, other.handle)
-        return z;
-    def __mul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container. Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.multiply(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __rmul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar from
-        the left, i.e. computes and returns the product other*self.
-        other: a real or complex scalar
-        '''
-        assert self.handle is not None
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __truediv__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container. Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.divide(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(complex(0,0)):
-            other = 1/other
-            z.handle = pygadgetron.cGT_axpby\
-                (other.real, other.imag, self.handle, 0, 0, self.handle)
-            return z;
-        elif type(other) == type(0.0):
-            z.handle = pygadgetron.cGT_axpby\
-                (1/other, 0, self.handle, 0, 0, self.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-
-    @staticmethod
-    def axpby(a, x, b, y):
-        '''
-        Returns a linear combination a*x + b*y of two containers x and y.
-        a and b: complex scalars
-        x and y: DataContainers
-        '''
-        assert_validities(x, y)
-        z = x.same_object()
-        z.handle = pygadgetron.cGT_axpby\
-            (a.real, a.imag, x.handle, b.real, b.imag, y.handle)
-        return z;
 
 class CoilImageData(DataContainer):
     '''

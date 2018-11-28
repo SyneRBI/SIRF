@@ -32,6 +32,19 @@ using namespace sirf;
 
 extern "C"
 void*
+cSIRF_dataItems(const void* ptr_x)
+{
+	try {
+		CAST_PTR(DataHandle, h_x, ptr_x);
+		DataContainer& x =
+			objectFromHandle<DataContainer >(h_x);
+		return dataHandle(x.items());
+	}
+	CATCH;
+}
+
+extern "C"
+void*
 cSIRF_norm(const void* ptr_x)
 {
 	try {
@@ -72,9 +85,6 @@ const void* ptr_b, const void* ptr_y
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
 		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		float a = *(float*)ptr_a;
-		float b = *(float*)ptr_b;
-		std::cout << a << ' ' << b << '\n';
 		sptr_z->axpby(ptr_a, x, ptr_b, y);
 		return newObjectHandle<DataContainer >(sptr_z);
 	}

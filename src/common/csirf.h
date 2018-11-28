@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 // Data container methods
+void* cSIRF_dataItems(const void* ptr_x);
 void* cSIRF_norm(const void* ptr_x);
 void*	cSIRF_dot(const void* ptr_x, const void* ptr_y);
 void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
