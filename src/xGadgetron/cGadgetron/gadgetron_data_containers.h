@@ -55,6 +55,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
@@ -139,10 +140,6 @@ namespace sirf {
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
-		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)=0;
-		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num)=0;
-
-
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
 
 		// 'export' constructors: workaround for creating 'ABC' objects
@@ -199,6 +196,16 @@ namespace sirf {
 			}
 		}
 
+    	/*! 
+    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
+      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
+      		* 
+      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
+      		* displays the message and throws it again.
+			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
+			* to exclude potentially incompatible input. 
+    	*/
+		void read( const std::string& filename_ismrmrd_with_ext );
 		void write(const char* filename);
 
 	protected:
@@ -260,10 +267,6 @@ namespace sirf {
 			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
-
-		virtual void append_sptr_acquisition( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
-		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_sptr_acquisition(unsigned int num){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
-
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
 			same_acquisitions_container(AcquisitionsInfo info)
