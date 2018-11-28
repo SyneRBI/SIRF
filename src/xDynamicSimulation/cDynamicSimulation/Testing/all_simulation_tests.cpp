@@ -112,7 +112,7 @@ void run_tests_dynamic_simulation( void )
 	// tests_mr_dynsim::test_extract_hdr_information();
 	// tests_successful *= tests_mr_dynsim::test_simulate_contrast_dynamics( );
 	// tests_successful *= tests_mr_dynsim::test_simulate_motion_dynamics();
-	// tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
+	tests_successful *= tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics();
 
 	// tests_successful *= tests_mr_dynsim::test_simulate_rpe_acquisition();
 
@@ -121,7 +121,7 @@ void run_tests_dynamic_simulation( void )
 	// tests_successful *= test_pet_dynsim::set_template_acquisition_data();
 	// tests_successful *= test_pet_dynsim::test_simulate_statics();
 	// tests_successful *= test_pet_dynsim::test_simulate_motion_dynamics();
-	tests_successful *= test_pet_dynsim::get_ground_truth_motion_fields();
+	// tests_successful *= test_pet_dynsim::get_ground_truth_motion_fields();
 
 
 	if ( !tests_successful )

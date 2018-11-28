@@ -374,12 +374,13 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		float const test_SNR = 150;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
-		int const num_simul_motion_dyn = 1;
+		int const num_simul_motion_dyn = 3;
 
 		
 		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
-		AcquisitionsVector all_acquis = mr_io::read_ismrmrd_acquisitions( mr_dyn_sim.get_filename_rawdata() );
+		AcquisitionsVector all_acquis;
+		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
 
 
@@ -402,14 +403,14 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		respiratory_motion_dyn.set_displacement_fields( motion_fields, false );
 
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
+		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (cardiac_motion_dyn ));
 		mr_dyn_sim.add_dynamic( std::make_shared<MRMotionDynamic> (respiratory_motion_dyn ));
 
 
 		// SETTING UP CONRAST DYNAMICS ########################################################################
 
-		int const num_simul_states_myocardium_contrast_dyn = 1;
-		int const num_simul_states_blood_contrast_dyn = 1;
+		int const num_simul_states_myocardium_contrast_dyn = 3;
+		int const num_simul_states_blood_contrast_dyn = 3;
 
 
 
@@ -455,8 +456,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
 
