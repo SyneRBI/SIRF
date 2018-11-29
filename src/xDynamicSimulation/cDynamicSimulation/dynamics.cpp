@@ -335,7 +335,7 @@ MotionDynamic::MotionDynamic(int const num_simul_states) : aDynamic()
 MotionDynamic::~MotionDynamic()
 { 
 	// if( this->destroy_upon_deletion_)
-	// 	this->delete_temp_folder();
+	// this->delete_temp_folder();
 
 	this->num_total_motion_dynamics_ -= 1; 
 }
@@ -346,7 +346,7 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	if (signal > 1.f || signal< 0.f)
 		throw std::runtime_error("Please pass a signal in the range of [0,1].");
 
-	if( this->sirf_displacement_fields_.size() == 0)
+	if( this->temp_mvf_filenames_.size() == 0)
 		throw std::runtime_error("Please use prep_displacements_fields() before calling get_interpolated_displacement_field");
 	
 
@@ -369,8 +369,16 @@ SIRFImageDataDeformation MotionDynamic::get_interpolated_displacement_field(Sign
 	  /// Constructor
     SIRFRegImageWeightedMean4D dvf_interpolator;
     
-    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
-    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_ceil], linear_interpolation_weight);
+    if(keep_motion_fields_in_memory_)
+	{
+	    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_floor], 1 - linear_interpolation_weight);
+	    dvf_interpolator.add_image( this->sirf_displacement_fields_[bin_ceil], linear_interpolation_weight);
+	}
+	else 
+	{
+		dvf_interpolator.add_image( temp_mvf_filenames_[bin_floor], 1 - linear_interpolation_weight);
+	    dvf_interpolator.add_image( temp_mvf_filenames_[bin_ceil], linear_interpolation_weight);
+	} 
 
     dvf_interpolator.update();
     
@@ -486,8 +494,11 @@ void MotionDynamic::set_displacement_fields( ISMRMRD::NDArray< DataTypeMotionFie
 
 void MotionDynamic::prep_displacements_fields()
 {
+
 	if(this->displacment_fields_.size() == 0)
 		throw std::runtime_error("Please call set_displacements_fields() first.");
+
+	std::cout << "Preparing displacment fields ... " <<std::endl;
 
 	bool const temp_folder_creation_successful = this->make_temp_folder();
 
@@ -510,13 +521,18 @@ void MotionDynamic::prep_displacements_fields()
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
 
-	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
+	if( keep_motion_fields_in_memory_ )
 	{
-		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
-		this->sirf_displacement_fields_.push_back( temp_deformation );
+		for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
+		{
+			SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
+			this->sirf_displacement_fields_.push_back( temp_deformation );
+		}
+
+		this->delete_temp_folder();
 	}
 
-	this->delete_temp_folder();
+	std::cout << "... finished." <<std::endl;
 }
 
 
@@ -733,6 +749,8 @@ void PETMotionDynamic::prep_displacements_fields( void )
 	if(this->displacment_fields_.size() == 0)
 		throw std::runtime_error("Please call set_displacements_fields() first.");
 
+	std::cout << "Preparing PET displacement fields..." <<std::endl;
+
 	bool const temp_folder_creation_successful = this->make_temp_folder();
 
 	if( temp_folder_creation_successful )
@@ -761,6 +779,7 @@ void PETMotionDynamic::prep_displacements_fields( void )
 	}
 
 	this->delete_temp_folder();
+	std::cout << "... finished." <<std::endl;
 }
 
 void PETMotionDynamic::align_motion_fields_with_image( const sirf::PETImageData& img )

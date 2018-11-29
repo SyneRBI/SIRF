@@ -27,7 +27,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 
 using namespace sirf;
-
+using namespace ISMRMRD;
 
 
 bool test_lin_combi_gen::test_get_all_combinations( void )
@@ -301,14 +301,14 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 1;
-		int const num_simul_resp_states = 1;
+		int const num_simul_cardiac_states = 3;
+		int const num_simul_resp_states = 3;
 		
 		auto sptr_cardiac_dyn = std::make_shared<MRMotionDynamic>(num_simul_cardiac_states);
-		// auto sptr_resp_dyn = std::make_shared<MRMotionDynamic>(num_simul_resp_states);
+		auto sptr_resp_dyn = std::make_shared<MRMotionDynamic>(num_simul_resp_states);
 
 		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
-		// SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
@@ -317,22 +317,20 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		sptr_cardiac_dyn->set_dyn_signal( card_sig );
 	 	sptr_cardiac_dyn->bin_mr_acquisitions( all_acquis );
 
-	 	
-	 	// sptr_resp_dyn->set_dyn_signal( resp_sig );
-	 	// sptr_resp_dyn->bin_mr_acquisitions( all_acquis );
+	 	sptr_resp_dyn->set_dyn_signal( resp_sig );
+	 	sptr_resp_dyn->bin_mr_acquisitions( all_acquis );
 	 			
 		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		// auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
 		sptr_cardiac_dyn->set_displacement_fields( cardiac_motion_fields, true );
-		// sptr_resp_dyn->set_displacement_fields( resp_motion_fields, false );
+		sptr_resp_dyn->set_displacement_fields( resp_motion_fields, false );
 
 		mr_dyn_sim.add_dynamic( sptr_cardiac_dyn );
-		// mr_dyn_sim.add_dynamic( sptr_resp_dyn );
+		mr_dyn_sim.add_dynamic( sptr_resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
-		
-		
+				
 		mr_dyn_sim.simulate_dynamics();
 		
 		t = clock() - t;

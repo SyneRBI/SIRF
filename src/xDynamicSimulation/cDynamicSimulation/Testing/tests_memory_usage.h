@@ -25,4 +25,6 @@ namespace tests_memory{
 bool test_acquisition_memory( void );
 bool test_acquisition_vector_memory( void );
 
+bool test_ndarray_memory_managment( void );
+
 }

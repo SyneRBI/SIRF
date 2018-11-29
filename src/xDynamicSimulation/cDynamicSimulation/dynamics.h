@@ -256,6 +256,9 @@ public:
 
 	void align_motion_fields_with_image( const sirf::PETImageData& img);
 	void prep_displacements_fields( void );
+private:
+	bool const keep_motion_fields_in_memory_ = true;
+
 };
 
 class PETContrastDynamic: public aPETDynamic, public ContrastDynamic {

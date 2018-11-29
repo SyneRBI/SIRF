@@ -405,7 +405,8 @@ void run_tests_memory_usage( void )
 	bool tests_successful = true;
 
 	// tests_memory::test_acquisition_memory();
-	tests_successful *= tests_memory::test_acquisition_vector_memory( );
+	// tests_successful *= tests_memory::test_acquisition_vector_memory();
+	tests_successful *= tests_memory::test_ndarray_memory_managment();
 
 	if ( !tests_successful )
 	{

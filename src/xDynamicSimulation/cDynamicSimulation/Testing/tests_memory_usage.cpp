@@ -100,3 +100,38 @@ bool tests_memory::test_acquisition_vector_memory( void )
 }
 
 
+bool tests_memory::test_ndarray_memory_managment( void )
+{
+	try
+	{
+		size_t const vol_dim_1D = 5000;
+		std::vector< size_t > volume_dims{vol_dim_1D,vol_dim_1D,vol_dim_1D};
+
+		std::vector< size_t > empty_dims{0};
+
+		clock_t endwait;
+		endwait = clock () + seconds * CLK_TCK ;
+		while (clock() < endwait) {}
+
+		int const num_iter = 100;
+
+		for( int i=0; i<num_iter; i++)
+		{
+			std::cout << "iteration # " << i <<std::endl;
+			ISMRMRD::NDArray< double > temp_arr(volume_dims);
+			temp_arr.resize( empty_dims );
+
+		}
+				    
+
+
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}

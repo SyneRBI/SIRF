@@ -18,6 +18,8 @@ ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::s
 {
 	std::string const name_dataset = "segmentation";
 
+	std::cout << "Reading dataset /" << name_dataset <<std::endl;
+
 	H5T_class_t type_input = H5T_INTEGER;
 	PredType type_reader = PredType::NATIVE_UINT32;
 
@@ -28,6 +30,8 @@ ISMRMRD::NDArray< DataTypeSegmentation > read_segmentation_from_h5( const std::s
 ISMRMRD::NDArray< DataTypeMotionFields > read_motionfield_from_h5( const std::string& h5_filename_with_suffix, const std::string& name_motion_field_dataset )
 {
 	std::string const name_dataset =  "/motionfields/" + name_motion_field_dataset;
+
+	std::cout << "Reading dataset /" << name_dataset <<std::endl;
 
 	H5T_class_t type_input = H5T_FLOAT;
 	PredType type_reader = PredType::NATIVE_FLOAT;
