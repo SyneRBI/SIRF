@@ -73,9 +73,7 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 
 		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
 
-		std::string xml;
-		d.readHeader(xml);
-		this->acqs_info_ = xml;
+		d.readHeader(this->acqs_info_);
 
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
