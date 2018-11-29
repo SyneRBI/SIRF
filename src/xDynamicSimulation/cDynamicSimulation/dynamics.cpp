@@ -503,11 +503,9 @@ void MotionDynamic::prep_displacements_fields()
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
 
-		if( this-> keep_motion_fields_in_memory_ == false)
-		{
-			MotionFieldContainer empty_container;
-			this->displacment_fields_.swap(empty_container); 
-		}
+		MotionFieldContainer empty_container;
+		this->displacment_fields_.swap(empty_container); 
+
 	}
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
@@ -541,8 +539,9 @@ void MRMotionDynamic::prep_displacements_fields()
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
 
-		if( this-> keep_motion_fields_in_memory_ == false)
-			this->displacment_fields_ = MotionFieldContainer();
+		MotionFieldContainer empty_container;
+		this->displacment_fields_.swap(empty_container); 
+
 	}
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
@@ -778,8 +777,9 @@ void PETMotionDynamic::prep_displacements_fields( void )
 			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
 		}
 
-		if( this-> keep_motion_fields_in_memory_ == false)
-			this->displacment_fields_ = MotionFieldContainer();
+		MotionFieldContainer empty_container;
+		this->displacment_fields_.swap(empty_container); 
+
 	}
 	else
 		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
