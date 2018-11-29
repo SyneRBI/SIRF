@@ -35,9 +35,6 @@ limitations under the License.
 #include <cmath>
 #include <string>
 
-#include <boost/thread/mutex.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 #include <ismrmrd/meta.h>

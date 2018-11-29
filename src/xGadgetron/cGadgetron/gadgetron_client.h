@@ -30,23 +30,20 @@ limitations under the License.
 #ifndef GADGETRON_CLIENT
 #define GADGETRON_CLIENT
 
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
-
-//using boost::asio::ip::tcp;
-
-#include <ismrmrd/dataset.h>
-#include <ismrmrd/ismrmrd.h>
-#include <ismrmrd/meta.h>
-
 #include <chrono>
 #include <condition_variable>
 #include <exception>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <thread>
+
+#include <boost/asio.hpp>
+#include <boost/thread/thread.hpp>
+
+#include <ismrmrd/dataset.h>
+#include <ismrmrd/ismrmrd.h>
+#include <ismrmrd/meta.h>
 
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"

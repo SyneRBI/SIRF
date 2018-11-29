@@ -34,7 +34,6 @@ limitations under the License.
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/range/const_iterator.hpp>
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>

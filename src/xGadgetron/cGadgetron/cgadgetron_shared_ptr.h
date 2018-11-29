@@ -21,7 +21,8 @@ limitations under the License.
 #ifndef CGADGETRON_SHARED_PTR
 #define CGADGETRON_SHARED_PTR
 
-#include "boost/shared_ptr.hpp"
+//#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "data_handle.h"
 

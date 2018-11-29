@@ -19,17 +19,9 @@ limitations under the License.
 */
 
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <string>
-
-#include <boost/filesystem/operations.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
-
-using boost::asio::ip::tcp;
 
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
@@ -92,6 +84,17 @@ fileNotFound(const char* name, const char* file, int line)
 	ExecutionStatus status(error.c_str(), file, line);
 	handle->set(0, &status);
 	return (void*)handle;
+}
+
+bool file_exists(std::string filename)
+{
+	std::ifstream file;
+	file.open(filename.c_str());
+	if (file.good()) {
+		file.close();
+		return true;
+	}
+	return false;
 }
 
 extern "C"
@@ -483,7 +486,8 @@ extern "C"
 void*
 cGT_ISMRMRDAcquisitionsFromFile(const char* file)
 {
-	if (!boost::filesystem::exists(file))
+	//if (!boost::filesystem::exists(file))
+	if (!file_exists(file))
 		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		shared_ptr<MRAcquisitionData> 
@@ -789,6 +793,8 @@ extern "C"
 void*
 cGT_readImages(const char* file)
 {
+	if (!file_exists(file))
+		return fileNotFound(file, __FILE__, __LINE__);
 	try {
 		shared_ptr<GadgetronImageData> sptr_img(new GadgetronImagesVector);
 		sptr_img->read(file);
