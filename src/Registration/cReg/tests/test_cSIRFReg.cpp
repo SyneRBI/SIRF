@@ -660,7 +660,7 @@ int main(int argc, char* argv[])
         // TODO This isn't working on my machine. But it's not working with NiftyReg executables either, so I don't think it's my code
         // i.e., reg_aladin != reg_resample when reg_resample uses the transformation matrix from reg_aladin
         /*if (NA.get_output() != nr1.get_output())
-            throw std::runtime_error("SIRFRegMisc::compose_transformations_into_single_deformation failed.");*/
+            throw std::runtime_error("compose_transformations_into_single_deformation failed.");*/
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty resample test.\n";

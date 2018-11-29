@@ -29,7 +29,6 @@ limitations under the License.
 
 #include "NiftiImageData3D.h"
 #include "SIRFRegAffineTransformation.h"
-#include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
 #include "stir_data_containers.h"

@@ -34,6 +34,8 @@ limitations under the License.
 #include <_reg_maths.h>
 
 namespace sirf {
+
+// Forward declarations
 class NiftiImageData3D;
 
 /// SIRF image data

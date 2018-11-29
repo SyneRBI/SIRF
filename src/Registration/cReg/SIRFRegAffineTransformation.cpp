@@ -31,6 +31,7 @@ limitations under the License.
 #include "NiftiImageData3DDeformation.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
+#include "SIRFRegMisc.h"
 
 using namespace sirf;
 
@@ -190,7 +191,7 @@ void SIRFRegAffineTransformation::save_to_file(const std::string &filename) cons
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
     // If the folder doesn't exist, create it
-    SIRFRegMisc::check_folder_exists(filename);
+    sirf::check_folder_exists(filename);
 
     FILE *file;
     file=fopen(filename.c_str(), "w");

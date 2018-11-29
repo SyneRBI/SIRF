@@ -29,6 +29,8 @@ limitations under the License.
 #ifndef _SIRFREGAFFINETRANSFORMATION_H_
 #define _SIRFREGAFFINETRANSFORMATION_H_
 
+#include <vector>
+#include <nifti1_io.h>
 #include "SIRFRegTransformation.h"
 
 namespace sirf {

@@ -29,9 +29,12 @@ limitations under the License.
 #ifndef _SIRFREGTRANSFORMATION_H
 #define _SIRFREGTRANSFORMATION_H
 
-#include "SIRFRegMisc.h"
-
 namespace sirf {
+
+// Forward declarations
+class NiftiImageData3D;
+class NiftiImageData3DDeformation;
+
 /// Abstract base class for SIRFReg transformations
 class SIRFRegTransformation
 {

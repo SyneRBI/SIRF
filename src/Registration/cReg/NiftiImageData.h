@@ -35,6 +35,8 @@ limitations under the License.
 #include <string>
 #include <memory>
 #include <iostream>
+#include <boost/filesystem.hpp>
+#include <sstream>
 
 namespace sirf {
 
@@ -141,7 +143,7 @@ public:
     void print_header() const;
 
     /// Print multiple header info
-    static void print_headers(const std::vector<sirf::NiftiImageData> &ims);
+    static void print_headers(const std::vector<NiftiImageData> &ims);
 
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
@@ -163,6 +165,28 @@ public:
 
     /// Images are same size
     bool is_same_size(const NiftiImageData &im) const;
+
+    /// Do nifti image metadatas match?
+    static bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2);
+
+    /// Do nifti image metadata elements match?
+    template<typename T>
+    static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2);
+
+    /// Do nifti image metadata elements match?
+    static bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
+
+    /// Dump info of multiple nifti images
+    static void dump_headers(const std::vector<NiftiImageData> &ims);
+
+    /// Dump nifti element
+    template<typename T>
+    static void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back);
+
+    /// Dump nifti element
+    template<typename T>
+    static void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+
 
 protected:
 
@@ -191,10 +215,74 @@ protected:
     /// Add, subract, multiply value to image
     NiftiImageData maths(const float val, const MathsType type) const;
 
+    /// Open nifti image
+    static void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename);
+
+    /// Save nifti image. image is not const because filename gets set during the process.
+    static void save_nifti_image(NiftiImageData &image, const std::string &filename);
+
+    /// Copy nifti image
+    static void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
+
 private:
 
-    /// Change image datatype with int
+    /// Change image datatype with int. Values can be found in nifti1.h (e.g., #define DT_BINARY 1)
     void change_datatype(const int datatype);
+
+    /// Change datatype. Templated for desired type. Figures out what current type is then calls doubley templated function below.
+    template<typename newType>
+    static void change_datatype(NiftiImageData &im);
+
+    /// Convert type (performs deep copy)
+    template<typename newType, typename oldType>
+    static void change_datatype(NiftiImageData &image)
+    {
+        // If the two types are equal, nothing to be done.
+        if (typeid (newType) == typeid(oldType))
+            return;
+
+        nifti_image *im = image.get_raw_nifti_sptr().get();
+
+        // Copy the original array
+        oldType *originalArray = static_cast<oldType*>(malloc(im->nvox*im->nbyper));
+        memcpy(originalArray, im->data, im->nvox*im->nbyper);
+        // Reset image array
+        free(im->data);
+
+        // Set the datatype
+        if      (typeid(newType) == typeid(bool))               im->datatype = DT_BINARY;
+        else if (typeid(newType) == typeid(signed char))        im->datatype = DT_INT8;
+        else if (typeid(newType) == typeid(signed short))       im->datatype = DT_INT16;
+        else if (typeid(newType) == typeid(signed int))         im->datatype = DT_INT32;
+        else if (typeid(newType) == typeid(float))              im->datatype = DT_FLOAT32;
+        else if (typeid(newType) == typeid(double))             im->datatype = DT_FLOAT64;
+        else if (typeid(newType) == typeid(unsigned char))      im->datatype = DT_UINT8;
+        else if (typeid(newType) == typeid(unsigned short))     im->datatype = DT_UINT16;
+        else if (typeid(newType) == typeid(unsigned int))       im->datatype = DT_UINT32;
+        else if (typeid(newType) == typeid(signed long long))   im->datatype = DT_INT64;
+        else if (typeid(newType) == typeid(unsigned long long)) im->datatype = DT_UINT64;
+        else if (typeid(newType) == typeid(long double))        im->datatype = DT_FLOAT128;
+        else {
+            std::stringstream ss;
+            ss << "change_datatype not implemented for your new data type: ";
+            ss << typeid (newType).name();
+            ss << " (bytes per voxel: ";
+            ss << sizeof(newType) << ").";
+            throw std::runtime_error(ss.str());
+        }
+
+        // Set the nbyper and swap size from the datatype
+        nifti_datatype_sizes(im->datatype, &im->nbyper, &im->swapsize);
+
+        // Copy data
+        im->data = static_cast<void*>(calloc(im->nvox,sizeof(newType)));
+        newType *dataPtr = static_cast<newType*>(im->data);
+        for (size_t i = 0; i < im->nvox; i++)
+           dataPtr[i] = newType(originalArray[i]);
+
+        free(originalArray);
+        return;
+    }
 };
 }
 

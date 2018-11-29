@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFRegImageWeightedMean.h"
-#include "SIRFRegMisc.h"
 #include <boost/filesystem.hpp>
 #include <iostream>
 
@@ -89,7 +88,7 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!SIRFRegMisc::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
+            if (!NiftiImageData::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
                 throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
         }
     }

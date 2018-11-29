@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFRegNiftyAladinSym.h"
-#include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
 #include <_reg_localTrans.h>
 #include <_reg_tools.h>

@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "NiftiImageData3DTensor.h"
-#include "SIRFRegMisc.h"
+#include "NiftiImageData3D.h"
 #include <boost/format.hpp>
 
 using namespace sirf;
@@ -39,9 +39,9 @@ NiftiImageData3DTensor::NiftiImageData3DTensor(const NiftiImageData3D &x, const 
     if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
 
-    if (!SIRFRegMisc::do_nifti_image_metadata_match(x,y))
+    if (!NiftiImageData::do_nifti_image_metadata_match(x,y))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and y components don't match.");
-    if (!SIRFRegMisc::do_nifti_image_metadata_match(x,z))
+    if (!NiftiImageData::do_nifti_image_metadata_match(x,z))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and z components don't match.");
 
     // Create a 4D from one of the components

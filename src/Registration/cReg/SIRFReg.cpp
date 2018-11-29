@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFReg.h"
-#include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <fstream>
 #include <iostream>

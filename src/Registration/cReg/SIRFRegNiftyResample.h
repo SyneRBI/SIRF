@@ -38,12 +38,16 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include <vector>
 #include <iostream>
 #include <boost/filesystem.hpp>
-#include "SIRFRegMisc.h"
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
 #include "SIRFRegTransformation.h"
 
 namespace sirf {
+
+// Forward declarations
+class SIRFRegAffineTransformation;
+class NiftiImageData3DDisplacement;
+
 /// Wrapper around NiftyReg's resample class
 class SIRFRegNiftyResample
 {

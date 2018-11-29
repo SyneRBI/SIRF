@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFRegNiftyResample.h"
-#include "SIRFRegMisc.h"
 #include "NiftiImageData3DTensor.h"
 #include "NiftiImageData3DDeformation.h"
 #include "NiftiImageData3DDisplacement.h"

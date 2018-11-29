@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFRegNiftyF3dSym.h"
-#include "SIRFRegMisc.h"
 #include "SIRFRegParser.h"
 #include "NiftiImageData3DTensor.h"
 #include <_reg_f3d_sym.h>

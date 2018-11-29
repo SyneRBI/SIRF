@@ -35,7 +35,10 @@ limitations under the License.
 #include <_reg_maths.h>
 
 namespace sirf {
+
+// Forward declarations
 class NiftiImageData3D;
+class NiftiImageData3DDisplacement;
 
 /// SIRF nifti image data deformation field image
 class NiftiImageData3DDeformation : public NiftiImageData3DTensor, public SIRFRegTransformation

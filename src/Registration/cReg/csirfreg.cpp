@@ -23,7 +23,6 @@ limitations under the License.
 #include "stir_x.h"
 #include "csirfreg.h"
 #include "csirfreg_p.h"
-#include "SIRFRegMisc.h"
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
 #include "SIRFRegNiftyAladinSym.h"

@@ -31,7 +31,6 @@ limitations under the License.
 #define _SIRFREGNIFTYF3DSYM_H_
 
 #include "SIRFReg.h"
-#include "SIRFRegMisc.h"
 #include "SIRFRegAffineTransformation.h"
 
 template<class T> class reg_f3d_sym;
