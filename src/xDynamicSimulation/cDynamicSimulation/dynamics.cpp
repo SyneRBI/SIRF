@@ -522,37 +522,7 @@ void MotionDynamic::prep_displacements_fields()
 
 void MRMotionDynamic::prep_displacements_fields()
 {
-	if(this->displacment_fields_.size() == 0)
-		throw std::runtime_error("Please call set_displacements_fields() first.");
-
-	bool const temp_folder_creation_successful = this->make_temp_folder();
-
-	if( temp_folder_creation_successful )
-	{
-		for(int i=0; i<this->displacment_fields_.size(); i++)
-		{
-			std::stringstream temp_filename_mvf;
-			temp_filename_mvf << this->get_temp_folder_name() << this->temp_mvf_prefix_ << i;
-
-			data_io::write_MVF_from_ISMRMRD_Image_to_Analyze<DataTypeMotionFields> (temp_filename_mvf.str(), this->displacment_fields_[i]);
-			temp_filename_mvf << ".hdr";
-			this->temp_mvf_filenames_.push_back(temp_filename_mvf.str());
-		}
-
-		MotionFieldContainer empty_container;
-		this->displacment_fields_.swap(empty_container); 
-
-	}
-	else
-		throw std::runtime_error("The parent directory generation failed. Give a path to which thou hast access rights. Or maybe the directory already exists. This is dangerous. Then you should definitely choose a different temporary folder name.");
-
-	for( size_t i=0; i<temp_mvf_filenames_.size(); i++)
-	{
-		SIRFImageDataDeformation temp_deformation( this->temp_mvf_filenames_[i] );
-		this->sirf_displacement_fields_.push_back( temp_deformation );
-	}
-
-	this->delete_temp_folder();
+	MotionDynamic::prep_displacements_fields();
 }
 
 
