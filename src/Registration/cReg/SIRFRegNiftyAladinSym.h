@@ -37,7 +37,7 @@ limitations under the License.
 
 namespace sirf {
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
-template<class T> class SIRFRegNiftyAladinSym : public SIRFReg
+template<class dataType> class SIRFRegNiftyAladinSym : public SIRFReg<dataType>
 {
 public:
 
@@ -45,10 +45,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const SIRFRegAffineTransformation &get_transformation_matrix_forward() const { return _TM_forward; }
+    const SIRFRegAffineTransformation<dataType> &get_transformation_matrix_forward() const { return _TM_forward; }
 
     /// Get inverse transformation matrix
-    const SIRFRegAffineTransformation &get_transformation_matrix_inverse() const { return _TM_inverse; }
+    const SIRFRegAffineTransformation<dataType> &get_transformation_matrix_inverse() const { return _TM_inverse; }
 
 protected:
 
@@ -59,12 +59,12 @@ protected:
     void set_parameters();
 
     /// Register object
-    std::shared_ptr<reg_aladin_sym<T> > _registration_sptr;
+    std::shared_ptr<reg_aladin_sym<dataType> > _registration_sptr;
 
     /// Forwards transformation matrix
-    SIRFRegAffineTransformation _TM_forward;
+    SIRFRegAffineTransformation<dataType> _TM_forward;
     /// Inverse transformation matrix
-    SIRFRegAffineTransformation _TM_inverse;
+    SIRFRegAffineTransformation<dataType> _TM_inverse;
 };
 }
 

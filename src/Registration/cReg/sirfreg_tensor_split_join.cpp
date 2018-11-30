@@ -69,16 +69,16 @@ int main(int argc, char* argv[])
         // If we're joining images
         if (mode == join) {
             std::cout << "\nDoing join.\n";
-            NiftiImageData3D x(filename_x);
-            NiftiImageData3D y(filename_x);
-            NiftiImageData3D z(filename_x);
-            NiftiImageData3DTensor tensor(x,y,z);
+            NiftiImageData3D<float> x(filename_x);
+            NiftiImageData3D<float> y(filename_x);
+            NiftiImageData3D<float> z(filename_x);
+            NiftiImageData3DTensor<float> tensor(x,y,z);
             tensor.save_to_file(filename_4D);
         }
         // If we're splitting
         else {
             std::cout << "\nDoing split.\n";
-            NiftiImageData3DTensor tensor(filename_4D);
+            NiftiImageData3DTensor<float> tensor(filename_4D);
             tensor.save_to_file_split_xyz_components(filename_x,filename_y,filename_z);
         }
 

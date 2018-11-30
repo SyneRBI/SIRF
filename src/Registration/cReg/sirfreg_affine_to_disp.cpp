@@ -143,18 +143,18 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         // Open the transformation matrix
-        SIRFRegAffineTransformation TM(TM_filename);
+        SIRFRegAffineTransformation<float> TM(TM_filename);
 
         // Create images
 
         // Open reference image
-        NiftiImageData3D ref(ref_filename);
+        NiftiImageData3D<float> ref(ref_filename);
 
         // Get the deformation field image
-        NiftiImageData3DDeformation def = TM.get_as_deformation_field(ref);
+        NiftiImageData3DDeformation<float> def = TM.get_as_deformation_field(ref);
 
         // Get the displacement fields from the def
-        NiftiImageData3DDisplacement disp;
+        NiftiImageData3DDisplacement<float> disp;
         disp.create_from_def(def);
 
         // If they want to save the deformation field images

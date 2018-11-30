@@ -33,11 +33,11 @@ limitations under the License.
 #include "SIRFReg.h"
 #include "SIRFRegAffineTransformation.h"
 
-template<class T> class reg_f3d_sym;
+template<class dataType> class reg_f3d_sym;
 
 namespace sirf {
 /// Wrapper around NiftyReg's f3d class for non-rigid transformations
-template<class T> class SIRFRegNiftyF3dSym : public SIRFReg
+template<class dataType> class SIRFRegNiftyF3dSym : public SIRFReg<dataType>
 {
 public:
 
@@ -59,7 +59,7 @@ public:
     void set_reference_time_point(const int reference_time_point) { _reference_time_point = reference_time_point; }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(const SIRFRegAffineTransformation &mat)
+    void set_initial_affine_transformation(const SIRFRegAffineTransformation<dataType> &mat)
     {
         _initial_transformation = mat;
         _use_initial_transformation = true;
@@ -77,14 +77,14 @@ protected:
     void set_parameters();
 
     /// Registration object
-    std::shared_ptr<reg_f3d_sym<T> > _registration_sptr;
+    std::shared_ptr<reg_f3d_sym<dataType> > _registration_sptr;
 
     /// Floating time point
     int _floating_time_point;
     /// Reference time point
     int _reference_time_point;
     /// Transformation matrix
-    SIRFRegAffineTransformation _initial_transformation;
+    SIRFRegAffineTransformation<dataType> _initial_transformation;
     /// Bool to use transformation matrix
     bool _use_initial_transformation;
 };

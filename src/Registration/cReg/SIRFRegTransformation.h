@@ -32,10 +32,11 @@ limitations under the License.
 namespace sirf {
 
 // Forward declarations
-class NiftiImageData3D;
-class NiftiImageData3DDeformation;
+template<class dataType> class NiftiImageData3D;
+template<class dataType> class NiftiImageData3DDeformation;
 
 /// Abstract base class for SIRFReg transformations
+template<class dataType>
 class SIRFRegTransformation
 {
 public:
@@ -47,11 +48,11 @@ public:
     virtual ~SIRFRegTransformation() {}
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const = 0;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const = 0;
 
 protected:
     /// Check that the deformation field image matches the reference image.
-    void check_ref_and_def(const NiftiImageData3D &ref, const NiftiImageData3DDeformation &def) const;
+    static void check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def);
 };
 }
 

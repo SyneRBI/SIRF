@@ -35,11 +35,12 @@ limitations under the License.
 
 namespace sirf {
 /// Class for SIRFReg transformations with an affine transformation
-class SIRFRegAffineTransformation : public SIRFRegTransformation
+template<class dataType>
+class SIRFRegAffineTransformation : public SIRFRegTransformation<dataType>
 {
 public:
     /// Print multiple SIRFRegAffineTransformation
-    static void print(const std::vector<sirf::SIRFRegAffineTransformation> &mats);
+    static void print(const std::vector<sirf::SIRFRegAffineTransformation<dataType> > &mats);
 
     /// Get as identity matrix
     static SIRFRegAffineTransformation get_identity();
@@ -48,10 +49,13 @@ public:
     SIRFRegAffineTransformation();
 
     /// Constructor
-    SIRFRegAffineTransformation(const float tm[4][4]);
+    SIRFRegAffineTransformation(const dataType tm[4][4]);
 
     /// Construct from file
     SIRFRegAffineTransformation(const std::string &filename);
+
+    /// Construct from mat44
+    SIRFRegAffineTransformation(const mat44 &tm);
 
     /// Copy constructor
     SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy);
@@ -69,10 +73,10 @@ public:
     SIRFRegAffineTransformation operator* (const SIRFRegAffineTransformation &other) const;
 
     /// Overload [] operator (const)
-    float const *operator [](int i) const { return _tm[i]; }
+    dataType const *operator [](int i) const { return _tm[i]; }
 
     /// Overload [] operator
-    float *operator [](int i) { return _tm[i]; }
+    dataType *operator [](int i) { return _tm[i]; }
 
     /// Get raw mat44
     mat44 get_as_mat44() const;
@@ -81,7 +85,7 @@ public:
     virtual ~SIRFRegAffineTransformation() {}
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
     /// Deep copy
     virtual SIRFRegAffineTransformation deep_copy() const;
@@ -90,7 +94,7 @@ public:
     virtual void save_to_file(const std::string &filename) const;
 
     /// Get determinant
-    float get_determinant() const;
+    dataType get_determinant() const;
 
     /// Print
     void print() const;
@@ -99,7 +103,7 @@ public:
     SIRFRegAffineTransformation get_inverse() const;
 
 protected:
-    float _tm[4][4];
+    dataType _tm[4][4];
 };
 }
 

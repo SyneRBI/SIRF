@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
         argc-=3;
 
         // Open the image
-        NiftiImageData im(input_filename);
+        NiftiImageData<float> im(input_filename);
 
         // Get the dims of the nifti image
         const int *dims = im.get_dimensions();

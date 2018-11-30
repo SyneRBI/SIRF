@@ -35,6 +35,7 @@ limitations under the License.
 
 namespace sirf {
 /// Calculate the weighted mean of a set of images
+template<class dataType>
 class SIRFRegImageWeightedMean
 {
 public:
@@ -46,13 +47,13 @@ public:
     ~SIRFRegImageWeightedMean() {}
 
     /// Add an image (from NiftImage) and its corresponding weight
-    void add_image(const NiftiImageData &image, const float weight);
+    void add_image(const NiftiImageData<dataType> &image, const float weight);
 
     /// Process
     void process();
 
     /// Get output
-    const NiftiImageData &get_output() const { return _output_image; }
+    const NiftiImageData<dataType> &get_output() const { return _output_image; }
 
 protected:
 
@@ -60,13 +61,13 @@ protected:
     void check_can_do_mean() const;
 
     /// Bool to check if update is necessary
-    bool                    _need_to_update;
+    bool                                   _need_to_update;
     /// Vector of input images
-    std::vector<NiftiImageData> _input_images;
+    std::vector<NiftiImageData<dataType> > _input_images;
     /// Vector of weights
-    std::vector<float>      _weights;
+    std::vector<float>                     _weights;
     /// Output image
-    NiftiImageData              _output_image;
+    NiftiImageData<dataType>               _output_image;
 
 };
 }

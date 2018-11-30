@@ -32,25 +32,32 @@ limitations under the License.
 
 using namespace sirf;
 
-void NiftiImageData3DDisplacement::create_from_def(const NiftiImageData3DDeformation &def)
+template<class dataType>
+void NiftiImageData3DDisplacement<dataType>::create_from_def(const NiftiImageData3DDeformation<dataType> &def)
 {
     // Get the disp field from the def field
-    NiftiImageData3DTensor temp = def.deep_copy();
+    NiftiImageData3DTensor<dataType> temp = def.deep_copy();
     reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
     temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
     *this = temp.deep_copy();
 }
 
-void NiftiImageData3DDisplacement::create_from_3D_image(const NiftiImageData3D &image)
+template<class dataType>
+void NiftiImageData3DDisplacement<dataType>::create_from_3D_image(const NiftiImageData3D<dataType> &image)
 {
-    this->NiftiImageData3DTensor::create_from_3D_image(image);
-    _nifti_image->intent_p1 = 1;
+    this->NiftiImageData3DTensor<dataType>::create_from_3D_image(image);
+    this->_nifti_image->intent_p1 = 1;
 }
 
-NiftiImageData3DDeformation NiftiImageData3DDisplacement::get_as_deformation_field(const NiftiImageData3D &ref) const
+template<class dataType>
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
 {
-    NiftiImageData3DDeformation def;
+    NiftiImageData3DDeformation<dataType> def;
     def.create_from_disp(*this);
-    check_ref_and_def(ref,def);
+    this->check_ref_and_def(ref,def);
     return def;
+}
+
+namespace sirf {
+template class NiftiImageData3DDisplacement<float>;
 }

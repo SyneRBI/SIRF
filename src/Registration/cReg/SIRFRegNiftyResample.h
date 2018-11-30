@@ -45,10 +45,11 @@ i.e., Trans3(Trans2(Trans1(x))).
 namespace sirf {
 
 // Forward declarations
-class SIRFRegAffineTransformation;
-class NiftiImageData3DDisplacement;
+template<class dataType> class SIRFRegAffineTransformation;
+template<class dataType> class NiftiImageData3DDisplacement;
 
 /// Wrapper around NiftyReg's resample class
+template<class dataType>
 class SIRFRegNiftyResample
 {
 public:
@@ -69,25 +70,25 @@ public:
     virtual ~SIRFRegNiftyResample() {}
 
     /// Set reference image
-    void set_reference_image(const NiftiImageData3D &reference_image)
+    void set_reference_image(const NiftiImageData3D<dataType> &reference_image)
     {
         _reference_image = reference_image;
     }
 
     /// Set floating image
-    void set_floating_image(const NiftiImageData3D &floating_image)
+    void set_floating_image(const NiftiImageData3D<dataType> &floating_image)
     {
         _floating_image = floating_image;
     }
 
     /// Add affine transformation
-    void add_transformation_affine(const SIRFRegAffineTransformation &affine);
+    void add_transformation_affine(const SIRFRegAffineTransformation<dataType> &affine);
 
     /// Add displacement transformation
-    void add_transformation_disp(const NiftiImageData3DDisplacement &disp);
+    void add_transformation_disp(const NiftiImageData3DDisplacement<dataType> &disp);
 
     /// Add deformation transformation
-    void add_transformation_def(const NiftiImageData3DDeformation &def);
+    void add_transformation_def(const NiftiImageData3DDeformation<dataType> &def);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     void set_interpolation_type(const enum InterpolationType type)
@@ -111,7 +112,7 @@ public:
     void process();
 
     /// Get output
-    const NiftiImageData3D &get_output() const { return _output_image; }
+    const NiftiImageData3D<dataType> &get_output() const { return _output_image; }
 
 protected:
 
@@ -125,18 +126,18 @@ protected:
     void set_up_output_image();
 
     /// Reference image
-    NiftiImageData3D       _reference_image;
+    NiftiImageData3D<dataType>       _reference_image;
     /// Floating image
-    NiftiImageData3D       _floating_image;
+    NiftiImageData3D<dataType>       _floating_image;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
-    std::vector<std::shared_ptr<SIRFRegTransformation> > _transformations;
+    std::vector<std::shared_ptr<SIRFRegTransformation<dataType> > > _transformations;
 
     /// Interpolation type
     InterpolationType  _interpolation_type;
 
     /// Output image
-    NiftiImageData3D       _output_image;
+    NiftiImageData3D<dataType>       _output_image;
 };
 }
 

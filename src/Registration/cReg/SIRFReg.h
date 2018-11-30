@@ -59,6 +59,7 @@ More examples can be found in data/examples/Registration/paramFiles
 
 namespace sirf {
 /// Base class for registration algorithms wrapped by SIRFReg
+template<class dataType>
 class SIRFReg
 {
 public:
@@ -73,25 +74,25 @@ public:
     void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const NiftiImageData3D &reference_image) { _reference_image = reference_image; }
+    void set_reference_image(const NiftiImageData3D<dataType> &reference_image) { _reference_image = reference_image; }
 
     /// Set floating image
-    void set_floating_image(const NiftiImageData3D &floating_image) { _floating_image = floating_image; }
+    void set_floating_image(const NiftiImageData3D<dataType> &floating_image) { _floating_image = floating_image; }
 
     /// Process
     virtual void process() = 0;
 
     /// Get registered image
-    const NiftiImageData3D &get_output() const { std::cout << "\nGetting warped image. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _warped_image; }
+    const NiftiImageData3D<dataType> &get_output() const { std::cout << "\nGetting warped image. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _warped_image; }
 
     /// Get forward deformation field image
-    const NiftiImageData3DDeformation  &get_deformation_field_forward()  const { std::cout << "\nGetting get_deformation_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_forward; }
+    const NiftiImageData3DDeformation<dataType>  &get_deformation_field_forward()  const { std::cout << "\nGetting get_deformation_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_forward; }
     /// Get inverse deformation field image
-    const NiftiImageData3DDeformation  &get_deformation_field_inverse()  const { std::cout << "\nGetting get_deformation_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_inverse; }
+    const NiftiImageData3DDeformation<dataType>  &get_deformation_field_inverse()  const { std::cout << "\nGetting get_deformation_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_inverse; }
     /// Get forward displacement field image
-    const NiftiImageData3DDisplacement &get_displacement_field_forward() const { std::cout << "\nGetting get_displacement_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_forward; }
+    const NiftiImageData3DDisplacement<dataType> &get_displacement_field_forward() const { std::cout << "\nGetting get_displacement_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_forward; }
     /// Get inverse displacement field image
-    const NiftiImageData3DDisplacement &get_displacement_field_inverse() const { std::cout << "\nGetting get_displacement_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_inverse; }
+    const NiftiImageData3DDisplacement<dataType> &get_displacement_field_inverse() const { std::cout << "\nGetting get_displacement_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_inverse; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -100,10 +101,10 @@ public:
     void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
     /// Set reference mask
-    void set_reference_mask(const NiftiImageData3D &reference_mask) { _reference_mask = reference_mask; }
+    void set_reference_mask(const NiftiImageData3D<dataType> &reference_mask) { _reference_mask = reference_mask; }
 
     /// Set floating mask
-    void set_floating_mask(const NiftiImageData3D &floating_mask)   {  _floating_mask = floating_mask;  }
+    void set_floating_mask(const NiftiImageData3D<dataType> &floating_mask)   {  _floating_mask = floating_mask;  }
 
 protected:
 
@@ -123,25 +124,25 @@ protected:
     boost::filesystem::path _parameter_filename;
 
     /// Reference image
-    NiftiImageData3D _reference_image;
+    NiftiImageData3D<dataType> _reference_image;
     /// Floating image
-    NiftiImageData3D _floating_image;
+    NiftiImageData3D<dataType> _floating_image;
     /// Warped image
-    NiftiImageData3D _warped_image;
+    NiftiImageData3D<dataType> _warped_image;
 
     /// Forward displacement field image
-    NiftiImageData3DDisplacement _disp_image_forward;
+    NiftiImageData3DDisplacement<dataType> _disp_image_forward;
     /// Inverse displacement field image
-    NiftiImageData3DDisplacement _disp_image_inverse;
+    NiftiImageData3DDisplacement<dataType> _disp_image_inverse;
     /// Forward deformation field image
-    NiftiImageData3DDeformation _def_image_forward;
+    NiftiImageData3DDeformation<dataType> _def_image_forward;
     /// Inverse deformation field image
-    NiftiImageData3DDeformation _def_image_inverse;
+    NiftiImageData3DDeformation<dataType> _def_image_inverse;
 
     /// Floating mask
-    NiftiImageData3D _floating_mask;
+    NiftiImageData3D<dataType> _floating_mask;
     /// Reference mask
-    NiftiImageData3D _reference_mask;
+    NiftiImageData3D<dataType> _reference_mask;
 };
 }
 

@@ -86,7 +86,7 @@ wrongFloatParameterValue
 void*
 sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* name)
 {
-    NiftiImageData& s = objectFromHandle<NiftiImageData>(handle);
+    NiftiImageData<float>& s = objectFromHandle<NiftiImageData<float> >(handle);
     if (boost::iequals(name, "max"))
         return dataHandle<float>(s.get_max());
     if (boost::iequals(name, "min"))
@@ -103,23 +103,23 @@ sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* nam
 void*
 sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 {
-	SIRFReg& s = objectFromHandle<SIRFReg>(hp);
+    SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(hp);
 	if (boost::iequals(name, "parameter_file"))
 		s.set_parameter_file(charDataFromHandle(hv));
 	else if (boost::iequals(name, "reference_image")) {
-        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
 		s.set_reference_image(im);
 	}
 	else if (boost::iequals(name, "floating_image")) {
-        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
 		s.set_floating_image(im);
 	}
     else if (boost::iequals(name, "reference_mask")) {
-        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
         s.set_reference_mask(im);
     }
     else if (boost::iequals(name, "floating_mask")) {
-        const NiftiImageData3D& im = objectFromHandle<const NiftiImageData3D>(hv);
+        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
         s.set_floating_mask(im);
     }
 	else
@@ -130,9 +130,9 @@ sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 void*
 sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
-	SIRFReg& s = objectFromHandle<SIRFReg>(handle);
+    SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(handle);
 	if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
 	}
 	else
@@ -151,7 +151,7 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
     else if (boost::iequals(name, "reference_time_point"))
         s.set_reference_time_point(intDataFromHandle(hv));
     else if (boost::iequals(name, "initial_affine_transformation")) {
-        const SIRFRegAffineTransformation& mat = objectFromHandle<const SIRFRegAffineTransformation>(hv);
+        const SIRFRegAffineTransformation<float>& mat = objectFromHandle<const SIRFRegAffineTransformation<float> >(hv);
         s.set_initial_affine_transformation(mat);
     }
     else
@@ -165,13 +165,13 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
 void*
 sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv)
 {
-    SIRFRegNiftyResample& s = objectFromHandle<SIRFRegNiftyResample>(hp);
+    SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(hp);
     if (boost::iequals(name, "reference_image"))
-        s.set_reference_image(objectFromHandle<NiftiImageData3D>(hv));
+        s.set_reference_image(objectFromHandle<NiftiImageData3D<float> >(hv));
     else if (boost::iequals(name, "floating_image"))
-        s.set_floating_image(objectFromHandle<NiftiImageData3D>(hv));
+        s.set_floating_image(objectFromHandle<NiftiImageData3D<float> >(hv));
     else if (boost::iequals(name, "interpolation_type"))
-        s.set_interpolation_type(static_cast<SIRFRegNiftyResample::InterpolationType>(intDataFromHandle(hv)));
+        s.set_interpolation_type(static_cast<SIRFRegNiftyResample<float>::InterpolationType>(intDataFromHandle(hv)));
     else
         return parameterNotFound(name, __FILE__, __LINE__);
     return new DataHandle;
@@ -180,9 +180,9 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
 void*
 sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name)
 {
-    SIRFRegNiftyResample& s = objectFromHandle<SIRFRegNiftyResample>(handle);
+    SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D> sptr_id(new NiftiImageData3D(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else
@@ -196,9 +196,9 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 void*
 sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name)
 {
-    SIRFRegImageWeightedMean& s = objectFromHandle<SIRFRegImageWeightedMean>(handle);
+    SIRFRegImageWeightedMean<float>& s = objectFromHandle<SIRFRegImageWeightedMean<float> >(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData> sptr_id(new NiftiImageData(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData<float> > sptr_id(new NiftiImageData<float>(s.get_output().deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else
@@ -212,12 +212,12 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 void*
 sirf::cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name)
 {
-    SIRFRegAffineTransformation& s = objectFromHandle<SIRFRegAffineTransformation>(handle);
+    SIRFRegAffineTransformation<float>& s = objectFromHandle<SIRFRegAffineTransformation<float> >(handle);
     if (boost::iequals(name, "determinant")) {
         return dataHandle<float>(s.get_determinant());
     }
     if (boost::iequals(name, "identity")) {
-        shared_ptr<SIRFRegAffineTransformation> sptr_id(new SIRFRegAffineTransformation(SIRFRegAffineTransformation::get_identity()));
+        shared_ptr<SIRFRegAffineTransformation<float> > sptr_id(new SIRFRegAffineTransformation<float>(SIRFRegAffineTransformation<float>::get_identity()));
         return newObjectHandle(sptr_id);
     }
     else

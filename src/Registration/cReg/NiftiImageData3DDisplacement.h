@@ -32,14 +32,15 @@ limitations under the License.
 
 #include "NiftiImageData3DTensor.h"
 #include "NiftiImageData3DDeformation.h"
-#include "SIRFRegTransformation.h"
 #include <_reg_maths.h>
+#include "SIRFRegTransformation.h"
 
 namespace sirf {
-class NiftiImageData3D;
+template<class dataType> class NiftiImageData3D;
 
 /// SIRF nifti image data displacement field image
-class NiftiImageData3DDisplacement : public NiftiImageData3DTensor, public SIRFRegTransformation
+template<class dataType>
+class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public SIRFRegTransformation<dataType>
 {
 public:
     /// Constructor
@@ -47,36 +48,36 @@ public:
 
     /// Filename constructor
     NiftiImageData3DDisplacement(const std::string &filename)
-        : NiftiImageData3DTensor(filename) { check_dimensions(_3DDisp); }
+        : NiftiImageData3DTensor<dataType>(filename) { this->check_dimensions(this->_3DDisp); }
 
     /// Nifti constructor
     NiftiImageData3DDisplacement(const nifti_image &image_nifti)
-        : NiftiImageData3DTensor(image_nifti) { check_dimensions(_3DDisp); }
+        : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDisp); }
 
     /// Nifti std::shared_ptr constructor
     NiftiImageData3DDisplacement(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData3DTensor(image_nifti) { check_dimensions(_3DDisp); }
+        : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDisp); }
 
     /// Construct from general tensor
-    NiftiImageData3DDisplacement(const NiftiImageData& tensor)
-        : NiftiImageData3DTensor(tensor) { check_dimensions(_3DDisp); }
+    NiftiImageData3DDisplacement(const NiftiImageData<dataType>& tensor)
+        : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDisp); }
 
     /// Create from 3 individual components
-    NiftiImageData3DDisplacement(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z)
-        : NiftiImageData3DTensor(x,y,z) { _nifti_image->intent_p1 = 1; }
+    NiftiImageData3DDisplacement(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
+        : NiftiImageData3DTensor<dataType>(x,y,z) { this->_nifti_image->intent_p1 = 1; }
 
     /// Create from deformation field image
-    void create_from_def(const NiftiImageData3DDeformation &im);
+    void create_from_def(const NiftiImageData3DDeformation<dataType> &im);
 
     /// Deep copy
     NiftiImageData3DDisplacement deep_copy() const
-    { return this->NiftiImageData::deep_copy(); }
+    { return this->NiftiImageData<dataType>::deep_copy(); }
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImageData3D &image);
+    void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const;
+    virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 };
 }
 

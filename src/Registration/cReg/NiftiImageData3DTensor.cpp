@@ -33,20 +33,21 @@ limitations under the License.
 
 using namespace sirf;
 
-NiftiImageData3DTensor::NiftiImageData3DTensor(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z)
+template<class dataType>
+NiftiImageData3DTensor<dataType>::NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
 {
     // Check everything is intialised
     if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
 
-    if (!NiftiImageData::do_nifti_image_metadata_match(x,y))
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,y))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and y components don't match.");
-    if (!NiftiImageData::do_nifti_image_metadata_match(x,z))
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,z))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and z components don't match.");
 
     // Create a 4D from one of the components
     this->create_from_3D_image(x);
-    std::vector<NiftiImageData3D> ims{x, y, z};
+    std::vector<NiftiImageData3D<dataType> > ims{x, y, z};
 
     // for nu=3, the tensor data is stored last.
     //So memcpy x into first third, y into second third and z into last third
@@ -55,11 +56,12 @@ NiftiImageData3DTensor::NiftiImageData3DTensor(const NiftiImageData3D &x, const 
     for (size_t i=0; i<3; ++i) {
         size_t index = mem*i;
         float *src  = static_cast<float*>(ims[i].get_raw_nifti_sptr()->data);
-        memcpy(_data+index, src, mem);
+        memcpy(this->_data+index, src, mem);
     }
 }
 
-void NiftiImageData3DTensor::create_from_3D_image(const NiftiImageData3D &image)
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData3D<dataType> &image)
 {
     if (!image.is_initialised())
         throw std::runtime_error("NiftiImageData3DTensor::create_from_3D_image. Input image not initialised.");
@@ -85,12 +87,13 @@ void NiftiImageData3DTensor::create_from_3D_image(const NiftiImageData3D &image)
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
     output_ptr->intent_code = NIFTI_INTENT_VECTOR;
 
-    _nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
+    this->_nifti_image = std::shared_ptr<nifti_image>(output_ptr, nifti_image_free);
 
-    set_up_data(image.get_original_datatype());
+    this->set_up_data(image.get_original_datatype());
 }
 
-void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
@@ -114,12 +117,13 @@ void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string
     this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z, datatype);
 }
 
-void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
 {
     int min_index[7], max_index[7];
     for (int i=0; i<7; ++i) {
         min_index[i] = 0;
-        max_index[i] = _nifti_image->dim[i+1] - 1;
+        max_index[i] = this->_nifti_image->dim[i+1] - 1;
     }
 
     for (int i=0; i<3; ++i) {
@@ -128,7 +132,7 @@ void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string
         min_index[4] = max_index[4] = i;
 
         // Crop image
-        NiftiImageData image = this->deep_copy();
+        NiftiImageData<dataType> image = this->deep_copy();
         image.crop(min_index,max_index);
 
         if      (i == 0) image.save_to_file(filename_x,datatype);
@@ -137,7 +141,8 @@ void NiftiImageData3DTensor::save_to_file_split_xyz_components(const std::string
     }
 }
 
-void NiftiImageData3DTensor::flip_component(const int dim)
+template<class dataType>
+void NiftiImageData3DTensor<dataType>::flip_component(const int dim)
 {
     std::cout << "\nFlipping multicomponent image in dim number: " << dim << "..." << std::flush;
 
@@ -148,9 +153,13 @@ void NiftiImageData3DTensor::flip_component(const int dim)
     // Data is ordered such that the multicomponent info is last.
     // So, the first third of the data is the x-values, second third is y and last third is z.
     // Start index is therefore = dim_number * num_voxels/3
-    int start_index =   dim   * int(_nifti_image->nvox/3);
-    int end_index   = (dim+1) * int(_nifti_image->nvox/3 - 1);
+    int start_index =   dim   * int(this->_nifti_image->nvox/3);
+    int end_index   = (dim+1) * int(this->_nifti_image->nvox/3 - 1);
 
     for (int i=start_index; i<=end_index; i++)
-        _data[i] = -_data[i];
+        this->_data[i] = -this->_data[i];
+}
+
+namespace sirf {
+template class NiftiImageData3DTensor<float>;
 }

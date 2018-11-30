@@ -35,21 +35,24 @@ limitations under the License.
 
 using namespace sirf;
 
-SIRFRegAffineTransformation::SIRFRegAffineTransformation(const float tm[4][4])
+template<class dataType>
+SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation(const dataType tm[4][4])
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             _tm[i][j] = tm[i][j];
 }
 
-SIRFRegAffineTransformation::SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy)
+template<class dataType>
+SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy)
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             _tm[i][j] = to_copy._tm[i][j];
 }
 
-SIRFRegAffineTransformation& SIRFRegAffineTransformation::operator=(const SIRFRegAffineTransformation& to_copy)
+template<class dataType>
+SIRFRegAffineTransformation<dataType>& SIRFRegAffineTransformation<dataType>::operator=(const SIRFRegAffineTransformation& to_copy)
 {
     // check for self-assignment
     if (this != &to_copy) {
@@ -60,7 +63,8 @@ SIRFRegAffineTransformation& SIRFRegAffineTransformation::operator=(const SIRFRe
     return *this;
 }
 
-void SIRFRegAffineTransformation::print(const std::vector<SIRFRegAffineTransformation> &mats)
+template<class dataType>
+void SIRFRegAffineTransformation<dataType>::print(const std::vector<SIRFRegAffineTransformation> &mats)
 {
     for(int i=0;i<4;i++) {
         std::cout << "\t" << std::left << std::setw(19) << "";
@@ -77,7 +81,8 @@ void SIRFRegAffineTransformation::print(const std::vector<SIRFRegAffineTransform
     }
 }
 
-SIRFRegAffineTransformation SIRFRegAffineTransformation::get_identity()
+template<class dataType>
+SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::get_identity()
 {
     SIRFRegAffineTransformation res;
     for (int i=0; i<4; ++i)
@@ -85,14 +90,16 @@ SIRFRegAffineTransformation SIRFRegAffineTransformation::get_identity()
     return res;
 }
 
-SIRFRegAffineTransformation::SIRFRegAffineTransformation()
+template<class dataType>
+SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation()
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             _tm[i][j] = 0.F;
 }
 
-SIRFRegAffineTransformation::SIRFRegAffineTransformation(const std::string &filename)
+template<class dataType>
+SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation(const std::string &filename)
 {
     // Check that the file exists
     if (!boost::filesystem::exists(filename))
@@ -115,7 +122,16 @@ SIRFRegAffineTransformation::SIRFRegAffineTransformation(const std::string &file
     this->print();
 }
 
-bool SIRFRegAffineTransformation::operator==(const SIRFRegAffineTransformation &other) const
+template<class dataType>
+SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation(const mat44 &tm)
+{
+    for (int i=0; i<4; ++i)
+        for (int j=0; j<4; ++j)
+            this->_tm[i][j] = dataType(tm.m[i][j]);
+}
+
+template<class dataType>
+bool SIRFRegAffineTransformation<dataType>::operator==(const SIRFRegAffineTransformation &other) const
 {
     if (this == &other)
         return true;
@@ -127,13 +143,16 @@ bool SIRFRegAffineTransformation::operator==(const SIRFRegAffineTransformation &
 }
 
 /// Equality operator
-bool SIRFRegAffineTransformation::operator!=(const SIRFRegAffineTransformation &other) const
+
+template<class dataType>
+bool SIRFRegAffineTransformation<dataType>::operator!=(const SIRFRegAffineTransformation &other) const
 {
     return !(*this == other);
 }
 
 /// Multiply matrices
-SIRFRegAffineTransformation SIRFRegAffineTransformation::operator* (const SIRFRegAffineTransformation &other) const
+template<class dataType>
+SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::operator* (const SIRFRegAffineTransformation &other) const
 {
     // Print info
     std::cout << "\nMultiplying two matrices...\n";
@@ -155,18 +174,20 @@ SIRFRegAffineTransformation SIRFRegAffineTransformation::operator* (const SIRFRe
     return res;
 }
 
-mat44 SIRFRegAffineTransformation::get_as_mat44() const
+template<class dataType>
+mat44 SIRFRegAffineTransformation<dataType>::get_as_mat44() const
 {
     mat44 tm;
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
-            tm.m[i][j] = _tm[i][j];
+            tm.m[i][j] = float(_tm[i][j]);
     return tm;
 }
 
-NiftiImageData3DDeformation SIRFRegAffineTransformation::get_as_deformation_field(const NiftiImageData3D &ref) const
+template<class dataType>
+NiftiImageData3DDeformation<dataType> SIRFRegAffineTransformation<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
 {
-    NiftiImageData3DDeformation def;
+    NiftiImageData3DDeformation<dataType> def;
     def.create_from_3D_image(ref);
     mat44 mat = this->get_as_mat44();
     reg_affine_getDeformationField(&mat, def.get_raw_nifti_sptr().get());
@@ -174,7 +195,8 @@ NiftiImageData3DDeformation SIRFRegAffineTransformation::get_as_deformation_fiel
     return def;
 }
 
-SIRFRegAffineTransformation SIRFRegAffineTransformation::deep_copy() const
+template<class dataType>
+SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::deep_copy() const
 {
     SIRFRegAffineTransformation temp;
     for (int i=0; i<4; ++i)
@@ -184,7 +206,8 @@ SIRFRegAffineTransformation SIRFRegAffineTransformation::deep_copy() const
 }
 
 /// Save transformation matrix to file
-void SIRFRegAffineTransformation::save_to_file(const std::string &filename) const
+template<class dataType>
+void SIRFRegAffineTransformation<dataType>::save_to_file(const std::string &filename) const
 {
     // Check that input isn't blank
     if (filename.empty())
@@ -200,20 +223,27 @@ void SIRFRegAffineTransformation::save_to_file(const std::string &filename) cons
     fclose(file);
 }
 
-float SIRFRegAffineTransformation::get_determinant() const
+template<class dataType>
+dataType SIRFRegAffineTransformation<dataType>::get_determinant() const
 {
     return  _tm[0][0]*(_tm[1][1]*_tm[2][2] - _tm[2][1]*_tm[1][2]) -
             _tm[0][1]*(_tm[1][0]*_tm[2][2] - _tm[2][0]*_tm[1][2]) +
             _tm[0][2]*(_tm[1][0]*_tm[2][1] - _tm[2][0]*_tm[1][1]);
 }
 
-void SIRFRegAffineTransformation::print() const
+template<class dataType>
+void SIRFRegAffineTransformation<dataType>::print() const
 {
-    SIRFRegAffineTransformation::print({*this});
+    SIRFRegAffineTransformation<dataType>::print({*this});
 }
 
-SIRFRegAffineTransformation SIRFRegAffineTransformation::get_inverse() const
+template<class dataType>
+SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::get_inverse() const
 {
     mat44 res = nifti_mat44_inverse(this->get_as_mat44());
     return SIRFRegAffineTransformation(res.m);
+}
+
+namespace sirf {
+template class SIRFRegAffineTransformation<float>;
 }

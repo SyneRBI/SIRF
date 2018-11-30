@@ -34,7 +34,8 @@ limitations under the License.
 
 using namespace sirf;
 
-void SIRFRegTransformation::check_ref_and_def(const NiftiImageData3D &ref, const NiftiImageData3DDeformation &def) const
+template<class dataType>
+void SIRFRegTransformation<dataType>::check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def)
 {
     // Check image size of ref matches def
     const int *ref_dims = ref.get_dimensions();
@@ -54,4 +55,8 @@ void SIRFRegTransformation::check_ref_and_def(const NiftiImageData3D &ref, const
         for (int i=1; i<=3; ++i) ss << def_dims[i] << " ";
         throw std::runtime_error(ss.str());
     }
+}
+
+namespace sirf {
+template class SIRFRegTransformation<float>;
 }

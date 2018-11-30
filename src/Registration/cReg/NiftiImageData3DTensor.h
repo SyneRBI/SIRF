@@ -36,10 +36,11 @@ limitations under the License.
 namespace sirf {
 
 // Forward declarations
-class NiftiImageData3D;
+template<class dataType> class NiftiImageData3D;
 
 /// SIRF image data
-class NiftiImageData3DTensor : public NiftiImageData
+template<class dataType>
+class NiftiImageData3DTensor : public NiftiImageData<dataType>
 {
 public:
 
@@ -47,26 +48,26 @@ public:
     NiftiImageData3DTensor() {}
 
     /// Construct 3D from general case
-    NiftiImageData3DTensor(const NiftiImageData& general)
-        : NiftiImageData(general) { check_dimensions(_3DTensor); }
+    NiftiImageData3DTensor(const NiftiImageData<dataType>& general)
+        : NiftiImageData<dataType>(general) { this->check_dimensions(this->_3DTensor); }
 
     /// Filename constructor
     NiftiImageData3DTensor(const std::string &filename)
-        : NiftiImageData(filename) { check_dimensions(_3DTensor); }
+        : NiftiImageData<dataType>(filename) { this->check_dimensions(this->_3DTensor); }
 
     /// Nifti constructor
     NiftiImageData3DTensor(const nifti_image &image_nifti)
-        : NiftiImageData(image_nifti) { check_dimensions(_3DTensor); }
+        : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3DTensor); }
 
     /// Nifti std::shared_ptr constructor
     NiftiImageData3DTensor(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData(image_nifti) { check_dimensions(_3DTensor); }
+        : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3DTensor); }
 
     /// Create from 3 individual components
-    NiftiImageData3DTensor(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z);
+    NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 
     /// Create from 3D image.
-    virtual void create_from_3D_image(const NiftiImageData3D &image);
+    virtual void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
     /// Save to file as x-, y-, z-components
     void save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
@@ -79,7 +80,7 @@ public:
 
     /// Deep copy
     NiftiImageData3DTensor deep_copy() const
-    { return this->NiftiImageData::deep_copy(); }
+    { return this->NiftiImageData<dataType>::deep_copy(); }
 };
 }
 

@@ -39,22 +39,26 @@ limitations under the License.
 
 using namespace sirf;
 
-void SIRFRegNiftyResample::add_transformation_affine(const SIRFRegAffineTransformation &affine)
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::add_transformation_affine(const SIRFRegAffineTransformation<dataType> &affine)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new SIRFRegAffineTransformation(affine.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new SIRFRegAffineTransformation<dataType>(affine.deep_copy())));
 }
 
-void SIRFRegNiftyResample::add_transformation_disp(const NiftiImageData3DDisplacement &disp)
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::add_transformation_disp(const NiftiImageData3DDisplacement<dataType> &disp)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImageData3DDisplacement(disp.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new NiftiImageData3DDisplacement<dataType>(disp.deep_copy())));
 }
 
-void SIRFRegNiftyResample::add_transformation_def(const NiftiImageData3DDeformation &def)
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::add_transformation_def(const NiftiImageData3DDeformation<dataType> &def)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation>(new NiftiImageData3DDeformation(def.deep_copy())));
+    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new NiftiImageData3DDeformation<dataType>(def.deep_copy())));
 }
 
-void SIRFRegNiftyResample::process()
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::process()
 {
     std::cout << "\n\nStarting resampling...\n\n";
 
@@ -62,8 +66,8 @@ void SIRFRegNiftyResample::process()
     check_parameters();
 
     // Compose single transformation from multiple
-    NiftiImageData3DDeformation transformation =
-            NiftiImageData3DDeformation::compose_single_deformation(_transformations, _reference_image);
+    NiftiImageData3DDeformation<dataType> transformation =
+            NiftiImageData3DDeformation<dataType>::compose_single_deformation(_transformations, _reference_image);
 
     // Setup output image
     set_up_output_image();
@@ -78,7 +82,8 @@ void SIRFRegNiftyResample::process()
     std::cout << "\n\nResampling finished!\n\n";
 }
 
-void SIRFRegNiftyResample::check_parameters()
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::check_parameters()
 {
     // If anything is missing
     if (!_reference_image.is_initialised()) {
@@ -90,7 +95,8 @@ void SIRFRegNiftyResample::check_parameters()
         throw std::runtime_error("Transformation(s) not set.");
 }
 
-void SIRFRegNiftyResample::set_up_output_image()
+template<class dataType>
+void SIRFRegNiftyResample<dataType>::set_up_output_image()
 {
     _output_image = _reference_image;
 
@@ -112,3 +118,8 @@ void SIRFRegNiftyResample::set_up_output_image()
     output_ptr->nvox = unsigned(output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4] * output_ptr->dim[5]);
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
 }
+
+namespace sirf {
+template class SIRFRegNiftyResample<float>;
+}
+

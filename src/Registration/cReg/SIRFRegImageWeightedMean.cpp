@@ -33,12 +33,14 @@ limitations under the License.
 
 using namespace sirf;
 
-SIRFRegImageWeightedMean::SIRFRegImageWeightedMean()
+template<class dataType>
+SIRFRegImageWeightedMean<dataType>::SIRFRegImageWeightedMean()
 {
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::add_image(const NiftiImageData &image, const float weight)
+template<class dataType>
+void SIRFRegImageWeightedMean<dataType>::add_image(const NiftiImageData<dataType> &image, const float weight)
 {
     // Add image to vector
     _input_images.push_back(image.deep_copy());
@@ -47,7 +49,8 @@ void SIRFRegImageWeightedMean::add_image(const NiftiImageData &image, const floa
     _need_to_update = true;
 }
 
-void SIRFRegImageWeightedMean::process()
+template<class dataType>
+void SIRFRegImageWeightedMean<dataType>::process()
 {
     // Only process if you need to
     if (!_need_to_update) return;
@@ -77,7 +80,8 @@ void SIRFRegImageWeightedMean::process()
     _need_to_update = false;
 }
 
-void SIRFRegImageWeightedMean::check_can_do_mean() const
+template<class dataType>
+void SIRFRegImageWeightedMean<dataType>::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error
     if (_input_images.size() == 0)
@@ -88,10 +92,14 @@ void SIRFRegImageWeightedMean::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_images.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!NiftiImageData::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
+            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
                 throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
         }
     }
 
     std::cout << "\nAll images match, we can calculate their weighted average.\n";
+}
+
+namespace sirf {
+template class SIRFRegImageWeightedMean<float>;
 }

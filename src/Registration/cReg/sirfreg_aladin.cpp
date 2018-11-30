@@ -101,11 +101,11 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        NiftiImageData3D reference(argv[flag_ref+1]);
+        NiftiImageData3D<float> reference(argv[flag_ref+1]);
         aladin.set_reference_image(reference);
 
         int flag_flo = find_flag(unused_flags,argv,"-flo",true);
-        NiftiImageData3D floating(argv[flag_flo+1]);
+        NiftiImageData3D<float> floating(argv[flag_flo+1]);
         aladin.set_floating_image(floating);
 
         int flag_par = find_flag(unused_flags,argv,"-par",true);
@@ -119,10 +119,10 @@ int main(int argc, char* argv[])
         // Masks
         int r_mask           = find_flag(unused_flags,argv,"-rmask");
         if (r_mask != -1)
-            aladin.set_reference_mask(NiftiImageData3D(argv[r_mask+1]));
+            aladin.set_reference_mask(NiftiImageData3D<float>(argv[r_mask+1]));
         int f_mask           = find_flag(unused_flags,argv,"-fmask");
         if (f_mask != -1)
-            aladin.set_floating_mask(NiftiImageData3D(argv[f_mask+1]));
+            aladin.set_floating_mask(NiftiImageData3D<float>(argv[f_mask+1]));
 
         // Warped image
         int flag_warped      = find_flag(unused_flags,argv,"-warped");

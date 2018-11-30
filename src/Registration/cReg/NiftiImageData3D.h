@@ -47,7 +47,8 @@ class PETImageData;
 class MRImageData;
 
 /// SIRF image data
-class NiftiImageData3D : public NiftiImageData
+template<class dataType>
+class NiftiImageData3D : public NiftiImageData<dataType>
 {
 public:
 
@@ -55,21 +56,20 @@ public:
     NiftiImageData3D() {}
 
     /// Construct 3D from general case
-    NiftiImageData3D(const NiftiImageData& general)
-        : NiftiImageData(general) { check_dimensions(_3D); }
+    NiftiImageData3D(const NiftiImageData<dataType>& general)
+        : NiftiImageData<dataType>(general) { this->check_dimensions(this->_3D); }
 
     /// Filename constructor
     NiftiImageData3D(const std::string &filename)
-        : NiftiImageData(filename)
-    { check_dimensions(_3D); }
+        : NiftiImageData<dataType>(filename) { this->check_dimensions(this->_3D); }
 
     /// Nifti constructor
     NiftiImageData3D(const nifti_image &image_nifti)
-        : NiftiImageData(image_nifti) { check_dimensions(_3D); }
+        : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
 
     /// Nifti std::shared_ptr constructor
     NiftiImageData3D(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData(image_nifti) { check_dimensions(_3D); }
+        : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
 
     /// STIR constructor
     NiftiImageData3D(const PETImageData &pet_image);
@@ -85,7 +85,7 @@ public:
 
     /// Deep copy
     NiftiImageData3D deep_copy() const
-    { return this->NiftiImageData::deep_copy(); }
+    { return this->NiftiImageData<dataType>::deep_copy(); }
 
 protected:
 

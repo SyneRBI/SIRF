@@ -41,6 +41,7 @@ limitations under the License.
 namespace sirf {
 
 /// SIRF image data
+template<class dataType>
 class NiftiImageData
 {
 public:
@@ -169,13 +170,6 @@ public:
     /// Do nifti image metadatas match?
     static bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2);
 
-    /// Do nifti image metadata elements match?
-    template<typename T>
-    static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2);
-
-    /// Do nifti image metadata elements match?
-    static bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2);
-
     /// Dump info of multiple nifti images
     static void dump_headers(const std::vector<NiftiImageData> &ims);
 
@@ -218,9 +212,6 @@ protected:
     /// Open nifti image
     static void open_nifti_image(std::shared_ptr<nifti_image> &image, const boost::filesystem::path &filename);
 
-    /// Save nifti image. image is not const because filename gets set during the process.
-    static void save_nifti_image(NiftiImageData &image, const std::string &filename);
-
     /// Copy nifti image
     static void copy_nifti_image(std::shared_ptr<nifti_image> &output_image_sptr, const std::shared_ptr<nifti_image> &image_to_copy_sptr);
 
@@ -231,7 +222,28 @@ private:
 
     /// Change datatype. Templated for desired type. Figures out what current type is then calls doubley templated function below.
     template<typename newType>
-    static void change_datatype(NiftiImageData &im);
+    static void change_datatype(NiftiImageData<dataType> &im)
+    {
+        if (im.get_raw_nifti_sptr()->datatype == DT_BINARY)   return change_datatype<newType,bool>              (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_INT8)     return change_datatype<newType,signed char>       (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_INT16)    return change_datatype<newType,signed short>      (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_INT32)    return change_datatype<newType,signed int>        (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT32)  return change_datatype<newType,float>             (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT64)  return change_datatype<newType,double>            (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_UINT8)    return change_datatype<newType,unsigned char>     (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_UINT16)   return change_datatype<newType,unsigned short>    (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_UINT32)   return change_datatype<newType,unsigned int>      (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_INT64)    return change_datatype<newType,signed long long>  (im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_UINT64)   return change_datatype<newType,unsigned long long>(im);
+        if (im.get_raw_nifti_sptr()->datatype == DT_FLOAT128) return change_datatype<newType,long double>       (im);
+
+        std::stringstream ss;
+        ss << "change_datatype not implemented for your data type: ";
+        ss << nifti_datatype_string(im.get_raw_nifti_sptr()->datatype);
+        ss << " (bytes per voxel: ";
+        ss << im.get_raw_nifti_sptr()->nbyper << ").";
+        throw std::runtime_error(ss.str());
+    }
 
     /// Convert type (performs deep copy)
     template<typename newType, typename oldType>

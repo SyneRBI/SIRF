@@ -36,7 +36,8 @@ limitations under the License.
 
 using namespace sirf;
 
-void SIRFReg::check_parameters() const
+template<class dataType>
+void SIRFReg<dataType>::check_parameters() const
 {
     // If anything is missing
     if (_parameter_filename.empty())
@@ -47,9 +48,14 @@ void SIRFReg::check_parameters() const
         throw std::runtime_error("Reference image has not been set.");
 }
 
-void SIRFReg::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
+template<class dataType>
+void SIRFReg<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
 {
     _extra_params.push_back(par);
     _extra_params.push_back(arg1);
     _extra_params.push_back(arg2);
+}
+
+namespace sirf {
+template class SIRFReg<float>;
 }

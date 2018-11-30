@@ -28,14 +28,16 @@ limitations under the License.
 */
 
 #include "NiftiImageData3D.h"
-#include "SIRFRegAffineTransformation.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
 #include "stir_data_containers.h"
+#include "SIRFRegAffineTransformation.h"
+
 
 using namespace sirf;
 
-NiftiImageData3D::NiftiImageData3D(const PETImageData &pet_image)
+template<class dataType>
+NiftiImageData3D<dataType>::NiftiImageData3D(const PETImageData &pet_image)
 {
     std::cout << "Converting PET image to nifti image..." << std::flush;
 
@@ -43,18 +45,20 @@ NiftiImageData3D::NiftiImageData3D(const PETImageData &pet_image)
     set_up_nifti(pet_image.get_patient_coord_geometrical_info());
 
     // Copy the data (both datatypes are float)
-    pet_image.get_data(_data);
+    pet_image.get_data(this->_data);
 
     std::cout << "Done!\n";
 }
 
-NiftiImageData3D::NiftiImageData3D(const MRImageData &)
+template<class dataType>
+NiftiImageData3D<dataType>::NiftiImageData3D(const MRImageData &)
 {
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
-void NiftiImageData3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
+template<class dataType>
+void NiftiImageData3D<dataType>::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 {
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = info.get_size();
@@ -72,46 +76,47 @@ void NiftiImageData3D::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
     dims[7] = 1;
 
     nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
-    _nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
+    this->_nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
 
     // Spacing
-    _nifti_image->pixdim[1]=_nifti_image->dx=spacing[0];
-    _nifti_image->pixdim[2]=_nifti_image->dy=spacing[1];
-    _nifti_image->pixdim[3]=_nifti_image->dz=spacing[2];
-    _nifti_image->pixdim[4]=0.F;
-    _nifti_image->pixdim[5]=0.F;
-    _nifti_image->pixdim[6]=0.F;
-    _nifti_image->pixdim[7]=0.F;
+    this->_nifti_image->pixdim[1]=this->_nifti_image->dx=spacing[0];
+    this->_nifti_image->pixdim[2]=this->_nifti_image->dy=spacing[1];
+    this->_nifti_image->pixdim[3]=this->_nifti_image->dz=spacing[2];
+    this->_nifti_image->pixdim[4]=0.F;
+    this->_nifti_image->pixdim[5]=0.F;
+    this->_nifti_image->pixdim[6]=0.F;
+    this->_nifti_image->pixdim[7]=0.F;
     // Distances in mm
-    _nifti_image->xyz_units=2;
+    this->_nifti_image->xyz_units=2;
     // Set the transformation matrix information
-    _nifti_image->qform_code=1;
+    this->_nifti_image->qform_code=1;
     for (int i=0;i<4;++i)
         for (int j=0;j<4;++j)
-            _nifti_image->qto_xyz.m[i][j]=tm[i][j];
-    _nifti_image->qto_ijk =
-            nifti_mat44_inverse(_nifti_image->qto_xyz);
-    nifti_mat44_to_quatern( _nifti_image->qto_xyz,
-                            &_nifti_image->quatern_b,
-                            &_nifti_image->quatern_c,
-                            &_nifti_image->quatern_d,
-                            &_nifti_image->qoffset_x,
-                            &_nifti_image->qoffset_y,
-                            &_nifti_image->qoffset_z,
+            this->_nifti_image->qto_xyz.m[i][j]=tm[i][j];
+    this->_nifti_image->qto_ijk =
+            nifti_mat44_inverse(this->_nifti_image->qto_xyz);
+    nifti_mat44_to_quatern( this->_nifti_image->qto_xyz,
+                            &this->_nifti_image->quatern_b,
+                            &this->_nifti_image->quatern_c,
+                            &this->_nifti_image->quatern_d,
+                            &this->_nifti_image->qoffset_x,
+                            &this->_nifti_image->qoffset_y,
+                            &this->_nifti_image->qoffset_z,
                             nullptr,
                             nullptr,
                             nullptr,
-                            &_nifti_image->qfac );
-    _nifti_image->pixdim[0]=_nifti_image->qfac;
+                            &this->_nifti_image->qfac );
+    this->_nifti_image->pixdim[0]=this->_nifti_image->qfac;
 
     // Check everything is ok
-    reg_checkAndCorrectDimension(_nifti_image.get());
+    reg_checkAndCorrectDimension(this->_nifti_image.get());
 
     // Always float
-    set_up_data(NIFTI_TYPE_FLOAT32);
+    this->set_up_data(NIFTI_TYPE_FLOAT32);
 }
 
-void NiftiImageData3D::copy_data_to(PETImageData &pet_image) const
+template<class dataType>
+void NiftiImageData3D<dataType>::copy_data_to(PETImageData &pet_image) const
 {
     std::cout << "Filling PET image from nifti image..." << std::flush;
 
@@ -119,18 +124,20 @@ void NiftiImageData3D::copy_data_to(PETImageData &pet_image) const
                 pet_image.get_patient_coord_geometrical_info()))
         throw std::runtime_error("Cannot copy data from NiftImage to STIRImageData as they are not aligned.");
 
-    pet_image.set_data(_data);
+    pet_image.set_data(this->_data);
 
     std::cout << "Done!\n";
 }
 
-void NiftiImageData3D::copy_data_to(MRImageData &) const
+template<class dataType>
+void NiftiImageData3D<dataType>::copy_data_to(MRImageData &) const
 {
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
 
-bool NiftiImageData3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
+template<class dataType>
+bool NiftiImageData3D<dataType>::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
 {
     // Check the nifti exists
     if (!this->is_initialised()) {
@@ -146,39 +153,43 @@ bool NiftiImageData3D::check_images_are_aligned(const VoxelisedGeometricalInfo3D
 
     // Check size
     bool ok_size = true;
-    if (_nifti_image->dim[1] != int(size[0])) ok_size = false;
-    if (_nifti_image->dim[2] != int(size[1])) ok_size = false;
-    if (_nifti_image->dim[3] != int(size[2])) ok_size = false;
+    if (this->_nifti_image->dim[1] != int(size[0])) ok_size = false;
+    if (this->_nifti_image->dim[2] != int(size[1])) ok_size = false;
+    if (this->_nifti_image->dim[3] != int(size[2])) ok_size = false;
     if (!ok_size) {
         std::cout << "\nWarning: Size does not match, can't fill image.\n";
         std::cout << "\tSTIR image   = (" << size[0]       << ", " << size[1]       << ", " << size[2]       << ")\n";
-        std::cout << "\tNiftiImageData3D = (" << _nifti_image->dim[1] << ", " << _nifti_image->dim[2] << ", " << _nifti_image->dim[3] << ")\n";
+        std::cout << "\tNiftiImageData3D = (" << this->_nifti_image->dim[1] << ", " << this->_nifti_image->dim[2] << ", " << this->_nifti_image->dim[3] << ")\n";
     }
 
     // Check spacing
     bool ok_spacing = true;
-    if (fabs(_nifti_image->dx - spacing[0]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dy - spacing[1]) > 1.e-7F) ok_spacing = false;
-    if (fabs(_nifti_image->dz - spacing[2]) > 1.e-7F) ok_spacing = false;
+    if (fabs(this->_nifti_image->dx - spacing[0]) > 1.e-7F) ok_spacing = false;
+    if (fabs(this->_nifti_image->dy - spacing[1]) > 1.e-7F) ok_spacing = false;
+    if (fabs(this->_nifti_image->dz - spacing[2]) > 1.e-7F) ok_spacing = false;
     if (!ok_spacing) {
         std::cout << "\nWarning: Spacing does not match, can't fill image.\n";
         std::cout << "\tSTIR image   = (" << spacing[0]       << ", " << spacing[1]       << ", " << spacing[2]       << ")\n";
-        std::cout << "\tNiftiImageData3D = (" << _nifti_image->dx << ", " << _nifti_image->dy << ", " << _nifti_image->dz << ")\n";
+        std::cout << "\tNiftiImageData3D = (" << this->_nifti_image->dx << ", " << this->_nifti_image->dy << ", " << this->_nifti_image->dz << ")\n";
     }
 
     // Check qto_xyz
-    SIRFRegAffineTransformation qto_xyz(_nifti_image->qto_xyz.m);
-    SIRFRegAffineTransformation stir_qto_xyz;
+    SIRFRegAffineTransformation<dataType> qto_xyz(this->_nifti_image->qto_xyz.m);
+    SIRFRegAffineTransformation<dataType> stir_qto_xyz;
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             stir_qto_xyz[i][j] = tm[i][j];
     bool ok_qto_xyz = (stir_qto_xyz == qto_xyz);
     if (!ok_qto_xyz) {
         std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
-        std::vector<SIRFRegAffineTransformation> mats = {stir_qto_xyz, qto_xyz};
-        SIRFRegAffineTransformation::print(mats);
+        std::vector<SIRFRegAffineTransformation<dataType> > mats = {stir_qto_xyz, qto_xyz};
+        SIRFRegAffineTransformation<dataType>::print(mats);
     }
 
     // Return if everything is ok or not.
     return (ok_size && ok_spacing && ok_qto_xyz);
+}
+
+namespace sirf {
+template class NiftiImageData3D<float>;
 }

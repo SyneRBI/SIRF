@@ -31,17 +31,18 @@ limitations under the License.
 #define _NIFTIIMAGEDATA3DDEFORMATION_H_
 
 #include "NiftiImageData3DTensor.h"
-#include "SIRFRegTransformation.h"
 #include <_reg_maths.h>
+#include "SIRFRegTransformation.h"
 
 namespace sirf {
 
 // Forward declarations
-class NiftiImageData3D;
-class NiftiImageData3DDisplacement;
+template<class dataType> class NiftiImageData3D;
+template<class dataType> class NiftiImageData3DDisplacement;
 
 /// SIRF nifti image data deformation field image
-class NiftiImageData3DDeformation : public NiftiImageData3DTensor, public SIRFRegTransformation
+template<class dataType>
+class NiftiImageData3DDeformation : public NiftiImageData3DTensor<dataType>, public SIRFRegTransformation<dataType>
 {
 public:
     /// Constructor
@@ -49,45 +50,45 @@ public:
 
     /// Filename constructor
     NiftiImageData3DDeformation(const std::string &filename)
-        : NiftiImageData3DTensor(filename) { check_dimensions(_3DDef); }
+        : NiftiImageData3DTensor<dataType>(filename) { this->check_dimensions(this->_3DDef); }
 
     /// Nifti constructor
     NiftiImageData3DDeformation(const nifti_image &image_nifti)
-        : NiftiImageData3DTensor(image_nifti) { check_dimensions(_3DDef); }
+        : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDef); }
 
     /// Nifti std::shared_ptr constructor
     NiftiImageData3DDeformation(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData3DTensor(image_nifti) { check_dimensions(_3DDef); }
+        : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDef); }
 
     /// Construct from general tensor
-    NiftiImageData3DDeformation(const NiftiImageData& tensor)
-        : NiftiImageData3DTensor(tensor) { check_dimensions(_3DDef); }
+    NiftiImageData3DDeformation(const NiftiImageData<dataType>& tensor)
+        : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDef); }
 
     /// Create from 3 individual components
-    NiftiImageData3DDeformation(const NiftiImageData3D &x, const NiftiImageData3D &y, const NiftiImageData3D &z)
-        : NiftiImageData3DTensor(x,y,z) { check_dimensions(_3DDef); }
+    NiftiImageData3DDeformation(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z)
+        : NiftiImageData3DTensor<dataType>(x,y,z) { this->check_dimensions(this->_3DDef); }
 
     /// Create from deformation field image
-    void create_from_disp(const NiftiImageData3DDisplacement &im);
+    void create_from_disp(const NiftiImageData3DDisplacement<dataType> &im);
 
     /// Deep copy
     NiftiImageData3DDeformation deep_copy() const
-    { return this->NiftiImageData3DTensor::deep_copy(); }
+    { return this->NiftiImageData3DTensor<dataType>::deep_copy(); }
 
     /// Create from 3D image
-    void create_from_3D_image(const NiftiImageData3D &image);
+    void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
     /// Create from CPP image
-    void create_from_cpp(NiftiImageData3DTensor &cpp, const NiftiImageData3D &ref);
+    void create_from_cpp(NiftiImageData3DTensor<dataType> &cpp, const NiftiImageData3D<dataType> &ref);
 
     /// Get as deformation field
-    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D &ref) const;
+    virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<SIRFRegTransformation*> &transformations, const NiftiImageData3D &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<SIRFRegTransformation<dataType> *> &transformations, const NiftiImageData3D<dataType> &ref);
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation> > &transformations, const NiftiImageData3D &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
 };
 }
 

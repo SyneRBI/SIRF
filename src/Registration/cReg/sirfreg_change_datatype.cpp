@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         }
 
         // Read image
-        NiftiImageData im(argv[2]);
+        NiftiImageData<float> im(argv[2]);
 
         // Change datatype
         if      (strcmp(argv[3], "bool")               == 0) im.save_to_file(argv[1], DT_BINARY);
