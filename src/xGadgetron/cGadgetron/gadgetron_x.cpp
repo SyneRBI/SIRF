@@ -27,13 +27,6 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
-
-using boost::asio::ip::tcp;
-
 #include "cgadgetron_shared_ptr.h"
 #include "data_handle.h"
 #include "gadgetron_x.h"
@@ -164,7 +157,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 	ISMRMRD::Acquisition acq_tmp;
 
 	GTConnector conn;
-	sptr_images_.reset(new ImagesVector);
+	sptr_images_.reset(new GadgetronImagesVector);
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images_)));
@@ -191,7 +184,7 @@ ImagesReconstructor::process(MRAcquisitionData& acquisitions)
 }
 
 void 
-ImagesProcessor::process(MRImageData& images)
+ImagesProcessor::process(GadgetronImageData& images)
 {
 	std::string config = xml();
 	GTConnector conn;
@@ -224,8 +217,8 @@ ImagesProcessor::check_connection()
 {
 	std::string config = xml();
 	GTConnector conn;
-	shared_ptr<MRImageData> sptr_images(new ImagesVector);
-	MRImageData& images = *sptr_images_;
+	shared_ptr<GadgetronImageData> sptr_images(new GadgetronImagesVector);
+	GadgetronImageData& images = *sptr_images_;
 	conn().register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 		shared_ptr<GadgetronClientMessageReader>
 		(new GadgetronClientImageMessageCollector(sptr_images)));
@@ -240,7 +233,7 @@ ImagesProcessor::check_connection()
 }
 
 void
-MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::fwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)
@@ -254,7 +247,7 @@ MRAcquisitionModel::fwd(MRImageData& ic, CoilSensitivitiesContainer& cc,
 }
 
 void 
-MRAcquisitionModel::bwd(MRImageData& ic, CoilSensitivitiesContainer& cc, 
+MRAcquisitionModel::bwd(GadgetronImageData& ic, CoilSensitivitiesContainer& cc, 
 	MRAcquisitionData& ac)
 {
 	if (cc.items() < 1)

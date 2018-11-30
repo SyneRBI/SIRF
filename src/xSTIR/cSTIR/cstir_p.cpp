@@ -300,11 +300,11 @@ sirf::cSTIR_setPLSPriorParameter
 	if (boost::iequals(name, "only_2D"))
 		prior.set_only_2D(dataFromHandle<int>((void*)hv));
 	else if (boost::iequals(name, "anatomical_image")) {
-		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_anatomical_image_sptr(id.data_sptr());
 	}
 	else if (boost::iequals(name, "kappa")) {
-		PETImageData& id = objectFromHandle<PETImageData>(hv);
+		STIRImageData& id = objectFromHandle<STIRImageData>(hv);
 		prior.set_kappa_sptr(id.data_sptr());
 	}
 	else
@@ -322,12 +322,12 @@ sirf::cSTIR_PLSPriorParameter
 		return dataHandle<int>(prior.get_only_2D());
 	else if (boost::iequals(name, "anatomical_image")) {
 		sptrImage3DF sptr_im = prior.get_anatomical_image_sptr();
-		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
 		return newObjectHandle(sptr_id);
 	}
 	else if (boost::iequals(name, "kappa")) {
 		sptrImage3DF sptr_im = prior.get_kappa_sptr();
-		shared_ptr<PETImageData> sptr_id(new PETImageData(sptr_im));
+		shared_ptr<STIRImageData> sptr_id(new STIRImageData(sptr_im));
 		return newObjectHandle(sptr_id);
 	}
 	else

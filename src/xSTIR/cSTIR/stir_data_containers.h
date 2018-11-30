@@ -39,7 +39,9 @@ limitations under the License.
 #include "cstir_shared_ptr.h"
 #include "data_handle.h"
 #include "stir_types.h"
-#include "SIRF/common/data_container.h"
+#include "sirf/common/data_container.h"
+#include "sirf/common/num_ref.h"
+#include "sirf/common/pet_image_data.h"
 #include "SIRF/common/geometrical_info.h"
 
 namespace sirf {
@@ -132,7 +134,7 @@ namespace sirf {
 	storage mode (file/memory) selection.
 	*/
 
-	class PETAcquisitionData : public aDataContainer < float > {
+	class PETAcquisitionData : public DataContainer {
 	public:
 		virtual ~PETAcquisitionData() {}
 
@@ -145,7 +147,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-		virtual aDataContainer<float>* new_data_container() = 0;
+		virtual DataContainer* new_data_container() = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
@@ -208,13 +210,19 @@ namespace sirf {
 
 		// data container methods
 		unsigned int items() { return 1; }
-		float norm();
-		float dot(const aDataContainer<float>& x);
-		void multiply(const aDataContainer<float>& x, const aDataContainer<float>& y);
-		void divide(const aDataContainer<float>& x, const aDataContainer<float>& y);
-		void inv(float a, const aDataContainer<float>& x);
-		void axpby(float a, const aDataContainer<float>& x,
-			float b, const aDataContainer<float>& y);
+		virtual void dot(const DataContainer& a_x, void* ptr);
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
+		virtual float norm();
+		//virtual float dot(const DataContainer& x);
+		virtual void multiply
+			(const DataContainer& x, const DataContainer& y);
+		virtual void divide
+			(const DataContainer& x, const DataContainer& y);
+		virtual void inv(float a, const DataContainer& x);
+		//virtual void axpby(float a, const DataContainer& x,
+		//	float b, const DataContainer& y);
 
 		// ProjData methods
 		int get_num_tangential_poss()
@@ -371,10 +379,10 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual aDataContainer<float>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			init();
-			return (aDataContainer<float>*)_template->same_acquisition_data(*data());
+			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
 
 	private:
@@ -450,7 +458,7 @@ namespace sirf {
 			return stir::shared_ptr<PETAcquisitionData>
 				(_template->same_acquisition_data(*data()));
 		}
-		virtual aDataContainer<float>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			init();
 			return _template->same_acquisition_data(*data());
@@ -467,64 +475,183 @@ namespace sirf {
 	abstract base class aDatacontainer.
 	*/
 
-	class PETImageData : public aDataContainer < float > {
+	typedef Image3DF::full_iterator Image3DFIterator;
+	typedef Image3DF::const_full_iterator Image3DFIterator_const;
+
+	//class STIRImageData : public aDataContainer < float > {
+	class STIRImageData : public PETImageData { //<Iterator, Iterator_const> {
 	public:
-		PETImageData(){}
-		PETImageData(const PETImageData& image)
+		//typedef PETImageData<Iterator, Iterator_const>::Iter BaseIter;
+		//typedef PETImageData<Iterator, Iterator_const>::Iter_const BaseIter_const;
+		typedef ImageData::Iterator BaseIter;
+		typedef ImageData::Iterator_const BaseIter_const;
+		class Iterator : public BaseIter {
+		public:
+			Iterator(const Image3DFIterator& iter) : _iter(iter)
+			{}
+			Iterator& operator=(const Iterator& iter)
+			{
+				_iter = iter._iter;
+				_ref.copy(iter._ref);
+				_sptr_iter = iter._sptr_iter;
+				return *this;
+			}
+			virtual Iterator& operator++()
+			{
+				++_iter;
+				return *this;
+			}
+			//virtual Iterator& operator++(int)
+			//{
+			//	_sptr_iter.reset(new Iterator(_iter));
+			//	++_iter;
+			//	return *_sptr_iter;
+			//}
+			virtual bool operator==(const BaseIter& an_iter) const
+			{
+				const Iterator& iter = (const Iterator&)an_iter;
+				return _iter == iter._iter;
+			}
+			virtual bool operator!=(const BaseIter& an_iter) const
+			{
+				const Iterator& iter = (const Iterator&)an_iter;
+				return _iter != iter._iter;
+			}
+			virtual FloatRef& operator*()
+			{
+				float& v = *_iter;
+				_ref.set_ptr(&v);
+				return _ref;
+			}
+		private:
+			Image3DFIterator _iter;
+			FloatRef _ref;
+			std::shared_ptr<Iterator> _sptr_iter;
+		};
+		class Iterator_const : public BaseIter_const {
+		public:
+			Iterator_const(const Image3DFIterator_const& iter) : _iter(iter)
+			{}
+			Iterator_const& operator=(const Iterator_const& iter)
+			{
+				_iter = iter._iter;
+				_ref.copy(iter._ref);
+				_sptr_iter = iter._sptr_iter;
+				return *this;
+			}
+			virtual Iterator_const& operator++()
+			{
+				++_iter;
+				return *this;
+			}
+			//virtual Iterator_const& operator++(int)
+			//{
+			//	_sptr_iter.reset(new Iterator_const(_iter));
+			//	++_iter;
+			//	return *_sptr_iter;
+			//}
+			virtual bool operator==(const BaseIter_const& an_iter) const
+			{
+				const Iterator_const& iter = (const Iterator_const&)an_iter;
+				return _iter == iter._iter;
+			}
+			virtual bool operator!=(const BaseIter_const& an_iter) const
+			{
+				const Iterator_const& iter = (const Iterator_const&)an_iter;
+				return _iter != iter._iter;
+			}
+			virtual const FloatRef& operator*() const
+			{
+				const float& v = *_iter;
+				_ref.set_ptr((void*)&v);
+				return _ref;
+			}
+		private:
+			Image3DFIterator_const _iter;
+			mutable FloatRef _ref;
+			std::shared_ptr<Iterator_const> _sptr_iter;
+		};
+		STIRImageData() {}
+		STIRImageData(const ImageData& id)
+		{
+			Dimensions dim = id.dimensions();
+			int nx = dim["x"];
+			int ny = dim["y"];
+			int nz = 1;
+			Dimensions::iterator it = dim.begin();
+			while (it != dim.end()) {
+				if (it->first != "x" && it->first != "y")
+					nz *= it->second;
+				++it;
+			}
+			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
+				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
+				Coord3DF(0, 0, 0),
+				Coord3DF(3, 3, 3.375));
+			_data.reset(voxels.clone());
+			copy(id.begin(), begin(), end());
+		}
+		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
 		}
-		PETImageData(const PETAcquisitionData& ad)
+		STIRImageData(const PETAcquisitionData& ad)
 		{
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
 		}
-		PETImageData(const Image3DF& image)
+		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
 		}
-		PETImageData(const Voxels3DF& v)
+		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
 		}
-		PETImageData(const stir::ProjDataInfo& pdi)
+		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
 		}
-		PETImageData(stir::shared_ptr<Image3DF> ptr)
+		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
 		}
-		PETImageData(std::string filename)
+		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
 		}
-		PETImageData* same_image_data()
+		STIRImageData* same_image_data()
 		{
-			PETImageData* ptr_image = new PETImageData;
+			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
 			return ptr_image;
 		}
-		stir::shared_ptr<PETImageData> new_image_data()
+		stir::shared_ptr<STIRImageData> new_image_data()
 		{
-			return stir::shared_ptr<PETImageData>(same_image_data());
+			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
-		aDataContainer<float>* new_data_container()
+		DataContainer* new_data_container()
 		{
-			return same_image_data();
+			return (DataContainer*)same_image_data();
 		}
 		unsigned int items()
 		{
 			return 1;
 		}
-		float norm();
-		float dot(const aDataContainer<float>& other);
-		//void mult(float a, const aDataContainer<float>& x);
-		void multiply(const aDataContainer<float>& x,
-			const aDataContainer<float>& y);
-		void divide(const aDataContainer<float>& x,
-			const aDataContainer<float>& y);
-		void axpby(float a, const aDataContainer<float>& x,
-			float b, const aDataContainer<float>& y);
+
+		virtual void dot(const DataContainer& a_x, void* ptr);
+		virtual void axpby(
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
+		virtual float norm();
+		//virtual float dot(const DataContainer& other);
+		//void mult(float a, const DataContainer& x);
+		virtual void multiply(const DataContainer& x,
+			const DataContainer& y);
+		virtual void divide(const DataContainer& x,
+			const DataContainer& y);
+		//virtual void axpby(float a, const DataContainer& x,
+		//	float b, const DataContainer& y);
+
 		Image3DF& data()
 		{
 			return *_data;
@@ -553,10 +680,40 @@ namespace sirf {
 		{
 			_data->fill(v);
 		}
+		virtual Dimensions dimensions() const
+		{
+			Dimensions dim;
+			int d[4];
+			get_dimensions(d);
+			dim["z"] = d[0];
+			dim["y"] = d[1];
+			dim["x"] = d[2];
+			return dim;
+		}
 		int get_dimensions(int* dim) const;
 		void get_voxel_sizes(float* vsizes) const;
-		int get_data(float* data) const;
-		int set_data(const float* data);
+		virtual void get_data(float* data) const;
+		virtual void set_data(const float* data);
+		virtual Iterator& begin()
+		{
+			_begin.reset(new Iterator(data().begin_all()));
+			return *_begin;
+		}
+		virtual Iterator_const& begin() const
+		{
+			_begin_const.reset(new Iterator_const(data().begin_all()));
+			return *_begin_const;
+		}
+		virtual Iterator& end()
+		{
+			_end.reset(new Iterator(data().end_all()));
+			return *_end;
+		}
+		virtual Iterator_const& end() const
+		{
+			_end_const.reset(new Iterator_const(data().end_all()));
+			return *_end_const;
+		}
 			// GeometricalInfo get_patient_coord_geometrical_info() {
 	//   return *_patient_coord_geometrical_info;
 	// }
@@ -634,6 +791,14 @@ namespace sirf {
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;
+		mutable stir::shared_ptr<Iterator> _begin;
+		mutable stir::shared_ptr<Iterator> _end;
+		mutable stir::shared_ptr<Iterator_const> _begin_const;
+		mutable stir::shared_ptr<Iterator_const> _end_const;
+		//mutable stir::shared_ptr<Iterator> _begin;
+		//mutable stir::shared_ptr<Iterator> _end;
+		//mutable stir::shared_ptr<Iterator_const> _begin_const;
+		//mutable stir::shared_ptr<Iterator_const> _end_const;
 	};
 }
 
