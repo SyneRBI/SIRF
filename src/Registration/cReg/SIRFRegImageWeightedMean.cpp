@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFRegImageWeightedMean.h"
-#include <boost/filesystem.hpp>
 #include <iostream>
 
 using namespace sirf;

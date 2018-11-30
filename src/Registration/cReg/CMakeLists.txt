@@ -33,20 +33,6 @@ ENDIF()
 ADD_LIBRARY(SIRFReg ${SOURCES})
 #TARGET_LINK_LIBRARIES(SIRFReg SIRF_common)
 
-# Boost
-if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
-  # This is harder than it should be on older CMake versions to be able to cope with
-  # spaces in filenames.
-  INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-  foreach(C SYSTEM FILESYSTEM)
-    target_link_libraries(SIRFReg optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(SIRFReg debug  "${Boost_${C}_LIBRARY_DEBUG}")
-  endforeach()
-else()
-  # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(SIRFReg Boost::system Boost::filesystem)
-endif()
-
 # Link against stir and gadgetron
 TARGET_LINK_LIBRARIES(SIRFReg cstir)
 #TARGET_LINK_LIBRARIES(SIRFReg cgadgetron)

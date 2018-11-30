@@ -37,7 +37,6 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include <string>
 #include <vector>
 #include <iostream>
-#include <boost/filesystem.hpp>
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
 #include "SIRFRegTransformation.h"

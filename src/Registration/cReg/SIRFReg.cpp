@@ -32,7 +32,6 @@ limitations under the License.
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include <boost/filesystem.hpp>
 
 using namespace sirf;
 
