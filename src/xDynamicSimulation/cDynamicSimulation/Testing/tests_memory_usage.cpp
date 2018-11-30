@@ -6,11 +6,13 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 ================================================ */
 
-#include "tests_memory_usage.h"
+
+#include <time.h> 
+#include <ismrmrd/ismrmrd.h>
 
 #include "auxiliary_input_output.h"
 
-#include <ismrmrd/ismrmrd.h>
+#include "tests_memory_usage.h"
 
 using namespace std;
 using namespace sirf;
@@ -109,16 +111,17 @@ bool tests_memory::test_ndarray_memory_managment( void )
 
 		std::vector< size_t > empty_dims{0};
 
+		size_t wait_time_s = 1;
 		clock_t endwait;
-		endwait = clock () + seconds * CLK_TCK ;
-		while (clock() < endwait) {}
-
+	
 		int const num_iter = 100;
 
 		for( int i=0; i<num_iter; i++)
 		{
-			std::cout << "iteration # " << i <<std::endl;
+			std::cout << "asdf # " << i <<std::endl;
 			ISMRMRD::NDArray< double > temp_arr(volume_dims);
+			endwait = clock () + wait_time_s * CLK_TCK ;
+			while (clock() < endwait) {}
 			temp_arr.resize( empty_dims );
 
 		}
