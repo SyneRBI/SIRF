@@ -3,7 +3,19 @@
 #include <complex>
 #include <typeinfo>
 
-#include <ismrmrd/ismrmrd.h>
+// Data Types from ismrmrd/ismrmrd.h (saves having to include it in this file, which should be independent of it)
+enum ISMRMRD_DataTypes {
+    ISMRMRD_USHORT   = 1, /**< corresponds to uint16_t */
+    ISMRMRD_SHORT    = 2, /**< corresponds to int16_t */
+    ISMRMRD_UINT     = 3, /**< corresponds to uint32_t */
+    ISMRMRD_INT      = 4, /**< corresponds to int32_t */
+    ISMRMRD_FLOAT    = 5, /**< corresponds to float */
+    ISMRMRD_DOUBLE   = 6, /**< corresponds to double */
+    ISMRMRD_CXFLOAT  = 7, /**< corresponds to complex float */
+    ISMRMRD_CXDOUBLE = 8  /**< corresponds to complex double */
+};
+typedef std::complex<float>  complex_float_t;
+typedef std::complex<double> complex_double_t;
 
 namespace sirf {
 
@@ -68,24 +80,24 @@ namespace sirf {
 	};
 
 	template <typename Type>
-	ISMRMRD::ISMRMRD_DataTypes TypeID(Type t)
+        ISMRMRD_DataTypes TypeID(Type t)
 	{
 		if (typeid(Type) == typeid(complex_double_t))
-			return ISMRMRD::ISMRMRD_CXDOUBLE;
+                        return ISMRMRD_CXDOUBLE;
 		else if (typeid(Type) == typeid(complex_float_t))
-			return ISMRMRD::ISMRMRD_CXFLOAT;
+                        return ISMRMRD_CXFLOAT;
 		else if (typeid(Type) == typeid(double))
-			return ISMRMRD::ISMRMRD_DOUBLE;
+                        return ISMRMRD_DOUBLE;
 		else if (typeid(Type) == typeid(float))
-			return ISMRMRD::ISMRMRD_FLOAT;
+                        return ISMRMRD_FLOAT;
 		else if (typeid(Type) == typeid(int))
-			return ISMRMRD::ISMRMRD_INT;
+                        return ISMRMRD_INT;
 		else if (typeid(Type) == typeid(unsigned int))
-			return ISMRMRD::ISMRMRD_UINT;
+                        return ISMRMRD_UINT;
 		else if (typeid(Type) == typeid(short))
-			return ISMRMRD::ISMRMRD_SHORT;
+                        return ISMRMRD_SHORT;
 		else if (typeid(Type) == typeid(unsigned short))
-			return ISMRMRD::ISMRMRD_USHORT;
+                        return ISMRMRD_USHORT;
 		else
 			throw std::invalid_argument
 			(std::string("unsupported numeric type ") + typeid(Type).name());
@@ -93,7 +105,7 @@ namespace sirf {
 
 	class NumRef : public aNumRef {
 	public:
-		NumRef(void* ptr = 0, int type = (int)ISMRMRD::ISMRMRD_FLOAT) :
+                NumRef(void* ptr = 0, int type = (int)ISMRMRD_FLOAT) :
 			ptr_(ptr), abs_(true), type_(type)
 		{}
 		NumRef(const NumRef& ref) :
@@ -124,28 +136,28 @@ namespace sirf {
 			//std::cout << "casting to complex_float_t...\n";
 			complex_double_t z;
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				z = *(complex_double_t*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				z = *(complex_float_t*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				z = float(*(double*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				z = *(float*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				z = complex_float_t(float(*(int*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				z = complex_float_t(float(*(unsigned int*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				z = complex_float_t(float(*(short*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				z = complex_float_t(float(*(unsigned short*)ptr_));
 			}
 			return z;
@@ -155,28 +167,28 @@ namespace sirf {
 			//std::cout << "casting to complex_float_t...\n";
 			complex_float_t z;
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				z = *(complex_double_t*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				z = *(complex_float_t*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				z = float(*(double*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				z = *(float*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				z = complex_float_t(float(*(int*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				z = complex_float_t(float(*(unsigned int*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				z = complex_float_t(float(*(short*)ptr_));
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				z = complex_float_t(float(*(unsigned short*)ptr_));
 			}
 			return z;
@@ -188,30 +200,30 @@ namespace sirf {
 			complex_float_t c;
 			complex_double_t z;
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				z = *(complex_double_t*)ptr_;
 				v = float(abs_ ? abs(z) : z.real());
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				c = *(complex_float_t*)ptr_;
 				v = abs_ ? abs(c) : c.real();
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				v = float(*(double*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				v = *(float*)ptr_;
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				v = float(*(int*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				v = float(*(unsigned int*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				v = float(*(short*)ptr_);
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				v = float(*(unsigned short*)ptr_);
 			}
 			return v;
@@ -226,28 +238,28 @@ namespace sirf {
 			const NumRef& ref = (const NumRef&)a_ref;
 			//std::cout << "assigning ref...\n";
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				*(complex_double_t*)ptr_ = ref.complex_double();
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				*(complex_float_t*)ptr_ = ref.complex_float();
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				*(double*)ptr_ = double(ref);
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				*(float*)ptr_ = float(ref);
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				*(int*)ptr_ = int(ref);
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				*(unsigned int*)ptr_ = (unsigned int)ref;
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				*(short*)ptr_ = short(ref);
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				*(unsigned short*)ptr_ = (unsigned short)ref;
 			}
 			//return *this;
@@ -256,28 +268,28 @@ namespace sirf {
 		NumRef& operator=(std::complex<T> v)
 		{
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				*(complex_double_t*)ptr_ = complex_double_t(v);
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				*(complex_float_t*)ptr_ = complex_float_t(v);
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				*(double*)ptr_ = double(abs_ ? abs(v) : v.real());
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				*(float*)ptr_ = float(abs_ ? abs(v) : v.real());
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				*(int*)ptr_ = int(abs_ ? abs(v) : v.real());
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				*(unsigned int*)ptr_ = (unsigned int)(abs_ ? abs(v) : v.real());
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				*(short*)ptr_ = short(abs_ ? abs(v) : v.real());
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				*(unsigned short*)ptr_ = (unsigned short)(abs_ ? abs(v) : v.real());
 			}
 			return *this;
@@ -287,28 +299,28 @@ namespace sirf {
 		{
 			//std::cout << "assigning...\n";
 			switch (type_) {
-			case ISMRMRD::ISMRMRD_CXDOUBLE:
+                        case ISMRMRD_CXDOUBLE:
 				*(complex_double_t*)ptr_ = complex_double_t(v);
 				break;
-			case ISMRMRD::ISMRMRD_CXFLOAT:
+                        case ISMRMRD_CXFLOAT:
 				*(complex_float_t*)ptr_ = complex_float_t(v);
 				break;
-			case ISMRMRD::ISMRMRD_DOUBLE:
+                        case ISMRMRD_DOUBLE:
 				*(double*)ptr_ = double(v);
 				break;
-			case ISMRMRD::ISMRMRD_FLOAT:
+                        case ISMRMRD_FLOAT:
 				*(float*)ptr_ = float(v);
 				break;
-			case ISMRMRD::ISMRMRD_INT:
+                        case ISMRMRD_INT:
 				*(int*)ptr_ = int(v);
 				break;
-			case ISMRMRD::ISMRMRD_UINT:
+                        case ISMRMRD_UINT:
 				*(unsigned int*)ptr_ = (unsigned int)v;
 				break;
-			case ISMRMRD::ISMRMRD_SHORT:
+                        case ISMRMRD_SHORT:
 				*(short*)ptr_ = short(v);
 				break;
-			case ISMRMRD::ISMRMRD_USHORT:
+                        case ISMRMRD_USHORT:
 				*(unsigned short*)ptr_ = (unsigned short)v;
 			}
 			return *this;
