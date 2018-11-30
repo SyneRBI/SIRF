@@ -29,9 +29,6 @@ limitations under the License.
 
 #include "data_handle.h"
 
-#define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
-
 /*!
 \ingroup C Interface to C++ Objects
 \brief A wrapper to a shared pointer.
@@ -42,15 +39,15 @@ a pointer to it.
 template<class Base>
 class ObjectHandle : public DataHandle {
 public:
-	ObjectHandle(const ObjectHandle& obj) {
-		NEW(shared_ptr<Base>, ptr_sptr);
-		*ptr_sptr = *(shared_ptr<Base>*)obj.data();
-		_data = (void*)ptr_sptr;
-		if (obj._status)
-			_status = new ExecutionStatus(*obj._status);
-		else
-			_status = 0;
-	}
+	//ObjectHandle(const ObjectHandle& obj) {
+	//	NEW(shared_ptr<Base>, ptr_sptr);
+	//	*ptr_sptr = *(shared_ptr<Base>*)obj.data();
+	//	_data = (void*)ptr_sptr;
+	//	if (obj._status)
+	//		_status = new ExecutionStatus(*obj._status);
+	//	else
+	//		_status = 0;
+	//}
 	ObjectHandle(const shared_ptr<Base>& sptr,
 		const ExecutionStatus* status = 0) {
 		NEW(shared_ptr<Base>, ptr_sptr);
@@ -77,13 +74,13 @@ Creates an object of the class Object derived from the class Base and
 an ObjectHandle storing a shared pointer to it.
 Returns a void pointer to the ObjectHandle object.
 */
-template<class Object>
-static void*
-newObjectHandle()
-{
-	shared_ptr<Object> sptr(new Object);
-	return (void*)new ObjectHandle<Object>(sptr);
-}
+//template<class Object>
+//static void*
+//newObjectHandle()
+//{
+//	shared_ptr<Object> sptr(new Object);
+//	return (void*)new ObjectHandle<Object>(sptr);
+//}
 
 /*!
 \ingroup C Interface to C++ Objects

@@ -41,10 +41,11 @@ using namespace sirf;
 
 #define GRAB 1
 
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
-return newObjectHandle<G>();
+return NEW_OBJECT_HANDLE(G)
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
-return newObjectHandle<C>();
+return NEW_OBJECT_HANDLE(C)
 
 shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -102,13 +103,13 @@ void* cGT_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "Mutex"))
-			return newObjectHandle<Mutex>();
+			return NEW_OBJECT_HANDLE(Mutex);
 		if (boost::iequals(name, "GTConnector"))
-			return newObjectHandle<GTConnector>();
+			return NEW_OBJECT_HANDLE(GTConnector);
 		if (boost::iequals(name, "CoilImages"))
-			return newObjectHandle<CoilImagesVector>();
+			return NEW_OBJECT_HANDLE(CoilImagesVector);
 		if (boost::iequals(name, "AcquisitionModel"))
-			return newObjectHandle<MRAcquisitionModel>();
+			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);

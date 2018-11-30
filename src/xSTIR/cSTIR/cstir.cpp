@@ -29,7 +29,9 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-//typedef aDataContainer<float> DataContainer;
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -67,27 +69,25 @@ void* cSTIR_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "FBP2D"))
-			return newObjectHandle<xSTIR_FBP2DReconstruction>();
+			return NEW_OBJECT_HANDLE(xSTIR_FBP2DReconstruction);
 		if (boost::iequals(name, "ListmodeToSinograms"))
-			return newObjectHandle<ListmodeToSinograms>();
+			return NEW_OBJECT_HANDLE(ListmodeToSinograms);
 		if (boost::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
-			return newObjectHandle
-			<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>();
+			return NEW_OBJECT_HANDLE
+			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
-			return newObjectHandle<AcqModUsingMatrix3DF>();
+			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 		if (boost::iequals(name, "RayTracingMatrix"))
-			return newObjectHandle<RayTracingMatrix>();
+			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
-			return newObjectHandle<QuadPrior3DF>();
+			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (boost::iequals(name, "PLSPrior"))
-			return newObjectHandle<PLSPrior<float> >();
-		//if (boost::iequals(name, "PLSPrior"))
-		//	return newObjectHandle<xSTIR_PLSPrior3DF>();
+			return NEW_OBJECT_HANDLE(PLSPrior<float>);
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
-			return newObjectHandle<CylindricFilter3DF>();
+			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
-			return newObjectHandle<EllipsoidalCylinder>();
+			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
