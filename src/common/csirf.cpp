@@ -26,7 +26,7 @@ limitations under the License.
 #include "sirf/common/data_container.h"
 
 using std::shared_ptr;
-#include "sirf/common/object_handle.inl"
+//#include "sirf/common/object_handle.inl"
 
 using namespace sirf;
 

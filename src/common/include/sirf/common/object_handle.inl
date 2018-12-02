@@ -36,35 +36,53 @@ limitations under the License.
 A derived DataHandle type that stores a shared pointer, _data being 
 a pointer to it.
 */
-template<class Base>
-class ObjectHandle : public DataHandle {
-public:
-	//ObjectHandle(const ObjectHandle& obj) {
-	//	NEW(shared_ptr<Base>, ptr_sptr);
-	//	*ptr_sptr = *(shared_ptr<Base>*)obj.data();
-	//	_data = (void*)ptr_sptr;
-	//	if (obj._status)
-	//		_status = new ExecutionStatus(*obj._status);
-	//	else
-	//		_status = 0;
-	//}
-	ObjectHandle(const shared_ptr<Base>& sptr,
-		const ExecutionStatus* status = 0) {
-		NEW(shared_ptr<Base>, ptr_sptr);
-		*ptr_sptr = sptr;
-		_data = (void*)ptr_sptr;
-		if (status)
-			_status = new ExecutionStatus(*status);
-		else
-			_status = 0;
-	}
-	virtual ~ObjectHandle() {
-		CAST_PTR(shared_ptr<Base>, ptr_sptr, _data);
-		delete _status;
-		_status = 0;
-		delete ptr_sptr;
-	}
-};
+//template<class Base>
+//class ObjectHandle : public DataHandle {
+//public:
+//	//ObjectHandle(const ObjectHandle& obj) {
+//	//	NEW(shared_ptr<Base>, ptr_sptr);
+//	//	*ptr_sptr = *(shared_ptr<Base>*)obj.data();
+//	//	_data = (void*)ptr_sptr;
+//	//	if (obj._status)
+//	//		_status = new ExecutionStatus(*obj._status);
+//	//	else
+//	//		_status = 0;
+//	//}
+//	ObjectHandle(const std::shared_ptr<Base>& sptr,
+//		const ExecutionStatus* status = 0) : _boost_sptr(false) {
+//		NEW(std::shared_ptr<Base>, ptr_sptr);
+//		*ptr_sptr = sptr;
+//		_data = (void*)ptr_sptr;
+//		if (status)
+//			_status = new ExecutionStatus(*status);
+//		else
+//			_status = 0;
+//	}
+//	ObjectHandle(const boost::shared_ptr<Base>& sptr,
+//		const ExecutionStatus* status = 0) : _boost_sptr(true) {
+//		NEW(boost::shared_ptr<Base>, ptr_sptr);
+//		*ptr_sptr = sptr;
+//		_data = (void*)ptr_sptr;
+//		if (status)
+//			_status = new ExecutionStatus(*status);
+//		else
+//			_status = 0;
+//	}
+//	virtual ~ObjectHandle() {
+//		delete _status;
+//		_status = 0;
+//		if (_boost_sptr) {
+//			CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+//			delete ptr_sptr;
+//		}
+//		else {
+//			CAST_PTR(std::shared_ptr<Base>, ptr_sptr, _data);
+//			delete ptr_sptr;
+//		}
+//	}
+//protected:
+//	bool _boost_sptr;
+//};
 
 /*!
 \ingroup C Interface to C++ Objects
@@ -89,12 +107,12 @@ Returns a void pointer to the ObjectHandle object.
 Creates an ObjectHandle that stores the shared pointer passed as the argument.
 Returns a void pointer to the ObjectHandle object.
 */
-template<class Object>
-static void*
-newObjectHandle(shared_ptr<Object> sptr)
-{
-	return (void*)new ObjectHandle<Object>(sptr);
-}
+//template<class Object>
+//static void*
+//newObjectHandle(shared_ptr<Object> sptr)
+//{
+//	return (void*)new ObjectHandle<Object>(sptr);
+//}
 
 /*!
 \ingroup C Interface to C++ Objects
@@ -103,16 +121,16 @@ newObjectHandle(shared_ptr<Object> sptr)
 Returns a reference to the shared pointer to the object wrapped up by
 the ObjectHandle pointed to by the argument.
 */
-template<class Object>
-shared_ptr<Object>&
-objectSptrFromHandle(const void* h) {
-	DataHandle* handle = (DataHandle*)h;
-	void* ptr = handle->data();
-	if (ptr == 0)
-		THROW("zero data pointer cannot be dereferenced");
-	CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
-	return *ptr_sptr;
-}
+//template<class Object>
+//shared_ptr<Object>&
+//objectSptrFromHandle(const void* h) {
+//	DataHandle* handle = (DataHandle*)h;
+//	void* ptr = handle->data();
+//	if (ptr == 0)
+//		THROW("zero data pointer cannot be dereferenced");
+//	CAST_PTR(shared_ptr<Object>, ptr_sptr, ptr);
+//	return *ptr_sptr;
+//}
 
 /*!
 \ingroup C Interface to C++ Objects
@@ -121,13 +139,13 @@ objectSptrFromHandle(const void* h) {
 Returns a reference to the object wrapped up by the ObjectHandle pointed to
 by the argument.
 */
-template<class Object>
-Object&
-objectFromHandle(const void* h) {
-	shared_ptr<Object> sptr = objectSptrFromHandle<Object>(h);
-	Object* ptr = sptr.get();
-	if (!ptr)
-		THROW("zero object pointer cannot be dereferenced");
-	return *ptr;
-}
+//template<class Object>
+//Object&
+//objectFromHandle(const void* h) {
+//	shared_ptr<Object> sptr = objectSptrFromHandle<Object>(h);
+//	Object* ptr = sptr.get();
+//	if (!ptr)
+//		THROW("zero object pointer cannot be dereferenced");
+//	return *ptr;
+//}
 

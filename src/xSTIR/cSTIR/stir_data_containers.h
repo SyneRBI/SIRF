@@ -145,7 +145,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-		virtual DataContainer* new_data_container() = 0;
+		//virtual DataContainer* new_data_container() = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,

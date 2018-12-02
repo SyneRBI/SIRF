@@ -31,7 +31,7 @@ using namespace sirf;
 
 #define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
 #define SPTR_FROM_HANDLE(Object, X, H) \
-	shared_ptr<Object> X = objectSptrFromHandle<Object>(H);
+	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -611,8 +611,7 @@ void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 		DataHandle* handle = new DataHandle;
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
-		shared_ptr<STIRImageData> sptr_id =
-			objectSptrFromHandle<STIRImageData>(ptr_i);
+		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_i);
 		if (recon.set_up(sptr_id) != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
 				__FILE__, __LINE__);
@@ -904,10 +903,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		shared_ptr<PETAcquisitionData>& sptr_ad =
-			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		//shared_ptr<ProjDataInfo> sptr_adi =
-		//	sptr_ad->get_proj_data_info_sptr();
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
 		shared_ptr<STIRImageData> sptr(new STIRImageData(*sptr_ad));
 		return newObjectHandle(sptr);
 	}
@@ -918,8 +914,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 {
 	try {
-		shared_ptr<PETAcquisitionData>& sptr_ad =
-			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
 		STIRImageData id(*sptr_ad);
 		int dim[3];
 		float vs[3];
