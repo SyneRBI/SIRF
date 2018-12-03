@@ -349,15 +349,12 @@ void RadialPhaseEncodingFFT::set_trajectory(TrajVessel &traj)
 void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 {
 	
-    #define epiph(x) #x << " = " << x
-
 	std::vector<size_t> data_dims = data_dims_from_ndarray< complex_float_t >(i_data);
 
 	size_t num_slices = data_dims[0];
 	size_t const num_coils = data_dims[3];
 
 	auto traj_dims = this->traj_prep_.get_traj_dims();
-
 
 	std::vector<size_t> output_data_size;
 	output_data_size.push_back(num_slices);
@@ -379,8 +376,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
 
 	
-
-
 	size_t const oversampling_factor = 2;
 	size_t const kernel_size = 2;	//must keep integers! nfft instable with floats
 
@@ -461,9 +456,10 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 				{
 					size_t const linear_index_2D = na*traj_dims[0] + nr;
 					this->k_data_(i_slice, nr, na, i_coil) = result[linear_index_2D];
+					
 					if( std::abs(result[linear_index_2D]) > 1e9 && found_bad_val == false)
 					{
-						std::cout << epiph( result[linear_index_2D] ) <<std::endl;
+						std::cout << "Potentially large value: " << result[linear_index_2D] <<std::endl;
 						found_bad_val = true;
 					}
 				}
