@@ -320,13 +320,18 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 	 	sptr_resp_dyn->set_dyn_signal( resp_sig );
 	 	sptr_resp_dyn->bin_mr_acquisitions( all_acquis );
 	 			
-		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		
-		sptr_cardiac_dyn->set_displacement_fields( cardiac_motion_fields, true );
-		sptr_resp_dyn->set_displacement_fields( resp_motion_fields, false );
+		std::vector <size_t> empty_dims{0};
 
-		mr_dyn_sim.add_dynamic( sptr_cardiac_dyn );
+		// auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		// sptr_cardiac_dyn->set_displacement_fields( cardiac_motion_fields, true );
+		// cardiac_motion_fields.resize( empty_dims );
+
+		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		sptr_resp_dyn->set_displacement_fields( resp_motion_fields, false );
+		resp_motion_fields.resize( empty_dims );
+
+		// mr_dyn_sim.add_dynamic( sptr_cardiac_dyn );
 		mr_dyn_sim.add_dynamic( sptr_resp_dyn );
 		
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
