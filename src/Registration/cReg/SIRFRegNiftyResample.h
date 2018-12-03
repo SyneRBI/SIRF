@@ -80,14 +80,8 @@ public:
         _floating_image = floating_image;
     }
 
-    /// Add affine transformation
-    void add_transformation_affine(const SIRFRegAffineTransformation<dataType> &affine);
-
-    /// Add displacement transformation
-    void add_transformation_disp(const NiftiImageData3DDisplacement<dataType> &disp);
-
-    /// Add deformation transformation
-    void add_transformation_def(const NiftiImageData3DDeformation<dataType> &def);
+    /// Add transformation
+    void add_transformation(const SIRFRegTransformation<dataType> &transformation);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     void set_interpolation_type(const enum InterpolationType type)

@@ -29,6 +29,8 @@ limitations under the License.
 #ifndef _SIRFREGTRANSFORMATION_H
 #define _SIRFREGTRANSFORMATION_H
 
+#include <memory>
+
 namespace sirf {
 
 // Forward declarations
@@ -49,6 +51,9 @@ public:
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const = 0;
+
+    /// Get clone sptr
+    virtual std::shared_ptr<SIRFRegTransformation> get_clone_sptr() const = 0;
 
 protected:
     /// Check that the deformation field image matches the reference image.

@@ -102,6 +102,9 @@ public:
     /// Get inverse
     SIRFRegAffineTransformation get_inverse() const;
 
+    /// Get clone sptr
+    virtual std::shared_ptr<SIRFRegTransformation<dataType> > get_clone_sptr() const;
+
 protected:
     dataType _tm[4][4];
 };

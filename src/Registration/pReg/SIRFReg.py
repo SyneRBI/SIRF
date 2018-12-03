@@ -721,23 +721,16 @@ class NiftyResample:
             raise AssertionError()
         _setParameter_sirf(self.handle, self.name, 'floating_image', floating_image.handle)
 
-    def add_transformation_affine(self, src):
-        """Add affine transformation."""
-        if not isinstance(src, AffineTransformation):
+    def add_transformation(self, src):
+        """Add transformation."""
+        if isinstance(src, AffineTransformation):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
+        elif isinstance(src, NiftiImageData3DDisplacement):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
+        elif isinstance(src, NiftiImageData3DDeformation):
+            try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
+        else:
             raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
-
-    def add_transformation_disp(self, src):
-        """Add displacement field."""
-        if not isinstance(src, NiftiImageData3DDisplacement):
-            raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
-
-    def add_transformation_def(self, src):
-        """Add deformation field."""
-        if not isinstance(src, NiftiImageData3DDeformation):
-            raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
 
     def set_interpolation_type(self, interp_type):
         """Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc."""

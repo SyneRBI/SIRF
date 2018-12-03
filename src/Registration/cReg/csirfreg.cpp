@@ -534,11 +534,11 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
     try {
         SIRFRegNiftyResample<float>& res = objectFromHandle<SIRFRegNiftyResample<float> >(self);
         if (strcmp(type, "affine") == 0)
-            res.add_transformation_affine(objectFromHandle<SIRFRegAffineTransformation<float> >(trans));
+            res.add_transformation(objectFromHandle<SIRFRegAffineTransformation<float> >(trans));
         else if (strcmp(type, "displacement") == 0)
-            res.add_transformation_disp(objectFromHandle<NiftiImageData3DDisplacement<float> >(trans));
+            res.add_transformation(objectFromHandle<NiftiImageData3DDisplacement<float> >(trans));
         else if (strcmp(type, "deformation") == 0)
-            res.add_transformation_def(objectFromHandle<NiftiImageData3DDeformation<float> >(trans));
+            res.add_transformation(objectFromHandle<NiftiImageData3DDeformation<float> >(trans));
         else
             throw std::runtime_error("only accept 'affine', 'displacement' or 'deformation' as argument adding transformation matrix to resample.");
         return new DataHandle;

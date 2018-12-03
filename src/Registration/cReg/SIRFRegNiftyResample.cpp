@@ -40,21 +40,9 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::add_transformation_affine(const SIRFRegAffineTransformation<dataType> &affine)
+void SIRFRegNiftyResample<dataType>::add_transformation(const SIRFRegTransformation<dataType> &transformation)
 {
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new SIRFRegAffineTransformation<dataType>(affine.deep_copy())));
-}
-
-template<class dataType>
-void SIRFRegNiftyResample<dataType>::add_transformation_disp(const NiftiImageData3DDisplacement<dataType> &disp)
-{
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new NiftiImageData3DDisplacement<dataType>(disp.deep_copy())));
-}
-
-template<class dataType>
-void SIRFRegNiftyResample<dataType>::add_transformation_def(const NiftiImageData3DDeformation<dataType> &def)
-{
-    _transformations.push_back(std::shared_ptr<SIRFRegTransformation<dataType> >(new NiftiImageData3DDeformation<dataType>(def.deep_copy())));
+    _transformations.push_back(transformation.get_clone_sptr());
 }
 
 template<class dataType>

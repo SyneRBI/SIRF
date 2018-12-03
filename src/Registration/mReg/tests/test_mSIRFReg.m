@@ -528,8 +528,8 @@ function try_resample(g,na)
     nr1.set_floating_image(g.flo_aladin);
     nr1.set_interpolation_type_to_cubic_spline();  % try different interpolations
     nr1.set_interpolation_type(3);  % try different interpolations (cubic)
-    nr1.add_transformation_affine(tm_iden);
-		nr1.add_transformation_affine(tm);
+    nr1.add_transformation(tm_iden);
+    nr1.add_transformation(tm);
     nr1.process();
     nr1.get_output().save_to_file(g.rigid_resample);
 
@@ -539,7 +539,7 @@ function try_resample(g,na)
     nr2.set_floating_image(g.flo_aladin);
     nr2.set_interpolation_type_to_sinc();  % try different interpolations
     nr2.set_interpolation_type_to_linear();  % try different interpolations
-    nr2.add_transformation_disp(displ);
+    nr2.add_transformation(displ);
     nr2.process();
     nr2.get_output().save_to_file(g.nonrigid_resample_disp);
 
@@ -548,7 +548,7 @@ function try_resample(g,na)
     nr3.set_reference_image(g.ref_aladin)
     nr3.set_floating_image(g.flo_aladin)
     nr3.set_interpolation_type_to_nearest_neighbour()  % try different interpolations
-    nr3.add_transformation_def(deff);
+    nr3.add_transformation(deff);
     nr3.set_interpolation_type_to_linear()
     nr3.process()
     nr3.get_output().save_to_file(g.nonrigid_resample_def)

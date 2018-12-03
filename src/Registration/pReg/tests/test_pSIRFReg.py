@@ -637,8 +637,8 @@ def try_resample(na):
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
     nr1.set_interpolation_type(3)  # try different interpolations (cubic)
-    nr1.add_transformation_affine(tm_iden)
-    nr1.add_transformation_affine(tm)
+    nr1.add_transformation(tm_iden)
+    nr1.add_transformation(tm)
     nr1.process()
     nr1.get_output().save_to_file(rigid_resample)
 
@@ -648,7 +648,7 @@ def try_resample(na):
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
     nr2.set_interpolation_type_to_linear()  # try different interpolations
-    nr2.add_transformation_disp(disp)
+    nr2.add_transformation(disp)
     nr2.process()
     nr2.get_output().save_to_file(nonrigid_resample_disp)
 
@@ -657,7 +657,7 @@ def try_resample(na):
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
     nr3.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
-    nr3.add_transformation_def(deff)
+    nr3.add_transformation(deff)
     nr3.set_interpolation_type_to_linear()
     nr3.process()
     nr3.get_output().save_to_file(nonrigid_resample_def)

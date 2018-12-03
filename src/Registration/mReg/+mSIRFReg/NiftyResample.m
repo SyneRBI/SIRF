@@ -49,22 +49,17 @@ classdef NiftyResample < handle
             assert(isa(floating_image, 'mSIRFReg.NiftiImageData3D'), 'NiftyResample::set_floating_image expects NiftiImageData3D')
             mSIRFReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
-        function add_transformation_affine(self, src)
-            %Set transformation matrix.
-            assert(isa(src, 'mSIRFReg.AffineTransformation'), 'NiftyResample::add_transformation_affine expects AffineTransformation.')
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
-        end
-
-        function add_transformation_disp(self, src)
-            %Set displacement field.
-            assert(isa(src, 'mSIRFReg.NiftiImageData3DDisplacement'), 'NiftyResample::add_transformation_disp expects NiftiImageData3DDisplacement.')
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
-        end
-
-        function add_transformation_def(self, src)
-            %Set deformation field.
-            assert(isa(src, 'mSIRFReg.NiftiImageData3DDeformation'), 'NiftyResample::add_transformation_def expects NiftiImageData3DDeformation.')
-            h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
+        function add_transformation(self, src)
+            %Add transformation.
+            if isa(src, 'mSIRFReg.AffineTransformation')
+                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
+            elseif isa(src, 'mSIRFReg.NiftiImageData3DDisplacement')
+                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
+            elseif isa(src, 'mSIRFReg.NiftiImageData3DDeformation')
+                h = calllib('msirfreg', 'mSIRFReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
+            else 
+                error('Transformation should be affine, deformation or displacement.')
+            end
         end
         function set_interpolation_type(self, type)
             %Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc.
