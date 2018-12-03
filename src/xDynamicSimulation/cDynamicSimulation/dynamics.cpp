@@ -53,7 +53,7 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 
 	for( size_t i=0; i<one_dat.items(); i++)
 	{
-		auto sptr_acq = one_dat.get_sptr_acquisition( i );
+		auto sptr_acq = one_dat.get_acquisition_sptr( i );
 		one_counters.push_back(sptr_acq->getHead().scan_counter);
 	}
 
@@ -61,7 +61,7 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 	{
 		ISMRMRD::Acquisition acq;
 
-		auto sptr_acq = other_dat.get_sptr_acquisition( i );
+		auto sptr_acq = other_dat.get_acquisition_sptr( i );
 		other_counters.push_back(sptr_acq->getHead().scan_counter);
 	}
 	
@@ -87,11 +87,11 @@ AcquisitionsVector intersect_mr_acquisition_data( AcquisitionsVector& one_dat, A
 
 	for( size_t i=0; i<smaller_data_container.items(); i++)
 	{
-		auto sptr_acq = smaller_data_container.get_sptr_acquisition( i );
+		auto sptr_acq = smaller_data_container.get_acquisition_sptr( i );
 		uint32_t acquis_counter = sptr_acq->getHead().scan_counter;
 		if(std::find(intersected_counters.begin(), intersected_counters.end(), acquis_counter) != intersected_counters.end()) 
 		{
-			intersection.append_sptr_acquisition(sptr_acq);
+			intersection.append_acquisition_sptr(sptr_acq);
     	} 
 	}
 
@@ -253,7 +253,7 @@ void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
 			auto curr_pos = relevant_acq_numbers[0];
 			relevant_acq_numbers.pop_front();	
 			
-			auto sptr_acq = all_acquisitions.get_sptr_acquisition( curr_pos );
+			auto sptr_acq = all_acquisitions.get_acquisition_sptr( curr_pos );
 			auto acq_hdr = sptr_acq->getHead();
 			
 			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
@@ -262,7 +262,7 @@ void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
 			
 			if( is_in_bin(signal_of_acq, bin) )
 			{
-				curr_acq_vector.append_sptr_acquisition(sptr_acq);
+				curr_acq_vector.append_acquisition_sptr(sptr_acq);
 			}
 			else
 			{

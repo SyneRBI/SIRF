@@ -415,11 +415,11 @@ void MRDynamicSimulation::acquire_raw_data( void )
 		
 		for( size_t i_acqu=0; i_acqu<this->source_acquisitions_.items(); i_acqu++)
 		{
-			auto sptr_acq = this->source_acquisitions_.get_sptr_acquisition(i_acqu);
+			auto sptr_acq = this->source_acquisitions_.get_acquisition_sptr(i_acqu);
 			ISMRMRD::AcquisitionHeader acq_head = sptr_acq->getHead();
 			
 			if( acq_head.idx.contrast == i_contrast )
-				acq_vec.append_sptr_acquisition( sptr_acq );
+				acq_vec.append_acquisition_sptr( sptr_acq );
 		}
 		
 		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );

@@ -95,7 +95,7 @@ void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_
 
 	for( size_t i_acq=0; i_acq<acquisition_vector.number(); i_acq++)
 	{
-		auto sptr_acquis = acquisition_vector.get_sptr_acquisition( i_acq );
+		auto sptr_acquis = acquisition_vector.get_acquisition_sptr( i_acq );
 
 		for(size_t i_data_point=0; i_data_point<sptr_acquis->getNumberOfDataElements(); i_data_point++)
 		{

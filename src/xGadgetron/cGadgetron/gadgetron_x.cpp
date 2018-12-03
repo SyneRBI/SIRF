@@ -444,7 +444,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
 	
-		auto sptr_curr_acq = sptr_acqs_->get_sptr_acquisition( i_acq );
+		auto sptr_curr_acq = sptr_acqs_->get_acquisition_sptr( i_acq );
 
 		unsigned int num_sampled_readout_pts = sptr_curr_acq->number_of_samples();
 
@@ -477,7 +477,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		if( is_reverse == 1)
 			sptr_curr_acq->clearFlag( ISMRMRD::ISMRMRD_ACQ_IS_REVERSE );
 
-		ac.append_sptr_acquisition(sptr_curr_acq);
+		ac.append_acquisition_sptr(sptr_curr_acq);
 
 	}
 }

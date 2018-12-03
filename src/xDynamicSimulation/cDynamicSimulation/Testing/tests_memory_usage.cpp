@@ -94,8 +94,8 @@ bool tests_memory::test_acquisition_vector_memory( void )
 
 			for(size_t i_acq=0; i_acq<num_acq; i_acq++)
 			{	
-				auto sptr_acq = all_acquis.get_sptr_acquisition(i_acq);
-				temp_vec.append_sptr_acquisition(sptr_acq);
+				auto sptr_acq = all_acquis.get_acquisition_sptr(i_acq);
+				temp_vec.append_acquisition_sptr(sptr_acq);
 			}
 			acq_vec_vector.push_back( temp_vec );
 		}
