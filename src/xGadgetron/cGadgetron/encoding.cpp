@@ -450,9 +450,10 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 			nufft_operator.compute( padded_sub_slice, result, identitiy_DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
 
-			for(size_t nr=0; nr<traj_dims[0]; nr++)
-			{
-				for(size_t na=0; na<traj_dims[1]; na++)
+			
+			for(size_t na=0; na<traj_dims[1]; na++)
+				{
+				for(size_t nr=0; nr<traj_dims[0]; nr++)
 				{
 					size_t const linear_index_2D = na*traj_dims[0] + nr;
 					this->k_data_(i_slice, nr, na, i_coil) = result[linear_index_2D];
