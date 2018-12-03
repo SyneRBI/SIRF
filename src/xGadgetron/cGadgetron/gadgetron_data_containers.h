@@ -140,7 +140,7 @@ namespace sirf {
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
 		virtual void append_acquisition_sptr( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)=0;
-		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num)=0;
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num) const =0;
 
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac) = 0;
@@ -261,8 +261,15 @@ namespace sirf {
 		}
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq);
 
-		virtual void append_acquisition_sptr( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
-		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num){throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);};
+		virtual void append_acquisition_sptr( gadgetron::shared_ptr<ISMRMRD::Acquisition> sptr_acqu)
+		{
+			throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);
+		};
+
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num) const
+		{
+			throw LocalisedException("Function undefined for sirf::AcuisitionsFile.", __FILE__, __LINE__);
+		};
 
 		virtual void copy_acquisitions_info(const MRAcquisitionData& ac);
 		virtual MRAcquisitionData*
@@ -325,7 +332,7 @@ namespace sirf {
 			int ind = index(num);
 			acq = *acqs_[ind];
 		}
-		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num)
+		virtual gadgetron::shared_ptr<ISMRMRD::Acquisition> get_acquisition_sptr(unsigned int num) const
 		{
 			int ind = index(num);
 			return acqs_[ind];
