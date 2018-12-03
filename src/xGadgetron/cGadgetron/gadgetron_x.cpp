@@ -396,7 +396,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	ISMRMRD::NDArray<complex_float_t> ci(dims);
 	memset(ci.getDataPtr(), 0, ci.getDataSize());
 
-	// #pragma omp parallel for
+	#pragma omp parallel 
 	for (unsigned int c = 0; c < nc; c++) {
 		for( unsigned int z = 0; z < nz; z++) {
 			for (unsigned int y = 0; y < ny; y++) {
