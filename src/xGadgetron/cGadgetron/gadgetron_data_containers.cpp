@@ -46,8 +46,8 @@ MRAcquisitionData::write(const char* filename)
 	dataset->writeHeader(acqs_info_);
 	mtx.unlock();
 	int n = number();
-	ISMRMRD::Acquisition a;
 	for (int i = 0; i < n; i++) {
+		ISMRMRD::Acquisition a;
 		get_acquisition(i, a);
 		//std::cout << i << ' ' << a.idx().repetition << '\n';
 		//if (TO_BE_IGNORED(a)) {
