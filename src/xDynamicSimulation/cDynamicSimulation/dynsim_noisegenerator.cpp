@@ -100,11 +100,11 @@ void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_
 		
 		ISMRMRD::Acquisition noisy_acq(source_acq);
 
-		complex_float_t* const ptr_data =  noisy_acq.getDataPtr();
+		// complex_float_t* const ptr_data =  noisy_acq.getDataPtr();
 		
 		for(size_t i_data_point=0; i_data_point<noisy_acq.getNumberOfDataElements(); i_data_point++)
 		{
-			*(ptr_data + i_data_point) +=  complex_float_t(gaussian_distribution(generator), gaussian_distribution(generator));	
+			*(noisy_acq.getDataPtr() + i_data_point) +=  complex_float_t(gaussian_distribution(generator), gaussian_distribution(generator));	
 		}
 
 		acquisition_vector.set_acquisition(i_acq, noisy_acq);
