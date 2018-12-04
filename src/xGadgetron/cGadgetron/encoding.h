@@ -9,6 +9,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #pragma once
 
+#include <utility>
+
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/xml.h>
 
@@ -16,7 +18,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <gadgetron/ho2DArray.h>
 #include <gadgetron/vector_td.h>
 
-// #include "gadgetron_data_containers.h"
+#include "gadgetron_data_containers.h"
 
 
 
@@ -184,6 +186,12 @@ class RPETrajectoryPreparation: public aTrajectoryPreparation< TrajectoryType2D 
 
 public:
 	void set_and_check_trajectory( TrajVessel& trajectory );
+	void set_kspace_subset( sirf::MRAcquisitionData &ad );
+
+	void get_traj_index_pair( size_t const idx ) const;
+	
+protected:
+	std::vector< std::pair< size_t, size_t > > lut_idx_to_traj_;
 
 };
 

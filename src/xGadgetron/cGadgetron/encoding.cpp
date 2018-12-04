@@ -276,6 +276,8 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 
 void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 {
+	
+	this->lut_idx_to_traj_.clear();
 
 	std::vector<size_t> traj_dims = data_dims_from_ndarray< TrajPrecision > ( trajectory );
 
@@ -289,6 +291,8 @@ void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
 
+	this->lut_idx_to_traj_.resize( num_traj_points );
+
 	for( size_t nr=0; nr<traj_dims_[1]; nr++)
 	for( size_t na=0; na<traj_dims_[0]; na++){
 	
@@ -296,7 +300,10 @@ void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 		TrajPrecision traj_x = trajectory(na, nr, 0);
 		TrajPrecision traj_y = trajectory(na, nr, 1);
 
-		size_t lin_index = nr*traj_dims_[0] + na;
+		size_t const lin_index = nr*traj_dims_[0] + na;
+
+		this->lut_idx_to_traj_[ lin_index ] = std::make_pair(na, nr);
+
 		*(this->traj_.begin() + lin_index) = TrajectoryType2D(traj_x, traj_y);
 	}}	
 }
