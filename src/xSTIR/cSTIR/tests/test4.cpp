@@ -12,7 +12,7 @@ using namespace stir;
 using namespace ecat;
 using namespace sirf;
 
-int main()
+int test4()
 {
     try{
 
@@ -41,4 +41,12 @@ int main()
     {
 		return 1;
 	}
+}
+
+//int test5();
+
+int main()
+{
+	return test4();
+	//return test5();
 }

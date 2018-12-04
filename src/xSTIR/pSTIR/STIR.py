@@ -2,23 +2,23 @@
 Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2017 University College London
+#
+# This is software developed for the Collaborative Computational
+# Project in Positron Emission Tomography and Magnetic Resonance imaging
+# (http://www.ccppetmr.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import abc
 import inspect
@@ -33,6 +33,8 @@ import sys
 import time
 
 from pUtilities import *
+from sirf import SIRF
+from sirf.SIRF import DataContainer
 import pyiutilities as pyiutil
 import pystir
 
@@ -222,158 +224,8 @@ class EllipticCylinder(Shape):
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
 
-class DataContainer(ABC):
-    '''
-    Abstract base class for an abstract data container.
-    '''
-    def __init__(self):
-        self.handle = None
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
-    def same_object(self):
-        '''
-        Returns an object of the same type as self.
-
-        Since this class is abstract, its methods cannot itself create a new
-        object when e.g. adding two objects of this class, so new object is
-        created by the first object using its same_object() method - see
-        __add__ below.
-        '''
-        pass
-    def norm(self):
-        '''
-        Returns the 2-norm of the container data viewed as a vector.
-        '''
-        assert self.handle is not None
-        handle = pystir.cSTIR_norm(self.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r;
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        handle = pystir.cSTIR_dot(self.handle, other.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r
-    def multiply(self, other):
-        '''
-        Returns the elementwise product of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def divide(self, other):
-        '''
-        Returns the elementwise ratio of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def __add__(self, other):
-        '''
-        Overloads + for data containers.
-
-        Returns the sum of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_axpby(1.0, self.handle, 1.0, other.handle)
-        check_status(z.handle)
-        return z;
-    def __sub__(self, other):
-        '''
-        Overloads - for data containers.
-
-        Returns the difference of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_axpby(1.0, self.handle, -1.0, other.handle)
-        check_status(z.handle)
-        return z;
-    def __mul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container.
-
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.multiply(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
-##            z.handle = pystir.cSTIR_mult(other, self.handle)
-            z.src = 'mult'
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __rmul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar from
-        the left, i.e. computes and returns the product other*self.
-        other: a real or complex scalar
-        '''
-        assert self.handle is not None
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __truediv__(self, other):
-        '''
-        Overloads / for data containers multiplication by a scalar or another
-        data container.
-
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.divide(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(1/other, self.handle, 0.0, self.handle)
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-
-class ImageData(DataContainer):
+#class ImageData(DataContainer):
+class ImageData(SIRF.ImageData):
     '''Class for PET image data objects.
 
     ImageData objects contains both geometric data and the actual voxel
@@ -399,6 +251,10 @@ class ImageData(DataContainer):
         elif isinstance(arg, AcquisitionData):
             assert arg.handle is not None
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            check_status(self.handle)
+        elif isinstance(arg, SIRF.ImageData):
+            assert arg.handle is not None
+            self.handle = pystir.cSTIR_imageFromImageData(arg.handle)
             check_status(self.handle)
         elif arg is not None:
             raise error\
