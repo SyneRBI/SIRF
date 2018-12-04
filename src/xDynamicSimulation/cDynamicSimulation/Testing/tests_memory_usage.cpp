@@ -29,6 +29,7 @@ void wait_for_time ( int const wait_time_s)
 }
 
 
+
 bool tests_memory::test_acquisition_memory( void )
 {
 
@@ -149,4 +150,64 @@ bool tests_memory::test_ndarray_memory_managment( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+}
+
+bool tests_memory::tests_resizing_acquisition_memory( void )
+{
+
+	try
+	{
+
+		sirf::AcquisitionsVector av;
+		av.read( std::string(ISMRMRD_H5_TEST_PATH)) ;
+
+		size_t num_iterations = 10;
+
+		for(size_t iteration=0; iteration<num_iterations; iteration++)
+		{
+
+			std::cout << "Waiting" << std::endl;
+			wait_for_time( 5 );
+			
+			std::cout << " Resizing " <<std::endl;
+
+			for(size_t i=0; i<av.number(); i++)
+			{
+				auto sptr_acq = av.get_acquisition_sptr(i);
+				sptr_acq->resize( sptr_acq->number_of_samples(), (uint16_t)0, (uint16_t)0 );
+				sptr_acq->resize( sptr_acq->number_of_samples(), (uint16_t)25, (uint16_t)0 );
+				sptr_acq->resize( sptr_acq->number_of_samples(), (uint16_t)0, (uint16_t)0 );
+			}
+
+			auto some_sptr_acq = av.get_acquisition_sptr(0);
+			std::cout << "Number of samples is now: " << some_sptr_acq->number_of_samples() <<std::endl;
+			std::cout << "Number of active channels is now: " << some_sptr_acq->active_channels() <<std::endl;
+			std::cout << "Data size is now: " << some_sptr_acq->getDataSize() << std::endl;
+
+			std::cout << "Waiting again" <<std::endl;
+			wait_for_time( 5 );
+			
+
+			std::cout << "Resizing again" <<std::endl;
+			for(size_t i=0; i<av.number(); i++)
+			{
+				auto sptr_acq = av.get_acquisition_sptr(i);
+				sptr_acq->resize( sptr_acq->number_of_samples(), 4 );
+
+			}
+
+			wait_for_time( 5 );
+			std::cout << "Waiting again" <<std::endl;
+		}
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+
 }

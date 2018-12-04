@@ -19,6 +19,9 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 
+void wait_for_time ( int const wait_time_s);
+
+
 namespace tests_memory{
 
 
@@ -26,5 +29,6 @@ bool test_acquisition_memory( void );
 bool test_acquisition_vector_memory( void );
 
 bool test_ndarray_memory_managment( void );
+bool tests_resizing_acquisition_memory( void );
 
 }
