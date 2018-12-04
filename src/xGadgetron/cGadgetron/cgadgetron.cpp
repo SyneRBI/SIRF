@@ -87,7 +87,8 @@ fileNotFound(const char* name, const char* file, int line)
 	return (void*)handle;
 }
 
-bool file_exists(std::string filename)
+static bool 
+file_exists(const std::string& filename)
 {
 	std::ifstream file;
 	file.open(filename.c_str());

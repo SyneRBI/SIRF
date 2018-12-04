@@ -492,6 +492,7 @@ namespace sirf {
 				iter_ = iter.iter_;
 				end_ = iter.end_;
 				sptr_iter_ = iter.sptr_iter_;
+				return *this;
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
