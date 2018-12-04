@@ -425,10 +425,10 @@ void MRDynamicSimulation::acquire_raw_data( void )
 				acq_vec.append_acquisition_sptr( sptr_acq );
 		}
 		
-		std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
+		// std::shared_ptr< AcquisitionsVector > curr_template_acquis( new AcquisitionsVector(acq_vec) );
+		auto curr_template_acquis = std::make_shared< AcquisitionsVector >(acq_vec);
 		
 		this->acq_model_.set_acquisition_template( curr_template_acquis );
-		
 		this->acq_model_.fwd(curr_img_wrap, csm_as_img, this->target_acquisitions_, offset);
 		
 	}
