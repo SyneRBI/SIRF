@@ -29,6 +29,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 using namespace sirf;
 using namespace Gadgetron;
+using namespace ISMRMRD;
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 
@@ -101,10 +102,11 @@ TrajPrecision RPETrajectoryContainer::get_traj_max_abs( void )
 
 	TrajPrecision maximum_traj_value = 0;
 
-	for(int nr=0; nr<traj_dims[1]; nr++)
-	for(int na=0; na<traj_dims[0]; na++){
+	for(int na=0; na<traj_dims[1]; na++)
+	for(int nr=0; nr<traj_dims[0]; nr++)
+	{
 
-		std::complex< TrajPrecision > x( this->traj_(na,nr,0), this->traj_(na,nr,1) );
+		std::complex< TrajPrecision > x( this->traj_(nr,na,0), this->traj_(nr,na,1) );
 		TrajPrecision abs_x = std::abs(x);
 		if(abs_x  > maximum_traj_value)
 			maximum_traj_value = abs_x;
@@ -116,7 +118,6 @@ TrajPrecision RPETrajectoryContainer::get_traj_max_abs( void )
 
 void RPETrajectoryContainer::compute_trajectory()
 {
-	using namespace ISMRMRD;
 
 	std::cout << "Computing trajectory" << std::endl;
 
@@ -133,12 +134,12 @@ void RPETrajectoryContainer::compute_trajectory()
 	unsigned short NRadial = encoding_mat_size.y;
 	unsigned short NAngles = encoding_mat_size.z;
 
-	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+	std::vector<size_t> traj_dims{NRadial, NAngles, 2}; 
 
    	this->traj_.resize(traj_dims);
 
-	for( unsigned nr=0; nr<NRadial; nr++){
-	for( unsigned na=0; na<NAngles; na++)
+	for( unsigned na=0; na<NAngles; na++){
+	for( unsigned nr=0; nr<NRadial; nr++)
 	{
 
 		int const r_pos = nr - NRadial /2;
@@ -147,8 +148,8 @@ void RPETrajectoryContainer::compute_trajectory()
 		float const nx = r_pos * cos( ang_pos );
 		float const ny = r_pos * sin( ang_pos );
 
-		this->traj_(na, nr, 0) = nx;
-		this->traj_(na, nr, 1) = ny;
+		this->traj_(nr, na, 0) = nx;
+		this->traj_(nr, na, 1) = ny;
 	}}
 
 	this->norm_trajectory();
@@ -169,8 +170,8 @@ void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& ac
 	uint16_t const enc_step_1 = acq.getHead().idx.kspace_encode_step_1;
 	uint16_t const enc_step_2 = acq.getHead().idx.kspace_encode_step_2;
 	
-	TrajPrecision const ky = this->traj_( enc_step_2, enc_step_1 ,0);
-	TrajPrecision const kz = this->traj_( enc_step_2, enc_step_1 ,1); 
+	TrajPrecision const ky = this->traj_( enc_step_1, enc_step_2, 0);
+	TrajPrecision const kz = this->traj_( enc_step_1, enc_step_2 ,1); 
 
 	for( unsigned i=0; i<num_samples; i++)
 	{
@@ -186,8 +187,6 @@ void RPETrajectoryContainer::set_acquisition_trajectory(ISMRMRD::Acquisition& ac
 
 void RPEInterleavedTrajectoryContainer::compute_trajectory()
 {
-	using namespace ISMRMRD;
-
 	std::cout << "Computing trajectory" << std::endl;
 
 	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
@@ -203,14 +202,15 @@ void RPEInterleavedTrajectoryContainer::compute_trajectory()
 	unsigned short NRadial = encoding_mat_size.y;
 	unsigned short NAngles = encoding_mat_size.z;
 
-	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+	std::vector<size_t> traj_dims{NRadial, NAngles, 2}; 
 
    	this->traj_.resize(traj_dims);
 
    	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
 
-	for( unsigned nr=0; nr<NRadial; nr++)
+	
 	for( unsigned na=0; na<NAngles; na++){
+	for( unsigned nr=0; nr<NRadial; nr++)
 	{
 
 		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
@@ -219,8 +219,8 @@ void RPEInterleavedTrajectoryContainer::compute_trajectory()
 		float const nx = r_pos * cos( ang_pos );
 		float const ny = r_pos * sin( ang_pos );
 
-		this->traj_(na, nr, 0) = nx;
-		this->traj_(na, nr, 1) = ny;
+		this->traj_(nr, na, 0) = nx;
+		this->traj_(nr, na, 1) = ny;
 	}}
 
 	this->norm_trajectory();
@@ -231,8 +231,7 @@ void RPEInterleavedTrajectoryContainer::compute_trajectory()
 
 void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 {
-	using namespace ISMRMRD;
-
+	
 	std::cout << "Computing trajectory" << std::endl;
 
 	std::vector< Encoding > all_encodings = this->hdr_.encoding; 
@@ -248,14 +247,15 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 	unsigned short NRadial = encoding_mat_size.y;
 	unsigned short NAngles = encoding_mat_size.z;
 
-	std::vector<size_t> traj_dims{NAngles, NRadial, 2}; 
+	std::vector<size_t> traj_dims{NRadial, NAngles, 2}; 
 
    	this->traj_.resize(traj_dims);
 
    	std::vector<float> radial_shift{0.f, 2.f, 1.f, 3.f};
 
+	
+	for( unsigned na=0; na<NAngles; na++)
 	for( unsigned nr=0; nr<NRadial; nr++)
-	for( unsigned na=0; na<NAngles; na++){
 	{
 
 		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
@@ -264,9 +264,9 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 		float const nx = r_pos * cos( ang_pos );
 		float const ny = r_pos * sin( ang_pos );
 
-		this->traj_(na, nr, 0) = nx;
-		this->traj_(na, nr, 1) = ny;
-	}}
+		this->traj_(nr, na, 0) = nx;
+		this->traj_(nr, na, 1) = ny;
+	}
 
 	this->norm_trajectory();
 }
@@ -289,16 +289,16 @@ void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
 
-	for( size_t nr=0; nr<traj_dims_[1]; nr++)
-	for( size_t na=0; na<traj_dims_[0]; na++){
 	
+	for( size_t na=0; na<traj_dims_[1]; na++)
+	for( size_t nr=0; nr<traj_dims_[0]; nr++)
 	{
-		TrajPrecision traj_x = trajectory(na, nr, 0);
-		TrajPrecision traj_y = trajectory(na, nr, 1);
+		TrajPrecision traj_x = trajectory(nr, na, 0);
+		TrajPrecision traj_y = trajectory(nr, na, 1);
 
-		size_t lin_index = nr*traj_dims_[0] + na;
+		size_t const lin_index = na*traj_dims_[0] + nr;
 		*(this->traj_.begin() + lin_index) = TrajectoryType2D(traj_x, traj_y);
-	}}	
+	}	
 }
 
 
@@ -381,7 +381,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 	std::vector<size_t> slice_dims( data_dims.begin()+1, data_dims.begin()+3 ); 
 
-	size_t const Nr = traj_dims[1];
+	size_t const Nr = traj_dims[0];
 	std::vector<size_t> cropped_slice_dims {Nr, Nr}; 
 	std::vector<size_t> crop_offset_idx{data_dims[1]/2 - Nr/2, data_dims[2]/2 - Nr/2};
 
@@ -452,19 +452,18 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 			
 			for(size_t na=0; na<traj_dims[1]; na++)
+			for(size_t nr=0; nr<traj_dims[0]; nr++)
+			{
+				size_t const linear_index_2D = na*traj_dims[0] + nr;
+				this->k_data_(i_slice, nr, na, i_coil) = result[linear_index_2D];
+				
+				if( std::abs(result[linear_index_2D]) > 1e9 && found_bad_val == false)
 				{
-				for(size_t nr=0; nr<traj_dims[0]; nr++)
-				{
-					size_t const linear_index_2D = na*traj_dims[0] + nr;
-					this->k_data_(i_slice, nr, na, i_coil) = result[linear_index_2D];
-					
-					if( std::abs(result[linear_index_2D]) > 1e9 && found_bad_val == false)
-					{
-						std::cout << "Potentially large value: " << result[linear_index_2D] <<std::endl;
-						found_bad_val = true;
-					}
+					std::cout << "Potentially large value: " << result[linear_index_2D] <<std::endl;
+					found_bad_val = true;
 				}
 			}
+			
 		}	
 	}
 }
