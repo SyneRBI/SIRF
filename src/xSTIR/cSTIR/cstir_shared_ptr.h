@@ -25,8 +25,8 @@ limitations under the License.
 
 #include "data_handle.h"
 
-namespace stir {
-#include "sirf/common/object_handle.inl"
-}
+//namespace stir {
+//#include "sirf/common/object_handle.inl"
+//}
 
 #endif

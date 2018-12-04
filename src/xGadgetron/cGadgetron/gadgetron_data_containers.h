@@ -274,6 +274,11 @@ namespace sirf {
 			init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
 		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 		{
 			init();
@@ -341,7 +346,12 @@ namespace sirf {
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData> 
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
+		virtual gadgetron::shared_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
 			AcquisitionsFile::init();
@@ -674,6 +684,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new GadgetronImagesVector();
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
 			return gadgetron::shared_ptr<GadgetronImageData>
@@ -920,6 +935,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new CoilImagesVector();
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
 		virtual unsigned int items()
 		{
 			return CoilDataVector::items();
@@ -1007,6 +1027,11 @@ namespace sirf {
 		virtual DataContainer* new_data_container()
 		{
 			return (DataContainer*)new CoilSensitivitiesAsImages();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 
 		virtual unsigned int items()

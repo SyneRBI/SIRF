@@ -29,7 +29,9 @@ limitations under the License.
 using namespace stir;
 using namespace sirf;
 
-//typedef aDataContainer<float> DataContainer;
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T >(shared_ptr<T >(new T))
+#define SPTR_FROM_HANDLE(Object, X, H) \
+	shared_ptr<Object> X; getObjectSptrFromHandle<Object>(H, X);
 
 static void*
 unknownObject(const char* obj, const char* name, const char* file, int line)
@@ -67,27 +69,25 @@ void* cSTIR_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "FBP2D"))
-			return newObjectHandle<xSTIR_FBP2DReconstruction>();
+			return NEW_OBJECT_HANDLE(xSTIR_FBP2DReconstruction);
 		if (boost::iequals(name, "ListmodeToSinograms"))
-			return newObjectHandle<ListmodeToSinograms>();
+			return NEW_OBJECT_HANDLE(ListmodeToSinograms);
 		if (boost::iequals(name,
 			"PoissonLogLikelihoodWithLinearModelForMeanAndProjData"))
-			return newObjectHandle
-			<xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF>();
+			return NEW_OBJECT_HANDLE
+			(xSTIR_PoissonLogLikelihoodWithLinearModelForMeanAndProjData3DF);
 		if (boost::iequals(name, "AcqModUsingMatrix"))
-			return newObjectHandle<AcqModUsingMatrix3DF>();
+			return NEW_OBJECT_HANDLE(AcqModUsingMatrix3DF);
 		if (boost::iequals(name, "RayTracingMatrix"))
-			return newObjectHandle<RayTracingMatrix>();
+			return NEW_OBJECT_HANDLE(RayTracingMatrix);
 		if (boost::iequals(name, "QuadraticPrior"))
-			return newObjectHandle<QuadPrior3DF>();
+			return NEW_OBJECT_HANDLE(QuadPrior3DF);
 		if (boost::iequals(name, "PLSPrior"))
-			return newObjectHandle<PLSPrior<float> >();
-		//if (boost::iequals(name, "PLSPrior"))
-		//	return newObjectHandle<xSTIR_PLSPrior3DF>();
+			return NEW_OBJECT_HANDLE(PLSPrior<float>);
 		if (boost::iequals(name, "TruncateToCylindricalFOVImageProcessor"))
-			return newObjectHandle<CylindricFilter3DF>();
+			return NEW_OBJECT_HANDLE(CylindricFilter3DF);
 		if (boost::iequals(name, "EllipsoidalCylinder"))
-			return newObjectHandle<EllipsoidalCylinder>();
+			return NEW_OBJECT_HANDLE(EllipsoidalCylinder);
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -611,8 +611,7 @@ void* cSTIR_setupFBP2DReconstruction(void* ptr_r, void* ptr_i)
 		DataHandle* handle = new DataHandle;
 		xSTIR_FBP2DReconstruction& recon =
 			objectFromHandle< xSTIR_FBP2DReconstruction >(ptr_r);
-		shared_ptr<STIRImageData> sptr_id =
-			objectSptrFromHandle<STIRImageData>(ptr_i);
+		SPTR_FROM_HANDLE(STIRImageData, sptr_id, ptr_i);
 		if (recon.set_up(sptr_id) != Succeeded::yes) {
 			ExecutionStatus status("cSTIR_setupFBP2DReconstruction failed",
 				__FILE__, __LINE__);
@@ -904,10 +903,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionData(void* ptr_ad)
 {
 	try {
-		shared_ptr<PETAcquisitionData>& sptr_ad =
-			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
-		//shared_ptr<ProjDataInfo> sptr_adi =
-		//	sptr_ad->get_proj_data_info_sptr();
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
 		shared_ptr<STIRImageData> sptr(new STIRImageData(*sptr_ad));
 		return newObjectHandle(sptr);
 	}
@@ -918,8 +914,7 @@ extern "C"
 void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny)
 {
 	try {
-		shared_ptr<PETAcquisitionData>& sptr_ad =
-			objectSptrFromHandle<PETAcquisitionData>(ptr_ad);
+		SPTR_FROM_HANDLE(PETAcquisitionData, sptr_ad, ptr_ad);
 		STIRImageData id(*sptr_ad);
 		int dim[3];
 		float vs[3];

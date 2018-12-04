@@ -28,7 +28,7 @@ limitations under the License.
 
 namespace gadgetron {
 	using std::shared_ptr;
-#include "sirf/common/object_handle.inl"
+//#include "sirf/common/object_handle.inl"
 }
 
 #endif

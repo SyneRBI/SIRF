@@ -41,10 +41,11 @@ using namespace sirf;
 
 #define GRAB 1
 
+#define NEW_OBJECT_HANDLE(T) new ObjectHandle<T>(shared_ptr<T>(new T))
 #define NEW_GADGET(G) if (boost::iequals(name, G::class_name())) \
-return newObjectHandle<G>();
+return NEW_OBJECT_HANDLE(G)
 #define NEW_GADGET_CHAIN(C) if (boost::iequals(name, C::class_name())) \
-return newObjectHandle<C>();
+return NEW_OBJECT_HANDLE(C)
 
 shared_ptr<boost::mutex> Mutex::sptr_mutex_;
 
@@ -102,13 +103,13 @@ void* cGT_newObject(const char* name)
 {
 	try {
 		if (boost::iequals(name, "Mutex"))
-			return newObjectHandle<Mutex>();
+			return NEW_OBJECT_HANDLE(Mutex);
 		if (boost::iequals(name, "GTConnector"))
-			return newObjectHandle<GTConnector>();
+			return NEW_OBJECT_HANDLE(GTConnector);
 		if (boost::iequals(name, "CoilImages"))
-			return newObjectHandle<CoilImagesVector>();
+			return NEW_OBJECT_HANDLE(CoilImagesVector);
 		if (boost::iequals(name, "AcquisitionModel"))
-			return newObjectHandle<MRAcquisitionModel>();
+			return NEW_OBJECT_HANDLE(MRAcquisitionModel);
 		NEW_GADGET_CHAIN(GadgetChain);
 		NEW_GADGET_CHAIN(AcquisitionsProcessor);
 		NEW_GADGET_CHAIN(ImagesReconstructor);
@@ -334,11 +335,12 @@ cGT_AcquisitionModel(const void* ptr_acqs, const void* ptr_imgs)
 	try {
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
-		shared_ptr<MRAcquisitionData> acqs =
-			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<GadgetronImageData> imgs =
-			objectSptrFromHandle<GadgetronImageData>(h_imgs);
-		shared_ptr<MRAcquisitionModel> am(new MRAcquisitionModel(acqs, imgs));
+		shared_ptr<MRAcquisitionData> sptr_acqs;
+		shared_ptr<GadgetronImageData> sptr_imgs;
+		getObjectSptrFromHandle<MRAcquisitionData>(h_acqs, sptr_acqs);
+		getObjectSptrFromHandle<GadgetronImageData>(h_imgs, sptr_imgs);
+		shared_ptr<MRAcquisitionModel> 
+			am(new MRAcquisitionModel(sptr_acqs, sptr_imgs));
 		return newObjectHandle<MRAcquisitionModel>(am);
 	}
 	CATCH;
@@ -354,10 +356,10 @@ cGT_setUpAcquisitionModel
 		CAST_PTR(DataHandle, h_acqs, ptr_acqs);
 		CAST_PTR(DataHandle, h_imgs, ptr_imgs);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		shared_ptr<MRAcquisitionData> sptr_acqs =
-			objectSptrFromHandle<MRAcquisitionData>(h_acqs);
-		shared_ptr<GadgetronImageData> sptr_imgs =
-			objectSptrFromHandle<GadgetronImageData>(h_imgs);
+		shared_ptr<MRAcquisitionData> sptr_acqs;
+		shared_ptr<GadgetronImageData> sptr_imgs;
+		getObjectSptrFromHandle<MRAcquisitionData>(h_acqs, sptr_acqs);
+		getObjectSptrFromHandle<GadgetronImageData>(h_imgs, sptr_imgs);
 		am.set_up(sptr_acqs, sptr_imgs);
 		return (void*)new DataHandle;
 	}
@@ -374,23 +376,23 @@ cGT_setAcquisitionModelParameter
 		if (boost::iequals(name, "acquisition_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<MRAcquisitionData> sptr =
-				objectSptrFromHandle<MRAcquisitionData>(handle);
-			am.set_acquisition_template(sptr);
+			shared_ptr<MRAcquisitionData> sptr_acqs;
+			getObjectSptrFromHandle<MRAcquisitionData>(handle, sptr_acqs);
+			am.set_acquisition_template(sptr_acqs);
 		}
 		else if (boost::iequals(name, "image_template")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<GadgetronImageData> sptr =
-				objectSptrFromHandle<GadgetronImageData>(handle);
-			am.set_image_template(sptr);
+			shared_ptr<GadgetronImageData> sptr_imgs;
+			getObjectSptrFromHandle<GadgetronImageData>(handle, sptr_imgs);
+			am.set_image_template(sptr_imgs);
 		}
 		else if (boost::iequals(name, "coil_sensitivity_maps")) {
 			CAST_PTR(DataHandle, handle, ptr);
 			MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-			shared_ptr<CoilSensitivitiesContainer> sptr =
-				objectSptrFromHandle<CoilSensitivitiesContainer>(handle);
-			am.setCSMs(sptr);
+			shared_ptr<CoilSensitivitiesContainer> sptr_csc;
+			getObjectSptrFromHandle<CoilSensitivitiesContainer>(handle, sptr_csc);
+			am.setCSMs(sptr_csc);
 		}
 		else
 			return unknownObject("parameter", name, __FILE__, __LINE__);
@@ -407,8 +409,8 @@ cGT_setCSMs(void* ptr_am, const void* ptr_csms)
 		CAST_PTR(DataHandle, h_am, ptr_am);
 		CAST_PTR(DataHandle, h_csms, ptr_csms);
 		MRAcquisitionModel& am = objectFromHandle<MRAcquisitionModel>(h_am);
-		shared_ptr<CoilSensitivitiesContainer> sptr_csms =
-			objectSptrFromHandle<CoilSensitivitiesContainer>(h_csms);
+		shared_ptr<CoilSensitivitiesContainer> sptr_csms;
+		getObjectSptrFromHandle<CoilSensitivitiesContainer>(h_csms, sptr_csms);
 		am.setCSMs(sptr_csms);
 		return (void*)new DataHandle;
 	}
@@ -1076,8 +1078,9 @@ cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_r, ptr_r);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_r);
-		gc.add_reader(id, g);
+		shared_ptr<aGadget> sptr_g;
+		getObjectSptrFromHandle<aGadget>(h_r, sptr_g);
+		gc.add_reader(id, sptr_g);
 	}
 	CATCH;
 
@@ -1092,8 +1095,9 @@ cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_w)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_w, ptr_w);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_w);
-		gc.add_writer(id, g);
+		shared_ptr<aGadget> sptr_g;
+		getObjectSptrFromHandle<aGadget>(h_w, sptr_g);
+		gc.add_writer(id, sptr_g);
 	}
 	CATCH;
 
@@ -1108,8 +1112,9 @@ cGT_addGadget(void* ptr_gc, const char* id, const void* ptr_g)
 		CAST_PTR(DataHandle, h_gc, ptr_gc);
 		CAST_PTR(DataHandle, h_g, ptr_g);
 		GadgetChain& gc = objectFromHandle<GadgetChain>(h_gc);
-		shared_ptr<aGadget>& g = objectSptrFromHandle<aGadget>(h_g);
-		gc.add_gadget(id, g);
+		shared_ptr<aGadget> sptr_g;
+		getObjectSptrFromHandle<aGadget>(h_g, sptr_g);
+		gc.add_gadget(id, sptr_g);
 	}
 	CATCH;
 
@@ -1200,8 +1205,8 @@ cGT_registerImagesReceiver(void* ptr_con, void* ptr_img)
 		CAST_PTR(DataHandle, h_img, ptr_img);
 		GTConnector& conn = objectFromHandle<GTConnector>(h_con);
 		GadgetronClientConnector& con = conn();
-		shared_ptr<GadgetronImageData> sptr_images =
-			objectSptrFromHandle<GadgetronImageData>(h_img);
+		shared_ptr<GadgetronImageData> sptr_images;
+		getObjectSptrFromHandle<GadgetronImageData>(h_img, sptr_images);
 		con.register_reader(GADGET_MESSAGE_ISMRMRD_IMAGE,
 			shared_ptr<GadgetronClientMessageReader>
 			(new GadgetronClientImageMessageCollector(sptr_images)));
