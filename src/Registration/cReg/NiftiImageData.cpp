@@ -908,6 +908,75 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
     return false;
 }
 
+// ------------------------------------------------------------------------------ //
+// Pure virtual methods from ImageData
+// ------------------------------------------------------------------------------ //
+template<class dataType>
+void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    double s = 0.0;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        s += double(_data[i] * x._data[i]);
+    float* ptr_s = static_cast<float*>(ptr);
+    *ptr_s = float(s);
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::axpby(
+    const void* ptr_a, const DataContainer& a_x,
+    const void* ptr_b, const DataContainer& a_y)
+{
+    const float a = *static_cast<const float*>(ptr_a);
+    const float b = *static_cast<const float*>(ptr_b);
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    assert(_nifti_image->nvox == y._nifti_image->nvox);
+
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] = a * x._data[i] + b * y._data[i];
+}
+
+template<class dataType>
+float NiftiImageData<dataType>::norm()
+{
+    double s = 0.0;
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        s += double(_data[i]*_data[i]);
+    return float(sqrt(s));
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::multiply
+    (const DataContainer& a_x, const DataContainer& a_y)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    assert(_nifti_image->nvox == y._nifti_image->nvox);
+
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] = x._data[i] * y._data[i];
+}
+
+template<class dataType>
+void NiftiImageData<dataType>::divide
+    (const DataContainer& a_x, const DataContainer& a_y)
+{
+    const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
+    const NiftiImageData<dataType>& y = dynamic_cast<const NiftiImageData<dataType>&>(a_y);
+    assert(_nifti_image->nvox == x._nifti_image->nvox);
+    assert(_nifti_image->nvox == y._nifti_image->nvox);
+
+    if (y.get_max() < 1.e-12F)
+        THROW("division by zero in NiftiImageData::divide");
+
+    for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
+        _data[i] = x._data[i] / abs(y._data[i]);
+}
+
 namespace sirf {
 template class NiftiImageData<float>;
 }

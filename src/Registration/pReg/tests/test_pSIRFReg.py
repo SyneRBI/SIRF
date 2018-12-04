@@ -731,7 +731,8 @@ def try_weighted_mean(na):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-
+# TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+"""
 # STIR to SIRFReg
 def try_stir_to_sirfreg():
     time.sleep(0.5)
@@ -760,7 +761,7 @@ def try_stir_to_sirfreg():
     sys.stderr.write('#                             Finished STIR to SIRFReg test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
-
+"""
 
 # SIRFRegAffineTransformation
 def try_sirfregAffineTransformation(na):
@@ -804,7 +805,7 @@ def test():
     try_transformations(na)
     try_resample(na)
     try_weighted_mean(na)
-    try_stir_to_sirfreg()
+    # try_stir_to_sirfreg() TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     try_sirfregAffineTransformation(na)
 
 

@@ -722,7 +722,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished weighted mean test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting STIR to SIRFReg test...\n";
@@ -748,7 +748,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Finished STIR to SIRFReg test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
-
+*/
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting SIRFRegAffineTransformation test...\n";

@@ -31,7 +31,7 @@ ENDIF()
 
 # Create library
 ADD_LIBRARY(SIRFReg ${SOURCES})
-#TARGET_LINK_LIBRARIES(SIRFReg SIRF_common)
+TARGET_LINK_LIBRARIES(SIRFReg common)
 
 # Link against stir and gadgetron
 TARGET_LINK_LIBRARIES(SIRFReg cstir)

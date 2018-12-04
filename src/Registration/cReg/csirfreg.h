@@ -54,11 +54,11 @@ extern "C" {
     void* cSIRFReg_NiftiImageData_norm(const void* im1_ptr, const void* im2_ptr);
     void* cSIRFReg_NiftiImageData_get_original_datatype(const void* im_ptr);
     void* cSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr);
-
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     // NiftiImageData3D
     void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr);
     void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
-
+*/
     // NiftiImageData3DTensor
     void* cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
     void* cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);

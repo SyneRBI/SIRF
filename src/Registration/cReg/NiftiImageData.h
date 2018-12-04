@@ -37,14 +37,89 @@ limitations under the License.
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <sstream>
+#include "num_ref.h"
+#include "image_data.h"
 
 namespace sirf {
 
 /// SIRF image data
 template<class dataType>
-class NiftiImageData
+class NiftiImageData : public ImageData
 {
 public:
+
+    typedef ImageData::Iterator BaseIter;
+    typedef ImageData::Iterator_const BaseIter_const;
+    class Iterator : public BaseIter {
+    public:
+        Iterator(dataType *iter) : _iter(iter)
+        {}
+        Iterator& operator=(const Iterator& iter)
+        {
+            _iter = iter._iter;
+            _ref.copy(iter._ref);
+            return *this;
+        }
+        virtual Iterator& operator++()
+        {
+            ++_iter;
+            return *this;
+        }
+        virtual bool operator==(const BaseIter& an_iter) const
+        {
+            const Iterator& iter = (const Iterator&)an_iter;
+            return _iter == iter._iter;
+        }
+        virtual bool operator!=(const BaseIter& an_iter) const
+        {
+            const Iterator& iter = (const Iterator&)an_iter;
+            return _iter != iter._iter;
+        }
+        virtual FloatRef& operator*()
+        {
+            dataType& v = *_iter;
+            _ref.set_ptr(&v);
+            return _ref;
+        }
+    private:
+        dataType *_iter;
+        FloatRef _ref;
+    };
+    class Iterator_const : public BaseIter_const {
+    public:
+        Iterator_const(const dataType *iter) : _iter(iter)
+        {}
+        Iterator_const& operator=(const Iterator_const& iter)
+        {
+            _iter = iter._iter;
+            _ref.copy(iter._ref);
+            return *this;
+        }
+        virtual Iterator_const& operator++()
+        {
+            ++_iter;
+            return *this;
+        }
+        virtual bool operator==(const BaseIter_const& an_iter) const
+        {
+            const Iterator_const& iter = (const Iterator_const&)an_iter;
+            return _iter == iter._iter;
+        }
+        virtual bool operator!=(const BaseIter_const& an_iter) const
+        {
+            const Iterator_const& iter = (const Iterator_const&)an_iter;
+            return _iter != iter._iter;
+        }
+        virtual const FloatRef& operator*() const
+        {
+            const dataType& v = *_iter;
+            _ref.set_ptr((void*)&v);
+            return _ref;
+        }
+    private:
+        const dataType *_iter;
+        mutable FloatRef _ref;
+    };
 
     /// Constructor
     NiftiImageData() {}
@@ -295,6 +370,65 @@ private:
         free(originalArray);
         return;
     }
+
+    // ------------------------------------------------------------------------------ //
+    // Pure virtual methods from ImageData
+    // ------------------------------------------------------------------------------ //
+private:
+    NiftiImageData<float>* same_image_data()
+    {
+        NiftiImageData<float>* ptr_image = new NiftiImageData<float>;
+        return ptr_image;
+    }
+    DataContainer* new_data_container()
+    {
+        return (DataContainer*)same_image_data();
+    }
+    // data container methods
+    unsigned int items() { return 1; }
+    virtual void dot      (const DataContainer& a_x, void* ptr);
+    virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
+    virtual float norm();
+    virtual void multiply (const DataContainer& a_x, const DataContainer& a_y);
+    virtual void divide   (const DataContainer& a_x, const DataContainer& a_y);
+    virtual Dimensions dimensions() const
+    {
+        Dimensions dim;
+        int *d = _nifti_image->dim;
+        dim["x"] = d[1];
+        dim["y"] = d[2];
+        dim["z"] = d[3];
+        dim["t"] = d[4];
+        dim["u"] = d[5];
+        dim["v"] = d[6];
+        dim["w"] = d[7];
+        return dim;
+    }
+    virtual Iterator& begin()
+    {
+        _begin.reset(new Iterator(_data));
+        return *_begin;
+    }
+    virtual Iterator_const& begin() const
+    {
+        _begin_const.reset(new Iterator_const(_data));
+        return *_begin_const;
+    }
+    virtual Iterator& end()
+    {
+        _end.reset(new Iterator(_data+_nifti_image->nvox));
+        return *_end;
+    }
+    virtual Iterator_const& end() const
+    {
+        _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
+        return *_end_const;
+    }
+protected:
+    mutable std::shared_ptr<Iterator> _begin;
+    mutable std::shared_ptr<Iterator> _end;
+    mutable std::shared_ptr<Iterator_const> _begin_const;
+    mutable std::shared_ptr<Iterator_const> _end_const;
 };
 }
 

@@ -35,7 +35,7 @@ limitations under the License.
 
 
 using namespace sirf;
-
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 template<class dataType>
 NiftiImageData3D<dataType>::NiftiImageData3D(const PETImageData &pet_image)
 {
@@ -56,7 +56,7 @@ NiftiImageData3D<dataType>::NiftiImageData3D(const MRImageData &)
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
-
+*/
 template<class dataType>
 void NiftiImageData3D<dataType>::set_up_nifti(const VoxelisedGeometricalInfo3D &info)
 {
@@ -114,7 +114,7 @@ void NiftiImageData3D<dataType>::set_up_nifti(const VoxelisedGeometricalInfo3D &
     // Always float
     this->set_up_data(NIFTI_TYPE_FLOAT32);
 }
-
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 template<class dataType>
 void NiftiImageData3D<dataType>::copy_data_to(PETImageData &pet_image) const
 {
@@ -135,7 +135,7 @@ void NiftiImageData3D<dataType>::copy_data_to(MRImageData &) const
     std::cout << "\n\nTODO\n\n";
     exit(0);
 }
-
+*/
 template<class dataType>
 bool NiftiImageData3D<dataType>::check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const
 {

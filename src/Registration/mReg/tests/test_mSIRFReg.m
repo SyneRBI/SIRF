@@ -58,7 +58,7 @@ try_niftyf3d(g);
 try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
-try_stir_to_sirfreg(g);
+% try_stir_to_sirfreg(g); TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -614,6 +614,8 @@ function try_weighted_mean(g,na)
     disp('%------------------------------------------------------------------------ %')
 end
 
+% TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+%{
 function try_stir_to_sirfreg(g)
     disp('% ----------------------------------------------------------------------- %')
     disp('%                  Starting STIR to SIRFReg test...')
@@ -639,6 +641,7 @@ function try_stir_to_sirfreg(g)
     disp('%                  Finished STIR to SIRFReg test.')
     disp('%------------------------------------------------------------------------ %')
 end
+%}
 
 function try_sirfregAffineTransformation(g,na)
     disp('% ----------------------------------------------------------------------- %')

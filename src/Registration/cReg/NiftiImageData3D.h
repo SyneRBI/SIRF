@@ -70,7 +70,7 @@ public:
     /// Nifti std::shared_ptr constructor
     NiftiImageData3D(const std::shared_ptr<nifti_image> image_nifti)
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
-
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     /// STIR constructor
     NiftiImageData3D(const PETImageData &pet_image);
 
@@ -82,7 +82,7 @@ public:
 
     /// Copy data to MRImageData
     void copy_data_to(MRImageData &) const;
-
+*/
     /// Deep copy
     NiftiImageData3D deep_copy() const
     { return this->NiftiImageData<dataType>::deep_copy(); }

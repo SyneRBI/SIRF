@@ -87,13 +87,11 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_get_original_datatype(const 
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR_INT min_index_ptr, PTR_INT max_index_ptr) {
 	return cSIRFReg_NiftiImageData_crop(im_ptr, min_index_ptr, max_index_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr) {
-	return cSIRFReg_NiftiImageData3D_from_PETImageData(ptr);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj) {
-	return cSIRFReg_NiftiImageData3D_copy_data_to(ptr, obj);
-}
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+    void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr);
+    void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
+*/
+EXPORTED_FUNCTION  void* mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
 	return cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj) {

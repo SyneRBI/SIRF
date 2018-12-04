@@ -323,6 +323,7 @@ void* cSIRFReg_NiftiImageData_crop(const void* im_ptr, size_t min_index_ptr, siz
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3D
 // -------------------------------------------------------------------------------- //
+/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 extern "C"
 void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr)
 {
@@ -345,7 +346,7 @@ void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
     }
     CATCH;
 }
-
+*/
 // -------------------------------------------------------------------------------- //
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
