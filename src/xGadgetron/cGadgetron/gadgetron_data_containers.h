@@ -369,12 +369,12 @@ namespace sirf {
 
 	*/
 
-	class GadgetronImageData : public MRImageData {
+	class ISMRMRDImageData : public MRImageData {
 	public:
-		GadgetronImageData() : ordered_(false), index_(0) {}
-		//GadgetronImageData(GadgetronImageData& id, const char* attr, 
+		ISMRMRDImageData() : ordered_(false), index_(0) {}
+		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
-		virtual ~GadgetronImageData()
+		virtual ~ISMRMRDImageData()
 		{
 			if (index_)
 				delete[] index_;
@@ -417,9 +417,9 @@ namespace sirf {
 			ImageWrap& iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
-		virtual gadgetron::shared_ptr<GadgetronImageData> 
+		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
 			new_images_container() = 0;
-		virtual gadgetron::shared_ptr<GadgetronImageData>
+		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
 		{
@@ -459,6 +459,8 @@ namespace sirf {
 		bool ordered_;
 		int* index_;
 	};
+
+	typedef ISMRMRDImageData GadgetronImageData;
 
 	/*!
 	\ingroup Gadgetron Data Containers
