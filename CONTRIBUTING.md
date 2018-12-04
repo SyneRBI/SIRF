@@ -28,14 +28,19 @@ This is our recommended process. If it sounds too daunting, ask for help.
 3. Create a branch in your fork with a descriptive name and put your fixes there. If your fix is
 simple you could do it on github by editing a file, otherwise clone your project (or add a remote
 to your current git clone) and work as usual.
-4. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
+4. If your change is important, add it to [CHANGES.md](https://github.com/CCPPETMR/SIRF/blob/master/CHANGES.md)
+and even [UserGuide.md](https://github.com/CCPPETMR/SIRF/blob/master/doc/UserGuide.md) or other documentation files.
+5. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 for each change (in particular with a single "subject" line
 followed by an empty line and then more details).
-5. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request)
+6. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request)
 (enable changes by project admins.) Be prepared to add further commits to your branch after discussion.
 In the description of the PR, add a statement about which Issue this applies to
 using [a phrase such that github auto-closes the issue when merged to master](https://help.github.com/articles/closing-issues-using-keywords/).
-6. After acceptance of your PR, go home with a nice warm feeling.
+7. After acceptance of your PR, go home with a nice warm feeling.
+
+Suggested reading: 
+https://help.github.com/articles/fork-a-repo/, https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project or https://guides.github.com/activities/forking/.
 
 ## Project rules
 
@@ -92,7 +97,8 @@ SIRF$ git pull --recurse-submodules
 SIRF$ cd data
 SIRF/data$ # create/change some files
 SIRF/data$ git commit -m "add some data" && git push && cd ..
-SIRF$ git add data && git commit -m "update submodule" && git push
+SIRF$ git add --force data  # force required for safety (see 4 below)
+SIRF$ git commit -m "update submodule" && git push
 ```
 3. What happens when switching branches
     + When switching branches in SIRF, the data submodule will not be touched.
@@ -101,5 +107,15 @@ SIRF$ git add data && git commit -m "update submodule" && git push
 	+ WARNING: This is why `git add --all` is bad practice (if you forget to
 	  update submodules when needed, then committing all modifications will
 	  include the current wrong submodule commit)
+4. What happens if upstream changes conflict
+    + The `data` submodule may be force-pushed to by maintainers
+      to reduce its size (removing unneeded data from git history).
+      Consequentially `SIRF$ git status` may indicate changes in the `data`
+      submodule despite a user not having touched it.
+      In order to overwrite the local outdated submodule:
+```bash
+SIRF$ cd data
+SIRF/data$ git fetch origin && git reset --hard origin/master && cd ..
+```
 
 [submodules]: https://git-scm.com/docs/gitsubmodules
