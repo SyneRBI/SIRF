@@ -56,25 +56,25 @@ void* cSIRFReg_newObject(const char* name)
 {
 	try {
         if (boost::iequals(name, "NiftiImageData"))
-            return newObjectHandle<NiftiImageData<float> >();
+            return newObjectHandle(std::shared_ptr<NiftiImageData<float> >(new NiftiImageData<float>));
         if (boost::iequals(name, "NiftiImageData3D"))
-            return newObjectHandle<NiftiImageData3D<float> >();
+            return newObjectHandle(std::shared_ptr<NiftiImageData3D<float> >(new NiftiImageData3D<float>));
         if (boost::iequals(name, "NiftiImageData3DTensor"))
-            return newObjectHandle<NiftiImageData3DTensor<float> >();
+            return newObjectHandle(std::shared_ptr<NiftiImageData3DTensor<float> >(new NiftiImageData3DTensor<float>));
         if (boost::iequals(name, "NiftiImageData3DDisplacement"))
-            return newObjectHandle<NiftiImageData3DDisplacement<float> >();
+            return newObjectHandle(std::shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>));
         if (boost::iequals(name, "NiftiImageData3DDeformation"))
-            return newObjectHandle<NiftiImageData3DDeformation<float> >();
+            return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
         if (boost::iequals(name, "SIRFRegNiftyAladinSym"))
-            return newObjectHandle<SIRFRegNiftyAladinSym<float> >();
+            return newObjectHandle(std::shared_ptr<SIRFRegNiftyAladinSym<float> >(new SIRFRegNiftyAladinSym<float>));
         if (boost::iequals(name, "SIRFRegNiftyF3dSym"))
-            return newObjectHandle<SIRFRegNiftyF3dSym<float> >();
+            return newObjectHandle(std::shared_ptr<SIRFRegNiftyF3dSym<float> >(new SIRFRegNiftyF3dSym<float>));
         if (boost::iequals(name, "SIRFRegNiftyResample"))
-            return newObjectHandle<SIRFRegNiftyResample<float> >();
+            return newObjectHandle(std::shared_ptr<SIRFRegNiftyResample<float> >(new SIRFRegNiftyResample<float>));
         if (boost::iequals(name, "SIRFRegImageWeightedMean"))
-            return newObjectHandle<SIRFRegImageWeightedMean<float> >();
+            return newObjectHandle(std::shared_ptr<SIRFRegImageWeightedMean<float> >(new SIRFRegImageWeightedMean<float>));
         if (boost::iequals(name, "SIRFRegAffineTransformation"))
-            return newObjectHandle<SIRFRegAffineTransformation<float> >();
+            return newObjectHandle(std::shared_ptr<SIRFRegAffineTransformation<float> >(new SIRFRegAffineTransformation<float>));
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;

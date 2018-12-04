@@ -384,7 +384,11 @@ private:
     {
         return (DataContainer*)same_image_data();
     }
-    // data container methods
+    virtual ObjectHandle<DataContainer>* new_data_container_handle()
+    {
+        return new ObjectHandle<DataContainer>
+            (std::shared_ptr<DataContainer>(new_data_container()));
+    }
     unsigned int items() { return 1; }
     virtual void dot      (const DataContainer& a_x, void* ptr);
     virtual void axpby    (const void* ptr_a, const DataContainer& a_x, const void* ptr_b, const DataContainer& a_y);
