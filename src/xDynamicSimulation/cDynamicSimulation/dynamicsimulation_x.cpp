@@ -69,6 +69,9 @@ void MRDynamicSimulation::simulate_statics( void )
 
 void MRDynamicSimulation::simulate_dynamics( void )
 {
+
+	cout << "Simulating dynamic data acquisition... " <<endl;
+	
 	if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() > 0 )
 		this->simulate_simultaneous_motion_contrast_dynamics();		
 	else if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() == 0 )
