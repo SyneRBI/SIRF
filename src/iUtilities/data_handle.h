@@ -157,11 +157,11 @@ public:
 	ObjectHandle(const ObjectHandle& obj) {
 		if (obj.uses_boost_sptr()) {
 			NEW(boost::shared_ptr<Base>, ptr_sptr);
-			*ptr_sptr = *(shared_ptr<Base>*)obj.data();
+			*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
 		}
 		else {
-			NEW(shared_ptr<Base>, ptr_sptr);
+			NEW(std::shared_ptr<Base>, ptr_sptr);
 			*ptr_sptr = *(std::shared_ptr<Base>*)obj.data();
 			_data = (void*)ptr_sptr;
 		}
