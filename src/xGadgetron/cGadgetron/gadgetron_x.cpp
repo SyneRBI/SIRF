@@ -411,8 +411,6 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		}
 	}
 
-
-
 	ISMRMRD::NDArray< complex_float_t > k_data;
 	
 	std::string trajectory_type = this->sptr_traj_->get_traj_type();
