@@ -85,6 +85,9 @@ void DynamicSimulationDeformer::deform_contrast_generator(MRContrastGenerator& m
 				*(curr_img.begin() + i_vox) =  std::complex<float> ( voxel_real_part, voxel_imag_part );
 			}
 		}
+		
+		std::vector< SIRFImageDataDeformation> empty_vec_to_free_memory;
+		vec_displacement_fields.swap( empty_vec_to_free_memory );
 	}
 	else
 	{
