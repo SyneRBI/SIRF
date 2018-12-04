@@ -382,6 +382,11 @@ namespace sirf {
 			init();
 			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
+		}
 
 	private:
 		bool _owns_file;
@@ -460,6 +465,11 @@ namespace sirf {
 		{
 			init();
 			return _template->same_acquisition_data(*data());
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 
 	};
@@ -630,6 +640,11 @@ namespace sirf {
 		DataContainer* new_data_container()
 		{
 			return (DataContainer*)same_image_data();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		unsigned int items()
 		{

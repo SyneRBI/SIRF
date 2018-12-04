@@ -25,7 +25,7 @@ limitations under the License.
 #include "data_handle.h"
 #include "sirf/common/data_container.h"
 
-using std::shared_ptr;
+//using std::shared_ptr;
 //#include "sirf/common/object_handle.inl"
 
 using namespace sirf;
@@ -84,9 +84,13 @@ const void* ptr_b, const void* ptr_y
 			objectFromHandle<DataContainer >(ptr_x);
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->axpby(ptr_a, x, ptr_b, y);
-		return newObjectHandle<DataContainer >(sptr_z);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.axpby(ptr_a, x, ptr_b, y);
+		return h;
+		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
+		//sptr_z->axpby(ptr_a, x, ptr_b, y);
+		//return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -100,9 +104,13 @@ cSIRF_multiply(const void* ptr_x, const void* ptr_y)
 			objectFromHandle<DataContainer >(ptr_x);
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->multiply(x, y);
-		return newObjectHandle<DataContainer >(sptr_z);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.multiply(x, y);
+		return h;
+		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
+		//sptr_z->multiply(x, y);
+		//return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
@@ -116,9 +124,13 @@ cSIRF_divide(const void* ptr_x, const void* ptr_y)
 			objectFromHandle<DataContainer >(ptr_x);
 		DataContainer& y =
 			objectFromHandle<DataContainer >(ptr_y);
-		shared_ptr<DataContainer > sptr_z(x.new_data_container());
-		sptr_z->divide(x, y);
-		return newObjectHandle<DataContainer >(sptr_z);
+		void* h = x.new_data_container_handle();
+		DataContainer& z = objectFromHandle<DataContainer>(h);
+		z.divide(x, y);
+		return h;
+		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
+		//sptr_z->divide(x, y);
+		//return newObjectHandle<DataContainer >(sptr_z);
 	}
 	CATCH;
 }
