@@ -33,7 +33,6 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "NiftiImageData3D.h"
 #include "SIRFRegImageWeightedMean.h"
-#include "stir_data_containers.h"
 #include <memory>
 
 using namespace sirf;

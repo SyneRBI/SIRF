@@ -90,11 +90,12 @@ public:
 
 protected:
 
+    /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     /// Set up nifti image
     void set_up_nifti(const VoxelisedGeometricalInfo3D &info);
 
     /// Check that images are aligned
-    bool check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const;
+    bool check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const;*/
 };
 }
 

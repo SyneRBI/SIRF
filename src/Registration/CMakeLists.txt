@@ -16,23 +16,6 @@
 #
 #=========================================================================
 
-# To be able to build with niftyreg, you need to append the cmake_cxx_flags
-# to suppress errors from converting float to double
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing")
-
-# SIRF stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/iUtilities)
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/common/include/SIRF/common)
-# STIR stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/xSTIR/cSTIR)
-find_package(STIR)
-INCLUDE_DIRECTORIES("${STIR_INCLUDE_DIRS}")
-# Gadgetron stuff
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/xGadgetron/cGadgetron)
-find_package(ISMRMRD)
-INCLUDE_DIRECTORIES(${ISMRMRD_INCLUDE_DIRS})
-
 # NiftyReg
 include("${CMAKE_CURRENT_SOURCE_DIR}/NiftyReg.cmake")
 
@@ -41,14 +24,6 @@ ADD_SUBDIRECTORY(cReg)
 INCLUDE_DIRECTORIES(cReg)
 
 set(cSIRFREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-
-# If python or matlab desired
-IF(BUILD_PYTHON OR BUILD_MATLAB)
-	# Find Swig
-	FIND_PACKAGE(SWIG REQUIRED)
-	INCLUDE(${SWIG_USE_FILE})
-	SET(CMAKE_SWIG_FLAGS "")
-ENDIF(BUILD_PYTHON OR BUILD_MATLAB)
 
 ADD_SUBDIRECTORY(pReg)
 ADD_SUBDIRECTORY(mReg)

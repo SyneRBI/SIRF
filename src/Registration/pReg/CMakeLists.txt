@@ -33,8 +33,6 @@ if(BUILD_PYTHON)
   SWIG_ADD_MODULE(pysirfreg python pysirfreg.i)
   SWIG_LINK_LIBRARIES(pysirfreg SIRFReg ${PYTHON_LIBRARIES} ${STIR_LIBRARIES})
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   INSTALL(TARGETS ${SWIG_MODULE_pysirfreg_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirfreg.py" SIRFReg.py DESTINATION "${PYTHON_DEST}/sirf")
 

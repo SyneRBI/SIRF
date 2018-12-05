@@ -30,13 +30,13 @@ limitations under the License.
 #include "NiftiImageData.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
-#include "stir_data_containers.h"
 #include <boost/filesystem.hpp>
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
 #include "NiftiImageData3DDeformation.h"
 #include "NiftiImageData3DDisplacement.h"
 #include "SIRFRegAffineTransformation.h"
+#include <iomanip>
 
 using namespace sirf;
 

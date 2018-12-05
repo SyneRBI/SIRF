@@ -22,9 +22,8 @@ if(BUILD_MATLAB)
 
   include_directories(${Matlab_INCLUDE_DIRS})
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   add_library(msirfreg SHARED msirfreg.c printer.cpp)
+  target_link_libraries(msirfreg cstir)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(msirfreg PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 

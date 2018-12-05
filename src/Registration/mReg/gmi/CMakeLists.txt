@@ -20,7 +20,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 include_directories(${Matlab_INCLUDE_DIRS})
 
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 add_executable(gmi_xsirfreg gmi_xsirfreg.cpp)
 target_link_libraries(gmi_xsirfreg mig)
 INSTALL(TARGETS gmi_xsirfreg DESTINATION bin)

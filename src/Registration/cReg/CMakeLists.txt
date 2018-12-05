@@ -31,11 +31,10 @@ ENDIF()
 
 # Create library
 ADD_LIBRARY(SIRFReg ${SOURCES})
-TARGET_LINK_LIBRARIES(SIRFReg common)
 
-# Link against stir and gadgetron
-TARGET_LINK_LIBRARIES(SIRFReg cstir)
-#TARGET_LINK_LIBRARIES(SIRFReg cgadgetron)
+# Link to SIRF stuff
+TARGET_LINK_LIBRARIES(SIRFReg common)
+target_link_libraries(SIRFReg iutilities)
 
 # NiftyReg
 TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
@@ -43,6 +42,19 @@ TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
 # Add libz (should be in /usr/local)
 FIND_LIBRARY(LIBZ  z)
 TARGET_LINK_LIBRARIES(SIRFReg ${LIBZ})
+
+# Add boost library dependencies
+if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
+  # This is harder than it should be on older CMake versions to be able to cope with
+  # spaces in filenames.
+  foreach(C SYSTEM FILESYSTEM)
+    target_link_libraries(SIRFReg optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(SIRFReg debug  "${Boost_${C}_LIBRARY_DEBUG}")
+  endforeach()
+else()
+  # Nice and simple for recent CMake (which knows about your Boost version)
+  target_link_libraries(SIRFReg Boost::system Boost::filesystem)
+endif()
 
 # Install
 INSTALL(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)

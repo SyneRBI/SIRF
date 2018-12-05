@@ -18,7 +18,6 @@ limitations under the License.
 
 */
 
-#include "stir_x.h"
 #include "data_handle.h"
 #include "csirfreg_p.h"
 #include "NiftiImageData3D.h"
@@ -27,7 +26,6 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
 
-using namespace stir;
 using namespace sirf;
 
 extern "C"
