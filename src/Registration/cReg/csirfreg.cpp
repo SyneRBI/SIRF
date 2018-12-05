@@ -484,13 +484,13 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
         SIRFReg<float>& reg = objectFromHandle<SIRFReg<float>>(ptr);
         shared_ptr<NiftiImageData3DDeformation<float> > sptr;
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_forward().deep_copy())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_forward()->deep_copy())));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_inverse().deep_copy())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_inverse()->deep_copy())));
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_forward().deep_copy())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_forward()->deep_copy())));
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_inverse().deep_copy())));
+            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_inverse()->deep_copy())));
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }

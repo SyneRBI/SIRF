@@ -31,9 +31,12 @@ limitations under the License.
 #define _SIRFREGIMAGEWEIGHTEDMEAN_H_
 
 #include <vector>
-#include "NiftiImageData3D.h"
 
 namespace sirf {
+
+// Forward delcarations
+template<class dataType> class NiftiImageData;
+
 /// Calculate the weighted mean of a set of images
 template<class dataType>
 class SIRFRegImageWeightedMean
@@ -53,7 +56,7 @@ public:
     void process();
 
     /// Get output
-    const NiftiImageData<dataType> &get_output() const { return _output_image; }
+    const std::shared_ptr<const NiftiImageData<dataType> > get_output() const { return _output_image_sptr; }
 
 protected:
 
@@ -61,13 +64,13 @@ protected:
     void check_can_do_mean() const;
 
     /// Bool to check if update is necessary
-    bool                                   _need_to_update;
+    bool _need_to_update;
     /// Vector of input images
-    std::vector<NiftiImageData<dataType> > _input_images;
+    std::vector<std::shared_ptr<const NiftiImageData<dataType> > > _input_image_sptrs;
     /// Vector of weights
-    std::vector<float>                     _weights;
+    std::vector<float> _weights;
     /// Output image
-    NiftiImageData<dataType>               _output_image;
+    std::shared_ptr<NiftiImageData<dataType> > _output_image_sptr;
 
 };
 }

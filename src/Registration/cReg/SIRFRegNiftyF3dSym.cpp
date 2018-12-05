@@ -41,10 +41,14 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
+    // Annoyingly NiftyReg doesn't mark ref and floating images as const, so need to copy (could do a naughty cast, but not going to do that!)
+    NiftiImageData3D<dataType> ref = *this->_reference_image_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_image_sptr;
+
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<dataType> >(new reg_f3d_sym<dataType>(_reference_time_point, _floating_time_point));
-    _registration_sptr->SetFloatingImage(this->_floating_image.get_raw_nifti_sptr().get());
-    _registration_sptr->SetReferenceImage(this->_reference_image.get_raw_nifti_sptr().get());
+    _registration_sptr->SetFloatingImage(ref.get_raw_nifti_sptr().get());
+    _registration_sptr->SetReferenceImage(flo.get_raw_nifti_sptr().get());
 
     // If there is an initial transformation matrix, set it
     if (_use_initial_transformation) {
@@ -52,11 +56,15 @@ void SIRFRegNiftyF3dSym<dataType>::process()
         _registration_sptr->SetAffineTransformation(&init_tm);
     }
 
-    // Set masks
-    if (this->_reference_mask.is_initialised())
-        _registration_sptr->SetReferenceMask(this->_reference_mask.get_raw_nifti_sptr().get());
-    if (this->_floating_mask.is_initialised())
-        _registration_sptr->SetFloatingMask(this->_floating_mask.get_raw_nifti_sptr().get());
+    // Set masks (if present). Again, need to copy to get rid of const
+    if (this->_reference_mask_sptr && this->_reference_mask_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_sptr;
+        _registration_sptr->SetReferenceMask(ref_mask.get_raw_nifti_sptr().get());
+    }
+    if (this->_floating_mask_sptr && this->_floating_mask_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_sptr;
+        _registration_sptr->SetFloatingMask(flo_mask.get_raw_nifti_sptr().get());
+    }
 
     // Parse parameter file
     this->parse_parameter_file();
@@ -70,24 +78,28 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the warped image
-    this->_warped_image = NiftiImageData3D<dataType>(**_registration_sptr->GetWarpedImage());
+    this->_warped_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (this->_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
-            this->_reference_image.get_raw_nifti_sptr()->dt < 1.e-7F)
-        this->_warped_image.get_raw_nifti_sptr()->pixdim[4] = this->_warped_image.get_raw_nifti_sptr()->dt = 0.F;
+    if (this->_floating_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
+            this->_reference_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
+        this->_warped_image_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
     NiftiImageData3DTensor<dataType> cpp_forward(*_registration_sptr->GetControlPointPositionImage());
     NiftiImageData3DTensor<dataType> cpp_inverse(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
-    this->_def_image_forward.create_from_cpp(cpp_forward, this->_reference_image);
-    this->_def_image_inverse.create_from_cpp(cpp_inverse, this->_reference_image);
+    this->_def_image_forward_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
+    this->_def_image_inverse_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
+    this->_def_image_forward_sptr->create_from_cpp(cpp_forward, ref);
+    this->_def_image_inverse_sptr->create_from_cpp(cpp_inverse, ref);
 
     // Get the displacement fields from the def
-    this->_disp_image_forward.create_from_def(this->_def_image_forward);
-    this->_disp_image_inverse.create_from_def(this->_def_image_inverse);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
+    this->_disp_image_forward_sptr->create_from_def(*this->_def_image_forward_sptr);
+    this->_disp_image_inverse_sptr->create_from_def(*this->_def_image_inverse_sptr);
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

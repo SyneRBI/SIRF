@@ -175,7 +175,7 @@ public:
     /// Access data element via 7D index
     float &operator()(const int index[7]);
 
-    /// Is the image initialised? (Should unless default constructor was used.)
+    /// Is the image initialised? (Should be unless default constructor was used.)
     bool is_initialised() const { return (_nifti_image && _data && _nifti_image->datatype == DT_FLOAT32 ? true : false); }
 
     /// Get image as nifti as const

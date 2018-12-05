@@ -105,23 +105,15 @@ sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 {
     SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(hp);
 	if (boost::iequals(name, "parameter_file"))
-		s.set_parameter_file(charDataFromHandle(hv));
-	else if (boost::iequals(name, "reference_image")) {
-        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
-		s.set_reference_image(im);
-	}
-	else if (boost::iequals(name, "floating_image")) {
-        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
-		s.set_floating_image(im);
-	}
-    else if (boost::iequals(name, "reference_mask")) {
-        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
-        s.set_reference_mask(im);
-    }
-    else if (boost::iequals(name, "floating_mask")) {
-        const NiftiImageData3D<float>& im = objectFromHandle<const NiftiImageData3D<float> >(hv);
-        s.set_floating_mask(im);
-    }
+        s.set_parameter_file(charDataFromHandle(hv));
+    else if (boost::iequals(name, "reference_image"))
+        s.set_reference_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
+    else if (boost::iequals(name, "floating_image"))
+        s.set_floating_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
+    else if (boost::iequals(name, "reference_mask"))
+        s.set_reference_mask(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
+    else if (boost::iequals(name, "floating_mask"))
+        s.set_floating_mask(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -132,7 +124,7 @@ sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
     SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(handle);
 	if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output()->deep_copy()));
         return newObjectHandle(sptr_id);
 	}
 	else
@@ -167,9 +159,9 @@ sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, cons
 {
     SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(hp);
     if (boost::iequals(name, "reference_image"))
-        s.set_reference_image(objectFromHandle<NiftiImageData3D<float> >(hv));
+        s.set_reference_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
     else if (boost::iequals(name, "floating_image"))
-        s.set_floating_image(objectFromHandle<NiftiImageData3D<float> >(hv));
+        s.set_floating_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
     else if (boost::iequals(name, "interpolation_type"))
         s.set_interpolation_type(static_cast<SIRFRegNiftyResample<float>::InterpolationType>(intDataFromHandle(hv)));
     else
@@ -182,7 +174,7 @@ sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const cha
 {
     SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output()->deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else
@@ -198,7 +190,7 @@ sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const
 {
     SIRFRegImageWeightedMean<float>& s = objectFromHandle<SIRFRegImageWeightedMean<float> >(handle);
     if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData<float> > sptr_id(new NiftiImageData<float>(s.get_output().deep_copy()));
+        shared_ptr<NiftiImageData<float> > sptr_id(new NiftiImageData<float>(s.get_output()->deep_copy()));
         return newObjectHandle(sptr_id);
     }
     else

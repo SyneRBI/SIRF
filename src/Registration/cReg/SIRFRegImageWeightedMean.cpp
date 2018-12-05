@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include "SIRFRegImageWeightedMean.h"
+#include "NiftiImageData.h"
 #include <iostream>
 
 using namespace sirf;
@@ -42,7 +43,7 @@ template<class dataType>
 void SIRFRegImageWeightedMean<dataType>::add_image(const NiftiImageData<dataType> &image, const float weight)
 {
     // Add image to vector
-    _input_images.push_back(image.deep_copy());
+    _input_image_sptrs.push_back(std::make_shared<const NiftiImageData<dataType> >(image));
     _weights.push_back(weight);
 
     _need_to_update = true;
@@ -64,16 +65,16 @@ void SIRFRegImageWeightedMean<dataType>::process()
     for (unsigned i=0; i<_weights.size(); i++) normalised_weights[i] /= sum_of_weights;
 
     // Create a copy of the first image to use as a template for the output
-    _output_image = _input_images[0].deep_copy();
+    _output_image_sptr = std::make_shared<NiftiImageData<dataType> >(*_input_image_sptrs[0]);
 
     // Set all of the output image's voxels to 0
-    _output_image.fill(0.F);
+    _output_image_sptr->fill(0.F);
 
     // Loop over each input image and each voxel
-    for (unsigned i=0; i<_input_images.size(); i++)
-        for (int j=0; j<int(_output_image.get_raw_nifti_sptr()->nvox); j++)
+    for (unsigned i=0; i<_input_image_sptrs.size(); i++)
+        for (int j=0; j<int(_output_image_sptr->get_raw_nifti_sptr()->nvox); j++)
             // Add in the weighted contribution of the jth voxel of the ith image
-            _output_image(j) += _input_images[i](j) * normalised_weights[i];
+            (*_output_image_sptr)(j) += (*_input_image_sptrs[i])(j) * normalised_weights[i];
 
     // Once the processing is done, set the need_to_update flag to false
     _need_to_update = false;
@@ -83,15 +84,15 @@ template<class dataType>
 void SIRFRegImageWeightedMean<dataType>::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error
-    if (_input_images.size() == 0)
+    if (_input_image_sptrs.size() == 0)
         throw std::runtime_error("Need to add images to be able to do weighted mean.");
 
     // Check each of the images against all the other images
-    for (unsigned i=0; i<_input_images.size(); i++) {
-        for (unsigned j=i+1; j<_input_images.size(); j++) {
+    for (unsigned i=0; i<_input_image_sptrs.size(); i++) {
+        for (unsigned j=i+1; j<_input_image_sptrs.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(_input_images[i],_input_images[j]))
+            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[i],*_input_image_sptrs[j]))
                 throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
         }
     }

@@ -40,16 +40,24 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
+    // Annoyingly NiftyReg doesn't mark ref and floating images as const, so need to copy (could do a naughty cast, but not going to do that!)
+    NiftiImageData3D<dataType> ref = *this->_reference_image_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_image_sptr;
+
     // Create the registration object
     _registration_sptr = std::make_shared<reg_aladin_sym<dataType> >();
-    _registration_sptr->SetInputReference(this->_reference_image.get_raw_nifti_sptr().get());
-    _registration_sptr->SetInputFloating(this->_floating_image.get_raw_nifti_sptr().get());
+    _registration_sptr->SetInputReference(ref.get_raw_nifti_sptr().get());
+    _registration_sptr->SetInputFloating(flo.get_raw_nifti_sptr().get());
 
-    // Set masks
-    if (this->_reference_mask.is_initialised())
-        _registration_sptr->SetInputMask(this->_reference_mask.get_raw_nifti_sptr().get());
-    if (this->_floating_mask.is_initialised())
-        _registration_sptr->SetInputMask(this->_floating_mask.get_raw_nifti_sptr().get());
+    // Set masks (if present). Again, need to copy to get rid of const
+    if (this->_reference_mask_sptr && this->_reference_mask_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_sptr;
+        _registration_sptr->SetInputMask(ref_mask.get_raw_nifti_sptr().get());
+    }
+    if (this->_floating_mask_sptr && this->_floating_mask_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_sptr;
+        _registration_sptr->SetInputMask(flo_mask.get_raw_nifti_sptr().get());
+    }
 
     // Parse parameter file
     this->parse_parameter_file();
@@ -63,12 +71,12 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the output
-    this->_warped_image = NiftiImageData3D<dataType>(*_registration_sptr->GetFinalWarpedImage());
+    this->_warped_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (this->_floating_image.get_raw_nifti_sptr()->dt < 1.e-7F &&
-            this->_reference_image.get_raw_nifti_sptr()->dt < 1.e-7F)
-        this->_warped_image.get_raw_nifti_sptr()->pixdim[4] = this->_warped_image.get_raw_nifti_sptr()->dt = 0.F;
+    if (this->_floating_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
+            this->_reference_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
+        this->_warped_image_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and inverse transformation matrices
     this->_TM_forward = *this->_registration_sptr->GetTransformationMatrix();
@@ -80,10 +88,12 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     _TM_inverse.print();
 
     // Get as deformation and displacement
-    this->_def_image_forward  = _TM_forward.get_as_deformation_field(this->_reference_image);
-    this->_def_image_inverse  = _TM_inverse.get_as_deformation_field(this->_reference_image);
-    this->_disp_image_forward.create_from_def(this->_def_image_forward);
-    this->_disp_image_inverse.create_from_def(this->_def_image_inverse);
+    this->_def_image_forward_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TM_forward.get_as_deformation_field(ref));
+    this->_def_image_inverse_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TM_inverse.get_as_deformation_field(ref));
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
+    this->_disp_image_forward_sptr->create_from_def(*this->_def_image_forward_sptr);
+    this->_disp_image_inverse_sptr->create_from_def(*this->_def_image_inverse_sptr);
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

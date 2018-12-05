@@ -31,6 +31,12 @@ limitations under the License.
 
 using namespace sirf;
 
+static std::shared_ptr<const NiftiImageData3D<float> > read_as_sptr(const std::string &filename)
+{
+    const NiftiImageData3D<float> im(filename);
+    return std::make_shared<const NiftiImageData3D<float> >(im);
+}
+
 /// print usage
 void print_usage()
 {
@@ -101,12 +107,10 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
-        NiftiImageData3D<float> reference(argv[flag_ref+1]);
-        aladin.set_reference_image(reference);
+        aladin.set_reference_image(read_as_sptr(argv[flag_ref+1]));
 
         int flag_flo = find_flag(unused_flags,argv,"-flo",true);
-        NiftiImageData3D<float> floating(argv[flag_flo+1]);
-        aladin.set_floating_image(floating);
+        aladin.set_floating_image(read_as_sptr(argv[flag_flo+1]));
 
         int flag_par = find_flag(unused_flags,argv,"-par",true);
         aladin.set_parameter_file(argv[flag_par+1]);
@@ -119,10 +123,10 @@ int main(int argc, char* argv[])
         // Masks
         int r_mask           = find_flag(unused_flags,argv,"-rmask");
         if (r_mask != -1)
-            aladin.set_reference_mask(NiftiImageData3D<float>(argv[r_mask+1]));
+            aladin.set_reference_mask(read_as_sptr(argv[r_mask+1]));
         int f_mask           = find_flag(unused_flags,argv,"-fmask");
         if (f_mask != -1)
-            aladin.set_floating_mask(NiftiImageData3D<float>(argv[f_mask+1]));
+            aladin.set_floating_mask(read_as_sptr(argv[f_mask+1]));
 
         // Warped image
         int flag_warped      = find_flag(unused_flags,argv,"-warped");
@@ -174,7 +178,7 @@ int main(int argc, char* argv[])
 
         // Warped image
         if (flag_warped != -1)
-            aladin.get_output().save_to_file(argv[flag_warped+1]);
+            aladin.get_output()->save_to_file(argv[flag_warped+1]);
 
         // TMs
         if (flag_TM_forward != -1)
@@ -184,27 +188,27 @@ int main(int argc, char* argv[])
 
         // Forward disp field images
         if (flag_disp_fwd_4D != -1)
-            aladin.get_displacement_field_forward().save_to_file(argv[flag_disp_fwd_4D+1]);
+            aladin.get_displacement_field_forward()->save_to_file(argv[flag_disp_fwd_4D+1]);
         if (flag_disp_fwd_3D != -1)
-            aladin.get_displacement_field_forward().save_to_file_split_xyz_components(argv[flag_disp_fwd_3D+1]);
+            aladin.get_displacement_field_forward()->save_to_file_split_xyz_components(argv[flag_disp_fwd_3D+1]);
 
         // Forward def field images
         if (flag_def_fwd_4D != -1)
-            aladin.get_deformation_field_forward().save_to_file(argv[flag_def_fwd_4D+1]);
+            aladin.get_deformation_field_forward()->save_to_file(argv[flag_def_fwd_4D+1]);
         if (flag_def_fwd_3D != -1)
-            aladin.get_deformation_field_forward().save_to_file_split_xyz_components(argv[flag_def_fwd_3D+1]);
+            aladin.get_deformation_field_forward()->save_to_file_split_xyz_components(argv[flag_def_fwd_3D+1]);
 
         // Inverse disp field images
         if (flag_disp_inv_4D != -1)
-            aladin.get_displacement_field_inverse().save_to_file(argv[flag_disp_inv_4D+1]);
+            aladin.get_displacement_field_inverse()->save_to_file(argv[flag_disp_inv_4D+1]);
         if (flag_disp_inv_3D != -1)
-            aladin.get_displacement_field_inverse().save_to_file_split_xyz_components(argv[flag_disp_inv_3D+1]);
+            aladin.get_displacement_field_inverse()->save_to_file_split_xyz_components(argv[flag_disp_inv_3D+1]);
 
         // Inverse def field images
         if (flag_def_inv_4D != -1)
-            aladin.get_deformation_field_inverse().save_to_file(argv[flag_def_inv_4D+1]);
+            aladin.get_deformation_field_inverse()->save_to_file(argv[flag_def_inv_4D+1]);
         if (flag_def_inv_3D != -1)
-            aladin.get_deformation_field_inverse().save_to_file_split_xyz_components(argv[flag_def_inv_3D+1]);
+            aladin.get_deformation_field_inverse()->save_to_file_split_xyz_components(argv[flag_def_inv_3D+1]);
     }
 
     // If there was an error

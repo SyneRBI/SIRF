@@ -74,25 +74,28 @@ public:
     void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const NiftiImageData3D<dataType> &reference_image) { _reference_image = reference_image; }
+    void set_reference_image(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
 
     /// Set floating image
-    void set_floating_image(const NiftiImageData3D<dataType> &floating_image) { _floating_image = floating_image; }
+    void set_floating_image(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
 
     /// Process
     virtual void process() = 0;
 
     /// Get registered image
-    const NiftiImageData3D<dataType> &get_output() const { std::cout << "\nGetting warped image. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _warped_image; }
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const;
 
     /// Get forward deformation field image
-    const NiftiImageData3DDeformation<dataType>  &get_deformation_field_forward()  const { std::cout << "\nGetting get_deformation_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_forward; }
+    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_deformation_field_forward() const;
+
     /// Get inverse deformation field image
-    const NiftiImageData3DDeformation<dataType>  &get_deformation_field_inverse()  const { std::cout << "\nGetting get_deformation_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _def_image_inverse; }
+    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_deformation_field_inverse() const;
+
     /// Get forward displacement field image
-    const NiftiImageData3DDisplacement<dataType> &get_displacement_field_forward() const { std::cout << "\nGetting get_displacement_field_forward. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_forward; }
+    const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > get_displacement_field_forward() const;
+
     /// Get inverse displacement field image
-    const NiftiImageData3DDisplacement<dataType> &get_displacement_field_inverse() const { std::cout << "\nGetting get_displacement_field_inverse. Original datatype = " << _warped_image.get_original_datatype() << "\n"; return _disp_image_inverse; }
+    const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > get_displacement_field_inverse() const;
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -101,10 +104,10 @@ public:
     void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
     /// Set reference mask
-    void set_reference_mask(const NiftiImageData3D<dataType> &reference_mask) { _reference_mask = reference_mask; }
+    void set_reference_mask(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
 
     /// Set floating mask
-    void set_floating_mask(const NiftiImageData3D<dataType> &floating_mask)   {  _floating_mask = floating_mask;  }
+    void set_floating_mask(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
 
 protected:
 
@@ -124,25 +127,25 @@ protected:
     boost::filesystem::path _parameter_filename;
 
     /// Reference image
-    NiftiImageData3D<dataType> _reference_image;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_sptr;
     /// Floating image
-    NiftiImageData3D<dataType> _floating_image;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_sptr;
     /// Warped image
-    NiftiImageData3D<dataType> _warped_image;
+    std::shared_ptr<NiftiImageData3D<dataType> > _warped_image_sptr;
 
     /// Forward displacement field image
-    NiftiImageData3DDisplacement<dataType> _disp_image_forward;
+    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_forward_sptr;
     /// Inverse displacement field image
-    NiftiImageData3DDisplacement<dataType> _disp_image_inverse;
+    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_inverse_sptr;
     /// Forward deformation field image
-    NiftiImageData3DDeformation<dataType> _def_image_forward;
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _def_image_forward_sptr;
     /// Inverse deformation field image
-    NiftiImageData3DDeformation<dataType> _def_image_inverse;
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _def_image_inverse_sptr;
 
     /// Floating mask
-    NiftiImageData3D<dataType> _floating_mask;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_sptr;
     /// Reference mask
-    NiftiImageData3D<dataType> _reference_mask;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_mask_sptr;
 };
 }
 

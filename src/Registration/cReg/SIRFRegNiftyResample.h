@@ -45,7 +45,6 @@ namespace sirf {
 
 // Forward declarations
 template<class dataType> class SIRFRegAffineTransformation;
-template<class dataType> class NiftiImageData3DDisplacement;
 
 /// Wrapper around NiftyReg's resample class
 template<class dataType>
@@ -69,16 +68,10 @@ public:
     virtual ~SIRFRegNiftyResample() {}
 
     /// Set reference image
-    void set_reference_image(const NiftiImageData3D<dataType> &reference_image)
-    {
-        _reference_image = reference_image;
-    }
+    void set_reference_image(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
 
     /// Set floating image
-    void set_floating_image(const NiftiImageData3D<dataType> &floating_image)
-    {
-        _floating_image = floating_image;
-    }
+    void set_floating_image(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
 
     /// Add transformation
     void add_transformation(const SIRFRegTransformation<dataType> &transformation);
@@ -105,23 +98,20 @@ public:
     void process();
 
     /// Get output
-    const NiftiImageData3D<dataType> &get_output() const { return _output_image; }
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _output_image_sptr; }
 
 protected:
 
     /// Check parameters
     virtual void check_parameters();
 
-    /// Set up the transformation matrix
-    void set_up_transformation_matrix(mat44 &matrix);
-
     /// Set up the output image
     void set_up_output_image();
 
     /// Reference image
-    NiftiImageData3D<dataType>       _reference_image;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_sptr;
     /// Floating image
-    NiftiImageData3D<dataType>       _floating_image;
+    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_sptr;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
     std::vector<std::shared_ptr<SIRFRegTransformation<dataType> > > _transformations;
@@ -130,7 +120,7 @@ protected:
     InterpolationType  _interpolation_type;
 
     /// Output image
-    NiftiImageData3D<dataType>       _output_image;
+    std::shared_ptr<NiftiImageData3D<dataType> > _output_image_sptr;
 };
 }
 
