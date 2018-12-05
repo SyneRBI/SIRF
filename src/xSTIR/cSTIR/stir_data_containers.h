@@ -147,7 +147,7 @@ namespace sirf {
 			(stir::shared_ptr<stir::ExamInfo> sptr_ei, std::string scanner_name,
 			int span = 1, int max_ring_diff = -1, int view_mash_factor = 1) = 0;
 		virtual stir::shared_ptr<PETAcquisitionData> new_acquisition_data() = 0;
-		virtual DataContainer* new_data_container() = 0;
+		//virtual DataContainer* new_data_container() = 0;
 
 		stir::shared_ptr<PETAcquisitionData> single_slice_rebinned_data(
 			const int num_segments_to_combine,
@@ -384,6 +384,11 @@ namespace sirf {
 			init();
 			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
+		}
 
 	private:
 		bool _owns_file;
@@ -462,6 +467,11 @@ namespace sirf {
 		{
 			init();
 			return _template->same_acquisition_data(*data());
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 
 	};
@@ -632,6 +642,11 @@ namespace sirf {
 		DataContainer* new_data_container()
 		{
 			return (DataContainer*)same_image_data();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(stir::shared_ptr<DataContainer>(new_data_container()));
 		}
 		unsigned int items()
 		{

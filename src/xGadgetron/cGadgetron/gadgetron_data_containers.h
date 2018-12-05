@@ -58,6 +58,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
@@ -200,6 +201,16 @@ namespace sirf {
 				return i;
 		}
 
+    	/*! 
+    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
+      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
+      		* 
+      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
+      		* displays the message and throws it again.
+			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
+			* to exclude potentially incompatible input. 
+    	*/
+		void read( const std::string& filename_ismrmrd_with_ext );
 		void write(const char* filename);
 
 	protected:
@@ -274,6 +285,11 @@ namespace sirf {
 			init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
 		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 		{
 			init();
@@ -341,7 +357,12 @@ namespace sirf {
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData> 
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
+		virtual gadgetron::shared_ptr<MRAcquisitionData>
 			new_acquisitions_container()
 		{
 			AcquisitionsFile::init();
@@ -359,12 +380,12 @@ namespace sirf {
 
 	*/
 
-	class GadgetronImageData : public MRImageData {
+	class ISMRMRDImageData : public MRImageData {
 	public:
-		GadgetronImageData() : ordered_(false), index_(0) {}
-		//GadgetronImageData(GadgetronImageData& id, const char* attr, 
+		ISMRMRDImageData() : ordered_(false), index_(0) {}
+		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
 		//const char* target); //does not build, have to be in the derived class
-		virtual ~GadgetronImageData()
+		virtual ~ISMRMRDImageData()
 		{
 			if (index_)
 				delete[] index_;
@@ -407,9 +428,9 @@ namespace sirf {
 			ImageWrap& iw = image_wrap(im_num);
 			iw.get_dim(dim);
 		}
-		virtual gadgetron::shared_ptr<GadgetronImageData> 
+		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
 			new_images_container() = 0;
-		virtual gadgetron::shared_ptr<GadgetronImageData>
+		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
 		{
@@ -450,6 +471,8 @@ namespace sirf {
 		int* index_;
 	};
 
+	typedef ISMRMRDImageData GadgetronImageData;
+
 	/*!
 	\ingroup Gadgetron Data Containers
 	\brief A vector implementation of the abstract Gadgetron image data 
@@ -482,6 +505,7 @@ namespace sirf {
 				iter_ = iter.iter_;
 				end_ = iter.end_;
 				sptr_iter_ = iter.sptr_iter_;
+				return *this;
 			}
 			virtual bool operator==(const BaseIter& ai) const
 			{
@@ -673,6 +697,11 @@ namespace sirf {
 		virtual DataContainer* new_data_container()
 		{
 			return (DataContainer*)new GadgetronImagesVector();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
@@ -920,6 +949,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new CoilImagesVector();
 		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
 		virtual unsigned int items()
 		{
 			return CoilDataVector::items();
@@ -1007,6 +1041,11 @@ namespace sirf {
 		virtual DataContainer* new_data_container()
 		{
 			return (DataContainer*)new CoilSensitivitiesAsImages();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 
 		virtual unsigned int items()

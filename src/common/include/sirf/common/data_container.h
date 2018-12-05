@@ -22,6 +22,7 @@ limitations under the License.
 #define SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 
 #include <map>
+#include "data_handle.h"
 
 /*
 \ingroup Data Container
@@ -41,6 +42,7 @@ namespace sirf {
 	public:
 		virtual ~DataContainer() {}
 		virtual DataContainer* new_data_container() = 0;
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() = 0;
 		virtual unsigned int items() = 0;
 		virtual float norm() = 0;
 		virtual void dot(const DataContainer& dc, void* ptr) = 0;

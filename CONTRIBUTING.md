@@ -28,14 +28,31 @@ This is our recommended process. If it sounds too daunting, ask for help.
 3. Create a branch in your fork with a descriptive name and put your fixes there. If your fix is
 simple you could do it on github by editing a file, otherwise clone your project (or add a remote
 to your current git clone) and work as usual.
-4. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
+4. If your change is important, add it to [CHANGES.md](https://github.com/CCPPETMR/SIRF/blob/master/CHANGES.md)
+and even [UserGuide.md](https://github.com/CCPPETMR/SIRF/blob/master/doc/UserGuide.md) or other documentation files.
+5. Use [well-formed commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 for each change (in particular with a single "subject" line
 followed by an empty line and then more details).
-5. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request)
+6. Push the commits to your fork and submit a [pull request (PR)](https://help.github.com/articles/creating-a-pull-request)
 (enable changes by project admins.) Be prepared to add further commits to your branch after discussion.
 In the description of the PR, add a statement about which Issue this applies to
 using [a phrase such that github auto-closes the issue when merged to master](https://help.github.com/articles/closing-issues-using-keywords/).
-6. After acceptance of your PR, go home with a nice warm feeling.
+7. After acceptance of your PR, go home with a nice warm feeling.
+
+Suggested reading: 
+https://help.github.com/articles/fork-a-repo/, https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project or https://guides.github.com/activities/forking/.
+
+### A note on copyright dates and notices (and licenses)
+
+(Almost) all SIRF files start with a copyright and license header. Please do this for your files as well.
+If you modify an existing file, you need to make sure the copyright header is up-to-date for your changes
+(unless it's a trivial change).
+
+If you copied code from somewhere, you need to preserve its copyright date/notice. If you copied non-SIRF code,
+you need to make sure its license is compatible with the SIRF license, and indicate clearly what the license
+of the copied code is (and follow its terms of course).
+
+In addition, you might need to add yourself to [NOTICE.txt](https://github.com/CCPPETMR/SIRF/blob/master/NOTICE.txt).
 
 ## Project rules
 
