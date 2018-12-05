@@ -120,6 +120,8 @@ endif()
 
 ENABLE_TESTING()
 
+INCLUDE_DIRECTORIES(src/common/include)
+INCLUDE_DIRECTORIES(src/common/include/SIRF/common)
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
