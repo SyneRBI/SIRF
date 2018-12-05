@@ -70,6 +70,10 @@ public:
     /// Nifti std::shared_ptr constructor
     NiftiImageData3D(const std::shared_ptr<nifti_image> image_nifti)
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3D); }
+
+    /// Construct from any other image data (e.g., STIRImageData)
+    NiftiImageData3D(const ImageData& id);
+
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
     /// STIR constructor
     NiftiImageData3D(const PETImageData &pet_image);

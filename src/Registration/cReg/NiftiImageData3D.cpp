@@ -33,8 +33,39 @@ limitations under the License.
 #include "stir_data_containers.h"
 #include "SIRFRegAffineTransformation.h"
 
-
 using namespace sirf;
+
+template<class dataType>
+NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
+{
+    // Figure out dimensions
+    Dimensions dim_map = id.dimensions();
+    int dims[8];
+    dims[0] = 3;
+    dims[1] = dim_map["x"];
+    dims[2] = dim_map["y"];
+    dims[3] = dim_map["z"];
+    dims[4] = 1;
+    dims[5] = 1;
+    dims[6] = 1;
+    dims[7] = 1;
+
+    // Create image
+    nifti_image *im = nifti_make_new_nim(dims, DT_FLOAT32, 1);
+    this->_nifti_image = std::shared_ptr<nifti_image>(im, nifti_image_free);
+
+    // Spacing etc. are unknown until GeometricalInfo has been implemented
+
+    // Copy data
+    this->copy(id.begin(), this->begin(), this->end());
+
+    // Check everything is ok
+    reg_checkAndCorrectDimension(this->_nifti_image.get());
+
+    // Always float
+    this->set_up_data(NIFTI_TYPE_FLOAT32);
+}
+
 /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 template<class dataType>
 NiftiImageData3D<dataType>::NiftiImageData3D(const PETImageData &pet_image)

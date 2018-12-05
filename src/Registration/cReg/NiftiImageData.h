@@ -256,7 +256,6 @@ public:
     template<typename T>
     static void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
-
 protected:
 
     enum NiftiImageDataType { _general, _3D, _3DTensor, _3DDisp, _3DDef};
@@ -374,7 +373,7 @@ private:
     // ------------------------------------------------------------------------------ //
     // Pure virtual methods from ImageData
     // ------------------------------------------------------------------------------ //
-private:
+protected:
     NiftiImageData<float>* same_image_data()
     {
         NiftiImageData<float>* ptr_image = new NiftiImageData<float>;
