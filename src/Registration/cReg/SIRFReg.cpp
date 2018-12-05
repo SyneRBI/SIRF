@@ -64,13 +64,17 @@ const std::shared_ptr<const NiftiImageData3D<dataType> > SIRFReg<dataType>::get_
 template<class dataType>
 const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > SIRFReg<dataType>::get_deformation_field_forward() const
 {
-    return std::const_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->_def_image_forward_sptr);
+    NiftiImageData3DDeformation<dataType> def_fwd;
+    def_fwd.create_from_disp(*this->_disp_image_forward_sptr);
+    return std::make_shared<const NiftiImageData3DDeformation<dataType> >(def_fwd);
 }
 
 template<class dataType>
 const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > SIRFReg<dataType>::get_deformation_field_inverse() const
 {
-    return std::const_pointer_cast<const NiftiImageData3DDeformation<dataType> >(this->_def_image_forward_sptr);
+    NiftiImageData3DDeformation<dataType> def_inv;
+    def_inv.create_from_disp(*this->_disp_image_inverse_sptr);
+    return std::make_shared<const NiftiImageData3DDeformation<dataType> >(def_inv);
 }
 
 template<class dataType>

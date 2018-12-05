@@ -90,16 +90,15 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     NiftiImageData3DTensor<dataType> cpp_inverse(*_registration_sptr->GetBackwardControlPointPositionImage());
 
     // Get deformation fields from cpp
-    this->_def_image_forward_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
-    this->_def_image_inverse_sptr = std::make_shared<NiftiImageData3DDeformation<dataType> >();
-    this->_def_image_forward_sptr->create_from_cpp(cpp_forward, ref);
-    this->_def_image_inverse_sptr->create_from_cpp(cpp_inverse, ref);
+    NiftiImageData3DDeformation<dataType> def_fwd, def_inv;
+    def_fwd.create_from_cpp(cpp_forward, ref);
+    def_inv.create_from_cpp(cpp_inverse, ref);
 
     // Get the displacement fields from the def
     this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
     this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_forward_sptr->create_from_def(*this->_def_image_forward_sptr);
-    this->_disp_image_inverse_sptr->create_from_def(*this->_def_image_inverse_sptr);
+    this->_disp_image_forward_sptr->create_from_def(def_fwd);
+    this->_disp_image_inverse_sptr->create_from_def(def_inv);
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

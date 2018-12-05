@@ -88,12 +88,12 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     _TM_inverse.print();
 
     // Get as deformation and displacement
-    this->_def_image_forward_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TM_forward.get_as_deformation_field(ref));
-    this->_def_image_inverse_sptr  = std::make_shared<NiftiImageData3DDeformation<dataType> >(_TM_inverse.get_as_deformation_field(ref));
+    NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward.get_as_deformation_field(ref);
+    NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse.get_as_deformation_field(ref);
     this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
     this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_forward_sptr->create_from_def(*this->_def_image_forward_sptr);
-    this->_disp_image_inverse_sptr->create_from_def(*this->_def_image_inverse_sptr);
+    this->_disp_image_forward_sptr->create_from_def(def_fwd);
+    this->_disp_image_inverse_sptr->create_from_def(def_inv);
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

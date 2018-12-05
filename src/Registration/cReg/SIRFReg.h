@@ -137,10 +137,6 @@ protected:
     std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_forward_sptr;
     /// Inverse displacement field image
     std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_inverse_sptr;
-    /// Forward deformation field image
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _def_image_forward_sptr;
-    /// Inverse deformation field image
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > _def_image_inverse_sptr;
 
     /// Floating mask
     std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_sptr;
