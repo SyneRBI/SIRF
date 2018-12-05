@@ -287,6 +287,8 @@ void RPETrajectoryPreparation::set_and_check_trajectory( TrajVessel& trajectory)
 	this->traj_dims_.push_back( traj_dims[0] );
 	this->traj_dims_.push_back( traj_dims[1] );
 
+	this->full_traj_dims_ = traj_dims_;
+
 	this->traj_.create( this->traj_dims_ );
 			
 	size_t const num_traj_points = this->traj_dims_[0] * this->traj_dims_[1];
@@ -339,7 +341,10 @@ void RPETrajectoryPreparation::set_kspace_subset( sirf::MRAcquisitionData &ad )
 	this->traj_dims_ = subset_traj_dims;
 }
 
-
+std::pair< size_t, size_t >  RPETrajectoryPreparation::get_traj_index_pair( size_t const idx ) const
+{
+	return this->lut_idx_to_traj_[idx];	
+}
 
 MREncodingDataType aCartesianReadoutFFT::get_k_data( void )
 {
@@ -386,33 +391,27 @@ void RadialPhaseEncodingFFT::set_trajectory(TrajVessel &traj)
 
 void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 {
-	
+
 	std::vector<size_t> data_dims = data_dims_from_ndarray< complex_float_t >(i_data);
 
 	size_t num_slices = data_dims[0];
 	size_t const num_coils = data_dims[3];
-
-	auto traj_dims = this->traj_prep_.get_traj_dims();
-
-	std::vector<size_t> output_data_size;
-	output_data_size.push_back(num_slices);
-	output_data_size.push_back(traj_dims[0]);
-	output_data_size.push_back(traj_dims[1]);
-	output_data_size.push_back(num_coils);
-
-	this->k_data_.resize(output_data_size);
 		
 	hoNDArray< complex_float_t > data_to_be_fftd( data_dims );
 
+
+	auto traj_dims = this->traj_prep_.get_full_traj_dims();
+
 	size_t const num_elements = i_data.getNumberOfElements();
+	
+	#pragma omp parallel
 	for( size_t i=0; i<num_elements; i++)
-	{
-		auto const val= *(i_data.begin() + i);
-		*(data_to_be_fftd.begin() + i) = val;
-	}
+		*(data_to_be_fftd.begin() + i) = *(i_data.begin() + i);
+	
+	// memcpy( data_to_be_fftd.begin(), i_data.begin(), i_data.getDataSize());
 
+	
 	hoNDFFT< float >::instance()->fft1c( data_to_be_fftd );
-
 	
 	size_t const oversampling_factor = 2;
 	size_t const kernel_size = 2;	//must keep integers! nfft instable with floats
@@ -432,29 +431,18 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 		std::cout << "data_dims[1,2] = " << data_dims[1] << "," << data_dims[2] << std::endl;
 		throw std::runtime_error( "You passed a volume with less voxels than radial encoding points in your MR template file."); 
 	}
-
-	// std::vector<size_t> oversampled_slice_dims;
-	// for (auto i = slice_dims.begin(); i != slice_dims.end(); ++i)
-	// {
-	// 	oversampled_slice_dims.push_back( oversampling_factor * (*i) );
-	// }
 	
 	std::vector<size_t> oversampled_slice_dims;
-	for (auto i = cropped_slice_dims.begin(); i != cropped_slice_dims.end(); ++i)
-	{
-		oversampled_slice_dims.push_back( oversampling_factor * (*i) );
-	}
-
+	
+	for (size_t i=0; i<cropped_slice_dims.size(); i++)
+		oversampled_slice_dims.push_back( oversampling_factor * cropped_slice_dims[i] );	
+		
 	Gadgetron::uint64d2 gridder_img_dimensions = from_std_vector<size_t, 2>(oversampled_slice_dims);
-
 	hoNFFT_plan<float, 2> nufft_operator( gridder_img_dimensions , (float)1, (float)kernel_size);// dont change the osf -> nfft instable wrt segfaults
 
 
 	hoNDArray< TrajectoryType2D > trajectory = this->traj_prep_.get_formatted_trajectory();
 	
-	std::vector<size_t> traj_dims_check;	
-	trajectory.get_dimensions(traj_dims_check);
-		
 	size_t const num_traj_elem = trajectory.get_number_of_elements();
 	
 	nufft_operator.preprocess( trajectory );
@@ -479,7 +467,6 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 			ho2DArray< complex_float_t > cropped_subslice( &cropped_slice_dims );
 			Gadgetron::crop<complex_float_t, 2>(crop_offset, cropped_slice_dimension, &sub_slice, &cropped_subslice);
 
-
 		    ho2DArray<complex_float_t> padded_sub_slice;
 		    Gadgetron::pad<complex_float_t,  2>(gridder_img_dimensions, &cropped_subslice, &padded_sub_slice, true, 0.f);
 
@@ -488,16 +475,25 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 
 			nufft_operator.compute( padded_sub_slice, result, identitiy_DCF, hoNFFT_plan<float, 2>::NFFT_FORWARDS_C2NC );
 
-			
-			for(size_t na=0; na<traj_dims[1]; na++)
-			for(size_t nr=0; nr<traj_dims[0]; nr++)
+			std::vector<size_t> k_space_size;
+			k_space_size.push_back(num_slices);
+			k_space_size.push_back(traj_dims[0]);
+			k_space_size.push_back(traj_dims[1]);
+			k_space_size.push_back(num_coils);
+			this->k_data_.resize(k_space_size);
+
+			for(size_t i_elem=0; i_elem< result.get_number_of_elements(); i_elem++) 	
 			{
-				size_t const linear_index_2D = na*traj_dims[0] + nr;
-				this->k_data_(i_slice, nr, na, i_coil) = result[linear_index_2D];
+				auto radius_angle_idx_pair = this->traj_prep_.get_traj_index_pair( i_elem );
+
+				size_t const nr = radius_angle_idx_pair.first;
+				size_t const na = radius_angle_idx_pair.second;
+
+				this->k_data_(i_slice, nr, na, i_coil) = result[i_elem];
 				
-				if( std::abs(result[linear_index_2D]) > 1e9 && found_bad_val == false)
+				if( std::abs(result[i_elem]) > 1e9 && found_bad_val == false)
 				{
-					std::cout << "Potentially large value: " << result[linear_index_2D] <<std::endl;
+					std::cout << "Potentially large value: " << result[i_elem] <<std::endl;
 					found_bad_val = true;
 				}
 			}
@@ -505,6 +501,7 @@ void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 		}	
 	}
 }
+
 
 
 

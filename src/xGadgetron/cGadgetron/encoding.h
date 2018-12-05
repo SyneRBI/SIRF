@@ -138,22 +138,23 @@ class aTrajectoryPreparation
 
 public:
 
-	std::vector< size_t > get_traj_dims()
+	std::vector< size_t > get_traj_dims() const
 	{
 		return traj_dims_;
-	}
+	};
 
-	Gadgetron::hoNDArray< TrajType > get_formatted_trajectory( void ) 
+	Gadgetron::hoNDArray< TrajType > get_formatted_trajectory( void ) const
 	{
 		return this->traj_;
 	};
 
 	template< typename OutputDataType >
-	Gadgetron::hoNDArray< OutputDataType > get_formatted_output_container( void )
+	Gadgetron::hoNDArray< OutputDataType > get_formatted_output_container( void ) 
 	{
 		if(this->traj_dims_.size() == 0)
 			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
-		Gadgetron::hoNDArray< OutputDataType > output_container( &(this->traj_dims_) );
+		
+		Gadgetron::hoNDArray< OutputDataType > output_container( this->traj_dims_ );
 
 		output_container.fill( OutputDataType(0) );
 
@@ -161,7 +162,7 @@ public:
 	}
 
 	template< typename OutputDataType >
-	Gadgetron::hoNDArray< OutputDataType > get_formatted_identity_dcf( void )
+	Gadgetron::hoNDArray< OutputDataType > get_formatted_identity_dcf( void ) 
 	{
 		if(this->traj_dims_.size() == 0)
 			throw std::runtime_error("The trajectory has not been set. Please do so before calling this function.");
@@ -188,11 +189,16 @@ public:
 	void set_and_check_trajectory( TrajVessel& trajectory );
 	void set_kspace_subset( sirf::MRAcquisitionData &ad );
 
-	void get_traj_index_pair( size_t const idx ) const;
+	std::pair< size_t, size_t >  get_traj_index_pair( size_t const idx ) const;
 	
+	std::vector< size_t > get_full_traj_dims() const
+	{
+		return this->full_traj_dims_;
+	};
+
 protected:
 	std::vector< std::pair< size_t, size_t > > lut_idx_to_traj_;
-
+	std::vector< size_t > full_traj_dims_;
 };
 
 
