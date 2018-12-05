@@ -36,8 +36,6 @@ if(BUILD_PYTHON)
   SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
   SWIG_LINK_LIBRARIES(pystir cstir iutilities ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   INSTALL(TARGETS ${SWIG_MODULE_pystir_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
   INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pystir.py" STIR.py DESTINATION "${PYTHON_DEST}/sirf")
 

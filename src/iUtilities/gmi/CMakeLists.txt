@@ -22,7 +22,6 @@ if(BUILD_MATLAB)
 
   include_directories(${Matlab_INCLUDE_DIRS})
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
   add_executable(gmi_iutilities gmi.cpp)
   target_link_libraries(gmi_iutilities mig)
   INSTALL(TARGETS gmi_iutilities DESTINATION bin)
