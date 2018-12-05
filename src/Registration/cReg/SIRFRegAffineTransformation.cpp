@@ -255,13 +255,6 @@ SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::get
     return SIRFRegAffineTransformation(res.m);
 }
 
-template<class dataType>
-std::shared_ptr<SIRFRegTransformation<dataType> > SIRFRegAffineTransformation<dataType>::get_clone_sptr() const
-{
-    return std::shared_ptr<SIRFRegAffineTransformation<dataType> >
-            (new SIRFRegAffineTransformation<dataType>(this->deep_copy()));
-}
-
 namespace sirf {
 template class SIRFRegAffineTransformation<float>;
 }

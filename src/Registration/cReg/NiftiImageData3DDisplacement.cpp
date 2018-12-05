@@ -58,13 +58,6 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::ge
     return def;
 }
 
-template<class dataType>
-std::shared_ptr<SIRFRegTransformation<dataType> > NiftiImageData3DDisplacement<dataType>::get_clone_sptr() const
-{
-    return std::shared_ptr<NiftiImageData3DDisplacement<dataType> >
-            (new NiftiImageData3DDisplacement<dataType>(*this));
-}
-
 namespace sirf {
 template class NiftiImageData3DDisplacement<float>;
 }

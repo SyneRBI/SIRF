@@ -97,13 +97,6 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::com
     return compose_single_deformation(vec, ref);
 }
 
-template<class dataType>
-std::shared_ptr<SIRFRegTransformation<dataType> > NiftiImageData3DDeformation<dataType>::get_clone_sptr() const
-{
-    return std::shared_ptr<NiftiImageData3DDeformation<dataType> >
-            (new NiftiImageData3DDeformation<dataType>(*this));
-}
-
 namespace sirf {
 template class NiftiImageData3DDeformation<float>;
 }

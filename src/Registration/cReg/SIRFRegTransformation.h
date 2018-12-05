@@ -52,9 +52,6 @@ public:
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const = 0;
 
-    /// Get clone sptr
-    virtual std::shared_ptr<SIRFRegTransformation> get_clone_sptr() const = 0;
-
 protected:
     /// Check that the deformation field image matches the reference image.
     static void check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def);
