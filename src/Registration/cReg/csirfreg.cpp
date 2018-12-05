@@ -55,25 +55,25 @@ extern "C"
 void* cSIRFReg_newObject(const char* name)
 {
 	try {
-        if (boost::iequals(name, "NiftiImageData"))
+        if (strcmp(name, "NiftiImageData") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData<float> >(new NiftiImageData<float>));
-        if (boost::iequals(name, "NiftiImageData3D"))
+        if (strcmp(name, "NiftiImageData3D") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3D<float> >(new NiftiImageData3D<float>));
-        if (boost::iequals(name, "NiftiImageData3DTensor"))
+        if (strcmp(name, "NiftiImageData3DTensor") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DTensor<float> >(new NiftiImageData3DTensor<float>));
-        if (boost::iequals(name, "NiftiImageData3DDisplacement"))
+        if (strcmp(name, "NiftiImageData3DDisplacement") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>));
-        if (boost::iequals(name, "NiftiImageData3DDeformation"))
+        if (strcmp(name, "NiftiImageData3DDeformation") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
-        if (boost::iequals(name, "SIRFRegNiftyAladinSym"))
+        if (strcmp(name, "SIRFRegNiftyAladinSym") == 0)
             return newObjectHandle(std::shared_ptr<SIRFRegNiftyAladinSym<float> >(new SIRFRegNiftyAladinSym<float>));
-        if (boost::iequals(name, "SIRFRegNiftyF3dSym"))
+        if (strcmp(name, "SIRFRegNiftyF3dSym") == 0)
             return newObjectHandle(std::shared_ptr<SIRFRegNiftyF3dSym<float> >(new SIRFRegNiftyF3dSym<float>));
-        if (boost::iequals(name, "SIRFRegNiftyResample"))
+        if (strcmp(name, "SIRFRegNiftyResample") == 0)
             return newObjectHandle(std::shared_ptr<SIRFRegNiftyResample<float> >(new SIRFRegNiftyResample<float>));
-        if (boost::iequals(name, "SIRFRegImageWeightedMean"))
+        if (strcmp(name, "SIRFRegImageWeightedMean") == 0)
             return newObjectHandle(std::shared_ptr<SIRFRegImageWeightedMean<float> >(new SIRFRegImageWeightedMean<float>));
-        if (boost::iequals(name, "SIRFRegAffineTransformation"))
+        if (strcmp(name, "SIRFRegAffineTransformation") == 0)
             return newObjectHandle(std::shared_ptr<SIRFRegAffineTransformation<float> >(new SIRFRegAffineTransformation<float>));
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
@@ -88,11 +88,11 @@ void* cSIRFReg_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-        if (boost::iequals(obj, "SIRFReg"))
+        if (strcmp(obj, "SIRFReg") == 0)
             return cSIRFReg_setSIRFRegParameter(ptr_s, name, ptr_v);
-        if (boost::iequals(obj, "SIRFRegNiftyF3dSym"))
+        if (strcmp(obj, "SIRFRegNiftyF3dSym") == 0)
             return cSIRFReg_setSIRFRegNiftyF3dSymParameter(ptr_s, name, ptr_v);
-        if (boost::iequals(obj, "SIRFRegNiftyResample"))
+        if (strcmp(obj, "SIRFRegNiftyResample") == 0)
             return cSIRFReg_setSIRFRegNiftyResampleParameter(ptr_s, name, ptr_v);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -105,15 +105,15 @@ void* cSIRFReg_parameter(const void* ptr, const char* obj, const char* name)
 {
 	try {
 		CAST_PTR(DataHandle, handle, ptr);
-        if (boost::iequals(obj, "NiftiImageData"))
+        if (strcmp(obj, "NiftiImageData") == 0)
             return cSIRFReg_NiftiImageDataParameter(handle, name);
-        if (boost::iequals(obj, "SIRFReg"))
+        if (strcmp(obj, "SIRFReg") == 0)
             return cSIRFReg_SIRFRegParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegNiftyResample"))
+        if (strcmp(obj, "SIRFRegNiftyResample") == 0)
             return cSIRFReg_SIRFRegNiftyResampleParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegImageWeightedMean"))
+        if (strcmp(obj, "SIRFRegImageWeightedMean") == 0)
             return cSIRFReg_SIRFRegImageWeightedMeanParameter(handle, name);
-        if (boost::iequals(obj, "SIRFRegAffineTransformation"))
+        if (strcmp(obj, "SIRFRegAffineTransformation") == 0)
             return cSIRFReg_SIRFRegAffineTransformationParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -125,32 +125,32 @@ extern "C"
 void* cSIRFReg_objectFromFile(const char* name, const char* filename)
 {
 	try {
-        if (boost::iequals(name, "NiftiImageData")) {
+        if (strcmp(name, "NiftiImageData") == 0) {
             shared_ptr<NiftiImageData<float> >
                 sptr(new NiftiImageData<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "NiftiImageData3D")) {
+        if (strcmp(name, "NiftiImageData3D") == 0) {
             shared_ptr<NiftiImageData3D<float> >
                 sptr(new NiftiImageData3D<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "NiftiImageData3DTensor")) {
+        if (strcmp(name, "NiftiImageData3DTensor") == 0) {
             shared_ptr<NiftiImageData3DTensor<float> >
                 sptr(new NiftiImageData3DTensor<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "NiftiImageData3DDisplacement")) {
+        if (strcmp(name, "NiftiImageData3DDisplacement") == 0) {
             shared_ptr<NiftiImageData3DDisplacement<float> >
                 sptr(new NiftiImageData3DDisplacement<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "NiftiImageData3DDeformation")) {
+        if (strcmp(name, "NiftiImageData3DDeformation") == 0) {
             shared_ptr<NiftiImageData3DDeformation<float> >
                 sptr(new NiftiImageData3DDeformation<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (boost::iequals(name, "SIRFRegAffineTransformation")) {
+        if (strcmp(name, "SIRFRegAffineTransformation") == 0) {
             shared_ptr<SIRFRegAffineTransformation<float> >
                 sptr(new SIRFRegAffineTransformation<float>(filename));
             return newObjectHandle(sptr);
@@ -379,11 +379,11 @@ void* cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* ob
         NiftiImageData3D<float>& z = objectFromHandle<NiftiImageData3D<float> >(z_ptr);
 
         shared_ptr<NiftiImageData3DTensor<float> > sptr;
-        if (strcmp(obj,"NiftiImageData3DTensor"))
+        if (strcmp(obj,"NiftiImageData3DTensor") == 0)
             sptr.reset(new NiftiImageData3DTensor<float>(x,y,z));
-        else if (strcmp(obj,"NiftiImageData3DDisplacement"))
+        else if (strcmp(obj,"NiftiImageData3DDisplacement") == 0)
             sptr.reset(new NiftiImageData3DDisplacement<float>(x,y,z));
-        else if (strcmp(obj,"NiftiImageData3DDeformation"))
+        else if (strcmp(obj,"NiftiImageData3DDeformation") == 0)
             sptr.reset(new NiftiImageData3DDeformation<float>(x,y,z));
         return newObjectHandle(sptr);
     }
