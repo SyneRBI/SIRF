@@ -120,6 +120,11 @@ endif()
 
 ENABLE_TESTING()
 
+INCLUDE_DIRECTORIES(src/common/include)
+INCLUDE_DIRECTORIES(src/iUtilities/include)
+INCLUDE_DIRECTORIES(src/xSTIR/cSTIR/include)
+INCLUDE_DIRECTORIES(src/xGadgetron/cGadgetron/include)
+
 ADD_SUBDIRECTORY(src/iUtilities)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)

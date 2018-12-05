@@ -24,8 +24,6 @@ if(BUILD_MATLAB)
 
   include_directories("${Matlab_INCLUDE_DIRS}")
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   add_library(mgadgetron SHARED mgadgetron.c)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mgadgetron PROPERTIES
