@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData fill()/get_min() failed.");
 
         // Deep copy
-        NiftiImageData<float> d = b.deep_copy();
+        NiftiImageData<float> d = b;
         std::cout << "\ndone.\n";
         if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
             throw std::runtime_error("NiftiImageData deep_copy failed.");
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
             max[i] = f[i+1] - 1;
         }
         max[2] = 62;
-        NiftiImageData<float> z = e.deep_copy();
+        NiftiImageData<float> z = e;
         z.crop(min, max);
         const int *zz = z.get_dimensions();
         if (zz[0] != 3 ||
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3D fill()/get_min() failed.");
 
         // Deep copy
-        NiftiImageData3D<float> d = b.deep_copy();
+        NiftiImageData3D<float> d = b;
         if (d.get_raw_nifti_sptr() == b.get_raw_nifti_sptr())
             throw std::runtime_error("NiftiImageData3D deep_copy failed.");
         if (d != b)
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3DTensor fill()/get_min() failed.");
 
         // Deep copy
-        NiftiImageData3DTensor<float> d = c.deep_copy();
+        NiftiImageData3DTensor<float> d = c;
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw std::runtime_error("NiftiImageData3DTensor deep_copy failed.");
         if (d != c)
@@ -321,9 +321,9 @@ int main(int argc, char* argv[])
                 throw std::runtime_error("NiftiImageData3DTensor get_dimensions() failed.");
 
         // Constructor from single components
-        NiftiImageData3D<float> im1 = ref_aladin->deep_copy();
-        NiftiImageData3D<float> im2 = ref_aladin->deep_copy();
-        NiftiImageData3D<float> im3 = ref_aladin->deep_copy();
+        NiftiImageData3D<float> im1 = *ref_aladin;
+        NiftiImageData3D<float> im2 = *ref_aladin;
+        NiftiImageData3D<float> im3 = *ref_aladin;
         im1.fill(30.F);
         im2.fill(20.F);
         im3.fill(-10.F);
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3DDisplacement fill()/get_min() failed.");
 
         // Deep copy
-        NiftiImageData3DDisplacement<float> d = c.deep_copy();
+        NiftiImageData3DDisplacement<float> d = c;
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw std::runtime_error("NiftiImageData3DDisplacement deep_copy failed.");
         if (d != c)
@@ -452,7 +452,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3DDeformation fill()/get_min() failed.");
 
         // Deep copy
-        NiftiImageData3DDeformation<float> d = c.deep_copy();
+        NiftiImageData3DDeformation<float> d = c;
         if (d.get_raw_nifti_sptr() == c.get_raw_nifti_sptr())
             throw std::runtime_error("NiftiImageData3DDeformation deep_copy failed.");
         if (d != c)
@@ -675,10 +675,10 @@ int main(int argc, char* argv[])
 
         //  Do 3D
         SIRFRegImageWeightedMean<float> wm1;
-        NiftiImageData3D<float> im1 = ref_aladin->deep_copy();
-        NiftiImageData3D<float> im2 = ref_aladin->deep_copy();
-        NiftiImageData3D<float> im3 = ref_aladin->deep_copy();
-        NiftiImageData3D<float> im4 = ref_aladin->deep_copy();
+        NiftiImageData3D<float> im1 = *ref_aladin;
+        NiftiImageData3D<float> im2 = *ref_aladin;
+        NiftiImageData3D<float> im3 = *ref_aladin;
+        NiftiImageData3D<float> im4 = *ref_aladin;
         im1.fill(1);
         im2.fill(4);
         im3.fill(7);
@@ -698,10 +698,10 @@ int main(int argc, char* argv[])
 
         //  Do 4D
         SIRFRegImageWeightedMean<float> wm2;
-        NiftiImageData3DTensor<float> im4D1 = NA.get_deformation_field_forward()->deep_copy();
-        NiftiImageData3DTensor<float> im4D2 = NA.get_deformation_field_forward()->deep_copy();
-        NiftiImageData3DTensor<float> im4D3 = NA.get_deformation_field_forward()->deep_copy();
-        NiftiImageData3DTensor<float> im4D4 = NA.get_deformation_field_forward()->deep_copy();
+        NiftiImageData3DTensor<float> im4D1 = *NA.get_deformation_field_forward();
+        NiftiImageData3DTensor<float> im4D2 = *NA.get_deformation_field_forward();
+        NiftiImageData3DTensor<float> im4D3 = *NA.get_deformation_field_forward();
+        NiftiImageData3DTensor<float> im4D4 = *NA.get_deformation_field_forward();
         im4D1.fill(1.F);
         im4D2.fill(4.F);
         im4D3.fill(7.F);
@@ -713,7 +713,7 @@ int main(int argc, char* argv[])
         wm2.process();
         wm2.get_output()->save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
-        NiftiImageData3DTensor<float> res4D = NA.get_deformation_field_forward()->deep_copy();
+        NiftiImageData3DTensor<float> res4D = *NA.get_deformation_field_forward();
         res4D.fill(4.5);
 
         if (*wm2.get_output() != res4D)

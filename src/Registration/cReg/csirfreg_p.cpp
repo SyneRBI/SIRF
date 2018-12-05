@@ -124,8 +124,7 @@ sirf::cSIRFReg_SIRFRegParameter(const DataHandle* handle, const char* name)
 {
     SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(handle);
 	if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output()->deep_copy()));
-        return newObjectHandle(sptr_id);
+        return newObjectHandle(s.get_output());
 	}
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
@@ -187,10 +186,8 @@ void*
 sirf::cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name)
 {
     SIRFRegImageWeightedMean<float>& s = objectFromHandle<SIRFRegImageWeightedMean<float> >(handle);
-    if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData<float> > sptr_id(new NiftiImageData<float>(s.get_output()->deep_copy()));
-        return newObjectHandle(sptr_id);
-    }
+    if (boost::iequals(name, "output"))
+        return newObjectHandle(s.get_output());
     else
         return parameterNotFound(name, __FILE__, __LINE__);
 }

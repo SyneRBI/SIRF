@@ -36,10 +36,10 @@ template<class dataType>
 void NiftiImageData3DDisplacement<dataType>::create_from_def(const NiftiImageData3DDeformation<dataType> &def)
 {
     // Get the disp field from the def field
-    NiftiImageData3DTensor<dataType> temp = def.deep_copy();
+    NiftiImageData3DTensor<dataType> temp = def;
     reg_getDisplacementFromDeformation(temp.get_raw_nifti_sptr().get());
     temp.get_raw_nifti_sptr()->intent_p1 = DISP_FIELD;
-    *this = temp.deep_copy();
+    *this = temp;
 }
 
 template<class dataType>
@@ -62,7 +62,7 @@ template<class dataType>
 std::shared_ptr<SIRFRegTransformation<dataType> > NiftiImageData3DDisplacement<dataType>::get_clone_sptr() const
 {
     return std::shared_ptr<NiftiImageData3DDisplacement<dataType> >
-            (new NiftiImageData3DDisplacement<dataType>(this->deep_copy()));
+            (new NiftiImageData3DDisplacement<dataType>(*this));
 }
 
 namespace sirf {

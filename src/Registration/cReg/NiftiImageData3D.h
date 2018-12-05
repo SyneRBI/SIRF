@@ -87,9 +87,6 @@ public:
     /// Copy data to MRImageData
     void copy_data_to(MRImageData &) const;
 */
-    /// Deep copy
-    NiftiImageData3D deep_copy() const
-    { return this->NiftiImageData<dataType>::deep_copy(); }
 
 protected:
 

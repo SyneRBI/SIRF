@@ -215,7 +215,7 @@ void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void* orig_p
     try {
         NiftiImageData<float>& orig = objectFromHandle<NiftiImageData<float> >(orig_ptr);
         NiftiImageData<float>& copy = objectFromHandle<NiftiImageData<float> >(copy_ptr);
-        copy = orig.deep_copy();
+        copy = orig;
         return new DataHandle;
     }
     CATCH;
@@ -236,12 +236,11 @@ extern "C"
 void* cSIRFReg_NiftiImageData_get_data(const void* ptr, size_t ptr_data)
 {
     try {
-        NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
-        NiftiImageData<float> copy = im.deep_copy();
+        const NiftiImageData<float>& im = objectFromHandle<const NiftiImageData<float> >(ptr);
         float* data = (float*)ptr_data;
-        size_t mem = copy.get_raw_nifti_sptr()->nvox * size_t(copy.get_raw_nifti_sptr()->nbyper);
+        size_t mem = im.get_raw_nifti_sptr()->nvox * size_t(im.get_raw_nifti_sptr()->nbyper);
         // Copy!
-        memcpy(data, copy.get_raw_nifti_sptr()->data, mem);
+        memcpy(data, im.get_raw_nifti_sptr()->data, mem);
         return new DataHandle;
     }
     CATCH;
@@ -433,7 +432,7 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
 
         const NiftiImageData3D<float>& ref = objectFromHandle<const NiftiImageData3D<float> >(im);
         const shared_ptr<const NiftiImageData3DDeformation<float> > def_sptr
-                (new const NiftiImageData3DDeformation<float>(NiftiImageData3DDeformation<float>::compose_single_deformation(trans_vec, ref).deep_copy()));
+                (new const NiftiImageData3DDeformation<float>(NiftiImageData3DDeformation<float>::compose_single_deformation(trans_vec, ref)));
         return newObjectHandle(def_sptr);
     }
     CATCH;
@@ -484,13 +483,13 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
         SIRFReg<float>& reg = objectFromHandle<SIRFReg<float>>(ptr);
         shared_ptr<NiftiImageData3DDeformation<float> > sptr;
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_forward()->deep_copy())));
+            return newObjectHandle(reg.get_deformation_field_forward());
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>(reg.get_deformation_field_inverse()->deep_copy())));
+            return newObjectHandle(reg.get_deformation_field_inverse());
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_forward()->deep_copy())));
+            return newObjectHandle(reg.get_displacement_field_forward());
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>(reg.get_displacement_field_inverse()->deep_copy())));
+            return newObjectHandle(reg.get_displacement_field_inverse());
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }

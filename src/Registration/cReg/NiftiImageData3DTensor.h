@@ -77,10 +77,6 @@ public:
 
     /// Flip component of nu
     void flip_component(const int dim);
-
-    /// Deep copy
-    NiftiImageData3DTensor deep_copy() const
-    { return this->NiftiImageData<dataType>::deep_copy(); }
 };
 }
 

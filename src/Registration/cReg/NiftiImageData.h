@@ -209,9 +209,6 @@ public:
     /// Get norm
     float get_norm(const NiftiImageData&) const;
 
-    /// Deep copy
-    NiftiImageData deep_copy() const;
-
     /// Get number of voxels
     const int* get_dimensions() const;
 

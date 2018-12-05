@@ -201,7 +201,7 @@ void NiftiImageData<dataType>::save_to_file(const std::string &filename, const i
         throw std::runtime_error("Original datatype was not set.");
 
     // Create a deep copy in case we need to change datatype
-    NiftiImageData copy = this->deep_copy();
+    NiftiImageData copy = *this;
 
     // If user wants to save in a different datatype
     if (datatype != -1)
@@ -298,14 +298,6 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
 }
 
 template<class dataType>
-NiftiImageData<dataType> NiftiImageData<dataType>::deep_copy() const
-{
-    NiftiImageData copy;
-    copy = *this;
-    return copy;
-}
-
-template<class dataType>
 const int* NiftiImageData<dataType>::get_dimensions() const
 {
     return _nifti_image->dim;
@@ -367,7 +359,7 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const NiftiImageData<da
     if (type != add && type != sub)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add and subtract.");
 
-    NiftiImageData<dataType> res = this->deep_copy();
+    NiftiImageData<dataType> res = *this;
 
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
         if (type == add) res(i) += c(i);
@@ -385,7 +377,7 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const float val, const 
     if (type != add && type != sub && type != mul)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image_val: only implemented for add, subtract and multiply.");
 
-    NiftiImageData res = this->deep_copy();
+    NiftiImageData res = *this;
     for (int i=0; i<int(this->_nifti_image->nvox); ++i) {
         if      (type == add) res(i) += val;
         else if (type == sub) res(i) -= val;
@@ -514,7 +506,7 @@ void NiftiImageData<dataType>::crop(const int min_index[7], const int max_index[
     }
 
     // Copy the original array
-    const NiftiImageData copy = this->deep_copy();
+    const NiftiImageData copy = *this;
 
     // Set the new number of voxels
     im->dim[1] = im->nx = max_idx[0] - min_idx[0] + 1;

@@ -71,10 +71,6 @@ public:
     /// Create from deformation field image
     void create_from_disp(const NiftiImageData3DDisplacement<dataType> &im);
 
-    /// Deep copy
-    NiftiImageData3DDeformation deep_copy() const
-    { return this->NiftiImageData3DTensor<dataType>::deep_copy(); }
-
     /// Create from 3D image
     void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 

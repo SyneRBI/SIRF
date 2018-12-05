@@ -132,7 +132,7 @@ void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const s
         min_index[4] = max_index[4] = i;
 
         // Crop image
-        NiftiImageData<dataType> image = this->deep_copy();
+        NiftiImageData<dataType> image = *this;
         image.crop(min_index,max_index);
 
         if      (i == 0) image.save_to_file(filename_x,datatype);

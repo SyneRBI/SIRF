@@ -69,10 +69,6 @@ public:
     /// Create from deformation field image
     void create_from_def(const NiftiImageData3DDeformation<dataType> &im);
 
-    /// Deep copy
-    NiftiImageData3DDisplacement deep_copy() const
-    { return this->NiftiImageData<dataType>::deep_copy(); }
-
     /// Create from 3D image
     void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
