@@ -16,8 +16,8 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Add in the common files
-SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegResample.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegMisc.cpp" "SIRFRegTransformation.cpp" "SIRFRegAffineTransformation.cpp")
-SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegResample.h"   "SIRFRegNiftyResample.h"   "SIRFRegMisc.h"    "SIRFRegTransformation.h"   "SIRFRegAffineTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
+SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegResample.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegTransformation.cpp" "SIRFRegAffineTransformation.cpp")
+SET(HEADERS  "SIRFReg.h"   "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegResample.h"   "SIRFRegNiftyResample.h"   "SIRFRegTransformation.h"   "SIRFRegAffineTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")

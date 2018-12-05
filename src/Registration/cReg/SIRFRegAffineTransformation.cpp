@@ -31,9 +31,20 @@ limitations under the License.
 #include "NiftiImageData3DDeformation.h"
 #include <_reg_globalTrans.h>
 #include <iomanip>
-#include "SIRFRegMisc.h"
 
 using namespace sirf;
+
+static void check_folder_exists_if_not_create(const std::string &path)
+{
+    // If the folder doesn't exist, create it
+    boost::filesystem::path path_boost(path);
+    if (!boost::filesystem::exists(path_boost.parent_path())) {
+        if (path_boost.parent_path().string() != "") {
+            std::cout << "\n\tCreating folder: \"" << path_boost.parent_path().string() << "\"\n" << std::flush;
+            boost::filesystem::create_directory(path_boost.parent_path());
+        }
+    }
+}
 
 template<class dataType>
 SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation(const dataType tm[4][4])
@@ -214,7 +225,7 @@ void SIRFRegAffineTransformation<dataType>::save_to_file(const std::string &file
         throw std::runtime_error("Error, cannot write transformation matrix to file because filename is blank");
 
     // If the folder doesn't exist, create it
-    sirf::check_folder_exists(filename);
+    check_folder_exists_if_not_create(filename);
 
     FILE *file;
     file=fopen(filename.c_str(), "w");

@@ -28,7 +28,6 @@ limitations under the License.
 */
 
 #include "NiftiImageData.h"
-#include "SIRFRegMisc.h"
 #include <nifti1_io.h>
 #include <_reg_tools.h>
 #include "stir_data_containers.h"
@@ -40,6 +39,18 @@ limitations under the License.
 #include "SIRFRegAffineTransformation.h"
 
 using namespace sirf;
+
+static void check_folder_exists_if_not_create(const std::string &path)
+{
+    // If the folder doesn't exist, create it
+    boost::filesystem::path path_boost(path);
+    if (!boost::filesystem::exists(path_boost.parent_path())) {
+        if (path_boost.parent_path().string() != "") {
+            std::cout << "\n\tCreating folder: \"" << path_boost.parent_path().string() << "\"\n" << std::flush;
+            boost::filesystem::create_directory(path_boost.parent_path());
+        }
+    }
+}
 
 template<class dataType>
 NiftiImageData<dataType>::NiftiImageData(const NiftiImageData<dataType>& to_copy)
@@ -184,7 +195,7 @@ void NiftiImageData<dataType>::save_to_file(const std::string &filename, const i
 
     std::cout << "\nSaving image to file (" << filename << ")..." << std::flush;
 
-    sirf::check_folder_exists(filename);
+    check_folder_exists_if_not_create(filename);
 
     if (_original_datatype == -1)
         throw std::runtime_error("Original datatype was not set.");
