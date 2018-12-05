@@ -40,59 +40,62 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::add_transformation(const SIRFRegTransformation<dataType> &transformation)
-{
-    _transformations.push_back(transformation.get_clone_sptr());
-}
-
-template<class dataType>
 void SIRFRegNiftyResample<dataType>::process()
 {
     std::cout << "\n\nStarting resampling...\n\n";
 
     // Check that all the required information has been entered
-    check_parameters();
+    this->check_parameters();
 
-    // Compose single transformation from multiple
-    NiftiImageData3DDeformation<dataType> transformation =
-            NiftiImageData3DDeformation<dataType>::compose_single_deformation(_transformations, *_reference_image_sptr);
+    // Get reference and floating images as NiftiImageData3D
+    set_up_input_images();
 
     // Setup output image
     set_up_output_image();
 
+    // Compose single transformation from multiple
+    NiftiImageData3DDeformation<dataType> transformation =
+            NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
+
     // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty cast, but not going to do that!)
-    NiftiImageData3D<dataType> flo = *this->_floating_image_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
-                      _output_image_sptr->get_raw_nifti_sptr().get(),
-                      transformation.get_as_deformation_field(*_reference_image_sptr).get_raw_nifti_sptr().get(),
+                      this->_output_image_sptr->get_raw_nifti_sptr().get(),
+                      transformation.get_as_deformation_field(*this->_reference_image_nifti_sptr).get_raw_nifti_sptr().get(),
                       NULL,
-                      _interpolation_type,
+                      this->_interpolation_type,
                       0);
+
+    // Copy the NiftiImageData3D to the general ImageData
+    this->_output_image_sptr = this->_output_image_sptr;
 
     std::cout << "\n\nResampling finished!\n\n";
 }
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::check_parameters()
+void SIRFRegNiftyResample<dataType>::set_up_input_images()
 {
-    // If anything is missing
-    if (!_reference_image_sptr->is_initialised()) {
-        throw std::runtime_error("Reference image has not been set."); }
-    if (!_floating_image_sptr->is_initialised()) {
-        throw std::runtime_error("Floating image has not been set."); }
+    // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
+    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_reference_image_sptr);
+    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_floating_image_sptr);
 
-    if (_transformations.size() == 0)
-        throw std::runtime_error("Transformation(s) not set.");
+    // If either is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
+    // In this case, construct a NiftiImageData3D
+    if (!this->_reference_image_nifti_sptr)
+        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_reference_image_sptr);
+    if (!this->_floating_image_nifti_sptr)
+        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_floating_image_sptr);
 }
 
 template<class dataType>
 void SIRFRegNiftyResample<dataType>::set_up_output_image()
 {
-    _output_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(*_reference_image_sptr);
+    // Downcast reference image to Nifti image
+    this->_output_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(*this->_reference_image_nifti_sptr);
 
-    const nifti_image *floating_ptr = _floating_image_sptr->get_raw_nifti_sptr().get();
-    nifti_image       *output_ptr   = _output_image_sptr->get_raw_nifti_sptr().get();
+    const nifti_image *floating_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
+    nifti_image       *output_ptr   = this->_output_image_sptr->get_raw_nifti_sptr().get();
 
     output_ptr->cal_min                   = floating_ptr->cal_min;
     output_ptr->cal_max                   = floating_ptr->cal_max;

@@ -422,18 +422,18 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
         if (num_elements >= 5) vec.push_back(trans5);
 
         // Vector for casting to the correct type
-        std::vector<SIRFRegTransformation<float> *> trans_vec;
+        std::vector<const SIRFRegTransformation<float> *> trans_vec;
         for (int i=0; i<num_elements; ++i)
             if      (types[i] == '1')
-                trans_vec.push_back(&objectFromHandle<SIRFRegAffineTransformation<float> >(vec.at(i)));
+                trans_vec.push_back(&objectFromHandle<const SIRFRegAffineTransformation<float> >(vec.at(i)));
             else if (types[i] == '2')
-                trans_vec.push_back(&objectFromHandle<NiftiImageData3DDisplacement<float> >(vec.at(i)));
+                trans_vec.push_back(&objectFromHandle<const NiftiImageData3DDisplacement<float> >(vec.at(i)));
             else if (types[i] == '3')
-                trans_vec.push_back(&objectFromHandle<NiftiImageData3DDeformation<float> >(vec.at(i)));
+                trans_vec.push_back(&objectFromHandle<const NiftiImageData3DDeformation<float> >(vec.at(i)));
 
-        NiftiImageData3D<float>& ref = objectFromHandle<NiftiImageData3D<float> >(im);
-        shared_ptr<NiftiImageData3DDeformation<float> > def_sptr
-                (new NiftiImageData3DDeformation<float>(NiftiImageData3DDeformation<float>::compose_single_deformation(trans_vec, ref).deep_copy()));
+        const NiftiImageData3D<float>& ref = objectFromHandle<const NiftiImageData3D<float> >(im);
+        const shared_ptr<const NiftiImageData3DDeformation<float> > def_sptr
+                (new const NiftiImageData3DDeformation<float>(NiftiImageData3DDeformation<float>::compose_single_deformation(trans_vec, ref).deep_copy()));
         return newObjectHandle(def_sptr);
     }
     CATCH;
@@ -534,11 +534,11 @@ void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* t
     try {
         SIRFRegNiftyResample<float>& res = objectFromHandle<SIRFRegNiftyResample<float> >(self);
         if (strcmp(type, "affine") == 0)
-            res.add_transformation(objectFromHandle<SIRFRegAffineTransformation<float> >(trans));
+            res.add_transformation(std::make_shared<const SIRFRegAffineTransformation<float> >(objectFromHandle<SIRFRegAffineTransformation<float> >(trans)));
         else if (strcmp(type, "displacement") == 0)
-            res.add_transformation(objectFromHandle<NiftiImageData3DDisplacement<float> >(trans));
+            res.add_transformation(std::make_shared<const NiftiImageData3DDisplacement<float> >(objectFromHandle<NiftiImageData3DDisplacement<float> >(trans)));
         else if (strcmp(type, "deformation") == 0)
-            res.add_transformation(objectFromHandle<NiftiImageData3DDeformation<float> >(trans));
+            res.add_transformation(std::make_shared<const NiftiImageData3DDeformation<float> >(objectFromHandle<NiftiImageData3DDeformation<float> >(trans)));
         else
             throw std::runtime_error("only accept 'affine', 'displacement' or 'deformation' as argument adding transformation matrix to resample.");
         return new DataHandle;

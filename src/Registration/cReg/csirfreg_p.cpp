@@ -173,10 +173,8 @@ void*
 sirf::cSIRFReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name)
 {
     SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(handle);
-    if (boost::iequals(name, "output")) {
-        shared_ptr<NiftiImageData3D<float> > sptr_id(new NiftiImageData3D<float>(s.get_output()->deep_copy()));
-        return newObjectHandle(sptr_id);
-    }
+    if (boost::iequals(name, "output"))
+        return newObjectHandle(s.get_output());
     else
         return parameterNotFound(name, __FILE__, __LINE__);
 }

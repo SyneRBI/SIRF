@@ -74,7 +74,7 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::get
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<SIRFRegTransformation<dataType>*> &transformations, const NiftiImageData3D<dataType> &ref)
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<const SIRFRegTransformation<dataType>*> &transformations, const NiftiImageData3D<dataType> &ref)
 {
     if (transformations.size() == 0)
         throw std::runtime_error("NiftiImageData3DDeformation::compose_single_deformation no transformations given.");
@@ -89,9 +89,9 @@ NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::com
 }
 
 template<class dataType>
-NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<std::shared_ptr<SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref)
+NiftiImageData3DDeformation<dataType> NiftiImageData3DDeformation<dataType>::compose_single_deformation(const std::vector<std::shared_ptr<const SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref)
 {
-    std::vector<SIRFRegTransformation<dataType>*> vec;
+    std::vector<const SIRFRegTransformation<dataType>*> vec;
     for (unsigned i=0; i<transformations.size(); ++i)
         vec.push_back(transformations.at(i).get());
     return compose_single_deformation(vec, ref);

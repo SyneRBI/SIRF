@@ -600,10 +600,10 @@ int main(int argc, char* argv[])
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
         SIRFRegAffineTransformation<float> tm_iden = SIRFRegAffineTransformation<float>::get_identity();
         SIRFRegAffineTransformation<float> trans_aff_iden(tm_iden);
-        std::vector<std::shared_ptr<SIRFRegTransformation<float> > > vec;
-        vec.push_back(std::shared_ptr<SIRFRegTransformation<float> >(new SIRFRegAffineTransformation<float>(trans_aff_iden)));
-        vec.push_back(std::shared_ptr<SIRFRegTransformation<float> >(new SIRFRegAffineTransformation<float>(trans_aff_iden)));
-        vec.push_back(std::shared_ptr<SIRFRegTransformation<float> >(new NiftiImageData3DDeformation<float>(c3)));
+        std::vector<std::shared_ptr<const SIRFRegTransformation<float> > > vec;
+        vec.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(trans_aff_iden));
+        vec.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(trans_aff_iden));
+        vec.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >(c3));
         NiftiImageData3DDeformation<float> composed =
                 NiftiImageData3DDeformation<float>::compose_single_deformation(vec, *ref_aladin);
         if (composed.get_as_deformation_field(*ref_aladin) != *NA.get_deformation_field_forward())
@@ -619,11 +619,10 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty resample test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        SIRFRegAffineTransformation<float> tm_eye = SIRFRegAffineTransformation<float>::get_identity();
-        SIRFRegAffineTransformation<float> tm_iden(tm_eye);
-        SIRFRegAffineTransformation<float> tm(NA.get_transformation_matrix_forward());
-        NiftiImageData3DDisplacement<float> disp(*NA.get_displacement_field_forward());
-        NiftiImageData3DDeformation<float> deff(*NA.get_deformation_field_forward());
+        std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >(SIRFRegAffineTransformation<float>::get_identity());
+        std::shared_ptr<const SIRFRegTransformation<float> > tm       = std::make_shared<const SIRFRegAffineTransformation<float> >(NA.get_transformation_matrix_forward());
+        std::shared_ptr<const SIRFRegTransformation<float> > disp     = std::make_shared<const NiftiImageData3DDisplacement<float> >(*NA.get_displacement_field_forward());
+        std::shared_ptr<const SIRFRegTransformation<float> > deff     = std::make_shared<const NiftiImageData3DDeformation<float> >(*NA.get_deformation_field_forward());
 
         std::cout << "Testing rigid resample...\n";
         SIRFRegNiftyResample<float> nr1;
@@ -656,7 +655,10 @@ int main(int argc, char* argv[])
         nr3.process();
         nr3.get_output()->save_to_file(nonrigid_resample_def);
 
-        // TODO This isn't working on my machine. But it's not working with NiftyReg executables either, so I don't think it's my code
+        // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
+        // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
+        // ref and flo images are positive, the output of the registration can be negative. This implies that linear interpolation
+        // is not used to generate final image. You would hope it's used throughout the registration process, otherwise why is it there?
         // i.e., reg_aladin != reg_resample when reg_resample uses the transformation matrix from reg_aladin
         /*if (NA.get_output() != nr1.get_output())
             throw std::runtime_error("compose_transformations_into_single_deformation failed.");*/

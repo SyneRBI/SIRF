@@ -40,87 +40,41 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
 #include "SIRFRegTransformation.h"
+#include "SIRFRegResample.h"
 
 namespace sirf {
 
 // Forward declarations
+template<class dataType> class NiftiImageData3DDisplacement;
 template<class dataType> class SIRFRegAffineTransformation;
 
 /// Wrapper around NiftyReg's resample class
 template<class dataType>
-class SIRFRegNiftyResample
+class SIRFRegNiftyResample : public SIRFRegResample<dataType>
 {
 public:
 
-    /// Interpolation type
-    enum InterpolationType {
-        NOTSET           = -1,
-        NEARESTNEIGHBOUR =  0,
-        LINEAR           =  1,
-        CUBICSPLINE      =  3,
-        SINC             =  4
-    };
-
     /// Constructor
-    SIRFRegNiftyResample() { _interpolation_type = NOTSET; }
+    SIRFRegNiftyResample() {}
 
     /// Destructor
     virtual ~SIRFRegNiftyResample() {}
 
-    /// Set reference image
-    void set_reference_image(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
-
-    /// Set floating image
-    void set_floating_image(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
-
-    /// Add transformation
-    void add_transformation(const SIRFRegTransformation<dataType> &transformation);
-
-    /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
-    void set_interpolation_type(const enum InterpolationType type)
-    {
-        _interpolation_type = type;
-    }
-
-    /// Set interpolation type to nearest neighbour
-    void set_interpolation_type_to_nearest_neighbour() { _interpolation_type = NEARESTNEIGHBOUR; }
-
-    /// Set interpolation type to linear
-    void set_interpolation_type_to_linear() { _interpolation_type = LINEAR; }
-
-    /// Set interpolation type to cubic spline
-    void set_interpolation_type_to_cubic_spline() { _interpolation_type = CUBICSPLINE; }
-
-    /// Set interpolation type to sinc
-    void set_interpolation_type_to_sinc() { _interpolation_type = SINC; }
-
     /// Process
-    void process();
-
-    /// Get output
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _output_image_sptr; }
+    virtual void process();
 
 protected:
 
-    /// Check parameters
-    virtual void check_parameters();
+    /// Set up the input images (convert from ImageData to NiftiImageData3D if necessary)
+    void set_up_input_images();
 
     /// Set up the output image
     void set_up_output_image();
 
     /// Reference image
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_sptr;
+    std::shared_ptr<const NiftiImageData3D<float> > _reference_image_nifti_sptr;
     /// Floating image
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_sptr;
-
-    /// Transformations (could be mixture of affine, displacements, deformations).
-    std::vector<std::shared_ptr<SIRFRegTransformation<dataType> > > _transformations;
-
-    /// Interpolation type
-    InterpolationType  _interpolation_type;
-
-    /// Output image
-    std::shared_ptr<NiftiImageData3D<dataType> > _output_image_sptr;
+    std::shared_ptr<const NiftiImageData3D<float> > _floating_image_nifti_sptr;
 };
 }
 
