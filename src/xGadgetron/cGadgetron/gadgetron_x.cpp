@@ -422,6 +422,9 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 		RadialPhaseEncodingFFT RPE_FFT;
 		auto traj = this->sptr_traj_->get_trajectory();
 		RPE_FFT.set_trajectory( traj );
+
+		RPE_FFT.set_kspace_subset( *(this->sptr_acqs_) );
+
 		RPE_FFT.SampleFourierSpace( ci );
 		std::cout << "sampling done" << std::endl;
 

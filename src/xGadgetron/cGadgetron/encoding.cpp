@@ -388,6 +388,11 @@ void RadialPhaseEncodingFFT::set_trajectory(TrajVessel &traj)
 	this->traj_prep_.set_and_check_trajectory( traj );	
 }
 
+void RadialPhaseEncodingFFT::set_kspace_subset( sirf::MRAcquisitionData& ad )
+{
+	this->traj_prep_.set_kspace_subset( ad );
+}
+
 
 void RadialPhaseEncodingFFT::SampleFourierSpace( MREncodingDataType &i_data)
 {

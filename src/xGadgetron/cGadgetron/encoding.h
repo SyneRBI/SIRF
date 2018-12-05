@@ -179,7 +179,6 @@ protected:
 	std::vector< size_t > traj_dims_;
 	Gadgetron::hoNDArray< TrajType > traj_;	
 
-
 };
 
 
@@ -238,6 +237,7 @@ public:
 	RadialPhaseEncodingFFT() {};
 
 	void set_trajectory(TrajVessel &traj);
+	void set_kspace_subset( sirf::MRAcquisitionData& ad );
 	void SampleFourierSpace( MREncodingDataType &i_data );
 
 private:
