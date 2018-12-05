@@ -301,19 +301,21 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 		float const test_SNR = 100;
 		mr_dyn_sim.set_SNR(test_SNR);
 
-		int const num_simul_cardiac_states = 3;
-		int const num_simul_resp_states = 3;
+		int const num_simul_cardiac_states = 10;
+		int const num_simul_resp_states = 10;
 		
 		auto sptr_cardiac_dyn = std::make_shared<MRMotionDynamic>(num_simul_cardiac_states);
 		auto sptr_resp_dyn = std::make_shared<MRMotionDynamic>(num_simul_resp_states);
 
-		SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
-		SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
+		// SignalContainer card_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_CARDIAC_PATH), std::string(CARDIAC_SIGNAL_PATH));
+		// SignalContainer resp_sig = data_io::read_surrogate_signal( std::string(TIME_POINTS_RESP_PATH), std::string(RESP_SIGNAL_PATH));
 
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
-	
 
+		SignalContainer card_sig = aux_test::get_mock_sawtooth_signal(all_acquis, 1000);
+		SignalContainer resp_sig = aux_test::get_mock_sinus_signal(all_acquis, 3000);
+	
 		sptr_cardiac_dyn->set_dyn_signal( card_sig );
 	 	sptr_cardiac_dyn->bin_mr_acquisitions( all_acquis );
 
