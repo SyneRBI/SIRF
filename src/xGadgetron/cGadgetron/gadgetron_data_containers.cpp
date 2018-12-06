@@ -76,6 +76,10 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 		d.readHeader(this->acqs_info_);
 
 		uint32_t num_acquis = d.getNumberOfAcquisitions();
+
+		if( verbose )
+			std::cout << "# of acquisitions in dataset: " << num_acquis << std::endl;
+
 		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
 		{
 			if( verbose )
@@ -87,13 +91,19 @@ MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
 			ISMRMRD::Acquisition acq;
 			d.readAcquisition( i_acqu, acq);
 
+			
 			if( TO_BE_IGNORED(acq) )
 				continue;
+
 			else
 				this->append_acquisition( acq );
 		}
 		if( verbose )
+		{
+			std::cout << "# of acquisitions stored in vector: " << this->number() << std::endl;
+			std::cout << "Ignored acquisitions: " << num_acquis - this->number() << std::endl;
 			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+		}
 	}
 	catch( std::runtime_error& e)
 	{
