@@ -510,11 +510,11 @@ void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
 {
     try {
         SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr;
+        std::shared_ptr<const SIRFRegAffineTransformation<float> > sptr;
         if (strcmp(dir, "forward") == 0)
-            sptr.reset(new SIRFRegAffineTransformation<float>(reg.get_transformation_matrix_forward().deep_copy()));
+            sptr = reg.get_transformation_matrix_forward();
         else if (strcmp(dir, "inverse") == 0)
-            sptr.reset(new SIRFRegAffineTransformation<float>(reg.get_transformation_matrix_inverse().deep_copy()));
+            sptr = reg.get_transformation_matrix_inverse();
         else
             throw std::runtime_error("only accept forward or inverse as argument to dir for saving transformation matrix");
         return newObjectHandle(sptr);

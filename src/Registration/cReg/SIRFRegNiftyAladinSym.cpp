@@ -79,17 +79,17 @@ void SIRFRegNiftyAladinSym<dataType>::process()
         this->_warped_image_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and inverse transformation matrices
-    this->_TM_forward = *this->_registration_sptr->GetTransformationMatrix();
-    this->_TM_inverse = nifti_mat44_inverse(this->_TM_forward.get_as_mat44());
+    this->_TM_forward_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(*this->_registration_sptr->GetTransformationMatrix());
+    this->_TM_inverse_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(nifti_mat44_inverse(this->_TM_forward_sptr->get_as_mat44()));
 
     std::cout << "\nPrinting forwards tranformation matrix:\n";
-    _TM_forward.print();
+    _TM_forward_sptr->print();
     std::cout << "\nPrinting inverse tranformation matrix:\n";
-    _TM_inverse.print();
+    _TM_inverse_sptr->print();
 
     // Get as deformation and displacement
-    NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward.get_as_deformation_field(ref);
-    NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse.get_as_deformation_field(ref);
+    NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
+    NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(ref);
     this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
     this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
     this->_disp_image_forward_sptr->create_from_def(def_fwd);

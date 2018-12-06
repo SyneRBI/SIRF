@@ -497,8 +497,8 @@ int main(int argc, char* argv[])
         NA.set_parameter("SetMaxIterations","5");
         NA.process();
         NA.get_output()->save_to_file         (         aladin_warped         );
-        NA.get_transformation_matrix_forward().save_to_file(       TM_forward      );
-        NA.get_transformation_matrix_inverse().save_to_file(       TM_inverse      );
+        NA.get_transformation_matrix_forward()->save_to_file(       TM_forward      );
+        NA.get_transformation_matrix_inverse()->save_to_file(       TM_inverse      );
         NA.get_displacement_field_forward()->save_to_file(aladin_disp_forward);
         NA.get_displacement_field_inverse()->save_to_file_split_xyz_components(aladin_disp_inverse);
         NA.get_deformation_field_forward()->save_to_file(aladin_def_forward);
@@ -512,11 +512,11 @@ int main(int argc, char* argv[])
         NiftiImageData3DTensor<float> disp_inverse = *NA.get_displacement_field_inverse();
 
         // forward TM
-        SIRFRegAffineTransformation<float> forward_tm = NA.get_transformation_matrix_forward();
+        const SIRFRegAffineTransformation<float> &forward_tm = *NA.get_transformation_matrix_forward();
         forward_tm.print();
 
         // Inverse TM
-        SIRFRegAffineTransformation<float> inverse_tm = NA.get_transformation_matrix_inverse();
+        const SIRFRegAffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse();
         inverse_tm.print();
 
         // Test converting disp to def
@@ -575,7 +575,7 @@ int main(int argc, char* argv[])
         std::cout << "\nTesting affine...\n";
         SIRFRegAffineTransformation<float> a1;
         SIRFRegAffineTransformation<float> a2(TM_forward);
-        SIRFRegAffineTransformation<float> a3(NA.get_transformation_matrix_forward());
+        SIRFRegAffineTransformation<float> a3(*NA.get_transformation_matrix_forward());
 
         // Displacement
         std::cout << "\nTesting displacement...\n";
@@ -619,7 +619,7 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >(SIRFRegAffineTransformation<float>::get_identity());
-        std::shared_ptr<const SIRFRegTransformation<float> > tm       = std::make_shared<const SIRFRegAffineTransformation<float> >(NA.get_transformation_matrix_forward());
+        std::shared_ptr<const SIRFRegTransformation<float> > tm       = std::make_shared<const SIRFRegAffineTransformation<float> >(*NA.get_transformation_matrix_forward());
         std::shared_ptr<const SIRFRegTransformation<float> > disp     = std::make_shared<const NiftiImageData3DDisplacement<float> >(*NA.get_displacement_field_forward());
         std::shared_ptr<const SIRFRegTransformation<float> > deff     = std::make_shared<const NiftiImageData3DDeformation<float> >(*NA.get_deformation_field_forward());
 
@@ -758,8 +758,8 @@ int main(int argc, char* argv[])
         SIRFRegAffineTransformation<float> a(TM_forward);
 
         // Multiply forward and inverse, should equal identity
-        SIRFRegAffineTransformation<float> b = NA.get_transformation_matrix_forward();
-        SIRFRegAffineTransformation<float> c = NA.get_transformation_matrix_inverse();
+        SIRFRegAffineTransformation<float> b = *NA.get_transformation_matrix_forward();
+        SIRFRegAffineTransformation<float> c = *NA.get_transformation_matrix_inverse();
         SIRFRegAffineTransformation<float> d = b * c;
         SIRFRegAffineTransformation<float> e = SIRFRegAffineTransformation<float>::get_identity();
         if (d != e)

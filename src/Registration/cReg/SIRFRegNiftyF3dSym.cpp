@@ -51,8 +51,8 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     _registration_sptr->SetReferenceImage(flo.get_raw_nifti_sptr().get());
 
     // If there is an initial transformation matrix, set it
-    if (_use_initial_transformation) {
-        mat44 init_tm = _initial_transformation.get_as_mat44();
+    if (_initial_transformation_sptr) {
+        mat44 init_tm = _initial_transformation_sptr->get_as_mat44();
         _registration_sptr->SetAffineTransformation(&init_tm);
     }
 

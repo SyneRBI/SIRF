@@ -182,9 +182,9 @@ int main(int argc, char* argv[])
 
         // TMs
         if (flag_TM_forward != -1)
-            aladin.get_transformation_matrix_forward().save_to_file(argv[flag_TM_forward+1]);
+            aladin.get_transformation_matrix_forward()->save_to_file(argv[flag_TM_forward+1]);
         if (flag_TM_inverse != -1)
-            aladin.get_transformation_matrix_inverse().save_to_file(argv[flag_TM_inverse+1]);
+            aladin.get_transformation_matrix_inverse()->save_to_file(argv[flag_TM_inverse+1]);
 
         // Forward disp field images
         if (flag_disp_fwd_4D != -1)

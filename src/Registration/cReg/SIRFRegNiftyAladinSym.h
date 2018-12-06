@@ -45,10 +45,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const SIRFRegAffineTransformation<dataType> &get_transformation_matrix_forward() const { return _TM_forward; }
+    const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > get_transformation_matrix_forward() const { return _TM_forward_sptr; }
 
     /// Get inverse transformation matrix
-    const SIRFRegAffineTransformation<dataType> &get_transformation_matrix_inverse() const { return _TM_inverse; }
+    const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > get_transformation_matrix_inverse() const { return _TM_inverse_sptr; }
 
 protected:
 
@@ -62,9 +62,9 @@ protected:
     std::shared_ptr<reg_aladin_sym<dataType> > _registration_sptr;
 
     /// Forwards transformation matrix
-    SIRFRegAffineTransformation<dataType> _TM_forward;
+    std::shared_ptr<SIRFRegAffineTransformation<dataType> > _TM_forward_sptr;
     /// Inverse transformation matrix
-    SIRFRegAffineTransformation<dataType> _TM_inverse;
+    std::shared_ptr<SIRFRegAffineTransformation<dataType> > _TM_inverse_sptr;
 };
 }
 

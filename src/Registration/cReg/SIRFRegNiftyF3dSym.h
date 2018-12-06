@@ -46,7 +46,6 @@ public:
     {
         _floating_time_point  = -1;
         _reference_time_point = -1;
-        _use_initial_transformation = false;
     }
 
     /// Process
@@ -59,11 +58,7 @@ public:
     void set_reference_time_point(const int reference_time_point) { _reference_time_point = reference_time_point; }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(const SIRFRegAffineTransformation<dataType> &mat)
-    {
-        _initial_transformation = mat;
-        _use_initial_transformation = true;
-    }
+    void set_initial_affine_transformation(const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > mat) { _initial_transformation_sptr = mat; }
 
 protected:
 
@@ -84,9 +79,7 @@ protected:
     /// Reference time point
     int _reference_time_point;
     /// Transformation matrix
-    SIRFRegAffineTransformation<dataType> _initial_transformation;
-    /// Bool to use transformation matrix
-    bool _use_initial_transformation;
+    std::shared_ptr<const SIRFRegAffineTransformation<dataType> > _initial_transformation_sptr;
 };
 }
 

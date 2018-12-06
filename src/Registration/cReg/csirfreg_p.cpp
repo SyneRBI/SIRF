@@ -140,8 +140,9 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
     else if (strcmp(name, "reference_time_point") == 0)
         s.set_reference_time_point(intDataFromHandle(hv));
     else if (strcmp(name, "initial_affine_transformation") == 0) {
-        const SIRFRegAffineTransformation<float>& mat = objectFromHandle<const SIRFRegAffineTransformation<float> >(hv);
-        s.set_initial_affine_transformation(mat);
+        const std::shared_ptr<const SIRFRegAffineTransformation<float> > mat_sptr =
+                std::make_shared<const SIRFRegAffineTransformation<float> >(objectFromHandle<const SIRFRegAffineTransformation<float> >(hv));
+        s.set_initial_affine_transformation(mat_sptr);
     }
     else
         return parameterNotFound(name, __FILE__, __LINE__);
