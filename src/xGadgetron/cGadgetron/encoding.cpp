@@ -213,7 +213,8 @@ void RPEInterleavedTrajectoryContainer::compute_trajectory()
 	for( unsigned nr=0; nr<NRadial; nr++)
 	{
 
-		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float r_pos = (float)nr - (float)NRadial/2.f; 
+		r_pos = (r_pos == 0) ? r_pos : r_pos + 0.25f * radial_shift[ na % 4 ];
 		float const ang_pos = na*M_PI/ NAngles;
 				
 		float const nx = r_pos * cos( ang_pos );
@@ -258,7 +259,8 @@ void RPEInterleavedGoldenCutTrajectoryContainer::compute_trajectory()
 	for( unsigned nr=0; nr<NRadial; nr++)
 	{
 
-		float const r_pos = (float)nr - (float)NRadial/2.f + 0.25f * radial_shift[ na % 4 ];
+		float r_pos = (float)nr - (float)NRadial/2.f; 
+		r_pos = (r_pos == 0) ? r_pos : r_pos + 0.25f * radial_shift[ na % 4 ];
 		float const ang_pos = na*GOLDENANGLE;
 				
 		float const nx = r_pos * cos( ang_pos );
