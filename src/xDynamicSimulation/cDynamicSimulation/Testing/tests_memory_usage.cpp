@@ -211,3 +211,26 @@ bool tests_memory::tests_resizing_acquisition_memory( void )
 
 
 }
+
+
+bool  tests_memory::tests_VD_h5_file_content( void )
+{
+
+try
+	{
+
+		sirf::AcquisitionsVector av;
+		av.read( std::string(ISMRMRD_H5_TEST_PATH)) ;
+
+		
+		std::cout << "# of acquis in vector " << av.number() << std::endl;
+
+		return true;
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+}

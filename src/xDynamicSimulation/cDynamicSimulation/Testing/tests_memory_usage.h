@@ -31,4 +31,5 @@ bool test_acquisition_vector_memory( void );
 bool test_ndarray_memory_managment( void );
 bool tests_resizing_acquisition_memory( void );
 
+bool tests_VD_h5_file_content( void );
 }
