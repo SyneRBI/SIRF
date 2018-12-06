@@ -29,8 +29,11 @@ limitations under the License.
 
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegParser.h"
-#include <_reg_localTrans.h>
-#include <_reg_tools.h>
+#include "SIRFRegAffineTransformation.h"
+#include "NiftiImageData3D.h"
+#include "NiftiImageData3DDeformation.h"
+#include "NiftiImageData3DDisplacement.h"
+#include <_reg_aladin_sym.h>
 
 using namespace sirf;
 
@@ -40,9 +43,12 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
+    // Convert the input images from ImageData to NiftiImageData3D
+    this->set_up_inputs();
+
     // Annoyingly NiftyReg doesn't mark ref and floating images as const, so need to copy (could do a naughty cast, but not going to do that!)
-    NiftiImageData3D<dataType> ref = *this->_reference_image_sptr;
-    NiftiImageData3D<dataType> flo = *this->_floating_image_sptr;
+    NiftiImageData3D<dataType> ref = *this->_reference_image_nifti_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
 
     // Create the registration object
     _registration_sptr = std::make_shared<reg_aladin_sym<dataType> >();
@@ -50,12 +56,12 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     _registration_sptr->SetInputFloating(flo.get_raw_nifti_sptr().get());
 
     // Set masks (if present). Again, need to copy to get rid of const
-    if (this->_reference_mask_sptr && this->_reference_mask_sptr->is_initialised()) {
-        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_sptr;
+    if (this->_reference_mask_nifti_sptr && this->_reference_mask_nifti_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_nifti_sptr;
         _registration_sptr->SetInputMask(ref_mask.get_raw_nifti_sptr().get());
     }
-    if (this->_floating_mask_sptr && this->_floating_mask_sptr->is_initialised()) {
-        NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_sptr;
+    if (this->_floating_mask_nifti_sptr && this->_floating_mask_nifti_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_nifti_sptr;
         _registration_sptr->SetInputMask(flo_mask.get_raw_nifti_sptr().get());
     }
 
@@ -71,29 +77,33 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the output
-    this->_warped_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(*_registration_sptr->GetFinalWarpedImage());
+    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*_registration_sptr->GetFinalWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (this->_floating_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
-            this->_reference_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
-        this->_warped_image_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_sptr->get_raw_nifti_sptr()->dt = 0.F;
+    if (this->_floating_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
+            this->_reference_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
+        this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and inverse transformation matrices
     this->_TM_forward_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(*this->_registration_sptr->GetTransformationMatrix());
-    this->_TM_inverse_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(nifti_mat44_inverse(this->_TM_forward_sptr->get_as_mat44()));
+    this->_TM_inverse_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(nifti_mat44_inverse(*_registration_sptr->GetTransformationMatrix()));
 
     std::cout << "\nPrinting forwards tranformation matrix:\n";
     _TM_forward_sptr->print();
     std::cout << "\nPrinting inverse tranformation matrix:\n";
-    _TM_inverse_sptr->print();
+    std::dynamic_pointer_cast<const SIRFRegAffineTransformation<dataType> >(_TM_inverse_sptr)->print();
 
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
     NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(ref);
-    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_forward_sptr->create_from_def(def_fwd);
-    this->_disp_image_inverse_sptr->create_from_def(def_inv);
+    NiftiImageData3DDisplacement<dataType> disp_fwd, disp_inv;
+    disp_fwd.create_from_def(def_fwd);
+    disp_inv.create_from_def(def_inv);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_fwd);
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_inv);
+
+    // Copy the NiftiImageData3D to the general ImageData
+    this->_warped_image_sptr = this->_warped_image_nifti_sptr;
 
     std::cout << "\n\nRegistration finished!\n\n";
 }

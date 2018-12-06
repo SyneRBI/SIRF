@@ -186,7 +186,7 @@ public:
 
     /// Save to file. Templated so the user can choose the datatype they save to. This defaults
     /// to -1, which is the original datatype of that image (stored as _original_datatype).
-    void save_to_file(const std::string &filename, const int datatype = -1) const;
+    virtual void save_to_file(const std::string &filename, const int datatype = -1) const;
 
     /// Get max
     float get_max() const;

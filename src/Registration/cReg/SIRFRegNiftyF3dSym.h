@@ -30,14 +30,17 @@ limitations under the License.
 #ifndef _SIRFREGNIFTYF3DSYM_H_
 #define _SIRFREGNIFTYF3DSYM_H_
 
-#include "SIRFReg.h"
-#include "SIRFRegAffineTransformation.h"
+#include "SIRFRegNiftyRegistration.h"
 
 template<class dataType> class reg_f3d_sym;
 
 namespace sirf {
+
+/// Forward declarations
+template<class dataType> class SIRFRegAffineTransformation;
+
 /// Wrapper around NiftyReg's f3d class for non-rigid transformations
-template<class dataType> class SIRFRegNiftyF3dSym : public SIRFReg<dataType>
+template<class dataType> class SIRFRegNiftyF3dSym : public SIRFRegNiftyRegistration<dataType>
 {
 public:
 

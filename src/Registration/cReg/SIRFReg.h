@@ -47,17 +47,15 @@ More examples can be found in data/examples/Registration/paramFiles
 #ifndef _SIRFREG_H_
 #define _SIRFREG_H_
 
-#include <stdexcept>
-#include <nifti1_io.h>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <boost/filesystem.hpp>
-#include "NiftiImageData3D.h"
-#include "NiftiImageData3DDeformation.h"
-#include "NiftiImageData3DDisplacement.h"
 
 namespace sirf {
+
+/// Forward declarations
+template<class dataType> class SIRFRegTransformation;
+class ImageData;
+
 /// Base class for registration algorithms wrapped by SIRFReg
 template<class dataType>
 class SIRFReg
@@ -74,28 +72,28 @@ public:
     void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
 
     /// Set reference image
-    void set_reference_image(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
+    void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
 
     /// Set floating image
-    void set_floating_image(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
+    void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
 
     /// Process
     virtual void process() = 0;
 
     /// Get registered image
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const;
+    const std::shared_ptr<const ImageData> get_output() const { return _warped_image_sptr; }
 
     /// Get forward deformation field image
-    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_deformation_field_forward() const;
+    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_forward() const = 0;
 
     /// Get inverse deformation field image
-    const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > get_deformation_field_inverse() const;
+    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_inverse() const = 0;
 
     /// Get forward displacement field image
-    const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > get_displacement_field_forward() const;
+    const std::shared_ptr<const SIRFRegTransformation<dataType> > get_displacement_field_forward() const { return _disp_image_forward_sptr; }
 
     /// Get inverse displacement field image
-    const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > get_displacement_field_inverse() const;
+    const std::shared_ptr<const SIRFRegTransformation<dataType> > get_displacement_field_inverse() const { return _disp_image_inverse_sptr; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -104,10 +102,10 @@ public:
     void set_parameter(const std::string &par, const std::string &arg1 = "", const std::string &arg2 = "");
 
     /// Set reference mask
-    void set_reference_mask(const std::shared_ptr<const NiftiImageData3D<dataType> > reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
+    void set_reference_mask(const std::shared_ptr<const ImageData> reference_mask_sptr) { _reference_mask_sptr = reference_mask_sptr; }
 
     /// Set floating mask
-    void set_floating_mask(const std::shared_ptr<const NiftiImageData3D<dataType> > floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
+    void set_floating_mask(const std::shared_ptr<const ImageData> floating_mask_sptr)   {  _floating_mask_sptr = floating_mask_sptr;  }
 
 protected:
 
@@ -124,24 +122,24 @@ protected:
     std::vector<std::string> _extra_params;
 
     /// Parameter filename
-    boost::filesystem::path _parameter_filename;
+    std::string _parameter_filename;
 
     /// Reference image
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_sptr;
+    std::shared_ptr<const ImageData> _reference_image_sptr;
     /// Floating image
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_sptr;
+    std::shared_ptr<const ImageData> _floating_image_sptr;
     /// Warped image
-    std::shared_ptr<NiftiImageData3D<dataType> > _warped_image_sptr;
+    std::shared_ptr<ImageData> _warped_image_sptr;
 
     /// Forward displacement field image
-    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_forward_sptr;
+    std::shared_ptr<SIRFRegTransformation<dataType> > _disp_image_forward_sptr;
     /// Inverse displacement field image
-    std::shared_ptr<NiftiImageData3DDisplacement<dataType> > _disp_image_inverse_sptr;
+    std::shared_ptr<SIRFRegTransformation<dataType> > _disp_image_inverse_sptr;
 
     /// Floating mask
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_mask_sptr;
+    std::shared_ptr<const ImageData> _floating_mask_sptr;
     /// Reference mask
-    std::shared_ptr<const NiftiImageData3D<dataType> > _reference_mask_sptr;
+    std::shared_ptr<const ImageData> _reference_mask_sptr;
 };
 }
 

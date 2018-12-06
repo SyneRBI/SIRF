@@ -33,6 +33,8 @@ limitations under the License.
 #include "SIRFRegNiftyResample.h"
 #include "NiftiImageData3D.h"
 #include "SIRFRegImageWeightedMean.h"
+#include "NiftiImageData3DDisplacement.h"
+#include "SIRFRegAffineTransformation.h"
 #include <memory>
 
 using namespace sirf;
@@ -496,24 +498,26 @@ int main(int argc, char* argv[])
         NA.set_parameter("SetLevelsToPerform","1");
         NA.set_parameter("SetMaxIterations","5");
         NA.process();
-        NA.get_output()->save_to_file         (         aladin_warped         );
-        NA.get_transformation_matrix_forward()->save_to_file(       TM_forward      );
-        NA.get_transformation_matrix_inverse()->save_to_file(       TM_inverse      );
-        NA.get_displacement_field_forward()->save_to_file(aladin_disp_forward);
-        NA.get_displacement_field_inverse()->save_to_file_split_xyz_components(aladin_disp_inverse);
-        NA.get_deformation_field_forward()->save_to_file(aladin_def_forward);
-        NA.get_deformation_field_inverse()->save_to_file_split_xyz_components(aladin_def_inverse);
 
         // Get outputs
-        NiftiImageData3D<float> warped = *NA.get_output();
-        NiftiImageData3DTensor<float> def_forward  = *NA.get_deformation_field_forward();
-        NiftiImageData3DTensor<float> def_inverse  = *NA.get_deformation_field_inverse();
-        NiftiImageData3DTensor<float> disp_forward = *NA.get_displacement_field_forward();
-        NiftiImageData3DTensor<float> disp_inverse = *NA.get_displacement_field_inverse();
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(NA.get_output());
+        std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
+        std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse());
+
+        warped_sptr->save_to_file    (      aladin_warped    );
+        TM_forward_sptr->save_to_file(       TM_forward      );
+        TM_inverse_sptr->save_to_file(       TM_inverse      );
+        disp_forward_sptr->save_to_file(aladin_disp_forward);
+        disp_inverse_sptr->save_to_file_split_xyz_components(aladin_disp_inverse);
+        def_forward_sptr->save_to_file(aladin_def_forward);
+        def_inverse_sptr->save_to_file_split_xyz_components(aladin_def_inverse);
 
         // forward TM
-        const SIRFRegAffineTransformation<float> &forward_tm = *NA.get_transformation_matrix_forward();
-        forward_tm.print();
+        TM_forward_sptr->print();
 
         // Inverse TM
         const SIRFRegAffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse();
@@ -521,14 +525,14 @@ int main(int argc, char* argv[])
 
         // Test converting disp to def
         NiftiImageData3DDeformation<float> a;
-        a.create_from_disp(disp_forward);
-        if (a != def_forward)
+        a.create_from_disp(*disp_forward_sptr);
+        if (a != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::create_from_disp() failed.");
 
         // Test converting def to disp
         NiftiImageData3DDisplacement<float> b;
-        b.create_from_def(def_forward);
-        if (b != disp_forward)
+        b.create_from_def(*def_forward_sptr);
+        if (b != *disp_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDisplacement::create_from_def() failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -548,18 +552,20 @@ int main(int argc, char* argv[])
         NF.set_reference_time_point          (             1              );
         NF.set_floating_time_point           (             1              );
         NF.process();
-        NF.get_output()->save_to_file        (         f3d_warped         );
-        NF.get_deformation_field_forward()->save_to_file (f3d_def_forward);
-        NF.get_deformation_field_inverse()->save_to_file_split_xyz_components(f3d_def_inverse);
-        NF.get_displacement_field_forward()->save_to_file(f3d_disp_forward);
-        NF.get_displacement_field_inverse()->save_to_file_split_xyz_components(f3d_disp_inverse);
 
         // Get outputs
-        NiftiImageData3D<float> warped = *NF.get_output();
-        NiftiImageData3DTensor<float> def_forward  = *NF.get_deformation_field_forward();
-        NiftiImageData3DTensor<float> def_inverse  = *NF.get_deformation_field_inverse();
-        NiftiImageData3DTensor<float> disp_forward = *NF.get_displacement_field_forward();
-        NiftiImageData3DTensor<float> disp_inverse = *NF.get_displacement_field_inverse();
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(NF.get_output());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_forward());
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_inverse());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_forward());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_inverse());
+
+        warped_sptr->save_to_file      (  f3d_warped   );
+        def_forward_sptr->save_to_file (f3d_def_forward);
+        def_inverse_sptr->save_to_file_split_xyz_components(f3d_def_inverse);
+        disp_forward_sptr->save_to_file(f3d_disp_forward);
+        disp_inverse_sptr->save_to_file_split_xyz_components(f3d_disp_inverse);
+
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Finished Nifty f3d test.\n";
@@ -571,6 +577,10 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting transformations test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
+        // Get outputs from aladin
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
+        std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
+
         // Affine
         std::cout << "\nTesting affine...\n";
         SIRFRegAffineTransformation<float> a1;
@@ -579,21 +589,21 @@ int main(int argc, char* argv[])
 
         // Displacement
         std::cout << "\nTesting displacement...\n";
-        NiftiImageData3DDisplacement<float> b3(*NA.get_displacement_field_forward());
+        const NiftiImageData3DDisplacement<float> b3(*disp_forward_sptr);
 
         // Deformation
         std::cout << "\nTesting deformation...\n";
-        NiftiImageData3DDeformation<float> c3(*NA.get_deformation_field_forward());
+        NiftiImageData3DDeformation<float> c3(*def_forward_sptr);
 
         // Get as deformations
         NiftiImageData3DDeformation<float> a_def = a3.get_as_deformation_field(*ref_aladin);
         NiftiImageData3DDeformation<float> b_def = b3.get_as_deformation_field(*ref_aladin);
         NiftiImageData3DDeformation<float> c_def = c3.get_as_deformation_field(*ref_aladin);
-        if (a_def != *NA.get_deformation_field_forward())
+        if (a_def != *def_forward_sptr)
             throw std::runtime_error("SIRFRegAffineTransformation::get_as_deformation_field failed.");
-        if (b_def != *NA.get_deformation_field_forward())
+        if (b_def != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDisplacement::get_as_deformation_field failed.");
-        if (c_def != *NA.get_deformation_field_forward())
+        if (c_def != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
@@ -605,7 +615,7 @@ int main(int argc, char* argv[])
         vec.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >(c3));
         NiftiImageData3DDeformation<float> composed =
                 NiftiImageData3DDeformation<float>::compose_single_deformation(vec, *ref_aladin);
-        if (composed.get_as_deformation_field(*ref_aladin) != *NA.get_deformation_field_forward())
+        if (composed.get_as_deformation_field(*ref_aladin) != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::compose_single_deformation failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -619,9 +629,9 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >(SIRFRegAffineTransformation<float>::get_identity());
-        std::shared_ptr<const SIRFRegTransformation<float> > tm       = std::make_shared<const SIRFRegAffineTransformation<float> >(*NA.get_transformation_matrix_forward());
-        std::shared_ptr<const SIRFRegTransformation<float> > disp     = std::make_shared<const NiftiImageData3DDisplacement<float> >(*NA.get_displacement_field_forward());
-        std::shared_ptr<const SIRFRegTransformation<float> > deff     = std::make_shared<const NiftiImageData3DDeformation<float> >(*NA.get_deformation_field_forward());
+        std::shared_ptr<const SIRFRegTransformation<float> > tm       = NA.get_transformation_matrix_forward();
+        std::shared_ptr<const SIRFRegTransformation<float> > disp     = NA.get_displacement_field_forward();
+        std::shared_ptr<const SIRFRegTransformation<float> > deff     = NA.get_deformation_field_forward();
 
         std::cout << "Testing rigid resample...\n";
         SIRFRegNiftyResample<float> nr1;
@@ -695,12 +705,15 @@ int main(int argc, char* argv[])
         if (*wm1.get_output() != res)
             throw std::runtime_error("SIRFRegImageWeightedMean3D failed.");
 
+        // Get def from aladin
+        std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
+
         //  Do 4D
         SIRFRegImageWeightedMean<float> wm2;
-        NiftiImageData3DTensor<float> im4D1 = *NA.get_deformation_field_forward();
-        NiftiImageData3DTensor<float> im4D2 = *NA.get_deformation_field_forward();
-        NiftiImageData3DTensor<float> im4D3 = *NA.get_deformation_field_forward();
-        NiftiImageData3DTensor<float> im4D4 = *NA.get_deformation_field_forward();
+        NiftiImageData3DTensor<float> im4D1 = *def_forward_sptr;
+        NiftiImageData3DTensor<float> im4D2 = *def_forward_sptr;
+        NiftiImageData3DTensor<float> im4D3 = *def_forward_sptr;
+        NiftiImageData3DTensor<float> im4D4 = *def_forward_sptr;
         im4D1.fill(1.F);
         im4D2.fill(4.F);
         im4D3.fill(7.F);
@@ -712,7 +725,7 @@ int main(int argc, char* argv[])
         wm2.process();
         wm2.get_output()->save_to_file(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
-        NiftiImageData3DTensor<float> res4D = *NA.get_deformation_field_forward();
+        NiftiImageData3DTensor<float> res4D = *def_forward_sptr;
         res4D.fill(4.5);
 
         if (*wm2.get_output() != res4D)

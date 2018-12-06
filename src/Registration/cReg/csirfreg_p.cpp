@@ -25,6 +25,7 @@ limitations under the License.
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
 #include "SIRFRegImageWeightedMean.h"
+#include "SIRFRegAffineTransformation.h"
 
 using namespace sirf;
 

@@ -24,6 +24,8 @@ limitations under the License.
 #include "csirfreg_p.h"
 #include "NiftiImageData3D.h"
 #include "NiftiImageData3DTensor.h"
+#include "NiftiImageData3DDisplacement.h"
+#include "NiftiImageData3DDeformation.h"
 #include "SIRFRegNiftyAladinSym.h"
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegNiftyResample.h"
@@ -478,15 +480,14 @@ void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const
 {
     try {
         SIRFReg<float>& reg = objectFromHandle<SIRFReg<float>>(ptr);
-        std::shared_ptr<NiftiImageData3DDeformation<float> > sptr;
         if (strcmp(transform_type, "forward_deformation") == 0)
-            return newObjectHandle(reg.get_deformation_field_forward());
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward()));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
-            return newObjectHandle(reg.get_deformation_field_inverse());
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_inverse()));
         else if (strcmp(transform_type, "forward_displacement") == 0)
-            return newObjectHandle(reg.get_displacement_field_forward());
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_forward()));
         else if (strcmp(transform_type, "inverse_displacement") == 0)
-            return newObjectHandle(reg.get_displacement_field_inverse());
+            return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(reg.get_displacement_field_inverse()));
         else
             throw std::runtime_error("cSIRFReg_SIRFReg_get_deformation_displacement_image: Bad return type.");
     }

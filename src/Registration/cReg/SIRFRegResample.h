@@ -94,7 +94,7 @@ public:
     virtual void process() = 0;
 
     /// Get output
-    const std::shared_ptr<ImageData> get_output() const { return _output_image_sptr; }
+    const std::shared_ptr<const ImageData> get_output() const { return _output_image_sptr; }
 
 protected:
 

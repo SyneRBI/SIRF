@@ -30,14 +30,17 @@ limitations under the License.
 #ifndef _SIRFREGNIFTYALADINSYM_H_
 #define _SIRFREGNIFTYALADINSYM_H_
 
+#include "SIRFRegNiftyRegistration.h"
 
-#include "SIRFReg.h"
-#include "SIRFRegAffineTransformation.h"
-#include <_reg_aladin_sym.h>
+template<class dataType> class reg_aladin_sym;
 
 namespace sirf {
+
+/// Forward declarations
+template<class dataType> class SIRFRegAffineTransformation;
+
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
-template<class dataType> class SIRFRegNiftyAladinSym : public SIRFReg<dataType>
+template<class dataType> class SIRFRegNiftyAladinSym : public SIRFRegNiftyRegistration<dataType>
 {
 public:
 

@@ -28,10 +28,6 @@ limitations under the License.
 */
 
 #include "SIRFReg.h"
-#include <nifti1_io.h>
-#include <fstream>
-#include <iostream>
-#include <algorithm>
 
 using namespace sirf;
 
@@ -39,11 +35,9 @@ template<class dataType>
 void SIRFReg<dataType>::check_parameters() const
 {
     // If anything is missing
-    if (_parameter_filename.empty())
-        throw std::runtime_error("Parameter file has not been set.");
-    if (!_floating_image_sptr->is_initialised())
+    if (!_floating_image_sptr)
         throw std::runtime_error("Floating image has not been set.");
-    if (!_reference_image_sptr->is_initialised())
+    if (!_reference_image_sptr)
         throw std::runtime_error("Reference image has not been set.");
 }
 
@@ -53,39 +47,6 @@ void SIRFReg<dataType>::set_parameter(const std::string &par, const std::string 
     _extra_params.push_back(par);
     _extra_params.push_back(arg1);
     _extra_params.push_back(arg2);
-}
-
-template<class dataType>
-const std::shared_ptr<const NiftiImageData3D<dataType> > SIRFReg<dataType>::get_output() const
-{
-    return std::const_pointer_cast<const NiftiImageData3D<dataType> >(this->_warped_image_sptr);
-}
-
-template<class dataType>
-const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > SIRFReg<dataType>::get_deformation_field_forward() const
-{
-    NiftiImageData3DDeformation<dataType> def_fwd;
-    def_fwd.create_from_disp(*this->_disp_image_forward_sptr);
-    return std::make_shared<const NiftiImageData3DDeformation<dataType> >(def_fwd);
-}
-
-template<class dataType>
-const std::shared_ptr<const NiftiImageData3DDeformation<dataType> > SIRFReg<dataType>::get_deformation_field_inverse() const
-{
-    NiftiImageData3DDeformation<dataType> def_inv;
-    def_inv.create_from_disp(*this->_disp_image_inverse_sptr);
-    return std::make_shared<const NiftiImageData3DDeformation<dataType> >(def_inv);
-}
-
-template<class dataType>
-const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > SIRFReg<dataType>::get_displacement_field_forward() const
-{
-    return std::const_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_forward_sptr);
-}
-template<class dataType>
-const std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > SIRFReg<dataType>::get_displacement_field_inverse() const
-{
-    return std::const_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_inverse_sptr);
 }
 
 namespace sirf {

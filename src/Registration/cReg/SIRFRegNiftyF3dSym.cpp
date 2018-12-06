@@ -29,9 +29,10 @@ limitations under the License.
 
 #include "SIRFRegNiftyF3dSym.h"
 #include "SIRFRegParser.h"
-#include "NiftiImageData3DTensor.h"
+#include "SIRFRegAffineTransformation.h"
+#include "NiftiImageData3D.h"
+#include "NiftiImageData3DDisplacement.h"
 #include <_reg_f3d_sym.h>
-#include <_reg_base.h>
 
 using namespace sirf;
 
@@ -41,9 +42,12 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
 
+    // Convert the input images from ImageData to NiftiImageData3D
+    this->set_up_inputs();
+
     // Annoyingly NiftyReg doesn't mark ref and floating images as const, so need to copy (could do a naughty cast, but not going to do that!)
-    NiftiImageData3D<dataType> ref = *this->_reference_image_sptr;
-    NiftiImageData3D<dataType> flo = *this->_floating_image_sptr;
+    NiftiImageData3D<dataType> ref = *this->_reference_image_nifti_sptr;
+    NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
 
     // Create the registration object
     _registration_sptr = std::shared_ptr<reg_f3d_sym<dataType> >(new reg_f3d_sym<dataType>(_reference_time_point, _floating_time_point));
@@ -57,11 +61,11 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     }
 
     // Set masks (if present). Again, need to copy to get rid of const
-    if (this->_reference_mask_sptr && this->_reference_mask_sptr->is_initialised()) {
-        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_sptr;
+    if (this->_reference_mask_nifti_sptr && this->_reference_mask_nifti_sptr->is_initialised()) {
+        NiftiImageData3D<dataType> ref_mask = *this->_reference_mask_nifti_sptr;
         _registration_sptr->SetReferenceMask(ref_mask.get_raw_nifti_sptr().get());
     }
-    if (this->_floating_mask_sptr && this->_floating_mask_sptr->is_initialised()) {
+    if (this->_floating_mask_nifti_sptr && this->_floating_mask_nifti_sptr->is_initialised()) {
         NiftiImageData3D<dataType> flo_mask = *this->_floating_mask_sptr;
         _registration_sptr->SetFloatingMask(flo_mask.get_raw_nifti_sptr().get());
     }
@@ -78,12 +82,12 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     _registration_sptr->Run();
 
     // Get the warped image
-    this->_warped_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(**_registration_sptr->GetWarpedImage());
+    this->_warped_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(**_registration_sptr->GetWarpedImage());
 
     // For some reason, dt & pixdim[4] are sometimes set to 1
-    if (this->_floating_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
-            this->_reference_image_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
-        this->_warped_image_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_sptr->get_raw_nifti_sptr()->dt = 0.F;
+    if (this->_floating_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F &&
+            this->_reference_image_nifti_sptr->get_raw_nifti_sptr()->dt < 1.e-7F)
+        this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the CPP images
     NiftiImageData3DTensor<dataType> cpp_forward(*_registration_sptr->GetControlPointPositionImage());
@@ -95,10 +99,14 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     def_inv.create_from_cpp(cpp_inverse, ref);
 
     // Get the displacement fields from the def
-    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >();
-    this->_disp_image_forward_sptr->create_from_def(def_fwd);
-    this->_disp_image_inverse_sptr->create_from_def(def_inv);
+    NiftiImageData3DDisplacement<dataType> disp_fwd, disp_inv;
+    disp_fwd.create_from_def(def_fwd);
+    disp_inv.create_from_def(def_inv);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_fwd);
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_inv);
+
+    // Copy the NiftiImageData3D to the general ImageData
+    this->_warped_image_sptr = this->_warped_image_nifti_sptr;
 
     std::cout << "\n\nRegistration finished!\n\n";
 }
