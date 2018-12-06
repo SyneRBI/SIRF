@@ -407,7 +407,8 @@ void run_tests_memory_usage( void )
 	// tests_memory::test_acquisition_memory();
 	// tests_successful *= tests_memory::test_acquisition_vector_memory();
 	// tests_successful *= tests_memory::test_ndarray_memory_managment();
-	tests_successful *= tests_memory::tests_resizing_acquisition_memory();
+	// tests_successful *= tests_memory::tests_resizing_acquisition_memory();
+	tests_successful *= tests_memory::tests_VD_h5_file_content();
 	if ( !tests_successful )
 	{
 		throw std::runtime_error( "The memory usage tests failed." );
