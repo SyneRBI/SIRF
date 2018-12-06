@@ -309,7 +309,7 @@ void MRDynamicSimulation::simulate_motion_dynamics( void )
 			
 			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dynamics; i_motion_dyn++ )
 			{
-				cout << i_motion_dyn << endl;
+				cout << "Motion Dynamic # " << i_motion_dyn << endl;
 
 				auto sptr_motion_dyn = this->motion_dynamics_[i_motion_dyn];
 				std::vector< SignalBin > signal_bins = sptr_motion_dyn->get_bins();
