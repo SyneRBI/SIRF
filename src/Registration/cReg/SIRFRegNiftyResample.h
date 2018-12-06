@@ -71,10 +71,12 @@ protected:
     /// Set up the output image
     void set_up_output_image();
 
-    /// Reference image
+    /// Reference image as a NiftyImageData3D
     std::shared_ptr<const NiftiImageData3D<float> > _reference_image_nifti_sptr;
-    /// Floating image
+    /// Floating image as a NiftyImageData3D
     std::shared_ptr<const NiftiImageData3D<float> > _floating_image_nifti_sptr;
+    /// Floating image as a NiftyImageData3D
+    std::shared_ptr<NiftiImageData3D<float> >       _output_image_nifti_sptr;
 };
 }
 

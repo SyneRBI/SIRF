@@ -61,14 +61,14 @@ void SIRFRegNiftyResample<dataType>::process()
     NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
-                      this->_output_image_sptr->get_raw_nifti_sptr().get(),
+                      this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
                       transformation.get_as_deformation_field(*this->_reference_image_nifti_sptr).get_raw_nifti_sptr().get(),
                       NULL,
                       this->_interpolation_type,
                       0);
 
     // Copy the NiftiImageData3D to the general ImageData
-    this->_output_image_sptr = this->_output_image_sptr;
+    this->_output_image_sptr = this->_output_image_nifti_sptr;
 
     std::cout << "\n\nResampling finished!\n\n";
 }
@@ -92,10 +92,10 @@ template<class dataType>
 void SIRFRegNiftyResample<dataType>::set_up_output_image()
 {
     // Downcast reference image to Nifti image
-    this->_output_image_sptr = std::make_shared<NiftiImageData3D<dataType> >(*this->_reference_image_nifti_sptr);
+    this->_output_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*this->_reference_image_nifti_sptr);
 
     const nifti_image *floating_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
-    nifti_image       *output_ptr   = this->_output_image_sptr->get_raw_nifti_sptr().get();
+    nifti_image       *output_ptr   = this->_output_image_nifti_sptr->get_raw_nifti_sptr().get();
 
     output_ptr->cal_min                   = floating_ptr->cal_min;
     output_ptr->cal_max                   = floating_ptr->cal_max;

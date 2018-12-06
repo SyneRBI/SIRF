@@ -632,7 +632,7 @@ int main(int argc, char* argv[])
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();
-        nr1.get_output()->save_to_file(rigid_resample);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr1.get_output())->save_to_file(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
         SIRFRegNiftyResample<float> nr2;
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation(disp);
         nr2.process();
-        nr2.get_output()->save_to_file(nonrigid_resample_disp);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr2.get_output())->save_to_file(nonrigid_resample_disp);
 
         std::cout << "Testing non-rigid deformation...\n";
         SIRFRegNiftyResample<float> nr3;
@@ -652,7 +652,7 @@ int main(int argc, char* argv[])
         nr3.add_transformation(deff);
         nr3.set_interpolation_type_to_linear();
         nr3.process();
-        nr3.get_output()->save_to_file(nonrigid_resample_def);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr3.get_output())->save_to_file(nonrigid_resample_def);
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though

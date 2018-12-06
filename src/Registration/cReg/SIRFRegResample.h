@@ -94,7 +94,7 @@ public:
     virtual void process() = 0;
 
     /// Get output
-    const std::shared_ptr<const NiftiImageData3D<float> > get_output() const { return _output_image_sptr; }
+    const std::shared_ptr<ImageData> get_output() const { return _output_image_sptr; }
 
 protected:
 
@@ -113,7 +113,7 @@ protected:
     InterpolationType  _interpolation_type;
 
     /// Output image
-    std::shared_ptr<NiftiImageData3D<float> > _output_image_sptr;
+    std::shared_ptr<ImageData> _output_image_sptr;
 };
 }
 
