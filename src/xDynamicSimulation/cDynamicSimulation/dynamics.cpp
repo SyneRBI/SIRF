@@ -223,59 +223,7 @@ sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_n
 	return this->binned_mr_acquisitions_[bin_num];
 };
 
-void aMRDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
-{
 
-	if(this->dyn_signal_.size() == 0)
-		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
-
-
-	std::deque< size_t > relevant_acq_numbers;
-	std::deque< size_t > acq_not_binned;
-
-
-	for( size_t i=0; i<all_acquisitions.items(); i++)
-		relevant_acq_numbers.push_back( i );
-
-	for( int i_bin=0; i_bin<this->signal_bins_.size(); i_bin++)
-	{
-
-		auto bin = this->signal_bins_[i_bin];
-	
-
-		AcquisitionsVector curr_acq_vector;
-		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
-		
-		acq_not_binned.clear();
-
-		while( relevant_acq_numbers.size() > 0 )	
-		{
-			auto curr_pos = relevant_acq_numbers[0];
-			relevant_acq_numbers.pop_front();	
-			
-			auto sptr_acq = all_acquisitions.get_acquisition_sptr( curr_pos );
-			auto acq_hdr = sptr_acq->getHead();
-			
-			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
-			
-			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
-			
-			if( is_in_bin(signal_of_acq, bin) )
-			{
-				curr_acq_vector.append_acquisition_sptr(sptr_acq);
-			}
-			else
-			{
-				acq_not_binned.push_back(curr_pos);
-			}
-			
-		}
-	
-		relevant_acq_numbers.swap(acq_not_binned);
-		this->binned_mr_acquisitions_.push_back( curr_acq_vector );
-		
-	}
-}
 
 
 ContrastDynamic::ContrastDynamic(int const num_simul_states) : aDynamic()
@@ -536,10 +484,76 @@ void MotionDynamic::prep_displacements_fields()
 }
 
 
+void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
+{
+
+	if(this->dyn_signal_.size() == 0)
+		throw std::runtime_error( "Please set a signal first. Otherwise you cannot bin your data, you dummy!" );
+
+
+	std::deque< size_t > relevant_acq_numbers;
+	std::deque< size_t > acq_not_binned;
+
+
+	for( size_t i=0; i<all_acquisitions.items(); i++)
+		relevant_acq_numbers.push_back( i );
+
+	for( int i_bin=0; i_bin<this->signal_bins_.size(); i_bin++)
+	{
+
+		auto bin = this->signal_bins_[i_bin];
+	
+		AcquisitionsVector curr_acq_vector;
+		curr_acq_vector.copy_acquisitions_info(all_acquisitions);
+		
+		acq_not_binned.clear();
+
+		while( relevant_acq_numbers.size() > 0 )	
+		{
+			auto curr_pos = relevant_acq_numbers[0];
+			relevant_acq_numbers.pop_front();	
+			
+			auto sptr_acq = all_acquisitions.get_acquisition_sptr( curr_pos );
+			auto acq_hdr = sptr_acq->getHead();
+			
+			TimeAxisType acq_time = (TimeAxisType)acq_hdr.acquisition_time_stamp;
+			
+			SignalAxisType signal_of_acq = this->linear_interpolate_signal( acq_time );
+			
+			if( is_in_bin(signal_of_acq, bin) )
+			{
+				curr_acq_vector.append_acquisition_sptr(sptr_acq);
+			}
+			else
+			{
+				acq_not_binned.push_back(curr_pos);
+			}
+			
+		}
+	
+		relevant_acq_numbers.swap(acq_not_binned);
+		this->binned_mr_acquisitions_.push_back( curr_acq_vector );
+		
+	}
+}
+
+
 void MRMotionDynamic::prep_displacements_fields()
 {
 	MotionDynamic::prep_displacements_fields();
 }
+
+
+void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
+{
+
+	
+
+}
+
+
+
+// ++++++++++++++++++++++++++++++++ PET ++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
