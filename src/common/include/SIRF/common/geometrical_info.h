@@ -21,6 +21,8 @@
 #ifndef SIRF_GEOMETRICAL_INFO_TYPE
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
+namespace sirf {
+
 template <int num_dimensions, typename T>
 class tVector {
 private:
@@ -164,6 +166,8 @@ calculate_index_to_physical_point_matrix() const
 	}
 	index_to_physical_point_matrix[num_dimensions][num_dimensions] = 1;
 	return index_to_physical_point_matrix;
+}
+
 }
 
 #endif

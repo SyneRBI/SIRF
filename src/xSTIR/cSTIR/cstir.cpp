@@ -1002,7 +1002,7 @@ extern "C"
 void* cSTIR_getImageTransformMatrix(const void* ptr_im, size_t ptr_md)
 {
 	try {
-		PETImageData& id = objectFromHandle<PETImageData>(ptr_im);
+        STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_md;
 		TransformMatrix3D mx = id.calculate_index_to_physical_point_matrix();
 		for (int j = 0; j < 4; j++)
