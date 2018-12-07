@@ -1139,6 +1139,33 @@ GadgetronImagesVector::set_real_data(const float* data)
 }
 
 void
+GadgetronImagesVector::set_up_geom_info()
+{
+    // Get image
+    const ImageWrap& iw = image_wrap(0);
+
+    // Size
+    VoxelisedGeometricalInfo3D::Size size;
+    int d[4];
+    iw.get_dim(d);
+    for (int i=0; i<3; ++i)
+        size[i] = unsigned(d[i]);
+
+    // Spacing
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+
+    // Offset
+    VoxelisedGeometricalInfo3D::Offset offset;
+
+    // Direction
+    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+
+    // Initialise the geom info shared pointer
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
+                VoxelisedGeometricalInfo3D(offset,spacing,size,direction));
+}
+
+void
 CoilDataAsCFImage::get_data(float* re, float* im) const
 {
 	size_t n = img_.getNumberOfDataElements();

@@ -751,6 +751,10 @@ namespace sirf {
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 
+    protected:
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info();
+
 	private:
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
 		int nimages_;

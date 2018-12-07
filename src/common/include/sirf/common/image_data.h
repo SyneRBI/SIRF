@@ -4,6 +4,7 @@
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
 #include "data_container.h"
+#include "geometrical_info.h"
 
 /*!
 \ingroup SIRFImageDataClasses
@@ -43,6 +44,18 @@ namespace sirf {
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
 		}
+        /// Get geometrical info
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info()
+        {
+            // If the geometrical info has not been created yet, do that
+            if (!_geom_info_sptr)
+                this->set_up_geom_info();
+            return _geom_info_sptr;
+        }
+    protected:
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info() = 0;
+        std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;
 	};
 }
 
