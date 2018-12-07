@@ -65,7 +65,6 @@ void run_tests_dynamics( void )
 	bool tests_successful = true;
 	std::vector< bool > dyn_tests;
 	
-
 	dyn_tests.push_back(test_dynamic::test_is_in_bin());
 	dyn_tests.push_back(test_dynamic::test_intersect_mr_acquisition_data());
 	dyn_tests.push_back(test_dynamic::test_linear_interpolate_signal());

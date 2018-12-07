@@ -184,21 +184,21 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		acq_vec.read( std::string(ISMRMRD_H5_TEST_PATH ));
 
 		int const num_bins = 10;
-		aMRDynamic dyn(num_bins);
+		MRMotionDynamic motion_dyn(num_bins);
 
 		SignalContainer mock_signal = aux_test::get_generic_cardiac_signal(acq_vec);
-		dyn.set_dyn_signal( mock_signal );
+		motion_dyn.set_dyn_signal( mock_signal );
 
-		dyn.bin_mr_acquisitions( acq_vec );
-		auto binned_acquis = dyn.get_binned_mr_acquisitions();
+		motion_dyn.bin_mr_acquisitions( acq_vec );
+		auto motion_binned_acquis = motion_dyn.get_binned_mr_acquisitions();
 
-		test_succesful *= (binned_acquis.size() == num_bins);
+		test_succesful *= (motion_binned_acquis.size() == num_bins);
 
 		size_t num_tot_acquis = 0;
 		for( int i=0; i<num_bins; i++)
 		{
-			num_tot_acquis += binned_acquis[i].items();
-			cout << epiph( binned_acquis[i].items() ) << endl;
+			num_tot_acquis += motion_binned_acquis[i].items();
+			cout << epiph( motion_binned_acquis[i].items() ) << endl;
 		}
 
 		cout << epiph(num_tot_acquis) <<endl;
