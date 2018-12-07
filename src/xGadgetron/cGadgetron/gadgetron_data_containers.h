@@ -30,6 +30,9 @@ limitations under the License.
 #ifndef GADGETRON_DATA_CONTAINERS
 #define GADGETRON_DATA_CONTAINERS
 
+#include <string>
+#include <vector>
+
 #include <boost/algorithm/string.hpp>
 
 #include <ismrmrd/ismrmrd.h>
@@ -40,8 +43,9 @@ limitations under the License.
 #include "ismrmrd_fftw.h"
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_image_wrap.h"
-#include "SIRF/common/data_container.h"
-#include "SIRF/common/multisort.h"
+#include "sirf/common/data_container.h"
+#include "sirf/common/mr_image_data.h"
+#include "sirf/common/multisort.h"
 
 /*!
 \ingroup Gadgetron Data Containers
@@ -54,6 +58,7 @@ Some acquisitions do not participate directly in the reconstruction process
 	(!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_PARALLEL_CALIBRATION_AND_IMAGING) && \
 	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT) && \
+	!(acq).isFlagSet(ISMRMRD::ISMRMRD_ACQ_IS_REVERSE) && \
 	(acq).flags() >= (1 << (ISMRMRD::ISMRMRD_ACQ_IS_NOISE_MEASUREMENT - 1)))
 
 /*!
@@ -85,7 +90,7 @@ namespace sirf {
 	\brief Abstract MR acquisition data container class.
 
 	*/
-	class MRAcquisitionData : public aDataContainer < complex_float_t > {
+	class MRAcquisitionData : public DataContainer {
 	public:
 		MRAcquisitionData() : ordered_(false), index_(0) {}
 		virtual ~MRAcquisitionData()
@@ -145,20 +150,27 @@ namespace sirf {
 		virtual MRAcquisitionData*
 			same_acquisitions_container(AcquisitionsInfo info) = 0;
 
+		virtual void set_data(const complex_float_t* z, int all = 1) = 0;
+
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im) = 0;
 
 		// acquisition data algebra
+		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
+
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y);
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
+		//virtual complex_float_t dot(const DataContainer& dc);
 		virtual float norm();
 		//float diff(MRAcquisitionData& other);
 
@@ -171,8 +183,10 @@ namespace sirf {
 
 		bool undersampled() const;
 		int get_acquisitions_dimensions(size_t ptr_dim);
-		void get_acquisitions_flags(unsigned int n, int* flags);
+		//void get_acquisitions_flags(unsigned int n, int* flags);
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
+	
+		virtual void get_data(complex_float_t* z, int all = 1);
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -187,6 +201,16 @@ namespace sirf {
 				return i;
 		}
 
+    	/*! 
+    		\brief Reader for ISMRMRD::Acquisition from ISMRMRD file. 
+      		*	filename_ismrmrd_with_ext:	filename of ISMRMRD rawdata file with .h5 extension.
+      		* 
+      		* In case the ISMRMRD::Dataset constructor throws an std::runtime_error the reader catches it, 
+      		* displays the message and throws it again.
+			* To avoid reading noise samples and other calibration data, the TO_BE_IGNORED macro is employed
+			* to exclude potentially incompatible input. 
+    	*/
+		void read( const std::string& filename_ismrmrd_with_ext );
 		void write(const char* filename);
 
 	protected:
@@ -238,6 +262,7 @@ namespace sirf {
 
 		// implementations of abstract methods
 
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
 		virtual unsigned int items();
@@ -254,11 +279,16 @@ namespace sirf {
 		{
 			return (MRAcquisitionData*) new AcquisitionsFile(info);
 		}
-		virtual aDataContainer<complex_float_t>*
+		virtual DataContainer*
 			new_data_container()
 		{
 			init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
 		{
@@ -314,18 +344,26 @@ namespace sirf {
 		{
 			acqs_info_ = ac.acquisitions_info();
 		}
+		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
-		virtual MRAcquisitionData* same_acquisitions_container(AcquisitionsInfo info)
+		virtual MRAcquisitionData* same_acquisitions_container
+			(AcquisitionsInfo info)
 		{
 			return new AcquisitionsVector(info);
 		}
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual gadgetron::shared_ptr<MRAcquisitionData> new_acquisitions_container()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
+		}
+		virtual gadgetron::shared_ptr<MRAcquisitionData>
+			new_acquisitions_container()
 		{
 			AcquisitionsFile::init();
 			return gadgetron::shared_ptr<MRAcquisitionData>
@@ -338,61 +376,82 @@ namespace sirf {
 
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief Abstract MR image data container class.
+	\brief Abstract Gadgetron image data container class.
 
 	*/
-	class MRImageData : public aDataContainer < complex_float_t > {
+
+	class ISMRMRDImageData : public MRImageData {
 	public:
-		MRImageData() : ordered_(false), index_(0) {}
-		virtual ~MRImageData()
+		ISMRMRDImageData() : ordered_(false), index_(0) {}
+		//ISMRMRDImageData(ISMRMRDImageData& id, const char* attr, 
+		//const char* target); //does not build, have to be in the derived class
+		virtual ~ISMRMRDImageData()
 		{
 			if (index_)
 				delete[] index_;
 		}
 
-		virtual unsigned int number() = 0;
+		virtual unsigned int number() const = 0;
 		virtual int types() = 0;
 		virtual void count(int i) = 0;
-		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num) = 0;
+		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
+			(unsigned int im_num) = 0;
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const = 0;
 		virtual ImageWrap& image_wrap(unsigned int im_num) = 0;
 		virtual const ImageWrap& image_wrap(unsigned int im_num) const = 0;
 		virtual void append(int image_data_type, void* ptr_image) = 0;
 		virtual void append(const ImageWrap& iw) = 0;
-		virtual void get_image_dimensions(unsigned int im_num, int* dim) = 0;
-		virtual void get_images_data_as_float_array(float* data) = 0;
-		virtual void get_images_data_as_complex_array(float* re, float* im) = 0;
-		virtual void set_complex_images_data
-		(const float* re, const float* im) = 0;
-		virtual int read(std::string filename) = 0;
-		virtual void write(std::string filename, std::string groupname) = 0;
-		virtual gadgetron::shared_ptr<MRImageData> new_images_container() = 0;
-		virtual gadgetron::shared_ptr<MRImageData>
+		virtual void get_data(complex_float_t* data) const;
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data) const;
+		virtual void set_real_data(const float* data);
+		virtual int read(std::string filename);
+		virtual void write(std::string filename, std::string groupname);
+		virtual Dimensions dimensions() const 
+		{
+			Dimensions dim;
+			const ImageWrap& iw = image_wrap(0);
+			int d[4];
+			iw.get_dim(d);
+			dim["x"] = d[0];
+			dim["y"] = d[1];
+			dim["z"] = d[2];
+			dim["c"] = d[3];
+			dim["n"] = number();
+			return dim;
+		}
+		virtual void get_image_dimensions(unsigned int im_num, int* dim)
+		{
+			if (im_num >= number())
+				dim[0] = dim[1] = dim[2] = dim[3] = 0;
+			ImageWrap& iw = image_wrap(im_num);
+			iw.get_dim(dim);
+		}
+		virtual gadgetron::shared_ptr<ISMRMRDImageData> 
+			new_images_container() = 0;
+		virtual gadgetron::shared_ptr<ISMRMRDImageData>
 			clone(const char* attr, const char* target) = 0;
 		virtual int image_data_type(unsigned int im_num) const
 		{
 			return image_wrap(im_num).type();
 		}
 
+		virtual void dot(const DataContainer& dc, void* ptr);
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y);
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y);
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y);
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y);
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc);
+			const DataContainer& a_x,
+			const DataContainer& a_y);
+		//virtual complex_float_t dot(const DataContainer& dc);
 		virtual float norm();
-
-		void get_image_data_as_cmplx_array
-			(unsigned int im_num, float* re, float* im)
-		{
-			ImageWrap& iw = image_wrap(im_num);
-			iw.get_cmplx_data(re, im);
-		}
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -401,7 +460,7 @@ namespace sirf {
 		const int* index() const { return index_; }
 		int index(int i) const
 		{
-			if (index_) // && i >= 0 && i < (int)number())
+			if (index_)
 				return index_[i];
 			else
 				return i;
@@ -412,18 +471,185 @@ namespace sirf {
 		int* index_;
 	};
 
+	typedef ISMRMRDImageData GadgetronImageData;
+
 	/*!
 	\ingroup Gadgetron Data Containers
-	\brief A vector implementation of the abstract MR image data container class.
+	\brief A vector implementation of the abstract Gadgetron image data 
+	container class.
 
 	Images are stored in an std::vector<shared_ptr<ImageWrap> > object.
 	*/
-	class ImagesVector : public MRImageData {
+
+	class GadgetronImagesVector : public GadgetronImageData {
 	public:
-		ImagesVector() : images_(), nimages_(0) {}
-		ImagesVector(ImagesVector& list, const char* attr, const char* target);
-		virtual unsigned int items() { return (unsigned int)images_.size(); }
-		virtual unsigned int number() { return (unsigned int)images_.size(); }
+		typedef ImageData::Iterator BaseIter;
+		typedef ImageData::Iterator_const BaseIter_const;
+		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator
+			ImageWrapIter;
+		typedef std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator 
+			ImageWrapIter_const;
+		class Iterator : public MRImageData::Iterator {
+		public:
+			Iterator(ImageWrapIter iw, int n, int i, const ImageWrap::Iterator& it) :
+				iw_(iw), n_(n), i_(i), iter_(it), end_((**iw).end())
+			{}
+			Iterator(const Iterator& iter) : iw_(iter.iw_), n_(iter.n_), i_(iter.i_),
+				iter_(iter.iter_), end_(iter.end_), sptr_iter_(iter.sptr_iter_)
+			{}
+			Iterator& operator=(const Iterator& iter)
+			{
+				iw_ = iter.iw_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				iter_ = iter.iter_;
+				end_ = iter.end_;
+				sptr_iter_ = iter.sptr_iter_;
+				return *this;
+			}
+			virtual bool operator==(const BaseIter& ai) const
+			{
+				const Iterator& i = (const Iterator&)ai;
+				return iter_ == i.iter_;
+			}
+			virtual bool operator!=(const BaseIter& ai) const
+			{
+				const Iterator& i = (const Iterator&)ai;
+				return iter_ != i.iter_;
+			}
+			Iterator& operator++()
+			{
+				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				++iter_;
+				if (iter_ == end_ && i_ < n_ - 1) {
+					++i_;
+					++iw_;
+					iter_ = (**iw_).begin();
+					end_ = (**iw_).end();
+				}
+				return *this;
+			}
+			Iterator& operator++(int)
+			{
+				sptr_iter_.reset(new Iterator(*this));
+				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				++iter_;
+				if (iter_ == end_ && i_ < n_ - 1) {
+					++i_;
+					++iw_;
+					iter_ = (**iw_).begin();
+					end_ = (**iw_).end();
+				}
+				return *sptr_iter_;
+			}
+			NumRef& operator*()
+			{
+				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+					throw std::out_of_range
+					("cannot dereference out-of-range iterator");
+				return *iter_;
+			}
+		private:
+			//std::vector<gadgetron::shared_ptr<ImageWrap> >::iterator iw_;
+			ImageWrapIter iw_;
+			int n_;
+			int i_;
+			ImageWrap::Iterator iter_;
+			ImageWrap::Iterator end_;
+			gadgetron::shared_ptr<Iterator> sptr_iter_;
+		};
+
+		class Iterator_const : public MRImageData::Iterator_const {
+		public:
+			Iterator_const(ImageWrapIter_const iw, int n, int i, 
+				const ImageWrap::Iterator_const& it) :
+				iw_(iw), n_(n), i_(i), iter_(it), end_((**iw).end_const())
+			{}
+			Iterator_const(const Iterator_const& iter) : iw_(iter.iw_),
+				n_(iter.n_), i_(iter.i_),
+				iter_(iter.iter_), end_(iter.end_), sptr_iter_(iter.sptr_iter_)
+			{}
+			Iterator_const& operator=(const Iterator_const& iter)
+			{
+				iw_ = iter.iw_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				iter_ = iter.iter_;
+				end_ = iter.end_;
+				sptr_iter_ = iter.sptr_iter_;
+			}
+			bool operator==(const BaseIter_const& ai) const
+			{
+				const Iterator_const& i = (const Iterator_const&)ai;
+				return iter_ == i.iter_;
+			}
+			bool operator!=(const BaseIter_const& ai) const
+			{
+				const Iterator_const& i = (const Iterator_const&)ai;
+				return iter_ != i.iter_;
+			}
+			Iterator_const& operator++()
+			{
+				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				++iter_;
+				if (iter_ == end_ && i_ < n_ - 1) {
+					++i_;
+					++iw_;
+					iter_ = (**iw_).begin_const();
+					end_ = (**iw_).end_const();
+				}
+				return *this;
+			}
+			// causes crashes and very inefficient anyway
+			//Iterator_const& operator++(int)
+			//{
+			//	sptr_iter_.reset(new Iterator_const(*this));
+			//	if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+			//		throw std::out_of_range("cannot advance out-of-range iterator");
+			//	++iter_;
+			//	if (iter_ == end_ && i_ < n_ - 1) {
+			//		++i_;
+			//		++iw_;
+			//		iter_ = (**iw_).begin_const();
+			//		end_ = (**iw_).end_const();
+			//	}
+			//	return *sptr_iter_;
+			//}
+			const NumRef& operator*() const
+			{
+				if (i_ >= n_ || i_ == n_ - 1 && iter_ == end_)
+					throw std::out_of_range
+					("cannot dereference out-of-range iterator");
+				ref_.copy(*iter_);
+				return ref_;
+				//return *iter_;
+			}
+		private:
+			//std::vector<gadgetron::shared_ptr<ImageWrap> >::const_iterator iw_;
+			ImageWrapIter_const iw_;
+			int n_;
+			int i_;
+			ImageWrap::Iterator_const iter_;
+			ImageWrap::Iterator_const end_;
+			mutable NumRef ref_;
+			gadgetron::shared_ptr<Iterator_const> sptr_iter_;
+		};
+
+		GadgetronImagesVector() : images_(), nimages_(0)
+		{}
+		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
+			const char* target);
+		virtual unsigned int items() 
+		{ 
+			return (unsigned int)images_.size(); 
+		}
+		virtual unsigned int number() const 
+		{ 
+			return (unsigned int)images_.size(); 
+		}
 		virtual int types()
 		{
 			if (nimages_ > 0)
@@ -445,18 +671,17 @@ namespace sirf {
 		{
 			images_.push_back(gadgetron::shared_ptr<ImageWrap>(new ImageWrap(iw)));
 		}
-		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap(unsigned int im_num)
+		virtual gadgetron::shared_ptr<ImageWrap> sptr_image_wrap
+			(unsigned int im_num)
 		{
 			int i = index(im_num);
 			return images_[i];
-//			return images_[im_num];
 		}
 		virtual gadgetron::shared_ptr<const ImageWrap> sptr_image_wrap
 			(unsigned int im_num) const
 		{
 			int i = index(im_num);
 			return images_[i];
-//			return images_[im_num];
 		}
 		virtual ImageWrap& image_wrap(unsigned int im_num)
 		{
@@ -465,44 +690,74 @@ namespace sirf {
 		}
 		virtual const ImageWrap& image_wrap(unsigned int im_num) const
 		{
-			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = sptr_image_wrap(im_num);
+			const gadgetron::shared_ptr<const ImageWrap>& sptr_iw = 
+				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-		virtual int read(std::string filename);
-		virtual void write(std::string filename, std::string groupname);
-		virtual void get_image_dimensions(unsigned int im_num, int* dim)
+		virtual DataContainer* new_data_container()
 		{
-			if (im_num >= images_.size())
-				dim[0] = dim[1] = dim[2] = dim[3] = 0;
-			ImageWrap& iw = image_wrap(im_num);
-			iw.get_dim(dim);
-			//std::string attr = iw.attributes();
-			//ISMRMRD::MetaContainer mc;
-			//ISMRMRD::deserialize(attr.c_str(), mc);
-			//std::cout << mc.as_str("GADGETRON_DataRole") << '\n';
-			//std::cout << attr << '\n';
+			return (DataContainer*)new GadgetronImagesVector();
 		}
-		virtual void get_images_data_as_float_array(float* data);
-		virtual void get_images_data_as_complex_array(float* re, float* im);
-		virtual void set_complex_images_data(const float* re, const float* im);
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
 		{
-			return (aDataContainer<complex_float_t>*)new ImagesVector();
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
-		virtual gadgetron::shared_ptr<MRImageData> new_images_container()
+		virtual gadgetron::shared_ptr<GadgetronImageData> new_images_container()
 		{
-			return gadgetron::shared_ptr<MRImageData>((MRImageData*)new ImagesVector());
+			return gadgetron::shared_ptr<GadgetronImageData>
+				((GadgetronImageData*)new GadgetronImagesVector());
 		}
-		virtual gadgetron::shared_ptr<MRImageData>
+		virtual gadgetron::shared_ptr<GadgetronImageData>
 			clone(const char* attr, const char* target)
 		{
-			return gadgetron::shared_ptr<MRImageData>(new ImagesVector(*this, attr, target));
+			return gadgetron::shared_ptr<GadgetronImageData>
+				(new GadgetronImagesVector(*this, attr, target));
 		}
+		virtual Iterator& begin()
+		{
+			ImageWrapIter iw = images_.begin();
+			begin_.reset(new Iterator(iw, images_.size(), 0, (**iw).begin()));
+			return *begin_;
+		}
+		virtual Iterator& end()
+		{
+			ImageWrapIter iw = images_.begin();
+			int n = images_.size();
+			for (int i = 0; i < n - 1; i++)
+				++iw;
+			end_.reset(new Iterator(iw, n, n - 1, (**iw).end()));
+			return *end_;
+		}
+		virtual Iterator_const& begin() const
+		{
+			ImageWrapIter_const iw = images_.begin();
+			begin_const_.reset
+				(new Iterator_const(iw, images_.size(), 0, (**iw).begin_const()));
+			return *begin_const_;
+		}
+		virtual Iterator_const& end() const
+		{
+			ImageWrapIter_const iw = images_.begin();
+			int n = images_.size();
+			for (int i = 0; i < n - 1; i++)
+				++iw;
+			end_const_.reset
+				(new Iterator_const(iw, n, n - 1, (**iw).end_const()));
+			return *end_const_;
+		}
+		virtual void get_data(complex_float_t* data) const;
+		virtual void set_data(const complex_float_t* data);
+		virtual void get_real_data(float* data) const;
+		virtual void set_real_data(const float* data);
 
 	private:
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
 		int nimages_;
-
+		mutable gadgetron::shared_ptr<Iterator> begin_;
+		mutable gadgetron::shared_ptr<Iterator> end_;
+		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
+		mutable gadgetron::shared_ptr<Iterator_const> end_const_;
 	};
 
 	/*!
@@ -575,33 +830,37 @@ namespace sirf {
 	\brief Abstract coil data container class.
 
 	*/
-	class CoilDataContainer : public aDataContainer < complex_float_t > {
+	class CoilDataContainer : public DataContainer {
 	public:
 		virtual float norm()
 		{
 			return 0.0;
 		}
-		virtual complex_float_t dot(const aDataContainer<complex_float_t>& dc)
-		{
-			return complex_float_t(0.0, 0.0);
-		}
+		virtual void dot(const DataContainer& dc, void* ptr)
+		{}
+		//virtual complex_float_t dot(const DataContainer& dc)
+		//{
+		//	return complex_float_t(0.0, 0.0);
+		//}
 		virtual void axpby(
-			complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-			complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+			const void* ptr_a, const DataContainer& a_x,
+			const void* ptr_b, const DataContainer& a_y)
 		{
-			return;
 		}
+		//virtual void axpby(
+		//	complex_float_t a, const DataContainer& a_x,
+		//	complex_float_t b, const DataContainer& a_y)
+		//{
+		//}
 		virtual void multiply(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y)
+			const DataContainer& a_x,
+			const DataContainer& a_y)
 		{
-			return;
 		}
 		virtual void divide(
-			const aDataContainer<complex_float_t>& a_x,
-			const aDataContainer<complex_float_t>& a_y)
+			const DataContainer& a_x,
+			const DataContainer& a_y)
 		{
-			return;
 		}
 		void get_dim(int slice, int* dim) //const
 		{
@@ -686,9 +945,14 @@ namespace sirf {
 	*/
 	class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 	public:
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new CoilImagesVector();
+			return (DataContainer*)new CoilImagesVector();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 		virtual unsigned int items()
 		{
@@ -774,9 +1038,14 @@ namespace sirf {
 		}
 		CoilSensitivitiesAsImages(const char* file);
 
-		virtual aDataContainer<complex_float_t>* new_data_container()
+		virtual DataContainer* new_data_container()
 		{
-			return (aDataContainer<complex_float_t>*)new CoilSensitivitiesAsImages();
+			return (DataContainer*)new CoilSensitivitiesAsImages();
+		}
+		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		{
+			return new ObjectHandle<DataContainer>
+				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 
 		virtual unsigned int items()

@@ -26,6 +26,7 @@ limitations under the License.
 \author Evgueni Ovtchinnikov
 \author CCP PETMR
 */
+#include <cmath>
 
 #include "cgadgetron_shared_ptr.h"
 #include "gadgetron_data_containers.h"
@@ -56,6 +57,49 @@ MRAcquisitionData::write(const char* filename)
 		mtx.lock();
 		dataset->appendAcquisition(a);
 		mtx.unlock();
+	}
+}
+
+void
+MRAcquisitionData::read( const std::string& filename_ismrmrd_with_ext )
+{
+	
+	bool const verbose = true;
+
+	if( verbose )
+		std::cout<< "Started reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+	try
+	{
+
+		ISMRMRD::Dataset d(filename_ismrmrd_with_ext.c_str(),"dataset", false);
+
+		d.readHeader(this->acqs_info_);
+
+		uint32_t num_acquis = d.getNumberOfAcquisitions();
+		for( uint32_t i_acqu=0; i_acqu<num_acquis; i_acqu++)
+		{
+			if( verbose )
+			{
+				if( i_acqu%( num_acquis/10 ) == 0 )
+					std::cout << std::ceil( float(i_acqu)/num_acquis*100 )<< " % " << " done."<< std::endl;
+			}
+
+			ISMRMRD::Acquisition acq;
+			d.readAcquisition( i_acqu, acq);
+
+			if( TO_BE_IGNORED(acq) )
+				continue;
+			else
+				this->append_acquisition( acq );
+		}
+		if( verbose )
+			std::cout<< "Finished reading acquisitions from " << filename_ismrmrd_with_ext << std::endl;
+	}
+	catch( std::runtime_error& e)
+	{
+		std::cerr << "An exception was caught reading " << filename_ismrmrd_with_ext << std::endl;
+		std::cerr << e.what() <<std::endl;
+		throw;
 	}
 }
 
@@ -145,25 +189,28 @@ MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
 	}
 	dim[nrd] = nrr / reg_size;
 	return nrd;
-	//dim[0] = acq.number_of_samples();
-	//dim[1] = acq.active_channels();
-	//dim[2] = my; // e.reconSpace.matrixSize.y;
-	//dim[3] = slice;
-	//return not_reg;
 }
 
-void 
-MRAcquisitionData::get_acquisitions_flags(unsigned int n, int* flags)
+void
+MRAcquisitionData::get_data(complex_float_t* z, int all)
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
+	unsigned int n = 0;
 	for (unsigned int a = 0, i = 0; a < na; a++) {
 		get_acquisition(a, acq);
-		if (TO_BE_IGNORED(acq) && n < na) {
+		if (!all && TO_BE_IGNORED(acq)) {
 			std::cout << "ignoring acquisition " << a << '\n';
 			continue;
 		}
-		flags[i++] = (int)acq.flags();
+		n++;
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (unsigned int c = 0; c < nc; c++) {
+			for (unsigned int s = 0; s < ns; s++, i++) {
+				z[i] = acq.data(s, c);
+			}
+		}
 	}
 }
 
@@ -292,11 +339,41 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 	return r;
 }
 
-void 
-MRAcquisitionData::axpby(
-	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+void
+MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
 {
+	MRAcquisitionData& other = (MRAcquisitionData&)dc;
+	int n = number();
+	int m = other.number();
+	complex_float_t z = 0;
+	ISMRMRD::Acquisition a;
+	ISMRMRD::Acquisition b;
+	for (int i = 0, j = 0; i < n && j < m;) {
+		get_acquisition(i, a);
+		if (TO_BE_IGNORED(a)) {
+			i++;
+			continue;
+		}
+		other.get_acquisition(j, b);
+		if (TO_BE_IGNORED(b)) {
+			j++;
+			continue;
+		}
+		z += MRAcquisitionData::dot(a, b);
+		i++;
+		j++;
+	}
+	complex_float_t* ptr_z = (complex_float_t*)ptr;
+	*ptr_z = z;
+}
+
+void
+MRAcquisitionData::axpby(
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y)
+{
+	complex_float_t a = *(complex_float_t*)ptr_a;
+	complex_float_t b = *(complex_float_t*)ptr_b;
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
 	int m = x.number();
@@ -323,10 +400,41 @@ MRAcquisitionData::axpby(
 	}
 }
 
+//void
+//MRAcquisitionData::axpby(
+//	complex_float_t a, const DataContainer& a_x,
+//	complex_float_t b, const DataContainer& a_y)
+//{
+//	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
+//	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
+//	int m = x.number();
+//	int n = y.number();
+//	ISMRMRD::Acquisition ax;
+//	ISMRMRD::Acquisition ay;
+//	for (int i = 0, j = 0; i < n && j < m;) {
+//		y.get_acquisition(i, ay);
+//		x.get_acquisition(j, ax);
+//		if (TO_BE_IGNORED(ay)) {
+//			std::cout << i << " ignored (ay)\n";
+//			i++;
+//			continue;
+//		}
+//		if (TO_BE_IGNORED(ax)) {
+//			std::cout << j << " ignored (ax)\n";
+//			j++;
+//			continue;
+//		}
+//		MRAcquisitionData::axpby(a, ax, b, ay);
+//		append_acquisition(ay);
+//		i++;
+//		j++;
+//	}
+//}
+
 void
 MRAcquisitionData::multiply(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
@@ -356,8 +464,8 @@ const aDataContainer<complex_float_t>& a_y)
 
 void
 MRAcquisitionData::divide(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
 	MRAcquisitionData& x = (MRAcquisitionData&)a_x;
 	MRAcquisitionData& y = (MRAcquisitionData&)a_y;
@@ -385,32 +493,32 @@ const aDataContainer<complex_float_t>& a_y)
 	}
 }
 
-complex_float_t
-MRAcquisitionData::dot(const aDataContainer<complex_float_t>& dc)
-{
-	MRAcquisitionData& other = (MRAcquisitionData&)dc;
-	int n = number();
-	int m = other.number();
-	complex_float_t z = 0;
-	ISMRMRD::Acquisition a;
-	ISMRMRD::Acquisition b;
-	for (int i = 0, j = 0; i < n && j < m;) {
-		get_acquisition(i, a);
-		if (TO_BE_IGNORED(a)) {
-			i++;
-			continue;
-		}
-		other.get_acquisition(j, b);
-		if (TO_BE_IGNORED(b)) {
-			j++;
-			continue;
-		}
-		z += MRAcquisitionData::dot(a, b);
-		i++;
-		j++;
-	}
-	return z;
-}
+//complex_float_t
+//MRAcquisitionData::dot(const DataContainer& dc)
+//{
+//	MRAcquisitionData& other = (MRAcquisitionData&)dc;
+//	int n = number();
+//	int m = other.number();
+//	complex_float_t z = 0;
+//	ISMRMRD::Acquisition a;
+//	ISMRMRD::Acquisition b;
+//	for (int i = 0, j = 0; i < n && j < m;) {
+//		get_acquisition(i, a);
+//		if (TO_BE_IGNORED(a)) {
+//			i++;
+//			continue;
+//		}
+//		other.get_acquisition(j, b);
+//		if (TO_BE_IGNORED(b)) {
+//			j++;
+//			continue;
+//		}
+//		z += MRAcquisitionData::dot(a, b);
+//		i++;
+//		j++;
+//	}
+//	return z;
+//}
 
 float 
 MRAcquisitionData::norm()
@@ -615,7 +723,52 @@ AcquisitionsFile::set_acquisition_data
 	return 0;
 }
 
-int 
+void
+AcquisitionsFile::set_data(const complex_float_t* z, int all)
+{
+	shared_ptr<MRAcquisitionData> sptr_ac =
+		this->new_acquisitions_container();
+	AcquisitionsFile* ptr_ac = (AcquisitionsFile*)sptr_ac.get();
+	ptr_ac->set_acquisitions_info(acqs_info_);
+	ptr_ac->write_acquisitions_info();
+	ptr_ac->set_ordered(true);
+	ISMRMRD::Acquisition acq;
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		get_acquisition(a, acq);
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+		sptr_ac->append_acquisition(acq);
+	}
+	take_over(*sptr_ac);
+}
+
+void
+AcquisitionsVector::set_data(const complex_float_t* z, int all)
+{
+	int na = number();
+	for (int a = 0, i = 0; a < na; a++) {
+		ISMRMRD::Acquisition& acq = *acqs_[a];
+		if (!all && TO_BE_IGNORED(acq)) {
+			std::cout << "ignoring acquisition " << a << '\n';
+			continue;
+		}
+		unsigned int nc = acq.active_channels();
+		unsigned int ns = acq.number_of_samples();
+		for (int c = 0; c < nc; c++)
+			for (int s = 0; s < ns; s++, i++)
+				acq.data(s, c) = z[i];
+	}
+}
+
+int
 AcquisitionsVector::set_acquisition_data
 (int na, int nc, int ns, const float* re, const float* im)
 {
@@ -638,12 +791,28 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-MRImageData::axpby(
-	complex_float_t a, const aDataContainer<complex_float_t>& a_x,
-	complex_float_t b, const aDataContainer<complex_float_t>& a_y)
+GadgetronImageData::dot(const DataContainer& dc, void* ptr)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& ic = (GadgetronImageData&)dc;
+	complex_float_t z = 0;
+	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
+		const ImageWrap& u = image_wrap(i);
+		const ImageWrap& v = ic.image_wrap(i);
+		z += u.dot(v);
+	}
+	complex_float_t* ptr_z = (complex_float_t*)ptr;
+	*ptr_z = z;
+}
+
+void
+GadgetronImageData::axpby(
+const void* ptr_a, const DataContainer& a_x,
+const void* ptr_b, const DataContainer& a_y)
+{
+	complex_float_t a = *(complex_float_t*)ptr_a;
+	complex_float_t b = *(complex_float_t*)ptr_b;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	ImageWrap w(x.image_wrap(0));
 	complex_float_t zero(0.0, 0.0);
 	complex_float_t one(1.0, 0.0);
@@ -656,13 +825,32 @@ MRImageData::axpby(
 	}
 }
 
+//void
+//GadgetronImageData::axpby(
+//	complex_float_t a, const DataContainer& a_x,
+//	complex_float_t b, const DataContainer& a_y)
+//{
+//	GadgetronImageData& x = (GadgetronImageData&)a_x;
+//	GadgetronImageData& y = (GadgetronImageData&)a_y;
+//	ImageWrap w(x.image_wrap(0));
+//	complex_float_t zero(0.0, 0.0);
+//	complex_float_t one(1.0, 0.0);
+//	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
+//		const ImageWrap& u = x.image_wrap(i);
+//		const ImageWrap& v = y.image_wrap(i);
+//		w.axpby(a, u, zero);
+//		w.axpby(b, v, one);
+//		append(w);
+//	}
+//}
+
 void
-MRImageData::multiply(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+GadgetronImageData::multiply(
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.multiply(y.image_wrap(i));
@@ -671,12 +859,12 @@ const aDataContainer<complex_float_t>& a_y)
 }
 
 void
-MRImageData::divide(
-const aDataContainer<complex_float_t>& a_x,
-const aDataContainer<complex_float_t>& a_y)
+GadgetronImageData::divide(
+const DataContainer& a_x,
+const DataContainer& a_y)
 {
-	MRImageData& x = (MRImageData&)a_x;
-	MRImageData& y = (MRImageData&)a_y;
+	GadgetronImageData& x = (GadgetronImageData&)a_x;
+	GadgetronImageData& y = (GadgetronImageData&)a_y;
 	for (unsigned int i = 0; i < x.number() && i < y.number(); i++) {
 		ImageWrap w(x.image_wrap(i));
 		w.divide(y.image_wrap(i));
@@ -684,21 +872,21 @@ const aDataContainer<complex_float_t>& a_y)
 	}
 }
 
-complex_float_t
-MRImageData::dot(const aDataContainer<complex_float_t>& dc)
-{
-	MRImageData& ic = (MRImageData&)dc;
-	complex_float_t z = 0;
-	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
-		const ImageWrap& u = image_wrap(i);
-		const ImageWrap& v = ic.image_wrap(i);
-		z += u.dot(v);
-	}
-	return z;
-}
+//complex_float_t
+//GadgetronImageData::dot(const DataContainer& dc)
+//{
+//	GadgetronImageData& ic = (GadgetronImageData&)dc;
+//	complex_float_t z = 0;
+//	for (unsigned int i = 0; i < number() && i < ic.number(); i++) {
+//		const ImageWrap& u = image_wrap(i);
+//		const ImageWrap& v = ic.image_wrap(i);
+//		z += u.dot(v);
+//	}
+//	return z;
+//}
 
 float 
-MRImageData::norm()
+GadgetronImageData::norm()
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
@@ -711,9 +899,9 @@ MRImageData::norm()
 }
 
 void
-MRImageData::order()
+GadgetronImageData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<float, 3> tuple;
 	int ni = number();
 	tuple t;
 	std::vector<tuple> vt;
@@ -729,19 +917,6 @@ MRImageData::order()
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
-}
-
-ImagesVector::ImagesVector(ImagesVector& list, const char* attr, const char* target)
-{
-	for (unsigned int i = 0; i < list.number(); i++) {
-		const ImageWrap& u = list.image_wrap(i);
-		std::string atts = u.attributes();
-		ISMRMRD::MetaContainer mc;
-		ISMRMRD::deserialize(atts.c_str(), mc);
-		std::string value = mc.as_str(attr);
-		if (boost::iequals(value, target))
-			append(u);
-	}
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -787,7 +962,7 @@ group_names_sptr(const char* filename)
 }
 
 int
-ImagesVector::read(std::string filename) 
+GadgetronImageData::read(std::string filename) 
 {
 	std::shared_ptr<std::vector<std::string> > sptr_names;
 	sptr_names = group_names_sptr(filename.c_str());
@@ -817,9 +992,10 @@ ImagesVector::read(std::string filename)
 			(new ISMRMRD::Dataset(filename.c_str(), group, false));
 
 		for (int i = 0; i < num_im; i++) {
-			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type));
-			sptr_iw->read(*sptr_dataset, var, i);
-			images_.push_back(sptr_iw);
+			shared_ptr<ImageWrap> sptr_iw(new ImageWrap(im.head.data_type, *sptr_dataset, var, i));
+			//sptr_iw->read(*sptr_dataset, var, i);
+			append(*sptr_iw);
+			//images_.push_back(sptr_iw);
 		}
 		//int dim[3];
 		//sptr_iw->get_dim(dim);
@@ -830,9 +1006,10 @@ ImagesVector::read(std::string filename)
 }
 
 void
-ImagesVector::write(std::string filename, std::string groupname)
+GadgetronImageData::write(std::string filename, std::string groupname)
 {
-	if (images_.size() < 1)
+	//if (images_.size() < 1)
+	if (number() < 1)
 		return;
 	Mutex mtx;
 	mtx.lock();
@@ -845,56 +1022,120 @@ ImagesVector::write(std::string filename, std::string groupname)
 }
 
 void
-ImagesVector::get_images_data_as_float_array(float* data)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_data(data);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		data += size;
-	}
-}
-
-void
-ImagesVector::get_images_data_as_complex_array(float* re, float* im)
-{
-	int dim[4];
-	for (unsigned int i = 0; i < number(); i++) {
-		const ImageWrap& iw = image_wrap(i);
-		iw.get_dim(dim);
-		size_t size = dim[0];
-		size *= dim[1];
-		size *= dim[2];
-		size *= dim[3];
-		int type = iw.type();
-		if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
-			iw.get_cmplx_data(re, im);
-		else {
-			iw.get_data(re);
-			for (int i = 0; i < size; i++)
-				im[i] = 0;
-		}
-		re += size;
-		im += size;
-	}
-}
-
-void
-ImagesVector::set_complex_images_data(const float* re, const float* im)
+GadgetronImageData::get_data(complex_float_t* data) const
 {
 	int dim[4];
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
 		size_t n = iw.get_dim(dim);
-		iw.set_cmplx_data(re, im);
-		re += n;
-		im += n;
+		iw.get_complex_data(data);
+		data += n;
 	}
+}
+
+void
+GadgetronImageData::set_data(const complex_float_t* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_complex_data(z);
+		z += n;
+	}
+}
+
+void
+GadgetronImageData::get_real_data(float* data) const
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		const ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.get_data(data);
+		data += n;
+	}
+}
+
+void
+GadgetronImageData::set_real_data(const float* z)
+{
+	int dim[4];
+	for (unsigned int i = 0; i < number(); i++) {
+		ImageWrap& iw = image_wrap(i);
+		size_t n = iw.get_dim(dim);
+		iw.set_data(z);
+		z += n;
+	}
+}
+
+GadgetronImagesVector::GadgetronImagesVector
+(GadgetronImagesVector& images, const char* attr, const char* target) : 
+images_(), nimages_(0)
+{
+	for (unsigned int i = 0; i < images.number(); i++) {
+		const ImageWrap& u = images.image_wrap(i);
+		std::string atts = u.attributes();
+		ISMRMRD::MetaContainer mc;
+		ISMRMRD::deserialize(atts.c_str(), mc);
+		std::string value = mc.as_str(attr);
+		if (boost::iequals(value, target))
+			append(u);
+	}
+}
+
+void
+GadgetronImagesVector::get_data(complex_float_t* data) const
+{
+	//std::copy(begin(), end(), data);
+	std::cout << "trying new const image wrap iterator...\n";
+	GadgetronImagesVector::Iterator_const stop = end();
+	GadgetronImagesVector::Iterator_const iter = begin();
+	for (; iter != stop; ++iter, ++data)
+		*data = *iter;
+}
+
+void
+GadgetronImagesVector::set_data(const complex_float_t* data)
+{
+	//int dim[4];
+	//size_t n = number();
+	//get_image_dimensions(0, dim);
+	//n *= dim[0];
+	//n *= dim[1];
+	//n *= dim[2];
+	//n *= dim[3];
+	//std::copy(data, data + n, begin());
+	std::cout << "trying new image wrap iterator...\n";
+	GadgetronImagesVector::Iterator stop = end();
+	GadgetronImagesVector::Iterator iter = begin();
+	//GadgetronImagesVectorIterator stop = end();
+	//GadgetronImagesVectorIterator iter = begin();
+	for (; iter != stop; ++iter, ++data)
+		*iter = *data;
+}
+
+void
+GadgetronImagesVector::get_real_data(float* data) const
+{
+	//std::cout << "in get_real_data...\n";
+	GadgetronImagesVector::Iterator_const stop = end();
+	GadgetronImagesVector::Iterator_const iter = begin();
+	//GadgetronImagesVectorIterator_const stop = end();
+	//GadgetronImagesVectorIterator_const iter = begin();
+	for (; iter != stop; ++iter, ++data)
+		*data = *iter;
+}
+
+void
+GadgetronImagesVector::set_real_data(const float* data)
+{
+	GadgetronImagesVector::Iterator stop = end();
+	GadgetronImagesVector::Iterator iter = begin();
+	//GadgetronImagesVectorIterator stop = end();
+	//GadgetronImagesVectorIterator iter = begin();
+	for (; iter != stop; ++iter, ++data)
+		*iter = *data;
 }
 
 void
@@ -947,16 +1188,6 @@ CoilImagesContainer::compute(MRAcquisitionData& ac)
 	unsigned int ny = e.reconSpace.matrixSize.y;
 	unsigned int nc = acq.active_channels();
 	unsigned int readout = acq.number_of_samples();
-
-	//std::cout << nx << ' ' << ny << ' ' << nc << ' ' << readout << '\n';
-	//if (e.parallelImaging.is_present()) {
-	//	std::cout << "parallel imaging present\n";
-	//	std::cout << "acceleration factors: " 
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_1 << ' '
-	//		<< e.parallelImaging().accelerationFactor.kspace_encoding_step_2 << '\n';
-	//}
-	//else
-	//	std::cout << "parallel imaging not present\n";
 
 	int nmap = 0;
 	std::cout << "map ";

@@ -6,6 +6,7 @@
 * created namespace `sirf`
 * added default constructor and set_up to MRAcquisitionModel
 * implemented sorting of MR images
+* implemented reading of MR acquisition data from ISMRMRD file
 
 ## v1.1.0
 
