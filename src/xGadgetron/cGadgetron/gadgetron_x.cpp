@@ -445,7 +445,7 @@ MRAcquisitionModel::fwd_(ISMRMRD::Image<T>* ptr_img, CoilData& csm,
 	for( unsigned int i_acq = 0; i_acq < num_acq; i_acq++)
 	{
 	
-		auto sptr_curr_acq = sptr_acqs_->get_acquisition_sptr( i_acq );
+		auto sptr_curr_acq = this->sptr_acqs_->get_acquisition_sptr( i_acq );
 
 		unsigned int num_sampled_readout_pts = sptr_curr_acq->number_of_samples();
 
