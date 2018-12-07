@@ -155,7 +155,7 @@ void MRContrastGenerator::map_contrast()
 	contrast_vector.resize(num_voxels);
 
 	
-	// #pragma omp parallel
+	#pragma omp parallel
 	for (size_t i= 0; i<num_voxels; i++)
 	{	
 		contrast_vector[i] = contrast_map_function(tissue_params[i], this->hdr_);
