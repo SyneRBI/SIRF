@@ -100,9 +100,9 @@ bool test_aux_test_funs::test_get_mock_gaussian_csm( void )
 	try
 	{
 		
-		std::vector<size_t> vol_size {128,128,128};
+		std::vector<size_t> vol_size {192,192,192};
 
-		int const num_coils = 4;
+		int const num_coils = 9;
 		ISMRMRD::Image<complex_float_t> mock_csm = aux_test::get_mock_gaussian_csm(vol_size, num_coils);
 		
 		std::stringstream name_stream;
