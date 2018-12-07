@@ -56,14 +56,12 @@ float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisit
 
 	for( size_t i_acq=0; i_acq<num_acquistions; i_acq++)
 	{
-		ISMRMRD::Acquisition acq;
-		acquisition_vector.get_acquisition( i_acq, acq);
+		auto sptr_acq = acquisition_vector.get_acquisition_sptr( i_acq );
 		
-		size_t const num_data_points_curr_acquisition = acq.getNumberOfDataElements();
+		size_t const num_data_points_curr_acquisition = sptr_acq->getNumberOfDataElements();
 		
-		complex_float_t* const ptr_data =  acq.getDataPtr();
+		complex_float_t* const ptr_data =  sptr_acq->getDataPtr();
 		
-
 		float curr_max_signal = 0;
 
 		for(size_t i_data_point=0; i_data_point<num_data_points_curr_acquisition; i_data_point++)
