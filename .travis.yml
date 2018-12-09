@@ -11,6 +11,7 @@ language: cpp
 
 # Environment variables
 # Note: On trusty we need to build Armadillo and boost ourselves (the system versions are too old)
+# Note: On OSX we can't test SYSTEM_Boost=OFF due to excessive log size (https://github.com/CCPPETMR/SIRF-SuperBuild/issues/167)
 # Note: altering the matrix here will cause re-building of caches,
 # so try to keep this concise to avoid need to update
 matrix:
@@ -26,21 +27,21 @@ matrix:
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=ON -DBUILD_siemens_to_ismrmrd=ON -DUSE_SYSTEM_SWIG=ON" MATRIX_EVAL="CC=gcc-5 CXX=g++-5" PYMVER=2
  - os: linux
    python: 3
-   # +DEVEL -boost -hdf5 -fftw3 +siemens_to_ismrmrd
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DBUILD_siemens_to_ismrmrd=ON" MATRIX_EVAL="CC=gcc-7 CXX=g++-7" PYMVER=3
+   # +DEVEL -boost -hdf5 -fftw3 -ace +siemens_to_ismrmrd
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_ACE=OFF -DBUILD_siemens_to_ismrmrd=ON" MATRIX_EVAL="CC=gcc-7 CXX=g++-7" PYMVER=3
  - os: linux
    python: 2.7
-   # +DEVEL -boost -fftw3 -hdf5 -swig
-   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-7 CXX=g++-7" PYMVER=2
+   # +DEVEL -boost -fftw3 -hdf5 -swig -ace
+   env: EXTRA_BUILD_FLAGS="-DDEVEL_BUILD=ON -DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_FFTW3=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_ACE=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc-7 CXX=g++-7" PYMVER=2
  # osx g{cc,++} py{27,36}
  - os: osx
    python: 2.7
    # +boost -hdf5 -swig
    env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=2
  - os: osx
-   # -boost -hdf5 -swig
+   # +boost +fftw3 -hdf5 -swig
    python: 3
-   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=OFF -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
+   env: EXTRA_BUILD_FLAGS="-DUSE_SYSTEM_Boost=ON -DUSE_SYSTEM_FFTW3=ON -DUSE_SYSTEM_HDF5=OFF -DUSE_SYSTEM_SWIG=OFF" MATRIX_EVAL="CC=gcc CXX=g++" PYMVER=3
  - os: osx
    python: 2.7
    # +DEVEL +boost -hdf5 +swig
@@ -97,6 +98,8 @@ addons:
    - libplplot-dev
    - swig
    - ccache
+   # for building ACE (note: Trusty only)
+   - realpath
    # not in whitelist
    - libxslt-dev
    - libace-dev
@@ -153,6 +156,11 @@ before_install:
         brew install ace
         brew install swig
         brew install ccache
+        if [[ $EXTRA_BUILD_FLAGS == *"SYSTEM_FFTW3=ON"* ]]; then
+            brew install fftw
+        else
+            echo "Not installing FFTW as we are building it"
+        fi
         # need curl to get pip and more recent cmake
         brew install curl
         #brew install cmake # already present
@@ -221,6 +229,7 @@ script:
  - cat builds/SIRF/build/Testing/Temporary/LastTest.log
  # may exceed 4MB travis log limit
  - cat gadgetron.log
+
 
 
 after_success:
