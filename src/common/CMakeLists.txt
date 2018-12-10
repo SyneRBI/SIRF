@@ -32,7 +32,7 @@ target_link_libraries(csirf iutilities)
 
 # TODO target
 include_directories(include)
-add_library(common geometrical_info.cpp)
+add_library(common GeometricalInfo.cpp)
 #INSTALL(common)
 
 if (BUILD_PYTHON)

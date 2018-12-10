@@ -4,7 +4,7 @@
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
 #include "DataContainer.h"
-#include "geometrical_info.h"
+#include "GeometricalInfo.h"
 
 /*!
 \ingroup SIRFImageDataClasses
