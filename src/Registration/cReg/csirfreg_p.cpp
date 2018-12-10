@@ -18,7 +18,7 @@ limitations under the License.
 
 */
 
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "csirfreg_p.h"
 #include "NiftiImageData3D.h"
 #include "SIRFReg.h"

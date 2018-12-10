@@ -22,7 +22,7 @@ limitations under the License.
 #ifndef SIRFREG_PARAMETERS_HANDLERS
 #define SIRFREG_PARAMETERS_HANDLERS
 
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 namespace sirf {
 

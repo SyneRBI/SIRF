@@ -37,8 +37,8 @@ limitations under the License.
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <sstream>
-#include "num_ref.h"
-#include "image_data.h"
+#include "sirf/common/ANumRef.h"
+#include "sirf/common/ImageData.h"
 
 namespace sirf {
 
