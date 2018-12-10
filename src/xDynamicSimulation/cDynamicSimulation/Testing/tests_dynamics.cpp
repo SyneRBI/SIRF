@@ -220,6 +220,8 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		cout << epiph(num_tot_acquis) <<endl;
 		cout << epiph(acq_vec.items()) <<endl;
 
+		test_succesful *= ( num_tot_acquis == acq_vec.items() );
+
 
 		
 		std::cout << "######## Contrast Dynamic: ########"<< std::endl;
@@ -246,7 +248,8 @@ bool test_dynamic::test_bin_mr_acquisitions()
 		cout << epiph(num_tot_acquis) <<endl;
 		cout << epiph(acq_vec.items()) <<endl;
 
-
+		test_succesful *= ( num_tot_acquis == acq_vec.items() );
+		
 		return test_succesful;
 	}
 	catch( std::runtime_error const &e)
