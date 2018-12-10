@@ -183,6 +183,9 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromVoxels(void* ptr_v) {
 EXPORTED_FUNCTION 	void* mSTIR_imageFromImage(void* ptr_v) {
 	return cSTIR_imageFromImage(ptr_v);
 }
+EXPORTED_FUNCTION 	void* mSTIR_imageFromImageData(void* ptr_v) {
+	return cSTIR_imageFromImageData(ptr_v);
+}
 EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionData(void* ptr_ad) {
 	return cSTIR_imageFromAcquisitionData(ptr_ad);
 }
