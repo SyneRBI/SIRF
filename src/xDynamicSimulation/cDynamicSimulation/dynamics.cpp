@@ -110,9 +110,6 @@ void aDynamic::set_bins(int const num_bins)
 {
 	this->signal_bins_.clear();
 
-	this->signal_bins_.clear();
-
-
 	if( this-> is_cyclic_dynamic_ )
 		this->set_cyclic_bins(num_bins);
 	else if ( ! this->is_cyclic_dynamic_)
@@ -213,6 +210,7 @@ aMRDynamic::aMRDynamic(int const num_simul_states): aDynamic(num_simul_states){}
 
 std::vector<sirf::AcquisitionsVector> aMRDynamic::get_binned_mr_acquisitions( void )
 {
+	std::cout << "size in the getter " << epiph( this->binned_mr_acquisitions_.size()) <<std::endl;
 	return this->binned_mr_acquisitions_;
 };
 
@@ -225,13 +223,13 @@ sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_n
 };
 
 
+int ContrastDynamic::num_simul_states_ = 0;
 
-
-ContrastDynamic::ContrastDynamic(int const num_simul_states) : aDynamic()
-{ 
-	this->num_simul_states_ =num_simul_states;
-	this->set_bins(num_simul_states_);
-}
+ContrastDynamic::ContrastDynamic(int const num_simul_states): aDynamic()
+{
+	this->num_simul_states_ = num_simul_states;
+	this->set_bins( num_simul_states );
+} 
 
 void ContrastDynamic::set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1)
 {
@@ -560,37 +558,63 @@ void MRMotionDynamic::prep_displacements_fields()
 	MotionDynamic::prep_displacements_fields();
 }
 
+std::vector<AcquisitionsVector> MRContrastDynamic::binned_mr_acquisitions_ = std::vector< AcquisitionsVector >(0);
+
+std::vector<sirf::AcquisitionsVector> MRContrastDynamic::get_binned_mr_acquisitions( void )
+{
+	std::cout << "size in the getter " << epiph( this->binned_mr_acquisitions_.size()) <<std::endl;
+	return this->binned_mr_acquisitions_;
+};
+
+sirf::AcquisitionsVector MRContrastDynamic::get_binned_mr_acquisitions( int const bin_num )
+{
+	if(bin_num >= this->num_simul_states_)
+		throw std::runtime_error("Please access only bin numbers in the range of 0 and num_simul_states_-1.");
+	
+	return this->binned_mr_acquisitions_[bin_num];
+};
 
 void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
 {
-	
-	typedef std::array<uint32_t , 1>  tuple;
-	size_t const num_acquis = all_acquisitions.number();
-
-	std::vector< tuple > vt;
-
-	for(size_t i=0; i<num_acquis; i++)
+	if( true ) // empty the old bins -> every mr contrast dynamic must hold same binned data
 	{
-		auto sptr_acq = all_acquisitions.get_acquisition_sptr( i );
-
-		tuple t;
-		t[0] = sptr_acq->acquisition_time_stamp();
-		vt.push_back( t );
+		std::vector<AcquisitionsVector> empty_vec;
+		this->binned_mr_acquisitions_.swap( empty_vec );
 	}
 
-	std::vector<int> sort_idx( num_acquis );
-	Multisort::sort( vt ,&sort_idx[0]);
+	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
+	time_ordered_acquisitions.time_order();
 
+	size_t const num_acquis = time_ordered_acquisitions.number();	
 
+	std::vector< size_t > index_lims;
 
+	for( size_t i=0; i<this->num_simul_states_;i++)
+	{
+		index_lims.push_back( std::get<2>(this->signal_bins_[i]) *num_acquis );
+	}
 
-	//sort them by time
-	//find bin limits as nbin * right_limit
-	//find index limits and add all in between the two limits to binned acquisitions
+	int start_index = 0;
+	int stop_index  = 0;
 
+	for( size_t i_bin=0; i_bin<this->num_simul_states_; i_bin++)
+	{
 
+		stop_index = ( index_lims[i_bin] < num_acquis ) ? index_lims[i_bin] : num_acquis;
+
+		sirf::AcquisitionsVector av;
+		av.copy_acquisitions_info(time_ordered_acquisitions);
+
+		for(size_t i=start_index; i<stop_index; i++)
+		{
+			auto sptr_acq = time_ordered_acquisitions.get_acquisition_sptr( i );
+			av.append_acquisition_sptr( sptr_acq );
+		}
+		
+		this->binned_mr_acquisitions_.push_back( av );
+		start_index = stop_index;
+	}
 }
-
 
 
 // ++++++++++++++++++++++++++++++++ PET ++++++++++++++++++++++++++++++++++++++++++++++

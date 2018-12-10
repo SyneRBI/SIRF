@@ -53,7 +53,7 @@ public:
 	aDynamic() {};
 	aDynamic(int const num_simul_states);
 
-	int get_num_simul_states( void ){ return this->num_simul_states_; };
+	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
 
 	std::vector< SignalBin > get_bins( void ){ return this->signal_bins_;};
 	void set_num_simul_states(int const num_states);
@@ -67,7 +67,7 @@ protected:
 
 	bool is_cyclic_dynamic_ = false;
 
-	void set_bins( int const num_bins );
+	virtual void set_bins( int const num_bins );
 	void set_cyclic_bins( int const num_bins);
 	void set_non_cyclic_bins( int const num_bins);
 
@@ -84,18 +84,21 @@ public:
 	ContrastDynamic():aDynamic(){};
 	ContrastDynamic(int const num_simul_states); 
 
-
 	TissueParameterList get_interpolated_tissue_params(SignalAxisType signal);
 
 	void add_dynamic_label(LabelType l) { this->list_cont_var_labels_.push_back(l);};
-
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
+
+	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
+
 
 protected:
 
+	static int num_simul_states_;
+
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
-	void set_bins( int const num_bins );
+	virtual void set_bins( int const num_bins );
 
 };
 
@@ -150,8 +153,9 @@ public:
 	aMRDynamic();
 	aMRDynamic(int const num_simul_states);
 
-	std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
-	sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
+	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+
 	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions )=0;
 
 protected:
@@ -181,6 +185,14 @@ public:
 	MRContrastDynamic():aMRDynamic(), ContrastDynamic() {};
 	MRContrastDynamic(int const num_simul_states): aMRDynamic(num_simul_states), ContrastDynamic(num_simul_states) {};
 	virtual void bin_mr_acquisitions( sirf::AcquisitionsVector& all_acquisitions );
+
+	virtual std::vector<sirf::AcquisitionsVector> get_binned_mr_acquisitions( void );
+	virtual sirf::AcquisitionsVector get_binned_mr_acquisitions( int const bin_num );
+
+
+protected:
+	static std::vector<sirf::AcquisitionsVector> binned_mr_acquisitions_;
+
 };
 
 

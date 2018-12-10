@@ -209,11 +209,38 @@ bool test_dynamic::test_bin_mr_acquisitions()
 
 		test_succesful *= (motion_binned_acquis.size() == num_bins);
 
+		std::cout << "######## Motion Dynamic: ########"<< std::endl;
 		size_t num_tot_acquis = 0;
 		for( int i=0; i<num_bins; i++)
 		{
 			num_tot_acquis += motion_binned_acquis[i].items();
 			cout << epiph( motion_binned_acquis[i].items() ) << endl;
+		}
+
+		cout << epiph(num_tot_acquis) <<endl;
+		cout << epiph(acq_vec.items()) <<endl;
+
+
+		
+		std::cout << "######## Contrast Dynamic: ########"<< std::endl;
+
+		
+		MRContrastDynamic mr_cont_dyn( num_bins );
+		std::cout << epiph( mr_cont_dyn.get_num_simul_states() ) << std::endl;
+
+		mr_cont_dyn.set_dyn_signal( mock_signal );
+		mr_cont_dyn.bin_mr_acquisitions( acq_vec );
+
+		auto contrast_binned_acquis = mr_cont_dyn.get_binned_mr_acquisitions();
+		test_succesful *= (contrast_binned_acquis.size() == num_bins+1);
+
+		std::cout << epiph( contrast_binned_acquis.size() ) << std::endl;
+
+		num_tot_acquis = 0;
+		for( int i=0; i<contrast_binned_acquis.size(); i++)
+		{
+			num_tot_acquis += contrast_binned_acquis[i].items();
+			cout << epiph( contrast_binned_acquis[i].items() ) << endl;
 		}
 
 		cout << epiph(num_tot_acquis) <<endl;
