@@ -582,57 +582,47 @@ namespace sirf {
 			std::shared_ptr<Iterator_const> _sptr_iter;
 		};
 		STIRImageData() {}
-		STIRImageData(const ImageData& id)
-		{
-			Dimensions dim = id.dimensions();
-			int nx = dim["x"];
-			int ny = dim["y"];
-			int nz = 1;
-			Dimensions::iterator it = dim.begin();
-			while (it != dim.end()) {
-				if (it->first != "x" && it->first != "y")
-					nz *= it->second;
-				++it;
-			}
-			Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
-				-(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
-				Coord3DF(0, 0, 0),
-				Coord3DF(3, 3, 3.375));
-			_data.reset(voxels.clone());
-			copy(id.begin(), begin(), end());
-		}
+        STIRImageData(const ImageData& id);
 		STIRImageData(const STIRImageData& image)
 		{
 			_data.reset(image.data().clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const PETAcquisitionData& ad)
 		{
 			_data.reset(new Voxels3DF(*ad.get_proj_data_info_sptr()));
+            this->set_up_geom_info();
 		}
 		STIRImageData(const Image3DF& image)
 		{
 			_data.reset(image.clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const Voxels3DF& v)
 		{
 			_data.reset(v.clone());
+            this->set_up_geom_info();
 		}
 		STIRImageData(const stir::ProjDataInfo& pdi)
 		{
 			_data.reset(new Voxels3DF(pdi));
+            this->set_up_geom_info();
 		}
 		STIRImageData(stir::shared_ptr<Image3DF> ptr)
 		{
 			_data = ptr;
+            this->set_up_geom_info();
 		}
 		STIRImageData(std::string filename)
 		{
 			_data = stir::read_from_file<Image3DF>(filename);
+            this->set_up_geom_info();
 		}
 		STIRImageData* same_image_data()
 		{
 			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
+            this->set_up_geom_info();
 			return ptr_image;
 		}
 		stir::shared_ptr<STIRImageData> new_image_data()

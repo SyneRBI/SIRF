@@ -1082,6 +1082,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
+    this->set_up_geom_info();
 }
 
 void

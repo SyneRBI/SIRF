@@ -45,11 +45,14 @@ namespace sirf {
 				*dst = *src;
 		}
         /// Get geometrical info
-        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info()
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
         {
-            // If the geometrical info has not been created yet, do that
-            if (!_geom_info_sptr)
-                this->set_up_geom_info();
+            // If the geometrical info has not been created yet, throw an error
+            if (!_geom_info_sptr) {
+                std::cout << "\nGeometrical info not initialised. This implies that your constructor did not call set_up_geom_info().\n";
+                throw std::runtime_error("Geometrical info not initialised. This implies that"
+                                         " your constructor did not call set_up_geom_info().");
+            }
             return _geom_info_sptr;
         }
     protected:
