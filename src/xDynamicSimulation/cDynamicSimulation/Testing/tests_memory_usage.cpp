@@ -32,7 +32,6 @@ void wait_for_time ( int const wait_time_s)
 
 bool tests_memory::test_acquisition_memory( void )
 {
-
 	try
 	{	
 		AcquisitionsVector all_acquis;
@@ -72,6 +71,37 @@ bool tests_memory::test_acquisition_memory( void )
 		std::cout << e.what() << std::endl;
 		throw e;
 	}
+}
+
+bool tests_memory::test_acquisition_vector_ordering_memory( void )
+{
+	try
+	{	
+		AcquisitionsVector all_acquis;
+		all_acquis.read( std::string( ISMRMRD_H5_TEST_PATH ));
+
+		size_t num_iterations = 10000;
+
+		for(size_t i=0; i<num_iterations; i++)
+		{
+			std::cout << "loopindex i " << i <<std::endl;
+			std::cout << "Ordering " <<std::endl;
+			
+			all_acquis.order();
+		}
+
+		return true;
+
+	}
+	catch( std::runtime_error const &e)
+	{	
+		std::cout << "Exception caught " <<__FUNCTION__ <<" .!" <<std::endl;
+		std::cout << e.what() << std::endl;
+		throw e;
+	}
+
+
+
 }
 
 bool tests_memory::test_acquisition_vector_memory( void )
