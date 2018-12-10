@@ -182,6 +182,7 @@ namespace sirf {
 		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
 
 		void order();
+		void time_order();
 		bool ordered() const { return ordered_; }
 		void set_ordered(bool ordered) { ordered_ = ordered; }
 		int* index() { return index_; }

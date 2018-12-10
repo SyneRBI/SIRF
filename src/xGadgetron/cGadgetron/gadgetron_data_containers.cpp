@@ -517,6 +517,26 @@ MRAcquisitionData::order()
 	Multisort::sort(vt, index_);
 }
 
+void
+MRAcquisitionData::time_order()
+{
+	typedef std::array<uint32_t , 1>  tuple;
+	tuple t;
+	std::vector< tuple > vt;
+ 	size_t const num_acquis = this->number();
+ 	for(size_t i=0; i<num_acquis; i++)
+	{
+		ISMRMRD::Acquisition acq;
+		get_acquisition(i, acq);
+ 		t[0] = acq.acquisition_time_stamp();
+		vt.push_back( t );
+	}
+ 	if (index_)
+		delete[] index_;
+	index_ = new int[num_acquis];
+ 	Multisort::sort( vt ,index_ );
+}
+
 AcquisitionsFile::AcquisitionsFile
 (std::string filename, bool create_file, AcquisitionsInfo info)
 {
