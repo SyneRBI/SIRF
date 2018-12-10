@@ -49,13 +49,13 @@ typedef std::complex<double> complex_double_t;
 
 namespace sirf {
 
-	class aNumRef {
+	class ANumRef {
 	public:
 		virtual complex_double_t complex_double() const = 0;
 		virtual complex_float_t complex_float() const = 0;
 		virtual operator float() const = 0;
-		virtual void assign(const aNumRef& ref) = 0;
-		aNumRef& operator=(const aNumRef& ref)
+		virtual void assign(const ANumRef& ref) = 0;
+		ANumRef& operator=(const ANumRef& ref)
 		{
 			assign(ref);
 			return *this;
@@ -63,7 +63,7 @@ namespace sirf {
 		virtual void set_ptr(void* ptr) = 0;
 	};
 
-	class FloatRef : public aNumRef {
+	class FloatRef : public ANumRef {
 	public:
 		FloatRef(float* ptr = 0, int dummy = 0) : ptr_(ptr)
 		{}
@@ -85,12 +85,12 @@ namespace sirf {
 			*ptr_ = v;
 			return *this;
 		}
-		virtual void assign(const aNumRef& a_ref)
+		virtual void assign(const ANumRef& a_ref)
 		{
 			const FloatRef& ref = (const FloatRef&)a_ref;
 			*ptr_ = float(ref);
 		}
-		aNumRef& operator=(const aNumRef& ref)
+		ANumRef& operator=(const ANumRef& ref)
 		{
 			assign(ref);
 			return *this;
@@ -131,7 +131,7 @@ namespace sirf {
 			(std::string("unsupported numeric type ") + typeid(Type).name());
 	}
 
-	class NumRef : public aNumRef {
+	class NumRef : public ANumRef {
 	public:
 		NumRef(void* ptr = 0, int type = (int)NumberType::FLOAT) :
 			ptr_(ptr), abs_(true), type_(type)
@@ -252,7 +252,7 @@ namespace sirf {
 			assign(ref);
 			return *this;
 		}
-		virtual void assign(const aNumRef& a_ref)
+		virtual void assign(const ANumRef& a_ref)
 		{
 			const NumRef& ref = (const NumRef&)a_ref;
 			switch (type_) {

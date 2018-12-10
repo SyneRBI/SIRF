@@ -35,7 +35,7 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
-#include "sirf/common/num_ref.h"
+#include "sirf/common/ANumRef.h"
 #include "cgadgetron_shared_ptr.h"
 #include "xgadgetron_utilities.h"
 
