@@ -3,8 +3,8 @@
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
-#include "ANumRef.h"
 #include "DataContainer.h"
+#include "GeometricalInfo.h"
 
 /*!
 \ingroup SIRFImageDataClasses
@@ -23,7 +23,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator() {}
 			virtual Iterator& operator++() = 0;
-			virtual ANumRef& operator*() = 0;
+                        virtual ANumRef& operator*() = 0;
 			virtual bool operator==(const Iterator&) const = 0;
 			virtual bool operator!=(const Iterator&) const = 0;
 		};
@@ -31,7 +31,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator_const() {}
 			virtual Iterator_const& operator++() = 0;
-			virtual const ANumRef& operator*() const = 0;
+                        virtual const ANumRef& operator*() const = 0;
 			virtual bool operator==(const Iterator_const&) const = 0;
 			virtual bool operator!=(const Iterator_const&) const = 0;
 		};
@@ -44,6 +44,21 @@ namespace sirf {
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
 		}
+        /// Get geometrical info
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
+        {
+            // If the geometrical info has not been created yet, throw an error
+            if (!_geom_info_sptr) {
+                std::cout << "\nGeometrical info not initialised. This implies that your constructor did not call set_up_geom_info().\n";
+                throw std::runtime_error("Geometrical info not initialised. This implies that"
+                                         " your constructor did not call set_up_geom_info().");
+            }
+            return _geom_info_sptr;
+        }
+    protected:
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info() = 0;
+        std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;
 	};
 }
 

@@ -113,6 +113,7 @@ extern "C" {
 	// Image methods
 	void* cSTIR_getImageDimensions(const void* ptr, PTR_INT ptr_data);
 	void* cSTIR_getImageVoxelSizes(const void* ptr_im, PTR_FLOAT ptr_vs);
+	void* cSTIR_getImageTransformMatrix(const void* ptr_im, PTR_FLOAT ptr_md);
 	void* cSTIR_getImageData(const void* ptr, PTR_FLOAT ptr_data);
 	void* cSTIR_setImageData(const void* ptr_im, PTR_FLOAT ptr_data);
 	void* cSTIR_voxels3DF(int nx, int ny, int nz,

@@ -30,7 +30,11 @@ target_include_directories(csirf PUBLIC
   )
 target_link_libraries(csirf iutilities)
 
-add_library(common geometrical_info.cpp)
+# TODO target
+include_directories(include)
+add_library(common GeometricalInfo.cpp)
+#INSTALL(common)
+
 if (BUILD_PYTHON)
 
   FIND_PACKAGE(SWIG REQUIRED)

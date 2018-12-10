@@ -1082,6 +1082,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
+    this->set_up_geom_info();
 }
 
 void
@@ -1136,6 +1137,33 @@ GadgetronImagesVector::set_real_data(const float* data)
 	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
+}
+
+void
+GadgetronImagesVector::set_up_geom_info()
+{
+    // Get image
+    const ImageWrap& iw = image_wrap(0);
+
+    // Size
+    VoxelisedGeometricalInfo3D::Size size;
+    int d[4];
+    iw.get_dim(d);
+    for (int i=0; i<3; ++i)
+        size[i] = unsigned(d[i]);
+
+    // Spacing
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+
+    // Offset
+    VoxelisedGeometricalInfo3D::Offset offset;
+
+    // Direction
+    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+
+    // Initialise the geom info shared pointer
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
+                VoxelisedGeometricalInfo3D(offset,spacing,size,direction));
 }
 
 void
