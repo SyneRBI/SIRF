@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include <ismrmrd/ismrmrd.h>
 
 
+#include "SIRF/common/multisort.h"
 #include "dynamics.h"
 
 
@@ -253,6 +254,22 @@ TissueParameterList ContrastDynamic::get_interpolated_tissue_params(SignalAxisTy
 	}
 
 	return tiss_list;
+}
+
+void ContrastDynamic::set_bins( int const num_bins )
+{
+	this->num_simul_states_ = num_bins+1;
+
+	for(int i_state=0; i_state<=num_bins; i_state++)
+	{	
+		SignalBin bin;
+
+		std::get<0>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins)- 1.f/(2*num_bins);;
+		std::get<1>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins);
+		std::get<2>(bin) = SignalAxisType(i_state)/SignalAxisType(num_bins)+ 1.f/(2*num_bins);
+	
+		this->signal_bins_.push_back( bin );
+	}
 }
 
 
@@ -546,8 +563,31 @@ void MRMotionDynamic::prep_displacements_fields()
 
 void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions )
 {
-
 	
+	typedef std::array<uint32_t , 1>  tuple;
+	size_t const num_acquis = all_acquisitions.number();
+
+	std::vector< tuple > vt;
+
+	for(size_t i=0; i<num_acquis; i++)
+	{
+		auto sptr_acq = all_acquisitions.get_acquisition_sptr( i );
+
+		tuple t;
+		t[0] = sptr_acq->acquisition_time_stamp();
+		vt.push_back( t );
+	}
+
+	std::vector<int> sort_idx( num_acquis );
+	Multisort::sort( vt ,&sort_idx[0]);
+
+
+
+
+	//sort them by time
+	//find bin limits as nbin * right_limit
+	//find index limits and add all in between the two limits to binned acquisitions
+
 
 }
 

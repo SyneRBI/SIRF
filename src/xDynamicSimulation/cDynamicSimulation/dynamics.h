@@ -95,6 +95,7 @@ protected:
 
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
+	void set_bins( int const num_bins );
 
 };
 

@@ -152,7 +152,7 @@ bool test_dynamic::test_get_set_bins()
 
 		std::vector< SignalBin > all_bins = dyn.get_bins();
 
-
+		std::cout << "#### REGULAR DYNAMIC ####" << std::endl;
 		for( int i=0; i<all_bins.size(); i++ )
 		{
 			cout << epiph(std::get<0> (all_bins[i] )) << endl;
@@ -161,6 +161,21 @@ bool test_dynamic::test_get_set_bins()
 		}
 
 		test_succesful = ( all_bins.size() == num_bins );
+
+
+		ContrastDynamic cont_dyn(num_bins);
+
+		all_bins = cont_dyn.get_bins();
+
+		std::cout << "#### CONTRAST DYNAMIC ####" << std::endl;
+		for( int i=0; i<all_bins.size(); i++ )
+		{
+			cout << epiph(std::get<0> (all_bins[i] )) << endl;
+			cout << epiph(std::get<1> (all_bins[i] )) << endl;
+			cout << epiph(std::get<2> (all_bins[i] )) << endl;
+		}
+
+		test_succesful = ( all_bins.size() == num_bins+1 );
 		
 		return test_succesful;
 	}
