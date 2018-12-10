@@ -44,7 +44,7 @@ limitations under the License.
 #include "gadgetron_client.h"
 #include "gadget_lib.h"
 #include "ismrmrd_fftw.h"
-#include "localised_exception.h"
+#include "sirf/iUtilities/LocalisedException.h"
 
 #define N_TRIALS 5
 

@@ -28,7 +28,7 @@ limitations under the License.
 */
 
 #include "cgadgetron_shared_ptr.h"
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "gadgetron_x.h"
 
 using namespace gadgetron;

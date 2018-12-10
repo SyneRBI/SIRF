@@ -33,6 +33,7 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
   endif()
 	
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
 
 add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp)
 

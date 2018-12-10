@@ -25,7 +25,7 @@ limitations under the License.
 #include "stir/IO/stir_ecat_common.h"
 
 #include "cstir_shared_ptr.h"
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "cstir_p.h"
 #include "stir_x.h"
 

@@ -23,7 +23,7 @@ limitations under the License.
 
 #include "stir/TextWriter.h"
 
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 using namespace stir;
 
