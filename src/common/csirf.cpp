@@ -22,8 +22,8 @@ limitations under the License.
 #include <complex>
 #include <memory>
 
-#include "data_handle.h"
-#include "sirf/common/data_container.h"
+#include "sirf/iUtilities/DataHandle.h"
+#include "sirf/common/DataContainer.h"
 
 //using std::shared_ptr;
 //#include "sirf/common/object_handle.inl"

@@ -37,11 +37,11 @@ limitations under the License.
 #include <exception>
 
 #include "cstir_shared_ptr.h"
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "stir_types.h"
-#include "sirf/common/data_container.h"
-#include "sirf/common/num_ref.h"
-#include "sirf/common/pet_image_data.h"
+#include "sirf/common/DataContainer.h"
+#include "sirf/common/ANumRef.h"
+#include "sirf/common/PETImageData.h"
 #include "SIRF/common/geometrical_info.h"
 
 namespace sirf {

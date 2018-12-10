@@ -3,7 +3,8 @@
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
-#include "data_container.h"
+#include "ANumRef.h"
+#include "DataContainer.h"
 
 /*!
 \ingroup SIRFImageDataClasses
@@ -22,7 +23,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator() {}
 			virtual Iterator& operator++() = 0;
-			virtual aNumRef& operator*() = 0;
+			virtual ANumRef& operator*() = 0;
 			virtual bool operator==(const Iterator&) const = 0;
 			virtual bool operator!=(const Iterator&) const = 0;
 		};
@@ -30,7 +31,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator_const() {}
 			virtual Iterator_const& operator++() = 0;
-			virtual const aNumRef& operator*() const = 0;
+			virtual const ANumRef& operator*() const = 0;
 			virtual bool operator==(const Iterator_const&) const = 0;
 			virtual bool operator!=(const Iterator_const&) const = 0;
 		};

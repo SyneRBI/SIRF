@@ -26,8 +26,8 @@ limitations under the License.
 #include <ismrmrd/ismrmrd.h>
 #include <ismrmrd/dataset.h>
 
+#include "sirf/iUtilities/DataHandle.h"
 #include "cgadgetron_shared_ptr.h"
-#include "data_handle.h"
 #include "gadgetron_data_containers.h"
 #include "gadgetron_client.h"
 //#include "iutilities.h" // causes problems with Matlab (cf. the same message below)

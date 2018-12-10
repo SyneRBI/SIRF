@@ -22,7 +22,7 @@ limitations under the License.
 #define SIRF_ABSTRACT_DATA_CONTAINER_TYPE
 
 #include <map>
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 /*
 \ingroup Data Container

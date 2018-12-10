@@ -24,7 +24,7 @@ limitations under the License.
 //#include "boost/shared_ptr.hpp"
 #include <memory>
 
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 namespace gadgetron {
 	using std::shared_ptr;
