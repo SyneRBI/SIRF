@@ -223,7 +223,10 @@ sirf::AcquisitionsVector aMRDynamic::get_binned_mr_acquisitions( int const bin_n
 };
 
 
+// static member variable initialization
 int ContrastDynamic::num_simul_states_ = 0;
+std::vector< TimeAxisType > ContrastDynamic::time_points_sampled_ = std::vector<TimeAxisType>(0);
+
 
 ContrastDynamic::ContrastDynamic(int const num_simul_states): aDynamic()
 {
@@ -548,7 +551,6 @@ void MRMotionDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisitions 
 	
 		relevant_acq_numbers.swap(acq_not_binned);
 		this->binned_mr_acquisitions_.push_back( curr_acq_vector );
-		
 	}
 }
 
@@ -580,6 +582,8 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 	{
 		std::vector<AcquisitionsVector> empty_vec;
 		this->binned_mr_acquisitions_.swap( empty_vec );
+
+		this->time_points_sampled_.clear();
 	}
 
 	AcquisitionsVector time_ordered_acquisitions = all_acquisitions;
@@ -587,11 +591,15 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 
 	size_t const num_acquis = time_ordered_acquisitions.number();	
 
+	TimeAxisType total_time = (time_ordered_acquisitions.get_acquisition_sptr(num_acquis-1)->acquisition_time_stamp() -
+							   time_ordered_acquisitions.get_acquisition_sptr(0)->acquisition_time_stamp());
+
 	std::vector< size_t > index_lims;
 
 	for( size_t i=0; i<this->num_simul_states_;i++)
 	{
 		index_lims.push_back( std::get<2>(this->signal_bins_[i]) *num_acquis );
+		this->time_points_sampled_.push_back( total_time * std::get<1>(this->signal_bins_[i]) );
 	}
 
 	int start_index = 0;
@@ -613,6 +621,9 @@ void MRContrastDynamic::bin_mr_acquisitions( AcquisitionsVector& all_acquisition
 		
 		this->binned_mr_acquisitions_.push_back( av );
 		start_index = stop_index;
+
+
+
 	}
 }
 

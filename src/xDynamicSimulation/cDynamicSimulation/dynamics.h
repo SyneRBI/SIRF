@@ -89,12 +89,15 @@ public:
 	void add_dynamic_label(LabelType l) { this->list_cont_var_labels_.push_back(l);};
 	void set_parameter_extremes(TissueParameter tiss_at_0, TissueParameter tiss_at_1);
 
+	void get_time_points_sampled (void)const {return this->time_points_sampled_;};
+
 	virtual int get_num_simul_states( void ){ return this->num_simul_states_; };
 
 
 protected:
 
 	static int num_simul_states_;
+	static std::vector< TimeAxisType > time_points_sampled_;
 
 	std::vector< LabelType > list_cont_var_labels_;
 	std::pair< TissueParameter, TissueParameter > tissue_parameter_extremes_;
