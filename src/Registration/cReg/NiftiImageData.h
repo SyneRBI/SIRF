@@ -133,6 +133,9 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
+    /// Create from ImageData base class
+    NiftiImageData(const ImageData& to_copy);
+
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
@@ -424,6 +427,7 @@ protected:
         _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
         return *_end_const;
     }
+    virtual void set_up_geom_info();
 protected:
     mutable std::shared_ptr<Iterator> _begin;
     mutable std::shared_ptr<Iterator> _end;

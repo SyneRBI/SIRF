@@ -73,29 +73,6 @@ public:
 
     /// Construct from any other image data (e.g., STIRImageData)
     NiftiImageData3D(const ImageData& id);
-
-/* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    /// STIR constructor
-    NiftiImageData3D(const PETImageData &pet_image);
-
-    /// Gadgetron constructor
-    NiftiImageData3D(const MRImageData &);
-
-    /// Copy data to PETImageData
-    void copy_data_to(PETImageData &pet_image) const;
-
-    /// Copy data to MRImageData
-    void copy_data_to(MRImageData &) const;
-*/
-
-protected:
-
-    /* TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    /// Set up nifti image
-    void set_up_nifti(const VoxelisedGeometricalInfo3D &info);
-
-    /// Check that images are aligned
-    bool check_images_are_aligned(const VoxelisedGeometricalInfo3D &info) const;*/
 };
 }
 
