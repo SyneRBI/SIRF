@@ -67,8 +67,9 @@ void SIRFRegNiftyResample<dataType>::process()
                       this->_interpolation_type,
                       0);
 
-    // Copy the NiftiImageData3D to the general ImageData
-    this->_output_image_sptr = this->_output_image_nifti_sptr;
+    // The output should be a clone of the reference image, with data filled in from the nifti image
+    this->_output_image_sptr = std::dynamic_pointer_cast<ImageData>(this->_reference_image_sptr->new_data_container_sptr());
+    this->_output_image_sptr->fill(*this->_output_image_nifti_sptr);
 
     std::cout << "\n\nResampling finished!\n\n";
 }
@@ -91,7 +92,7 @@ void SIRFRegNiftyResample<dataType>::set_up_input_images()
 template<class dataType>
 void SIRFRegNiftyResample<dataType>::set_up_output_image()
 {
-    // Downcast reference image to Nifti image
+    // Create copy of reference image
     this->_output_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*this->_reference_image_nifti_sptr);
 
     const nifti_image *floating_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
