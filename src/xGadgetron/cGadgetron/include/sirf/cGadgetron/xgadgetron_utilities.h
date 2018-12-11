@@ -35,7 +35,7 @@ limitations under the License.
 
 #include <boost/thread/mutex.hpp>
 
-#include "cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
 
 namespace sirf {
 

@@ -27,9 +27,9 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "cgadgetron_shared_ptr.h"
 #include "sirf/iUtilities/DataHandle.h"
-#include "gadgetron_x.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_x.h"
 
 using namespace gadgetron;
 using namespace sirf;

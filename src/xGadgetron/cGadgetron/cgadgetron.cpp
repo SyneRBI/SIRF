@@ -27,14 +27,14 @@ limitations under the License.
 #include <ismrmrd/dataset.h>
 
 #include "sirf/iUtilities/DataHandle.h"
-#include "cgadgetron_shared_ptr.h"
-#include "gadgetron_data_containers.h"
-#include "gadgetron_client.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_data_containers.h"
+#include "sirf/cGadgetron/gadgetron_client.h"
 //#include "iutilities.h" // causes problems with Matlab (cf. the same message below)
-#include "cgadgetron_p.h"
-#include "gadgetron_x.h"
-#include "gadget_lib.h"
-#include "chain_lib.h"
+#include "sirf/cGadgetron/cgadgetron_p.h"
+#include "sirf/cGadgetron/gadgetron_x.h"
+#include "sirf/cGadgetron/gadget_lib.h"
+#include "sirf/cGadgetron/chain_lib.h"
 
 using namespace gadgetron;
 using namespace sirf;
