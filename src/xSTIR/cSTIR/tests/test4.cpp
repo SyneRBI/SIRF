@@ -36,6 +36,16 @@ int test4()
 		converter.set_time_interval(0, 10);
 		converter.set_up();
 		converter.estimate_randoms();
+
+        // new data container sptr
+        string f_image = path + "mu_map.hv";
+        STIRImageData image(f_image);
+        std::shared_ptr<ImageData> copy_as_sptr =
+                std::dynamic_pointer_cast<ImageData>(image.new_data_container_sptr());
+        std::shared_ptr<STIRImageData> copy = std::dynamic_pointer_cast<STIRImageData>(copy_as_sptr);
+        if(!copy)
+            return EXIT_FAILURE;
+
 		return 0;
 	}
 	catch (...)
