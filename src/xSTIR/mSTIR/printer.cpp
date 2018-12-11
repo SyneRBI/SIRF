@@ -20,7 +20,7 @@ limitations under the License.
 using namespace stir;
 
 #include "cstir_shared_ptr.h"
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "printer.h"
 
 extern "C" {

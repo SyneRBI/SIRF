@@ -33,7 +33,7 @@ limitations under the License.
 #include <stdlib.h>
 #include <string>
 
-#include "localised_exception.h"
+#include "LocalisedException.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y
@@ -148,6 +148,130 @@ protected:
 	void* _data; // data address
 	ExecutionStatus* _status; // execution status
 };
+
+#include <boost/shared_ptr.hpp>
+
+template<class Base>
+class ObjectHandle : public DataHandle {
+public:
+	ObjectHandle(const ObjectHandle& obj) {
+		if (obj.uses_boost_sptr()) {
+			NEW(boost::shared_ptr<Base>, ptr_sptr);
+			*ptr_sptr = *(boost::shared_ptr<Base>*)obj.data();
+			_data = (void*)ptr_sptr;
+		}
+		else {
+			NEW(std::shared_ptr<Base>, ptr_sptr);
+			*ptr_sptr = *(std::shared_ptr<Base>*)obj.data();
+			_data = (void*)ptr_sptr;
+		}
+		if (obj._status)
+			_status = new ExecutionStatus(*obj._status);
+		else
+			_status = 0;
+	}
+	ObjectHandle(const std::shared_ptr<Base>& sptr,
+		const ExecutionStatus* status = 0) : _boost_sptr(false) {
+		NEW(std::shared_ptr<Base>, ptr_sptr);
+		*ptr_sptr = sptr;
+		_data = (void*)ptr_sptr;
+		if (status)
+			_status = new ExecutionStatus(*status);
+		else
+			_status = 0;
+	}
+	ObjectHandle(const boost::shared_ptr<Base>& sptr,
+		const ExecutionStatus* status = 0) : _boost_sptr(true) {
+		NEW(boost::shared_ptr<Base>, ptr_sptr);
+		*ptr_sptr = sptr;
+		_data = (void*)ptr_sptr;
+		if (status)
+			_status = new ExecutionStatus(*status);
+		else
+			_status = 0;
+	}
+	virtual ~ObjectHandle() {
+		delete _status;
+		_status = 0;
+		if (_boost_sptr) {
+			CAST_PTR(boost::shared_ptr<Base>, ptr_sptr, _data);
+			delete ptr_sptr;
+		}
+		else {
+			CAST_PTR(std::shared_ptr<Base>, ptr_sptr, _data);
+			delete ptr_sptr;
+		}
+	}
+	bool uses_boost_sptr() const
+	{
+		return _boost_sptr;
+	}
+protected:
+	bool _boost_sptr;
+};
+
+template<class Object>
+static void*
+newObjectHandle(std::shared_ptr<Object> sptr)
+{
+	return (void*)new ObjectHandle<Object>(sptr);
+}
+
+template<class Object>
+static void*
+newObjectHandle(boost::shared_ptr<Object> sptr)
+{
+	return (void*)new ObjectHandle<Object>(sptr);
+}
+
+template<class Object>
+Object&
+objectFromHandle(const void* h) {
+	ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
+	void* ptr = handle->data();
+	if (ptr == 0)
+		THROW("zero data pointer cannot be dereferenced");
+	if (handle->uses_boost_sptr()) {
+		CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
+		Object* ptr_obj = ptr_sptr->get();
+		if (ptr_obj == 0)
+			THROW("zero object pointer cannot be dereferenced");
+		return *ptr_obj;
+	}
+	else {
+		CAST_PTR(std::shared_ptr<Object>, ptr_sptr, ptr);
+		Object* ptr_obj = ptr_sptr->get();
+		if (ptr_obj == 0)
+			THROW("zero object pointer cannot be dereferenced");
+		return *ptr_obj;
+	}
+}
+
+template<class Object>
+void
+getObjectSptrFromHandle(const void* h, std::shared_ptr<Object>& sptr) {
+	ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
+	if (handle->uses_boost_sptr())
+		THROW("cannot cast boost::shared_ptr to std::shared_ptr");
+	void* ptr = handle->data();
+	if (ptr == 0)
+		THROW("zero data pointer cannot be dereferenced");
+	CAST_PTR(std::shared_ptr<Object>, ptr_sptr, ptr);
+	sptr = *ptr_sptr;
+}
+
+template<class Object>
+void
+getObjectSptrFromHandle(const void* h, boost::shared_ptr<Object>& sptr) {
+	ObjectHandle<Object>* handle = (ObjectHandle<Object>*)h;
+	if (!handle->uses_boost_sptr())
+		THROW("cannot cast std::shared_ptr to boost::shared_ptr");
+	void* ptr = handle->data();
+	if (ptr == 0)
+		THROW("zero data pointer cannot be dereferenced");
+	CAST_PTR(boost::shared_ptr<Object>, ptr_sptr, ptr);
+	sptr = *ptr_sptr;
+}
 
 #define GRAB 1
 

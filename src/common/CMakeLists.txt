@@ -16,13 +16,38 @@
 #
 #=========================================================================
 
+
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
+set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
+
+add_library(csirf csirf.cpp)
+target_include_directories(csirf PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
+  )
+target_link_libraries(csirf iutilities)
+
 # TODO target
 include_directories(include)
-add_library(common geometrical_info.cpp)
+add_library(common GeometricalInfo.cpp)
 #INSTALL(common)
 
 if (BUILD_PYTHON)
 
+  FIND_PACKAGE(SWIG REQUIRED)
+  INCLUDE("${SWIG_USE_FILE}")
+  SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES CPLUSPLUS ON)
+  SET_SOURCE_FILES_PROPERTIES(pysirf.i PROPERTIES SWIG_FLAGS "-I${cSIRF_INCLUDE_DIR}")
+  FIND_PACKAGE(PythonLibs REQUIRED)
+  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+  set(SWIG_MODULE_pysirf_EXTRA_DEPS "csirf.h")
+  SWIG_ADD_MODULE(pysirf python pysirf.i)
+  SWIG_LINK_LIBRARIES(pysirf csirf iutilities ${PYTHON_LIBRARIES})
+  INSTALL(TARGETS ${SWIG_MODULE_pysirf_REAL_NAME} DESTINATION "${PYTHON_DEST}/sirf")
+  INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pysirf.py" DESTINATION "${PYTHON_DEST}/sirf")
   file(GLOB PythonFiles "${CMAKE_CURRENT_LIST_DIR}/*.py")
   INSTALL(FILES ${PythonFiles} DESTINATION "${PYTHON_DEST}/sirf")
 

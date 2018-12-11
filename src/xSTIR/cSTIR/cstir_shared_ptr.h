@@ -23,10 +23,11 @@ limitations under the License.
 
 #include "stir/shared_ptr.h"
 
-#include "data_handle.h"
+#include "sirf/iUtilities/LocalisedException.h"
+//#include "data_handle.h"
 
-namespace stir {
-#include "SIRF/common/object_handle.inl"
-}
+//namespace stir {
+//#include "sirf/common/object_handle.inl"
+//}
 
 #endif

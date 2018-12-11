@@ -35,6 +35,7 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
+#include "sirf/common/ANumRef.h"
 #include "cgadgetron_shared_ptr.h"
 #include "xgadgetron_utilities.h"
 
@@ -85,16 +86,162 @@ typedef ISMRMRD::Image<complex_double_t> CDImage;
 namespace sirf {
 
 	/**
-\brief Wrapper for ISMRMRD::Image.
+	\brief Wrapper for ISMRMRD::Image.
 
-Eliminates the need for the image processing switch in the rest of the code.
-*/
+	Eliminates the need for the image processing switch in the rest of the code.
+	*/
 	class ImageWrap {
 	public:
-		ImageWrap(uint16_t type = 0, void* ptr_im = 0)
+		class Iterator {
+		public:
+			Iterator(int type, void* data, unsigned int dsize, size_t n) :
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+			{}
+			Iterator(const Iterator& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+			}
+			bool operator!=(const Iterator& i) const
+			{
+				return ptr_ != i.ptr_;
+			}
+			bool operator==(const Iterator& i) const
+			{
+				return ptr_ == i.ptr_;
+			}
+			Iterator& operator++()
+			{
+				if (i_ >= n_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				i_++;
+				ptr_ += dsize_;
+				return *this;
+			}
+			// too inefficient
+			//virtual Iterator& operator++(int)
+			//{
+			//	//sptr_iter_.reset(new Iterator(type_, ptr_, dsize_, n_));
+			//	sptr_iter_.reset(new Iterator(*this));
+			//	if (i_ >= n_)
+			//		throw std::out_of_range("cannot advance out-of-range iterator");
+			//	i_++;
+			//	ptr_ += dsize_;
+			//	return *sptr_iter_;
+			//}
+			NumRef& operator*()
+			{
+				if (i_ >= n_)
+					throw std::out_of_range
+					("cannot dereference out-of-range iterator");
+				ref_.set_ptr(ptr_);
+				return ref_;
+			}
+			Iterator& operator=(const Iterator& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+				return *this;
+			}
+		private:
+			int type_;
+			char* ptr_;
+			unsigned int dsize_;
+			size_t n_;
+			size_t i_;
+			gadgetron::shared_ptr<Iterator> sptr_iter_;
+			NumRef ref_;
+		};
+		class Iterator_const {
+		public:
+			Iterator_const(int type, void* data, unsigned int dsize, size_t n) :
+				type_(type), ptr_((char*)data), dsize_(dsize), n_(n), i_(0)
+			{}
+			Iterator_const(const Iterator_const& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+			}
+			bool operator!=(const Iterator_const& i) const
+			{
+				return ptr_ != i.ptr_;
+			}
+			bool operator==(const Iterator_const& i) const
+			{
+				return ptr_ == i.ptr_;
+			}
+			Iterator_const& operator++()
+			{
+				if (i_ >= n_)
+					throw std::out_of_range("cannot advance out-of-range iterator");
+				i_++;
+				ptr_ += dsize_;
+				return *this;
+			}
+			//virtual Iterator_const& operator++(int)
+			//{
+			//	//sptr_iter_.reset(new Iterator_const(type_, ptr_, dsize_, n_));
+			//	sptr_iter_.reset(new Iterator_const(*this));
+			//	if (i_ >= n_)
+			//		throw std::out_of_range("cannot advance out-of-range iterator");
+			//	i_++;
+			//	ptr_ += dsize_;
+			//	return *sptr_iter_;
+			//}
+			const NumRef& operator*() const
+			{
+				if (i_ >= n_) {
+					std::cout << i_ << ' ' << n_ << '\n';
+					throw std::out_of_range
+						("cannot dereference out-of-range iterator");
+				}
+				ref_.set_ptr(ptr_);
+				return ref_;
+			}
+			Iterator_const& operator=(const Iterator_const& iter)
+			{
+				type_ = iter.type_;
+				ptr_ = iter.ptr_;
+				dsize_ = iter.dsize_;
+				n_ = iter.n_;
+				i_ = iter.i_;
+				sptr_iter_ = iter.sptr_iter_;
+				ref_.copy(iter.ref_);
+				return *this;
+			}
+		private:
+			int type_;
+			char* ptr_;
+			unsigned int dsize_;
+			size_t n_;
+			size_t i_;
+			gadgetron::shared_ptr<Iterator_const> sptr_iter_;
+			mutable NumRef ref_;
+		};
+		ImageWrap(uint16_t type, void* ptr_im)
 		{
 			type_ = type;
 			ptr_ = ptr_im;
+		}
+		ImageWrap(uint16_t type, ISMRMRD::Dataset& dataset, const char* var, int index)
+		{
+			type_ = type;
+			IMAGE_PROCESSING_SWITCH(type_, read_, ptr_, dataset, var, index, &ptr_);
 		}
 		ImageWrap(const ImageWrap& iw)
 		{
@@ -116,6 +263,47 @@ Eliminates the need for the image processing switch in the rest of the code.
 		const void* ptr_image() const
 		{
 			return ptr_;
+		}
+		Iterator& begin()
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH
+			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			begin_.reset(new Iterator(type_, ptr, dsize, n));
+			return *begin_;
+		}
+		Iterator_const& begin_const() const
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH_CONST
+			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			begin_const_.reset(new Iterator_const(type_, ptr, dsize, n));
+			return *begin_const_;
+		}
+		Iterator& end()
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH
+			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			end_.reset(new Iterator(type_, ptr + n*dsize, dsize, n));
+			return *end_;
+		}
+		Iterator_const& end_const() const
+		{
+			size_t n;
+			unsigned int dsize;
+			char* ptr;
+			IMAGE_PROCESSING_SWITCH_CONST
+			(type_, get_data_parameters_, ptr_, &n, &dsize, &ptr);
+			end_const_.reset(new Iterator_const(type_, ptr + n*dsize, dsize, n));
+			//std::cout << type_ << ' ' << n << ' ' << dsize << '\n';
+			return *end_const_;
 		}
 		size_t size() const
 		{
@@ -148,7 +336,43 @@ Eliminates the need for the image processing switch in the rest of the code.
 		}
 		void get_data(float* data) const
 		{
-			IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
+			//std::cout << "in get_data\n";
+			std::cout << "trying new image wrap iterator...\n";
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			for (; i != stop; ++data, ++i) {
+				*data = *i;
+			}
+			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_data_, ptr_, data);
+		}
+		void set_data(const float* data)
+		{
+			//std::cout << "in set_data\n";
+			for (ImageWrap::Iterator i = begin(); i != end(); ++i, ++data)
+				*i = *data;
+			//IMAGE_PROCESSING_SWITCH(type_, set_data_, ptr_, data);
+		}
+		void get_complex_data(complex_float_t* data) const
+		{
+			//std::cout << "in get_complex_data\n";
+			std::cout << "trying new const image wrap iterator...\n";
+			ImageWrap::Iterator_const i = begin_const();
+			ImageWrap::Iterator_const stop = end_const();
+			for (; i != stop; ++data, ++i) {
+				*data = *i;
+			}
+			//IMAGE_PROCESSING_SWITCH_CONST(type_, get_complex_data_, ptr_, data);
+		}
+		void set_complex_data(const complex_float_t* data)
+		{
+			//std::cout << "in set_complex_data\n";
+			std::cout << "trying new image wrap iterator...\n";
+			ImageWrap::Iterator i = begin();
+			ImageWrap::Iterator stop = end();
+			for (; i != stop; ++i, ++data) {
+				*i = *data;
+			}
+			//IMAGE_PROCESSING_SWITCH(type_, set_complex_data_, ptr_, data);
 		}
 		void write(ISMRMRD::Dataset& dataset) const
 		{
@@ -189,19 +413,39 @@ Eliminates the need for the image processing switch in the rest of the code.
 			return s;
 		}
 
-		void get_cmplx_data(float* re, float* im) const;
-
-		void set_cmplx_data(const float* re, const float* im) const;
-
 	private:
 		int type_;
 		void* ptr_;
+		mutable gadgetron::shared_ptr<Iterator> begin_;
+		mutable gadgetron::shared_ptr<Iterator> end_;
+		mutable gadgetron::shared_ptr<Iterator_const> begin_const_;
+		mutable gadgetron::shared_ptr<Iterator_const> end_const_;
 
 		ImageWrap& operator=(const ImageWrap& iw)
 		{
-			type_ = iw.type();
-			IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
+			//type_ = iw.type();
+			//IMAGE_PROCESSING_SWITCH(type_, copy_, iw.ptr_image());
 			return *this;
+		}
+
+		template<typename T>
+		void get_data_parameters_
+			(const ISMRMRD::Image<T>* ptr_im, size_t *n, unsigned int *dsize,
+			char** data) const
+		{
+			const ISMRMRD::Image<T>& im = *(const ISMRMRD::Image<T>*)ptr_im;
+			unsigned int dim[4];
+			dim[0] = im.getMatrixSizeX();
+			dim[1] = im.getMatrixSizeY();
+			dim[2] = im.getMatrixSizeZ();
+			dim[3] = im.getNumberOfChannels();
+			*data = (char*)im.getDataPtr();
+			*dsize = sizeof(T);
+			*n = dim[0];
+			*n *= dim[1];
+			*n *= dim[2];
+			*n *= dim[3];
+			//*n = ptr_im->getDataSize()/(*dsize);
 		}
 
 		template<typename T>
@@ -283,6 +527,43 @@ Eliminates the need for the image processing switch in the rest of the code.
 			size_t n = im.getNumberOfDataElements();
 			for (size_t i = 0; i < n; i++)
 				data[i] = std::real(ptr[i]);
+		}
+
+		template<typename T>
+		void set_data_(ISMRMRD::Image<T>* ptr_im, const float* data)
+		{
+			ISMRMRD::Image<T>& im = *ptr_im;
+			T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			for (size_t i = 0; i < n; i++)
+				ptr[i] = (T)data[i];
+		}
+
+		template<typename T>
+		void get_complex_data_
+			(const ISMRMRD::Image<T>* ptr_im, complex_float_t* data) const
+		{
+			const ISMRMRD::Image<T>& im = *ptr_im;
+			const T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			for (size_t i = 0; i < n; i++)
+				data[i] = complex_float_t(ptr[i]);
+		}
+
+		template<typename T>
+		void set_complex_data_
+			(ISMRMRD::Image<T>* ptr_im, const complex_float_t* data)
+		{
+			ISMRMRD::Image<T>& im = *ptr_im;
+			ISMRMRD::ISMRMRD_DataTypes type = im.getDataType();
+			T* ptr = im.getDataPtr();
+			size_t n = im.getNumberOfDataElements();
+			if (type == ISMRMRD::ISMRMRD_CXFLOAT || type == ISMRMRD::ISMRMRD_CXDOUBLE)
+				for (size_t i = 0; i < n; i++)
+					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
+			else
+				for (size_t i = 0; i < n; i++)
+					xGadgetronUtilities::convert_complex(data[i], ptr[i]);
 		}
 
 		template<typename T>
@@ -390,7 +671,6 @@ Eliminates the need for the image processing switch in the rest of the code.
 			}
 		}
 	};
-
 }
 
 #endif

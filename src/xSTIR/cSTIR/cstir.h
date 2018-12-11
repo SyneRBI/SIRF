@@ -120,6 +120,7 @@ extern "C" {
 		float sx, float sy, float sz, float x, float y, float z);
 	void* cSTIR_imageFromVoxels(void* ptr_v);
 	void* cSTIR_imageFromImage(void* ptr_v);
+	void* cSTIR_imageFromImageData(void* ptr_v);
 	void* cSTIR_imageFromAcquisitionData(void* ptr_ad);
 	void* cSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int nx, int ny);
 	void* cSTIR_fillImage(void* ptr_i, float v);
