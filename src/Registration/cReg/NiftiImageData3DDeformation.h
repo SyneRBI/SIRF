@@ -85,6 +85,12 @@ public:
 
     /// Compose multiple transformations into single deformation field
     static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
+
+    virtual NiftiImageData<float>* same_image_data() const
+    {
+        NiftiImageData<float>* ptr_image = new NiftiImageData3DDeformation<float>(*this);
+        return ptr_image;
+    }
 };
 }
 

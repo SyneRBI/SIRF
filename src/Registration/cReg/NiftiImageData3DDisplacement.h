@@ -74,6 +74,12 @@ public:
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
+
+    virtual NiftiImageData<float>* same_image_data() const
+    {
+        NiftiImageData<float>* ptr_image = new NiftiImageData3DDisplacement<float>(*this);
+        return ptr_image;
+    }
 };
 }
 

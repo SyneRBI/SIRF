@@ -77,6 +77,12 @@ public:
 
     /// Flip component of nu
     void flip_component(const int dim);
+
+    virtual NiftiImageData<float>* same_image_data() const
+    {
+        NiftiImageData<float>* ptr_image = new NiftiImageData3DTensor<float>(*this);
+        return ptr_image;
+    }
 };
 }
 

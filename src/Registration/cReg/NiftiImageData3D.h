@@ -73,6 +73,12 @@ public:
 
     /// Construct from any other image data (e.g., STIRImageData)
     NiftiImageData3D(const ImageData& id);
+
+    virtual NiftiImageData<float>* same_image_data() const
+    {
+        NiftiImageData<float>* ptr_image = new NiftiImageData3D<float>(*this);
+        return ptr_image;
+    }
 };
 }
 
