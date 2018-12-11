@@ -121,6 +121,7 @@ private:
 
 	std::shared_ptr<sirf::aTrajectoryContainer> sptr_trajectory_;
 
+	void shift_time_start_to_zero( void );
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
@@ -208,6 +209,9 @@ public:
 
 private:
 
+	DimensionsType dims_;
+	std::vector< DimensionsType > all_combinations_;
+
 	void compute_all_combinations( void )
 	{
 		size_t const linear_range = this->get_num_total_combinations();
@@ -230,9 +234,7 @@ private:
 		}
 	};
 
-	DimensionsType dims_;
-	std::vector< DimensionsType > all_combinations_;
-
+	
 	int recurse(size_t const idx, int const num_iter, DimensionsType const curr_combination)
 	{	
 		int l = (idx - curr_combination[num_iter])/this->dims_[num_iter];

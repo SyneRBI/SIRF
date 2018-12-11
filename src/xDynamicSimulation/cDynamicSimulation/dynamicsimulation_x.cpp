@@ -71,15 +71,15 @@ void MRDynamicSimulation::simulate_dynamics( void )
 {
 
 	cout << "Simulating dynamic data acquisition... " <<endl;
-	
-	if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() > 0 )
-		this->simulate_simultaneous_motion_contrast_dynamics();		
-	else if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() == 0 )
-		this->simulate_motion_dynamics();
-	else if (this->motion_dynamics_.size() == 0 && this->contrast_dynamics_.size() > 0)
-		this->simulate_contrast_dynamics();
-	else
-		cout << "No dynamics added to the simulation. Well, if you don't give any dynamics, simulating them is not possible." << endl;
+	this->simulate_simultaneous_motion_contrast_dynamics();		
+	// if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() > 0 )
+	// 	this->simulate_simultaneous_motion_contrast_dynamics();		
+	// else if( this->motion_dynamics_.size() > 0 && this->contrast_dynamics_.size() == 0 )
+	// 	this->simulate_motion_dynamics();
+	// else if (this->motion_dynamics_.size() == 0 && this->contrast_dynamics_.size() > 0)
+	// 	this->simulate_contrast_dynamics();
+	// else
+	// 	cout << "No dynamics added to the simulation. Well, if you don't give any dynamics, simulating them is not possible." << endl;
 }
 
 void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
@@ -91,109 +91,114 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
 
 	this->mr_cont_gen_.map_contrast();
 		
-	size_t const num_contrast_dyns = this->contrast_dynamics_.size();
-	size_t const num_motion_dyns = this->motion_dynamics_.size();
+	// all contrast dynamic variations are sampled at the same timepoint.
+    size_t const num_contrast_dyns = this->contrast_dynamics_.size();
+    size_t num_contrast_states = (num_contrast_dyns > 0)? contrast_dynamics_[0]->get_num_simul_states() : 1;
 
-	std::vector< int > num_all_dyn_states;
-
-	for(size_t i=0; i<num_contrast_dyns; i++)
-		num_all_dyn_states.push_back(contrast_dynamics_[i]->get_num_simul_states());			
-
+    std::vector< int > num_states_per_motion;
+    size_t const num_motion_dyns = this->motion_dynamics_.size();
 	for(size_t i=0; i<num_motion_dyns; i++)	
 	{
-		num_all_dyn_states.push_back(motion_dynamics_[i]->get_num_simul_states());			
+		num_states_per_motion.push_back(motion_dynamics_[i]->get_num_simul_states());			
 		motion_dynamics_[i]->prep_displacements_fields();
 	}
 
-	LinearCombiGenerator lcg(num_all_dyn_states);
+	LinearCombiGenerator lcg(num_states_per_motion);
 	
-	size_t const num_total_dyn_states = lcg.get_num_total_combinations();
+	size_t const num_tot_motion_states = lcg.get_num_total_combinations();
 
 	std::vector< DimensionsType >  all_dynamic_state_combos = lcg.get_all_combinations();
 
-	for( size_t i_dyn_state=0; i_dyn_state < num_total_dyn_states; i_dyn_state++)
+    auto binned_contrast_acquisitions = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_binned_mr_acquisitions()  : std::vector< AcquisitionsVector >(0);
+    auto sampled_contrast_timepoints = (num_contrast_dyns > 0 ) ? contrast_dynamics_[0]->get_time_points_sampled() : std::vector< TimeAxisType >(0);
+    
+    for( size_t i_dyn_state=0; i_dyn_state < num_tot_motion_states; i_dyn_state++)
 	{
-		cout << "Acquisition dynamic state #" << i_dyn_state << "/" << num_total_dyn_states << endl;
+		cout << " ++++++++++++    Acquisition dynamic motion state #" << i_dyn_state + 1 << "/" << num_tot_motion_states << "++++++++++++++" << endl;
 
 		DimensionsType current_combination = all_dynamic_state_combos[i_dyn_state];
+		AcquisitionsVector acquisitions_for_this_motion_state = this->all_source_acquisitions_;
 
-		AcquisitionsVector acquisitions_for_this_state = this->all_source_acquisitions_;
-
-		
-		for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
-		{
-			auto sptr_contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
-
-
-			int const current_bin = current_combination[i_contrast_dyn];						
-
-			AcquisitionsVector acquis_in_bin = sptr_contrast_dyn->get_binned_mr_acquisitions( current_bin );
-			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
-
-		}
-
-		for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
+        for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
 		{
 			auto motion_dyn = this->motion_dynamics_[ i_motion_dyn ];
-			int const current_bin = current_combination[ num_contrast_dyns + i_motion_dyn ];						
+			int const current_bin = current_combination[ i_motion_dyn ];						
 
-			AcquisitionsVector acquis_in_bin = motion_dyn->get_binned_mr_acquisitions( current_bin );
-			acquisitions_for_this_state = intersect_mr_acquisition_data(acquisitions_for_this_state, acquis_in_bin);
+			AcquisitionsVector acquis_in_motion_bin = motion_dyn->get_binned_mr_acquisitions( current_bin );
+			acquisitions_for_this_motion_state = intersect_mr_acquisition_data(acquisitions_for_this_motion_state, acquis_in_motion_bin);
 
 		}
+    
+        cout << "# of mr acquis in this motion state: " << acquisitions_for_this_motion_state.number() << endl;
+    
+        if( acquisitions_for_this_motion_state.number() > 0)
+        {
+            
+            for( size_t i_contrast_state=0; i_contrast_state<num_contrast_states; i_contrast_state++)
+            {
+           		cout << " ++++++++++++    Acquisition dynamic contrast state #" << i_contrast_state + 1 << "/" << num_contrast_states << "++++++++++++++" << endl;
+				auto acquisitions_for_this_contrast_state = acquisitions_for_this_motion_state;
 
-		cout << "# of mr acquis in this dynamic state: " << acquisitions_for_this_state.number() << endl;
-		
-		if( acquisitions_for_this_state.number() > 0)
-		{
-			for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
-			{
-				auto sptr_contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
-
-				std::vector< SignalBin > signal_bins = sptr_contrast_dyn->get_bins();
-
-				int const contrast_bin_number = current_combination[i_contrast_dyn];						
-				SignalBin bin = signal_bins[ contrast_bin_number ];	
-
-				TissueParameterList tissueparameter_list_to_replace = sptr_contrast_dyn->get_interpolated_tissue_params( std::get<1>(bin) );
-
-				for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
+				if( binned_contrast_acquisitions.size() >0)
 				{
-					TissueParameter curr_param = tissueparameter_list_to_replace[i_tiss];
-					this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
-				}
-			}
+	                AcquisitionsVector acquis_in_contrast_state = binned_contrast_acquisitions[ i_contrast_state ];
+	                acquisitions_for_this_contrast_state = intersect_mr_acquisition_data(acquisitions_for_this_contrast_state, acquis_in_contrast_state);           
+                }              
 
-			std::vector<SIRFImageDataDeformation> all_motion_fields;
-			
-			for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
-			{
-				cout << i_motion_dyn << endl;
+                cout << "# of mr acquis in this dynamic motion x contrast state: " << acquisitions_for_this_contrast_state.number() << endl;
 
-				auto motion_dyn = this->motion_dynamics_[i_motion_dyn];
-				std::vector< SignalBin > signal_bins = motion_dyn->get_bins();
+                std::vector<SIRFImageDataDeformation> all_motion_fields;
+                    
+                for( int i_motion_dyn = 0; i_motion_dyn<num_motion_dyns; i_motion_dyn++ )
+                {
+                    cout << "Preparing motion fields for motion dynamic # " << i_motion_dyn << endl;
 
-				int const motion_bin_number = current_combination[ num_contrast_dyns + i_motion_dyn ];						
-				SignalBin bin = signal_bins[ motion_bin_number ];
+                    auto motion_dyn = this->motion_dynamics_[i_motion_dyn];
+                    std::vector< SignalBin > signal_bins = motion_dyn->get_bins();
 
-				all_motion_fields.push_back( motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
+                    int const motion_bin_number = current_combination[ i_motion_dyn ];						
+                    SignalBin bin = signal_bins[ motion_bin_number ];
 
-			}
+                    all_motion_fields.push_back( motion_dyn->get_interpolated_displacement_field( std::get<1>(bin) ) ); 
 
-			this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
-			cout << " num motion fields " << all_motion_fields.size() << endl;
-			DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
-			this->source_acquisitions_ = acquisitions_for_this_state;
-			this->acquire_raw_data();	
-		}
+                }
 
+                if( acquisitions_for_this_contrast_state.number() > 0)
+                {
+                    TimeAxisType current_time_point =  sampled_contrast_timepoints.size()>0 ? sampled_contrast_timepoints[i_contrast_state] : (TimeAxisType)0;
+                    
+                    for( int i_contrast_dyn = 0; i_contrast_dyn<num_contrast_dyns; i_contrast_dyn++ )
+                    {
+                        auto sptr_contrast_dyn = this->contrast_dynamics_[i_contrast_dyn];
+                        auto contrast_signal = sptr_contrast_dyn->linear_interpolate_signal(current_time_point);
+                        TissueParameterList tissueparameter_list_to_replace = sptr_contrast_dyn->get_interpolated_tissue_params( contrast_signal );
+
+                        for( size_t i_tiss=0; i_tiss< tissueparameter_list_to_replace.size(); i_tiss++ )
+                        {
+                            TissueParameter curr_param = tissueparameter_list_to_replace[i_tiss];
+                            this->mr_cont_gen_.replace_petmr_tissue_parameters( curr_param.label_, curr_param );	
+                        }
+                    }
+
+                    this->mr_cont_gen_.map_contrast();//crucial call, as the deformation results in deformed contrast generator data
+                    
+                    if( all_motion_fields.size() > 0 )
+                        DynamicSimulationDeformer::deform_contrast_generator(this->mr_cont_gen_, all_motion_fields);
+                    
+                    this->source_acquisitions_ = acquisitions_for_this_contrast_state;
+                    this->acquire_raw_data();	
+                }
+            }
+        }
 	}
-	this->noise_generator_.add_noise(this->target_acquisitions_);
+	
+    this->noise_generator_.add_noise(this->target_acquisitions_);
 
 	// for(size_t i=0; i<num_motion_dyns; i++)
 	// 	this->motion_dynamics_[i].delete_temp_folder();	
 
 }
+
 void MRDynamicSimulation::simulate_contrast_dynamics( void )
 {
 	cout << "Simulating contrast dynamics... " <<endl;
@@ -365,10 +370,24 @@ void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilm
 	this->coilmaps_ = coilmaps;
 }
 
+void MRDynamicSimulation::shift_time_start_to_zero( void )
+{
+	this->all_source_acquisitions_.time_order();
+	auto sptr_acquis = all_source_acquisitions_.get_acquisition_sptr(0);
+	uint32_t const t0 = sptr_acquis->acquisition_time_stamp();
+	for(size_t i=0; i<all_source_acquisitions_.number(); i++)
+	{
+		sptr_acquis = all_source_acquisitions_.get_acquisition_sptr(i);
+		sptr_acquis->acquisition_time_stamp() -= t0;
+	}
+}
+
 void MRDynamicSimulation::set_all_source_acquisitions(MRDataType& acquisitions )
 {
 	this->all_source_acquisitions_ = acquisitions;
 	this->target_acquisitions_.copy_acquisitions_info( this->all_source_acquisitions_ );
+
+	this->shift_time_start_to_zero();
 }
 
 
