@@ -42,7 +42,10 @@ namespace sirf {
 	public:
 		virtual ~DataContainer() {}
         virtual DataContainer* new_data_container() const = 0;
-        virtual std::shared_ptr<DataContainer> new_data_container_sptr() const = 0;
+        virtual std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            return std::shared_ptr<DataContainer>(new_data_container());
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
         virtual unsigned int items() const = 0;
         virtual float norm() const = 0;
