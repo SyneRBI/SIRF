@@ -21,11 +21,9 @@ limitations under the License.
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "stir/common.h"
-#include "stir/IO/stir_ecat_common.h"
-
-#include "cstir_shared_ptr.h"
 #include "sirf/iUtilities/DataHandle.h"
+
+#include "stir_types.h"
 #include "cstir_p.h"
 #include "stir_x.h"
 

@@ -21,14 +21,10 @@ limitations under the License.
 #ifndef CGADGETRON_SHARED_PTR
 #define CGADGETRON_SHARED_PTR
 
-//#include "boost/shared_ptr.hpp"
 #include <memory>
-
-#include "sirf/iUtilities/DataHandle.h"
 
 namespace gadgetron {
 	using std::shared_ptr;
-//#include "sirf/common/object_handle.inl"
 }
 
 #endif
