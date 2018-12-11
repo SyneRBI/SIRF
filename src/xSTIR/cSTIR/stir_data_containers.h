@@ -623,7 +623,7 @@ namespace sirf {
 		{
 			STIRImageData* ptr_image = new STIRImageData;
 			ptr_image->_data.reset(_data->get_empty_copy());
-            this->set_up_geom_info();
+            ptr_image->set_up_geom_info();
 			return ptr_image;
 		}
 		stir::shared_ptr<STIRImageData> new_image_data()
