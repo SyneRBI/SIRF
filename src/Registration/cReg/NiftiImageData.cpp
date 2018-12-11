@@ -980,7 +980,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
 // Pure virtual methods from ImageData
 // ------------------------------------------------------------------------------ //
 template<class dataType>
-void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr)
+void NiftiImageData<dataType>::dot(const DataContainer& a_x, void* ptr) const
 {
     const NiftiImageData<dataType>& x = dynamic_cast<const NiftiImageData<dataType>&>(a_x);
     assert(_nifti_image->nvox == x._nifti_image->nvox);
@@ -1008,7 +1008,7 @@ void NiftiImageData<dataType>::axpby(
 }
 
 template<class dataType>
-float NiftiImageData<dataType>::norm()
+float NiftiImageData<dataType>::norm() const
 {
     double s = 0.0;
     for (unsigned i=0; i<this->_nifti_image->nvox; ++i)
@@ -1061,12 +1061,10 @@ void NiftiImageData<dataType>::set_up_geom_info()
     // Offest
     VoxelisedGeometricalInfo3D::Offset offset;
     // TODO - update
-    std::cout << "\nI don't know what this should be.\n";
 
     // Transformation matrix
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
     // TODO - update
-    std::cout << "\nI don't know what this should be.\n";
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
