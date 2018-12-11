@@ -382,6 +382,11 @@ namespace sirf {
 			init();
 			return (DataContainer*)_template->same_acquisition_data(*data());
 		}
+        std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            PETAcquisitionDataInFile *dc = dynamic_cast<PETAcquisitionDataInFile*>(new_data_container());
+            return std::shared_ptr<PETAcquisitionDataInFile>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -466,6 +471,11 @@ namespace sirf {
 			init();
 			return _template->same_acquisition_data(*data());
 		}
+        std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            PETAcquisitionDataInMemory *dc = dynamic_cast<PETAcquisitionDataInMemory*>(new_data_container());
+            return std::shared_ptr<PETAcquisitionDataInMemory>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -638,9 +648,14 @@ namespace sirf {
 			return stir::shared_ptr<STIRImageData>(same_image_data());
 		}
         DataContainer* new_data_container() const
-		{
-			return (DataContainer*)same_image_data();
-		}
+        {
+            return (DataContainer*)same_image_data();
+        }
+        std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            STIRImageData *dc = dynamic_cast<STIRImageData*>(new_data_container());
+            return std::shared_ptr<STIRImageData>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>

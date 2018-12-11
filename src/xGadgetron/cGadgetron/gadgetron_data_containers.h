@@ -278,13 +278,19 @@ namespace sirf {
 			same_acquisitions_container(AcquisitionsInfo info)
 		{
 			return (MRAcquisitionData*) new AcquisitionsFile(info);
-		}
-		virtual DataContainer*
+        }
+        virtual DataContainer*
             new_data_container() const
-		{
-			init();
-			return acqs_templ_->same_acquisitions_container(acqs_info_);
-		}
+        {
+            init();
+            return acqs_templ_->same_acquisitions_container(acqs_info_);
+        }
+        virtual std::shared_ptr<DataContainer>
+            new_data_container_sptr() const
+        {
+            AcquisitionsFile *dc = dynamic_cast<AcquisitionsFile*>(new_data_container());
+            return std::shared_ptr<AcquisitionsFile>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -357,6 +363,11 @@ namespace sirf {
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
+        virtual std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            AcquisitionsVector *dc = dynamic_cast<AcquisitionsVector*>(new_data_container());
+            return std::shared_ptr<AcquisitionsVector>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -698,6 +709,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new GadgetronImagesVector();
 		}
+        virtual std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            GadgetronImagesVector *dc = dynamic_cast<GadgetronImagesVector*>(new_data_container());
+            return std::shared_ptr<GadgetronImagesVector>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -949,6 +965,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new CoilImagesVector();
 		}
+        std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            CoilImagesVector *dc = dynamic_cast<CoilImagesVector*>(new_data_container());
+            return std::shared_ptr<CoilImagesVector>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
@@ -1042,6 +1063,11 @@ namespace sirf {
 		{
 			return (DataContainer*)new CoilSensitivitiesAsImages();
 		}
+        std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            CoilSensitivitiesAsImages *dc = dynamic_cast<CoilSensitivitiesAsImages*>(new_data_container());
+            return std::shared_ptr<CoilSensitivitiesAsImages>(dc);
+        }
         virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
