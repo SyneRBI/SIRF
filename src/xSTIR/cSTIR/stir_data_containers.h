@@ -36,9 +36,10 @@ limitations under the License.
 #include <fstream>
 #include <exception>
 
-#include "cstir_shared_ptr.h"
-#include "sirf/iUtilities/DataHandle.h"
 #include "stir_types.h"
+
+#include "sirf/iUtilities/LocalisedException.h"
+#include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"

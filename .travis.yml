@@ -169,11 +169,14 @@ before_install:
  # ensure python bin dir exists (and coverage dependencies installed)
  - $PY_EXE -m pip install --user -U nose codecov coveralls
  # for counting clones, excluding ours
- - git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
- # update with last fortnight's clones from GitHub API
- - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
- # count unique clones, excluding travis, and print total
- - TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
+ - |
+    if [[ -n "$GITHUB_API_TOKEN" ]]; then
+      git clone https://$GITHUB_API_TOKEN@github.com/ccp-petmr-codebot/github-stats --branch CCPPETMR/SIRF-SuperBuild
+      # update with last fortnight's clones from GitHub API
+      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild source github-stats/setup.sh
+      # count unique clones, excluding travis, and print total
+      TRAVIS_REPO_SLUG=CCPPETMR/SIRF-SuperBuild gh_stats_count -k uniques
+    fi
  - $PY_EXE --version
  - $PY_EXE -m pip --version
  - $PY_EXE -m pip freeze

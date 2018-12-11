@@ -19,10 +19,9 @@ limitations under the License.
 
 */
 
-#include "stir/common.h"
-
 #include "sirf/iUtilities/DataHandle.h"
-#include "cstir_shared_ptr.h"
+
+#include "stir_types.h"
 #include "cstir_p.h"
 #include "stir_x.h"
 
