@@ -673,7 +673,7 @@ STIRImageData::set_up_geom_info()
     const Voxels3DF* vox_image = dynamic_cast<const Voxels3DF*>(&data());
 
     // If cast failed, throw error
-    if (vox_image != 0)
+    if (!vox_image)
         throw std::runtime_error("Can't determine geometry for this image type");
 
     // SIRF offest is STIR's LPS location of first voxel
