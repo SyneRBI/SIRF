@@ -22,6 +22,7 @@ find_package(STIR REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/xSTIR/cSTIR/include)
 
 add_library(cstir 
     cstir_p.cpp cstir_tw.cpp stir_data_containers.cpp stir_x.cpp cstir.cpp)

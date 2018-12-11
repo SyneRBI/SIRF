@@ -35,13 +35,12 @@ limitations under the License.
 #include <chrono>
 #include <fstream>
 
-#include "stir_types.h"
-
 #include "sirf/iUtilities/LocalisedException.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/PETImageData.h"
+#include "sirf/cSTIR/stir_types.h"
 
 namespace sirf {
 
