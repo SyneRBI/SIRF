@@ -41,11 +41,15 @@ namespace sirf {
 	class DataContainer {
 	public:
 		virtual ~DataContainer() {}
-		virtual DataContainer* new_data_container() = 0;
-		virtual ObjectHandle<DataContainer>* new_data_container_handle() = 0;
-		virtual unsigned int items() = 0;
-		virtual float norm() = 0;
-		virtual void dot(const DataContainer& dc, void* ptr) = 0;
+		virtual DataContainer* new_data_container() const = 0;
+		virtual std::shared_ptr<DataContainer> new_data_container_sptr() const
+        {
+            return std::shared_ptr<DataContainer>(new_data_container());
+        }
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const = 0;
+		virtual unsigned int items() const = 0;
+		virtual float norm() const = 0;
+		virtual void dot(const DataContainer& dc, void* ptr) const = 0;
 		virtual void multiply
 		(const DataContainer& x, const DataContainer& y) = 0;
 		virtual void divide

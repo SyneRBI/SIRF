@@ -137,9 +137,9 @@ namespace sirf {
 		// abstract methods
 
 		// the number of acquisitions in the container
-		virtual unsigned int number() = 0;
+		virtual unsigned int number() const = 0;
 
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
+		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const = 0;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) = 0;
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq) = 0;
 
@@ -156,7 +156,7 @@ namespace sirf {
 			(int na, int nc, int ns, const float* re, const float* im) = 0;
 
 		// acquisition data algebra
-		virtual void dot(const DataContainer& dc, void* ptr);
+		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -171,7 +171,7 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 		//virtual complex_float_t dot(const DataContainer& dc);
-		virtual float norm();
+		virtual float norm() const;
 		//float diff(MRAcquisitionData& other);
 
 		// regular methods
@@ -182,9 +182,9 @@ namespace sirf {
 		gadgetron::shared_ptr<MRAcquisitionData> clone();
 
 		bool undersampled() const;
-		int get_acquisitions_dimensions(size_t ptr_dim);
+		int get_acquisitions_dimensions(size_t ptr_dim) const;
 		//void get_acquisitions_flags(unsigned int n, int* flags);
-		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im);
+		unsigned int get_acquisitions_data(unsigned int slice, float* re, float* im) const;
 	
 		virtual void get_data(complex_float_t* z, int all = 1);
 
@@ -193,7 +193,7 @@ namespace sirf {
 		void set_ordered(bool ordered) { ordered_ = ordered; }
 		int* index() { return index_; }
 		const int* index() const { return index_; }
-		int index(int i)
+		int index(int i) const
 		{
 			if (index_ && i >= 0 && i < (int)number())
 				return index_[i];
@@ -265,9 +265,9 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* z, int all = 1);
 		virtual int set_acquisition_data
 			(int na, int nc, int ns, const float* re, const float* im);
-		virtual unsigned int items();
-		virtual unsigned int number() { return items(); }
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq);
+		virtual unsigned int items() const;
+		virtual unsigned int number() const { return items(); }
+		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const;
 		virtual void set_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
 		{
 			std::cerr << "AcquisitionsFile::set_acquisition not implemented yet, sorry\n";
@@ -280,12 +280,12 @@ namespace sirf {
 			return (MRAcquisitionData*) new AcquisitionsFile(info);
 		}
 		virtual DataContainer*
-			new_data_container()
+			new_data_container() const
 		{
 			init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
@@ -323,14 +323,14 @@ namespace sirf {
 			init();
 			acqs_templ_.reset(new AcquisitionsVector);
 		}
-		virtual unsigned int number() { return (unsigned int)acqs_.size(); }
-		virtual unsigned int items() { return (unsigned int)acqs_.size(); }
+		virtual unsigned int number() const { return (unsigned int)acqs_.size(); }
+		virtual unsigned int items() const { return (unsigned int)acqs_.size(); }
 		virtual void append_acquisition(ISMRMRD::Acquisition& acq)
 		{
 			acqs_.push_back(gadgetron::shared_ptr<ISMRMRD::Acquisition>
 				(new ISMRMRD::Acquisition(acq)));
 		}
-		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+		virtual void get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 		{
 			int ind = index(num);
 			acq = *acqs_[ind];
@@ -352,12 +352,12 @@ namespace sirf {
 		{
 			return new AcquisitionsVector(info);
 		}
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			AcquisitionsFile::init();
 			return acqs_templ_->same_acquisitions_container(acqs_info_);
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
@@ -437,7 +437,7 @@ namespace sirf {
 			return image_wrap(im_num).type();
 		}
 
-		virtual void dot(const DataContainer& dc, void* ptr);
+		virtual void dot(const DataContainer& dc, void* ptr) const;
 		virtual void axpby(
 			const void* ptr_a, const DataContainer& a_x,
 			const void* ptr_b, const DataContainer& a_y);
@@ -451,7 +451,7 @@ namespace sirf {
 			const DataContainer& a_x,
 			const DataContainer& a_y);
 		//virtual complex_float_t dot(const DataContainer& dc);
-		virtual float norm();
+		virtual float norm() const;
 
 		void order();
 		bool ordered() const { return ordered_; }
@@ -642,7 +642,7 @@ namespace sirf {
 		{}
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
-		virtual unsigned int items() 
+		virtual unsigned int items() const
 		{ 
 			return (unsigned int)images_.size(); 
 		}
@@ -694,11 +694,11 @@ namespace sirf {
 				sptr_image_wrap(im_num);
 			return *sptr_iw;
 		}
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			return (DataContainer*)new GadgetronImagesVector();
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
@@ -836,11 +836,11 @@ namespace sirf {
 	*/
 	class CoilDataContainer : public DataContainer {
 	public:
-		virtual float norm()
+		virtual float norm() const
 		{
 			return 0.0;
 		}
-		virtual void dot(const DataContainer& dc, void* ptr)
+		virtual void dot(const DataContainer& dc, void* ptr) const
 		{}
 		//virtual complex_float_t dot(const DataContainer& dc)
 		//{
@@ -909,7 +909,7 @@ namespace sirf {
 	*/
 	class CoilDataVector {
 	public:
-		unsigned int items()
+		unsigned int items() const
 		{
 			return (unsigned int)coil_data_.size();
 		}
@@ -949,16 +949,16 @@ namespace sirf {
 	*/
 	class CoilImagesVector : public CoilImagesContainer, public CoilDataVector {
 	public:
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			return (DataContainer*)new CoilImagesVector();
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
-		virtual unsigned int items()
+		virtual unsigned int items() const
 		{
 			return CoilDataVector::items();
 		}
@@ -1042,17 +1042,17 @@ namespace sirf {
 		}
 		CoilSensitivitiesAsImages(const char* file);
 
-		virtual DataContainer* new_data_container()
+		virtual DataContainer* new_data_container() const
 		{
 			return (DataContainer*)new CoilSensitivitiesAsImages();
 		}
-		virtual ObjectHandle<DataContainer>* new_data_container_handle()
+		virtual ObjectHandle<DataContainer>* new_data_container_handle() const
 		{
 			return new ObjectHandle<DataContainer>
 				(gadgetron::shared_ptr<DataContainer>(new_data_container()));
 		}
 
-		virtual unsigned int items()
+		virtual unsigned int items() const
 		{
 			return CoilDataVector::items();
 		}

@@ -114,7 +114,7 @@ MRAcquisitionData::undersampled() const
 }
 
 int 
-MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
+MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
 	ISMRMRD::Acquisition acq;
 	int* dim = (int*)ptr_dim;
@@ -215,7 +215,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int all)
 }
 
 unsigned int 
-MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im)
+MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im) const
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -340,7 +340,7 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 }
 
 void
-MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
+MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	MRAcquisitionData& other = (MRAcquisitionData&)dc;
 	int n = number();
@@ -521,7 +521,7 @@ const DataContainer& a_y)
 //}
 
 float 
-MRAcquisitionData::norm()
+MRAcquisitionData::norm() const
 {
 	int n = number();
 	float r = 0;
@@ -644,7 +644,7 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 }
 
 unsigned int 
-AcquisitionsFile::items()
+AcquisitionsFile::items() const
 {
 	Mutex mtx;
 	mtx.lock();
@@ -654,7 +654,7 @@ AcquisitionsFile::items()
 }
 
 void 
-AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 {
 	int ind = index(num);
 	Mutex mtx;
@@ -791,7 +791,7 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-GadgetronImageData::dot(const DataContainer& dc, void* ptr)
+GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	GadgetronImageData& ic = (GadgetronImageData&)dc;
 	complex_float_t z = 0;
@@ -886,7 +886,7 @@ const DataContainer& a_y)
 //}
 
 float 
-GadgetronImageData::norm()
+GadgetronImageData::norm() const
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {

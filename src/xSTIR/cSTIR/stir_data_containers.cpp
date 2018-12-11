@@ -27,7 +27,7 @@ std::string PETAcquisitionData::_storage_scheme;
 shared_ptr<PETAcquisitionData> PETAcquisitionData::_template;
 
 float
-PETAcquisitionData::norm()
+PETAcquisitionData::norm() const
 {
 	double t = 0.0;
 	for (int s = 0; s <= get_max_segment_num(); ++s)
@@ -80,7 +80,7 @@ PETAcquisitionData::norm()
 //}
 
 void
-PETAcquisitionData::dot(const DataContainer& a_x, void* ptr)
+PETAcquisitionData::dot(const DataContainer& a_x, void* ptr) const
 {
 	PETAcquisitionData& x = (PETAcquisitionData&)a_x;
 	int n = get_max_segment_num();
@@ -386,14 +386,14 @@ STIRImageData::STIRImageData(const ImageData& id)
 }
 
 void
-STIRImageData::dot(const DataContainer& a_x, void* ptr)
+STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 #ifdef _MSC_VER
 	Image3DF::full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 #else
-	typename Array<3, float>::full_iterator iter;
+	typename Array<3, float>::const_full_iterator iter;
 	typename Array<3, float>::const_full_iterator iter_x;
 #endif
 
@@ -436,7 +436,7 @@ const void* ptr_b, const DataContainer& a_y)
 }
 
 float
-STIRImageData::norm()
+STIRImageData::norm() const
 {
 #ifdef _MSC_VER
 	//Array<3, float>::const_full_iterator iter;
