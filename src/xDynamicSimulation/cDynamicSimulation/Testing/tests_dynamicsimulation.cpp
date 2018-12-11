@@ -378,6 +378,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.set_coilmaps( csm );
 
 
+		// std::string const traj_name = "ITLGCRPE";
 		std::string const traj_name = "ITLGCRPE";
 
 		if( traj_name == "ITLGCRPE") 
@@ -388,7 +389,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		}
 
 
-		float const test_SNR = 150;
+		float const test_SNR = 50;
 		mr_dyn_sim.set_SNR(test_SNR);
 		
 		int const num_simul_motion_dyn = 10;
@@ -404,14 +405,14 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		
 		// SETTING UP MOTION DYNAMICS ########################################################################
 
-	 	// cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
-	 	// cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
+	 	cardiac_motion_dyn.set_dyn_signal( mock_cardiac_signal );
+	 	cardiac_motion_dyn.bin_mr_acquisitions( all_acquis );
 		
 		respiratory_motion_dyn.set_dyn_signal( mock_respiratory_signal );
 	 	respiratory_motion_dyn.bin_mr_acquisitions( all_acquis );
 
-		// auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
-		// cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
+		auto cardiac_motion_fields = read_cardiac_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
+		cardiac_motion_dyn.set_displacement_fields( cardiac_motion_fields, true );
 
 		auto resp_motion_fields = read_respiratory_motionfield_from_h5( H5_XCAT_PHANTOM_PATH );
 		respiratory_motion_dyn.set_displacement_fields( resp_motion_fields, false );
@@ -463,13 +464,13 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		SignalContainer myocard_contrast_signal = aux_test::get_generic_contrast_inflow_signal(all_acquis);
 		SignalContainer blood_contrast_signal = aux_test::get_generic_contrast_in_and_outflow_signal( all_acquis );
 
-		// myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
-	 	// myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
+		myocardium_cont_dyn.set_dyn_signal( myocard_contrast_signal );
+	 	myocardium_cont_dyn.bin_mr_acquisitions( all_acquis );
 
 	 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
 		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
