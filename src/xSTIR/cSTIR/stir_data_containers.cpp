@@ -18,7 +18,7 @@ limitations under the License.
 
 */
 
-#include "stir_data_containers.h"
+#include "sirf/cSTIR/stir_data_containers.h"
 
 using namespace stir;
 using namespace sirf;
