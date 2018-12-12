@@ -36,8 +36,8 @@ limitations under the License.
 #include <ismrmrd/xml.h>
 
 #include "sirf/common/ANumRef.h"
-#include "cgadgetron_shared_ptr.h"
-#include "xgadgetron_utilities.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/xgadgetron_utilities.h"
 
 #define IMAGE_PROCESSING_SWITCH(Type, Operation, Arguments, ...)\
 	if (Type == ISMRMRD::ISMRMRD_USHORT)\
