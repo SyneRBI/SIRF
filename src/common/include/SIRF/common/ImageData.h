@@ -3,7 +3,8 @@
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
-#include "DataContainer.h"
+#include "sirf/common/DataContainer.h"
+#include "sirf/common/ANumRef.h"
 #include "GeometricalInfo.h"
 
 /*!
