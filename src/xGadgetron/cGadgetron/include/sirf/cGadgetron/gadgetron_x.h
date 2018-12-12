@@ -40,11 +40,11 @@ limitations under the License.
 #include <ismrmrd/meta.h>
 #include <ismrmrd/xml.h>
 
-#include "cgadgetron_shared_ptr.h"
-#include "gadgetron_client.h"
-#include "gadget_lib.h"
-#include "ismrmrd_fftw.h"
 #include "sirf/iUtilities/LocalisedException.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_client.h"
+#include "sirf/cGadgetron/gadget_lib.h"
+#include "sirf/cGadgetron/ismrmrd_fftw.h"
 
 #define N_TRIALS 5
 

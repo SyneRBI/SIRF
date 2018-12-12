@@ -42,7 +42,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <fftw3.h>
 
-#include "ismrmrd_fftw.h"
+#include "sirf/cGadgetron/ismrmrd_fftw.h"
 
 namespace ISMRMRD {
 
