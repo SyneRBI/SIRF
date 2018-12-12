@@ -24,7 +24,7 @@ limitations under the License.
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 
-#include "stir_x.h"
+#include "sirf/cSTIR/stir_x.h"
 
 using namespace stir;
 using namespace ecat;

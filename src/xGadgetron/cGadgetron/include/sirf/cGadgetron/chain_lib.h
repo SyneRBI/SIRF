@@ -31,8 +31,8 @@ limitations under the License.
 #ifndef PROCESSOR_CHAINS_LIBRARY
 #define PROCESSOR_CHAINS_LIBRARY
 
-#include "cgadgetron_shared_ptr.h"
-#include "gadgetron_x.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_x.h"
 
 namespace sirf {
 
