@@ -269,7 +269,7 @@ void run_tests_contrastgenerator(void)
 	test_contgen::test_match_output_dims_to_headerinfo();
 	test_contgen::test_mr_map_contrast_application_to_xcat();
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
-
+	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
 	std::cout << "mr contgen test results = ";
 	for( size_t i=0; i<mr_contgen_tests.size(); i++)
 	{
