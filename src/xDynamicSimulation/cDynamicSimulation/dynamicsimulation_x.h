@@ -84,6 +84,7 @@ public:
 	
 	void set_all_source_acquisitions(MRDataType& acquisitions );
 	void set_SNR(float const SNR);
+	void set_noise_label(size_t const label);
 
 	void simulate_statics( void );
 	void simulate_dynamics( void );
@@ -124,7 +125,7 @@ private:
 	void simulate_motion_dynamics( void );
 	void simulate_contrast_dynamics( void );
 	void simulate_simultaneous_motion_contrast_dynamics( void );
-
+	void set_noise_scaling( std::shared_ptr<sirf::aTrajectoryContainer> sptr_traj );
 };
 
 

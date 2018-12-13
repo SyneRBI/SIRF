@@ -363,7 +363,19 @@ void MRDynamicSimulation::set_trajectory( std::shared_ptr<aTrajectoryContainer> 
 	
 	this->mr_cont_gen_.set_rawdata_header( this->hdr_ );
 
+	this->set_noise_scaling( this->sptr_trajectory_ );
+
 }
+
+
+void MRDynamicSimulation::set_noise_scaling( std::shared_ptr<aTrajectoryContainer> sptr_trajectory )
+{
+	auto traj_type = sptr_trajectory->get_traj_type();
+
+	if( traj_type.compare( "RPE" ) == 0 )
+		this->noise_generator_.set_sampling_specific_scaling(RPE_NOISE_SCALING);
+}
+
 
 void MRDynamicSimulation::set_coilmaps( ISMRMRD::Image< complex_float_t > &coilmaps )
 {
@@ -395,6 +407,15 @@ void MRDynamicSimulation::set_SNR(float const SNR)
 {
 	this->noise_generator_.set_SNR(SNR);
 }
+
+void MRDynamicSimulation::set_noise_label(size_t const label)
+{
+	auto const signal_in_label = this->mr_cont_gen_.get_signal_for_tissuelabel(label);
+	auto const abs_signal = std::abs( signal_in_label );
+	std::cout << "Adding signal " << abs_signal << " for label " << label << std::endl;
+	this->noise_generator_.set_signal_img( abs_signal );
+}
+
 
 void MRDynamicSimulation::acquire_raw_data( void )
 {
