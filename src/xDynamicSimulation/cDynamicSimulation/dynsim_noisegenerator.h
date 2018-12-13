@@ -19,6 +19,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "stir_data_containers.h"
 #include "gadgetron_data_containers.h"
 
+#define RPE_NOISE_SCALING 1.71558f
 
 
 typedef unsigned int SeedType;
@@ -72,7 +73,7 @@ public:
 
 	void set_signal_img(float const signal){ this->signal_img_ = signal; };
 	void set_SNR(float const SNR){ this->SNR_ = SNR; };
-	void set_sequence_specific_scaling( float const scaling) { this->sequence_specific_scaling_ = scaling;};
+	void set_sampling_specific_scaling( float const scaling) { this->sequence_specific_scaling_ = scaling;};
 
 	void add_noise( sirf::AcquisitionsVector& acquisition_vector );
 	

@@ -71,7 +71,7 @@ bool test_noisegen::test_add_gaussian_noise( void )
 
 		GaussianNoiseGenerator noise_gen( SNR );
 		noise_gen.set_signal_img(signal);
-		noise_gen.set_sequence_specific_scaling( rpe_noise_scaling );
+		noise_gen.set_sampling_specific_scaling( rpe_noise_scaling );
 
 		noise_gen.add_noise(av);
 

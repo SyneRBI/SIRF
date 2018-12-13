@@ -64,6 +64,7 @@ float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisit
 
 void GaussianNoiseGenerator::add_noise_to_data( AcquisitionsVector& acquisition_vector ) 
 {
+	std::cout << "Adding noise of width " << this->noise_width_kspace_ <<std::endl;
 
 	std::cout << "Adding noise ..." ;
 	acquisition_vector.set_as_template();
