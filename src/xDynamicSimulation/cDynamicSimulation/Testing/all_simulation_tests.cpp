@@ -141,8 +141,8 @@ void run_tests_noise_generator( void )
 
 	bool tests_successful = true;
 
-	tests_successful *= test_noisegen::test_add_poisson_noise();
-	// tests_successful *= test_noisegen::test_add_gaussian_noise();
+	// tests_successful *= test_noisegen::test_add_poisson_noise();
+	tests_successful *= test_noisegen::test_add_gaussian_noise();
 
 	if ( !tests_successful )
 	{
