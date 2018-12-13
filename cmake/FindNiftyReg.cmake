@@ -16,20 +16,21 @@
 #
 #=========================================================================
 
-SET(NiftyReg_Source_DIR  CACHE PATH "NiftyReg source directory" )
-SET(NiftyReg_Binary_DIR  CACHE PATH "NiftyReg binary directory" )
-SET(NiftyReg_Install_DIR CACHE PATH "NiftyReg install directory")
+set(NiftyReg_FOUND 0)
+
+SET(NiftyReg_Binary_DIR CACHE PATH "NiftyReg binary directory" )
 
 # Ask for the binary and check
-IF ((NOT IS_DIRECTORY ${NiftyReg_Source_DIR}) OR (NOT IS_DIRECTORY ${NiftyReg_Binary_DIR}) OR (NOT IS_DIRECTORY ${NiftyReg_Install_DIR}))
-	MESSAGE(FATAL_ERROR "Enter the source, binary and install directories of NiftyReg.")
+IF (NOT IS_DIRECTORY ${NiftyReg_Binary_DIR})
+	MESSAGE(FATAL_ERROR "Enter the binary directory of NiftyReg.")
 ENDIF()
 
-# We should be able to get the source and install directories from
-# the CMakeCache.txt. Can't figure it out at the moment, though...
-#[[FILE(READ ${NiftyReg_Binary_DIR}/CMakeCache.txt NiftyReg_CMakeCache)
-STRING(REGEX MATCH "NiftyReg_SOURCE_DIR:STATIC=(.*$)" _ ${NiftyReg_CMakeCache})
-SET(NiftyReg_Source_DIR ${CMAKE_MATCH_1})]]
+IF(EXISTS "${NiftyReg_Binary_DIR}/CMakeCache.txt")
+  LOAD_CACHE("${NiftyReg_Binary_DIR}" READ_WITH_PREFIX "nifty" "NiftyReg_SOURCE_DIR" "CMAKE_INSTALL_PREFIX")
+endif()
+
+SET(NiftyReg_Source_DIR ${niftyNiftyReg_SOURCE_DIR})
+SET(NiftyReg_Install_DIR ${niftyCMAKE_INSTALL_PREFIX})
 
 # Include
 INCLUDE_DIRECTORIES(${NiftyReg_Source_DIR}/reg-io/nrrd/NrrdIO) # ugly, but required for nrrdIO.h
@@ -55,9 +56,6 @@ IF (NOT DEFINED NiftyReg_VERSION_MAJOR)
 ENDIF()
 SET(NR_VERSION "${NiftyReg_VERSION_MAJOR}.${NiftyReg_VERSION_MINOR}.${NiftyReg_VERSION_PATCH}")
 string(REGEX REPLACE "\n$" "" NR_VERSION "${NR_VERSION}")
-MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.58, and cannot be guaranteed for other version numbers.\n"
-    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
-    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
 
 SET(NiftyReg_requiredLibs
     _reg_aladin
@@ -82,3 +80,6 @@ FOREACH(elem ${NiftyReg_requiredLibs} ${NiftyReg_requiredLibs})
     MARK_AS_ADVANCED(NiftyReg_${elem})
     SET(NiftyReg_Libs ${NiftyReg_Libs} ${NiftyReg_${elem}} )
 ENDFOREACH(elem ${NiftyReg_requiredLibs})
+
+# Success!
+set(NiftyReg_FOUND 1)

@@ -17,7 +17,14 @@
 #=========================================================================
 
 # NiftyReg
-include("${CMAKE_CURRENT_SOURCE_DIR}/NiftyReg.cmake")
+find_package(NiftyReg)
+if (NOT NiftyReg_FOUND)
+	message(FATAL_ERROR "NiftyReg not found.")
+endif()
+
+MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.59, and cannot be guaranteed for other version numbers.\n"
+    "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
+    "If there is a version mismatch, the keys in the parser may need to be altered.\n")
 
 # Compile the C++
 ADD_SUBDIRECTORY(cReg)
