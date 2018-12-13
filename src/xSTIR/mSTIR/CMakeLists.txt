@@ -22,6 +22,9 @@ if(BUILD_MATLAB)
 
   include_directories(${Matlab_INCLUDE_DIRS})
 
+  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+  include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
+
   add_library(mstir SHARED mstir.c printer.cpp  ${STIR_REGISTRIES})
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mstir PROPERTIES

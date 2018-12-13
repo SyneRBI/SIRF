@@ -35,6 +35,7 @@ ADD_LIBRARY(SIRFReg ${SOURCES})
 # Link to SIRF stuff
 TARGET_LINK_LIBRARIES(SIRFReg common)
 target_link_libraries(SIRFReg iutilities)
+include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
 # NiftyReg
 TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
