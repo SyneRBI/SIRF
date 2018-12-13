@@ -25,7 +25,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "phantom_input.h"
 #include "../auxiliary_input_output.h"
 
-
+using namespace ISMRMRD;
 using ISMRMRD::ISMRMRD_NDARRAY_MAXDIM;
 
 using namespace stir;
@@ -180,10 +180,26 @@ void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 	}			
 }
 
+void test_contgen::test_get_signal_for_tissuelabel_in_xcat()
+{
+	NDArray< LabelType > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
+
+	MRContrastGenerator mr_contgen( segmentation_labels, XML_XCAT_PATH);
+	IsmrmrdHeader hdr =  mr_io::read_ismrmrd_header(ISMRMRD_H5_TEST_PATH);
+
+	mr_contgen.set_rawdata_header(hdr);
+
+
+	size_t const test_label = 3;
+
+	auto signal = mr_contgen.get_signal_for_tissuelabel( test_label );
+
+	std::cout <<"Signal in label " << test_label << " amounts to: " << signal << std::endl;
+
+}
 
 void test_contgen::test_replace_petmr_tissue_parameters_in_xcat()
 {
-	using namespace ISMRMRD;
 
 	NDArray< LabelType > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 

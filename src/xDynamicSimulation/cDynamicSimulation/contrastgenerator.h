@@ -65,6 +65,7 @@ public:
 
 	void set_rawdata_header(const IsmrmrdHeader& hdr);
 	void map_contrast();
+	complex_float_t get_signal_for_tissuelabel( size_t const label );
 
 	std::vector< ISMRMRD::Image< complex_float_t> >& get_contrast_filled_volumes();
 

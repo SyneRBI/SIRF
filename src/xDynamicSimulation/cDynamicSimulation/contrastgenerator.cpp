@@ -9,6 +9,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "contrastgenerator.h"
 
 
+#include <memory>
 #include <stdexcept>
 #include <cmath>
 #include <math.h>
@@ -121,7 +122,13 @@ void MRContrastGenerator::match_output_dims_to_headerinfo( void )
 void MRContrastGenerator::map_contrast()
 {
 	this->tlm_.assign_tissues_to_labels();
-	this->contrast_filled_volumes_.clear();
+	
+	if( true ) 
+	{
+		std::vector< ISMRMRD::Image< complex_float_t> > temp(0);
+		this->contrast_filled_volumes_.swap(temp);
+	}
+
 
 	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
 
@@ -184,7 +191,7 @@ void MRContrastGenerator::map_contrast()
 	for( size_t i_contrast = 0; i_contrast<num_contrasts; i_contrast++)
 	{
 	
-		// #pragma omp parallel
+		#pragma omp parallel
 		for( size_t nz=0; nz<Nz; nz++)
 		{
 			for( size_t ny=0; ny<Ny; ny++)
@@ -202,6 +209,61 @@ void MRContrastGenerator::map_contrast()
 		this->contrast_filled_volumes_.push_back( contrast_img );
 	}
 }
+
+complex_float_t MRContrastGenerator::get_signal_for_tissuelabel( size_t const label )
+{
+	auto tissue_list = this->tlm_.get_tissue_parameter_list();
+
+	TissueParameter tp;
+	for(size_t i=0; i<tissue_list.size(); i++)
+	{
+		if( tissue_list[i].label_ == label)
+		{
+			tp = tissue_list[i];
+			break;
+		}
+
+		if( i == tissue_list.size() -1)
+		{
+			std::stringstream error_msg_stream;
+			error_msg_stream << "The tissue label: " << label << " is not part of the segmentation you gave to the simulation. Hence no SNR can be computed";
+			throw std::runtime_error( error_msg_stream.str() );
+		}
+	}
+
+	std::vector < complex_float_t >	(*contrast_map_function)(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr);
+
+	ISMRMRD::SequenceParameters const sequ_par = *(this->hdr_.sequenceParameters);
+	std::string const sequ_name = *(sequ_par.sequence_type);
+
+	if(sequ_name.compare("Flash") == 0)
+	{
+		contrast_map_function = &map_flash_contrast;
+	}
+	else if (sequ_name.compare("Bssfp") == 0)
+	{
+		contrast_map_function = &map_bssfp_contrast;
+	}
+	else
+	{
+		// std::stringstream hdr_serialized;
+		// serialize( this->hdr_, hdr_serialized);
+
+		// std::cout << hdr_serialized.str() <<std::endl;
+
+
+		std::stringstream error_msg_stream;
+		error_msg_stream << "The header you read in requires a contrast which has not been implemented yet. ";
+		error_msg_stream << "The demanded sequence type is: " << sequ_name << ". ";
+		error_msg_stream << "Please give another rawdata header or write the contrast map yourself and add an else if to the map_contrast method.";
+		throw std::runtime_error( error_msg_stream.str() );
+	}
+
+	auto signal_vector = contrast_map_function( std::make_shared<TissueParameter>(tp), this->hdr_);
+
+	return signal_vector[0];
+
+};
 
 
 std::vector < complex_float_t > map_flash_contrast(std::shared_ptr<TissueParameter> const ptr_to_tiss_par, const ISMRMRD::IsmrmrdHeader& ismrmrd_hdr)
