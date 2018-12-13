@@ -47,7 +47,7 @@ More examples can be found in data/examples/Registration/paramFiles
 #ifndef _SIRFREGNIFTYREGISTRATION_H_
 #define _SIRFREGNIFTYREGISTRATION_H_
 
-#include "SIRFReg.h"
+#include "sirf/cReg/SIRFReg.h"
 
 namespace sirf {
 

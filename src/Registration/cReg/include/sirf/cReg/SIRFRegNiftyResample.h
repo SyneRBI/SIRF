@@ -37,10 +37,10 @@ i.e., Trans3(Trans2(Trans1(x))).
 #include <string>
 #include <vector>
 #include <iostream>
-#include "NiftiImageData3D.h"
-#include "NiftiImageData3DTensor.h"
-#include "SIRFRegTransformation.h"
-#include "SIRFRegResample.h"
+#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/cReg/NiftiImageData3DTensor.h"
+#include "sirf/cReg/SIRFRegTransformation.h"
+#include "sirf/cReg/SIRFRegResample.h"
 
 namespace sirf {
 

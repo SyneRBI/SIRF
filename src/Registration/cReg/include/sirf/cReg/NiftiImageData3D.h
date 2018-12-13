@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef _NIFTIIMAGEDATA3D_H_
 #define _NIFTIIMAGEDATA3D_H_
 
-#include "NiftiImageData.h"
+#include "sirf/cReg/NiftiImageData.h"
 #include <nifti1_io.h>
 #include <string>
 #include <memory>

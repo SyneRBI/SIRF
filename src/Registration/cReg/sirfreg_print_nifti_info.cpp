@@ -27,7 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImageData.h"
+#include "sirf/cReg/NiftiImageData.h"
 #include "vector"
 
 using namespace sirf;

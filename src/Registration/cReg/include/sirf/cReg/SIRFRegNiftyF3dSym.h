@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef _SIRFREGNIFTYF3DSYM_H_
 #define _SIRFREGNIFTYF3DSYM_H_
 
-#include "SIRFRegNiftyRegistration.h"
+#include "sirf/cReg/SIRFRegNiftyRegistration.h"
 
 template<class dataType> class reg_f3d_sym;
 

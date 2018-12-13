@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef _SIRFPARSER_H_
 #define _SIRFPARSER_H_
 
-#include "SIRFRegParserKey.h"
+#include "sirf/cReg/SIRFRegParserKey.h"
 #include <memory>
 #include <map>
 #include <fstream>

@@ -27,8 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#include "NiftiImageData3DTensor.h"
-#include "NiftiImageData3D.h"
+#include "sirf/cReg/NiftiImageData3DTensor.h"
+#include "sirf/cReg/NiftiImageData3D.h"
 #include <boost/format.hpp>
 
 using namespace sirf;

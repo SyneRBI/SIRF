@@ -17,16 +17,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 # Add in the common files
 SET(SOURCES "SIRFReg.cpp" "SIRFRegNiftyRegistration.cpp" "SIRFRegNiftyAladinSym.cpp" "SIRFRegNiftyF3dSym.cpp" "SIRFRegImageWeightedMean.cpp" "SIRFRegResample.cpp" "SIRFRegNiftyResample.cpp" "SIRFRegTransformation.cpp" "SIRFRegAffineTransformation.cpp")
-SET(HEADERS  "SIRFReg.h"    "SIRFRegNiftyRegistration.h"  "SIRFRegNiftyAladinSym.h"   "SIRFRegNiftyF3dSym.h"   "SIRFRegImageWeightedMean.h"   "SIRFRegResample.h"   "SIRFRegNiftyResample.h"   "SIRFRegTransformation.h"   "SIRFRegAffineTransformation.h" "SIRFRegParser.h"   "SIRFRegParserKey.h" )
 
 # Add in nifti_image wrappers
 SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageData3DTensor.cpp" "NiftiImageData3DDeformation.cpp" "NiftiImageData3DDisplacement.cpp")
-SET(HEADERS ${HEADERS}  "NiftiImageData.h"   "NiftiImageData3D.h"   "NiftiImageData3DTensor.h"   "NiftiImageData3DDeformation.h"   "NiftiImageData3DDisplacement.h")
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_PYTHON OR BUILD_MATLAB)
 	SET(SOURCES ${SOURCES} "csirfreg.cpp" "csirfreg_p.cpp")
-	SET(HEADERS ${HEADERS}  "csirfreg.h"   "csirfreg_p.h" )
 ENDIF()
 
 # Create library
@@ -58,11 +55,10 @@ else()
 endif()
 
 # Install
-INSTALL(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 INSTALL(TARGETS SIRFReg  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib    )
 
 # Need to include the directory to be able to compile the example programs
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 SET(SIRFREG_executables
     sirfreg_affine_to_disp

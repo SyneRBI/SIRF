@@ -31,7 +31,7 @@ limitations under the License.
 
 #include <vector>
 #include <nifti1_io.h>
-#include "SIRFRegTransformation.h"
+#include "sirf/cReg/SIRFRegTransformation.h"
 
 namespace sirf {
 /// Class for SIRFReg transformations with an affine transformation

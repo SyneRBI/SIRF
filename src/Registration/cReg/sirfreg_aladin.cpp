@@ -28,10 +28,10 @@ limitations under the License.
 */
 
 #include <iostream>
-#include "NiftiImageData3D.h"
-#include "SIRFRegNiftyAladinSym.h"
-#include "SIRFRegAffineTransformation.h"
-#include "NiftiImageData3DDisplacement.h"
+#include "sirf/cReg/NiftiImageData3D.h"
+#include "sirf/cReg/SIRFRegNiftyAladinSym.h"
+#include "sirf/cReg/SIRFRegAffineTransformation.h"
+#include "sirf/cReg/NiftiImageData3DDisplacement.h"
 
 using namespace sirf;
 

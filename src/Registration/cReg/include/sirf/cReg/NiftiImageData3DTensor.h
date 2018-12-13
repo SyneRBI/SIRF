@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef _NIFTIIMAGEDATA3DTENSOR_H_
 #define _NIFTIIMAGEDATA3DTENSOR_H_
 
-#include "NiftiImageData.h"
+#include "sirf/cReg/NiftiImageData.h"
 #include <_reg_maths.h>
 
 namespace sirf {

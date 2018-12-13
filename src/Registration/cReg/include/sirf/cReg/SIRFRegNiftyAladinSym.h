@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef _SIRFREGNIFTYALADINSYM_H_
 #define _SIRFREGNIFTYALADINSYM_H_
 
-#include "SIRFRegNiftyRegistration.h"
+#include "sirf/cReg/SIRFRegNiftyRegistration.h"
 
 template<class dataType> class reg_aladin_sym;
 

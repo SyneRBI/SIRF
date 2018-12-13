@@ -30,10 +30,10 @@ limitations under the License.
 #ifndef _NIFTIIMAGEDATA3DDISPLACEMENT_H_
 #define _NIFTIIMAGEDATA3DDISPLACEMENT_H_
 
-#include "NiftiImageData3DTensor.h"
-#include "NiftiImageData3DDeformation.h"
+#include "sirf/cReg/NiftiImageData3DTensor.h"
+#include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include <_reg_maths.h>
-#include "SIRFRegTransformation.h"
+#include "sirf/cReg/SIRFRegTransformation.h"
 
 namespace sirf {
 template<class dataType> class NiftiImageData3D;
