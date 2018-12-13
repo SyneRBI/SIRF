@@ -8,7 +8,7 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 
 #include "auxiliary_testing_functions.h"
 
-
+#include <sstream>
 
 
 #include "tests_noisegenerator.h"
@@ -48,18 +48,36 @@ bool test_noisegen::test_add_gaussian_noise( void )
 {
 	try
 	{
-		AcquisitionsVector acquisitions_data =  mr_io::read_ismrmrd_acquisitions( FILENAME_MR_CONTRAST_DYNSIM );
-		AcquisitionsVector noisy_acquisitions;
-		noisy_acquisitions.copy_acquisitions_info(acquisitions_data);
+		AcquisitionsVector av;
+		av.read(ISMRMRD_H5_TEST_PATH);
 
-		float const noise_width = 0.1;
+		for(size_t i=0; i<av.number(); i++)
+		{
+			auto sptr_ac = av.get_acquisition_sptr( i );
+			sptr_ac->resize( sptr_ac->number_of_samples() );
 
-		GaussianNoiseGenerator noise_gen( noise_width );
+			auto it = sptr_ac->data_begin ();
+			while( it != sptr_ac->data_end() )
+			{
+				*it = complex_float_t( 0.f, 0.f );	
+				it++;
+			}  
+		}
 
-		noise_gen.add_noise(acquisitions_data);
+		float const SNR = 13;
+		float const signal = 5;
+		float const rpe_noise_scaling = 1.71558;
 
-		std::string const filename_test_output = std::string(SHARED_FOLDER_PATH) + "test_gaussian_noise_generator.h5";		
-		acquisitions_data.write(filename_test_output.c_str());
+
+		GaussianNoiseGenerator noise_gen( SNR );
+		noise_gen.set_signal_img(signal);
+		noise_gen.set_sequence_specific_scaling( rpe_noise_scaling );
+
+		noise_gen.add_noise(av);
+
+		std::stringstream filename_test_output;
+		filename_test_output << std::string(SHARED_FOLDER_PATH) << "test_gaussian_noise_generator_SNR_" << SNR <<"_signal_" << signal  << ".h5";		
+		av.write(filename_test_output.str().c_str());
 
 		return true;
 

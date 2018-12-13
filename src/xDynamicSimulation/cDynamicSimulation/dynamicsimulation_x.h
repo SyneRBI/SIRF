@@ -83,7 +83,6 @@ public:
 	ISMRMRD::IsmrmrdHeader get_ismrmrd_header( void ){ return this->hdr_;};
 	
 	void set_all_source_acquisitions(MRDataType& acquisitions );
-	void set_noise_width(float const sigma);
 	void set_SNR(float const SNR);
 
 	void simulate_statics( void );

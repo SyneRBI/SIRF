@@ -67,22 +67,27 @@ class GaussianNoiseGenerator: public aNoiseGenerator{
 
 public:
 
-	GaussianNoiseGenerator():aNoiseGenerator(), width_noise_(0.f){};
-	GaussianNoiseGenerator(float const width_noise): aNoiseGenerator(), width_noise_(width_noise){};	
+	GaussianNoiseGenerator():aNoiseGenerator(), noise_width_img_(0.f){};
+	GaussianNoiseGenerator(float const SNR): aNoiseGenerator(), SNR_(SNR){};	
 
-	void set_noise_width(float const sigma){ this->width_noise_ = sigma; };
+	void set_signal_img(float const signal){ this->signal_img_ = signal; };
 	void set_SNR(float const SNR){ this->SNR_ = SNR; };
+	void set_sequence_specific_scaling( float const scaling) { this->sequence_specific_scaling_ = scaling;};
 
 	void add_noise( sirf::AcquisitionsVector& acquisition_vector );
 	
 
 private:
 	static float constexpr mean_noise_ = 0.f;
-	float width_noise_;
+	
 	float SNR_ = -1;
+	float signal_img_ = 0.f;
+	float noise_width_img_ =0.f;
+	float noise_width_kspace_ =0.f;
 
+	float sequence_specific_scaling_ = 1.f;	
+	
 	void add_noise_to_data( sirf::AcquisitionsVector& acquisition_vector );
-	// void add_noise_to_data( sirf::MRAcquisitionData& noisy_acquisition_data, sirf::MRAcquisitionData& noise_free_acquisition_data );
 	float noise_width_from_snr( sirf::AcquisitionsVector& acquisition_vector );
 
 };

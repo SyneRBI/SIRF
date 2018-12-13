@@ -391,11 +391,6 @@ void MRDynamicSimulation::set_all_source_acquisitions(MRDataType& acquisitions )
 }
 
 
-void MRDynamicSimulation::set_noise_width(float const sigma)
-{
-	this->noise_generator_.set_noise_width( sigma );
-}
-
 void MRDynamicSimulation::set_SNR(float const SNR)
 {
 	this->noise_generator_.set_SNR(SNR);
