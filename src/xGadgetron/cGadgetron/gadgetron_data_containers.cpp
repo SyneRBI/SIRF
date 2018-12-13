@@ -511,10 +511,13 @@ MRAcquisitionData::order()
 		t[2] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
 	}
-	if (index_)
-		delete[] index_;
-	index_ = new int[na];
-	Multisort::sort(vt, index_);
+	if (index_.size()>0)
+	{
+		std::vector< int > tmp;
+		index_.swap(tmp);
+	}
+	index_.resize(na);
+	Multisort::sort(vt, &index_[0]);
 }
 
 void
@@ -531,10 +534,13 @@ MRAcquisitionData::time_order()
  		t[0] = acq.acquisition_time_stamp();
 		vt.push_back( t );
 	}
- 	if (index_)
-		delete[] index_;
-	index_ = new int[num_acquis];
- 	Multisort::sort( vt ,index_ );
+ 	if (index_.size()>0)
+	{
+		std::vector< int > tmp;
+		index_.swap(tmp);
+	}
+	index_.resize(num_acquis);
+	Multisort::sort(vt, &index_[0]);
 }
 
 AcquisitionsFile::AcquisitionsFile
@@ -586,17 +592,23 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 {
 	AcquisitionsFile& af = (AcquisitionsFile&)ac;
 	acqs_info_ = ac.acquisitions_info();
-	if (index_)
-		delete[] index_;
+	
+	if (index_.size()>0)
+	{
+		std::vector< int > tmp;
+		index_.swap(tmp);
+	}
+
 	int* index = ac.index();
 	ordered_ = ac.ordered();
 	if (ordered_ && index) {
 		unsigned int n = number();
-		index_ = new int[n];
-		memcpy(index_, index, n*sizeof(int));
+		index_.resize(n);
+		memcpy(&index_[0], index, n*sizeof(int));
 	}
 	else
-		index_ = 0;
+		index_ = std::vector<int>(0);
+	
 	dataset_ = af.dataset_;
 	if (own_file_) {
 		Mutex mtx;

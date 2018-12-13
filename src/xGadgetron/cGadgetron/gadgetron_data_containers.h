@@ -93,8 +93,8 @@ namespace sirf {
 		MRAcquisitionData() : ordered_(false), index_(0) {}
 		virtual ~MRAcquisitionData()
 		{
-			if (index_)
-				delete[] index_;
+			// if (index_)
+				// delete[] index_;
 		}
 
 		// static methods
@@ -185,13 +185,13 @@ namespace sirf {
 		void time_order();
 		bool ordered() const { return ordered_; }
 		void set_ordered(bool ordered) { ordered_ = ordered; }
-		int* index() { return index_; }
-		const int* index() const { return index_; }
+		int* index() { return &index_[0]; }
+		const int* index() const { return &index_[0]; }
 		int index(int i)
 		{
 			if(i >= 0 && i < (int)number())
 			{
-				if (index_) 
+				if (index_.size() > 0) 
 					return index_[i];
 				else
 					return i;
@@ -216,7 +216,8 @@ namespace sirf {
 
 	protected:
 		bool ordered_;
-		int* index_;
+		// int* index_;
+		std::vector< int > index_;
 		AcquisitionsInfo acqs_info_;
 
 		static std::string _storage_scheme;
