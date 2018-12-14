@@ -152,8 +152,11 @@ void test_contgen::test_match_output_dims_to_headerinfo( void )
 
 
 
+
 void test_contgen::test_mr_map_contrast_application_to_xcat( void )
 {
+	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+	
 	std::cout << "Reading segmentation ... " <<std::endl;
 	ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
 	std::cout << "... finished. " <<std::endl;

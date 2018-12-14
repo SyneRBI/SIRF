@@ -246,12 +246,6 @@ complex_float_t MRContrastGenerator::get_signal_for_tissuelabel( size_t const la
 	}
 	else
 	{
-		// std::stringstream hdr_serialized;
-		// serialize( this->hdr_, hdr_serialized);
-
-		// std::cout << hdr_serialized.str() <<std::endl;
-
-
 		std::stringstream error_msg_stream;
 		error_msg_stream << "The header you read in requires a contrast which has not been implemented yet. ";
 		error_msg_stream << "The demanded sequence type is: " << sequ_name << ". ";
