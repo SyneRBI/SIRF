@@ -57,7 +57,7 @@ float GaussianNoiseGenerator::noise_width_from_snr( AcquisitionsVector& acquisit
 		return 0.f;
 
 	auto sptr_acquis = acquisition_vector.get_acquisition_sptr(0);
-	float const suggested_noise_width = this->noise_width_img_ * sqrt ( num_acquistions * sptr_acquis->number_of_samples() );
+	float const suggested_noise_width = this->noise_width_img_;// / sqrt ( num_acquistions * sptr_acquis->number_of_samples() );
 
 	return suggested_noise_width;
 }

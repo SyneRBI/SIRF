@@ -19,8 +19,8 @@ Institution: Physikalisch-Technische Bundesanstalt Berlin
 #include "stir_data_containers.h"
 #include "gadgetron_data_containers.h"
 
-#define RPE_NOISE_SCALING 1.71558f
-
+// #define RPE_NOISE_SCALING 1.71558f
+#define RPE_NOISE_SCALING 1.f
 
 typedef unsigned int SeedType;
 
