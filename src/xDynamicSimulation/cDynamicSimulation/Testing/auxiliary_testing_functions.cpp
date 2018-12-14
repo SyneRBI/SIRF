@@ -486,10 +486,14 @@ ISMRMRD::Image<complex_float_t> aux_test::get_mock_gaussian_csm( std::vector<siz
 
 	std::vector<size_t> center_container_size{(size_t)3, (size_t)num_coils};
 	ISMRMRD::NDArray< float > coil_centers( center_container_size );
+	
 	if( num_non_zero_coils == 1)
 	{
+		std::cout << "Simulating body coil with perfect coil profile." << std::endl;
 		for(size_t i=0; i<csm.getNumberOfDataElements(); i++)
-			*(csm.begin() + i) = std::complex<float>(1);
+			*(csm.begin() + i) = std::complex<float>(1.f, 0);
+
+		return csm;
 	}
 	else if (num_non_zero_coils == 2)
 	{
