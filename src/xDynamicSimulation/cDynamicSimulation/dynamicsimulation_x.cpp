@@ -188,7 +188,7 @@ void MRDynamicSimulation::simulate_simultaneous_motion_contrast_dynamics()
     this->noise_generator_.add_noise(this->target_acquisitions_);
 
 	for(size_t i=0; i<num_motion_dyns; i++)
-		this->motion_dynamics_[i].delete_temp_folder();	
+		this->motion_dynamics_[i]->delete_temp_folder();	
 
 }
 

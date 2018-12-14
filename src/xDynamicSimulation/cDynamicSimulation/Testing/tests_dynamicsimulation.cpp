@@ -345,7 +345,7 @@ bool tests_mr_dynsim::test_simulate_rpe_acquisition()
 
 		clock_t t;
 		t = clock();
-		mr_dyn_sim.simulate_statics();
+		mr_dyn_sim.simulate_dynamics();
 		t = clock() - t;
 
 		std::cout << " TIME FOR SIMULATION: " << (float)t/CLOCKS_PER_SEC/60.f << " MINUTES." <<std::endl;
