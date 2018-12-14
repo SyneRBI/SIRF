@@ -26,9 +26,7 @@ bool test_constructor( void );
 
 void test_extract_hdr_information( void );
 
-bool test_simulate_contrast_dynamics( void );
-bool test_simulate_motion_dynamics( void );
-bool test_simulate_simultaneous_motion_contrast_dynamics( void );
+bool test_simulate_dynamics( void );
 
 bool test_simulate_rpe_acquisition( void );
 
