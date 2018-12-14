@@ -569,6 +569,7 @@ MRAcquisitionData::order()
 		delete[] index_;
 	index_ = new int[na];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 AcquisitionsFile::AcquisitionsFile
@@ -917,6 +918,7 @@ GadgetronImageData::order()
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 std::shared_ptr<std::vector<std::string> >
