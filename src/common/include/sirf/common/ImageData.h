@@ -44,6 +44,14 @@ namespace sirf {
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
 		}
+        void fill(const ImageData& im)
+        {
+            Iterator_const& src = im.begin();
+            Iterator& dst = this->begin();
+            Iterator& end = this->end();
+            for (; dst != end; ++dst, ++src)
+				*dst = *src;
+        }
 	};
 }
 
