@@ -360,6 +360,8 @@ bool tests_mr_dynsim::test_simulate_motion_dynamics( )
 
 bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 {
+	std::cout << "Running function " <<__FUNCTION__ <<" .!" <<std::endl;
+
 	try
 	{	
 		ISMRMRD::NDArray< unsigned int > segmentation_labels = read_segmentation_from_h5( H5_XCAT_PHANTOM_PATH );
@@ -367,8 +369,7 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 
 		MRDynamicSimulation mr_dyn_sim( mr_cont_gen );
 		mr_dyn_sim.set_filename_rawdata( ISMRMRD_H5_TEST_PATH );
-		
-			
+					
 		auto data_dims = segmentation_labels.getDims();
 		
 		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
@@ -378,8 +379,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		mr_dyn_sim.set_coilmaps( csm );
 
 
-		// std::string const traj_name = "ITLGCRPE";
-		std::string const traj_name = "Cartesian";
+		std::string const traj_name = "ITLGCRPE";
+		// std::string const traj_name = "Cartesian";
 
 		if( traj_name == "ITLGCRPE") 
 		{
@@ -389,18 +390,18 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 		}
 
 
-		float const test_SNR = 15;
-		size_t const noise_label = 3;
-		mr_dyn_sim.set_SNR(test_SNR);
-		mr_dyn_sim.set_noise_label( noise_label );
-		
-		int const num_simul_motion_dyn = 10;
-		
-		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
-
 		AcquisitionsVector all_acquis;
 		all_acquis.read( mr_dyn_sim.get_filename_rawdata() );
 		mr_dyn_sim.set_all_source_acquisitions(all_acquis);
+
+		float const test_SNR = 15;
+		size_t const noise_label = 13;
+		mr_dyn_sim.set_SNR(test_SNR);
+		mr_dyn_sim.set_noise_label( noise_label );
+		
+		int const num_simul_motion_dyn = 8;
+		
+		MRMotionDynamic cardiac_motion_dyn(num_simul_motion_dyn), respiratory_motion_dyn( num_simul_motion_dyn );
 
 		SignalContainer mock_cardiac_signal = aux_test::get_mock_sawtooth_signal(all_acquis, 1000);
 		SignalContainer mock_respiratory_signal = aux_test::get_mock_sinus_signal(all_acquis, 3000);
@@ -472,8 +473,8 @@ bool tests_mr_dynsim::test_simulate_simultaneous_motion_contrast_dynamics()
 	 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
 

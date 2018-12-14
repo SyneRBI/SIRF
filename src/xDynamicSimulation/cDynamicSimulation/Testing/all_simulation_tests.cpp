@@ -242,14 +242,23 @@ void run_tests_contrastgenerator(void)
 	bool tests_successful = true;
 	std::vector< bool > tlm_tests, mr_contgen_tests, pet_contgen_tests;
 
+	
 	// // tlm tests
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_get_filepath_tissue_parameter_xml() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_get_labels_array() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_get_segmentation_dimensions() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_found() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_assign_tissue_parameters_label_not_found() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_map_labels_to_tissue_from_xml() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	tlm_tests.push_back( test_tlm::test_replace_petmr_tissue_parameters() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 
 	std::cout << "tlm test results = ";
 	for( size_t i=0; i<tlm_tests.size(); i++)
@@ -260,16 +269,25 @@ void run_tests_contrastgenerator(void)
 	std::cout << std::endl;
 
 	// mr contgen tests
+	std::cout << "----------------------------------------------------" <<std::endl;
 	mr_contgen_tests.push_back( test_contgen::test_mr_constructor() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	mr_contgen_tests.push_back( test_contgen::test_mr_set_rawdata_header() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	mr_contgen_tests.push_back( test_contgen::test_map_flash_contrast() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	mr_contgen_tests.push_back( test_contgen::test_mr_map_contrast_dim_check() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 
 
 	test_contgen::test_match_output_dims_to_headerinfo();
+	std::cout << "----------------------------------------------------" <<std::endl;
 	test_contgen::test_mr_map_contrast_application_to_xcat();
+	std::cout << "----------------------------------------------------" <<std::endl;
 	test_contgen::test_replace_petmr_tissue_parameters_in_xcat();
+	std::cout << "----------------------------------------------------" <<std::endl;
 	test_contgen::test_get_signal_for_tissuelabel_in_xcat();
+	std::cout << "----------------------------------------------------" <<std::endl;
 	std::cout << "mr contgen test results = ";
 	for( size_t i=0; i<mr_contgen_tests.size(); i++)
 	{
@@ -279,12 +297,17 @@ void run_tests_contrastgenerator(void)
 	std::cout << std::endl;
 
 	// pet contgen tests
+	std::cout << "----------------------------------------------------" <<std::endl;
 	pet_contgen_tests.push_back( test_contgen::test_pet_constructor() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	pet_contgen_tests.push_back( test_contgen::test_pet_map_contrast() );
+	std::cout << "----------------------------------------------------" <<std::endl;
 	pet_contgen_tests.push_back( test_contgen::test_pet_map_attenuation() ); 
+	std::cout << "----------------------------------------------------" <<std::endl;
 	pet_contgen_tests.push_back( test_contgen::test_set_template_image_from_file() );
-
+	std::cout << "----------------------------------------------------" <<std::endl;
 	test_contgen::test_pet_map_contrast_application_to_xcat();
+	std::cout << "----------------------------------------------------" <<std::endl;
 
 	std::cout << "pet contgen test results = ";
 	for( size_t i=0; i<pet_contgen_tests.size(); i++)
