@@ -47,7 +47,7 @@ public:
 		return this-> filename_rawdata_; 
 	}
 
-	void set_filename_rawdata( std::string const filename_template_rawdata ) 
+	virtual void set_filename_rawdata( std::string const filename_template_rawdata ) 
 	{ 
 		this->filename_rawdata_ = filename_template_rawdata; 
 	}
@@ -75,6 +75,8 @@ public:
 		this->sptr_trajectory_ = std::shared_ptr< sirf::CartesianTrajectoryContainer >( new sirf::CartesianTrajectoryContainer() );
 		this->vol_orientator_.set_readout_direction( sirf::ro_dir_z);
 	};
+
+	virtual void set_filename_rawdata( std::string const filename_template_rawdata );
 	void write_simulation_results( const std::string& filename_output_with_extension );
 
 	void add_dynamic( std::shared_ptr<MRMotionDynamic> sptr_motion_dyn);

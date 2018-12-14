@@ -22,6 +22,15 @@ using namespace sirf;
 using std::cout;
 using std::endl;
 
+
+void MRDynamicSimulation::set_filename_rawdata( std::string const filename_template_rawdata ) 
+{
+	aDynamicSimulation::set_filename_rawdata( filename_template_rawdata );
+	this->extract_hdr_information();
+}
+
+
+
 void MRDynamicSimulation::write_simulation_results( const std::string& filename_output_with_h5_extension ) 
 {	
 	try	
@@ -32,6 +41,8 @@ void MRDynamicSimulation::write_simulation_results( const std::string& filename_
 		std::stringstream serialized_hdr;
 		ISMRMRD::serialize(this->hdr_, serialized_hdr);
 		target_acquisitions_.set_acquisitions_info( serialized_hdr.str() ); 
+
+		target_acquisitions_.time_order();		
 
 		target_acquisitions_.write( filename_output_with_h5_extension.c_str() );
 		cout << "Finished writing simulation output."<<endl;
@@ -412,6 +423,7 @@ void MRDynamicSimulation::set_noise_label(size_t const label)
 {
 	auto const signal_in_label = this->mr_cont_gen_.get_signal_for_tissuelabel(label);
 	auto const abs_signal = std::abs( signal_in_label );
+	// float const abs_signal = 1.f;
 	std::cout << "Adding signal " << abs_signal << " for label " << label << std::endl;
 	this->noise_generator_.set_signal_img( abs_signal );
 }
