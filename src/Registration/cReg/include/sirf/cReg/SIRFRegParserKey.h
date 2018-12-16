@@ -32,6 +32,7 @@ limitations under the License.
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 namespace sirf {
 /// Get template type

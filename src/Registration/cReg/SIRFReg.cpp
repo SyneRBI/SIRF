@@ -28,6 +28,7 @@ limitations under the License.
 */
 
 #include "sirf/cReg/SIRFReg.h"
+#include <stdexcept>
 
 using namespace sirf;
 

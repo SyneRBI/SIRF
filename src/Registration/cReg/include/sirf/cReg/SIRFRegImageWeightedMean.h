@@ -31,6 +31,7 @@ limitations under the License.
 #define _SIRFREGIMAGEWEIGHTEDMEAN_H_
 
 #include <vector>
+#include <memory>
 
 namespace sirf {
 

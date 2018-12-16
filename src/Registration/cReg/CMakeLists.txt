@@ -30,28 +30,33 @@ ENDIF()
 ADD_LIBRARY(SIRFReg ${SOURCES})
 
 # Link to SIRF stuff
-TARGET_LINK_LIBRARIES(SIRFReg common)
-target_link_libraries(SIRFReg iutilities)
+TARGET_LINK_LIBRARIES(SIRFReg PUBLIC common)
+target_link_libraries(SIRFReg PUBLIC iutilities)
 include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
+find_package(OpenMP)
+
 # NiftyReg
-TARGET_LINK_LIBRARIES(SIRFReg ${NiftyReg_Libs})
+TARGET_LINK_LIBRARIES(SIRFReg PUBLIC ${NiftyReg_Libs})
+if (OpenMP_CXX_FOUND)
+  TARGET_LINK_LIBRARIES(SIRFReg PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 # Add libz (should be in /usr/local)
 FIND_LIBRARY(LIBZ  z)
-TARGET_LINK_LIBRARIES(SIRFReg ${LIBZ})
+TARGET_LINK_LIBRARIES(SIRFReg PUBLIC ${LIBZ})
 
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
   # spaces in filenames.
   foreach(C SYSTEM FILESYSTEM)
-    target_link_libraries(SIRFReg optimized "${Boost_${C}_LIBRARY_RELEASE}")
-    target_link_libraries(SIRFReg debug  "${Boost_${C}_LIBRARY_DEBUG}")
+    target_link_libraries(SIRFReg PUBLIC optimized "${Boost_${C}_LIBRARY_RELEASE}")
+    target_link_libraries(SIRFReg PUBLIC debug  "${Boost_${C}_LIBRARY_DEBUG}")
   endforeach()
 else()
   # Nice and simple for recent CMake (which knows about your Boost version)
-  target_link_libraries(SIRFReg Boost::system Boost::filesystem)
+  target_link_libraries(SIRFReg PUBLIC Boost::system Boost::filesystem)
 endif()
 
 # Install

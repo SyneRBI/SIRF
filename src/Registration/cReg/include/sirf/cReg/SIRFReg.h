@@ -49,6 +49,7 @@ More examples can be found in data/examples/Registration/paramFiles
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace sirf {
 
