@@ -37,8 +37,6 @@ limitations under the License.
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include "sirf/cReg/SIRFRegAffineTransformation.h"
 #include <iomanip>
-#include <cmath>
-
 
 using namespace sirf;
 
@@ -307,7 +305,7 @@ float NiftiImageData<dataType>::get_mean() const
     float sum = 0.F;
     int nan_count = 0;
     for (int i=0; i<int(_nifti_image->nvox); ++i)
-        if (!std::isnan(_data[i])) {
+        if (!isnan(_data[i])) {
             sum += _data[i];
             ++nan_count;
         }
@@ -355,7 +353,7 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
         const float &val1 = this->operator()(i);
         const float &val2 = other(i);
         // If either value is nan, skip
-        if (!std::isnan(val1+val2))
+        if (!isnan(val1+val2))
             result += double(pow( this->operator()(i) - other(i), 2));
     }
     return float(sqrt(result));
