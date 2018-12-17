@@ -3,8 +3,8 @@
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
-#include "ANumRef.h"
-#include "DataContainer.h"
+#include "sirf/common/ANumRef.h"
+#include "sirf/common/DataContainer.h"
 
 /*!
 \ingroup SIRFImageDataClasses
