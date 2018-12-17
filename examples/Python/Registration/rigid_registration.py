@@ -5,9 +5,9 @@ Usage:
 
 Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: SIRFReg]
-  --ref                        reference image
-  --flo                        floating image
-  --par                        parameter file
+  --ref <file>                 reference image
+  --flo <file>                 floating image
+  --par <file>                 parameter file
   #--rmask                     mask of reference image
   #--fmask                     mask of floating image
   --warped <file>              warped image filename [default: output.nii]
@@ -56,17 +56,17 @@ else:
 
 # reference
 ref_file = args['--ref']
-if ref_file is False:
+if ref_file is None:
     ref_file = examples_path + "/test.nii.gz"
 
 # floating
 flo_file = args['--flo']
-if flo_file is False:
+if flo_file is None:
     flo_file = examples_path + "/test2.nii.gz"
 
 # parameter file
 par_file = args['--par']
-if par_file is False:
+if par_file is None:
     par_file = examples_path + "/paramFiles/niftyreg_aladin.par"
 
 def main():

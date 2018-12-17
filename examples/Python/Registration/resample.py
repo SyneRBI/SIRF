@@ -5,8 +5,8 @@ Usage:
 
 Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: SIRFReg]
-  --ref                        reference image
-  --flo                        floating image
+  --ref <file>                 reference image
+  --flo <file>                 floating image
   --output <file>              output image filename [default: output.nii]
   --intrp <intrp>              interpolation order, defaults to cubic [default: 3]
   --aff <file>                 affine transformation matrix
@@ -51,12 +51,12 @@ else:
 
 # reference
 ref_file = args['--ref']
-if ref_file is False:
+if ref_file is None:
     ref_file = examples_path + "/test.nii.gz"
 
 # floating
 flo_file = args['--flo']
-if flo_file is False:
+if flo_file is None:
     flo_file = examples_path + "/test2.nii.gz"
 
 # If no transformations given, use identity

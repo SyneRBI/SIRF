@@ -5,9 +5,9 @@ Usage:
 
 Options:
   -e <engn>, --engine=<engn>   reconstruction engine [default: SIRFReg]
-  --ref                        reference image
-  --flo                        floating image
-  --par                        parameter file
+  --ref <file>                 reference image
+  --flo <file>                 floating image
+  --par <file>                 parameter file
   #--rmask                     mask of reference image
   #--fmask                     mask of floating image
   --warped <file>              warped image filename [default: output.nii]
@@ -54,17 +54,18 @@ else:
 
 # reference
 ref_file = args['--ref']
-if ref_file is False:
+if ref_file is None:
     ref_file = examples_path + "/test.nii.gz"
 
 # floating
 flo_file = args['--flo']
-if flo_file is False:
+if flo_file is None:
     flo_file = examples_path + "/test2.nii.gz"
+
 
 # parameter file
 par_file = args['--par']
-if par_file is False:
+if par_file is None:
     par_file = examples_path + "/paramFiles/niftyreg_f3d.par"
 
 def main():
@@ -81,25 +82,25 @@ def main():
     na.set_floating_image(flo)
     na.set_parameter_file(par_file)
     # if args['--rmask'] is not False:
-    #     na.set_reference_mask(args['--rmask'])
+    #     nf.set_reference_mask(args['--rmask'])
     # if args['--fmask'] is not False:
-    #     na.set_floating_mask(args['--rmask'])
-    na.process()
+    #     nf.set_floating_mask(args['--rmask'])
+    nf.process()
 
     # Output
-    na.get_output().save_to_file(args['--warped'])
+    nf.get_output().save_to_file(args['--warped'])
 
     # Disp fields
     if args['--disp_fwd_4D'] is not False:
-        na.get_displacement_field_forward().save_to_file(args['--disp_fwd_4D'])
+        nf.get_displacement_field_forward().save_to_file(args['--disp_fwd_4D'])
     if args['--disp_inv_4D'] is not False:
-        na.get_displacement_field_inverse().save_to_file(args['--disp_inv_4D'])
+        nf.get_displacement_field_inverse().save_to_file(args['--disp_inv_4D'])
 
     # Def fields
     if args['--def_fwd_4D'] is not False:
-        na.get_deformation_field_forward().save_to_file(args['--def_fwd_4D'])
+        nf.get_deformation_field_forward().save_to_file(args['--def_fwd_4D'])
     if args['--def_inv_4D'] is not False:
-        na.get_deformation_field_inverse().save_to_file(args['--def_inv_4D'])
+        nf.get_deformation_field_inverse().save_to_file(args['--def_inv_4D'])
 
 try:
     main()
