@@ -1132,6 +1132,7 @@ class AcquisitionModel(object):
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
+        self.bt = None
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -1167,6 +1168,17 @@ class AcquisitionModel(object):
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+        self.bt = bt
+    def get_background_term(self):
+        '''
+        For affine AcquisitionModels it returns the background term
+
+        am = Ax+c => it returns c
+        '''
+        if self.bt is None:
+            self.bt = AcquisitionData(self.acq_templ)
+            self.bt.fill(0)
+        return self.bt
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1202,17 +1214,51 @@ class AcquisitionModel(object):
         check_status(image.handle)
         return image
     def get_linear_acquisition_model(self):
+        '''
+        Returns the linear part of the AcquisitionModel
+        '''
         am = type(self)()
         am.set_up( self.acq_templ, self.img_templ )
         return am
     def direct(self, image, subset_num = 0, num_subsets = 1, ad = None):
-        return self.get_linear_acquisition_model().forward(image, \
-                                             subset_num=subset_num, \
-                                             num_subsets = num_subsets, \
-                                             ad = ad)
+        '''Projects an image into the (simulated) acquisition space,
+           if the AcquisitionModel is linear.
+           Added for CCPi CIL compatibility
+
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            return self.forward(image, \
+                                subset_num=subset_num, \
+                                num_subsets = num_subsets, \
+                                ad = ad)
+        else:
+            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
     def adjoint(self, ad, subset_num = 0, num_subsets = 1):
-        return self.backward(ad, subset_num = subset_num, 
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
+           Added for CCPi CIL compatibility
+
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
+        else:
+            raise error('AcquisitionModel is not linear')
+
+    def is_affine(self):
+        '''Returns whether the background term is non zero'''
+        return not self.is_linear()
+    def is_linear(self):
+        '''Returns whether the background term is zero'''
+        if self.bt is None:
+            return True
+        else:
+            self.get_background_term()
+            if self.bt.norm() == 0:
+                return True
+            return False
         
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 

@@ -1215,9 +1215,27 @@ class AcquisitionModel:
         check_status(image.handle)
         return image
     def direct(self, image):
+        '''Projects an image into the (simulated) acquisition space, 
+           if the AcquisitionModel is linear. 
+           Added for CCPi CIL compatibility
+
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
         return self.forward(image)
     def adjoint(self, ad):
+        '''Back-projects acquisition data into image space, if the 
+           AcquisitionModel is linear
+           Added for CCPi CIL compatibility
+
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
         return self.backward(ad)
+    def is_affine(self):
+        '''Returns whether the background term is non zero'''
+        return False
+    def is_linear(self):
+        '''Returns whether the background term is zero'''
+        return True
 
 class Gadget:
     '''
