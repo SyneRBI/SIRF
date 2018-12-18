@@ -465,6 +465,8 @@ namespace sirf {
 			else
 				return i;
 		}
+        /// Get image type
+        virtual std::string get_image_type() const { return "ISMRMRDImageData"; }
 
 	protected:
 		bool ordered_;

@@ -22,8 +22,10 @@ limitations under the License.
 #include <complex>
 #include <memory>
 
+#include "iutilities.h"
 #include "sirf/iUtilities/DataHandle.h"
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/ImageData.h"
 
 //using std::shared_ptr;
 //#include "sirf/common/object_handle.inl"
@@ -131,6 +133,17 @@ cSIRF_divide(const void* ptr_x, const void* ptr_y)
 		//shared_ptr<DataContainer > sptr_z(x.new_data_container());
 		//sptr_z->divide(x, y);
 		//return newObjectHandle<DataContainer >(sptr_z);
+	}
+	CATCH;
+}
+
+extern "C"
+void*
+cSIRF_get_image_type(const void* ptr_im)
+{
+	try {
+        const char* type = objectFromHandle<ImageData>(ptr_im).get_image_type().c_str();
+        return charDataHandle(type);
 	}
 	CATCH;
 }

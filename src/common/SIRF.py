@@ -213,4 +213,11 @@ class DataContainer(ABC):
             raise error('wrong multiplier')
 
 class ImageData(DataContainer):
+    def type(self):
+        """Return image type."""
+        h = pysirf.cSIRF_get_image_type(self.handle)
+        check_status(h, inspect.stack()[1])
+        value = pyiutil.charDataFromHandle(h)
+        pyiutil.deleteDataHandle(h)
+        return value
     pass

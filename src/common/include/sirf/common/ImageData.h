@@ -70,6 +70,8 @@ namespace sirf {
             }
             return _geom_info_sptr;
         }
+        /// Get image type
+        virtual std::string get_image_type() const = 0;
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info() = 0;
