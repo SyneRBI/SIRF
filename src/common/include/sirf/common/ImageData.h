@@ -57,6 +57,8 @@ namespace sirf {
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
         }
+        /// Get a clone of the image as a shared pointer
+        virtual std::shared_ptr<ImageData> clone_as_sptr() const = 0;
         /// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
         {

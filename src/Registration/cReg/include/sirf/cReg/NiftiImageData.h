@@ -373,6 +373,13 @@ private:
     // ------------------------------------------------------------------------------ //
     // Pure virtual methods from ImageData
     // ------------------------------------------------------------------------------ //
+public:
+    virtual std::shared_ptr<ImageData> clone_as_sptr() const
+    {
+        std::shared_ptr<NiftiImageData> im_sptr(this->same_image_data());
+        im_sptr->set_up_geom_info();
+        return im_sptr;
+    }
 protected:
     virtual NiftiImageData<float>* same_image_data() const
     {

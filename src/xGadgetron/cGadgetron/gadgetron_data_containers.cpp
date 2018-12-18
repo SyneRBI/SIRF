@@ -1072,6 +1072,17 @@ GadgetronImageData::set_real_data(const float* z)
 }
 
 GadgetronImagesVector::GadgetronImagesVector
+(const GadgetronImagesVector& images) :
+images_(), nimages_(0)
+{
+	for (unsigned int i = 0; i < images.number(); i++) {
+		const ImageWrap& u = images.image_wrap(i);
+		append(u);
+	}
+    this->set_up_geom_info();
+}
+
+GadgetronImagesVector::GadgetronImagesVector
 (GadgetronImagesVector& images, const char* attr, const char* target) : 
 images_(), nimages_(0)
 {

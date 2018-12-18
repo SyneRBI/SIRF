@@ -642,6 +642,12 @@ namespace sirf {
 		{
 			return 1;
 		}
+        virtual std::shared_ptr<ImageData> clone_as_sptr() const
+        {
+            std::shared_ptr<STIRImageData> im_sptr(new STIRImageData(*this->data().clone()));
+            im_sptr->set_up_geom_info();
+            return im_sptr;
+        }
 
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
