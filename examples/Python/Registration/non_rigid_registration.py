@@ -75,6 +75,8 @@ def main():
 
     # Registration
     na = pSIRFReg.NiftyF3dSym()
+    na.set_reference_time_point(1)
+    na.set_floating_time_point(1)
     na.set_reference_image(ref)
     na.set_floating_image(flo)
     na.set_parameter_file(par_file)
