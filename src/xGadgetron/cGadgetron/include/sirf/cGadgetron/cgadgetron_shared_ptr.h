@@ -18,15 +18,13 @@ limitations under the License.
 
 */
 
-#ifndef CSTIR_SHARED_PTR
-#define CSTIR_SHARED_PTR
+#ifndef CGADGETRON_SHARED_PTR
+#define CGADGETRON_SHARED_PTR
 
-#include "stir/shared_ptr.h"
+#include <memory>
 
-#include "data_handle.h"
-
-namespace stir {
-#include "SIRF/common/object_handle.inl"
+namespace gadgetron {
+	using std::shared_ptr;
 }
 
 #endif

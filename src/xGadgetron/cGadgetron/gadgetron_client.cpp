@@ -28,12 +28,9 @@ limitations under the License.
 */
 
 #include <boost/asio.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
 
-#include "cgadgetron_shared_ptr.h"
-#include "gadgetron_client.h"
+#include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
+#include "sirf/cGadgetron/gadgetron_client.h"
 
 using namespace gadgetron;
 using namespace sirf;

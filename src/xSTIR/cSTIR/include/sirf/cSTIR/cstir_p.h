@@ -21,7 +21,7 @@ limitations under the License.
 #ifndef STIR_PARAMETERS_HANDLERS
 #define STIR_PARAMETERS_HANDLERS
 
-#include "data_handle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 namespace sirf {
 

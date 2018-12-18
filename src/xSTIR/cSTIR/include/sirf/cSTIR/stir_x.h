@@ -34,7 +34,7 @@ limitations under the License.
 
 #include <stdlib.h>
 
-#include "stir_data_containers.h"
+#include "sirf/cSTIR/stir_data_containers.h"
 
 #define MIN_BIN_EFFICIENCY 1.0e-20f
 //#define MIN_BIN_EFFICIENCY 1.0e-6f
@@ -376,23 +376,23 @@ The actual algorithm is described in
 
 		virtual stir::Succeeded set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<PETImageData> sptr_image);
+			stir::shared_ptr<STIRImageData> sptr_image);
 
 		// computes and returns a subset of forward-projected data 
 		stir::shared_ptr<PETAcquisitionData>
-			forward(const PETImageData& image,
+			forward(const STIRImageData& image,
 			int subset_num = 0, int num_subsets = 1);
 		// replaces a subset of acquisition data with forward-projected data
-		void forward(PETAcquisitionData& acq_data, const PETImageData& image,
+		void forward(PETAcquisitionData& acq_data, const STIRImageData& image,
 			int subset_num, int num_subsets, bool zero = false);
 
-		stir::shared_ptr<PETImageData> backward(PETAcquisitionData& ad,
+		stir::shared_ptr<STIRImageData> backward(PETAcquisitionData& ad,
 			int subset_num = 0, int num_subsets = 1);
 
 	protected:
 		stir::shared_ptr<stir::ProjectorByBinPair> sptr_projectors_;
 		stir::shared_ptr<PETAcquisitionData> sptr_acq_template_;
-		stir::shared_ptr<PETImageData> sptr_image_template_;
+		stir::shared_ptr<STIRImageData> sptr_image_template_;
 		stir::shared_ptr<PETAcquisitionData> sptr_add_;
 		stir::shared_ptr<PETAcquisitionData> sptr_background_;
 		stir::shared_ptr<PETAcquisitionSensitivityModel> sptr_asm_;
@@ -432,7 +432,7 @@ The actual algorithm is described in
 		}
 		virtual stir::Succeeded set_up(
 			stir::shared_ptr<PETAcquisitionData> sptr_acq,
-			stir::shared_ptr<PETImageData> sptr_image)
+			stir::shared_ptr<STIRImageData> sptr_image)
 		{
 			if (!sptr_matrix_.get())
 				return stir::Succeeded::no;
@@ -455,7 +455,7 @@ The actual algorithm is described in
 
 	class PETAttenuationModel : public PETAcquisitionSensitivityModel {
 	public:
-		PETAttenuationModel(PETImageData& id, PETAcquisitionModel& am);
+		PETAttenuationModel(STIRImageData& id, PETAcquisitionModel& am);
 		// multiply by bin efficiencies
 		virtual void unnormalise(PETAcquisitionData& ad) const;
 		// divide by bin efficiencies
@@ -567,7 +567,7 @@ The actual algorithm is described in
 	class xSTIR_OSMAPOSLReconstruction3DF :
 		public stir::OSMAPOSLReconstruction < Image3DF > {
 	public:
-		stir::Succeeded set_up(stir::shared_ptr<PETImageData> sptr_id)
+		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			stir::Succeeded s = stir::Succeeded::no;
 			xSTIR_IterativeReconstruction3DF* ptr_r =
@@ -578,11 +578,11 @@ The actual algorithm is described in
 			}
 			return s;
 		}
-		void update(PETImageData& id)
+		void update(STIRImageData& id)
 		{
 			((xSTIR_IterativeReconstruction3DF*)this)->update(id.data());
 		}
-		void update(stir::shared_ptr<PETImageData> sptr_id)
+		void update(stir::shared_ptr<STIRImageData> sptr_id)
 		{
 			update(*sptr_id);
 		}
@@ -631,9 +631,9 @@ The actual algorithm is described in
 				("wrong frequency cut-off", __FILE__, __LINE__);
 			fc_ramp = fc;
 		}
-		stir::Succeeded set_up(stir::shared_ptr<PETImageData> sptr_id)
+		stir::Succeeded set_up(stir::shared_ptr<STIRImageData> sptr_id)
 		{
-			_sptr_image_data.reset(new PETImageData(*sptr_id));
+			_sptr_image_data.reset(new STIRImageData(*sptr_id));
 			_is_set_up = true;
 			return stir::Succeeded::yes;
 		}
@@ -641,19 +641,19 @@ The actual algorithm is described in
 		{
 			if (!_is_set_up) {
 				stir::shared_ptr<Image3DF> sptr_image(construct_target_image_ptr());
-				_sptr_image_data.reset(new PETImageData(sptr_image));
+				_sptr_image_data.reset(new STIRImageData(sptr_image));
 				return reconstruct(sptr_image);
 			}
 			else
 				return reconstruct(_sptr_image_data->data_sptr());
 		}
-		stir::shared_ptr<PETImageData> get_output()
+		stir::shared_ptr<STIRImageData> get_output()
 		{
 			return _sptr_image_data;
 		}
 	protected:
 		bool _is_set_up;
-		stir::shared_ptr<PETImageData> _sptr_image_data;
+		stir::shared_ptr<STIRImageData> _sptr_image_data;
 	};
 
 }

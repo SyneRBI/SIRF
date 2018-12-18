@@ -24,7 +24,7 @@ limitations under the License.
 #include "stir/is_null_ptr.h"
 #include "stir/error.h"
 
-#include "stir_x.h"
+#include "sirf/cSTIR/stir_x.h"
 
 using namespace stir;
 using namespace ecat;
@@ -422,7 +422,7 @@ PETAcquisitionSensitivityModel::normalise(PETAcquisitionData& ad) const
 }
 
 PETAttenuationModel::PETAttenuationModel
-(PETImageData& id, PETAcquisitionModel& am)
+(STIRImageData& id, PETAcquisitionModel& am)
 {
 	sptr_forw_projector_ = am.projectors_sptr()->get_forward_projector_sptr();
         if (is_null_ptr(sptr_forw_projector_))
@@ -467,7 +467,7 @@ PETAttenuationModel::normalise(PETAcquisitionData& ad) const
 Succeeded 
 PETAcquisitionModel::set_up(
 	shared_ptr<PETAcquisitionData> sptr_acq,
-	shared_ptr<PETImageData> sptr_image)
+	shared_ptr<STIRImageData> sptr_image)
 {
 	Succeeded s = Succeeded::no;
 	if (sptr_projectors_.get()) {
@@ -484,16 +484,19 @@ PETAcquisitionModel::set_up(
 }
 
 void 
-PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
+PETAcquisitionModel::forward(PETAcquisitionData& ad, const STIRImageData& image,
 	int subset_num, int num_subsets, bool zero)
 {
 	shared_ptr<ProjData> sptr_fd = ad.data();
 	sptr_projectors_->get_forward_projector_sptr()->forward_project
 		(*sptr_fd, image.data(), subset_num, num_subsets, zero);
 
+	float one = 1.0;
+
 	if (sptr_add_.get()) {
 		std::cout << "additive term added...";
-		ad.axpby(1.0, ad, 1.0, *sptr_add_);
+		ad.axpby(&one, ad, &one, *sptr_add_);
+		//ad.axpby(1.0, ad, 1.0, *sptr_add_);
 		std::cout << "ok\n";
 	}
 	else
@@ -510,7 +513,8 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
 
 	if (sptr_background_.get()) {
 		std::cout << "background term added...";
-		ad.axpby(1.0, ad, 1.0, *sptr_background_);
+		ad.axpby(&one, ad, &one, *sptr_background_);
+		//ad.axpby(1.0, ad, 1.0, *sptr_background_);
 		std::cout << "ok\n";
 	}
 	else
@@ -518,7 +522,7 @@ PETAcquisitionModel::forward(PETAcquisitionData& ad, const PETImageData& image,
 }
 
 shared_ptr<PETAcquisitionData>
-PETAcquisitionModel::forward(const PETImageData& image, 
+PETAcquisitionModel::forward(const STIRImageData& image, 
 	int subset_num, int num_subsets)
 {
 	shared_ptr<PETAcquisitionData> sptr_ad;
@@ -562,11 +566,11 @@ PETAcquisitionModel::forward(const PETImageData& image,
 	return sptr_ad;
 }
 
-shared_ptr<PETImageData> 
+shared_ptr<STIRImageData> 
 PETAcquisitionModel::backward(PETAcquisitionData& ad, 
 	int subset_num, int num_subsets)
 {
-	shared_ptr<PETImageData> sptr_id;
+	shared_ptr<STIRImageData> sptr_id;
 	sptr_id = sptr_image_template_->new_image_data();
 	shared_ptr<Image3DF> sptr_im = sptr_id->data_sptr();
 
