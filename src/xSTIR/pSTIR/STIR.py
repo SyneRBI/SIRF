@@ -1083,15 +1083,11 @@ class AcquisitionModel(object):
            
            Returns S ( [a] )+ [b]
         '''
-        return self.asm.forward( self.get_additive_term() ) + \
-                   self.get_background_term()
-
-    def get_acquisition_sensitivity(self):
         if not self.asm is None:
-            return self.asm
+            return self.asm.forward( self.get_additive_term() ) + \
+                   self.get_background_term()
         else:
-            raise error('No AcquisitionSensitivityModel found')
-
+            return self.get_additive_term() + self.get_background_term()
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1161,19 +1157,22 @@ class AcquisitionModel(object):
                              num_subsets = num_subsets)
         else:
             raise error('AcquisitionModel is not linear')
-
     def is_affine(self):
         '''Returns whether the AcquisitionModel is affine'''
         return True
     def is_linear(self):
-        '''Returns whether the background term is zero'''
-        if self.bt is None:
+        '''Returns whether the constant term is zero'''
+        if self.bt is None and self.at is None:
             return True
         else:
-            self.get_constant_term()
-            if self.bt.norm() == 0:
-                return True
-            return False
+            if     self.bt is None and \
+               not self.at is None:
+                return self.at.norm() == 0
+            elif not self.bt is None and \
+                     self.at is None:
+                return self.bt.norm() == 0
+            else:
+                return self.bt.norm() == 0 and self.at.norm() == 0 
         
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
