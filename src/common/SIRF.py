@@ -220,4 +220,8 @@ class ImageData(DataContainer):
         value = pyiutil.charDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
         return value
+
+    @abc.abstractmethod
+    def write(self):
+        """Write image to file."""
     pass

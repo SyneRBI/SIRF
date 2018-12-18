@@ -27,6 +27,7 @@ import sys
 import time
 
 from pUtilities import *
+from sirf import SIRF
 import pyiutilities as pyiutil
 import pysirfreg
 import pSTIR
@@ -216,7 +217,7 @@ class _Transformation(ABC):
         return output
 
 
-class NiftiImageData:
+class NiftiImageData(SIRF.ImageData):
     """
     General class for nifti image.
     """
@@ -361,6 +362,13 @@ class NiftiImageData:
         """Print nifti header metadata."""
         try_calling(pysirfreg.cSIRFReg_NiftiImageData_print_headers(1, self.handle, None, None, None, None))
 
+    def same_object(self):
+        """See DataContainer.same_object()."""
+        return NiftiImageData()
+
+    def write(self, path):
+        self.save_to_file(path)
+
     @staticmethod
     def print_headers(to_print):
         """Print nifti header metadata of one or multiple (up to 5) nifti images."""
@@ -416,6 +424,12 @@ class NiftiImageData3D(NiftiImageData):
         if pet_image.handle is None:
             raise AssertionError()
         try_calling(pysirfreg.cSIRFReg_NiftiImageData3D_copy_data_to(self.handle, pet_image.handle))
+
+
+class ImageData(NiftiImageData3D):
+    """
+    3D nifti image.
+    """
 
 
 class NiftiImageData3DTensor(NiftiImageData):
