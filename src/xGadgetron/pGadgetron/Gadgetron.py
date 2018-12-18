@@ -604,6 +604,17 @@ class ImageData(SIRF.ImageData):
             try_calling(pygadgetron.cGT_getImagesDataAsCmplxArray\
                 (self.handle, z.ctypes.data))
             return z
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
+    def conjugate(self):
+        '''Returns the complex conjugate of the data '''
+        if self.handle is not None:
+            out = self.clone()
+            out.fill(self.as_array().conjugate())
+            return out
+        else:
+            raise error("Empty object cannot be conjugated")
 
 DataContainer.register(ImageData)
 
