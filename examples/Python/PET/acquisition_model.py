@@ -157,6 +157,7 @@ def main():
     # show simulated acquisition data
     simulated_data_as_array_direct = simulated_data.as_array()
     show_2D_array('Direct projection', simulated_data_as_array_direct[0,:,:])
+    
     # adjoint is applying the backward method for linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     back_projected_image_adj = acq_model.adjoint(simulated_data, 0, 4)

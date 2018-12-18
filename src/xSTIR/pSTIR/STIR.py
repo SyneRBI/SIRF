@@ -999,7 +999,7 @@ class AcquisitionModel(object):
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
 
-        # temporary save the templates in the class
+        # temporarily save the templates in the class
         self.acq_templ = acq_templ
         self.img_templ = img_templ
 
@@ -1023,15 +1023,53 @@ class AcquisitionModel(object):
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
         self.bt = bt
     def get_background_term(self):
-        '''
-        For affine AcquisitionModels it returns the background term
-
-        am = Ax+c => it returns c
+        '''Returns the background term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = [1/n] (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           
+           Returns [b]
         '''
         if self.bt is None:
             self.bt = AcquisitionData(self.acq_templ)
             self.bt.fill(0)
         return self.bt
+    def get_additive_term(self):
+        '''Returns the additive term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = [1/n] (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           
+           Returns [a]
+        '''
+        pass
+    def get_constant_term(self):
+        '''Returns the sum of the additive and background terms of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = [1/n] (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           
+           Returns [a] + [b]
+        '''
+        return self.get_background_term()
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1101,14 +1139,14 @@ class AcquisitionModel(object):
             raise error('AcquisitionModel is not linear')
 
     def is_affine(self):
-        '''Returns whether the background term is non zero'''
-        return not self.is_linear()
+        '''Returns whether the AcquisitionModel is affine'''
+        return True
     def is_linear(self):
         '''Returns whether the background term is zero'''
         if self.bt is None:
             return True
         else:
-            self.get_background_term()
+            self.get_constant_term()
             if self.bt.norm() == 0:
                 return True
             return False
