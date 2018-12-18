@@ -53,11 +53,11 @@ raw_data_file = existing_filepath(data_path, data_file)
 # reconstruction algorithm
 def my_osmaposl(image, obj_fun, prior, filter, num_subsets, num_subiterations):
 
-    for iter in range(1, num_subiterations + 1):
-        print('\n------------- Subiteration %d' % iter) 
+    for sub_iter in range(1, num_subiterations + 1):
+        print('\n------------- Subiteration %d' % sub_iter) 
 
         # select subset
-        subset = iter - 1
+        subset = (sub_iter - 1) % num_subsets
 
         # get sensitivity as ImageData
         sens_image = obj_fun.get_subset_sensitivity(subset)
