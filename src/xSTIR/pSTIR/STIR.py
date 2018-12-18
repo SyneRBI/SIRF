@@ -985,7 +985,12 @@ class AcquisitionModel(object):
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
+        # reference to the background term
         self.bt = None
+        # reference to the additive term
+        self.at = None
+        # reference to the acquisition sensitivity model
+        self.asm = None
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -1013,6 +1018,8 @@ class AcquisitionModel(object):
         assert_validity(at, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+        # save reference to the additive term
+        self.at = at
     def set_background_term(self, bt):
         ''' 
         Sets the background term b in the acquisition model;
@@ -1021,18 +1028,20 @@ class AcquisitionModel(object):
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+        # save reference to the background term
         self.bt = bt
     def get_background_term(self):
         '''Returns the background term of the AcquisitionModel
            
            PET acquisition model that relates an image x to the
            acquisition data y as
-           (F)    y = [1/n] (G x + [a]) + [b]
+           (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
            the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
            
            Returns [b]
         '''
@@ -1045,31 +1054,44 @@ class AcquisitionModel(object):
            
            PET acquisition model that relates an image x to the
            acquisition data y as
-           (F)    y = [1/n] (G x + [a]) + [b]
+           (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
            the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
            
            Returns [a]
         '''
-        pass
+        if self.at is None:
+            self.at = AcquisitionData(self.acq_templ)
+            self.at.fill(0)
+        return self.at
     def get_constant_term(self):
         '''Returns the sum of the additive and background terms of the AcquisitionModel
            
            PET acquisition model that relates an image x to the
            acquisition data y as
-           (F)    y = [1/n] (G x + [a]) + [b]
+           (F)    y = S (G x + [a]) + [b]
            where:
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
            the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
            
-           Returns [a] + [b]
+           Returns S ( [a] )+ [b]
         '''
-        return self.get_background_term()
+        return self.asm.forward( self.get_additive_term() ) + \
+                   self.get_background_term()
+
+    def get_acquisition_sensitivity(self):
+        if not self.asm is None:
+            return self.asm
+        else:
+            raise error('No AcquisitionSensitivityModel found')
+
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1078,6 +1100,8 @@ class AcquisitionModel(object):
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
+        # save reference to the Acquisition Sensitivity Model
+        self.asm = asm
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
         Returns the forward projection of image;
@@ -1114,8 +1138,8 @@ class AcquisitionModel(object):
     def direct(self, image, subset_num = 0, num_subsets = 1, ad = None):
         '''Projects an image into the (simulated) acquisition space,
            if the AcquisitionModel is linear.
-           Added for CCPi CIL compatibility
 
+           Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
@@ -1128,8 +1152,8 @@ class AcquisitionModel(object):
     def adjoint(self, ad, subset_num = 0, num_subsets = 1):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
-           Added for CCPi CIL compatibility
 
+           Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():

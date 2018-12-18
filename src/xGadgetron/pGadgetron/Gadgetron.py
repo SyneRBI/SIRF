@@ -966,7 +966,7 @@ class AcquisitionModel:
         return self.backward(ad)
     def is_affine(self):
         '''Returns whether the background term is non zero'''
-        return False
+        return True
     def is_linear(self):
         '''Returns whether the background term is zero'''
         return True
