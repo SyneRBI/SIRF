@@ -179,7 +179,7 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 		
 		std::vector< size_t > vol_dims{data_dims[0], data_dims[1], data_dims[2]}; 
 		
-		size_t num_coils = 2;
+		size_t num_coils = 4;
 		auto csm = aux_test::get_mock_gaussian_csm(vol_dims, num_coils);
 		mr_dyn_sim.set_coilmaps( csm );
 
@@ -278,8 +278,8 @@ bool tests_mr_dynsim::test_simulate_dynamics()
 	 	blood_cont_dyn.set_dyn_signal( blood_contrast_signal );
 		blood_cont_dyn.bin_mr_acquisitions( all_acquis );
 
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
-		mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (myocardium_cont_dyn) );
+		// mr_dyn_sim.add_dynamic( std::make_shared<MRContrastDynamic> (blood_cont_dyn) );
 		
 		// ####################################################################################################
 
