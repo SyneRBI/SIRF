@@ -2,23 +2,23 @@
 Object-Oriented wrap for the cSTIR-to-Python interface pystir.py
 '''
 
-## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
-## Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
-## Copyright 2015 - 2017 University College London
-##
-## This is software developed for the Collaborative Computational
-## Project in Positron Emission Tomography and Magnetic Resonance imaging
-## (http://www.ccppetmr.ac.uk/).
-##
-## Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##       http://www.apache.org/licenses/LICENSE-2.0
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
+# CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
+# Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC
+# Copyright 2015 - 2017 University College London
+#
+# This is software developed for the Collaborative Computational
+# Project in Positron Emission Tomography and Magnetic Resonance imaging
+# (http://www.ccppetmr.ac.uk/).
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#       http://www.apache.org/licenses/LICENSE-2.0
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
 
 import abc
 import inspect
@@ -33,6 +33,8 @@ import sys
 import time
 
 from pUtilities import *
+from sirf import SIRF
+from sirf.SIRF import DataContainer
 import pyiutilities as pyiutil
 import pystir
 
@@ -222,161 +224,8 @@ class EllipticCylinder(Shape):
         ry = _float_par(self.handle, self.name, 'radius_y')
         return (rx, ry)
 
-class DataContainer(ABC):
-    '''
-    Abstract base class for an abstract data container.
-    '''
-    def __init__(self):
-        self.handle = None
-    def __del__(self):
-        if self.handle is not None:
-            pyiutil.deleteDataHandle(self.handle)
-    @abc.abstractmethod
-    def same_object(self):
-        '''
-        Returns an object of the same type as self.
-
-        Since this class is abstract, its methods cannot itself create a new
-        object when e.g. adding two objects of this class, so new object is
-        created by the first object using its same_object() method - see
-        __add__ below.
-        '''
-        pass
-    def norm(self):
-        '''
-        Returns the 2-norm of the container data viewed as a vector.
-        '''
-        assert self.handle is not None
-        handle = pystir.cSTIR_norm(self.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r;
-    def dot(self, other):
-        '''
-        Returns the dot product of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        handle = pystir.cSTIR_dot(self.handle, other.handle)
-        check_status(handle)
-        r = pyiutil.floatDataFromHandle(handle)
-        pyiutil.deleteDataHandle(handle)
-        return r
-    def multiply(self, other):
-        '''
-        Returns the elementwise product of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_multiply(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def divide(self, other):
-        '''
-        Returns the elementwise ratio of this and another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_divide(self.handle, other.handle)
-        check_status(z.handle)
-        return z
-    def __add__(self, other):
-        '''
-        Overloads + for data containers.
-
-        Returns the sum of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_axpby(1.0, self.handle, 1.0, other.handle)
-        check_status(z.handle)
-        return z;
-    def __sub__(self, other):
-        '''
-        Overloads - for data containers.
-
-        Returns the difference of the container data with another container 
-        data viewed as vectors.
-        other: DataContainer
-        '''
-        assert_validities(self, other)
-        z = self.same_object()
-        z.handle = pystir.cSTIR_axpby(1.0, self.handle, -1.0, other.handle)
-        check_status(z.handle)
-        return z;
-    def __mul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar or another
-        data container.
-
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.multiply(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
-##            z.handle = pystir.cSTIR_mult(other, self.handle)
-            z.src = 'mult'
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __rmul__(self, other):
-        '''
-        Overloads * for data containers multiplication by a scalar from
-        the left, i.e. computes and returns the product other*self.
-        other: a real or complex scalar
-        '''
-        assert self.handle is not None
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(other, self.handle, 0.0, self.handle)
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def __truediv__(self, other):
-        '''
-        Overloads / for data containers multiplication by a scalar or another
-        data container.
-
-        Returns the product self*other if other is a scalar
-        or the elementwise product if it is DataContainer.
-        other: DataContainer or a (real or complex) scalar
-        '''
-        assert self.handle is not None
-        if type(self) == type(other):
-            return self.divide(other)
-        z = self.same_object()
-        if type(other) == type(0):
-            other = float(other)
-        if type(other) == type(0.0):
-            z.handle = pystir.cSTIR_axpby(1/other, self.handle, 0.0, self.handle)
-            check_status(z.handle)
-            return z;
-        else:
-            raise error('wrong multiplier')
-    def copy(self):
-        '''alias of clone'''
-        return self.clone()
-
-class ImageData(DataContainer):
+#class ImageData(DataContainer):
+class ImageData(SIRF.ImageData):
     '''Class for PET image data objects.
 
     ImageData objects contains both geometric data and the actual voxel
@@ -402,6 +251,10 @@ class ImageData(DataContainer):
         elif isinstance(arg, AcquisitionData):
             assert arg.handle is not None
             self.handle = pystir.cSTIR_imageFromAcquisitionData(arg.handle)
+            check_status(self.handle)
+        elif isinstance(arg, SIRF.ImageData):
+            assert arg.handle is not None
+            self.handle = pystir.cSTIR_imageFromImageData(arg.handle)
             check_status(self.handle)
         elif arg is not None:
             raise error\
@@ -1132,6 +985,12 @@ class AcquisitionModel(object):
     def __init__(self):
         self.handle = None
         self.name = 'AcquisitionModel'
+        # reference to the background term
+        self.bt = None
+        # reference to the additive term
+        self.at = None
+        # reference to the acquisition sensitivity model
+        self.asm = None
     def set_up(self, acq_templ, img_templ):
         ''' 
         Prepares this object for performing forward and backward
@@ -1145,7 +1004,7 @@ class AcquisitionModel(object):
         assert_validity(acq_templ, AcquisitionData)
         assert_validity(img_templ, ImageData)
 
-        # temporary save the templates in the class
+        # temporarily save the templates in the class
         self.acq_templ = acq_templ
         self.img_templ = img_templ
 
@@ -1159,6 +1018,8 @@ class AcquisitionModel(object):
         assert_validity(at, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'additive_term', at.handle)
+        # save reference to the additive term
+        self.at = at
     def set_background_term(self, bt):
         ''' 
         Sets the background term b in the acquisition model;
@@ -1167,6 +1028,66 @@ class AcquisitionModel(object):
         assert_validity(bt, AcquisitionData)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'background_term', bt.handle)
+        # save reference to the background term
+        self.bt = bt
+    def get_background_term(self):
+        '''Returns the background term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [b]
+        '''
+        if self.bt is None:
+            self.bt = AcquisitionData(self.acq_templ)
+            self.bt.fill(0)
+        return self.bt
+    def get_additive_term(self):
+        '''Returns the additive term of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns [a]
+        '''
+        if self.at is None:
+            self.at = AcquisitionData(self.acq_templ)
+            self.at.fill(0)
+        return self.at
+    def get_constant_term(self):
+        '''Returns the sum of the additive and background terms of the AcquisitionModel
+           
+           PET acquisition model that relates an image x to the
+           acquisition data y as
+           (F)    y = S (G x + [a]) + [b]
+           where:
+           G is the geometric (ray tracing) projector from the image voxels
+           to the scanner's pairs of detectors (bins);
+           a and b are otional additive and background terms representing
+           the effects of noise and scattering;
+           S is the Acquisition Sensitivity Map
+           
+           Returns S ( [a] )+ [b]
+        '''
+        if not self.asm is None:
+            return self.asm.forward( self.get_additive_term() ) + \
+                   self.get_background_term()
+        else:
+            return self.get_additive_term() + self.get_background_term()
     def set_acquisition_sensitivity(self, asm):
         ''' 
         Sets the normalization n in the acquisition model;
@@ -1175,6 +1096,8 @@ class AcquisitionModel(object):
         assert_validity(asm, AcquisitionSensitivityModel)
         _setParameter\
             (self.handle, 'AcquisitionModel', 'asm', asm.handle)
+        # save reference to the Acquisition Sensitivity Model
+        self.asm = asm
     def forward(self, image, subset_num = 0, num_subsets = 1, ad = None):
         ''' 
         Returns the forward projection of image;
@@ -1202,17 +1125,54 @@ class AcquisitionModel(object):
         check_status(image.handle)
         return image
     def get_linear_acquisition_model(self):
+        '''
+        Returns the linear part of the AcquisitionModel
+        '''
         am = type(self)()
         am.set_up( self.acq_templ, self.img_templ )
         return am
     def direct(self, image, subset_num = 0, num_subsets = 1, ad = None):
-        return self.get_linear_acquisition_model().forward(image, \
-                                             subset_num=subset_num, \
-                                             num_subsets = num_subsets, \
-                                             ad = ad)
+        '''Projects an image into the (simulated) acquisition space,
+           if the AcquisitionModel is linear.
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            return self.forward(image, \
+                                subset_num=subset_num, \
+                                num_subsets = num_subsets, \
+                                ad = ad)
+        else:
+            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
     def adjoint(self, ad, subset_num = 0, num_subsets = 1):
-        return self.backward(ad, subset_num = subset_num, 
+        '''Back-projects acquisition data into image space, if the
+           AcquisitionModel is linear
+
+           Added for CCPi CIL compatibility
+           https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
+        '''
+        if self.is_linear():
+            return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
+        else:
+            raise error('AcquisitionModel is not linear')
+    def is_affine(self):
+        '''Returns whether the AcquisitionModel is affine'''
+        return True
+    def is_linear(self):
+        '''Returns whether the constant term is zero'''
+        if self.bt is None and self.at is None:
+            return True
+        else:
+            if     self.bt is None and \
+               not self.at is None:
+                return self.at.norm() == 0
+            elif not self.bt is None and \
+                     self.at is None:
+                return self.bt.norm() == 0
+            else:
+                return self.bt.norm() == 0 and self.at.norm() == 0 
         
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 

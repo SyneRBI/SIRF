@@ -18,6 +18,9 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
+
 add_library(iutilities iutilities.cpp)
 target_include_directories(iutilities PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
@@ -36,7 +39,7 @@ if(BUILD_PYTHON)
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
   #FIND_PACKAGE(Numpy REQUIRED)
   #INCLUDE_DIRECTORIES(${NUMPY_INCLUDE_DIRS})
-  set(SWIG_MODULE_pyiutilities_EXTRA_DEPS "data_handle.h" "iutilities.h")
+  set(SWIG_MODULE_pyiutilities_EXTRA_DEPS "include/sirf/iUtilities/DataHandle.h" "iutilities.h")
   SWIG_ADD_MODULE(pyiutilities python pyiutilities.i)
   SWIG_LINK_LIBRARIES(pyiutilities iutilities ${PYTHON_LIBRARIES})
 
