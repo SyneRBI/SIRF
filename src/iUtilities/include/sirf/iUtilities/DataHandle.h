@@ -34,7 +34,7 @@ limitations under the License.
 #include <string>
 #include <stdexcept>
 
-#include "LocalisedException.h"
+#include "sirf/iUtilities/LocalisedException.h"
 
 #define NEW(T, X) T* X = new T
 #define CAST_PTR(T, X, Y) T* X = (T*)Y

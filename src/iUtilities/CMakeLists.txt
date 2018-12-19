@@ -18,6 +18,9 @@
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
+include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
+
 add_library(iutilities iutilities.cpp)
 target_include_directories(iutilities PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
