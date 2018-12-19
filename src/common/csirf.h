@@ -41,7 +41,6 @@ void* cSIRF_axpby(const PTR_FLOAT ptr_a, const void* ptr_x,
 void* cSIRF_multiply(const void* ptr_x, const void* ptr_y);
 void* cSIRF_divide(const void* ptr_x, const void* ptr_y);
 void* cSIRF_get_image_type(const void* ptr_im, const char* ptr_str);
-void* cSIRF_copy(const void *ptr_im);
 
 #ifndef CSIRF_FOR_MATLAB
 }
