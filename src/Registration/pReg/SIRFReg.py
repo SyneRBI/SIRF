@@ -595,7 +595,7 @@ class _SIRFReg(ABC):
 
     def set_reference_image(self, src):
         """Sets the reference image."""
-        if not isinstance(src, NiftiImageData3D):
+        if not isinstance(src, SIRF.ImageData):
             raise AssertionError()
         _setParameter_sirf(self.handle, 'SIRFReg', 'reference_image', src.handle)
 
@@ -717,6 +717,8 @@ class NiftyResample:
     def __init__(self):
         self.name = 'SIRFRegNiftyResample'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
+        self.reference_image = None
+        self.floating_image = None
         check_status(self.handle)
 
     def __del__(self):
@@ -725,8 +727,9 @@ class NiftyResample:
 
     def set_reference_image(self, reference_image):
         """Set reference image."""
-        if not isinstance(reference_image, NiftiImageData3D):
+        if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
+        self.reference_image = reference_image
         _setParameter_sirf(self.handle, self.name, 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
@@ -774,7 +777,7 @@ class NiftyResample:
 
     def get_output(self):
         """Get output."""
-        image = NiftiImageData3D()
+        image = self.reference_image.same_object()
         image.handle = _getParameterHandle_sirf(self.handle, self.name, 'output')
         check_status(image.handle)
         return image

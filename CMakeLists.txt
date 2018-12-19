@@ -120,11 +120,10 @@ endif()
 
 ENABLE_TESTING()
 
-INCLUDE_DIRECTORIES(src/iUtilities/include)
 ADD_SUBDIRECTORY(src/iUtilities)
+ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
-ADD_SUBDIRECTORY(src/common)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Optional registration
@@ -132,3 +131,5 @@ option(SIRFREG_ENABLE "Build the SIRF registration package" OFF)
 if (SIRFREG_ENABLE)
   ADD_SUBDIRECTORY(src/Registration)
 endif()
+
+ADD_SUBDIRECTORY(src/Synergistic)

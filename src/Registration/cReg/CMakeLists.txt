@@ -32,7 +32,9 @@ ADD_LIBRARY(SIRFReg ${SOURCES})
 # Link to SIRF stuff
 TARGET_LINK_LIBRARIES(SIRFReg PUBLIC common)
 target_link_libraries(SIRFReg PUBLIC iutilities)
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
+TARGET_INCLUDE_DIRECTORIES(SIRFReg PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>$<INSTALL_INTERFACE:include/>"
+)
 
 find_package(OpenMP)
 

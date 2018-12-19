@@ -68,8 +68,8 @@ void SIRFRegNiftyResample<dataType>::process()
                       0);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_output_image_sptr = std::dynamic_pointer_cast<ImageData>(this->_reference_image_sptr->new_data_container_sptr());
-    this->_output_image_sptr->fill(*this->_output_image_nifti_sptr);
+    this->_output_image_sptr = this->_reference_image_sptr->clone_as_sptr();
+    this->_output_image_sptr->ImageData::fill(*this->_output_image_nifti_sptr);
 
     std::cout << "\n\nResampling finished!\n\n";
 }

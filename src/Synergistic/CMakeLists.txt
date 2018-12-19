@@ -1,6 +1,6 @@
 #========================================================================
-# Author: Kris Thielemans
-# Copyright 2016 University College London
+# Author: Richard Brown
+# Copyright 2018 University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,23 +16,10 @@
 #
 #=========================================================================
 
-find_package(STIR 3.1.0)
-if (STIR_FOUND)
+SET(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-  # need to add this explicitly to get the STIR_REGISTRIES to compile
-  include_directories("${STIR_INCLUDE_DIRS}")
+# Need this because there's a problem in ISMRMRDConfig.cmake. 
+# This has to come before making any executables
+link_directories(${cGadgetron_LIBRARY_DIRS})
 
-  set(cSTIR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cSTIR")
-
-  ADD_SUBDIRECTORY(cSTIR)
-  ADD_SUBDIRECTORY(pSTIR)
-  ADD_SUBDIRECTORY(mSTIR)
-
-  # Going to need this elsewhere
-  SET(STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
-
-else()
-
-  message(WARNING "STIR not found. This is probably not what you want. If you need it, set STIR_DIR.")
-
-endif()
+ADD_SUBDIRECTORY(tests)

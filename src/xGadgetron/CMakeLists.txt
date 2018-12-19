@@ -27,6 +27,7 @@ endif ()
 find_package(ISMRMRD)
 if (ISMRMRD_FOUND)
   set(CMAKE_MODULE_PATH "${ISMRMRD_DIR}")
+  set(cGadgetron_LIBRARY_DIRS "${ISMRMRD_LIBRARY_DIRS}" PARENT_SCOPE)
 
   find_package(FFTW3 COMPONENTS single REQUIRED)
 

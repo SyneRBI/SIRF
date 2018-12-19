@@ -17,7 +17,7 @@
 # test SIRFReg
 ########################################################################################
 # Create an executable
-ADD_EXECUTABLE (SIRFREG_TEST_CPLUSPLUS test_cSIRFReg.cpp ${STIR_REGISTRIES})
+ADD_EXECUTABLE (SIRFREG_TEST_CPLUSPLUS test_cSIRFReg.cpp)
 SET_TARGET_PROPERTIES (SIRFREG_TEST_CPLUSPLUS
     PROPERTIES FOLDER ${CMAKE_INSTALL_PREFIX}/bin
     INSTALL_NAME_DIR "SIRFReg")
