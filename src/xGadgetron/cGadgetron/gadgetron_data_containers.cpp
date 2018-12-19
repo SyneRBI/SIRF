@@ -909,9 +909,12 @@ GadgetronImageData::order()
 	for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.repetition;
-		t[1] = head.position[2];
-		t[2] = head.slice;
+		t[0] = head.contrast;
+        t[1] = head.repetition;
+        // Calculate the projection of the position in the slice direction
+        t[2] = head.position[0] * head.slice_dir[0] +
+               head.position[1] * head.slice_dir[1] +
+               head.position[2] * head.slice_dir[2];
 		vt.push_back(t);
 	}
 	if (index_)
