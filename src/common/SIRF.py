@@ -211,6 +211,9 @@ class DataContainer(ABC):
             return z;
         except:
             raise error('wrong multiplier')
+    def copy(self):
+        '''alias of clone'''
+        return self.clone()
 
 class ImageData(DataContainer):
     pass
