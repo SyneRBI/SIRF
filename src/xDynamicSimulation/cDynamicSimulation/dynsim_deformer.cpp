@@ -48,9 +48,13 @@ ISMRMRD::Image< float > DynamicSimulationDeformer::extract_complex_subpart( ISMR
 	for( size_t i=0; i<complex_img.getNumberOfDataElements(); i++)
 	{
 		if (extract_real_part)
+		{
 			*(sub_img.begin() + i) = std::real(  *(complex_img.begin() + i ) );
+		}
 		else
+		{
 			*(sub_img.begin() + i) = std::imag(  *(complex_img.begin() + i ) );
+		}
 	}
 
 	return sub_img;
@@ -138,8 +142,10 @@ void DynamicSimulationDeformer::deform_ismrmrd_image(ISMRMRD::Image< float >& im
 	if( deformed_img_as_nifti.nvox != img.getNumberOfDataElements() )
 		throw std::runtime_error("Something went wrong during the resampling. The output image and input image have different number of voxels.");
 
-	for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
-		*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
+	// for( size_t i_vox=0; i_vox< deformed_img_as_nifti.nvox; i_vox++)			
+	// 	*(img.begin() + i_vox) = ((float*) deformed_img_as_nifti.data)[i_vox];
+
+	memcpy(deformed_img_as_nifti.data, img.begin(), sizeof(float) * deformed_img_as_nifti.nvox);
 
 }
 
