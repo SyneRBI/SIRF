@@ -213,6 +213,14 @@ class DataContainer(ABC):
             raise error('wrong multiplier')
 
 class ImageData(DataContainer):
+    def copy(self):
+        """Deep copy image."""
+        assert self.handle is not None
+        image = self.same_object()
+        image.handle = cSIRF_copy(self.handle)
+        check_status(image.handle)
+        return image;
+
     def type(self):
         """Return image type."""
         h = pysirf.cSIRF_get_image_type(self.handle)

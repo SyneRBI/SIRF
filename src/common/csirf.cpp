@@ -148,3 +148,13 @@ cSIRF_get_image_type(const void* ptr_im)
 	CATCH;
 }
 
+
+extern "C"
+void*
+cSIRF_copy(const void *ptr_im)
+{
+	try {
+        return newObjectHandle(objectFromHandle<ImageData>(ptr_im).clone_as_sptr());
+	}
+	CATCH;
+}
