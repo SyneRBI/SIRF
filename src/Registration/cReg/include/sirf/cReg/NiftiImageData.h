@@ -133,9 +133,6 @@ public:
     /// Assignment
     NiftiImageData& operator=(const NiftiImageData& to_copy);
 
-    /// Create from ImageData base class
-    NiftiImageData(const ImageData& to_copy);
-
     /// Filename constructor
     NiftiImageData(const std::string &filename);
 
