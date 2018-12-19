@@ -184,6 +184,81 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 
+# Covers JetBrains IDEs: CLion
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# Ignore entire idea
+# Comment as required
+*.idea
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Generated files
+.idea/**/contentModel.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# CMake
+cmake-build-*/
+
+# File-based project format
+*.iws
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
+
+# Editor-based Rest Client
+.idea/httpRequests
+
+# Covers QtCreator
+# Qt-es
+object_script.*.Release
+object_script.*.Debug
+*_plugin_import.cpp
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+*.qmlc
+*.jsc
+Makefile*
+*build-*
+
+# Qt unit tests
+target_wrapper.*
+
+# QtCreator
+*.autosave
+
+# QtCreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# QtCreator CMake
+CMakeLists.txt.user*
+
 # =========================
 # Operating System Files
 # =========================
@@ -231,11 +306,17 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# C++ objects and libs
 # User-specific files
 *.o
 *.a
 *.dll
 *.so
+*.slo
+*.lo
+*.la
+*.lai
+*.dylib
 *.h5
 *.ahv
 *.hv
@@ -264,5 +345,6 @@ output.txt
 coverage.xml
 
 *_out.txt
+
 # submodules which should be explicitly force-pushed
 /data
