@@ -157,10 +157,16 @@ void*
 sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv)
 {
     SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(hp);
-    if (strcmp(name, "reference_image") == 0)
-        s.set_reference_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
-    else if (strcmp(name, "floating_image") == 0)
-        s.set_floating_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
+    if (strcmp(name, "reference_image") == 0) {
+        std::shared_ptr<const ImageData> im_sptr;
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_reference_image(im_sptr);
+    }
+    else if (strcmp(name, "floating_image") == 0) {
+        std::shared_ptr<const ImageData> im_sptr;
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_floating_image(im_sptr);
+    }
     else if (strcmp(name, "interpolation_type") == 0)
         s.set_interpolation_type(static_cast<SIRFRegNiftyResample<float>::InterpolationType>(intDataFromHandle(hv)));
     else
