@@ -70,8 +70,6 @@ namespace sirf {
             }
             return _geom_info_sptr;
         }
-        /// Get image type
-        virtual std::string get_image_type() const = 0;
         /// Write image to file
         virtual void write(const std::string &filename) const = 0;
     protected:

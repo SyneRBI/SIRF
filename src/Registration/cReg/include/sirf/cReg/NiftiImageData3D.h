@@ -79,9 +79,6 @@ public:
         NiftiImageData<float>* ptr_image = new NiftiImageData3D<float>(*this);
         return ptr_image;
     }
-
-    /// Get image type
-    virtual std::string get_image_type() const { return "NiftiImageData3D"; }
 };
 }
 

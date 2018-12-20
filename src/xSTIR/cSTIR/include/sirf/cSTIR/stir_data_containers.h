@@ -727,8 +727,6 @@ namespace sirf {
 			_end_const.reset(new Iterator_const(data().end_all()));
 			return *_end_const;
 		}
-        /// Get image type
-        virtual std::string get_image_type() const { return "STIRImageData"; }
 	protected:
 
         /// Populate the geometrical info metadata (from the image's own metadata)

@@ -91,10 +91,6 @@ public:
         NiftiImageData<float>* ptr_image = new NiftiImageData3DDeformation<float>(*this);
         return ptr_image;
     }
-
-    /// Get image type
-    virtual std::string get_image_type() const { return "NiftiImageData3DDeformation"; }
-
     /// Write
     virtual void write(const std::string &filename) const { this->write(filename); }
 };
