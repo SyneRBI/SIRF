@@ -648,6 +648,8 @@ namespace sirf {
             im_sptr->set_up_geom_info();
             return im_sptr;
         }
+        /// Write to file
+        virtual void write(const std::string &filename) const;
 
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(

@@ -72,6 +72,8 @@ namespace sirf {
         }
         /// Get image type
         virtual std::string get_image_type() const = 0;
+        /// Write image to file
+        virtual void write(const std::string &filename) const = 0;
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info() = 0;
