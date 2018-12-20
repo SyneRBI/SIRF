@@ -1126,7 +1126,7 @@ class AcquisitionModel(object):
         return image
     def get_linear_acquisition_model(self):
         '''
-        Returns the linear part of the AcquisitionModel
+        Returns a new AcquisitionModel corresponding to the linear part of the current one.
         '''
         am = type(self)()
         am.set_up( self.acq_templ, self.img_templ )
