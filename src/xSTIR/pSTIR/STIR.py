@@ -1143,7 +1143,7 @@ class AcquisitionModel(object):
                             num_subsets = num_subsets, \
                             ad = out)
         
-    def adjoint(self, ad, subset_num = 0, num_subsets = 1):
+    def adjoint(self, ad, subset_num = 0, num_subsets = 1, out = None):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
 
@@ -1151,6 +1151,8 @@ class AcquisitionModel(object):
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
         if self.is_linear():
+	    if not out is None:
+		error('out parameter currently not supported')
             return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
         else:
