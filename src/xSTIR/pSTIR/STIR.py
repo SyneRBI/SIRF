@@ -973,7 +973,7 @@ class AcquisitionModel(object):
     G is the geometric (ray tracing) projector from the image voxels
     to the scanner's pairs of detectors (bins);
     a and b are otional additive and background terms representing
-    the effects of noise and scattering; assumed to be 0 if not present;
+    the effects of accidental coincidendes and scattering; assumed to be 0 if not present;
     n is an optional bin normalization term representing the inverse of
     detector (bin) efficiencies; assumed to be 1 if not present.
     The computation of y for a given x by the above formula (F) is
@@ -1040,7 +1040,7 @@ class AcquisitionModel(object):
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
-           the effects of noise and scattering;
+           the effects of accidental coincidendes and scattering;
            S is the Acquisition Sensitivity Map
            
            Returns [b]
@@ -1059,7 +1059,7 @@ class AcquisitionModel(object):
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
-           the effects of noise and scattering;
+           the effects of accidental coincidendes and scattering;
            S is the Acquisition Sensitivity Map
            
            Returns [a]
@@ -1078,7 +1078,7 @@ class AcquisitionModel(object):
            G is the geometric (ray tracing) projector from the image voxels
            to the scanner's pairs of detectors (bins);
            a and b are otional additive and background terms representing
-           the effects of noise and scattering;
+           the effects of accidental coincidendes and scattering;
            S is the Acquisition Sensitivity Map
            
            Returns S ( [a] )+ [b]
