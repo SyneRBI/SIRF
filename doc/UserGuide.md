@@ -20,6 +20,7 @@
         3. [Basic classes](#Basic_classes)
         4. [Other classes](#Other_classes)
         5. [Functions](#Functions)
+1. [Compatibility with CCPi CIL](#CIL_compatibility)
 5. [Appendix](#Appendix)
     1. [Acquisition data storage scheme management](#storage_management)
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
@@ -588,6 +589,54 @@ Class for a penalty term to be added to the objective function.
 
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
 
+## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
+CCPi [`CIL Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel reconstruction algorithms can be used with SIRF classes such as
+`DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal a number of methods and properties are added for compatibility.
+
+### `AcquisitionModel`
+
+PET and MR `AcquisitionModel` can be used in stead of the CCPi [`Operator`](https://github.com/vais-ral/CCPi-Framework/blob/master/Wrappers/Python/ccpi/optimisation/ops.py#L32). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+These the methods that have been added both in MR and PET :
+1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of forward.
+1. `adjoint(data, out=None)`
+1. `is_affine()` Returns if the acquisition model is affine (i.e. corresponding to `A*x+b`), currently `True`
+1. `is_linear()` Returns whether the acquisition model is linear (i.e. corresponding to `A*x`, with zero background term). `True` for MR.
+
+PET Specific:
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of forward.
+1. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. `out` is not currently available, must be set to `None`
+
+The PET acquisition model relates an image `x` to the acquisition data `y` as
+```
+(F)    y = S (G x + [a]) + [b]
+```
+where `G` is the geometric (ray tracing) projector from the image voxels to the scanner's pairs of detectors (bins);
+`a` and `b` are otional additive and background terms representing the effects of accidental coincidendes and scattering;
+`S` is the Acquisition Sensitivity Map. 
+The following additional methods are added to the PET `AcquisitionModel`:
+1. `get_linear_acquisition_model()` Returns a new `AcquisitionModel` corresponding to the linear part of the current one.
+1. `get_background_term()`Returns the background term of the `AcquisitionModel`
+1. `get_additive_term()`Returns the additive term of the `AcquisitionModel`
+1. `get_constant_term()`Returns the sum of the additive and background terms of the `AcquisitionModel`
+           
+### `DataContainer`
+
+`sirf.DataContainer` has the method `copy` as an alias to `clone`. 
+A number of methods are currently implemented on CCPi and not on SIRF `DataContainers`:
+1. (Pixelwise) binary operations:
+    1. `add(self, other , out=None, *args, **kwargs)`
+    1. `subtract(self, other, out=None , *args, **kwargs):`
+    1. `multiply(self, other , out=None, *args, **kwargs)` present with different signature `multiply(self, other)`
+    1. `divide(self, other , out=None ,*args, **kwargs)` present with different signature `divide(self, other)`
+    1. `power(self, other , out=None ,*args, **kwargs)`
+    1. `maximum(self, other , out=None ,*args, **kwargs)`
+1. all inline algebra is missing, achievable by using the above methods.
+1. (Pixelwise) unary operations:
+    1. `abs(self, out=None, *args,  **kwargs)`
+    1. `sign(self, out=None, *args,  **kwargs)`
+    1. `sqrt(self, out=None, *args,  **kwargs)`
+1. reductions
+    1. `sum(out=None, *args,  **kwargs)`
 # Appendix <a name="Appendix"></a>
 
 ## Acquisition data storage scheme management <a name="storage_management"></a>
