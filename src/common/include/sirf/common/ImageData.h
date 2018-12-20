@@ -56,6 +56,8 @@ namespace sirf {
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
         }
+        /// Write image to file
+        virtual void write(const std::string &filename) const = 0;
 	};
 }
 
