@@ -968,7 +968,7 @@ class AcquisitionModel:
         '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
         return True
     def is_linear(self):
-        '''Returns whether the background term is zero'''
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
         return True
 
 class Gadget:
