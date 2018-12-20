@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
         im.crop(min_index,max_index);
 
         // Save output
-        im.save_to_file(output_filename);
+        im.write(output_filename);
 
     // If there was an error
     } catch(const std::exception &error) {

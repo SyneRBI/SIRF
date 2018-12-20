@@ -72,7 +72,7 @@ function try_niftiimage(g)
     b = mSIRFReg.NiftiImageData(g.ref_aladin_filename);
 
     % Save to file
-    b.save_to_file(g.save_nifti_image);
+    b.write(g.save_nifti_image);
 
     % Fill
     b.fill(100);
@@ -122,11 +122,11 @@ function try_niftiimage(g)
     assert(all(size(arr) == [64, 64, 64]), 'NiftiImageData as_array().shape failed.')
 
     % Test saving to datatype
-    g.ref_aladin.save_to_file(g.output_float,16); % save to float
+    g.ref_aladin.write(g.output_float,16); % save to float
     ref_aladin_float = mSIRFReg.NiftiImageData3D(g.output_float);
     arr1 = g.ref_aladin.as_array();
     arr2 = ref_aladin_float.as_array();
-    assert(all(arr1(:)==arr2(:)), 'SIRFRegMisc::save_to_file()/change_datatype() failed.');
+    assert(all(arr1(:)==arr2(:)), 'SIRFRegMisc::write()/change_datatype() failed.');
 
     % Test print methods
     q.print_header();
@@ -163,7 +163,7 @@ function try_niftiimage3d(g)
     b = mSIRFReg.NiftiImageData3D(g.ref_aladin_filename);
 
     % Save to file
-    b.save_to_file(g.save_nifti_image_3d);
+    b.write(g.save_nifti_image_3d);
 
     % Fill
     b.fill(100);
@@ -215,8 +215,8 @@ function try_niftiimage3dtensor(g)
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
-    b.save_to_file(g.save_nifti_image_3d_tensor_not_split);
-    b.save_to_file_split_xyz_components(g.save_nifti_image_3d_tensor_split);
+    b.write(g.save_nifti_image_3d_tensor_not_split);
+    b.write_split_xyz_components(g.save_nifti_image_3d_tensor_split);
 
     % Constructor from file
     c = mSIRFReg.NiftiImageData3DTensor(g.save_nifti_image_3d_tensor_not_split);
@@ -286,8 +286,8 @@ function try_niftiimage3ddisplacement(g)
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
-    b.save_to_file(g.save_nifti_image_3d_displacement_not_split);
-    b.save_to_file_split_xyz_components(g.save_nifti_image_3d_displacement_split);
+    b.write(g.save_nifti_image_3d_displacement_not_split);
+    b.write_split_xyz_components(g.save_nifti_image_3d_displacement_split);
 
     % Constructor from file
     c = mSIRFReg.NiftiImageData3DDisplacement(g.save_nifti_image_3d_displacement_not_split);
@@ -345,8 +345,8 @@ function try_niftiimage3ddeformation(g)
     b.create_from_3D_image(g.ref_aladin);
 
     % Save to file
-    b.save_to_file(g.save_nifti_image_3d_deformation_not_split);
-    b.save_to_file_split_xyz_components(g.save_nifti_image_3d_deformation_split);
+    b.write(g.save_nifti_image_3d_deformation_not_split);
+    b.write_split_xyz_components(g.save_nifti_image_3d_deformation_split);
 
     % Constructor from file
     c = mSIRFReg.NiftiImageData3DDeformation(g.save_nifti_image_3d_deformation_not_split);
@@ -416,13 +416,13 @@ function na =try_niftyaladin(g)
     disp_forward = na.get_displacement_field_forward();
     disp_inverse = na.get_displacement_field_inverse();
 
-    warped.save_to_file(g.aladin_warped);
-    na.get_transformation_matrix_forward().save_to_file(g.TM_forward);
-    na.get_transformation_matrix_inverse().save_to_file(g.TM_inverse);
-    def_forward.save_to_file(g.aladin_def_forward);
-    def_inverse.save_to_file_split_xyz_components(g.aladin_def_inverse);
-    disp_forward.save_to_file(g.aladin_disp_forward);
-    disp_inverse.save_to_file_split_xyz_components(g.aladin_disp_inverse);
+    warped.write(g.aladin_warped);
+    na.get_transformation_matrix_forward().write(g.TM_forward);
+    na.get_transformation_matrix_inverse().write(g.TM_inverse);
+    def_forward.write(g.aladin_def_forward);
+    def_inverse.write_split_xyz_components(g.aladin_def_inverse);
+    disp_forward.write(g.aladin_disp_forward);
+    disp_inverse.write_split_xyz_components(g.aladin_disp_inverse);
 
     % forward TM
     forward_tm = na.get_transformation_matrix_forward().as_array()
@@ -470,11 +470,11 @@ function try_niftyf3d(g)
     disp_forward = nf.get_displacement_field_forward();
     disp_inverse = nf.get_displacement_field_inverse();
 
-    warped.save_to_file(g.f3d_warped);
-    def_forward.save_to_file(g.f3d_def_forward);
-    def_inverse.save_to_file_split_xyz_components(g.f3d_def_inverse);
-    disp_forward.save_to_file(g.f3d_disp_forward);
-    disp_inverse.save_to_file_split_xyz_components(g.f3d_disp_inverse);
+    warped.write(g.f3d_warped);
+    def_forward.write(g.f3d_def_forward);
+    def_inverse.write_split_xyz_components(g.f3d_def_inverse);
+    disp_forward.write(g.f3d_disp_forward);
+    disp_inverse.write_split_xyz_components(g.f3d_disp_inverse);
 
 	disp('% ----------------------------------------------------------------------- %')
 	disp('%                  Finished Nifty f3d test.')
@@ -531,7 +531,7 @@ function try_resample(g,na)
     nr1.add_transformation(tm_iden);
     nr1.add_transformation(tm);
     nr1.process();
-    nr1.get_output().save_to_file(g.rigid_resample);
+    nr1.get_output().write(g.rigid_resample);
 
     disp('Testing non-rigid displacement...')
     nr2 = mSIRFReg.NiftyResample();
@@ -541,7 +541,7 @@ function try_resample(g,na)
     nr2.set_interpolation_type_to_linear();  % try different interpolations
     nr2.add_transformation(displ);
     nr2.process();
-    nr2.get_output().save_to_file(g.nonrigid_resample_disp);
+    nr2.get_output().write(g.nonrigid_resample_disp);
 
     disp('Testing non-rigid deformation...')
     nr3 = mSIRFReg.NiftyResample();
@@ -551,7 +551,7 @@ function try_resample(g,na)
     nr3.add_transformation(deff);
     nr3.set_interpolation_type_to_linear()
     nr3.process()
-    nr3.get_output().save_to_file(g.nonrigid_resample_def)
+    nr3.get_output().write(g.nonrigid_resample_def)
 
     % TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     % doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
@@ -585,7 +585,7 @@ function try_weighted_mean(g,na)
 		wm1.add_image(im3, 3);
 		wm1.add_image(im4, 1);
                 wm1.process();
-		wm1.get_output().save_to_file(g.output_weighted_mean);
+		wm1.get_output().write(g.output_weighted_mean);
 		% Answer should be 4.5, so compare it to that!
         res = g.ref_aladin.deep_copy();
 		res.fill(4.5);
@@ -606,7 +606,7 @@ function try_weighted_mean(g,na)
 		wm2.add_image(im3, 3);
 		wm2.add_image(im4, 1);
                 wm2.process();
-		wm2.get_output().save_to_file(g.output_weighted_mean_def);
+		wm2.get_output().write(g.output_weighted_mean_def);
 		% Answer should be 4.5, so compare it to that!
 		res = na.get_deformation_field_forward().deep_copy();
 		res.fill(4.5);

@@ -42,14 +42,14 @@ classdef NiftiImageData3DTensor < mSIRFReg.NiftiImageData
                 self.handle_ = [];
             end
         end
-        function save_to_file_split_xyz_components(self, filename, datatype)
+        function write_split_xyz_components(self, filename, datatype)
             %Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16). 
             %Image's original datatpye is used by default.
             if nargin < 3
                 datatype = -1;
             end
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components', self.handle_, filename, datatype);
-            mUtilities.check_status([self.name ':save_to_file'], h);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData3DTensor_write_split_xyz_components', self.handle_, filename, datatype);
+            mUtilities.check_status([self.name ':write'], h);
             mUtilities.delete(h)
         end
         function create_from_3D_image(self, src)

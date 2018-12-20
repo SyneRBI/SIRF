@@ -93,7 +93,7 @@ void NiftiImageData3DTensor<dataType>::create_from_3D_image(const NiftiImageData
 }
 
 template<class dataType>
-void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype) const
+void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::string &filename_pattern, const int datatype) const
 {
     // Check that the disp image exists
     if (!this->is_initialised())
@@ -114,11 +114,11 @@ void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const s
         throw std::runtime_error("Filename (" + filename_pattern + ") should be given in boost format (e.g., output_%s.nii)\n\t" + std::string(exc.what()));
     }
 
-    this->save_to_file_split_xyz_components(filename_x, filename_y, filename_z, datatype);
+    this->write_split_xyz_components(filename_x, filename_y, filename_z, datatype);
 }
 
 template<class dataType>
-void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
+void NiftiImageData3DTensor<dataType>::write_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype) const
 {
     int min_index[7], max_index[7];
     for (int i=0; i<7; ++i) {
@@ -135,9 +135,9 @@ void NiftiImageData3DTensor<dataType>::save_to_file_split_xyz_components(const s
         NiftiImageData<dataType> image = *this;
         image.crop(min_index,max_index);
 
-        if      (i == 0) image.save_to_file(filename_x,datatype);
-        else if (i == 1) image.save_to_file(filename_y,datatype);
-        else if (i == 2) image.save_to_file(filename_z,datatype);
+        if      (i == 0) image.write(filename_x,datatype);
+        else if (i == 1) image.write(filename_y,datatype);
+        else if (i == 2) image.write(filename_z,datatype);
     }
 }
 

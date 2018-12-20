@@ -51,8 +51,8 @@ EXPORTED_FUNCTION 	void* mSIRFReg_parameter(const void* ptr, const char* obj, co
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5) {
 	return cSIRFReg_NiftiImageData_print_headers(num_ims, im1, im2, im3, im4, im5);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype) {
-	return cSIRFReg_NiftiImageData_save_to_file(ptr, filename, datatype);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype) {
+	return cSIRFReg_NiftiImageData_write(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill(const void* ptr, const float val) {
 	return cSIRFReg_NiftiImageData_fill(ptr, val);
@@ -91,8 +91,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR
     void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr);
     void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
 */
-EXPORTED_FUNCTION  void* mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
-	return cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(ptr, filename, datatype);
+EXPORTED_FUNCTION  void* mSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype) {
+	return cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(ptr, filename, datatype);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj) {
 	return cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(ptr, obj);
@@ -148,8 +148,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_construct_from_
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr) {
 	return cSIRFReg_SIRFRegAffineTransformation_deep_copy(ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename) {
-	return cSIRFReg_SIRFRegAffineTransformation_save_to_file(ptr, filename);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename) {
+	return cSIRFReg_SIRFRegAffineTransformation_write(ptr, filename);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM) {
 	return cSIRFReg_SIRFRegAffineTransformation_as_array(ptr, ptr_TM);

@@ -177,11 +177,11 @@ void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, 
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype)
+void* cSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(ptr);
-        im.save_to_file(filename,datatype);
+        im.write(filename,datatype);
         return new DataHandle;
     }
     CATCH;
@@ -349,11 +349,11 @@ void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj)
 //      NiftiImageData3DTensor
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void *ptr, const char* filename, const int datatype)
+void* cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void *ptr, const char* filename, const int datatype)
 {
 	try {
         NiftiImageData3DTensor<float>& im = objectFromHandle<NiftiImageData3DTensor<float> >(ptr);
-        im.save_to_file_split_xyz_components(filename, datatype);
+        im.write_split_xyz_components(filename, datatype);
 		return new DataHandle;
 	}
 	CATCH;
@@ -643,11 +643,11 @@ void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
     CATCH;
 }
 extern "C"
-void* cSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename)
+void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename)
 {
     try {
         SIRFRegAffineTransformation<float>& mat = objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
-        mat.save_to_file(filename);
+        mat.write(filename);
         return new DataHandle;
     }
     CATCH;

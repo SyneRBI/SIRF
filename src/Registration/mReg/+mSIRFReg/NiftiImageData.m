@@ -91,14 +91,14 @@ classdef NiftiImageData < handle
         	% Overload inequality operator
         	value = ~(self==other);
         end
-        function save_to_file(self, filename, datatype)
+        function write(self, filename, datatype)
             %Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16)
             % Image's original datatpye is used by default.
             if nargin < 3
                 datatype = -1;
             end
-            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData_save_to_file', self.handle_, filename, datatype);
-            mUtilities.check_status([self.name ':save_to_file'], h);
+            h = calllib('msirfreg', 'mSIRFReg_NiftiImageData_write', self.handle_, filename, datatype);
+            mUtilities.check_status([self.name ':write'], h);
             mUtilities.delete(h)
         end
         function value = get_max(self)

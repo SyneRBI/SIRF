@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
         // Read as STIRImageData, convert NiftiImageData3D and save to file
         STIRImageData image_stir(nifti_filename);
         NiftiImageData3D<float> image_nifti_from_stir(image_stir);
-        image_nifti_from_stir.save_to_file("results/stir_to_nifti.nii");
+        image_nifti_from_stir.write("results/stir_to_nifti.nii");
 
         // Load the original image as a NiftiImageData3D
         NiftiImageData3D<float> image_nifti(nifti_filename);

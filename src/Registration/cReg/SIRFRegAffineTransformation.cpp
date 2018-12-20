@@ -218,7 +218,7 @@ SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::dee
 
 /// Save transformation matrix to file
 template<class dataType>
-void SIRFRegAffineTransformation<dataType>::save_to_file(const std::string &filename) const
+void SIRFRegAffineTransformation<dataType>::write(const std::string &filename) const
 {
     // Check that input isn't blank
     if (filename.empty())

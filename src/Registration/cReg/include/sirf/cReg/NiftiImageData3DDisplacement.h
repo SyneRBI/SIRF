@@ -83,6 +83,9 @@ public:
 
     /// Get image type
     virtual std::string get_image_type() const { return "NiftiImageData3DDisplacement"; }
+
+    /// Write
+    virtual void write(const std::string &filename) const { this->write(filename); }
 };
 }
 

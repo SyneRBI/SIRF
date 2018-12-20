@@ -91,7 +91,7 @@ public:
     virtual SIRFRegAffineTransformation deep_copy() const;
 
     /// Save to file
-    virtual void save_to_file(const std::string &filename) const;
+    virtual void write(const std::string &filename) const;
 
     /// Get determinant
     dataType get_determinant() const;

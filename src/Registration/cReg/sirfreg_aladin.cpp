@@ -182,37 +182,37 @@ int main(int argc, char* argv[])
 
         // Warped image
         if (flag_warped != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3D<float> >(aladin.get_output())->save_to_file(argv[flag_warped+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3D<float> >(aladin.get_output())->write(argv[flag_warped+1]);
 
         // TMs
         if (flag_TM_forward != -1)
-            aladin.get_transformation_matrix_forward()->save_to_file(argv[flag_TM_forward+1]);
+            aladin.get_transformation_matrix_forward()->write(argv[flag_TM_forward+1]);
         if (flag_TM_inverse != -1)
-            aladin.get_transformation_matrix_inverse()->save_to_file(argv[flag_TM_inverse+1]);
+            aladin.get_transformation_matrix_inverse()->write(argv[flag_TM_inverse+1]);
 
         // Forward disp field images
         if (flag_disp_fwd_4D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_forward())->save_to_file(argv[flag_disp_fwd_4D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_forward())->write(argv[flag_disp_fwd_4D+1]);
         if (flag_disp_fwd_3D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_forward())->save_to_file_split_xyz_components(argv[flag_disp_fwd_3D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_forward())->write_split_xyz_components(argv[flag_disp_fwd_3D+1]);
 
         // Forward def field images
         if (flag_def_fwd_4D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_forward())->save_to_file(argv[flag_def_fwd_4D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_forward())->write(argv[flag_def_fwd_4D+1]);
         if (flag_def_fwd_3D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_forward())->save_to_file_split_xyz_components(argv[flag_def_fwd_3D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_forward())->write_split_xyz_components(argv[flag_def_fwd_3D+1]);
 
         // Inverse disp field images
         if (flag_disp_inv_4D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_inverse())->save_to_file(argv[flag_disp_inv_4D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_inverse())->write(argv[flag_disp_inv_4D+1]);
         if (flag_disp_inv_3D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_inverse())->save_to_file_split_xyz_components(argv[flag_disp_inv_3D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(aladin.get_displacement_field_inverse())->write_split_xyz_components(argv[flag_disp_inv_3D+1]);
 
         // Inverse def field images
         if (flag_def_inv_4D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_inverse())->save_to_file(argv[flag_def_inv_4D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_inverse())->write(argv[flag_def_inv_4D+1]);
         if (flag_def_inv_3D != -1)
-            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_inverse())->save_to_file_split_xyz_components(argv[flag_def_inv_3D+1]);
+            std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(aladin.get_deformation_field_inverse())->write_split_xyz_components(argv[flag_def_inv_3D+1]);
     }
 
     // If there was an error

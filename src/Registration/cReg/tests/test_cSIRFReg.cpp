@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
         NiftiImageData<float> b(ref_aladin_filename);
 
         // Save to file
-        b.save_to_file(save_nifti_image);
+        b.write(save_nifti_image);
 
         // Fill
         b.fill(100);
@@ -172,11 +172,11 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData get_norm() failed.");
 
         // Test saving to datatype
-        ref_aladin->save_to_file(output_float,NIFTI_TYPE_FLOAT32);
+        ref_aladin->write(output_float,NIFTI_TYPE_FLOAT32);
         NiftiImageData3D<float> ref_aladin_float(output_float);
         for (int i=0; i<int(ref_aladin->get_raw_nifti_sptr()->nvox); ++i)
             if (ref_aladin_float(i) - (*ref_aladin)(i) > 1.e-7F)
-                throw std::runtime_error("NiftiImageData3D::save_to_file()/change_datatype() failed.");
+                throw std::runtime_error("NiftiImageData3D::write()/change_datatype() failed.");
 
         // Test print methods
         q.print_header();
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
         NiftiImageData3D<float> b(ref_aladin_filename);
 
         // Save to file
-        b.save_to_file(save_nifti_image_3d);
+        b.write(save_nifti_image_3d);
 
         // Fill
         b.fill(100);
@@ -276,8 +276,8 @@ int main(int argc, char* argv[])
         b.create_from_3D_image(*ref_aladin);
 
         // Save to file
-        b.save_to_file(save_nifti_image_3d_tensor_not_split);
-        b.save_to_file_split_xyz_components(save_nifti_image_3d_tensor_split);
+        b.write(save_nifti_image_3d_tensor_not_split);
+        b.write_split_xyz_components(save_nifti_image_3d_tensor_split);
 
         // Constructor from file
         NiftiImageData3DTensor<float> c(save_nifti_image_3d_tensor_not_split);
@@ -352,8 +352,8 @@ int main(int argc, char* argv[])
         b.create_from_3D_image(*ref_aladin);
 
         // Save to file
-        b.save_to_file(save_nifti_image_3d_displacement_not_split);
-        b.save_to_file_split_xyz_components(save_nifti_image_3d_displacement_split);
+        b.write(save_nifti_image_3d_displacement_not_split);
+        b.write_split_xyz_components(save_nifti_image_3d_displacement_split);
 
         // Constructor from file
         NiftiImageData3DDisplacement<float> c(save_nifti_image_3d_displacement_not_split);
@@ -424,8 +424,8 @@ int main(int argc, char* argv[])
         b.create_from_3D_image(*ref_aladin);
 
         // Save to file
-        b.save_to_file(save_nifti_image_3d_deformation_not_split);
-        b.save_to_file_split_xyz_components(save_nifti_image_3d_deformation_split);
+        b.write(save_nifti_image_3d_deformation_not_split);
+        b.write_split_xyz_components(save_nifti_image_3d_deformation_split);
 
         // Constructor from file
         NiftiImageData3DDeformation<float> c(save_nifti_image_3d_deformation_not_split);
@@ -508,13 +508,13 @@ int main(int argc, char* argv[])
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_inverse());
 
-        warped_sptr->save_to_file    (      aladin_warped    );
-        TM_forward_sptr->save_to_file(       TM_forward      );
-        TM_inverse_sptr->save_to_file(       TM_inverse      );
-        disp_forward_sptr->save_to_file(aladin_disp_forward);
-        disp_inverse_sptr->save_to_file_split_xyz_components(aladin_disp_inverse);
-        def_forward_sptr->save_to_file(aladin_def_forward);
-        def_inverse_sptr->save_to_file_split_xyz_components(aladin_def_inverse);
+        warped_sptr->write    (      aladin_warped    );
+        TM_forward_sptr->write(       TM_forward      );
+        TM_inverse_sptr->write(       TM_inverse      );
+        disp_forward_sptr->write(aladin_disp_forward);
+        disp_inverse_sptr->write_split_xyz_components(aladin_disp_inverse);
+        def_forward_sptr->write(aladin_def_forward);
+        def_inverse_sptr->write_split_xyz_components(aladin_def_inverse);
 
         // forward TM
         TM_forward_sptr->print();
@@ -560,11 +560,11 @@ int main(int argc, char* argv[])
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_forward());
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_inverse_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_inverse());
 
-        warped_sptr->save_to_file      (  f3d_warped   );
-        def_forward_sptr->save_to_file (f3d_def_forward);
-        def_inverse_sptr->save_to_file_split_xyz_components(f3d_def_inverse);
-        disp_forward_sptr->save_to_file(f3d_disp_forward);
-        disp_inverse_sptr->save_to_file_split_xyz_components(f3d_disp_inverse);
+        warped_sptr->write      (  f3d_warped   );
+        def_forward_sptr->write (f3d_def_forward);
+        def_inverse_sptr->write_split_xyz_components(f3d_def_inverse);
+        disp_forward_sptr->write(f3d_disp_forward);
+        disp_inverse_sptr->write_split_xyz_components(f3d_disp_inverse);
 
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr1.get_output())->save_to_file(rigid_resample);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr1.get_output())->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
         SIRFRegNiftyResample<float> nr2;
@@ -652,7 +652,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation(disp);
         nr2.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr2.get_output())->save_to_file(nonrigid_resample_disp);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr2.get_output())->write(nonrigid_resample_disp);
 
         std::cout << "Testing non-rigid deformation...\n";
         SIRFRegNiftyResample<float> nr3;
@@ -662,7 +662,7 @@ int main(int argc, char* argv[])
         nr3.add_transformation(deff);
         nr3.set_interpolation_type_to_linear();
         nr3.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr3.get_output())->save_to_file(nonrigid_resample_def);
+        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr3.get_output())->write(nonrigid_resample_def);
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though
@@ -697,7 +697,7 @@ int main(int argc, char* argv[])
         wm1.add_image(im3, 3.F);
         wm1.add_image(im4, 1.F);
         wm1.process();
-        wm1.get_output()->save_to_file(output_weighted_mean);
+        wm1.get_output()->write(output_weighted_mean);
         //  Answer should be 4.5, so compare it to that!
         NiftiImageData3D<float> res = *ref_aladin;
         res.fill(4.5F);
@@ -723,7 +723,7 @@ int main(int argc, char* argv[])
         wm2.add_image(im4D3, 3.F);
         wm2.add_image(im4D4, 1.F);
         wm2.process();
-        wm2.get_output()->save_to_file(output_weighted_mean_def);
+        wm2.get_output()->write(output_weighted_mean_def);
         //  Answer should be 4.5, so compare it to that!
         NiftiImageData3DTensor<float> res4D = *def_forward_sptr;
         res4D.fill(4.5);

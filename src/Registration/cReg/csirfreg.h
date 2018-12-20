@@ -42,7 +42,7 @@ extern "C" {
 
     // NiftiImageData
     void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
-    void* cSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype);
+    void* cSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
     void* cSIRFReg_NiftiImageData_fill(const void* ptr, const float val);
     void* cSIRFReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
     void* cSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
@@ -60,7 +60,7 @@ extern "C" {
     void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
 */
     // NiftiImageData3DTensor
-    void* cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
+    void* cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
     void* cSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
     void* cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
     void* cSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
@@ -95,7 +95,7 @@ extern "C" {
     // SIRFRegAffineTransformation
     void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
-    void* cSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
+    void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename);
     void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegAffineTransformation_get_identity();
     void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);

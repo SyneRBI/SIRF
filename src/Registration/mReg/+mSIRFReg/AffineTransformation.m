@@ -77,9 +77,9 @@ classdef AffineTransformation < mSIRFReg.Transformation
             mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
         end
 
-        function save_to_file(self, filename)
+        function write(self, filename)
             %Save to file.
-            calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_save_to_file', self.handle_, filename);
+            calllib('msirfreg', 'mSIRFReg_SIRFRegAffineTransformation_write', self.handle_, filename);
         end
         function value = get_determinant(self)
             %Get determinant.

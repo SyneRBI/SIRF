@@ -159,14 +159,14 @@ int main(int argc, char* argv[])
 
         // If they want to save the deformation field images
         if (flag_def_4D != -1)
-            def.save_to_file(argv[flag_def_4D+1]);
+            def.write(argv[flag_def_4D+1]);
         if (flag_def_3D != -1)
-            def.save_to_file_split_xyz_components(argv[flag_def_3D+1]);
+            def.write_split_xyz_components(argv[flag_def_3D+1]);
         // If they want to save the displacement field images
         if (flag_disp_4D != -1)
-            disp.save_to_file(argv[flag_disp_4D+1]);
+            disp.write(argv[flag_disp_4D+1]);
         if (flag_disp_3D != -1)
-            disp.save_to_file_split_xyz_components(argv[flag_disp_3D+1]);
+            disp.write_split_xyz_components(argv[flag_disp_3D+1]);
 
 
     // If there was an error

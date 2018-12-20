@@ -40,7 +40,7 @@ EXPORTED_FUNCTION 	void* mSIRFReg_objectFromFile(const char* name, const char* f
 EXPORTED_FUNCTION 	void* mSIRFReg_setParameter (void* ptr, const char* obj, const char* name, const void* value);
 EXPORTED_FUNCTION 	void* mSIRFReg_parameter(const void* ptr, const char* obj, const char* name);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, const void* im2, const void* im3, const void* im4, const void* im5);
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_save_to_file(const void* ptr, const char* filename, const int datatype);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_write(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill(const void* ptr, const float val);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_fill_arr(const void* ptr, PTR_FLOAT val);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_deep_copy(const void* copy_ptr, const void *orig_ptr);
@@ -56,7 +56,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData_crop(const void* im_ptr, PTR
     void* cSIRFReg_NiftiImageData3D_from_PETImageData(void* ptr);
     void* cSIRFReg_NiftiImageData3D_copy_data_to(const void* ptr, const void* obj);
 */
-EXPORTED_FUNCTION  void* mSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(const void* ptr, const char* filename, const int datatype);
+EXPORTED_FUNCTION  void* mSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(const void* ptr, const char* filename, const int datatype);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_create_from_3D_image(const void *ptr, const void* obj);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
@@ -75,7 +75,7 @@ EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegImageWeightedMean_process(void* ptr)
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_save_to_file(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_identity();
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);

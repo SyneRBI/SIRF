@@ -190,7 +190,7 @@ std::shared_ptr<nifti_image> NiftiImageData<dataType>::get_raw_nifti_sptr()
 }
 
 template<class dataType>
-void NiftiImageData<dataType>::save_to_file(const std::string &filename, const int datatype) const
+void NiftiImageData<dataType>::write(const std::string &filename, const int datatype) const
 {
     if (!this->is_initialised())
         throw std::runtime_error("Cannot save image to file, image not initialised.");

@@ -70,10 +70,10 @@ public:
     virtual void create_from_3D_image(const NiftiImageData3D<dataType> &image);
 
     /// Save to file as x-, y-, z-components
-    void save_to_file_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
+    void write_split_xyz_components(const std::string &filename_pattern, const int datatype=-1) const;
 
     /// Save to file as x-, y-, z-components
-    void save_to_file_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype=-1) const;
+    void write_split_xyz_components(const std::string &filename_x, const std::string &filename_y, const std::string &filename_z, const int datatype=-1) const;
 
     /// Flip component of nu
     void flip_component(const int dim);

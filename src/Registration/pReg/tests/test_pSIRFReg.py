@@ -72,7 +72,7 @@ def try_niftiimage():
     b = pSIRFReg.NiftiImageData(ref_aladin_filename)
 
     # Save to file
-    b.save_to_file(save_nifti_image)
+    b.write(save_nifti_image)
 
     # Fill
     b.fill(100)
@@ -136,12 +136,12 @@ def try_niftiimage():
         raise AssertionError('NiftiImageData as_array().shape failed.')
 
     # Test saving to datatype
-    ref_aladin.save_to_file(output_float, 16) # float
+    ref_aladin.write(output_float, 16) # float
     ref_aladin_float = pSIRFReg.NiftiImageData3D(output_float)
     arr1 = ref_aladin.as_array()
     arr2 = ref_aladin_float.as_array()
     if not np.array_equal(arr1,arr2):
-        raise AssertionError("SIRFRegMisc::save_to_file()/change_datatype() failed.")
+        raise AssertionError("SIRFRegMisc::write()/change_datatype() failed.")
 
     # Test print methods
     q.print_header()
@@ -183,7 +183,7 @@ def try_niftiimage3d():
     b = pSIRFReg.NiftiImageData3D(ref_aladin_filename)
 
     # Save to file
-    b.save_to_file(save_nifti_image_3d)
+    b.write(save_nifti_image_3d)
 
     # Fill
     b.fill(100)
@@ -251,8 +251,8 @@ def try_niftiimage3dtensor():
     b.create_from_3D_image(ref_aladin)
 
     # # Save to file
-    b.save_to_file(save_nifti_image_3d_tensor_not_split)
-    b.save_to_file_split_xyz_components(save_nifti_image_3d_tensor_split)
+    b.write(save_nifti_image_3d_tensor_not_split)
+    b.write_split_xyz_components(save_nifti_image_3d_tensor_split)
 
     # Constructor from file
     c = pSIRFReg.NiftiImageData3DTensor(save_nifti_image_3d_tensor_not_split)
@@ -340,8 +340,8 @@ def try_niftiimage3ddisplacement():
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
-    b.save_to_file(save_nifti_image_3d_displacement_not_split)
-    b.save_to_file_split_xyz_components(save_nifti_image_3d_displacement_split)
+    b.write(save_nifti_image_3d_displacement_not_split)
+    b.write_split_xyz_components(save_nifti_image_3d_displacement_split)
 
     # Constructor from file
     c = pSIRFReg.NiftiImageData3DDisplacement(save_nifti_image_3d_displacement_not_split)
@@ -415,8 +415,8 @@ def try_niftiimage3ddeformation():
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
-    b.save_to_file(save_nifti_image_3d_deformation_not_split)
-    b.save_to_file_split_xyz_components(save_nifti_image_3d_deformation_split)
+    b.write(save_nifti_image_3d_deformation_not_split)
+    b.write_split_xyz_components(save_nifti_image_3d_deformation_split)
 
     # Constructor from file
     c = pSIRFReg.NiftiImageData3DDeformation(save_nifti_image_3d_deformation_not_split)
@@ -502,13 +502,13 @@ def try_niftyaladin():
     disp_forward = na.get_displacement_field_forward()
     disp_inverse = na.get_displacement_field_inverse()
 
-    warped.save_to_file(aladin_warped)
-    na.get_transformation_matrix_forward().save_to_file(TM_forward)
-    na.get_transformation_matrix_inverse().save_to_file(TM_inverse)
-    def_forward.save_to_file(aladin_def_forward)
-    def_inverse.save_to_file_split_xyz_components(aladin_def_inverse)
-    disp_forward.save_to_file(aladin_disp_forward)
-    disp_inverse.save_to_file_split_xyz_components(aladin_disp_inverse)
+    warped.write(aladin_warped)
+    na.get_transformation_matrix_forward().write(TM_forward)
+    na.get_transformation_matrix_inverse().write(TM_inverse)
+    def_forward.write(aladin_def_forward)
+    def_inverse.write_split_xyz_components(aladin_def_inverse)
+    disp_forward.write(aladin_disp_forward)
+    disp_inverse.write_split_xyz_components(aladin_disp_inverse)
 
     # forward TM
     forward_tm = na.get_transformation_matrix_forward()
@@ -567,11 +567,11 @@ def try_niftyf3d():
     disp_forward = nf.get_displacement_field_forward()
     disp_inverse = nf.get_displacement_field_inverse()
 
-    warped.save_to_file(f3d_warped)
-    def_forward.save_to_file(f3d_def_forward)
-    def_inverse.save_to_file_split_xyz_components(f3d_def_inverse)
-    disp_forward.save_to_file(f3d_disp_forward)
-    disp_inverse.save_to_file_split_xyz_components(f3d_disp_inverse)
+    warped.write(f3d_warped)
+    def_forward.write(f3d_def_forward)
+    def_inverse.write_split_xyz_components(f3d_def_inverse)
+    disp_forward.write(f3d_disp_forward)
+    disp_inverse.write_split_xyz_components(f3d_disp_inverse)
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
@@ -640,7 +640,7 @@ def try_resample(na):
     nr1.add_transformation(tm_iden)
     nr1.add_transformation(tm)
     nr1.process()
-    nr1.get_output().save_to_file(rigid_resample)
+    nr1.get_output().write(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
     nr2 = pSIRFReg.NiftyResample()
@@ -650,7 +650,7 @@ def try_resample(na):
     nr2.set_interpolation_type_to_linear()  # try different interpolations
     nr2.add_transformation(disp)
     nr2.process()
-    nr2.get_output().save_to_file(nonrigid_resample_disp)
+    nr2.get_output().write(nonrigid_resample_disp)
 
     sys.stderr.write('Testing non-rigid deformation...\n')
     nr3 = pSIRFReg.NiftyResample()
@@ -660,7 +660,7 @@ def try_resample(na):
     nr3.add_transformation(deff)
     nr3.set_interpolation_type_to_linear()
     nr3.process()
-    nr3.get_output().save_to_file(nonrigid_resample_def)
+    nr3.get_output().write(nonrigid_resample_def)
 
     # TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
     # doesn't give the same result as the output from the registration itself (even with same interpolations). Even though 
@@ -700,7 +700,7 @@ def try_weighted_mean(na):
     wm1.add_image(im3, 3)
     wm1.add_image(im4, 1)
     wm1.process()
-    wm1.get_output().save_to_file(output_weighted_mean)
+    wm1.get_output().write(output_weighted_mean)
     # Answer should be 4.5, so compare it to that!
     res = ref_aladin.deep_copy()
     res.fill(4.5)
@@ -722,7 +722,7 @@ def try_weighted_mean(na):
     wm2.add_image(im3, 3)
     wm2.add_image(im4, 1)
     wm2.process()
-    wm2.get_output().save_to_file(output_weighted_mean_def)
+    wm2.get_output().write(output_weighted_mean_def)
     # Answer should be 4.5, so compare it to that!
     res = na.get_deformation_field_forward().deep_copy()
     res.fill(4.5)

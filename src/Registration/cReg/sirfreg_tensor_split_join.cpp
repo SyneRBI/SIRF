@@ -73,13 +73,13 @@ int main(int argc, char* argv[])
             NiftiImageData3D<float> y(filename_x);
             NiftiImageData3D<float> z(filename_x);
             NiftiImageData3DTensor<float> tensor(x,y,z);
-            tensor.save_to_file(filename_4D);
+            tensor.write(filename_4D);
         }
         // If we're splitting
         else {
             std::cout << "\nDoing split.\n";
             NiftiImageData3DTensor<float> tensor(filename_4D);
-            tensor.save_to_file_split_xyz_components(filename_x,filename_y,filename_z);
+            tensor.write_split_xyz_components(filename_x,filename_y,filename_z);
         }
 
     // If there was an error

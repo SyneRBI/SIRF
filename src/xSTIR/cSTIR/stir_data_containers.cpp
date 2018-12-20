@@ -395,7 +395,7 @@ STIRImageData::write(const std::string &filename) const
 }
 
 void
-STIRImageData::dot(const DataContainer& a_x, void* ptr)
+STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 #ifdef _MSC_VER

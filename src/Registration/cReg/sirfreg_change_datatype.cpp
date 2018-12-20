@@ -72,18 +72,18 @@ int main(int argc, char* argv[])
         NiftiImageData<float> im(argv[2]);
 
         // Change datatype
-        if      (strcmp(argv[3], "bool")               == 0) im.save_to_file(argv[1], DT_BINARY);
-        else if (strcmp(argv[3], "signed char")        == 0) im.save_to_file(argv[1], DT_INT8);
-        else if (strcmp(argv[3], "signed short")       == 0) im.save_to_file(argv[1], DT_INT16);
-        else if (strcmp(argv[3], "signed int")         == 0) im.save_to_file(argv[1], DT_INT32);
-        else if (strcmp(argv[3], "float")              == 0) im.save_to_file(argv[1], DT_FLOAT32);
-        else if (strcmp(argv[3], "double")             == 0) im.save_to_file(argv[1], DT_FLOAT64);
-        else if (strcmp(argv[3], "unsigned char")      == 0) im.save_to_file(argv[1], DT_UINT8);
-        else if (strcmp(argv[3], "unsigned short")     == 0) im.save_to_file(argv[1], DT_UINT16);
-        else if (strcmp(argv[3], "unsigned int")       == 0) im.save_to_file(argv[1], DT_UINT32);
-        else if (strcmp(argv[3], "signed long long")   == 0) im.save_to_file(argv[1], DT_INT64);
-        else if (strcmp(argv[3], "unsigned long long") == 0) im.save_to_file(argv[1], DT_UINT64);
-        else if (strcmp(argv[3], "long double")        == 0) im.save_to_file(argv[1], DT_FLOAT128);
+        if      (strcmp(argv[3], "bool")               == 0) im.write(argv[1], DT_BINARY);
+        else if (strcmp(argv[3], "signed char")        == 0) im.write(argv[1], DT_INT8);
+        else if (strcmp(argv[3], "signed short")       == 0) im.write(argv[1], DT_INT16);
+        else if (strcmp(argv[3], "signed int")         == 0) im.write(argv[1], DT_INT32);
+        else if (strcmp(argv[3], "float")              == 0) im.write(argv[1], DT_FLOAT32);
+        else if (strcmp(argv[3], "double")             == 0) im.write(argv[1], DT_FLOAT64);
+        else if (strcmp(argv[3], "unsigned char")      == 0) im.write(argv[1], DT_UINT8);
+        else if (strcmp(argv[3], "unsigned short")     == 0) im.write(argv[1], DT_UINT16);
+        else if (strcmp(argv[3], "unsigned int")       == 0) im.write(argv[1], DT_UINT32);
+        else if (strcmp(argv[3], "signed long long")   == 0) im.write(argv[1], DT_INT64);
+        else if (strcmp(argv[3], "unsigned long long") == 0) im.write(argv[1], DT_UINT64);
+        else if (strcmp(argv[3], "long double")        == 0) im.write(argv[1], DT_FLOAT128);
         else {
             print_usage(datatypes);
             return EXIT_SUCCESS;

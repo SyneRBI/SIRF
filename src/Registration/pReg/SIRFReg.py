@@ -277,12 +277,12 @@ class NiftiImageData(SIRF.ImageData):
         """Overload comparison operator."""
         return not self == other
 
-    def save_to_file(self, filename, datatype=-1):
+    def write(self, filename, datatype=-1):
         """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_NiftiImageData_save_to_file(self.handle, filename, datatype))
+        try_calling(pysirfreg.cSIRFReg_NiftiImageData_write(self.handle, filename, datatype))
 
     def get_max(self):
         """Get max."""
@@ -365,9 +365,6 @@ class NiftiImageData(SIRF.ImageData):
     def same_object(self):
         """See DataContainer.same_object()."""
         return NiftiImageData()
-
-    def write(self, path):
-        self.save_to_file(path)
 
     @staticmethod
     def print_headers(to_print):
@@ -454,14 +451,14 @@ class NiftiImageData3DTensor(NiftiImageData):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
 
-    def save_to_file_split_xyz_components(self, filename, datatype=-1):
+    def write_split_xyz_components(self, filename, datatype=-1):
         """Save to file. See nifti1.h for datatypes (e.g., float (NIFTI_TYPE_FLOAT32) = 16).
         Image's original datatpye is used by default."""
         if self.handle is None:
             raise AssertionError()
         if not isinstance(filename, str):
             raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_NiftiImageData3DTensor_save_to_file_split_xyz_components(self.handle, filename, datatype))
+        try_calling(pysirfreg.cSIRFReg_NiftiImageData3DTensor_write_split_xyz_components(self.handle, filename, datatype))
 
     def create_from_3D_image(self, src):
         """Create tensor/deformation/displacement field from 3D image."""
@@ -584,6 +581,7 @@ class _SIRFReg(ABC):
     def __init__(self):
         self.handle = None
         self.name = 'SIRFReg'
+        self.reference_image = None
 
     def __del__(self):
         if self.handle is not None:
@@ -593,21 +591,22 @@ class _SIRFReg(ABC):
         """Sets the parameter filename."""
         _set_char_par_sirf(self.handle, 'SIRFReg', 'parameter_file', filename)
 
-    def set_reference_image(self, src):
+    def set_reference_image(self, reference_image):
         """Sets the reference image."""
-        if not isinstance(src, SIRF.ImageData):
+        if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'SIRFReg', 'reference_image', src.handle)
+        self.reference_image = reference_image
+        _setParameter_sirf(self.handle, 'SIRFReg', 'reference_image', reference_image.handle)
 
-    def set_floating_image(self, src):
+    def set_floating_image(self, floating_image):
         """Sets the floating image."""
-        if not isinstance(src, NiftiImageData3D):
+        if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'SIRFReg', 'floating_image', src.handle)
+        _setParameter_sirf(self.handle, 'SIRFReg', 'floating_image', floating_image.handle)
 
     def get_output(self):
         """Gets the registered image."""
-        output = NiftiImageData3D()
+        output = self.reference_image.same_object()
         output.handle = pysirfreg.cSIRFReg_parameter(self.handle, 'SIRFReg', 'output')
         check_status(output.handle)
         return output
@@ -873,11 +872,11 @@ class AffineTransformation(_Transformation):
         check_status(mat.handle)
         return mat
 
-    def save_to_file(self, filename):
+    def write(self, filename):
         """Save to file."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_SIRFRegAffineTransformation_save_to_file(self.handle, filename))
+        try_calling(pysirfreg.cSIRFReg_SIRFRegAffineTransformation_write(self.handle, filename))
 
     def get_determinant(self):
         """Get determinant."""
