@@ -1231,6 +1231,11 @@ GadgetronImagesVector::save_header_to_csv(const std::string &filename)
     file.close();
 }
 
+bool is_unit_vector(const float *vec)
+{
+    return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]) - 1.F < 1.e-7F ? true : false;
+}
+
 void
 GadgetronImagesVector::set_up_geom_info()
 {
@@ -1270,10 +1275,12 @@ GadgetronImagesVector::set_up_geom_info()
         // First check that the slice direction is a unit vector
         const float *slice_dir = ih1.slice_dir;
 #ifndef NDEBUG
-        std::cout << "\nSlice_dir (for im1): ["<<slice_dir[0]<<","<<slice_dir[1]<<","<<slice_dir[2]<<"].\n";
+        std::cout << "\nRead_dir (for im1): ["<<ih1.read_dir[0]<<","<<ih1.read_dir[1]<<","<<ih1.read_dir[2]<<"].\n";
+        std::cout << "\nPhase_dir (for im1): ["<<ih1.phase_dir[0]<<","<<ih1.phase_dir[1]<<","<<ih1.phase_dir[2]<<"].\n";
+        std::cout << "\nSlice_dir (for im1): ["<<ih1.slice_dir[0]<<","<<ih1.slice_dir[1]<<","<<ih1.slice_dir[2]<<"].\n";
 #endif
-        if (sqrt(slice_dir[0]*slice_dir[0] + slice_dir[1]*slice_dir[1] + slice_dir[2]*slice_dir[2]) - 1.F > 1.e-7F)
-            throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): The slice direction is not a unit vector.");
+        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir))
+            throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.");
 #ifndef NDEBUG
         else
             std::cout << "\nGood news: Slice direction is unit vector!\n";
@@ -1338,9 +1345,16 @@ GadgetronImagesVector::set_up_geom_info()
 
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
+    for (int i=0; i<3; ++i)
+        offset[i] = ih1.position[i];
 
     // Direction
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+    for (int axis=0; axis<3; ++axis) {
+        direction[0][axis] = ih1.read_dir[axis];
+        direction[1][axis] = ih1.phase_dir[axis];
+        direction[2][axis] = ih1.slice_dir[axis];
+    }
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
