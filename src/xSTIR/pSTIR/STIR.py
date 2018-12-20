@@ -1158,10 +1158,10 @@ class AcquisitionModel(object):
         else:
             raise error('AcquisitionModel is not linear')
     def is_affine(self):
-        '''Returns whether the AcquisitionModel is affine'''
+        '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
         return True
     def is_linear(self):
-        '''Returns whether the constant term is zero'''
+        '''Returns whether the acquisition model is linear (i.e. corresponding to A*x, with zero background term)'''
         if self.bt is None and self.at is None:
             return True
         else:
