@@ -759,6 +759,8 @@ namespace sirf {
 		virtual void set_data(const complex_float_t* data);
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
+        /// Save header info for each of the images to a csv file.
+        void save_header_to_csv(const std::string &filename);
 
     protected:
         /// Populate the geometrical info metadata (from the image's own metadata)

@@ -27,6 +27,8 @@ limitations under the License.
 \author CCP PETMR
 */
 #include <cmath>
+#include <ostream>
+#include <fstream>
 
 #include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
@@ -1173,6 +1175,60 @@ GadgetronImagesVector::set_real_data(const float* data)
 	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
+}
+
+void
+GadgetronImagesVector::save_header_to_csv(const std::string &filename)
+{
+    std::cout << "\nSaving header to .csv file: " << filename << "...\n";
+    std::ofstream file;
+    file.open(filename);
+
+    file << "Image,phase,slice,average,version,channels,contrast,position[0],position[1],position[2],read_dir[0],read_dir[1],read_dir[2],data_type,phase_dir[0],phase_dir[1],phase_dir[2],slice_dir[0],slice_dir[1],slice_dir[2],image_type,repetition,image_index,matrix_size[0],matrix_size[1],matrix_size[2],field_of_view[0],field_of_view[1],field_of_view[2],measurement_uid,image_series_index,attribute_string_len,physiology_time_stamp[0],physiology_time_stamp[1],physiology_time_stamp[2],acquisition_time_stamp,patient_table_position[0],patient_table_position[1],patient_table_position[2]\n";
+
+    for (unsigned i=0; i<this->number(); ++i) {
+        ISMRMRD::ImageHeader ih = this->image_wrap(i).head();
+        file << i << ",";
+        file << ih.phase << ",";
+        file << ih.slice << ",";
+        file << ih.average << ",";
+        file << ih.version << ",";
+        file << ih.channels << ",";
+        file << ih.contrast << ",";
+        file << ih.position[0] << ",";
+        file << ih.position[1] << ",";
+        file << ih.position[2] << ",";
+        file << ih.read_dir[0] << ",";
+        file << ih.read_dir[1] << ",";
+        file << ih.read_dir[2] << ",";
+        file << ih.data_type << ",";
+        file << ih.phase_dir[0] << ",";
+        file << ih.phase_dir[1] << ",";
+        file << ih.phase_dir[2] << ",";
+        file << ih.slice_dir[0] << ",";
+        file << ih.slice_dir[1] << ",";
+        file << ih.slice_dir[2] << ",";
+        file << ih.image_type << ",";
+        file << ih.repetition << ",";
+        file << ih.image_index << ",";
+        file << ih.matrix_size[0] << ",";
+        file << ih.matrix_size[1] << ",";
+        file << ih.matrix_size[2] << ",";
+        file << ih.field_of_view[0] << ",";
+        file << ih.field_of_view[1] << ",";
+        file << ih.field_of_view[2] << ",";
+        file << ih.measurement_uid << ",";
+        file << ih.image_series_index << ",";
+        file << ih.attribute_string_len << ",";
+        file << ih.physiology_time_stamp[0] << ",";
+        file << ih.physiology_time_stamp[1] << ",";
+        file << ih.physiology_time_stamp[2] << ",";
+        file << ih.acquisition_time_stamp << ",";
+        file << ih.patient_table_position[0] << ",";
+        file << ih.patient_table_position[1] << ",";
+        file << ih.patient_table_position[2] << "\n";
+    }
+    file.close();
 }
 
 void
