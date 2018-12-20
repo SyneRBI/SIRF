@@ -20,8 +20,8 @@
         3. [Basic classes](#Basic_classes)
         4. [Other classes](#Other_classes)
         5. [Functions](#Functions)
-1. [Compatibility with CCPi CIL](#CIL_compatibility)
-5. [Appendix](#Appendix)
+5. [Compatibility with CCPi CIL](#CIL_compatibility)
+6. [Appendix](#Appendix)
     1. [Acquisition data storage scheme management](#storage_management)
     2. [Programming chains of Gadgetron gadgets](#programming_Gadgetron_chains)
         1. [Creating and running gadget chains by SIRF script](#creating_and_running_gadget_chains)
@@ -590,34 +590,37 @@ Class for a penalty term to be added to the objective function.
     make_Poisson_loglikelihood (PET)  Returns Poisson objective function.
 
 ## Compatibility with CCPi CIL <a name="CIL_compatibility"></a>
-CCPi [`CIL Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel reconstruction algorithms can be used with SIRF classes such as
-`DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal a number of methods and properties are added for compatibility.
+The CCPi [`CIL Python Framework`](https://github.com/vais-ral/CCPi-Framework) for development of novel
+reconstruction algorithms can be used with SIRF classes such as
+`DataContainer`, `ImageData`, `AcquisitionData` and `AcquisitionModel`. To achieve this goal,
+a number of methods and properties were added to SIRF Python classes for compatibility.
 
 ### `AcquisitionModel`
 
-PET and MR `AcquisitionModel` can be used in stead of the CCPi [`Operator`](https://github.com/vais-ral/CCPi-Framework/blob/master/Wrappers/Python/ccpi/optimisation/ops.py#L32). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
-These the methods that have been added both in MR and PET :
-1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of forward.
-1. `adjoint(data, out=None)`
-1. `is_affine()` Returns if the acquisition model is affine (i.e. corresponding to `A*x+b`), currently `True`
-1. `is_linear()` Returns whether the acquisition model is linear (i.e. corresponding to `A*x`, with zero background term). `True` for MR.
+PET and MR `AcquisitionModel`s can be used instead of the CCPi [`Operator`](https://github.com/vais-ral/CCPi-Framework/blob/master/Wrappers/Python/ccpi/optimisation/ops.py#L32). `Operator`s have the main methods `direct` and `adjoint` to perform the forward and backward projections. The `adjoint` method exists only if the `AcquisitionModel` is linear. 
+The methods that have been added both in MR and PET :
+1. `direct(img, out=None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
+2. `adjoint(data, out=None)` Back-projects acquisition data to image space, alias of `backward`.
+3. `is_affine()` Returns if the acquisition model is affine (i.e. corresponding to `A*x+b`), currently `True`
+4. `is_linear()` Returns whether the acquisition model is linear (i.e. corresponding to `A*x`, with zero background term).
+`True` for MR and PET without accidental coincidences/scatter term.
 
 PET Specific:
-1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of forward.
-1. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. `out` is not currently available, must be set to `None`
+1. `direct(image, subset_num = 0, num_subsets = 1, out = None)` Projects an image into the (simulated) acquisition space, alias of `forward`.
+2. `adjoint(ad, subset_num = 0, num_subsets = 1, out = None)` Back-projects acquisition data into image space, if the `AcquisitionModel` is linear. `out` is not currently available, must be set to `None`
 
 The PET acquisition model relates an image `x` to the acquisition data `y` as
 ```
 (F)    y = S (G x + [a]) + [b]
 ```
 where `G` is the geometric (ray tracing) projector from the image voxels to the scanner's pairs of detectors (bins);
-`a` and `b` are otional additive and background terms representing the effects of accidental coincidendes and scattering;
+`a` and `b` are optional additive and background terms representing the effects of accidental coincidendes and scattering;
 `S` is the Acquisition Sensitivity Map. 
 The following additional methods are added to the PET `AcquisitionModel`:
 1. `get_linear_acquisition_model()` Returns a new `AcquisitionModel` corresponding to the linear part of the current one.
-1. `get_background_term()`Returns the background term of the `AcquisitionModel`
-1. `get_additive_term()`Returns the additive term of the `AcquisitionModel`
-1. `get_constant_term()`Returns the sum of the additive and background terms of the `AcquisitionModel`
+1. `get_background_term()` Returns the background term of the `AcquisitionModel`
+1. `get_additive_term()` Returns the additive term of the `AcquisitionModel`
+1. `get_constant_term()` Returns the sum of the additive and background terms of the `AcquisitionModel`
            
 ### `DataContainer`
 
