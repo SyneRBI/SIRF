@@ -150,7 +150,7 @@ def main():
     back_projected_image_as_array = back_projected_image.as_array()
     show_2D_array('Backprojection', back_projected_image_as_array[z,:,:])
 
-    # direct is applying the forward method for linear AcquisitionModel
+    # direct is alias for the forward method for a linear AcquisitionModel
     # raises error if the AcquisitionModel is not linear.
     acq_model.direct(image, 0, 4, simulated_data)
 
