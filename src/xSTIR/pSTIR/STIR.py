@@ -1131,20 +1131,18 @@ class AcquisitionModel(object):
         am = type(self)()
         am.set_up( self.acq_templ, self.img_templ )
         return am
-    def direct(self, image, subset_num = 0, num_subsets = 1, ad = None):
+    def direct(self, image, subset_num = 0, num_subsets = 1, out = None):
         '''Projects an image into the (simulated) acquisition space,
-           if the AcquisitionModel is linear.
+           alias of forward.
 
            Added for CCPi CIL compatibility
            https://github.com/CCPPETMR/SIRF/pull/237#issuecomment-439894266
         '''
-        if self.is_linear():
-            return self.forward(image, \
-                                subset_num=subset_num, \
-                                num_subsets = num_subsets, \
-                                ad = ad)
-        else:
-            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
+        return self.forward(image, \
+                            subset_num=subset_num, \
+                            num_subsets = num_subsets, \
+                            ad = out)
+        
     def adjoint(self, ad, subset_num = 0, num_subsets = 1):
         '''Back-projects acquisition data into image space, if the
            AcquisitionModel is linear
@@ -1156,7 +1154,7 @@ class AcquisitionModel(object):
             return self.backward(ad, subset_num = subset_num, 
                              num_subsets = num_subsets)
         else:
-            raise error('AcquisitionModel is not linear')
+            raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
     def is_affine(self):
         '''Returns if the acquisition model is affine (i.e. corresponding to A*x+b)'''
         return True
