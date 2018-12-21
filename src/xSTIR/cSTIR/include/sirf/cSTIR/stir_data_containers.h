@@ -652,6 +652,12 @@ namespace sirf {
 		}
         /// Write to file
         virtual void write(const std::string &filename) const;
+        /// Get a clone of the image as a shared pointer
+        virtual std::shared_ptr<ImageData> clone_as_sptr() const
+        {
+            std::shared_ptr<STIRImageData> im_sptr(new STIRImageData(*this->data().clone()));
+            return im_sptr;
+        }
 
 		virtual void dot(const DataContainer& a_x, void* ptr);
 		virtual void axpby(
