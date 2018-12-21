@@ -102,17 +102,28 @@ sirf::cSIRFReg_NiftiImageDataParameter(const DataHandle* handle, const char* nam
 void*
 sirf::cSIRFReg_setSIRFRegParameter(void* hp, const char* name, const void* hv)
 {
+    std::shared_ptr<const ImageData> im_sptr;
+
     SIRFReg<float>& s = objectFromHandle<SIRFReg<float> >(hp);
     if (strcmp(name, "parameter_file") == 0)
         s.set_parameter_file(charDataFromHandle(hv));
-    else if (strcmp(name, "reference_image") == 0)
-        s.set_reference_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
-    else if (strcmp(name, "floating_image") == 0)
-        s.set_floating_image(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
-    else if (strcmp(name, "reference_mask") == 0)
-        s.set_reference_mask(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
-    else if (strcmp(name, "floating_mask") == 0)
-        s.set_floating_mask(std::make_shared<const NiftiImageData3D<float> >(objectFromHandle<const NiftiImageData3D<float> >(hv)));
+    else if (strcmp(name, "reference_image") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_reference_image(im_sptr);
+    }
+    else if (strcmp(name, "floating_image") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        std::cout << "\n setting floating image.\n";
+        s.set_floating_image(im_sptr);
+    }
+    else if (strcmp(name, "reference_mask") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_reference_mask(im_sptr);
+    }
+    else if (strcmp(name, "floating_mask") == 0) {
+        getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
+        s.set_floating_mask(im_sptr);
+    }
 	else
 		return parameterNotFound(name, __FILE__, __LINE__);
 	return new DataHandle;
@@ -156,14 +167,14 @@ sirf::cSIRFReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const 
 void*
 sirf::cSIRFReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv)
 {
+    std::shared_ptr<const ImageData> im_sptr;
+
     SIRFRegNiftyResample<float>& s = objectFromHandle<SIRFRegNiftyResample<float> >(hp);
     if (strcmp(name, "reference_image") == 0) {
-        std::shared_ptr<const ImageData> im_sptr;
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_reference_image(im_sptr);
     }
     else if (strcmp(name, "floating_image") == 0) {
-        std::shared_ptr<const ImageData> im_sptr;
         getObjectSptrFromHandle<const ImageData>(hv, im_sptr);
         s.set_floating_image(im_sptr);
     }

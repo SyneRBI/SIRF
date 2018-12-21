@@ -656,6 +656,7 @@ class NiftyAladinSym(_SIRFReg):
     Registration using NiftyReg aladin.
     """
     def __init__(self):
+        _SIRFReg.__init__(self)
         self.name = 'SIRFRegNiftyAladinSym'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         check_status(self.handle)
@@ -686,6 +687,7 @@ class NiftyF3dSym(_SIRFReg):
     Registration using NiftyReg f3d.
     """
     def __init__(self):
+        _SIRFReg.__init__(self)
         self.name = 'SIRFRegNiftyF3dSym'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         check_status(self.handle)
@@ -717,7 +719,6 @@ class NiftyResample:
         self.name = 'SIRFRegNiftyResample'
         self.handle = pysirfreg.cSIRFReg_newObject(self.name)
         self.reference_image = None
-        self.floating_image = None
         check_status(self.handle)
 
     def __del__(self):
@@ -733,7 +734,7 @@ class NiftyResample:
 
     def set_floating_image(self, floating_image):
         """Set floating image."""
-        if not isinstance(floating_image, NiftiImageData3D):
+        if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
         _setParameter_sirf(self.handle, self.name, 'floating_image', floating_image.handle)
 
