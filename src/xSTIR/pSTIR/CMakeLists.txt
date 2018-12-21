@@ -34,7 +34,7 @@ if(BUILD_PYTHON)
   # Tell CMake it needs to re-run SWIG when .h file changes
   set(SWIG_MODULE_pystir_EXTRA_DEPS "${cSTIR_INCLUDE_DIR}/cstir.h")
   SWIG_ADD_MODULE(pystir python pystir.i  ${STIR_REGISTRIES})
-  SWIG_LINK_LIBRARIES(pystir cstir iutilities common ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
+  SWIG_LINK_LIBRARIES(pystir cstir iutilities ${STIR_LIBRARIES} ${PYTHON_LIBRARIES})
 
   include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
 
