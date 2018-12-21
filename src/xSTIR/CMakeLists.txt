@@ -28,6 +28,9 @@ if (STIR_FOUND)
   ADD_SUBDIRECTORY(pSTIR)
   ADD_SUBDIRECTORY(mSTIR)
 
+  # Going to need this elsewhere
+  SET(STIR_REGISTRIES ${STIR_REGISTRIES} PARENT_SCOPE)
+
 else()
 
   message(WARNING "STIR not found. This is probably not what you want. If you need it, set STIR_DIR.")

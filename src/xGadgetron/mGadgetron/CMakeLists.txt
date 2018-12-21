@@ -24,13 +24,11 @@ if(BUILD_MATLAB)
 
   include_directories("${Matlab_INCLUDE_DIRS}")
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   add_library(mgadgetron SHARED mgadgetron.c)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(mgadgetron PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(mgadgetron  cgadgetron iutilities ${FFTW3_LIBRARY} ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${Matlab_LIBRARIES} )
+  target_link_libraries(mgadgetron csirf cgadgetron iutilities ${FFTW3_LIBRARY} ${ISMRMRD_LIBRARIES} ${Boost_LIBRARIES} ${Matlab_LIBRARIES} )
 
   INSTALL(TARGETS mgadgetron DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES mgadgetron.h DESTINATION "${MATLAB_DEST}")
