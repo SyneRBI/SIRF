@@ -1197,9 +1197,6 @@ GadgetronImagesVector::set_up_geom_info()
     for(int i=0; i<2; ++i)
         size[i] = ih1.matrix_size[i];
     size[2] = this->number();
-#ifndef NDEBUG
-    std::cout << "\nNumber of voxels: ["<<size[0]<<","<<size[1]<<","<<size[2]<<"].\n";
-#endif
 
     // The following will only work if the 0th index is read direction,
     // 1st is phase direction and 2nd is slice direction. This should be the case if order has been called.
@@ -1208,10 +1205,6 @@ GadgetronImagesVector::set_up_geom_info()
     VoxelisedGeometricalInfo3D::Spacing spacing;
     for(int i=0; i<3; ++i)
         spacing[i] = ih1.field_of_view[i] / size[i];
-#ifndef NDEBUG
-    std::cout << "\nSpacing (from FOV): ["<<spacing[0]<<","<<spacing[1]<<","<<spacing[2]<<"].\n";
-    std::cout << "\nImage vector consists of " << this->number() << " images.\n";
-#endif
 
     // If there are more than 1 slices, then take the size of the voxel
     // in the z-direction to be the distance between voxel centres (this
@@ -1220,17 +1213,8 @@ GadgetronImagesVector::set_up_geom_info()
 
         // First check that the slice direction is a unit vector
         const float *slice_dir = ih1.slice_dir;
-#ifndef NDEBUG
-        std::cout << "\nRead_dir (for im1): ["<<ih1.read_dir[0]<<","<<ih1.read_dir[1]<<","<<ih1.read_dir[2]<<"].\n";
-        std::cout << "\nPhase_dir (for im1): ["<<ih1.phase_dir[0]<<","<<ih1.phase_dir[1]<<","<<ih1.phase_dir[2]<<"].\n";
-        std::cout << "\nSlice_dir (for im1): ["<<ih1.slice_dir[0]<<","<<ih1.slice_dir[1]<<","<<ih1.slice_dir[2]<<"].\n";
-#endif
         if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir))
             throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.");
-#ifndef NDEBUG
-        else
-            std::cout << "\nGood news: Slice direction is unit vector!\n";
-#endif
 
         // Calculate the spacing!
         ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
@@ -1241,13 +1225,6 @@ GadgetronImagesVector::set_up_geom_info()
                 ih2.position[1] * ih2.slice_dir[1] +
                 ih2.position[2] * ih2.slice_dir[2];
         spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
-#ifndef NDEBUG
-        std::cout << "\nposition (for im1): ["<<ih1.position[0]<<","<<ih1.position[1]<<","<<ih1.position[2]<<"].\n";
-        std::cout << "\nposition (for im2): ["<<ih2.position[0]<<","<<ih2.position[1]<<","<<ih2.position[2]<<"].\n";
-        std::cout << "\nprojection_of_position_in_slice_dir_1: "<<projection_of_position_in_slice_dir_1<<".\n";
-        std::cout << "\nprojection_of_position_in_slice_dir_2: "<<projection_of_position_in_slice_dir_2<<".\n";
-        std::cout << "\nSpacing[2] = " << spacing[2] << ".\n";
-#endif
 
         // Now for some more checks...
         // Loop over all images, and
@@ -1260,12 +1237,8 @@ GadgetronImagesVector::set_up_geom_info()
 
             // 1. Check that the slice_dir is always constant
             for (int dim=0; dim<3; ++dim)
-                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F) {
-                    std::cout << "\nSlice direction differs between image 0 and " << im << "\n";
-                    std::cout << "slice_dir[0] = ["<<slice_dir[0]<<","<<slice_dir[1]<<","<<slice_dir[2]<<"\n";
-                    std::cout << "slice_dir["<<im<<"] = ["<<ih1.slice_dir[0]<<","<<ih1.slice_dir[1]<<","<<ih1.slice_dir[2]<<"\n";
+                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F)
                     throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
-                }
 
             // 2. Check that spacing is constant
             float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
@@ -1275,19 +1248,10 @@ GadgetronImagesVector::set_up_geom_info()
                     ih2.position[1] * ih2.slice_dir[1] +
                     ih2.position[2] * ih2.slice_dir[2];
             float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
-            if (std::abs(spacing[2]-new_spacing) > 1.e-5F) {
-                std::cout << "\nSlice distance differs between image 0 and " << im << "\n";
-                std::cout << "z-spacing[0] = "<<spacing[2]<<"\n";
-                std::cout << "z-spacing["<<im<<"] = "<<new_spacing<<"\n";
-                std::cout << "difference = "<<std::abs(spacing[2]-new_spacing)<<"\n";
+            if (std::abs(spacing[2]-new_spacing) > 1.e-5F)
                 throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
-            }
         }
     }
-
-#ifndef NDEBUG
-    std::cout << "\nSpacing (distance between voxel centres): ["<<spacing[0]<<","<<spacing[1]<<","<<spacing[2]<<"].\n";
-#endif
 
     // Offset
     VoxelisedGeometricalInfo3D::Offset offset;

@@ -45,8 +45,6 @@ endif()
   # need to add this as ISMRMRD_LIBRARIES doesn't set the path to the library
   link_directories("${ISMRMRD_LIBRARY_DIRS}")
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-
   ADD_SUBDIRECTORY(cGadgetron)
 
   set(cGadgetron_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cGadgetron")

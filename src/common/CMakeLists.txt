@@ -21,20 +21,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-# TODO target
-#include_directories(include)
-add_library(common GeometricalInfo.cpp)
-TARGET_INCLUDE_DIRECTORIES(common PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
-  )
-TARGET_LINK_LIBRARIES(common PUBLIC iutilities)
-#INSTALL(common)
-
-add_library(csirf csirf.cpp)
+add_library(csirf csirf.cpp GeometricalInfo.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf PUBLIC iutilities common)
+target_include_directories(csirf PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
+target_link_libraries(csirf PUBLIC iutilities)
 
 if (BUILD_PYTHON)
 
