@@ -68,9 +68,18 @@ NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
     this->_nifti_image->xyz_units=2;
     // Set the transformation matrix information
     this->_nifti_image->qform_code=1;
+    SIRFRegAffineTransformation<float> tm_orig;
     for (int i=0;i<4;++i)
         for (int j=0;j<4;++j)
-            this->_nifti_image->qto_xyz.m[i][j]=tm[i][j];
+            tm_orig[i][j]=tm[i][j];
+
+    SIRFRegAffineTransformation<float> tm_flip = SIRFRegAffineTransformation<float>::get_identity();
+    tm_flip[0][0] = tm_flip[1][1] = -1.F;
+    SIRFRegAffineTransformation<float> tm_final = tm_flip*tm_orig;//*tm_flip;
+    for (int i=0;i<4;++i)
+        for (int j=0;j<4;++j)
+            this->_nifti_image->qto_xyz.m[i][j]=tm_final[i][j];
+
     this->_nifti_image->qto_ijk =
             nifti_mat44_inverse(this->_nifti_image->qto_xyz);
     nifti_mat44_to_quatern( this->_nifti_image->qto_xyz,
