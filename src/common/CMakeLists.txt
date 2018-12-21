@@ -21,14 +21,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 set(cSIRF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
 
 add_library(csirf csirf.cpp)
 target_include_directories(csirf PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
-target_link_libraries(csirf iutilities)
+target_link_libraries(csirf PUBLIC iutilities common)
 
 if (BUILD_PYTHON)
 

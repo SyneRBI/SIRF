@@ -32,13 +32,10 @@ if (SIRF_INSTALL_DEPENDENCIES AND WIN32)
 	endforeach()
   endif()
 	
-include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/iUtilities/include)
-include_directories(${PROJECT_SOURCE_DIR}/src/xGadgetron/cGadgetron/include)
-
 add_library(cgadgetron cgadgetron.cpp gadgetron_x.cpp gadgetron_data_containers.cpp gadgetron_client.cpp ismrmrd_fftw.cpp)
 
-set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
+set (cGadgetron_INCLUDE_DIR "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>")
+target_include_directories(cgadgetron PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>")
 # copy to parent scope
 #set (cGadgetron_INCLUDE_DIR "${cGadgetron_INCLUDE_DIR}" PARENT_SCOPE)
 
@@ -46,6 +43,7 @@ target_include_directories(cgadgetron PUBLIC "${cGadgetron_INCLUDE_DIR}")
 target_include_directories(cgadgetron PRIVATE "${FFTW3_INCLUDE_DIR}")
 
 target_link_libraries(cgadgetron iutilities)
+target_link_libraries(cgadgetron common)
 # Add boost library dependencies
 if((CMAKE_VERSION VERSION_LESS 3.5.0) OR (NOT _Boost_IMPORTED_TARGETS))
   # This is harder than it should be on older CMake versions to be able to cope with
