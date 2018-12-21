@@ -650,6 +650,8 @@ namespace sirf {
 		{
 			return 1;
 		}
+        /// Write to file
+        virtual void write(const std::string &filename) const;
 
 		virtual void dot(const DataContainer& a_x, void* ptr);
 		virtual void axpby(

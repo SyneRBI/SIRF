@@ -1008,7 +1008,7 @@ GadgetronImageData::read(std::string filename)
 }
 
 void
-GadgetronImageData::write(std::string filename, std::string groupname)
+GadgetronImageData::write(const std::string &filename, const std::string &groupname) const
 {
 	//if (images_.size() < 1)
 	if (number() < 1)

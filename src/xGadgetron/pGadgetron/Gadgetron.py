@@ -536,7 +536,7 @@ class ImageData(SIRF.ImageData):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group):
+    def write(self, out_file, out_group='dataset'):
         '''
         Writes self's images to an hdf5 file.
         out_file : the file name (Python string)

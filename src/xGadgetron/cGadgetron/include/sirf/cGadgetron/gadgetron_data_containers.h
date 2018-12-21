@@ -407,7 +407,8 @@ namespace sirf {
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 		virtual int read(std::string filename);
-		virtual void write(std::string filename, std::string groupname);
+		virtual void write(const std::string &filename, const std::string &groupname) const;
+        virtual void write(const std::string &filename) const { this->write(filename,"dataset"); }
 		virtual Dimensions dimensions() const 
 		{
 			Dimensions dim;
