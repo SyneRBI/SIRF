@@ -3,6 +3,8 @@
 #ifndef SIRF_ABSTRACT_IMAGE_DATA_TYPE
 #define SIRF_ABSTRACT_IMAGE_DATA_TYPE
 
+#include "sirf/common/ANumRef.h"
+#include "sirf/common/DataContainer.h"
 #include "sirf/common/DataContainer.h"
 #include "sirf/common/ANumRef.h"
 #include "GeometricalInfo.h"
@@ -40,11 +42,23 @@ namespace sirf {
 		virtual Iterator_const& begin() const = 0;
 		virtual Iterator& end() = 0;
 		virtual Iterator_const& end() const = 0;
+		virtual bool ordered() const
+		{
+			return true;
+		}
 		void copy(Iterator_const& src, Iterator& dst, Iterator& end)
 		{
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
 		}
+        void fill(const ImageData& im)
+        {
+            Iterator_const& src = im.begin();
+            Iterator& dst = this->begin();
+            Iterator& end = this->end();
+            for (; dst != end; ++dst, ++src)
+				*dst = *src;
+        }
         /// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
         {
