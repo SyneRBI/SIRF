@@ -31,7 +31,6 @@ limitations under the License.
 #define _NIFTIIMAGEDATA3DTENSOR_H_
 
 #include "sirf/cReg/NiftiImageData.h"
-#include <_reg_maths.h>
 
 namespace sirf {
 
