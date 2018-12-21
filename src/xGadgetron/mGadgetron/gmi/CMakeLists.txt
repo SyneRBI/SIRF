@@ -18,9 +18,8 @@
 
 if(BUILD_MATLAB)
 
-  include_directories(${PROJECT_SOURCE_DIR}/src/common/include)
   add_executable(gmi_xgadgetron gmi_xgadgetron.cpp)
-  target_link_libraries(gmi_xgadgetron mig)
+  target_link_libraries(gmi_xgadgetron mig csirf)
   INSTALL(TARGETS gmi_xgadgetron DESTINATION bin)
 
 endif(BUILD_MATLAB)

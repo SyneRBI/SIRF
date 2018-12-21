@@ -386,6 +386,15 @@ STIRImageData::STIRImageData(const ImageData& id)
 }
 
 void
+STIRImageData::write(const std::string &filename) const
+{
+    const Image3DF& image = this->data();
+    shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
+        OutputFileFormat<Image3DF>::default_sptr();
+    format_sptr->write_to_file(filename, image);
+}
+
+void
 STIRImageData::dot(const DataContainer& a_x, void* ptr)
 {
 	STIRImageData& x = (STIRImageData&)a_x;

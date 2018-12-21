@@ -59,6 +59,8 @@ namespace sirf {
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
         }
+        /// Write image to file
+        virtual void write(const std::string &filename) const = 0;
         /// Get geometrical info
         std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
         {
