@@ -25,6 +25,9 @@ add_library(iutilities iutilities.cpp)
 target_include_directories(iutilities PUBLIC
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:include>"
   )
+target_include_directories(iutilities PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include>"
+  )
 
 if(BUILD_PYTHON)
 

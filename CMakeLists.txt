@@ -121,7 +121,7 @@ endif()
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src/iUtilities)
+ADD_SUBDIRECTORY(src/common)
 ADD_SUBDIRECTORY(src/xSTIR)
 ADD_SUBDIRECTORY(src/xGadgetron)
-ADD_SUBDIRECTORY(src/common)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
