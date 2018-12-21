@@ -670,7 +670,7 @@ STIRImageData::set_data(const float* data)
 void
 STIRImageData::set_up_geom_info()
 {
-    const Voxels3DF* vox_image = dynamic_cast<const Voxels3DF*>(&data());
+    const Voxels3DF* const vox_image = dynamic_cast<const Voxels3DF*>(&data());
 
     // If cast failed, throw error
     if (!vox_image)
@@ -692,7 +692,7 @@ STIRImageData::set_up_geom_info()
     size[1] = vox_image->get_y_size();
     size[2] = vox_image->get_z_size();
 
-    // SIRF's spacing is STIR's voxel size
+    // SIRF's spacing is STIR's voxel size, but with different order
     VoxelisedGeometricalInfo3D::Spacing spacing;
     spacing[0] = vox_image->get_voxel_size()[3];
     spacing[1] = vox_image->get_voxel_size()[2];
@@ -714,6 +714,6 @@ STIRImageData::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
-                VoxelisedGeometricalInfo3D(offset,spacing,size,direction));
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction);
 }
