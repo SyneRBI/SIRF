@@ -1175,8 +1175,6 @@ GadgetronImagesVector::set_real_data(const float* data)
 		*iter = *data;
 }
 
-void
-
 bool is_unit_vector(const float *vec)
 {
     return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]) - 1.F < 1.e-7F ? true : false;

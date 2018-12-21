@@ -27,7 +27,7 @@ if(BUILD_MATLAB)
   # fix output name and link flags
   SET_TARGET_PROPERTIES(msirfreg PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(msirfreg SIRFReg iutilities common ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
+  target_link_libraries(msirfreg SIRFReg iutilities csirf ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
   INSTALL(TARGETS msirfreg DESTINATION "${MATLAB_DEST}")
   INSTALL(FILES msirfreg.h DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +mSIRFReg DESTINATION "${MATLAB_DEST}")

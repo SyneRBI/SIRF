@@ -26,7 +26,7 @@ INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
 
 # Executables
 ADD_EXECUTABLE(sirf_registration sirf_registration.cpp ${STIR_REGISTRIES})
-TARGET_LINK_LIBRARIES(sirf_registration LINK_PUBLIC common iutilities cstir cgadgetron SIRFReg)
+TARGET_LINK_LIBRARIES(sirf_registration LINK_PUBLIC csirf iutilities cstir cgadgetron SIRFReg)
 INSTALL(TARGETS sirf_registration DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Tests
