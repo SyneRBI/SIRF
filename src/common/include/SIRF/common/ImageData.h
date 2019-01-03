@@ -46,7 +46,7 @@ namespace sirf {
 		{
 			return true;
 		}
-		void copy(Iterator_const& src, Iterator& dst, Iterator& end)
+		void copy(Iterator_const& src, Iterator& dst, Iterator& end) const
 		{
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
@@ -72,7 +72,14 @@ namespace sirf {
             }
             return _geom_info_sptr;
         }
+        /// Clone and return as unique pointer.
+        std::unique_ptr<ImageData> clone() const
+        {
+            return std::unique_ptr<ImageData>(this->clone_impl());
+        }
     protected:
+        /// Clone helper function. Don't use.
+        virtual ImageData* clone_impl() const = 0;
         /// Populate the geometrical info metadata (from the image's own metadata)
         virtual void set_up_geom_info() = 0;
         std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;

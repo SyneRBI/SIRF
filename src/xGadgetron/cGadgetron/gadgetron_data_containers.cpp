@@ -114,7 +114,7 @@ MRAcquisitionData::undersampled() const
 }
 
 int 
-MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim)
+MRAcquisitionData::get_acquisitions_dimensions(size_t ptr_dim) const
 {
 	ISMRMRD::Acquisition acq;
 	int* dim = (int*)ptr_dim;
@@ -215,7 +215,7 @@ MRAcquisitionData::get_data(complex_float_t* z, int all)
 }
 
 unsigned int 
-MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im)
+MRAcquisitionData::get_acquisitions_data(unsigned int slice, float* re, float* im) const
 {
 	ISMRMRD::Acquisition acq;
 	unsigned int na = number();
@@ -340,7 +340,7 @@ MRAcquisitionData::norm(const ISMRMRD::Acquisition& acq_a)
 }
 
 void
-MRAcquisitionData::dot(const DataContainer& dc, void* ptr)
+MRAcquisitionData::dot(const DataContainer& dc, void* ptr) const
 {
 	MRAcquisitionData& other = (MRAcquisitionData&)dc;
 	int n = number();
@@ -521,7 +521,7 @@ const DataContainer& a_y)
 //}
 
 float 
-MRAcquisitionData::norm()
+MRAcquisitionData::norm() const
 {
 	int n = number();
 	float r = 0;
@@ -553,14 +553,15 @@ MRAcquisitionData::clone()
 void
 MRAcquisitionData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<int, 4> quad;
 	int na = number();
-	tuple t;
-	std::vector<tuple> vt;
+	quad t;
+	std::vector<quad> vt;
 	ISMRMRD::Acquisition acq;
 	for (int i = 0; i < na; i++) {
 		get_acquisition(i, acq);
 		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().phase;
 		t[1] = acq.idx().slice;
 		t[2] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
@@ -645,7 +646,7 @@ AcquisitionsFile::take_over(MRAcquisitionData& ac)
 }
 
 unsigned int 
-AcquisitionsFile::items()
+AcquisitionsFile::items() const
 {
 	Mutex mtx;
 	mtx.lock();
@@ -655,7 +656,7 @@ AcquisitionsFile::items()
 }
 
 void 
-AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq)
+AcquisitionsFile::get_acquisition(unsigned int num, ISMRMRD::Acquisition& acq) const
 {
 	int ind = index(num);
 	Mutex mtx;
@@ -792,7 +793,7 @@ AcquisitionsVector::set_acquisition_data
 }
 
 void
-GadgetronImageData::dot(const DataContainer& dc, void* ptr)
+GadgetronImageData::dot(const DataContainer& dc, void* ptr) const
 {
 	GadgetronImageData& ic = (GadgetronImageData&)dc;
 	complex_float_t z = 0;
@@ -887,7 +888,7 @@ const DataContainer& a_y)
 //}
 
 float 
-GadgetronImageData::norm()
+GadgetronImageData::norm() const
 {
 	float r = 0;
 	for (unsigned int i = 0; i < number(); i++) {
@@ -909,9 +910,12 @@ GadgetronImageData::order()
 	for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.repetition;
-		t[1] = head.position[2];
-		t[2] = head.slice;
+		t[0] = head.contrast;
+        t[1] = head.repetition;
+        // Calculate the projection of the position in the slice direction
+        t[2] = head.position[0] * head.slice_dir[0] +
+               head.position[1] * head.slice_dir[1] +
+               head.position[2] * head.slice_dir[2];
 		vt.push_back(t);
 	}
 	if (index_)
@@ -1070,6 +1074,16 @@ GadgetronImageData::set_real_data(const float* z)
 		size_t n = iw.get_dim(dim);
 		iw.set_data(z);
 		z += n;
+	}
+}
+
+GadgetronImagesVector::GadgetronImagesVector
+(const GadgetronImagesVector& images) :
+images_(), nimages_(0)
+{
+	for (unsigned int i = 0; i < images.number(); i++) {
+		const ImageWrap& u = images.image_wrap(i);
+		append(u);
 	}
 }
 
