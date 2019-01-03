@@ -37,7 +37,7 @@ using namespace sirf;
 template<class dataType>
 NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
 {
-    std::shared_ptr<const VoxelisedGeometricalInfo3D > info = id.get_geom_info();
+    std::shared_ptr<const VoxelisedGeometricalInfo3D > info = id.get_geom_info_sptr();
     typedef VoxelisedGeometricalInfo3D Info;
     Info::Size            size    = info->get_size();
     Info::Spacing         spacing = info->get_spacing();

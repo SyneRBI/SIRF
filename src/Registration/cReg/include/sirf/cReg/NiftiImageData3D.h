@@ -79,6 +79,17 @@ public:
         NiftiImageData<float>* ptr_image = new NiftiImageData3D<float>(*this);
         return ptr_image;
     }
+    /// Clone and return as unique pointer.
+    std::unique_ptr<NiftiImageData3D> clone() const
+    {
+	return std::unique_ptr<NiftiImageData3D>(this->clone_impl());
+    }
+protected:
+    /// Clone helper function. Don't use.
+    virtual NiftiImageData3D* clone_impl() const
+    {
+	return new NiftiImageData3D<float>(*this);
+    }
 };
 }
 

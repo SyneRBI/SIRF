@@ -374,13 +374,17 @@ private:
     // Pure virtual methods from ImageData
     // ------------------------------------------------------------------------------ //
 public:
-    virtual std::shared_ptr<ImageData> clone_as_sptr() const
+    /// Clone and return as unique pointer.
+    std::unique_ptr<NiftiImageData> clone() const
     {
-        std::shared_ptr<NiftiImageData> im_sptr(this->same_image_data());
-        im_sptr->set_up_geom_info();
-        return im_sptr;
+	return std::unique_ptr<NiftiImageData>(this->clone_impl());
     }
 protected:
+    /// Clone helper function. Don't use.
+    virtual NiftiImageData* clone_impl() const
+    {
+	return new NiftiImageData<float>(*this);
+    }
     virtual NiftiImageData<float>* same_image_data() const
     {
         NiftiImageData<float>* ptr_image = new NiftiImageData<float>(*this);

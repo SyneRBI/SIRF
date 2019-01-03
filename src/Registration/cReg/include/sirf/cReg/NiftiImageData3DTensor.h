@@ -82,6 +82,17 @@ public:
         NiftiImageData<float>* ptr_image = new NiftiImageData3DTensor<float>(*this);
         return ptr_image;
     }
+    /// Clone and return as unique pointer.
+    std::unique_ptr<NiftiImageData3DTensor> clone() const
+    {
+	return std::unique_ptr<NiftiImageData3DTensor>(this->clone_impl());
+    }
+protected:
+    /// Clone helper function. Don't use.
+    virtual NiftiImageData3DTensor* clone_impl() const
+    {
+	return new NiftiImageData3DTensor<float>(*this);
+    }
 };
 }
 

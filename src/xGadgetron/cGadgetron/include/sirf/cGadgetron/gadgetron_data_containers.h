@@ -716,12 +716,6 @@ namespace sirf {
 			return gadgetron::shared_ptr<GadgetronImageData>
 				(new GadgetronImagesVector(*this, attr, target));
 		}
-        virtual std::shared_ptr<ImageData> clone_as_sptr() const
-        {
-            std::shared_ptr<GadgetronImagesVector> im_sptr(new GadgetronImagesVector(*this));
-            im_sptr->set_up_geom_info();
-            return im_sptr;
-        }
 		virtual Iterator& begin()
 		{
 			ImageWrapIter iw = images_.begin();

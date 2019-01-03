@@ -642,12 +642,6 @@ namespace sirf {
 		{
 			return 1;
 		}
-        virtual std::shared_ptr<ImageData> clone_as_sptr() const
-        {
-            std::shared_ptr<STIRImageData> im_sptr(new STIRImageData(*this->data().clone()));
-            im_sptr->set_up_geom_info();
-            return im_sptr;
-        }
         /// Write to file
         virtual void write(const std::string &filename) const;
 

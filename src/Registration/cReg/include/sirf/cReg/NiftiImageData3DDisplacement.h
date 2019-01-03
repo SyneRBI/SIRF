@@ -81,6 +81,17 @@ public:
     }
     /// Write
     virtual void write(const std::string &filename) const { this->write(filename); }
+    /// Clone and return as unique pointer.
+    std::unique_ptr<NiftiImageData3DDisplacement> clone() const
+    {
+	return std::unique_ptr<NiftiImageData3DDisplacement>(this->clone_impl());
+    }
+protected:
+    /// Clone helper function. Don't use.
+    virtual NiftiImageData3DDisplacement* clone_impl() const
+    {
+	return new NiftiImageData3DDisplacement<float>(*this);
+    }
 };
 }
 

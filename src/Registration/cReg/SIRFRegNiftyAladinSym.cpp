@@ -103,7 +103,7 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_inv);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
-    this->_warped_image_sptr = std::dynamic_pointer_cast<ImageData>(this->_reference_image_sptr->new_data_container_sptr());
+    this->_warped_image_sptr = this->_reference_image_sptr->clone();
     this->_warped_image_sptr->fill(*this->_warped_image_nifti_sptr);
 
     std::cout << "\n\nRegistration finished!\n\n";
