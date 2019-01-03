@@ -553,14 +553,15 @@ MRAcquisitionData::clone()
 void
 MRAcquisitionData::order()
 {
-	typedef std::array<int, 3> tuple;
+	typedef std::array<int, 4> quad;
 	int na = number();
-	tuple t;
-	std::vector<tuple> vt;
+	quad t;
+	std::vector<quad> vt;
 	ISMRMRD::Acquisition acq;
 	for (int i = 0; i < na; i++) {
 		get_acquisition(i, acq);
 		t[0] = acq.idx().repetition;
+		t[1] = acq.idx().phase;
 		t[1] = acq.idx().slice;
 		t[2] = acq.idx().kspace_encode_step_1;
 		vt.push_back(t);
@@ -909,9 +910,12 @@ GadgetronImageData::order()
 	for (int i = 0; i < ni; i++) {
       ImageWrap& iw = image_wrap(i);
       ISMRMRD::ImageHeader& head = iw.head();
-		t[0] = head.repetition;
-		t[1] = head.position[2];
-		t[2] = head.slice;
+		t[0] = head.contrast;
+        t[1] = head.repetition;
+        // Calculate the projection of the position in the slice direction
+        t[2] = head.position[0] * head.slice_dir[0] +
+               head.position[1] * head.slice_dir[1] +
+               head.position[2] * head.slice_dir[2];
 		vt.push_back(t);
 	}
 	if (index_)
