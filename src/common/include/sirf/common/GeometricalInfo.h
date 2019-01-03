@@ -21,29 +21,15 @@
 #ifndef SIRF_GEOMETRICAL_INFO_TYPE
 #define SIRF_GEOMETRICAL_INFO_TYPE
 
+#include <array>
+
 namespace sirf {
-
-template <int num_dimensions, typename T>
-class tVector {
-private:
-	typedef T _vectT[num_dimensions];
-
-public:
-	inline T& operator[](const int d)
-		{ return vect[d]; }
-	inline T operator[](const int d) const
-		{ return vect[d]; }
-
-private:
-	_vectT vect;
-};
-
 
 template <int num_physical_dimensions, int num_index_dimensions>
 class GeometricalInfo {
 public:
-	typedef tVector<num_physical_dimensions, float>     Coordinate;
-	typedef tVector<num_index_dimensions, unsigned int> Index;
+	typedef std::array<float, num_physical_dimensions>     Coordinate;
+	typedef std::array<unsigned int, num_index_dimensions> Index;
 	// Eventually something here like
 	// Coordinate transform_index_to_physical_point(Index)
 	// Index transform_physical_point_to_index(Coordinate)
@@ -78,12 +64,12 @@ public:
 	   Each vector in Direction tells the direction of the axis in LPS
 	   physical space.
 	*/
-	typedef tVector<num_dimensions, Coordinate> DirectionMatrix;
+	typedef std::array<Coordinate, num_dimensions> DirectionMatrix;
 	/*!
 	   Each vector in Direction tells the direction of the axis in LPS
 	   physical space.
 	*/
-	typedef tVector<num_dimensions+1, tVector<num_dimensions+1, float> >
+	typedef std::array<std::array<float, num_dimensions+1>, num_dimensions+1>
 		TransformMatrix;
 
 

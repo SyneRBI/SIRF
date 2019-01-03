@@ -1176,9 +1176,9 @@ GadgetronImagesVector::set_real_data(const float* data)
 		*iter = *data;
 }
 
-bool is_unit_vector(const float *vec)
+static bool is_unit_vector(const float * const vec)
 {
-    return sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]) - 1.F < 1.e-7F ? true : false;
+    return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
 }
 
 void
@@ -1211,7 +1211,7 @@ GadgetronImagesVector::set_up_geom_info()
     if (this->number() > 1) {
 
         // First check that the slice direction is a unit vector
-        const float *slice_dir = ih1.slice_dir;
+        const float * const slice_dir = ih1.slice_dir;
         if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir))
             throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.");
 
@@ -1247,7 +1247,7 @@ GadgetronImagesVector::set_up_geom_info()
                     ih2.position[1] * ih2.slice_dir[1] +
                     ih2.position[2] * ih2.slice_dir[2];
             float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
-            if (std::abs(spacing[2]-new_spacing) > 1.e-5F)
+            if (std::abs(spacing[2]-new_spacing) > 1.e-4F)
                 throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
         }
     }
@@ -1266,8 +1266,8 @@ GadgetronImagesVector::set_up_geom_info()
     }
 
     // Initialise the geom info shared pointer
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
-                VoxelisedGeometricalInfo3D(offset,spacing,size,direction));
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction);
 }
 
 void

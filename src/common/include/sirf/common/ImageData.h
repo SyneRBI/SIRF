@@ -25,7 +25,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator() {}
 			virtual Iterator& operator++() = 0;
-                        virtual ANumRef& operator*() = 0;
+			virtual ANumRef& operator*() = 0;
 			virtual bool operator==(const Iterator&) const = 0;
 			virtual bool operator!=(const Iterator&) const = 0;
 		};
@@ -33,7 +33,7 @@ namespace sirf {
 		public:
 			virtual ~Iterator_const() {}
 			virtual Iterator_const& operator++() = 0;
-                        virtual const ANumRef& operator*() const = 0;
+			virtual const ANumRef& operator*() const = 0;
 			virtual bool operator==(const Iterator_const&) const = 0;
 			virtual bool operator!=(const Iterator_const&) const = 0;
 		};
@@ -58,21 +58,17 @@ namespace sirf {
             for (; dst != end; ++dst, ++src)
 				*dst = *src;
         }
-        /// Get a clone of the image as a shared pointer
-        virtual std::shared_ptr<ImageData> clone_as_sptr() const = 0;
-        /// Get geometrical info
-        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info() const
-        {
-            // If the geometrical info has not been created yet, throw an error
-            if (!_geom_info_sptr) {
-                std::cout << "\nGeometrical info not initialised. This implies that your constructor did not call set_up_geom_info().\n";
-                throw std::runtime_error("Geometrical info not initialised. This implies that"
-                                         " your constructor did not call set_up_geom_info().");
-            }
-            return _geom_info_sptr;
-        }
         /// Write image to file
         virtual void write(const std::string &filename) const = 0;
+        /// Get geometrical info
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
+        {
+            // If the geometrical info has not been created yet, throw an error
+            if (!_geom_info_sptr)
+                throw std::runtime_error("Geometrical info not initialised. This implies that"
+                                         " your constructor did not call set_up_geom_info().");
+            return _geom_info_sptr;
+        }
         /// Clone and return as unique pointer.
         std::unique_ptr<ImageData> clone() const
         {
