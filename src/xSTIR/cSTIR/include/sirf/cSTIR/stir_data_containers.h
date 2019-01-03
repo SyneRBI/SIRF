@@ -652,12 +652,6 @@ namespace sirf {
 		}
         /// Write to file
         virtual void write(const std::string &filename) const;
-        /// Get a clone of the image as a shared pointer
-        virtual std::shared_ptr<ImageData> clone_as_sptr() const
-        {
-            std::shared_ptr<STIRImageData> im_sptr(new STIRImageData(*this->data().clone()));
-            return im_sptr;
-        }
 
 		virtual void dot(const DataContainer& a_x, void* ptr);
 		virtual void axpby(
@@ -735,6 +729,19 @@ namespace sirf {
 			_end_const.reset(new Iterator_const(data().end_all()));
 			return *_end_const;
 		}
+
+        /// Clone and return as unique pointer.
+        std::unique_ptr<STIRImageData> clone() const
+        {
+            return std::unique_ptr<STIRImageData>(this->clone_impl());
+        }
+
+    private:
+        /// Clone helper function. Don't use.
+        virtual STIRImageData* clone_impl() const
+        {
+            return new STIRImageData(*this->data().clone());
+        }
 
 	protected:
 		stir::shared_ptr<Image3DF> _data;
