@@ -43,7 +43,7 @@ namespace sirf {
 		{
 			return true;
 		}
-		void copy(Iterator_const& src, Iterator& dst, Iterator& end)
+		void copy(Iterator_const& src, Iterator& dst, Iterator& end) const
 		{
 			for (; dst != end; ++dst, ++src)
 				*dst = *src;
