@@ -888,10 +888,7 @@ void* cSTIR_writeImage(void* ptr_i, const char* filename)
 {
 	try {
 		STIRImageData& id = objectFromHandle<STIRImageData>(ptr_i);
-		Image3DF& image = id.data();
-		shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
-			OutputFileFormat<Image3DF>::default_sptr();
-		format_sptr->write_to_file(filename, image);
+		id.write(filename);
 		return (void*) new DataHandle;
 	}
 	CATCH;

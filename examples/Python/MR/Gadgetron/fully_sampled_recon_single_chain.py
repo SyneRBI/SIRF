@@ -67,7 +67,10 @@ def main():
     # and using set_gadget_property(label, propery, value).
     # The gadgets will be concatenated and will be executed as soon as 
     # process() is called.
-    recon = Reconstructor(['RemoveROOversamplingGadget', \
+    recon = Reconstructor([ \
+        'NoiseAdjustGadget', \
+        'AsymmetricEchoAdjustROGadget', \
+        'RemoveROOversamplingGadget', \
         'AcquisitionAccumulateTriggerGadget(trigger_dimension=repetition)', \
         'BucketToBufferGadget(split_slices=true, verbose=false)', \
         'SimpleReconGadget', 'ImageArraySplitGadget', 'ex:ExtractGadget'])
@@ -93,6 +96,7 @@ def main():
 
     # show reconstructed image data
     image_array = image_data.as_array()
+    print(image_array.shape)
     title = 'Reconstructed image data (magnitude)'
     show_3D_array(abs(image_array[0::2,:,:]), suptitle = title, \
                   xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
@@ -109,12 +113,12 @@ def main():
         print('writing to %s' % output_file)
         image_data.write(output_file, time_str)
 
-        saved_image_data = ImageData(output_file)
-        image_array = saved_image_data.as_array()
-        title = 'Reconstructed images (magnitude)'
-        show_3D_array(abs(image_array), suptitle = title, \
-                      xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
-                      cmap = 'gray')
+##        saved_image_data = ImageData(output_file)
+##        image_array = saved_image_data.as_array()
+##        title = 'Reconstructed images (magnitude)'
+##        show_3D_array(abs(image_array), suptitle = title, \
+##                      xlabel = 'samples', ylabel = 'readouts', label = 'slice', \
+##                      cmap = 'gray')
     
 try:
     main()

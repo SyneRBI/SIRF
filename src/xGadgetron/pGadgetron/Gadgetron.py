@@ -30,11 +30,13 @@ except:
 import sys
 import time
 
-from pUtilities import *
+from sirf.Utilities import show_2D_array, show_3D_array, error, check_status, \
+     try_calling, assert_validity, assert_validities, label_and_name, \
+     name_and_parameters, petmr_data_path, existing_filepath, pTest, RE_PYEXT
 from sirf import SIRF
 from sirf.SIRF import DataContainer
-import pyiutilities as pyiutil
-import pygadgetron
+import sirf.pyiutilities as pyiutil
+import sirf.pygadgetron as pygadgetron
 import sirf.pysirf as pysirf
 
 if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
@@ -534,7 +536,7 @@ class ImageData(SIRF.ImageData):
         return ip.process(self)
     def image(self, im_num):
         return Image(self, im_num)
-    def write(self, out_file, out_group):
+    def write(self, out_file, out_group='dataset'):
         '''
         Writes self's images to an hdf5 file.
         out_file : the file name (Python string)

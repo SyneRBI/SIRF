@@ -5,7 +5,7 @@
 
 #include <ismrmrd/ismrmrd.h>
 
-#include "ImageData.h"
+#include "sirf/common/ImageData.h"
 
 namespace sirf {
 	class MRImageData : public ImageData {

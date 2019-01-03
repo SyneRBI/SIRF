@@ -31,7 +31,7 @@ Defines C functions handling DataHandle objects.
 #include <stdint.h>
 #include <complex>
 
-#include "include/sirf/iUtilities/DataHandle.h"
+#include "sirf/iUtilities/DataHandle.h"
 
 extern "C" {
 

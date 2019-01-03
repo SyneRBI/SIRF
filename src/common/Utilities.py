@@ -5,7 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
 import os
-import pyiutilities as pyiutil
+import sirf.pyiutilities as pyiutil
 import re
 
 __licence__ = """CCP PETMR Synergistic Image Reconstruction Framework (SIRF)

@@ -569,6 +569,7 @@ MRAcquisitionData::order()
 		delete[] index_;
 	index_ = new int[na];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 AcquisitionsFile::AcquisitionsFile
@@ -917,6 +918,7 @@ GadgetronImageData::order()
 		delete[] index_;
 	index_ = new int[ni];
 	Multisort::sort(vt, index_);
+	ordered_ = true;
 }
 
 std::shared_ptr<std::vector<std::string> >
@@ -1006,7 +1008,7 @@ GadgetronImageData::read(std::string filename)
 }
 
 void
-GadgetronImageData::write(std::string filename, std::string groupname)
+GadgetronImageData::write(const std::string &filename, const std::string &groupname) const
 {
 	//if (images_.size() < 1)
 	if (number() < 1)
