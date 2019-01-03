@@ -727,6 +727,20 @@ namespace sirf {
 			_end_const.reset(new Iterator_const(data().end_all()));
 			return *_end_const;
 		}
+
+        /// Clone and return as unique pointer.
+        std::unique_ptr<STIRImageData> clone() const
+        {
+            return std::unique_ptr<STIRImageData>(this->clone_impl());
+        }
+
+    private:
+        /// Clone helper function. Don't use.
+        virtual STIRImageData* clone_impl() const
+        {
+            return new STIRImageData(*this->data().clone());
+        }
+
 	protected:
 
         /// Populate the geometrical info metadata (from the image's own metadata)
