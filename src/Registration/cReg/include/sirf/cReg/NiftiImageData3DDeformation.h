@@ -91,7 +91,7 @@ public:
         return ptr_image;
     }
     /// Write
-    virtual void write(const std::string &filename) const { this->write(filename); }
+    virtual void write(const std::string &filename) const { this->NiftiImageData<float>::write(filename); }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3DDeformation> clone() const
     {
