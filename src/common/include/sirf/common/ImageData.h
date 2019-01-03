@@ -58,6 +58,14 @@ namespace sirf {
         }
         /// Write image to file
         virtual void write(const std::string &filename) const = 0;
+        /// Clone and return as unique pointer.
+        std::unique_ptr<ImageData> clone() const
+        {
+            return std::unique_ptr<ImageData>(this->clone_impl());
+        }
+    protected:
+        /// Clone helper function. Don't use.
+        virtual ImageData* clone_impl() const = 0;
 	};
 }
 

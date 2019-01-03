@@ -730,6 +730,19 @@ namespace sirf {
 			return *_end_const;
 		}
 
+        /// Clone and return as unique pointer.
+        std::unique_ptr<STIRImageData> clone() const
+        {
+            return std::unique_ptr<STIRImageData>(this->clone_impl());
+        }
+
+    private:
+        /// Clone helper function. Don't use.
+        virtual STIRImageData* clone_impl() const
+        {
+            return new STIRImageData(*this->data().clone());
+        }
+
 	protected:
 		stir::shared_ptr<Image3DF> _data;
 		mutable stir::shared_ptr<Iterator> _begin;

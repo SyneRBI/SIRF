@@ -641,6 +641,7 @@ namespace sirf {
 
 		GadgetronImagesVector() : images_(), nimages_(0)
 		{}
+        GadgetronImagesVector(const GadgetronImagesVector& images);
 		GadgetronImagesVector(GadgetronImagesVector& images, const char* attr,
 			const char* target);
 		virtual unsigned int items() const
@@ -752,7 +753,19 @@ namespace sirf {
 		virtual void get_real_data(float* data) const;
 		virtual void set_real_data(const float* data);
 
+        /// Clone and return as unique pointer.
+        std::unique_ptr<GadgetronImagesVector> clone() const
+        {
+            return std::unique_ptr<GadgetronImagesVector>(this->clone_impl());
+        }
+
 	private:
+        /// Clone helper function. Don't use.
+        virtual GadgetronImagesVector* clone_impl() const
+        {
+            return new GadgetronImagesVector(*this);
+        }
+
 		std::vector<gadgetron::shared_ptr<ImageWrap> > images_;
 		int nimages_;
 		mutable gadgetron::shared_ptr<Iterator> begin_;
