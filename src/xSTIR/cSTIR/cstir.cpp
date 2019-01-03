@@ -999,7 +999,7 @@ void* cSTIR_getImageTransformMatrix(const void* ptr_im, size_t ptr_md)
 	try {
         STIRImageData& id = objectFromHandle<STIRImageData>(ptr_im);
 		float* data = (float*)ptr_md;
-		TransformMatrix3D mx = id.get_geom_info()->calculate_index_to_physical_point_matrix();
+		TransformMatrix3D mx = id.get_geom_info_sptr()->calculate_index_to_physical_point_matrix();
 		for (int j = 0; j < 4; j++)
 			for (int i = 0; i < 4; i++)
 				data[i + 4 * j] = mx[j][i];

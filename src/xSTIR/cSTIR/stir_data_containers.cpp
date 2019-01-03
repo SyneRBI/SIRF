@@ -348,11 +348,6 @@ const DataContainer& a_y
 
 STIRImageData::STIRImageData(const ImageData& id)
 {
-    // Copy the geometrical info
-    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(*id.get_geom_info());
-
-    // Size
-    // TODO should this use geom info?
     Dimensions dim = id.dimensions();
     int nx = dim["x"];
     int ny = dim["y"];
@@ -363,21 +358,10 @@ STIRImageData::STIRImageData(const ImageData& id)
             nz *= it->second;
         ++it;
     }
-    stir::IndexRange3D index_range(     0,          nz - 1,
-                                   -(ny / 2), -(ny / 2) + ny - 1,
-                                   -(nx / 2), -(nx / 2) + nx - 1);
-
-    // Spacing
-    VoxelisedGeometricalInfo3D::Spacing id_spacing = _geom_info_sptr->get_spacing();
-    Coord3DF spacing(id_spacing[2],id_spacing[1],id_spacing[2]);
-
-    // Offset
-    VoxelisedGeometricalInfo3D::Offset id_offset = _geom_info_sptr->get_offset();
-    Coord3DF offset(id_offset[2],id_offset[1],id_offset[2]);
-
-    // TODO Direction - do we need something here?
-
-    Voxels3DF voxels(index_range, offset, spacing);
+    Voxels3DF voxels(stir::IndexRange3D(0, nz - 1,
+        -(ny / 2), -(ny / 2) + ny - 1, -(nx / 2), -(nx / 2) + nx - 1),
+        Coord3DF(0, 0, 0),
+        Coord3DF(3, 3, 3.375));
     _data.reset(voxels.clone());
     copy(id.begin(), begin(), end());
 
