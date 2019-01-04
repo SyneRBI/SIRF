@@ -672,7 +672,7 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
 {
     try {
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>(SIRFRegAffineTransformation<float>::get_identity()));
+        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>);
         return newObjectHandle(sptr);
     }
     CATCH;

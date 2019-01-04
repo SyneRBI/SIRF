@@ -607,7 +607,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("NiftiImageData3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-        SIRFRegAffineTransformation<float> tm_iden = SIRFRegAffineTransformation<float>::get_identity();
+        SIRFRegAffineTransformation<float> tm_iden;
         SIRFRegAffineTransformation<float> trans_aff_iden(tm_iden);
         std::vector<std::shared_ptr<const SIRFRegTransformation<float> > > vec;
         vec.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(trans_aff_iden));
@@ -628,7 +628,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty resample test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >(SIRFRegAffineTransformation<float>::get_identity());
+        std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >();
         std::shared_ptr<const SIRFRegTransformation<float> > tm       = NA.get_transformation_matrix_forward();
         std::shared_ptr<const SIRFRegTransformation<float> > disp     = NA.get_displacement_field_forward();
         std::shared_ptr<const SIRFRegTransformation<float> > deff     = NA.get_deformation_field_forward();
@@ -774,7 +774,7 @@ int main(int argc, char* argv[])
         SIRFRegAffineTransformation<float> b = *NA.get_transformation_matrix_forward();
         SIRFRegAffineTransformation<float> c = *NA.get_transformation_matrix_inverse();
         SIRFRegAffineTransformation<float> d = b * c;
-        SIRFRegAffineTransformation<float> e = SIRFRegAffineTransformation<float>::get_identity();
+        SIRFRegAffineTransformation<float> e;
         if (d != e)
             throw std::runtime_error("SIRFRegAffineTransformation::mult/comparison failed.");
 

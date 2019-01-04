@@ -221,7 +221,7 @@ sirf::cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, co
         return dataHandle<float>(s.get_determinant());
     }
     if (strcmp(name,"identity") == 0) {
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr_id(new SIRFRegAffineTransformation<float>(SIRFRegAffineTransformation<float>::get_identity()));
+        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr_id(new SIRFRegAffineTransformation<float>);
         return newObjectHandle(sptr_id);
     }
     else

@@ -42,10 +42,7 @@ public:
     /// Print multiple SIRFRegAffineTransformation
     static void print(const std::vector<sirf::SIRFRegAffineTransformation<dataType> > &mats);
 
-    /// Get as identity matrix
-    static SIRFRegAffineTransformation get_identity();
-
-    /// Default constructor
+    /// Default constructor - identity matrix
     SIRFRegAffineTransformation();
 
     /// Constructor

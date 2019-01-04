@@ -93,20 +93,11 @@ void SIRFRegAffineTransformation<dataType>::print(const std::vector<SIRFRegAffin
 }
 
 template<class dataType>
-SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::get_identity()
-{
-    SIRFRegAffineTransformation res;
-    for (int i=0; i<4; ++i)
-        res[i][i] = 1.F;
-    return res;
-}
-
-template<class dataType>
 SIRFRegAffineTransformation<dataType>::SIRFRegAffineTransformation()
 {
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
-            _tm[i][j] = 0.F;
+            _tm[i][j] = i == j ? 1.F : 0.F;
 }
 
 template<class dataType>
