@@ -52,10 +52,19 @@ endif (BUILD_PYTHON)
 
 if (BUILD_MATLAB)
 
-  add_library(mig mig.cpp)
+  include_directories(${Matlab_INCLUDE_DIRS})
 
+  add_library(mig mig.cpp)
+  add_library(msirf SHARED msirf.c)
+  SET_TARGET_PROPERTIES(msirf PROPERTIES SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
+  target_link_libraries(msirf csirf iutilities ${Matlab_LIBRARIES})
+
+  INSTALL(TARGETS msirf DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES msirf.h DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +mUtilities DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")
+
+  ADD_SUBDIRECTORY(gmi)
 
 endif (BUILD_MATLAB)

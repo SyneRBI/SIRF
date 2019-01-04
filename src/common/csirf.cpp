@@ -67,8 +67,8 @@ cSIRF_dot(const void* ptr_x, const void* ptr_y)
 		float s;
 		std::complex<float> z(0.0, 0.0);
 		x.dot(y, &z);
-		s = z.real();
-		return dataHandle(s);
+		//s = z.real();
+		return dataHandle(z);
 	}
 	CATCH;
 }

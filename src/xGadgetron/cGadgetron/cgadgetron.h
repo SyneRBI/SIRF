@@ -92,16 +92,6 @@ extern "C" {
 	void* cGT_getImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 	void* cGT_setImagesDataAsCmplxArray(void* ptr_imgs, PTR_FLOAT ptr_z);
 
-	// data container methods
-	void* cGT_dataItems(const void* ptr_x);
-	void* cGT_norm(const void* ptr_x);
-	void* cGT_dot(const void* ptr_x, const void* ptr_y);
-	void* cGT_axpby(
-		float ar, float ai, const void* ptr_x,
-		float br, float bi, const void* ptr_y);
-	void* cGT_multiply(const void* ptr_x, const void* ptr_y);
-	void* cGT_divide(const void* ptr_x, const void* ptr_y);
-
 	// gadget chain methods
 	void* cGT_addReader(void* ptr_gc, const char* id, const void* ptr_r);
 	void* cGT_addWriter(void* ptr_gc, const char* id, const void* ptr_r);

@@ -1,4 +1,4 @@
-classdef CoilSensitivityData < mGadgetron.DataContainer
+classdef CoilSensitivityData < DataContainer
 % Class for a coil sensitivity maps (csm) container.
 % Each item in the container is a 4D (x-y-z-coil) complex array of csm 
 % values.
