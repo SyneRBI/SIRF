@@ -219,7 +219,7 @@ public:
     void print_header() const;
 
     /// Print multiple header info
-    static void print_headers(const std::vector<NiftiImageData> &ims);
+    static void print_headers(const std::vector<const NiftiImageData*> &ims);
 
     /// Crop. Set to -1 to leave unchanged
     void crop(const int min_index[7], const int max_index[7]);
@@ -246,15 +246,15 @@ public:
     static bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2);
 
     /// Dump info of multiple nifti images
-    static void dump_headers(const std::vector<NiftiImageData> &ims);
+    static void dump_headers(const std::vector<const NiftiImageData*> &ims);
 
     /// Dump nifti element
     template<typename T>
-    static void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back);
+    static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back);
 
     /// Dump nifti element
     template<typename T>
-    static void dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
+    static void dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems);
 
 protected:
 

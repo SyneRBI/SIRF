@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 
         // Test print methods
         q.print_header();
-        NiftiImageData<float>::print_headers({q, s});
+        NiftiImageData<float>::print_headers({&q,&s});
 
         // Crop image
         int min[7], max[7];

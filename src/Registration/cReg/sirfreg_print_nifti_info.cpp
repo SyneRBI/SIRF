@@ -44,13 +44,16 @@ int main(int argc, char* argv[])
         // Vector of images
         int num_images = argc - 1;
         std::vector<NiftiImageData<float> > ims;
+        std::vector<const NiftiImageData<float>*> ims_ptr;
 
         // Read all the images
-        for (int i=1; i<=num_images; ++i)
+        for (int i=1; i<=num_images; ++i) {
             ims.push_back(NiftiImageData<float>(argv[i]));
+            ims_ptr.push_back(&ims[i]);
+        }
 
         // Print info
-        NiftiImageData<float>::print_headers(ims);
+        NiftiImageData<float>::print_headers(ims_ptr);
 
     // If there was an error
     } catch(const std::exception &error) {

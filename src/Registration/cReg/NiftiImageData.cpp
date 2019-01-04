@@ -462,12 +462,12 @@ void NiftiImageData<dataType>::change_datatype(const int datatype)
 template<class dataType>
 void NiftiImageData<dataType>::print_header() const
 {
-    NiftiImageData<dataType>::print_headers({*this});
+    NiftiImageData<dataType>::print_headers({this});
 }
 
 /// Dump multiple header info
 template<class dataType>
-void NiftiImageData<dataType>::print_headers(const std::vector<sirf::NiftiImageData<dataType> > &ims)
+void NiftiImageData<dataType>::print_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
 {
     dump_headers(ims);
 }
@@ -764,7 +764,7 @@ bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageDat
 
 /// Dump info of multiple nifti images
 template<class dataType>
-void NiftiImageData<dataType>::dump_headers(const std::vector<NiftiImageData<dataType> > &ims)
+void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageData<dataType>*> &ims)
 {
     std::cout << "\nPrinting info for " << ims.size() << " nifti image(s):\n";
     dump_nifti_element(ims, "analyze_75_orient", &nifti_image::analyze75_orient);
@@ -825,7 +825,7 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<NiftiImageData<dat
 
     std::vector<std::shared_ptr<const nifti_image> > images;
     for(unsigned i=0;i<ims.size();i++)
-        images.push_back(ims[i].get_raw_nifti_sptr());
+        images.push_back(ims[i]->get_raw_nifti_sptr());
 
     // Print transformation matrices
     std::vector<SIRFRegAffineTransformation<dataType> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
@@ -848,41 +848,41 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<NiftiImageData<dat
     std::string min_header = "min: ";
     std::cout << "\t" << std::left << std::setw(19) << min_header;
     for(unsigned i=0; i<ims.size(); i++)
-        std::cout << std::setw(19) << ims[i].get_min();
+        std::cout << std::setw(19) << ims[i]->get_min();
 
     // Print max
     std::cout << "\n\t" << std::left << std::setw(19) << "max: ";
     for(unsigned i=0; i<ims.size(); i++)
-        std::cout << std::setw(19) << ims[i].get_max();
+        std::cout << std::setw(19) << ims[i]->get_max();
 
     // Print mean
     std::cout << "\n\t" << std::left << std::setw(19) << "mean: ";
     for(unsigned i=0; i<ims.size(); i++)
-        std::cout << std::setw(19) << ims[i].get_mean();
+        std::cout << std::setw(19) << ims[i]->get_mean();
 
     std::cout << "\n\n";
 }
 
 template<class dataType>
 template<typename T>
-void NiftiImageData<dataType>::dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back)
+void NiftiImageData<dataType>::dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back)
 {
     std::string header = name + ": ";
     std::cout << "\t" << std::left << std::setw(19) << header;
     for(unsigned i=0; i<ims.size(); i++)
-        std::cout << std::setw(19) << ims[i].get_raw_nifti_sptr().get()->*call_back;
+        std::cout << std::setw(19) << ims[i]->get_raw_nifti_sptr().get()->*call_back;
     std::cout << "\n";
 }
 
 template<class dataType>
 template<typename T>
-void NiftiImageData<dataType>::dump_nifti_element(const std::vector<NiftiImageData> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
+void NiftiImageData<dataType>::dump_nifti_element(const std::vector<const NiftiImageData*> &ims, const std::string &name, const T &call_back, const unsigned num_elems)
 {
     for(unsigned i=0; i<num_elems; i++) {
         std::string header = name + "[" + std::to_string(i) + "]: ";
         std::cout << "\t" << std::left << std::setw(19) << header;
         for(unsigned j=0; j<ims.size(); j++)
-            std::cout << std::setw(19) << (ims[j].get_raw_nifti_sptr().get()->*call_back)[i];
+            std::cout << std::setw(19) << (ims[j]->get_raw_nifti_sptr().get()->*call_back)[i];
         std::cout << "\n";
     }
 }

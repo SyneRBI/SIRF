@@ -171,7 +171,10 @@ void* cSIRFReg_NiftiImageData_print_headers(const int num_ims, const void* im1, 
         if (num_ims >= 3) vec.push_back(objectFromHandle<NiftiImageData<float> >(im3));
         if (num_ims >= 4) vec.push_back(objectFromHandle<NiftiImageData<float> >(im4));
         if (num_ims >= 5) vec.push_back(objectFromHandle<NiftiImageData<float> >(im5));
-        NiftiImageData<float>::print_headers(vec);
+        std::vector<const NiftiImageData<float>*> vec_ptr;
+        for (int i=0; i<vec.size(); ++i)
+            vec_ptr.push_back(&vec[i]);
+        NiftiImageData<float>::print_headers(vec_ptr);
         return new DataHandle;
     }
     CATCH;
