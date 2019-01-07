@@ -43,13 +43,13 @@ int main(int argc, char* argv[])
 
         // Vector of images
         int num_images = argc - 1;
-        std::vector<NiftiImageData<float> > ims;
+        std::vector<std::shared_ptr<const NiftiImageData<float> > > ims;
         std::vector<const NiftiImageData<float>*> ims_ptr;
 
         // Read all the images
-        for (int i=1; i<=num_images; ++i) {
-            ims.push_back(NiftiImageData<float>(argv[i]));
-            ims_ptr.push_back(&ims[i]);
+        for (int i=0; i<num_images; ++i) {
+            ims.push_back(std::make_shared<const NiftiImageData<float> >(argv[i+1]));
+            ims_ptr.push_back(ims[i].get());
         }
 
         // Print info
