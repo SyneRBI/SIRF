@@ -63,6 +63,9 @@ public:
     /// Process
     virtual void process();
 
+    /// Get output (as NiftiImageData3D)
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _output_image_nifti_sptr; }
+
 protected:
 
     /// Set up the input images (convert from ImageData to NiftiImageData3D if necessary)

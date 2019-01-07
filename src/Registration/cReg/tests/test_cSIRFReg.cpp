@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
         NA.process();
 
         // Get outputs
-        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(NA.get_output());
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output();
         std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
         std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
@@ -554,7 +554,7 @@ int main(int argc, char* argv[])
         NF.process();
 
         // Get outputs
-        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(NF.get_output());
+        std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NF.get_output();
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_forward());
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NF.get_deformation_field_inverse());
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NF.get_displacement_field_forward());
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr1.get_output())->write(rigid_resample);
+        nr1.get_output()->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
         SIRFRegNiftyResample<float> nr2;
@@ -652,7 +652,7 @@ int main(int argc, char* argv[])
         nr2.set_interpolation_type_to_linear(); // try different interpolations
         nr2.add_transformation(disp);
         nr2.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr2.get_output())->write(nonrigid_resample_disp);
+        nr2.get_output()->write(nonrigid_resample_disp);
 
         std::cout << "Testing non-rigid deformation...\n";
         SIRFRegNiftyResample<float> nr3;
@@ -662,7 +662,7 @@ int main(int argc, char* argv[])
         nr3.add_transformation(deff);
         nr3.set_interpolation_type_to_linear();
         nr3.process();
-        std::dynamic_pointer_cast<const NiftiImageData3D<float> >(nr3.get_output())->write(nonrigid_resample_def);
+        nr3.get_output()->write(nonrigid_resample_def);
 
         // TODO this doesn't work. For some reason (even with NiftyReg directly), resampling with the TM from the registration
         // doesn't give the same result as the output from the registration itself (even with same interpolations). Even though

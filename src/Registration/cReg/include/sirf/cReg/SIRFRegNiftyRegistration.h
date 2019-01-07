@@ -72,6 +72,8 @@ public:
     /// Get inverse deformation field image
     virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_inverse() const;
 
+    /// Get registered image as NiftiImageData3D
+    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _warped_image_nifti_sptr; }
 
 protected:
 
