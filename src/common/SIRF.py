@@ -33,6 +33,8 @@ from pUtilities import *
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 
+from numbers import Number
+
 try:
     input = raw_input
 except NameError:
@@ -208,6 +210,7 @@ class DataContainer(ABC):
             return z;
         except:
             raise error('wrong multiplier')
+
     def __rmul__(self, other):
         '''
         Overloads * for data containers multiplication by a scalar from
@@ -257,16 +260,21 @@ class DataContainer(ABC):
         uses NumPy
         SIRF/CIL compatibility
         '''
-
-        assert_validities(self, other)
         if out is None:
-            z = self.same_object()
+            z = self.clone()
         else:
             assert_validities(self, out)
             z = out
-        z.fill(
+        
+        if isinstance(other, Number):
+            tmp =  numpy.power(self.as_array(), other)
+            print (tmp.shape)
+            z.fill( tmp )
+        else:
+            assert_validities(self, other)
+            z.fill(
                numpy.power(self.as_array(), other.as_array())
-        )
+            )
         return z
     def maximum(self, other, out=None):
         '''Element-wise maximum of DataContainer elements.
@@ -279,7 +287,7 @@ class DataContainer(ABC):
 
         assert_validities(self, other)
         if out is None:
-            z = self.same_object()
+            z = self.clone()
         else:
             assert_validities(self, out)
             z = out
@@ -309,7 +317,7 @@ class DataContainer(ABC):
         
            uses NumPy 
         '''
-        z = self.same_object()
+        z = self.clone()
         z.fill(
                numpy.abs(self.as_array())
         )
@@ -319,7 +327,7 @@ class DataContainer(ABC):
         
            uses NumPy 
         '''
-        z = self.same_object()
+        z = self.clone()
         z.fill(
                numpy.sign(self.as_array())
         )
@@ -329,7 +337,7 @@ class DataContainer(ABC):
         
            uses NumPy 
         '''
-        z = self.same_object()
+        z = self.clone()
         z.fill(
                numpy.sqrt(self.as_array())
         )
