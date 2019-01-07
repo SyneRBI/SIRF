@@ -52,8 +52,13 @@ void SIRFRegNiftyResample<dataType>::process()
 
     // Setup output image
     set_up_output_image();
+    // If no transformations, use identity.
+    if (this->_transformations.size() == 0) {
+        std::cout << "\nNo transformations set, using identity.\n";
+        this->_transformations.push_back(std::make_shared<SIRFRegAffineTransformation<float> >());
+    }
 
-    // Compose single transformation from multiple
+    // If there are multiple transformations, compose them into single transformation.
     NiftiImageData3DDeformation<dataType> transformation =
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
 

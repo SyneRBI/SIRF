@@ -41,12 +41,10 @@ template<class dataType>
 void SIRFRegResample<dataType>::check_parameters()
 {
     // If anything is missing
-    if (!_reference_image_sptr) {
-        throw std::runtime_error("Reference image has not been set."); }
-    if (!_floating_image_sptr) {
-        throw std::runtime_error("Floating image has not been set."); }
-    if (_transformations.size() == 0)
-        throw std::runtime_error("Transformation(s) not set.");
+    if (!_reference_image_sptr)
+        throw std::runtime_error("Reference image has not been set.");
+    if (!_floating_image_sptr)
+        throw std::runtime_error("Floating image has not been set.");
 }
 
 namespace sirf {
