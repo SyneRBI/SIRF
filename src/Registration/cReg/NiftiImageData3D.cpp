@@ -75,7 +75,7 @@ NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
 
     SIRFRegAffineTransformation<float> tm_flip;
     tm_flip[0][0] = tm_flip[1][1] = -1.F;
-    SIRFRegAffineTransformation<float> tm_final = tm_flip*tm_orig;//*tm_flip;
+    SIRFRegAffineTransformation<float> tm_final = tm_flip*tm_orig;
     for (int i=0;i<4;++i)
         for (int j=0;j<4;++j)
             this->_nifti_image->qto_xyz.m[i][j]=tm_final[i][j];
