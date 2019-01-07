@@ -385,7 +385,7 @@ STIRImageData::dot(const DataContainer& a_x, void* ptr) const
 {
 	STIRImageData& x = (STIRImageData&)a_x;
 #ifdef _MSC_VER
-	Image3DF::full_iterator iter;
+	Image3DF::const_full_iterator iter;
 	Image3DF::const_full_iterator iter_x;
 #else
 	typename Array<3, float>::const_full_iterator iter;

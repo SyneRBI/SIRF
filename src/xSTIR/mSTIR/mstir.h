@@ -90,11 +90,6 @@ EXPORTED_FUNCTION 	void* mSTIR_imageFromAcquisitionDataAndNxNy(void* ptr_ad, int
 EXPORTED_FUNCTION 	void* mSTIR_fillImage(void* ptr_i, float v);
 EXPORTED_FUNCTION 	void* mSTIR_addShape(void* ptr_i, void* ptr_s, float v);
 EXPORTED_FUNCTION 	void* mSTIR_writeImage(void* ptr_i, const char* filename); 
-EXPORTED_FUNCTION 	void* mSTIR_norm(const void* ptr_x);
-EXPORTED_FUNCTION 	void*	mSTIR_dot(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_axpby(float a, const void* ptr_x, float b, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_multiply(const void* ptr_x, const void* ptr_y);
-EXPORTED_FUNCTION 	void* mSTIR_divide(const void* ptr_x, const void* ptr_y);
 EXPORTED_FUNCTION 	void* mNewTextPrinter(const char* stream);
 EXPORTED_FUNCTION 	void* mNewTextWriter(const char* stream);
 EXPORTED_FUNCTION 	void mOpenChannel(int channel, void* ptr_w);

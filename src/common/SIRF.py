@@ -29,7 +29,7 @@ except:
     HAVE_PYLAB = False
 import sys
 
-from pUtilities import *
+from sirf.Utilities import assert_validities, check_status
 import pyiutilities as pyiutil
 import sirf.pysirf as pysirf
 

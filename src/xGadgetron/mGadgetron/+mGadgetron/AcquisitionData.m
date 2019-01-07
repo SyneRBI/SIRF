@@ -1,4 +1,4 @@
-classdef AcquisitionData < mGadgetron.DataContainer
+classdef AcquisitionData < DataContainer
 % Class for MR acquisitions data.
 % Each item in the container is a complex array of acquisition 
 % samples for each coil.

@@ -54,14 +54,14 @@ try
     am.set_up(template, attn_image);
 
     % create acquisition sensitivity model from attenuation image
-    fprintf('creating acquisition sensitivity model...')
+    fprintf('creating acquisition sensitivity model...\n')
     asm = AcquisitionSensitivityModel(attn_image, am);
     asm.set_up(template);
     am.set_acquisition_sensitivity(asm);
 
     % apply attenuation to the uniform acquisition data to obtain
     % 'bin efficiencies'
-    fprintf('applying attenuation (please wait, may take a while)...')
+    fprintf('applying attenuation (please wait, may take a while)...\n')
     asm.unnormalise(acq_data)
 
     % display bin efficiencies
