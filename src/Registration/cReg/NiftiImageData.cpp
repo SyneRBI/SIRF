@@ -907,7 +907,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
 
     std::cout << "\nImages are not equal (norm > epsilon).\n";
     std::cout << "\tmax1                              = " << im1.get_max() << "\n";
-    std::cout << "\tmax2                              = " << im1.get_max() << "\n";
+    std::cout << "\tmax2                              = " << im2.get_max() << "\n";
     std::cout << "\tmin1                              = " << im1.get_min() << "\n";
     std::cout << "\tmin2                              = " << im2.get_min() << "\n";
     std::cout << "\trequired accuracy compared to max = " << required_accuracy_compared_to_max << "\n";
@@ -1000,11 +1000,14 @@ void NiftiImageData<dataType>::set_up_geom_info()
 
     // Offest
     VoxelisedGeometricalInfo3D::Offset offset;
-    // TODO - update
+    for (int i=0; i<3; ++i)
+        offset[i] = _nifti_image->qto_xyz.m[i][3];
 
     // Transformation matrix
     VoxelisedGeometricalInfo3D::DirectionMatrix direction;
-    // TODO - update
+    for (int i=0; i<3; ++i)
+        for (int j=0; j<3; ++j)
+            direction[i][j] = _nifti_image->qto_xyz.m[i][j];
 
     // Initialise the geom info shared pointer
     _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>(
