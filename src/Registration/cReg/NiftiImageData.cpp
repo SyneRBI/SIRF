@@ -104,7 +104,7 @@ bool NiftiImageData<dataType>::operator==(const NiftiImageData<dataType> &other)
 {
     if (this == &other)
         return true;
-    return this->are_equal_to_given_accuracy(other,1.e-3F);
+    return this->are_equal_to_given_accuracy(*this,other,1.e-3F);
 }
 
 template<class dataType>
@@ -888,16 +888,14 @@ void NiftiImageData<dataType>::dump_nifti_element(const std::vector<const NiftiI
 }
 
 template<class dataType>
-bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im2, const float required_accuracy_compared_to_max) const
+bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData &im1, const NiftiImageData &im2, const float required_accuracy_compared_to_max)
 {
-    const NiftiImageData &im1 = *this;
-
     if(!im1.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 1 not initialised.");
     if(!im2.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
-    // Get norm between two images
+    // Get required accuracy compared to the image maxes
     float norm = im1.get_norm(im2);
     float epsilon = (im1.get_max()+im2.get_max())/2.F;
     epsilon *= required_accuracy_compared_to_max;
