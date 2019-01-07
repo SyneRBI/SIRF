@@ -85,13 +85,13 @@ public:
     /// Compose multiple transformations into single deformation field
     static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
 
-    virtual NiftiImageData<float>* same_image_data() const
+    virtual NiftiImageData3DDeformation* same_image_data() const
     {
-        NiftiImageData<float>* ptr_image = new NiftiImageData3DDeformation<float>(*this);
+        NiftiImageData3DDeformation* ptr_image = new NiftiImageData3DDeformation(*this);
         return ptr_image;
     }
     /// Write
-    virtual void write(const std::string &filename) const { this->NiftiImageData<float>::write(filename); }
+    virtual void write(const std::string &filename) const { this->NiftiImageData<dataType>::write(filename); }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3DDeformation> clone() const
     {
@@ -101,7 +101,7 @@ protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DDeformation* clone_impl() const
     {
-	return new NiftiImageData3DDeformation<float>(*this);
+	return new NiftiImageData3DDeformation(*this);
     }
 };
 }

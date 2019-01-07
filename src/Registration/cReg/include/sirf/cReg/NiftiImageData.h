@@ -383,11 +383,11 @@ protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData* clone_impl() const
     {
-	return new NiftiImageData<float>(*this);
+	return new NiftiImageData(*this);
     }
-    virtual NiftiImageData<float>* same_image_data() const
+    virtual NiftiImageData* same_image_data() const
     {
-        NiftiImageData<float>* ptr_image = new NiftiImageData<float>(*this);
+        NiftiImageData* ptr_image = new NiftiImageData(*this);
         return ptr_image;
     }
     DataContainer* new_data_container() const

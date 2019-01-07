@@ -74,13 +74,13 @@ public:
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
-    virtual NiftiImageData<float>* same_image_data() const
+    virtual NiftiImageData3DDisplacement* same_image_data() const
     {
-        NiftiImageData<float>* ptr_image = new NiftiImageData3DDisplacement<float>(*this);
+        NiftiImageData3DDisplacement* ptr_image = new NiftiImageData3DDisplacement(*this);
         return ptr_image;
     }
     /// Write
-    virtual void write(const std::string &filename) const { this->NiftiImageData<float>::write(filename); }
+    virtual void write(const std::string &filename) const { this->NiftiImageData<dataType>::write(filename); }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3DDisplacement> clone() const
     {
@@ -90,7 +90,7 @@ protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DDisplacement* clone_impl() const
     {
-	return new NiftiImageData3DDisplacement<float>(*this);
+	return new NiftiImageData3DDisplacement<dataType>(*this);
     }
 };
 }

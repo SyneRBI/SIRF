@@ -62,27 +62,27 @@ void SIRFRegNiftyRegistration<dataType>::set_up_inputs()
     // In this case, construct a NiftiImageData3D
 
     // Reference image
-    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_reference_image_sptr);
+    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_image_sptr);
     if (!this->_reference_image_nifti_sptr)
-        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_reference_image_sptr);
+        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_image_sptr);
 
     // Floating image
-    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_floating_image_sptr);
+    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_image_sptr);
     if (!this->_floating_image_nifti_sptr)
-        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_floating_image_sptr);
+        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_image_sptr);
 
     // Reference mask (if supplied)
     if (this->_reference_mask_sptr) {
-        this->_reference_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_reference_mask_sptr);
+        this->_reference_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_mask_sptr);
         if (!this->_reference_mask_nifti_sptr)
-            this->_reference_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_reference_mask_sptr);
+            this->_reference_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_mask_sptr);
     }
 
     // Floating mask (if supplied)
     if (this->_floating_mask_sptr) {
-        this->_floating_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_floating_mask_sptr);
+        this->_floating_mask_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_mask_sptr);
         if (!this->_floating_mask_nifti_sptr)
-            this->_floating_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_floating_mask_sptr);
+            this->_floating_mask_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_mask_sptr);
     }
 }
 

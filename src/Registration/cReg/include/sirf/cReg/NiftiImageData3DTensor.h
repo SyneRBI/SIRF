@@ -77,9 +77,9 @@ public:
     /// Flip component of nu
     void flip_component(const int dim);
 
-    virtual NiftiImageData<float>* same_image_data() const
+    virtual NiftiImageData3DTensor* same_image_data() const
     {
-        NiftiImageData<float>* ptr_image = new NiftiImageData3DTensor<float>(*this);
+        NiftiImageData3DTensor* ptr_image = new NiftiImageData3DTensor(*this);
         return ptr_image;
     }
     /// Clone and return as unique pointer.
@@ -91,7 +91,7 @@ protected:
     /// Clone helper function. Don't use.
     virtual NiftiImageData3DTensor* clone_impl() const
     {
-	return new NiftiImageData3DTensor<float>(*this);
+	return new NiftiImageData3DTensor(*this);
     }
 };
 }

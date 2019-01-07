@@ -83,15 +83,15 @@ template<class dataType>
 void SIRFRegNiftyResample<dataType>::set_up_input_images()
 {
     // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
-    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_reference_image_sptr);
-    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<float> >(this->_floating_image_sptr);
+    this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_image_sptr);
+    this->_floating_image_nifti_sptr  = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_floating_image_sptr);
 
     // If either is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
     // In this case, construct a NiftiImageData3D
     if (!this->_reference_image_nifti_sptr)
-        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_reference_image_sptr);
+        this->_reference_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_reference_image_sptr);
     if (!this->_floating_image_nifti_sptr)
-        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<float> >(*this->_floating_image_sptr);
+        this->_floating_image_nifti_sptr = std::make_shared<const NiftiImageData3D<dataType> >(*this->_floating_image_sptr);
 }
 
 template<class dataType>
