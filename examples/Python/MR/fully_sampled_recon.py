@@ -11,6 +11,7 @@ Options:
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
   -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
+  -o <outp>, --output=<path>  output file name [default: output.h5]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -82,6 +83,7 @@ def main():
     
     # retrieve reconstruced image data
     image_data = recon.get_output()
+    image_data.write(args['--output'])
 
     # show reconstructed image data
     image_array = image_data.as_array()

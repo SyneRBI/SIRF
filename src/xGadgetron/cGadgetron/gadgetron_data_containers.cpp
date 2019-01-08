@@ -27,6 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 #include <cmath>
+#include <iomanip>
 
 #include "sirf/cGadgetron/cgadgetron_shared_ptr.h"
 #include "sirf/cGadgetron/gadgetron_data_containers.h"
@@ -1019,9 +1020,18 @@ GadgetronImageData::write(const std::string &filename, const std::string &groupn
 	//if (images_.size() < 1)
 	if (number() < 1)
 		return;
+    // If the groupname hasn't been set, use the current date and time.
+    std::string group = groupname;
+    if (group.empty()) {
+        auto t = std::time(nullptr);
+        auto tm = *std::localtime(&t);
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+        group = oss.str();
+    }
 	Mutex mtx;
 	mtx.lock();
-	ISMRMRD::Dataset dataset(filename.c_str(), groupname.c_str());
+	ISMRMRD::Dataset dataset(filename.c_str(), group.c_str());
 	mtx.unlock();
 	for (unsigned int i = 0; i < number(); i++) {
 		const ImageWrap& iw = image_wrap(i);
