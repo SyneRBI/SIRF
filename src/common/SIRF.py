@@ -268,7 +268,6 @@ class DataContainer(ABC):
         
         if isinstance(other, Number):
             tmp =  numpy.power(self.as_array(), other)
-            print (tmp.shape)
             z.fill( tmp )
         else:
             assert_validities(self, other)
