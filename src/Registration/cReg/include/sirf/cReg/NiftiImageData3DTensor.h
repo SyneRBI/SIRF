@@ -58,10 +58,6 @@ public:
     NiftiImageData3DTensor(const nifti_image &image_nifti)
         : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3DTensor); }
 
-    /// Nifti std::shared_ptr constructor
-    NiftiImageData3DTensor(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData<dataType>(image_nifti) { this->check_dimensions(this->_3DTensor); }
-
     /// Create from 3 individual components
     NiftiImageData3DTensor(const NiftiImageData3D<dataType> &x, const NiftiImageData3D<dataType> &y, const NiftiImageData3D<dataType> &z);
 

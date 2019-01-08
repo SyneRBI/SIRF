@@ -53,10 +53,6 @@ public:
     NiftiImageData3DDisplacement(const nifti_image &image_nifti)
         : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDisp); }
 
-    /// Nifti std::shared_ptr constructor
-    NiftiImageData3DDisplacement(const std::shared_ptr<nifti_image> image_nifti)
-        : NiftiImageData3DTensor<dataType>(image_nifti) { this->check_dimensions(this->_3DDisp); }
-
     /// Construct from general tensor
     NiftiImageData3DDisplacement(const NiftiImageData<dataType>& tensor)
         : NiftiImageData3DTensor<dataType>(tensor) { this->check_dimensions(this->_3DDisp); }

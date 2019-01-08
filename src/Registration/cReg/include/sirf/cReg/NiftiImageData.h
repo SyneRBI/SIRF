@@ -139,9 +139,6 @@ public:
     /// Nifti constructor
     NiftiImageData(const nifti_image &image_nifti);
 
-    /// Nifti std::shared_ptr constructor
-    NiftiImageData(const std::shared_ptr<nifti_image> image_nifti);
-
     /// Equality operator
     bool operator==(const NiftiImageData &other) const;
 

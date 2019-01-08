@@ -92,14 +92,6 @@ NiftiImageData<dataType>::NiftiImageData(const nifti_image &image_nifti)
 }
 
 template<class dataType>
-NiftiImageData<dataType>::NiftiImageData(const std::shared_ptr<nifti_image> image_nifti)
-{
-    copy_nifti_image(_nifti_image,image_nifti);
-    reg_checkAndCorrectDimension(_nifti_image.get());
-    set_up_data(_nifti_image->datatype);
-}
-
-template<class dataType>
 bool NiftiImageData<dataType>::operator==(const NiftiImageData<dataType> &other) const
 {
     if (this == &other)
