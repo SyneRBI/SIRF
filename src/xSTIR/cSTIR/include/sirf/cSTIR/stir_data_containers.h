@@ -656,7 +656,10 @@ namespace sirf {
         /*! This allows speciyfing the output file format used by STIR using a text file.
             Keywords are specified by STIR.
 
-            Example format...
+            If "" is passed as argument for format_file, the default format will be used.
+
+            An example is given below for writing the image in the nifti format. STIR uses
+            ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
             \verbatim
             OutputFileFormat Parameters:=
                 output file format type := ITK
