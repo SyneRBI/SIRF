@@ -45,6 +45,8 @@ void SIRFRegResample<dataType>::check_parameters()
         throw std::runtime_error("Reference image has not been set.");
     if (!_floating_image_sptr)
         throw std::runtime_error("Floating image has not been set.");
+    if (_interpolation_type == NOTSET)
+        throw std::runtime_error("Interpolation type has not been set.");
 }
 
 namespace sirf {

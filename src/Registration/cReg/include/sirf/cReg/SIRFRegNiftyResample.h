@@ -26,6 +26,9 @@ limitations under the License.
 If multiple transformations are set, they will be used in the order that they have been added.
 i.e., Trans3(Trans2(Trans1(x))).
 
+The reference image must be 3D (i.e., NiftiImageData3D), but the floating image (and therefore
+the output image) can have nt and/or nu != 1.
+
 \author Richard Brown
 \author CCP PETMR
 */
@@ -63,12 +66,12 @@ public:
     /// Process
     virtual void process();
 
-    /// Get output (as NiftiImageData3D)
-    const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _output_image_nifti_sptr; }
+    /// Get output (as NiftiImageData)
+    const std::shared_ptr<const NiftiImageData<dataType> > get_output() const { return _output_image_nifti_sptr; }
 
 protected:
 
-    /// Set up the input images (convert from ImageData to NiftiImageData3D if necessary)
+    /// Set up the input images (convert from ImageData to NiftiImageData if necessary)
     void set_up_input_images();
 
     /// Set up the output image
@@ -76,10 +79,10 @@ protected:
 
     /// Reference image as a NiftyImageData3D
     std::shared_ptr<const NiftiImageData3D<dataType> > _reference_image_nifti_sptr;
-    /// Floating image as a NiftyImageData3D
-    std::shared_ptr<const NiftiImageData3D<dataType> > _floating_image_nifti_sptr;
-    /// Floating image as a NiftyImageData3D
-    std::shared_ptr<NiftiImageData3D<dataType> >       _output_image_nifti_sptr;
+    /// Floating image as a NiftyImageData
+    std::shared_ptr<const NiftiImageData<dataType> > _floating_image_nifti_sptr;
+    /// Floating image as a NiftyImageData
+    std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
 };
 }
 

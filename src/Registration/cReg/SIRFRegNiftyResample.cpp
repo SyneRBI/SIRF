@@ -62,12 +62,12 @@ void SIRFRegNiftyResample<dataType>::process()
     NiftiImageData3DDeformation<dataType> transformation =
             NiftiImageData3DDeformation<dataType>::compose_single_deformation(this->_transformations, *this->_reference_image_nifti_sptr);
 
-    // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty cast, but not going to do that!)
+    // Annoyingly NiftyReg doesn't mark floating image as const, so need to copy (could do a naughty C-style cast?)
     NiftiImageData3D<dataType> flo = *this->_floating_image_nifti_sptr;
 
     reg_resampleImage(flo.get_raw_nifti_sptr().get(),
                       this->_output_image_nifti_sptr->get_raw_nifti_sptr().get(),
-                      transformation.get_as_deformation_field(*this->_reference_image_nifti_sptr).get_raw_nifti_sptr().get(),
+                      transformation.get_raw_nifti_sptr().get(),
                       NULL,
                       this->_interpolation_type,
                       0);
@@ -97,26 +97,33 @@ void SIRFRegNiftyResample<dataType>::set_up_input_images()
 template<class dataType>
 void SIRFRegNiftyResample<dataType>::set_up_output_image()
 {
-    // Create copy of reference image
-    this->_output_image_nifti_sptr = std::make_shared<NiftiImageData3D<dataType> >(*this->_reference_image_nifti_sptr);
+    // The output is a mixture between the reference and floating images.
+    const nifti_image * const ref_ptr = this->_reference_image_nifti_sptr->get_raw_nifti_sptr().get();
+    const nifti_image * const flo_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
 
-    const nifti_image *floating_ptr = this->_floating_image_nifti_sptr->get_raw_nifti_sptr().get();
-    nifti_image       *output_ptr   = this->_output_image_nifti_sptr->get_raw_nifti_sptr().get();
+    // Start creating new output as the header from the reference image
+    nifti_image * output_ptr = nifti_copy_nim_info(ref_ptr);
 
-    output_ptr->cal_min                   = floating_ptr->cal_min;
-    output_ptr->cal_max                   = floating_ptr->cal_max;
-    output_ptr->scl_slope                 = floating_ptr->scl_slope;
-    output_ptr->scl_inter                 = floating_ptr->scl_inter;
-    output_ptr->datatype = floating_ptr->datatype;
-    output_ptr->intent_code=floating_ptr->intent_code;
+    // Put in the required info from the floating image
+    output_ptr->cal_min     = flo_ptr->cal_min;
+    output_ptr->cal_max     = flo_ptr->cal_max;
+    output_ptr->scl_slope   = flo_ptr->scl_slope;
+    output_ptr->scl_inter   = flo_ptr->scl_inter;
+    output_ptr->datatype    = flo_ptr->datatype;
+    output_ptr->intent_code = flo_ptr->intent_code;
+    output_ptr->intent_p1   = flo_ptr->intent_p1;
+    output_ptr->intent_p2   = flo_ptr->intent_p2;
+    output_ptr->datatype    = flo_ptr->datatype;
+    output_ptr->nbyper      = flo_ptr->nbyper;
     memset(output_ptr->intent_name, 0, 16);
-    strcpy(output_ptr->intent_name,floating_ptr->intent_name);
-    output_ptr->intent_p1 = floating_ptr->intent_p1;
-    output_ptr->intent_p2 = floating_ptr->intent_p2;
-    output_ptr->datatype  = floating_ptr->datatype;
-    output_ptr->nbyper    = floating_ptr->nbyper;
+    strcpy(output_ptr->intent_name,flo_ptr->intent_name);
     output_ptr->nvox = unsigned(output_ptr->dim[1] * output_ptr->dim[2] * output_ptr->dim[3] * output_ptr->dim[4] * output_ptr->dim[5]);
+
+    // Allocate the data
     output_ptr->data = static_cast<void *>(calloc(output_ptr->nvox, unsigned(output_ptr->nbyper)));
+
+    // Create NiftiImageData from nifti_image
+    this->_output_image_nifti_sptr = std::make_shared<NiftiImageData<dataType> >(*output_ptr);
 }
 
 namespace sirf {
