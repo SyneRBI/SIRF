@@ -652,6 +652,8 @@ namespace sirf {
 		}
         /// Write to file
         virtual void write(const std::string &filename) const;
+        /// Write to file using format file
+        virtual void write(const std::string &filename, const std::string &format_file) const;
 
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(
