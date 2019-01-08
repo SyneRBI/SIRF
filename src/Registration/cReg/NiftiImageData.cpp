@@ -36,6 +36,7 @@ limitations under the License.
 #include "sirf/cReg/NiftiImageData3DDeformation.h"
 #include "sirf/cReg/NiftiImageData3DDisplacement.h"
 #include "sirf/cReg/SIRFRegAffineTransformation.h"
+#include "sirf/cReg/SIRFRegNiftyResample.h"
 #include <iomanip>
 #include <cmath>
 
@@ -889,10 +890,29 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
     if(!im2.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::are_equal_to_given_accuracy: Image 2 not initialised.");
 
+    // Check the number of dimensions match
+    if(im1.get_dimensions()[0] != im2.get_dimensions()[0])
+        return false;
+
     // Get required accuracy compared to the image maxes
-    float norm = im1.get_norm(im2);
+    float norm;
     float epsilon = (im1.get_max()+im2.get_max())/2.F;
     epsilon *= required_accuracy_compared_to_max;
+
+    // If metadata match, get the norm
+    if (do_nifti_image_metadata_match(im1,im2, false))
+        norm = im1.get_norm(im2);
+
+    // If not, we'll have to resample
+    else {
+        std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
+        SIRFRegNiftyResample<float> resample;
+        resample.set_interpolation_type_to_nearest_neighbour();
+        resample.set_reference_image(im1.clone());
+        resample.set_floating_image(im2.clone());
+        resample.process();
+        norm = resample.get_output()->get_norm(im1);
+    }
 
     if (norm < epsilon)
         return true;
