@@ -978,6 +978,10 @@ void NiftiImageData<dataType>::divide
 template<class dataType>
 void NiftiImageData<dataType>::set_up_geom_info()
 {
+    // Firstly, check the qform code is present
+    if (_nifti_image->qform_code != 1)
+        throw std::runtime_error("NiftiImageData<dataType>::set_up_geom_info: Require qform == 1.");
+
     // Number of voxels
     VoxelisedGeometricalInfo3D::Size size;
     for (int i=0; i<3; ++i)
@@ -988,7 +992,7 @@ void NiftiImageData<dataType>::set_up_geom_info()
     for (int i=0; i<3; ++i)
         spacing[i] = _nifti_image->pixdim[i+1];
 
-    // Offest
+    // Offset
     VoxelisedGeometricalInfo3D::Offset offset;
     for (int i=0; i<3; ++i)
         offset[i] = _nifti_image->qto_xyz.m[i][3];

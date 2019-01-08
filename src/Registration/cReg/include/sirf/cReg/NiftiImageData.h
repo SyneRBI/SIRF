@@ -23,6 +23,22 @@ limitations under the License.
 \ingroup Registration
 \brief Base class for SIRF nifti image data.
 
+Generally SIRFReg (not necessarily NiftyReg) will preferentially use
+the qform over the sform code. This is the same for ITK and ANTs, but
+is not the case for SPM/MRIcroGL/FSLeyes/Mango.
+
+qform/sform
+The qform code describes "scanner-anatomical" coordinates, whereas the
+sform code describes the location of the voxels in some standard space.
+
+For qform > 0, the origin of coordinates would generally be whatever
+the scanner origin is; for example, in MRI, (0,0,0) is the center
+of the gradient coil.
+
+For sform > 0, the origin of coordinates would depend on the value
+of sform_code; for example, for the Talairach coordinate system,
+(0,0,0) corresponds to the Anterior Commissure.
+
 \author Richard Brown
 \author CCP PETMR
 */
@@ -435,6 +451,7 @@ protected:
         _end_const.reset(new Iterator_const(_data+_nifti_image->nvox));
         return *_end_const;
     }
+    /// Set up the geometrical info. Use qform preferentially over sform.
     virtual void set_up_geom_info();
 protected:
     mutable std::shared_ptr<Iterator> _begin;
