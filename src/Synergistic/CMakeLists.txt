@@ -27,6 +27,7 @@ INCLUDE_DIRECTORIES(${cGadgetron_INCLUDE_DIR})
 SET(SIRF_executables
     sirf_registration
     sirf_do_images_match
+    sirf_resample
     )
 
 FOREACH(elem ${SIRF_executables})

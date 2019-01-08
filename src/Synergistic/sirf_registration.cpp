@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Perform niftyreg aladin registration
+\brief Perform registration with any type of SIRF image and any SIRF registration algorithm
 
 \author Richard Brown
 \author CCP PETMR
