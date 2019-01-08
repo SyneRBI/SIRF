@@ -367,7 +367,7 @@ STIRImageData::write(const std::string &filename, const std::string &format_file
         parser.add_stop_key("END");
         parser.parse(format_file.c_str());
         if(is_null_ptr(format_sptr))
-            warning("Parsing failed, default output format will be used.");
+            throw std::runtime_error("Parsing failed, default output format will be used.");
     }
     if(is_null_ptr(format_sptr))
         format_sptr = OutputFileFormat<Image3DF>::default_sptr();
