@@ -281,13 +281,12 @@ float NiftiImageData<dataType>::get_norm(const NiftiImageData<dataType>& other) 
 
     // Use double precision to minimise rounding errors
     double result(0);
-    for (int i=0; i<int(_nifti_image->nvox); ++i) {
-        const float &val1 = this->operator()(i);
-        const float &val2 = other(i);
+    size_t num_vox = _nifti_image->nvox;
+    for (size_t i=0; i<num_vox; ++i)
         // If either value is nan, skip
-        if (!std::isnan(val1+val2))
+        if (!std::isnan(this->operator()(i)+other(i)))
             result += double(pow( this->operator()(i) - other(i), 2));
-    }
+
     return float(sqrt(result));
 }
 
