@@ -10,7 +10,6 @@ Options:
                               [default: simulated_MR_2D_cartesian_Grappa2.h5]
   -p <path>, --path=<path>    path to data files, defaults to data/examples/MR
                               subfolder of SIRF root folder
-  -e <engn>, --engine=<engn>  reconstruction engine [default: Gadgetron]
 '''
 
 ## CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -35,54 +34,24 @@ __version__ = '0.1.0'
 from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
-try:
-    import pylab
-    HAVE_PYLAB = True
-except:
-    HAVE_PYLAB = False
-
-# import engine module
 from sirf.Utilities import existing_filepath
 from sirf.Utilities import error
 from sirf.Utilities import show_3D_array
-# from sirf import Gadgetron as mr
+
 from sirf.Gadgetron import petmr_data_path
 from sirf.Gadgetron import AcquisitionData
 from sirf.Gadgetron import AcquisitionModel
 from sirf.Gadgetron import AcquisitionDataProcessor
-from sirf.Gadgetron import preprocess_acquisition_data
 from sirf.Gadgetron import CartesianGRAPPAReconstructor
 from sirf.Gadgetron import CoilSensitivityData
 
 from ccpi.optimisation.funcs import Norm2sq
 from ccpi.optimisation.funcs import ZeroFun
 from ccpi.optimisation.algs import FISTA
-# from ccpi.optimisation.ops import PowerMethodNonsquare
+from ccpi.optimisation.ops import PowerMethodNonsquare
 
 import numpy
 
-def PowerMethodNonsquare(op,numiters , x0=None):
-    # Initialise random
-    
-    if x0 is None:
-        #x0 = op.create_image_data()
-        x0 = op.allocate_direct()
-        x0.fill(numpy.random.randn(*x0.shape))
-    
-    s = numpy.zeros(numiters)
-    # Loop
-    for it in numpy.arange(numiters):
-        x1 = op.adjoint(op.direct(x0))
-        # x1norm = numpy.sqrt((x1.as_array()**2).sum())
-        x1norm = x1.norm()
-        print ("x0 **********" ,x0)
-        print ("x1norm **********" ,x1norm)
-        s[it] = (x1*x0).as_array().sum() / x0.norm()**2
-        x0 = (1.0/x1norm)*x1
-    return numpy.sqrt(s[-1]), numpy.sqrt(s), x0
-
-
-# exec('from p' + args['--engine'] + ' import *')
 
 # process command-line options
 data_file = args['--file']
@@ -104,7 +73,7 @@ def main():
     # preprocessed_data = preprocess_acquisition_data(acq_data)
     gadget_chain = ['NoiseAdjustGadget', \
                     'AsymmetricEchoAdjustROGadget', \
-                    'RemoveROOversamplingGadget'] 
+                    'RemoveROOversamplingGadget']
     ap = AcquisitionDataProcessor( gadget_chain )
     ap.set_input( acq_data )
     ap.process()
@@ -137,9 +106,9 @@ def main():
     # use the acquisition model (forward projection) to simulate acquisition data
     simulated_data = acq_model.forward( image_data )
 
-    # USE FISTA 
+    # USE FISTA
     little_value = 1e-2
-    x_init = image_data.copy() * little_value  
+    x_init = image_data.copy() * little_value
     # x_init.fill(numpy.random.randn(*image_data.as_array().shape))
     # x_init.fill(numpy.zeros(numpy.shape(image_data.as_array().shape))+little_value)
     norm2sq = Norm2sq( A = acq_model , b = simulated_data , c = 1)
@@ -148,7 +117,7 @@ def main():
 
     # calculate Lipschitz constant
     # x_init.fill(numpy.random.randn(*x_init.as_array().shape))
-    
+
     norm2sq.L = PowerMethodNonsquare( acq_model , numiters = 1 , x0 = x_init) [0]
     #norm2sq.L = 0.5
 

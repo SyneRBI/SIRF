@@ -341,8 +341,8 @@ class DataContainer(ABC):
         return z
     def sqrt(self):
         '''Returns the element-wise sqrt of the DataContainer data
-        
-           uses NumPy 
+
+           uses NumPy
         '''
         z = self.clone()
         z.fill(
@@ -353,7 +353,7 @@ class DataContainer(ABC):
         '''Returns the sum of DataContainer elements.
 
            it is a reduction operation
-        
+
            uses NumPy
         '''
         return numpy.sum(self.as_array())

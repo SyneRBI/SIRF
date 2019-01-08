@@ -13,8 +13,8 @@ Options:
 
 {licence}
 """
-from sirf.Utilities import assert_validities, petmr_data_path, \
-     existing_filepath, pTest, RE_PYEXT , runner
+from sirf.Utilities import petmr_data_path, existing_filepath, \
+    pTest, RE_PYEXT , runner
 from sirf.STIR import MessageRedirector, AcquisitionData
 __version__ = "0.2.2"
 __author__ = "Casper da Costa-Luis, Edoardo Pasca"
@@ -41,13 +41,13 @@ def test_main(rec=False, verb=False, throw=True):
         N *= el
     
     # 1 test sum: N * 1 / N = 1
-    test.check(image_data.sum()/N) 
+    test.check(image_data.sum()/N)
     # test algebra 2 to 5
     # 2 DataContainer add (2+1) = 3
     # image_data = acq_data.create_uniform_image(1.0)
     b = acq_data.create_uniform_image(2.0)
     c = b + image_data
-    test.check(c.sum()/N) 
+    test.check(c.sum()/N)
     # 3 DataContainer subtract 1 - (2) = -1
     image_data = acq_data.create_uniform_image(1.0)
     b = acq_data.create_uniform_image(2.0)
@@ -66,7 +66,7 @@ def test_main(rec=False, verb=False, throw=True):
     # 7 maximum
     test.check(c.maximum(b).sum()/N)
     # 8 sign 
-    b = -1 * image_data 
+    b = -1 * image_data
     test.check(b.sign().sum()/N)
     # 9 abs
     test.check(b.abs().sum()/N)
@@ -93,7 +93,7 @@ def test_main(rec=False, verb=False, throw=True):
     b /= 3
     test.check(b.sum()/N)
 
-    
+
 
     return test.failed, test.ntest
 

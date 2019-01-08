@@ -1173,7 +1173,7 @@ class AcquisitionModel(object):
                 return self.bt.norm() == 0
             else:
                 return self.bt.norm() == 0 and self.at.norm() == 0
-        
+
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 
     Class for a PET acquisition model that uses (implicitly) a sparse
