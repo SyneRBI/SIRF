@@ -839,9 +839,15 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
     std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
     SIRFRegAffineTransformation<dataType>::print(sto_xyz_vec);
 
+    // Print original datatype
+    std::string original_datatype = "orig_datatype: ";
+    std::cout << "\t" << std::left << std::setw(19) << original_datatype;
+    for(unsigned i=0; i<ims.size(); i++)
+        std::cout << std::setw(19) << ims[i]->get_original_datatype();
+
     // Print min
     std::string min_header = "min: ";
-    std::cout << "\t" << std::left << std::setw(19) << min_header;
+    std::cout << "\n\t" << std::left << std::setw(19) << min_header;
     for(unsigned i=0; i<ims.size(); i++)
         std::cout << std::setw(19) << ims[i]->get_min();
 
