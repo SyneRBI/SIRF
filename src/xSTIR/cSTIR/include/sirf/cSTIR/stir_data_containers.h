@@ -652,16 +652,22 @@ namespace sirf {
 		}
         /// Write to file
         virtual void write(const std::string &filename) const;
-        /// Write to file using format file. Example of the nifti format is below (which in turn requires ITK).
-        /// Constult STIR for more possibilities.
-        ///     OutputFileFormat Parameters:=
-        ///         output file format type := ITK
-        ///         ITK Output File Format Parameters:=
-        ///         number format := float
-        ///         number_of_bytes_per_pixel:=4
-        ///         default extension:=.nii
-        ///     End ITK Output File Format Parameters:=
-        ///     End:=
+        /// Write to file using format file.
+        /*! This allows speciyfing the output file format used by STIR using a text file.
+            Keywords are specified by STIR.
+
+            Example format...
+            \verbatim
+            OutputFileFormat Parameters:=
+                output file format type := ITK
+                ITK Output File Format Parameters:=
+                number format := float
+                number_of_bytes_per_pixel:=4
+                default extension:=.nii
+                End ITK Output File Format Parameters:=
+           End:=
+           \endverbatim
+        */
         virtual void write(const std::string &filename, const std::string &format_file) const;
 
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
