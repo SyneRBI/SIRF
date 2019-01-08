@@ -347,7 +347,7 @@ NiftiImageData<dataType> NiftiImageData<dataType>::maths(const NiftiImageData<da
 {
     if (!this->is_initialised() || !c.is_initialised())
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: at least one image is not initialised.");
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this, c))
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*this, c, true))
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: metadata do not match.");
     if (type != add && type != sub)
         throw std::runtime_error("NiftiImageData<dataType>::maths_image: only implemented for add and subtract.");
@@ -654,28 +654,31 @@ bool NiftiImageData<dataType>::is_same_size(const NiftiImageData &im) const
 }
 
 template<typename T>
-static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2)
+static bool do_nifti_image_metadata_elements_match(const std::string &name, const T &elem1, const T &elem2, bool verbose)
 {
     if(float(fabs(elem1-elem2)) < 1.e-7F)
         return true;
-    std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
+    if (verbose)
+        std::cout << "mismatch in " << name << " , (values: " <<  elem1 << " and " << elem2 << ")\n";
     return false;
 }
 
-static bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2)
+static bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2, bool verbose)
 {
     SIRFRegAffineTransformation<float> e1(elem1.m), e2(elem2.m);
     if(e1 == e2)
         return true;
-    std::cout << "mismatch in " << name << "\n";
-    SIRFRegAffineTransformation<float>::print({e1, e2});
-    std::cout << "\n";
+    if (verbose) {
+        std::cout << "mismatch in " << name << "\n";
+        SIRFRegAffineTransformation<float>::print({e1, e2});
+        std::cout << "\n";
+    }
     return false;
 }
 
 /// Do nifti image metadatas match?
 template<class dataType>
-bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2)
+bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2, bool verbose)
 {
 #ifndef NDEBUG
     std::cout << "\nChecking if metadata of two images match..." << std::flush;
@@ -685,65 +688,65 @@ bool NiftiImageData<dataType>::do_nifti_image_metadata_match(const NiftiImageDat
     std::shared_ptr<const nifti_image> im2_sptr = im2.get_raw_nifti_sptr();
 
     bool images_match =
-            do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient) &&
-            do_nifti_image_metadata_elements_match("byteorder",       im1_sptr->byteorder,       im2_sptr->byteorder       ) &&
-            do_nifti_image_metadata_elements_match("cal_max",         im1_sptr->cal_max,         im2_sptr->cal_max         ) &&
-            do_nifti_image_metadata_elements_match("cal_min",         im1_sptr->cal_min,         im2_sptr->cal_min         ) &&
-            do_nifti_image_metadata_elements_match("datatype",        im1_sptr->datatype,        im2_sptr->datatype        ) &&
-            do_nifti_image_metadata_elements_match("du",              im1_sptr->du,              im2_sptr->du              ) &&
-            do_nifti_image_metadata_elements_match("dv",              im1_sptr->dv,              im2_sptr->dv              ) &&
-            do_nifti_image_metadata_elements_match("dw",              im1_sptr->dw,              im2_sptr->dw              ) &&
-            do_nifti_image_metadata_elements_match("dx",              im1_sptr->dx,              im2_sptr->dx              ) &&
-            do_nifti_image_metadata_elements_match("dy",              im1_sptr->dy,              im2_sptr->dy              ) &&
-            do_nifti_image_metadata_elements_match("dz",              im1_sptr->dz,              im2_sptr->dz              ) &&
-            do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list        ) &&
-            do_nifti_image_metadata_elements_match("freq_dim",        im1_sptr->freq_dim,        im2_sptr->freq_dim        ) &&
-            do_nifti_image_metadata_elements_match("iname_offset",    im1_sptr->iname_offset,    im2_sptr->iname_offset    ) &&
-            do_nifti_image_metadata_elements_match("intent_code",     im1_sptr->intent_code,     im2_sptr->intent_code     ) &&
-            do_nifti_image_metadata_elements_match("intent_p1",       im1_sptr->intent_p1,       im2_sptr->intent_p1       ) &&
-            do_nifti_image_metadata_elements_match("intent_p2",       im1_sptr->intent_p2,       im2_sptr->intent_p2       ) &&
-            do_nifti_image_metadata_elements_match("intent_p3",       im1_sptr->intent_p3,       im2_sptr->intent_p3       ) &&
-            do_nifti_image_metadata_elements_match("nbyper",          im1_sptr->nbyper,          im2_sptr->nbyper          ) &&
-            do_nifti_image_metadata_elements_match("ndim",            im1_sptr->ndim,            im2_sptr->ndim            ) &&
-            do_nifti_image_metadata_elements_match("nifti_type",      im1_sptr->nifti_type,      im2_sptr->nifti_type      ) &&
-            do_nifti_image_metadata_elements_match("nt",              im1_sptr->nt,              im2_sptr->nt              ) &&
-            do_nifti_image_metadata_elements_match("nu",              im1_sptr->nu,              im2_sptr->nu              ) &&
-            do_nifti_image_metadata_elements_match("num_ext",         im1_sptr->num_ext,         im2_sptr->num_ext         ) &&
-            do_nifti_image_metadata_elements_match("nv",              im1_sptr->nv,              im2_sptr->nv              ) &&
-            do_nifti_image_metadata_elements_match("nvox",            im1_sptr->nvox,            im2_sptr->nvox            ) &&
-            do_nifti_image_metadata_elements_match("nw",              im1_sptr->nw,              im2_sptr->nw              ) &&
-            do_nifti_image_metadata_elements_match("nx",              im1_sptr->nx,              im2_sptr->nx              ) &&
-            do_nifti_image_metadata_elements_match("ny",              im1_sptr->ny,              im2_sptr->ny              ) &&
-            do_nifti_image_metadata_elements_match("nz",              im1_sptr->nz,              im2_sptr->nz              ) &&
-            do_nifti_image_metadata_elements_match("phase_dim",       im1_sptr->phase_dim,       im2_sptr->phase_dim       ) &&
-            do_nifti_image_metadata_elements_match("qfac",            im1_sptr->qfac,            im2_sptr->qfac            ) &&
-            do_nifti_image_metadata_elements_match("qform_code",      im1_sptr->qform_code,      im2_sptr->qform_code      ) &&
-            do_nifti_image_metadata_elements_match("qoffset_x",       im1_sptr->qoffset_x,       im2_sptr->qoffset_x       ) &&
-            do_nifti_image_metadata_elements_match("qoffset_y",       im1_sptr->qoffset_y,       im2_sptr->qoffset_y       ) &&
-            do_nifti_image_metadata_elements_match("qoffset_z",       im1_sptr->qoffset_z,       im2_sptr->qoffset_z       ) &&
-            do_nifti_image_metadata_elements_match("quatern_b",       im1_sptr->quatern_b,       im2_sptr->quatern_b       ) &&
-            do_nifti_image_metadata_elements_match("quatern_c",       im1_sptr->quatern_c,       im2_sptr->quatern_c       ) &&
-            do_nifti_image_metadata_elements_match("quatern_d",       im1_sptr->quatern_d,       im2_sptr->quatern_d       ) &&
-            do_nifti_image_metadata_elements_match("scl_inter",       im1_sptr->scl_inter,       im2_sptr->scl_inter       ) &&
-            do_nifti_image_metadata_elements_match("scl_slope",       im1_sptr->scl_slope,       im2_sptr->scl_slope       ) &&
-            do_nifti_image_metadata_elements_match("sform_code",      im1_sptr->sform_code,      im2_sptr->sform_code      ) &&
-            do_nifti_image_metadata_elements_match("slice_code",      im1_sptr->slice_code,      im2_sptr->slice_code      ) &&
-            do_nifti_image_metadata_elements_match("slice_dim",       im1_sptr->slice_dim,       im2_sptr->slice_dim       ) &&
-            do_nifti_image_metadata_elements_match("slice_duration",  im1_sptr->slice_duration,  im2_sptr->slice_duration  ) &&
-            do_nifti_image_metadata_elements_match("slice_end",       im1_sptr->slice_end,       im2_sptr->slice_end       ) &&
-            do_nifti_image_metadata_elements_match("slice_start",     im1_sptr->slice_start,     im2_sptr->slice_start     ) &&
-            do_nifti_image_metadata_elements_match("swapsize",        im1_sptr->swapsize,        im2_sptr->swapsize        ) &&
-            do_nifti_image_metadata_elements_match("time_units",      im1_sptr->time_units,      im2_sptr->time_units      ) &&
-            do_nifti_image_metadata_elements_match("toffset",         im1_sptr->toffset,         im2_sptr->toffset         ) &&
-            do_nifti_image_metadata_elements_match("xyz_units",       im1_sptr->xyz_units,       im2_sptr->xyz_units       ) &&
-            do_nifti_image_metadata_elements_match("qto_ijk",         im1_sptr->qto_ijk,         im2_sptr->qto_ijk         ) &&
-            do_nifti_image_metadata_elements_match("qto_xyz",         im1_sptr->qto_xyz,         im2_sptr->qto_xyz         ) &&
-            do_nifti_image_metadata_elements_match("sto_ijk",         im1_sptr->sto_ijk,         im2_sptr->sto_ijk         ) &&
-            do_nifti_image_metadata_elements_match("sto_xyz",         im1_sptr->sto_xyz,         im2_sptr->sto_xyz         );
+            do_nifti_image_metadata_elements_match("analyze75_orient",im1_sptr->analyze75_orient,im2_sptr->analyze75_orient, verbose) &&
+            do_nifti_image_metadata_elements_match("byteorder",       im1_sptr->byteorder,       im2_sptr->byteorder,        verbose) &&
+            do_nifti_image_metadata_elements_match("cal_max",         im1_sptr->cal_max,         im2_sptr->cal_max,          verbose) &&
+            do_nifti_image_metadata_elements_match("cal_min",         im1_sptr->cal_min,         im2_sptr->cal_min,          verbose) &&
+            do_nifti_image_metadata_elements_match("datatype",        im1_sptr->datatype,        im2_sptr->datatype,         verbose) &&
+            do_nifti_image_metadata_elements_match("du",              im1_sptr->du,              im2_sptr->du,               verbose) &&
+            do_nifti_image_metadata_elements_match("dv",              im1_sptr->dv,              im2_sptr->dv,               verbose) &&
+            do_nifti_image_metadata_elements_match("dw",              im1_sptr->dw,              im2_sptr->dw,               verbose) &&
+            do_nifti_image_metadata_elements_match("dx",              im1_sptr->dx,              im2_sptr->dx,               verbose) &&
+            do_nifti_image_metadata_elements_match("dy",              im1_sptr->dy,              im2_sptr->dy,               verbose) &&
+            do_nifti_image_metadata_elements_match("dz",              im1_sptr->dz,              im2_sptr->dz,               verbose) &&
+            do_nifti_image_metadata_elements_match("ext_list",        im1_sptr->ext_list,        im2_sptr->ext_list,         verbose) &&
+            do_nifti_image_metadata_elements_match("freq_dim",        im1_sptr->freq_dim,        im2_sptr->freq_dim,         verbose) &&
+            do_nifti_image_metadata_elements_match("iname_offset",    im1_sptr->iname_offset,    im2_sptr->iname_offset,     verbose) &&
+            do_nifti_image_metadata_elements_match("intent_code",     im1_sptr->intent_code,     im2_sptr->intent_code,      verbose) &&
+            do_nifti_image_metadata_elements_match("intent_p1",       im1_sptr->intent_p1,       im2_sptr->intent_p1,        verbose) &&
+            do_nifti_image_metadata_elements_match("intent_p2",       im1_sptr->intent_p2,       im2_sptr->intent_p2,        verbose) &&
+            do_nifti_image_metadata_elements_match("intent_p3",       im1_sptr->intent_p3,       im2_sptr->intent_p3,        verbose) &&
+            do_nifti_image_metadata_elements_match("nbyper",          im1_sptr->nbyper,          im2_sptr->nbyper,           verbose) &&
+            do_nifti_image_metadata_elements_match("ndim",            im1_sptr->ndim,            im2_sptr->ndim,             verbose) &&
+            do_nifti_image_metadata_elements_match("nifti_type",      im1_sptr->nifti_type,      im2_sptr->nifti_type,       verbose) &&
+            do_nifti_image_metadata_elements_match("nt",              im1_sptr->nt,              im2_sptr->nt,               verbose) &&
+            do_nifti_image_metadata_elements_match("nu",              im1_sptr->nu,              im2_sptr->nu,               verbose) &&
+            do_nifti_image_metadata_elements_match("num_ext",         im1_sptr->num_ext,         im2_sptr->num_ext,          verbose) &&
+            do_nifti_image_metadata_elements_match("nv",              im1_sptr->nv,              im2_sptr->nv,               verbose) &&
+            do_nifti_image_metadata_elements_match("nvox",            im1_sptr->nvox,            im2_sptr->nvox,             verbose) &&
+            do_nifti_image_metadata_elements_match("nw",              im1_sptr->nw,              im2_sptr->nw,               verbose) &&
+            do_nifti_image_metadata_elements_match("nx",              im1_sptr->nx,              im2_sptr->nx,               verbose) &&
+            do_nifti_image_metadata_elements_match("ny",              im1_sptr->ny,              im2_sptr->ny,               verbose) &&
+            do_nifti_image_metadata_elements_match("nz",              im1_sptr->nz,              im2_sptr->nz,               verbose) &&
+            do_nifti_image_metadata_elements_match("phase_dim",       im1_sptr->phase_dim,       im2_sptr->phase_dim,        verbose) &&
+            do_nifti_image_metadata_elements_match("qfac",            im1_sptr->qfac,            im2_sptr->qfac,             verbose) &&
+            do_nifti_image_metadata_elements_match("qform_code",      im1_sptr->qform_code,      im2_sptr->qform_code,       verbose) &&
+            do_nifti_image_metadata_elements_match("qoffset_x",       im1_sptr->qoffset_x,       im2_sptr->qoffset_x,        verbose) &&
+            do_nifti_image_metadata_elements_match("qoffset_y",       im1_sptr->qoffset_y,       im2_sptr->qoffset_y,        verbose) &&
+            do_nifti_image_metadata_elements_match("qoffset_z",       im1_sptr->qoffset_z,       im2_sptr->qoffset_z,        verbose) &&
+            do_nifti_image_metadata_elements_match("quatern_b",       im1_sptr->quatern_b,       im2_sptr->quatern_b,        verbose) &&
+            do_nifti_image_metadata_elements_match("quatern_c",       im1_sptr->quatern_c,       im2_sptr->quatern_c,        verbose) &&
+            do_nifti_image_metadata_elements_match("quatern_d",       im1_sptr->quatern_d,       im2_sptr->quatern_d,        verbose) &&
+            do_nifti_image_metadata_elements_match("scl_inter",       im1_sptr->scl_inter,       im2_sptr->scl_inter,        verbose) &&
+            do_nifti_image_metadata_elements_match("scl_slope",       im1_sptr->scl_slope,       im2_sptr->scl_slope,        verbose) &&
+            do_nifti_image_metadata_elements_match("sform_code",      im1_sptr->sform_code,      im2_sptr->sform_code,       verbose) &&
+            do_nifti_image_metadata_elements_match("slice_code",      im1_sptr->slice_code,      im2_sptr->slice_code,       verbose) &&
+            do_nifti_image_metadata_elements_match("slice_dim",       im1_sptr->slice_dim,       im2_sptr->slice_dim,        verbose) &&
+            do_nifti_image_metadata_elements_match("slice_duration",  im1_sptr->slice_duration,  im2_sptr->slice_duration,   verbose) &&
+            do_nifti_image_metadata_elements_match("slice_end",       im1_sptr->slice_end,       im2_sptr->slice_end,        verbose) &&
+            do_nifti_image_metadata_elements_match("slice_start",     im1_sptr->slice_start,     im2_sptr->slice_start,      verbose) &&
+            do_nifti_image_metadata_elements_match("swapsize",        im1_sptr->swapsize,        im2_sptr->swapsize,         verbose) &&
+            do_nifti_image_metadata_elements_match("time_units",      im1_sptr->time_units,      im2_sptr->time_units,       verbose) &&
+            do_nifti_image_metadata_elements_match("toffset",         im1_sptr->toffset,         im2_sptr->toffset,          verbose) &&
+            do_nifti_image_metadata_elements_match("xyz_units",       im1_sptr->xyz_units,       im2_sptr->xyz_units,        verbose) &&
+            do_nifti_image_metadata_elements_match("qto_ijk",         im1_sptr->qto_ijk,         im2_sptr->qto_ijk,          verbose) &&
+            do_nifti_image_metadata_elements_match("qto_xyz",         im1_sptr->qto_xyz,         im2_sptr->qto_xyz,          verbose) &&
+            do_nifti_image_metadata_elements_match("sto_ijk",         im1_sptr->sto_ijk,         im2_sptr->sto_ijk,          verbose) &&
+            do_nifti_image_metadata_elements_match("sto_xyz",         im1_sptr->sto_xyz,         im2_sptr->sto_xyz,          verbose);
 
     for (int i=0; i<8; i++) {
-        if (!do_nifti_image_metadata_elements_match("dim["+std::to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i] ))   images_match = false;
-        if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i])) images_match = false;
+        if (!do_nifti_image_metadata_elements_match("dim["+std::to_string(i)+"]",    im1_sptr->dim[i],    im2_sptr->dim[i],    verbose)) images_match = false;
+        if (!do_nifti_image_metadata_elements_match("pixdim["+std::to_string(i)+"]", im1_sptr->pixdim[i], im2_sptr->pixdim[i], verbose)) images_match = false;
     }
 
 #ifndef NDEBUG

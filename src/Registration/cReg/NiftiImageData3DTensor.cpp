@@ -40,9 +40,9 @@ NiftiImageData3DTensor<dataType>::NiftiImageData3DTensor(const NiftiImageData3D<
     if (!x.is_initialised() || !y.is_initialised() || !z.is_initialised())
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: Can't create from separate 3D components, as some are uninitialised.");
 
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,y))
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,y,true))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and y components don't match.");
-    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,z))
+    if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(x,z,true))
         throw std::runtime_error("NiftiImageData3DTensor: x,y,z->tensor: x and z components don't match.");
 
     // Create a 4D from one of the components

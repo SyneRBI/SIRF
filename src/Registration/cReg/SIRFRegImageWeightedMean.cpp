@@ -92,8 +92,8 @@ void SIRFRegImageWeightedMean<dataType>::check_can_do_mean() const
         for (unsigned j=i+1; j<_input_image_sptrs.size(); j++) {
 
             std::cout << "\nComparing input images " << i << " and " << j << "...\n";
-            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[i],*_input_image_sptrs[j]))
-                throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean.");
+            if (!NiftiImageData<dataType>::do_nifti_image_metadata_match(*_input_image_sptrs[i],*_input_image_sptrs[j], true))
+                throw std::runtime_error("There is a mismatch in images. Cannot calculate their weighted mean. (TODO: would be easy to just.)");
         }
     }
 

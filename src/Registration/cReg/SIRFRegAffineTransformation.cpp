@@ -156,23 +156,25 @@ bool SIRFRegAffineTransformation<dataType>::operator!=(const SIRFRegAffineTransf
 template<class dataType>
 SIRFRegAffineTransformation<dataType> SIRFRegAffineTransformation<dataType>::operator* (const SIRFRegAffineTransformation &other) const
 {
-    // Print info
-    std::cout << "\nMultiplying two matrices...\n";
-    std::cout << "Matrix 1:\n";
-    this->print();
-    std::cout << "Matrix 2:\n";
-    other.print();
+    // Create result, set to zero (initially identity)
+    SIRFRegAffineTransformation res;    
+    for (int i=0;i<4;i++)
+        res[i][i] = 0.F;
 
-    // Create result, set to zero
-    SIRFRegAffineTransformation res;
     for (int i=0;i<4;i++)
         for (int j=0;j<4;j++)
             for (int k=0;k<4;k++)
                 res[i][j] += (*this)[i][k] * other[k][j];
 
+#ifndef NDEBUG
+    std::cout << "\nMultiplying two matrices...\n";
+    std::cout << "Matrix 1:\n";
+    this->print();
+    std::cout << "Matrix 2:\n";
+    other.print();
     std::cout << "Result:\n";
     res.print();
-
+#endif
     return res;
 }
 

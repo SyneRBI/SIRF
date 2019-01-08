@@ -256,7 +256,7 @@ public:
     bool is_same_size(const NiftiImageData &im) const;
 
     /// Do nifti image metadatas match?
-    static bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2);
+    static bool do_nifti_image_metadata_match(const NiftiImageData &im1, const NiftiImageData &im2, bool verbose);
 
     /// Dump info of multiple nifti images
     static void dump_headers(const std::vector<const NiftiImageData*> &ims);
