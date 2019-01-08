@@ -5,6 +5,9 @@
 
 #include "sirf/common/ANumRef.h"
 #include "sirf/common/DataContainer.h"
+#include "sirf/common/DataContainer.h"
+#include "sirf/common/ANumRef.h"
+#include "sirf/common/GeometricalInfo.h"
 
 /*!
 \ingroup SIRFImageDataClasses
@@ -58,6 +61,15 @@ namespace sirf {
         }
         /// Write image to file
         virtual void write(const std::string &filename) const = 0;
+        /// Get geometrical info
+        std::shared_ptr<const VoxelisedGeometricalInfo3D > get_geom_info_sptr() const
+        {
+            // If the geometrical info has not been created yet, throw an error
+            if (!_geom_info_sptr)
+                throw std::runtime_error("Geometrical info not initialised. This implies that"
+                                         " your constructor did not call set_up_geom_info().");
+            return _geom_info_sptr;
+        }
         /// Clone and return as unique pointer.
         std::unique_ptr<ImageData> clone() const
         {
@@ -66,6 +78,9 @@ namespace sirf {
     protected:
         /// Clone helper function. Don't use.
         virtual ImageData* clone_impl() const = 0;
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info() = 0;
+        std::shared_ptr<VoxelisedGeometricalInfo3D> _geom_info_sptr;
 	};
 }
 

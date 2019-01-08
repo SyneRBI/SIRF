@@ -94,6 +94,14 @@ def _float_par(handle, set, par):
     value = pyiutil.floatDataFromHandle(h)
     pyiutil.deleteDataHandle(h)
     return value
+def _float_pars(handle, set, par, n):
+    h = pystir.cSTIR_parameter(handle, set, par)
+    check_status(h)
+    value = ()
+    for i in range(n):
+        value += (pyiutil.floatDataItemFromHandle(h, i),)
+    pyiutil.deleteDataHandle(h)
+    return value
 def _getParameterHandle(hs, set, par):
     handle = pystir.cSTIR_parameter(hs, set, par)
     check_status(handle, inspect.stack()[1])
@@ -385,6 +393,12 @@ class ImageData(SIRF.ImageData):
         try_calling \
             (pystir.cSTIR_getImageVoxelSizes(self.handle, vs.ctypes.data))
         return tuple(vs[::-1])
+    def transf_matrix(self):
+        assert self.handle is not None
+        tm = numpy.ndarray((4, 4), dtype = numpy.float32)
+        try_calling \
+            (pystir.cSTIR_getImageTransformMatrix(self.handle, tm.ctypes.data))
+        return tm
     def as_array(self):
         '''Returns 3D Numpy ndarray with values at the voxels.'''
         assert self.handle is not None

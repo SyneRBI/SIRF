@@ -759,6 +759,10 @@ namespace sirf {
             return std::unique_ptr<GadgetronImagesVector>(this->clone_impl());
         }
 
+    protected:
+        /// Populate the geometrical info metadata (from the image's own metadata)
+        virtual void set_up_geom_info();
+
 	private:
         /// Clone helper function. Don't use.
         virtual GadgetronImagesVector* clone_impl() const

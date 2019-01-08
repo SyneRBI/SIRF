@@ -1008,6 +1008,8 @@ GadgetronImageData::read(std::string filename)
 		//std::cout << "image dimensions: "
 		//	<< dim[0] << ' ' << dim[1] << ' ' << dim[2] << '\n';
 	}
+
+    this->set_up_geom_info();
 	return 0;
 }
 
@@ -1098,6 +1100,7 @@ images_(), nimages_(0)
 		if (boost::iequals(value, target))
 			append(u);
 	}
+    this->set_up_geom_info();
 }
 
 void
@@ -1152,6 +1155,96 @@ GadgetronImagesVector::set_real_data(const float* data)
 	//GadgetronImagesVectorIterator iter = begin();
 	for (; iter != stop; ++iter, ++data)
 		*iter = *data;
+}
+
+static bool is_unit_vector(const float * const vec)
+{
+    return std::abs(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] - 1.F) < 1.e-4F;
+}
+
+void
+GadgetronImagesVector::set_up_geom_info()
+{
+    // Get image
+    ISMRMRD::ImageHeader &ih1 = image_wrap(0).head();
+
+    // Size
+    VoxelisedGeometricalInfo3D::Size size;
+    for(int i=0; i<2; ++i)
+        size[i] = ih1.matrix_size[i];
+    size[2] = this->number();
+
+    // The following will only work if the 0th index is read direction,
+    // 1st is phase direction and 2nd is slice direction. This should be the case if order has been called.
+
+    // Spacing
+    VoxelisedGeometricalInfo3D::Spacing spacing;
+    for(int i=0; i<3; ++i)
+        spacing[i] = ih1.field_of_view[i] / size[i];
+
+    // If there are more than 1 slices, then take the size of the voxel
+    // in the z-direction to be the distance between voxel centres (this
+    // accounts for under-sampled data (and also over-sampled).
+    if (this->number() > 1) {
+
+        // First check that the slice direction is a unit vector
+        const float * const slice_dir = ih1.slice_dir;
+        if (!is_unit_vector(ih1.read_dir) || !is_unit_vector(ih1.phase_dir) || !is_unit_vector(ih1.slice_dir))
+            throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): read_dir, phase_dir and slice_dir should all be unit vectors.");
+
+        // Calculate the spacing!
+        ISMRMRD::ImageHeader &ih2 = image_wrap(1).head();
+        float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                ih1.position[1] * ih1.slice_dir[1] +
+                ih1.position[2] * ih1.slice_dir[2];
+        float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                ih2.position[1] * ih2.slice_dir[1] +
+                ih2.position[2] * ih2.slice_dir[2];
+        spacing[2] = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+
+        // Now for some more checks...
+        // Loop over all images, and
+        // 1. Check that the slice_dir is always constant
+        // 2. Check that spacing is more-or-less constant
+        for (unsigned im=0; im<number()-1; ++im) {
+
+            ISMRMRD::ImageHeader &ih1 = image_wrap( im ).head();
+            ISMRMRD::ImageHeader &ih2 = image_wrap(im+1).head();
+
+            // 1. Check that the slice_dir is always constant
+            for (int dim=0; dim<3; ++dim)
+                if (std::abs(slice_dir[dim]-ih1.slice_dir[dim]) > 1.e-7F)
+                    throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice direction alters between different slices. Expected it to be constant.");
+
+            // 2. Check that spacing is constant
+            float projection_of_position_in_slice_dir_1 = ih1.position[0] * ih1.slice_dir[0] +
+                    ih1.position[1] * ih1.slice_dir[1] +
+                    ih1.position[2] * ih1.slice_dir[2];
+            float projection_of_position_in_slice_dir_2 = ih2.position[0] * ih2.slice_dir[0] +
+                    ih2.position[1] * ih2.slice_dir[1] +
+                    ih2.position[2] * ih2.slice_dir[2];
+            float new_spacing = std::abs(projection_of_position_in_slice_dir_1 - projection_of_position_in_slice_dir_2);
+            if (std::abs(spacing[2]-new_spacing) > 1.e-4F)
+                throw std::runtime_error("GadgetronImagesVector::set_up_geom_info(): Slice distances alters between slices. Expected it to be constant.");
+        }
+    }
+
+    // Offset
+    VoxelisedGeometricalInfo3D::Offset offset;
+    for (int i=0; i<3; ++i)
+        offset[i] = ih1.position[i];
+
+    // Direction
+    VoxelisedGeometricalInfo3D::DirectionMatrix direction;
+    for (int axis=0; axis<3; ++axis) {
+        direction[0][axis] = ih1.read_dir[axis];
+        direction[1][axis] = ih1.phase_dir[axis];
+        direction[2][axis] = ih1.slice_dir[axis];
+    }
+
+    // Initialise the geom info shared pointer
+    _geom_info_sptr = std::make_shared<VoxelisedGeometricalInfo3D>
+                (offset,spacing,size,direction);
 }
 
 void
