@@ -1153,7 +1153,7 @@ class AcquisitionModel(object):
         if self.is_linear():
 	    if not out is None:
 		error('out parameter currently not supported')
-            return self.backward(ad, subset_num = subset_num, 
+            return self.backward(ad, subset_num = subset_num,
                              num_subsets = num_subsets)
         else:
             raise error('AcquisitionModel is not linear\nYou can get the linear part of the AcquisitionModel with get_linear_acquisition_model')
@@ -1172,7 +1172,7 @@ class AcquisitionModel(object):
                      self.at is None:
                 return self.bt.norm() == 0
             else:
-                return self.bt.norm() == 0 and self.at.norm() == 0 
+                return self.bt.norm() == 0 and self.at.norm() == 0
         
 class AcquisitionModelUsingMatrix(AcquisitionModel):
     ''' 

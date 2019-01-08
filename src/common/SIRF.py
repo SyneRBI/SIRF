@@ -354,9 +354,9 @@ class DataContainer(ABC):
 
            it is a reduction operation
         
-           uses NumPy 
+           uses NumPy
         '''
         return numpy.sum(self.as_array())
- 
+
 class ImageData(DataContainer):
     pass
