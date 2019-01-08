@@ -23,7 +23,7 @@ __author__ = "Casper da Costa-Luis, Edoardo Pasca"
 def test_main(rec=False, verb=False, throw=True):
     datafile = RE_PYEXT.sub(".txt", __file__)
     test = pTest(datafile, rec, throw=throw)
-    test.verbose = verb
+    test.verbose = True
 
     msg_red = MessageRedirector()
 
@@ -44,17 +44,19 @@ def test_main(rec=False, verb=False, throw=True):
     test.check(image_data.sum()/N) 
     # test algebra 2 to 5
     # 2 DataContainer add (2+1) = 3
+    # image_data = acq_data.create_uniform_image(1.0)
     b = acq_data.create_uniform_image(2.0)
     c = b + image_data
-    test.check(b.sum()/N) 
-    # 3 DataContainer subtract 1 - (1 + 1) = -1
+    test.check(c.sum()/N) 
+    # 3 DataContainer subtract 1 - (2) = -1
+    image_data = acq_data.create_uniform_image(1.0)
     b = acq_data.create_uniform_image(2.0)
     c = image_data - b
     test.check(c.sum()/N)
-    # 4 DataContainer multiply ( 3 * 1 ) = 3
+    # 4 DataContainer multiply ( 2 * 1 ) = 2
     c = b * image_data
     test.check(c.sum()/N)
-    # 5 DataContainer divide (1 / 0.5) = 2.
+    # 5 DataContainer divide (1 / 2) = 0.5
     c = image_data.divide(b)
     test.check(c.sum()/N)
     # 6 power
@@ -83,8 +85,9 @@ def test_main(rec=False, verb=False, throw=True):
     b -= image_data
     test.check(b.sum()/N)
     # 13 inline multiply
-    b = acq_data.create_uniform_image(1.5)
-    b *= 2
+    b = acq_data.create_uniform_image(1.8)
+    b *= 2.5
+    # b = b.imul(2.5)
     test.check(b.sum()/N)
     # 14 inline divide
     b = acq_data.create_uniform_image(1.5)

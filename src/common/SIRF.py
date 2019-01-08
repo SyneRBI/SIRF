@@ -302,6 +302,10 @@ class DataContainer(ABC):
         return self
     def __imul__(self, other):
         '''Not quite in-place multiplication'''
+        if isinstance(other, Number):
+            z = other * self
+            self.fill(z.as_array())
+            return self
         self.fill(self.multiply(other).as_array())
         return self
     def __isub__(self, other):
@@ -310,6 +314,10 @@ class DataContainer(ABC):
         return self
     def __idiv__(self, other):
         '''Not quite in-place division'''
+        if isinstance(other, Number):
+            z = (1./other) * self
+            self.fill(z.as_array())
+            return self
         self.fill(self.divide(other).as_array())
         return self
     def abs(self):
