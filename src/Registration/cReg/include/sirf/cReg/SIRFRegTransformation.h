@@ -29,7 +29,7 @@ limitations under the License.
 #ifndef _SIRFREGTRANSFORMATION_H
 #define _SIRFREGTRANSFORMATION_H
 
-#include <memory>
+#include <string>
 
 namespace sirf {
 
