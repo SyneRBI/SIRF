@@ -99,11 +99,8 @@ void SIRFRegNiftyF3dSym<dataType>::process()
     def_inv.create_from_cpp(cpp_inverse, ref);
 
     // Get the displacement fields from the def
-    NiftiImageData3DDisplacement<dataType> disp_fwd, disp_inv;
-    disp_fwd.create_from_def(def_fwd);
-    disp_inv.create_from_def(def_inv);
-    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_fwd);
-    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_inv);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_warped_image_sptr = this->_reference_image_sptr->clone();

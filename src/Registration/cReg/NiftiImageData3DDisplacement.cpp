@@ -33,7 +33,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void NiftiImageData3DDisplacement<dataType>::create_from_def(const NiftiImageData3DDeformation<dataType> &def)
+NiftiImageData3DDisplacement<dataType>::NiftiImageData3DDisplacement(const NiftiImageData3DDeformation<dataType> &def)
 {
     // Get the disp field from the def field
     NiftiImageData3DTensor<dataType> temp = def;
@@ -52,8 +52,7 @@ void NiftiImageData3DDisplacement<dataType>::create_from_3D_image(const NiftiIma
 template<class dataType>
 NiftiImageData3DDeformation<dataType> NiftiImageData3DDisplacement<dataType>::get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const
 {
-    NiftiImageData3DDeformation<dataType> def;
-    def.create_from_disp(*this);
+    NiftiImageData3DDeformation<dataType> def(*this);
     this->check_ref_and_def(ref,def);
     return def;
 }

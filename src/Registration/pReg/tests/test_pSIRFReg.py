@@ -519,14 +519,12 @@ def try_niftyaladin():
     sys.stderr.write('\nInverse tm:\n%s\n\n' % inverse_tm.as_array())
 
     # Test converting disp to def
-    a = pSIRFReg.NiftiImageData3DDeformation()
-    a.create_from_disp(disp_forward)
+    a = pSIRFReg.NiftiImageData3DDeformation(disp_forward)
     if a != def_forward:
         raise AssertionError("NiftiImageData3DDeformation::create_from_disp() failed.")
 
     # Test converting def to disp
-    b = pSIRFReg.NiftiImageData3DDisplacement()
-    b.create_from_def(def_forward)
+    b = pSIRFReg.NiftiImageData3DDisplacement(def_forward)
     if b != disp_forward:
         raise AssertionError("NiftiImageData3DDisplacement::create_from_def() failed.")
 

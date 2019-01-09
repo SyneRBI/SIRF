@@ -431,13 +431,11 @@ function na =try_niftyaladin(g)
     inverse_tm = na.get_transformation_matrix_inverse().as_array()
 
     % Test converting disp to def
-    a = mSIRFReg.NiftiImageData3DDeformation();
-    a.create_from_disp(disp_forward);
+    a = mSIRFReg.NiftiImageData3DDeformation(disp_forward);
     assert(a == def_forward, 'NiftiImageData3DDeformation::create_from_disp() failed.');
 
     % Test converting def to disp
-    b = mSIRFReg.NiftiImageData3DDisplacement();
-    b.create_from_def(def_forward);
+    b = mSIRFReg.NiftiImageData3DDisplacement(def_forward);
     assert(b == disp_forward, 'NiftiImageData3DDisplacement::create_from_def() failed.');
 
 	disp('% ----------------------------------------------------------------------- %')

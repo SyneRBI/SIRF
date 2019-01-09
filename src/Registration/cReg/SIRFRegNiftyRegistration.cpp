@@ -39,8 +39,7 @@ const std::shared_ptr<const SIRFRegTransformation<dataType> > SIRFRegNiftyRegist
 {
     // Get displacement as NiftiImageData3DDisplacement (from SIRFRegTransformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_forward_sptr);
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd = std::make_shared<NiftiImageData3DDeformation<dataType> >();
-    def_fwd->create_from_disp(*disp_fwd);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_fwd);
     return def_fwd;
 }
 
@@ -49,8 +48,7 @@ const std::shared_ptr<const SIRFRegTransformation<dataType> > SIRFRegNiftyRegist
 {
     // Get displacement as NiftiImageData3DDisplacement (from SIRFRegTransformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_inv= std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_inverse_sptr);
-    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv = std::make_shared<NiftiImageData3DDeformation<dataType> >();
-    def_inv->create_from_disp(*disp_inv);
+    std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_inv);
     return def_inv;
 }
 

@@ -67,10 +67,10 @@ extern "C" {
 
     // NiftiImageData3DDeformation
     void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
-    void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr);
+    void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 
     // NiftiImageData3DDisplacement
-    void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
+    void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 
     // SIRFReg
     void* cSIRFReg_SIRFReg_process(void* ptr);

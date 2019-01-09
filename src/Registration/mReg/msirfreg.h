@@ -61,8 +61,8 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_create_from_3D_image
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_construct_from_3_components(const char* obj, const void *x_ptr, const void *y_ptr, const void *z_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_flip_component(const void *ptr, const int dim);
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr);
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_process(void* ptr);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);

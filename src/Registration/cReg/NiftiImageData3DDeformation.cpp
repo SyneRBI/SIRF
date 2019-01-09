@@ -37,7 +37,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void NiftiImageData3DDeformation<dataType>::create_from_disp(const NiftiImageData3DDisplacement<dataType> &disp)
+NiftiImageData3DDeformation<dataType>::NiftiImageData3DDeformation(const NiftiImageData3DDisplacement<dataType> &disp)
 {
     // Get the def field from the disp field
     NiftiImageData3DTensor<dataType> temp = disp;

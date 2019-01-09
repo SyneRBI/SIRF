@@ -96,11 +96,8 @@ void SIRFRegNiftyAladinSym<dataType>::process()
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
     NiftiImageData3DDeformation<dataType> def_inv = _TM_inverse_sptr->get_as_deformation_field(ref);
-    NiftiImageData3DDisplacement<dataType> disp_fwd, disp_inv;
-    disp_fwd.create_from_def(def_fwd);
-    disp_inv.create_from_def(def_inv);
-    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_fwd);
-    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(disp_inv);
+    this->_disp_image_forward_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_fwd);
+    this->_disp_image_inverse_sptr = std::make_shared<NiftiImageData3DDisplacement<dataType> >(def_inv);
 
     // The output should be a clone of the reference image, with data filled in from the nifti image
     this->_warped_image_sptr = this->_reference_image_sptr->clone();

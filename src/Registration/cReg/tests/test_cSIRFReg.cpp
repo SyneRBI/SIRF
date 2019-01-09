@@ -524,14 +524,12 @@ int main(int argc, char* argv[])
         inverse_tm.print();
 
         // Test converting disp to def
-        NiftiImageData3DDeformation<float> a;
-        a.create_from_disp(*disp_forward_sptr);
+        NiftiImageData3DDeformation<float> a(*disp_forward_sptr);
         if (a != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::create_from_disp() failed.");
 
         // Test converting def to disp
-        NiftiImageData3DDisplacement<float> b;
-        b.create_from_def(*def_forward_sptr);
+        NiftiImageData3DDisplacement<float> b(*def_forward_sptr);
         if (b != *disp_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDisplacement::create_from_def() failed.");
 

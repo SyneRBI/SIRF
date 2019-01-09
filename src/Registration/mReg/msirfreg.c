@@ -106,11 +106,11 @@ EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DTensor_flip_component(const
 EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5) {
 	return cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(im, num_elements, types, trans1, trans2, trans3, trans4, trans5);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr) {
-	return cSIRFReg_NiftiImageData3DDeformation_create_from_disp(ptr, disp_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr) {
+	return cSIRFReg_NiftiImageData3DDeformation_create_from_disp(disp_ptr);
 }
-EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr) {
-	return cSIRFReg_NiftiImageData3DDisplacement_create_from_def(ptr, def_ptr);
+EXPORTED_FUNCTION     void* mSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr) {
+	return cSIRFReg_NiftiImageData3DDisplacement_create_from_def(def_ptr);
 }
 EXPORTED_FUNCTION     void* mSIRFReg_SIRFReg_process(void* ptr) {
 	return cSIRFReg_SIRFReg_process(ptr);

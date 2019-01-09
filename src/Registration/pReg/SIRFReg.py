@@ -267,6 +267,8 @@ class NiftiImageData(SIRF.ImageData):
         """Overload comparison operator."""
         if not isinstance(other, NiftiImageData):
             raise AssertionError()
+        if self.handle is None or other.handle is None:
+            error('Cannot compare images as at least one is uninitialised')
         h = pysirfreg.cSIRFReg_NiftiImageData_equal(self.handle, other.handle)
         check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
@@ -491,6 +493,8 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
         elif isinstance(src1, NiftiImageData3D) and isinstance(src2, NiftiImageData3D) and isinstance(src3, NiftiImageData3D):
             self.handle = pysirfreg.cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(self.name, src1.handle,
                                                                                             src2.handle, src3.handle)
+        elif isinstance(src1, NiftiImageData3DDeformation):
+            self.handle = pysirfreg.cSIRFReg_NiftiImageData3DDisplacement_create_from_def(src1.handle)
         else:
             raise error('Wrong source in NiftiImageData3DDisplacement constructor')
         check_status(self.handle)
@@ -498,12 +502,6 @@ class NiftiImageData3DDisplacement(NiftiImageData3DTensor, _Transformation):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
-    def create_from_def(self, deff):
-        if not isinstance(deff, NiftiImageData3DDeformation):
-            raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_NiftiImageData3DDisplacement_create_from_def(self.handle, deff.handle))
-        check_status(self.handle)
 
 
 class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
@@ -521,6 +519,8 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         elif isinstance(src1, NiftiImageData3D) and isinstance(src2, NiftiImageData3D) and isinstance(src3, NiftiImageData3D):
             self.handle = pysirfreg.cSIRFReg_NiftiImageData3DTensor_construct_from_3_components(self.name, src1.handle,
                                                                                             src2.handle, src3.handle)
+        elif isinstance(src1, NiftiImageData3DDisplacement):
+            self.handle = pysirfreg.cSIRFReg_NiftiImageData3DDeformation_create_from_disp(src1.handle)
         else:
             raise error('Wrong source in NiftiImageData3DDeformation constructor')
         check_status(self.handle)
@@ -528,12 +528,6 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
     def __del__(self):
         if self.handle is not None:
             pyiutil.deleteDataHandle(self.handle)
-
-    def create_from_disp(self, disp):
-        if not isinstance(disp, NiftiImageData3DDisplacement):
-            raise AssertionError()
-        try_calling(pysirfreg.cSIRFReg_NiftiImageData3DDeformation_create_from_disp(self.handle, disp.handle))
-        check_status(self.handle)
 
     @staticmethod
     def compose_single_deformation(trans, ref):

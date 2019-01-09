@@ -154,8 +154,7 @@ int main(int argc, char* argv[])
         NiftiImageData3DDeformation<float> def = TM.get_as_deformation_field(ref);
 
         // Get the displacement fields from the def
-        NiftiImageData3DDisplacement<float> disp;
-        disp.create_from_def(def);
+        NiftiImageData3DDisplacement<float> disp(def);
 
         // If they want to save the deformation field images
         if (flag_def_4D != -1)

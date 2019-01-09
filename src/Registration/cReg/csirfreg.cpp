@@ -440,13 +440,11 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
     CATCH;
 }
 extern "C"
-void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, const void* disp_ptr)
+void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr)
 {
     try {
-        NiftiImageData3DDeformation<float>&  def  = objectFromHandle<NiftiImageData3DDeformation<float> >(ptr);
         NiftiImageData3DDisplacement<float>& disp = objectFromHandle<NiftiImageData3DDisplacement<float> >(disp_ptr);
-        def.create_from_disp(disp);
-        return new DataHandle;
+        return newObjectHandle(std::make_shared<NiftiImageData3DDeformation<float> >(disp));
     }
     CATCH;
 }
@@ -454,13 +452,11 @@ void* cSIRFReg_NiftiImageData3DDeformation_create_from_disp(const void* ptr, con
 //      NiftiImageData3DDisplacement
 // -------------------------------------------------------------------------------- //
 extern "C"
-void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* ptr, const void* def_ptr)
+void* cSIRFReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr)
 {
     try {
-        NiftiImageData3DDisplacement<float>& disp = objectFromHandle<NiftiImageData3DDisplacement<float> >(ptr);
-        NiftiImageData3DDeformation<float>&  def  = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
-        disp.create_from_def(def);
-        return new DataHandle;
+        NiftiImageData3DDeformation<float>& def = objectFromHandle<NiftiImageData3DDeformation<float> >(def_ptr);
+        return newObjectHandle(std::make_shared<NiftiImageData3DDisplacement<float> >(def));
     }
     CATCH;
 }

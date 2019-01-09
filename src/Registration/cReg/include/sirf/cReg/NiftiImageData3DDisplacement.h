@@ -62,7 +62,7 @@ public:
         : NiftiImageData3DTensor<dataType>(x,y,z) { this->_nifti_image->intent_p1 = 1; }
 
     /// Create from deformation field image
-    void create_from_def(const NiftiImageData3DDeformation<dataType> &im);
+    NiftiImageData3DDisplacement(const NiftiImageData3DDeformation<dataType> &def);
 
     /// Create from 3D image
     void create_from_3D_image(const NiftiImageData3D<dataType> &image);
