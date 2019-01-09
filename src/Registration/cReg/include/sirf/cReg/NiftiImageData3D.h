@@ -72,8 +72,7 @@ public:
 
     virtual NiftiImageData3D* same_image_data() const
     {
-        NiftiImageData3D* ptr_image = new NiftiImageData3D(*this);
-        return ptr_image;
+        return new NiftiImageData3D;
     }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3D> clone() const

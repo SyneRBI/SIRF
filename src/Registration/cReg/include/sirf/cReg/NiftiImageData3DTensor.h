@@ -75,8 +75,7 @@ public:
 
     virtual NiftiImageData3DTensor* same_image_data() const
     {
-        NiftiImageData3DTensor* ptr_image = new NiftiImageData3DTensor(*this);
-        return ptr_image;
+        return new NiftiImageData3DTensor;
     }
     /// Clone and return as unique pointer.
     std::unique_ptr<NiftiImageData3DTensor> clone() const

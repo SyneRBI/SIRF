@@ -83,8 +83,7 @@ public:
 
     virtual NiftiImageData3DDeformation* same_image_data() const
     {
-        NiftiImageData3DDeformation* ptr_image = new NiftiImageData3DDeformation(*this);
-        return ptr_image;
+        return new NiftiImageData3DDeformation;
     }
     /// Write
     virtual void write(const std::string &filename) const { this->NiftiImageData<dataType>::write(filename); }

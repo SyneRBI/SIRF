@@ -400,8 +400,7 @@ protected:
     }
     virtual NiftiImageData* same_image_data() const
     {
-        NiftiImageData* ptr_image = new NiftiImageData(*this);
-        return ptr_image;
+        return new NiftiImageData;
     }
     DataContainer* new_data_container() const
     {
