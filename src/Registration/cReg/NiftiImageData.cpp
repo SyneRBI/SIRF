@@ -1006,9 +1006,10 @@ void NiftiImageData<dataType>::divide
 template<class dataType>
 void NiftiImageData<dataType>::set_up_geom_info()
 {
-    // Firstly, check the qform code is present
+#ifndef NDEBUG
     if (_nifti_image->qform_code != 1)
-        throw std::runtime_error("NiftiImageData<dataType>::set_up_geom_info: Require qform == 1.");
+        std::cout << "\nWarning: NiftiImageData<dataType>::set_up_geom_info will not be accurate, as qform != 1.\n";
+#endif
 
     // Number of voxels
     VoxelisedGeometricalInfo3D::Size size;
