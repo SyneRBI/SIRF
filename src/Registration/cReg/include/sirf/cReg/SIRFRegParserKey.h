@@ -58,18 +58,18 @@ public:
     void set_object(std::shared_ptr<Z> object) { _object = object; }
 
     /// Get arguments
-    virtual void get_arguments(std::string &line) = 0;
+    virtual void get_arguments(const std::string &line) = 0;
 
     /// Call function
-    virtual void call_function() = 0;
+    virtual void call_function() const = 0;
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() = 0;
+    virtual void print_num_arguments_expected() const = 0;
 
 protected:
 
     /// Check that the number of arguments matches the expected amount
-    void check_num_arguments(std::string &line, int num_args_expected)
+    void check_num_arguments(const std::string &line, const int num_args_expected) const
     {
         int num_args;
 
@@ -91,7 +91,7 @@ protected:
 
 
     /// Get the nth argument as a string
-    std::string get_arg_as_string(std::string line, int arg_num)
+    std::string get_arg_as_string(const std::string &line, const int arg_num) const
     {
         // Start index is always to right of the ":="
         // End index is up to ","
@@ -117,25 +117,25 @@ protected:
     }
 
     /// Get argument - const char *
-    void get_argument(std::string line, int arg_num, const char *&arg  ) { arg = get_arg_as_string(line, arg_num).c_str();     }
+    void get_argument(const std::string &line, const int arg_num, const char *&arg  ) const { arg = get_arg_as_string(line, arg_num).c_str();     }
 
     /// Get argument - bool
-    void get_argument(std::string line, int arg_num, bool &arg         ) { arg = std::stoi(get_arg_as_string(line, arg_num));  }
+    void get_argument(const std::string &line, const int arg_num, bool &arg         ) const { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - int
-    void get_argument(std::string line, int arg_num, int &arg          ) { arg = std::stoi(get_arg_as_string(line, arg_num));  }
+    void get_argument(const std::string &line, const int arg_num, int &arg          ) const { arg = std::stoi(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - unsigned int
-    void get_argument(std::string line, int arg_num, unsigned int &arg ) { arg = std::stoll(get_arg_as_string(line, arg_num)); }
+    void get_argument(const std::string &line, const int arg_num, unsigned int &arg ) const { arg = std::stoll(get_arg_as_string(line, arg_num)); }
 
     /// Get argument - float
-    void get_argument(std::string line, int arg_num, float &arg        ) { arg = std::stof(get_arg_as_string(line, arg_num));  }
+    void get_argument(const std::string &line, const int arg_num, float &arg        ) const { arg = std::stof(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - double
-    void get_argument(std::string line, int arg_num, double &arg       ) { arg = std::stod(get_arg_as_string(line, arg_num));  }
+    void get_argument(const std::string &line, const int arg_num, double &arg       ) const { arg = std::stod(get_arg_as_string(line, arg_num));  }
 
     /// Get argument - unsigned long
-    void get_argument(std::string line, int arg_num, unsigned long &arg) { arg = std::stoul(get_arg_as_string(line, arg_num)); }
+    void get_argument(const std::string &line, const int arg_num, unsigned long &arg) const { arg = std::stoul(get_arg_as_string(line, arg_num)); }
 
     /// Object to call the function on
     std::shared_ptr<Z> _object;
@@ -151,13 +151,13 @@ public:
     void set_function(void (Z::*function)()) { _function = function; }
 
     /// Get arguments - don't need to do anything
-    virtual void get_arguments(std::string &line)
+    virtual void get_arguments(const std::string &line)
     {
         this->check_num_arguments(line,0);
     }
 
     /// Call the function
-    virtual void call_function()
+    virtual void call_function() const
     {
         std::cout << "\tCalling function with no arguments..." << std::flush;
         (this->_object.get()->*_function)();
@@ -165,7 +165,7 @@ public:
     }
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() { std::cout << "\tNumber arguments expected: 0\n"; }
+    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 0\n"; }
 
 
 protected:
@@ -184,7 +184,7 @@ public:
     void set_function(void (Z::*function)(A)) { _function = function; }
 
     /// Get arguments
-    virtual void get_arguments(std::string &line)
+    virtual void get_arguments(const std::string &line)
     {
         this->check_num_arguments(line, 1);
 
@@ -196,7 +196,7 @@ public:
     }
 
     /// Call the function
-    virtual void call_function()
+    virtual void call_function() const
     {
         std::cout << "\tCalling function with one argument..." << std::flush;
         (this->_object.get()->*_function)(_arg1);
@@ -204,7 +204,7 @@ public:
     }
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() { std::cout << "\tNumber arguments expected: 1 (" << get_typeid(_arg1) << ")\n"; }
+    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 1 (" << get_typeid(_arg1) << ")\n"; }
 
 protected:
 
@@ -224,7 +224,7 @@ public:
     void set_function(void (Z::*function)(A,B)) { _function = function; }
 
     /// Get arguments
-    virtual void get_arguments(std::string &line)
+    virtual void get_arguments(const std::string &line)
     {
         this->check_num_arguments(line, 2);
 
@@ -242,7 +242,7 @@ public:
     }
 
     /// Call the function
-    virtual void call_function()
+    virtual void call_function() const
     {
         std::cout << "\tCalling function with two arguments..." << std::flush;
         (this->_object.get()->*_function)(_arg1,_arg2);
@@ -250,7 +250,7 @@ public:
     }
 
     /// Print number of arguments expected
-    virtual void print_num_arguments_expected() { std::cout << "\tNumber arguments expected: 2 (" << get_typeid(_arg1) << " and " << get_typeid(_arg2) << ")\n"; }
+    virtual void print_num_arguments_expected() const { std::cout << "\tNumber arguments expected: 2 (" << get_typeid(_arg1) << " and " << get_typeid(_arg2) << ")\n"; }
 
 protected:
 
