@@ -31,20 +31,8 @@ limitations under the License.
 #define _NIFTIIMAGEDATA3D_H_
 
 #include "sirf/cReg/NiftiImageData.h"
-#include <nifti1_io.h>
-#include <string>
-#include <memory>
-#include <iostream>
-
-template <int num_dimensions>
-class VoxelisedGeometricalInfo;
-/// Typedef VoxelisedGeometricalInfo for 3D
-typedef VoxelisedGeometricalInfo<3> VoxelisedGeometricalInfo3D;
 
 namespace sirf {
-
-class PETImageData;
-class MRImageData;
 
 /// SIRF image data
 template<class dataType>
