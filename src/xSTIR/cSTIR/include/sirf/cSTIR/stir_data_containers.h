@@ -644,6 +644,26 @@ namespace sirf {
 		}
         /// Write to file
         virtual void write(const std::string &filename) const;
+        /// Write to file using format file.
+        /*! This allows speciyfing the output file format used by STIR using a text file.
+            Keywords are specified by STIR.
+
+            If "" is passed as argument for format_file, the default format will be used.
+
+            An example is given below for writing the image in the nifti format. STIR uses
+            ITK to do this, so ensure that STIR is built with ITK if you wish to use it.
+            \verbatim
+            OutputFileFormat Parameters:=
+                output file format type := ITK
+                ITK Output File Format Parameters:=
+                number format := float
+                number_of_bytes_per_pixel:=4
+                default extension:=.nii
+                End ITK Output File Format Parameters:=
+           End:=
+           \endverbatim
+        */
+        virtual void write(const std::string &filename, const std::string &format_file) const;
 
 		virtual void dot(const DataContainer& a_x, void* ptr) const;
 		virtual void axpby(

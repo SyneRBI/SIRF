@@ -19,6 +19,8 @@ limitations under the License.
 */
 
 #include "sirf/cSTIR/stir_data_containers.h"
+#include "stir/KeyParser.h"
+#include "stir/is_null_ptr.h"
 
 using namespace stir;
 using namespace sirf;
@@ -374,9 +376,28 @@ STIRImageData::STIRImageData(const ImageData& id)
 void
 STIRImageData::write(const std::string &filename) const
 {
+    this->write(filename,"");
+}
+
+void
+STIRImageData::write(const std::string &filename, const std::string &format_file) const
+{
     const Image3DF& image = this->data();
-    shared_ptr<OutputFileFormat<Image3DF> > format_sptr =
-        OutputFileFormat<Image3DF>::default_sptr();
+    shared_ptr<OutputFileFormat<Image3DF> > format_sptr;
+
+    if (!format_file.empty()) {
+        KeyParser parser;
+        parser.add_start_key("OutputFileFormat Parameters");
+        parser.add_parsing_key("output file format type", &format_sptr);
+        parser.add_stop_key("END");
+        parser.parse(format_file.c_str());
+        if(is_null_ptr(format_sptr))
+            throw std::runtime_error("STIRImageData::write: Parsing of output format file (" + format_file + ") failed "
+                                     "(see examples/parameter_files/STIR_output_file_format_xxx.par for help).");
+    }
+    if(is_null_ptr(format_sptr))
+        format_sptr = OutputFileFormat<Image3DF>::default_sptr();
+
     format_sptr->write_to_file(filename, image);
 }
 
