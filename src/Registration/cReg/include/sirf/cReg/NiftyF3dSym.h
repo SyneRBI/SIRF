@@ -27,8 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGNIFTYF3DSYM_H_
-#define _SIRFREGNIFTYF3DSYM_H_
+#pragma once
 
 #include "sirf/cReg/NiftyRegistration.h"
 
@@ -85,5 +84,3 @@ protected:
     std::shared_ptr<const AffineTransformation<dataType> > _initial_transformation_sptr;
 };
 }
-
-#endif

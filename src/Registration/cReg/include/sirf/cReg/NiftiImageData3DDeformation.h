@@ -27,8 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _NIFTIIMAGEDATA3DDEFORMATION_H_
-#define _NIFTIIMAGEDATA3DDEFORMATION_H_
+#pragma once
 
 #include "sirf/cReg/NiftiImageData3DTensor.h"
 #include "sirf/cReg/Transformation.h"
@@ -100,5 +99,3 @@ protected:
     }
 };
 }
-
-#endif

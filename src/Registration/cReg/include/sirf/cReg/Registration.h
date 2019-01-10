@@ -44,8 +44,7 @@ More examples can be found in data/examples/Registration/paramFiles
 \author CCP PETMR
 */
 
-#ifndef _SIRFREG_H_
-#define _SIRFREG_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -143,5 +142,3 @@ protected:
     std::shared_ptr<const ImageData> _reference_mask_sptr;
 };
 }
-
-#endif

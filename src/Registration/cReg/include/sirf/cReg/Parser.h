@@ -27,8 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFPARSER_H_
-#define _SIRFPARSER_H_
+#pragma once
 
 #include "sirf/cReg/ParserKey.h"
 #include <memory>
@@ -240,5 +239,3 @@ protected:
     std::map<std::string, std::shared_ptr<ParserKeyBase<Z> > > _keys;
 };
 }
-
-#endif

@@ -43,8 +43,7 @@ of sform_code; for example, for the Talairach coordinate system,
 \author CCP PETMR
 */
 
-#ifndef _NIFTIIMAGEDATA_H_
-#define _NIFTIIMAGEDATA_H_
+#pragma once
 
 #include <nifti1_io.h>
 #include <vector>
@@ -459,5 +458,3 @@ protected:
     mutable std::shared_ptr<Iterator_const> _end_const;
 };
 }
-
-#endif

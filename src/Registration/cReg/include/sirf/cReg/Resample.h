@@ -30,8 +30,7 @@ i.e., Trans3(Trans2(Trans1(x))).
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGRESAMPLE_H_
-#define _SIRFREGRESAMPLE_H_
+#pragma once
 
 #include <vector>
 #include "sirf/cReg/Transformation.h"
@@ -116,5 +115,3 @@ protected:
     std::shared_ptr<ImageData> _output_image_sptr;
 };
 }
-
-#endif

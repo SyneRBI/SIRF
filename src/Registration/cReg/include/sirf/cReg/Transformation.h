@@ -26,8 +26,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _Transformation_H
-#define _Transformation_H
+#pragma once
 
 #include <string>
 
@@ -60,5 +59,3 @@ protected:
     static void check_ref_and_def(const NiftiImageData3D<dataType> &ref, const NiftiImageData3DDeformation<dataType> &def);
 };
 }
-
-#endif

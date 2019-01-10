@@ -27,8 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFRegParserKEY_H_
-#define _SIRFRegParserKEY_H_
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -262,5 +261,3 @@ protected:
     B _arg2;
 };
 }
-
-#endif

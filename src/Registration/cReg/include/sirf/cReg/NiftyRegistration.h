@@ -44,8 +44,7 @@ More examples can be found in data/examples/Registration/paramFiles
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGNIFTYREGISTRATION_H_
-#define _SIRFREGNIFTYREGISTRATION_H_
+#pragma once
 
 #include "sirf/cReg/Registration.h"
 
@@ -92,5 +91,3 @@ protected:
     std::shared_ptr<NiftiImageData3D<dataType> >       _warped_image_nifti_sptr;
 };
 }
-
-#endif

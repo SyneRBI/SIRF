@@ -27,8 +27,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGIMAGEWEIGHTEDMEAN_H_
-#define _SIRFREGIMAGEWEIGHTEDMEAN_H_
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -75,5 +74,3 @@ protected:
 
 };
 }
-
-#endif

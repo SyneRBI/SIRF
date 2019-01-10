@@ -26,8 +26,7 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _AffineTransformation_H_
-#define _AffineTransformation_H_
+#pragma once
 
 #include <vector>
 #include <nifti1_io.h>
@@ -103,5 +102,3 @@ protected:
     dataType _tm[4][4];
 };
 }
-
-#endif

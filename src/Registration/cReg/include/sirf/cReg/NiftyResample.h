@@ -33,8 +33,7 @@ the output image) can have nt and/or nu != 1.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGNIFTYRESAMPLE_H_
-#define _SIRFREGNIFTYRESAMPLE_H_
+#pragma once
 
 #include <nifti1_io.h>
 #include <string>
@@ -85,5 +84,3 @@ protected:
     std::shared_ptr<NiftiImageData<dataType> >       _output_image_nifti_sptr;
 };
 }
-
-#endif
