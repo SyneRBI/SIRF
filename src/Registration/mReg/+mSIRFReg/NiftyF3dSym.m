@@ -1,4 +1,4 @@
-classdef NiftyF3dSym < mSIRFReg.SIRFReg
+classdef NiftyF3dSym < mSIRFReg.Registration
 % Registration class using NiftyReg's symmetric f3d.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).

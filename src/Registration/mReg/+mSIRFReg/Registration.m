@@ -1,4 +1,4 @@
-classdef (Abstract = true) SIRFReg < handle
+classdef (Abstract = true) Registration < handle
 % Abstract class for registration classes.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -28,7 +28,7 @@ classdef (Abstract = true) SIRFReg < handle
         end
     end
     methods
-        function self = SIRFReg()
+        function self = Registration()
             self.name = 'Registration';
             self.handle_ = [];
         end

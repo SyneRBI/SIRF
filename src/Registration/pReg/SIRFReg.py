@@ -1,5 +1,5 @@
 """
-Object-Oriented wrap for the cSIRFReg-to-Python interface pysirfreg.py
+Object-Oriented wrap for the cReg-to-Python interface pysirfreg.py
 """
 
 # CCP PETMR Synergistic Image Reconstruction Framework (SIRF)
@@ -125,11 +125,11 @@ def _tmp_filename():
 
 class MessageRedirector:
     """
-    Class for SIRFReg printing redirection to files/stdout/stderr.
+    Class for registration printing redirection to files/stdout/stderr.
     """
     def __init__(self, info=None, warn='stdout', errr='stdout'):
         """
-        Creates MessageRedirector object that redirects SIRFReg's ouput
+        Creates MessageRedirector object that redirects Reg's ouput
         produced by info(), warning() and error(0 functions to destinations
         specified respectively by info, warn and err arguments.
         The argument values other than None, stdout, stderr, cout and cerr
@@ -568,7 +568,7 @@ class NiftiImageData3DDeformation(NiftiImageData3DTensor, _Transformation):
         return z
 
 
-class _SIRFReg(ABC):
+class _Registration(ABC):
     """
     Abstract base class for registration.
     """
@@ -645,12 +645,12 @@ class _SIRFReg(ABC):
         try_calling(pysirfreg.cReg_Registration_set_parameter(self.handle, par, arg1, arg2))
 
 
-class NiftyAladinSym(_SIRFReg):
+class NiftyAladinSym(_Registration):
     """
     Registration using NiftyReg aladin.
     """
     def __init__(self):
-        _SIRFReg.__init__(self)
+        _Registration.__init__(self)
         self.name = 'NiftyAladinSym'
         self.handle = pysirfreg.cReg_newObject(self.name)
         check_status(self.handle)
@@ -676,12 +676,12 @@ class NiftyAladinSym(_SIRFReg):
         return tm
 
 
-class NiftyF3dSym(_SIRFReg):
+class NiftyF3dSym(_Registration):
     """
     Registration using NiftyReg f3d.
     """
     def __init__(self):
-        _SIRFReg.__init__(self)
+        _Registration.__init__(self)
         self.name = 'NiftyF3dSym'
         self.handle = pysirfreg.cReg_newObject(self.name)
         check_status(self.handle)

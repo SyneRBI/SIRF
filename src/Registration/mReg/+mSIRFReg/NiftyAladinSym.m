@@ -1,4 +1,4 @@
-classdef NiftyAladinSym < mSIRFReg.SIRFReg
+classdef NiftyAladinSym < mSIRFReg.Registration
 % Registration class using NiftyReg's symmetric aladin.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
