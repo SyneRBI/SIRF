@@ -70,7 +70,6 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 SET(REG_executables
     sirf_affine_to_disp
     sirf_print_nifti_info
-    sirf_aladin
     sirf_tensor_split_join
     sirf_change_datatype
     sirf_crop_image

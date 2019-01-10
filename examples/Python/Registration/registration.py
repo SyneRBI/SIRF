@@ -6,15 +6,15 @@ Usage:
 Options:
   --eng_ref <eng>              engine for reference image [default: Reg]
   --eng_flo <eng>              engine for floating image [default: Reg]
-  --eng_reg <eng>              engine for registration/resampling package [default: Reg]
-  --ref <file>                 reference image
-  --flo <file>                 floating image
-  --par <file>                 parameter file
+  --ref <file>                 reference image (default: test.nii.gz)
+  --flo <file>                 floating image (default: test2.nii.gz)
+  --par <file>                 parameter file (default: niftyreg_aladin.par)
+  --algo <algo>                registration algorithm [default: NiftyAladinSym]
   #--rmask                     mask of reference image
   #--fmask                     mask of floating image
   --warped <file>              warped image filename [default: output]
-  --TM_forward                 forward transformation matrix
-  --TM_inverse                 inverse transformation matrix
+  --TM_forward                 forward transformation matrix (if rigid/affine)
+  --TM_inverse                 inverse transformation matrix (if rigid/affine)
   --disp_fwd_4D                4D forward displacement field image
   --def_fwd_4D                 4D forward deformation field image
   --disp_inv_4D                4D inverse displacement field image
@@ -46,30 +46,34 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
+import pReg
 exec('import p' + args['--eng_ref'] + ' as eng_ref')
 exec('import p' + args['--eng_flo'] + ' as eng_flo')
-exec('import p' + args['--eng_reg'] + ' as eng_reg')
 
 # process command-line options
-SIRF_PATH = os.environ.get('SIRF_PATH')
-if SIRF_PATH is not None:
-  examples_path = SIRF_PATH + '/data/examples/Registration'
-else:
-  errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
-  raise error(errorMsg)
+ref_file = args['--ref']
+flo_file = args['--flo']
+par_file = args['--par']
+algo = args['--algo']
+
+# if using the default for any, need to get the examples folder
+if (ref_file or flo_file or par_file) is None: 
+  SIRF_PATH = os.environ.get('SIRF_PATH')
+  if SIRF_PATH is not None:
+    examples_path = SIRF_PATH + '/data/examples/Registration'
+  else:
+    errorMsg = 'You need to set the SIRF_PATH environment variable to allow finding the raw data.'
+    raise error(errorMsg)
 
 # reference
-ref_file = args['--ref']
 if ref_file is None:
     ref_file = examples_path + "/test.nii.gz"
 
 # floating
-flo_file = args['--flo']
 if flo_file is None:
     flo_file = examples_path + "/test2.nii.gz"
 
 # parameter file
-par_file = args['--par']
 if par_file is None:
     par_file = examples_path + "/paramFiles/niftyreg_aladin.par"
 
@@ -79,42 +83,43 @@ def main():
     # Open reference and floating images
     print('Engine for reference image: ' + args['--eng_ref'])
     print('Engine for floating image: ' + args['--eng_flo'])
-    print('Engine for registration: ' + args['--eng_reg'])
     print('Reference image: ' + ref_file)
     print('Floating image: ' + flo_file)
+    print('Parameter file: ' + par_file)
+    print('Registration algorithm: ' + algo)
 
     ref = eng_ref.ImageData(ref_file)
     flo = eng_flo.ImageData(flo_file)
 
-    # Registration
-    na = eng_reg.NiftyAladinSym()
-    na.set_reference_image(ref)
-    na.set_floating_image(flo)
-    na.set_parameter_file(par_file)
-    na.process()
-    print("im here1")
+    # Dynamically create registration algorithm
+    algorithm = getattr(pReg, algo)
+    reg = algorithm()
+    reg.set_reference_image(ref)
+    reg.set_floating_image(flo)
+    reg.set_parameter_file(par_file)
+    reg.process()
 
     # Output
     print("saving to file: " + args['--warped'])
-    na.get_output().save_to_file(args['--warped'])
+    reg.get_output().write(args['--warped'])
 
     # TMs
     if args['--TM_forward'] is not False:
-        na.get_transformation_matrix_forward().save_to_file(args['--TM_forward'])
+        reg.get_transformation_matrix_forward().write(args['--TM_forward'])
     if args['--TM_inverse'] is not False:
-        na.get_transformation_matrix_inverse().save_to_file(args['--TM_inverse'])
+        reg.get_transformation_matrix_inverse().write(args['--TM_inverse'])
 
     # Disp fields
     if args['--disp_fwd_4D'] is not False:
-        na.get_displacement_field_forward().save_to_file(args['--disp_fwd_4D'])
+        reg.get_displacement_field_forward().write(args['--disp_fwd_4D'])
     if args['--disp_inv_4D'] is not False:
-        na.get_displacement_field_inverse().save_to_file(args['--disp_inv_4D'])
+        reg.get_displacement_field_inverse().write(args['--disp_inv_4D'])
 
     # Def fields
     if args['--def_fwd_4D'] is not False:
-        na.get_deformation_field_forward().save_to_file(args['--def_fwd_4D'])
+        reg.get_deformation_field_forward().write(args['--def_fwd_4D'])
     if args['--def_inv_4D'] is not False:
-        na.get_deformation_field_inverse().save_to_file(args['--def_inv_4D'])
+        reg.get_deformation_field_inverse().write(args['--def_inv_4D'])
 
 
 try:
