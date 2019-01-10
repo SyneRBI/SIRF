@@ -24,12 +24,12 @@ classdef (Abstract = true) SIRFReg < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFReg';
+            name = 'Registration';
         end
     end
     methods
         function self = SIRFReg()
-            self.name = 'SIRFReg';
+            self.name = 'Registration';
             self.handle_ = [];
         end
         function delete(self)
@@ -40,28 +40,28 @@ classdef (Abstract = true) SIRFReg < handle
         end
         function set_parameter_file(self, filename)
             %Sets the parameter filename.
-            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'parameter_file', filename, 's')
+            mSIRFReg.setParameter(self.handle_, 'Registration', 'parameter_file', filename, 's')
         end
         function set_reference_image(self, input)
             %Sets the reference image.
             assert(isa(input, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'reference_image', input, 'h')
+            mSIRFReg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
             %Sets the floating image.
             assert(isa(input, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'floating_image', input, 'h')
+            mSIRFReg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
         function output = get_output(self)
             %Gets the registered image.
             output = mSIRFReg.NiftiImageData3D();
             mUtilities.delete(output.handle_)
-            output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, 'SIRFReg', 'output');
+            output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, 'Registration', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
         function process(self)
             %Run the registration.
-            assert(~isempty(self.handle_), 'SIRFReg.process: Registration object is empty.')
+            assert(~isempty(self.handle_), 'Registration.process: Registration object is empty.')
             h = calllib('msirfreg', 'mReg_SIRFReg_process', self.handle_);
             mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
@@ -102,12 +102,12 @@ classdef (Abstract = true) SIRFReg < handle
         function set_reference_mask(self, im)
             %Set mask of reference image.
             assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'reference_mask', im, 'h')
+            mSIRFReg.setParameter(self.handle_, 'Registration', 'reference_mask', im, 'h')
         end
         function set_floating_mask(self, im)
             %Set mask of floating image.
             assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'SIRFReg', 'floating_mask', im, 'h')
+            mSIRFReg.setParameter(self.handle_, 'Registration', 'floating_mask', im, 'h')
         end
     end
 end

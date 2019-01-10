@@ -197,7 +197,7 @@ class _Transformation(ABC):
     """
     def __init__(self):
         self.handle = None
-        self.name = 'SIRFRegTransformation'
+        self.name = 'Transformation'
 
     def __del__(self):
         if self.handle is not None:
@@ -574,7 +574,7 @@ class _SIRFReg(ABC):
     """
     def __init__(self):
         self.handle = None
-        self.name = 'SIRFReg'
+        self.name = 'Registration'
         self.reference_image = None
 
     def __del__(self):
@@ -583,25 +583,25 @@ class _SIRFReg(ABC):
 
     def set_parameter_file(self, filename):
         """Sets the parameter filename."""
-        _set_char_par_sirf(self.handle, 'SIRFReg', 'parameter_file', filename)
+        _set_char_par_sirf(self.handle, 'Registration', 'parameter_file', filename)
 
     def set_reference_image(self, reference_image):
         """Sets the reference image."""
         if not isinstance(reference_image, SIRF.ImageData):
             raise AssertionError()
         self.reference_image = reference_image
-        _setParameter_sirf(self.handle, 'SIRFReg', 'reference_image', reference_image.handle)
+        _setParameter_sirf(self.handle, 'Registration', 'reference_image', reference_image.handle)
 
     def set_floating_image(self, floating_image):
         """Sets the floating image."""
         if not isinstance(floating_image, SIRF.ImageData):
             raise AssertionError()
-        _setParameter_sirf(self.handle, 'SIRFReg', 'floating_image', floating_image.handle)
+        _setParameter_sirf(self.handle, 'Registration', 'floating_image', floating_image.handle)
 
     def get_output(self):
         """Gets the registered image."""
         output = self.reference_image.same_object()
-        output.handle = pysirfreg.cReg_parameter(self.handle, 'SIRFReg', 'output')
+        output.handle = pysirfreg.cReg_parameter(self.handle, 'Registration', 'output')
         check_status(output.handle)
         return output
 
@@ -651,7 +651,7 @@ class NiftyAladinSym(_SIRFReg):
     """
     def __init__(self):
         _SIRFReg.__init__(self)
-        self.name = 'SIRFRegNiftyAladinSym'
+        self.name = 'NiftyAladinSym'
         self.handle = pysirfreg.cReg_newObject(self.name)
         check_status(self.handle)
 
@@ -682,7 +682,7 @@ class NiftyF3dSym(_SIRFReg):
     """
     def __init__(self):
         _SIRFReg.__init__(self)
-        self.name = 'SIRFRegNiftyF3dSym'
+        self.name = 'NiftyF3dSym'
         self.handle = pysirfreg.cReg_newObject(self.name)
         check_status(self.handle)
 
@@ -710,7 +710,7 @@ class NiftyResample:
     Resample using NiftyReg.
     """
     def __init__(self):
-        self.name = 'SIRFRegNiftyResample'
+        self.name = 'NiftyResample'
         self.handle = pysirfreg.cReg_newObject(self.name)
         self.reference_image = None
         check_status(self.handle)
@@ -783,7 +783,7 @@ class ImageWeightedMean:
     """
 
     def __init__(self):
-        self.name = 'SIRFRegImageWeightedMean'
+        self.name = 'ImageWeightedMean'
         self.handle = pysirfreg.cReg_newObject(self.name)
         check_status(self.handle)
 
@@ -818,7 +818,7 @@ class AffineTransformation(_Transformation):
     """
     def __init__(self, src=None):
         self.handle = None
-        self.name = 'SIRFRegAffineTransformation'
+        self.name = 'AffineTransformation'
         if src is None:
             self.handle = pysirfreg.cReg_newObject(self.name)
         elif isinstance(src, str):

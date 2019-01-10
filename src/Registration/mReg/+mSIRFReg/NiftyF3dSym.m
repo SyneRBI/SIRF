@@ -20,12 +20,12 @@ classdef NiftyF3dSym < mSIRFReg.SIRFReg
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegNiftyF3dSym';
+            name = 'NiftyF3dSym';
         end
     end
     methods
         function self = NiftyF3dSym()
-            self.name = 'SIRFRegNiftyF3dSym';
+            self.name = 'NiftyF3dSym';
             self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end

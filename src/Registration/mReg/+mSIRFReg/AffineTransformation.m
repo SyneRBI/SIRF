@@ -24,13 +24,13 @@ classdef AffineTransformation < mSIRFReg.Transformation
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegAffineTransformation';
+            name = 'AffineTransformation';
         end
     end
     methods
         function self = AffineTransformation(src)
             narginchk(0,1)
-            self.name = 'SIRFRegAffineTransformation';
+            self.name = 'AffineTransformation';
             if nargin < 1
                 self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             elseif ischar(src)

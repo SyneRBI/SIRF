@@ -20,12 +20,12 @@ classdef (Abstract = true) Transformation < handle & matlab.mixin.Heterogeneous
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegTransformation';
+            name = 'Transformation';
         end
     end
     methods
         function self = Transformation()
-            self.name = 'SIRFRegTransformation';
+            self.name = 'Transformation';
             self.handle_ = [];
         end
         function delete(self)

@@ -24,12 +24,12 @@ classdef ImageWeightedMean < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegImageWeightedMean';
+            name = 'ImageWeightedMean';
         end
     end
     methods
         function self = ImageWeightedMean(src)
-            self.name = 'SIRFRegImageWeightedMean';
+            self.name = 'ImageWeightedMean';
             self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end

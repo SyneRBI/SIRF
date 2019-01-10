@@ -24,12 +24,12 @@ classdef NiftyResample < handle
     end
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegNiftyResample';
+            name = 'NiftyResample';
         end
     end
     methods
         function self = NiftyResample(src)
-            self.name = 'SIRFRegNiftyResample';
+            self.name = 'NiftyResample';
             self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end

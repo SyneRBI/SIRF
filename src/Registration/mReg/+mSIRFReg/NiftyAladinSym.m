@@ -20,12 +20,12 @@ classdef NiftyAladinSym < mSIRFReg.SIRFReg
 
     methods(Static)
         function name = class_name()
-            name = 'SIRFRegNiftyAladinSym';
+            name = 'NiftyAladinSym';
         end
     end
     methods
         function self = NiftyAladinSym()
-            self.name = 'SIRFRegNiftyAladinSym';
+            self.name = 'NiftyAladinSym';
             self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end

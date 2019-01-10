@@ -64,15 +64,15 @@ void* cReg_newObject(const char* name)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDisplacement<float> >(new NiftiImageData3DDisplacement<float>));
         if (strcmp(name, "NiftiImageData3DDeformation") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
-        if (strcmp(name, "SIRFRegNiftyAladinSym") == 0)
+        if (strcmp(name, "NiftyAladinSym") == 0)
             return newObjectHandle(std::shared_ptr<NiftyAladinSym<float> >(new NiftyAladinSym<float>));
-        if (strcmp(name, "SIRFRegNiftyF3dSym") == 0)
+        if (strcmp(name, "NiftyF3dSym") == 0)
             return newObjectHandle(std::shared_ptr<NiftyF3dSym<float> >(new NiftyF3dSym<float>));
-        if (strcmp(name, "SIRFRegNiftyResample") == 0)
+        if (strcmp(name, "NiftyResample") == 0)
             return newObjectHandle(std::shared_ptr<NiftyResample<float> >(new NiftyResample<float>));
-        if (strcmp(name, "SIRFRegImageWeightedMean") == 0)
+        if (strcmp(name, "ImageWeightedMean") == 0)
             return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
-        if (strcmp(name, "SIRFRegAffineTransformation") == 0)
+        if (strcmp(name, "AffineTransformation") == 0)
             return newObjectHandle(std::shared_ptr<AffineTransformation<float> >(new AffineTransformation<float>));
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
@@ -87,11 +87,11 @@ void* cReg_setParameter
 	try {
 		CAST_PTR(DataHandle, hs, ptr_s);
 		CAST_PTR(DataHandle, hv, ptr_v);
-        if (strcmp(obj, "SIRFReg") == 0)
+        if (strcmp(obj, "Registration") == 0)
             return cReg_setSIRFRegParameter(ptr_s, name, ptr_v);
-        if (strcmp(obj, "SIRFRegNiftyF3dSym") == 0)
+        if (strcmp(obj, "NiftyF3dSym") == 0)
             return cReg_setSIRFRegNiftyF3dSymParameter(ptr_s, name, ptr_v);
-        if (strcmp(obj, "SIRFRegNiftyResample") == 0)
+        if (strcmp(obj, "NiftyResample") == 0)
             return cReg_setSIRFRegNiftyResampleParameter(ptr_s, name, ptr_v);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -106,13 +106,13 @@ void* cReg_parameter(const void* ptr, const char* obj, const char* name)
 		CAST_PTR(DataHandle, handle, ptr);
         if (strcmp(obj, "NiftiImageData") == 0)
             return cReg_NiftiImageDataParameter(handle, name);
-        if (strcmp(obj, "SIRFReg") == 0)
+        if (strcmp(obj, "Registration") == 0)
             return cReg_SIRFRegParameter(handle, name);
-        if (strcmp(obj, "SIRFRegNiftyResample") == 0)
+        if (strcmp(obj, "NiftyResample") == 0)
             return cReg_SIRFRegNiftyResampleParameter(handle, name);
-        if (strcmp(obj, "SIRFRegImageWeightedMean") == 0)
+        if (strcmp(obj, "ImageWeightedMean") == 0)
             return cReg_SIRFRegImageWeightedMeanParameter(handle, name);
-        if (strcmp(obj, "SIRFRegAffineTransformation") == 0)
+        if (strcmp(obj, "AffineTransformation") == 0)
             return cReg_SIRFRegAffineTransformationParameter(handle, name);
 		return unknownObject("object", obj, __FILE__, __LINE__);
 	}
@@ -149,7 +149,7 @@ void* cReg_objectFromFile(const char* name, const char* filename)
                 sptr(new NiftiImageData3DDeformation<float>(filename));
             return newObjectHandle(sptr);
         }
-        if (strcmp(name, "SIRFRegAffineTransformation") == 0) {
+        if (strcmp(name, "AffineTransformation") == 0) {
             std::shared_ptr<AffineTransformation<float> >
                 sptr(new AffineTransformation<float>(filename));
             return newObjectHandle(sptr);
@@ -595,7 +595,7 @@ void* cReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const
     try {
         Transformation<float> *trans;
 
-        if (strcmp(name,"SIRFRegAffineTransformation") == 0)
+        if (strcmp(name,"AffineTransformation") == 0)
             trans = &objectFromHandle<AffineTransformation<float> >(ptr);
         else if (strcmp(name,"NiftiImageData3DDisplacement") == 0)
             trans = &objectFromHandle<NiftiImageData3DDisplacement<float> >(ptr);
