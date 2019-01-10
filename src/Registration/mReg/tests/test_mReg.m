@@ -58,7 +58,7 @@ try_niftyf3d(g);
 try_transformations(g,na);
 try_resample(g,na);
 try_weighted_mean(g,na);
-% try_stir_to_sirfreg(g); TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+% try_stir_to_nifti(g); TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 
 function try_niftiimage(g)
 	disp('% ----------------------------------------------------------------------- %')
@@ -126,7 +126,7 @@ function try_niftiimage(g)
     ref_aladin_float = mReg.NiftiImageData3D(g.output_float);
     arr1 = g.ref_aladin.as_array();
     arr2 = ref_aladin_float.as_array();
-    assert(all(arr1(:)==arr2(:)), 'SIRFRegMisc::write()/change_datatype() failed.');
+    assert(all(arr1(:)==arr2(:)), 'NiftiImageData::write()/change_datatype() failed.');
 
     % Test print methods
     q.print_header();
@@ -494,9 +494,9 @@ function try_transformations(g,na)
     a_def = a3.get_as_deformation_field(g.ref_aladin);
     b_def = b3.get_as_deformation_field(g.ref_aladin);
     c_def = c3.get_as_deformation_field(g.ref_aladin);
-    assert(a_def == na.get_deformation_field_forward(), 'SIRFRegTransformationAffine get_as_deformation_field() failed.')
-    assert(b_def == na.get_deformation_field_forward(), 'SIRFRegTransformationDisplacement get_as_deformation_field() failed.')
-    assert(c_def == na.get_deformation_field_forward(), 'SIRFRegTransformationDeformation get_as_deformation_field() failed.')
+    assert(a_def == na.get_deformation_field_forward(), 'TransformationAffine get_as_deformation_field() failed.')
+    assert(b_def == na.get_deformation_field_forward(), 'TransformationDisplacement get_as_deformation_field() failed.')
+    assert(c_def == na.get_deformation_field_forward(), 'TransformationDeformation get_as_deformation_field() failed.')
 
     % Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
     tm_iden = mReg.AffineTransformation.get_identity();
@@ -618,36 +618,36 @@ end
 
 % TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 %{
-function try_stir_to_sirfreg(g)
+function try_stir_to_nifti(g)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting STIR to SIRFReg test...')
+    disp('%                  Starting STIR to Nifti test...')
     disp('%------------------------------------------------------------------------ %')
 
 		% Open stir image
                 pet_image_data = mSTIR.ImageData(g.ref_aladin_filename);
 		image_data_from_stir = mReg.NiftiImageData3D(pet_image_data);
 
-		% Now fill the stir and sirfreg images with 1 and 100, respectively
+		% Now fill the stir and nifti images with 1 and 100, respectively
 		pet_image_data.fill(1.);
 		image_data_from_stir.fill(100);
 		arr_pet = pet_image_data.as_array();
-		assert(max(arr_pet(:)) ~= image_data_from_stir.get_max(), 'Maxes of STIR and SIRFReg images should be different.');
+		assert(max(arr_pet(:)) ~= image_data_from_stir.get_max(), 'Maxes of STIR and Nifti images should be different.');
 
-		% Fill the stir image with the sirfreg
+		% Fill the stir image with the nifti
 		image_data_from_stir.copy_data_to(pet_image_data);
 		arr_pet = pet_image_data.as_array();
-		assert(max(arr_pet(:)) == image_data_from_stir.get_max(), 'Maxes of STIR and SIRFReg images should match.');
+		assert(max(arr_pet(:)) == image_data_from_stir.get_max(), 'Maxes of STIR and Nifti images should match.');
 
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished STIR to SIRFReg test.')
+    disp('%                  Finished STIR to Nifti test.')
     disp('%------------------------------------------------------------------------ %')
 end
 %}
 
-function try_sirfregAffineTransformation(g,na)
+function try_AffineTransformation(g,na)
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Starting SIRFRegAffineTransformation test...')
+    disp('%                  Starting AffineTransformation test...')
     disp('%------------------------------------------------------------------------ %')
 
     % Construct from file
@@ -658,11 +658,11 @@ function try_sirfregAffineTransformation(g,na)
     c = na.get_transformation_matrix_inverse();
     d = b * c;
     e = mReg.AffineTransformation.get_identity();
-    assert(d == e, 'SIRFRegAffineTransformation::mult/comparison failed.');
+    assert(d == e, 'AffineTransformation::mult/comparison failed.');
 
-    assert(e.get_determinant() - 1. < 1.e-7, 'SIRFRegAffineTransformation::get_determinant failed.');
+    assert(e.get_determinant() - 1. < 1.e-7, 'AffineTransformation::get_determinant failed.');
 
     disp('% ----------------------------------------------------------------------- %')
-    disp('%                  Finished SIRFRegAffineTransformation test.')
+    disp('%                  Finished AffineTransformation test.')
     disp('%------------------------------------------------------------------------ %')
 end
