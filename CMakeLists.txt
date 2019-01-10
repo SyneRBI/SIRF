@@ -127,8 +127,8 @@ ADD_SUBDIRECTORY(src/xGadgetron)
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup.py.cmake")
 
 # Optional registration
-option(SIRFREG_ENABLE "Build the SIRF registration package" OFF)
-if (SIRFREG_ENABLE)
+option(REG_ENABLE "Build the SIRF registration package" OFF)
+if (REG_ENABLE)
   ADD_SUBDIRECTORY(src/Registration)
 endif()
 
