@@ -33,7 +33,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFReg<dataType>::check_parameters() const
+void Registration<dataType>::check_parameters() const
 {
     // If anything is missing
     if (!_floating_image_sptr)
@@ -43,7 +43,7 @@ void SIRFReg<dataType>::check_parameters() const
 }
 
 template<class dataType>
-void SIRFReg<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
+void Registration<dataType>::set_parameter(const std::string &par, const std::string &arg1, const std::string &arg2)
 {
     _extra_params.push_back(par);
     _extra_params.push_back(arg1);
@@ -51,5 +51,5 @@ void SIRFReg<dataType>::set_parameter(const std::string &par, const std::string 
 }
 
 namespace sirf {
-template class SIRFReg<float>;
+template class Registration<float>;
 }

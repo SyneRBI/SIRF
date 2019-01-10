@@ -55,11 +55,11 @@ static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::
         throw std::runtime_error("unknown engine - " + engine + ".\n");
 }
 
-static std::shared_ptr<SIRFRegResample<float> > algo_as_sptr(const std::string &algorithm)
+static std::shared_ptr<Resample<float> > algo_as_sptr(const std::string &algorithm)
 {
     std::cout << "\nUsing " << algorithm << " resampling algorithm...\n";
     if      (strcmp(algorithm.c_str(), "niftyreg") == 0)
-        return std::make_shared<SIRFRegNiftyResample<float> >();
+        return std::make_shared<NiftyResample<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }
@@ -101,9 +101,9 @@ int main(int argc, char* argv[])
         std::string ref_filename = "", flo_filename = "";
         std::string eng_ref = "SIRFReg", eng_flo = "SIRFReg";
         std::string output = "output";
-        std::vector<std::shared_ptr<const SIRFRegTransformation<float> > > trans;
+        std::vector<std::shared_ptr<const Transformation<float> > > trans;
         std::string algo = "niftyreg";
-        SIRFRegResample<float>::InterpolationType interp = SIRFRegResample<float>::NEARESTNEIGHBOUR;
+        Resample<float>::InterpolationType interp = Resample<float>::NEARESTNEIGHBOUR;
 
         // Loop over all input arguments (ignore first argument (name of executable))
         argc--; argv++;
@@ -161,14 +161,14 @@ int main(int argc, char* argv[])
             else if (strcmp(argv[0], "-interp") == 0) {
                 if (argc<2)
                     err("Option '-interp' expects a (numerical) argument.");
-                interp = static_cast<SIRFRegResample<float>::InterpolationType>(atoi(argv[1]));
+                interp = static_cast<Resample<float>::InterpolationType>(atoi(argv[1]));
                 argc-=2; argv+=2;
             }
             // add affine
             else if (strcmp(argv[0], "-add_affine") == 0) {
                 if (argc<2)
                     err("Option '-add_affine' expects a (numerical) argument.");
-                trans.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(argv[1]));
+                trans.push_back(std::make_shared<const AffineTransformation<float> >(argv[1]));
                 argc-=2; argv+=2;
             }
             // add deformation
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<const NiftiImageData3D<float> > flo = image_as_sptr(flo_filename,eng_flo);
 
         // Resample
-        std::shared_ptr<SIRFRegResample<float> > res = algo_as_sptr(algo);
+        std::shared_ptr<Resample<float> > res = algo_as_sptr(algo);
         res->set_reference_image(ref);
         res->set_floating_image(flo);
         for (size_t i=0; i<trans.size(); ++i)

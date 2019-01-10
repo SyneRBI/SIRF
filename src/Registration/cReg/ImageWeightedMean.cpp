@@ -34,13 +34,13 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-SIRFRegImageWeightedMean<dataType>::SIRFRegImageWeightedMean()
+ImageWeightedMean<dataType>::ImageWeightedMean()
 {
     _need_to_update = true;
 }
 
 template<class dataType>
-void SIRFRegImageWeightedMean<dataType>::add_image(const NiftiImageData<dataType> &image, const float weight)
+void ImageWeightedMean<dataType>::add_image(const NiftiImageData<dataType> &image, const float weight)
 {
     // Add image to vector
     _input_image_sptrs.push_back(std::make_shared<const NiftiImageData<dataType> >(image));
@@ -50,7 +50,7 @@ void SIRFRegImageWeightedMean<dataType>::add_image(const NiftiImageData<dataType
 }
 
 template<class dataType>
-void SIRFRegImageWeightedMean<dataType>::process()
+void ImageWeightedMean<dataType>::process()
 {
     // Only process if you need to
     if (!_need_to_update) return;
@@ -81,7 +81,7 @@ void SIRFRegImageWeightedMean<dataType>::process()
 }
 
 template<class dataType>
-void SIRFRegImageWeightedMean<dataType>::check_can_do_mean() const
+void ImageWeightedMean<dataType>::check_can_do_mean() const
 {
     // Check that num_images > 0. If not, throw error
     if (_input_image_sptrs.size() == 0)
@@ -101,5 +101,5 @@ void SIRFRegImageWeightedMean<dataType>::check_can_do_mean() const
 }
 
 namespace sirf {
-template class SIRFRegImageWeightedMean<float>;
+template class ImageWeightedMean<float>;
 }

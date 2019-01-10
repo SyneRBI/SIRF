@@ -54,20 +54,20 @@ More examples can be found in data/examples/Registration/paramFiles
 namespace sirf {
 
 /// Forward declarations
-template<class dataType> class SIRFRegTransformation;
+template<class dataType> class Transformation;
 class ImageData;
 
 /// Base class for registration algorithms wrapped by SIRFReg
 template<class dataType>
-class SIRFReg
+class Registration
 {
 public:
 
     /// Constructor
-    SIRFReg() {}
+    Registration() {}
 
     /// Destructor
-    virtual ~SIRFReg() {}
+    virtual ~Registration() {}
 
     /// Set parameter file
     void set_parameter_file(const std::string &parameter_filename) { _parameter_filename = parameter_filename; }
@@ -85,16 +85,16 @@ public:
     const std::shared_ptr<const ImageData> get_output() const { return _warped_image_sptr; }
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_forward() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward() const = 0;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_inverse() const = 0;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse() const = 0;
 
     /// Get forward displacement field image
-    const std::shared_ptr<const SIRFRegTransformation<dataType> > get_displacement_field_forward() const { return _disp_image_forward_sptr; }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_forward() const { return _disp_image_forward_sptr; }
 
     /// Get inverse displacement field image
-    const std::shared_ptr<const SIRFRegTransformation<dataType> > get_displacement_field_inverse() const { return _disp_image_inverse_sptr; }
+    const std::shared_ptr<const Transformation<dataType> > get_displacement_field_inverse() const { return _disp_image_inverse_sptr; }
 
     /// Set string parameter. Check if any set methods match the method given by par.
     /// If so, set the value given by arg. Convert to float/int etc., as necessary.
@@ -133,9 +133,9 @@ protected:
     std::shared_ptr<ImageData> _warped_image_sptr;
 
     /// Forward displacement field image
-    std::shared_ptr<SIRFRegTransformation<dataType> > _disp_image_forward_sptr;
+    std::shared_ptr<Transformation<dataType> > _disp_image_forward_sptr;
     /// Inverse displacement field image
-    std::shared_ptr<SIRFRegTransformation<dataType> > _disp_image_inverse_sptr;
+    std::shared_ptr<Transformation<dataType> > _disp_image_inverse_sptr;
 
     /// Floating mask
     std::shared_ptr<const ImageData> _floating_mask_sptr;

@@ -26,8 +26,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGAFFINETRANSFORMATION_H_
-#define _SIRFREGAFFINETRANSFORMATION_H_
+#ifndef _AffineTransformation_H_
+#define _AffineTransformation_H_
 
 #include <vector>
 #include <nifti1_io.h>
@@ -36,38 +36,38 @@ limitations under the License.
 namespace sirf {
 /// Class for SIRFReg transformations with an affine transformation
 template<class dataType>
-class SIRFRegAffineTransformation : public SIRFRegTransformation<dataType>
+class AffineTransformation : public Transformation<dataType>
 {
 public:
-    /// Print multiple SIRFRegAffineTransformation
-    static void print(const std::vector<sirf::SIRFRegAffineTransformation<dataType> > &mats);
+    /// Print multiple AffineTransformation
+    static void print(const std::vector<sirf::AffineTransformation<dataType> > &mats);
 
     /// Default constructor - identity matrix
-    SIRFRegAffineTransformation();
+    AffineTransformation();
 
     /// Constructor
-    SIRFRegAffineTransformation(const dataType tm[4][4]);
+    AffineTransformation(const dataType tm[4][4]);
 
     /// Construct from file
-    SIRFRegAffineTransformation(const std::string &filename);
+    AffineTransformation(const std::string &filename);
 
     /// Construct from mat44
-    SIRFRegAffineTransformation(const mat44 &tm);
+    AffineTransformation(const mat44 &tm);
 
     /// Copy constructor
-    SIRFRegAffineTransformation(const SIRFRegAffineTransformation& to_copy);
+    AffineTransformation(const AffineTransformation& to_copy);
 
     /// Assignment
-    SIRFRegAffineTransformation& operator=(const SIRFRegAffineTransformation& to_copy);
+    AffineTransformation& operator=(const AffineTransformation& to_copy);
 
     /// Equality operator
-    bool operator==(const SIRFRegAffineTransformation &other) const;
+    bool operator==(const AffineTransformation &other) const;
 
     /// Equality operator
-    bool operator!=(const SIRFRegAffineTransformation &other) const;
+    bool operator!=(const AffineTransformation &other) const;
 
     /// Multiplication operator
-    SIRFRegAffineTransformation operator* (const SIRFRegAffineTransformation &other) const;
+    AffineTransformation operator* (const AffineTransformation &other) const;
 
     /// Overload [] operator (const)
     dataType const *operator [](int i) const { return _tm[i]; }
@@ -79,13 +79,13 @@ public:
     mat44 get_as_mat44() const;
 
     /// Destructor
-    virtual ~SIRFRegAffineTransformation() {}
+    virtual ~AffineTransformation() {}
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
     /// Deep copy
-    virtual SIRFRegAffineTransformation deep_copy() const;
+    virtual AffineTransformation deep_copy() const;
 
     /// Save to file
     virtual void write(const std::string &filename) const;
@@ -97,7 +97,7 @@ public:
     void print() const;
 
     /// Get inverse
-    SIRFRegAffineTransformation get_inverse() const;
+    AffineTransformation get_inverse() const;
 
 protected:
     dataType _tm[4][4];

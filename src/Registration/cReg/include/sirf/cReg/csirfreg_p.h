@@ -61,7 +61,7 @@ namespace sirf {
         cSIRFReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
-    // SIRFRegAffineTransformation
+    // AffineTransformation
     // ---------------------------------------------------------------------------- //
     void*
         cSIRFReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name);

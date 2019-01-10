@@ -41,7 +41,7 @@ template<class dataType> class NiftiImageData3DDisplacement;
 
 /// SIRF nifti image data deformation field image
 template<class dataType>
-class NiftiImageData3DDeformation : public NiftiImageData3DTensor<dataType>, public SIRFRegTransformation<dataType>
+class NiftiImageData3DDeformation : public NiftiImageData3DTensor<dataType>, public Transformation<dataType>
 {
 public:
     /// Constructor
@@ -76,10 +76,10 @@ public:
     virtual NiftiImageData3DDeformation get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const;
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const SIRFRegTransformation<dataType> *> &transformations, const NiftiImageData3D<dataType> &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<const Transformation<dataType> *> &transformations, const NiftiImageData3D<dataType> &ref);
 
     /// Compose multiple transformations into single deformation field
-    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const SIRFRegTransformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
+    static NiftiImageData3DDeformation compose_single_deformation(const std::vector<std::shared_ptr<const Transformation<dataType> > > &transformations, const NiftiImageData3D<dataType> &ref);
 
     virtual NiftiImageData3DDeformation* same_image_data() const
     {

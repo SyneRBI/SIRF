@@ -67,14 +67,14 @@ NiftiImageData3D<dataType>::NiftiImageData3D(const ImageData& id)
     this->_nifti_image->xyz_units=2;
     // Set the transformation matrix information
     this->_nifti_image->qform_code=1;
-    SIRFRegAffineTransformation<float> tm_orig;
+    AffineTransformation<float> tm_orig;
     for (int i=0;i<4;++i)
         for (int j=0;j<4;++j)
             tm_orig[i][j]=tm[i][j];
 
-    SIRFRegAffineTransformation<float> tm_flip;
+    AffineTransformation<float> tm_flip;
     tm_flip[0][0] = tm_flip[1][1] = -1.F;
-    SIRFRegAffineTransformation<float> tm_final = tm_flip*tm_orig;
+    AffineTransformation<float> tm_final = tm_flip*tm_orig;
     for (int i=0;i<4;++i)
         for (int j=0;j<4;++j)
             this->_nifti_image->qto_xyz.m[i][j]=tm_final[i][j];
@@ -143,16 +143,16 @@ bool NiftiImageData3D<dataType>::check_images_are_aligned(const VoxelisedGeometr
     }
 
     // Check qto_xyz
-    SIRFRegAffineTransformation<dataType> qto_xyz(this->_nifti_image->qto_xyz.m);
-    SIRFRegAffineTransformation<dataType> stir_qto_xyz;
+    AffineTransformation<dataType> qto_xyz(this->_nifti_image->qto_xyz.m);
+    AffineTransformation<dataType> stir_qto_xyz;
     for (int i=0; i<4; ++i)
         for (int j=0; j<4; ++j)
             stir_qto_xyz[i][j] = tm[i][j];
     bool ok_qto_xyz = (stir_qto_xyz == qto_xyz);
     if (!ok_qto_xyz) {
         std::cout << "\nWarning: qto_xyz does not match, can't fill image.\n";
-        std::vector<SIRFRegAffineTransformation<dataType> > mats = {stir_qto_xyz, qto_xyz};
-        SIRFRegAffineTransformation<dataType>::print(mats);
+        std::vector<AffineTransformation<dataType> > mats = {stir_qto_xyz, qto_xyz};
+        AffineTransformation<dataType>::print(mats);
     }
 
     // Return if everything is ok or not.

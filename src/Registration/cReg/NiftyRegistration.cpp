@@ -35,25 +35,25 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-const std::shared_ptr<const SIRFRegTransformation<dataType> > SIRFRegNiftyRegistration<dataType>::get_deformation_field_forward() const
+const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_forward() const
 {
-    // Get displacement as NiftiImageData3DDisplacement (from SIRFRegTransformation)
+    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_fwd = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_forward_sptr);
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_fwd = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_fwd);
     return def_fwd;
 }
 
 template<class dataType>
-const std::shared_ptr<const SIRFRegTransformation<dataType> > SIRFRegNiftyRegistration<dataType>::get_deformation_field_inverse() const
+const std::shared_ptr<const Transformation<dataType> > NiftyRegistration<dataType>::get_deformation_field_inverse() const
 {
-    // Get displacement as NiftiImageData3DDisplacement (from SIRFRegTransformation)
+    // Get displacement as NiftiImageData3DDisplacement (from Transformation)
     std::shared_ptr<const NiftiImageData3DDisplacement<dataType> > disp_inv= std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<dataType> >(this->_disp_image_inverse_sptr);
     std::shared_ptr<NiftiImageData3DDeformation<dataType> > def_inv = std::make_shared<NiftiImageData3DDeformation<dataType> >(*disp_inv);
     return def_inv;
 }
 
 template<class dataType>
-void SIRFRegNiftyRegistration<dataType>::set_up_inputs()
+void NiftyRegistration<dataType>::set_up_inputs()
 {
     // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
     // If the result is a null pointer, it means that a different image type was supplied (e.g., STIRImageData).
@@ -85,5 +85,5 @@ void SIRFRegNiftyRegistration<dataType>::set_up_inputs()
 }
 
 namespace sirf {
-template class SIRFRegNiftyRegistration<float>;
+template class NiftyRegistration<float>;
 }

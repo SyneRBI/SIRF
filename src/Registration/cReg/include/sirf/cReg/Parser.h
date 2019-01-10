@@ -40,7 +40,7 @@ limitations under the License.
 namespace sirf {
 /// SIRFReg parser
 template<class Z>
-class SIRFRegParser
+class Parser
 {
 public:
 
@@ -56,7 +56,7 @@ public:
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
         // Create a new key, then add keyword and function
-        std::shared_ptr<SIRFRegParserKey0Arg<Z> > key = std::make_shared<SIRFRegParserKey0Arg<Z> >();
+        std::shared_ptr<ParserKey0Arg<Z> > key = std::make_shared<ParserKey0Arg<Z> >();
         key->set_object(_object);
         key->set_function(function);
         _keys[keyword] = key;
@@ -71,7 +71,7 @@ public:
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
         // Create a new key, then add keyword and function
-        std::shared_ptr<SIRFRegParserKey1Arg<Z,A> > key = std::make_shared<SIRFRegParserKey1Arg<Z,A> >();
+        std::shared_ptr<ParserKey1Arg<Z,A> > key = std::make_shared<ParserKey1Arg<Z,A> >();
         key->set_object(_object);
         key->set_function(function);
         _keys[keyword] = key;
@@ -86,7 +86,7 @@ public:
         std::cout << "Adding a keyword to the list of possible parameters: " << keyword << "..." << std::flush;
 
         // Create a new key, then add keyword and function
-        std::shared_ptr<SIRFRegParserKey2Arg<Z,A,B> > key = std::make_shared<SIRFRegParserKey2Arg<Z,A,B> >();
+        std::shared_ptr<ParserKey2Arg<Z,A,B> > key = std::make_shared<ParserKey2Arg<Z,A,B> >();
         key->set_object(_object);
         key->set_function(function);
         _keys[keyword] = key;
@@ -125,7 +125,7 @@ public:
             std::string keyword = this->get_keyword(line);
 
             // Get the key that corresponds to the keyword
-            std::shared_ptr<SIRFRegParserKeyBase<Z> > key;
+            std::shared_ptr<ParserKeyBase<Z> > key;
             key = this->get_key(keyword);
 
             // Figure out the variables from the line of text
@@ -213,10 +213,10 @@ public:
     }
 
     /// Get a key from its keyword
-    std::shared_ptr<SIRFRegParserKeyBase<Z> > get_key(std::string &keyword)
+    std::shared_ptr<ParserKeyBase<Z> > get_key(std::string &keyword)
     {
         // Compare the keyword to the list of keys
-        typename std::map<std::string, std::shared_ptr<SIRFRegParserKeyBase<Z> > >::iterator it;
+        typename std::map<std::string, std::shared_ptr<ParserKeyBase<Z> > >::iterator it;
         it = _keys.find(keyword);
 
         // If the keyword is not found in the list of keys, display error & go to next line.
@@ -237,7 +237,7 @@ protected:
     /// Filename
     boost::filesystem::path                                           _filename;
     /// Map of keys
-    std::map<std::string, std::shared_ptr<SIRFRegParserKeyBase<Z> > > _keys;
+    std::map<std::string, std::shared_ptr<ParserKeyBase<Z> > > _keys;
 };
 }
 

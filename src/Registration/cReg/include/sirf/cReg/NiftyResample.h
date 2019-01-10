@@ -49,19 +49,19 @@ namespace sirf {
 
 // Forward declarations
 template<class dataType> class NiftiImageData3DDisplacement;
-template<class dataType> class SIRFRegAffineTransformation;
+template<class dataType> class AffineTransformation;
 
 /// Wrapper around NiftyReg's resample class
 template<class dataType>
-class SIRFRegNiftyResample : public SIRFRegResample<dataType>
+class NiftyResample : public Resample<dataType>
 {
 public:
 
     /// Constructor
-    SIRFRegNiftyResample() {}
+    NiftyResample() {}
 
     /// Destructor
-    virtual ~SIRFRegNiftyResample() {}
+    virtual ~NiftyResample() {}
 
     /// Process
     virtual void process();

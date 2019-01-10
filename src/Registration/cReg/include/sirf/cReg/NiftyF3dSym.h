@@ -37,15 +37,15 @@ template<class dataType> class reg_f3d_sym;
 namespace sirf {
 
 /// Forward declarations
-template<class dataType> class SIRFRegAffineTransformation;
+template<class dataType> class AffineTransformation;
 
 /// Wrapper around NiftyReg's f3d class for non-rigid transformations
-template<class dataType> class SIRFRegNiftyF3dSym : public SIRFRegNiftyRegistration<dataType>
+template<class dataType> class NiftyF3dSym : public NiftyRegistration<dataType>
 {
 public:
 
     /// Constructor
-    SIRFRegNiftyF3dSym()
+    NiftyF3dSym()
     {
         _floating_time_point  = -1;
         _reference_time_point = -1;
@@ -61,7 +61,7 @@ public:
     void set_reference_time_point(const int reference_time_point) { _reference_time_point = reference_time_point; }
 
     /// Set initial affine transformation
-    void set_initial_affine_transformation(const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > mat) { _initial_transformation_sptr = mat; }
+    void set_initial_affine_transformation(const std::shared_ptr<const AffineTransformation<dataType> > mat) { _initial_transformation_sptr = mat; }
 
 protected:
 
@@ -82,7 +82,7 @@ protected:
     /// Reference time point
     int _reference_time_point;
     /// Transformation matrix
-    std::shared_ptr<const SIRFRegAffineTransformation<dataType> > _initial_transformation_sptr;
+    std::shared_ptr<const AffineTransformation<dataType> > _initial_transformation_sptr;
 };
 }
 

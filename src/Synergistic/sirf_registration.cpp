@@ -52,13 +52,13 @@ static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filenam
         throw std::runtime_error("Synergistic_aladin: unknown engine - " + engine + ".\n");
 }
 
-static std::shared_ptr<SIRFReg<float> > algo_as_sptr(const std::string &algorithm)
+static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &algorithm)
 {
     std::cout << "\nUsing " << algorithm << " registration algorithm...\n";
     if      (strcmp(algorithm.c_str(), "aladin") == 0)
-        return std::make_shared<SIRFRegNiftyAladinSym<float> >();
+        return std::make_shared<NiftyAladinSym<float> >();
     else if (strcmp(algorithm.c_str(), "f3d") == 0)
-        return std::make_shared<SIRFRegNiftyAladinSym<float> >();
+        return std::make_shared<NiftyAladinSym<float> >();
     else
         throw std::runtime_error("Synergistic_registration: unknown algorithm - " + algorithm + ".\n");
 }
@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         const std::string algo = argv[find_flag(unused_flags,argv,"-algo",true)+1];
-        std::shared_ptr<SIRFReg<float> > reg = algo_as_sptr(algo);
+        std::shared_ptr<Registration<float> > reg = algo_as_sptr(algo);
 
         // Get images
         int flag_ref = find_flag(unused_flags,argv,"-ref",true);
@@ -206,9 +206,9 @@ int main(int argc, char* argv[])
         // TMs - only if rigid/affine
         if (strcmp(algo.c_str(),"aladin")==0) {
             if (flag_TM_forward != -1)
-                std::dynamic_pointer_cast<SIRFRegNiftyAladinSym<float> >(reg)->get_transformation_matrix_forward()->write(argv[flag_TM_forward+1]);
+                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_forward()->write(argv[flag_TM_forward+1]);
             if (flag_TM_inverse != -1)
-                std::dynamic_pointer_cast<SIRFRegNiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse()->write(argv[flag_TM_inverse+1]);
+                std::dynamic_pointer_cast<NiftyAladinSym<float> >(reg)->get_transformation_matrix_inverse()->write(argv[flag_TM_inverse+1]);
         }
 
         // Forward disp field images

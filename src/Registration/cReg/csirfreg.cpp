@@ -65,15 +65,15 @@ void* cSIRFReg_newObject(const char* name)
         if (strcmp(name, "NiftiImageData3DDeformation") == 0)
             return newObjectHandle(std::shared_ptr<NiftiImageData3DDeformation<float> >(new NiftiImageData3DDeformation<float>));
         if (strcmp(name, "SIRFRegNiftyAladinSym") == 0)
-            return newObjectHandle(std::shared_ptr<SIRFRegNiftyAladinSym<float> >(new SIRFRegNiftyAladinSym<float>));
+            return newObjectHandle(std::shared_ptr<NiftyAladinSym<float> >(new NiftyAladinSym<float>));
         if (strcmp(name, "SIRFRegNiftyF3dSym") == 0)
-            return newObjectHandle(std::shared_ptr<SIRFRegNiftyF3dSym<float> >(new SIRFRegNiftyF3dSym<float>));
+            return newObjectHandle(std::shared_ptr<NiftyF3dSym<float> >(new NiftyF3dSym<float>));
         if (strcmp(name, "SIRFRegNiftyResample") == 0)
-            return newObjectHandle(std::shared_ptr<SIRFRegNiftyResample<float> >(new SIRFRegNiftyResample<float>));
+            return newObjectHandle(std::shared_ptr<NiftyResample<float> >(new NiftyResample<float>));
         if (strcmp(name, "SIRFRegImageWeightedMean") == 0)
-            return newObjectHandle(std::shared_ptr<SIRFRegImageWeightedMean<float> >(new SIRFRegImageWeightedMean<float>));
+            return newObjectHandle(std::shared_ptr<ImageWeightedMean<float> >(new ImageWeightedMean<float>));
         if (strcmp(name, "SIRFRegAffineTransformation") == 0)
-            return newObjectHandle(std::shared_ptr<SIRFRegAffineTransformation<float> >(new SIRFRegAffineTransformation<float>));
+            return newObjectHandle(std::shared_ptr<AffineTransformation<float> >(new AffineTransformation<float>));
 		return unknownObject("object", name, __FILE__, __LINE__);
 	}
 	CATCH;
@@ -150,8 +150,8 @@ void* cSIRFReg_objectFromFile(const char* name, const char* filename)
             return newObjectHandle(sptr);
         }
         if (strcmp(name, "SIRFRegAffineTransformation") == 0) {
-            std::shared_ptr<SIRFRegAffineTransformation<float> >
-                sptr(new SIRFRegAffineTransformation<float>(filename));
+            std::shared_ptr<AffineTransformation<float> >
+                sptr(new AffineTransformation<float>(filename));
             return newObjectHandle(sptr);
         }
 		return unknownObject("object", name, __FILE__, __LINE__);
@@ -423,10 +423,10 @@ void* cSIRFReg_NiftiImageData3DDeformation_compose_single_deformation(const void
         if (num_elements >= 5) vec.push_back(trans5);
 
         // Vector for casting to the correct type
-        std::vector<const SIRFRegTransformation<float> *> trans_vec;
+        std::vector<const Transformation<float> *> trans_vec;
         for (int i=0; i<num_elements; ++i)
             if      (types[i] == '1')
-                trans_vec.push_back(&objectFromHandle<const SIRFRegAffineTransformation<float> >(vec.at(i)));
+                trans_vec.push_back(&objectFromHandle<const AffineTransformation<float> >(vec.at(i)));
             else if (types[i] == '2')
                 trans_vec.push_back(&objectFromHandle<const NiftiImageData3DDisplacement<float> >(vec.at(i)));
             else if (types[i] == '3')
@@ -468,7 +468,7 @@ extern "C"
 void* cSIRFReg_SIRFReg_process(void* ptr)
 {
     try {
-        SIRFReg<float>& reg = objectFromHandle<SIRFReg<float> >(ptr);
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
         reg.process();
         return new DataHandle;
     }
@@ -478,7 +478,7 @@ extern "C"
 void* cSIRFReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type)
 {
     try {
-        SIRFReg<float>& reg = objectFromHandle<SIRFReg<float>>(ptr);
+        Registration<float>& reg = objectFromHandle<Registration<float>>(ptr);
         if (strcmp(transform_type, "forward_deformation") == 0)
             return newObjectHandle(std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> >(reg.get_deformation_field_forward()));
         else if (strcmp(transform_type, "inverse_deformation") == 0)
@@ -496,7 +496,7 @@ extern "C"
 void* cSIRFReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2)
 {
     try {
-        SIRFReg<float>& reg = objectFromHandle<SIRFReg<float> >(ptr);
+        Registration<float>& reg = objectFromHandle<Registration<float> >(ptr);
         reg.set_parameter(par, arg1, arg2);
         return new DataHandle;
     }
@@ -509,8 +509,8 @@ extern "C"
 void* cSIRFReg_SIRFReg_get_TM(const void* ptr, const char* dir)
 {
     try {
-        SIRFRegNiftyAladinSym<float>& reg = objectFromHandle<SIRFRegNiftyAladinSym<float> >(ptr);
-        std::shared_ptr<const SIRFRegAffineTransformation<float> > sptr;
+        NiftyAladinSym<float>& reg = objectFromHandle<NiftyAladinSym<float> >(ptr);
+        std::shared_ptr<const AffineTransformation<float> > sptr;
         if (strcmp(dir, "forward") == 0)
             sptr = reg.get_transformation_matrix_forward();
         else if (strcmp(dir, "inverse") == 0)
@@ -528,9 +528,9 @@ extern "C"
 void* cSIRFReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char *type)
 {
     try {
-        SIRFRegNiftyResample<float>& res = objectFromHandle<SIRFRegNiftyResample<float> >(self);
+        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(self);
         if (strcmp(type, "affine") == 0)
-            res.add_transformation(std::make_shared<const SIRFRegAffineTransformation<float> >(objectFromHandle<SIRFRegAffineTransformation<float> >(trans)));
+            res.add_transformation(std::make_shared<const AffineTransformation<float> >(objectFromHandle<AffineTransformation<float> >(trans)));
         else if (strcmp(type, "displacement") == 0)
             res.add_transformation(std::make_shared<const NiftiImageData3DDisplacement<float> >(objectFromHandle<NiftiImageData3DDisplacement<float> >(trans)));
         else if (strcmp(type, "deformation") == 0)
@@ -545,7 +545,7 @@ extern "C"
 void* cSIRFReg_SIRFRegNiftyResample_process(void* ptr)
 {
     try {
-        SIRFRegNiftyResample<float>& res = objectFromHandle<SIRFRegNiftyResample<float> >(ptr);
+        NiftyResample<float>& res = objectFromHandle<NiftyResample<float> >(ptr);
         res.process();
         return new DataHandle;
     }
@@ -559,7 +559,7 @@ extern "C"
 void* cSIRFReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void *obj, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean<float>& im_weight = objectFromHandle<SIRFRegImageWeightedMean<float> >(ptr);
+        ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
         NiftiImageData<float>& im = objectFromHandle<NiftiImageData<float> >(obj);
         im_weight.add_image(im,weight);
         return new DataHandle;
@@ -570,7 +570,7 @@ extern "C"
 void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight)
 {
     try {
-        SIRFRegImageWeightedMean<float>& im_weight = objectFromHandle<SIRFRegImageWeightedMean<float> >(ptr);
+        ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
         im_weight.add_image(NiftiImageData<float>(filename),weight);
         return new DataHandle;
     }
@@ -580,29 +580,29 @@ extern "C"
 void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr)
 {
     try {
-        SIRFRegImageWeightedMean<float>& im_weight = objectFromHandle<SIRFRegImageWeightedMean<float> >(ptr);
+        ImageWeightedMean<float>& im_weight = objectFromHandle<ImageWeightedMean<float> >(ptr);
         im_weight.process();
         return new DataHandle;
     }
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFRegTransformation
+//      Transformation
 // -------------------------------------------------------------------------------- //
 extern "C"
 void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref)
 {
     try {
-        SIRFRegTransformation<float> *trans;
+        Transformation<float> *trans;
 
         if (strcmp(name,"SIRFRegAffineTransformation") == 0)
-            trans = &objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
+            trans = &objectFromHandle<AffineTransformation<float> >(ptr);
         else if (strcmp(name,"NiftiImageData3DDisplacement") == 0)
             trans = &objectFromHandle<NiftiImageData3DDisplacement<float> >(ptr);
         else if (strcmp(name,"NiftiImageData3DDeformation") == 0)
             trans = &objectFromHandle<NiftiImageData3DDeformation<float> >(ptr);
         else
-            throw std::runtime_error("cSIRFReg_SIRFRegTransformation_get_as_deformation_field: type should be affine, disp or def.");
+            throw std::runtime_error("cSIRFReg_Transformation_get_as_deformation_field: type should be affine, disp or def.");
 
         NiftiImageData<float>& ref_im = objectFromHandle<NiftiImageData<float> >(ref);
         std::shared_ptr<NiftiImageData3DDeformation<float> > sptr
@@ -613,7 +613,7 @@ void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, c
     CATCH;
 }
 // -------------------------------------------------------------------------------- //
-//      SIRFRegAffineTransformation
+//      AffineTransformation
 // -------------------------------------------------------------------------------- //
 extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
@@ -621,12 +621,12 @@ void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(size_t ptr_TM)
     try {
         float* TM = (float*)ptr_TM;
 
-        SIRFRegAffineTransformation<float> trans;
+        AffineTransformation<float> trans;
         for (int i=0; i<4; ++i)
             for (int j=0; j<4; ++j)
                 trans[i][j] = TM[i+j*4];
 
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>(trans));
+        std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>(trans));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -635,8 +635,8 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr)
 {
     try {
-        SIRFRegAffineTransformation<float>& mat = objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>(mat.deep_copy()));
+        AffineTransformation<float>& mat = objectFromHandle<AffineTransformation<float> >(ptr);
+        std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>(mat.deep_copy()));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -645,7 +645,7 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename)
 {
     try {
-        SIRFRegAffineTransformation<float>& mat = objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
+        AffineTransformation<float>& mat = objectFromHandle<AffineTransformation<float> >(ptr);
         mat.write(filename);
         return new DataHandle;
     }
@@ -655,7 +655,7 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_as_array(const void* ptr, size_t ptr_TM)
 {
     try {
-        SIRFRegAffineTransformation<float>& tm = objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
         float* TM = (float*)ptr_TM;
         for (int i=0; i<4; ++i)
             for (int j=0; j<4; ++j)
@@ -668,7 +668,7 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_get_identity()
 {
     try {
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>);
+        std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>);
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -677,8 +677,8 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_get_inverse(const void* ptr)
 {
     try {
-        SIRFRegAffineTransformation<float>& tm = objectFromHandle<SIRFRegAffineTransformation<float> >(ptr);
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>(tm.get_inverse()));
+        AffineTransformation<float>& tm = objectFromHandle<AffineTransformation<float> >(ptr);
+        std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>(tm.get_inverse()));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -687,9 +687,9 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
-        SIRFRegAffineTransformation<float>& mat1 = objectFromHandle<SIRFRegAffineTransformation<float> >(mat1_ptr);
-        SIRFRegAffineTransformation<float>& mat2 = objectFromHandle<SIRFRegAffineTransformation<float> >(mat2_ptr);
-        std::shared_ptr<SIRFRegAffineTransformation<float> > sptr(new SIRFRegAffineTransformation<float>(mat1*mat2));
+        AffineTransformation<float>& mat1 = objectFromHandle<AffineTransformation<float> >(mat1_ptr);
+        AffineTransformation<float>& mat2 = objectFromHandle<AffineTransformation<float> >(mat2_ptr);
+        std::shared_ptr<AffineTransformation<float> > sptr(new AffineTransformation<float>(mat1*mat2));
         return newObjectHandle(sptr);
     }
     CATCH;
@@ -699,8 +699,8 @@ extern "C"
 void* cSIRFReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr)
 {
     try {
-        SIRFRegAffineTransformation<float>& mat1 = objectFromHandle<SIRFRegAffineTransformation<float> >(mat1_ptr);
-        SIRFRegAffineTransformation<float>& mat2 = objectFromHandle<SIRFRegAffineTransformation<float> >(mat2_ptr);
+        AffineTransformation<float>& mat1 = objectFromHandle<AffineTransformation<float> >(mat1_ptr);
+        AffineTransformation<float>& mat2 = objectFromHandle<AffineTransformation<float> >(mat2_ptr);
         return dataHandle<int>(mat1 == mat2);
     }
     CATCH;

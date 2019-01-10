@@ -37,10 +37,10 @@ template<class dataType> class reg_aladin_sym;
 namespace sirf {
 
 /// Forward declarations
-template<class dataType> class SIRFRegAffineTransformation;
+template<class dataType> class AffineTransformation;
 
 /// Wrapper around NiftyReg's aladin class for rigid and affine transformations
-template<class dataType> class SIRFRegNiftyAladinSym : public SIRFRegNiftyRegistration<dataType>
+template<class dataType> class NiftyAladinSym : public NiftyRegistration<dataType>
 {
 public:
 
@@ -48,10 +48,10 @@ public:
     void process();
 
     /// Get forwards transformation matrix
-    const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > get_transformation_matrix_forward() const { return _TM_forward_sptr; }
+    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_forward() const { return _TM_forward_sptr; }
 
     /// Get inverse transformation matrix
-    const std::shared_ptr<const SIRFRegAffineTransformation<dataType> > get_transformation_matrix_inverse() const { return _TM_inverse_sptr; }
+    const std::shared_ptr<const AffineTransformation<dataType> > get_transformation_matrix_inverse() const { return _TM_inverse_sptr; }
 
 protected:
 
@@ -65,9 +65,9 @@ protected:
     std::shared_ptr<reg_aladin_sym<dataType> > _registration_sptr;
 
     /// Forwards transformation matrix
-    std::shared_ptr<SIRFRegAffineTransformation<dataType> > _TM_forward_sptr;
+    std::shared_ptr<AffineTransformation<dataType> > _TM_forward_sptr;
     /// Inverse transformation matrix
-    std::shared_ptr<SIRFRegAffineTransformation<dataType> > _TM_inverse_sptr;
+    std::shared_ptr<AffineTransformation<dataType> > _TM_inverse_sptr;
 };
 }
 

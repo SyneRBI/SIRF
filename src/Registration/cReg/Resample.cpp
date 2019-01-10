@@ -32,13 +32,13 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegResample<dataType>::add_transformation(const std::shared_ptr<const SIRFRegTransformation<dataType> > transformation_sptr)
+void Resample<dataType>::add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr)
 {
     _transformations.push_back(transformation_sptr);
 }
 
 template<class dataType>
-void SIRFRegResample<dataType>::check_parameters()
+void Resample<dataType>::check_parameters()
 {
     // If anything is missing
     if (!_reference_image_sptr)
@@ -50,6 +50,6 @@ void SIRFRegResample<dataType>::check_parameters()
 }
 
 namespace sirf {
-template class SIRFRegResample<float>;
+template class Resample<float>;
 }
 

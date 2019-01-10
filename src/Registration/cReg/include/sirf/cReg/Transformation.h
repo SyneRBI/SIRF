@@ -26,8 +26,8 @@ limitations under the License.
 \author CCP PETMR
 */
 
-#ifndef _SIRFREGTRANSFORMATION_H
-#define _SIRFREGTRANSFORMATION_H
+#ifndef _Transformation_H
+#define _Transformation_H
 
 #include <string>
 
@@ -39,15 +39,15 @@ template<class dataType> class NiftiImageData3DDeformation;
 
 /// Abstract base class for SIRFReg transformations
 template<class dataType>
-class SIRFRegTransformation
+class Transformation
 {
 public:
 
     /// Constructor
-    SIRFRegTransformation() {}
+    Transformation() {}
 
     /// Destructor
-    virtual ~SIRFRegTransformation() {}
+    virtual ~Transformation() {}
 
     /// Get as deformation field
     virtual NiftiImageData3DDeformation<dataType> get_as_deformation_field(const NiftiImageData3D<dataType> &ref) const = 0;

@@ -50,7 +50,7 @@ std::string get_typeid(A)
 
 /// Abstract base class for a parser key
 template<class Z>
-class SIRFRegParserKeyBase
+class ParserKeyBase
 {
 public:
 
@@ -143,7 +143,7 @@ protected:
 
 /// Abstract base class for a parser key with 0 arguments
 template<class Z>
-class SIRFRegParserKey0Arg : public SIRFRegParserKeyBase<Z>
+class ParserKey0Arg : public ParserKeyBase<Z>
 {
 public:
 
@@ -176,7 +176,7 @@ protected:
 
 /// Abstract base class for a parser key with 1 argument
 template<class Z, class A>
-class SIRFRegParserKey1Arg : public SIRFRegParserKeyBase<Z>
+class ParserKey1Arg : public ParserKeyBase<Z>
 {
 public:
 
@@ -216,7 +216,7 @@ protected:
 
 /// Abstract base class for a parser key with 2 arguments
 template<class Z, class A, class B>
-class SIRFRegParserKey2Arg : public SIRFRegParserKeyBase<Z>
+class ParserKey2Arg : public ParserKeyBase<Z>
 {
 public:
 

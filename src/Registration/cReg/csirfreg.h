@@ -89,10 +89,10 @@ extern "C" {
     void* cSIRFReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
     void* cSIRFReg_SIRFRegImageWeightedMean_process(void* ptr);
 
-    // SIRFRegTransformation
+    // Transformation
     void* cSIRFReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 
-    // SIRFRegAffineTransformation
+    // AffineTransformation
     void* cSIRFReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
     void* cSIRFReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
     void* cSIRFReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename);

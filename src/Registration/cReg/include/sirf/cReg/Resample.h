@@ -39,12 +39,12 @@ i.e., Trans3(Trans2(Trans1(x))).
 namespace sirf {
 
 // Forward declarations
-template<class dataType> class SIRFRegTransformation;
+template<class dataType> class Transformation;
 class ImageData;
 
 /// Wrapper around NiftyReg's resample class
 template<class dataType>
-class SIRFRegResample
+class Resample
 {
 public:
 
@@ -58,10 +58,10 @@ public:
     };
 
     /// Constructor
-    SIRFRegResample() { _interpolation_type = NOTSET; }
+    Resample() { _interpolation_type = NOTSET; }
 
     /// Destructor
-    virtual ~SIRFRegResample() {}
+    virtual ~Resample() {}
 
     /// Set reference image
     virtual void set_reference_image(const std::shared_ptr<const ImageData> reference_image_sptr) { _reference_image_sptr = reference_image_sptr; }
@@ -70,7 +70,7 @@ public:
     virtual void set_floating_image(const std::shared_ptr<const ImageData> floating_image_sptr) { _floating_image_sptr = floating_image_sptr; }
 
     /// Add transformation
-    virtual void add_transformation(const std::shared_ptr<const SIRFRegTransformation<dataType> > transformation_sptr);
+    virtual void add_transformation(const std::shared_ptr<const Transformation<dataType> > transformation_sptr);
 
     /// Set interpolation type (0=nearest neighbour, 1=linear, 3=cubic, 4=sinc)
     virtual void set_interpolation_type(const enum InterpolationType type)
@@ -107,7 +107,7 @@ protected:
     std::shared_ptr<const ImageData> _floating_image_sptr;
 
     /// Transformations (could be mixture of affine, displacements, deformations).
-    std::vector<std::shared_ptr<const SIRFRegTransformation<dataType> > > _transformations;
+    std::vector<std::shared_ptr<const Transformation<dataType> > > _transformations;
 
     /// Interpolation type
     InterpolationType  _interpolation_type;

@@ -666,12 +666,12 @@ static bool do_nifti_image_metadata_elements_match(const std::string &name, cons
 
 static bool do_nifti_image_metadata_elements_match(const std::string &name, const mat44 &elem1, const mat44 &elem2, bool verbose)
 {
-    SIRFRegAffineTransformation<float> e1(elem1.m), e2(elem2.m);
+    AffineTransformation<float> e1(elem1.m), e2(elem2.m);
     if(e1 == e2)
         return true;
     if (verbose) {
         std::cout << "mismatch in " << name << "\n";
-        SIRFRegAffineTransformation<float>::print({e1, e2});
+        AffineTransformation<float>::print({e1, e2});
         std::cout << "\n";
     }
     return false;
@@ -823,7 +823,7 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         images.push_back(ims[i]->get_raw_nifti_sptr());
 
     // Print transformation matrices
-    std::vector<SIRFRegAffineTransformation<dataType> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
+    std::vector<AffineTransformation<dataType> > qto_ijk_vec, qto_xyz_vec, sto_ijk_vec, sto_xyz_vec;
     for(unsigned j=0; j<images.size(); j++) {
         qto_ijk_vec.push_back(images[j]->qto_ijk.m);
         qto_xyz_vec.push_back(images[j]->qto_xyz.m);
@@ -831,13 +831,13 @@ void NiftiImageData<dataType>::dump_headers(const std::vector<const NiftiImageDa
         sto_xyz_vec.push_back(images[j]->sto_xyz.m);
     }
     std::cout << "\t" << std::left << std::setw(19) << "qto_ijk:" << "\n";
-    SIRFRegAffineTransformation<dataType>::print(qto_ijk_vec);
+    AffineTransformation<dataType>::print(qto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "qto_xyz:" << "\n";
-    SIRFRegAffineTransformation<dataType>::print(qto_xyz_vec);
+    AffineTransformation<dataType>::print(qto_xyz_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_ijk:" << "\n";
-    SIRFRegAffineTransformation<dataType>::print(sto_ijk_vec);
+    AffineTransformation<dataType>::print(sto_ijk_vec);
     std::cout << "\t" << std::left << std::setw(19) << "sto_xyz:" << "\n";
-    SIRFRegAffineTransformation<dataType>::print(sto_xyz_vec);
+    AffineTransformation<dataType>::print(sto_xyz_vec);
 
     // Print original datatype
     std::string original_datatype = "orig_datatype: ";
@@ -912,7 +912,7 @@ bool NiftiImageData<dataType>::are_equal_to_given_accuracy(const NiftiImageData 
     // If not, we'll have to resample
     else {
         std::cout << "\nImage comparison: metadata do not match, doing resampling...\n";
-        SIRFRegNiftyResample<float> resample;
+        NiftyResample<float> resample;
         resample.set_interpolation_type_to_nearest_neighbour();
         resample.set_reference_image(im1.clone());
         resample.set_floating_image(im2.clone());

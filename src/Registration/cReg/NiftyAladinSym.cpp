@@ -38,7 +38,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegNiftyAladinSym<dataType>::process()
+void NiftyAladinSym<dataType>::process()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
@@ -85,13 +85,13 @@ void SIRFRegNiftyAladinSym<dataType>::process()
         this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->pixdim[4] = this->_warped_image_nifti_sptr->get_raw_nifti_sptr()->dt = 0.F;
 
     // Get the forward and inverse transformation matrices
-    this->_TM_forward_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(*this->_registration_sptr->GetTransformationMatrix());
-    this->_TM_inverse_sptr = std::make_shared<SIRFRegAffineTransformation<dataType> >(nifti_mat44_inverse(*_registration_sptr->GetTransformationMatrix()));
+    this->_TM_forward_sptr = std::make_shared<AffineTransformation<dataType> >(*this->_registration_sptr->GetTransformationMatrix());
+    this->_TM_inverse_sptr = std::make_shared<AffineTransformation<dataType> >(nifti_mat44_inverse(*_registration_sptr->GetTransformationMatrix()));
 
     std::cout << "\nPrinting forwards tranformation matrix:\n";
     _TM_forward_sptr->print();
     std::cout << "\nPrinting inverse tranformation matrix:\n";
-    std::dynamic_pointer_cast<const SIRFRegAffineTransformation<dataType> >(_TM_inverse_sptr)->print();
+    std::dynamic_pointer_cast<const AffineTransformation<dataType> >(_TM_inverse_sptr)->print();
 
     // Get as deformation and displacement
     NiftiImageData3DDeformation<dataType> def_fwd = _TM_forward_sptr->get_as_deformation_field(ref);
@@ -107,9 +107,9 @@ void SIRFRegNiftyAladinSym<dataType>::process()
 }
 
 template<class dataType>
-void SIRFRegNiftyAladinSym<dataType>::parse_parameter_file()
+void NiftyAladinSym<dataType>::parse_parameter_file()
 {
-    SIRFRegParser<reg_aladin_sym<dataType> > parser;
+    Parser<reg_aladin_sym<dataType> > parser;
 
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );
@@ -143,7 +143,7 @@ void SIRFRegNiftyAladinSym<dataType>::parse_parameter_file()
 }
 
 template<class dataType>
-void SIRFRegNiftyAladinSym<dataType>::set_parameters()
+void NiftyAladinSym<dataType>::set_parameters()
 {
     for (size_t i=0; i<this->_extra_params.size(); i+=3) {
 
@@ -193,5 +193,5 @@ void SIRFRegNiftyAladinSym<dataType>::set_parameters()
 }
 
 namespace sirf {
-template class SIRFRegNiftyAladinSym<float>;
+template class NiftyAladinSym<float>;
 }

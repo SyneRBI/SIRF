@@ -40,15 +40,15 @@ template<class dataType> class NiftiImageData;
 
 /// Calculate the weighted mean of a set of images
 template<class dataType>
-class SIRFRegImageWeightedMean
+class ImageWeightedMean
 {
 public:
 
     /// Constructor
-    SIRFRegImageWeightedMean();
+    ImageWeightedMean();
 
     /// Destructor
-    ~SIRFRegImageWeightedMean() {}
+    ~ImageWeightedMean() {}
 
     /// Add an image (from NiftImage) and its corresponding weight
     void add_image(const NiftiImageData<dataType> &image, const float weight);

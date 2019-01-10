@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 
-    SIRFRegNiftyAladinSym<float> NA;
+    NiftyAladinSym<float> NA;
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
         std::cout << "//                  Starting Nifty aladin test...\n";
@@ -501,8 +501,8 @@ int main(int argc, char* argv[])
 
         // Get outputs
         std::shared_ptr<const NiftiImageData3D<float> >             warped_sptr       = NA.get_output();
-        std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
-        std::shared_ptr<const SIRFRegAffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const SIRFRegAffineTransformation<float> > (NA.get_transformation_matrix_forward());
+        std::shared_ptr<const AffineTransformation<float> >  TM_forward_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward());
+        std::shared_ptr<const AffineTransformation<float> >  TM_inverse_sptr   = std::dynamic_pointer_cast<const AffineTransformation<float> > (NA.get_transformation_matrix_forward());
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_inverse_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_inverse());
         std::shared_ptr<const NiftiImageData3DDisplacement<float> > disp_forward_sptr = std::dynamic_pointer_cast<const NiftiImageData3DDisplacement<float> >(NA.get_displacement_field_forward());
@@ -520,7 +520,7 @@ int main(int argc, char* argv[])
         TM_forward_sptr->print();
 
         // Inverse TM
-        const SIRFRegAffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse();
+        const AffineTransformation<float> &inverse_tm = *NA.get_transformation_matrix_inverse();
         inverse_tm.print();
 
         // Test converting disp to def
@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty f3d test..\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        SIRFRegNiftyF3dSym<float> NF;
+        NiftyF3dSym<float> NF;
         NF.set_reference_image               (           ref_f3d          );
         NF.set_floating_image                (           flo_f3d          );
         NF.set_parameter_file                (     parameter_file_f3d     );
@@ -581,9 +581,9 @@ int main(int argc, char* argv[])
 
         // Affine
         std::cout << "\nTesting affine...\n";
-        SIRFRegAffineTransformation<float> a1;
-        SIRFRegAffineTransformation<float> a2(TM_forward);
-        SIRFRegAffineTransformation<float> a3(*NA.get_transformation_matrix_forward());
+        AffineTransformation<float> a1;
+        AffineTransformation<float> a2(TM_forward);
+        AffineTransformation<float> a3(*NA.get_transformation_matrix_forward());
 
         // Displacement
         std::cout << "\nTesting displacement...\n";
@@ -598,18 +598,18 @@ int main(int argc, char* argv[])
         NiftiImageData3DDeformation<float> b_def = b3.get_as_deformation_field(*ref_aladin);
         NiftiImageData3DDeformation<float> c_def = c3.get_as_deformation_field(*ref_aladin);
         if (a_def != *def_forward_sptr)
-            throw std::runtime_error("SIRFRegAffineTransformation::get_as_deformation_field failed.");
+            throw std::runtime_error("AffineTransformation::get_as_deformation_field failed.");
         if (b_def != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDisplacement::get_as_deformation_field failed.");
         if (c_def != *def_forward_sptr)
             throw std::runtime_error("NiftiImageData3DDeformation::get_as_deformation_field failed.");
 
         // Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-        SIRFRegAffineTransformation<float> tm_iden;
-        SIRFRegAffineTransformation<float> trans_aff_iden(tm_iden);
-        std::vector<std::shared_ptr<const SIRFRegTransformation<float> > > vec;
-        vec.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(trans_aff_iden));
-        vec.push_back(std::make_shared<const SIRFRegAffineTransformation<float> >(trans_aff_iden));
+        AffineTransformation<float> tm_iden;
+        AffineTransformation<float> trans_aff_iden(tm_iden);
+        std::vector<std::shared_ptr<const Transformation<float> > > vec;
+        vec.push_back(std::make_shared<const AffineTransformation<float> >(trans_aff_iden));
+        vec.push_back(std::make_shared<const AffineTransformation<float> >(trans_aff_iden));
         vec.push_back(std::make_shared<const NiftiImageData3DDeformation<float> >(c3));
         NiftiImageData3DDeformation<float> composed =
                 NiftiImageData3DDeformation<float>::compose_single_deformation(vec, *ref_aladin);
@@ -626,24 +626,24 @@ int main(int argc, char* argv[])
         std::cout << "//                  Starting Nifty resample test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
-        std::shared_ptr<const SIRFRegTransformation<float> > tm_iden  = std::make_shared<const SIRFRegAffineTransformation<float> >();
-        std::shared_ptr<const SIRFRegTransformation<float> > tm       = NA.get_transformation_matrix_forward();
-        std::shared_ptr<const SIRFRegTransformation<float> > disp     = NA.get_displacement_field_forward();
-        std::shared_ptr<const SIRFRegTransformation<float> > deff     = NA.get_deformation_field_forward();
+        std::shared_ptr<const Transformation<float> > tm_iden  = std::make_shared<const AffineTransformation<float> >();
+        std::shared_ptr<const Transformation<float> > tm       = NA.get_transformation_matrix_forward();
+        std::shared_ptr<const Transformation<float> > disp     = NA.get_displacement_field_forward();
+        std::shared_ptr<const Transformation<float> > deff     = NA.get_deformation_field_forward();
 
         std::cout << "Testing rigid resample...\n";
-        SIRFRegNiftyResample<float> nr1;
+        NiftyResample<float> nr1;
         nr1.set_reference_image(ref_aladin);
         nr1.set_floating_image(flo_aladin);
         nr1.set_interpolation_type_to_cubic_spline(); // try different interpolations
-        nr1.set_interpolation_type(SIRFRegNiftyResample<float>::CUBICSPLINE); // try different interpolations (cubic)
+        nr1.set_interpolation_type(NiftyResample<float>::CUBICSPLINE); // try different interpolations (cubic)
         nr1.add_transformation(tm_iden);
         nr1.add_transformation(tm);
         nr1.process();
         nr1.get_output()->write(rigid_resample);
 
         std::cout << "Testing non-rigid displacement...\n";
-        SIRFRegNiftyResample<float> nr2;
+        NiftyResample<float> nr2;
         nr2.set_reference_image(ref_aladin);
         nr2.set_floating_image(flo_aladin);
         nr2.set_interpolation_type_to_sinc(); // try different interpolations
@@ -653,7 +653,7 @@ int main(int argc, char* argv[])
         nr2.get_output()->write(nonrigid_resample_disp);
 
         std::cout << "Testing non-rigid deformation...\n";
-        SIRFRegNiftyResample<float> nr3;
+        NiftyResample<float> nr3;
         nr3.set_reference_image(ref_aladin);
         nr3.set_floating_image(flo_aladin);
         nr3.set_interpolation_type_to_nearest_neighbour(); // try different interpolations
@@ -681,7 +681,7 @@ int main(int argc, char* argv[])
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         //  Do 3D
-        SIRFRegImageWeightedMean<float> wm1;
+        ImageWeightedMean<float> wm1;
         NiftiImageData3D<float> im1 = *ref_aladin;
         NiftiImageData3D<float> im2 = *ref_aladin;
         NiftiImageData3D<float> im3 = *ref_aladin;
@@ -707,7 +707,7 @@ int main(int argc, char* argv[])
         std::shared_ptr<const NiftiImageData3DDeformation<float> >  def_forward_sptr  = std::dynamic_pointer_cast<const NiftiImageData3DDeformation<float> > (NA.get_deformation_field_forward());
 
         //  Do 4D
-        SIRFRegImageWeightedMean<float> wm2;
+        ImageWeightedMean<float> wm2;
         NiftiImageData3DTensor<float> im4D1 = *def_forward_sptr;
         NiftiImageData3DTensor<float> im4D2 = *def_forward_sptr;
         NiftiImageData3DTensor<float> im4D3 = *def_forward_sptr;
@@ -762,25 +762,25 @@ int main(int argc, char* argv[])
 */
     {
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Starting SIRFRegAffineTransformation test...\n";
+        std::cout << "//                  Starting AffineTransformation test...\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
 
         // Construct from file
-        SIRFRegAffineTransformation<float> a(TM_forward);
+        AffineTransformation<float> a(TM_forward);
 
         // Multiply forward and inverse, should equal identity
-        SIRFRegAffineTransformation<float> b = *NA.get_transformation_matrix_forward();
-        SIRFRegAffineTransformation<float> c = *NA.get_transformation_matrix_inverse();
-        SIRFRegAffineTransformation<float> d = b * c;
-        SIRFRegAffineTransformation<float> e;
+        AffineTransformation<float> b = *NA.get_transformation_matrix_forward();
+        AffineTransformation<float> c = *NA.get_transformation_matrix_inverse();
+        AffineTransformation<float> d = b * c;
+        AffineTransformation<float> e;
         if (d != e)
-            throw std::runtime_error("SIRFRegAffineTransformation::mult/comparison failed.");
+            throw std::runtime_error("AffineTransformation::mult/comparison failed.");
 
         if (e.get_determinant() - 1.F > 1.e-7F)
-            throw std::runtime_error("SIRFRegAffineTransformation::get_determinant failed.");
+            throw std::runtime_error("AffineTransformation::get_determinant failed.");
 
         std::cout << "// ----------------------------------------------------------------------- //\n";
-        std::cout << "//                  Finished SIRFRegAffineTransformation test.\n";
+        std::cout << "//                  Finished AffineTransformation test.\n";
         std::cout << "//------------------------------------------------------------------------ //\n";
     }
 

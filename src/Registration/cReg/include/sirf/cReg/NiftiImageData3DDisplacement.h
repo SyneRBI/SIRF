@@ -39,7 +39,7 @@ template<class dataType> class NiftiImageData3D;
 
 /// SIRF nifti image data displacement field image
 template<class dataType>
-class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public SIRFRegTransformation<dataType>
+class NiftiImageData3DDisplacement : public NiftiImageData3DTensor<dataType>, public Transformation<dataType>
 {
 public:
     /// Constructor

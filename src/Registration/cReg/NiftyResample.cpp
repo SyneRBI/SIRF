@@ -40,7 +40,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::process()
+void NiftyResample<dataType>::process()
 {
     std::cout << "\n\nStarting resampling...\n\n";
 
@@ -55,7 +55,7 @@ void SIRFRegNiftyResample<dataType>::process()
     // If no transformations, use identity.
     if (this->_transformations.size() == 0) {
         std::cout << "\nNo transformations set, using identity.\n";
-        this->_transformations.push_back(std::make_shared<SIRFRegAffineTransformation<float> >());
+        this->_transformations.push_back(std::make_shared<AffineTransformation<float> >());
     }
 
     // If there are multiple transformations, compose them into single transformation.
@@ -80,7 +80,7 @@ void SIRFRegNiftyResample<dataType>::process()
 }
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::set_up_input_images()
+void NiftyResample<dataType>::set_up_input_images()
 {
     // Try to dynamic cast from ImageData to NiftiImageData3D. This will only succeed if original type was NiftiImageData3D
     this->_reference_image_nifti_sptr = std::dynamic_pointer_cast<const NiftiImageData3D<dataType> >(this->_reference_image_sptr);
@@ -95,7 +95,7 @@ void SIRFRegNiftyResample<dataType>::set_up_input_images()
 }
 
 template<class dataType>
-void SIRFRegNiftyResample<dataType>::set_up_output_image()
+void NiftyResample<dataType>::set_up_output_image()
 {
     // The output is a mixture between the reference and floating images.
     const nifti_image * const ref_ptr = this->_reference_image_nifti_sptr->get_raw_nifti_sptr().get();
@@ -127,6 +127,6 @@ void SIRFRegNiftyResample<dataType>::set_up_output_image()
 }
 
 namespace sirf {
-template class SIRFRegNiftyResample<float>;
+template class NiftyResample<float>;
 }
 

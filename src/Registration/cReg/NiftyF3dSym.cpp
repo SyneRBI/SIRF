@@ -37,7 +37,7 @@ limitations under the License.
 using namespace sirf;
 
 template<class dataType>
-void SIRFRegNiftyF3dSym<dataType>::process()
+void NiftyF3dSym<dataType>::process()
 {
     // Check the paramters that are NOT set via the parameter file have been set.
     this->check_parameters();
@@ -110,9 +110,9 @@ void SIRFRegNiftyF3dSym<dataType>::process()
 }
 
 template<class dataType>
-void SIRFRegNiftyF3dSym<dataType>::check_parameters()
+void NiftyF3dSym<dataType>::check_parameters()
 {
-    SIRFReg<dataType>::check_parameters();
+    Registration<dataType>::check_parameters();
 
     // If anything is missing
     if (_floating_time_point == -1) {
@@ -122,9 +122,9 @@ void SIRFRegNiftyF3dSym<dataType>::check_parameters()
 }
 
 template<class dataType>
-void SIRFRegNiftyF3dSym<dataType>::parse_parameter_file()
+void NiftyF3dSym<dataType>::parse_parameter_file()
 {
-    SIRFRegParser<reg_f3d_sym<dataType> > parser;
+    Parser<reg_f3d_sym<dataType> > parser;
     parser.set_object   (    _registration_sptr     );
     parser.set_filename ( this->_parameter_filename );
 
@@ -154,7 +154,7 @@ void SIRFRegNiftyF3dSym<dataType>::parse_parameter_file()
     parser.parse();
 }
 template<class dataType>
-void SIRFRegNiftyF3dSym<dataType>::set_parameters()
+void NiftyF3dSym<dataType>::set_parameters()
 {
     for (size_t i=0; i<this->_extra_params.size(); i+=3) {
 
@@ -195,5 +195,5 @@ void SIRFRegNiftyF3dSym<dataType>::set_parameters()
 }
 
 namespace sirf {
-template class SIRFRegNiftyF3dSym<float>;
+template class NiftyF3dSym<float>;
 }

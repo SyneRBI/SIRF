@@ -56,21 +56,21 @@ template<class dataType> class NiftiImageData3D;
 
 /// Base class for registration algorithms wrapped by SIRFReg
 template<class dataType>
-class SIRFRegNiftyRegistration : public SIRFReg<dataType>
+class NiftyRegistration : public Registration<dataType>
 {
 public:
 
     /// Constructor
-    SIRFRegNiftyRegistration() {}
+    NiftyRegistration() {}
 
     /// Destructor
-    virtual ~SIRFRegNiftyRegistration() {}
+    virtual ~NiftyRegistration() {}
 
     /// Get forward deformation field image
-    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_forward() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_forward() const;
 
     /// Get inverse deformation field image
-    virtual const std::shared_ptr<const SIRFRegTransformation<dataType> > get_deformation_field_inverse() const;
+    virtual const std::shared_ptr<const Transformation<dataType> > get_deformation_field_inverse() const;
 
     /// Get registered image as NiftiImageData3D
     const std::shared_ptr<const NiftiImageData3D<dataType> > get_output() const { return _warped_image_nifti_sptr; }

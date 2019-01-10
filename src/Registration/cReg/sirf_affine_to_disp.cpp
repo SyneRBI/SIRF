@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
         // ------------------------------------------------ //
 
         // Open the transformation matrix
-        SIRFRegAffineTransformation<float> TM(TM_filename);
+        AffineTransformation<float> TM(TM_filename);
 
         // Create images
 
