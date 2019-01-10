@@ -22,14 +22,14 @@ if(BUILD_MATLAB)
 
   include_directories(${Matlab_INCLUDE_DIRS})
 
-  add_library(msirfreg SHARED msirfreg.c printer.cpp)
-  target_link_libraries(msirfreg cstir)
+  add_library(mreg SHARED mreg.c printer.cpp)
+  target_link_libraries(mreg cstir)
   # fix output name and link flags
-  SET_TARGET_PROPERTIES(msirfreg PROPERTIES
+  SET_TARGET_PROPERTIES(mreg PROPERTIES
         SUFFIX ".${MATLAB_MEX_EXT}" PREFIX "${MATLAB_PREFIX}") 
-  target_link_libraries(msirfreg Reg iutilities csirf ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
-  INSTALL(TARGETS msirfreg DESTINATION "${MATLAB_DEST}")
-  INSTALL(FILES msirfreg.h DESTINATION "${MATLAB_DEST}")
+  target_link_libraries(mreg Reg iutilities csirf ${Matlab_LIBRARIES} ${STIR_LIBRARIES})
+  INSTALL(TARGETS mreg DESTINATION "${MATLAB_DEST}")
+  INSTALL(FILES mreg.h DESTINATION "${MATLAB_DEST}")
   INSTALL(DIRECTORY +mReg DESTINATION "${MATLAB_DEST}")
   file(GLOB MatlabFiles "${CMAKE_CURRENT_LIST_DIR}/*.m")
   INSTALL(FILES ${MatlabFiles} DESTINATION "${MATLAB_DEST}")

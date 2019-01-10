@@ -9,10 +9,10 @@ if ~libisloaded('miutilities')
     end
 end
 % load Reg interface library
-if ~libisloaded('msirfreg')
+if ~libisloaded('mreg')
     fprintf('loading mreg library...\n')
     try
-        [notfound, warnings] = loadlibrary('msirfreg');
+        [notfound, warnings] = loadlibrary('mreg');
     catch
         error('mreg library failed to load\n')
     end

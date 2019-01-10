@@ -30,7 +30,7 @@ classdef ImageWeightedMean < handle
     methods
         function self = ImageWeightedMean(src)
             self.name = 'ImageWeightedMean';
-            self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+            self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)
@@ -43,9 +43,9 @@ classdef ImageWeightedMean < handle
         function add_image(self, image, weight)
             %Add an image (filename or NiftyImage) and its corresponding weight.
             if isa(image, 'mReg.NiftiImageData')
-                h = calllib('msirfreg', 'mReg_ImageWeightedMean_add_image', self.handle_, image.handle_, weight);
+                h = calllib('mreg', 'mReg_ImageWeightedMean_add_image', self.handle_, image.handle_, weight);
             elseif ischar(image)
-                h = calllib('msirfreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
+                h = calllib('mreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
             else
                 error("mReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
             end
@@ -54,7 +54,7 @@ classdef ImageWeightedMean < handle
         end
         function process(self)
             %Process.
-            h = calllib('msirfreg', 'mReg_ImageWeightedMean_process', self.handle_);
+            h = calllib('mreg', 'mReg_ImageWeightedMean_process', self.handle_);
             mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end
@@ -62,7 +62,7 @@ classdef ImageWeightedMean < handle
             %Get output.
             output = mReg.NiftiImageData();
             mUtilities.delete(output.handle_)
-            output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, self.name, 'output');
+            output.handle_ = calllib('mreg', 'mReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
         end
     end

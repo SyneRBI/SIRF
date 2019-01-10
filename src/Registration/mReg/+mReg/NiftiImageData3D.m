@@ -28,11 +28,11 @@ classdef NiftiImageData3D < mReg.NiftiImageData
             narginchk(0,1)
             self.name = 'NiftiImageData3D';
             if nargin < 1
-                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+                self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src)
-                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src);
+                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
             elseif isa(src, 'mSTIR.ImageData')
-                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3D_from_PETImageData', src.handle_);
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3D_from_PETImageData', src.handle_);
             else
                 error('NiftiImageData3D accepts no args, filename or mSTIR.ImageData.')
             end
@@ -47,7 +47,7 @@ classdef NiftiImageData3D < mReg.NiftiImageData
         function copy_data_to(self, pet_image)
             %Fill the STIRImageData with the values from NiftiImageData3D.
             assert(isa(pet_image, 'mSTIR.ImageData'))
-            h = calllib('msirfreg', 'mReg_NiftiImageData3D_copy_data_to', self.handle_, pet_image.handle_);
+            h = calllib('mreg', 'mReg_NiftiImageData3D_copy_data_to', self.handle_, pet_image.handle_);
             mUtilities.check_status([self.name ':copy_data_to'], h);
             mUtilities.delete(h)            
         end

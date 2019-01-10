@@ -28,11 +28,11 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
             narginchk(0,3)
             self.name = 'NiftiImageData3DTensor';
             if nargin < 1
-                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+                self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
-                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src1);
+                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src1);
             elseif nargin == 3 && isa(src1, 'mReg.NiftiImageData3D') && isa(src2, 'mReg.NiftiImageData3D') && isa(src3, 'mReg.NiftiImageData3D')
-                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
+                self.handle_ = calllib('mreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
         end
@@ -48,21 +48,21 @@ classdef NiftiImageData3DTensor < mReg.NiftiImageData
             if nargin < 3
                 datatype = -1;
             end
-            h = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_write_split_xyz_components', self.handle_, filename, datatype);
+            h = calllib('mreg', 'mReg_NiftiImageData3DTensor_write_split_xyz_components', self.handle_, filename, datatype);
             mUtilities.check_status([self.name ':write'], h);
             mUtilities.delete(h)
         end
         function create_from_3D_image(self, src)
             %Create deformation/displacement field from 3D image.
             assert(isa(src, 'mReg.NiftiImageData3D'), [self.name ':create_from_3D_imageInput. Input should be NiftiImageData3D.'])
-            h = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_create_from_3D_image', self.handle_, src.handle_);
+            h = calllib('mreg', 'mReg_NiftiImageData3DTensor_create_from_3D_image', self.handle_, src.handle_);
             mUtilities.check_status([self.name ':create_from_3d_image'], h);
             mUtilities.delete(h)
         end
         function flip_component(self, dim)
             % Flip component of nu
             assert(dim>=0 && dim<=2, 'Dimension to flip should be between 0 and 2.')
-            h = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_flip_component', self.handle_, dim);
+            h = calllib('mreg', 'mReg_NiftiImageData3DTensor_flip_component', self.handle_, dim);
             mUtilities.check_status([self.name ':flip_component'], h);
             mUtilities.delete(h)
         end

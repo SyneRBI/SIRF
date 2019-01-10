@@ -32,13 +32,13 @@ classdef AffineTransformation < mReg.Transformation
             narginchk(0,1)
             self.name = 'AffineTransformation';
             if nargin < 1
-                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+                self.handle_ = calllib('mreg', 'mReg_newObject', self.name);
             elseif ischar(src)
-                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src);
+                self.handle_ = calllib('mreg', 'mReg_objectFromFile', self.name, src);
             elseif isnumeric(src)
                 assert(all(size(src)==[4, 4]))
                 ptr_v = libpointer('singlePtr', single(src));
-                self.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_construct_from_TM', ptr_v);
+                self.handle_ = calllib('mreg', 'mReg_AffineTransformation_construct_from_TM', ptr_v);
             else
                 error('AffineTransformation accepts no args, filename or 4x4 array.')
             end
@@ -53,8 +53,8 @@ classdef AffineTransformation < mReg.Transformation
         function value = eq(self, other)
             %Overload comparison operator.
             assert(isa(other, 'mReg.AffineTransformation'))
-            handle = calllib('msirfreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
-            mUtilities.check_status('SIRFRegAffineTransformation:eq', handle);
+            handle = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
+            mUtilities.check_status('AffineTransformation:eq', handle);
             value = logical(calllib('miutilities', 'mIntDataFromHandle', handle));
             mUtilities.delete(handle)
         end
@@ -66,20 +66,20 @@ classdef AffineTransformation < mReg.Transformation
             %Overload multiplication operator.
             assert(isa(other, 'mReg.AffineTransformation'))
             mat = mReg.AffineTransformation();
-            mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
-            mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
+            mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
+            mUtilities.check_status('AffineTransformation:mtimes', mat);
         end
 
         function mat = deep_copy(self)
             %Deep copy.
             mat = mReg.AffineTransformation();
-            mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_deep_copy', self.handle_);
-            mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
+            mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_deep_copy', self.handle_);
+            mUtilities.check_status('AffineTransformation:mtimes', mat);
         end
 
         function write(self, filename)
             %Save to file.
-            calllib('msirfreg', 'mReg_AffineTransformation_write', self.handle_, filename);
+            calllib('mreg', 'mReg_AffineTransformation_write', self.handle_, filename);
         end
         function value = get_determinant(self)
             %Get determinant.
@@ -88,21 +88,21 @@ classdef AffineTransformation < mReg.Transformation
         function tm = as_array(self)
             %Get forward transformation matrix.
             ptr_v = libpointer('singlePtr', zeros(4, 4));
-            calllib('msirfreg', 'mReg_AffineTransformation_as_array', self.handle_, ptr_v);
+            calllib('mreg', 'mReg_AffineTransformation_as_array', self.handle_, ptr_v);
             tm = ptr_v.Value;
         end    
         function tm = get_inverse(self)
             %Get forward transformation matrix.
             tm = mReg.AffineTransformation();
-            tm.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
-            mUtilities.check_status('SIRFRegAffineTransformation:get_inverse', tm);
+            tm.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
+            mUtilities.check_status('AffineTransformation:get_inverse', tm);
         end
     end
     methods(Static)
         function mat = get_identity()
             %Get identity matrix.
             mat = mReg.AffineTransformation();
-            mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_get_identity');
+            mat.handle_ = calllib('mreg', 'mReg_AffineTransformation_get_identity');
         end
     end
 end
