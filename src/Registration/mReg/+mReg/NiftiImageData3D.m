@@ -1,5 +1,5 @@
-classdef NiftyF3dSym < mSIRFReg.Registration
-% Registration class using NiftyReg's symmetric f3d.
+classdef NiftiImageData3D < mReg.NiftiImageData
+% Class for image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
 % Copyright 2015 - 2017 Rutherford Appleton Laboratory STFC.
@@ -20,13 +20,22 @@ classdef NiftyF3dSym < mSIRFReg.Registration
 
     methods(Static)
         function name = class_name()
-            name = 'NiftyF3dSym';
+            name = 'NiftiImageData3D';
         end
     end
     methods
-        function self = NiftyF3dSym()
-            self.name = 'NiftyF3dSym';
-            self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+        function self = NiftiImageData3D(src)
+            narginchk(0,1)
+            self.name = 'NiftiImageData3D';
+            if nargin < 1
+                self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
+            elseif ischar(src)
+                self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src);
+            elseif isa(src, 'mSTIR.ImageData')
+                self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3D_from_PETImageData', src.handle_);
+            else
+                error('NiftiImageData3D accepts no args, filename or mSTIR.ImageData.')
+            end
             mUtilities.check_status(self.name, self.handle_)
         end
         function delete(self)
@@ -35,18 +44,12 @@ classdef NiftyF3dSym < mSIRFReg.Registration
                 self.handle_ = [];
             end
         end
-        function set_floating_time_point(self, floating_time_point)
-            %Set floating time point.
-            mSIRFReg.setParameter(self.handle_, self.name, 'floating_time_point', floating_time_point, 'i')
-        end
-        function set_reference_time_point(self, reference_time_point)
-            %Set reference time point.
-            mSIRFReg.setParameter(self.handle_, self.name, 'reference_time_point', reference_time_point, 'i')
-        end
-        function set_initial_affine_transformation(self, src)
-            %Set initial affine transformation.
-            assert(isa(src, 'mSIRFReg.AffineTransformation'))
-            mSIRFReg.setParameter(self.handle_, self.name, 'initial_affine_transformation', src, 'h');
+        function copy_data_to(self, pet_image)
+            %Fill the STIRImageData with the values from NiftiImageData3D.
+            assert(isa(pet_image, 'mSTIR.ImageData'))
+            h = calllib('msirfreg', 'mReg_NiftiImageData3D_copy_data_to', self.handle_, pet_image.handle_);
+            mUtilities.check_status([self.name ':copy_data_to'], h);
+            mUtilities.delete(h)            
         end
     end
 end

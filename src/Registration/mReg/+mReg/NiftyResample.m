@@ -41,21 +41,21 @@ classdef NiftyResample < handle
         end
         function set_reference_image(self, reference_image)
             %Set reference image.
-            assert(isa(reference_image, 'mSIRFReg.NiftiImageData3D'), 'NiftyResample::set_reference_image expects NiftiImageData3D')
-            mSIRFReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
+            assert(isa(reference_image, 'mReg.NiftiImageData3D'), 'NiftyResample::set_reference_image expects NiftiImageData3D')
+            mReg.setParameter(self.handle_, self.name, 'reference_image', reference_image, 'h')
         end
         function set_floating_image(self, floating_image)
             %Set floating image.
-            assert(isa(floating_image, 'mSIRFReg.NiftiImageData3D'), 'NiftyResample::set_floating_image expects NiftiImageData3D')
-            mSIRFReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
+            assert(isa(floating_image, 'mReg.NiftiImageData3D'), 'NiftyResample::set_floating_image expects NiftiImageData3D')
+            mReg.setParameter(self.handle_, self.name, 'floating_image', floating_image, 'h')
         end
         function add_transformation(self, src)
             %Add transformation.
-            if isa(src, 'mSIRFReg.AffineTransformation')
+            if isa(src, 'mReg.AffineTransformation')
                 h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
-            elseif isa(src, 'mSIRFReg.NiftiImageData3DDisplacement')
+            elseif isa(src, 'mReg.NiftiImageData3DDisplacement')
                 h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
-            elseif isa(src, 'mSIRFReg.NiftiImageData3DDeformation')
+            elseif isa(src, 'mReg.NiftiImageData3DDeformation')
                 h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
             else 
                 error('Transformation should be affine, deformation or displacement.')
@@ -63,23 +63,23 @@ classdef NiftyResample < handle
         end
         function set_interpolation_type(self, type)
             %Set interpolation type. 0=nearest neighbour, 1=linear, 3=cubic, 4=sinc.
-            mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')
+            mReg.setParameter(self.handle_, self.name, 'interpolation_type', type, 'i')
         end
         function set_interpolation_type_to_nearest_neighbour(self)
             %Set interpolation type to nearest neighbour.
-            mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 0, 'i')
+            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 0, 'i')
         end
         function set_interpolation_type_to_linear(self)
             %Set interpolation type to linear.
-            mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 1, 'i')
+            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 1, 'i')
         end
         function set_interpolation_type_to_cubic_spline(self)
             %Set interpolation type to cubic spline.
-            mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 3, 'i')
+            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 3, 'i')
         end
         function set_interpolation_type_to_sinc(self)
             %Set interpolation type to sinc.
-            mSIRFReg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
+            mReg.setParameter(self.handle_, self.name, 'interpolation_type', 4, 'i')
         end
         function process(self)
             %Process.
@@ -89,7 +89,7 @@ classdef NiftyResample < handle
         end
         function output = get_output(self)
             %Get output.
-            output = mSIRFReg.NiftiImageData3D();
+            output = mReg.NiftiImageData3D();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)

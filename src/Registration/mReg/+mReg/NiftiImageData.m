@@ -49,7 +49,7 @@ classdef NiftiImageData < handle
         function z = plus(self, other)
             % Overloads the addition operator
             z = self.deep_copy();
-            if isa(other, 'mSIRFReg.NiftiImageData')
+            if isa(other, 'mReg.NiftiImageData')
             	calllib('msirfreg', 'mReg_NiftiImageData_maths_im', z.handle_, self.handle_, other.handle_, 0);
             elseif isnumeric(other)
             	calllib('msirfreg', 'mReg_NiftiImageData_maths_num', z.handle_, self.handle_, other, 0);
@@ -61,7 +61,7 @@ classdef NiftiImageData < handle
         function z = minus(self, other)
             % Overloads the subtraction operator
             z = self.deep_copy();
-            if isa(other, 'mSIRFReg.NiftiImageData')
+            if isa(other, 'mReg.NiftiImageData')
             	calllib('msirfreg', 'mReg_NiftiImageData_maths_im', z.handle_, self.handle_, other.handle_, 1);
             elseif isnumeric(other)
             	calllib('msirfreg', 'mReg_NiftiImageData_maths_num', z.handle_, self.handle_, other, 1);
@@ -82,7 +82,7 @@ classdef NiftiImageData < handle
         end
         function value = eq(self, other)
         	% Overload equality operator
-        	assert(isa(other, 'mSIRFReg.NiftiImageData'));
+        	assert(isa(other, 'mReg.NiftiImageData'));
     	    hv = calllib('msirfreg', 'mReg_NiftiImageData_equal', self.handle_, other.handle_);
 			mUtilities.check_status('parameter', hv);
     		value = logical(calllib('miutilities', 'mIntDataFromHandle', hv));
@@ -103,15 +103,15 @@ classdef NiftiImageData < handle
         end
         function value = get_max(self)
             %Get max.
-            value = mSIRFReg.parameter(self.handle_, 'NiftiImageData', 'max', 'f');
+            value = mReg.parameter(self.handle_, 'NiftiImageData', 'max', 'f');
         end
         function value = get_min(self)
             %Get min.
-            value = mSIRFReg.parameter(self.handle_, 'NiftiImageData', 'min', 'f');
+            value = mReg.parameter(self.handle_, 'NiftiImageData', 'min', 'f');
         end
         function value = get_sum(self)
             %Get sum.
-            value = mSIRFReg.parameter(self.handle_, 'NiftiImageData', 'sum', 'f');
+            value = mReg.parameter(self.handle_, 'NiftiImageData', 'sum', 'f');
         end
         function value = get_dimensions(self)
             %Get dimensions.
@@ -145,15 +145,15 @@ classdef NiftiImageData < handle
         function output = deep_copy(self)
             %Deep copy image.
             if strcmp(self.name, 'NiftiImageData')
-                output = mSIRFReg.NiftiImageData();
+                output = mReg.NiftiImageData();
             elseif strcmp(self.name, 'NiftiImageData3D')
-                output = mSIRFReg.NiftiImageData3D();
+                output = mReg.NiftiImageData3D();
             elseif strcmp(self.name, 'NiftiImageData3DTensor')
-                output = mSIRFReg.NiftiImageData3DTensor();
+                output = mReg.NiftiImageData3DTensor();
             elseif strcmp(self.name, 'NiftiImageData3DDeformation')
-                output = mSIRFReg.NiftiImageData3DDeformation();
+                output = mReg.NiftiImageData3DDeformation();
             elseif strcmp(self.name, 'NiftiImageData3DDisplacement')
-                output = mSIRFReg.NiftiImageData3DDisplacement();
+                output = mReg.NiftiImageData3DDisplacement();
             end
             calllib('msirfreg', 'mReg_NiftiImageData_deep_copy', output.handle_, self.handle_);
             mUtilities.check_status([self.name ':get_output'], output.handle_)
@@ -190,7 +190,7 @@ classdef NiftiImageData < handle
     methods(Static)
         function print_headers(to_print)
             %Print metadata of one or multiple (up to 5) nifti images.
-            assert(ismatrix(to_print) && isa(to_print, 'mSIRFReg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
+            assert(ismatrix(to_print) && isa(to_print, 'mReg.NiftiImageData'), 'NiftiImageData.print_headers: give list of NiftiImageData.')
             num_ims = size(to_print,2);
             if num_ims == 1
                 h = calllib('msirfreg', 'mReg_NiftiImageData_print_headers', 1, to_print(1).handle_, [], [], [], []);

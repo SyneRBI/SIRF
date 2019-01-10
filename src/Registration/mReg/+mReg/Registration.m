@@ -40,21 +40,21 @@ classdef (Abstract = true) Registration < handle
         end
         function set_parameter_file(self, filename)
             %Sets the parameter filename.
-            mSIRFReg.setParameter(self.handle_, 'Registration', 'parameter_file', filename, 's')
+            mReg.setParameter(self.handle_, 'Registration', 'parameter_file', filename, 's')
         end
         function set_reference_image(self, input)
             %Sets the reference image.
-            assert(isa(input, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
+            assert(isa(input, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'reference_image', input, 'h')
         end
         function set_floating_image(self, input)
             %Sets the floating image.
-            assert(isa(input, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
+            assert(isa(input, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'floating_image', input, 'h')
         end
         function output = get_output(self)
             %Gets the registered image.
-            output = mSIRFReg.NiftiImageData3D();
+            output = mReg.NiftiImageData3D();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, 'Registration', 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)
@@ -68,25 +68,25 @@ classdef (Abstract = true) Registration < handle
         end
         function output = get_deformation_field_forward(self)
             %Gets the forward deformation field image.
-            output = mSIRFReg.NiftiImageData3DDeformation();
+            output = mReg.NiftiImageData3DDeformation();
             output.handle_ = calllib('msirfreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_deformation');
             mUtilities.check_status([self.name ':get_deformation_field_forward'], output.handle_);
         end
         function output = get_deformation_field_inverse(self)
             %Gets the inverse deformation field image.
-            output = mSIRFReg.NiftiImageData3DDeformation();
+            output = mReg.NiftiImageData3DDeformation();
             output.handle_ = calllib('msirfreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_deformation');
             mUtilities.check_status([self.name ':get_deformation_field_inverse'], output.handle_);
         end
         function output = get_displacement_field_forward(self)
             %Gets the forward displacement field image.
-            output = mSIRFReg.NiftiImageData3DDisplacement();
+            output = mReg.NiftiImageData3DDisplacement();
             output.handle_ = calllib('msirfreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'forward_displacement');
             mUtilities.check_status([self.name ':get_displacement_field_forward'], output.handle_);
         end
         function output = get_displacement_field_inverse(self)
             %Gets the inverse displacement field image.
-            output = mSIRFReg.NiftiImageData3DDisplacement();
+            output = mReg.NiftiImageData3DDisplacement();
             output.handle_ = calllib('msirfreg', 'mReg_Registration_get_deformation_displacement_image', self.handle_, 'inverse_displacement');
             mUtilities.check_status([self.name ':get_displacement_field_inverse'], output.handle_);
         end
@@ -101,13 +101,13 @@ classdef (Abstract = true) Registration < handle
         end
         function set_reference_mask(self, im)
             %Set mask of reference image.
-            assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'Registration', 'reference_mask', im, 'h')
+            assert(isa(im, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'reference_mask', im, 'h')
         end
         function set_floating_mask(self, im)
             %Set mask of floating image.
-            assert(isa(im, 'mSIRFReg.NiftiImageData3D'))
-            mSIRFReg.setParameter(self.handle_, 'Registration', 'floating_mask', im, 'h')
+            assert(isa(im, 'mReg.NiftiImageData3D'))
+            mReg.setParameter(self.handle_, 'Registration', 'floating_mask', im, 'h')
         end
     end
 end

@@ -42,12 +42,12 @@ classdef ImageWeightedMean < handle
         
         function add_image(self, image, weight)
             %Add an image (filename or NiftyImage) and its corresponding weight.
-            if isa(image, 'mSIRFReg.NiftiImageData')
+            if isa(image, 'mReg.NiftiImageData')
                 h = calllib('msirfreg', 'mReg_ImageWeightedMean_add_image', self.handle_, image.handle_, weight);
             elseif ischar(image)
                 h = calllib('msirfreg', 'mReg_ImageWeightedMean_add_image_filename', self.handle_, image, weight);
             else
-                error("mSIRFReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
+                error("mReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
             end
             mUtilities.check_status([self.name ':add_image'], h);
             mUtilities.delete(h)
@@ -60,7 +60,7 @@ classdef ImageWeightedMean < handle
         end
         function output = get_output(self)
             %Get output.
-            output = mSIRFReg.NiftiImageData();
+            output = mReg.NiftiImageData();
             mUtilities.delete(output.handle_)
             output.handle_ = calllib('msirfreg', 'mReg_parameter', self.handle_, self.name, 'output');
             mUtilities.check_status([self.name ':get_output'], output.handle_)

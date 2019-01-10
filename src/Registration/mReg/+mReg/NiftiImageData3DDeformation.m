@@ -1,4 +1,4 @@
-classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFReg.Transformation
+classdef NiftiImageData3DDeformation < mReg.NiftiImageData3DTensor & mReg.Transformation
 % Class for deformation image data.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -31,9 +31,9 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
                 self.handle_ = calllib('msirfreg', 'mReg_newObject', self.name);
             elseif ischar(src1)
                 self.handle_ = calllib('msirfreg', 'mReg_objectFromFile', self.name, src1);
-            elseif nargin == 3 && isa(src1, 'mSIRFReg.NiftiImageData3D') && isa(src2, 'mSIRFReg.NiftiImageData3D') && isa(src3, 'mSIRFReg.NiftiImageData3D')
+            elseif nargin == 3 && isa(src1, 'mReg.NiftiImageData3D') && isa(src2, 'mReg.NiftiImageData3D') && isa(src3, 'mReg.NiftiImageData3D')
                 self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DTensor_construct_from_3_components', self.name, src1.handle_, src2.handle_, src3.handle_);                
-            elseif isa(src1, 'mSIRFReg.NiftiImageData3DDisplacement')
+            elseif isa(src1, 'mReg.NiftiImageData3DDisplacement')
                 self.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_create_from_disp', src1.handle_);
             end
             mUtilities.check_status(self.name, self.handle_)
@@ -48,8 +48,8 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
     methods(Static)
         function z = compose_single_deformation(trans, ref)
 	    	%Compose up to transformations into single deformation.
-		    assert(isa(ref, 'mSIRFReg.NiftiImageData3D'))
-		    assert(isa(trans, 'mSIRFReg.Transformation'))
+		    assert(isa(ref, 'mReg.NiftiImageData3D'))
+		    assert(isa(trans, 'mReg.Transformation'))
 		    if isrow(trans)
                 trans=trans'; 
             end
@@ -64,15 +64,15 @@ classdef NiftiImageData3DDeformation < mSIRFReg.NiftiImageData3DTensor & mSIRFRe
             % nifti images and transformations).
             types = '';
             for n = 1:num_trans
-                if isa(trans(n),'mSIRFReg.AffineTransformation')
+                if isa(trans(n),'mReg.AffineTransformation')
                     types = [types '1'];
-                elseif isa(trans(n),'mSIRFReg.NiftiImageData3DDisplacement')
+                elseif isa(trans(n),'mReg.NiftiImageData3DDisplacement')
                     types = [types '2'];
-                elseif isa(trans(n),'mSIRFReg.NiftiImageData3DDeformation')
+                elseif isa(trans(n),'mReg.NiftiImageData3DDeformation')
                     types = [types '3'];
                 end
             end
-		    z = mSIRFReg.NiftiImageData3DDeformation();
+		    z = mReg.NiftiImageData3DDeformation();
 		    if num_trans == 2
 		        z.handle_ = calllib('msirfreg', 'mReg_NiftiImageData3DDeformation_compose_single_deformation',...
 		        	ref.handle_, num_trans, types, trans(1).handle_, trans(2).handle_, [], [], []);

@@ -1,4 +1,4 @@
-classdef AffineTransformation < mSIRFReg.Transformation
+classdef AffineTransformation < mReg.Transformation
 % Class for affine transformations.
 
 % CCP PETMR Synergistic Image Reconstruction Framework (SIRF).
@@ -52,7 +52,7 @@ classdef AffineTransformation < mSIRFReg.Transformation
         end
         function value = eq(self, other)
             %Overload comparison operator.
-            assert(isa(other, 'mSIRFReg.AffineTransformation'))
+            assert(isa(other, 'mReg.AffineTransformation'))
             handle = calllib('msirfreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
             mUtilities.check_status('SIRFRegAffineTransformation:eq', handle);
             value = logical(calllib('miutilities', 'mIntDataFromHandle', handle));
@@ -64,15 +64,15 @@ classdef AffineTransformation < mSIRFReg.Transformation
         end
         function mat = mtimes(self, other)
             %Overload multiplication operator.
-            assert(isa(other, 'mSIRFReg.AffineTransformation'))
-            mat = mSIRFReg.AffineTransformation();
+            assert(isa(other, 'mReg.AffineTransformation'))
+            mat = mReg.AffineTransformation();
             mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_equal', self.handle_, other.handle_);
             mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
         end
 
         function mat = deep_copy(self)
             %Deep copy.
-            mat = mSIRFReg.AffineTransformation();
+            mat = mReg.AffineTransformation();
             mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_deep_copy', self.handle_);
             mUtilities.check_status('SIRFRegAffineTransformation:mtimes', mat);
         end
@@ -93,7 +93,7 @@ classdef AffineTransformation < mSIRFReg.Transformation
         end    
         function tm = get_inverse(self)
             %Get forward transformation matrix.
-            tm = mSIRFReg.AffineTransformation();
+            tm = mReg.AffineTransformation();
             tm.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_get_inverse', self.handle_);
             mUtilities.check_status('SIRFRegAffineTransformation:get_inverse', tm);
         end
@@ -101,7 +101,7 @@ classdef AffineTransformation < mSIRFReg.Transformation
     methods(Static)
         function mat = get_identity()
             %Get identity matrix.
-            mat = mSIRFReg.AffineTransformation();
+            mat = mReg.AffineTransformation();
             mat.handle_ = calllib('msirfreg', 'mReg_AffineTransformation_get_identity');
         end
     end
