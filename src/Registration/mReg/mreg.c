@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#define CSIRFREG_FOR_MATLAB
+#define CREG_FOR_MATLAB
 #ifdef _WIN32
 #define EXPORTED_FUNCTION __declspec(dllexport)
 #else
@@ -26,7 +26,7 @@ limitations under the License.
 #include "matrix.h"
 #include "cReg.h"
 
-#ifndef CSIRFREG_FOR_MATLAB
+#ifndef CREG_FOR_MATLAB
 #define PTR_INT size_t
 #define PTR_FLOAT size_t
 #define PTR_DOUBLE size_t
@@ -166,7 +166,7 @@ EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, 
 EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr) {
 	return cReg_AffineTransformation_equal(mat1_ptr, mat2_ptr);
 }
-#ifndef CSIRFREG_FOR_MATLAB
+#ifndef CREG_FOR_MATLAB
 }
 #endif
 void* newMexPrinter();

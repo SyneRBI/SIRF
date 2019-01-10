@@ -60,7 +60,7 @@ int main()
 	path_in = SIRF_path + "/src/Registration/cReg/";
 	path_out = SIRF_path + "/src/Registration/mReg/";
 	status = generate_matlab_interface
-		("CSIRFREG", "cReg", 
+		("CREG", "cReg",
 			path_in, "cReg.h", 
 			path_out, "mreg.h", "mreg.c", 1);
 	if (status)

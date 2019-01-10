@@ -18,10 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef cSIRFREG_INTERFACE
-#define cSIRFREG_INTERFACE
+#ifndef cREG_INTERFACE
+#define cREG_INTERFACE
 
-#ifndef CSIRFREG_FOR_MATLAB
+#ifndef CREG_FOR_MATLAB
 #define PTR_INT size_t
 #define PTR_FLOAT size_t
 #define PTR_DOUBLE size_t
@@ -101,7 +101,7 @@ extern "C" {
     void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
     void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 
-#ifndef CSIRFREG_FOR_MATLAB
+#ifndef CREG_FOR_MATLAB
 }
 #endif
 
