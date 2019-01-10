@@ -21,11 +21,11 @@
 # ------------------------------------------------------------------------
 FIND_PACKAGE(NiftyReg)
 if (NiftyReg_FOUND)
-	MESSAGE(STATUS "\n\nSIRFReg was developed with NiftyReg 1.5.59, and cannot be guaranteed for other version numbers.\n"
+	MESSAGE(STATUS "\n\nSIRF's registration was developed with NiftyReg 1.5.59, and cannot be guaranteed for other version numbers.\n"
     "Your compiled version of NiftyReg is version ${NR_VERSION}.\n"
     "If there is a version mismatch, the keys in the parser may need to be altered.\n")
 else()
-	MESSAGE(FATAL_ERROR "SIRFReg has been enabled, but there are no registration/resampling packages available.")
+	MESSAGE(FATAL_ERROR "Registration has been enabled, but there are no registration packages available.")
 endif()
 
 # ------------------------------------------------------------------------

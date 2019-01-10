@@ -18,5 +18,5 @@
 
 # Make into test
 ADD_TEST(NAME REG_TEST_PYTHON
-COMMAND ${PYTHON_EXECUTABLE} -m nose #[[--with-coverage --cover-package=pSIRFReg --cover-erase -d -v]] ${CMAKE_CURRENT_SOURCE_DIR}/test_pReg.py
+COMMAND ${PYTHON_EXECUTABLE} -m nose #[[--with-coverage --cover-package=pReg --cover-erase -d -v]] ${CMAKE_CURRENT_SOURCE_DIR}/test_pReg.py
 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

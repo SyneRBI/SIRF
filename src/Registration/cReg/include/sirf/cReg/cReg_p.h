@@ -38,18 +38,18 @@ namespace sirf {
     void* cReg_RegistrationParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
-    // SIRFRegNiftyF3dSym
+    // NiftyF3dSym
     // ---------------------------------------------------------------------------- //
     void* cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
 
     // ---------------------------------------------------------------------------- //
-    // SIRFRegNiftyResample
+    // NiftyResample
     // ---------------------------------------------------------------------------- //
     void* cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv);
     void* cReg_NiftyResampleParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
-    // SIRFRegImageWeightedMean
+    // ImageWeightedMean
     // ---------------------------------------------------------------------------- //
     void* cReg_ImageWeightedMeanParameter(const DataHandle* handle, const char* name);
 

@@ -76,14 +76,14 @@ extern "C" {
     void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
     void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 
-    // SIRFRegAladin methods
+    // Aladin methods
     void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 
-    // SIRFRegNiftyResample
+    // NiftyResample
     void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
     void* cReg_NiftyResample_process(void* ptr);
 
-    // SIRFRegImageWeightedMean
+    // ImageWeightedMean
     void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
     void* cReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
     void* cReg_ImageWeightedMean_process(void* ptr);

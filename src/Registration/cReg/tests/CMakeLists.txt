@@ -14,7 +14,7 @@
 #  See the License for the specific language governing permissions and
 
 ########################################################################################
-# test SIRFReg
+# test Reg
 ########################################################################################
 # Create an executable
 ADD_EXECUTABLE (REG_TEST_CPLUSPLUS test_cReg.cpp)
