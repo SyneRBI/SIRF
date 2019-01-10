@@ -4,7 +4,6 @@ Usage:
   resample [--help | options]
 
 Options:
-  -e <engn>, --engine=<engn>   reconstruction engine [default: SIRFReg]
   --ref <file>                 reference image
   --flo <file>                 floating image
   --output <file>              output image filename [default: output.nii]
@@ -39,7 +38,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('import p' + args['--engine'])
+import pReg
 
 # process command-line options
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -61,22 +60,22 @@ if flo_file is None:
 
 # If no transformations given, use identity
 if args['--aff'] is not False:
-  trans = pSIRFReg.AffineTransformation(args['--aff'])
+  trans = pReg.AffineTransformation(args['--aff'])
 elif args['--disp'] is not False:
-  pSIRFReg.NiftiImageData3DDisplacement(args['--disp'])
+  pReg.NiftiImageData3DDisplacement(args['--disp'])
 elif args['--def'] is not False:
-  pSIRFReg.NiftiImageData3DDisplacement(args['--def'])
+  pReg.NiftiImageData3DDisplacement(args['--def'])
 else:
-  trans = pSIRFReg.AffineTransformation.get_identity()
+  trans = pReg.AffineTransformation.get_identity()
 
 def main():
 
     # Open reference and floating images
-    ref = pSIRFReg.NiftiImageData3D(ref_file)
-    flo = pSIRFReg.NiftiImageData3D(flo_file)
+    ref = pReg.NiftiImageData3D(ref_file)
+    flo = pReg.NiftiImageData3D(flo_file)
 
     # Resample
-    nr = pSIRFReg.NiftyResample()
+    nr = pReg.NiftyResample()
     nr.set_reference_image(ref)
     nr.set_floating_image(flo)
     nr.set_interpolation_type(int(args['--intrp']))

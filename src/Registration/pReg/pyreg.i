@@ -1,4 +1,4 @@
-%module pysirfreg
+%module pyreg
 %{
 #include "cReg.h"
 #include <cmath>

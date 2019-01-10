@@ -4,9 +4,9 @@ Usage:
   synergistic_resample [--help | options]
 
 Options:
-  --eng_ref <eng>              engine for reference image [default: SIRFReg]
-  --eng_flo <eng>              engine for floating image [default: SIRFReg]
-  --eng_reg <eng>              engine for registration/resampling package [default: SIRFReg]
+  --eng_ref <eng>              engine for reference image [default: Reg]
+  --eng_flo <eng>              engine for floating image [default: Reg]
+  --eng_reg <eng>              engine for registration/resampling package [default: Reg]
   --ref <file>                 reference image
   --flo <file>                 floating image
   --output <file>              output image filename [default: output]

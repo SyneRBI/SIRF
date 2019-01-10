@@ -4,7 +4,6 @@ Usage:
   rigid_registration [--help | options]
 
 Options:
-  -e <engn>, --engine=<engn>   reconstruction engine [default: SIRFReg]
   --ref <file>                 reference image
   --flo <file>                 floating image
   --par <file>                 parameter file
@@ -44,7 +43,7 @@ from docopt import docopt
 args = docopt(__doc__, version=__version__)
 
 # import engine module
-exec('import p' + args['--engine'])
+import pReg
 
 # process command-line options
 SIRF_PATH = os.environ.get('SIRF_PATH')
@@ -72,11 +71,11 @@ if par_file is None:
 def main():
 
     # Open reference and floating images
-    ref = pSIRFReg.NiftiImageData3D(ref_file)
-    flo = pSIRFReg.NiftiImageData3D(flo_file)
+    ref = pReg.NiftiImageData3D(ref_file)
+    flo = pReg.NiftiImageData3D(flo_file)
 
     # Registration
-    na = pSIRFReg.NiftyAladinSym()
+    na = pReg.NiftyAladinSym()
     na.set_reference_image(ref)
     na.set_floating_image(flo)
     na.set_parameter_file(par_file)

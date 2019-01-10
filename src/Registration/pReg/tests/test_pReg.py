@@ -4,7 +4,7 @@ import sys
 import time
 
 import numpy as np
-import pSIRFReg
+import pReg
 import pSTIR
 from pUtilities import *
 
@@ -50,10 +50,10 @@ output_weighted_mean = output_prefix + "weighted_mean.nii"
 output_weighted_mean_def = output_prefix + "weighted_mean_def.nii"
 output_float = output_prefix + "reg_aladin_float.nii"
 
-ref_aladin = pSIRFReg.NiftiImageData3D(ref_aladin_filename)
-flo_aladin = pSIRFReg.NiftiImageData3D(flo_aladin_filename)
-ref_f3d = pSIRFReg.NiftiImageData3D(ref_f3d_filename)
-flo_f3d = pSIRFReg.NiftiImageData3D(flo_f3d_filename)
+ref_aladin = pReg.NiftiImageData3D(ref_aladin_filename)
+flo_aladin = pReg.NiftiImageData3D(flo_aladin_filename)
+ref_f3d = pReg.NiftiImageData3D(ref_f3d_filename)
+flo_f3d = pReg.NiftiImageData3D(flo_f3d_filename)
 
 # NiftiImageData
 def try_niftiimage():
@@ -64,12 +64,12 @@ def try_niftiimage():
     time.sleep(0.5)
 
     # default constructor
-    a = pSIRFReg.NiftiImageData()
+    a = pReg.NiftiImageData()
     if a.handle is None:
         raise AssertionError()
 
     # Read from file
-    b = pSIRFReg.NiftiImageData(ref_aladin_filename)
+    b = pReg.NiftiImageData(ref_aladin_filename)
 
     # Save to file
     b.write(save_nifti_image)
@@ -137,15 +137,15 @@ def try_niftiimage():
 
     # Test saving to datatype
     ref_aladin.write(output_float, 16) # float
-    ref_aladin_float = pSIRFReg.NiftiImageData3D(output_float)
+    ref_aladin_float = pReg.NiftiImageData3D(output_float)
     arr1 = ref_aladin.as_array()
     arr2 = ref_aladin_float.as_array()
     if not np.array_equal(arr1,arr2):
-        raise AssertionError("SIRFRegMisc::write()/change_datatype() failed.")
+        raise AssertionError("NiftiImageData::write()/change_datatype() failed.")
 
     # Test print methods
     q.print_header()
-    pSIRFReg.NiftiImageData.print_headers([q, s])
+    pReg.NiftiImageData.print_headers([q, s])
 
     # Crop image
     min_ = []
@@ -175,12 +175,12 @@ def try_niftiimage3d():
     time.sleep(0.5)
 
     # default constructor
-    a = pSIRFReg.NiftiImageData3D()
+    a = pReg.NiftiImageData3D()
     if a.handle is None:
         raise AssertionError()
 
     # Read from file
-    b = pSIRFReg.NiftiImageData3D(ref_aladin_filename)
+    b = pReg.NiftiImageData3D(ref_aladin_filename)
 
     # Save to file
     b.write(save_nifti_image_3d)
@@ -247,7 +247,7 @@ def try_niftiimage3dtensor():
     time.sleep(0.5)
 
     # Create NiftiImageData3DTensor from NiftiImageData3D
-    b = pSIRFReg.NiftiImageData3DTensor()
+    b = pReg.NiftiImageData3DTensor()
     b.create_from_3D_image(ref_aladin)
 
     # # Save to file
@@ -255,7 +255,7 @@ def try_niftiimage3dtensor():
     b.write_split_xyz_components(save_nifti_image_3d_tensor_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImageData3DTensor(save_nifti_image_3d_tensor_not_split)
+    c = pReg.NiftiImageData3DTensor(save_nifti_image_3d_tensor_not_split)
 
     # Fill
     c.fill(100)
@@ -310,7 +310,7 @@ def try_niftiimage3dtensor():
     im1.fill(30)
     im2.fill(20)
     im3.fill(-10)
-    h = pSIRFReg.NiftiImageData3DTensor(im1, im2, im3)
+    h = pReg.NiftiImageData3DTensor(im1, im2, im3)
 
     # Test flip components
     h.flip_component(0)
@@ -336,7 +336,7 @@ def try_niftiimage3ddisplacement():
     time.sleep(0.5)
 
     # Create NiftiImageData3DDisplacement from NiftiImageData3D
-    b = pSIRFReg.NiftiImageData3DDisplacement()
+    b = pReg.NiftiImageData3DDisplacement()
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
@@ -344,10 +344,10 @@ def try_niftiimage3ddisplacement():
     b.write_split_xyz_components(save_nifti_image_3d_displacement_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImageData3DDisplacement(save_nifti_image_3d_displacement_not_split)
+    c = pReg.NiftiImageData3DDisplacement(save_nifti_image_3d_displacement_not_split)
 
     # Constructor from 3x3D
-    d = pSIRFReg.NiftiImageData3DDisplacement(ref_aladin, ref_aladin, ref_aladin)
+    d = pReg.NiftiImageData3DDisplacement(ref_aladin, ref_aladin, ref_aladin)
 
     # Fill
     c.fill(100)
@@ -411,7 +411,7 @@ def try_niftiimage3ddeformation():
     time.sleep(0.5)
 
     # Create NiftiImageData3DDeformation from NiftiImageData3D
-    b = pSIRFReg.NiftiImageData3DDeformation()
+    b = pReg.NiftiImageData3DDeformation()
     b.create_from_3D_image(ref_aladin)
 
     # Save to file
@@ -419,10 +419,10 @@ def try_niftiimage3ddeformation():
     b.write_split_xyz_components(save_nifti_image_3d_deformation_split)
 
     # Constructor from file
-    c = pSIRFReg.NiftiImageData3DDeformation(save_nifti_image_3d_deformation_not_split)
+    c = pReg.NiftiImageData3DDeformation(save_nifti_image_3d_deformation_not_split)
 
     # Constructor from 3x3D
-    d = pSIRFReg.NiftiImageData3DDeformation(ref_aladin, ref_aladin, ref_aladin)
+    d = pReg.NiftiImageData3DDeformation(ref_aladin, ref_aladin, ref_aladin)
 
     # Fill
     c.fill(100)
@@ -486,7 +486,7 @@ def try_niftyaladin():
     time.sleep(0.5)
 
     # default constructor
-    na = pSIRFReg.NiftyAladinSym()
+    na = pReg.NiftyAladinSym()
     na.set_reference_image(ref_aladin)
     na.set_floating_image(flo_aladin)
     na.set_parameter_file(parameter_file_aladin)
@@ -519,12 +519,12 @@ def try_niftyaladin():
     sys.stderr.write('\nInverse tm:\n%s\n\n' % inverse_tm.as_array())
 
     # Test converting disp to def
-    a = pSIRFReg.NiftiImageData3DDeformation(disp_forward)
+    a = pReg.NiftiImageData3DDeformation(disp_forward)
     if a != def_forward:
         raise AssertionError("NiftiImageData3DDeformation::create_from_disp() failed.")
 
     # Test converting def to disp
-    b = pSIRFReg.NiftiImageData3DDisplacement(def_forward)
+    b = pReg.NiftiImageData3DDisplacement(def_forward)
     if b != disp_forward:
         raise AssertionError("NiftiImageData3DDisplacement::create_from_def() failed.")
 
@@ -546,10 +546,10 @@ def try_niftyf3d():
     time.sleep(0.5)
 
     # Get initial transformation
-    tm_init = pSIRFReg.AffineTransformation(TM_forward)
+    tm_init = pReg.AffineTransformation(TM_forward)
 
     # default constructor
-    nf = pSIRFReg.NiftyF3dSym()
+    nf = pReg.NiftyF3dSym()
     nf.set_reference_image(ref_f3d)
     nf.set_floating_image(flo_f3d)
     nf.set_parameter_file(parameter_file_f3d)
@@ -603,9 +603,9 @@ def try_transformations(na):
         raise AssertionError()
 
     # Compose into single deformation. Use two identity matrices and the disp field. Get as def and should be the same.
-    tm_iden = pSIRFReg.AffineTransformation.get_identity()
+    tm_iden = pReg.AffineTransformation.get_identity()
     trans = [tm_iden, tm_iden, c3]
-    composed = pSIRFReg.NiftiImageData3DDeformation.compose_single_deformation(trans, ref_aladin)
+    composed = pReg.NiftiImageData3DDeformation.compose_single_deformation(trans, ref_aladin)
     if composed != na.get_deformation_field_forward():
         raise AssertionError()
 
@@ -624,13 +624,13 @@ def try_resample(na):
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
-    tm_iden = pSIRFReg.AffineTransformation.get_identity()
+    tm_iden = pReg.AffineTransformation.get_identity()
     tm      = na.get_transformation_matrix_forward()
     disp    = na.get_displacement_field_forward()
     deff    = na.get_deformation_field_forward()
 
     sys.stderr.write('Testing rigid resample...\n')
-    nr1 = pSIRFReg.NiftyResample()
+    nr1 = pReg.NiftyResample()
     nr1.set_reference_image(ref_aladin)
     nr1.set_floating_image(flo_aladin)
     nr1.set_interpolation_type_to_cubic_spline()  # try different interpolations
@@ -641,7 +641,7 @@ def try_resample(na):
     nr1.get_output().write(rigid_resample)
 
     sys.stderr.write('Testing non-rigid displacement...\n')
-    nr2 = pSIRFReg.NiftyResample()
+    nr2 = pReg.NiftyResample()
     nr2.set_reference_image(ref_aladin)
     nr2.set_floating_image(flo_aladin)
     nr2.set_interpolation_type_to_sinc()  # try different interpolations
@@ -651,7 +651,7 @@ def try_resample(na):
     nr2.get_output().write(nonrigid_resample_disp)
 
     sys.stderr.write('Testing non-rigid deformation...\n')
-    nr3 = pSIRFReg.NiftyResample()
+    nr3 = pReg.NiftyResample()
     nr3.set_reference_image(ref_aladin)
     nr3.set_floating_image(flo_aladin)
     nr3.set_interpolation_type_to_nearest_neighbour()  # try different interpolations
@@ -683,7 +683,7 @@ def try_weighted_mean(na):
     time.sleep(0.5)
 
     # Do 3D
-    wm1 = pSIRFReg.ImageWeightedMean()
+    wm1 = pReg.ImageWeightedMean()
     # Change to float to avoid rounding errors
     im1 = ref_aladin.deep_copy()
     im2 = ref_aladin.deep_copy()
@@ -706,7 +706,7 @@ def try_weighted_mean(na):
         raise AssertionError()
 
     # Do 4D
-    wm2 = pSIRFReg.ImageWeightedMean()
+    wm2 = pReg.ImageWeightedMean()
     im1 = na.get_deformation_field_forward().deep_copy()
     im2 = na.get_deformation_field_forward().deep_copy()
     im3 = na.get_deformation_field_forward().deep_copy()
@@ -735,46 +735,46 @@ def try_weighted_mean(na):
 
 # TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
 """
-# STIR to SIRFReg
-def try_stir_to_sirfreg():
+# STIR to Nifti
+def try_stir_to_nifti():
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting STIR to SIRFReg test...\n')
+    sys.stderr.write('#                             Starting STIR to Nifti test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
     # Open stir image
     pet_image_data = pSTIR.ImageData(ref_aladin_filename)
-    image_data_from_stir = pSIRFReg.NiftiImageData3D(pet_image_data)
+    image_data_from_stir = pReg.NiftiImageData3D(pet_image_data)
 
-    # Now fill the stir and sirfreg images with 1 and 100, respectively
+    # Now fill the stir and nifti images with 1 and 100, respectively
     pet_image_data.fill(1.)
     image_data_from_stir.fill(100)
     if pet_image_data.as_array().max() == image_data_from_stir.get_max():
         raise AssertionError()
 
-    # Fill the stir image with the sirfreg
+    # Fill the stir image with the nifti
     image_data_from_stir.copy_data_to(pet_image_data)
     if pet_image_data.as_array().max() != image_data_from_stir.get_max():
         raise AssertionError()
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished STIR to SIRFReg test.\n')
+    sys.stderr.write('#                             Finished STIR to Nifti test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 """
 
-# SIRFRegAffineTransformation
-def try_sirfregAffineTransformation(na):
+# AffineTransformation
+def try_affinetransformation(na):
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Starting SIRFRegAffineTransformation test...\n')
+    sys.stderr.write('#                             Starting AffineTransformation test...\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
     # Construct from file
-    a = pSIRFReg.AffineTransformation(TM_forward)
+    a = pReg.AffineTransformation(TM_forward)
     if a.handle is None:
         raise AssertionError()
 
@@ -782,16 +782,16 @@ def try_sirfregAffineTransformation(na):
     b = na.get_transformation_matrix_forward()
     c = na.get_transformation_matrix_inverse()
     d = b * c
-    e = pSIRFReg.AffineTransformation.get_identity()
+    e = pReg.AffineTransformation.get_identity()
     if d != e:
-        raise AssertionError('SIRFRegAffineTransformation::mult/comparison failed.')
+        raise AssertionError('AffineTransformation::mult/comparison failed.')
 
     if e.get_determinant() - 1. > 1.e-7:
-        raise AssertionError('SIRFRegAffineTransformation::get_determinant failed.')
+        raise AssertionError('AffineTransformation::get_determinant failed.')
 
     time.sleep(0.5)
     sys.stderr.write('\n# --------------------------------------------------------------------------------- #\n')
-    sys.stderr.write('#                             Finished SIRFRegAffineTransformation test.\n')
+    sys.stderr.write('#                             Finished AffineTransformation test.\n')
     sys.stderr.write('# --------------------------------------------------------------------------------- #\n')
     time.sleep(0.5)
 
@@ -807,8 +807,8 @@ def test():
     try_transformations(na)
     try_resample(na)
     try_weighted_mean(na)
-    # try_stir_to_sirfreg() TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
-    try_sirfregAffineTransformation(na)
+    # try_stir_to_nifti() TODO UNCOMMENT WHEN GEOMETRICAL INFO IS IMPLEMENTED
+    try_affinetransformation(na)
 
 
 if __name__ == "__main__":
