@@ -1,4 +1,4 @@
-function libload_sirfreg
+function libload_reg
 % load C++-to-C interface library
 if ~libisloaded('miutilities')
     fprintf('loading miutilities library...\n')
@@ -8,13 +8,13 @@ if ~libisloaded('miutilities')
         error('miutilities library failed to load\n')
     end
 end
-% load SIRFReg interface library
+% load Reg interface library
 if ~libisloaded('msirfreg')
-    fprintf('loading msirfreg library...\n')
+    fprintf('loading mreg library...\n')
     try
         [notfound, warnings] = loadlibrary('msirfreg');
     catch
-        error('msirfreg library failed to load\n')
+        error('mreg library failed to load\n')
     end
 end
 end

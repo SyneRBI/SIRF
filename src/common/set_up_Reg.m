@@ -20,7 +20,7 @@ function import_str = set_up_Reg(engine, alias)
 % limitations under the License.
 
     if isempty(engine)
-        engine = 'SIRFReg';
+        engine = 'Reg';
     end
     try
         eval(['libload_' lower(engine)])
