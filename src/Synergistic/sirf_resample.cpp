@@ -42,7 +42,7 @@ using namespace sirf;
 
 static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if (strcmp(engine.c_str(), "SIRFReg") == 0)
+    if (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(STIRImageData(filename));
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     try {
 
         std::string ref_filename = "", flo_filename = "";
-        std::string eng_ref = "SIRFReg", eng_flo = "SIRFReg";
+        std::string eng_ref = "Nifti", eng_flo = "Nifti";
         std::string output = "output";
         std::vector<std::shared_ptr<const Transformation<float> > > trans;
         std::string algo = "niftyreg";

@@ -36,7 +36,7 @@ using namespace sirf;
 
 static std::shared_ptr<const NiftiImageData3D<float> > image_as_sptr(const std::string &filename, const std::string &engine)
 {
-    if (strcmp(engine.c_str(), "SIRFReg") == 0)
+    if (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(STIRImageData(filename));
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
     try {
 
         std::string im1_filename = "", im2_filename = "";
-        std::string eng_im1 = "SIRFReg", eng_im2 = "SIRFReg";
+        std::string eng_im1 = "Nifti", eng_im2 = "Nifti";
         float accuracy = 1.E-3F;
 
         // Loop over all input arguments (ignore first argument (name of executable))

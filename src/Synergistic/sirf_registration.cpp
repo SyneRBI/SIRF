@@ -37,9 +37,9 @@ limitations under the License.
 
 using namespace sirf;
 
-static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine = "SIRFReg")
+static std::shared_ptr<const ImageData> image_as_sptr(const std::string &filename, const std::string &engine = "Nifti")
 {
-    if      (strcmp(engine.c_str(), "SIRFReg") == 0)
+    if      (strcmp(engine.c_str(), "Nifti") == 0)
         return std::make_shared<const NiftiImageData3D<float> >(filename);
     else if (strcmp(engine.c_str(), "STIR") == 0)
         return std::make_shared<const STIRImageData>(filename);
@@ -66,7 +66,7 @@ static std::shared_ptr<Registration<float> > algo_as_sptr(const std::string &alg
 /// print usage
 void print_usage()
 {
-    std::cout << "\n*** sirfreg_aladin usage ***\n";
+    std::cout << "\n*** sirf_registration usage ***\n";
 
     // Required flags
     std::cout << "\n  Required flags:\n";
