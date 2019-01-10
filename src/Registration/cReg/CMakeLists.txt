@@ -23,7 +23,7 @@ SET(SOURCES ${SOURCES} "NiftiImageData.cpp" "NiftiImageData3D.cpp" "NiftiImageDa
 
 # If we're also wrapping to python or matlab, include the c-files
 IF(BUILD_PYTHON OR BUILD_MATLAB)
-	SET(SOURCES ${SOURCES} "cReg.cpp" "csirfreg_p.cpp")
+	SET(SOURCES ${SOURCES} "cReg.cpp" "cReg_p.cpp")
 ENDIF()
 
 # Create library
