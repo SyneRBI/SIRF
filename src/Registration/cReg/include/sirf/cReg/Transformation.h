@@ -21,7 +21,7 @@ limitations under the License.
 /*!
 \file
 \ingroup Registration
-\brief Classes for SIRFReg transformations.
+\brief Base class for transformations.
 \author Richard Brown
 \author CCP PETMR
 */
@@ -36,7 +36,7 @@ namespace sirf {
 template<class dataType> class NiftiImageData3D;
 template<class dataType> class NiftiImageData3DDeformation;
 
-/// Abstract base class for SIRFReg transformations
+/// Base class for transformations
 template<class dataType>
 class Transformation
 {
