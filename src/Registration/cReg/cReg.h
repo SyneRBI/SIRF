@@ -71,35 +71,35 @@ extern "C" {
     // NiftiImageData3DDisplacement
     void* cReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
 
-    // SIRFReg
-    void* cReg_SIRFReg_process(void* ptr);
-    void* cReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-    void* cReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+    // Registration
+    void* cReg_Registration_process(void* ptr);
+    void* cReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+    void* cReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
 
     // SIRFRegAladin methods
-    void* cReg_SIRFReg_get_TM(const void* ptr, const char* dir);
+    void* cReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
 
     // SIRFRegNiftyResample
-    void* cReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
-    void* cReg_SIRFRegNiftyResample_process(void* ptr);
+    void* cReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
+    void* cReg_NiftyResample_process(void* ptr);
 
     // SIRFRegImageWeightedMean
-    void* cReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
-    void* cReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
-    void* cReg_SIRFRegImageWeightedMean_process(void* ptr);
+    void* cReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
+    void* cReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
+    void* cReg_ImageWeightedMean_process(void* ptr);
 
     // Transformation
-    void* cReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
+    void* cReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
 
     // AffineTransformation
-    void* cReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
-    void* cReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
-    void* cReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename);
-    void* cReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
-    void* cReg_SIRFRegAffineTransformation_get_identity();
-    void* cReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);
-    void* cReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
-    void* cReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
+    void* cReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_deep_copy(const void* ptr);
+    void* cReg_AffineTransformation_write(const void* ptr, const char* filename);
+    void* cReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+    void* cReg_AffineTransformation_get_identity();
+    void* cReg_AffineTransformation_get_inverse(const void* ptr);
+    void* cReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
+    void* cReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 
 #ifndef CSIRFREG_FOR_MATLAB
 }

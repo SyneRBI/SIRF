@@ -52,11 +52,11 @@ classdef NiftyResample < handle
         function add_transformation(self, src)
             %Add transformation.
             if isa(src, 'mSIRFReg.AffineTransformation')
-                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
+                h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'affine');
             elseif isa(src, 'mSIRFReg.NiftiImageData3DDisplacement')
-                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
+                h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'displacement');
             elseif isa(src, 'mSIRFReg.NiftiImageData3DDeformation')
-                h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
+                h = calllib('msirfreg', 'mReg_NiftyResample_add_transformation', self.handle_, src.handle_, 'deformation');
             else 
                 error('Transformation should be affine, deformation or displacement.')
             end
@@ -83,7 +83,7 @@ classdef NiftyResample < handle
         end
         function process(self)
             %Process.
-            h = calllib('msirfreg', 'mReg_SIRFRegNiftyResample_process', self.handle_);
+            h = calllib('msirfreg', 'mReg_NiftyResample_process', self.handle_);
             mUtilities.check_status([self.name ':process'], h);
             mUtilities.delete(h)
         end

@@ -212,7 +212,7 @@ class _Transformation(ABC):
         if not isinstance(ref, NiftiImageData3D):
             raise AssertionError()
         output = NiftiImageData3DDeformation()
-        output.handle = pysirfreg.cReg_SIRFRegTransformation_get_as_deformation_field(self.handle, self.name, ref.handle)
+        output.handle = pysirfreg.cReg_Transformation_get_as_deformation_field(self.handle, self.name, ref.handle)
         check_status(output.handle)
         return output
 
@@ -607,33 +607,33 @@ class _SIRFReg(ABC):
 
     def process(self):
         """Run the registration"""
-        try_calling(pysirfreg.cReg_SIRFReg_process(self.handle))
+        try_calling(pysirfreg.cReg_Registration_process(self.handle))
 
     def get_deformation_field_forward(self):
         """Gets the forward deformation field image."""
         output = NiftiImageData3DDeformation()
-        output.handle = pysirfreg.cReg_SIRFReg_get_deformation_displacement_image(self.handle, 'forward_deformation')
+        output.handle = pysirfreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_deformation')
         check_status(output.handle)
         return output
 
     def get_deformation_field_inverse(self):
         """Gets the inverse deformation field image."""
         output = NiftiImageData3DDeformation()
-        output.handle = pysirfreg.cReg_SIRFReg_get_deformation_displacement_image(self.handle, 'inverse_deformation')
+        output.handle = pysirfreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_deformation')
         check_status(output.handle)
         return output
 
     def get_displacement_field_forward(self):
         """Gets the forward displacement field image."""
         output = NiftiImageData3DDisplacement()
-        output.handle = pysirfreg.cReg_SIRFReg_get_deformation_displacement_image(self.handle, 'forward_displacement')
+        output.handle = pysirfreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'forward_displacement')
         check_status(output.handle)
         return output
 
     def get_displacement_field_inverse(self):
         """Gets the inverse displacement field image."""
         output = NiftiImageData3DDisplacement()
-        output.handle = pysirfreg.cReg_SIRFReg_get_deformation_displacement_image(self.handle, 'inverse_displacement')
+        output.handle = pysirfreg.cReg_Registration_get_deformation_displacement_image(self.handle, 'inverse_displacement')
         check_status(output.handle)
         return output
 
@@ -642,7 +642,7 @@ class _SIRFReg(ABC):
         If so, set the value given by arg. Convert to float/int etc., as necessary.
         Up to 2 arguments, leave blank if unneeded. These are applied after parsing
         the parameter file."""
-        try_calling(pysirfreg.cReg_SIRFReg_set_parameter(self.handle, par, arg1, arg2))
+        try_calling(pysirfreg.cReg_Registration_set_parameter(self.handle, par, arg1, arg2))
 
 
 class NiftyAladinSym(_SIRFReg):
@@ -664,7 +664,7 @@ class NiftyAladinSym(_SIRFReg):
         if self.handle is None:
             raise AssertionError()
         tm = AffineTransformation()
-        tm.handle = pysirfreg.cReg_SIRFReg_get_TM(self.handle, 'forward')
+        tm.handle = pysirfreg.cReg_NiftyAladin_get_TM(self.handle, 'forward')
         return tm
 
     def get_transformation_matrix_inverse(self):
@@ -672,7 +672,7 @@ class NiftyAladinSym(_SIRFReg):
         if self.handle is None:
             raise AssertionError()
         tm = AffineTransformation()
-        tm.handle = pysirfreg.cReg_SIRFReg_get_TM(self.handle, 'inverse')
+        tm.handle = pysirfreg.cReg_NiftyAladin_get_TM(self.handle, 'inverse')
         return tm
 
 
@@ -735,11 +735,11 @@ class NiftyResample:
     def add_transformation(self, src):
         """Add transformation."""
         if isinstance(src, AffineTransformation):
-            try_calling(pysirfreg.cReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'affine'))
+            try_calling(pysirfreg.cReg_NiftyResample_add_transformation(self.handle, src.handle, 'affine'))
         elif isinstance(src, NiftiImageData3DDisplacement):
-            try_calling(pysirfreg.cReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
+            try_calling(pysirfreg.cReg_NiftyResample_add_transformation(self.handle, src.handle, 'displacement'))
         elif isinstance(src, NiftiImageData3DDeformation):
-            try_calling(pysirfreg.cReg_SIRFRegNiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
+            try_calling(pysirfreg.cReg_NiftyResample_add_transformation(self.handle, src.handle, 'deformation'))
         else:
             raise AssertionError()
 
@@ -767,7 +767,7 @@ class NiftyResample:
 
     def process(self):
         """Process."""
-        try_calling(pysirfreg.cReg_SIRFRegNiftyResample_process(self.handle))
+        try_calling(pysirfreg.cReg_NiftyResample_process(self.handle))
 
     def get_output(self):
         """Get output."""
@@ -794,15 +794,15 @@ class ImageWeightedMean:
     def add_image(self, image, weight):
         """Add an image (filename or NiftiImageData) and its corresponding weight."""
         if isinstance(image, NiftiImageData):
-            try_calling(pysirfreg.cReg_SIRFRegImageWeightedMean_add_image(self.handle, image.handle, weight))
+            try_calling(pysirfreg.cReg_ImageWeightedMean_add_image(self.handle, image.handle, weight))
         elif isinstance(image, str):
-            try_calling(pysirfreg.cReg_SIRFRegImageWeightedMean_add_image_filename(self.handle, image, weight))
+            try_calling(pysirfreg.cReg_ImageWeightedMean_add_image_filename(self.handle, image, weight))
         else:
             raise error("pSIRFReg.ImageWeightedMean.add_image: image must be NiftiImageData or filename.")
 
     def process(self):
         """Process."""
-        try_calling(pysirfreg.cReg_SIRFRegImageWeightedMean_process(self.handle))
+        try_calling(pysirfreg.cReg_ImageWeightedMean_process(self.handle))
 
     def get_output(self):
         """Get output."""
@@ -826,7 +826,7 @@ class AffineTransformation(_Transformation):
         elif isinstance(src, numpy.ndarray):
             if src.shape != (4, 4):
                 raise AssertionError()
-            self.handle = pysirfreg.cReg_SIRFRegAffineTransformation_construct_from_TM(src.ctypes.data)
+            self.handle = pysirfreg.cReg_AffineTransformation_construct_from_TM(src.ctypes.data)
         else:
             raise error('Wrong source in affine transformation constructor')
         check_status(self.handle)
@@ -839,7 +839,7 @@ class AffineTransformation(_Transformation):
         """Overload comparison operator."""
         if not isinstance(other, AffineTransformation):
             raise AssertionError()
-        h = pysirfreg.cReg_SIRFRegAffineTransformation_equal(self.handle, other.handle)
+        h = pysirfreg.cReg_AffineTransformation_equal(self.handle, other.handle)
         check_status(h, inspect.stack()[1])
         value = pyiutil.intDataFromHandle(h)
         pyiutil.deleteDataHandle(h)
@@ -854,7 +854,7 @@ class AffineTransformation(_Transformation):
         if not isinstance(other, AffineTransformation):
             raise AssertionError()
         mat = AffineTransformation()
-        mat.handle = pysirfreg.cReg_SIRFRegAffineTransformation_mul(self.handle, other.handle)
+        mat.handle = pysirfreg.cReg_AffineTransformation_mul(self.handle, other.handle)
         check_status(mat.handle)
         return mat
 
@@ -863,7 +863,7 @@ class AffineTransformation(_Transformation):
         if self.handle is None:
             raise AssertionError()
         mat = AffineTransformation()
-        mat.handle = pysirfreg.cReg_SIRFRegAffineTransformation_deep_copy(self.handle)
+        mat.handle = pysirfreg.cReg_AffineTransformation_deep_copy(self.handle)
         check_status(mat.handle)
         return mat
 
@@ -871,7 +871,7 @@ class AffineTransformation(_Transformation):
         """Save to file."""
         if self.handle is None:
             raise AssertionError()
-        try_calling(pysirfreg.cReg_SIRFRegAffineTransformation_write(self.handle, filename))
+        try_calling(pysirfreg.cReg_AffineTransformation_write(self.handle, filename))
 
     def get_determinant(self):
         """Get determinant."""
@@ -882,13 +882,13 @@ class AffineTransformation(_Transformation):
         if self.handle is None:
             raise AssertionError()
         tm = numpy.ndarray((4, 4), dtype=numpy.float32)
-        try_calling(pysirfreg.cReg_SIRFRegAffineTransformation_as_array(self.handle, tm.ctypes.data))
+        try_calling(pysirfreg.cReg_AffineTransformation_as_array(self.handle, tm.ctypes.data))
         return tm
 
     def get_inverse(self):
         """Get inverse matrix."""
         tm = AffineTransformation()
-        tm.handle = pysirfreg.cReg_SIRFRegAffineTransformation_get_inverse(self.handle)
+        tm.handle = pysirfreg.cReg_AffineTransformation_get_inverse(self.handle)
         check_status(tm.handle)
         return tm
 
@@ -896,5 +896,5 @@ class AffineTransformation(_Transformation):
     def get_identity():
         """Get identity matrix."""
         mat = AffineTransformation()
-        mat.handle = pysirfreg.cReg_SIRFRegAffineTransformation_get_identity()
+        mat.handle = pysirfreg.cReg_AffineTransformation_get_identity()
         return mat

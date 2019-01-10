@@ -112,59 +112,59 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(co
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr) {
 	return cReg_NiftiImageData3DDisplacement_create_from_def(def_ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFReg_process(void* ptr) {
-	return cReg_SIRFReg_process(ptr);
+EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr) {
+	return cReg_Registration_process(ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
-	return cReg_SIRFReg_get_deformation_displacement_image(ptr, transform_type);
+EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type) {
+	return cReg_Registration_get_deformation_displacement_image(ptr, transform_type);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
-	return cReg_SIRFReg_set_parameter(ptr, par, arg1, arg2);
+EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2) {
+	return cReg_Registration_set_parameter(ptr, par, arg1, arg2);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFReg_get_TM(const void* ptr, const char* dir) {
-	return cReg_SIRFReg_get_TM(ptr, dir);
+EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir) {
+	return cReg_NiftyAladin_get_TM(ptr, dir);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type) {
-	return cReg_SIRFRegNiftyResample_add_transformation(self, trans, type);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type) {
+	return cReg_NiftyResample_add_transformation(self, trans, type);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegNiftyResample_process(void* ptr) {
-	return cReg_SIRFRegNiftyResample_process(ptr);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr) {
+	return cReg_NiftyResample_process(ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight) {
-	return cReg_SIRFRegImageWeightedMean_add_image(ptr, obj, weight);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight) {
+	return cReg_ImageWeightedMean_add_image(ptr, obj, weight);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight) {
-	return cReg_SIRFRegImageWeightedMean_add_image_filename(ptr, filename, weight);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight) {
+	return cReg_ImageWeightedMean_add_image_filename(ptr, filename, weight);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_process(void* ptr) {
-	return cReg_SIRFRegImageWeightedMean_process(ptr);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_process(void* ptr) {
+	return cReg_ImageWeightedMean_process(ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref) {
-	return cReg_SIRFRegTransformation_get_as_deformation_field(ptr, name, ref);
+EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref) {
+	return cReg_Transformation_get_as_deformation_field(ptr, name, ref);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM) {
-	return cReg_SIRFRegAffineTransformation_construct_from_TM(ptr_TM);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM) {
+	return cReg_AffineTransformation_construct_from_TM(ptr_TM);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_deep_copy(const void* ptr) {
-	return cReg_SIRFRegAffineTransformation_deep_copy(ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr) {
+	return cReg_AffineTransformation_deep_copy(ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename) {
-	return cReg_SIRFRegAffineTransformation_write(ptr, filename);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, const char* filename) {
+	return cReg_AffineTransformation_write(ptr, filename);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM) {
-	return cReg_SIRFRegAffineTransformation_as_array(ptr, ptr_TM);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM) {
+	return cReg_AffineTransformation_as_array(ptr, ptr_TM);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_get_identity() {
-	return cReg_SIRFRegAffineTransformation_get_identity();
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_identity() {
+	return cReg_AffineTransformation_get_identity();
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_get_inverse(const void* ptr) {
-	return cReg_SIRFRegAffineTransformation_get_inverse(ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* ptr) {
+	return cReg_AffineTransformation_get_inverse(ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
-	return cReg_SIRFRegAffineTransformation_mul(mat1_ptr, mat2_ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr) {
+	return cReg_AffineTransformation_mul(mat1_ptr, mat2_ptr);
 }
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr) {
-	return cReg_SIRFRegAffineTransformation_equal(mat1_ptr, mat2_ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr) {
+	return cReg_AffineTransformation_equal(mat1_ptr, mat2_ptr);
 }
 #ifndef CSIRFREG_FOR_MATLAB
 }

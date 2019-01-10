@@ -63,24 +63,24 @@ EXPORTED_FUNCTION     void* mReg_NiftiImageData3DTensor_flip_component(const voi
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_compose_single_deformation(const void* im, const int num_elements, const char* types, const void* trans1, const void* trans2, const void* trans3, const void* trans4, const void* trans5);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDeformation_create_from_disp(const void* disp_ptr);
 EXPORTED_FUNCTION     void* mReg_NiftiImageData3DDisplacement_create_from_def(const void* def_ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFReg_process(void* ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFReg_get_deformation_displacement_image(const void* ptr, const char *transform_type);
-EXPORTED_FUNCTION     void* mReg_SIRFReg_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
-EXPORTED_FUNCTION     void* mReg_SIRFReg_get_TM(const void* ptr, const char* dir);
-EXPORTED_FUNCTION     void* mReg_SIRFRegNiftyResample_add_transformation(void* self, const void* trans, const char* type);
-EXPORTED_FUNCTION     void* mReg_SIRFRegNiftyResample_process(void* ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
-EXPORTED_FUNCTION     void* mReg_SIRFRegImageWeightedMean_process(void* ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFRegTransformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_deep_copy(const void* ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_write(const void* ptr, const char* filename);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_get_identity();
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_get_inverse(const void* ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
-EXPORTED_FUNCTION     void* mReg_SIRFRegAffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
+EXPORTED_FUNCTION     void* mReg_Registration_process(void* ptr);
+EXPORTED_FUNCTION     void* mReg_Registration_get_deformation_displacement_image(const void* ptr, const char *transform_type);
+EXPORTED_FUNCTION     void* mReg_Registration_set_parameter(const void* ptr, const char* par, const char* arg1, const char* arg2);
+EXPORTED_FUNCTION     void* mReg_NiftyAladin_get_TM(const void* ptr, const char* dir);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_add_transformation(void* self, const void* trans, const char* type);
+EXPORTED_FUNCTION     void* mReg_NiftyResample_process(void* ptr);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image(void* ptr, const void* obj, const float weight);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_add_image_filename(void* ptr, const char* filename, const float weight);
+EXPORTED_FUNCTION     void* mReg_ImageWeightedMean_process(void* ptr);
+EXPORTED_FUNCTION     void* mReg_Transformation_get_as_deformation_field(const void* ptr, const char* name, const void* ref);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_construct_from_TM(PTR_FLOAT ptr_TM);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_deep_copy(const void* ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_write(const void* ptr, const char* filename);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_as_array(const void* ptr, PTR_FLOAT ptr_TM);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_identity();
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_get_inverse(const void* ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_mul(const void* mat1_ptr, const void* mat2_ptr);
+EXPORTED_FUNCTION     void* mReg_AffineTransformation_equal(const void* mat1_ptr, const void* mat2_ptr);
 #ifndef CSIRFREG_FOR_MATLAB
 }
 #endif

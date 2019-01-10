@@ -32,31 +32,31 @@ namespace sirf {
     void* cReg_NiftiImageDataParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
-    // SIRFReg
+    // Registration
     // ---------------------------------------------------------------------------- //
-    void* cReg_setSIRFRegParameter(void* hp, const char* name, const void* hv);
-    void* cReg_SIRFRegParameter(const DataHandle* handle, const char* name);
+    void* cReg_setRegistrationParameter(void* hp, const char* name, const void* hv);
+    void* cReg_RegistrationParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegNiftyF3dSym
     // ---------------------------------------------------------------------------- //
-    void* cReg_setSIRFRegNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
+    void* cReg_setNiftyF3dSymParameter(void* hp, const char* name, const void* hv);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegNiftyResample
     // ---------------------------------------------------------------------------- //
-    void* cReg_setSIRFRegNiftyResampleParameter(void* hp, const char* name, const void* hv);
-    void* cReg_SIRFRegNiftyResampleParameter(const DataHandle* handle, const char* name);
+    void* cReg_setNiftyResampleParameter(void* hp, const char* name, const void* hv);
+    void* cReg_NiftyResampleParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // SIRFRegImageWeightedMean
     // ---------------------------------------------------------------------------- //
-    void* cReg_SIRFRegImageWeightedMeanParameter(const DataHandle* handle, const char* name);
+    void* cReg_ImageWeightedMeanParameter(const DataHandle* handle, const char* name);
 
     // ---------------------------------------------------------------------------- //
     // AffineTransformation
     // ---------------------------------------------------------------------------- //
-    void* cReg_SIRFRegAffineTransformationParameter(const DataHandle* handle, const char* name);
+    void* cReg_AffineTransformationParameter(const DataHandle* handle, const char* name);
 }
 
 #endif
