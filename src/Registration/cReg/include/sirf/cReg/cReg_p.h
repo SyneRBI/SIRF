@@ -19,8 +19,7 @@ limitations under the License.
 
 */
 
-#ifndef SIRFREG_PARAMETERS_HANDLERS
-#define SIRFREG_PARAMETERS_HANDLERS
+#pragma once
 
 #include "sirf/iUtilities/DataHandle.h"
 
@@ -58,5 +57,3 @@ namespace sirf {
     // ---------------------------------------------------------------------------- //
     void* cReg_AffineTransformationParameter(const DataHandle* handle, const char* name);
 }
-
-#endif
