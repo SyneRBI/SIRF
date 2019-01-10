@@ -31,8 +31,8 @@ endif()
 # ------------------------------------------------------------------------
 # Add c++, python, matlab components (if desired)
 # ------------------------------------------------------------------------
-SET(cSIRFREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
-INCLUDE_DIRECTORIES(${cSIRFREG_INCLUDE_DIR})
+SET(cREG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cReg")
+INCLUDE_DIRECTORIES(${cREG_INCLUDE_DIR})
 ADD_SUBDIRECTORY(cReg)
 ADD_SUBDIRECTORY(pReg)
 ADD_SUBDIRECTORY(mReg)
